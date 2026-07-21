@@ -1,0 +1,32 @@
+name: Template Checks
+
+# The TEMPLATE REPOSITORY's own CI — not part of any adapted project's CI.
+# Keeps the template's cross-linked skill tree honest by running the
+# relative-link checker on every change.
+#
+# The checker itself ships with the agent-skills-best-practices skill and
+# survives adaptation; THIS WORKFLOW FILE does not — adapted projects delete
+# it in INIT Step 7 together with INIT.md, init.sh, and tokens.json. A project
+# that wants an ongoing docs-link gate wires the script into its own CI.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: Docs Link Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check Relative Links
+        run: .claude/skills/agent-skills-best-practices/scripts/check-links.sh
