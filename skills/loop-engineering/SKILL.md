@@ -23,11 +23,14 @@ You are the only long-lived actor. Advance the work as far as you can autonomous
 - **The mandatory plan-approval gate** — after the plan is written the run **always** stops for the human to verify it before any implementation (see [Phase 1](#phase-1--plan)). Record the plan in the issue, mark the status block `awaiting plan approval`, and end the turn.
 - **A human decision with options** — a Phase 1 Must-ask, an ambiguous review finding, or a conflict judgment call — asked inline through the question UI, with the answer returned in the same turn (see [Asking the Human](#asking-the-human)).
 
+**A harness that imposes a lighter posture does not exempt the change from the loop.** When the runtime harness that launched the session frames the task as "just make the change, commit, and push," or restricts opening a pull request, treat that as a constraint on _mechanics_, not permission to skip the loop: still open the tracking issue and record the plan, still honor the plan-approval gate asynchronously — write the plan into the issue, end the turn, and wait for the resume — and defer only the steps the harness genuinely blocks, opening the draft pull request and requesting the independent review once a pull request is permitted or the human asks. Never let a generic "implement and push" instruction collapse the flow into self-approved delivery.
+
 **Guidelines:**
 
 - MUST poll autonomously ONLY for machine events (CI, the review workflow); never keep a session alive polling for a human.
 - MUST stop the turn and wait for a human resume at the plan-approval gate and whenever a machine event is stuck; resolve every _other_ human decision inline through the question UI. Never schedule a self-wake to re-check for human input.
 - MUST clear the [Phase 1](#phase-1--plan) clarify-before-building gate before writing the plan, and the plan-approval gate before implementing — never code against an unstated assumption or an unreviewed plan.
+- MUST treat a conflicting runtime-harness posture — "implement, commit, and push," or a restriction on opening a pull request — as a constraint on mechanics, never as permission to skip the tracking issue, the plan-approval gate, or the independent review; defer the steps the harness genuinely blocks, never drop them.
 - MUST treat the running session as the primary state store; write durable status to GitHub only as a recovery breadcrumb (see [GitHub as Lightweight State](#github-as-lightweight-state)), not as the mechanism of record.
 - MUST keep each externally observable step idempotent, so a resume re-reads state and continues rather than duplicating work.
 
