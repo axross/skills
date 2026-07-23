@@ -113,7 +113,8 @@ under [`skills/`](./skills) — the source of truth for skills copied into
 `.claude/skills/` with the
 [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`).
 It currently holds the framework-agnostic
-[`e2e-testing-guidelines`](./skills/e2e-testing-guidelines/SKILL.md) skill; the
+[`e2e-testing-guidelines`](./skills/e2e-testing-guidelines/SKILL.md) skill and
+the [`loop-engineering`](./skills/loop-engineering/SKILL.md) skill; the
 [`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
 documents the install, lockfile, and refresh-and-verify workflow.
 
