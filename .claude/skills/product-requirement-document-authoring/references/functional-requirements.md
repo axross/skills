@@ -4,11 +4,13 @@ Apply this reference when drafting or reviewing the **Functional requirements** 
 
 ## When to Include the Section
 
-Functional requirements exist to pin down user-observable behavior, so the section applies exactly when the work changes or adds such behavior. Behavior-preserving work — refactors, config changes intended to be invisible, mechanical migrations — has nothing new to require, and padding the section with restatements of unchanged behavior buries the spec's real content.
+Functional requirements exist to pin down user-observable behavior, so the section applies whenever the work changes or adds such behavior. It is also the **container** for the nested UI design and System design subsections, so it stays present whenever it must host one of them — even for behavior-preserving work whose intricate mechanics warrant a System design subsection. Only a change that alters no observable behavior _and_ warrants neither subsection — a refactor with a self-evident diff, a config move, a dependency bump — omits the section; padding it with restatements of unchanged behavior buries the spec's real content.
 
 **Guidelines:**
 
-- MUST include the section when the work changes or adds user-observable behavior; MUST omit it with a one-line stated reason when public behavior is unchanged by design (e.g., "omitted: refactor, public behavior unchanged").
+- MUST include the section when the work changes or adds user-observable behavior, **or** when it warrants a nested UI design or System design subsection, so a warranted subsection always has its container.
+- MUST omit the section — with a one-line stated reason — only when the change has no observable behavior delta **and** warrants neither subsection (e.g., "omitted: refactor, public behavior unchanged, no design subsection warranted").
+- MUST, when the section is present only to host a subsection (no user-observable behavior change — e.g. a mechanics-only refactor that triggers a System design subsection per [system-design-framing.md](./system-design-framing.md)), state that absence in one line rather than inventing behavior to describe.
 - MUST NOT restate existing unchanged behavior as requirements; state only what this work makes true.
 
 ## What Should Be, Not What To Do
