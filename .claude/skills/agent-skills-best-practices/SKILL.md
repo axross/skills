@@ -11,6 +11,11 @@ Apply this skill whenever creating, refining, splitting, consolidating, renaming
 
 This skill governs authoring discipline for skills written in the agentskills.io format. For the host project's active skill inventory and topic-to-skill routing, defer to the project's master skill index and the directory listing under the skill root.
 
+**Guidelines:**
+
+- SHOULD propose or implement a skill update when any task exposes a reusable convention, outdated guidance, a recurring review issue, or a missing project rule — skill maintenance happens when work reveals durable learning, not after every narrow fix.
+- SHOULD skip skill maintenance when the work produced no generalizable learning, and state that it was skipped.
+
 ## Scoping and MECE
 
 See [scoping-and-mece.md](./references/scoping-and-mece.md) for:

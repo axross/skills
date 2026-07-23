@@ -9,6 +9,7 @@ Unrequested changes enlarge the review surface and the blast radius of a task, m
 **Guidelines:**
 
 - MUST only make changes that are necessary to fulfil the stated task. A task boundary is the single user-facing goal described in the request.
+- MUST preserve existing behavior and routing during refactors unless the requested change intentionally modifies them.
 - SHOULD flag opportunities for improvement — technical debt, naming issues, missing tests — as a written note to the user rather than making unsolicited changes.
 
 ## Make Incremental Changes
