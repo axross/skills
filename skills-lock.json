@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "code-review": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "697dd7c5ca13ccfbe0fd38697f468c6bc9f4529336b107d31d8b36fe356f25cd"
+    }
+  }
+}
