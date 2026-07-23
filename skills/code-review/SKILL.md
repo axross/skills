@@ -14,19 +14,9 @@ A review has one job — decide whether a change is safe to merge and say why, w
 
 **Review target.** When invoked as `/code-review`, resolve `$ARGUMENTS` first: a pull-request reference, a branch name, or a commit range is the change to review; an empty value reviews the working tree against the base branch. Establish the diff for that target before reading anything else (see [scoping.md](./references/scoping.md)). When loaded automatically mid-task, the target is the change already under review.
 
-## Core Review Loop
+## The Review Loop
 
-A review is only trustworthy when the reviewer inspects the actual change as if someone else wrote it, rather than re-affirming the reasoning that produced it. This matters most for self-review, where the author and reviewer are the same agent: without a deliberate reset, self-review just re-runs the implementation's own justifications.
-
-**Guidelines:**
-
-- MUST stop editing before reviewing; a review phase produces a report, not a patch.
-- MUST reread the original request and the change's acceptance criteria before inspecting any code.
-- MUST run `git status` and inspect the relevant `git diff` before opening surrounding files, so the change's true scope is established from the diff, not from memory.
-- MUST judge only the diff and its observable behavior, not the author's stated intent.
-- MUST treat prior implementation reasoning as unverified until the diff and verification evidence support it.
-- MUST fix Critical or Major findings in a later implementation phase, then perform a second-pass re-review of the new diff.
-- MUST report verification evidence, or explicitly named skipped checks and residual risk, before calling a change reviewed.
+Every review runs the same loop: reset into reviewer mode, scope the change from its diff, assess that diff through the review lenses, classify each finding by severity, report with evidence, and escalate anything too risky to self-approve. The reset is what makes the rest trustworthy — the reviewer inspects what the code _does_, as if someone else wrote it, instead of re-affirming the reasoning that produced it; this matters most in self-review, where the author and reviewer are the same agent. Do not read any code before the reset — it is the first normative step, owned by [scoping.md](./references/scoping.md). The sections below route to the reference that owns each step, ordered as a review applies them.
 
 ## Review Scoping
 

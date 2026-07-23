@@ -12,6 +12,7 @@ For self-review, the same agent that wrote the change must deliberately switch r
 - MUST reread the original request and the acceptance criteria before inspecting implementation details.
 - MUST run `git status` and inspect the relevant `git diff` before opening changed files.
 - MUST treat prior implementation reasoning as unverified until the diff and verification evidence support it.
+- MUST judge only the diff and its observable behavior, not the author's stated intent.
 - MUST perform a second-pass re-review after fixing any Critical or Major finding, because the fix is itself new, unreviewed code.
 
 ## Default Scope

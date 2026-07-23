@@ -46,11 +46,11 @@ Some defect classes have a fixed minimum severity regardless of how small the di
 
 ## Verdict Mapping
 
-The reviewer emits exactly one verdict in the report Summary, derived from the severity counts so the outcome is reproducible rather than a matter of mood.
+The reviewer emits exactly one verdict in the report Summary, derived from the severity counts so the outcome is reproducible rather than a matter of mood. The three cases partition every combination — no diff falls through, and none matches two:
 
 - **Request Changes** — at least one Critical finding, OR more than two Major findings.
-- **Approve with Nits** — zero Critical, at most two Major, and at least one Minor or Nit.
-- **Approve** — zero Critical, zero Major, zero Minor, and at most a few Nits.
+- **Approve with Nits** — zero Critical and at most two Major, with at least one finding of any severity still open. A Major in this range does not hard-block the merge, but it still needs to be addressed or deliberately deferred with a stated reason.
+- **Approve** — no findings of any severity remain.
 
 **Guidelines:**
 

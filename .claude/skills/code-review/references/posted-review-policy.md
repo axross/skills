@@ -8,7 +8,7 @@ The internal review (the four-tier report in evidence-and-reporting.md) is the r
 
 **Guidelines:**
 
-- MUST keep using the internal Critical/Major/Minor/Nit triage and the Approve / Request Changes verdict to _decide_ what to report; they never appear in posted output.
+- MUST keep using the internal Critical/Major/Minor/Nit triage and the Approve / Approve with Nits / Request Changes verdict to _decide_ what to report; they never appear in posted output.
 - MUST switch to the posted shape below whenever the review is written to a pull-request thread rather than returned as a self-review report.
 - SHOULD adopt any repository-provided posted-review policy on top of these defaults, and let that policy win where it is stricter or more specific.
 
