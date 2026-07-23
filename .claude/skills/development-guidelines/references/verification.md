@@ -26,5 +26,5 @@ Manual verification is the first line of confirmation.
 
 **Guidelines:**
 
-- MUST start the development server (`npm run check`) and navigate to the affected route/view after every change that touches an output surface.
+- MUST exercise the affected output surface after every change that touches one — in this library, review the rendered Markdown of the changed files; there is no development server, and `npm run check` is the format/lint/link verification gate, not an app.
 - MUST verify the not-found / error state renders when the change affects routing or error handling (e.g., navigate to a non-existent record).
