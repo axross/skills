@@ -1,6 +1,6 @@
 ---
 name: maintainable-code-guidelines
-description: The reviewer's maintainability lens on changed code, on top of the project's development, structure, and any project-defined component/routing rules. Covers naming and file organization, route-local vs shared abstraction boundaries, complexity/readability limits, magic-number and dead-code discipline, scope control, and SOLID/DRY/KISS/YAGNI judgment across the project's modules and data/content layer.
+description: The reviewer's maintainability lens on changed code, on top of the project's development, structure, and any project-defined component/routing rules. Covers naming and file organization, route-local vs shared abstraction boundaries, complexity/readability limits, magic-number and dead-code discipline, scope control, and SOLID/DRY/KISS/YAGNI judgment across the project's modules.
 when_to_use: Use when reviewing maintainability or design of changed code — "readable", "too long", "refactor", "abstraction", or "should this live elsewhere".
 user-invocable: false
 ---
@@ -30,11 +30,11 @@ See [abstraction-boundaries.md](./references/abstraction-boundaries.md) for:
 
 See [complexity-and-readability.md](./references/complexity-and-readability.md) for:
 
-- The project's configured `{{LINTER}}` complexity/length thresholds are not silently bypassed
-- Magic numbers and strings have a named constant or design token, with `{{LINTER}}`'s inline suppression directive (and a justifying comment) only when justified
+- The project's configured `markdownlint-cli2` complexity/length thresholds are not silently bypassed
+- Magic numbers and strings have a named constant or design token, with `markdownlint-cli2`'s inline suppression directive (and a justifying comment) only when justified
 - Dead code (unused imports, unreachable branches, commented-out blocks) is removed
 - Missing doc-comments on changed public types/functions, restating comments, and comment-voice violations (rules owned by development-guidelines › code-quality)
-- Inline `{{PRIMARY_LANGUAGE}}` types are extracted into named aliases when reused
+- Inline `Markdown (with occasional JavaScript for scripting)` types are extracted into named aliases when reused
 
 ## Scope Discipline
 

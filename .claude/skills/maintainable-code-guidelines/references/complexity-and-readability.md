@@ -4,7 +4,7 @@ Apply these rules to verify that changed code is straightforward to read and wit
 
 ## Lint Complexity Thresholds
 
-The project enforces complexity/length/typing thresholds in its `{{LINTER}}` configuration; use the table as the reviewer's severity map. The numbers below are illustrative example values — read the project's actual configured thresholds.
+The project enforces complexity/length/typing thresholds in its `markdownlint-cli2` configuration; use the table as the reviewer's severity map. The numbers below are illustrative example values — read the project's actual configured thresholds.
 
 | Concern                      | Example project setting | Flag when                                                                                                                                                     |
 | ---------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -15,7 +15,7 @@ The project enforces complexity/length/typing thresholds in its `{{LINTER}}` con
 
 **Guidelines:**
 
-- MUST flag changed functions that breach the project's configured `{{LINTER}}` complexity/length thresholds — these MUST NOT be silently bypassed.
+- MUST flag changed functions that breach the project's configured `markdownlint-cli2` complexity/length thresholds — these MUST NOT be silently bypassed.
 - MUST use the severity shown in the table when a threshold maps to a project-specific review finding.
 
 ## Magic Values
@@ -24,7 +24,7 @@ A bare literal forces every later reader to reverse-engineer what it means, and 
 
 **Guidelines:**
 
-- MUST flag a magic number / string that is not paired with either a design token, a named constant, or `{{LINTER}}`'s inline suppression directive (with a justification comment) that explains the meaning.
+- MUST flag a magic number / string that is not paired with either a design token, a named constant, or `markdownlint-cli2`'s inline suppression directive (with a justification comment) that explains the meaning.
 - MUST NOT flag values expressed via the project's approved named tokens (e.g., a caching-duration helper that takes `"hours"` / `"days"`).
 - SHOULD flag a hard-coded URL or origin (e.g., `"https://example.com"`, `"http://localhost:3000"`) that should come from a single configured origin/runtime-config source.
 
@@ -37,7 +37,7 @@ Commented-out code cannot be tested or type-checked and only rots, and version c
 - MUST flag commented-out code blocks introduced by the change. Remove or restore them — do not leave them as TODO breadcrumbs.
 - MUST flag an unused import in a changed file (the linter will too, but call it out so it does not slip through).
 - MUST flag an exported symbol from a changed module that has zero callers in the diff or in the existing codebase. Either remove the export or add the caller in the same change.
-- SHOULD flag an empty `try`/`catch` (e.g., `catch { /* swallow */ }`) — see the project's observability guidelines (error-handling rules) for the rethrow rule.
+- SHOULD flag an empty `try`/`catch` (e.g., `catch { /* swallow */ }`) — errors are rethrown or reported, never swallowed.
 
 ## Comments and Doc-Comments
 

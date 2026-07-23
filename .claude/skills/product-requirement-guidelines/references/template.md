@@ -103,7 +103,7 @@ architecture-overview-framing.md → Constraints and Non-Functional Requirements
 ## Verification strategy
 
 <How the acceptance criteria will be established: the automated gates the changed
-surface triggers (format/lint, unit, e2e, build), the focused manual checks, and
+surface triggers (format/lint, the relative-link integrity check), the focused manual checks, and
 where new test coverage is added.>
 _(verification-strategy.md.)_
 

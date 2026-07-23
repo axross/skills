@@ -1,143 +1,133 @@
-# Claude Loop Engineering Template
+# skills
 
-A reusable, **framework-agnostic** starting point for giving **Claude Code** a
-structured working agreement and a library of skills.
+A curated, reusable library of Claude Code agent skills.
 
-It is extracted from a production setup and stripped of stack-specific detail,
-leaving a generic core you adapt to any project — web, mobile, CLI, library, or
-service. The system is built for Claude Code: the skill core, the `/address`
-and `/handoff` skills, and the example GitHub Actions all target
-it, with the working agreement kept in `AGENTS.md` and loaded through
-`CLAUDE.md`.
+`skills` collects the working agreement and skills that give
+[Claude Code](https://claude.com/claude-code) a structured way to work: a master
+routing index in [`AGENTS.md`](./AGENTS.md) (loaded through `CLAUDE.md`), a set
+of guideline skills under [`.claude/skills/`](./.claude/skills), and the fixed
+`/address` and `/handoff` delivery workflows. It is Markdown-first — the skills
+_are_ the deliverable — with a little JavaScript tooling to keep the docs
+formatted, linted, and link-checked.
 
-## What's inside
+## Tech stack
 
-```
-.
-├── INIT.md                  # how to adapt this template (start here)
-├── init.sh                  # metacharacter-safe {{TOKEN}} substitution + gates
-├── tokens.json              # machine-readable manifest of every {{TOKEN}}
-├── README.template.md       # seed for the initialized project's README (finalized in INIT Step 7)
-├── package.json             # npm scripts: format / lint / links / check (Prettier + markdownlint)
-├── package-lock.json        # pinned Markdown toolchain (Prettier + markdownlint-cli2)
-├── .prettierrc.json         # Prettier config (proseWrap: preserve)
-├── .prettierignore          # keeps node_modules out of Prettier
-├── .markdownlint-cli2.jsonc # markdownlint rules tuned for long-form skill prose
-├── .gitignore               # ignores node_modules + settings.local.json + .env.local
-├── AGENTS.md                # master routing index + working agreement
-├── CLAUDE.md                # @AGENTS.md — Claude Code's binding to AGENTS.md
-├── REVIEW.md                # fixed: posted-review policy for the independent-review channel (configured, never removed)
-├── skills/                  # source of truth for skills installed via `npx skills` (ships empty)
-├── .github/
-│   └── workflows/           # fixed: CI reviewer + merge checks (GitHub Actions + Claude Code);
-│                            # plus template-checks.yaml, this repo's own Markdown-QA CI (deleted during INIT)
-└── .claude/
-    ├── skills/              # skill core (13 guideline skills) + fixed /address + /handoff entry points
-    │   ├── address/         # fixed: /address delivery entry point (Claude Code)
-    │   ├── agent-skills-best-practices/  # ships scripts/check-links.sh (relative-link integrity)
-    │   ├── application-security-requirements/
-    │   ├── code-review-guideline/
-    │   ├── development-guidelines/
-    │   ├── e2e-testing-guidelines/
-    │   ├── github-operation-guidelines/
-    │   ├── handoff/         # fixed: /handoff session-suspend entry point (rides with /address)
-    │   ├── maintainable-code-guidelines/
-    │   ├── observability-guidelines/
-    │   ├── performance-and-reliability-requirements/
-    │   ├── product-requirement-guidelines/
-    │   ├── quality-assurance-guidelines/
-    │   ├── skill-installation/  # installs skills/ sources into .claude/skills/ (npx skills)
-    │   └── unit-test-guidelines/
-    ├── hooks/               # session-start (always on), format + check (opt-in)
-    ├── settings.json        # wires the SessionStart hook + default effort level (always on)
-    └── settings.local-example.json  # opt-in: copied to settings.local.json (by session-start) to wire format + check
-```
-
-The skill core covers cross-project workflow: how to author and install skills,
-frame product requirements, develop and review changes, test (unit + e2e),
-operate GitHub, and review for maintainability, security,
-performance/reliability, observability, and QA evidence. Project-specific skills
-(structure, components, routing, UI, domain) are intentionally **not** shipped —
-you add them during adaptation.
-
-Skills come in two forms. The guideline and workflow skills above are committed
-directly under `.claude/skills/`. A second, **installable** form lives under
-`skills/` (the source of truth) and is copied into `.claude/skills/` with the
-[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`);
-`skills/` ships empty, and the
-[`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
-documents the install, lockfile, and refresh-and-verify workflow. Because the
-skills are Markdown, the template maintains its own tree with an npm toolchain —
-`npm run check` runs Prettier's format check, markdownlint, and the relative-link
-checker.
-
-A fixed **independent-review channel** ships alongside the core: `REVIEW.md`
-(the posted-review policy), the `/address` entry-point skill in `.claude/skills/`,
-and the `.github/workflows/`. INIT configures and adapts it — it is never
-removed (a project that wants no automated loop leaves it dormant); INIT Step 4
-covers the configuration. Its CI reviewer needs a one-time secret setup before
-it runs — see [Getting started](#getting-started).
-A **`/handoff`** skill also
-ships in `.claude/skills/`: it suspends in-progress work into a downloadable
-handoff package (a `handoff-<unix epoch>.md` plus an optional zip of supporting
-files) that a fresh session takes over with `/address continue` — so it rides
-along with the `/address` entry point rather than standing alone.
-
-## How it works
-
-- **`AGENTS.md`** is the source of truth: a skill index plus a working
-  agreement (plan → implement → self-review → verify → report).
-- **`.claude/skills/**`** hold the detailed, progressively-disclosed rules each
-  index entry routes to.
-- **`CLAUDE.md`** plus **`.claude/`** bind Claude Code to `AGENTS.md`, loading
-  the working agreement and skills into every session.
-- **`package.json`** wires the Markdown toolchain: run `npm install` once, then
-  `npm run check` (Prettier format check + markdownlint + relative-link check)
-  to keep the skill tree formatted and its cross-links honest.
+| Area            | Tool                                                                |
+| --------------- | ------------------------------------------------------------------- |
+| Language        | Markdown (with occasional JavaScript for scripting)                 |
+| Runtime         | Claude Code                                                         |
+| Package manager | npm                                                                 |
+| Formatting      | Prettier                                                            |
+| Linting         | markdownlint-cli2                                                   |
+| Link integrity  | `.claude/skills/agent-skills-best-practices/scripts/check-links.sh` |
 
 ## Getting started
 
-This repository is a GitHub **template repository**, so you start from a copy of
-it rather than cloning it.
+1. Install dependencies: `npm install`
+2. Run the checks: `npm run check` (format check + lint + relative-link check)
 
-1. Get the template into your repository:
-   - **New repository** — on GitHub, click **Use this template → Create a new
-     repository**. Your repository starts as a copy of this one, so the files
-     below — including this `README.md` — are already in place; there is nothing
-     to copy by hand. Skip to step 2.
-   - **Existing repository** — copy the template's files into it: the
-     adaptation tooling (`INIT.md`, `init.sh`, `tokens.json`), the README seed
-     (`README.template.md`), the Markdown toolchain (`package.json`,
-     `package-lock.json`, `.prettierrc.json`, `.prettierignore`,
-     `.markdownlint-cli2.jsonc`), the working agreement, skills, and ignore
-     rules (`AGENTS.md`, `CLAUDE.md`, `.claude/`, `skills/`, `.gitignore`), and
-     the fixed `.github/` and `REVIEW.md`.
-2. Open **[INIT.md](./INIT.md)** and follow it — or hand the repo to Claude Code
-   and ask it to "run INIT". INIT reconciles any files a scaffold already
-   generated (e.g. an existing `AGENTS.md`), interviews you about the project
-   kind, frameworks, architecture (directory structure, business-logic
-   structure, state management, database layer, styling, theming), and goal,
-   then fills the `{{TOKENS}}` via `./init.sh`. The `/address` + `/handoff`
-   commands and the independent-review loop (`REVIEW.md`, the workflows,
-   `github-operation-guidelines`) are **fixed** — INIT never asks whether to keep
-   them. For each _other_ optional capability — unit tests, e2e, observability —
-   it asks whether to **add** it (and with which tool) or skip it, rather than
-   assuming it should be deleted, and it adds project-specific skills.
-3. When adaptation is complete, INIT finalizes `README.template.md` into your
-   project's `README.md` — a README covering the project summary, tech stack,
-   getting started, the development workflow (`/address`), testing strategy and
-   commands, and related links — replacing this template README, and deletes
-   `INIT.md`.
-4. **Enable the CI reviewer.** The fixed independent-review channel's GitHub
-   Actions reviewer
-   ([`claude-review.yaml`](./.github/workflows/claude-review.yaml)) needs a
-   one-time operator setup before it runs: install the
-   [Claude GitHub App](https://github.com/apps/claude) and add a
-   `CLAUDE_CODE_OAUTH_TOKEN` repository secret — generate it locally with
-   `claude setup-token` — under **Settings → Secrets and variables → Actions**,
-   or set an `ANTHROPIC_API_KEY` secret instead for pay-as-you-go API billing.
-   Until both are in place the workflow no-ops. The workflow file's header
-   comment documents the exact steps.
+There is no dev server — authoring a skill means editing Markdown under
+`.claude/skills/` and running `npm run check`. In a Claude Code cloud session,
+[`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) provisions
+the toolchain and installs dependencies automatically; the opt-in
+format-on-edit and check-before-stop hooks are materialized from
+[`.claude/settings.local-example.json`](./.claude/settings.local-example.json).
 
-Placeholders use the `{{TOKEN}}` convention so they are easy to find and replace;
-the full token list lives in [INIT.md](./INIT.md).
+## Development workflow
+
+Development in this repository is agent-assisted via
+[Claude Code](https://claude.com/claude-code). The working agreement lives in
+[`AGENTS.md`](./AGENTS.md) (loaded through `CLAUDE.md`) and routes to the
+detailed skills under [`.claude/skills/`](./.claude/skills). Human and agent
+contributors follow the same loop: plan → implement → self-review → verify →
+report.
+
+### `/address` — deliver a unit of work end-to-end
+
+[`/address`](./.claude/skills/address/SKILL.md) is the main delivery entry point.
+It takes one unit of work — a GitHub issue, a pull request, or a free-form
+prompt — from intake to a merge-ready pull request in a single continuing
+session:
+
+1. **Plan** — reads the issue and its thread, asks you the scope questions the
+   spec leaves open, and rewrites the issue body into a reviewable plan with
+   acceptance criteria. It then **always pauses for your approval**: nothing
+   gets built until you review the plan and send `/address continue`.
+2. **Code + verify** — implements the approved plan on an agent-namespaced
+   `claude/` branch, runs the checks the change requires, and self-reviews the
+   diff.
+3. **Independent review** — opens a draft pull request and requests the CI
+   reviewer, a separate bot session, so the change's author never certifies its
+   own work.
+4. **Address** — fixes review findings and CI failures, tying each resolved
+   thread to the resolving commit, for up to eight rounds.
+5. **Ready** — flips the pull request to ready once CI is green and the review
+   is clean. Merging always stays a human decision.
+
+Practical examples:
+
+```text
+/address https://github.com/axross/skills/issues/42   # deliver issue #42
+/address 57                                                  # resume open PR #57
+/address Add a skill for writing changelog entries           # no issue yet: files a
+                                                             #   tracking issue, then
+                                                             #   delivers it
+/address continue                                            # approve a paused plan,
+                                                             #   resume after a
+                                                             #   question, or take over
+                                                             #   a /handoff package
+```
+
+### `@claude review` — get findings on any PR
+
+Comment **`@claude review`** on a pull request to run this repository's review
+policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line`
+evidence and concrete fixes, posted as inline comments by the CI reviewer
+([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
+pre-merge check on a hand-written change or a second opinion before merging; the
+same review runs automatically against `/address` pull requests.
+
+The reviewer is inert until a one-time operator setup is done: install the
+[Claude GitHub App](https://github.com/apps/claude) and add a
+`CLAUDE_CODE_OAUTH_TOKEN` repository secret (generate it with
+`claude setup-token`), or set an `ANTHROPIC_API_KEY` secret for pay-as-you-go
+billing. See the header of
+[`claude-review.yaml`](./.github/workflows/claude-review.yaml) for details.
+
+### `/handoff` — suspend work for another session
+
+[`/handoff`](./.claude/skills/handoff/SKILL.md) packages in-progress work — goal,
+current state, remaining to-dos, uncommitted changes — into a downloadable
+`handoff-<epoch>.md` (plus an optional zip of supporting files). Use it when a
+session is running low on context, or to park work for later; a fresh session
+takes the package over with `/address continue`.
+
+Changes made without an agent follow the same bar: branch, implement, run the
+checks below, open a pull request, and get it reviewed before merge.
+
+## Installable skills
+
+Most skills are committed directly under
+[`.claude/skills/`](./.claude/skills). A second, **installable** form lives
+under [`skills/`](./skills) — the source of truth for skills copied into
+`.claude/skills/` with the
+[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`).
+It ships empty; the
+[`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
+documents the install, lockfile, and refresh-and-verify workflow.
+
+## Testing
+
+There is no test suite — the deliverable is documentation. Verification is a
+format check, a Markdown lint, and a relative-link integrity check; all three
+gate a merge via [`merge-checks.yaml`](./.github/workflows/merge-checks.yaml).
+
+| Check          | Command                                               |
+| -------------- | ----------------------------------------------------- |
+| Format         | `npm run format` (check-only: `npm run format:check`) |
+| Lint           | `npm run lint`                                        |
+| Link integrity | `npm run links`                                       |
+| All three      | `npm run check`                                       |
+
+Run format + lint after every change, and the link check whenever links or file
+paths move — see the Verification section of [`AGENTS.md`](./AGENTS.md).

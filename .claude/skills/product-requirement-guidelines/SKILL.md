@@ -23,8 +23,8 @@ Every plan follows this seven-section order. **Required** sections are always pr
 
 This skill deliberately does not own everything a plan contains. It owns the structure, problem framing, scope boundaries, acceptance-criteria craft, verification-strategy framing, and the spec-level framing of the UI design and system-design sections. It does not own the implementation mechanics behind them:
 
-- UI component structure, CSS, and markup mechanics — the project's own UI/component skill (created during INIT). This skill owns only how to _describe_ hierarchy, states, accessibility, and responsive intent in the plan (see below).
-- Actual data flow implementation, routes, and module placement — the project's own structure skill (created during INIT). This skill owns only how to _describe_ system-design decisions in the plan (see below).
+- UI component structure, CSS, and markup mechanics — the project's own UI/component skill (if defined). This skill owns only how to _describe_ hierarchy, states, accessibility, and responsive intent in the plan (see below).
+- Actual data flow implementation, routes, and module placement — the project's own structure skill (if defined). This skill owns only how to _describe_ system-design decisions in the plan (see below).
 - Test coverage design — the project's end-to-end testing and unit-test guidelines. This skill owns only how to _frame_ the verification strategy that names them (see below).
 
 ## Problem Framing and Scope
@@ -80,7 +80,7 @@ See [acceptance-criteria.md](./references/acceptance-criteria.md) for:
 See [verification-strategy.md](./references/verification-strategy.md) for:
 
 - distinguishing the **Verification strategy** method from the acceptance-criteria outcomes it establishes
-- naming the automated gates the changed surface requires (format/lint, unit, e2e, build)
+- naming the automated gates the changed surface requires (format/lint, the relative-link integrity check)
 - deferring test-coverage design to the project's end-to-end testing and unit-test guidelines
 - naming focused manual checks and committing to recorded verification evidence
 

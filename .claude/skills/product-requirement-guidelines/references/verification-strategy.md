@@ -14,11 +14,11 @@ The two sections are complementary, not duplicates. An acceptance criterion is a
 
 ## Name the Gates the Change Requires
 
-Verification is scoped to the changed surface: a docs edit needs link and format checks, while a route, data-layer, or runtime change needs stronger evidence. The project's own verification rules fix which gate applies to which surface; this section names the subset the change triggers rather than reasserting the whole policy.
+Verification is scoped to the changed surface: a docs edit needs relative-link and format/lint checks, while a change to the harness binding, hooks, or CI needs stronger evidence. The project's own verification rules fix which gate applies to which surface; this section names the subset the change triggers rather than reasserting the whole policy.
 
 **Guidelines:**
 
-- MUST name the automated gates the changed surface requires — format/lint always; the unit suite when the change affects code it covers; the end-to-end suite when a user-facing surface changes; the build when routes, metadata, data-layer or runtime config, dependencies, or public type signatures change — per [AGENTS.md › Verification](../../../../AGENTS.md#verification).
+- MUST name the automated gates the changed surface requires — format/lint always, and the relative-link integrity check when links, file paths, or skill locations change — per [AGENTS.md › Verification](../../../../AGENTS.md#verification).
 - MUST defer the _design_ of new test coverage to the testing skills — the project's end-to-end testing guidelines for browser/route coverage and its unit-test guidelines for unit coverage — rather than specifying test cases inline here.
 - MUST state, when a normally-applicable gate does not apply (no unit suite exists, no user-facing surface changed), that it was considered and why it is skipped, rather than silently omitting it.
 

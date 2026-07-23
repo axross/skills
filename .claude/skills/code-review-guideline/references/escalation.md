@@ -18,8 +18,8 @@ A Critical or Major fix that lands without its verification step can silently tr
 
 **Guidelines:**
 
-- MUST list, under **Recommended Actions**, the verification step ({{LINT_CMD}}, {{E2E_TEST_CMD}}, a manual check of the affected surface per the project's development guidelines (verification rules)) needed after each Critical or Major fix.
-- SHOULD phrase recommendations as imperative checklist items written to the future fixer, such as "Apply fix #1, then run {{LINT_CMD}}."
+- MUST list, under **Recommended Actions**, the verification step (npm run lint, a manual check of the affected surface per the project's development guidelines (verification rules)) needed after each Critical or Major fix.
+- SHOULD phrase recommendations as imperative checklist items written to the future fixer, such as "Apply fix #1, then run npm run lint."
 
 ## Surface Recurring Guideline Gaps to the Caller
 
@@ -60,11 +60,10 @@ Frame deferred items under the **Recommended Actions** section as **Decision nee
 
 Guideline-gap reporting is reserved for missing reusable guidance. Ordinary execution failures and already documented rules should stay in the review findings instead.
 
-- Lint or format errors — the developer's code-quality loop (per the project's development guidelines, code-quality rules) covers them; flag them as Critical findings and let the fixer run {{FORMAT_CMD}} / {{LINT_CMD}}. <!-- INIT:OPTIONAL key=INDEPENDENT_REVIEW — Fixed: the posted-review channel is fixed infrastructure (INIT.md Step 4), so KEEP the next parenthetical; just delete this marker. --> (When the project has a posted-review policy, a **posted** PR review omits these CI-enforced findings per the [Repository Review Policy Overlay](../SKILL.md#repository-review-policy-overlay).)
-- Snapshot regenerations — flag whether the change is intentional per the project's quality-assurance guidelines and let the fixer re-run with the test runner's snapshot-update flag.
+- Lint or format errors — the developer's code-quality loop (per the project's development guidelines, code-quality rules) covers them; flag them as Critical findings and let the fixer run npm run format / npm run lint. (A **posted** PR review omits these CI-enforced findings per the [Repository Review Policy Overlay](../SKILL.md#repository-review-policy-overlay).)
 - Anything resolvable by re-reading an existing guideline file.
 
 **Guidelines:**
 
-- MUST NOT report lint failures, format failures, snapshot updates, or already documented rules as guideline gaps.
+- MUST NOT report lint failures, format failures, or already documented rules as guideline gaps.
 - SHOULD report these items as ordinary review findings with the relevant existing guideline citation.
