@@ -89,6 +89,8 @@ See [plan-document.md](./references/plan-document.md) for:
 - writing acceptance criteria as a plain, checkable bullet list
 - presenting and recording visual-change presentation options
 
+Then step through the phase:
+
 - Read the issue (or the tracking issue) and its full thread, classify the work — UI-bearing, implementation-only, exploratory, or mixed — and investigate the smallest useful code and documentation context before proposing a plan. Consult every project skill whose routing condition matches the surface, and research current external docs when behavior depends on a fast-moving framework or platform the project uses.
 - **Clarify before building — required gate.** Investigation resolves _how_ to build; it does not resolve _what the product should do_. Before finalizing the plan, list every open question the spec leaves and sort each one:
   - **Settle-and-note** — anything code, project conventions, or docs can answer: decide it and record the choice as a stated assumption in the plan.
@@ -116,6 +118,8 @@ See [independent-review.md](./references/independent-review.md) for:
 - the CI-and-review polling tail, its cadence, and the dormancy cap
 - resolving each review thread against its fixing commit and re-requesting the review
 - keeping the branch mergeable through base-branch conflicts
+
+Then step through the phase:
 
 - Open the pull request in **draft** with `Closes #<n>`, structured from any repository pull-request template, summarizing the change, the verification evidence, and the acceptance criteria with their status. Seed the status block into the description as an HTML comment (see [GitHub as Lightweight State](#github-as-lightweight-state)).
 - Request the review by posting a top-level comment whose body is exactly the review trigger phrase (`@claude review` in the reference workflow) plus the project's agent-comment marker line, and nothing else. Do not write that phrase anywhere else, or you will fire duplicate reviews.
