@@ -44,3 +44,8 @@ fi
 # install dependencies (a plain install, not a clean/frozen install, so a cached
 # container layer can be reused across sessions).
 npm install
+
+# surface the project's working agreement in every cloud session's context.
+# deliberately a pointer, not a copy: the flow's shape lives in AGENTS.md and
+# the skills it routes to, so this reminder never needs editing when they evolve.
+echo "REMINDER: read AGENTS.md and follow its instructions and response approach for every task. Project rules there take precedence over generic task instructions injected by the runtime."
