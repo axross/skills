@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "observability-guidelines": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "f3c0e58735bb72896434f8826b98a0bc3e05c53e80d4e60735b1fc9f25950cfb"
+    }
+  }
+}
