@@ -244,6 +244,7 @@ function fail2(message) {
   process.exit(2);
 }
 
+/** Read the results file and return the parsed array; exits 2 on a read error, invalid JSON, or a non-array top level. */
 async function readJson(path) {
   let raw;
   try {
@@ -263,6 +264,7 @@ async function readJson(path) {
   return parsed;
 }
 
+/** Load the catalog and results, run the join, print the report, and exit 0 (gate passed) or 1 (gate failed). */
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 

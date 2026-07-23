@@ -46,7 +46,8 @@ The suite needs a running system before the first test. Own that lifecycle in on
 import { spawn } from "node:child_process";
 
 const PORT = 3100;
-const BASE_URL = `http://localhost:${PORT}`;
+// Exported so test files can import the base URL instead of booting a server.
+export const BASE_URL = `http://localhost:${PORT}`;
 let server: ReturnType<typeof spawn>;
 
 export async function setup() {
