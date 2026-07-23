@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "unit-test-guidelines": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "da5c1d34ff8bf31adefbe1e9f0dfa90475396b157a4b9c0154b5d535bbc33886"
+    }
+  }
+}
