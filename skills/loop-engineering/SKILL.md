@@ -19,7 +19,7 @@ The concrete tooling named throughout — GitHub issues and pull requests, the `
 
 You are the only long-lived actor. Advance the work as far as you can autonomously within each phase, and stop the turn whenever the next step needs a human, so an idle run consumes nothing. A stopped run is resumed by one of three triggers:
 
-- **A machine event that completes on its own** — CI, or the independent review this flow requests. Schedule a self-wake where the harness provides one (in Claude Code, `send_later`) and poll until it resolves (see [independent-review.md](./references/independent-review.md)); only when a machine event is _stuck_ do you record state, end the turn, and wait for the human.
+- **A machine event that completes on its own** — CI, or the independent review this flow requests. Schedule a self-wake where the harness provides one (in Claude Code, `send_later`) and poll until it resolves (see [Phase 3](#phase-3--request-independent-review)); only when a machine event is _stuck_ do you record state, end the turn, and wait for the human.
 - **The mandatory plan-approval gate** — after the plan is written the run **always** stops for the human to verify it before any implementation (see [Phase 1](#phase-1--plan)). Record the plan in the issue, mark the status block `awaiting plan approval`, and end the turn.
 - **A human decision with options** — a Phase 1 Must-ask, an ambiguous review finding, or a conflict judgment call — asked inline through the question UI, with the answer returned in the same turn (see [Asking the Human](#asking-the-human)).
 
@@ -58,7 +58,13 @@ See [github-conventions.md](./references/github-conventions.md) for:
 
 ## Intake — Identify the Unit of Work
 
-Determine, from the conversation and the current repository state, which kind of target you are delivering, then enter the matching phase. See [resuming-and-handoff.md](./references/resuming-and-handoff.md) for the full resolution rules, in-session resume, and taking over a handoff package.
+Determine, from the conversation and the current repository state, which kind of target you are delivering, then enter the matching phase.
+
+See [resuming-and-handoff.md](./references/resuming-and-handoff.md) for:
+
+- the three-way resolution precedence for a bare "continue" — in-session resume, handoff take-over, or ask
+- reconstructing state on an in-session resume and resuming the one pending step
+- locating a handoff package, verifying its preconditions, and taking it over in a fresh session
 
 | Target                              | Meaning                                          | Entry                                      |
 | ----------------------------------- | ------------------------------------------------ | ------------------------------------------ |
@@ -77,6 +83,12 @@ Determine, from the conversation and the current repository state, which kind of
 
 Turn the target into a buildable specification recorded in the issue. Two gates stop the run for the human before Code, in order: the clarify-before-building gate, then the plan-approval gate.
 
+See [plan-document.md](./references/plan-document.md) for:
+
+- the canonical seven-section plan structure and each section's craft
+- writing acceptance criteria as a plain, checkable bullet list
+- presenting and recording visual-change presentation options
+
 - Read the issue (or the tracking issue) and its full thread, classify the work — UI-bearing, implementation-only, exploratory, or mixed — and investigate the smallest useful code and documentation context before proposing a plan. Consult every project skill whose routing condition matches the surface, and research current external docs when behavior depends on a fast-moving framework or platform the project uses.
 - **Clarify before building — required gate.** Investigation resolves _how_ to build; it does not resolve _what the product should do_. Before finalizing the plan, list every open question the spec leaves and sort each one:
   - **Settle-and-note** — anything code, project conventions, or docs can answer: decide it and record the choice as a stated assumption in the plan.
@@ -84,8 +96,8 @@ Turn the target into a buildable specification recorded in the issue. Two gates 
 
   If any Must-ask question remains, you **MUST NOT** start implementing — ask them through the question UI (see [Asking the Human](#asking-the-human)), each framed as options with the default you would otherwise assume marked recommended, then use the answers to finalize the plan. Ask only genuine spec gaps, never what local investigation already answers; batch related questions into one prompt.
 
-- Rewrite the issue body into a comprehensive plan following the canonical plan-document structure and its section craft in [plan-document.md](./references/plan-document.md). Refine the issue title to the concrete deliverable and move the original description into a collapsed `<details>` section, in a single issue write.
-- **Visual change → present options, do not imply one.** A plan for any visual change presents a choice of visual presentation options the human decides at the plan-approval gate, not a single implied design; construct and record the exhibit per [plan-document.md](./references/plan-document.md). The visual direction is decided through this exhibit, never as a Must-ask question.
+- Rewrite the issue body into a comprehensive plan following the canonical plan-document structure and its section craft (above). Refine the issue title to the concrete deliverable and move the original description into a collapsed `<details>` section, in a single issue write.
+- **Visual change → present options, do not imply one.** A plan for any visual change presents a choice of visual presentation options the human decides at the plan-approval gate, not a single implied design; construct and record the exhibit per the visual-change rules above. The visual direction is decided through this exhibit, never as a Must-ask question.
 - **Mandatory plan-approval gate.** Once the plan is written into the issue, the human verifies it before any implementation. Mark the status block `awaiting plan approval`, state in the turn output that the plan is ready for review, **end the turn**, and wait for the human to resume. Do NOT enter Code until that resume arrives — the plan check is required on every run, not optional. If the human requests changes instead of approving, revise the plan and re-present it the same way.
 
 ## Phase 2 — Code + Verify
@@ -97,7 +109,13 @@ Turn the target into a buildable specification recorded in the issue. Two gates 
 
 ## Phase 3 — Request Independent Review
 
-Review is **not** done by you. It runs as a separate agent session on separate infrastructure — a different session under a bot identity distinct from the operator — so the code's author never certifies its own work. In the reference harness this is a CI workflow that applies the project's posted-review policy and submits findings as inline comments anchored to the diff, tagged by severity. See [independent-review.md](./references/independent-review.md) for the request, the CI-and-review tail, and addressing findings.
+Review is **not** done by you. It runs as a separate agent session on separate infrastructure — a different session under a bot identity distinct from the operator — so the code's author never certifies its own work. In the reference harness this is a CI workflow that applies the project's posted-review policy and submits findings as inline comments anchored to the diff, tagged by severity.
+
+See [independent-review.md](./references/independent-review.md) for:
+
+- the CI-and-review polling tail, its cadence, and the dormancy cap
+- resolving each review thread against its fixing commit and re-requesting the review
+- keeping the branch mergeable through base-branch conflicts
 
 - Open the pull request in **draft** with `Closes #<n>`, structured from any repository pull-request template, summarizing the change, the verification evidence, and the acceptance criteria with their status. Seed the status block into the description as an HTML comment (see [GitHub as Lightweight State](#github-as-lightweight-state)).
 - Request the review by posting a top-level comment whose body is exactly the review trigger phrase (`@claude review` in the reference workflow) plus the project's agent-comment marker line, and nothing else. Do not write that phrase anywhere else, or you will fire duplicate reviews.
@@ -105,7 +123,7 @@ Review is **not** done by you. It runs as a separate agent session on separate i
 
 ## Phase 4 — Address
 
-Address the independent review's findings and CI to convergence, then gate the ready flip on a clean review plus green CI. The granular rules — resolving each thread against its fixing commit, re-requesting review, the round cap, and mergeability/conflict handling — live in [independent-review.md](./references/independent-review.md).
+Address the independent review's findings and CI to convergence, then gate the ready flip on a clean review plus green CI. The granular rules — resolving each thread against its fixing commit, re-requesting review, the round cap, and mergeability/conflict handling — live in the independent-review reference routed from [Phase 3](#phase-3--request-independent-review).
 
 - MUST address and resolve each blocking finding and every unmet acceptance criterion, pushing fixes to the same branch and re-running the relevant verification after each batch.
 - MUST gate the draft→ready flip on a **clean independent review** (no blocking findings) plus green CI — never on your own assessment of your code. On convergence, flip the pull request to ready, update the status block, and deliver the [Ready-to-Merge Handoff](#ready-to-merge-handoff). Merging remains the human's decision.
