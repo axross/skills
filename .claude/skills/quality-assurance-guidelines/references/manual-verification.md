@@ -4,7 +4,7 @@ Apply these rules to verify the author exercised the change in the running app. 
 
 ## Required Manual Checks
 
-The reviewer MUST ask the author to confirm (in the PR description or the review thread) that the following were checked when the diff touches the listed surface. Rows marked _(optional)_ apply only if the project has the corresponding capability.
+The reviewer MUST ask the author to confirm (in the PR description or the review thread) that the following were checked when the diff touches the listed surface. Rows marked _(optional)_ apply only if the project has the corresponding capability. The changed-area-to-surface-at-risk mapping is owned by the project's development guidelines (verification rules); this table does not re-derive it — it adds only the review-side check the reviewer demands for each surface.
 
 | Diff touches                                                                                                             | Required manual check                                                                                                                                               |
 | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

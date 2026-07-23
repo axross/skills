@@ -10,7 +10,7 @@ A skill should describe one unit of work that is loaded, applied, and revised to
 
 > code-review-guidelines owns review reporting and severity.
 
-> quality-assurance-guidelines owns test and verification evidence.
+> quality-assurance-guidelines owns verification evidence.
 
 **Bad Example:**
 
@@ -33,6 +33,17 @@ Mutual exclusivity prevents drift. When two skills need the same guidance, choos
 - MUST choose one home when a rule appears to fit two skills.
 - SHOULD sharpen neighboring skill boundaries when readers are likely to pick the wrong skill.
 - MUST NOT duplicate rule wording across skills for convenience.
+
+## Portable Source Exception
+
+A self-contained skill authored for installation into other projects (a `skills/`-sourced skill) is a sanctioned exception to strict mutual exclusivity: it MAY restate a rule that a repo-native skill owns, because it must stand alone where that owner is absent. The exception is bounded — the portable skill still defers to the host project's owner when one exists, and it is not a license to duplicate freely.
+
+**Guidelines:**
+
+- MAY let a self-contained, installable source skill restate a rule owned by a repo-native skill when portability requires the skill to stand alone.
+- MUST have the portable skill defer to the host project's owning skill when that owner is present, rather than competing with it.
+- MUST NOT invoke this exception to duplicate a rule between two repo-native skills, or between two portable sources, where a single owner would serve.
+- SHOULD keep the restated copy a concise summary that points to the fuller owner, not a divergent second source of truth.
 
 ## Collective Exhaustiveness
 

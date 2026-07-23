@@ -1,9 +1,8 @@
 ---
 name: code-review
 description: A complete, self-contained methodology for reviewing a code change — a pull request, a branch or commit-range diff, or your own work before you call it done. Covers the reviewer-mode reset and diff scoping; a four-tier severity scale with fixed severity floors and a verdict mapping; evidence-based reporting with file-line citations and diff-style fix snippets; constructive, blame-free tone; escalation and decision-deferral for high-risk changes; a posted/CI-review overlay that collapses to an Important/Nit, comment-only report; and what-to-flag review lenses for correctness, maintainability, security and privacy, testing and verification, and performance and reliability. Self-contained — it references no other skill and no repository-root file, so it works installed on its own.
-when_to_use: Apply at the start of EVERY code review — a pull request, a branch or commit-range diff, or a post-implementation self-review of your own change before claiming it is done. Invoke as `/code-review` (optionally with a PR reference, branch name, or commit range; empty reviews the working tree against the base branch). Not for writing the change itself — only for judging a change that already exists.
-user-invocable: true
-argument-hint: "[pr-url | branch | commit-range] (empty = working tree vs base)"
+when_to_use: Apply at the start of EVERY code review — a pull request, a branch or commit-range diff, or a post-implementation self-review of your own change before claiming it is done. Not for writing the change itself — only for judging a change that already exists.
+user-invocable: false
 ---
 
 # Code Review
@@ -12,7 +11,7 @@ Apply these rules at the start of every code review, whatever the change type, l
 
 A review has one job — decide whether a change is safe to merge and say why, with evidence — and one output: a report. It does not rewrite the code. Keep finding problems separate from fixing them.
 
-**Review target.** When invoked as `/code-review`, resolve `$ARGUMENTS` first: a pull-request reference, a branch name, or a commit range is the change to review; an empty value reviews the working tree against the base branch. Establish the diff for that target before reading anything else (see [scoping.md](./references/scoping.md)). When loaded automatically mid-task, the target is the change already under review.
+**Review target.** The target is the change already under review: the working tree against the base branch by default, or a specific pull-request reference, branch name, or commit range when one is named. Establish the diff for that target before reading anything else (see [scoping.md](./references/scoping.md)).
 
 ## The Review Loop
 

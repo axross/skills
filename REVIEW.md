@@ -7,9 +7,9 @@ reviewer ([`claude-review.yaml`](.github/workflows/claude-review.yaml)) via a
 system-prompt bootstrap. This file overrides reviewer defaults and complements
 the review
 **methodology** in
-[Code Review Guideline](.claude/skills/code-review-guideline/SKILL.md); where
+[Code Review](.claude/skills/code-review/SKILL.md); where
 the two differ about what a posted review reports, this file wins (see that
-skill's [Repository Review Policy Overlay](.claude/skills/code-review-guideline/SKILL.md#repository-review-policy-overlay)).
+skill's [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews) section).
 
 This is a **strict** review: run every mandatory check below, verify the linked
 issue's acceptance criteria, and report every finding — do not wave anything
@@ -37,6 +37,29 @@ output — they exist for self-review, not for the pull-request thread.
   requirement.
 - MUST label style, naming, and refactoring suggestions Nit at most.
 
+## Repository Severity Floors
+
+On top of the generic severity floors in
+[Code Review](.claude/skills/code-review/SKILL.md), this Markdown-skills
+repository fixes minimum severities for its own recurring defect classes. These
+govern **internal** self-review triage; a posted review still suppresses any row
+the [Do Not Report](#do-not-report) list excludes as CI-enforced, and maps what
+remains onto the Important/Nit labels above.
+
+| Category                                                                                                       | Minimum severity |
+| -------------------------------------------------------------------------------------------------------------- | ---------------- |
+| A broken relative link introduced, or a link that misroutes to the wrong skill or reference                    | Critical         |
+| Malformed skill frontmatter (`name`, `description`, `when_to_use`) that breaks the skill's discovery/loading   | Critical         |
+| A skill's `description`/`when_to_use` no longer matches its content, so it misroutes or fails to be discovered | Major            |
+| A rule duplicated across skills instead of having one source of truth, so the copies can silently diverge      | Major            |
+| Inconsistent file/identifier naming that breaks the directory's established convention                         | Minor            |
+
+**Guidelines:**
+
+- MUST classify each listed category at no lower than its minimum severity in
+  internal self-review triage.
+- MAY raise severity above the floor when the concrete impact is worse.
+
 ## Mandatory Checks
 
 Run both checks on every review and raise a finding for each miss — they are
@@ -60,7 +83,7 @@ skill in the finding.
   miss.
 - MUST give each finding a severity label, `file:line` evidence, and a concrete
   fix, per
-  [Code Review Guideline](.claude/skills/code-review-guideline/SKILL.md).
+  [Code Review](.claude/skills/code-review/SKILL.md).
 
 ## Do Not Report
 

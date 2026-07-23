@@ -59,6 +59,7 @@ Content review asks whether each skill owns one coherent responsibility and give
 **Guidelines:**
 
 - MUST identify duplicated source-of-truth rules across sibling skills.
+- SHOULD treat a self-contained `skills/`-sourced skill's restatement of a rule a repo-native skill owns as the sanctioned Portable Source Exception (see [scoping-and-mece.md](./scoping-and-mece.md)) rather than a defect, provided it defers to the owner where present.
 - MUST identify stale project assumptions, old framework guidance, missing commands, or paths that do not exist.
 - SHOULD flag generic advice that does not add project-specific value.
 - SHOULD prefer a name-based cross-reference over copied doctrine when another skill owns the detailed rule.

@@ -4,7 +4,7 @@
     "code-review": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "961b7057dc0adfdd277428c72ae82fcd29d098d60da6304015b2ee2d7dbce26f"
+      "computedHash": "928637b371f0eaa38a39545e1e13b97d56d6ff0544356758ffd2dd744e814204"
     },
     "e2e-testing-guidelines": {
       "source": "/home/user/skills/skills",
@@ -19,7 +19,7 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "376320e1a529249f1835eada304ca6221097f970528a7dd6c0322c559b7d1c4d"
+      "computedHash": "67abaa4822ed8e32c7a3032795aca585e6f6b9c4417110a249779b5355b815c3"
     },
     "observability-guidelines": {
       "source": "/home/user/skills/skills",
