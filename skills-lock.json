@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "loop-engineering": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "13693f15f1163b71768089f3f86400c7a01da881a7153c9c45e60bff68d8faf5"
+    }
+  }
+}
