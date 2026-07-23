@@ -2,7 +2,7 @@
 
 This directory is the **source of truth** for agent skills that are installed
 into `.claude/skills/` with the [vercel-labs/skills](https://github.com/vercel-labs/skills)
-CLI (`npx skills`). It ships **empty**: the repository's own guideline and
+CLI (`npx skills`). The repository's own guideline and
 workflow skills live directly under
 [`.claude/skills/`](../.claude/skills) and are not managed by `npx skills`.
 
