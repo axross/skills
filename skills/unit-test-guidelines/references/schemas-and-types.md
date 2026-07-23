@@ -5,7 +5,7 @@ Schema modules should be tested with real valid and invalid inputs. Type-only mo
 **Schema Defaults Example:**
 
 ```ts
-describe("RecordParametersBase", () => {
+describe("RecordParameters", () => {
   it("applies locale and flag defaults when optional parameters are omitted", () => {
     const params = RecordParameters.parse({
       slug: "hello-world",
