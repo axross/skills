@@ -2,10 +2,10 @@
 
 This directory is the **source of truth** for agent skills that are installed
 into `.claude/skills/` with the [vercel-labs/skills](https://github.com/vercel-labs/skills)
-CLI (`npx skills`). The repository's own guideline and workflow skills live
-directly under [`.claude/skills/`](../.claude/skills) and are **not** managed by
-`npx skills`; skills authored under this directory are installed into
-`.claude/skills/` alongside them.
+CLI (`npx skills`). It currently holds the `loop-engineering` and
+`unit-test-guidelines` skills; the repository's own guideline and workflow
+skills, by contrast, live directly under
+[`.claude/skills/`](../.claude/skills) and are not managed by `npx skills`.
 
 Author a distributable skill here as `skills/<name>/SKILL.md` (with its
 `references/` beside it), then install it so Claude Code can load it:
