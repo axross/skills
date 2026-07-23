@@ -8,9 +8,11 @@ argument-hint: "[pr-url | branch | commit-range] (empty = working tree vs base)"
 
 # Code Review
 
-Apply these rules at the start of every code review, whatever the change type, language, or domain. The skill is self-contained: every rule it needs lives here, so it stays correct when installed on its own without any companion skill.
+Apply these rules at the start of every code review, whatever the change type, language, or domain. The skill is self-contained: every rule it needs lives here, so it stays correct when installed on its own without any companion skill. When the host project ships its own code-review guideline or posted-review policy, defer to it for project-specific rules and precedence; the methodology here still applies in full wherever that project guidance is silent.
 
 A review has one job — decide whether a change is safe to merge and say why, with evidence — and one output: a report. It does not rewrite the code. Keep finding problems separate from fixing them.
+
+**Review target.** When invoked as `/code-review`, resolve `$ARGUMENTS` first: a pull-request reference, a branch name, or a commit range is the change to review; an empty value reviews the working tree against the base branch. Establish the diff for that target before reading anything else (see [scoping.md](./references/scoping.md)). When loaded automatically mid-task, the target is the change already under review.
 
 ## Core Review Loop
 
