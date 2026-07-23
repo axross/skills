@@ -1,0 +1,23 @@
+{
+  // markdownlint-cli2 configuration. The skill documents are long-form prose
+  // with tables, HTML comment markers, collapsible <details> sections, and
+  // inline syntax examples, so the purely stylistic rules that fight that
+  // content (and the ones Prettier already governs) are disabled; the
+  // structural rules stay on.
+  "config": {
+    "default": true,
+    "MD013": false, // line-length — prose lines are intentionally long
+    "MD033": false, // inline HTML — `<!-- ... -->` markers and <details> are used
+    "MD041": false, // first-line-heading — SKILL.md files open with YAML frontmatter
+    "MD024": { "siblings_only": true }, // duplicate headings ok unless siblings
+    "MD029": false, // ordered-list-prefix style
+    "MD040": false, // fenced-code language hint not required
+    "MD036": false, // emphasis-as-heading — `**Guidelines:**` labels are intentional
+    "MD026": false, // trailing punctuation in headings
+    "MD028": false, // blank line between adjacent blockquotes is intentional
+    "MD038": false, // spaces inside code spans — syntax examples show them on purpose
+    "MD031": false, // blanks around fences — Prettier governs fenced-block spacing
+    "MD010": { "code_blocks": false } // hard tabs allowed inside code samples
+  },
+  "ignores": ["node_modules"]
+}

@@ -1,3 +1,6 @@
+# Node toolchain (Prettier + markdownlint) installed via `npm install`.
+node_modules/
+
 # Local agent harness state materialized by .claude/hooks/session-start.sh.
 # These hold machine-local settings and secrets and MUST stay out of version
 # control. The application-security skill assumes these entries exist; keep them
