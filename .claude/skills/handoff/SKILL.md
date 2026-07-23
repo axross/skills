@@ -1,22 +1,22 @@
 ---
 name: handoff
-description: Suspend this session's in-progress work into a self-contained, downloadable handoff package — a handoff-<unix epoch>.md document plus an optional same-epoch .zip of patches and artifacts — that a fresh-context agent session takes over with /address continue.
+description: Suspend this session's in-progress work into a self-contained, downloadable handoff package — a handoff-<unix epoch>.md document plus an optional same-epoch .zip of patches and artifacts — that a fresh-context agent session takes over by continuing the delivery flow with the package attached.
 when_to_use: Invoke when the human wants to stop working here and let another session pick the work up — "hand this off", "wrap this up for another session", "package this up so we can continue later". It suspends at the nearest safe boundary and captures state; it never finishes, commits, or pushes the work. Takes no arguments.
 argument-hint: (takes no arguments)
 user-invocable: true
 ---
 
-You are the `/handoff` driver. This skill suspends one unit of in-progress work at a session boundary: the outgoing session freezes its state into a self-contained package the human can download. Taking the work over is **not** this skill's job — a fresh-context session, with zero shared context, rebuilds that state and continues the work when the human attaches the package there and sends `/address continue` (see [the address skill](../address/SKILL.md)).
+You are the `/handoff` driver. This skill suspends one unit of in-progress work at a session boundary: the outgoing session freezes its state into a self-contained package the human can download. Taking the work over is **not** this skill's job — a fresh-context session, with zero shared context, rebuilds that state and continues the work when the human attaches the package to a fresh session and asks to continue: the delivery flow ([loop-engineering](../loop-engineering/SKILL.md)) rebuilds the state from the package and resumes.
 
 Target: `$ARGUMENTS`
 
 ## Argument Resolution
 
-| Argument      | Meaning                                                              | Entry                                                                                                                                                                                                        |
-| ------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| _(empty)_     | Suspend the current work immediately and produce the handoff package | [Wrap Up](#wrap-up)                                                                                                                                                                                          |
-| `continue`    | Retired take-over invocation                                         | Neither wrap up nor take over. Tell the human that taking over a handoff now runs through `/address continue` — start a fresh session, attach the handoff file(s), and send `/address continue` — then stop. |
-| anything else | Ambiguous                                                            | Ask what was meant (see [Asking the Human](#asking-the-human))                                                                                                                                               |
+| Argument      | Meaning                                                              | Entry                                                                                                                                                                                                                                              |
+| ------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _(empty)_     | Suspend the current work immediately and produce the handoff package | [Wrap Up](#wrap-up)                                                                                                                                                                                                                                |
+| `continue`    | Retired take-over invocation                                         | Neither wrap up nor take over. Tell the human that taking over a handoff runs in a fresh session — start one, attach the handoff file(s), and ask to continue the work; the delivery flow (loop-engineering) resumes from the package — then stop. |
+| anything else | Ambiguous                                                            | Ask what was meant (see [Asking the Human](#asking-the-human))                                                                                                                                                                                     |
 
 ## Wrap Up
 
@@ -38,7 +38,7 @@ Resolve the timestamp once — `date +%s` — and reuse that single epoch value 
 
 ### Write `handoff-<unix epoch>.md`
 
-Create a single comprehensive markdown document in a working location outside the repository checkout (the harness's scratchpad or temp directory). This document is the package contract the successor's `/address continue` take-over ingests — its structure is load-bearing, not advisory.
+Create a single comprehensive markdown document in a working location outside the repository checkout (the harness's scratchpad or temp directory). This document is the package contract the successor's take-over ingests — its structure is load-bearing, not advisory.
 
 - MUST contain these sections, in this order. The two marked _(if applicable)_ MAY be omitted when genuinely empty; every other section is required:
   1. **Quick summary** — 2–4 sentences: what the work is, where it stands, and the single next action.
@@ -66,7 +66,7 @@ Create a single comprehensive markdown document in a working location outside th
 ### Deliver and stop
 
 - MUST provide the markdown document — and the zip, when one was created — to the human as downloadable files via the harness's file-delivery tool (in Claude Code, `SendUserFile`). If the harness has no such tool, print the absolute paths and how to retrieve them.
-- Tell the human how to resume: start a new agent session, attach or upload the file(s), and send `/address continue` — the take-over flow in [the address skill](../address/SKILL.md) rebuilds the state from the package and continues the work.
+- Tell the human how to resume: start a new agent session, attach or upload the file(s), and ask to continue the work — the delivery flow ([loop-engineering](../loop-engineering/SKILL.md)) rebuilds the state from the package and continues it.
 - Then end the turn. The work is suspended; do not resume it in this session unless the human asks.
 
 ## Asking the Human
@@ -74,5 +74,5 @@ Create a single comprehensive markdown document in a working location outside th
 Wrap-up runs into ambiguity of its own: an unclear argument, uncertainty about which artifacts belong to the work, or doubt about whether a to-do was actually completed.
 
 - MUST route every such decision through the harness's dedicated question tool (in Claude Code, `AskUserQuestion`): frame it as 2–4 concrete options, mark the default you would otherwise take as recommended, and use the answer inline.
-- MUST, if the question tool errors (or a synchronous answer is otherwise unavailable), re-present the decision in plain text — the question and its options with the recommended default marked — and call `AskUserQuestion` again, holding for the human. Do not route around the human or end wrap-up as blocked; a closed or errored stream means _re-present and wait_ — the same asking-behavior as [`/address`](../address/SKILL.md#asking-the-human).
+- MUST, if the question tool errors (or a synchronous answer is otherwise unavailable), re-present the decision in plain text — the question and its options with the recommended default marked — and call `AskUserQuestion` again, holding for the human. Do not route around the human or end wrap-up as blocked; a closed or errored stream means _re-present and wait_ — the same asking-behavior as [loop-engineering](../loop-engineering/SKILL.md#asking-the-human).
 - MUST NOT proceed on an unstated assumption when the session's own history plus local investigation cannot settle the question.

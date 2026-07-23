@@ -5,10 +5,10 @@ A curated, reusable library of Claude Code agent skills.
 `skills` collects the working agreement and skills that give
 [Claude Code](https://claude.com/claude-code) a structured way to work: a master
 routing index in [`AGENTS.md`](./AGENTS.md) (loaded through `CLAUDE.md`), a set
-of guideline skills under [`.claude/skills/`](./.claude/skills), and the fixed
-`/address` and `/handoff` delivery workflows. It is Markdown-first — the skills
-_are_ the deliverable — with a little JavaScript tooling to keep the docs
-formatted, linted, and link-checked.
+of guideline skills under [`.claude/skills/`](./.claude/skills), and a
+model-invoked delivery loop (loop-engineering) with a `/handoff` companion. It
+is Markdown-first — the skills _are_ the deliverable — with a little JavaScript
+tooling to keep the docs formatted, linted, and link-checked.
 
 ## Tech stack
 
@@ -42,17 +42,18 @@ detailed skills under [`.claude/skills/`](./.claude/skills). Human and agent
 contributors follow the same loop: plan → implement → self-review → verify →
 report.
 
-### `/address` — deliver a unit of work end-to-end
+### Delivering a unit of work end-to-end
 
-[`/address`](./.claude/skills/address/SKILL.md) is the main delivery entry point.
-It takes one unit of work — a GitHub issue, a pull request, or a free-form
-prompt — from intake to a merge-ready pull request in a single continuing
-session:
+[Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
+repository's default delivery flow. It runs **model-invoked** — there is no
+slash command; describe the work (a GitHub issue, a pull request, or a free-form
+prompt) and the flow drives it from intake to a merge-ready pull request in a
+single continuing session:
 
 1. **Plan** — reads the issue and its thread, asks you the scope questions the
    spec leaves open, and rewrites the issue body into a reviewable plan with
    acceptance criteria. It then **always pauses for your approval**: nothing
-   gets built until you review the plan and send `/address continue`.
+   gets built until you review the plan and tell it to continue.
 2. **Code + verify** — implements the approved plan on an agent-namespaced
    `claude/` branch, runs the checks the change requires, and self-reviews the
    diff.
@@ -64,19 +65,11 @@ session:
 5. **Ready** — flips the pull request to ready once CI is green and the review
    is clean. Merging always stays a human decision.
 
-Practical examples:
-
-```text
-/address https://github.com/axross/skills/issues/42   # deliver issue #42
-/address 57                                                  # resume open PR #57
-/address Add a skill for writing changelog entries           # no issue yet: files a
-                                                             #   tracking issue, then
-                                                             #   delivers it
-/address continue                                            # approve a paused plan,
-                                                             #   resume after a
-                                                             #   question, or take over
-                                                             #   a /handoff package
-```
+Kick it off by naming the work — "deliver issue #42", "pick up PR 57", or a
+free-form request (with no issue yet, it files a tracking issue first, then
+delivers it). To approve a paused plan, resume after a question, or take over a
+`/handoff` package, continue the session (or start a fresh one with the package
+attached) and tell it to continue.
 
 ### `@claude review` — get findings on any PR
 
@@ -85,7 +78,7 @@ policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line
 evidence and concrete fixes, posted as inline comments by the CI reviewer
 ([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
 pre-merge check on a hand-written change or a second opinion before merging; the
-same review runs automatically against `/address` pull requests.
+same review runs automatically against the delivery flow's pull requests.
 
 The reviewer is inert until a one-time operator setup is done: install the
 [Claude GitHub App](https://github.com/apps/claude) and add a
@@ -100,7 +93,7 @@ billing. See the header of
 current state, remaining to-dos, uncommitted changes — into a downloadable
 `handoff-<epoch>.md` (plus an optional zip of supporting files). Use it when a
 session is running low on context, or to park work for later; a fresh session
-takes the package over with `/address continue`.
+takes the package over by continuing the delivery flow with it attached.
 
 Changes made without an agent follow the same bar: branch, implement, run the
 checks below, open a pull request, and get it reviewed before merge.
