@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "high-fidelity-ui-design": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "b2e17a2378f99ed11d23fbce22b12cdc017f404bfb0f2b3842d4adc3743a0ebf"
+    }
+  }
+}
