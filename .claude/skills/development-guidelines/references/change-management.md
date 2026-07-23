@@ -47,7 +47,8 @@ Each dependency is a standing cost — maintenance, supply-chain surface, and bu
 ## Modifying the Data Layer / Generated Code
 
 <!-- INIT:OPTIONAL key=DATA_LAYER — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project has no {{CMS_OR_DATA_LAYER}} or other schema-bound generated code, delete this section during INIT.*
+
+_If this project has no {{CMS_OR_DATA_LAYER}} or other schema-bound generated code, delete this section during INIT._
 
 A schema change without its migration leaves every other environment on the old schema, so what works locally breaks on the next deploy or fresh checkout.
 

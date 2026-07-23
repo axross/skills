@@ -23,7 +23,7 @@ working setup for one concrete project.
 > and `/handoff` workflow entry-point skills under `.claude/skills/**`, together with the
 > **independent-review loop** they drive (`REVIEW.md`, the `.github/workflows/`,
 > and the `github-operation-guidelines` skill), are **fixed infrastructure** —
-> INIT *configures and adapts* them but **never asks whether to keep them, and
+> INIT _configures and adapts_ them but **never asks whether to keep them, and
 > never deletes them.** The rest of the skill core is resolved per capability in
 > Steps 1 and 4: most of the 12 skills are always-present cross-project guidance,
 > and a few (unit tests, e2e, observability) are added or skipped to match the
@@ -36,6 +36,7 @@ working setup for one concrete project.
 
 > **Tooling.** Two helpers automate the mechanical parts; both are optional but
 > recommended:
+>
 > - `./init.sh` — metacharacter-safe `{{TOKEN}}` substitution driven by
 >   `tokens.json` (`./init.sh init` to scaffold a values file, `apply` to
 >   substitute, `check` to run the gates). Use it instead of a hand-written
@@ -121,10 +122,10 @@ dribbling them out over many rounds. The interview is strict:
 
    Does it have a user-facing UI surface?
 
-3. **Application identifier(s)** *(if the project ships an installable or
+3. **Application identifier(s)** _(if the project ships an installable or
    distributable artifact whose identity is a durable reverse-DNS identifier —
    a mobile app, a desktop app, a browser extension, or a published package
-   that carries one)*. This is a **MUST-ask**; never infer it.
+   that carries one)_. This is a **MUST-ask**; never infer it.
    - Ask for the reverse-DNS **base identifier** (e.g. `app.axross.payload`)
      and derive the per-platform ids from it — the Android `applicationId` /
      package and the iOS `bundleIdentifier` — or ask for each explicitly when
@@ -139,7 +140,7 @@ dribbling them out over many rounds. The interview is strict:
      it — here, or later when Step 5 scaffolds app/native config. Record the
      answer in the Stack Decision Record; like the 1c architecture decisions it
      fills no `{{TOKEN}}` (Step 5 reads it from there).
-   - Record it *not applicable* for a surface-less kind that ships no such
+   - Record it _not applicable_ for a surface-less kind that ships no such
      artifact — a headless service, a CLI, or a library whose only identity is
      its package name (already captured by `{{PROJECT_NAME}}`) — so those
      projects are not prompted.
@@ -172,24 +173,24 @@ component / UI-design skills). Ask each area that applies:
    - Bloc (or a similar event/state pattern)
    - Clean Architecture model-based
    - none / ad-hoc
-7. **State management** *(if the app holds client-side or shared state)*:
+7. **State management** _(if the app holds client-side or shared state)_:
    - client state (e.g. Zustand, Jotai, Redux)
    - server cache (e.g. TanStack Query, Apollo Client)
    - Bloc, or another pattern-supplied store
-8. **Database layer** *(if the app persists data — mobile and
-   server/full-stack apps especially)*: PostgreSQL, MySQL, Firebase
+8. **Database layer** _(if the app persists data — mobile and
+   server/full-stack apps especially)_: PostgreSQL, MySQL, Firebase
    Firestore, libSQL/SQLite, … Whether the project has, adds, or skips a
-   data/content layer at all is decided in 1d; this records *which* engine.
-9. **ORM / db-wrapper library** *(if the app persists data and a database
+   data/content layer at all is decided in 1d; this records _which_ engine.
+9. **ORM / db-wrapper library** _(if the app persists data and a database
    layer was picked in item 8 — mobile and server/full-stack apps
-   especially)*: Drizzle, Prisma, … — or none (raw driver/SQL).
-10. **Interface / validation & sanitization** *(if the project parses external
-    input — API payloads, forms, env)*: zod, valibot, …
-11. **Styling** *(if the project renders UI)*: CSS Modules, Tailwind,
+   especially)_: Drizzle, Prisma, … — or none (raw driver/SQL).
+10. **Interface / validation & sanitization** _(if the project parses external
+    input — API payloads, forms, env)_: zod, valibot, …
+11. **Styling** _(if the project renders UI)_: CSS Modules, Tailwind,
     Emotion, …
-12. **Theming** *(if the project renders UI)*: CSS variables + Radix color
+12. **Theming** _(if the project renders UI)_: CSS variables + Radix color
     system, React Native Unistyles, …
-13. **Headless component library** *(if the project renders UI)*: Base UI,
+13. **Headless component library** _(if the project renders UI)_: Base UI,
     Radix UI, none (hand-rolled), …
 
 ### 1d — Optional capabilities
@@ -216,7 +217,7 @@ component / UI-design skills). Ask each area that applies:
       For a project with a deployable or installable surface, prefer **add**
       over skip: the scaffolded pipeline is preflight-gated and inert (a
       green no-op) until its accounts are configured, so adding it costs
-      nothing up front. Record it *not applicable* for a project with no such
+      nothing up front. Record it _not applicable_ for a project with no such
       surface (a library, a CLI).
 
     **Not on this list — fixed, do not ask:** GitHub operations
@@ -256,12 +257,12 @@ fill), Step 4 (optional-capability resolution), and Step 5 (project-specific
 skills) all consume it. `Source` is one of `answered`, `delegated
 (assumption)`, or `not applicable`:
 
-| Area | Decision | Source |
-| ---- | -------- | ------ |
-| Application type | full-stack web app | answered |
-| Application identifier | `app.axross.payload` (→ Android package + iOS bundle id) | answered |
-| State management | Zustand | delegated (assumption) |
-| Theming | — (headless REST API) | not applicable |
+| Area                   | Decision                                                 | Source                 |
+| ---------------------- | -------------------------------------------------------- | ---------------------- |
+| Application type       | full-stack web app                                       | answered               |
+| Application identifier | `app.axross.payload` (→ Android package + iOS bundle id) | answered               |
+| State management       | Zustand                                                  | delegated (assumption) |
+| Theming                | — (headless REST API)                                    | not applicable         |
 
 If the project already has a manifest/lockfile/config, you SHOULD read it to
 confirm the answers instead of relying solely on the user — confirmation
@@ -312,57 +313,57 @@ stack not listed.
 > Rule of thumb for command tokens: if the project exposes run-scripts through
 > its package manager, prefer those (`npm run build`, `pnpm test`); otherwise use
 > the direct tool invocation (`tsc --noEmit`, `go test ./...`). Always use the
-> project's *actual* scripts when they exist — the examples are only shapes.
+> project's _actual_ scripts when they exist — the examples are only shapes.
 
 ### Identity & stack
 
-| Token | Fill with | Example values (pick the matching stack) |
-| ----- | --------- | ---------------------------------------- |
-| `{{PROJECT_NAME}}` | Project / repo name | `acme-web` · `billing-service` · `dotctl` |
-| `{{PROJECT_OVERVIEW}}` | One-line goal/overview | `Internal dashboard for fleet operations.` · `CLI for managing dotfiles.` |
-| `{{PROJECT_KIND}}` | Kind of project | `web app` · `mobile app` · `CLI` · `library` · `backend service` · `desktop app` |
-| `{{PRIMARY_LANGUAGE}}` | Main language | `TypeScript` · `Python` · `Go` · `Rust` · `Swift` |
-| `{{APP_FRAMEWORK}}` | App framework / runtime | `Next.js` · `React Native` · `Express` · `FastAPI` · `Gin` · `none (plain runtime)` |
-| `{{PACKAGE_MANAGER}}` | Package manager binary (single binary only — the hooks call `command -v` on it, so a multiword value like `npx playwright` will not work) | `npm` · `pnpm` · `yarn` · `bun` · `pip` · `poetry` · `cargo` · `go` |
-| `{{LINTER}}` | Linter | `Biome` · `ESLint` · `Ruff` · `golangci-lint` · `Clippy` |
-| `{{FORMATTER}}` | Formatter | `Biome` · `Prettier` · `Ruff` · `gofmt` · `rustfmt` |
-| `{{UNIT_TEST_FRAMEWORK}}` | Unit test framework | `Jest` · `Vitest` · `pytest` · `go test` · `cargo test` |
-| `{{SOURCE_DIR}}` | Main source dir (no trailing slash — templates append the `/`) | `src` · `app` · `lib` · `internal` |
-| `{{TEST_DIR}}` | Test root dir (no trailing slash — templates append the `/`) | `e2e` · `tests` · `__tests__` · `spec` |
+| Token                     | Fill with                                                                                                                                 | Example values (pick the matching stack)                                            |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `{{PROJECT_NAME}}`        | Project / repo name                                                                                                                       | `acme-web` · `billing-service` · `dotctl`                                           |
+| `{{PROJECT_OVERVIEW}}`    | One-line goal/overview                                                                                                                    | `Internal dashboard for fleet operations.` · `CLI for managing dotfiles.`           |
+| `{{PROJECT_KIND}}`        | Kind of project                                                                                                                           | `web app` · `mobile app` · `CLI` · `library` · `backend service` · `desktop app`    |
+| `{{PRIMARY_LANGUAGE}}`    | Main language                                                                                                                             | `TypeScript` · `Python` · `Go` · `Rust` · `Swift`                                   |
+| `{{APP_FRAMEWORK}}`       | App framework / runtime                                                                                                                   | `Next.js` · `React Native` · `Express` · `FastAPI` · `Gin` · `none (plain runtime)` |
+| `{{PACKAGE_MANAGER}}`     | Package manager binary (single binary only — the hooks call `command -v` on it, so a multiword value like `npx playwright` will not work) | `npm` · `pnpm` · `yarn` · `bun` · `pip` · `poetry` · `cargo` · `go`                 |
+| `{{LINTER}}`              | Linter                                                                                                                                    | `Biome` · `ESLint` · `Ruff` · `golangci-lint` · `Clippy`                            |
+| `{{FORMATTER}}`           | Formatter                                                                                                                                 | `Biome` · `Prettier` · `Ruff` · `gofmt` · `rustfmt`                                 |
+| `{{UNIT_TEST_FRAMEWORK}}` | Unit test framework                                                                                                                       | `Jest` · `Vitest` · `pytest` · `go test` · `cargo test`                             |
+| `{{SOURCE_DIR}}`          | Main source dir (no trailing slash — templates append the `/`)                                                                            | `src` · `app` · `lib` · `internal`                                                  |
+| `{{TEST_DIR}}`            | Test root dir (no trailing slash — templates append the `/`)                                                                              | `e2e` · `tests` · `__tests__` · `spec`                                              |
 
 ### Optional integrations
 
 If the project does not use one of these, **delete** the matching skill /
 section instead of filling the token (see Step 4). When kept, fill the token.
 
-| Token | Fill with | Example values | If absent |
-| ----- | --------- | -------------- | --------- |
-| `{{E2E_TEST_FRAMEWORK}}` | E2E test framework | `Playwright` · `Cypress` · `Detox` | delete `e2e-testing-guidelines` |
-| `{{ERROR_TRACKER}}` | Error-reporting service | `Sentry` · `Rollbar` · `Bugsnag` · `Honeybadger` | delete the error-tracking sections of `observability-guidelines` |
-| `{{LOGGER}}` | Structured logger | `Pino` · `Winston` · `structlog` · `zap` | delete the logging section of `observability-guidelines` |
-| `{{CMS_OR_DATA_LAYER}}` | Data / content layer | `Payload CMS` · `Prisma` · `Drizzle` · `SQLAlchemy` · `a REST API` | delete the data-layer sections (marked optional) |
-| `{{HOSTING_PLATFORM}}` | Hosting / deploy platform | `Vercel` · `AWS` · `Fly.io` · `Cloudflare` · `self-hosted` | leave generic or delete the mention |
+| Token                    | Fill with                 | Example values                                                     | If absent                                                        |
+| ------------------------ | ------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `{{E2E_TEST_FRAMEWORK}}` | E2E test framework        | `Playwright` · `Cypress` · `Detox`                                 | delete `e2e-testing-guidelines`                                  |
+| `{{ERROR_TRACKER}}`      | Error-reporting service   | `Sentry` · `Rollbar` · `Bugsnag` · `Honeybadger`                   | delete the error-tracking sections of `observability-guidelines` |
+| `{{LOGGER}}`             | Structured logger         | `Pino` · `Winston` · `structlog` · `zap`                           | delete the logging section of `observability-guidelines`         |
+| `{{CMS_OR_DATA_LAYER}}`  | Data / content layer      | `Payload CMS` · `Prisma` · `Drizzle` · `SQLAlchemy` · `a REST API` | delete the data-layer sections (marked optional)                 |
+| `{{HOSTING_PLATFORM}}`   | Hosting / deploy platform | `Vercel` · `AWS` · `Fly.io` · `Cloudflare` · `self-hosted`         | leave generic or delete the mention                              |
 
 ### Commands
 
-| Token | Fill with | Example values (npm-scripts · direct) |
-| ----- | --------- | ------------------------------------- |
-| `{{INSTALL_CMD}}` | Install dependencies | `npm install` · `pnpm install` · `pip install -r requirements.txt` · `go mod download` |
-| `{{DEV_CMD}}` | Start dev server | `npm run dev` · `pnpm dev` · `uvicorn app:app --reload` · `go run ./...` |
-| `{{BUILD_CMD}}` | Production build | `npm run build` · `pnpm build` · `go build ./...` · `cargo build --release` |
-| `{{START_CMD}}` | Start built app | `npm run start` · `node dist/index.js` · `./bin/app` |
-| `{{FORMAT_CMD}}` | Run formatter | `npm run format` · `biome format --write .` · `ruff format .` · `gofmt -w .` |
-| `{{LINT_CMD}}` | Run linter | `npm run lint` · `biome check .` · `ruff check .` · `golangci-lint run` |
-| `{{TYPECHECK_CMD}}` | Type-check (drop if the language is untyped) | `npm run typecheck` · `tsc --noEmit` · `mypy .` |
-| `{{UNIT_TEST_CMD}}` | Run unit tests | `npm run test:unit` · `pnpm test` · `pytest` · `go test ./...` |
-| `{{E2E_TEST_CMD}}` | Run e2e tests | `npm run test:e2e` · `npx playwright test` · `cypress run` |
+| Token               | Fill with                                    | Example values (npm-scripts · direct)                                                  |
+| ------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `{{INSTALL_CMD}}`   | Install dependencies                         | `npm install` · `pnpm install` · `pip install -r requirements.txt` · `go mod download` |
+| `{{DEV_CMD}}`       | Start dev server                             | `npm run dev` · `pnpm dev` · `uvicorn app:app --reload` · `go run ./...`               |
+| `{{BUILD_CMD}}`     | Production build                             | `npm run build` · `pnpm build` · `go build ./...` · `cargo build --release`            |
+| `{{START_CMD}}`     | Start built app                              | `npm run start` · `node dist/index.js` · `./bin/app`                                   |
+| `{{FORMAT_CMD}}`    | Run formatter                                | `npm run format` · `biome format --write .` · `ruff format .` · `gofmt -w .`           |
+| `{{LINT_CMD}}`      | Run linter                                   | `npm run lint` · `biome check .` · `ruff check .` · `golangci-lint run`                |
+| `{{TYPECHECK_CMD}}` | Type-check (drop if the language is untyped) | `npm run typecheck` · `tsc --noEmit` · `mypy .`                                        |
+| `{{UNIT_TEST_CMD}}` | Run unit tests                               | `npm run test:unit` · `pnpm test` · `pytest` · `go test ./...`                         |
+| `{{E2E_TEST_CMD}}`  | Run e2e tests                                | `npm run test:e2e` · `npx playwright test` · `cypress run`                             |
 
 ### Harness-hook tokens (`.claude/hooks/*.sh`)
 
-| Token | Fill with | Example values |
-| ----- | --------- | -------------- |
-| `{{CODE_FILE_GLOB}}` | Shell `case` pattern of formatted extensions (`format.sh`) | `*.ts \| *.tsx \| *.css` · `*.py` · `*.go` |
-| `{{CODE_FILE_REGEX}}` | Extended-regex of source extensions (`check.sh`) | `\.(ts\|tsx\|css)$` · `\.py$` · `\.go$` |
+| Token                 | Fill with                                                  | Example values                             |
+| --------------------- | ---------------------------------------------------------- | ------------------------------------------ |
+| `{{CODE_FILE_GLOB}}`  | Shell `case` pattern of formatted extensions (`format.sh`) | `*.ts \| *.tsx \| *.css` · `*.py` · `*.go` |
+| `{{CODE_FILE_REGEX}}` | Extended-regex of source extensions (`check.sh`)           | `\.(ts\|tsx\|css)$` · `\.py$` · `\.go$`    |
 
 A find-and-replace sweep is the fastest path. After replacing, search the tree
 for `{{` to confirm none remain (the completion checklist does this).
@@ -382,7 +383,7 @@ grep -rn 'INIT:OPTIONAL' .claude .github AGENTS.md REVIEW.md README.template.md 
 `/handoff` skills, `REVIEW.md`, the `.github/workflows/`, and
 `github-operation-guidelines` are permanent (see the "Fixed vs. configured" note
 at the top of this file): resolve their `INIT:OPTIONAL` markers as "keep +
-adapt", never as a deletion. Every *other* marked capability is resolved by its
+adapt", never as a deletion. Every _other_ marked capability is resolved by its
 Step-1 decision below.
 
 For **each** marked section, apply the Step 1 decision for that capability:
@@ -407,7 +408,7 @@ For **each** marked section, apply the Step 1 decision for that capability:
   Replace any unfilled `{{TOKEN}}` inside a dormant section with neutral prose
   (e.g. "the project's error tracker") and delete the token's row from
   `tokens.json` (and `init.values.json`, if already generated) — `./init.sh
-  apply` refuses to run while any manifest-listed token has no value, whether
+apply` refuses to run while any manifest-listed token has no value, whether
   or not it still occurs in the tree. Prefer
   **dormant** over **skip** for service-shaped capabilities the project is
   likely to acquire (an error tracker, server-side caching, a data layer): the
@@ -555,6 +556,7 @@ apply to the **skip** path.
   Deleting the e2e skill also removes every `key=SCENARIO_COVERAGE` site (next
   bullet) — the two that live outside `e2e-testing-guidelines/` are inside
   `quality-assurance-guidelines` files deleted or trimmed above.
+
 - **E2E suite kept, but no scenario-coverage catalog** → delete every
   `INIT:OPTIONAL key=SCENARIO_COVERAGE` site:
   - `e2e-testing-guidelines/references/scenario-coverage.md` (delete the file)
@@ -569,6 +571,7 @@ apply to the **skip** path.
   `scenarios.md` in `{{TEST_DIR}}`), pick the tag syntax
   `{{E2E_TEST_FRAMEWORK}}` supports, and build the coverage reporter and gate
   script — the template ships the convention only, no implementation.
+
 - **No unit test framework** → delete `.claude/skills/unit-test-guidelines/`
   and its index row, then remove every inbound link to it:
   - the `../unit-test-guidelines/SKILL.md` link in
@@ -691,7 +694,7 @@ verbatim from that recorded answer and MUST NOT invent one: Expo `app.json`
 `Info.plist`-shaping config, a Fastlane `Appfile`, the store / distribution app
 IDs, the deep-link scheme, and e2e `appId` selectors must all agree — app
 identity is expensive to change once published (see §1a). A surface-less kind
-recorded the area *not applicable*, so none of this applies to it.
+recorded the area _not applicable_, so none of this applies to it.
 
 ---
 
@@ -718,11 +721,11 @@ targets **Claude Code** (fixed — Step 1e), which reads them through the
     `application-security` skill assumes they are gitignored) — keep those entries
     and merge the rest of the project's ignores into it. If the project keeps its
     own `.gitignore` elsewhere, move these entries there instead.
-The Claude Code binding is the only one to set up — there is no per-agent choice
-to make. A project that later wants to also drive the same
-`AGENTS.md` + `.claude/skills/**` from another agent (Cursor, Copilot, Aider, …)
-adds that binding itself, outside INIT, by pointing the agent at `AGENTS.md` via
-its own mechanism; the portable substance already supports it.
+    The Claude Code binding is the only one to set up — there is no per-agent choice
+    to make. A project that later wants to also drive the same
+    `AGENTS.md` + `.claude/skills/**` from another agent (Cursor, Copilot, Aider, …)
+    adds that binding itself, outside INIT, by pointing the agent at `AGENTS.md` via
+    its own mechanism; the portable substance already supports it.
 
 ---
 
@@ -763,7 +766,7 @@ its own mechanism; the portable substance already supports it.
 
 - [ ] No `{{TOKEN}}`s remain in authored files (build/VCS dirs excluded):
       `./init.sh check` (or `grep -rnE '\{\{[A-Z][A-Z0-9_]*\}\}' .
-      --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git`).
+    --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git`).
       The uppercase-token pattern matters when the independent-review
       workflows are kept: GitHub Actions `${{ ... }}` expressions contain
       `{{` but are lowercase, so they never match, while leftover tokens in

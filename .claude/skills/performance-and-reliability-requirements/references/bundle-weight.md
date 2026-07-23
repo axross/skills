@@ -42,7 +42,8 @@ A barrel import hands the bundler the whole index, and everything the re-exports
 ## Server-External Package Configuration
 
 <!-- INIT:OPTIONAL key=BUNDLER — keep this section OR delete it. -->
-*If this project's bundler has no "external server packages" escape hatch, delete this section during INIT.*
+
+_If this project's bundler has no "external server packages" escape hatch, delete this section during INIT._
 
 Some bundlers let you mark packages that the server runtime should NOT bundle (they stay loaded from the dependency tree at runtime). This list should stay minimal.
 

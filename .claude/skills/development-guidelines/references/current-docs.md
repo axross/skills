@@ -6,14 +6,14 @@ Apply this reference when a change depends on framework, platform, service, or t
 
 Use current official docs before changing behavior governed by fast-moving frameworks, services, or tools that the project depends on. The table below lists representative surfaces by tool token; delete rows for tools the project does not use during INIT, and add rows for any other fast-moving dependency.
 
-| Surface | Refresh docs before changing |
-| ------- | ---------------------------- |
-| {{APP_FRAMEWORK}} | Routing/rendering conventions, request/response handling, metadata, caching, configuration, instrumentation, asset/image behavior |
-| {{CMS_OR_DATA_LAYER}} | Schema/model definitions, fields, access control, hooks, admin/customization, migrations, query APIs, storage adapters <!-- INIT:OPTIONAL key=DATA_LAYER — fill the token OR delete this row. --> |
-| {{ERROR_TRACKER}} | SDK setup, instrumentation, source maps, event capture, PII behavior, runtime-specific config <!-- INIT:OPTIONAL key=ERROR_TRACKER — fill the token OR delete this row. --> |
-| {{HOSTING_PLATFORM}} | Deployment/runtime behavior, asset optimization, storage, environment variables |
-| {{E2E_TEST_FRAMEWORK}} | Test runner configuration, snapshot behavior, locator/assertion APIs |
-| {{LINTER}} | Formatter/linter configuration, suppression syntax, rule names |
+| Surface                | Refresh docs before changing                                                                                                                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| {{APP_FRAMEWORK}}      | Routing/rendering conventions, request/response handling, metadata, caching, configuration, instrumentation, asset/image behavior                                                                 |
+| {{CMS_OR_DATA_LAYER}}  | Schema/model definitions, fields, access control, hooks, admin/customization, migrations, query APIs, storage adapters <!-- INIT:OPTIONAL key=DATA_LAYER — fill the token OR delete this row. --> |
+| {{ERROR_TRACKER}}      | SDK setup, instrumentation, source maps, event capture, PII behavior, runtime-specific config <!-- INIT:OPTIONAL key=ERROR_TRACKER — fill the token OR delete this row. -->                       |
+| {{HOSTING_PLATFORM}}   | Deployment/runtime behavior, asset optimization, storage, environment variables                                                                                                                   |
+| {{E2E_TEST_FRAMEWORK}} | Test runner configuration, snapshot behavior, locator/assertion APIs                                                                                                                              |
+| {{LINTER}}             | Formatter/linter configuration, suppression syntax, rule names                                                                                                                                    |
 
 **Guidelines:**
 

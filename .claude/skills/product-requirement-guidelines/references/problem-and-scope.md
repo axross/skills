@@ -9,7 +9,7 @@ The Summary is one standalone paragraph at the top of the plan that a reader can
 **Guidelines:**
 
 - MUST open the plan with a single self-contained paragraph stating the change, its audience, and the outcome it produces, understandable without reading any later section.
-- MUST keep the Summary to the outcome, not the mechanics; the *how* belongs to Functional requirements and the implementation skills.
+- MUST keep the Summary to the outcome, not the mechanics; the _how_ belongs to Functional requirements and the implementation skills.
 - SHOULD write the Summary last, once the rest of the plan has settled, so it reflects the plan as it stands rather than as first imagined.
 
 ## Outcome Before Solution
@@ -29,7 +29,7 @@ Background gives a reader the context the change assumes — the current state, 
 
 **Guidelines:**
 
-- MUST state the background a reader needs to understand *why now* — the current state and the trigger or constraint prompting the change — without restating the whole problem history.
+- MUST state the background a reader needs to understand _why now_ — the current state and the trigger or constraint prompting the change — without restating the whole problem history.
 - MUST list Goals as concrete, checkable outcomes the change must achieve, each one an end a reviewer can confirm was met, per [Concrete, Checkable Language](#concrete-checkable-language).
 - MUST keep Goals distinct from the solution: a goal is an outcome, not a task list or a chosen mechanism.
 - SHOULD pair every Goals list with the Non-goals list below, since the boundary between them is what pre-empts scope creep.
@@ -46,7 +46,7 @@ Non-goals are a decision, not a disclaimer. Design-doc practice at Google treats
 
 ## Assumptions
 
-Assumptions are the Background subsection that records the beliefs the plan relies on — things taken as true so the plan can proceed, each one a candidate to revisit if it turns out false. They are distinct from open questions: an assumption is a belief the plan *acts on* now; an open question is an unresolved item that must be *answered* before the plan is confident (see [Open Questions](#open-questions) below).
+Assumptions are the Background subsection that records the beliefs the plan relies on — things taken as true so the plan can proceed, each one a candidate to revisit if it turns out false. They are distinct from open questions: an assumption is a belief the plan _acts on_ now; an open question is an unresolved item that must be _answered_ before the plan is confident (see [Open Questions](#open-questions) below).
 
 **Guidelines:**
 

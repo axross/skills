@@ -97,7 +97,7 @@ it rather than cloning it.
    then fills the `{{TOKENS}}` via `./init.sh`. The `/address` + `/handoff`
    commands and the independent-review loop (`REVIEW.md`, the workflows,
    `github-operation-guidelines`) are **fixed** — INIT never asks whether to keep
-   them. For each *other* optional capability — unit tests, e2e, observability —
+   them. For each _other_ optional capability — unit tests, e2e, observability —
    it asks whether to **add** it (and with which tool) or skip it, rather than
    assuming it should be deleted, and it adds project-specific skills.
 3. When adaptation is complete, INIT finalizes `README.template.md` into your

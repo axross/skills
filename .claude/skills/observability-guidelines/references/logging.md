@@ -1,7 +1,8 @@
 # Logging
 
 <!-- INIT:OPTIONAL key=LOGGER — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project has no {{LOGGER}} (structured logger), delete or adapt this section during INIT.*
+
+_If this project has no {{LOGGER}} (structured logger), delete or adapt this section during INIT._
 
 Apply these rules when writing, reviewing, or modifying any code that emits log output.
 
@@ -54,7 +55,10 @@ logger.info("Started fetching records.");
 
 // With context
 logger.info({ id }, "Started fetching record.");
-logger.info({ id, duration: performance.now() - startedAt }, "Completed fetching record.");
+logger.info(
+  { id, duration: performance.now() - startedAt },
+  "Completed fetching record.",
+);
 ```
 
 **Guidelines:**
@@ -67,11 +71,11 @@ logger.info({ id, duration: performance.now() - startedAt }, "Completed fetching
 
 Log messages SHOULD follow a consistent past-tense / gerund-phrase pattern that makes log streams easy to scan:
 
-| Moment | Prefix | Example |
-|---|---|---|
-| Beginning of an operation | `"Started ..."` | `"Started fetching records."` |
-| Successful completion | `"Completed ..."` or `"Finished ..."` | `"Completed fetching external metadata."` |
-| Recoverable skip / partial failure | Descriptive past tense | `"Skipped a record due to parse error."` |
+| Moment                             | Prefix                                | Example                                   |
+| ---------------------------------- | ------------------------------------- | ----------------------------------------- |
+| Beginning of an operation          | `"Started ..."`                       | `"Started fetching records."`             |
+| Successful completion              | `"Completed ..."` or `"Finished ..."` | `"Completed fetching external metadata."` |
+| Recoverable skip / partial failure | Descriptive past tense                | `"Skipped a record due to parse error."`  |
 
 ```typescript
 // CORRECT

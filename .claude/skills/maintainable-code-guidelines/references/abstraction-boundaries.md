@@ -38,7 +38,8 @@ A shared pipeline copied into a second place drifts out of sync, so a fix applie
 ## Data-Layer Hooks / UI Boundary
 
 <!-- INIT:OPTIONAL key=DATA_LAYER — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project has no `{{CMS_OR_DATA_LAYER}}` with lifecycle hooks, delete this section during INIT.*
+
+_If this project has no `{{CMS_OR_DATA_LAYER}}` with lifecycle hooks, delete this section during INIT._
 
 Data-layer lifecycle hooks run server-side, outside the UI runtime, so a UI import there either breaks at runtime or drags view code into a realm that must stay UI-free.
 

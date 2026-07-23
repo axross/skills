@@ -16,11 +16,11 @@ A file that breaks the surrounding naming convention is harder to locate and mak
 
 Place shared logic at the lowest tier that has more than one caller. Most projects have a progression from route-local code, to a group-shared tier, to a global/shared tier, plus possibly a separate realm for the data/content layer. The reviewer MUST verify a new module lives at the **lowest** tier that has more than one caller:
 
-| Tier | When to use |
-|---|---|
-| Route-local | Used only by the files of one route/feature |
-| Group-shared | Used by ≥ 2 routes/features within the same group |
-| Global / shared | Used broadly across the application |
+| Tier                     | When to use                                                                                                                   |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Route-local              | Used only by the files of one route/feature                                                                                   |
+| Group-shared             | Used by ≥ 2 routes/features within the same group                                                                             |
+| Global / shared          | Used broadly across the application                                                                                           |
 | Data/content-layer realm | Runs inside the `{{CMS_OR_DATA_LAYER}}` realm only <!-- INIT:OPTIONAL key=DATA_LAYER — fill the token OR delete this row. --> |
 
 **Guidelines:**

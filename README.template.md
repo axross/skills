@@ -15,16 +15,16 @@ interview — what the project is, who it serves, and its current goal. -->
 
 ## Tech stack
 
-| Area | Tool |
-| ---- | ---- |
-| Language | {{PRIMARY_LANGUAGE}} |
-| App framework / runtime | {{APP_FRAMEWORK}} |
-| Package manager | {{PACKAGE_MANAGER}} |
-| Linting & formatting | {{LINTER}} / {{FORMATTER}} |
-| Unit tests | {{UNIT_TEST_FRAMEWORK}} <!-- INIT:OPTIONAL key=UNIT_TESTS — fill the token OR delete this row if the project has no unit suite. --> |
-| E2E tests | {{E2E_TEST_FRAMEWORK}} <!-- INIT:OPTIONAL key=E2E_TESTS — fill the token OR delete this row if the project has no e2e suite. --> |
-| Data / content layer | {{CMS_OR_DATA_LAYER}} <!-- INIT:OPTIONAL key=DATA_LAYER — fill the token OR delete this row if the project has no data/content layer. --> |
-| Hosting | {{HOSTING_PLATFORM}} <!-- INIT:OPTIONAL key=HOSTING — fill the token OR delete this row if the project has no hosting platform yet. --> |
+| Area                    | Tool                                                                                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Language                | {{PRIMARY_LANGUAGE}}                                                                                                                      |
+| App framework / runtime | {{APP_FRAMEWORK}}                                                                                                                         |
+| Package manager         | {{PACKAGE_MANAGER}}                                                                                                                       |
+| Linting & formatting    | {{LINTER}} / {{FORMATTER}}                                                                                                                |
+| Unit tests              | {{UNIT_TEST_FRAMEWORK}} <!-- INIT:OPTIONAL key=UNIT_TESTS — fill the token OR delete this row if the project has no unit suite. -->       |
+| E2E tests               | {{E2E_TEST_FRAMEWORK}} <!-- INIT:OPTIONAL key=E2E_TESTS — fill the token OR delete this row if the project has no e2e suite. -->          |
+| Data / content layer    | {{CMS_OR_DATA_LAYER}} <!-- INIT:OPTIONAL key=DATA_LAYER — fill the token OR delete this row if the project has no data/content layer. --> |
+| Hosting                 | {{HOSTING_PLATFORM}} <!-- INIT:OPTIONAL key=HOSTING — fill the token OR delete this row if the project has no hosting platform yet. -->   |
 
 <!-- INIT: add rows a newcomer needs from the Stack Decision Record (state
 management, styling, ORM/db wrapper, error tracker, logger, …); keep the table
@@ -53,6 +53,7 @@ contributors follow the same loop: plan → implement → self-review → verify
 report.
 
 <!-- INIT:OPTIONAL key=INDEPENDENT_REVIEW — Fixed: the independent-review channel and `/address` are fixed infrastructure (INIT.md Step 4), so KEEP the workflow subsections below; just delete this marker (and adapt the copy to the project's stack). -->
+
 ### `/address` — deliver a unit of work end-to-end
 
 [`/address`](./.claude/skills/address/SKILL.md) is the main delivery entry point.
@@ -106,6 +107,7 @@ pre-merge check on a hand-written change or a second opinion before merging; the
 same review runs automatically against `/address` pull requests.
 
 <!-- INIT:OPTIONAL key=SESSION_HANDOFF — Fixed: `/handoff` is fixed infrastructure (INIT.md Step 4), so KEEP this subsection; just delete this marker. -->
+
 ### `/handoff` — suspend work for another session
 
 [`/handoff`](./.claude/skills/handoff/SKILL.md) packages in-progress work — goal,
@@ -115,10 +117,11 @@ session is running low on context, or to park work for later; a fresh session
 (yours or a teammate's) takes the package over with `/address continue`.
 
 <!-- INIT:OPTIONAL key=PREVIEW_ENVIRONMENTS — keep & adapt this subsection when the project has per-PR preview environments (INIT Step 1d) OR delete it. -->
+
 ### Preview environments — review every PR live
 
-*If this project has no per-PR preview environments, delete this subsection
-during INIT.*
+_If this project has no per-PR preview environments, delete this subsection
+during INIT._
 
 Each pull request gets its own preview environment with a **stable per-PR
 link** — a preview URL for a web project, an installable build's distribution
@@ -136,13 +139,13 @@ checks below, open a pull request, and get it reviewed before merge.
 <!-- INIT: describe the testing strategy in a sentence or two — what unit
 tests cover versus e2e, and which checks gate a merge. -->
 
-| Check | Command |
-| ----- | ------- |
-| Format | `{{FORMAT_CMD}}` |
-| Lint | `{{LINT_CMD}}` |
-| Type-check | `{{TYPECHECK_CMD}}` <!-- INIT:OPTIONAL key=TYPED_LANGUAGE — delete this row for an untyped language. --> |
+| Check      | Command                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------- |
+| Format     | `{{FORMAT_CMD}}`                                                                                              |
+| Lint       | `{{LINT_CMD}}`                                                                                                |
+| Type-check | `{{TYPECHECK_CMD}}` <!-- INIT:OPTIONAL key=TYPED_LANGUAGE — delete this row for an untyped language. -->      |
 | Unit tests | `{{UNIT_TEST_CMD}}` <!-- INIT:OPTIONAL key=UNIT_TESTS — delete this row if the project has no unit suite. --> |
-| E2E tests | `{{E2E_TEST_CMD}}` <!-- INIT:OPTIONAL key=E2E_TESTS — delete this row if the project has no e2e suite. --> |
+| E2E tests  | `{{E2E_TEST_CMD}}` <!-- INIT:OPTIONAL key=E2E_TESTS — delete this row if the project has no e2e suite. -->    |
 
 Run format + lint after every change, and the suites relevant to the changed
 surface before opening a pull request — see the Verification section of

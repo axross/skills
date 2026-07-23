@@ -15,7 +15,9 @@ See [code-quality.md](./references/code-quality.md) for:
 
 - The formatter/linter format/lint workflow
 - Language compliance requirements
+
 <!-- INIT:OPTIONAL key=TYPED_LANGUAGE — keep the next bullet for a typed language OR delete it (and the "type-safety discipline" / "type casts" phrases in this file's frontmatter description) together with the marked section in ./references/code-quality.md. -->
+
 - Type-safety discipline (unchecked casts and non-null/force-unwrap assertions), for typed languages
 - Doc-comment and line-comment conventions in source files
 - Import hygiene
@@ -57,7 +59,8 @@ See [dev-commands.md](./references/dev-commands.md) for:
 ## Preview Environments
 
 <!-- INIT:OPTIONAL key=PREVIEW_ENVIRONMENTS — keep this section when the project has (or adds) per-PR preview environments OR delete it (and the reference file) with every inbound link. -->
-*If this project has no per-PR preview environments, delete this section during INIT.*
+
+_If this project has no per-PR preview environments, delete this section during INIT._
 
 See [preview-environments.md](./references/preview-environments.md) for:
 
@@ -88,9 +91,9 @@ See [pull-request-descriptions.md](./references/pull-request-descriptions.md) fo
 
 Consult the appropriate skill for detailed guidance on each area:
 
-| Topic | Skill |
-|---|---|
-| Error handling, error-reporting, and logging | the project's observability guidelines |
+| Topic                                                | Skill                                       |
+| ---------------------------------------------------- | ------------------------------------------- |
+| Error handling, error-reporting, and logging         | the project's observability guidelines      |
 | End-to-end test structure, conventions, and commands | the project's end-to-end testing guidelines |
 
 Project-specific topic skills — covering repository structure, routing, UI components, visual design, the data/content layer, and any domain rules — are created per-project during INIT. Consult those skills when implementation touches the area they own, if they have been defined.

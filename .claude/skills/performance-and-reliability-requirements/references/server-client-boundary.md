@@ -15,7 +15,8 @@ Sequential awaits make response time the sum of every operation's latency; concu
 ## Streaming / Lazy Load Granularity
 
 <!-- INIT:OPTIONAL key=STREAMING — keep this section OR adapt it to the framework's lazy-loading mechanism. -->
-*If this project's framework cannot stream or progressively render independent units, adapt this section to its lazy-loading mechanism during INIT.*
+
+_If this project's framework cannot stream or progressively render independent units, adapt this section to its lazy-loading mechanism during INIT._
 
 A loading boundary streams at the pace of the slowest thing inside it, so grouping independent units forces the fast one to wait for the slow one.
 
@@ -48,7 +49,8 @@ The client-tier boundary is transitive — a promoted unit carries every import 
 ## Compiler / Memoization Implications
 
 <!-- INIT:OPTIONAL key=COMPILER — keep this section OR delete it. -->
-*If this project's toolchain has no auto-memoizing compiler, delete this entire subsection during INIT — heading, prose, and the **Guidelines:** block below (through the end of this section, before "Static / Dynamic Rendering Implications").*
+
+_If this project's toolchain has no auto-memoizing compiler, delete this entire subsection during INIT — heading, prose, and the **Guidelines:** block below (through the end of this section, before "Static / Dynamic Rendering Implications")._
 
 When the framework's compiler auto-memoizes client components, the reviewer SHOULD be aware:
 
@@ -62,7 +64,8 @@ When the framework's compiler auto-memoizes client components, the reviewer SHOU
 ## Static / Dynamic Rendering Implications
 
 <!-- INIT:OPTIONAL key=RENDERING — keep this section OR delete it. -->
-*If this project's framework does not distinguish static from dynamic rendering, delete this subsection during INIT.*
+
+_If this project's framework does not distinguish static from dynamic rendering, delete this subsection during INIT._
 
 When the framework can statically prerender server-tier units, reading per-request state (cookies, headers, request-specific parameters) typically forces the enclosing unit into dynamic rendering. The reviewer SHOULD be aware:
 

@@ -35,7 +35,8 @@ See [conventions.md](./references/conventions.md) for:
 ## E2E Scenario Coverage
 
 <!-- INIT:OPTIONAL key=SCENARIO_COVERAGE — keep if the project adopts journey-catalog e2e coverage OR delete this section, ./references/scenario-coverage.md, and the marked "Scenario Coverage" sites in quality-assurance-guidelines; see the INIT.md Step-4 bullet. -->
-*If this project does not adopt scenario coverage, delete this section during INIT.*
+
+_If this project does not adopt scenario coverage, delete this section during INIT._
 
 See [scenario-coverage.md](./references/scenario-coverage.md) for:
 

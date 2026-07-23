@@ -6,19 +6,19 @@ AHA testing means "avoid hasty abstraction." Do not extract a setup helper just 
 
 ```ts
 function createDeleteRepositoryWithData(data: Record["data"]): {
-	repository: Repository;
-	wasUpdateCalled: () => boolean;
+  repository: Repository;
+  wasUpdateCalled: () => boolean;
 } {
-	let updateCalled = false;
-	const repository = {
-		find: async () => ({ items: [{ id: 1, slug: "hello", data }] }),
-		update: async () => {
-			updateCalled = true;
-			return {};
-		},
-	} as unknown as Repository;
+  let updateCalled = false;
+  const repository = {
+    find: async () => ({ items: [{ id: 1, slug: "hello", data }] }),
+    update: async () => {
+      updateCalled = true;
+      return {};
+    },
+  } as unknown as Repository;
 
-	return { repository, wasUpdateCalled: () => updateCalled };
+  return { repository, wasUpdateCalled: () => updateCalled };
 }
 ```
 
@@ -45,21 +45,21 @@ Large framework- or library-owned objects (request contexts, ORM clients, SDK ha
 
 ```ts
 interface FindOptions {
-	collection: string;
-	includeArchived?: boolean;
-	locale?: "en-US" | "ja-JP";
-	where?: {
-		slug?: {
-			equals?: string;
-		};
-	};
+  collection: string;
+  includeArchived?: boolean;
+  locale?: "en-US" | "ja-JP";
+  where?: {
+    slug?: {
+      equals?: string;
+    };
+  };
 }
 
 const repository = {
-	find: async (options: FindOptions) => {
-		expect(options.collection).toBe("records");
-		return { items: [{ id: 1, slug: "hello-world" }] };
-	},
+  find: async (options: FindOptions) => {
+    expect(options.collection).toBe("records");
+    return { items: [{ id: 1, slug: "hello-world" }] };
+  },
 } as unknown as Repository;
 ```
 

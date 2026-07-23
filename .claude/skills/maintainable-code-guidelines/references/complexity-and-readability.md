@@ -6,12 +6,12 @@ Apply these rules to verify that changed code is straightforward to read and wit
 
 The project enforces complexity/length/typing thresholds in its `{{LINTER}}` configuration; use the table as the reviewer's severity map. The numbers below are illustrative example values — read the project's actual configured thresholds.
 
-| Concern | Example project setting | Flag when |
-|---|---|---|
-| Cognitive complexity | `error` at e.g. 24 | A new or modified function exceeds the configured threshold — Critical (lint will fail) |
-| Lines per function | `info` at e.g. 120 | A new or modified function exceeds the configured length — Major (may not fail lint, but indicates the function should be split) |
-| Magic numbers | `warn` | A literal number with no semantic meaning appears outside a named constant or design token — Minor, unless the magic value affects security/auth (then Major) |
-| Unsafe `any`-equivalent type | `error` | An untyped escape hatch (e.g., `any`) appears in changed code — Critical per the project's own component/typing conventions, if defined |
+| Concern                      | Example project setting | Flag when                                                                                                                                                     |
+| ---------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cognitive complexity         | `error` at e.g. 24      | A new or modified function exceeds the configured threshold — Critical (lint will fail)                                                                       |
+| Lines per function           | `info` at e.g. 120      | A new or modified function exceeds the configured length — Major (may not fail lint, but indicates the function should be split)                              |
+| Magic numbers                | `warn`                  | A literal number with no semantic meaning appears outside a named constant or design token — Minor, unless the magic value affects security/auth (then Major) |
+| Unsafe `any`-equivalent type | `error`                 | An untyped escape hatch (e.g., `any`) appears in changed code — Critical per the project's own component/typing conventions, if defined                       |
 
 **Guidelines:**
 

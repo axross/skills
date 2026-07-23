@@ -1,7 +1,8 @@
 # Preview Environments
 
 <!-- INIT:OPTIONAL key=PREVIEW_ENVIRONMENTS — keep & adapt when the project has (or adds) per-PR preview environments (INIT Steps 1d, 4, 5) OR delete this file and every inbound link. -->
-*If this project skipped per-PR preview environments, delete this file during INIT. When kept, replace the illustrative tool names below with the project's real hosting/distribution stack, and author the concrete workflow per INIT Step 5.*
+
+_If this project skipped per-PR preview environments, delete this file during INIT. When kept, replace the illustrative tool names below with the project's real hosting/distribution stack, and author the concrete workflow per INIT Step 5._
 
 Apply these guidelines when creating, changing, configuring, or reasoning about the per-pull-request preview-environment pipeline. The pipeline gives every pull request a **stable, reviewable environment**, so a human can check a change's actual look and behavior before merge:
 
@@ -48,13 +49,13 @@ The hosting platform's deploy command typically returns a **per-commit** URL. Th
 
 ```yaml
 # Sketch (adapt to the project's hosting platform during INIT):
-- name: Deploy Preview            # per-commit deployment; capture its URL
+- name: Deploy Preview # per-commit deployment; capture its URL
   run: url="$(<deploy command>)" && echo "url=${url}" >> "${GITHUB_OUTPUT}"
 - name: Assign Stable Preview Alias
   # Deterministic label, e.g. <prefix>-pr-<n>, where <prefix> defaults to the
   # sanitized repository name with an optional override variable. Fail loud.
   run: <alias command> "${DEPLOYMENT_URL}" "<prefix>-pr-${PR_NUMBER}.<host>"
-- name: Comment Preview URL       # a NEW comment: stable URL + short SHA
+- name: Comment Preview URL # a NEW comment: stable URL + short SHA
 ```
 
 **Guidelines:**
@@ -70,15 +71,15 @@ A mobile preview is an **installable artifact**, not a URL: a signed build distr
 ```yaml
 # Sketch (adapt to the project's build/distribution stack during INIT):
 on:
-  workflow_dispatch:              # dispatched when a PR looks ready for merge
+  workflow_dispatch: # dispatched when a PR looks ready for merge
     inputs:
       pr: { description: "PR number to comment the install link on" }
 jobs:
-  build:    # signed release-mode build of the PR's branch (cache the expensive
-            # native-project generation across runs where the toolchain allows)
+  build: # signed release-mode build of the PR's branch (cache the expensive
+    # native-project generation across runs where the toolchain allows)
   distribute: # upload to the tester channel; capture the install/testing link
-  report:   # write the link to the run summary; given a `pr` input, also post
-            # it as a NEW PR comment
+  report: # write the link to the run summary; given a `pr` input, also post
+    # it as a NEW PR comment
 ```
 
 **Guidelines:**
@@ -86,4 +87,4 @@ jobs:
 - MUST distribute a **signed, release-mode** build through the tester channel and surface its install link both in the run summary and — when a PR number is provided — as a fresh PR comment, so the link is reachable from the pull request itself.
 - SHOULD trigger mobile preview builds by **manual dispatch** (from the Actions UI, CLI, or an agent, against the PR's branch) rather than on every push: signed builds are expensive, and on-device verification is a deliberate human-in-the-loop step when a PR looks ready for merge. A project MAY automate per-push builds later; the stable-link and fresh-comment rules apply the same way.
 - MUST NOT make the preview build a merge gate: merges are gated by the merge-checks workflow; on-device sign-off is a manual step before merging, not a required status check.
-- SHOULD fail cleanly with a pointer to the missing configuration when the signing/distribution secrets are absent. A dispatched run was explicitly requested by a human, so a loud, well-explained failure is the right inert behavior — the preflight green-skip rule above exists to keep *event-triggered* runs green on unconfigured repositories and forks, which a manual dispatch does not need.
+- SHOULD fail cleanly with a pointer to the missing configuration when the signing/distribution secrets are absent. A dispatched run was explicitly requested by a human, so a loud, well-explained failure is the right inert behavior — the preflight green-skip rule above exists to keep _event-triggered_ runs green on unconfigured repositories and forks, which a manual dispatch does not need.

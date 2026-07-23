@@ -3,7 +3,8 @@
 Apply these rules to verify the change keeps the project's error-propagation model and structured-logging discipline intact. Defer the developer-facing rules to the project's observability guidelines — this file is the **reviewer's** flagging checklist. Throughout, `reportError(...)` denotes the project's error-reporting call (it maps to {{ERROR_TRACKER}}'s capture function if the project has one), and `logger` denotes the project's structured logger ({{LOGGER}}).
 
 <!-- INIT:OPTIONAL key=ERROR_TRACKER — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project has no {{ERROR_TRACKER}}, treat `reportError(...)` as the project's equivalent failure-reporting mechanism (or delete the error-reporting clauses during INIT).*
+
+_If this project has no {{ERROR_TRACKER}}, treat `reportError(...)` as the project's equivalent failure-reporting mechanism (or delete the error-reporting clauses during INIT)._
 
 ## `try`/`catch` Placement
 
@@ -63,7 +64,8 @@ Errors reaching the root boundary are precisely the ones nothing else caught, so
 ## Replay and Trace Sampling
 
 <!-- INIT:OPTIONAL key=ERROR_TRACKER — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project's {{ERROR_TRACKER}} has no session replay or trace sampling, delete this section during INIT.*
+
+_If this project's {{ERROR_TRACKER}} has no session replay or trace sampling, delete this section during INIT._
 
 Sampling decisions are made before anyone knows which session will error, and a replay that was never captured cannot be reconstructed afterward.
 

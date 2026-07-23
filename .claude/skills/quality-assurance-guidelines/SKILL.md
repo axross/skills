@@ -34,7 +34,9 @@ See [e2e-coverage.md](./references/e2e-coverage.md) for:
 - New visually distinct UI elements expose a stable test id per the project's testable-component conventions, if defined
 - Test files use the required locator and structure conventions from the project's end-to-end testing guidelines
 - Shared test helpers are reused (not duplicated inline in the test file)
+
 <!-- INIT:OPTIONAL key=SCENARIO_COVERAGE — keep the next bullet if the project adopts journey-catalog e2e coverage OR delete it; see the INIT.md Step-4 bullet. -->
+
 - Scenario-coverage evidence: a new user-facing journey is cataloged and tagged on the asserting test, and a `must`-priority gap blocks (INIT-optional; for projects with a journey-catalog coverage metric)
 
 ## Snapshot Handling

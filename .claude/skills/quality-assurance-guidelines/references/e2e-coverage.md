@@ -48,7 +48,8 @@ Consistent names and locations are what let the runner discover route tests and 
 ## Scenario Coverage
 
 <!-- INIT:OPTIONAL key=SCENARIO_COVERAGE — keep if the project adopts journey-catalog e2e coverage OR delete this section (with the marked sites in e2e-testing-guidelines and this skill's SKILL.md); see the INIT.md Step-4 bullet. -->
-*If this project does not adopt scenario coverage, delete this section during INIT.*
+
+_If this project does not adopt scenario coverage, delete this section during INIT._
 
 Scenario coverage tracks which real user journeys the e2e suite **asserts**, via a human-authored journey catalog and per-test scenario tags — not e2e line coverage. Its denominator is the catalog itself, so review guards the catalog's completeness as much as the tests. See the project's end-to-end testing guidelines (scenario-coverage rules) for the mechanism.
 

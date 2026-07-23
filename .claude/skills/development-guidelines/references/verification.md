@@ -6,14 +6,14 @@ Apply these guidelines to confirm that any change produces the correct applicati
 
 Use this table to determine which output surfaces a change puts at risk. Adapt the "Changed area" entries to the project's actual file layout during INIT.
 
-| Changed area | Output surface at risk |
-|---|---|
-| Page/view files and the components they render | Rendered pages/views |
-| Data-access functions or data-fetching logic | Rendered output, content fidelity |
-| Route/navigation definitions and error/not-found handlers | Routing and navigation |
-| Metadata generation, sitemap, robots, and social-preview assets | Metadata and discoverability |
-| Content-processing pipeline (if any) | Content fidelity |
-| {{ERROR_TRACKER}} config and {{LOGGER}} setup | Observability <!-- INIT:OPTIONAL key=ERROR_TRACKER_OR_LOGGER — fill the tokens OR trim/delete this row for the tool(s) the project lacks. --> |
+| Changed area                                                    | Output surface at risk                                                                                                                        |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page/view files and the components they render                  | Rendered pages/views                                                                                                                          |
+| Data-access functions or data-fetching logic                    | Rendered output, content fidelity                                                                                                             |
+| Route/navigation definitions and error/not-found handlers       | Routing and navigation                                                                                                                        |
+| Metadata generation, sitemap, robots, and social-preview assets | Metadata and discoverability                                                                                                                  |
+| Content-processing pipeline (if any)                            | Content fidelity                                                                                                                              |
+| {{ERROR_TRACKER}} config and {{LOGGER}} setup                   | Observability <!-- INIT:OPTIONAL key=ERROR_TRACKER_OR_LOGGER — fill the tokens OR trim/delete this row for the tool(s) the project lacks. --> |
 
 - Changes that touch none of the above — type definitions, data-layer config, migration files, or utilities with no UI call path — do not put any output surface at risk.
 

@@ -1,17 +1,18 @@
 # E2E Scenario Coverage
 
 <!-- INIT:OPTIONAL key=SCENARIO_COVERAGE — keep if the project adopts journey-catalog e2e coverage OR delete this file, its "E2E Scenario Coverage" routing section in ../SKILL.md, and the marked "Scenario Coverage" sites in quality-assurance-guidelines; see the INIT.md Step-4 bullet. -->
-*If this project does not adopt scenario coverage, delete this file (and the other marked sites) during INIT.*
 
-Apply these rules when tagging tests, extending the journey catalog, or reading the coverage report. This project measures e2e coverage as **scenario coverage** — which real user journeys the {{E2E_TEST_FRAMEWORK}} suite *asserts* — not lines of application code executed.
+_If this project does not adopt scenario coverage, delete this file (and the other marked sites) during INIT._
+
+Apply these rules when tagging tests, extending the journey catalog, or reading the coverage report. This project measures e2e coverage as **scenario coverage** — which real user journeys the {{E2E_TEST_FRAMEWORK}} suite _asserts_ — not lines of application code executed.
 
 ## Why Scenario Coverage, Not E2E Line Coverage
 
-Scenario coverage is a deliberate choice over instrumenting the app and collecting e2e *line* coverage. Line coverage was rejected because:
+Scenario coverage is a deliberate choice over instrumenting the app and collecting e2e _line_ coverage. Line coverage was rejected because:
 
-- **Noisy and gameable.** Executed ≠ asserted: a line runs when a test merely walks past it, so line coverage overstates how well journeys are *verified*.
+- **Noisy and gameable.** Executed ≠ asserted: a line runs when a test merely walks past it, so line coverage overstates how well journeys are _verified_.
 - **Slow and heavy.** It needs an instrumented coverage build, which is fragile under modern bundlers and slows the default e2e run. Scenario coverage is pure bookkeeping over test tags, so it adds near-zero cost.
-- **Cannot express gaps.** Line coverage has no notion of an *intended* journey nobody has tested yet, so it can never say "the cancel journey is untested." A traceability catalog can — that visible-gap capability is the whole point.
+- **Cannot express gaps.** Line coverage has no notion of an _intended_ journey nobody has tested yet, so it can never say "the cancel journey is untested." A traceability catalog can — that visible-gap capability is the whole point.
 
 The trade-off: the denominator is a **human judgment call** — an incomplete catalog inflates the percentage — so the catalog is reviewed alongside the code, and only critical journeys are hard-gated.
 

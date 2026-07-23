@@ -23,26 +23,26 @@ Elements are targeted by stable test-id hooks scoped through their container, so
 import { expect, type Locator, test } from "@playwright/test";
 
 test("Item summary section", async ({ page }) => {
-	const itemPage = page.getByTestId("page");
-	let summary: Locator;
+  const itemPage = page.getByTestId("page");
+  let summary: Locator;
 
-	await test.step("Verify the title", async () => {
-		summary = itemPage.getByTestId("summary");
+  await test.step("Verify the title", async () => {
+    summary = itemPage.getByTestId("summary");
 
-		await expect(summary.getByTestId("title")).toBeVisible();
-	});
+    await expect(summary.getByTestId("title")).toBeVisible();
+  });
 
-	await test.step("Verify the action links", async () => {
-		const actions = summary.getByTestId("actions");
+  await test.step("Verify the action links", async () => {
+    const actions = summary.getByTestId("actions");
 
-		await test.step("Verify the primary action", async () => {
-			await expect(actions.getByTestId("primary")).toBeVisible();
-		});
+    await test.step("Verify the primary action", async () => {
+      await expect(actions.getByTestId("primary")).toBeVisible();
+    });
 
-		await test.step("Verify the secondary action", async () => {
-			await expect(actions.getByTestId("secondary")).toBeVisible();
-		});
-	});
+    await test.step("Verify the secondary action", async () => {
+      await expect(actions.getByTestId("secondary")).toBeVisible();
+    });
+  });
 });
 ```
 
@@ -73,16 +73,17 @@ Case-independent setup and cleanup belong in hooks so every spec starts from the
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-	await test.step("Navigate to the index route", async () => {
-		await page.goto("/");
-	});
+  await test.step("Navigate to the index route", async () => {
+    await page.goto("/");
+  });
 });
 ```
 
 ## API Calls
 
 <!-- INIT:OPTIONAL key=BACKEND_API — keep if the project has a backend/API surface OR delete this block (client-only projects). -->
-*If this project is client-only with no backend or API surface, delete this entire section during INIT.*
+
+_If this project is client-only with no backend or API surface, delete this entire section during INIT._
 
 ### Authentication
 
@@ -101,9 +102,9 @@ import { authenticatedStorageState } from "@/{{TEST_DIR}}/helpers/api/auth";
 test.use({ storageState: authenticatedStorageState });
 
 test.beforeEach(async ({ page }) => {
-	await test.step("Navigate to the index route", async () => {
-		await page.goto("/");
-	});
+  await test.step("Navigate to the index route", async () => {
+    await page.goto("/");
+  });
 });
 ```
 
@@ -127,21 +128,21 @@ import { authenticatedStorageState } from "@/{{TEST_DIR}}/helpers/api/auth";
 test.use({ storageState: authenticatedStorageState });
 
 test("Item header", async ({ page }, testInfo) => {
-	let item: Awaited<ReturnType<typeof getExampleItem>>;
+  let item: Awaited<ReturnType<typeof getExampleItem>>;
 
-	await test.step("Retrieve the example item record", async () => {
-		item = await getExampleItem({ page, testInfo });
-	});
+  await test.step("Retrieve the example item record", async () => {
+    item = await getExampleItem({ page, testInfo });
+  });
 
-	const header = page.getByTestId("page").getByTestId("header");
+  const header = page.getByTestId("page").getByTestId("header");
 
-	await test.step("Verify the item title", async () => {
-		await expect(header.getByTestId("title")).toHaveText(item.title);
-	});
+  await test.step("Verify the item title", async () => {
+    await expect(header.getByTestId("title")).toHaveText(item.title);
+  });
 
-	await test.step("Verify the item owner", async () => {
-		await expect(header.getByTestId("owner")).toHaveText(item.owner.name);
-	});
+  await test.step("Verify the item owner", async () => {
+    await expect(header.getByTestId("owner")).toHaveText(item.owner.name);
+  });
 });
 ```
 
@@ -159,34 +160,32 @@ import { ItemSchema } from "@/repositories/schema";
 export const exampleItemId = "example-item";
 
 export async function getExampleItem({
-	page,
-	testInfo,
+  page,
+  testInfo,
 }: {
-	page: Page;
-	testInfo: TestInfo;
+  page: Page;
+  testInfo: TestInfo;
 }): Promise<z.infer<typeof ItemSchema>> {
-	const url = new URL("/api/items", testInfo.project.use.baseURL);
-	url.searchParams.set("where[id][equals]", exampleItemId);
-	url.searchParams.set("limit", "1");
+  const url = new URL("/api/items", testInfo.project.use.baseURL);
+  url.searchParams.set("where[id][equals]", exampleItemId);
+  url.searchParams.set("limit", "1");
 
-	// use the framework's request fixture for API calls so it shares the test's auth state
-	const response = await page.request.get(`${url}`);
+  // use the framework's request fixture for API calls so it shares the test's auth state
+  const response = await page.request.get(`${url}`);
 
-	if (!response.ok()) {
-		throw new Error(
-			"Failed to get the example item due to non-200 response.",
-		);
-	}
+  if (!response.ok()) {
+    throw new Error("Failed to get the example item due to non-200 response.");
+  }
 
-	const json = await response.json();
-	const docs = json.docs;
+  const json = await response.json();
+  const docs = json.docs;
 
-	if (Array.isArray(docs) && docs.length > 0) {
-		// parse with the project's schema parser to validate the response shape
-		return ItemSchema.parse(docs[0]);
-	}
+  if (Array.isArray(docs) && docs.length > 0) {
+    // parse with the project's schema parser to validate the response shape
+    return ItemSchema.parse(docs[0]);
+  }
 
-	throw new Error("Failed to get the example item because it was not found.");
+  throw new Error("Failed to get the example item because it was not found.");
 }
 ```
 

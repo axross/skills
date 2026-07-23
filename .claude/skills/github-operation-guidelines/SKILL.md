@@ -8,11 +8,12 @@ user-invocable: false
 # GitHub Operation Guidelines
 
 <!-- INIT:OPTIONAL key=GITHUB_OPERATIONS — Fixed skill: INIT KEEPS it (never deletes it), see INIT.md Step 4. Just delete this marker and the italic note below, and adapt the example tool-channel, marker, and branch-prefix names to the project's real values. A project doing no GitHub automation leaves the rules dormant rather than removing the skill. -->
-*Adapt this skill's tool-channel, agent-comment marker, and branch-prefix examples to the project's real values during INIT.*
+
+_Adapt this skill's tool-channel, agent-comment marker, and branch-prefix examples to the project's real values during INIT._
 
 How an agent reads and writes GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server operates under. These conventions are workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies them. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
 
-This skill is GitHub-specific. An agent operating a different host (GitLab, Gitea, …) shares the *shape* of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
+This skill is GitHub-specific. An agent operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
 
 ## The Sanctioned Channel
 
@@ -60,14 +61,14 @@ The MUST bullets are non-negotiable; the SHOULD bullets are default delivery con
 
 The Conventional Commits header format and the PR-description content rules are owned as single sources of truth by the project's development guidelines (commit-messages and pull-request-descriptions rules). This section does not restate them; it names the two consequences that operating GitHub through the API adds on top, so the format those rules mandate actually lands where it matters.
 
-**Squash merge makes the title the permanent commit.** This project squash-merges pull requests, so the pull request *title* — not the individual in-progress commit subjects — becomes the squashed commit's subject on the default branch. The branch commits are collapsed at merge; the title is what survives in permanent history.
+**Squash merge makes the title the permanent commit.** This project squash-merges pull requests, so the pull request _title_ — not the individual in-progress commit subjects — becomes the squashed commit's subject on the default branch. The branch commits are collapsed at merge; the title is what survives in permanent history.
 
 **An API-authored body starts empty.** GitHub pre-fills the repository pull request template only for pull requests opened through the web UI, and only from the copy on the default branch. A body posted programmatically (as `create_pull_request` does) starts blank, so the template's structure has to be reproduced deliberately — it is never inherited.
 
 **Guidelines:**
 
 - MUST title every pull request with a Conventional Commits header (`<type>[scope][!]: <description>`) per the project's development guidelines (commit-messages rules, Pull Request Titles). Because the squash merge promotes the title to the default-branch commit subject, a title missing a valid type prefix lands a non-conforming commit in permanent history — a silent defect, since nothing rejects it.
-- MUST author every pull request body from the repository template's sections per the project's development guidelines (pull-request-descriptions rules), reproducing them by hand because the API body is empty. Fill each kept section with real content — the problem and *why* over a mechanical restatement of the diff, verification evidence, risks, issue link — or delete the section; never leave an empty heading, placeholder, or unrendered instructional comment.
+- MUST author every pull request body from the repository template's sections per the project's development guidelines (pull-request-descriptions rules), reproducing them by hand because the API body is empty. Fill each kept section with real content — the problem and _why_ over a mechanical restatement of the diff, verification evidence, risks, issue link — or delete the section; never leave an empty heading, placeholder, or unrendered instructional comment.
 - MUST keep the description concise and self-contained: orient the reviewer, summarize any linked page's load-bearing points inline (links rot), and update the body when review rounds change the scope or approach it describes.
 - SHOULD still write each in-progress commit as a well-formed Conventional Commit even though the squash collapses it at merge — those commits are the branch's human-readable trace between review rounds (see [Preserve History](#preserve-history--no-amend-or-force-push)).
 

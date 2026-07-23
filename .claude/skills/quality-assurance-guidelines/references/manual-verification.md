@@ -4,17 +4,17 @@ Apply these rules to verify the author exercised the change in the running app b
 
 ## Required Manual Checks
 
-The reviewer MUST ask the author to confirm (in the PR description or the review thread) that the following were checked when the diff touches the listed surface. Rows marked *(optional)* apply only if the project has the corresponding capability.
+The reviewer MUST ask the author to confirm (in the PR description or the review thread) that the following were checked when the diff touches the listed surface. Rows marked _(optional)_ apply only if the project has the corresponding capability.
 
-| Diff touches | Required manual check |
-|---|---|
-| Any user-facing view, screen, or route-local component | The affected surface was loaded in the running app via `{{DEV_CMD}}` |
-| Any data-driven surface that supports non-default content states *(optional)* | The surface was exercised in each non-default content state the data layer supports (e.g., a draft or unpublished state) |
-| A live-preview / CMS preview path *(optional)* | The preview path was loaded inside the data layer's preview/admin surface |
-| Not-found handling or any routing change | A non-existent identifier was requested and the not-found UI rendered correctly |
-| Metadata generation, if the project produces any (e.g., page metadata, sitemap, robots, social-share image) *(optional)* | The metadata response was inspected (e.g., view-source, the generated sitemap/robots endpoint, social-share preview) |
-| The content/markup rendering pipeline *(optional)* | A record containing the affected construct was rendered end-to-end |
-| Error-tracker / instrumentation config *(optional)* | The app starts without throwing, and a test exception was confirmed to reach the error tracker (or the author confirmed reporting is intentionally disabled in dev) |
+| Diff touches                                                                                                             | Required manual check                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Any user-facing view, screen, or route-local component                                                                   | The affected surface was loaded in the running app via `{{DEV_CMD}}`                                                                                                |
+| Any data-driven surface that supports non-default content states _(optional)_                                            | The surface was exercised in each non-default content state the data layer supports (e.g., a draft or unpublished state)                                            |
+| A live-preview / CMS preview path _(optional)_                                                                           | The preview path was loaded inside the data layer's preview/admin surface                                                                                           |
+| Not-found handling or any routing change                                                                                 | A non-existent identifier was requested and the not-found UI rendered correctly                                                                                     |
+| Metadata generation, if the project produces any (e.g., page metadata, sitemap, robots, social-share image) _(optional)_ | The metadata response was inspected (e.g., view-source, the generated sitemap/robots endpoint, social-share preview)                                                |
+| The content/markup rendering pipeline _(optional)_                                                                       | A record containing the affected construct was rendered end-to-end                                                                                                  |
+| Error-tracker / instrumentation config _(optional)_                                                                      | The app starts without throwing, and a test exception was confirmed to reach the error tracker (or the author confirmed reporting is intentionally disabled in dev) |
 
 **Guidelines:**
 

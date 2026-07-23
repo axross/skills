@@ -18,7 +18,8 @@ A test change is incomplete without proof that the code still passes the local c
 ## Coverage Gate
 
 <!-- INIT:OPTIONAL key=UNIT_COVERAGE — keep if the project enforces unit-test coverage OR delete this section. -->
-*If this project does not enforce unit-test coverage, delete or adapt this section during INIT.*
+
+_If this project does not enforce unit-test coverage, delete or adapt this section during INIT._
 
 A coverage number is only trustworthy when every exclusion is deliberate: the gate proves branches were exercised, and each ignored branch records where it is verified instead.
 

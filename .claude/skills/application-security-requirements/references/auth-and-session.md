@@ -3,7 +3,8 @@
 Apply these rules to verify the project's authentication is not weakened and the error tracker's PII exposure is bounded.
 
 <!-- INIT:OPTIONAL key=AUTH — this whole file assumes the project has an authentication system. Keep it OR, if the project has no auth at all, delete the file per the INIT.md Step-4 bullet (the "Localhost / Production Divergence" section is auth-independent — move it into privacy-and-exposure.md before deleting). -->
-*This lens assumes the project has an authentication system (often provided by the data/content layer) and, optionally, an error tracker and analytics service. Delete the file if the project has no auth (see the marker above); otherwise delete only the subsections for tools the project does not use during INIT.*
+
+_This lens assumes the project has an authentication system (often provided by the data/content layer) and, optionally, an error tracker and analytics service. Delete the file if the project has no auth (see the marker above); otherwise delete only the subsections for tools the project does not use during INIT._
 
 ## Authentication Lockout Settings
 
@@ -39,7 +40,8 @@ URLs leak by design — into history, logs, referrers, and shared links — so a
 ## Error-Tracker PII Exposure
 
 <!-- INIT:OPTIONAL key=ERROR_TRACKER — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project has no {{ERROR_TRACKER}}, delete this section during INIT.*
+
+_If this project has no {{ERROR_TRACKER}}, delete this section during INIT._
 
 If the {{ERROR_TRACKER}} is configured with a "send default PII" option, and/or session replay, it already captures IP addresses, request bodies, user-agent, and DOM mutations including form input.
 
@@ -53,7 +55,8 @@ If the {{ERROR_TRACKER}} is configured with a "send default PII" option, and/or 
 ## Analytics PII Exposure
 
 <!-- INIT:OPTIONAL key=ANALYTICS — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project has no analytics service, delete this section during INIT.*
+
+_If this project has no analytics service, delete this section during INIT._
 
 If the analytics client is configured with autocapture (capturing visible text and/or session recordings), it captures content rendered into the DOM.
 

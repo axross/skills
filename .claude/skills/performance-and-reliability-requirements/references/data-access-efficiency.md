@@ -1,7 +1,8 @@
 # Data-Access Efficiency
 
 <!-- INIT:OPTIONAL key=DATA_LAYER — fill the token OR, if the project has no data/content layer, delete this file together with the "Data-Access Efficiency" section in ../SKILL.md and the data-access phrases in that skill's frontmatter description and the AGENTS.md index row. -->
-*If this project has no data/content layer, delete this file during INIT (see the marker above for the inbound links).*
+
+_If this project has no data/content layer, delete this file during INIT (see the marker above for the inbound links)._
 
 Apply these rules to verify that reads against the data/content layer ({{CMS_OR_DATA_LAYER}}) are bounded and N+1-free.
 
@@ -9,12 +10,12 @@ Apply these rules to verify that reads against the data/content layer ({{CMS_OR_
 
 Every read against the data layer should make its projection, relationship depth, result bound, and filter explicit:
 
-| Concern | Why it matters |
-|---|---|
-| Field selection (projection) | Without an explicit projection, the data layer returns every field on every record, including large blobs (e.g., a full body/content field). Select only what the consumer renders. |
-| Relationship depth | If the data layer auto-populates related records, an unbounded or deep population fans out joins. Removing an explicit shallow depth is Critical when the consumer relies on populated relationships; an excessively deep population is Major because each level multiplies the work. |
-| Result limit | Many data layers apply a small default limit silently. Flag a Critical when the consumer expects all records but no limit is set (the user will silently see a truncated subset). Match the project's established bounding pattern. |
-| Filter / predicate | Required when fetching anything other than "all of this collection". Visibility-restricted reads must filter out records the caller is not allowed to see, per the project's application-security requirements (access-control rules). |
+| Concern                      | Why it matters                                                                                                                                                                                                                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Field selection (projection) | Without an explicit projection, the data layer returns every field on every record, including large blobs (e.g., a full body/content field). Select only what the consumer renders.                                                                                                   |
+| Relationship depth           | If the data layer auto-populates related records, an unbounded or deep population fans out joins. Removing an explicit shallow depth is Critical when the consumer relies on populated relationships; an excessively deep population is Major because each level multiplies the work. |
+| Result limit                 | Many data layers apply a small default limit silently. Flag a Critical when the consumer expects all records but no limit is set (the user will silently see a truncated subset). Match the project's established bounding pattern.                                                   |
+| Filter / predicate           | Required when fetching anything other than "all of this collection". Visibility-restricted reads must filter out records the caller is not allowed to see, per the project's application-security requirements (access-control rules).                                                |
 
 **Guidelines:**
 
@@ -63,7 +64,8 @@ A migration runs against production data exactly once, and a dropped or renamed 
 ## Locale / Variant Handling
 
 <!-- INIT:OPTIONAL key=LOCALE — keep this section OR delete it. -->
-*If this project has no per-locale or per-variant content, delete this section during INIT.*
+
+_If this project has no per-locale or per-variant content, delete this section during INIT._
 
 Locale fallback makes an omitted variant parameter succeed with plausible-looking content, so the wrong variant ships without any error to catch it.
 

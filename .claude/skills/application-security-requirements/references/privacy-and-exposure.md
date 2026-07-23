@@ -27,7 +27,8 @@ Values sent to the browser/client are public. The framework's public/client-expo
 ## Preview Environment Exposure
 
 <!-- INIT:OPTIONAL key=PREVIEW_ENVIRONMENTS — keep this section when the project has per-PR preview environments OR delete it. -->
-*If this project has no per-PR preview environments, delete this section during INIT.*
+
+_If this project has no per-PR preview environments, delete this section during INIT._
 
 Per-PR preview environments are reachable beyond the team — a web preview URL is publicly reachable, and a distributed preview build installs on testers' devices — so a preview must hold fixture/seed data only. The pipeline rules live in the project's development guidelines (preview-environments rules); the exposure to guard here is a regression that reintroduces production data or credentials into a preview, not the steady state.
 
@@ -41,7 +42,8 @@ Per-PR preview environments are reachable beyond the team — a web preview URL 
 ## Analytics and Error Reporting Exposure
 
 <!-- INIT:OPTIONAL key=ERROR_TRACKER_OR_ANALYTICS — keep & fill the token (add the tool, INIT Step 5) OR delete this section. -->
-*If this project has no analytics service or no {{ERROR_TRACKER}}, delete the corresponding guidelines below during INIT.*
+
+_If this project has no analytics service or no {{ERROR_TRACKER}}, delete the corresponding guidelines below during INIT._
 
 Analytics and error-reporting services are third-party data processors. Event context should be useful for debugging or analytics without carrying raw private content.
 

@@ -14,11 +14,11 @@ Target: `$ARGUMENTS`
 
 ## Argument Resolution
 
-| Argument | Meaning | Entry |
-| -------- | ------- | ----- |
-| *(empty)* | Suspend the current work immediately and produce the handoff package | [Wrap Up](#wrap-up) |
-| `continue` | Retired take-over invocation | Neither wrap up nor take over. Tell the human that taking over a handoff now runs through `/address continue` — start a fresh session, attach the handoff file(s), and send `/address continue` — then stop. |
-| anything else | Ambiguous | Ask what was meant (see [Asking the Human](#asking-the-human)) |
+| Argument      | Meaning                                                              | Entry                                                                                                                                                                                                        |
+| ------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| _(empty)_     | Suspend the current work immediately and produce the handoff package | [Wrap Up](#wrap-up)                                                                                                                                                                                          |
+| `continue`    | Retired take-over invocation                                         | Neither wrap up nor take over. Tell the human that taking over a handoff now runs through `/address continue` — start a fresh session, attach the handoff file(s), and send `/address continue` — then stop. |
+| anything else | Ambiguous                                                            | Ask what was meant (see [Asking the Human](#asking-the-human))                                                                                                                                               |
 
 ## Wrap Up
 
@@ -42,14 +42,14 @@ Resolve the timestamp once — `date +%s` — and reuse that single epoch value 
 
 Create a single comprehensive markdown document in a working location outside the repository checkout (the harness's scratchpad or temp directory). This document is the package contract the successor's `/address continue` take-over ingests — its structure is load-bearing, not advisory.
 
-- MUST contain these sections, in this order. The two marked *(if applicable)* MAY be omitted when genuinely empty; every other section is required:
+- MUST contain these sections, in this order. The two marked _(if applicable)_ MAY be omitted when genuinely empty; every other section is required:
   1. **Quick summary** — 2–4 sentences: what the work is, where it stands, and the single next action.
   2. **Background** — the context a zero-context agent needs: the repository and its purpose, the original request (verbatim where the wording matters), and the constraints and decisions that shaped the approach.
   3. **Goal** — the definition of done: the outcome the work must achieve and the acceptance criteria to verify against.
-  4. **Precondition** *(if applicable)* — everything the successor must have or do before resuming: repository, branch, and expected `HEAD`; each file in the zip and how to apply or use it; tools, environment variables, or credentials to obtain (named, never valued — see the zip rules); commands to run first.
-  5. **Concerns and/or blockers** *(if applicable)* — open questions awaiting a human decision, known risks, failing checks, flaky behavior, and anything the successor should distrust.
+  4. **Precondition** _(if applicable)_ — everything the successor must have or do before resuming: repository, branch, and expected `HEAD`; each file in the zip and how to apply or use it; tools, environment variables, or credentials to obtain (named, never valued — see the zip rules); commands to run first.
+  5. **Concerns and/or blockers** _(if applicable)_ — open questions awaiting a human decision, known risks, failing checks, flaky behavior, and anything the successor should distrust.
   6. **To-dos** — every work item as a checkbox in execution order, each self-contained enough to act on without further context. MUST mark every item explicitly complete (`- [x]`) or incomplete (`- [ ]`); an unmarked or ambiguous item is a defect.
-  7. **History/transition in the session** — a chronological account of the session: what was tried, what worked, what failed and *why* (so the successor does not repeat dead ends), key findings, ending at the exact point of suspension.
+  7. **History/transition in the session** — a chronological account of the session: what was tried, what worked, what failed and _why_ (so the successor does not repeat dead ends), key findings, ending at the exact point of suspension.
 - MUST be fully self-contained: readable by an agent with no access to this conversation. Never write "as discussed above" or point into the session transcript — restate what matters.
 - MUST use repository-relative paths for files in the checkout, and name branches, commands, files, and people explicitly.
 - SHOULD name the GitHub issue or pull request the work is anchored to, when one exists, in **Background** — the take-over side uses it to re-enter the delivery flow at the right phase.
@@ -76,5 +76,5 @@ Create a single comprehensive markdown document in a working location outside th
 Wrap-up runs into ambiguity of its own: an unclear argument, uncertainty about which artifacts belong to the work, or doubt about whether a to-do was actually completed.
 
 - MUST route every such decision through the harness's dedicated question tool (in Claude Code, `AskUserQuestion`): frame it as 2–4 concrete options, mark the default you would otherwise take as recommended, and use the answer inline.
-- MUST, if the question tool errors (or a synchronous answer is otherwise unavailable), re-present the decision in plain text — the question and its options with the recommended default marked — and call `AskUserQuestion` again, holding for the human. Do not route around the human or end wrap-up as blocked; a closed or errored stream means *re-present and wait* — the same asking-behavior as [`/address`](../address/SKILL.md#asking-the-human).
+- MUST, if the question tool errors (or a synchronous answer is otherwise unavailable), re-present the decision in plain text — the question and its options with the recommended default marked — and call `AskUserQuestion` again, holding for the human. Do not route around the human or end wrap-up as blocked; a closed or errored stream means _re-present and wait_ — the same asking-behavior as [`/address`](../address/SKILL.md#asking-the-human).
 - MUST NOT proceed on an unstated assumption when the session's own history plus local investigation cannot settle the question.

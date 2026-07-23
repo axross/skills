@@ -44,7 +44,8 @@ The linter catches correctness and quality problems the formatter cannot see (an
 ## Type Safety
 
 <!-- INIT:OPTIONAL key=TYPED_LANGUAGE — keep for a statically typed language OR delete this section. -->
-*If the project's primary language has no static type system, delete this section during INIT.*
+
+_If the project's primary language has no static type system, delete this section during INIT._
 
 A type system's guarantees only hold when the code does not quietly opt out of them. An unchecked cast or a non-null/force-unwrap assertion silences the compiler at the exact spot a bug would surface, trading a compile-time check for a runtime risk — and because such escape hatches are often not lint-caught, they are a discipline the author owns.
 

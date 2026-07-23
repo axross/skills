@@ -1,7 +1,8 @@
 # Review Instructions
 
 <!-- INIT:OPTIONAL key=INDEPENDENT_REVIEW — Fixed: INIT KEEPS this file (the independent-review channel is fixed infrastructure, see INIT.md Step 4). Just delete this marker and the italic note below, then configure it — fill the do-not-report list with the checks CI enforces and review the mandatory checks against the AGENTS.md skill index. A project that wants no automated review loop disables the workflow triggers rather than deleting this file. -->
-*Configure this policy during INIT: fill the do-not-report list with the project's CI-enforced checks and review the mandatory checks against the AGENTS.md skill index.*
+
+_Configure this policy during INIT: fill the do-not-report list with the project's CI-enforced checks and review the mandatory checks against the AGENTS.md skill index._
 
 Review **policy** for this repository — the highest-priority, review-only
 instructions. Every reviewer entry point reads this file: a managed review

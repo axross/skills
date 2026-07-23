@@ -22,12 +22,12 @@ Git history is permanent and replicated to every clone, so a secret that lands i
 
 The project restricts `process.env.*` access to a small set of whitelisted files (often enforced by a linter rule). The reviewer MUST flag a Critical for any new `process.env.*` access outside those files. The whitelist typically covers only:
 
-| File category | Why it is whitelisted |
-|---|---|
+| File category                  | Why it is whitelisted                                                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | The env-derived runtime barrel | The single sanctioned module that reads env vars and re-exports typed runtime values (origin, environment name, service DSNs/tokens, etc.) |
-| Data-layer config | The data/content layer needs DB/storage credentials at build/startup time |
-| App-framework config | Build/config-time access to CI and deployment env vars |
-| Test config | Test config-time access to CI flags, base URL, and automation-bypass secrets |
+| Data-layer config              | The data/content layer needs DB/storage credentials at build/startup time                                                                  |
+| App-framework config           | Build/config-time access to CI and deployment env vars                                                                                     |
+| Test config                    | Test config-time access to CI flags, base URL, and automation-bypass secrets                                                               |
 
 **Guidelines:**
 

@@ -101,9 +101,7 @@ A reported issue is often read in a dashboard where the message is the headline 
 
 ```typescript
 // GOOD — context is clear from the message alone
-throw new Error(
-  `retrieveResource() was called but the access token is null.`
-);
+throw new Error(`retrieveResource() was called but the access token is null.`);
 
 // LESS GOOD — requires stack trace to understand
 throw new Error("Token is missing.");
