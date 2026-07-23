@@ -43,11 +43,19 @@ The suite needs a running system before the first test. Own that lifecycle in on
 **Example — spawn, poll until ready, tear down:**
 
 ```ts
+import { spawn } from "node:child_process";
+
+const PORT = 3100;
+const BASE_URL = `http://localhost:${PORT}`;
+let server: ReturnType<typeof spawn>;
+
 export async function setup() {
-  server = spawn("node", ["./server", "--port", "3100"], { stdio: "ignore" });
+  server = spawn("node", ["./server", "--port", String(PORT)], {
+    stdio: "ignore",
+  });
 
   const deadline = Date.now() + 60_000;
-  while (true) {
+  while (Date.now() < deadline) {
     try {
       if ((await fetch(BASE_URL, { signal: AbortSignal.timeout(1_000) })).ok) {
         return;
@@ -55,9 +63,14 @@ export async function setup() {
     } catch {
       // not accepting connections yet
     }
-    if (Date.now() > deadline) throw new Error("Server not ready in time.");
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
+  throw new Error("Server not ready in time.");
+}
+
+// Tear the server down after the run (see the guideline above).
+export async function teardown() {
+  server?.kill();
 }
 ```
 
