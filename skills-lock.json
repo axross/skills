@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "code-review": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "961b7057dc0adfdd277428c72ae82fcd29d098d60da6304015b2ee2d7dbce26f"
+    },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
