@@ -8,6 +8,9 @@ The repository's own guideline and workflow skills instead live directly under
 
 Currently sourced here:
 
+- `loop-engineering` — a self-contained delivery workflow that drives one unit
+  of work from intake to a review-ready pull request (plan → code →
+  independent review).
 - `product-requirement-document-authoring` — a self-contained, portable skill
   for writing and reviewing product requirement documents (PRDs), feature specs,
   and plan documents.
