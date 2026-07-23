@@ -1,11 +1,21 @@
 # `skills/` — installable skill sources
 
-This directory is the **source of truth** for agent skills that are installed
-into `.claude/skills/` with the [vercel-labs/skills](https://github.com/vercel-labs/skills)
-CLI (`npx skills`). It currently holds the `loop-engineering` and
-`unit-test-guidelines` skills; the repository's own guideline and workflow
-skills, by contrast, live directly under
+This directory is the **source of truth** for distributable agent skills that
+are installed into `.claude/skills/` with the
+[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`).
+The repository's own guideline and workflow skills instead live directly under
 [`.claude/skills/`](../.claude/skills) and are not managed by `npx skills`.
+
+Currently sourced here:
+
+- `loop-engineering` — a self-contained delivery workflow that drives one unit
+  of work from intake to a review-ready pull request (plan → code →
+  independent review).
+- `product-requirement-document-authoring` — a self-contained, portable skill
+  for writing and reviewing product requirement documents (PRDs), feature specs,
+  and plan documents.
+- `unit-test-guidelines` — framework-agnostic conventions for writing,
+  structuring, and reviewing unit tests across runners such as Jest or Vitest.
 
 Author a distributable skill here as `skills/<name>/SKILL.md` (with its
 `references/` beside it), then install it so Claude Code can load it:
