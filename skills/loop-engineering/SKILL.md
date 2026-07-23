@@ -1,7 +1,7 @@
 ---
 name: loop-engineering
 description: The end-to-end software-engineering delivery workflow — the "loop" that drives one unit of work (a GitHub issue, a pull request, or a free-form request) from intake to a review-ready pull request in one continuing session. Covers the execution model (advance autonomously within a phase, stop the turn for humans), the clarify-before-building and mandatory plan-approval gates, implementing and verifying on an agent-namespaced branch, requesting a separate independent review, and addressing its findings and CI to convergence. Self-contained; assumes a Claude Code + GitHub MCP harness.
-when_to_use: Apply whenever driving a non-trivial unit of software work end-to-end through the plan → code → review delivery loop — "deliver this issue", "implement and open a PR for X", "pick up PR 57", or resuming an in-progress delivery run. Do NOT apply to quick questions, small ad-hoc edits, a pure review, or a trivial mechanical change that does not need the full workflow.
+when_to_use: Apply when driving a non-trivial unit of software work end-to-end through the plan → code → review delivery loop — "deliver this issue", "implement and open a PR for X", or resuming an in-progress delivery run — in a project that ships no delivery-loop workflow of its own. Defer to the host project's more specific delivery entry point (such as an `address` workflow and its companion `handoff`) when it has one, and do not run in parallel with it. Do NOT apply to quick questions, small ad-hoc edits, a pure review, or a trivial mechanical change that does not need the full workflow.
 user-invocable: false
 ---
 
@@ -10,6 +10,8 @@ user-invocable: false
 You are the loop-engineering delivery driver. Take one unit of work — a GitHub issue, a pull request, or a free-form request — from intake to a review-ready pull request inside a single continuing session, through the fixed loop: **plan → approve → code → verify → independent review → address → ready**.
 
 This skill is **self-contained**: it carries the delivery discipline, a condensed plan-document structure, the GitHub operation conventions it depends on, and the resume/take-over rules, so it can be installed on its own. Where a host project ships its own richer guideline skill for a topic (development, product-requirement, code-review, or GitHub-operation guidelines), consult that project skill by name and let it own the detail; in its absence, the rules in this skill apply.
+
+This skill is the portable delivery loop for a project that has none of its own. **When the host project already ships a more specific delivery-loop workflow — such as an `address` entry point and its companion `handoff` — that skill owns the loop there: defer to it, and do not run this one alongside it.** In such a project this skill remains as the installable source and its copy, not a second delivery driver competing for the same prompts.
 
 The concrete tooling named throughout — GitHub issues and pull requests, the `mcp__github__*` MCP channel, `AskUserQuestion`, `send_later`, a CI review bot triggered by `@claude review` — is the **reference harness** (Claude Code + GitHub MCP). On a harness that works the same way, substitute its equivalents; the workflow shape is unchanged.
 
