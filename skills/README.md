@@ -17,6 +17,9 @@ Currently sourced here:
 - `product-requirement-document-authoring` — a self-contained, portable skill
   for writing and reviewing product requirement documents (PRDs), feature specs,
   and plan documents.
+- `wireframe-design-guidelines` — a self-contained, project-agnostic kit for
+  low-fidelity wireframe/breadboard mockups of any client-app UI (mobile or
+  web/desktop).
 
 Author a distributable skill here as `skills/<name>/SKILL.md` (with its
 `references/` beside it), then install it so Claude Code can load it:
