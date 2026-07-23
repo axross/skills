@@ -6,10 +6,16 @@ Code** project built on an `AGENTS.md`-driven skill system. It ships:
 - `AGENTS.md` — the master routing index + working agreement (the entry point
   Claude Code routes through via `CLAUDE.md`).
 - `CLAUDE.md` — a one-line binding (`@AGENTS.md`) so Claude Code loads `AGENTS.md`.
-- `.claude/skills/**` — a generic, cross-project **skill core** (12 guideline
+- `.claude/skills/**` — a generic, cross-project **skill core** (13 guideline
   skills) plus the fixed **workflow entry-point skills** `/address` and
   `/handoff`.
 - `.claude/**` — the **Claude Code** harness binding (example hooks + settings).
+- `skills/` — the (empty) source directory for skills installed into
+  `.claude/skills/` with `npx skills`; the `skill-installation` skill documents
+  the flow.
+- `package.json` + `.prettierrc.json` + `.markdownlint-cli2.jsonc` — the
+  Markdown toolchain that keeps the skill tree formatted, linted, and
+  link-checked (`npm run check`). It survives adaptation (see Step 7).
 - `README.template.md` — a seed for the initialized project's own README
   (summary, tech stack, getting started, development workflow, testing,
   related links), finalized into `README.md` in Step 7.
@@ -25,7 +31,7 @@ working setup for one concrete project.
 > and the `github-operation-guidelines` skill), are **fixed infrastructure** —
 > INIT _configures and adapts_ them but **never asks whether to keep them, and
 > never deletes them.** The rest of the skill core is resolved per capability in
-> Steps 1 and 4: most of the 12 skills are always-present cross-project guidance,
+> Steps 1 and 4: most of the 13 skills are always-present cross-project guidance,
 > and a few (unit tests, e2e, observability) are added or skipped to match the
 > project's stack.
 
@@ -46,6 +52,10 @@ working setup for one concrete project.
 >   `.claude/` dot-directory that a `glob('**/*.md')` sweep silently skips.
 >   Not INIT-only tooling: it ships with the agent-skills-best-practices
 >   skill and survives adaptation.
+> - `npm run check` — the Markdown toolchain (Prettier format check +
+>   markdownlint + the link check above), wired in `package.json`. Also not
+>   INIT-only: it maintains the skill Markdown and survives adaptation. Run
+>   `npm install` once first.
 
 ---
 
@@ -752,11 +762,18 @@ targets **Claude Code** (fixed — Step 1e), which reads them through the
   `init.sh`, `tokens.json`, `init.values.json`, and
   `.github/workflows/template-checks.yaml` (the template repository's own CI).
   None of these are meant to survive adaptation; a leftover copy is dead
-  weight that only rots. The link checker
-  (`.claude/skills/agent-skills-best-practices/scripts/check-links.sh`) is
-  **not** INIT tooling — it ships with the agent-skills-best-practices skill
-  and stays. If the project wants an ongoing docs-link gate, wire that script
-  into its own CI as ordinary project work.
+  weight that only rots. The Markdown toolchain is **not** INIT tooling and
+  stays: `package.json` (the `format` / `lint` / `links` / `check` scripts),
+  `package-lock.json`, `.prettierrc.json`, `.prettierignore`,
+  `.markdownlint-cli2.jsonc`, and the link checker
+  (`.claude/skills/agent-skills-best-practices/scripts/check-links.sh`, which
+  ships with the agent-skills-best-practices skill) — the skills are Markdown
+  in every project. Only `template-checks.yaml`, which _runs_ `npm run check`,
+  is deleted; a project that wants an ongoing Markdown gate wires `npm run
+check` into its own CI as ordinary project work. Adapt the `package.json`
+  metadata (`name`, `description`) and fold any project-specific formatter or
+  linter into these scripts, or replace them if the project standardizes on a
+  different Markdown toolchain.
 - Remove the "Template note" blockquote at the top of `AGENTS.md`, every
   `<!-- INIT:OPTIONAL ... -->` marker and `<!-- INIT: ... -->` fill-in comment,
   and every "TEMPLATE NOTE" / "_delete during INIT_" line for sections you
@@ -766,7 +783,7 @@ targets **Claude Code** (fixed — Step 1e), which reads them through the
 
 - [ ] No `{{TOKEN}}`s remain in authored files (build/VCS dirs excluded):
       `./init.sh check` (or `grep -rnE '\{\{[A-Z][A-Z0-9_]*\}\}' .
-    --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git`).
+--exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git`).
       The uppercase-token pattern matters when the independent-review
       workflows are kept: GitHub Actions `${{ ... }}` expressions contain
       `{{` but are lowercase, so they never match, while leftover tokens in

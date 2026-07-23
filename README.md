@@ -18,15 +18,21 @@ it, with the working agreement kept in `AGENTS.md` and loaded through
 ├── init.sh                  # metacharacter-safe {{TOKEN}} substitution + gates
 ├── tokens.json              # machine-readable manifest of every {{TOKEN}}
 ├── README.template.md       # seed for the initialized project's README (finalized in INIT Step 7)
-├── .gitignore               # ignores settings.local.json + .env.local (see INIT Step 6)
+├── package.json             # npm scripts: format / lint / links / check (Prettier + markdownlint)
+├── package-lock.json        # pinned Markdown toolchain (Prettier + markdownlint-cli2)
+├── .prettierrc.json         # Prettier config (proseWrap: preserve)
+├── .prettierignore          # keeps node_modules out of Prettier
+├── .markdownlint-cli2.jsonc # markdownlint rules tuned for long-form skill prose
+├── .gitignore               # ignores node_modules + settings.local.json + .env.local
 ├── AGENTS.md                # master routing index + working agreement
 ├── CLAUDE.md                # @AGENTS.md — Claude Code's binding to AGENTS.md
 ├── REVIEW.md                # fixed: posted-review policy for the independent-review channel (configured, never removed)
+├── skills/                  # source of truth for skills installed via `npx skills` (ships empty)
 ├── .github/
 │   └── workflows/           # fixed: CI reviewer + merge checks (GitHub Actions + Claude Code);
-│                            # plus template-checks.yaml, this repo's own link-check CI (deleted during INIT)
+│                            # plus template-checks.yaml, this repo's own Markdown-QA CI (deleted during INIT)
 └── .claude/
-    ├── skills/              # skill core (12 guideline skills) + fixed /address + /handoff entry points
+    ├── skills/              # skill core (13 guideline skills) + fixed /address + /handoff entry points
     │   ├── address/         # fixed: /address delivery entry point (Claude Code)
     │   ├── agent-skills-best-practices/  # ships scripts/check-links.sh (relative-link integrity)
     │   ├── application-security-requirements/
@@ -40,18 +46,30 @@ it, with the working agreement kept in `AGENTS.md` and loaded through
     │   ├── performance-and-reliability-requirements/
     │   ├── product-requirement-guidelines/
     │   ├── quality-assurance-guidelines/
+    │   ├── skill-installation/  # installs skills/ sources into .claude/skills/ (npx skills)
     │   └── unit-test-guidelines/
     ├── hooks/               # session-start (always on), format + check (opt-in)
     ├── settings.json        # wires the SessionStart hook + default effort level (always on)
     └── settings.local-example.json  # opt-in: copied to settings.local.json (by session-start) to wire format + check
 ```
 
-The skill core covers cross-project workflow: how to author skills, frame
-product requirements, develop and review changes, test (unit + e2e), operate
-GitHub, and review for maintainability, security, performance/reliability,
-observability, and QA evidence. Project-specific skills
+The skill core covers cross-project workflow: how to author and install skills,
+frame product requirements, develop and review changes, test (unit + e2e),
+operate GitHub, and review for maintainability, security,
+performance/reliability, observability, and QA evidence. Project-specific skills
 (structure, components, routing, UI, domain) are intentionally **not** shipped —
 you add them during adaptation.
+
+Skills come in two forms. The guideline and workflow skills above are committed
+directly under `.claude/skills/`. A second, **installable** form lives under
+`skills/` (the source of truth) and is copied into `.claude/skills/` with the
+[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`);
+`skills/` ships empty, and the
+[`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
+documents the install, lockfile, and refresh-and-verify workflow. Because the
+skills are Markdown, the template maintains its own tree with an npm toolchain —
+`npm run check` runs Prettier's format check, markdownlint, and the relative-link
+checker.
 
 A fixed **independent-review channel** ships alongside the core: `REVIEW.md`
 (the posted-review policy), the `/address` entry-point skill in `.claude/skills/`,
@@ -73,6 +91,9 @@ along with the `/address` entry point rather than standing alone.
   index entry routes to.
 - **`CLAUDE.md`** plus **`.claude/`** bind Claude Code to `AGENTS.md`, loading
   the working agreement and skills into every session.
+- **`package.json`** wires the Markdown toolchain: run `npm install` once, then
+  `npm run check` (Prettier format check + markdownlint + relative-link check)
+  to keep the skill tree formatted and its cross-links honest.
 
 ## Getting started
 
@@ -86,9 +107,11 @@ it rather than cloning it.
      to copy by hand. Skip to step 2.
    - **Existing repository** — copy the template's files into it: the
      adaptation tooling (`INIT.md`, `init.sh`, `tokens.json`), the README seed
-     (`README.template.md`), the working agreement, skills, and ignore rules
-     (`AGENTS.md`, `CLAUDE.md`, `.claude/`, `.gitignore`), and the fixed
-     `.github/` and `REVIEW.md`.
+     (`README.template.md`), the Markdown toolchain (`package.json`,
+     `package-lock.json`, `.prettierrc.json`, `.prettierignore`,
+     `.markdownlint-cli2.jsonc`), the working agreement, skills, and ignore
+     rules (`AGENTS.md`, `CLAUDE.md`, `.claude/`, `skills/`, `.gitignore`), and
+     the fixed `.github/` and `REVIEW.md`.
 2. Open **[INIT.md](./INIT.md)** and follow it — or hand the repo to Claude Code
    and ask it to "run INIT". INIT reconciles any files a scaffold already
    generated (e.g. an existing `AGENTS.md`), interviews you about the project
