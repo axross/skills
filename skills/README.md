@@ -11,10 +11,10 @@ Currently sourced here:
 - `code-review` — a self-contained, portable code-review methodology:
   reviewer-mode reset, severity-ranked findings with file-line evidence and fix
   snippets, a merge verdict, and a posted/CI-review overlay.
-- `e2e-testing-guidelines` — framework-agnostic conventions for end-to-end tests
-  across browser (Playwright, Cypress), mobile (Maestro, Detox), and
-  protocol-level runners: locators, auto-waiting, determinism, and scenario
-  coverage.
+- `end-to-end-testing` — the ability to author, run, review, and maintain
+  end-to-end tests across browser (Playwright, Cypress), mobile (Maestro,
+  Detox), and protocol-level runners: locators, auto-waiting, determinism, and
+  scenario coverage with a runnable coverage gate.
 - `high-fidelity-ui-design` — the design vocabulary and research-grounded rules
   for high-fidelity (real-token) UI/visual design: semantic tokens and dark
   mode, layout and type, per-theme WCAG contrast, interaction states, focus,
