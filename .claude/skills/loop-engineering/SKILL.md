@@ -1,7 +1,7 @@
 ---
 name: loop-engineering
 description: The end-to-end software-engineering delivery workflow — the "loop" that drives one unit of work (a GitHub issue, a pull request, or a free-form request) from intake to a review-ready pull request in one continuing session. Covers the execution model (advance autonomously within a phase, stop the turn for humans), the clarify-before-building and mandatory plan-approval gates, implementing and verifying on an agent-namespaced branch, requesting a separate independent review, and addressing its findings and CI to convergence. Self-contained; assumes a Claude Code + GitHub MCP harness.
-when_to_use: Apply when driving a non-trivial unit of software work end-to-end through the plan → code → review delivery loop — "deliver this issue", "implement and open a PR for X", or resuming an in-progress delivery run — as the project's default delivery flow. If the host project ships a different, more-specific delivery workflow, defer to that instead. Do NOT apply to quick questions, small ad-hoc edits, a pure review, or a trivial mechanical change that does not need the full workflow.
+when_to_use: Apply when driving a code change or document update end-to-end through the plan → code → review delivery loop — "deliver this issue", "implement and open a PR for X", a free-form change request, or resuming an in-progress delivery run — as the project's default delivery flow that polishes the plan with the human, makes the change via a pull request, and iterates the review-and-fix loop until clean. If the host project ships a different, more-specific delivery workflow, defer to that instead. Not for work that changes nothing — a quick question or a review-only pass.
 user-invocable: false
 ---
 
