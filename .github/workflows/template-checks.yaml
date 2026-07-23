@@ -1,13 +1,16 @@
 name: Template Checks
 
 # The TEMPLATE REPOSITORY's own CI — not part of any adapted project's CI.
-# Keeps the template's cross-linked skill tree honest by running the
-# relative-link checker on every change.
+# Keeps the template's cross-linked skill tree honest by running the Markdown
+# quality suite (Prettier format check, markdownlint, and the relative-link
+# checker) on every change.
 #
-# The checker itself ships with the agent-skills-best-practices skill and
-# survives adaptation; THIS WORKFLOW FILE does not — adapted projects delete
-# it in INIT Step 7 together with INIT.md, init.sh, and tokens.json. A project
-# that wants an ongoing docs-link gate wires the script into its own CI.
+# The tooling itself survives adaptation: the npm scripts (see package.json),
+# the Prettier/markdownlint config, and the link checker (which ships with the
+# agent-skills-best-practices skill) all stay. THIS WORKFLOW FILE does not —
+# adapted projects delete it in INIT Step 7 together with INIT.md, init.sh, and
+# tokens.json. A project that wants an ongoing Markdown gate wires `npm run
+# check` (or the individual scripts) into its own CI.
 
 on:
   pull_request:
@@ -22,11 +25,22 @@ permissions:
   contents: read
 
 jobs:
-  docs:
-    name: Docs Link Check
+  checks:
+    name: Markdown Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Check Relative Links
-        run: .claude/skills/agent-skills-best-practices/scripts/check-links.sh
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: Dependency Installation
+        run: npm install
+      - name: Format Check
+        run: npm run format:check
+      - name: Lint
+        run: npm run lint
+      - name: Link Check
+        run: npm run links
