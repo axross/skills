@@ -1,6 +1,6 @@
 # UI Design Section Framing
 
-Apply this reference when drafting or reviewing the "UI design" subsection of a spec — nested under Functional requirements per [functional-requirements.md](./functional-requirements.md) — covering hierarchy, interaction states, accessibility intent, responsive behavior, and copy constraints, described in spec terms, not implementation. Sourced from PRD/design-spec practice, design-system precedent, and accessibility standards: [Shape Up's breadboarding](https://basecamp.com/shapeup/1.3-chapter-04), [Shopify Polaris on interaction states](https://polaris-react.shopify.com/design/interaction-states), [Material Design 3 on states](https://m3.material.io/foundations/interaction/states/applying-states), [NN/g on empty states](https://www.nngroup.com/articles/empty-state-interface-design/) and [error messages](https://www.nngroup.com/articles/error-message-guidelines/), [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/), [GOV.UK's accessibility acceptance criteria practice](https://insidegovuk.blog.gov.uk/2018/01/24/improving-accessibility-with-accessibility-acceptance-criteria/), and [A List Apart on responsive design](https://alistapart.com/article/responsive-web-design/). Implementation mechanics for these same concerns — component structure, CSS, ARIA markup — stay owned by the project's own UI/component skill (if defined); this reference owns only how to _describe_ them in a spec.
+Apply this reference when drafting or reviewing the **UI design** section of a spec — nested under Functional requirements — covering hierarchy, interaction states, accessibility intent, responsive behavior, and copy constraints, described in spec terms, not implementation. Sourced from PRD/design-spec practice, design-system precedent, and accessibility standards: [Shape Up's breadboarding](https://basecamp.com/shapeup/1.3-chapter-04), [Shopify Polaris on interaction states](https://polaris-react.shopify.com/design/interaction-states), [Material Design 3 on states](https://m3.material.io/foundations/interaction/states/applying-states), [NN/g on empty states](https://www.nngroup.com/articles/empty-state-interface-design/) and [error messages](https://www.nngroup.com/articles/error-message-guidelines/), [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/), [GOV.UK's accessibility acceptance criteria practice](https://insidegovuk.blog.gov.uk/2018/01/24/improving-accessibility-with-accessibility-acceptance-criteria/), and [A List Apart on responsive design](https://alistapart.com/article/responsive-web-design/). The implementation mechanics for these same concerns — component structure, CSS, ARIA markup — stay with your project's own UI and component conventions; this reference owns only how to _describe_ them in a spec.
 
 ## When to Include a UI Design Section
 
@@ -12,14 +12,24 @@ Not every change earns a UI design section, and forcing one onto a non-view-affe
 - SHOULD keep the section at wireframe/breadboard fidelity — places, affordances, and flow — rather than pixel-perfect mockup description.
 - SHOULD link an existing wireframe or prototype instead of describing layout in prose when one exists, since a picture resolves ambiguity paragraphs cannot.
 
+## Design Record and Linked Design Artifacts
+
+When the change goes through a design-exploration step — wireframes, mockups, or a prototype reviewed before build — the UI design section is the natural home for the durable design record: it names the options that were considered, the option chosen, and links to the design artifacts (wireframe, hi-fi mockup, prototype) so the designs and the decision trail stay reachable from the spec after the exploration is over. A link to a living design source beats a prose paraphrase that drifts out of date, but keep an inline description or a checked-in image as a fallback for readers who cannot open the linked tool.
+
+**Guidelines:**
+
+- SHOULD record, when a design-exploration step ran, the options considered and the one chosen, with links to the design artifacts, so the decision survives in the spec.
+- SHOULD reference a living design source (the design tool, a checked-in image) rather than paraphrasing the visual in prose alone.
+- SHOULD keep an inline description or embedded image as a fallback so the record stays legible without opening an external tool.
+
 ## State Before Mechanics
 
-A UI design section describes hierarchy, layout intent, and content priority in spec terms — what's primary, what's secondary, what's optional — not specific components, class names, or markup. That separation is what keeps this reference from duplicating the project's own UI/component skill (if defined): the spec states _what_ the surface must convey, the implementation skill owns _how_ it's built.
+A UI design section describes hierarchy, layout intent, and content priority in spec terms — what's primary, what's secondary, what's optional — not specific components, class names, or markup. That separation is what keeps this section from duplicating your project's UI and component conventions: the spec states _what_ the surface must convey, the implementation owns _how_ it's built.
 
 **Guidelines:**
 
 - MUST describe hierarchy and content priority in spec-level terms (primary/secondary/optional), not component names or markup.
-- MUST NOT prescribe implementation details (specific components, CSS properties, class names) that belong to the project's own UI/component skill (if defined).
+- MUST NOT prescribe implementation details (specific components, CSS properties, class names) that belong to the implementation.
 - SHOULD state layout intent as relationships between elements (e.g., "the confirmation sits below the primary action") rather than pixel positions.
 
 ## Interaction States
@@ -40,7 +50,7 @@ Accessibility intent belongs in the spec as testable outcomes, not a compliance 
 **Guidelines:**
 
 - MUST state accessibility intent as testable, outcome-level criteria referencing specific WCAG success criteria (e.g., "meets 2.4.7 Focus Visible") rather than a blanket "must be accessible."
-- SHOULD describe keyboard and screen-reader expectations as user-observable behavior (visible focus indicator, logical tab order, meaningful state announcement on change), deferring ARIA attribute choices to the project's own UI/component skill (if defined) and the [W3C ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/).
+- SHOULD describe keyboard and screen-reader expectations as user-observable behavior (visible focus indicator, logical tab order, meaningful state announcement on change), deferring specific ARIA attribute choices to the implementation and the [W3C ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/).
 - SHOULD scope accessibility criteria to the specific interaction being changed rather than restating all of WCAG.
 
 ## Responsive Behavior Intent
