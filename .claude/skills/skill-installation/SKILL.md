@@ -11,7 +11,7 @@ This repository can hold agent skills in two forms, and one CLI keeps them in sy
 
 Not every skill uses this flow: the repository's own guideline and workflow skills (the ones indexed in `AGENTS.md` that ship directly under `.claude/skills/`, such as this one) are committed there directly and are **not** managed by `npx skills`. This skill governs only the `skills/`-sourced skills.
 
-The `skills/` source directory ships **empty** in the template — there are no managed skills yet, so there is no `skills-lock.json` until the first one is installed. Follow this skill the moment a skill is authored under `skills/`.
+The `skills/` source directory ships **empty** in the template, with no `skills-lock.json` until the first skill is installed — in this repository, `loop-engineering` is that first managed skill. Follow this skill the moment a skill is authored under `skills/`.
 
 **Guidelines:**
 
