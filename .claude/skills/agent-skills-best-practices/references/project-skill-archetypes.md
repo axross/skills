@@ -50,7 +50,7 @@ The component skill owns construction strategy and mechanics. At full size it us
 - MUST include a component catalog with a "compose existing components instead of re-creating their look" rule, kept current as components are added or removed.
 - MUST define the tier boundary with a mechanically checkable import rule: an explicit allowed/forbidden import list plus the check command (e.g., a grep expected to return nothing) that verifies it.
 - MUST state promotion criteria: how much duplication earns a shared component, and when a single-consumer pattern stays local.
-- MUST cover component anatomy including test-id hooks, and cross-reference the unit-test and e2e skills by name for how those hooks are consumed.
+- MUST cover component anatomy including test-id hooks, and cross-reference the project's testing skills by name (when it defines them) for how those hooks are consumed.
 - SHOULD cover styling composition and logic extraction as their own sections or reference files once the codebase exercises them.
 
 ## UI-Design-Skill Pattern

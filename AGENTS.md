@@ -18,7 +18,7 @@ Apply these keywords consistently in this document and the documents linked from
 - Primary language: Markdown (with occasional JavaScript for scripting). Runtime: Claude Code.
 - Tooling: npm for packages, markdownlint-cli2 for linting, Prettier for formatting. Relative-link integrity is checked by `.claude/skills/agent-skills-best-practices/scripts/check-links.sh`.
 - For run-scripts, current-docs lookup rules, and verification commands, consult [Development Guidelines](.claude/skills/development-guidelines/SKILL.md).
-- For how skills are authored, structured, named, and cross-linked, consult [Agent Skills Best Practices](.claude/skills/agent-skills-best-practices/SKILL.md). Skills ship directly under `.claude/skills/`; the `skills/` source directory (currently empty) holds any skills installed with `npx skills` — see [Skill Installation](.claude/skills/skill-installation/SKILL.md). The index below routes to all of them.
+- For how skills are authored, structured, named, and cross-linked, consult [Agent Skills Best Practices](.claude/skills/agent-skills-best-practices/SKILL.md). Skills ship directly under `.claude/skills/`; the `skills/` source directory (currently empty) holds the source of any skills installed into `.claude/skills/` with `npx skills` — see [Skill Installation](.claude/skills/skill-installation/SKILL.md). The index below routes to all of them.
 
 ## Skill Index
 

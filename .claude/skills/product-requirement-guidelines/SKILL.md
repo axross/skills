@@ -25,7 +25,7 @@ This skill deliberately does not own everything a plan contains. It owns the str
 
 - UI component structure, CSS, and markup mechanics — the project's own UI/component skill (if defined). This skill owns only how to _describe_ hierarchy, states, accessibility, and responsive intent in the plan (see below).
 - Actual data flow implementation, routes, and module placement — the project's own structure skill (if defined). This skill owns only how to _describe_ system-design decisions in the plan (see below).
-- Test coverage design — the project's end-to-end testing and unit-test guidelines. This skill owns only how to _frame_ the verification strategy that names them (see below).
+- Test coverage design — the project's own testing skills (if defined). This skill owns only how to _frame_ the verification strategy that names them (see below).
 
 ## Problem Framing and Scope
 
@@ -81,7 +81,7 @@ See [verification-strategy.md](./references/verification-strategy.md) for:
 
 - distinguishing the **Verification strategy** method from the acceptance-criteria outcomes it establishes
 - naming the automated gates the changed surface requires (format/lint, the relative-link integrity check)
-- deferring test-coverage design to the project's end-to-end testing and unit-test guidelines
+- deferring test-coverage design to the project's own testing skills (if defined)
 - naming focused manual checks and committing to recorded verification evidence
 
 ## Plan Document Template

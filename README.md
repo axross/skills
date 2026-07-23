@@ -28,8 +28,8 @@ formatted, linted, and link-checked.
 
 There is no dev server — authoring a skill means editing Markdown under
 `.claude/skills/` and running `npm run check`. In a Claude Code cloud session,
-[`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) provisions
-the toolchain and installs dependencies automatically; the opt-in
+[`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) installs
+dependencies (activating a Node version manager if one is present); the opt-in
 format-on-edit and check-before-stop hooks are materialized from
 [`.claude/settings.local-example.json`](./.claude/settings.local-example.json).
 

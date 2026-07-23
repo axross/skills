@@ -19,7 +19,7 @@ Verification is scoped to the changed surface: a docs edit needs relative-link a
 **Guidelines:**
 
 - MUST name the automated gates the changed surface requires — format/lint always, and the relative-link integrity check when links, file paths, or skill locations change — per [AGENTS.md › Verification](../../../../AGENTS.md#verification).
-- MUST defer the _design_ of new test coverage to the testing skills — the project's end-to-end testing guidelines for browser/route coverage and its unit-test guidelines for unit coverage — rather than specifying test cases inline here.
+- MUST defer the _design_ of new test coverage to the project's own testing skills, when it defines them, rather than specifying test cases inline here.
 - MUST state, when a normally-applicable gate does not apply (no unit suite exists, no user-facing surface changed), that it was considered and why it is skipped, rather than silently omitting it.
 
 ## Manual Checks and Evidence
