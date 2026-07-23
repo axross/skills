@@ -5,6 +5,11 @@
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "376320e1a529249f1835eada304ca6221097f970528a7dd6c0322c559b7d1c4d"
+    },
+    "product-requirement-document-authoring": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "84dee2cfdd948204f3ea69342f72487fa627cd21c89e42f4b5dda3d180427bc5"
     }
   }
 }
