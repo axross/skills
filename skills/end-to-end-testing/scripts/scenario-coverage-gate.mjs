@@ -199,8 +199,12 @@ function report(catalog, covered, errors) {
     else bucket.uncovered.push({ id, title: row.title, area: row.area });
   }
 
-  const total = catalog.rows.size;
-  const coveredCount = [...catalog.rows.keys()].filter((id) => covered.has(id)).length;
+  // Total and covered are summed from the same per-priority buckets the
+  // breakdown prints, so the header can never disagree with it. A row with an
+  // invalid priority has no bucket: it is surfaced as a structural error below,
+  // not counted here.
+  const total = PRIORITIES.reduce((sum, p) => sum + byPriority[p].total, 0);
+  const coveredCount = PRIORITIES.reduce((sum, p) => sum + byPriority[p].covered, 0);
   lines.push(`Scenario coverage: ${coveredCount}/${total} journeys asserted`);
   for (const priority of PRIORITIES) {
     const bucket = byPriority[priority];
