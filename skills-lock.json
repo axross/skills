@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "code-review": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "961b7057dc0adfdd277428c72ae82fcd29d098d60da6304015b2ee2d7dbce26f"
+    },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -15,6 +20,11 @@
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "84dee2cfdd948204f3ea69342f72487fa627cd21c89e42f4b5dda3d180427bc5"
+    },
+    "wireframe-design-guidelines": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "41448e59885865f601c0ec2459f66c483ccc6b5eb8c0a04d024166ebc546f2f2"
     }
   }
 }
