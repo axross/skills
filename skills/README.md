@@ -11,6 +11,10 @@ Currently sourced here:
 - `code-review` — a self-contained, portable code-review methodology:
   reviewer-mode reset, severity-ranked findings with file-line evidence and fix
   snippets, a merge verdict, and a posted/CI-review overlay.
+- `e2e-testing-guidelines` — framework-agnostic conventions for end-to-end tests
+  across browser (Playwright, Cypress), mobile (Maestro, Detox), and
+  protocol-level runners: locators, auto-waiting, determinism, and scenario
+  coverage.
 - `high-fidelity-ui-design` — the design vocabulary and research-grounded rules
   for high-fidelity (real-token) UI/visual design: semantic tokens and dark
   mode, layout and type, per-theme WCAG contrast, interaction states, focus,
@@ -18,6 +22,9 @@ Currently sourced here:
 - `loop-engineering` — a self-contained delivery workflow that drives one unit
   of work from intake to a review-ready pull request (plan → code →
   independent review).
+- `observability-guidelines` — tool-agnostic conventions for making software
+  observable: structured logging, error handling and error tracking
+  (breadcrumbs, trace/replay sampling, PII), and product/usage metrics.
 - `product-requirement-document-authoring` — a self-contained, portable skill
   for writing and reviewing product requirement documents (PRDs), feature specs,
   and plan documents.
