@@ -4,13 +4,13 @@ Apply this reference as the starting skeleton for a full plan document — the c
 
 The canonical order:
 
-1. **Summary** *(required)* — one standalone paragraph. See [problem-and-scope.md › Summary](./problem-and-scope.md#summary).
-2. **Background** *(required)* — with **Goals**, **Non-goals**, and **Assumptions** subsections. See [problem-and-scope.md](./problem-and-scope.md).
-3. **Functional requirements** *(conditional)* — with **UI design** and **System design** (the latter carrying an **Alternatives considered** subsection when a plausible competing approach exists) nested under it. See [functional-requirements.md](./functional-requirements.md), [ui-design-framing.md](./ui-design-framing.md), and [architecture-overview-framing.md](./architecture-overview-framing.md).
-4. **Non-functional requirements** *(conditional)* — measurable performance/scale/security/reliability targets. See [architecture-overview-framing.md › Constraints and Non-Functional Requirements](./architecture-overview-framing.md#constraints-and-non-functional-requirements).
-5. **Acceptance criteria** *(required)*. See [acceptance-criteria.md](./acceptance-criteria.md).
-6. **Verification strategy** *(required)*. See [verification-strategy.md](./verification-strategy.md).
-7. **Open questions** *(required, may be empty)*. See [problem-and-scope.md › Open Questions](./problem-and-scope.md#open-questions).
+1. **Summary** _(required)_ — one standalone paragraph. See [problem-and-scope.md › Summary](./problem-and-scope.md#summary).
+2. **Background** _(required)_ — with **Goals**, **Non-goals**, and **Assumptions** subsections. See [problem-and-scope.md](./problem-and-scope.md).
+3. **Functional requirements** _(conditional)_ — with **UI design** and **System design** (the latter carrying an **Alternatives considered** subsection when a plausible competing approach exists) nested under it. See [functional-requirements.md](./functional-requirements.md), [ui-design-framing.md](./ui-design-framing.md), and [architecture-overview-framing.md](./architecture-overview-framing.md).
+4. **Non-functional requirements** _(conditional)_ — measurable performance/scale/security/reliability targets. See [architecture-overview-framing.md › Constraints and Non-Functional Requirements](./architecture-overview-framing.md#constraints-and-non-functional-requirements).
+5. **Acceptance criteria** _(required)_. See [acceptance-criteria.md](./acceptance-criteria.md).
+6. **Verification strategy** _(required)_. See [verification-strategy.md](./verification-strategy.md).
+7. **Open questions** _(required, may be empty)_. See [problem-and-scope.md › Open Questions](./problem-and-scope.md#open-questions).
 
 **Guidelines:**
 
@@ -37,14 +37,18 @@ and the trigger or constraint prompting it.>
 _(problem-and-scope.md → Background and Goals.)_
 
 **Goals**:
+
 - <A concrete, checkable outcome the change must achieve.>
 
 **Non-goals** (omit only if nothing plausible is being excluded):
+
 - <Something that could reasonably have been in scope, deliberately excluded, and why.>
-_(problem-and-scope.md → Non-Goals and Out-of-Scope.)_
+  _(problem-and-scope.md → Non-Goals and Out-of-Scope.)_
 
 **Assumptions** (beliefs the plan relies on — distinct from open questions):
+
 - <A belief the plan acts on that the reader might disagree with.>
+
 _(problem-and-scope.md → Assumptions.)_
 
 ## Functional requirements
@@ -94,12 +98,12 @@ architecture-overview-framing.md → Constraints and Non-Functional Requirements
 - <One relevant edge/disabled/empty/error-state behavior.>
 - <An explicit "X is unaffected" criterion, when this change sits next to something
   that must stay untouched.>
-_(acceptance-criteria.md → Coverage and Right-Sized Checklists.)_
+  _(acceptance-criteria.md → Coverage and Right-Sized Checklists.)_
 
 ## Verification strategy
 
 <How the acceptance criteria will be established: the automated gates the changed
-surface triggers (format/lint, unit, e2e, build), the focused manual checks, and
+surface triggers (format/lint, the relative-link integrity check), the focused manual checks, and
 where new test coverage is added.>
 _(verification-strategy.md.)_
 
@@ -107,5 +111,5 @@ _(verification-strategy.md.)_
 
 - <An unresolved decision the plan depends on: the question, its options if known,
   and who or what resolves it. Leave empty only if nothing is genuinely unresolved.>
-_(problem-and-scope.md → Open Questions.)_
+  _(problem-and-scope.md → Open Questions.)_
 ```

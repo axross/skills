@@ -1,0 +1,20 @@
+{
+  "name": "skills",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A curated, reusable library of Claude Code agent skills.",
+  "scripts": {
+    "format": "prettier --write \"**/*.{md,json,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{md,json,yaml,yml}\"",
+    "lint": "markdownlint-cli2 \"**/*.md\"",
+    "links": "./.claude/skills/agent-skills-best-practices/scripts/check-links.sh",
+    "check": "npm run format:check && npm run lint && npm run links"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.15.0",
+    "prettier": "^3.4.2"
+  },
+  "engines": {
+    "node": "26"
+  }
+}

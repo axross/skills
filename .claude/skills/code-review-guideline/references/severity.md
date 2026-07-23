@@ -6,7 +6,7 @@ Apply these rules to label every finding before reporting it. Severity drives bo
 
 Four severities order every finding and drive the verdict. Each pairs a merge impact with the class of defect that earns it.
 
-- **Critical** — MUST block merge. A defect that will cause data loss, a security breach, a production outage, a broken `main` branch (lint/build/test failure), or a violation of a developer-facing MUST rule that any user hits on the first request.
+- **Critical** — MUST block merge. A defect that will cause data loss, a security breach, a broken `main` branch (lint/format/link-check failure), or a violation of a developer-facing MUST rule that any consumer of the skill hits on first use.
 - **Major** — SHOULD block merge unless deferred deliberately. A defect that degrades correctness, performance, or reliability in a way users notice, or violates a developer-facing SHOULD rule with no documented justification.
 - **Minor** — Non-blocking but worth addressing. Readability, naming, or small refactor opportunities; missing-but-non-critical test coverage; non-load-bearing convention drift.
 - **Nit** — Optional polish. Style preferences, alternative phrasings, micro-optimizations with no measurable benefit.
@@ -20,31 +20,24 @@ Four severities order every finding and drive the verdict. Each pairs a merge im
 
 These categories use fixed minimum severities, regardless of perceived "smallness":
 
-| Category | Minimum severity |
-|---|---|
-| Hardcoded secret, token, or credential committed to the repo | Critical |
-| Missing or incorrect access control on a non-public data-layer field or record | Critical |
-| Unsanitized user input flowing into a data-layer query, request handler, or content-rendering pipeline | Critical |
-| New request handler / server-side action that reads or mutates data without verifying the request's authenticated identity | Critical |
-| Lint error introduced ({{LINT_CMD}} would fail) | Critical |
-| New test failure introduced, or removal of an existing assertion that covered changed behavior | Critical |
-| Missing `await` on a Promise returned from a data-layer or network call | Critical |
-| Importing a server-only module from a client-side module (or otherwise crossing the server/client boundary unsafely) | Critical |
-| New dependency added without justification per the project's development guidelines (change-management rules) | Major |
-| Snapshot regenerated without explanation when the observable change was intentional but undocumented | Major |
-| Data fetched on every request without caching when the data is cacheable | Major |
-| Client-side code pulled into a path that was previously server-only, materially increasing client bundle weight, with no interactivity justification | Major |
-| Missing stable test hook (e.g., a test id) on a new element that an e2e test would target | Major |
-| `try`/`catch` placed in a nested helper instead of the root call site | Major |
-| A swallowed/logged-only error used instead of reporting it to the error tracker, where the project requires reporting | Major |
-| Magic value introduced where a shared constant or design token already exists | Minor |
-| Inconsistent file/identifier naming (e.g., a file that breaks the directory's established naming convention) | Minor |
+| Category                                                                                                                         | Minimum severity |
+| -------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| Hardcoded secret, token, or credential committed to the repo                                                                     | Critical         |
+| Lint error introduced (npm run lint would fail)                                                                                  | Critical         |
+| A broken relative link introduced (the relative-link check would fail), or a link that misroutes to the wrong skill or reference | Critical         |
+| Malformed skill frontmatter (`name`, `description`, `when_to_use`) that breaks the skill's discovery or loading                  | Critical         |
+| New dependency added without justification per the project's development guidelines (change-management rules)                    | Major            |
+| A skill's `description`/`when_to_use` no longer matches its content, so it misroutes or fails to be discovered                   | Major            |
+| A rule duplicated across skills instead of having one source of truth, so the copies can silently diverge                        | Major            |
+| `try`/`catch` placed in a nested helper instead of the root call site (in a script)                                              | Major            |
+| A swallowed error (caught and ignored) instead of being rethrown or surfaced                                                     | Major            |
+| Magic value introduced in a script where a shared constant already exists                                                        | Minor            |
+| Inconsistent file/identifier naming (e.g., a file that breaks the directory's established naming convention)                     | Minor            |
 
 **Guidelines:**
 
 - MUST classify each listed category at no lower than its minimum severity.
 - MAY raise severity above the floor when the concrete impact is worse than the table's minimum.
-<!-- INIT:OPTIONAL key=INDEPENDENT_REVIEW — Fixed: the posted-review channel is fixed infrastructure (INIT.md Step 4), so KEEP the next bullet; just delete this marker. -->
 - MUST NOT surface CI-enforced rows — any category the project's posted-review policy excludes as CI-enforced, such as the lint-error row — in a **posted** PR review; the policy's do-not-report list excludes them (see the [Repository Review Policy Overlay](../SKILL.md#repository-review-policy-overlay)). The severity floors above govern only internal self-review triage.
 
 ## Verdict Mapping
@@ -58,7 +51,6 @@ The reviewer MUST emit one of these three verdicts in the report Summary, derive
 **Guidelines:**
 
 - MUST derive the review verdict from the severity counts exactly as mapped above.
-<!-- INIT:OPTIONAL key=INDEPENDENT_REVIEW — Fixed: the posted-review channel is fixed infrastructure (INIT.md Step 4), so KEEP the next bullet; just delete this marker. -->
 - SHOULD, for a **posted** PR review, replace this three-verdict output with the posted-review policy's one-line Important/Nit tally per the [Repository Review Policy Overlay](../SKILL.md#repository-review-policy-overlay).
 
 ## When in Doubt

@@ -27,7 +27,7 @@ A structure skill is a map, not a rulebook: the stack facts an agent needs befor
 **Guidelines:**
 
 - MUST list stack facts as short factual bullets (versions, import aliases, config filenames), not tutorials.
-- MUST describe each significant path by what it *owns*, in a two-column path table.
+- MUST describe each significant path by what it _owns_, in a two-column path table.
 - MUST delegate placement semantics — such as which component tier a file belongs to — to the component skill; the structure skill states only the resulting directory.
 - SHOULD keep colocation rules (tests and styles next to their subject) in the structure skill, since they are pure placement.
 
@@ -50,7 +50,7 @@ The component skill owns construction strategy and mechanics. At full size it us
 - MUST include a component catalog with a "compose existing components instead of re-creating their look" rule, kept current as components are added or removed.
 - MUST define the tier boundary with a mechanically checkable import rule: an explicit allowed/forbidden import list plus the check command (e.g., a grep expected to return nothing) that verifies it.
 - MUST state promotion criteria: how much duplication earns a shared component, and when a single-consumer pattern stays local.
-- MUST cover component anatomy including test-id hooks, and cross-reference the unit-test and e2e skills by name for how those hooks are consumed.
+- MUST cover component anatomy including test-id hooks, and cross-reference the project's testing skills by name (when it defines them) for how those hooks are consumed.
 - SHOULD cover styling composition and logic extraction as their own sections or reference files once the codebase exercises them.
 
 ## UI-Design-Skill Pattern

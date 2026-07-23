@@ -13,19 +13,19 @@ Apply this skill whenever drafting or reviewing a product requirement, feature s
 
 Every plan follows this seven-section order. **Required** sections are always present; **conditional** sections are included when they apply and omitted with a one-line stated reason when they do not. This skill declares the structure and routes each section to the reference that owns its craft; [template.md](./references/template.md) is the fill-in-the-blanks skeleton.
 
-1. **Summary** *(required)* — one standalone paragraph.
-2. **Background** *(required)* — with **Goals**, **Non-goals**, and **Assumptions** subsections.
-3. **Functional requirements** *(conditional)* — with **UI design** and **System design** (the latter carrying an **Alternatives considered** subsection when a plausible competing approach exists) nested under it.
-4. **Non-functional requirements** *(conditional)*.
-5. **Acceptance criteria** *(required)*.
-6. **Verification strategy** *(required)*.
-7. **Open questions** *(required, may be empty)*.
+1. **Summary** _(required)_ — one standalone paragraph.
+2. **Background** _(required)_ — with **Goals**, **Non-goals**, and **Assumptions** subsections.
+3. **Functional requirements** _(conditional)_ — with **UI design** and **System design** (the latter carrying an **Alternatives considered** subsection when a plausible competing approach exists) nested under it.
+4. **Non-functional requirements** _(conditional)_.
+5. **Acceptance criteria** _(required)_.
+6. **Verification strategy** _(required)_.
+7. **Open questions** _(required, may be empty)_.
 
 This skill deliberately does not own everything a plan contains. It owns the structure, problem framing, scope boundaries, acceptance-criteria craft, verification-strategy framing, and the spec-level framing of the UI design and system-design sections. It does not own the implementation mechanics behind them:
 
-- UI component structure, CSS, and markup mechanics — the project's own UI/component skill (created during INIT). This skill owns only how to *describe* hierarchy, states, accessibility, and responsive intent in the plan (see below).
-- Actual data flow implementation, routes, and module placement — the project's own structure skill (created during INIT). This skill owns only how to *describe* system-design decisions in the plan (see below).
-- Test coverage design — the project's end-to-end testing and unit-test guidelines. This skill owns only how to *frame* the verification strategy that names them (see below).
+- UI component structure, CSS, and markup mechanics — the project's own UI/component skill (if defined). This skill owns only how to _describe_ hierarchy, states, accessibility, and responsive intent in the plan (see below).
+- Actual data flow implementation, routes, and module placement — the project's own structure skill (if defined). This skill owns only how to _describe_ system-design decisions in the plan (see below).
+- Test coverage design — the project's own testing skills (if defined). This skill owns only how to _frame_ the verification strategy that names them (see below).
 
 ## Problem Framing and Scope
 
@@ -80,8 +80,8 @@ See [acceptance-criteria.md](./references/acceptance-criteria.md) for:
 See [verification-strategy.md](./references/verification-strategy.md) for:
 
 - distinguishing the **Verification strategy** method from the acceptance-criteria outcomes it establishes
-- naming the automated gates the changed surface requires (format/lint, unit, e2e, build)
-- deferring test-coverage design to the project's end-to-end testing and unit-test guidelines
+- naming the automated gates the changed surface requires (format/lint, the relative-link integrity check)
+- deferring test-coverage design to the project's own testing skills (if defined)
 - naming focused manual checks and committing to recorded verification evidence
 
 ## Plan Document Template

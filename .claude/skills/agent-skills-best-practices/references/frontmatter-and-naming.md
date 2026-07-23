@@ -27,13 +27,13 @@ description: The review methodology for pull requests and local diffs...
 
 Claude Code merged custom slash commands into skills: a skill at `.claude/skills/<name>/SKILL.md` is invocable as `/<name>` by the human, and the model can also load it when its discovery metadata matches the task. A set of Claude-Code-defined frontmatter fields controls both directions. They are not part of the portable agentskills.io spec — treat them as harness fields (see [Host-Project Harness Fields](#host-project-harness-fields)) — but this project targets Claude Code and manages them deliberately on every skill.
 
-| Field | Meaning | Default |
-| ----- | ------- | ------- |
-| `when_to_use` | Trigger context appended to `description` in the model's skill listing; tells the agent when to load or invoke the skill | — |
-| `argument-hint` | Hint shown in the `/` autocomplete telling the human what arguments the skill expects | — |
-| `arguments` | Named positional arguments substituted as `$name`; values are shell-quoted, so a multi-word value lands in one argument only when the invoker quotes it | — |
-| `user-invocable` | `false` hides the skill from the `/` menu; the model can still load it | `true` |
-| `disable-model-invocation` | `true` keeps the skill and its discovery metadata out of the model's reach; only a human can invoke it | `false` |
+| Field                      | Meaning                                                                                                                                                 | Default |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `when_to_use`              | Trigger context appended to `description` in the model's skill listing; tells the agent when to load or invoke the skill                                | —       |
+| `argument-hint`            | Hint shown in the `/` autocomplete telling the human what arguments the skill expects                                                                   | —       |
+| `arguments`                | Named positional arguments substituted as `$name`; values are shell-quoted, so a multi-word value lands in one argument only when the invoker quotes it | —       |
+| `user-invocable`           | `false` hides the skill from the `/` menu; the model can still load it                                                                                  | `true`  |
+| `disable-model-invocation` | `true` keeps the skill and its discovery metadata out of the model's reach; only a human can invoke it                                                  | `false` |
 
 This project distinguishes two skill archetypes and sets these fields by archetype: a **guideline skill** is reference rules the agent consults while working (the bulk of the skill root); a **workflow entry-point skill** is a runnable workflow a human launches as `/<name>`, such as a delivery driver or a session-handoff wrapper.
 

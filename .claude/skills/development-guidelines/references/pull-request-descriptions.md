@@ -4,7 +4,7 @@ Apply these rules whenever you author or update a pull request body in this proj
 
 ## Why Over What
 
-The diff already shows *what* changed; the description carries the *why* — the one thing reviewers consistently name as their biggest obstacle, and the thing no diff can show. It is also a permanent artifact: future readers reach the change through its description long after the thread's participants are gone, and machine reviewers consume it as review context, so a vague body degrades automated review the same way it degrades human review.
+The diff already shows _what_ changed; the description carries the _why_ — the one thing reviewers consistently name as their biggest obstacle, and the thing no diff can show. It is also a permanent artifact: future readers reach the change through its description long after the thread's participants are gone, and machine reviewers consume it as review context, so a vague body degrades automated review the same way it degrades human review.
 
 **Bad Examples:**
 

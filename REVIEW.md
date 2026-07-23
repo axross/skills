@@ -1,8 +1,5 @@
 # Review Instructions
 
-<!-- INIT:OPTIONAL key=INDEPENDENT_REVIEW — Fixed: INIT KEEPS this file (the independent-review channel is fixed infrastructure, see INIT.md Step 4). Just delete this marker and the italic note below, then configure it — fill the do-not-report list with the checks CI enforces and review the mandatory checks against the AGENTS.md skill index. A project that wants no automated review loop disables the workflow triggers rather than deleting this file. -->
-*Configure this policy during INIT: fill the do-not-report list with the project's CI-enforced checks and review the mandatory checks against the AGENTS.md skill index.*
-
 Review **policy** for this repository — the highest-priority, review-only
 instructions. Every reviewer entry point reads this file: a managed review
 product (e.g. Claude Code's managed Code Review) natively, and the CI
@@ -72,10 +69,8 @@ review — CI blocks the merge regardless, so restating them costs the author's
 attention without adding a gate. This exclusion governs **posted** reviews
 only; internal self-review triage still flags these findings.
 
-<!-- INIT: replace the first bullet with the checks this project's CI actually enforces (the jobs in .github/workflows/merge-checks.yaml — e.g. its lint and unit-test runs). -->
-
-- Anything CI already enforces — the lint and unit-test checks run by the
-  project's merge-checks workflow.
+- Anything CI already enforces — the format, lint, and relative-link checks run
+  by the project's merge-checks workflow.
 - Lockfiles and generated files.
 
 **Guidelines:**

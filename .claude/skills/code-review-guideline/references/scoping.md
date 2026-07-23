@@ -33,7 +33,7 @@ Correctness lives in context: a hunk that reads correctly on its own can still b
 - MUST read the full file containing each changed hunk, not just the diff hunk itself. A line that looks safe in isolation can be unsafe in its surrounding control flow.
 - MUST inspect every caller of a changed function and every callee a changed function added a call to.
 - SHOULD read the surrounding modules a changed unit participates in (its parent, siblings, and any shared entry point) even when the diff only touches a leaf, because cross-module assumptions (server-vs-client boundaries, test-hook attributes, async/lifecycle boundaries) cross file boundaries.
-- SHOULD read the matching test under {{TEST_DIR}} when a changed unit is covered by tests, to confirm whether the tests still cover the change.
+- SHOULD read any test that covers a changed unit, when one exists, to confirm whether the tests still cover the change.
 
 ## Out-of-Scope Findings
 
@@ -61,4 +61,4 @@ Style feedback on files the tooling produces is noise the author cannot act on, 
 
 - MUST NOT review generated or tool-managed files (e.g., framework- or data-layer-generated directories, generated type definitions, lockfiles) for code style. See the project's development guidelines (change-management rules) for the project's list.
 - MUST NOT review auto-generated data-layer schema migrations for code style. Only flag a migration if it appears to drop a column or rename a field destructively without a data backfill.
-- MUST consult the project's own structure / change-management skill (defined during INIT) for the exact set of paths to exclude from review, since these vary per project.
+- MUST consult the project's own structure / change-management skill (if defined) for the exact set of paths to exclude from review, since these vary per project.
