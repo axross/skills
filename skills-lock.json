@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "product-requirement-document-authoring": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "cc103c20323da9a6101dd953539cdfb1022a4d9149294f8166efbea382d910d8"
+    }
+  }
+}
