@@ -8,6 +8,13 @@ The repository's own guideline and workflow skills instead live directly under
 
 Currently sourced here:
 
+- `code-review` — a self-contained, portable code-review methodology:
+  reviewer-mode reset, severity-ranked findings with file-line evidence and fix
+  snippets, a merge verdict, and a posted/CI-review overlay.
+- `high-fidelity-ui-design` — the design vocabulary and research-grounded rules
+  for high-fidelity (real-token) UI/visual design: semantic tokens and dark
+  mode, layout and type, per-theme WCAG contrast, interaction states, focus,
+  motion, and accessibility.
 - `loop-engineering` — a self-contained delivery workflow that drives one unit
   of work from intake to a review-ready pull request (plan → code →
   independent review).
@@ -16,6 +23,9 @@ Currently sourced here:
   and plan documents.
 - `unit-test-guidelines` — framework-agnostic conventions for writing,
   structuring, and reviewing unit tests across runners such as Jest or Vitest.
+- `wireframe-design-guidelines` — a self-contained, project-agnostic kit for
+  low-fidelity wireframe/breadboard mockups of any client-app UI (mobile or
+  web/desktop).
 
 Author a distributable skill here as `skills/<name>/SKILL.md` (with its
 `references/` beside it), then install it so Claude Code can load it:
