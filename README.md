@@ -112,8 +112,11 @@ Most skills are committed directly under
 under [`skills/`](./skills) — the source of truth for skills copied into
 `.claude/skills/` with the
 [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`).
-It currently holds the `loop-engineering` and `observability-guidelines` skills;
-the [`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
+It currently holds the `code-review`, `e2e-testing-guidelines`,
+`high-fidelity-ui-design`, `loop-engineering`, `observability-guidelines`,
+`product-requirement-document-authoring`, `unit-test-guidelines`, and
+`wireframe-design-guidelines` skills; the
+[`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
 documents the install, lockfile, and refresh-and-verify workflow.
 
 ## Testing
