@@ -121,6 +121,7 @@ async function checkFile(path) {
   return [...externalFetchFailures(text), ...placeholderFailures(text)];
 }
 
+/** Entry point: validate every file argument, print a per-file report, and set the exit code. */
 async function main() {
   const paths = process.argv.slice(2);
   if (paths.length === 0) {
