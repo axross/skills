@@ -101,7 +101,7 @@ Good skills name a default path instead of presenting a menu, then explain excep
 
 ## Precise Verbs
 
-Precise verbs make requirements testable. "Route skill additions through AGENTS.md" is enforceable; "handle skill discovery" leaves too much to interpretation.
+Precise verbs make requirements testable. "Route skill additions through the master skill index" is enforceable; "handle skill discovery" leaves too much to interpretation.
 
 **Guidelines:**
 
@@ -132,8 +132,7 @@ Long sections hide requirements. When a section grows past a small, coherent lis
 
 **Guidelines:**
 
-- SHOULD keep each substantive section near seven guideline bullets.
-- MUST NOT exceed ten guideline bullets in one section unless the section states why the exception is necessary.
+- SHOULD keep each substantive section within the section-length ceiling defined in [scoping-and-mece.md](./scoping-and-mece.md).
 - SHOULD keep bullets to one to three lines.
 - SHOULD move long examples into concise fenced snippets instead of embedding them inside a sprawling bullet.
 - MUST emphasize example and guideline labels as bold subheading-like paragraphs, such as `**Example:**` and `**Guidelines:**`.

@@ -1,10 +1,10 @@
 # Project Skill Archetypes
 
-Apply this reference when creating the project-specific skills INIT calls for — a structure skill, a component skill, and a UI/design skill — or when auditing whether an existing project skill covers the topics its archetype expects.
+Apply this reference when creating the project-specific skills a project-initialization pass scaffolds (such as Claude Code's `/init`) — a structure skill, a component skill, and a UI/design skill — or when auditing whether an existing project skill covers the topics its archetype expects.
 
 ## The Ownership Triangle
 
-The three INIT-created skills divide one surface without overlap: the structure skill owns where files live, the component skill owns how surfaces are built, and the UI/design skill owns how they look. When each skill's opening paragraph names what its neighbors own, an agent that loads the wrong skill is rerouted immediately instead of finding duplicated rules.
+The three scaffolded project skills divide one surface without overlap: the structure skill owns where files live, the component skill owns how surfaces are built, and the UI/design skill owns how they look. When each skill's opening paragraph names what its neighbors own, an agent that loads the wrong skill is rerouted immediately instead of finding duplicated rules.
 
 **Guidelines:**
 

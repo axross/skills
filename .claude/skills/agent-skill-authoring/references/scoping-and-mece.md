@@ -71,8 +71,8 @@ flowchart TD
 
 **Guidelines:**
 
-- SHOULD split a skill when `SKILL.md` exceeds about 500 lines or 5,000 tokens.
-- SHOULD split when one section grows past ten guideline bullets.
+- SHOULD split a skill when `SKILL.md` crosses the size thresholds in [progressive-disclosure.md](./progressive-disclosure.md).
+- SHOULD split when one section exceeds the section-length ceiling (below).
 - SHOULD split when the `description` and `when_to_use` together cannot cover what and when within the discovery length caps (see [frontmatter-and-naming.md](./frontmatter-and-naming.md)).
 - SHOULD NOT split a small, cohesive skill only to match neighboring file layouts.
 
@@ -101,7 +101,7 @@ Section length is a readability signal. When a section needs too many bullets, t
 
 ## Naming Aligned with Scope
 
-The skill name is the first boundary cue a future agent sees. A responsibility name such as `code-review-guidelines` is clearer than an actor or file-type name such as `reviewer-skill`.
+The skill name is the first boundary cue a future agent sees. A capability name such as `code-review` is clearer than an actor or file-type name such as `reviewer-skill`.
 
 **Guidelines:**
 

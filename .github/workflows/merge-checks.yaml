@@ -39,4 +39,4 @@ jobs:
       - name: Lint
         run: "npm run lint"
       - name: Link Check
-        run: "./.claude/skills/agent-skills-best-practices/scripts/check-links.sh"
+        run: "./.claude/skills/agent-skill-authoring/scripts/check-links.sh"

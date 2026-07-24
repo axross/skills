@@ -4,7 +4,7 @@ Apply this reference whenever a skill cites another skill, a reference file is a
 
 ## Skill-to-Skill References Resolve by Name
 
-A skill must stay individually portable — liftable to a user-, organization-, or global-level skill root without dragging its siblings along. A relative-path link into another skill (`../other-skill/SKILL.md`, or worse a deep `../other-skill/references/topic.md`) breaks the moment that sibling is not co-located, so it defeats per-skill portability. Instead, a cross-skill reference names the neighbor descriptively and lets the agent resolve it through the master skill index (`AGENTS.md`), which is always the discovery authority. Links **inside** the same skill stay relative — a skill carries its own `references/` folder wherever it moves.
+A skill must stay individually portable — liftable to a user-, organization-, or global-level skill root without dragging its siblings along. A relative-path link into another skill (`../other-skill/SKILL.md`, or worse a deep `../other-skill/references/topic.md`) breaks the moment that sibling is not co-located, so it defeats per-skill portability. Instead, a cross-skill reference names the neighbor descriptively and lets the agent resolve it through the host project's master skill index (e.g., `AGENTS.md`), which is always the discovery authority. Links **inside** the same skill stay relative — a skill carries its own `references/` folder wherever it moves.
 
 **Example:**
 
@@ -77,7 +77,7 @@ Link checks catch quiet skill failures — a renamed reference file or moved ind
 
 ```sh
 # From the repository root; pass paths to narrow the scan.
-.claude/skills/agent-skills-best-practices/scripts/check-links.sh
+.claude/skills/agent-skill-authoring/scripts/check-links.sh
 ```
 
 **Example Verification Flow:**
@@ -87,13 +87,14 @@ flowchart LR
   A[Rename skill] --> B[Update name frontmatter]
   B --> C[Update cross-skill references]
   C --> D[Update master index]
-  D --> E[Verify links resolve]
+  D --> E[Update paths in scripts, CI, and tooling]
+  E --> F[Verify links resolve]
 ```
 
 **Guidelines:**
 
 - MUST verify that intra-skill and index relative links resolve, and that every cross-skill reference names a real index row, before finalizing a skill-tree change.
 - SHOULD run this skill's `scripts/check-links.sh` for that verification instead of checking links by hand.
-- MUST update directory name, `name` frontmatter, cross-references, master-index entries, and role-profile references together during a rename.
+- MUST update directory name, `name` frontmatter, cross-references, master-index entries, and role-profile references together during a rename, along with every tooling path that names the skill — CI workflows, run-scripts, and hooks that invoke its `scripts/`, which break silently because the link check sees only Markdown links.
 - SHOULD include touched skill paths in the change summary for rename or consolidation work.
 - MUST NOT finalize a skill move while any old path remains in the index.
