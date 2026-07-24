@@ -8,6 +8,12 @@ The repository's own guideline and workflow skills instead live directly under
 
 Currently sourced here:
 
+- `agent-skill-management` — a self-contained, project-agnostic account of the
+  two-tier author/install model this directory embodies: choosing a tier,
+  the `npx skills` install and refresh workflow, the `skills-lock.json`
+  lockfile, and how to propose a change to a skill depending on whether you own
+  its source (edit and reinstall) or installed it from an upstream you do not
+  own (an upstream feature-request issue).
 - `code-review` — a self-contained, portable code-review methodology:
   reviewer-mode reset, severity-ranked findings with file-line evidence and fix
   snippets, a merge verdict, and a posted/CI-review overlay.

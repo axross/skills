@@ -1,6 +1,20 @@
-# Privacy and Exposure Control
+# Access Control and Data Exposure
 
-Apply these rules when reviewing whether a change exposes content, identifiers, environment values, analytics properties, or error context beyond the intended audience.
+Keep content, identifiers, environment values, and error context inside their intended audience, in two modes. **Build:** default public surfaces to the least data and gate non-public content behind an explicit check. **Review:** verify a change does not expose content, identifiers, environment values, analytics properties, or error context beyond the intended audience. (This is A01 Broken Access Control and A02 Security Misconfiguration in OWASP Top 10:2025.)
+
+## Build Securely
+
+Exposure control is a default, not an afterthought: a public surface should start from the minimum data and add fields deliberately, and every non-public field should sit behind a positive access check rather than obscurity.
+
+**Guidelines:**
+
+- MUST default a public surface to the least data that renders the feature — select the public fields in, rather than returning a whole record and trimming it down.
+- MUST gate unpublished, preview, draft, and admin-only content behind an explicit authenticated check, not behind an unguessable route.
+- MUST keep internal identifiers, database IDs, storage keys, stack traces, and environment-derived values out of any public response, metadata route, or analytics payload.
+- MUST parse a data-layer record through its public schema before serializing it, so non-public fields cannot ride along.
+- MUST expose a value through the framework's public/client env-var prefix only when it is safe for every visitor to read; prefer a derived boolean or public identifier over a broad value.
+- MUST give any locally-gated code path an equivalent production path — never ship a localhost-only auth bypass.
+- SHOULD confirm each publicly served asset (media, cover, avatar, blob-backed) is intentionally public before exposing its URL.
 
 ## Public Content Boundaries
 

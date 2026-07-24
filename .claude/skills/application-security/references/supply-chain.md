@@ -1,6 +1,20 @@
 # Supply Chain
 
-Apply these rules to verify new dependencies are justified, trustworthy, and do not bring along risky transitive code.
+Keep the dependency graph justified, trustworthy, and free of risky transitive or install-time code, in two modes. **Build:** admit a dependency deliberately — justified, maintained, pinned, and installed without unvetted lifecycle scripts. **Review:** verify a manifest or lockfile change does not introduce an unjustified, heavyweight, or risky addition. (This is A03 Software Supply Chain Failures, new in OWASP Top 10:2025.)
+
+## Build Securely
+
+Every dependency is a permanent liability and an entry point for someone else's code to run in your build and runtime. Admit one only when a standard-library or platform API cannot do the job, and lock down how it installs.
+
+**Guidelines:**
+
+- MUST prefer a standard-library or platform API over a new dependency, and weigh ≥ 2 alternatives before admitting one — choosing the most popular, best-maintained, and platform-agnostic option.
+- MUST move the manifest and lockfile together in one change and install from the lockfile (e.g., `npm ci`) so every build resolves the versions you tested.
+- MUST inspect a new dependency's install scripts (`postinstall`, `preinstall`, `prepare`, `prepublish`) before adding it, and install with lifecycle scripts disabled (`--ignore-scripts`) unless a script is understood and required.
+- MUST pin dependency versions through the lockfile rather than leaving floating ranges to resolve at install time.
+- MUST confirm a permissive license (MIT / ISC / Apache-2.0) and reject copyleft (GPL / AGPL) where the project's license posture is incompatible.
+- SHOULD run the audit command (e.g., `npm audit`) after a lockfile change and resolve or explicitly defer `high` and `critical` findings.
+- SHOULD inline the logic instead of adding a dependency that is a thin wrapper around a single function used once.
 
 ## Dependency Justification
 
@@ -8,7 +22,7 @@ A dependency is a permanent liability — maintenance, security surface, and wei
 
 **Guidelines:**
 
-- MUST flag a Major when the diff adds a new entry to the dependency manifest (runtime or dev dependencies) without a justification per the project's change-management rules. The author should have considered ≥ 2 alternatives and chosen the most popular / well-maintained / platform-agnostic option.
+- MUST flag a Major when the diff adds a new entry to the dependency manifest (runtime or dev dependencies) without a justification. If the project defines a software-development or change-management skill, hold the addition to its dependency rules; regardless, the author should have considered ≥ 2 alternatives and chosen the most popular / well-maintained / platform-agnostic option.
 - MUST flag a Major when a new dependency duplicates functionality already available in:
   - A package already in the manifest
   - A built-in standard-library API of the runtime

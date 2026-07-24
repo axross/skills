@@ -1,6 +1,20 @@
 # Input Validation
 
-Apply these rules to verify every untrusted input is validated and coerced before reaching the data layer, an outbound `fetch`, or any rendering pipeline. Treat the static types at a request boundary as unverified: the runtime value may not match its declared type (e.g., a single query param may arrive as a string, an array, or `undefined`).
+Validate untrusted input in two modes. **Build:** parse and coerce every input at the boundary so downstream code only ever sees a known shape. **Review:** verify every untrusted input is validated before it reaches the data layer, an outbound `fetch`, or any rendering pipeline. Treat the static types at a request boundary as unverified in both modes: the runtime value may not match its declared type (e.g., a single query param may arrive as a string, an array, or `undefined`).
+
+## Build Securely
+
+The reliable defense is to parse untrusted input into a known shape at the boundary and pass only the parsed value onward — "parse, don't validate." A downstream guard you must remember is the one you forget.
+
+**Guidelines:**
+
+- MUST parse every request input (route params, query params, JSON body, form data, headers) through a schema or validation library at the boundary, then use only the parsed result downstream.
+- MUST treat a boundary value's static type as a claim, not a guarantee; coerce a value that can be `string | string[] | undefined` to the exact expected shape before comparing or querying with it.
+- MUST route an identifier or filter into the data layer's typed/parameterized query interface — never a string-concatenated or template-built query.
+- MUST parse a data-layer record through its schema before returning it, so shape drift and non-public fields never reach a consumer.
+- MUST validate a parseable input (e.g., `URL.canParse(href)`) before constructing a render node or forwarding it to a `fetch`.
+- MUST restrict an upload to an allowlisted content type and rewrite its filename to a generated safe name (e.g., `${uuid}.${ext}`).
+- SHOULD keep validation at the boundary rather than deep in the call stack, so every downstream caller can trust the value's shape.
 
 ## Route Inputs (params, query params)
 

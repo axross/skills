@@ -1,6 +1,20 @@
 # Secret and Environment-Variable Handling
 
-Apply these rules to verify no secret is committed and `process.env` access stays inside the project's whitelisted boundary.
+Handle secrets in two modes. **Build:** write code that keeps every secret behind one boundary and out of client bundles, logs, and telemetry. **Review:** verify a diff commits no secret and keeps `process.env` access inside the project's whitelisted boundary. The review rules name a severity; align it to the host project's review vocabulary.
+
+## Build Securely
+
+A secret is safest when the code has only one place to read it and no path to leak it. Reach for the safe construction up front rather than a guard you must remember later.
+
+**Guidelines:**
+
+- MUST read every secret through the project's single env boundary (an env-derived runtime barrel that re-exports typed values), never `process.env.*` scattered across modules.
+- MUST NOT hardcode a credential, token, DSN, connection string, or password literal in source, tests, or fixtures — even temporarily; read it from an env var and document a placeholder in `.env.example`.
+- MUST keep secret-bearing files (`.env.local`, `.env.*.local`, `*.pem`, `*.key`) gitignored so they never enter a commit.
+- MUST apply the framework's public/client env-var prefix ONLY to values safe for every visitor to read; treat the prefix as the public-bundle boundary, not a naming convenience.
+- MUST keep secrets out of log lines, error-report extras, and analytics payloads — pass a non-sensitive identifier, never the secret itself.
+- SHOULD prefer scoped, short-lived credentials, and rotate any secret the moment it reaches version control or a shared log — deletion does not undo the exposure.
+- SHOULD add a placeholder line to `.env.example` in the same change that introduces a new runtime env var, so a fresh checkout documents what it needs.
 
 ## Committed Secrets
 
