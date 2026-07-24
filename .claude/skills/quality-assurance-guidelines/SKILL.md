@@ -22,7 +22,7 @@ See [verification-evidence.md](./references/verification-evidence.md) for:
 
 See [lint-and-format-gate.md](./references/lint-and-format-gate.md) for:
 
-- The author ran the format and lint commands per the project's development guidelines (code-quality rules)
+- The author ran the format and lint commands per the project's software-development practices (code-quality rules)
 - No new inline linter suppressions without an inline justification
 - No new lint warnings introduced into modified files
 

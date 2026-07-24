@@ -8,6 +8,15 @@ The order matters because the linter reports problems the formatter alone does n
 
 - `npm run format` applies auto-fixable formatting. `npm run lint` enforces the lint rules — and, in toolchains where the linter also checks formatting (e.g. Biome), re-flags format issues the formatter missed. In toolchains where it does not (e.g. ESLint with `eslint-config-prettier`), both steps are still always required.
 
+```mermaid
+flowchart LR
+  A[Change made] --> B[Format]
+  B --> C[Lint]
+  C --> D{Errors?}
+  D -->|yes| E[Fix errors] --> C
+  D -->|no| F[Clean]
+```
+
 **Guidelines:**
 
 - MUST always run checks in this order after making any code change:

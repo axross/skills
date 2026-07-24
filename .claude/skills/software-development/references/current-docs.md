@@ -19,11 +19,13 @@ Use current official docs before changing behavior governed by fast-moving frame
 - MUST NOT rely only on memory for APIs, defaults, or behavior that the relevant vendor may have changed.
 - SHOULD limit the docs lookup to the smallest surface needed for the task.
 
-## Project-Specific Current-Docs Triggers
+## Project-Specific Sensitive Files
 
-Some project areas are especially sensitive because a small mismatch can break skill discovery or the harness binding. List the library's own high-sensitivity config files and entry points here.
+Some files are especially sensitive because a small mismatch breaks skill discovery or the toolchain rather than just a single document. Before changing one, refresh the docs for the tool named in the table above; this list names _which_ files trigger that refresh, so the table's rules do not have to be re-derived per file.
+
+- **Claude Code** — any `SKILL.md` frontmatter, `.claude/settings*.json`, and the hooks under `.claude/hooks/`.
+- **markdownlint-cli2 / Prettier** — `.markdownlint-cli2.jsonc`, `.prettierrc.json`, and `.prettierignore`.
 
 **Guidelines:**
 
-- MUST refresh Claude Code docs before changing skill frontmatter or format, hook or settings configuration, slash-command behavior, or MCP configuration.
-- SHOULD refresh markdownlint-cli2 docs before changing its configuration files or suppression syntax.
+- MUST refresh the relevant tool's docs (per the table above) before changing any file listed here, since a mismatch here breaks discovery or the gate, not just one rendered page.
