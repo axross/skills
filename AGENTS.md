@@ -60,6 +60,7 @@ Unlike the guideline skills above, a workflow entry point is human-launchable as
 
 **Guidelines:**
 
+- MUST, when a task matches a skill in the index above, load that skill's body and execute its own steps — invoke it with the `Skill` tool, or Read its `SKILL.md` — rather than acting from the index's one-line summary; the routing cell is a pointer to the skill, and a paraphrase of it is not the skill. This applies first to the golden-rule delivery flow: enter [Loop Engineering](.claude/skills/loop-engineering/SKILL.md) by loading it, not by working from this section's description of it.
 - MUST consult [Development Guidelines](.claude/skills/development-guidelines/SKILL.md) at the start of every task.
 - SHOULD give changes to the review/CI infrastructure, the skill index and routing, secret handling, dependency/supply-chain surface, and large cross-skill refactors extra scrutiny — a human reviewer in addition to the independent review, not a lighter path.
 - MUST keep progress updates concise and focused on decisions, blockers, and outcomes, and summarize at completion the changed files, verification status, trade-offs, unresolved risks, whether skill maintenance was performed, skipped, or blocked — and, for any delivered change, the tracking issue, the pull request, and the independent review's outcome.
