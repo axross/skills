@@ -27,7 +27,7 @@ The diff already shows _what_ changed; the description carries the _why_ — the
 
 ## Template Usage
 
-The repository ships a pull request template at [`.github/pull_request_template.md`](../../../../.github/pull_request_template.md). GitHub pre-fills it only for pull requests opened through the web UI, and only from the copy on the default branch — a body authored programmatically (as an agent's API call does) starts empty, so the structure must be reproduced deliberately.
+The repository ships a pull request template (`.github/pull_request_template.md` on the default branch). GitHub pre-fills it only for pull requests opened through the web UI, and only from the copy on the default branch — a body authored programmatically (as an agent's API call does) starts empty, so the structure must be reproduced deliberately.
 
 **Guidelines:**
 

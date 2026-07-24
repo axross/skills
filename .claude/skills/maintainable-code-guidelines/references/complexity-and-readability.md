@@ -41,11 +41,11 @@ Commented-out code cannot be tested or type-checked and only rots, and version c
 
 ## Comments and Doc-Comments
 
-The project's comment and doc-comment rules are owned by the project's development guidelines (code-quality rules, Comments); this lens flags violations of them and links back rather than restating them.
+The project's comment and doc-comment rules are owned by the project's software-development practices (code-quality rules, Comments); this lens flags violations of them and links back rather than restating them.
 
 **Guidelines:**
 
-- MUST flag a changed/added type or function that lacks the doc-comment the project's development guidelines (code-quality rules, Doc-Comments) requires of it (including undocumented throwing conditions) — Minor, Major when it is an exported API.
+- MUST flag a changed/added type or function that lacks the doc-comment the project's software-development practices (code-quality rules, Doc-Comments) requires of it (including undocumented throwing conditions) — Minor, Major when it is an exported API.
 - MUST flag a line comment that violates the project's chosen comment voice — Nit.
 - SHOULD flag a line comment that merely restates the code it precedes.
 

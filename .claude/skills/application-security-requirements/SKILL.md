@@ -58,7 +58,7 @@ See [ssrf-and-embeds.md](./references/ssrf-and-embeds.md) for:
 
 See [supply-chain.md](./references/supply-chain.md) for:
 
-- New dependencies justify their addition per the project's development guidelines (change-management rules)
+- New dependencies justify their addition per the project's software-development practices (change-management rules)
 - New dependencies are reasonably popular, maintained, and platform-agnostic
 - Lockfile is updated; transitive additions are inspected for known-vulnerable versions
 - No `postinstall` / `prepare` script in a new dependency runs unexpected code
