@@ -54,4 +54,18 @@ if [ "$STATUS" -ne 0 ]; then
 fi
 
 rm -f "$OUTPUT"
+
+# non-blocking delivery-loop reminder: stopping with pushed commits ahead of
+# origin/main means a delivery is in flight. the hook cannot query GitHub for
+# an open pull request, so it reminds conditionally instead of blocking.
+BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+if [ -n "$BRANCH" ] && [ "$BRANCH" != "main" ] && git rev-parse --verify -q origin/main >/dev/null; then
+  UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || true)"
+  if [ -n "$UPSTREAM" ] \
+    && [ -n "$(git rev-list origin/main..HEAD -n 1 2>/dev/null)" ] \
+    && [ -z "$(git rev-list "$UPSTREAM"..HEAD -n 1 2>/dev/null)" ]; then
+    echo "Reminder: pushed commits are ahead of origin/main on this branch. If no draft pull request with an independent review exists for them, the delivery loop is incomplete — do not report this work as done."
+  fi
+fi
+
 exit 0
