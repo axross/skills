@@ -21,7 +21,7 @@ A shared pipeline copied into a second place drifts out of sync, so a fix applie
 
 - MUST keep a shared domain pipeline (e.g., a content-transformation chain) behind its single owning module; a new component that re-creates the chain outside that module is the finding, per the project's own domain convention, if it defines one.
 - MUST run domain processing on the side of any server/client boundary the pipeline belongs to (server-side only, where the project defines it so).
-- MUST pair a new node/element type added to a renderer's component-mapping table with its component import.
+- MUST pair a new node/element type added to a renderer's component-mapping table with its component import, per the project's own domain convention, if it defines one.
 
 ## Cross-Tier Imports
 
