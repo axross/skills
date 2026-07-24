@@ -22,12 +22,13 @@ Currently sourced here:
 - `loop-engineering` — a self-contained delivery workflow that drives one unit
   of work from intake to a review-ready pull request (plan → code →
   independent review).
-- `observability-guidelines` — tool-agnostic conventions for making software
-  observable: structured logging, error handling and error tracking
-  (breadcrumbs, trace/replay sampling, PII), and product/usage metrics.
 - `product-requirement-document-authoring` — a self-contained, portable skill
   for writing and reviewing product requirement documents (PRDs), feature specs,
   and plan documents.
+- `software-instrumentation` — the ability to instrument software so its
+  behavior is observable: structured logging with log levels, error handling and
+  error tracking (breadcrumbs, trace/replay sampling, PII), product/usage
+  analytics, and signal-selection and decision flows.
 - `unit-testing` — framework-agnostic conventions for writing, structuring,
   reviewing, and running unit tests across runners such as Jest or Vitest,
   including a decision diagram for unit-vs-integration/e2e scope.

@@ -1,6 +1,6 @@
 # Logging
 
-Apply these rules when writing, reviewing, or modifying any code that emits log output. "Logs" is the first of the three observability signal types; this file assumes a **structured logger** (JSON or key-value output — e.g. Pino, Winston, Bunyan, zap, slog, structlog, or a React Native logger). If a project has no structured logger, drop transient `console` diagnostics before committing and report unexpected failures to the error tracker instead (see [error-tracking.md](./error-tracking.md)).
+Apply this reference when instrumenting or reviewing any code that emits log output. "Logs" is the first of the three observability signal types; this file assumes a **structured logger** (JSON or key-value output — e.g. Pino, Winston, Bunyan, zap, slog, structlog, or a React Native logger). If a project has no structured logger, drop transient `console` diagnostics before committing and report unexpected failures to the error tracker instead (see [error-tracking.md](./error-tracking.md)).
 
 ## When to Log
 
@@ -22,6 +22,21 @@ Levels are the filter operators reach for under pressure, so a message at the wr
 | `info`  | Notable normal-progress milestones — the completion of a cross-boundary or user-significant operation, not each internal step of it.                   | Shown                                                |
 | `warn`  | Recoverable unexpected conditions — execution continues but something is worth investigating.                                                          | Shown                                                |
 | `error` | Reserved — see the rule below.                                                                                                                         | —                                                    |
+
+The flow below picks the level from the existing rules in order — an error with a dedicated tracker never routes to `logger.error()`, and an uncertain trace defaults to `debug`:
+
+```mermaid
+flowchart TD
+  A{What is this line?} --> B{An unexpected failure?}
+  B -->|Yes| C{Does the project have a dedicated error tracker?}
+  C -->|Yes| D[Report to the error tracker - do NOT use logger.error]
+  C -->|No| E[logger.error - the sanctioned failure channel here]
+  B -->|No| F{Execution continues, but something is worth investigating?}
+  F -->|Yes| G[logger.warn]
+  F -->|No| H{A notable normal-progress milestone?}
+  H -->|Yes| I[logger.info]
+  H -->|No / unsure| J[logger.debug - cheap to promote later]
+```
 
 **Guidelines:**
 
