@@ -40,7 +40,7 @@ The type prefix is what tooling reads to derive the release bump, so it must nam
   - `build` — build system or external dependencies (e.g., the dependency manifest or build config).
   - `chore` — housekeeping that does not fit another type (e.g., skill edits, config tweaks, repo metadata).
   - `ci` — CI/CD configuration (e.g., pipeline definitions or hosting/project settings).
-  - `docs` — documentation only (`AGENTS.md`, `.claude/skills/**`, `README.md`).
+  - `docs` — documentation only (`CLAUDE.md`, `.claude/skills/**`, `README.md`).
   - `style` — formatting / whitespace only, no behavior change (formatter-driven, typically).
   - `refactor` — code change that neither fixes a bug nor adds a feature.
   - `perf` — performance improvement.
