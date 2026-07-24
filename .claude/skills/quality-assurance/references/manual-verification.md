@@ -26,7 +26,7 @@ New warnings in the dev log are the app's earliest signal that something regress
 
 **Guidelines:**
 
-- MUST flag a Major when the diff introduces new warning-level log lines that were not in the `npm run check` output before the change (or removes existing warnings without explanation).
+- MUST flag a Major when running `npm run check` on the changed branch produces warning-level output that the same command does not produce on the base branch (or when a warning present on the base branch disappears without an explanation in the change).
 - MUST flag a Critical when the diff causes the running app to throw an uncaught exception during a normal interaction — the error tracker may capture it, but users will see the top-level error UI.
 - SHOULD ask the author to include the `npm run check` output snippet for the affected surface in the PR description when the change adds new data-layer calls or new logging.
 

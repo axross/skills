@@ -1,19 +1,22 @@
 ---
-name: quality-assurance-guidelines
-description: The reviewer's QA lens on verification evidence, on top of the development verification rules. Covers format/lint proof, manual checks for non-default content and not-found states, skipped checks, and residual risk.
+name: quality-assurance
+description: The ability to judge whether a change carries adequate verification evidence before it merges — the reviewer's QA pass on top of the development verification rules. Covers requiring command evidence for the format and lint gate, matching manual checks to the changed output surfaces (non-default content states, not-found handling, dev-server output), mapping skipped checks to residual risk, and demanding second-pass verification after severe findings.
 when_to_use: Use when reviewing whether a change has adequate verification evidence — "is this verified", "did this break anything", or "were the required checks run".
 user-invocable: false
 ---
 
-# Quality Assurance Guidelines
+# Quality Assurance
 
-Apply these rules when reviewing whether a change has been adequately verified before merge. This is the reviewer's lens — flag missing evidence and link to the developer-facing rule.
+Use this capability to judge whether a change has been adequately verified before merge. This is the reviewer's lens — flag missing evidence and link to the developer-facing rule rather than re-deriving it.
+
+The severity labels used throughout (Critical, Major, Minor) are owned by the project's code-review skill; consult it for each tier's definition, fixed floors, and verdict mapping.
 
 ## Verification Evidence
 
 See [verification-evidence.md](./references/verification-evidence.md) for:
 
 - Commands run, exit status, and relevant output
+- The evidence-adequacy decision flow from changed surface to covered-or-flag
 - Manual checks matched to changed output surfaces
 - Skipped required checks and residual risk
 - Second-pass verification after fixing Critical or Major findings

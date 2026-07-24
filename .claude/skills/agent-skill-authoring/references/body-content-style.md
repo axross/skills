@@ -122,7 +122,7 @@ Long sections hide requirements. When a section grows past a small, coherent lis
 
 > code-review-guidelines owns review reporting and severity.
 
-> quality-assurance-guidelines owns test and verification evidence.
+> quality-assurance owns test and verification evidence.
 
 **Bad Example:**
 

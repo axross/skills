@@ -10,7 +10,7 @@ A skill should describe one unit of work that is loaded, applied, and revised to
 
 > code-review-guidelines owns review reporting and severity.
 
-> quality-assurance-guidelines owns verification evidence.
+> quality-assurance owns verification evidence.
 
 **Bad Example:**
 
