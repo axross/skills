@@ -8,7 +8,7 @@ Formatting drift is caught by CI, so an unformatted diff is a guaranteed red bui
 
 **Guidelines:**
 
-- MUST mentally run `npm run format` (Prettier) over the diff. Flag any tab/space inconsistency, trailing whitespace, missing trailing newline, or quote-style drift as Critical (lint will fail).
+- MUST verify the diff is formatted: run `npm run format` (Prettier) on the changed files when the diff is available in a local checkout and flag any resulting reformat; otherwise inspect the diff for these concrete drift categories — tab/space inconsistency, trailing whitespace, missing trailing newline, quote-style drift. Flag either as Critical (lint will fail).
 - MUST flag a hand-applied formatting change to a file the diff did not otherwise need to touch — that violates the project's software-development practices (change-management rules) scope discipline.
 
 ## Lint
@@ -32,7 +32,7 @@ An unexplained suppression is indistinguishable from a bug being papered over; t
 
 **Guidelines:**
 
-- MUST flag a new markdownlint-cli2's inline suppression (with justification) directive that lacks an inline justification on the same line. The project rule is "explain why, not just what".
+- MUST flag a new inline markdownlint-cli2 suppression directive whose line carries no comment justifying why the rule is disabled there. The project rule is "explain why, not just what".
 - MUST flag a new block-level markdownlint-cli2 suppression in any file that is not one of the whitelisted exception points the linter config defines.
 - SHOULD flag a type-checker suppression (e.g., a "ts-expect-error"-style directive) introduced without a comment explaining the upstream type bug it works around.
 

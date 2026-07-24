@@ -9,12 +9,12 @@ A skill must stay individually portable — liftable to a user-, organization-, 
 **Example:**
 
 ```markdown
-Consult the project's quality-assurance guidelines when a review finding depends on test coverage.
+Consult the project's quality-assurance skill when a review finding depends on test coverage.
 ```
 
 **Guidelines:**
 
-- MUST reference another skill by a descriptive, index-resolvable name (e.g. "the project's quality-assurance guidelines"), never by a relative or repo-root-absolute path.
+- MUST reference another skill by a descriptive, index-resolvable name (e.g. "the project's quality-assurance skill"), never by a relative or repo-root-absolute path.
 - MUST NOT link into another skill by path — neither its `SKILL.md` front door nor, especially, its `references/` files.
 - MUST NOT deep-link into another skill's `references/`; name the owning skill and its topic (e.g. "the project's software-development practices (change-management rules)") and let that skill's own progressive disclosure surface the detail.
 - MUST keep the descriptive name specific enough to resolve to exactly one master-index row; where neighboring skills share a topic space (e.g. end-to-end vs. unit testing), keep the distinguishing token that separates them.
