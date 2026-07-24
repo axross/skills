@@ -79,7 +79,7 @@ user-invocable: false
 - MUST NOT add a new harness field to only one skill unless the host project explicitly uses per-skill variation.
 - SHOULD apply new harness fields project-wide when they represent runtime policy, as this project does with `when_to_use` and `user-invocable`.
 - MAY remove or replace harness fields when porting to a host project that does not support them; fold an orphaned `when_to_use` back into the `description` so the trigger text survives the port.
-- MUST document harness-field substitutions in the receiving project's master skill index when porting.
+- MUST document harness-field substitutions where the receiving project records its skills — its discovery metadata, or a written index where the host maintains one — when porting.
 
 ## Naming Rules
 

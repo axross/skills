@@ -1,10 +1,10 @@
 # Manual Verification Evidence
 
-Apply these rules to verify the author exercised the change in the running app. Manual verification is the **first line** of confirmation per the project's software-development practices (verification rules).
+Apply these rules to verify the author exercised the change in the running app. Manual verification is the **first line** of confirmation per the project's verification rules.
 
 ## Required Manual Checks
 
-The reviewer MUST ask the author to confirm (in the PR description or the review thread) that the following were checked when the diff touches the listed surface. Rows marked _(optional)_ apply only if the project has the corresponding capability. The changed-area-to-surface-at-risk mapping is owned by the project's software-development practices (verification rules); this table does not re-derive it — it adds only the review-side check the reviewer demands for each surface.
+The reviewer MUST ask the author to confirm (in the PR description or the review thread) that the following were checked when the diff touches the listed surface. Rows marked _(optional)_ apply only if the project has the corresponding capability. The changed-area-to-surface-at-risk mapping is owned by the project's verification rules; this table does not re-derive it — it adds only the review-side check the reviewer demands for each surface.
 
 | Diff touches                                                                                                             | Required manual check                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

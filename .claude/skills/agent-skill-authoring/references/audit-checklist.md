@@ -7,10 +7,10 @@ Apply this reference when auditing a skill tree for structure, discoverability, 
 A useful audit moves from inventory to mechanics to judgment. Mechanical checks catch broken structure; content review catches overlap, stale assumptions, and missing project-specific guidance.
 
 1. Inventory skills and reference files.
-2. Verify the master index and parent `SKILL.md` links.
+2. Verify skill discovery metadata (`description`/`when_to_use`) and parent `SKILL.md` links.
 3. Check frontmatter against the [frontmatter-and-naming](./frontmatter-and-naming.md) policy.
 4. Check parent routing-section format, section anatomy, and RFC-2119 guideline bullets.
-5. Check relative links outside code fences resolve, and that cross-skill references are name-based rather than path links into another skill.
+5. Check relative links outside code fences resolve, and that cross-skill references are topic-based rather than path links into another skill.
 6. Review content ownership and project fit.
 7. Report prioritized improvement items.
 
@@ -61,7 +61,7 @@ find .claude/skills -name '*.md' -print | sort
 - MUST check that every substantive rule section has a `**Guidelines:**` block after its explanation or demonstration.
 - MUST check that every guideline bullet begins with an RFC-2119 keyword.
 - MUST check that relative Markdown links outside fenced code blocks resolve; this skill's `scripts/check-links.sh` automates the check (see [cross-referencing.md](./cross-referencing.md)).
-- MUST check that cross-skill references are name-based and index-resolvable, not path links into another skill's `SKILL.md` or `references/` files.
+- MUST check that cross-skill references are topic-based and discovery-resolvable, not path links into another skill's `SKILL.md` or `references/` files.
 - SHOULD check for stale plain labels such as `Guidelines:` or `Example:` when the project standard is bold subheading-like labels.
 - SHOULD check for stale fenced `text` examples when a blockquote or table would be clearer.
 
@@ -83,7 +83,7 @@ Content review asks whether each skill owns one coherent responsibility and give
 - SHOULD treat a self-contained `skills/`-sourced skill's restatement of a rule a repo-native skill owns as the sanctioned Portable Source Exception (see [scoping-and-mece.md](./scoping-and-mece.md)) rather than a defect, provided it defers to the owner where present.
 - MUST identify stale project assumptions, old framework guidance, missing commands, or paths that do not exist.
 - SHOULD flag generic advice that does not add project-specific value.
-- SHOULD prefer a name-based cross-reference over copied doctrine when another skill owns the detailed rule.
+- SHOULD prefer a topic-based cross-reference over copied doctrine when another skill owns the detailed rule.
 - SHOULD note where examples, tables, diagrams, or command snippets would make abstract guidance easier to apply.
 
 ## Report Shape
