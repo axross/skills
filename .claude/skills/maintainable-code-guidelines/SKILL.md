@@ -33,14 +33,14 @@ See [complexity-and-readability.md](./references/complexity-and-readability.md) 
 - The project's configured `markdownlint-cli2` complexity/length thresholds are not silently bypassed
 - Magic numbers and strings have a named constant or design token, with `markdownlint-cli2`'s inline suppression directive (and a justifying comment) only when justified
 - Dead code (unused imports, unreachable branches, commented-out blocks) is removed
-- Missing doc-comments on changed public types/functions, restating comments, and comment-voice violations (owned by the project's software-development practices, code-quality rules)
+- Missing doc-comments on changed public types/functions, restating comments, and comment-voice violations (owned by the project's code-quality rules)
 - Inline `Markdown (with occasional JavaScript for scripting)` types are extracted into named aliases when reused
 
 ## Scope Discipline
 
 See [scope-discipline.md](./references/scope-discipline.md) for:
 
-- The diff matches the stated user goal — no drive-by refactors per the project's software-development practices (change-management rules)
+- The diff matches the stated user goal — no drive-by refactors per the project's change-management rules
 - Pre-existing problems are flagged separately, not bundled into this change
 - New abstractions are justified by ≥ 2 concrete call sites (YAGNI)
 - Repeated logic across the diff is consolidated only when the duplication is truly the same concern (DRY without coupling unrelated callers)

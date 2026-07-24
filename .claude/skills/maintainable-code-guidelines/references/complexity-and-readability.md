@@ -37,15 +37,15 @@ Commented-out code cannot be tested or type-checked and only rots, and version c
 - MUST flag commented-out code blocks introduced by the change. Remove or restore them — do not leave them as TODO breadcrumbs.
 - MUST flag an unused import in a changed file (the linter will too, but call it out so it does not slip through).
 - MUST flag an exported symbol from a changed module that has zero callers in the diff or in the existing codebase. Either remove the export or add the caller in the same change.
-- SHOULD flag an empty `try`/`catch` (e.g., `catch { /* swallow */ }`) as a dead-code smell; the rule that a caught error must be rethrown or reported rather than swallowed is owned by the project's software-instrumentation skill (error handling), so cite that lens rather than restating it here.
+- SHOULD flag an empty `try`/`catch` (e.g., `catch { /* swallow */ }`) as a dead-code smell; the rule that a caught error must be rethrown or reported rather than swallowed is owned by the project's error-handling instrumentation rules, so cite that lens rather than restating it here.
 
 ## Comments and Doc-Comments
 
-The project's comment and doc-comment rules are owned by the project's software-development practices (code-quality rules, Comments); this lens flags violations of them and links back rather than restating them.
+The project's comment and doc-comment rules are owned by the project's code-quality rules (Comments); this lens flags violations of them and links back rather than restating them.
 
 **Guidelines:**
 
-- MUST flag a changed/added type or function that lacks the doc-comment the project's software-development practices (code-quality rules, Doc-Comments) requires of it (including undocumented throwing conditions) — Minor, Major when it is an exported API.
+- MUST flag a changed/added type or function that lacks the doc-comment the project's code-quality rules (Doc-Comments) require of it (including undocumented throwing conditions) — Minor, Major when it is an exported API.
 - MUST flag a line comment that violates the project's chosen comment voice — Nit.
 - SHOULD flag a line comment that merely restates the code it precedes.
 

@@ -8,7 +8,7 @@ A dependency is a permanent liability — maintenance, security surface, and wei
 
 **Guidelines:**
 
-- MUST flag a Major when the diff adds a new entry to the dependency manifest (runtime or dev dependencies) without a justification per the project's software-development practices (change-management rules). The author should have considered ≥ 2 alternatives and chosen the most popular / well-maintained / platform-agnostic option.
+- MUST flag a Major when the diff adds a new entry to the dependency manifest (runtime or dev dependencies) without a justification per the project's change-management rules. The author should have considered ≥ 2 alternatives and chosen the most popular / well-maintained / platform-agnostic option.
 - MUST flag a Major when a new dependency duplicates functionality already available in:
   - A package already in the manifest
   - A built-in standard-library API of the runtime

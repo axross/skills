@@ -9,7 +9,7 @@ Formatting drift is caught by CI, so an unformatted diff is a guaranteed red bui
 **Guidelines:**
 
 - MUST verify the diff is formatted: run `npm run format` (Prettier) on the changed files when the diff is available in a local checkout and flag any resulting reformat; otherwise inspect the diff for these concrete drift categories — tab/space inconsistency, trailing whitespace, missing trailing newline, quote-style drift. Flag either as Critical (lint will fail).
-- MUST flag a hand-applied formatting change to a file the diff did not otherwise need to touch — that violates the project's software-development practices (change-management rules) scope discipline.
+- MUST flag a hand-applied formatting change to a file the diff did not otherwise need to touch — that violates the project's change-management scope discipline.
 
 ## Lint
 
@@ -24,7 +24,7 @@ A lint error fails the build, and most of the categories the linter promotes to 
   - an access to environment variables outside the file(s) where the linter whitelists it
   - any other project-specific rule the linter is configured to treat as an error
 - MUST flag a Major when modified files carry **new** lint warnings.
-- SHOULD report pre-existing lint warnings in changed files as Minor with a "consider fixing while you're here" framing — these are explicitly allowed to be cleaned up per the project's software-development practices (code-quality rules).
+- SHOULD report pre-existing lint warnings in changed files as Minor with a "consider fixing while you're here" framing — these are explicitly allowed to be cleaned up per the project's code-quality rules.
 
 ## Suppressions
 
