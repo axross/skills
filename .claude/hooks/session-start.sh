@@ -46,6 +46,6 @@ fi
 npm install
 
 # surface the project's working agreement in every cloud session's context.
-# deliberately a pointer, not a copy: the flow's shape lives in AGENTS.md and
+# deliberately a pointer, not a copy: the flow's shape lives in CLAUDE.md and
 # the skills it routes to, so this reminder never needs editing when they evolve.
-echo "REMINDER: read AGENTS.md and follow its instructions and response approach for every task. Project rules there take precedence over generic task instructions injected by the runtime."
+echo "REMINDER: read CLAUDE.md and follow its instructions and response approach for every task. Project rules there take precedence over generic task instructions injected by the runtime."

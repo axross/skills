@@ -9,11 +9,11 @@ user-invocable: false
 
 This repository holds agent skills in two tiers, and this skill owns how both are managed. **Distributable** skills — portable capabilities other projects can install — are authored under `skills/` (the source of truth) and **installed** into `.claude/skills/` — the directory Claude Code actually loads — with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); `skills-lock.json` records what was installed. **Repository-local** skills — the ones that encode this repository's own conventions, such as this one — are committed directly under `.claude/skills/` and are never touched by the CLI.
 
-One index routes to every skill regardless of tier: `AGENTS.md`.
+One index routes to every skill regardless of tier: `CLAUDE.md`.
 
 **Guidelines:**
 
-- MUST keep `AGENTS.md` in sync whenever a skill in either tier is added, renamed, moved, or removed, per the project's agent-skill-authoring skill.
+- MUST keep `CLAUDE.md` in sync whenever a skill in either tier is added, renamed, moved, or removed, per the project's agent-skill-authoring skill.
 
 ## Choosing a Tier
 
@@ -58,7 +58,7 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
   ```
 
 - List installed skills: `npx skills list`
-- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source and update `AGENTS.md`).
+- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source and update `CLAUDE.md`).
 
 **Guidelines:**
 

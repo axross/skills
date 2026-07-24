@@ -11,7 +11,7 @@ Use this table to determine which surfaces a change puts at risk, then verify ea
 | Prose or examples in a `SKILL.md` or reference file                           | Rendered Markdown; the guidance an agent reads            |
 | Skill frontmatter (`name`, `description`, `when_to_use`, invocation controls) | Skill discovery and loading                               |
 | Relative links, or cross-skill references named in prose                      | Link integrity; correct routing to the right skill        |
-| Adding, renaming, moving, or removing a skill or reference file               | The `AGENTS.md` routing index and parent `SKILL.md` links |
+| Adding, renaming, moving, or removing a skill or reference file               | The `CLAUDE.md` routing index and parent `SKILL.md` links |
 | A runnable script under a skill's `scripts/`                                  | The script's behavior and exit codes                      |
 | Root config (`package.json`, lint/format config, hooks, CI workflows)         | The verification gate itself                              |
 
@@ -29,6 +29,6 @@ Manual verification is the first line of confirmation; the automated gate is the
 **Guidelines:**
 
 - MUST review the rendered Markdown of every changed file — headings, tables, code fences, diagrams, and lists render as intended — since the rendered document is what an agent consumes.
-- MUST confirm that a renamed, moved, added, or removed skill or reference file is reflected in the `AGENTS.md` routing index and in every parent `SKILL.md` link, and that no cross-skill reference now names a skill the index no longer lists.
+- MUST confirm that a renamed, moved, added, or removed skill or reference file is reflected in the `CLAUDE.md` routing index and in every parent `SKILL.md` link, and that no cross-skill reference now names a skill the index no longer lists.
 - MUST run any runnable script a change touches and confirm its documented exit codes, rather than assuming the edit preserved its behavior.
 - MUST NOT call a documentation change done on the strength of a passing format/lint gate alone; the gate does not read the prose for correctness.
