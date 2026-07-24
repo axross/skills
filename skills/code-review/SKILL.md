@@ -1,13 +1,13 @@
 ---
 name: code-review
-description: A complete, self-contained methodology for reviewing a code change — a pull request, a branch or commit-range diff, or your own work before you call it done. Covers the reviewer-mode reset and diff scoping; a four-tier severity scale with fixed severity floors and a verdict mapping; evidence-based reporting with file-line citations and diff-style fix snippets; constructive, blame-free tone; escalation and decision-deferral for high-risk changes; a posted/CI-review overlay that collapses to an Important/Nit, comment-only report; and what-to-flag review lenses for correctness, maintainability, security and privacy, testing and verification, and performance and reliability. Self-contained — it references no other skill and no repository-root file, so it works installed on its own.
+description: The ability to review a code change — a pull request, a branch or commit-range diff, or your own work before you call it done — and report findings that hold up. Covers the reviewer-mode reset and diff scoping; a four-tier severity scale with fixed severity floors and a verdict mapping; evidence-based reporting with file-line citations and diff-style fix snippets; constructive, blame-free tone; escalation and decision-deferral for high-risk changes; a posted/CI-review overlay that collapses to an Important/Nit, comment-only report; and what-to-flag review lenses for correctness, maintainability, security and privacy, testing and verification, and performance and reliability. Self-contained — it references no other skill and no repository-root file, so it works installed on its own.
 when_to_use: Apply at the start of EVERY code review — a pull request, a branch or commit-range diff, or a post-implementation self-review of your own change before claiming it is done. Not for writing the change itself — only for judging a change that already exists.
 user-invocable: false
 ---
 
 # Code Review
 
-Apply these rules at the start of every code review, whatever the change type, language, or domain. The skill is self-contained: every rule it needs lives here, so it stays correct when installed on its own without any companion skill. When the host project ships its own code-review guideline or posted-review policy, defer to it for project-specific rules and precedence; the methodology here still applies in full wherever that project guidance is silent.
+Use this capability whenever you review a code change — a pull request, a branch or commit-range diff, or your own work before you call it done — whatever the change type, language, or domain. The skill is self-contained: every rule it needs lives here, so it stays correct when installed on its own without any companion skill. When the host project ships its own code-review guideline or posted-review policy, defer to it for project-specific rules and precedence; the methodology here still applies in full wherever that project guidance is silent.
 
 A review has one job — decide whether a change is safe to merge and say why, with evidence — and one output: a report. It does not rewrite the code. Keep finding problems separate from fixing them.
 

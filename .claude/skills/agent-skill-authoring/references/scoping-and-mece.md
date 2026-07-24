@@ -101,7 +101,7 @@ Section length is a readability signal. When a section needs too many bullets, t
 
 ## Naming Aligned with Scope
 
-The skill name is the first boundary cue a future agent sees. A capability name such as `code-review` is clearer than an actor or file-type name such as `reviewer-skill`.
+The skill name is the first boundary cue a future agent sees. A capability name such as `code-review` is clearer than an actor or file-type name such as `reviewer-skill`; [capability-framing.md](./capability-framing.md) owns how to phrase that capability, while this section covers only its alignment with the skill's scope.
 
 **Guidelines:**
 

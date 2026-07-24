@@ -4,12 +4,12 @@
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0770acf335738cfbd5d6a96d353c384afbd41deef8e9aeacb1831f07bc5fe027"
+      "computedHash": "5b3053360a582a45e08096b9b30d8787b16e2eaf1d1901c45572031afae63e2e"
     },
     "code-review": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "928637b371f0eaa38a39545e1e13b97d56d6ff0544356758ffd2dd744e814204"
+      "computedHash": "997515ae95463ab51ada40bd1baa1eb3fc67f44c37beb95a288fbd4848aa9b64"
     },
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
@@ -19,17 +19,17 @@
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "b6a57c92d5850b6a22f732f1428592898d3b8e3a92266ececca13a73b99c8dae"
+      "computedHash": "c5349a6619b17282add9f6999ef74cf6e5a007d44ba8fd6cb207f47934e660d8"
     },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "ba92180f404f85a8c7aecfbc015f131a15022dc38010503449b780af58286704"
+      "computedHash": "00b8c031ee4fa7e911119269074400f49a925247118a366b2803975eb982501d"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "84dee2cfdd948204f3ea69342f72487fa627cd21c89e42f4b5dda3d180427bc5"
+      "computedHash": "f51734bc5f78d89f5d9af655f1a87c2245c745b8ba17408d48555416130d1c9c"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",

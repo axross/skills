@@ -1,7 +1,7 @@
 ---
 name: agent-skill-authoring
-description: The ability to author, structure, name, refine, split, and audit agent skills in the agentskills.io format under the host project's skill root (e.g., `.claude/skills/`). Covers frontmatter and invocation-control fields, kebab-case naming, writing `description`/`when_to_use` for discovery, section anatomy with concise examples plus RFC-2119 guideline bullets, progressive disclosure into reference files, name-based cross-references, archetype skeletons for the project skills a scaffolding pass creates (structure, component, UI/design), a runnable structure validator, and keeping the host project's master skill index in sync.
-when_to_use: Apply whenever creating, refining, restructuring, splitting, consolidating, renaming, deleting, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, running the structure validator, or updating the skill index. Use for "add a skill", "split this skill", "audit skills", or any change to `SKILL.md` files or their references.
+description: The ability to author, structure, name, refine, split, and audit agent skills in the agentskills.io format under the host project's skill root (e.g., `.claude/skills/`). Covers capability framing (naming and voice that present a skill as an ability, not a document), frontmatter and invocation-control fields, kebab-case naming, writing `description`/`when_to_use` for discovery, section anatomy with concise examples plus RFC-2119 guideline bullets, progressive disclosure into reference files, name-based cross-references, archetype skeletons for the project skills a scaffolding pass creates (structure, component, UI/design), a runnable structure validator, and keeping the host project's master skill index in sync.
+when_to_use: Apply whenever creating, refining, restructuring, splitting, consolidating, renaming, deleting, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, running the structure validator, or updating the skill index. Use for "add a skill", "split this skill", "audit skills", "recast this skill as a capability", or any change to `SKILL.md` files or their references.
 user-invocable: false
 ---
 
@@ -23,6 +23,15 @@ See [scoping-and-mece.md](./references/scoping-and-mece.md) for:
 - choosing a coherent skill boundary, skill name, split, consolidation, or source-of-truth location
 - checking overlap with neighboring skills before adding new guidance
 - using section length and topic growth as signals for restructuring
+
+## Capability Framing
+
+See [capability-framing.md](./references/capability-framing.md) for:
+
+- framing a skill as an ability the agent gains rather than a document it reads
+- naming the activity a skill enables, and the document-style suffixes to avoid
+- the voice of the `description` opening clause, the H1, and the opening paragraph
+- recasting an existing guideline-style skill in a fixed order, without changing what it requires
 
 ## Frontmatter and Naming
 
