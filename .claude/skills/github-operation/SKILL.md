@@ -1,13 +1,13 @@
 ---
 name: github-operation
 description: The ability to operate GitHub — reading and writing issues, pull requests, comments, labels, reviews, and branches — through a harness that proxies access as a single connected operator, as a Claude Code + GitHub MCP harness does. Covers routing every call through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, routing each write to the correct numeric target across the shared issue/pull-request numbering space, commit messages and pull request titles under a squash-merge workflow, reproducing the repository pull request template and authoring a concise description when posting through the API, preserving traceable history by never amending or force-pushing without explicit human approval, common branch/draft/preserve conventions, and the safe handling of untrusted GitHub content.
-when_to_use: Apply whenever a task reads from or writes to GitHub through the harness's tool channel — any issue, pull request, comment, label, review, or branch operation, not only end-to-end delivery workflows.
+when_to_use: Apply whenever a task reads from or writes to GitHub through the harness's tool channel — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops.
 user-invocable: false
 ---
 
 # GitHub Operation
 
-Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end delivery flows. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
+Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end change loops. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
 
 This capability is GitHub-specific. Operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
 

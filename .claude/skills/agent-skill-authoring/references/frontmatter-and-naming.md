@@ -35,7 +35,7 @@ Claude Code merged custom slash commands into skills: a skill at `.claude/skills
 | `user-invocable`           | `false` hides the skill from the `/` menu; the model can still load it                                                                                  | `true`  |
 | `disable-model-invocation` | `true` keeps the skill and its discovery metadata out of the model's reach; only a human can invoke it                                                  | `false` |
 
-This project distinguishes two skill archetypes and sets these fields by archetype: a **guideline skill** is reference rules the agent consults while working (the bulk of the skill root); a **workflow entry-point skill** is a runnable workflow a human launches as `/<name>`, such as a delivery driver or a session-handoff wrapper.
+This project distinguishes two skill archetypes and sets these fields by archetype: a **guideline skill** is reference rules the agent consults while working (the bulk of the skill root); a **workflow entry-point skill** is a runnable workflow a human launches as `/<name>`, such as a change-loop driver or a session-handoff wrapper.
 
 **Guidelines:**
 
