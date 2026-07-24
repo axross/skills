@@ -28,8 +28,9 @@ Currently sourced here:
 - `product-requirement-document-authoring` — a self-contained, portable skill
   for writing and reviewing product requirement documents (PRDs), feature specs,
   and plan documents.
-- `unit-test-guidelines` — framework-agnostic conventions for writing,
-  structuring, and reviewing unit tests across runners such as Jest or Vitest.
+- `unit-testing` — framework-agnostic conventions for writing, structuring,
+  reviewing, and running unit tests across runners such as Jest or Vitest,
+  including a decision diagram for unit-vs-integration/e2e scope.
 - `wireframe-design` — a self-contained, project-agnostic capability for
   low-fidelity wireframe, breadboard, and wireflow mockups of any client-app UI
   (mobile or web/desktop), with a runnable self-containment/placeholder
