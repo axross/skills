@@ -23,8 +23,9 @@ output — they exist for self-review, not for the pull-request thread.
 
 - **Important** — MUST be addressed before merge: a finding that breaks
   behavior, corrupts persisted state, leaks data, regresses accessibility,
-  violates a MUST rule of a matching skill in the `CLAUDE.md` skill index, or
-  leaves an acceptance criterion unmet or unverifiable from the diff.
+  violates a MUST rule of a matching skill (discovered by its
+  `description`/`when_to_use`), or leaves an acceptance criterion unmet or
+  unverifiable from the diff.
 - **Nit** — safe to defer: style, naming, and refactoring suggestions.
 
 **Guidelines:**
@@ -32,7 +33,7 @@ output — they exist for self-review, not for the pull-request thread.
 - MUST label every posted finding exactly **Important** or **Nit** — no other
   labels appear in a posted review.
 - MUST label as Important every violated MUST rule of a matching
-  `CLAUDE.md`-indexed skill, every acceptance criterion that is unmet or cannot
+  skill, every acceptance criterion that is unmet or cannot
   be confirmed from the diff, and every mandatory-check miss that breaks a hard
   requirement.
 - MUST label style, naming, and refactoring suggestions Nit at most.
@@ -67,8 +68,8 @@ not skippable. Grade each miss by its real impact: a miss that breaks a hard
 requirement is **Important**, a gap that does not is a **Nit**. Cite the owning
 skill in the finding.
 
-- **Skill conformance** — verify the change conforms to **every** skill in the
-  [`CLAUDE.md`](CLAUDE.md) skill index whose routing condition matches the
+- **Skill conformance** — verify the change conforms to **every** skill whose
+  discovery condition (`description`/`when_to_use`) matches the
   changed files, and flag any deviation from a skill's stated rule, citing the
   skill and the rule. A violated skill **MUST** rule is Important.
 - **Acceptance criteria** — verify the diff against **every** acceptance
@@ -115,6 +116,5 @@ and nothing is summarized away — the tally counts every finding.
   comment for the summary — and MUST NOT scatter individual findings across
   separate top-level conversation comments.
 - MUST post any pull-request review as a **COMMENT**-type review — never
-  APPROVE or REQUEST_CHANGES — per
-  [GitHub Operation](.claude/skills/github-operation/SKILL.md); this reviewer
-  is advisory and does not gate merges.
+  APPROVE or REQUEST_CHANGES — per the project's GitHub-operation
+  conventions; this reviewer is advisory and does not gate merges.

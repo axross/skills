@@ -9,7 +9,7 @@ user-invocable: false
 
 Use this capability to judge whether a change has been adequately verified before merge. This is the reviewer's lens — flag missing evidence and link to the developer-facing rule rather than re-deriving it.
 
-The severity labels used throughout (Critical, Major, Minor) are owned by the project's code-review skill; consult it for each tier's definition, fixed floors, and verdict mapping.
+The severity labels used throughout (Critical, Major, Minor) are owned by the project's review severity model; consult it for each tier's definition, fixed floors, and verdict mapping.
 
 ## Verification Evidence
 
@@ -25,7 +25,7 @@ See [verification-evidence.md](./references/verification-evidence.md) for:
 
 See [lint-and-format-gate.md](./references/lint-and-format-gate.md) for:
 
-- The author ran the format and lint commands per the project's software-development practices (code-quality rules)
+- The author ran the format and lint commands per the project's code-quality rules
 - No new inline linter suppressions without an inline justification
 - No new lint warnings introduced into modified files
 

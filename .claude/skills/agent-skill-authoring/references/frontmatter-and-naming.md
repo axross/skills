@@ -35,7 +35,7 @@ Claude Code merged custom slash commands into skills: a skill at `.claude/skills
 | `user-invocable`           | `false` hides the skill from the `/` menu; the model can still load it                                                                                  | `true`  |
 | `disable-model-invocation` | `true` keeps the skill and its discovery metadata out of the model's reach; only a human can invoke it                                                  | `false` |
 
-This project distinguishes two skill archetypes and sets these fields by archetype: a **guideline skill** is reference rules the agent consults while working (the bulk of the skill root); a **workflow entry-point skill** is a runnable workflow a human launches as `/<name>`, such as a delivery driver or a session-handoff wrapper.
+This project distinguishes two skill archetypes and sets these fields by archetype: a **guideline skill** is reference rules the agent consults while working (the bulk of the skill root); a **workflow entry-point skill** is a runnable workflow a human launches as `/<name>`, such as a change-loop driver or a session-handoff wrapper.
 
 **Guidelines:**
 
@@ -79,7 +79,7 @@ user-invocable: false
 - MUST NOT add a new harness field to only one skill unless the host project explicitly uses per-skill variation.
 - SHOULD apply new harness fields project-wide when they represent runtime policy, as this project does with `when_to_use` and `user-invocable`.
 - MAY remove or replace harness fields when porting to a host project that does not support them; fold an orphaned `when_to_use` back into the `description` so the trigger text survives the port.
-- MUST document harness-field substitutions in the receiving project's master skill index when porting.
+- MUST document harness-field substitutions where the receiving project records its skills — its discovery metadata, or a written index where the host maintains one — when porting.
 
 ## Naming Rules
 

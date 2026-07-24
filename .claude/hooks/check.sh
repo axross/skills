@@ -34,12 +34,12 @@ code_changed() {
   fi
   return 1
 }
-# non-blocking delivery-loop reminder: stopping with pushed commits ahead of
-# origin/main means a delivery is in flight, including when the tree is clean
+# non-blocking change-loop reminder: stopping with pushed commits ahead of
+# origin/main means a change-loop run is in flight, including when the tree is clean
 # and fully pushed (the push-then-stop state the code_changed gate would
 # otherwise skip). the hook cannot query GitHub for an open pull request, so
 # it reminds conditionally instead of blocking, via a systemMessage JSON.
-delivery_in_flight() {
+change_in_flight() {
   local branch upstream
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
   [ -n "$branch" ] && [ "$branch" != "main" ] || return 1
@@ -51,8 +51,8 @@ delivery_in_flight() {
   return 0
 }
 emit_reminder_and_exit() {
-  if delivery_in_flight; then
-    printf '%s\n' '{"systemMessage": "Reminder: pushed commits are ahead of origin/main on this branch. If no draft pull request with an independent review exists for them, the delivery loop is incomplete — do not report this work as done."}'
+  if change_in_flight; then
+    printf '%s\n' '{"systemMessage": "Reminder: pushed commits are ahead of origin/main on this branch. If no draft pull request with an independent review exists for them, the change loop is incomplete — do not report this work as done."}'
   fi
   exit 0
 }

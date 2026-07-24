@@ -25,7 +25,7 @@ Currently sourced here:
   for high-fidelity (real-token) UI/visual design: semantic tokens and dark
   mode, layout and type, per-theme WCAG contrast, interaction states, focus,
   motion, and accessibility.
-- `loop-engineering` — a self-contained delivery workflow that drives one unit
+- `loop-engineering` — a self-contained change loop that drives one unit
   of work from intake to a review-ready pull request (plan → code →
   independent review).
 - `product-requirement-document-authoring` — a self-contained, portable skill
