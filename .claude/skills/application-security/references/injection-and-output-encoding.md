@@ -1,6 +1,20 @@
-# Injection in Rendered Untrusted Content
+# Injection and Output Encoding
 
-Apply these rules to verify that any rendering of untrusted (user- or CMS-authored) content — rich text, markdown, or HTML — does not allow that content to inject script or break out of the rendering layer's output encoding. The markdown renderer is one common instance of this surface; the same rules apply to any pipeline that turns authored content into markup.
+Turn untrusted (user- or CMS-authored) content — rich text, markdown, or HTML — into markup without letting it inject script or break out of the output encoding, in two modes. **Build:** render through the framework's safe, context-aware sinks and encode at each sink. **Review:** verify a change does not open a raw-HTML sink or bypass the encoding path. The markdown renderer is one common instance; the same rules apply to any pipeline that turns authored content into markup.
+
+## Build Securely
+
+Output encoding is contextual: the same string is inert as HTML text but live as a URL, an attribute, a script, or a style. Safety comes from letting the framework encode for the exact sink, not from cleaning the input once.
+
+**Guidelines:**
+
+- MUST render untrusted content through the framework's default text sinks (`textContent`, JSX children, a template's auto-escaped interpolation), never a raw-HTML sink (`dangerouslySetInnerHTML`, `innerHTML`, `v-html`, `outerHTML`).
+- MUST let the framework encode per output context (HTML body, attribute, URL, JS, CSS) rather than hand-rolling encoding or concatenating strings into markup — encoding for the wrong context is no protection.
+- MUST allowlist URL schemes to `http:`/`https:` (plus `mailto:`/`tel:` where the content needs them) and strip `javascript:`, `data:`, and unknown schemes before a value reaches an `href`, `src`, or `style` sink.
+- MUST sanitize with a vetted, maintained HTML sanitizer (e.g., DOMPurify) when a feature genuinely must render authored HTML, rather than trusting the raw string.
+- MUST forward only a known-safe attribute allowlist (e.g., `href`, `title`) from a custom render node, never spread authored-controlled attributes onto a DOM element, and never emit event-handler attributes (`onClick`, `onError`).
+- MUST keep untrusted content flowing only from the trusted data/content layer — not the filesystem or arbitrary HTTP at runtime — and keep the input format as constrained as the feature allows.
+- SHOULD render an external link with the project's safe-link pattern (`rel="noopener noreferrer"`, `target="_blank"`).
 
 ## Pipeline Configuration to Watch
 
