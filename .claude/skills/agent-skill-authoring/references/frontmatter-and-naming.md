@@ -89,7 +89,7 @@ Kebab-case names are portable and predictable. The name should communicate the d
 
 - MUST use kebab-case for skill directories and the `name` field.
 - MUST NOT use uppercase letters, underscores, dots, spaces, leading hyphens, trailing hyphens, or consecutive hyphens.
-- SHOULD describe the responsibility, such as `application-security-requirements`.
+- SHOULD describe the responsibility, such as `application-security` or `software-instrumentation`.
 - SHOULD avoid actor names such as `security-reviewer` unless the host's taxonomy is explicitly actor-based.
 - SHOULD avoid names that overlap conceptually with existing siblings.
 
