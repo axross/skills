@@ -45,7 +45,8 @@ npx skills add ./skills --agent claude-code --skill '*' --yes --copy
 
 The installed copies under `.claude/skills/<name>/` and the generated
 `skills-lock.json` are committed alongside this source. See the
-[Skill Installation](../.claude/skills/skill-installation/SKILL.md) skill for the
-full install, lockfile, and refresh-and-verify workflow, and
+[Agent Skill Management](../.claude/skills/agent-skill-management/SKILL.md)
+skill for the two-tier model and the full install, lockfile, and
+refresh-and-verify workflow, and
 [Agent Skill Authoring](../.claude/skills/agent-skill-authoring/SKILL.md)
 for how to author the skill itself.
