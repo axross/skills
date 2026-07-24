@@ -6,10 +6,10 @@ Apply this reference when a change depends on framework, platform, service, or t
 
 Use current official docs before changing behavior governed by fast-moving frameworks, services, or tools that the project depends on. The table below lists the tools this library depends on; add rows for any other fast-moving dependency it takes on.
 
-| Surface           | Refresh docs before changing                                                                             |
-| ----------------- | -------------------------------------------------------------------------------------------------------- |
-| Claude Code       | Skill format and frontmatter, hook and settings configuration, slash-command behavior, MCP configuration |
-| markdownlint-cli2 | Formatter/linter configuration, suppression syntax, rule names                                           |
+| Surface                      | Refresh docs before changing                                                                             |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Claude Code                  | Skill format and frontmatter, hook and settings configuration, slash-command behavior, MCP configuration |
+| markdownlint-cli2 / Prettier | Lint and format configuration, suppression syntax, rule names                                            |
 
 **Guidelines:**
 
