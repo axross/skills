@@ -6,7 +6,7 @@ A curated, reusable library of Claude Code agent skills.
 [Claude Code](https://claude.com/claude-code) a structured way to work: a master
 routing index in [`CLAUDE.md`](./CLAUDE.md), a set
 of guideline skills under [`.claude/skills/`](./.claude/skills), and a
-model-invoked delivery loop (loop-engineering). It
+model-invoked change loop (loop-engineering). It
 is Markdown-first — the skills _are_ the deliverable — with a little JavaScript
 tooling to keep the docs formatted, linted, and link-checked.
 
@@ -45,9 +45,9 @@ report.
 ### Delivering a unit of work end-to-end
 
 [Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
-repository's default delivery flow. It runs **model-invoked** — there is no
+repository's default change loop. It runs **model-invoked** — there is no
 slash command; describe the work (a GitHub issue, a pull request, or a free-form
-prompt) and the flow drives it from intake to a merge-ready pull request in a
+prompt) and the loop drives it from intake to a merge-ready pull request in a
 single continuing session:
 
 1. **Plan** — reads the issue and its thread, asks you the scope questions the
@@ -77,7 +77,7 @@ policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line
 evidence and concrete fixes, posted as inline comments by the CI reviewer
 ([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
 pre-merge check on a hand-written change or a second opinion before merging; the
-same review runs automatically against the delivery flow's pull requests.
+same review runs automatically against the change loop's pull requests.
 
 The reviewer is inert until a one-time operator setup is done: install the
 [Claude GitHub App](https://github.com/apps/claude) and add a
