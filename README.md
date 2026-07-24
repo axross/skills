@@ -6,7 +6,7 @@ A curated, reusable library of Claude Code agent skills.
 [Claude Code](https://claude.com/claude-code) a structured way to work: a master
 routing index in [`CLAUDE.md`](./CLAUDE.md), a set
 of guideline skills under [`.claude/skills/`](./.claude/skills), and a
-model-invoked delivery loop (loop-engineering) with a `/handoff` companion. It
+model-invoked delivery loop (loop-engineering). It
 is Markdown-first — the skills _are_ the deliverable — with a little JavaScript
 tooling to keep the docs formatted, linted, and link-checked.
 
@@ -67,9 +67,8 @@ single continuing session:
 
 Kick it off by naming the work — "deliver issue #42", "pick up PR 57", or a
 free-form request (with no issue yet, it files a tracking issue first, then
-delivers it). To approve a paused plan, resume after a question, or take over a
-`/handoff` package, continue the session (or start a fresh one with the package
-attached) and tell it to continue.
+delivers it). To approve a paused plan or resume after a question, continue the
+session and tell it to continue.
 
 ### `@claude review` — get findings on any PR
 
@@ -86,14 +85,6 @@ The reviewer is inert until a one-time operator setup is done: install the
 `claude setup-token`), or set an `ANTHROPIC_API_KEY` secret for pay-as-you-go
 billing. See the header of
 [`claude-review.yaml`](./.github/workflows/claude-review.yaml) for details.
-
-### `/handoff` — suspend work for another session
-
-[`/handoff`](./.claude/skills/handoff/SKILL.md) packages in-progress work — goal,
-current state, remaining to-dos, uncommitted changes — into a downloadable
-`handoff-<epoch>.md` (plus an optional zip of supporting files). Use it when a
-session is running low on context, or to park work for later; a fresh session
-takes the package over by continuing the delivery flow with it attached.
 
 Changes made without an agent follow the same bar: branch, implement, run the
 checks below, open a pull request, and get it reviewed before merge.
