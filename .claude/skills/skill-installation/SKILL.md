@@ -9,7 +9,7 @@ user-invocable: false
 
 This repository can hold agent skills in two forms, and one CLI keeps them in sync. Skills authored through the [vercel-labs/skills](https://github.com/vercel-labs/skills) layout live under `skills/` (the source of truth) and are **installed** into `.claude/skills/` — the directory Claude Code actually loads — with the `npx skills` CLI. Both the source and the installed copies are committed, and `skills-lock.json` records what was installed.
 
-Not every skill uses this flow: the repository's own guideline and workflow skills (the ones indexed in `AGENTS.md` that ship directly under `.claude/skills/`, such as this one) are committed there directly and are **not** managed by `npx skills`. This skill governs only the `skills/`-sourced skills.
+Not every skill uses this flow: the repository's own guideline and workflow skills (the ones indexed in `CLAUDE.md` that ship directly under `.claude/skills/`, such as this one) are committed there directly and are **not** managed by `npx skills`. This skill governs only the `skills/`-sourced skills.
 
 The `skills/` source directory ships **empty** in the template, with no `skills-lock.json` until the first skill is installed — in this repository, `loop-engineering` is that first managed skill. Follow this skill the moment a skill is authored under `skills/`.
 
@@ -19,7 +19,7 @@ The `skills/` source directory ships **empty** in the template, with no `skills-
 - MUST re-run the install after editing any source skill so the committed `.claude/skills/` copy and `skills-lock.json` match the source, then verify with `npm run check`.
 - MUST commit the installed `.claude/skills/<name>/` copies and `skills-lock.json` alongside the `skills/` source; they are tracked artifacts, not gitignored.
 - MUST NOT hand-edit an installed copy under `.claude/skills/`; edit the source under `skills/` and reinstall.
-- MUST keep `AGENTS.md` in sync when a managed skill is added, renamed, or removed, per the project's agent-skill-authoring skill.
+- MUST keep `CLAUDE.md` in sync when a managed skill is added, renamed, or removed, per the project's agent-skill-authoring skill.
 
 ## Install And Refresh
 
@@ -40,7 +40,7 @@ The CLI is run through `npx`; when the environment does not support symlinks, in
   ```
 
 - List installed skills: `npx skills list`
-- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source and update `AGENTS.md`).
+- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source and update `CLAUDE.md`).
 
 **Guidelines:**
 
