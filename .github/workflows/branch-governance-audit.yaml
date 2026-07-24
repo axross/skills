@@ -1,0 +1,101 @@
+name: Branch Governance Audit
+
+# Server-side floor for the loop-engineering delivery flow
+# (.claude/skills/loop-engineering/SKILL.md). It surfaces the failure signature
+# from the #27 and #32 retrospectives: an agent branch (claude/*) pushed to
+# origin with commits ahead of the default branch but NO open pull request —
+# work delivered outside the flow, ungoverned by an independent review. Prose
+# guardrails in the routing index and the loop skill did not hold across four
+# passes; this check runs off the agent's own session, so it cannot be
+# rationalized around from inside one.
+#
+# It is deliberately a scheduled sweep, not a push-triggered gate: the loop
+# legitimately pushes a branch in Phase 2 (Code) and opens its draft pull
+# request only in Phase 3, so a push-time check would false-positive that
+# window. A grace window (GRACE_MINUTES) skips a branch whose latest commit is
+# very recent — still mid-delivery in an active session.
+#
+# NOTE: scheduled workflows run only from the version on the DEFAULT branch, so
+# this audit becomes active only once merged there — it does not run on the pull
+# request that introduces it.
+
+on:
+  schedule:
+    - cron: "0 * * * *" # hourly
+  workflow_dispatch:
+
+# Least privilege: read code and pull requests, nothing else. It never pushes
+# and opens nothing; its only output is the job's pass/fail status.
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  audit:
+    name: Audit ungoverned agent branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Flag claude/* branches pushed with no open pull request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const GRACE_MINUTES = 30; // skip branches whose latest commit is still within an active delivery
+            const AGENT_PREFIX = "claude/";
+            const { owner, repo } = context.repo;
+
+            const { data: repoInfo } = await github.rest.repos.get({ owner, repo });
+            const base = repoInfo.default_branch;
+
+            const branches = await github.paginate(github.rest.repos.listBranches, {
+              owner,
+              repo,
+              per_page: 100,
+            });
+            const agentBranches = branches.filter((b) => b.name.startsWith(AGENT_PREFIX));
+
+            const openPRs = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: "open",
+              per_page: 100,
+            });
+            const branchesWithOpenPR = new Set(openPRs.map((pr) => pr.head.ref));
+
+            const now = Date.now();
+            const graceMs = GRACE_MINUTES * 60 * 1000;
+            const flagged = [];
+
+            for (const b of agentBranches) {
+              if (branchesWithOpenPR.has(b.name)) continue;
+
+              // Only commits ahead of the default branch represent delivered work.
+              const { data: cmp } = await github.rest.repos.compareCommitsWithBasehead({
+                owner,
+                repo,
+                basehead: `${base}...${b.name}`,
+              });
+              if (cmp.ahead_by === 0) continue;
+
+              // Age the branch by its head commit; skip anything inside the grace window.
+              const { data: headCommit } = await github.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: b.commit.sha,
+              });
+              const committedAt = new Date(headCommit.commit.committer.date).getTime();
+              if (now - committedAt < graceMs) continue;
+
+              const ageMin = Math.round((now - committedAt) / 60000);
+              flagged.push(`${b.name} (ahead ${cmp.ahead_by}, last commit ${ageMin}m ago)`);
+            }
+
+            if (flagged.length > 0) {
+              core.setFailed(
+                "Ungoverned agent branch(es) — pushed with commits but no open pull request:\n" +
+                  flagged.map((f) => `  - ${f}`).join("\n") +
+                  "\n\nEach is work delivered outside the loop-engineering flow. Open a draft pull " +
+                  "request (Closes #<issue>) and request the independent review, or delete the branch.",
+              );
+            } else {
+              core.info(`No ungoverned ${AGENT_PREFIX}* branches. Checked ${agentBranches.length}.`);
+            }
