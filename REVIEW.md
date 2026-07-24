@@ -23,7 +23,7 @@ output — they exist for self-review, not for the pull-request thread.
 
 - **Important** — MUST be addressed before merge: a finding that breaks
   behavior, corrupts persisted state, leaks data, regresses accessibility,
-  violates a MUST rule of a matching skill in the `AGENTS.md` skill index, or
+  violates a MUST rule of a matching skill in the `CLAUDE.md` skill index, or
   leaves an acceptance criterion unmet or unverifiable from the diff.
 - **Nit** — safe to defer: style, naming, and refactoring suggestions.
 
@@ -32,7 +32,7 @@ output — they exist for self-review, not for the pull-request thread.
 - MUST label every posted finding exactly **Important** or **Nit** — no other
   labels appear in a posted review.
 - MUST label as Important every violated MUST rule of a matching
-  `AGENTS.md`-indexed skill, every acceptance criterion that is unmet or cannot
+  `CLAUDE.md`-indexed skill, every acceptance criterion that is unmet or cannot
   be confirmed from the diff, and every mandatory-check miss that breaks a hard
   requirement.
 - MUST label style, naming, and refactoring suggestions Nit at most.
@@ -68,7 +68,7 @@ requirement is **Important**, a gap that does not is a **Nit**. Cite the owning
 skill in the finding.
 
 - **Skill conformance** — verify the change conforms to **every** skill in the
-  [`AGENTS.md`](AGENTS.md) skill index whose routing condition matches the
+  [`CLAUDE.md`](CLAUDE.md) skill index whose routing condition matches the
   changed files, and flag any deviation from a skill's stated rule, citing the
   skill and the rule. A violated skill **MUST** rule is Important.
 - **Acceptance criteria** — verify the diff against **every** acceptance

@@ -4,7 +4,7 @@ A curated, reusable library of Claude Code agent skills.
 
 `skills` collects the working agreement and skills that give
 [Claude Code](https://claude.com/claude-code) a structured way to work: a master
-routing index in [`AGENTS.md`](./AGENTS.md) (loaded through `CLAUDE.md`), a set
+routing index in [`CLAUDE.md`](./CLAUDE.md), a set
 of guideline skills under [`.claude/skills/`](./.claude/skills), and a
 model-invoked delivery loop (loop-engineering) with a `/handoff` companion. It
 is Markdown-first — the skills _are_ the deliverable — with a little JavaScript
@@ -37,7 +37,7 @@ format-on-edit and check-before-stop hooks are materialized from
 
 Development in this repository is agent-assisted via
 [Claude Code](https://claude.com/claude-code). The working agreement lives in
-[`AGENTS.md`](./AGENTS.md) (loaded through `CLAUDE.md`) and routes to the
+[`CLAUDE.md`](./CLAUDE.md) and routes to the
 detailed skills under [`.claude/skills/`](./.claude/skills). Human and agent
 contributors follow the same loop: plan → implement → self-review → verify →
 report.
@@ -108,7 +108,7 @@ under [`skills/`](./skills) — the source of truth for skills copied into
 It currently holds the `code-review`, `end-to-end-testing`,
 `high-fidelity-ui-design`, `loop-engineering`, `observability-guidelines`,
 `product-requirement-document-authoring`, `unit-testing`, and
-`wireframe-design-guidelines` skills; the
+`wireframe-design` skills; the
 [`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
 documents the install, lockfile, and refresh-and-verify workflow.
 
@@ -126,4 +126,4 @@ gate a merge via [`merge-checks.yaml`](./.github/workflows/merge-checks.yaml).
 | All three      | `npm run check`                                       |
 
 Run format + lint after every change, and the link check whenever links or file
-paths move — see the Verification section of [`AGENTS.md`](./AGENTS.md).
+paths move — see the Verification section of [`CLAUDE.md`](./CLAUDE.md).

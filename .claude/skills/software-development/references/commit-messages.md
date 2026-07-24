@@ -40,7 +40,7 @@ The type prefix is what tooling reads to derive the release bump, so it must nam
   - `build` — build system or external dependencies (e.g., the dependency manifest or build config).
   - `chore` — housekeeping that does not fit another type (e.g., skill edits, config tweaks, repo metadata).
   - `ci` — CI/CD configuration (e.g., pipeline definitions or hosting/project settings).
-  - `docs` — documentation only (`AGENTS.md`, `.claude/skills/**`, `README.md`).
+  - `docs` — documentation only (`CLAUDE.md`, `.claude/skills/**`, `README.md`).
   - `style` — formatting / whitespace only, no behavior change (formatter-driven, typically).
   - `refactor` — code change that neither fixes a bug nor adds a feature.
   - `perf` — performance improvement.
@@ -188,10 +188,17 @@ Refs: 676104e, a215868
 
 ## Tooling Notes
 
-Nothing in the repository — no commit hook, no CI check — rejects a malformed message, so a non-conforming commit lands silently unless the author catches it first.
+Nothing in the repository — no commit hook, no CI check — rejects a malformed message, so a non-conforming commit lands silently unless the author catches it first. To make that catch mechanical, this skill bundles `scripts/check-commit-message.mjs`: a dependency-light Node validator (standard library only) that checks a header against the rules above and reports every violation. It reads a message from a file argument or stdin and exits `0` (conforms) / `1` (violations, each listed) / `2` (bad invocation).
+
+**Example:**
+
+```bash
+node .claude/skills/software-development/scripts/check-commit-message.mjs .git/COMMIT_EDITMSG
+```
 
 - When amending or rewriting history, re-check that every rewritten commit still conforms — especially that breaking changes carry either `!` or the footer.
 
 **Guidelines:**
 
 - MUST self-enforce this format because the repository does not currently enforce commit messages with a commit hook or CI check.
+- SHOULD run `check-commit-message.mjs` on the header (and on a pull request title, which follows the same format) before committing, rather than eyeballing it.

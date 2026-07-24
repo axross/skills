@@ -9,7 +9,7 @@ Every changed file a reviewer cannot trace back to the stated goal widens the re
 **Guidelines:**
 
 - MUST identify the stated user goal (from the PR description, commit message, or the task the user gave the reviewer) and confirm every changed file traces back to that goal.
-- MUST flag any drive-by change — a renamed unrelated variable, a refactor of an untouched file, a formatter change to a file that did not need to be edited — as Minor scope creep, per the project's development guidelines (change-management rules).
+- MUST flag any drive-by change — a renamed unrelated variable, a refactor of an untouched file, a formatter change to a file that did not need to be edited — as Minor scope creep, per the project's software-development practices (change-management rules).
 - MUST NOT itself extend the review into pre-existing concerns; surface them under "Pre-existing Observations" per the project's code-review guideline (evidence rules).
 
 ## YAGNI
