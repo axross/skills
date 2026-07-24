@@ -10,7 +10,7 @@ Every changed file that cannot be traced back to the stated goal widens the revi
 
 - MUST tie every changed file to the stated goal (from the task, the PR description, or the commit message); a file that does not trace back is out of scope.
 - MUST keep a drive-by change — a renamed unrelated variable, a refactor of an untouched file, a formatter change to a file that did not need editing — out of the change; when reviewing, it is a scope-creep finding, per the project's software-development conventions (change-management rules).
-- MUST NOT extend the change (or the review) into pre-existing concerns; surface them separately as pre-existing observations, per the project's code-review skill (evidence rules).
+- MUST NOT extend the change (or the review) into pre-existing concerns; surface them separately as pre-existing observations, per the project's review evidence rules.
 
 ## YAGNI
 
@@ -58,4 +58,4 @@ The more unrelated ground one change covers, the more likely a real defect slips
 
 **Guidelines:**
 
-- SHOULD keep a change focused enough that it does not touch far more unrelated files or lines than its goal needs; an outsized diff (as a rough signal, more than ~15 unrelated files or ~600 lines net) is a "consider splitting" finding, with the split decision deferred to the human owner per the project's code-review skill (escalation rules).
+- SHOULD keep a change focused enough that it does not touch far more unrelated files or lines than its goal needs; an outsized diff (as a rough signal, more than ~15 unrelated files or ~600 lines net) is a "consider splitting" finding, with the split decision deferred to the human owner per the project's review escalation rules.
