@@ -2,6 +2,24 @@
 
 Unit tests are the right tool when a behavior can be exercised through an exported contract with local data and local fakes. They are the wrong tool when confidence depends on framework wiring, browser behavior, or how multiple pieces work together.
 
+## Choosing the Test Level
+
+Run a candidate behavior through this decision path before writing the test. The goal is to land each behavior at the _lowest_ level that still gives real confidence: a unit test when the contract is exercisable in isolation, an integration or e2e test the moment confidence depends on wiring, the data layer, or the browser.
+
+```mermaid
+flowchart TD
+  A[A behavior to cover] --> B{Reachable through an<br/>exported contract with<br/>local inputs and fakes?}
+  B -->|No| E[Integration or e2e]
+  B -->|Yes| C{Confidence depends on<br/>framework wiring, the data<br/>layer, routing, rendering,<br/>or the browser?}
+  C -->|Yes| E
+  C -->|No| D{Would isolating it force<br/>you to export a private<br/>helper or mock an<br/>internal dependency?}
+  D -->|Yes| E
+  D -->|No| U[Unit test]
+  E -.->|unit-testable pure core<br/>can be factored out| U
+```
+
+The dashed edge is the common refactor: when a mostly-integration behavior hides a pure decision, extract that decision into an exported helper and unit-test it directly, while the wiring around it stays covered by the broader test.
+
 **Concrete Examples:**
 
 > Good unit target: `formatTags()` renders a tag array as a stable string.
@@ -44,4 +62,4 @@ Components that accept callbacks or render children are easy to test badly becau
 - MUST NOT extract and export private callback functions solely to make them unit-testable.
 - MUST NOT mock a callback-driving dependency solely to inspect private callback arguments.
 - SHOULD test component behavior through rendered output and user-visible interaction when callbacks, providers, or browser behavior are involved.
-- SHOULD defer to the project's end-to-end testing guidelines and its own component or UI conventions, when the project defines them, when the unit under discussion is a component rather than a pure helper.
+- SHOULD, when the unit under discussion is a component rather than a pure helper, defer to the project's end-to-end testing guidelines and to its own component or UI conventions where the project defines them.
