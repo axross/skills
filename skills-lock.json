@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "agent-skill-management": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "0770acf335738cfbd5d6a96d353c384afbd41deef8e9aeacb1831f07bc5fe027"
+    },
     "code-review": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
