@@ -27,15 +27,10 @@ Because the agent shares the operator's identity, a reader cannot tell an agent 
 
 ```mermaid
 flowchart TD
-  C["Comment to classify"] --> L{"Author login distinct from
-the connected operator?"}
-  L -- "yes — its own bot login" --> B["Separate bot identity
-(e.g. a CI reviewer),
-told apart by login"]
-  L -- no --> M{"Body begins with the project's
-one fixed agent marker line?"}
-  M -- yes --> A["Agent output
-(this or an earlier run)"]
+  C["Comment to classify"] --> L{"Author login distinct from<br/>the connected operator?"}
+  L -- "yes — its own bot login" --> B["Separate bot identity<br/>(e.g. a CI reviewer),<br/>told apart by login"]
+  L -- no --> M{"Body begins with the project's<br/>one fixed agent marker line?"}
+  M -- yes --> A["Agent output<br/>(this or an earlier run)"]
   M -- no --> H["Human input"]
 ```
 
@@ -53,14 +48,9 @@ Once a pull request exists for an issue, the issue and the pull request are **di
 ```mermaid
 flowchart TD
   W["Pending write"] --> K{"Which level is the write?"}
-  K -- "labels, issue body,
-plan or clarification comment" --> I["The issue's own number"]
-  K -- "description, draft/ready flip,
-review, review-thread reply" --> P["The pull request's own number"]
-  I --> V["Confirm the number resolves to that kind
-before sending — a set-labels write to the
-wrong number silently replaces that
-target's entire label list"]
+  K -- "labels, issue body,<br/>plan or clarification comment" --> I["The issue's own number"]
+  K -- "description, draft/ready flip,<br/>review, review-thread reply" --> P["The pull request's own number"]
+  I --> V["Confirm the number resolves to that kind<br/>before sending — a set-labels write to the<br/>wrong number silently replaces that<br/>target's entire label list"]
   P --> V
 ```
 
