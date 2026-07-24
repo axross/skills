@@ -3,9 +3,10 @@
 A curated, reusable library of Claude Code agent skills.
 
 `skills` collects the working agreement and skills that give
-[Claude Code](https://claude.com/claude-code) a structured way to work: a master
-routing index in [`CLAUDE.md`](./CLAUDE.md), a set
-of guideline skills under [`.claude/skills/`](./.claude/skills), and a
+[Claude Code](https://claude.com/claude-code) a structured way to work: a working
+agreement in [`CLAUDE.md`](./CLAUDE.md), a set
+of guideline skills under [`.claude/skills/`](./.claude/skills) that Claude Code
+discovers by their `description`/`when_to_use`, and a
 model-invoked delivery loop (loop-engineering). It
 is Markdown-first — the skills _are_ the deliverable — with a little JavaScript
 tooling to keep the docs formatted, linted, and link-checked.

@@ -101,7 +101,7 @@ Good skills name a default path instead of presenting a menu, then explain excep
 
 ## Precise Verbs
 
-Precise verbs make requirements testable. "Route skill additions through the master skill index" is enforceable; "handle skill discovery" leaves too much to interpretation.
+Precise verbs make requirements testable. "Validate every skill's frontmatter with the structure validator" is enforceable; "handle skill discovery" leaves too much to interpretation.
 
 **Guidelines:**
 

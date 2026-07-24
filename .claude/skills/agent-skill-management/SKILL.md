@@ -9,11 +9,11 @@ user-invocable: false
 
 This repository holds agent skills in two tiers, and this skill owns how both are managed. **Distributable** skills — portable capabilities other projects can install — are authored under `skills/` (the source of truth) and **installed** into `.claude/skills/` — the directory Claude Code actually loads — with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); `skills-lock.json` records what was installed. **Repository-local** skills — the ones that encode this repository's own conventions, such as this one — are committed directly under `.claude/skills/` and are never touched by the CLI.
 
-One index routes to every skill regardless of tier: `CLAUDE.md`.
+Both tiers install into `.claude/skills/`, where Claude Code discovers every skill regardless of tier from its own `description`/`when_to_use`; there is no separate routing index to maintain.
 
 **Guidelines:**
 
-- MUST keep `CLAUDE.md` in sync whenever a skill in either tier is added, renamed, moved, or removed, per the project's agent-skill-authoring skill.
+- MUST keep every skill discoverable through its own `description`/`when_to_use` when it is added, renamed, moved, or removed in either tier, per the project's skill-authoring practices — there is no master index to update.
 
 ## Choosing a Tier
 
@@ -36,7 +36,7 @@ A repository-local skill's committed copy under `.claude/skills/<name>/` **is** 
 **Guidelines:**
 
 - MUST edit a repository-local skill directly under `.claude/skills/<name>/` — its `SKILL.md`, `references/`, and any `scripts/` — and commit those files; there is no separate source directory and no install step.
-- MUST author it to the same standard as any other skill — frontmatter, naming, discovery metadata, progressive disclosure — per the project's agent-skill-authoring skill.
+- MUST author it to the same standard as any other skill — frontmatter, naming, discovery metadata, progressive disclosure — per the project's skill-authoring practices.
 - MUST rename a repository-local skill with a `git mv` of its directory plus a matching frontmatter `name` update, and update every reference to the old name in the same change.
 
 ## Distributable Skills: Install and Refresh
@@ -58,7 +58,7 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
   ```
 
 - List installed skills: `npx skills list`
-- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source and update `CLAUDE.md`).
+- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source).
 
 **Guidelines:**
 
@@ -89,5 +89,5 @@ Skill changes are documentation changes: they gate on format, lint, and relative
 
 - MUST run `npm run check` (Prettier, markdownlint, relative-link check) after any skill change — a direct edit or a reinstall — and fix any failure before committing.
 - MUST run the relative-link check whenever a skill's files or links moved, since a stale link inside an installed copy fails the same check as the source.
-- SHOULD validate a changed skill with the structure validator shipped by the project's agent-skill-authoring skill (its `scripts/check-skill.mjs`).
+- SHOULD validate a changed skill with the project's skill-structure validator (`scripts/check-skill.mjs`, shipped with the skill-authoring practices).
 - SHOULD diff a reinstalled copy against its source (`git diff --stat`) to confirm the reinstall changed exactly the expected files.
