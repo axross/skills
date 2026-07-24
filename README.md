@@ -108,7 +108,7 @@ under [`skills/`](./skills) — the source of truth for skills copied into
 It currently holds the `code-review`, `end-to-end-testing`,
 `high-fidelity-ui-design`, `loop-engineering`, `observability-guidelines`,
 `product-requirement-document-authoring`, `unit-test-guidelines`, and
-`wireframe-design-guidelines` skills; the
+`wireframe-design` skills; the
 [`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
 documents the install, lockfile, and refresh-and-verify workflow.
 

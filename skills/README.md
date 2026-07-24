@@ -30,9 +30,10 @@ Currently sourced here:
   and plan documents.
 - `unit-test-guidelines` — framework-agnostic conventions for writing,
   structuring, and reviewing unit tests across runners such as Jest or Vitest.
-- `wireframe-design-guidelines` — a self-contained, project-agnostic kit for
-  low-fidelity wireframe/breadboard mockups of any client-app UI (mobile or
-  web/desktop).
+- `wireframe-design` — a self-contained, project-agnostic capability for
+  low-fidelity wireframe, breadboard, and wireflow mockups of any client-app UI
+  (mobile or web/desktop), with a runnable self-containment/placeholder
+  validator.
 
 Author a distributable skill here as `skills/<name>/SKILL.md` (with its
 `references/` beside it), then install it so Claude Code can load it:
