@@ -487,19 +487,6 @@
       <p class="caption">places · affordances · connection lines — no pixels</p>
     </div>
 
-    <!-- Wireflow (control-rooted arrows) -->
-    <div class="card">
-      <p class="shared-label">Wireflow — control-rooted arrows</p>
-      <div class="wireflow">
-        <div class="phone" style="max-width:74px;aspect-ratio:9/16;padding:4px;border-radius:11px"><div class="screen" style="border-radius:8px"><div class="navbar" style="padding:4px 6px"><span class="title" style="font-size:8px">Address</span></div><div class="body" style="padding:5px;gap:5px"><div class="field"><span class="box" style="height:14px"><span class="ph"></span></span></div><div class="field"><span class="box" style="height:14px"><span class="ph"></span></span></div><div class="btn primary" style="height:16px"><span class="cap"></span></div></div></div></div>
-        <span class="flowarrow"><span class="lbl">Submit</span></span>
-        <div class="phone" style="max-width:74px;aspect-ratio:9/16;padding:4px;border-radius:11px"><div class="screen" style="border-radius:8px"><div class="body center" style="padding:5px;gap:5px"><span class="w-mark" style="width:22px;height:22px"></span><span class="w-h" style="width:60%"></span><span class="w-t w60"></span></div></div></div>
-        <span class="flowarrow alt"><span class="lbl">on error</span></span>
-        <div class="phone" style="max-width:74px;aspect-ratio:9/16;padding:4px;border-radius:11px"><div class="screen" style="border-radius:8px"><div class="body" style="padding:5px;gap:5px"><div class="field"><span class="box invalid filled" style="height:14px"><span class="ph"></span></span></div><div class="err"><span class="dot"></span><span class="ln"></span></div><div class="btn primary" style="height:16px"><span class="cap"></span></div></div></div></div>
-      </div>
-      <p class="caption">solid = primary path · dashed = alternative / edge path · arrow rooted on the control</p>
-    </div>
-
     <!-- Annotated screen -->
     <div class="card">
       <p class="shared-label">Annotated screen</p>
@@ -520,6 +507,22 @@
         </ol>
       </div>
       <p class="caption">numbered leader markers on the screen · notes in the reserved annotation color</p>
+    </div>
+  </div>
+
+  <!-- Wireflow gets its own full-width row so the three control-rooted screens stay on one line and the dashed edge-path arrow connects to the error screen, rather than wrapping inside a narrow grid column. -->
+  <div class="grid-shared" style="margin-top:20px">
+    <!-- Wireflow (control-rooted arrows) -->
+    <div class="card">
+      <p class="shared-label">Wireflow — control-rooted arrows</p>
+      <div class="wireflow">
+        <div class="phone" style="max-width:74px;aspect-ratio:9/16;padding:4px;border-radius:11px"><div class="screen" style="border-radius:8px"><div class="navbar" style="padding:4px 6px"><span class="title" style="font-size:8px">Address</span></div><div class="body" style="padding:5px;gap:5px"><div class="field"><span class="box" style="height:14px"><span class="ph"></span></span></div><div class="field"><span class="box" style="height:14px"><span class="ph"></span></span></div><div class="btn primary" style="height:16px"><span class="cap"></span></div></div></div></div>
+        <span class="flowarrow"><span class="lbl">Submit</span></span>
+        <div class="phone" style="max-width:74px;aspect-ratio:9/16;padding:4px;border-radius:11px"><div class="screen" style="border-radius:8px"><div class="body center" style="padding:5px;gap:5px"><span class="w-mark" style="width:22px;height:22px"></span><span class="w-h" style="width:60%"></span><span class="w-t w60"></span></div></div></div>
+        <span class="flowarrow alt"><span class="lbl">on error</span></span>
+        <div class="phone" style="max-width:74px;aspect-ratio:9/16;padding:4px;border-radius:11px"><div class="screen" style="border-radius:8px"><div class="body" style="padding:5px;gap:5px"><div class="field"><span class="box invalid filled" style="height:14px"><span class="ph"></span></span></div><div class="err"><span class="dot"></span><span class="ln"></span></div><div class="btn primary" style="height:16px"><span class="cap"></span></div></div></div></div>
+      </div>
+      <p class="caption">solid = primary path · dashed = alternative / edge path · arrow rooted on the control</p>
     </div>
   </div>
 
