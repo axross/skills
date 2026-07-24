@@ -1,13 +1,13 @@
 # Resuming and Handoff
 
-Apply this reference when the loop is re-entered mid-run, or when taking over work another session suspended into a handoff package. It expands the [Intake](../SKILL.md) section with the resolution precedence, the in-session resume path, and the fresh-session take-over path.
+Apply this reference when the loop is re-entered mid-run, or when taking over work another session suspended into a handoff package via a session-handoff skill (a capability only where the project ships such a skill). It expands the [Intake](../SKILL.md) section with the resolution precedence, the in-session resume path, and the fresh-session take-over path.
 
 ## Resolving a Resume
 
 A resume is signalled by the human telling you to continue, or by the loop re-entering after a machine event or a reclaimed session. Resolve it to exactly one outcome before any other action, in this precedence order:
 
 1. **This session holds a run** (paused at the plan-approval gate, paused on a stuck machine event, or reclaimed with its context thinned) → resume it. Re-read the target's current state — the plan in the issue, the open pull request, its CI status, the independent review's comments, unresolved threads, and the status block — and resume the single pending step. When the pending step is plan approval, treat a bare "continue" as approval **only of a plan already recorded in the issue with the status block reading `awaiting plan approval`**, and advance to Code; a resume that instead requests changes revises the plan and re-presents it. A continuation that arrives immediately after an interrupt or a reclaimed session with no intervening human-authored decision is a resume signal, not that approval — re-present the plan through the question UI and require an explicit affirmation before Code; and when the gate was never properly reached (no tracking issue, no recorded plan, or a rejected plan-mode exit), reach it first rather than treating the "continue" as approval.
-2. **No in-session run, but the human provided a handoff package** (a `handoff-<unix epoch>.md`, optionally with a matching zip) → take it over (see [Take Over a Handoff](#take-over-a-handoff)).
+2. **No in-session run, but the human provided a handoff package** from a session-handoff skill (a `handoff-<unix epoch>.md`, optionally with a matching zip) → take it over (see [Take Over a Handoff](#take-over-a-handoff)). This path exists only where the project ships such a skill; where it does not, a bare "continue" with no in-session run falls through to case 3.
 3. **Neither** → state that there is nothing to resume and ask what was meant. MUST NOT start new work from a bare "continue".
 
 **Guidelines:**
