@@ -107,7 +107,7 @@ under [`skills/`](./skills) — the source of truth for skills copied into
 [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`).
 It currently holds the `code-review`, `end-to-end-testing`,
 `high-fidelity-ui-design`, `loop-engineering`, `observability-guidelines`,
-`product-requirement-document-authoring`, `unit-test-guidelines`, and
+`product-requirement-document-authoring`, `unit-testing`, and
 `wireframe-design-guidelines` skills; the
 [`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
 documents the install, lockfile, and refresh-and-verify workflow.
