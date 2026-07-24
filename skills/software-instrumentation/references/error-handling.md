@@ -1,8 +1,22 @@
 # Error Handling
 
-Apply these rules when writing, reviewing, or modifying any code that might throw or receive an error. Error handling is an observability concern: an error that is swallowed, or reported without enough context, is an error nobody can see in production.
+Apply this reference when instrumenting or reviewing any code that might throw or receive an error. Error handling is an observability concern: an error that is swallowed, or reported without enough context, is an error nobody can see in production.
 
 Throughout this file, `reportError(...)` stands in for your error tracker's capture call — the function that sends an exception to your error-reporting service (see [error-tracking.md](./error-tracking.md)). Substitute your project's actual call.
+
+## Deciding What a Caught Error Means
+
+Every `catch` makes the same three-way decision, in order: a known control-flow signal is rethrown untouched and never reported; an unexpected failure is reported **before** any early exit; then, if a caller or boundary still needs to act on it, it is rethrown after reporting, otherwise the catch recovers. This flow is the single source for that order — the sections below expand each branch, and [error-tracking.md](./error-tracking.md) points here rather than restating it.
+
+```mermaid
+flowchart TD
+  A[Caught an error] --> B{A known control-flow signal? e.g. framework not-found or redirect sentinel}
+  B -->|Yes| C[Rethrow it untouched - do NOT report; let the framework act]
+  B -->|No| D[Unexpected failure: reportError before any early return/redirect/fallback]
+  D --> E{Does a caller or error boundary still need to handle it?}
+  E -->|Yes| F[Rethrow after reporting]
+  E -->|No| G[Recover here - return a fallback, not-found, or safe default]
+```
 
 ## Placement of try-catch
 

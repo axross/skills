@@ -21,15 +21,15 @@
       "sourceType": "local",
       "computedHash": "79a1cf453234599b24d129ccfd0fa7c3a3a1447648771c918aa1cf98a2ed3df0"
     },
-    "observability-guidelines": {
-      "source": "/home/user/skills/skills",
-      "sourceType": "local",
-      "computedHash": "f3c0e58735bb72896434f8826b98a0bc3e05c53e80d4e60735b1fc9f25950cfb"
-    },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "84dee2cfdd948204f3ea69342f72487fa627cd21c89e42f4b5dda3d180427bc5"
+    },
+    "software-instrumentation": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "c3a31ec5ecc7b3b8f37a8cbca5a71d74b0b43ef3614470194f92d63e20e3e676"
     },
     "unit-testing": {
       "source": "/home/user/skills/skills",

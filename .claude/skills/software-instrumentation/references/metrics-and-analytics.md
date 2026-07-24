@@ -1,6 +1,6 @@
 # Metrics and Product Analytics
 
-Apply these rules when writing, reviewing, or modifying code that emits a metric or a product/usage event. "Metrics" is the third observability signal type; product analytics is the same act of measurement pointed at user behavior instead of system health. This file uses `trackEvent(...)` for the emit call; substitute your project's analytics or metrics API (e.g. Mixpanel, Amplitude, PostHog, Segment, StatsD, OpenTelemetry metrics).
+Apply this reference when instrumenting or reviewing code that emits a metric or a product/usage event. "Metrics" is the third observability signal type; product analytics is the same act of measurement pointed at user behavior instead of system health. This file uses `trackEvent(...)` for the emit call; substitute your project's analytics or metrics API (e.g. Mixpanel, Amplitude, PostHog, Segment, StatsD, OpenTelemetry metrics).
 
 ## What to Instrument
 
