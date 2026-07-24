@@ -6,13 +6,13 @@
 # dot-directory, which `glob('**/*.md')` sweeps silently skip — and reports
 # relative links whose target file does not exist.
 #
-# Ships with the agent-skills-best-practices skill (see
+# Ships with the agent-skill-authoring skill (see
 # ../references/cross-referencing.md) so link verification survives template
 # adaptation and stays runnable in any project that keeps the skill.
 #
 # Usage:
-#   .claude/skills/agent-skills-best-practices/scripts/check-links.sh           # check the whole tree
-#   .claude/skills/agent-skills-best-practices/scripts/check-links.sh PATH ...  # check specific roots
+#   .claude/skills/agent-skill-authoring/scripts/check-links.sh           # check the whole tree
+#   .claude/skills/agent-skill-authoring/scripts/check-links.sh PATH ...  # check specific roots
 #
 # Exit code 0 = all relative links resolve; 1 = one or more broken links.
 # Only links to `.md` targets are checked; `http(s)://`, `mailto:`, and pure

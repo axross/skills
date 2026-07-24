@@ -1,15 +1,15 @@
 ---
-name: agent-skills-best-practices
-description: The authoring discipline for agent skills under the host project's skill root (e.g., `.claude/skills/`) — agentskills.io format, frontmatter management and invocation-control fields, kebab-case naming, description and when_to_use writing for discovery, section anatomy with concise examples plus RFC-2119 guideline bullets, progressive disclosure into reference files, name-based cross-references, archetype skeletons for the INIT-created project skills (structure, component, UI/design), audit checks, and keeping the host project's master skill index in sync.
-when_to_use: Apply whenever creating, refining, restructuring, splitting, consolidating, renaming, deleting, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, or updating the skill index. Use for "add a skill", "split this skill", "audit skills", or any change to `SKILL.md` files or their references.
+name: agent-skill-authoring
+description: The ability to author, structure, name, refine, split, and audit agent skills in the agentskills.io format under the host project's skill root (e.g., `.claude/skills/`). Covers frontmatter and invocation-control fields, kebab-case naming, writing `description`/`when_to_use` for discovery, section anatomy with concise examples plus RFC-2119 guideline bullets, progressive disclosure into reference files, name-based cross-references, archetype skeletons for the project skills a scaffolding pass creates (structure, component, UI/design), a runnable structure validator, and keeping the host project's master skill index in sync.
+when_to_use: Apply whenever creating, refining, restructuring, splitting, consolidating, renaming, deleting, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, running the structure validator, or updating the skill index. Use for "add a skill", "split this skill", "audit skills", or any change to `SKILL.md` files or their references.
 user-invocable: false
 ---
 
-# Agent Skills Best Practices
+# Agent Skill Authoring
 
-Apply this skill whenever creating, refining, splitting, consolidating, renaming, or auditing any agent skill under the host project's skill root.
+Use this capability whenever you create, refine, split, consolidate, rename, or audit an agent skill under the host project's skill root. It is what turns a durable convention into a well-formed, discoverable skill and keeps the skill tree coherent as it grows.
 
-This skill governs authoring discipline for skills written in the agentskills.io format. For the host project's active skill inventory and topic-to-skill routing, defer to the project's master skill index and the directory listing under the skill root.
+Skills authored here follow the agentskills.io format. For the host project's active skill inventory and topic-to-skill routing, defer to the project's master skill index and the directory listing under the skill root.
 
 **Guidelines:**
 
@@ -54,6 +54,7 @@ See [body-content-style.md](./references/body-content-style.md) for:
 See [progressive-disclosure.md](./references/progressive-disclosure.md) for:
 
 - deciding when a skill should stay single-file or split into `references/`
+- the size thresholds that signal a skill or reference file has grown too large
 - using the parent routing-section format: `## Topic`, `See [file.md](./references/file.md) for:`, then descriptive situation bullets
 - keeping parent routing bullets free of RFC-2119-style requirement keywords so they remain routing cues, not duplicated rules
 
@@ -69,14 +70,15 @@ See [cross-referencing.md](./references/cross-referencing.md) for:
 
 See [project-skill-archetypes.md](./references/project-skill-archetypes.md) for:
 
-- creating the INIT-called-for project skills: structure, component, and UI/design
+- creating the project-specific skills a scaffolding pass calls for: structure, component, and UI/design
 - the three-way ownership triangle and each archetype's skeleton, topics checklist, or table patterns
 - growing archetype skeletons with worked examples and mechanical boundary checks
 
-## Audit Checklist
+## Auditing and Validation
 
 See [audit-checklist.md](./references/audit-checklist.md) for:
 
 - auditing multiple skills or reporting skill-tree quality
+- running the bundled structure validator (`scripts/check-skill.mjs`) to check frontmatter, naming, discovery length caps, reference linkage, and routing-section format mechanically
 - checking inventory, index sync, section anatomy, RFC-2119 bullets, name-based cross-skill references, and relative links
 - identifying overlap, stale assumptions, orphan references, and missing source-of-truth links

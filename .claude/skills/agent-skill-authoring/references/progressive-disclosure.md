@@ -30,7 +30,7 @@ Size thresholds are review signals, not mechanical quotas. When a skill crosses 
 **Guidelines:**
 
 - SHOULD keep `SKILL.md` under about 500 lines and 5,000 tokens.
-- SHOULD split or subdivide a skill when one substantive section grows past ten guideline bullets.
+- SHOULD split or subdivide a skill when a section exceeds the section-length ceiling defined in [scoping-and-mece.md](./scoping-and-mece.md).
 - SHOULD split when distinct subtopics emerge that an agent can load independently.
 - SHOULD keep each reference file under about 500 lines.
 - SHOULD split an oversized reference into sibling references instead of nesting deeper.

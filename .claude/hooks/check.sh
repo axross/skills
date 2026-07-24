@@ -40,7 +40,7 @@ code_changed || exit 0
 OUTPUT="$(mktemp)"
 STATUS=0
 if ! npm run lint >>"$OUTPUT" 2>&1; then STATUS=1; fi
-if ! ./.claude/skills/agent-skills-best-practices/scripts/check-links.sh >>"$OUTPUT" 2>&1; then STATUS=1; fi
+if ! ./.claude/skills/agent-skill-authoring/scripts/check-links.sh >>"$OUTPUT" 2>&1; then STATUS=1; fi
 
 if [ "$STATUS" -ne 0 ]; then
   {

@@ -19,7 +19,7 @@ The `skills/` source directory ships **empty** in the template, with no `skills-
 - MUST re-run the install after editing any source skill so the committed `.claude/skills/` copy and `skills-lock.json` match the source, then verify with `npm run check`.
 - MUST commit the installed `.claude/skills/<name>/` copies and `skills-lock.json` alongside the `skills/` source; they are tracked artifacts, not gitignored.
 - MUST NOT hand-edit an installed copy under `.claude/skills/`; edit the source under `skills/` and reinstall.
-- MUST keep `AGENTS.md` in sync when a managed skill is added, renamed, or removed, per the project's agent-skills best-practices skill.
+- MUST keep `AGENTS.md` in sync when a managed skill is added, renamed, or removed, per the project's agent-skill-authoring skill.
 
 ## Install And Refresh
 

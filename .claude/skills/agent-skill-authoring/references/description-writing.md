@@ -27,7 +27,7 @@ Agents match surface text as well as semantics. Include the terms users, reviewe
 
 **Guidelines:**
 
-- SHOULD include literal domain tokens such as `SKILL.md`, `MECE`, `AGENTS.md`, or the names of neighboring skills in `description` when they mark the skill's territory.
+- SHOULD include literal domain tokens such as `SKILL.md`, `MECE`, or the names of neighboring skills in `description` when they mark the skill's territory.
 - SHOULD include likely user phrasings in `when_to_use`, including short prompts like "split this skill" or "audit skills".
 - MUST include symptom-based triggers when users may describe the problem instead of the domain.
 - SHOULD NOT pad either field with broad keywords outside the skill's actual scope.

@@ -12,14 +12,14 @@ tooling to keep the docs formatted, linted, and link-checked.
 
 ## Tech stack
 
-| Area            | Tool                                                                |
-| --------------- | ------------------------------------------------------------------- |
-| Language        | Markdown (with occasional JavaScript for scripting)                 |
-| Runtime         | Claude Code                                                         |
-| Package manager | npm                                                                 |
-| Formatting      | Prettier                                                            |
-| Linting         | markdownlint-cli2                                                   |
-| Link integrity  | `.claude/skills/agent-skills-best-practices/scripts/check-links.sh` |
+| Area            | Tool                                                          |
+| --------------- | ------------------------------------------------------------- |
+| Language        | Markdown (with occasional JavaScript for scripting)           |
+| Runtime         | Claude Code                                                   |
+| Package manager | npm                                                           |
+| Formatting      | Prettier                                                      |
+| Linting         | markdownlint-cli2                                             |
+| Link integrity  | `.claude/skills/agent-skill-authoring/scripts/check-links.sh` |
 
 ## Getting started
 

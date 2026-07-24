@@ -7,7 +7,7 @@
     "format": "prettier --write \"**/*.{md,json,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml}\"",
     "lint": "markdownlint-cli2 \"**/*.md\"",
-    "links": "./.claude/skills/agent-skills-best-practices/scripts/check-links.sh",
+    "links": "./.claude/skills/agent-skill-authoring/scripts/check-links.sh",
     "check": "npm run format:check && npm run lint && npm run links"
   },
   "devDependencies": {
