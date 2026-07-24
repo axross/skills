@@ -1,7 +1,7 @@
 name: Merge Checks
 
 # The project's own CI: format, lint, and relative-link checks that gate merges
-# to the default branch. This is the CI the loop-engineering delivery flow's
+# to the default branch. This is the CI the loop-engineering change loop's
 # tail polls after a push (see .claude/skills/loop-engineering/SKILL.md). Keep
 # REVIEW.md's do-not-report list in sync with exactly what this job enforces.
 
