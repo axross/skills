@@ -1,6 +1,6 @@
 # Error Tracking
 
-Apply these rules when writing, reviewing, or modifying error-tracker setup, exception capture, instrumentation files, breadcrumbs, or error context.
+Apply this reference when instrumenting or reviewing error-tracker setup, exception capture, instrumentation files, breadcrumbs, or error context.
 
 An **error tracker** (error-reporting service such as Sentry, Rollbar, Bugsnag, or Honeybadger) is where unexpected failures become visible: it groups exceptions, attaches stack traces and breadcrumbs, and alerts. This file uses `reportError(...)` for its capture call and `addBreadcrumb(...)` for its breadcrumb call; substitute your project's actual names.
 
@@ -17,13 +17,11 @@ An error tracker touches production diagnostics and user privacy at once, so its
 
 ## Capturing Exceptions
 
-A captured exception should mean "a human should look at this". Expected validation failures and normal not-found paths are control flow, and reporting them trains everyone to ignore the dashboard.
+A captured exception should mean "a human should look at this". Expected validation failures and normal not-found paths are control flow, and reporting them trains everyone to ignore the dashboard. This section governs only **which** failures are worth capturing; whether to report, rethrow, or recover a given caught error follows the caught-error decision flow in [error-handling.md](./error-handling.md), not restated here.
 
 **Guidelines:**
 
-- MUST call `reportError(...)` whenever a caught error is an unexpected failure worth investigating.
-- MUST call it **before** an early return, redirect, not-found, or fallback path when the failure would otherwise disappear (see [error-handling.md](./error-handling.md)).
-- MUST rethrow after reporting when a caller or error boundary still needs to handle the failure.
+- MUST call `reportError(...)` whenever a caught error is an unexpected failure worth investigating, placing the call as the caught-error decision flow in [error-handling.md](./error-handling.md) prescribes (before any early exit, rethrowing after when a caller or boundary still needs it).
 - SHOULD capture non-thrown unexpected states with a descriptive `Error` when they signal a renderer, parser, or data-contract gap.
 - MUST NOT capture expected input-validation failures or normal not-found paths as exceptions unless they indicate abuse or a system defect.
 

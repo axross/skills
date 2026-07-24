@@ -1,15 +1,15 @@
 ---
-name: github-operation-guidelines
-description: How an agent reads and writes GitHub (issues, pull requests, comments, labels, reviews, branches) through a proxy-mediated single-operator identity, as a Claude Code + GitHub MCP harness does. Covers routing everything through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, the issue-versus-pull-request distinct-numeric-target gotcha, commit messages and pull request titles under a squash-merge workflow, reproducing the repository pull request template and authoring a concise description when posting through the API, preserving traceable history by never amending or force-pushing without explicit human approval, common draft/link/preserve conventions, and the safe handling of untrusted GitHub content.
+name: github-operation
+description: The ability to operate GitHub — reading and writing issues, pull requests, comments, labels, reviews, and branches — through a harness that proxies access as a single connected operator, as a Claude Code + GitHub MCP harness does. Covers routing every call through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, routing each write to the correct numeric target across the shared issue/pull-request numbering space, commit messages and pull request titles under a squash-merge workflow, reproducing the repository pull request template and authoring a concise description when posting through the API, preserving traceable history by never amending or force-pushing without explicit human approval, common branch/draft/preserve conventions, and the safe handling of untrusted GitHub content.
 when_to_use: Apply whenever a task reads from or writes to GitHub through the harness's tool channel — any issue, pull request, comment, label, review, or branch operation, not only end-to-end delivery workflows.
 user-invocable: false
 ---
 
-# GitHub Operation Guidelines
+# GitHub Operation
 
-How an agent reads and writes GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server operates under. These conventions are workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies them. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
+Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end delivery flows. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
 
-This skill is GitHub-specific. An agent operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
+This capability is GitHub-specific. Operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
 
 ## The Sanctioned Channel
 
@@ -23,7 +23,16 @@ These rules govern GitHub access **from inside an agent session**, where access 
 
 ## Agent-vs-Human Comments
 
-Because the agent shares the operator's identity, a reader cannot tell an agent comment from a human one by author. A marker does it instead. A per-task, per-run, or per-workflow marker defeats recognition of an earlier run's comments, which then get re-read as human input.
+Because the agent shares the operator's identity, a reader cannot tell an agent comment from a human one by author. A marker does it instead. A per-task, per-run, or per-workflow marker defeats recognition of an earlier run's comments, which then get re-read as human input. Classify every comment you read by this decision path:
+
+```mermaid
+flowchart TD
+  C["Comment to classify"] --> L{"Author login distinct from<br/>the connected operator?"}
+  L -- "yes — its own bot login" --> B["Separate bot identity<br/>(e.g. a CI reviewer),<br/>told apart by login"]
+  L -- no --> M{"Body begins with the project's<br/>one fixed agent marker line?"}
+  M -- yes --> A["Agent output<br/>(this or an earlier run)"]
+  M -- no --> H["Human input"]
+```
 
 **Guidelines:**
 
@@ -34,22 +43,31 @@ Because the agent shares the operator's identity, a reader cannot tell an agent 
 
 ## Issue vs. Pull Request Are Distinct Targets
 
-Once a pull request exists for an issue, the issue and the pull request are **different numeric targets** even though the pull request body says `Closes #<n>`.
+Once a pull request exists for an issue, the issue and the pull request are **different numeric targets** even though the pull request body says `Closes #<n>` — and both kinds draw from one shared numbering space. Route every write by what it concerns, then confirm the number resolves to that kind:
+
+```mermaid
+flowchart TD
+  W["Pending write"] --> K{"Which level is the write?"}
+  K -- "labels, issue body,<br/>plan or clarification comment" --> I["The issue's own number"]
+  K -- "description, draft/ready flip,<br/>review, review-thread reply" --> P["The pull request's own number"]
+  I --> V["Confirm the number resolves to that kind<br/>before sending — a set-labels write to the<br/>wrong number silently replaces that<br/>target's entire label list"]
+  P --> V
+```
 
 **Guidelines:**
 
 - MUST send each issue-level write (labels, body) to the issue's own number and each pull-request-level write to the pull request's own number; the two numbers differ.
+- MUST resolve a bare number to its kind — issue or pull request — before writing to it, since the two share one numbering space and most write tools accept either number without complaint.
 - MUST remember that GitHub's set-labels write replaces the target's entire label list, so sending it to the wrong number silently rewrites that target's labels — a silent, unrejected mistake, not an error.
 
-## Conventions
+## Branch, Draft, and Review-Event Conventions
 
-The MUST bullets are non-negotiable; the SHOULD bullets are default delivery conventions a project adjusts to match its own policy.
+The MUST bullets are non-negotiable; the SHOULD bullets are default delivery conventions a project adjusts to match its own policy. The review-event limit is structural to the single-operator model: a review posted from the session lands as the operator's own review, so an APPROVE could satisfy branch protection with an approval the operator never gave — and GitHub rejects APPROVE / REQUEST_CHANGES outright on pull requests the operator identity authored, the agent's own included.
 
 **Guidelines:**
 
 - MUST NOT push to the default branch; work on the harness's push-allowed branch prefix — this project uses the agent-namespaced `claude/`-prefixed branch namespace.
-- MUST treat an agent review as advisory — it MUST NOT gate merges; an APPROVE would post as the operator's own approval (and can satisfy branch protection) even though the operator never gave it.
-- MUST post any pull-request review as a **COMMENT**-type review — never APPROVE or REQUEST_CHANGES; on pull requests the operator identity authored (the agent's own included) GitHub rejects APPROVE / REQUEST_CHANGES outright, so COMMENT is also the only event that always works.
+- MUST post every pull-request review as a **COMMENT**-type review — never APPROVE or REQUEST_CHANGES, the two events the single-operator model breaks — and treat any agent-posted review as advisory: it never gates a merge.
 - SHOULD open a pull request in **draft** while work is in progress and leave merging to a human; a project whose agent is trusted to merge routine work MAY relax this.
 - SHOULD, when rewriting an issue body, preserve the original description verbatim in a collapsed `<details>` section rather than discarding it.
 
@@ -70,7 +88,7 @@ The Conventional Commits header format and the PR-description content rules are 
 
 ## Preserve History — No Amend or Force-Push
 
-A pushed branch is a shared, human-visible record. A human traces how the implementation transitioned by reading its commits in order, and reviewers diff each round against the last. Rewriting that record — amending a commit, or force-pushing a reshaped branch — destroys the trace and can silently discard a collaborator's pushed work. An agent leaves history append-only so every transition stays inspectable.
+A pushed branch is a shared, human-visible record. A human traces how the implementation transitioned by reading its commits in order, and reviewers diff each round against the last. Rewriting that record — amending a commit, or force-pushing a reshaped branch — destroys the trace and can silently discard a collaborator's pushed work. Leave history append-only so every transition stays inspectable.
 
 **Guidelines:**
 
