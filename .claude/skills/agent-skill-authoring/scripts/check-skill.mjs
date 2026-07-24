@@ -14,6 +14,12 @@
 // so the validator stays useful on hosts that do not define them. It is a
 // starting point to adapt per project, not a fixed contract.
 //
+// Alongside failures it reports advisory WARN lines for capability framing — a
+// document-style name suffix, or a description opening in document voice. That
+// rule is SHOULD-level, so warnings never affect the exit code; they surface a
+// recast candidate for a human to weigh. The detectors are deliberately narrow
+// and stay silent on the judgment calls the prose rule owns.
+//
 // Usage:
 //   node check-skill.mjs <path> [<path> ...]
 //     <path>  a skill directory (one holding SKILL.md), OR a directory whose
@@ -21,7 +27,7 @@
 //             glob such as `.claude/skills/*` expands to the former.
 //
 // Exit codes:
-//   0  every checked skill passed
+//   0  every checked skill passed (warnings alone do not fail a skill)
 //   1  one or more checks failed (each failure is listed per skill)
 //   2  bad invocation, or a path that holds no SKILL.md and no skill subdirs
 //
@@ -38,6 +44,12 @@ const RFC2119_RE =
 const NAME_MAX = 64;
 const DESCRIPTION_MAX = 1024;
 const COMBINED_MAX = 1536;
+
+// Capability-framing advisories (warnings only — see the header note).
+const DOC_NAME_SUFFIX_RE =
+  /-(guidelines|best-practices|principles|conventions|rules|requirements)$/;
+const DOC_VOICE_DESC_RE =
+  /^(This skill|This document|These guidelines|A collection of|Guidelines for|Rules for|Instructions for|Information about)\b/i;
 
 function fail2(message) {
   process.stderr.write(`${message}\n`);
@@ -174,16 +186,21 @@ function routingKeywordFailures(body) {
   return failures;
 }
 
-/** Run every structural check for one skill directory; returns failure strings. */
+/**
+ * Run every structural check for one skill directory. Returns
+ * { failures, warnings }: failures decide the exit code, warnings are advisory
+ * capability-framing notes that do not.
+ */
 async function checkSkill(dir) {
   const failures = [];
+  const warnings = [];
   const dirName = basename(dir);
 
   let raw;
   try {
     raw = await readFile(join(dir, "SKILL.md"), "utf8");
   } catch (error) {
-    return [`SKILL.md is unreadable: ${error.message}`];
+    return { failures: [`SKILL.md is unreadable: ${error.message}`], warnings };
   }
 
   const { fields, body } = splitFrontmatter(raw);
@@ -203,13 +220,27 @@ async function checkSkill(dir) {
       if (name !== dirName) {
         failures.push(`frontmatter: \`name\` "${name}" does not match directory "${dirName}".`);
       }
+      const suffix = name.match(DOC_NAME_SUFFIX_RE);
+      if (suffix) {
+        warnings.push(
+          `framing: \`name\` ends in "${suffix[0]}" — names the document, not the capability; consider the activity beneath it.`,
+        );
+      }
     }
 
     const description = fields.description;
     if (!description) {
       failures.push("frontmatter: `description` is missing or empty.");
-    } else if (description.length > DESCRIPTION_MAX) {
-      failures.push(`frontmatter: \`description\` is ${description.length} chars (max ${DESCRIPTION_MAX}).`);
+    } else {
+      if (description.length > DESCRIPTION_MAX) {
+        failures.push(`frontmatter: \`description\` is ${description.length} chars (max ${DESCRIPTION_MAX}).`);
+      }
+      const opening = description.match(DOC_VOICE_DESC_RE);
+      if (opening) {
+        warnings.push(
+          `framing: \`description\` opens in document voice ("${opening[0]}…") — name the ability the skill gives the agent.`,
+        );
+      }
     }
 
     if (fields.when_to_use && description) {
@@ -231,7 +262,7 @@ async function checkSkill(dir) {
   }
 
   failures.push(...routingKeywordFailures(body));
-  return failures;
+  return { failures, warnings };
 }
 
 async function main() {
@@ -246,14 +277,19 @@ async function main() {
 
   const lines = [];
   let failedCount = 0;
+  let warnedCount = 0;
   for (const dir of skills) {
-    const failures = await checkSkill(dir);
+    const { failures, warnings } = await checkSkill(dir);
     if (failures.length === 0) {
       lines.push(`PASS  ${dir}`);
     } else {
       failedCount += 1;
       lines.push(`FAIL  ${dir}`);
       for (const failure of failures) lines.push(`        - ${failure}`);
+    }
+    if (warnings.length > 0) {
+      warnedCount += 1;
+      for (const warning of warnings) lines.push(`WARN    - ${warning}`);
     }
   }
 
@@ -263,6 +299,11 @@ async function main() {
       ? `All ${skills.length} skill(s) passed structural checks.`
       : `${failedCount} of ${skills.length} skill(s) failed structural checks.`,
   );
+  if (warnedCount > 0) {
+    lines.push(
+      `${warnedCount} skill(s) raised advisory capability-framing warnings (they do not affect the exit code).`,
+    );
+  }
   process.stdout.write(`${lines.join("\n")}\n`);
   process.exit(failedCount === 0 ? 0 : 1);
 }
