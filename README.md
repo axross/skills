@@ -100,8 +100,9 @@ It currently holds the `code-review`, `end-to-end-testing`,
 `high-fidelity-ui-design`, `loop-engineering`,
 `product-requirement-document-authoring`, `software-instrumentation`,
 `unit-testing`, and `wireframe-design` skills; the
-[`skill-installation`](./.claude/skills/skill-installation/SKILL.md) skill
-documents the install, lockfile, and refresh-and-verify workflow.
+[`agent-skill-management`](./.claude/skills/agent-skill-management/SKILL.md)
+skill documents the two-tier layout, which tier a new skill belongs to, and
+the install, lockfile, and refresh-and-verify workflow.
 
 ## Testing
 
