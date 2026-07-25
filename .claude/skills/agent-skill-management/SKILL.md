@@ -72,6 +72,7 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
 - MUST use `--skill '*'` to refresh all managed skills after a broad change, or `--skill <name>` for a targeted one.
 - SHOULD run `npx skills add` from the repository root so `./skills` resolves and `skills-lock.json` is written there.
 - SHOULD confirm the install summary lists every expected skill as `copied` before committing.
+- SHOULD retry with an explicit version specifier (`npx --yes skills@latest …`) when `npx skills` aborts with `could not determine executable to run`; the plain form above stays canonical, and the specifier is a fallback for environments where `npx` cannot resolve the bare package name.
 
 ## Proposing a Change to an Installed Skill
 

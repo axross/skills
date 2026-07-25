@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "5e6e7349a7f7f998929dce52a31456e190febc6575b9eff02416bdc6e5a46bb2"
+      "computedHash": "f7ab18a2f160c523956ac38f4f2215c28c3fe635bbb03ee4ec3a51c590ac5e7c"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
@@ -39,7 +39,7 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0bb75c5dd6e7353cafe88cdcc87c346956bab6156f9e29143efff34a56d65d81"
+      "computedHash": "456826fe4c605a1ebba649fe57b735bef3f417f3dfc0c4816dc75e26955b394d"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",

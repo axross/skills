@@ -13,6 +13,7 @@ A resume is signalled by the human telling you to continue, or by the loop re-en
 **Guidelines:**
 
 - MUST reconstruct state from GitHub before acting, and resume the one pending step rather than restarting from Plan.
+- MUST NOT narrate a resume signal as a human instruction or approval — see [Never Manufacture the Human's Side](../SKILL.md#never-manufacture-the-humans-side) for what may be attributed to the human.
 - MUST NOT re-ingest a handoff package this session already consumed; once anchored, it is part of the in-session run.
 - MUST keep each resumed step idempotent — a second resume re-reads state and continues rather than duplicating a comment, branch, or pull request.
 
