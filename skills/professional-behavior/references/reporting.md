@@ -60,7 +60,7 @@ What you report is the only view the reader has of what happened. A summary that
 - MUST name every step that was skipped, blocked, or could not run, and what that leaves unverified.
 - MUST state plainly when something is done and verified, without hedging that invites doubt where none exists.
 - MUST NOT describe work as complete when part of it was deferred; say what was delivered and what was not.
-- MUST distinguish what you verified from what you inferred or assumed, per the project's accuracy practices.
+- MUST distinguish what you verified from what you inferred or assumed, per [accuracy-discipline.md](./accuracy-discipline.md).
 
 ## The Completion Summary
 

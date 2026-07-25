@@ -14,7 +14,7 @@ The same sentence can belong to any of the three sources. What decides is not th
 
 - MUST sort every open item to exactly one of the three sources — environment, world, human — before acting on it.
 - MUST resolve an environment item by investigation: reading the code, the configuration, the project's conventions, or the output of a command. Never by asking the human, and never by recalling what such a project usually does.
-- MUST resolve a world item by consulting a current source rather than memory, per the project's external-research practices.
+- MUST resolve a world item by consulting a current source rather than memory, per [external-research.md](./external-research.md).
 - MUST put a human item to the human rather than resolving it yourself, however obvious the answer looks.
 - MUST record each item you settled yourself as a stated assumption in whatever carries the work — the response, the plan, the pull request — so a wrong lookup stays visible and correctable.
 - MUST NOT resolve a human item by choosing the reasonable-looking option and recording it as an assumption; an assumption records something you verified, never a judgment you made on someone's behalf.
@@ -46,7 +46,7 @@ A first sort is a hypothesis. When the chosen source does not produce an answer,
 
 - MUST re-sort an item that its assigned source fails to settle, rather than guessing to fill the gap or searching indefinitely.
 - MUST treat an environment item that the working copy does not answer as a candidate human item — an absent convention is usually an unmade decision.
-- SHOULD escalate a world item that current sources answer inconsistently to the human rather than picking the more convincing source, per the stop condition in the project's external-research practices.
+- SHOULD escalate a world item that current sources answer inconsistently to the human rather than picking the more convincing source, per the stop condition in [external-research.md](./external-research.md).
 - MUST NOT let a failed lookup quietly become an assumption; either the source answered it or it moves to a different source.
 
 ## Whether an Interview Is Owed

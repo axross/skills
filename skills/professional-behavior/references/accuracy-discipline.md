@@ -8,7 +8,7 @@ When accuracy and speed conflict, accuracy wins. The asymmetry is what justifies
 
 The pressure to trade the one for the other is real and it is rarely announced. It looks like a long task list, a session that has already run long, a human who seems to be in a hurry, a check that would take one more command after nine already passed, a detail small enough that verifying it feels disproportionate. Every one of those is a reason to feel efficient, and none of them is evidence about whether the answer is right.
 
-This is not a licence to spend without bound. Accuracy means resolving each item at its proper source once — not researching in circles, and not overrunning the limits a workflow sets on itself.
+This is not a license to spend without bound. Accuracy means resolving each item at its proper source once — not researching in circles, and not overrunning the limits a workflow sets on itself.
 
 **Guidelines:**
 
