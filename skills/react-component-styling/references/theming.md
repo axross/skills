@@ -2,6 +2,8 @@
 
 Apply this reference when declaring a project's design tokens, when choosing which token a style should use, and when a value you want has no token yet. Colour is large enough to have its own reference — see [color-and-gamut.md](./color-and-gamut.md) for ramps, role names, schemes, and gamut. Everything else lives here.
 
+The primitive-versus-semantic tier split below follows the [W3C Design Tokens Format Module](https://www.designtokens.org/tr/drafts/format/) and [Material Design 3's design tokens](https://m3.material.io/foundations/design-tokens/overview).
+
 Tokens exist so a visual decision is made once and consumed everywhere. That only holds if components consume the **semantic** tier — a name that says what the value is for — rather than the raw scale beneath it. A component that reaches past the semantic name to a primitive, or inlines the literal it would have resolved to, is the leak that breaks the next theme change.
 
 ## Token Families

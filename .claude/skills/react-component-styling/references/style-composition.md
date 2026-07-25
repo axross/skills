@@ -71,7 +71,7 @@ export function Card({
 - MUST accept `className` on every web component that renders a styled root, and `style` on every mobile-native one.
 - MUST merge the incoming value **last** so it overrides the component's own styles.
 - MUST NOT destructure the prop and then fail to apply it — a silently dropped `style` breaks the contract for every caller and is invisible at the type level.
-- MUST merge Unistyles styles with array syntax (`[styles.root, style]`) and MUST NOT spread them or pass them through `StyleSheet.flatten`; both destroy the binding Unistyles updates through, so the style silently stops reacting to theme and runtime changes.
+- MUST merge Unistyles styles with array syntax (`[styles.root, style]`) and MUST NOT spread them or pass them through `StyleSheet.flatten`; both destroy the binding Unistyles updates through, so the style silently stops reacting to theme and runtime changes ([Merging styles](https://www.unistyl.es/v3/guides/merging-styles/)).
 - MUST keep the component's own root selector at zero specificity on web (see the CSS Modules rules) so a single incoming class is enough to override it.
 
 ## When a Consumer Overrides

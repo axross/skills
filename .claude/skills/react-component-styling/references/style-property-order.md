@@ -2,6 +2,8 @@
 
 Apply this reference when writing or reviewing the order of declarations inside a style block, and the order of styles composed into one element.
 
+Unlike the other references here, this one rests on no external standard: no specification says what order declarations go in, and the choice is a project convention. It is stated as a rule anyway, because the value of an ordering convention comes entirely from every file following the same one.
+
 Order is a readability contract, not decoration. A reader scanning an unfamiliar block should be able to find the box model without reading the colours, and should be able to tell a base value from a state override by position alone. Alphabetical order fails both tests — it interleaves `alignItems`, `backgroundColor`, and `borderRadius` into a list with no shape — so the convention is **semantic grouping**: properties in the order the browser or layout engine conceptually resolves them, outermost concern first.
 
 ## Group Order Within a Block
@@ -30,9 +32,9 @@ Write declarations in this order, skipping any group the block does not use. The
 .card {
   display: flex;
   container: card / inline-size;
-  inline-size: stretch;
   flex-direction: column;
   row-gap: var(--space-16);
+  inline-size: stretch;
   padding-block-end: var(--space-16);
   background-color: var(--color-component-accent-rest);
   border-radius: var(--radius-md);

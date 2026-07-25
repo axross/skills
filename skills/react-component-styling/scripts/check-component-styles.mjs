@@ -127,10 +127,16 @@ function blankComments(source, stripLineComments) {
  */
 function hasUntokenizedLength(value) {
   if (value.includes("var(")) return false;
-  // Line- and character-relative units express typographic rhythm rather than
-  // scale spacing (`calc((1lh - 1em) / 2)`), and are legitimate literals.
-  if (/\d(lh|rlh|ch|ex|cap|ic)\b/.test(value)) return false;
-  return /(?:^|[\s(,])-?\d*\.?\d+(px|rem|em)\b/.test(value);
+
+  // A value built on line- or character-relative units is typographic rhythm
+  // (`calc((1lh - 1em) / 2)`), where the paired font-relative `em` is
+  // legitimate. An absolute length in the same expression is not, so the
+  // exemption narrows the units checked rather than skipping the value —
+  // `calc(1lh - 16px)` is still an untokenized length.
+  const isRhythm = /\d(lh|rlh|ch|ex|cap|ic)\b/.test(value);
+  const units = isRhythm ? "px|rem" : "px|rem|em";
+
+  return new RegExp(String.raw`(?:^|[\s(,])-?\d*\.?\d+(${units})\b`).test(value);
 }
 
 /**
