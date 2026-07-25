@@ -36,14 +36,17 @@ Mutual exclusivity prevents drift. When two skills need the same guidance, choos
 
 ## Portable Source Exception
 
-A self-contained skill authored for installation into other projects (a `skills/`-sourced skill) is a sanctioned exception to strict mutual exclusivity: it MAY restate a rule that a repo-native skill owns, because it must stand alone where that owner is absent. The exception is bounded — the portable skill still defers to the host project's owner when one exists, and it is not a license to duplicate freely.
+A self-contained skill authored for installation into other projects (a `skills/`-sourced skill) is a sanctioned exception to strict mutual exclusivity: it MAY restate a rule another skill owns, because it must stand alone where that owner is absent. The exception is bounded — the restating skill still defers to the owner when one is present, and it is not a license to duplicate freely.
+
+The exception covers two shapes. The familiar one is a portable skill restating a rule a **repo-native** skill owns. The second is one portable skill restating a rule **another portable skill** owns, which applies when the restating skill advertises self-containment and would otherwise ship a hole where the owner is not installed: a change-loop skill's condensed plan-document structure restates what a product-requirement skill owns in full, and defers to it by topic when that skill is present. What stays forbidden is duplication that buys nothing — the same rule in two skills where neither needs to stand alone.
 
 **Guidelines:**
 
-- MAY let a self-contained, installable source skill restate a rule owned by a repo-native skill when portability requires the skill to stand alone.
-- MUST have the portable skill defer to the host project's owning skill when that owner is present, rather than competing with it.
-- MUST NOT invoke this exception to duplicate a rule between two repo-native skills, or between two portable sources, where a single owner would serve.
-- SHOULD keep the restated copy a concise summary that points to the fuller owner, not a divergent second source of truth.
+- MAY let a self-contained, installable source skill restate a rule owned by another skill — repo-native or portable — when portability requires the restating skill to stand alone.
+- MUST have the restating skill defer to the owning skill by topic when that owner is present, rather than competing with it.
+- MUST NOT invoke this exception where neither skill needs to stand alone — between two repo-native skills, or between two portable sources whose scopes do not require independent installation.
+- MUST keep the restated copy visibly a deferring summary — shorter than the owner's treatment, and naming the owner's topic — rather than a divergent second source of truth.
+- SHOULD verify, when adding a restatement, that the restating skill is still executable with the owner absent; a restatement that leaves a term undefined has not bought the portability it claims.
 
 ## Collective Exhaustiveness
 

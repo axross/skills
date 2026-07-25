@@ -5,9 +5,10 @@ A curated, reusable library of agent skills.
 `skills` is a library of **agent skills** in the
 [agentskills.io](https://agentskills.io) format — self-contained capabilities
 you install into a coding agent so it plans, builds, reviews, and verifies work
-the way you want it done. Sixteen of them cover the whole arc: turning a request
-into a spec, driving that spec to a reviewed pull request, keeping the code
-maintainable and secure, testing it, designing its UI, and authoring more skills.
+the way you want it done. Seventeen of them cover the whole arc: handling what
+the agent does not know, turning a request into a spec, driving that spec to a
+reviewed pull request, keeping the code maintainable and secure, testing it,
+designing its UI, and authoring more skills.
 They install into any agent the [`skills`
 CLI](https://github.com/vercel-labs/skills) supports.
 
@@ -55,8 +56,14 @@ rather than one option among several.
 ## Skill catalog
 
 Every skill in the library, grouped by what you would reach for it to do. All
-sixteen install the same way; the ✱ marks where a skill's source lives in _this_
-repository, which matters only if you contribute here.
+seventeen install the same way; the ✱ marks where a skill's source lives in
+_this_ repository, which matters only if you contribute here.
+
+### Working with you
+
+| Skill                                                              | What it gives your agent                                                                                                                                                                                                              |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`professional-behavior`](./skills/professional-behavior/SKILL.md) | Keeps it honest about what it actually knows — looking things up instead of guessing, checking current sources instead of trusting memory, asking you instead of deciding for you, and reporting back so you can tell which is which. |
 
 ### Delivering a change
 
@@ -190,7 +197,7 @@ checks below, open a pull request, and get it reviewed before merge.
 
 ### Authoring a skill
 
-Skills live in two tiers. Fifteen are **distributable**: their source is
+Skills live in two tiers. Sixteen are **distributable**: their source is
 [`skills/<name>/SKILL.md`](./skills) (with any `references/` and `scripts/`
 beside it), and the installed copies under `.claude/skills/` are generated from
 it with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:

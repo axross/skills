@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "455c869e14cd92563890a2069681df38ca88b0b60b17c6620c27af9eb1854e7a"
+      "computedHash": "a5abf9f6ff9d21f6d23464c29cdbeb494b05ed894312b5f83073361630d1ff75"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
@@ -44,12 +44,17 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "e99094443f153006a7f7fbb98c0bee1ac3832b92d1c6e031ffe72bb6fb7f6d60"
+      "computedHash": "623081e1db0fd081421c844c70d3384ed9abb8e925f0341d432a15fbec604c27"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "f51734bc5f78d89f5d9af655f1a87c2245c745b8ba17408d48555416130d1c9c"
+    },
+    "professional-behavior": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "baec47ef2c4aac6b46df12ef6d4f6d1bbea6612cdfa68d98f24c3e0ec6cd3d76"
     },
     "quality-assurance": {
       "source": "/home/user/skills/skills",
@@ -59,7 +64,7 @@
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "b2f78c30f35f7941303d741efe016b8a9bcc1604362477e904dcdd377790f111"
+      "computedHash": "0bea00a6172f410dda74a178bf07d6e23a9f5485cb84218aca3925e70984808f"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
