@@ -28,7 +28,9 @@ tooling to keep the docs formatted, linted, and link-checked.
 2. Run the checks: `npm run check` (format check + lint + relative-link check)
 
 There is no dev server — authoring a skill means editing Markdown under
-`.claude/skills/` and running `npm run check`. In a Claude Code cloud session,
+[`skills/`](./skills) (or `.claude/skills/` for a repository-local skill),
+reinstalling if it is distributable, and running `npm run check`. In a Claude
+Code cloud session,
 [`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) installs
 dependencies (activating a Node version manager if one is present); the opt-in
 format-on-edit and check-before-stop hooks are materialized from
@@ -92,32 +94,69 @@ checks below, open a pull request, and get it reviewed before merge.
 
 ## Installable skills
 
-Most skills are committed directly under
-[`.claude/skills/`](./.claude/skills). A second, **installable** form lives
-under [`skills/`](./skills) — the source of truth for skills copied into
-`.claude/skills/` with the
+Almost every skill here is **installable**: its source lives under
+[`skills/`](./skills) and is copied into `.claude/skills/` with the
 [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`).
-It currently holds the `agent-skill-management`, `code-review`,
-`end-to-end-testing`, `high-fidelity-ui-design`, `loop-engineering`,
-`product-requirement-document-authoring`, `software-instrumentation`,
-`unit-testing`, and `wireframe-design` skills; the
-[`agent-skill-management`](./.claude/skills/agent-skill-management/SKILL.md)
-skill documents the two-tier layout, which tier a new skill belongs to, the
-install, lockfile, and refresh-and-verify workflow, and how to propose a change
-to a skill installed from an upstream you do not own.
+Fourteen skills are distributed that way — `agent-skill-authoring`,
+`agent-skill-management`, `application-security`, `code-maintainability`,
+`code-review`, `end-to-end-testing`, `high-fidelity-ui-design`,
+`loop-engineering`, `product-requirement-document-authoring`,
+`quality-assurance`, `software-development`, `software-instrumentation`,
+`unit-testing`, and `wireframe-design`.
 
-## Testing
+Only `github-operation` remains **repository-local**, committed directly under
+[`.claude/skills/`](./.claude/skills) and hand-edited in place. The
+[`agent-skill-management`](./skills/agent-skill-management/SKILL.md) skill
+documents the two-tier layout, which tier a new skill belongs to, the install,
+lockfile, and refresh-and-verify workflow, and how to propose a change to a
+skill installed from an upstream you do not own.
 
-There is no test suite — the deliverable is documentation. Verification is a
-format check, a Markdown lint, and a relative-link integrity check; all three
-gate a merge via [`merge-checks.yaml`](./.github/workflows/merge-checks.yaml).
+## Commands
 
-| Check          | Command                                               |
-| -------------- | ----------------------------------------------------- |
-| Format         | `npm run format` (check-only: `npm run format:check`) |
-| Lint           | `npm run lint`                                        |
-| Link integrity | `npm run links`                                       |
-| All three      | `npm run check`                                       |
+There is no test suite and no development server — the deliverable is
+documentation, so verification is a format check, a Markdown lint, and a
+relative-link integrity check. `npm run check` is the aggregate gate, and all
+three checks gate a merge via
+[`merge-checks.yaml`](./.github/workflows/merge-checks.yaml).
 
-Run format + lint after every change, and the link check whenever links or file
-paths move — see the Verification section of [`CLAUDE.md`](./CLAUDE.md).
+This table is the authoritative list of the repository's commands, for human
+contributors and agents alike.
+
+| Command                | What it does                                                                   | When to run it                                                   |
+| ---------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2) pinned in `package.json`. | Once per checkout, and after `package.json` changes.             |
+| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                | After every set of edits, before committing.                     |
+| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.  | In CI, or to check formatting without touching the working tree. |
+| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                               | After formatting, and fix every reported error before finishing. |
+| `npm run links`        | Checks that every relative Markdown link resolves on disk (`check-links.sh`).  | Whenever links, file paths, or skill locations move.             |
+| `npm run check`        | The aggregate gate: format check, then lint, then the link check.              | Before opening or updating a pull request.                       |
+
+If a required command cannot be run, say so — naming the command, the reason,
+and the residual risk — rather than presenting the change as fully verified.
+
+## Repository gotchas
+
+Three things about this repository are worth knowing before changing it.
+
+**Some dependencies move fast enough that memory is unreliable.** Consult the
+current official docs before changing behavior these govern:
+
+| Dependency                   | Refresh docs before changing                                                                             |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Claude Code                  | Skill format and frontmatter, hook and settings configuration, slash-command behavior, MCP configuration |
+| markdownlint-cli2 / Prettier | Lint and format configuration, suppression syntax, rule names                                            |
+
+**Some files fail globally rather than locally.** A small mismatch in one of
+these breaks skill discovery or the verification gate outright, not just one
+rendered page — so refresh the owning tool's docs before editing one:
+
+- **Claude Code** — any `SKILL.md` frontmatter, `.claude/settings*.json`, and
+  the hooks under `.claude/hooks/`.
+- **markdownlint-cli2 / Prettier** — `.markdownlint-cli2.jsonc`,
+  `.prettierrc.json`, and `.prettierignore`.
+
+**The installed skill copies are generated, not source.** The distributable
+skills under [`skills/`](./skills) are the source of truth, and their copies
+under `.claude/skills/` are produced by `npx skills`. Edit the source and
+reinstall — a hand-edit to an installed copy is silently discarded by the next
+install.

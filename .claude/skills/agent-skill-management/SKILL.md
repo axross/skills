@@ -108,5 +108,6 @@ Skill changes are documentation changes: they gate on format, lint, and relative
 
 - MUST run the project's documentation checks (format, lint, relative-link integrity) after any skill change — a direct edit or a reinstall — and fix any failure before committing.
 - MUST run the relative-link check whenever a skill's files or links moved, since a stale link inside an installed copy fails the same check as the source.
+- MUST confirm, after adding, renaming, moving, or removing a skill or a reference file, that discovery metadata and parent routing still resolve to the change — per your skill-authoring conventions, which own those rules — because a tier move changes paths that discovery and routing depend on.
 - SHOULD validate a changed skill with the structure validator your skill-authoring conventions ship, if any.
 - SHOULD diff a reinstalled copy against its source (`git diff --stat`) to confirm the reinstall changed exactly the expected files.

@@ -1,10 +1,25 @@
 {
   "version": 1,
   "skills": {
+    "agent-skill-authoring": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "d2bf98fad6e9e32bdfd1dbbe1abe7e0f15250d735f43d1b29bd745bdcf4cd5b2"
+    },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0770acf335738cfbd5d6a96d353c384afbd41deef8e9aeacb1831f07bc5fe027"
+      "computedHash": "7d346e2fdf646a9947ebdbeb119118e8de246cd67b0dbf2cce8732308b57d698"
+    },
+    "application-security": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "64638cf24572bfd5636a2ed5d57289f8ebaf54bfe6e7d0714c7e7cbf018ce23a"
+    },
+    "code-maintainability": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "6327e08e92bb6e9884d2197413a0dbc71ed12996ad43cd3ddd87d5c95dfc5b31"
     },
     "code-review": {
       "source": "/home/user/skills/skills",
@@ -30,6 +45,16 @@
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "84dee2cfdd948204f3ea69342f72487fa627cd21c89e42f4b5dda3d180427bc5"
+    },
+    "quality-assurance": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "877cf9ec4d33817dd58f689a6280b6aec5013991191715ae18afdc26358387b6"
+    },
+    "software-development": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "e7fbe7c531e8c2fc9dff65936cad743b53fcdff0e947face99d51e3487a062b2"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
