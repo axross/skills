@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // check-commit-message.mjs — Conventional Commits header validator.
 //
-// Nothing in this repository rejects a malformed commit message, so the format
-// is self-enforced (see ../references/commit-messages.md). This validator makes
+// Unless a project installs a commit hook or a CI check that rejects a
+// malformed commit message, the format is self-enforced (see
+// ../references/commit-messages.md). This validator makes
 // that catch mechanical: it checks a message's header against the project's
 // Conventional Commits rules and reports every violation. The same header
 // format governs pull request titles, so it validates those too — pass the
