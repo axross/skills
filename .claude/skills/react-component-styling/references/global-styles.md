@@ -57,7 +57,7 @@ Every global rule should carry **zero specificity**, so a component's single cla
 **Guidelines:**
 
 - MUST wrap every global selector in `:where()` so the rule contributes no specificity.
-- MUST NOT rely on source order or a cascade layer alone to make a component win; a component's own root selector is also zero-specificity (see the CSS Modules rules), so an unweakened global rule with a real selector would still beat it.
+- MUST NOT rely on source order alone to make a component win. Where the project declares cascade layers, layer order already settles it — the cascade compares layers before specificity, so anything in the components layer beats the base layer however specific the base rule is. `:where()` is what makes the globals safe everywhere else: in a project with no layers, against unlayered third-party CSS, and against another rule in their own layer.
 - MUST NOT use `!important` in global styles. A global rule that needs it is a rule a component is legitimately trying to override.
 - SHOULD keep the reset minimal. Every property a reset zeroes is a property some component has to restore.
 
