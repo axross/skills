@@ -75,7 +75,7 @@ Two uses are common: a **tier** the parent announces and children react to, and 
 
 **Guidelines:**
 
-- MUST declare a component-scoped custom property on the scope root when a value varies by context, and MUST resolve it to a project token somewhere in the chain rather than terminating in a literal.
+- MUST declare a component-scoped custom property on the scope root when a value varies by context, and MUST resolve it either to a project token or to one of the literals the token-snapping rule permits — a ratio, a multiplier, or a fixed element dimension. A property that terminates in an off-scale colour, length, or duration is the leak the rule exists to prevent.
 - MUST toggle the individual custom properties a composite value is built from, rather than re-authoring the whole composite per state; re-authoring detaches the state from every other branch that tunes the same value.
 - MUST treat a custom property read across a component boundary as a contract: name it distinctly, and change it in both files together.
 - SHOULD choose the propagation channel to match the axis — a style query on a custom property for a tier or scheme that many descendants read, a `data-*` attribute on the root for a discrete variant the component itself sets.

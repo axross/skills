@@ -71,6 +71,7 @@ const styles = StyleSheet.create((theme) => ({
       size: {
         sm: { minHeight: 36, paddingHorizontal: theme.space.x12 },
         md: { minHeight: 44, paddingHorizontal: theme.space.x16 },
+        default: { minHeight: 44, paddingHorizontal: theme.space.x16 },
       },
     },
     compoundVariants: [
