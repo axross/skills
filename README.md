@@ -1,28 +1,123 @@
 # skills
 
-A curated, reusable library of Claude Code agent skills.
+A curated, reusable library of agent skills.
 
-`skills` collects the working agreement and skills that give
-[Claude Code](https://claude.com/claude-code) a structured way to work: a working
-agreement in [`CLAUDE.md`](./CLAUDE.md), a set
-of guideline skills under [`.claude/skills/`](./.claude/skills) that Claude Code
-discovers by their `description`/`when_to_use`, and a
-model-invoked change loop (loop-engineering). It
-is Markdown-first — the skills _are_ the deliverable — with a little JavaScript
-tooling to keep the docs formatted, linted, and link-checked.
+`skills` is a library of **agent skills** in the
+[agentskills.io](https://agentskills.io) format — self-contained capabilities
+you install into a coding agent so it plans, builds, reviews, and verifies work
+the way you want it done. Fifteen of them cover the whole arc: turning a request
+into a spec, driving that spec to a reviewed pull request, keeping the code
+maintainable and secure, testing it, designing its UI, and authoring more skills.
+They install into any agent the [`skills`
+CLI](https://github.com/vercel-labs/skills) supports.
 
-## Tech stack
-
-| Area            | Tool                                                          |
-| --------------- | ------------------------------------------------------------- |
-| Language        | Markdown (with occasional JavaScript for scripting)           |
-| Runtime         | Claude Code                                                   |
-| Package manager | npm                                                           |
-| Formatting      | Prettier                                                      |
-| Linting         | markdownlint-cli2                                             |
-| Link integrity  | `.claude/skills/agent-skill-authoring/scripts/check-links.sh` |
+The library is Markdown-first — the skills _are_ the deliverable — with a little
+JavaScript tooling to keep them formatted, linted, and link-checked.
 
 ## Getting started
+
+Install skills into your own project with the
+[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI. Take them one at
+a time — each is self-contained, and several are opinionated enough to be worth
+choosing deliberately:
+
+```bash
+npx skills add axross/skills --agent <your-agent> --skill code-review
+```
+
+Replace `<your-agent>` with your agent's identifier; the CLI's
+[supported agents](https://github.com/vercel-labs/skills#supported-agents) list
+has them all. Browse what is on offer in the [skill catalog](#skill-catalog)
+below, or ask the CLI:
+
+```bash
+npx skills add axross/skills --list
+```
+
+To take the whole library, or to install into every agent you have set up, pass
+`'*'` in place of a name:
+
+```bash
+npx skills add axross/skills --agent '*' --skill '*'
+```
+
+Add `--copy` if your environment does not support symlinks — the skills then
+land as real directories instead of links.
+
+**Wiring them in.** An installed skill is discovered on its own: agents read its
+`description`/`when_to_use` and load it when a task matches, so nothing else is
+required. But discovery makes a skill _available_, not _binding_ — if you want
+one to govern how work happens rather than merely inform it, say so in your own
+agent instructions. This repository's [`CLAUDE.md`](./CLAUDE.md) is a worked
+example: it makes `loop-engineering` the mandatory change loop for every change,
+rather than one option among several.
+
+## Skill catalog
+
+Every skill in the library, grouped by what you would reach for it to do. All
+fifteen install the same way; the ✱ marks where a skill's source lives in _this_
+repository, which matters only if you contribute here.
+
+### Delivering a change
+
+| Skill                                                                                                | What it gives your agent                                                                                                                                                                |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`loop-engineering`](./skills/loop-engineering/SKILL.md)                                             | Runs a whole change for you — plan, build, verify, fix — pausing for your sign-off before it writes any code, and handing the review to a separate session so it never approves itself. |
+| [`product-requirement-document-authoring`](./skills/product-requirement-document-authoring/SKILL.md) | Turns a vague ask into a spec someone can build from and check against, with acceptance criteria that are actually verifiable.                                                          |
+| [`software-development`](./skills/software-development/SKILL.md)                                     | The baseline every task runs on: keep the change scoped, format and lint it, find out how the project is really run, and write a commit message that survives history.                  |
+| [`github-operation`](./.claude/skills/github-operation/SKILL.md) ✱                                   | Keeps an agent's GitHub writes safe when it shares your login — one sanctioned channel, comments marked as its own, and history it never rewrites.                                      |
+
+### Reviewing a change
+
+| Skill                                                      | What it gives your agent                                                                                                                  |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [`code-review`](./skills/code-review/SKILL.md)             | Reads a diff the way a reviewer would and reports only what holds up: ranked severity, `file:line` evidence, a fix for each finding.      |
+| [`quality-assurance`](./skills/quality-assurance/SKILL.md) | Asks whether a change was actually verified rather than merely written — which checks ran, which were skipped, and what risk that leaves. |
+
+### Writing code that lasts
+
+| Skill                                                                    | What it gives your agent                                                                                                                              |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`code-maintainability`](./skills/code-maintainability/SKILL.md)         | Catches what makes code expensive later: vague names, sprawling files, magic numbers, dead code, and abstractions reached for too early.              |
+| [`application-security`](./skills/application-security/SKILL.md)         | An OWASP Top 10 lens for writing and reviewing alike — secrets, untrusted input, injection, SSRF, access control, and what your dependencies drag in. |
+| [`software-instrumentation`](./skills/software-instrumentation/SKILL.md) | Makes behavior visible once it is running: structured logs at the right level, errors caught where they can be handled, and events worth tracking.    |
+
+### Testing
+
+| Skill                                                        | What it gives your agent                                                                                       |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| [`unit-testing`](./skills/unit-testing/SKILL.md)             | Fast, isolated tests written from the caller's side, so a refactor does not break them and a bug does.         |
+| [`end-to-end-testing`](./skills/end-to-end-testing/SKILL.md) | Tests that drive the whole system like a real user — locators that do not rot, no sleeps, and no live network. |
+
+### Designing a UI
+
+| Skill                                                                  | What it gives your agent                                                                                                                                             |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`wireframe-design`](./skills/wireframe-design/SKILL.md)               | Grey-box screens and flows, with a self-contained HTML kit, so layout gets settled before anyone argues about color.                                                 |
+| [`high-fidelity-ui-design`](./skills/high-fidelity-ui-design/SKILL.md) | For when the greys become a real interface — semantic tokens, dark mode, readable type, WCAG contrast, visible focus, and states for every way a control can behave. |
+
+### Authoring skills
+
+| Skill                                                                | What it gives your agent                                                                                                                      |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`agent-skill-authoring`](./skills/agent-skill-authoring/SKILL.md)   | How to write a skill an agent will actually find and follow: framing, frontmatter, discovery text, and a validator that checks the structure. |
+| [`agent-skill-management`](./skills/agent-skill-management/SKILL.md) | Where a skill's source belongs, how it gets installed and refreshed, and what to do when you want to change one you do not own.               |
+
+✱ `github-operation`'s source is committed under
+[`.claude/skills/`](./.claude/skills); every other skill is sourced under
+[`skills/`](./skills). That split is an authoring detail of this repository —
+see [Authoring a skill](#authoring-a-skill) — and has no bearing on how you
+install them.
+
+## Contributing
+
+Development here is agent-assisted via
+[Claude Code](https://claude.com/claude-code). The working agreement lives in
+[`CLAUDE.md`](./CLAUDE.md) and routes to the detailed skills under
+[`.claude/skills/`](./.claude/skills). Human and agent contributors follow the
+same loop: plan → implement → self-review → verify → report.
+
+### Local setup
 
 1. Install dependencies: `npm install`
 2. Run the checks: `npm run check` (format check + lint + relative-link check)
@@ -36,14 +131,14 @@ dependencies (activating a Node version manager if one is present); the opt-in
 format-on-edit and check-before-stop hooks are materialized from
 [`.claude/settings.local-example.json`](./.claude/settings.local-example.json).
 
-## Development workflow
-
-Development in this repository is agent-assisted via
-[Claude Code](https://claude.com/claude-code). The working agreement lives in
-[`CLAUDE.md`](./CLAUDE.md) and routes to the
-detailed skills under [`.claude/skills/`](./.claude/skills). Human and agent
-contributors follow the same loop: plan → implement → self-review → verify →
-report.
+| Area            | Tool                                                          |
+| --------------- | ------------------------------------------------------------- |
+| Language        | Markdown (with occasional JavaScript for scripting)           |
+| Runtime         | Claude Code                                                   |
+| Package manager | npm                                                           |
+| Formatting      | Prettier                                                      |
+| Linting         | markdownlint-cli2                                             |
+| Link integrity  | `.claude/skills/agent-skill-authoring/scripts/check-links.sh` |
 
 ### Delivering a unit of work end-to-end
 
@@ -92,26 +187,33 @@ billing. See the header of
 Changes made without an agent follow the same bar: branch, implement, run the
 checks below, open a pull request, and get it reviewed before merge.
 
-## Installable skills
+### Authoring a skill
 
-Almost every skill here is **installable**: its source lives under
-[`skills/`](./skills) and is copied into `.claude/skills/` with the
-[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`).
-Fourteen skills are distributed that way — `agent-skill-authoring`,
-`agent-skill-management`, `application-security`, `code-maintainability`,
-`code-review`, `end-to-end-testing`, `high-fidelity-ui-design`,
-`loop-engineering`, `product-requirement-document-authoring`,
-`quality-assurance`, `software-development`, `software-instrumentation`,
-`unit-testing`, and `wireframe-design`.
+Skills live in two tiers. Fourteen are **distributable**: their source is
+[`skills/<name>/SKILL.md`](./skills) (with any `references/` and `scripts/`
+beside it), and the installed copies under `.claude/skills/` are generated from
+it with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
 
-Only `github-operation` remains **repository-local**, committed directly under
-[`.claude/skills/`](./.claude/skills) and hand-edited in place. The
-[`agent-skill-management`](./skills/agent-skill-management/SKILL.md) skill
-documents the two-tier layout, which tier a new skill belongs to, the install,
-lockfile, and refresh-and-verify workflow, and how to propose a change to a
-skill installed from an upstream you do not own.
+```bash
+npx skills add ./skills --agent claude-code --skill '*' --yes --copy
+```
 
-## Commands
+Commit the regenerated `.claude/skills/<name>/` copies and `skills-lock.json`
+alongside the source — they are tracked artifacts, not build output to ignore.
+
+`github-operation` is **repository-local**: it encodes conventions specific to
+this repository's harness, so its source is committed directly under
+[`.claude/skills/`](./.claude/skills), hand-edited in place, and never touched
+by the CLI or listed in `skills-lock.json`.
+
+[Agent Skill Management](./skills/agent-skill-management/SKILL.md) covers which
+tier a new skill belongs to and the full install, lockfile, and
+refresh-and-verify workflow;
+[Agent Skill Authoring](./skills/agent-skill-authoring/SKILL.md) covers how to
+write the skill itself. Both are in the catalog above, so you can install them
+into your own project too.
+
+### Commands
 
 There is no test suite and no development server — the deliverable is
 documentation, so verification is a format check, a Markdown lint, and a
@@ -134,7 +236,7 @@ contributors and agents alike.
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
-## Repository gotchas
+### Repository gotchas
 
 Three things about this repository are worth knowing before changing it.
 
