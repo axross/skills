@@ -49,12 +49,11 @@ It does not scale down for a small-looking change. The cost of an unasked decisi
 
 The gate clears on the human's confirmation, not on your judgment that you have asked enough. Restating what you now believe is the cheapest place to catch a misread: correcting a three-bullet restatement costs a moment, while correcting a finished plan costs a careful read to find where the misunderstanding was laundered into detail.
 
-The restatement is not the plan. It is short enough to check at a glance — what is being built, each decision and the answer it got, and what is explicitly out of scope.
+The restatement is not the plan. It is short enough to check at a glance — what is being built, each decision and the answer it got, and what is explicitly out of scope. It comes before the plan is written so that the plan-approval gate reviews a plan whose premise the human has already agreed to.
 
 **Guidelines:**
 
 - MUST restate the shared understanding compactly once the tree is walked — the scope, each decision and its answer, and the explicit non-goals — and put it to the human for a confirm-or-adjust through the question UI before writing the plan.
 - MUST keep the restatement short enough to verify at a glance; it checks alignment and is not a draft of the plan.
 - MUST treat an adjustment as reopening the affected branch — ask what the correction newly exposes, then re-confirm — rather than proceeding on a patched understanding.
-- MUST NOT write the plan into the issue before that confirmation, so the plan-approval gate reviews a plan whose premise the human has already agreed to.
 - SHOULD surface, in the restatement, any assumption you settled by investigation that would be expensive to have wrong, so a bad lookup fails here rather than at the plan-approval gate.
