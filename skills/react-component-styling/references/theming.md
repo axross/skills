@@ -150,7 +150,7 @@ A scale only constrains if values land on it. An off-scale value looks harmless 
 
 - MUST resolve every colour, spacing, radius, border-width, duration, easing, and typography value through a token.
 - MUST snap to the nearest step rather than inlining an off-scale value, and MUST raise a missing step as a design decision rather than resolving it locally.
-- MUST NOT introduce a component-local constant that terminates in a literal. A component-scoped custom property or constant is legitimate only when every branch of it resolves to a project token.
+- MUST NOT introduce a component-local constant that terminates in an off-scale colour, length, or duration. A component-scoped custom property or constant is legitimate when every branch of it resolves either to a project token or to one of the literals listed below — a filter multiplier toggled per state is fine; a hard-coded hex or padding is not.
 - The complete list of literals that stay legal:
   - **Fixed element dimensions** — an icon's drawn size, an avatar's diameter, a fixed line box, an `aspect-ratio`. These are geometry, not scale spacing.
   - **Ratios and multipliers** — an opacity, a `flex` value, a `z-index`, a `scale()` factor.

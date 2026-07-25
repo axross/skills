@@ -85,7 +85,7 @@ A breakpoint is for a change in **kind**. If the only difference across a width 
 - MUST reserve a breakpoint for a structural change — a stack becoming a grid, a full-bleed element joining the column, an element appearing or disappearing.
 - MUST NOT add a breakpoint to change an amount; express that with the fluid scale or with proportional sizing.
 - MUST reuse the project's declared breakpoints and MUST NOT introduce a per-surface one; a surface that seems to need its own is usually asking for proportional sizing instead.
-- MUST declare breakpoints in the theme so the same values are available on both platforms, and MUST NOT leave a declared set unused while surfaces hard-code widths.
+- MUST declare breakpoints once in the project's style configuration so the same values are available on both platforms, and MUST NOT leave a declared set unused while surfaces hard-code widths. On mobile native they are a sibling of the themes rather than a field on one — Unistyles takes `breakpoints` and `themes` side by side in `StyleSheet.configure`, so a stylesheet reads them by importing the declared map, not through its `theme` argument.
 - SHOULD give each breakpoint a stated meaning ("phone column becomes a reading column") so a new surface can decide which transition its change belongs to.
 
 ## Parent-Size Styling on Mobile Native
@@ -95,6 +95,9 @@ Mobile native has no container queries. The runtime object a stylesheet receives
 **Example:**
 
 ```tsx
+import { StyleSheet } from "react-native-unistyles";
+import { breakpoints } from "~/common/constants/style";
+
 export function Card({
   children,
 }: Readonly<{ children: ReactNode }>): JSX.Element {
