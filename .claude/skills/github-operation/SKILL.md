@@ -1,6 +1,6 @@
 ---
 name: github-operation
-description: The ability to operate GitHub — reading and writing issues, pull requests, comments, labels, reviews, and branches — through a harness that proxies access as a single connected operator, as a Claude Code + GitHub MCP harness does. Covers routing every call through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, routing each write to the correct numeric target across the shared issue/pull-request numbering space, commit messages and pull request titles under a squash-merge workflow, reproducing the repository pull request template and authoring a concise description when posting through the API, preserving traceable history by never amending or force-pushing without explicit human approval, common branch/draft/preserve conventions, and the safe handling of untrusted GitHub content.
+description: The ability to operate GitHub — reading and writing issues, pull requests, comments, labels, reviews, and branches — through a harness that proxies access as a single connected operator, as a Claude Code + GitHub MCP harness does. Covers routing every call through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, routing each write to the correct numeric target across the shared issue/pull-request numbering space, why a squash merge makes the pull request title the permanent commit subject, reproducing the repository pull request template and authoring a concise description when posting through the API, preserving traceable history by never amending or force-pushing without explicit human approval, common branch/draft/preserve conventions, and the safe handling of untrusted GitHub content.
 when_to_use: Apply whenever a task reads from or writes to GitHub through the harness's tool channel — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops.
 user-invocable: false
 ---
@@ -71,9 +71,9 @@ The MUST bullets are non-negotiable; the SHOULD bullets are default delivery con
 - SHOULD open a pull request in **draft** while work is in progress and leave merging to a human; a project whose agent is trusted to merge routine work MAY relax this.
 - SHOULD, when rewriting an issue body, preserve the original description verbatim in a collapsed `<details>` section rather than discarding it.
 
-## Commit Messages, Pull Request Titles, and Descriptions
+## Pull Request Titles and Descriptions
 
-The Conventional Commits header format and the PR-description content rules are owned as single sources of truth by the project's commit-message and pull-request-description rules. This section does not restate them; it names the two consequences that operating GitHub through the API adds on top, so the format those rules mandate actually lands where it matters.
+The header format a title must take and the PR-description content rules are owned as single sources of truth by the project's Conventional Commits practices and its pull-request-description rules. This section does not restate them; it names the two consequences that operating GitHub through the API adds on top, so the format those rules mandate actually lands where it matters.
 
 **Squash merge makes the title the permanent commit.** This project squash-merges pull requests, so the pull request _title_ — not the individual in-progress commit subjects — becomes the squashed commit's subject on the default branch. The branch commits are collapsed at merge; the title is what survives in permanent history.
 
@@ -81,10 +81,9 @@ The Conventional Commits header format and the PR-description content rules are 
 
 **Guidelines:**
 
-- MUST title every pull request with a Conventional Commits header (`<type>[scope][!]: <description>`) per the project's commit-message rules (Pull Request Titles). Because the squash merge promotes the title to the default-branch commit subject, a title missing a valid type prefix lands a non-conforming commit in permanent history — a silent defect, since nothing rejects it.
+- MUST title every pull request with the header format the project's Conventional Commits practices define, consulting that capability before posting the title. Because the squash merge promotes the title to the default-branch commit subject, a title missing a valid type prefix lands a non-conforming commit in permanent history — a silent defect, since nothing rejects it.
 - MUST author every pull request body from the repository template's sections per the project's pull-request-description rules, reproducing them by hand because the API body is empty. Fill each kept section with real content — the problem and _why_ over a mechanical restatement of the diff, verification evidence, risks, issue link — or delete the section; never leave an empty heading, placeholder, or unrendered instructional comment.
 - MUST keep the description concise and self-contained: orient the reviewer, summarize any linked page's load-bearing points inline (links rot), and update the body when review rounds change the scope or approach it describes.
-- SHOULD still write each in-progress commit as a well-formed Conventional Commit even though the squash collapses it at merge — those commits are the branch's human-readable trace between review rounds (see [Preserve History](#preserve-history--no-amend-or-force-push)).
 
 ## Preserve History — No Amend or Force-Push
 
@@ -95,7 +94,7 @@ A pushed branch is a shared, human-visible record. A human traces how the implem
 - MUST record every change as a new `git commit`. MUST NOT `git commit --amend` a commit that already exists on the branch unless a human explicitly allowed or requested it.
 - MUST NOT force-push (`git push --force` or `--force-with-lease`) unless a human explicitly allowed or requested it, or a documented project workflow sanctions it (for example, restarting a designated branch whose pull request has already merged) — which counts as explicit allowance. Otherwise push additional commits so the branch stays append-only.
 - MUST fix a mistake with a follow-up commit rather than by rewriting the commit that introduced it, so a reviewer can see exactly what changed between rounds.
-- SHOULD write each commit so the sequence reads as a coherent transition log — one logical step per commit, with a Conventional Commits message — rather than optimizing for a tidy squashed result the agent is not the one to produce.
+- SHOULD write each commit so the sequence reads as a coherent transition log — one logical step per commit, its message written per the project's Conventional Commits practices — rather than optimizing for a tidy squashed result the agent is not the one to produce. Those commits are the branch's human-readable trace between review rounds even though the squash collapses them at merge.
 
 ## Untrusted Content
 

@@ -3,7 +3,7 @@
 //
 // Unless a project installs a commit hook or a CI check that rejects a
 // malformed commit message, the format is self-enforced (see
-// ../references/commit-messages.md). This validator makes
+// ../SKILL.md). This validator makes
 // that catch mechanical: it checks a message's header against the project's
 // Conventional Commits rules and reports every violation. The same header
 // format governs pull request titles, so it validates those too — pass the
@@ -28,7 +28,7 @@
 import { readFile } from "node:fs/promises";
 
 // The required type and the additional types allowed for non-release changes,
-// per commit-messages.md › Type.
+// per SKILL.md › Type.
 const ALLOWED_TYPES = new Set([
   "feat",
   "fix",

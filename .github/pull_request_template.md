@@ -5,7 +5,7 @@ section that does not apply rather than leaving it empty. Detailed guidance:
 
 Title: use a Conventional Commits header — `<type>[scope][!]: <description>`
 (e.g. `fix(parser): handle empty input`), per
-.claude/skills/software-development/references/commit-messages.md.
+.claude/skills/conventional-commits/SKILL.md.
 
 Keep the pull request small and single-purpose; split unrelated changes into
 separate pull requests.

@@ -26,6 +26,11 @@
       "sourceType": "local",
       "computedHash": "997515ae95463ab51ada40bd1baa1eb3fc67f44c37beb95a288fbd4848aa9b64"
     },
+    "conventional-commits": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "0e3d816841a4f30ab00ab356a78eac1ea966e8db1cae14f0e5d6588b50d06e34"
+    },
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -39,7 +44,7 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "456826fe4c605a1ebba649fe57b735bef3f417f3dfc0c4816dc75e26955b394d"
+      "computedHash": "e99094443f153006a7f7fbb98c0bee1ac3832b92d1c6e031ffe72bb6fb7f6d60"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -54,7 +59,7 @@
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "33cf52b5a57dda8851e9efe7efb3bdc85e1480512614dc2179eb80368b73b486"
+      "computedHash": "b2f78c30f35f7941303d741efe016b8a9bcc1604362477e904dcdd377790f111"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",

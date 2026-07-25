@@ -53,7 +53,7 @@ The linter catches correctness and quality problems the formatter cannot see (an
 
 ## Comments
 
-There are two kinds of comment, each with its own style: **doc-comments** that document an API, and **line comments** that explain a specific spot in the code. Existing source files are the authority for both — read them before writing comments and match their voice. These rules apply to source-code comments only, not to commit messages (see [commit-messages.md](./commit-messages.md)) or to prose documentation.
+There are two kinds of comment, each with its own style: **doc-comments** that document an API, and **line comments** that explain a specific spot in the code. Existing source files are the authority for both — read them before writing comments and match their voice. These rules apply to source-code comments only, not to commit messages — which the project's Conventional Commits practices own — or to prose documentation.
 
 ### Doc-Comments
 
