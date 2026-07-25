@@ -34,7 +34,7 @@ How many questions may share a single prompt is governed by the cadence rule in 
 
 ## Exhaustive by Default
 
-The interview ends when the decisions are settled, not when a budget runs out. That there is no budget is the skill's Termination Guard's rule to state, and it states it; what this section governs is how far the interview reaches while it runs.
+The skill's Termination Guard records that this interview, alone among the loops it bounds, carries no question budget. What ends it instead is the subject here.
 
 It does not scale down for a small-looking change. The cost of an unasked decision is not proportional to the size of the diff: a one-line change built on a wrong assumption is still wrong, and it surfaces later — at the plan-approval gate, or in review — where it costs more to correct. What keeps the interview finite is the fact/decision sort. Exhaustiveness ranges over the decisions the spec leaves open; a request that leaves none earns no questions at all.
 

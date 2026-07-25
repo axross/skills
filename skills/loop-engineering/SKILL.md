@@ -174,6 +174,6 @@ State lives in this running session; GitHub carries a thin, **human-invisible** 
 
 - MUST cap the address↔review loop at **8** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
 - MUST cap autonomous polling at **2 hours** per wait and go dormant rather than poll indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.
-- MUST NOT cap the [Phase 1](#phase-1--plan) clarifying interview with a question budget — unlike the loops above it is deliberately uncapped, ending when every open decision is settled and the human confirms the shared understanding; the fact/decision sort, not a cap, is what keeps it finite.
+- MUST NOT cap the [Phase 1](#phase-1--plan) clarifying interview with a question budget — unlike the loops above, it is deliberately uncapped.
 - MUST end the turn (never loop-block) whenever waiting on a human — the plan-approval gate, a stuck machine event, or a dormancy cap.
 - MUST keep edits to the smallest surface that satisfies the acceptance criteria, never push to the default branch, and never merge the pull request.
