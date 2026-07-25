@@ -116,9 +116,10 @@ export function Card({
 
 const styles = StyleSheet.create((theme) => ({
   card: (width: number | null) => ({
-    // `breakpoints` is the project's own declared map, imported from the theme.
-    // The mini runtime carries only `rt.breakpoint` — the current breakpoint's
-    // name against the *screen* — which is not what this component measures.
+    // `breakpoints` is the project's own declared map, imported directly —
+    // not reached through the `theme` argument, which does not carry it. The
+    // mini runtime carries only `rt.breakpoint`, the current breakpoint's name
+    // against the *screen*, which is not what this component measures.
     flexDirection: width !== null && width > breakpoints.md ? "row" : "column",
     gap: theme.space.x16,
   }),
