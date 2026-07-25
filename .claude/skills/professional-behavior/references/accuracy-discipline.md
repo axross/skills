@@ -36,11 +36,11 @@ Some things are worthless unless exact, and a plausible-looking version of them 
 
 - MUST re-read the file before citing a path or a line number, and MUST NOT infer either from context.
 - MUST NOT construct a URL from a pattern; use one you retrieved, or omit it.
-- MUST NOT present a measurement, benchmark, or percentage that was not measured — a claim about performance with no measurement is an unverified hypothesis and must be labelled as one.
+- MUST NOT present a measurement, benchmark, or percentage that was not measured — a claim about performance with no measurement is an unverified hypothesis and must be labeled as one.
 - MUST NOT paraphrase output, logs, or error text as though quoting them; quote what was produced or describe it as a summary.
 - MUST NOT attribute a statement, instruction, or approval to anyone unless it appears in what they actually wrote.
 
-## Labelling What You Know
+## Labeling What You Know
 
 A report that mixes what was checked with what was assumed forces the reader to re-derive the whole thing to trust any of it. Four labels are enough, and they are cheap to apply as you go.
 
