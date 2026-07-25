@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "d2bf98fad6e9e32bdfd1dbbe1abe7e0f15250d735f43d1b29bd745bdcf4cd5b2"
+      "computedHash": "455c869e14cd92563890a2069681df38ca88b0b60b17c6620c27af9eb1854e7a"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "7d346e2fdf646a9947ebdbeb119118e8de246cd67b0dbf2cce8732308b57d698"
+      "computedHash": "5e6e7349a7f7f998929dce52a31456e190febc6575b9eff02416bdc6e5a46bb2"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
@@ -24,7 +24,7 @@
     "code-review": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "928637b371f0eaa38a39545e1e13b97d56d6ff0544356758ffd2dd744e814204"
+      "computedHash": "997515ae95463ab51ada40bd1baa1eb3fc67f44c37beb95a288fbd4848aa9b64"
     },
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
@@ -34,17 +34,17 @@
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "b6a57c92d5850b6a22f732f1428592898d3b8e3a92266ececca13a73b99c8dae"
+      "computedHash": "c5349a6619b17282add9f6999ef74cf6e5a007d44ba8fd6cb207f47934e660d8"
     },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "093ac65ee8d1caeb063e1bc0ec2d03f4185dcfdca867b0568b85b96ae36beee3"
+      "computedHash": "98c9f7d0e5397b91b55a408da75998f75d4019331c3228a06a46639a6c34971c"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "84dee2cfdd948204f3ea69342f72487fa627cd21c89e42f4b5dda3d180427bc5"
+      "computedHash": "f51734bc5f78d89f5d9af655f1a87c2245c745b8ba17408d48555416130d1c9c"
     },
     "quality-assurance": {
       "source": "/home/user/skills/skills",

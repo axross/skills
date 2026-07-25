@@ -36,11 +36,14 @@ node .claude/skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
 
 It verifies, per skill: the frontmatter block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 characters; `description` + `when_to_use` stays within 1,536 characters when `when_to_use` is present; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword. It exits 0 when every skill passes, 1 when any check fails, and 2 on bad invocation or an unreadable skill.
 
+It also reports **advisory warnings** — a `WARN` line for a document-style `name` suffix (`-guidelines`, `-best-practices`, `-principles`, `-conventions`, `-rules`, `-requirements`) and for a `description` opening in document voice (`This skill …`, `Guidelines for …`), the mechanically detectable half of [capability-framing.md](./capability-framing.md). Warnings never change the exit code: framing is a SHOULD-level preference, so a warned skill still passes. The detector is deliberately narrow and stays silent on the judgment calls the prose rule owns.
+
 **Guidelines:**
 
 - SHOULD run `scripts/check-skill.mjs` over the changed skills before manual review, so mechanical failures surface first and the audit can focus on content.
 - MUST treat exit 1 as a blocker — a structural failure a discovery runtime depends on — and exit 2 as a bad invocation or unreadable skill to fix before trusting the result.
 - MUST run any script under a skill's `scripts/` that a change touches and confirm its documented exit codes, rather than assuming the edit preserved its behavior — a bundled script is a skill's output surface as much as its prose is.
+- SHOULD treat a `WARN` line as a recast prompt to weigh, not a blocker; framing is a SHOULD-level rule and an established name may be worth keeping.
 - MUST fix every reported failure, or record why the skill is a deliberate, documented exception.
 - MAY extend the validator when the project adopts a new mechanical rule, keeping it dependency-light so it runs anywhere the skill is installed.
 
@@ -82,6 +85,7 @@ Content review asks whether each skill owns one coherent responsibility and give
 
 - MUST identify duplicated source-of-truth rules across sibling skills.
 - SHOULD treat a self-contained `skills/`-sourced skill's restatement of a rule a repo-native skill owns as the sanctioned Portable Source Exception (see [scoping-and-mece.md](./scoping-and-mece.md)) rather than a defect, provided it defers to the owner where present.
+- SHOULD flag a skill that presents as a document rather than as a capability — a document-style name, `description` opening, or H1 paragraph — per [capability-framing.md](./capability-framing.md).
 - MUST identify stale project assumptions, old framework guidance, missing commands, or paths that do not exist.
 - SHOULD flag generic advice that does not add project-specific value.
 - SHOULD prefer a topic-based cross-reference over copied doctrine when another skill owns the detailed rule.

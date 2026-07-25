@@ -102,6 +102,6 @@ Discovery starts with the skill name and description. A name that already implie
 
 - SHOULD choose a name that a future contributor can map to the right skill on the first try.
 - SHOULD keep naming conventions consistent across the skill set.
-- SHOULD prefer a capability name that reads as what the skill lets an agent do — an activity or `-authoring`/`-review`/`-testing`-style name (`agent-skill-authoring`, `code-review`, `end-to-end-testing`) — over a passive `-best-practices` or `-guidelines` label; responsibility suffixes such as `-guidelines`, `-requirements`, or `-principles` stay acceptable where they fit the host project's voice.
+- SHOULD name the skill as a capability — what it lets an agent do — per [capability-framing.md](./capability-framing.md), which owns the preference and the suffixes to avoid.
 - SHOULD use a plain verb name (`address`, `handoff`) for a workflow entry-point skill whose `/<name>` invocation reads as a command.
 - MUST rename a skill when its existing name would misroute likely prompts after a scope change.
