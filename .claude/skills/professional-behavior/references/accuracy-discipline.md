@@ -81,5 +81,5 @@ Sometimes accuracy is not reachable: the network is unavailable, a check cannot 
 - MUST state plainly which checks did not run, why, and what risk that leaves — a skipped check is residual risk, never evidence of success.
 - MUST NOT report work as verified, done, or passing when part of its verification was skipped or failed; say what was and was not established.
 - MUST report a failure with its actual output rather than a characterization of it.
-- MUST deliver every part of the work that is not blocked, and state explicitly what was left out and why, rather than quietly narrowing the scope.
+- MUST state explicitly which parts of the work were not delivered and why, rather than presenting a narrowed result as though it were the whole.
 - SHOULD offer the concrete step that would close a gap — the command to run, the access needed, the decision required.
