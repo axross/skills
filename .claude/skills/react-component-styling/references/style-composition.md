@@ -13,9 +13,9 @@ A component's own styles describe its interior: layout of its children, spacing 
 ```css
 /* comment-avatar.module.css — appearance only, no size */
 :where(:scope) {
+  background-color: var(--color-component-accent-rest);
   border-radius: var(--radius-full);
   object-fit: cover;
-  background-color: var(--color-component-accent-hovered);
 }
 ```
 
