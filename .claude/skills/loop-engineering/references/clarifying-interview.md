@@ -34,16 +34,15 @@ How many questions may share a single prompt is governed by the cadence rule in 
 
 ## Exhaustive by Default
 
-The interview ends when the decisions are settled, not when a budget runs out. Unlike the review and polling loops the Termination Guard bounds, it is **deliberately uncapped**, and it does not scale down for a small-looking change: the cost of an unasked decision is not proportional to the size of the diff. A one-line change built on a wrong assumption is still wrong, and it surfaces later — at the plan-approval gate, or in review — where it costs more to correct.
+The interview ends when the decisions are settled, not when a budget runs out. That there is no budget is the skill's Termination Guard's rule to state, and it states it; what this section governs is how far the interview reaches while it runs.
 
-What keeps the interview finite is the fact/decision sort, not a cap. Exhaustiveness ranges over the decisions the spec leaves open; a request that leaves none earns no questions at all.
+It does not scale down for a small-looking change. The cost of an unasked decision is not proportional to the size of the diff: a one-line change built on a wrong assumption is still wrong, and it surfaces later — at the plan-approval gate, or in review — where it costs more to correct. What keeps the interview finite is the fact/decision sort. Exhaustiveness ranges over the decisions the spec leaves open; a request that leaves none earns no questions at all.
 
 **Guidelines:**
 
-- MUST put every decision the spec leaves open to the human; the interview carries no question budget and does not stop because it feels long.
+- MUST put every decision the spec leaves open to the human, stopping only when the tree is walked out — never because the interview has run long.
 - MUST NOT scale the interview down because the change looks small — the count of open decisions sets its depth, never the size of the expected diff.
 - MUST keep exhaustiveness ranging over decisions only; asking what investigation could answer is a sorting failure, not thoroughness.
-- MUST accompany every question with the answer you would otherwise have chosen, marked as your recommendation, so the human can ratify quickly instead of composing an answer from scratch.
 - SHOULD ask a question you expect to be answered "obviously yes" whenever the opposite answer would change the plan; a cheap confirmation beats a silent assumption.
 
 ## Confirming Shared Understanding
