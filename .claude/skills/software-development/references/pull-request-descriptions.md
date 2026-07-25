@@ -1,6 +1,6 @@
 # Pull Request Descriptions
 
-Apply these rules whenever you author or update a pull request body. They govern the description only; the title follows the same header format as a commit, per [commit-messages.md › Pull Request Titles](./commit-messages.md#pull-request-titles).
+Apply these rules whenever you author or update a pull request body. They govern the description only; the title follows the same header format as a commit — consult the project's Conventional Commits practices when writing it.
 
 ## Why Over What
 
@@ -63,7 +63,7 @@ Reviewers allocate scrutiny by risk. A description that flags the dangerous part
 
 **Guidelines:**
 
-- MUST call out breaking changes: what breaks, who is affected, and the migration path — and mark the title per [commit-messages.md › Breaking Changes](./commit-messages.md#breaking-changes).
+- MUST call out breaking changes: what breaks, who is affected, and the migration path — and mark the title with the breaking-change marker the project's Conventional Commits practices define.
 - SHOULD flag risky or contentious areas of the diff explicitly rather than letting the reviewer discover them.
 - SHOULD note rollback considerations when the change is hard to reverse (migrations, config, persisted formats).
 

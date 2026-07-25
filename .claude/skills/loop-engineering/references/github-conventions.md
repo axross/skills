@@ -33,13 +33,13 @@ Once a pull request exists for an issue, the issue and the pull request are **di
 - MUST resolve a bare number to the right kind (issue or pull request) before writing, since the two share one numbering space.
 - MUST anchor review-thread replies to the specific review comment's thread, not as a loose top-level pull-request comment.
 
-## Commits, Titles, and Descriptions
+## Titles and Descriptions
 
 The reference project squash-merges, so the pull request title becomes the squash commit subject in the default branch history.
 
 **Guidelines:**
 
-- MUST write commit messages and the pull request title as Conventional Commits (`type(scope): summary`) so the squashed subject reads well in history.
+- MUST write the pull request title in the header format the project's commit-message conventions define, so the squashed subject reads well in history; this loop defers that format rather than defining one.
 - MUST keep the pull request in **draft** until the ready gate, structured from any repository pull-request template — reproduce the template's sections when posting through the API rather than inventing a layout.
 - MUST summarize the change, the verification evidence, and the acceptance criteria with their status in the description, and seed the status block there as an HTML comment.
 - SHOULD keep each commit a coherent, verifiable step rather than one opaque blob, so a reviewer can follow the change.

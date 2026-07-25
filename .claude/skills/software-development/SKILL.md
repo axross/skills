@@ -1,13 +1,13 @@
 ---
 name: software-development
-description: The ability to make a well-formed, verified change in a project — the baseline discipline every task runs on. Covers the format/lint loop, scoped and incremental change management, mapping a change to the surfaces it puts at risk, consulting the project's own contributor documentation for how to operate it and closing gaps in that documentation, refreshing vendor docs for fast-moving dependencies, source-comment and doc-comment conventions, Conventional Commits (with a runnable header validator), and pull request descriptions.
-when_to_use: Apply at the start of EVERY task in a project — implementing, refactoring, running a project command, preparing commits, or writing a pull request body — even when the request never mentions formatting, linting, comments, doc-comments, dependencies, docs, commands, commit wording, or pull request descriptions. Also apply when you need to know how to run one of the project's operations (tests, dev server, build, lint, deploy) and must find it documented or ask.
+description: The ability to make a well-formed, verified change in a project — the baseline discipline every task runs on. Covers the format/lint loop, scoped and incremental change management, mapping a change to the surfaces it puts at risk, consulting the project's own contributor documentation for how to operate it and closing gaps in that documentation, refreshing vendor docs for fast-moving dependencies, source-comment and doc-comment conventions, and pull request descriptions.
+when_to_use: Apply at the start of EVERY task in a project — implementing, refactoring, running a project command, or writing a pull request body — even when the request never mentions formatting, linting, comments, doc-comments, dependencies, docs, commands, or pull request descriptions. Also apply when you need to know how to run one of the project's operations (tests, dev server, build, lint, deploy) and must find it documented or ask.
 user-invocable: false
 ---
 
 # Software Development
 
-This skill equips you to make a change the way a project expects: formatted and linted, kept to the smallest scope that satisfies the task, verified against the surfaces it puts at risk, operated through the commands the project documents, grounded in current vendor docs where a dependency moves fast, and landed as a conforming commit and pull request. Reach for it on every task — it is the baseline the other, more specific skills build on.
+This skill equips you to make a change the way a project expects: formatted and linted, kept to the smallest scope that satisfies the task, verified against the surfaces it puts at risk, operated through the commands the project documents, grounded in current vendor docs where a dependency moves fast, and landed as a well-described pull request. Reach for it on every task — it is the baseline the other, more specific skills build on.
 
 Load only the reference sections a given task touches; each one below routes to the detail.
 
@@ -52,13 +52,7 @@ See [current-docs.md](./references/current-docs.md) for:
 
 ## Commit Messages
 
-See [commit-messages.md](./references/commit-messages.md) for:
-
-- the `<type>[scope][!]: <description>` header format and the allowed types
-- scope, description, body, and footer conventions
-- breaking-change markers and their SemVer correlation
-- running the bundled Conventional Commits header validator to self-check a header before committing
-- pull request titles (the same header format applies to them)
+The commit-message header format — its allowed types, scope and description conventions, breaking-change markers, SemVer correlation, and runnable header validator — is owned by the project's Conventional Commits practices, which govern pull request titles under the same contract. Consult that capability whenever you author a commit message or title a pull request; this skill deliberately does not restate the format.
 
 ## Pull Request Descriptions
 

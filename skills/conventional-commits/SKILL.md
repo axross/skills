@@ -1,6 +1,15 @@
-# Commit Messages
+---
+name: conventional-commits
+description: The ability to follow and drive Conventional Commits v1.0.0 — the structured header contract (a type, an optional scope, an optional breaking-change marker, then a short imperative description) that governs Git commit messages and, identically, pull request titles. Covers the overall message format, the allowed types and what each signals, scope and description conventions, body and footer structure, the two ways to mark a breaking change, the SemVer correlation each shape implies, worked examples for the common cases, and a bundled dependency-light validator for mechanically self-checking a header before committing.
+when_to_use: Apply whenever you author or revise a Git commit message, title a pull request, or judge whether a header conforms — "write a commit message", "what type should this be", "is this header valid", "does this need a scope", "mark this as a breaking change", or preparing the squash-merge title that becomes a permanent commit subject. Not for the pull request body, which a pull-request-description capability owns, and not for issue titles, which are plain prose.
+user-invocable: false
+---
 
-Apply these rules whenever you author a Git commit, amend an existing one, or title a pull request. The same header format also governs **pull request titles** — see [Pull Request Titles](#pull-request-titles). These rules follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) — the normative rules below are summarized so no network fetch is required.
+# Conventional Commits
+
+Use this capability whenever you write a Git commit message or title a pull request. It gives you the [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) contract — a header shape release tooling can parse and a human can scan in `git log --oneline` — together with a runnable validator that catches a malformed header before it lands. The normative rules below are summarized from the specification, so applying them needs no network fetch.
+
+This skill is **self-contained**: it names no repository-specific file or layout, and the contract it carries is the same wherever it is installed. Where a host project narrows the rules — a restricted type list, a mandatory scope, a commit trailer its own tooling reads — follow the host's convention on that point and keep the structure below.
 
 ## Overall Format
 
@@ -20,7 +29,7 @@ Apply these rules whenever you author a Git commit, amend an existing one, or ti
 
 ## Pull Request Titles
 
-The header format is not commit-only: a pull request title MUST follow the same `<type>[scope][!]: <description>` shape as a commit header, so titles stay consistent and scannable regardless of merge strategy. It also matters at merge time: a squash merge commonly takes the pull request title as the squashed commit's subject (on GitHub, by default for multi-commit PRs, and for all PRs when "Default to pull request title" is enabled), so a title without a type prefix lands a non-conforming commit on the default branch. The title carries only the header; the body/footer live in the pull request description, not the title — write that description per [pull-request-descriptions.md](./pull-request-descriptions.md).
+The header format is not commit-only: a pull request title MUST follow the same `<type>[scope][!]: <description>` shape as a commit header, so titles stay consistent and scannable regardless of merge strategy. It also matters at merge time: a squash merge commonly takes the pull request title as the squashed commit's subject (on GitHub, by default for multi-commit PRs, and for all PRs when "Default to pull request title" is enabled), so a title without a type prefix lands a non-conforming commit on the default branch. The title carries only the header; the body and footers belong to the pull request description instead — consult the project's pull-request-description practices when writing that body.
 
 **Guidelines:**
 
@@ -188,14 +197,15 @@ Refs: 676104e, a215868
 
 ## Tooling Notes
 
-Unless a project installs a commit hook or a CI check that rejects a malformed message, a non-conforming commit lands silently unless the author catches it first. To make that catch mechanical, this skill bundles `scripts/check-commit-message.mjs`: a dependency-light Node validator (standard library only) that checks a header against the rules above and reports every violation. It reads a message from a file argument or from stdin.
+Unless a project installs a commit hook or a CI check that rejects a malformed message, a non-conforming commit lands silently unless the author catches it first. To make that catch mechanical, this skill bundles [scripts/check-commit-message.mjs](./scripts/check-commit-message.mjs): a dependency-light Node validator (standard library only) that checks a header against the rules above and reports every violation. It reads a message from a file argument or from stdin.
 
 **Example:**
 
 ```bash
-# From a message file, or piped on stdin:
-node .claude/skills/software-development/scripts/check-commit-message.mjs .git/COMMIT_EDITMSG
-printf 'feat(lang): add Polish language' | node .claude/skills/software-development/scripts/check-commit-message.mjs
+# Paths are relative to this skill's installed directory — from a message
+# file, or piped on stdin:
+node scripts/check-commit-message.mjs .git/COMMIT_EDITMSG
+printf 'feat(lang): add Polish language' | node scripts/check-commit-message.mjs
 ```
 
 - When amending or rewriting history, re-check that every rewritten commit still conforms — especially that breaking changes carry either `!` or the footer.
