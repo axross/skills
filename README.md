@@ -136,7 +136,7 @@ and the residual risk — rather than presenting the change as fully verified.
 
 ## Repository gotchas
 
-Three things about this repository are worth knowing before changing it.
+Four things about this repository are worth knowing before changing it.
 
 **Some dependencies move fast enough that memory is unreliable.** Consult the
 current official docs before changing behavior these govern:
@@ -160,3 +160,17 @@ skills under [`skills/`](./skills) are the source of truth, and their copies
 under `.claude/skills/` are produced by `npx skills`. Edit the source and
 reinstall — a hand-edit to an installed copy is silently discarded by the next
 install.
+
+**`npx skills` can fail to resolve the CLI.** In some environments — a fresh
+container with no local install, or a stale npx cache — both `npx skills …` and
+`npx --yes skills …` abort with `npm error could not determine executable to
+run`, which reads like a broken command rather than a resolution failure. An
+explicit version specifier fixes it:
+
+```bash
+npx --yes skills@latest add ./skills --agent claude-code --skill '*' --yes --copy
+```
+
+The plain `npx skills` form stays canonical — reach for the specifier only after
+seeing that error, since pinning `@latest` on every run fetches the newest CLI
+build each time.

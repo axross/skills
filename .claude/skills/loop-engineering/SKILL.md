@@ -48,6 +48,19 @@ Every human-gated **decision with options** — a Phase 1 Must-ask, an ambiguous
 - MUST keep the status block current with any open question so a session reclaimed mid-wait can re-present it; this breadcrumb records state, it is not a fallback channel for answering.
 - MUST convey pure notifications (ready-to-merge, a stuck-check dormancy notice, non-convergence) in the turn output and the status block, then end the turn — never as a GitHub comment or an @mention.
 
+### Never Manufacture the Human's Side
+
+A run parked at a gate is under pressure to move, and the cheapest way out is to narrate an approval that never arrived — an interrupted prompt plus a generic continuation retold as "they told me to proceed." That is not a misread of an ambiguous signal; it fabricates the very authorization the gate exists to require, and it costs the human their ability to trust your account of what they said. The rules below govern the human's half of the conversation: what you may state that they did.
+
+**Guidelines:**
+
+- MUST NOT attribute an action, instruction, approval, or utterance to the human unless it appears in an actual user turn.
+- MUST describe a continuation that carries no human-authored decision as a resume signal — never as a quoted or paraphrased human instruction, and never as approval of the gate the run is parked at.
+- MUST state an inference about an ambiguous signal as an inference, never as a settled report of what the human did.
+- MUST re-present a question whose prompt was interrupted, cancelled, closed, or left unanswered, and MUST NOT resolve it by adopting your own recommended defaults — a default you would have taken is not an answer they gave.
+- MUST NOT cite a later gate as license to pass an earlier one; that a human could still redirect at a downstream checkpoint is never a reason to pass an upstream one. This governs the rationalization itself — [Phase 1](#phase-1--plan) separately governs the artifacts no later approval can retroactively supply.
+- MUST, before asserting what the human said or did, confirm an actual user turn contains it — and when none does, say so plainly or ask, rather than filling the gap with a plausible narrative.
+
 ## GitHub Operation Conventions
 
 Every GitHub read and write in this loop follows the same conventions, consulted whenever a phase touches an issue, pull request, comment, or branch.
@@ -103,7 +116,7 @@ See [clarifying-interview.md](./references/clarifying-interview.md) for:
 Then step through the phase:
 
 - Read the issue (or the tracking issue) and its full thread, classify the work — UI-bearing, implementation-only, exploratory, or mixed — and investigate the smallest useful code and documentation context before proposing a plan. Consult every project skill whose routing condition matches the surface, and research current external docs when behavior depends on a fast-moving framework or platform the project uses.
-- **Clarify before building — required gate.** Investigation resolves _how_ to build; it does not resolve _what the product should do_. Before finalizing the plan, sort every open item the spec leaves — **Settle-and-note** for a fact you look up, **Must-ask** for a decision the human owns — then interview the human over the Must-asks through the question UI (see [Asking the Human](#asking-the-human)), following the clarifying-interview rules (above). The gate clears when the human confirms a restated shared understanding, not when you judge yourself finished, and you **MUST NOT** start implementing before it clears.
+- **Clarify before building — required gate.** Investigation resolves _how_ to build; it does not resolve _what the product should do_. Before finalizing the plan, sort every open item the spec leaves — **Settle-and-note** for a fact you look up, **Must-ask** for a decision the human owns — then interview the human over the Must-asks through the question UI (see [Asking the Human](#asking-the-human)), following the clarifying-interview rules (above). The gate clears when the human confirms a restated shared understanding, not when you judge yourself finished, and you **MUST NOT** start implementing before it clears. A continuation that arrives while a Must-ask question is still open is a resume signal that re-presents that question, never an answer to it (see [Never Manufacture the Human's Side](#never-manufacture-the-humans-side)).
 
 - Rewrite the issue body into a comprehensive plan following the canonical plan-document structure and its section craft (above). Refine the issue title to the concrete deliverable and move the original description into a collapsed `<details>` section, in a single issue write.
 - **Visual change → present options, do not imply one.** A plan for any visual change presents a choice of visual presentation options the human decides at the plan-approval gate, not a single implied design; construct and record the exhibit per the visual-change rules above. The visual direction is decided through this exhibit, never as a Must-ask question.
