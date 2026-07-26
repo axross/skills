@@ -8,14 +8,12 @@ Its subject is **vendor** documentation — someone else's product, whose behavi
 
 A dependency that ships breaking changes or new defaults between releases makes memory an unreliable source: guidance written months ago describes a version the project may no longer be on. Which of a project's dependencies move that fast is a property of the project, so it is the project's own documentation that names them.
 
+The underlying principle — that anything the outside world can change is verified against a current source rather than recalled — is owned by the project's external-research practices, together with the source hierarchy, version-matching, the stop condition, and the rule on naming what was consulted. Consult those whenever a claim about a vendor's behavior is in play. This section covers only what that principle requires of a code change.
+
 **Guidelines:**
 
 - MUST consult current official docs before changing behavior governed by a fast-moving framework, service, or tool the project depends on.
 - MUST treat the dependencies the project documents as fast-moving as the ones this rule covers, and add a dependency to that list when the project takes on another.
-- MUST use official docs as the primary source; use blog posts, examples, or issues only as secondary context.
-- MUST mention the docs consulted in the final summary when the implementation depends on a current-docs decision.
-- MUST NOT rely only on memory for APIs, defaults, or behavior that the relevant vendor may have changed.
-- SHOULD limit the docs lookup to the smallest surface needed for the task.
 
 ## Configuration and Discovery Files
 

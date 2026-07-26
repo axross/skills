@@ -5,9 +5,10 @@ A curated, reusable library of agent skills.
 `skills` is a library of **agent skills** in the
 [agentskills.io](https://agentskills.io) format — self-contained capabilities
 you install into a coding agent so it plans, builds, reviews, and verifies work
-the way you want it done. Seventeen of them cover the whole arc: turning a request
-into a spec, driving that spec to a reviewed pull request, keeping the code
-maintainable and secure, testing it, designing its UI, and authoring more skills.
+the way you want it done. Eighteen of them cover the whole arc: handling what
+the agent does not know, turning a request into a spec, driving that spec to a
+reviewed pull request, keeping the code maintainable and secure, testing it,
+designing its UI, and authoring more skills.
 They install into any agent the [`skills`
 CLI](https://github.com/vercel-labs/skills) supports.
 
@@ -55,18 +56,24 @@ rather than one option among several.
 ## Skill catalog
 
 Every skill in the library, grouped by what you would reach for it to do. All
-seventeen install the same way; the ✱ marks where a skill's source lives in _this_
-repository, which matters only if you contribute here.
+eighteen install the same way; the ✱ marks where a skill's source lives in
+_this_ repository, which matters only if you contribute here.
+
+### Working with you
+
+| Skill                                                              | What it gives your agent                                                                                                                                                                                                              |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`professional-behavior`](./skills/professional-behavior/SKILL.md) | Keeps it honest about what it actually knows — looking things up instead of guessing, checking current sources instead of trusting memory, asking you instead of deciding for you, and reporting back so you can tell which is which. |
 
 ### Delivering a change
 
-| Skill                                                                                                | What it gives your agent                                                                                                                                                                |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`loop-engineering`](./skills/loop-engineering/SKILL.md)                                             | Runs a whole change for you — plan, build, verify, fix — pausing for your sign-off before it writes any code, and handing the review to a separate session so it never approves itself. |
-| [`product-requirement-document-authoring`](./skills/product-requirement-document-authoring/SKILL.md) | Turns a vague ask into a spec someone can build from and check against, with acceptance criteria that are actually verifiable.                                                          |
-| [`software-development`](./skills/software-development/SKILL.md)                                     | The baseline every task runs on: keep the change scoped, format and lint it, find out how the project is really run, and describe the result so a reviewer can follow it.               |
-| [`conventional-commits`](./skills/conventional-commits/SKILL.md)                                     | One header contract for commit messages and pull request titles, with a validator that catches a malformed header before it reaches your history.                                       |
-| [`github-operation`](./.claude/skills/github-operation/SKILL.md) ✱                                   | Keeps an agent's GitHub writes safe when it shares your login — one sanctioned channel, comments marked as its own, and history it never rewrites.                                      |
+| Skill                                                                                                | What it gives your agent                                                                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`loop-engineering`](./skills/loop-engineering/SKILL.md)                                             | Runs a whole change for you — plan, build, verify, fix — pausing for your sign-off before it writes any code, and handing the review to a separate session so it never approves itself.    |
+| [`product-requirement-document-authoring`](./skills/product-requirement-document-authoring/SKILL.md) | Turns a vague ask into a spec someone can build from and check against, with acceptance criteria that are actually verifiable.                                                             |
+| [`software-development`](./skills/software-development/SKILL.md)                                     | The baseline every project-touching task runs on: keep the change scoped, format and lint it, find out how the project is really run, and describe the result so a reviewer can follow it. |
+| [`conventional-commits`](./skills/conventional-commits/SKILL.md)                                     | One header contract for commit messages and pull request titles, with a validator that catches a malformed header before it reaches your history.                                          |
+| [`github-operation`](./.claude/skills/github-operation/SKILL.md) ✱                                   | Keeps an agent's GitHub writes safe when it shares your login — one sanctioned channel, comments marked as its own, and history it never rewrites.                                         |
 
 ### Reviewing a change
 
@@ -191,7 +198,7 @@ checks below, open a pull request, and get it reviewed before merge.
 
 ### Authoring a skill
 
-Skills live in two tiers. Sixteen are **distributable**: their source is
+Skills live in two tiers. Seventeen are **distributable**: their source is
 [`skills/<name>/SKILL.md`](./skills) (with any `references/` and `scripts/`
 beside it), and the installed copies under `.claude/skills/` are generated from
 it with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:

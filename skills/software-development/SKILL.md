@@ -1,13 +1,13 @@
 ---
 name: software-development
-description: The ability to make a well-formed, verified change in a project — the baseline discipline every task runs on. Covers the format/lint loop, scoped and incremental change management, mapping a change to the surfaces it puts at risk, consulting the project's own contributor documentation for how to operate it and closing gaps in that documentation, refreshing vendor docs for fast-moving dependencies, source-comment and doc-comment conventions, and pull request descriptions.
-when_to_use: Apply at the start of EVERY task in a project — implementing, refactoring, running a project command, or writing a pull request body — even when the request never mentions formatting, linting, comments, doc-comments, dependencies, docs, commands, or pull request descriptions. Also apply when you need to know how to run one of the project's operations (tests, dev server, build, lint, deploy) and must find it documented or ask.
+description: The ability to make a well-formed, verified change in a project — the baseline discipline every project-touching task runs on. Covers the format/lint loop, scoped and incremental change management, mapping a change to the surfaces it puts at risk, consulting the project's own contributor documentation for how to operate it and closing gaps in that documentation, refreshing vendor docs for fast-moving dependencies, source-comment and doc-comment conventions, and pull request descriptions.
+when_to_use: Apply at the start of EVERY task that touches a project — implementing, refactoring, running a project command, or writing a pull request body — even when the request never mentions formatting, linting, comments, doc-comments, dependencies, docs, commands, or pull request descriptions. Also apply when you need to know how to run one of the project's operations (tests, dev server, build, lint, deploy) and must find it documented or ask. Not for a session that touches nothing — a quick question, an explanation, or a review-only pass, where the conduct baseline applies instead.
 user-invocable: false
 ---
 
 # Software Development
 
-This skill equips you to make a change the way a project expects: formatted and linted, kept to the smallest scope that satisfies the task, verified against the surfaces it puts at risk, operated through the commands the project documents, grounded in current vendor docs where a dependency moves fast, and landed as a well-described pull request. Reach for it on every task — it is the baseline the other, more specific skills build on.
+This skill equips you to make a change the way a project expects: formatted and linted, kept to the smallest scope that satisfies the task, verified against the surfaces it puts at risk, operated through the commands the project documents, grounded in current vendor docs where a dependency moves fast, and landed as a well-described pull request. Reach for it on every task that touches the project — it is the baseline the other, more specific skills build on.
 
 Load only the reference sections a given task touches; each one below routes to the detail.
 

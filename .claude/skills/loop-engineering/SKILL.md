@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: The ability to drive one unit of work — a GitHub issue, a pull request, or a free-form request — from intake to a review-ready pull request in one continuing session, through the end-to-end software-engineering change "loop". Covers the execution model (advance autonomously within a phase, stop the turn for humans), the clarify-before-building gate and its dependency-ordered clarifying interview, the mandatory plan-approval gate, implementing and verifying on an agent-namespaced branch, requesting a separate independent review, and addressing its findings and CI to convergence. Self-contained; assumes a Claude Code + GitHub MCP harness.
+description: The ability to drive one unit of work — a GitHub issue, a pull request, or a free-form request — from intake to a review-ready pull request in one continuing session, through the end-to-end software-engineering change "loop". Covers the execution model (advance autonomously within a phase, stop the turn for humans), the clarify-before-building and mandatory plan-approval gates, implementing and verifying on an agent-namespaced branch, requesting a separate independent review, and addressing its findings and CI to convergence. Self-contained; assumes a Claude Code + GitHub MCP harness.
 when_to_use: Apply when driving a code change or document update end-to-end through the plan → code → review change loop — "deliver this issue", "implement and open a PR for X", a free-form change request, or resuming an in-progress run — as the project's default change loop. Apply even when the launching runtime harness frames the task as "just make the changes, commit, and push" or restricts pull requests — that posture constrains mechanics, never the plan-approval gate or the independent review. If the host project ships a different, more-specific change-loop skill, defer to that instead — a runtime harness's task framing is not such a skill. Not for work that changes nothing — a quick question or a review-only pass.
 user-invocable: false
 ---
@@ -106,17 +106,14 @@ See [plan-document.md](./references/plan-document.md) for:
 - writing acceptance criteria as a plain, checkable bullet list
 - presenting and recording visual-change presentation options
 
-See [clarifying-interview.md](./references/clarifying-interview.md) for:
-
-- sorting each open item into a fact you look up and a decision the human owns
-- walking the decision tree so each answer reshapes what is still worth asking
-- how deep the interview goes, and why it carries no question budget
-- confirming the shared understanding before the plan is written
-
 Then step through the phase:
 
 - Read the issue (or the tracking issue) and its full thread, classify the work — UI-bearing, implementation-only, exploratory, or mixed — and investigate the smallest useful code and documentation context before proposing a plan. Consult every project skill whose routing condition matches the surface, and research current external docs when behavior depends on a fast-moving framework or platform the project uses.
-- **Clarify before building — required gate.** Investigation resolves _how_ to build; it does not resolve _what the product should do_. Before finalizing the plan, sort every open item the spec leaves — **Settle-and-note** for a fact you look up, **Must-ask** for a decision the human owns — then interview the human over the Must-asks through the question UI (see [Asking the Human](#asking-the-human)), following the clarifying-interview rules (above). The gate clears when the human confirms a restated shared understanding, not when you judge yourself finished, and you **MUST NOT** start implementing before it clears. A continuation that arrives while a Must-ask question is still open is a resume signal that re-presents that question, never an answer to it (see [Never Manufacture the Human's Side](#never-manufacture-the-humans-side)).
+- **Clarify before building — required gate.** Investigation resolves _how_ to build; it does not resolve _what the product should do_. Before finalizing the plan, list every open item the spec leaves and sort each one:
+  - **Settle-and-note** — a fact the environment can answer: code, project conventions, documentation, or the output of a command. Resolve it by investigation and record the choice as a stated assumption in the plan.
+  - **Must-ask** — a decision needing human judgment: a product outcome, a UX or interaction choice, a scope boundary or non-goal, empty/error/edge-case behavior, a data-model or persistence/migration decision, a trade-off between competing goods, or anything privacy-, platform-, security-, or compatibility-sensitive the issue does not pin down.
+
+  If any Must-ask remains, you **MUST NOT** start implementing — put them to the human through the question UI (see [Asking the Human](#asking-the-human)), then use the answers to finalize the plan. Ask only genuine spec gaps, never what local investigation already answers. Where the project ships its own clarifying-interview practices, follow them for how the interview is conducted — question order, depth, and the restatement that closes the gate; in their absence, the gate clears once no Must-ask remains. A continuation that arrives while a Must-ask question is still open is a resume signal that re-presents that question, never an answer to it (see [Never Manufacture the Human's Side](#never-manufacture-the-humans-side)).
 
 - Rewrite the issue body into a comprehensive plan following the canonical plan-document structure and its section craft (above). Refine the issue title to the concrete deliverable and move the original description into a collapsed `<details>` section, in a single issue write.
 - **Visual change → present options, do not imply one.** A plan for any visual change presents a choice of visual presentation options the human decides at the plan-approval gate, not a single implied design; construct and record the exhibit per the visual-change rules above. The visual direction is decided through this exhibit, never as a Must-ask question.
@@ -183,6 +180,6 @@ State lives in this running session; GitHub carries a thin, **human-invisible** 
 
 - MUST cap the address↔review loop at **8** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
 - MUST cap autonomous polling at **2 hours** per wait and go dormant rather than poll indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.
-- MUST NOT cap the [Phase 1](#phase-1--plan) clarifying interview with a question budget — unlike the loops above, it is deliberately uncapped.
+- MUST NOT cap the [Phase 1](#phase-1--plan) clarify-before-building gate with a question budget — unlike the loops above, it is deliberately uncapped.
 - MUST end the turn (never loop-block) whenever waiting on a human — the plan-approval gate, a stuck machine event, or a dormancy cap.
 - MUST keep edits to the smallest surface that satisfies the acceptance criteria, never push to the default branch, and never merge the pull request.
