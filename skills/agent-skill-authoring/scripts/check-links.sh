@@ -90,7 +90,7 @@ END {
 
 # A string of just the newlines contained in "text", so a removed span can be
 # replaced without shifting the line numbers that follow it.
-function newlines_of(text,   count, out) {
+function newlines_of(text,   count, out, parts) {
   count = split(text, parts, "\n") - 1
   out = ""
   while (count-- > 0) out = out "\n"
