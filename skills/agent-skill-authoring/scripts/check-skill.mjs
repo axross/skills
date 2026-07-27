@@ -258,10 +258,17 @@ function slugify(heading) {
  * Every anchor a document's headings define, including GitHub's `-1`, `-2`
  * suffixes for repeated headings. Headings inside fences are illustrative and
  * define no anchor.
+ *
+ * Line endings are normalized here rather than by the caller: this reads an
+ * anchor's TARGET file, which need not be one of the documents already
+ * normalized on the way in. A CRLF-authored target would otherwise leave a
+ * trailing `\r` on every heading — which `.` does not match — so the file would
+ * report zero anchors and every link into it would read as broken.
  */
-function headingAnchors(text) {
+function headingAnchors(source) {
   const anchors = new Set();
   const seen = new Map();
+  const text = source.replace(/\r\n/g, "\n");
 
   for (const { text: line, fence } of scanLines(text)) {
     if (fence) continue;

@@ -153,6 +153,36 @@ describe("check-skill.mjs", () => {
       assert.doesNotMatch(result.stdout, /^\s+- anchors:/m);
     });
 
+    it("resolves anchors in a CRLF-encoded document", async (t) => {
+      const root = await tempDir(t);
+      // Written with Windows line endings: the anchor target is read straight
+      // off disk, so without normalization every heading keeps a trailing \r,
+      // matches no heading pattern, and every anchor into the file reads broken.
+      const dir = await writeSkill(root, "crlf-skill", {
+        raw: [
+          "---",
+          "name: crlf-skill",
+          "description: The ability to stand in for a skill authored with Windows line endings.",
+          "when_to_use: Apply only inside the validator test suite.",
+          "---",
+          "",
+          "# CRLF Skill",
+          "",
+          "See [the section below](#real-section).",
+          "",
+          "## Real Section",
+          "",
+          "Prose for the fixture.",
+          "",
+        ].join("\r\n"),
+      });
+
+      const result = check(dir);
+
+      assert.equal(result.code, 0, result.output);
+      assert.doesNotMatch(result.stdout, /^\s+- anchors:/m);
+    });
+
     it("leaves a fragment on an unresolvable target to the link checker", async (t) => {
       const root = await tempDir(t);
       const dir = await writeSkill(root, "missing-anchor-target", {
