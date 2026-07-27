@@ -464,6 +464,92 @@ describe("check-skill.mjs", () => {
       );
     });
 
+    it("reports an escaping link inside a reference file", async (t) => {
+      const root = await tempDir(t);
+      const dir = await writeSkill(root, "escaping-reference-link", {
+        body: [
+          "# Escaping Reference Link",
+          "",
+          "Prose for the fixture.",
+          "",
+          "See [detail.md](./references/detail.md) for:",
+          "",
+          "- the detail this skill routes to",
+          "",
+        ].join("\n"),
+        references: {
+          "detail.md": [
+            "# Detail",
+            "",
+            "A sibling reference stays inside: [theming.md](./theming.md).",
+            "",
+            "So does the parent: [SKILL.md](../SKILL.md).",
+            "",
+            "Another skill does not: [other](../../other-skill/SKILL.md).",
+            "",
+          ].join("\n"),
+        },
+      });
+
+      const result = check(dir);
+
+      assert.equal(result.code, 1, result.output);
+      assert.match(
+        result.stdout,
+        /links: references\/detail\.md:7 relative link "\.\.\/\.\.\/other-skill\/SKILL\.md" resolves outside the skill directory/,
+      );
+      // A reference reaching up to its own SKILL.md is the common legitimate
+      // shape; escaping is measured from the skill directory, not the file's.
+      assert.doesNotMatch(result.stdout, /theming\.md" resolves outside/);
+      assert.doesNotMatch(result.stdout, /"\.\.\/SKILL\.md" resolves outside/);
+    });
+
+    it("reports a broken anchor inside a reference file", async (t) => {
+      const root = await tempDir(t);
+      const dir = await writeSkill(root, "broken-reference-anchor", {
+        body: [
+          "# Broken Reference Anchor",
+          "",
+          "Cross-file: [good](./references/detail.md#real-section) and",
+          "[bad](./references/detail.md#missing-section).",
+          "",
+          "See [detail.md](./references/detail.md) for:",
+          "",
+          "- the detail this skill routes to",
+          "",
+        ].join("\n"),
+        references: {
+          "detail.md": [
+            "# Detail",
+            "",
+            "A same-file anchor that resolves: [here](#real-section).",
+            "",
+            "One that does not: [gone](#removed-section).",
+            "",
+            "## Real Section",
+            "",
+            "Prose for the fixture.",
+            "",
+          ].join("\n"),
+        },
+      });
+
+      const result = check(dir);
+
+      assert.equal(result.code, 1, result.output);
+      // Same-file fragment inside a reference…
+      assert.match(
+        result.stdout,
+        /anchors: references\/detail\.md:5 link "#removed-section" resolves to no heading in references\/detail\.md/,
+      );
+      // …and a cross-file fragment naming the target by skill-relative path.
+      assert.match(
+        result.stdout,
+        /anchors: SKILL\.md:\d+ link "\.\/references\/detail\.md#missing-section" resolves to no heading in references\/detail\.md/,
+      );
+      assert.doesNotMatch(result.stdout, /#real-section" resolves to no heading/);
+    });
+
     it("fails the run when one skill in a root fails and another passes", async (t) => {
       const root = await tempDir(t);
       await writeSkill(root, "healthy-skill");
