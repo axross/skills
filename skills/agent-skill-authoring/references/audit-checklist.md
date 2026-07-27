@@ -36,6 +36,8 @@ node .claude/skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
 
 It verifies, per skill: the frontmatter block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 characters; `description` + `when_to_use` stays within 1,536 characters when `when_to_use` is present; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword. It exits 0 when every skill passes, 1 when any check fails, and 2 on bad invocation or an unreadable skill.
 
+Pointed at two paths holding the same skill — a source tree plus the generated copy installed from it — it reports that skill **once**, under whichever path came first on the command line, and notes the collapsed copies. Only an identical verdict collapses, so diverged copies are still reported separately. Listing the source tree first therefore makes every failure name the copy a fix belongs in.
+
 It also reports **advisory warnings** — a `WARN` line for a document-style `name` suffix (`-guidelines`, `-best-practices`, `-principles`, `-conventions`, `-rules`, `-requirements`) and for a `description` opening in document voice (`This skill …`, `Guidelines for …`), the mechanically detectable half of [capability-framing.md](./capability-framing.md). Warnings never change the exit code: framing is a SHOULD-level preference, so a warned skill still passes. The detector is deliberately narrow and stays silent on the judgment calls the prose rule owns.
 
 **Guidelines:**

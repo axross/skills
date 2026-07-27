@@ -26,6 +26,12 @@
 //             immediate subdirectories are skills (e.g. the skill root). A shell
 //             glob such as `.claude/skills/*` expands to the former.
 //
+// When two paths hold the same skill — a source tree plus the generated copy
+// installed from it — the two are reported once, under whichever path came
+// first on the command line, so a failure points at the copy a fix belongs in.
+// Only an identical verdict collapses; if the copies have diverged, both are
+// reported, which is the signal you want.
+//
 // Exit codes:
 //   0  every checked skill passed (warnings alone do not fail a skill)
 //   1  one or more checks failed (each failure is listed per skill)
@@ -293,26 +299,65 @@ async function checkSkill(dir) {
   return { failures, warnings };
 }
 
+/**
+ * Collapse results that describe the same skill twice. Two entries merge only
+ * when they share a skill name AND produce an identical verdict, so a project
+ * that keeps generated copies of its skills (a source tree plus an installed
+ * one) reports each skill once instead of once per copy. The path given
+ * earliest on the command line is canonical, which is how the caller decides
+ * which copy a fix belongs in. Differing verdicts never merge — that divergence
+ * is exactly what the reader needs to see.
+ */
+function collapseDuplicates(results) {
+  const collapsed = [];
+  const byVerdict = new Map();
+
+  for (const result of results) {
+    const key = JSON.stringify([result.name, result.failures, result.warnings]);
+    const seen = byVerdict.get(key);
+    if (seen) {
+      seen.duplicates.push(result.dir);
+      continue;
+    }
+    const entry = { ...result, duplicates: [] };
+    byVerdict.set(key, entry);
+    collapsed.push(entry);
+  }
+  return collapsed;
+}
+
 async function main() {
   const paths = process.argv.slice(2);
   if (paths.length === 0) {
     fail2("Usage: check-skill.mjs <skill-dir | skill-root> [more paths…]");
   }
 
+  // Resolution order follows the command line, which decides which of two
+  // identical copies is canonical; display is sorted afterwards for stability.
   const skills = await resolveSkillDirs(paths);
   if (skills.length === 0) fail2("No skills found to check.");
-  skills.sort();
+
+  const results = [];
+  for (const dir of skills) {
+    const { failures, warnings } = await checkSkill(dir);
+    results.push({ dir, name: basename(dir), failures, warnings });
+  }
+
+  const collapsed = collapseDuplicates(results);
+  collapsed.sort((a, b) => (a.dir < b.dir ? -1 : a.dir > b.dir ? 1 : 0));
+  const duplicateCount = skills.length - collapsed.length;
 
   const lines = [];
   let failedCount = 0;
   let warnedCount = 0;
-  for (const dir of skills) {
-    const { failures, warnings } = await checkSkill(dir);
+  for (const { dir, failures, warnings, duplicates } of collapsed) {
+    const also =
+      duplicates.length > 0 ? `  (= ${duplicates.join(", ")})` : "";
     if (failures.length === 0) {
-      lines.push(`PASS  ${dir}`);
+      lines.push(`PASS  ${dir}${also}`);
     } else {
       failedCount += 1;
-      lines.push(`FAIL  ${dir}`);
+      lines.push(`FAIL  ${dir}${also}`);
       for (const failure of failures) lines.push(`        - ${failure}`);
     }
     if (warnings.length > 0) {
@@ -324,9 +369,14 @@ async function main() {
   lines.push("");
   lines.push(
     failedCount === 0
-      ? `All ${skills.length} skill(s) passed structural checks.`
-      : `${failedCount} of ${skills.length} skill(s) failed structural checks.`,
+      ? `All ${collapsed.length} skill(s) passed structural checks.`
+      : `${failedCount} of ${collapsed.length} skill(s) failed structural checks.`,
   );
+  if (duplicateCount > 0) {
+    lines.push(
+      `${duplicateCount} duplicate path(s) collapsed into an identical result above — fix the reported path, not the copy.`,
+    );
+  }
   if (warnedCount > 0) {
     lines.push(
       `${warnedCount} skill(s) raised advisory capability-framing warnings (they do not affect the exit code).`,

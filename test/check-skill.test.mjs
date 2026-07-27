@@ -221,6 +221,72 @@ describe("check-skill.mjs", () => {
     });
   });
 
+  describe("duplicate copies of one skill", () => {
+    it("reports an identical copy once, under the path given first", async (t) => {
+      const source = await tempDir(t);
+      const installed = await tempDir(t);
+      await writeSkill(source, "shared-skill");
+      await writeSkill(installed, "shared-skill");
+
+      const result = check(source, installed);
+
+      assert.equal(result.code, 0, result.output);
+      assert.match(result.stdout, /All 1 skill\(s\) passed structural checks\./);
+      assert.match(result.stdout, /1 duplicate path\(s\) collapsed/);
+      assert.match(result.stdout, /fix the reported path, not the copy/);
+      assert.match(
+        result.stdout,
+        new RegExp(`PASS {2}${source}/shared-skill {2}\\(= ${installed}/shared-skill\\)`),
+      );
+    });
+
+    it("collapses a shared failure once rather than twice", async (t) => {
+      const source = await tempDir(t);
+      const installed = await tempDir(t);
+      const broken = { frontmatter: { description: null } };
+      await writeSkill(source, "shared-skill", broken);
+      await writeSkill(installed, "shared-skill", broken);
+
+      const result = check(source, installed);
+
+      assert.equal(result.code, 1);
+      assert.match(
+        result.stdout,
+        /1 of 1 skill\(s\) failed structural checks\./,
+      );
+      assert.equal(result.stdout.match(/^FAIL {2}/gm).length, 1);
+    });
+
+    it("reports both copies separately when their verdicts diverge", async (t) => {
+      const source = await tempDir(t);
+      const installed = await tempDir(t);
+      await writeSkill(source, "shared-skill");
+      await writeSkill(installed, "shared-skill", {
+        frontmatter: { description: null },
+      });
+
+      const result = check(source, installed);
+
+      assert.equal(result.code, 1);
+      assert.match(
+        result.stdout,
+        /1 of 2 skill\(s\) failed structural checks\./,
+      );
+      assert.doesNotMatch(result.stdout, /duplicate path\(s\) collapsed/);
+    });
+
+    it("leaves single-root output unchanged", async (t) => {
+      const root = await tempDir(t);
+      await writeSkill(root, "only-skill");
+
+      const result = check(root);
+
+      assert.equal(result.code, 0);
+      assert.doesNotMatch(result.stdout, /duplicate path\(s\) collapsed/);
+      assert.doesNotMatch(result.stdout, /\(= /);
+    });
+  });
+
   describe("exit 2 — bad invocation or no skill at the path", () => {
     it("exits 2 with usage when given no arguments", () => {
       const result = check();
