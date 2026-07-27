@@ -42,6 +42,8 @@ A component's own styles describe its interior: layout of its children, spacing 
 
 ## Accepting a Consumer's Styles
 
+> **Twin section.** This topic is deliberately stated in full in two places: here, as part of style ownership, and in a React component development capability's styling-props reference, as part of the props contract. Both are maintained; an edit to one belongs in the other. The rules are identical by intent — if they ever disagree, that is a defect in whichever was edited alone, not a distinction to preserve.
+
 Every component that renders a styled root accepts the consumer's styles and merges them **last**, so the consumer wins without escalating specificity. What "last" means differs by platform, and on mobile native the merge form is load-bearing.
 
 **Example — web:**

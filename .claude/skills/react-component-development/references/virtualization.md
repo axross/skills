@@ -1,0 +1,79 @@
+# List Virtualization
+
+Apply this reference when rendering a collection whose size is driven by data rather than fixed by the design.
+
+Virtualization renders only the rows near the viewport and recycles them as the user scrolls. It buys a bounded render cost at the price of real complexity: measured or estimated row heights, scroll restoration, keyboard and screen-reader behavior, and a nested-scrolling constraint that is easy to violate. Reach for it when the item count justifies that cost, not by default.
+
+## When a Web List Earns It
+
+On web, a plain `.map` is correct until the row count makes it expensive — which is later than it feels, and depends on how heavy each row is.
+
+Use **more than 100 items** as the trigger to raise the question: a list that is not paginated and can exceed roughly a hundred rows, or a paginated list rendering more than roughly a hundred rows per page.
+
+**Crossing that threshold is a recommendation to the human, not a decision to make unilaterally.** Introducing virtualization adds a dependency and changes the component's structure, its scroll behavior, and its accessibility characteristics. Say what the count is, what it costs to leave as-is, and which library you would reach for — then let the human decide.
+
+**Guidelines:**
+
+- MUST render a data-driven web list with a plain map until it crosses the threshold; virtualization added early is complexity with no measured benefit.
+- MUST raise virtualization with the human — naming the expected item count and the proposed library — rather than introducing it as an incidental part of another change.
+- MUST NOT virtualize a list whose length the design fixes (a navigation menu, a settings group, a tab bar); those are bounded regardless of data.
+- SHOULD prefer paginating or windowing the **data** over virtualizing the view when the source supports it, since fetching less is cheaper than rendering less.
+- SHOULD state the row's rendering cost alongside the count; a hundred rows of rich media justify virtualization far sooner than a hundred rows of text.
+
+### Choosing a Web Library
+
+**Guidelines:**
+
+- MUST use a virtualization library the host project already installs, rather than adding a second one for consistency with this default.
+- SHOULD choose TanStack Virtual when the project has none and the human approves adding one; it is headless, so it composes with whatever markup and styling mechanism the project already uses.
+- MUST confirm the library's current API against its own documentation before writing against it rather than from memory, since this is a surface that changes across major versions.
+- MUST keep the row component independent of the virtualizer, so the same row renders under a plain map in a test.
+
+## When a Mobile Native List Earns It
+
+Mobile native inverts the web default: the platform ships virtualized list components, so the decision is which container to render into, not whether to add a dependency.
+
+| The content is…                                                 | Render it in                 |
+| --------------------------------------------------------------- | ---------------------------- |
+| bounded by the design — a settings screen, a form, a fixed menu | a scroll container           |
+| data-driven and unbounded                                       | a flat virtualized list      |
+| data-driven and grouped under headings                          | a sectioned virtualized list |
+
+**Guidelines:**
+
+- MUST render data-driven, unbounded content in a virtualized list rather than mapping it inside a scroll container.
+- MUST render design-bounded content in a plain scroll container; a virtualized list for a five-row settings group adds recycling machinery for nothing.
+- MUST use a sectioned list when rows group under headings, rather than flattening groups into one list and faking headers as rows.
+- SHOULD derive section grouping inside the list component and memoize it, so a re-render does not rebuild the section array.
+
+### Choosing a Mobile List Component
+
+**Guidelines:**
+
+- MUST use the platform's core list components by default.
+- MUST use a third-party list library — such as FlashList or LegendList — when the host project already installs one, rather than mixing it with core components in the same codebase.
+- SHOULD raise a third-party list library with the human when core components measurably underperform for a specific list, rather than adopting one pre-emptively.
+
+## Never Nest Virtualized Lists
+
+A virtualized list nested inside another scrolling container of the same orientation breaks the outer container's virtualization: the inner list receives unbounded height, renders every row, and the windowing that justified the component disappears — while the two scroll containers fight over the same gesture.
+
+**Guidelines:**
+
+- MUST NOT nest a virtualized list inside a scroll container or another virtualized list of the same scroll orientation.
+- MUST restructure instead: flatten the data into one list, move the surrounding content into the list's header and footer slots, or use a sectioned list where the nesting was expressing grouping.
+- MAY nest a list of the **opposite** orientation — a horizontal carousel inside a vertical list — since the two do not compete for the same gesture or the same unbounded axis.
+- MUST treat a runtime warning about a nested virtualized list as a defect to restructure, never as noise to suppress.
+
+## Shaping a List Component
+
+Split the list into a **wrapper** and a **row**. The wrapper owns the list container, its content-container styling, and any grouping it derives; the row is exported separately so it renders — and is asserted against — without the list. The screen supplies the render callback, which keeps navigation and press behavior at the call site rather than baked into the row.
+
+**Guidelines:**
+
+- MUST export the row component separately from the list wrapper, so a test can render one row in isolation.
+- MUST supply an explicit key extractor derived from the item's stable identifier, never from its index.
+- MUST memoize the row, the separator, and the section header components, since the list re-creates their elements on every scroll-driven render.
+- MUST NOT define the render callback's component inline in the callback body; an inline component remounts every row on each render and defeats memoization.
+- SHOULD let the wrapper accept and forward the underlying list's props, so a caller sets refresh, end-reached, and scroll behavior without the wrapper enumerating each one (see [props.md](./props.md)).
+- SHOULD keep the empty branch out of the list itself and select it alongside the other states (see [component-states.md](./component-states.md)).
