@@ -34,7 +34,7 @@ Mechanical structure checks should be automated so an audit spends its judgment 
 node .claude/skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
 ```
 
-It verifies, per skill: the frontmatter block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 characters; `description` + `when_to_use` stays within 1,536 characters when `when_to_use` is present; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword. It exits 0 when every skill passes, 1 when any check fails, and 2 on bad invocation or an unreadable skill.
+It verifies, per skill: the frontmatter block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 characters; `description` + `when_to_use` stays within 1,536 characters when `when_to_use` is present; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword. It exits 0 when every skill passes, 1 when any check fails, and 2 on a bad invocation or a path holding no skill.
 
 Pointed at two paths holding the same skill — a source tree plus the generated copy installed from it — it reports that skill **once**, under whichever path came first on the command line, and notes the collapsed copies. Only an identical verdict collapses, so diverged copies are still reported separately. Listing the source tree first therefore makes every failure name the copy a fix belongs in.
 
@@ -43,7 +43,7 @@ It also reports **advisory warnings** — a `WARN` line for a document-style `na
 **Guidelines:**
 
 - SHOULD run `scripts/check-skill.mjs` over the changed skills before manual review, so mechanical failures surface first and the audit can focus on content.
-- MUST treat exit 1 as a blocker — a structural failure a discovery runtime depends on — and exit 2 as a bad invocation or unreadable skill to fix before trusting the result.
+- MUST treat exit 1 as a blocker — a structural failure a discovery runtime depends on — and exit 2 as a bad invocation or a path holding no skill, to fix before trusting the result.
 - MUST run any script under a skill's `scripts/` that a change touches and confirm its documented exit codes, rather than assuming the edit preserved its behavior — a bundled script is a skill's output surface as much as its prose is.
 - SHOULD treat a `WARN` line as a recast prompt to weigh, not a blocker; framing is a SHOULD-level rule and an established name may be worth keeping.
 - MUST fix every reported failure, or record why the skill is a deliberate, documented exception.
