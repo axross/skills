@@ -133,6 +133,28 @@ function splitFrontmatter(text) {
   return { fields, body };
 }
 
+// A line that opens or closes a fenced block: 3+ backticks or 3+ tildes after
+// optional leading whitespace. Group 1 is the marker, group 2 the rest of the
+// line (an info string on an opening fence, blank on a closing one).
+const FENCE_RE = /^[ \t]*(`{3,}|~{3,})(.*)$/;
+
+/**
+ * Per CommonMark, a fence closes only on a marker of the SAME character, at
+ * least as long as the opener, carrying no info string. That is what lets a
+ * longer fence legally contain shorter ones — a ````markdown block wrapping a
+ * ```ts block, as this repository's own references do. Toggling on any
+ * fence-looking line inverts the state inside such a block and exposes its
+ * content as body text.
+ */
+function closesFence(marker, char, length) {
+  return (
+    marker !== null &&
+    marker[1][0] === char &&
+    marker[1].length >= length &&
+    marker[2].trim() === ""
+  );
+}
+
 /**
  * Routing-section bullets must stay descriptive — no RFC-2119 keywords. Only
  * the contiguous bullet list immediately following a `See […](./references/…)
@@ -144,14 +166,20 @@ function routingKeywordFailures(body) {
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
   let seenBullet = false; // a routing bullet has appeared since the See line
-  let inFence = false;
+  let fenceChar = null; // open fence's marker character, or null outside a fence
+  let fenceLength = 0; // and its length — a closer must be at least this long
 
   for (const line of body.split("\n")) {
-    if (/^[ \t]*(```|~~~)/.test(line)) {
-      inFence = !inFence;
+    const marker = line.match(FENCE_RE);
+    if (fenceChar !== null) {
+      if (closesFence(marker, fenceChar, fenceLength)) fenceChar = null;
       continue;
     }
-    if (inFence) continue;
+    if (marker) {
+      fenceChar = marker[1][0];
+      fenceLength = marker[1].length;
+      continue;
+    }
 
     const heading = line.match(/^#{2,}\s+(.*)$/);
     if (heading) {
