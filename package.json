@@ -8,8 +8,10 @@
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml}\"",
     "lint": "markdownlint-cli2 \"**/*.md\"",
     "links": "./.claude/skills/agent-skill-authoring/scripts/check-links.sh",
+    "skill-structure": "node ./.claude/skills/agent-skill-authoring/scripts/check-skill.mjs skills .claude/skills",
+    "installed-copies": "node ./scripts/check-installed-copies.mjs",
     "test": "node --test \"test/**/*.test.mjs\"",
-    "check": "npm run format:check && npm run lint && npm run links"
+    "check": "npm run format:check && npm run lint && npm run links && npm run skill-structure && npm run installed-copies && npm test"
   },
   "devDependencies": {
     "markdownlint-cli2": "^0.15.0",

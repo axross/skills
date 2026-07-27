@@ -1,9 +1,15 @@
 name: Merge Checks
 
-# The project's own CI: format, lint, and relative-link checks that gate merges
-# to the default branch. This is the CI the loop-engineering change loop's
-# tail polls after a push (see .claude/skills/loop-engineering/SKILL.md). Keep
-# REVIEW.md's do-not-report list in sync with exactly what this job enforces.
+# The project's own CI: the format, lint, relative-link, skill-structure,
+# installed-copy, and test checks that gate merges to the default branch. This
+# is the CI the loop-engineering change loop's tail polls after a push (see
+# .claude/skills/loop-engineering/SKILL.md). Keep REVIEW.md's do-not-report list
+# in sync with exactly what this job enforces.
+#
+# Every check step invokes an npm script, and test/gate-consistency.test.mjs
+# asserts that the set of scripts run here equals the set in package.json's
+# `check` chain — so a gate added to one and forgotten in the other fails rather
+# than silently going unenforced in the place it was missed.
 
 on:
   pull_request:
@@ -39,4 +45,10 @@ jobs:
       - name: Lint
         run: "npm run lint"
       - name: Link Check
-        run: "./.claude/skills/agent-skill-authoring/scripts/check-links.sh"
+        run: "npm run links"
+      - name: Skill Structure Check
+        run: "npm run skill-structure"
+      - name: Installed Copy Drift Check
+        run: "npm run installed-copies"
+      - name: Tests
+        run: "npm test"
