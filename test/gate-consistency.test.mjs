@@ -8,6 +8,11 @@
 //
 // Two of those four can be tied mechanically, which is what this asserts. The
 // README and REVIEW.md couplings stay prose and remain a reviewer's job.
+//
+// One coupling runs the other way: a gate's ARGUMENTS can weaken it without
+// changing the set of scripts. `npmScriptsIn` below deliberately discards
+// arguments, so the last case here pins the one argument REVIEW.md's
+// do-not-report list depends on.
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -76,6 +81,18 @@ describe("enforced-gate consistency", () => {
         `the check chain runs "${name}", which is not a defined script`,
       );
     }
+  });
+
+  it("keeps the skill-structure gate opted into the Claude Code field checks", async () => {
+    const packageJson = JSON.parse(
+      await readFile(repoPath("package.json"), "utf8"),
+    );
+
+    assert.match(
+      packageJson.scripts["skill-structure"],
+      /--require-claude-code-fields\b/,
+      "REVIEW.md's do-not-report list excludes a missing `when_to_use`/`user-invocable` as CI-enforced, which holds only while this gate passes --require-claude-code-fields; the flag is off by default so the validator stays host-agnostic where it is installed",
+    );
   });
 
   it("keeps every workflow check step on an npm script", async () => {

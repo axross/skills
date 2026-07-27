@@ -150,6 +150,8 @@ The subtle failure is the timeline resolving to the wrong scroller: [`animation-
 
 ## Modern Properties and Units
 
+Each property below removes a value the stylesheet would otherwise keep in sync by hand — a colour duplicated from the text it should track, a physical inset mirrored for right-to-left, a viewport height that is wrong the moment a mobile toolbar moves. That is what makes them worth reaching for, and also why the ones that change layout rather than polish still need a usable state authored underneath them.
+
 **Guidelines:**
 
 - MUST write direction-agnostic properties throughout (see the writing-direction rules in [adaptive-styling.md](./adaptive-styling.md)).
