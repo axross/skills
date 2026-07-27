@@ -130,5 +130,5 @@ export function MenuItem({ icon: Icon, label }: MenuItemProps): JSX.Element {
 
 - MUST accept a caller-chosen icon as a component-typed prop, and alias it to a capitalized local name (`icon: Icon`) so it renders as an element.
 - MUST NOT accept a glyph-name string when the icon set exposes components.
-- MUST size and colour an icon from the project's design tokens, never from a hard-coded literal.
+- MUST colour an icon from the project's design tokens, never from a hard-coded literal; its drawn size is a fixed element dimension and MAY stay a numeric literal.
 - MUST source icons from the host project's single icon set rather than introducing a second one.
