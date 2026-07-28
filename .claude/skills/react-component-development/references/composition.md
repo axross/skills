@@ -95,7 +95,7 @@ export function Button({
   variant = "primary",
   children,
   ...props
-}: ButtonProps) {
+}: ButtonProps): JSX.Element {
   // Manual-memoization regime only — an auto-memoizing compiler already covers this.
   const context = useMemo(() => ({ variant }), [variant]);
 
@@ -109,7 +109,10 @@ export function Button({
 
 ```tsx
 // button-text.tsx — a part reads the variant instead of re-declaring it
-export function ButtonText({ children, ...props }: ComponentProps<"span">) {
+export function ButtonText({
+  children,
+  ...props
+}: ComponentProps<"span">): JSX.Element {
   const { variant } = useButtonContext({ componentName: "ButtonText" });
 
   return (
