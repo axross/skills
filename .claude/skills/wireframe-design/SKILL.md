@@ -143,7 +143,7 @@ When a wireframe is presented as a set of options to choose between, the compari
 - SHOULD give every option a sketch, a rationale, and its trade-offs, and mark exactly one recommended.
 - SHOULD make every non-recommended option a genuinely implementable alternative, never a straw-man that exists only to lose.
 - SHOULD render screens shared across all options once, above the option grid, rather than repeating them in each card.
-- When used inside a broader design-review or delivery workflow, follow that workflow's conventions for how the options round is recorded and how the recommended option is marked.
+- SHOULD follow the host workflow's conventions for how the options round is recorded and how the recommended option is marked, when this skill runs inside a broader design-review or delivery workflow.
 
 ## Research-Grounded Best Practices
 

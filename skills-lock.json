@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "127b7e12e9483b7906c18a23426cd7ee2e78b8be715eb573dde563b6fe7e697c"
+      "computedHash": "447cba983d8de4b5e168fff52be695629207a4d8418480c464948951f72c8e77"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
@@ -64,7 +64,7 @@
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "4403d653b0f09498c175b4d0e6b53169ab691a6e8fc0db4e337acb137e7bb882"
+      "computedHash": "336567ae6c5fdeb54156070334aa6080058ac6f84bee66304c5893697152960f"
     },
     "software-development": {
       "source": "/home/user/skills/skills",
@@ -84,7 +84,7 @@
     "wireframe-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "3c358306a6194f76f0e5bf932c109ed29b1b31e86b3b2cf1079fccd14a16cc24"
+      "computedHash": "b444e84cf48fa531a9e33cc7faedc058a88f85c321c7f329e6bc86863ba9496b"
     }
   }
 }

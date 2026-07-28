@@ -98,7 +98,7 @@ The two schemes share a lightness scale that inverts end to end: step 0 is the l
 - MUST pick a role by what the surface _is_ — a page background, a component at rest, a border on an interactive element, low-contrast text — never by how a value looks in one scheme.
 - MUST treat a per-scheme override that only reassigns a role as evidence the wrong role was picked; fix the role rather than adding the branch.
 - MUST move an interaction state along its own tier — `rest` → `hovered` → `selected` — rather than jumping tiers or schemes.
-- The only legitimate per-scheme overrides are:
+- MUST limit per-scheme overrides to exactly two cases:
   - **Filtered or externally authored imagery**, whose luminance cannot adapt on its own because the source is not part of the palette.
   - **Browser- and OS-level primitives** — the colour-scheme declaration, scrollbar colours, selection colours — which are declared once at the root and never per surface.
 - MUST treat any third category as a design smell and re-examine the role choice before adding a branch.

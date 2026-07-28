@@ -104,12 +104,18 @@ for a broader prose rule does **not** silence the reviewer on that rule.
 - The format and lint checks run by the project's merge-checks workflow.
 - Relative-link integrity — a relative Markdown link whose target file does not
   resolve on disk.
+- A heading-anchor fragment that resolves to no heading in its target file,
+  **within a skill's `SKILL.md` or `references/*.md`** — the only files
+  `check-skill.mjs` scans. The scope qualifier is load-bearing: an anchor in a
+  repository-root document such as this one is checked by nothing, so keep
+  reporting it. A fragment that resolves to the _wrong_ heading is a misroute
+  no check can see, and stays in scope everywhere.
 - The structural checks `check-skill.mjs` enforces: a frontmatter block that
   does not parse; a `name` that is not kebab-case, exceeds 64 characters, or
   does not match its directory; a missing `description`, or one over 1,024
-  characters; `description` + `when_to_use` over 1,536 characters; a
-  `references/*.md` file that no `SKILL.md` links; and a routing-section bullet
-  opening with an RFC-2119 keyword.
+  characters; `description` + `when_to_use` over 1,536 characters; a missing
+  `when_to_use` or `user-invocable`; a `references/*.md` file that no `SKILL.md`
+  links; and a routing-section bullet opening with an RFC-2119 keyword.
 - A content mismatch between a `skills/<name>/` source and its generated
   `.claude/skills/<name>/` copy.
 - Lockfiles and generated files.
