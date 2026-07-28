@@ -67,13 +67,13 @@ The parent `SKILL.md` is the routing table for Markdown topic files under `refer
 
 ## Link Resolution Check
 
-Link checks catch quiet skill failures — a renamed reference file or moved link target that leaves a relative link dangling. They are especially important after renames because broken links may not fail tests. This skill ships a checker at `scripts/check-links.sh`: it walks every Markdown file under the given roots (default: the whole tree, including dot-directories that `glob('**/*.md')` sweeps skip), ignores links inside fenced code blocks, inline code spans, and HTML comments, and exits non-zero when any relative `.md` link fails to resolve. It sees Markdown-link syntax only, so topic-based cross-skill references are outside its scope — verify those by confirming each names a topic a discoverable skill owns.
+Link checks catch quiet skill failures — a renamed reference file or moved link target that leaves a relative link dangling. They are especially important after renames because broken links may not fail tests. This skill ships a checker at `scripts/check-links.mjs`: it walks every Markdown file under the given roots (default: the whole tree, including dot-directories that `glob('**/*.md')` sweeps skip), ignores links inside fenced code blocks, inline code spans, and HTML comments, and exits non-zero when any relative `.md` link fails to resolve. It sees Markdown-link syntax only, so topic-based cross-skill references are outside its scope — verify those by confirming each names a topic a discoverable skill owns.
 
 **Example:**
 
 ```sh
 # From the repository root; pass paths to narrow the scan.
-.claude/skills/agent-skill-authoring/scripts/check-links.sh
+.claude/skills/agent-skill-authoring/scripts/check-links.mjs
 ```
 
 **Example Verification Flow:**
@@ -90,7 +90,7 @@ flowchart LR
 **Guidelines:**
 
 - MUST verify that intra-skill relative links resolve, and that every cross-skill reference names a topic a discoverable skill owns, before finalizing a skill-tree change.
-- SHOULD run this skill's `scripts/check-links.sh` for that verification instead of checking links by hand.
+- SHOULD run this skill's `scripts/check-links.mjs` for that verification instead of checking links by hand.
 - MUST update directory name, `name` frontmatter, cross-references, discovery metadata (and any written index the host maintains), and role-profile references together during a rename, along with every tooling path that names the skill — CI workflows, run-scripts, and hooks that invoke its `scripts/`, which break silently because the link check sees only Markdown links.
 - SHOULD include touched skill paths in the change summary for rename or consolidation work.
 - MUST NOT finalize a skill move while any old path or stale topic reference remains.

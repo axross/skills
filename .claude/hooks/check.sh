@@ -63,7 +63,7 @@ code_changed || emit_reminder_and_exit
 OUTPUT="$(mktemp)"
 STATUS=0
 if ! npm run lint >>"$OUTPUT" 2>&1; then STATUS=1; fi
-if ! ./.claude/skills/agent-skill-authoring/scripts/check-links.sh >>"$OUTPUT" 2>&1; then STATUS=1; fi
+if ! node ./.claude/skills/agent-skill-authoring/scripts/check-links.mjs >>"$OUTPUT" 2>&1; then STATUS=1; fi
 
 if [ "$STATUS" -ne 0 ]; then
   {
