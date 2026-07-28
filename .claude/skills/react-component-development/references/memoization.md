@@ -6,16 +6,17 @@ Memoization buys **referential stability**, not speed on its own. A memoized chi
 
 ## Check the Compiler First
 
-A gotcha worth knowing before anything else: when the host project enables an auto-memoizing React compiler, it inserts equivalent memoization during the build, so hand-written `memo`/`useCallback`/`useMemo` is often redundant ceremony that still costs a reader's attention.
+A gotcha that inverts the usual advice: when the host project enables an auto-memoizing React compiler, it inserts equivalent memoization during the build. Hand-written `memo`/`useCallback`/`useMemo` then becomes redundant ceremony that still costs a reader's attention and can mask a genuinely missing dependency.
 
-Enabling the compiler does not, in practice, mean a codebase stops memoizing by hand — plenty of compiler-enabled projects keep doing both, and a file's existing style is a better guide than the build flag alone. So establish the regime, then match what is already there rather than converting either way as a side effect of an unrelated change.
+Expect to find hand-memoization in a compiler-enabled project anyway — a codebase that predates the compiler, or that adopted it without unwinding what came before, carries the ceremony forward. That is legacy, not a convention: it is the one place in this skill where the surrounding code is the wrong guide.
 
 **Guidelines:**
 
-- MUST determine whether the host project enables an auto-memoizing compiler before reasoning about whether memoization is needed at all.
-- MUST match the surrounding file's existing practice rather than introducing a second convention beside it, whichever regime the project is in.
-- SHOULD leave new manual memoization out of a compiler-enabled project unless the surrounding code memoizes by hand, a measurement shows the compiler missed the case, or one of the narrow cases below applies.
-- MUST NOT strip existing manual memoization from a compiler-enabled project as a side effect of another change; removing it is its own change, with its own verification.
+- MUST determine whether the host project enables an auto-memoizing compiler before adding manual memoization, rather than assuming either regime.
+- MUST NOT add manual memoization to a compiler-enabled project except where a measurement shows the compiler did not cover the case, and say so in a comment when you do.
+- MUST NOT read surrounding hand-memoization in a compiler-enabled project as license to add more; flag it as legacy instead.
+- SHOULD remove legacy hand-memoization as its own change with its own verification, rather than as a side effect of an unrelated one.
+- MUST follow the surrounding file's existing practice where the project's regime is genuinely ambiguous, rather than introducing a second convention beside it.
 
 ## What to Memoize
 
