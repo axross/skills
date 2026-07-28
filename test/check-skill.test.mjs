@@ -452,6 +452,102 @@ describe("check-skill.mjs", () => {
       );
     });
 
+    it("keeps checking bullets after an unindented fence inside a guidelines block", async (t) => {
+      const root = await tempDir(t);
+      // A fence is continuation, not a terminator: an illustrative code block
+      // does not end a block's list of rules, so the bullet after it is still a
+      // rule. `software-instrumentation` carried this shape before #82 nested
+      // the fence under its introducing bullet.
+      const dir = await writeSkill(root, "fenced-guidelines-list", {
+        body: [
+          "# Fenced Guidelines List",
+          "",
+          "Prose for the fixture.",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST do the first thing, for example:",
+          "",
+          "```ts",
+          "const x = 1;",
+          "```",
+          "",
+          "- This bullet sits after an unindented fence and carries no keyword.",
+          "",
+        ].join("\n"),
+      });
+
+      assertFailure(
+        dir,
+        /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "This bullet sits after/,
+      );
+    });
+
+    it("keeps checking bullets after a fence that opens a guidelines block", async (t) => {
+      const root = await tempDir(t);
+      // A fence never changes block state, so one standing between the label
+      // and the first bullet leaves the block open rather than closing it
+      // before a single rule has been read.
+      const dir = await writeSkill(root, "fence-opened-guidelines", {
+        body: [
+          "# Fence Opened Guidelines",
+          "",
+          "Prose for the fixture.",
+          "",
+          "**Guidelines:**",
+          "",
+          "```ts",
+          "const shape = { rule: true };",
+          "```",
+          "",
+          "- This first bullet follows the fence and carries no keyword.",
+          "",
+        ].join("\n"),
+      });
+
+      assertFailure(
+        dir,
+        /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "This first bullet follows/,
+      );
+    });
+
+    it("partitions a post-fence bullet between the guidelines check and the placement warning", async (t) => {
+      const root = await tempDir(t);
+      // The failure check and the `placement:` advisory share one block
+      // boundary, so a bullet after a fence must be claimed by exactly one of
+      // them — never both, and never neither. Here the keyword-bearing bullet
+      // is inside the block and draws no warning, and the unmarked bullet in
+      // the same position is inside the same block and fails.
+      const dir = await writeSkill(root, "fence-partitioned-block", {
+        body: [
+          "# Fence Partitioned Block",
+          "",
+          "Prose for the fixture.",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST derive loggers from the shared root logger, like this:",
+          "",
+          "```ts",
+          "const logger = rootLogger.child({ module: 'x' });",
+          "```",
+          "",
+          "- SHOULD choose an identifier that conveys the module's concern.",
+          "- This unmarked bullet sits in the same post-fence position.",
+          "",
+        ].join("\n"),
+      });
+
+      const result = check(dir);
+
+      assert.equal(result.code, 1, result.output);
+      assert.match(
+        result.stdout,
+        /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "This unmarked bullet/,
+      );
+      assert.doesNotMatch(result.stdout, /placement:/);
+    });
+
     it("reports a relative link that escapes the skill directory", async (t) => {
       const root = await tempDir(t);
       const dir = await writeSkill(root, "escaping-link", {
@@ -908,11 +1004,15 @@ describe("check-skill.mjs", () => {
         assert.doesNotMatch(result.stdout, /placement:/);
       });
 
-      it("warns on bullets an unindented fence separated from their label", async (t) => {
+      it("stays silent on a bullet an unindented fence stands before", async (t) => {
         const root = await tempDir(t);
-        const dir = await writeSkill(root, "fence-split-block", {
+        // A fence does not end the block, so this bullet is inside it — which
+        // is why the failure check, not this advisory, owns the position. The
+        // case below reaches the same verdict for the different reason that an
+        // indented fence never ended a block at all.
+        const dir = await writeSkill(root, "fence-spanned-block", {
           body: [
-            "# Fence Split Block",
+            "# Fence Spanned Block",
             "",
             "Prose for the fixture.",
             "",
@@ -933,7 +1033,10 @@ describe("check-skill.mjs", () => {
           ].join("\n"),
         });
 
-        assertWarning(dir, /placement: SKILL\.md:\d+ RFC-2119 bullet sits outside/);
+        const result = check(dir);
+
+        assert.equal(result.code, 0, result.output);
+        assert.doesNotMatch(result.stdout, /placement:/);
       });
 
       it("stays silent once that fence is nested under its bullet", async (t) => {
