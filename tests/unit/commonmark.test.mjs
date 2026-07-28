@@ -47,7 +47,7 @@ describe("commonmark.mjs", () => {
     );
   });
 
-  describe("closesFence", () => {
+  describe("closesFence()", () => {
     it.each([
       { what: "the same marker at the same length", line: "```", closes: true },
       { what: "a longer marker of the same character", line: "````", closes: true },
@@ -64,7 +64,7 @@ describe("commonmark.mjs", () => {
     });
   });
 
-  describe("scanLines", () => {
+  describe("scanLines()", () => {
     it("reports every line of a document with no fences", () => {
       expect(proseOf("# Title\n\nBody.\n")).toEqual(["# Title", "", "Body.", ""]);
     });
@@ -113,7 +113,7 @@ describe("commonmark.mjs", () => {
     });
   });
 
-  describe("unterminatedFenceLine", () => {
+  describe("unterminatedFenceLine()", () => {
     it("returns null when every fence closes", () => {
       expect(unterminatedFenceLine("a\n```\nx\n```\nb\n")).toBeNull();
     });
@@ -134,7 +134,7 @@ describe("commonmark.mjs", () => {
       expect(unterminatedFenceLine(body)).toBe(2);
     });
 
-    it("agrees with scanLines about where the open fence began", () => {
+    it("agrees with scanLines() about where the open fence began", () => {
       const body = "a\n```\nx\n";
       const opener = [...scanLines(body)].find((line) => line.fence);
 

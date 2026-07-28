@@ -5,7 +5,8 @@
 // copy, 1 on drift, 2 on a bad invocation or a root that is not a directory.
 //
 // Running the check against THIS repository's own two roots is a gate rather
-// than a contract test, and lives in tests/repository/installed-copies.test.mjs.
+// than a contract test, and lives in tests/repository/gate-runs.test.mjs, which
+// takes its invocation from tests/repository/gates.mjs.
 
 import { rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";

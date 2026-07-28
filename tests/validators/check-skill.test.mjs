@@ -7,7 +7,8 @@
 // that holds no skill.
 //
 // Running the validator over THIS repository's own skill roots is a gate rather
-// than a contract test, and lives in tests/repository/skill-structure.test.mjs.
+// than a contract test, and lives in tests/repository/gate-runs.test.mjs, which
+// takes its invocation from tests/repository/gates.mjs.
 
 import { join } from "node:path";
 
