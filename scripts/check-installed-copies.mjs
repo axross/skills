@@ -115,13 +115,22 @@ async function compareSkill(sourceDir, installedDir) {
   return differences;
 }
 
+const USAGE = `Usage: check-installed-copies.mjs [<source-root> [<installed-root>]]
+
+Fail when a distributable skill's source differs from its generated installed
+copy. Both roots default to this repository's "skills" and ".claude/skills",
+resolved from the script's own location, so the working directory does not
+matter; the arguments exist so the check can be exercised against fixtures.
+
+Exit codes: 0 every installed copy matches, 1 drift found, 2 bad invocation.`;
+
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length > 2) {
-    fail2(
-      "Usage: check-installed-copies.mjs [<source-root> [<installed-root>]]",
-    );
+  if (args.includes("--help") || args.includes("-h")) {
+    process.stdout.write(`${USAGE}\n`);
+    process.exit(0);
   }
+  if (args.length > 2) fail2(USAGE);
   const sourceRoot = args[0] ?? join(REPO_ROOT, "skills");
   const installedRoot = args[1] ?? join(REPO_ROOT, ".claude", "skills");
 

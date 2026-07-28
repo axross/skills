@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "d27eee3f36b09200b8c46f536eb95b070adc386ffe9292b831adf76382f8135c"
+      "computedHash": "622a3062884327280a592b47b74ebecb683a33ce5ed0644779ff78e0efcd3ce3"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
@@ -29,12 +29,12 @@
     "conventional-commits": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0e3d816841a4f30ab00ab356a78eac1ea966e8db1cae14f0e5d6588b50d06e34"
+      "computedHash": "5fe550ce837b062a5dff6ab08f78dd19e937813d71270caf4843dd6e9233299e"
     },
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "6b29ffe8aa7da9069747d4e4f0fcf83a1713b71c66989562c7ec6aa31d95c2c9"
+      "computedHash": "4dc34bcd562b136d08e6cc240dee7cabf8278be18866944114a5cb64ce136fd4"
     },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
@@ -64,7 +64,7 @@
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "336567ae6c5fdeb54156070334aa6080058ac6f84bee66304c5893697152960f"
+      "computedHash": "283fa45160a0e77e3441e8970533e391e5f1ac0c4c98e3e4d3cd517d41f69842"
     },
     "software-development": {
       "source": "/home/user/skills/skills",
@@ -84,7 +84,7 @@
     "wireframe-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "b444e84cf48fa531a9e33cc7faedc058a88f85c321c7f329e6bc86863ba9496b"
+      "computedHash": "7772ee25915ae0601f769fd2d3baee475b09d2acea1aa0bc87761615604c653f"
     }
   }
 }
