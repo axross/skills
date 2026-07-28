@@ -37,7 +37,7 @@ A context provider is the default sharing mechanism. Its value should be a stabl
 
 **Guidelines:**
 
-- MUST memoize a context value so it changes only when its contents do.
+- MUST memoize a context value under manual memoization, so it changes only when its contents do — after checking the project's memoization regime, since an auto-memoizing compiler already covers this (see [memoization.md](./memoization.md)).
 - MUST export a hook that reads the context and throws a named error when used outside its provider, rather than exporting the raw context and letting a consumer read `null`.
 - SHOULD split a large context into separate providers when one part changes far more often than another, so a frequent update does not re-render consumers of a stable value.
 - SHOULD keep a provider that owns a service or a resource — a database handle, a media session — separate from providers that own view state.

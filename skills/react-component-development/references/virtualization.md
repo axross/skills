@@ -55,7 +55,7 @@ The platform's own list components are already virtualized, so the question is n
 **Guidelines:**
 
 - MUST use the platform's core list components by default.
-- MUST use a third-party list library — such as FlashList or LegendList — when the host project already installs one, rather than mixing it with core components in the same codebase.
+- MUST build a new list on the third-party library — such as FlashList or LegendList — that the host project already installs, matching what comparable lists there already use; leave existing core-component lists alone unless migrating them is the task.
 - SHOULD raise a third-party list library with the human when core components measurably underperform for a specific list, rather than adopting one pre-emptively.
 
 ## Never Nest Virtualized Lists

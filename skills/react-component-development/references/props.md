@@ -14,14 +14,18 @@ function JobListHeader({
   job,
   className,
   ...props
-}: ComponentProps<"header"> & { job: Job }): JSX.Element {}
+}: ComponentProps<"header"> & { job: Job }): JSX.Element {
+  // …
+}
 
 // mobile native — the root is a View
 function JobListItem({
   job,
   style,
   ...props
-}: ComponentPropsWithoutRef<typeof View> & { job: Job }): JSX.Element {}
+}: ComponentPropsWithoutRef<typeof View> & { job: Job }): JSX.Element {
+  // …
+}
 ```
 
 **Guidelines:**
@@ -124,16 +128,19 @@ type ButtonProps = {
 
 A component that owns a value should support both modes from one implementation: the caller either supplies `value` and reacts to `onChange`, or omits it and lets the component hold the state, seeded by `defaultValue`.
 
+Detect the controlled mode by testing against `undefined` specifically. A nullish test (`value ?? stateValue`) treats `null` as absent — but `null` is a legitimate controlled value meaning "cleared", so a caller that clears a selection would silently hand control back to the component's own state mid-flight.
+
 **Example:**
 
 ```tsx
 const [stateValue, setStateValue] = useState(defaultValue ?? []);
-const resolvedValue = value ?? stateValue;
+const isControlled = value !== undefined;
+const resolvedValue = isControlled ? value : stateValue;
 ```
 
 **Guidelines:**
 
-- MUST resolve the effective value as the controlled prop when present, falling back to internal state otherwise.
+- MUST decide the mode by testing the controlled prop against `undefined`, not by a truthy or nullish test, so a legitimate `null` or empty value does not fall back to internal state.
 - MUST call the change handler in both modes, so a controlled caller and an uncontrolled observer behave identically.
 - MUST NOT switch a component between controlled and uncontrolled across renders; treat the presence of the controlled prop on first render as fixed.
 - SHOULD name the uncontrolled seed `defaultValue` and the controlled prop `value`, matching the platform's own form primitives.
@@ -154,7 +161,7 @@ A third-party component that publishes its own state attributes (`data-highlight
 
 - MUST use a `data-*` attribute rather than a class when the value is a fact about the element, not a style hook.
 - SHOULD drive a component's own variant styling from a `data-*` attribute when the variant must also be visible to a test or to a descendant selector; otherwise a class is sufficient.
-- MUST add an entity-identifying `data-*` attribute to a repeated list element when a test needs to address one specific item, rather than relying on its index.
+- MUST add a stable, non-sensitive identifier — a slug, an opaque id — as a `data-*` attribute on a repeated list element when a test needs to address one specific item, rather than relying on its index.
 - MUST style a third-party component through the state attributes it publishes, not by reaching into its markup.
 - MUST NOT put user-identifying or otherwise sensitive values in a `data-*` attribute; it is readable by anything running on the page.
 
@@ -166,6 +173,6 @@ A ref is how a caller reaches the node a component renders — to focus it, meas
 
 **Guidelines:**
 
-- MUST accept `ref` as an ordinary prop on React 19 and later, and forward it to the root element alongside the props spread.
+- MUST let `ref` reach the root element on React 19 and later, where it is an ordinary prop: leave it in the rest object and let the spread carry it, or destructure it and pass it explicitly.
 - MUST use the host project's existing ref mechanism when it targets an earlier React version, and match its convention for setting a display name.
 - SHOULD forward a ref whenever the component wraps a focusable, measurable, or imperatively controlled element, so a caller is not forced to add a wrapper node to reach it.

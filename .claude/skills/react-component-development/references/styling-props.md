@@ -2,7 +2,7 @@
 
 Apply this reference when a component accepts a `className`, a `style`, or whatever styling prop the host project's mechanism uses.
 
-> **Twin section.** This topic is deliberately stated in full in two places: here, as part of the props contract, and in a React component styling capability's style-composition reference, as part of style ownership. Both are maintained; an edit to one belongs in the other. The rules are identical by intent — if they ever disagree, that is a defect in whichever was edited alone, not a distinction to preserve.
+> **Twin section.** This topic is deliberately stated in full in two places: here, as part of the props contract, and in a React component styling capability's style-composition reference, as part of style ownership. Both are maintained; a rule change in one belongs in the other. The two differ only in framing — this copy names mechanisms generically so the skill stays portable, that one names the project's concrete tooling. A difference in what the rules **require** is a defect in whichever was edited alone, not a distinction to preserve.
 
 ## The Contract
 

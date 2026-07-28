@@ -67,6 +67,8 @@ if (isPending) {
   content = <JobListEmpty />;
 }
 
+// A screen-level root, so it names its own hook. A reusable component takes
+// that hook from its caller through the props spread — see testability.md.
 return (
   <View style={styles.root} testID="job-list">
     {content}

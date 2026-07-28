@@ -118,9 +118,17 @@ A component that renders a fixed icon imports it directly. A component that lets
 **Example:**
 
 ```tsx
-export function MenuItem({ icon: Icon, label }: MenuItemProps): JSX.Element {
+export function MenuItem({
+  icon: Icon,
+  label,
+  style,
+  ...props
+}: ComponentPropsWithoutRef<typeof View> & {
+  icon: ComponentType<{ color?: string; size?: number }>;
+  label: string;
+}): JSX.Element {
   return (
-    <View style={styles.item}>
+    <View style={[styles.item, style]} {...props}>
       <Icon color={theme.colors.text.neutral.base} size={24} />
       <Text style={styles.label}>{label}</Text>
     </View>
