@@ -23,6 +23,8 @@ Work down this list and stop at the first row that fits. Each step outward costs
 
 ## Local State
 
+Most state never needs to leave the component rendering its control. Keeping it there lets a reader see the value and the handler that changes it without scrolling, and lets a test drive the behavior by rendering one component rather than assembling a provider tree or seeding a store first.
+
 **Guidelines:**
 
 - MUST keep transient interaction state — a field's draft value, an expanded row, a menu's open flag — local to the component that renders the control.

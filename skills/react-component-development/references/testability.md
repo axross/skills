@@ -20,7 +20,7 @@ A test that locates an element by its copy breaks on a wording change; one that 
 
 **Scope-relative naming is the default.** A component names its internal elements for their role within itself — `title`, `author`, `tags` — and the parent supplies the scope. Tests then narrow from a container to its descendants, and the hook values mirror the component tree instead of restating a global path in every string.
 
-```text
+```
 page
   header              ← supplied by the page to <JobHeader>
     title             ← named inside <JobHeader>
@@ -100,8 +100,9 @@ Mock at the **data layer** — the function that performs the request or reads t
 
 An element that carries an accessible role and name is locatable by them, which is useful exactly where a test hook cannot reach — a control rendered by a third-party component, or one portaled out of the component's own markup.
 
+That every control **has** a role and an accessible name is owned by the project's high-fidelity UI design practices, and holds regardless of testing. This section covers only what follows for a test: those props are a locator of last resort, and they are not a place to smuggle test data.
+
 **Guidelines:**
 
-- MUST give every interactive element an accessible role and an accessible name, independent of any test consideration.
 - SHOULD rely on the accessible role and name as the locator when an element cannot carry a test hook.
 - MUST NOT add an accessibility attribute purely as a test hook when its value would not make sense to assistive technology; add a test hook instead.

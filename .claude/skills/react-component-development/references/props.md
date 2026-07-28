@@ -78,6 +78,8 @@ The styling prop is the deliberate exception: it is destructured out and merged 
 
 ## Naming
 
+One file often holds several handlers, and a screen with three `onPress` callbacks in scope tells a reader nothing about which control fired which. Naming the **prop** for the event it reports and the **local handler** for its subject and event keeps the two legible side by side, and makes the wiring between them visible at the call site rather than inferred from position.
+
 **Guidelines:**
 
 - MUST name a handler prop for the event it reports, in `on<Event>` form (`onPress`, `onChange`, `onEndReached`).
@@ -159,6 +161,8 @@ A third-party component that publishes its own state attributes (`data-highlight
 Mobile native has no `data-*` equivalent — its test hook is the platform's own test-identifier prop, and its state is expressed through props and accessibility attributes. See [testability.md](./testability.md).
 
 ## Refs
+
+A ref is how a caller reaches the node a component renders — to focus it, measure it, scroll it, or drive it imperatively. A component that swallows the ref forces its caller to wrap it in an extra element purely to get a handle, which changes the layout to work around a missing prop.
 
 **Guidelines:**
 

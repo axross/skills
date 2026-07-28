@@ -10,7 +10,7 @@ A component made of **sub-components** gets its own directory, and every part li
 
 **Example:**
 
-```text
+```
 job-list/
 ├── job-list.tsx              # the parent; bears the component's name
 ├── job-list-header.tsx
@@ -102,6 +102,8 @@ A domain component **composes** a primitive; it never re-implements the primitiv
 - SHOULD build a domain wrapper around a primitive when a feature needs the primitive bound to something specific — a form library's field controller, or one entity's shape — rather than adding that binding to the primitive itself.
 
 ### Promotion
+
+Promoting too early costs as much as promoting too late. A component pulled into the shared location before a second consumer exists gets shaped entirely by the first caller's needs, and the second caller then either bends to a fit nobody designed for it or quietly forks. Waiting until the pattern has actually repeated is what makes the shared version's shape trustworthy.
 
 **Guidelines:**
 

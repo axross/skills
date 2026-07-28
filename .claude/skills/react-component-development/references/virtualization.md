@@ -22,6 +22,8 @@ Use **more than 100 items** as the trigger to raise the question: a list that is
 
 ### Choosing a Web Library
 
+The choice is usually already made: a project that virtualizes anywhere has paid the dependency and the learning cost once, and a second library means two scroll implementations to keep behaviourally consistent for no gain. The default below applies only to a project starting from none.
+
 **Guidelines:**
 
 - MUST use a virtualization library the host project already installs, rather than adding a second one for consistency with this default.
@@ -48,6 +50,8 @@ Mobile native inverts the web default: the platform ships virtualized list compo
 
 ### Choosing a Mobile List Component
 
+The platform's own list components are already virtualized, so the question is never whether to virtualize but whether to add a **dependency** on top of what ships. That trade is worth making against a measured problem, not a predicted one: a third-party list changes recycling, measurement, and scroll restoration together, so adopting one pre-emptively swaps a known set of behaviours for an unknown one.
+
 **Guidelines:**
 
 - MUST use the platform's core list components by default.
@@ -73,7 +77,7 @@ Split the list into a **wrapper** and a **row**. The wrapper owns the list conta
 
 - MUST export the row component separately from the list wrapper, so a test can render one row in isolation.
 - MUST supply an explicit key extractor derived from the item's stable identifier, never from its index.
-- MUST memoize the row, the separator, and the section header components, since the list re-creates their elements on every scroll-driven render.
+- MUST memoize the row, the separator, and the section header components, since the list re-creates their elements on every scroll-driven render (see [memoization.md](./memoization.md)).
 - MUST NOT define the render callback's component inline in the callback body; an inline component remounts every row on each render and defeats memoization.
 - SHOULD let the wrapper accept and forward the underlying list's props, so a caller sets refresh, end-reached, and scroll behavior without the wrapper enumerating each one (see [props.md](./props.md)).
 - SHOULD keep the empty branch out of the list itself and select it alongside the other states (see [component-states.md](./component-states.md)).

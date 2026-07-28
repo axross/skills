@@ -1,7 +1,7 @@
 ---
 name: react-component-development
-description: The ability to build a React component — its composition, props contract, extracted logic, state, testability, and list virtualization — on web and mobile native alike. Covers kebab-case files and cohesion-grouped directories, named exports and flat name-prefixed compound parts wired through a private variant context, the `ComponentProps` base type, one-level props destructuring and the mandatory `...props` spread, whole-model props, closed-union variants, `data-*` attributes, the styling-prop merge contract on both platforms, helpers-versus-hooks extraction and platform-forked files, `useState`/Context/store-library state, shared loading-empty-error surfaces, scope-relative test hooks, and when a list earns virtualization.
-when_to_use: Use when writing, reviewing, or refactoring a React component or its props, on web or mobile native — "component", "props", "spread props", "compound component", "data-testid", "testID", "extract a hook", "where should this state live", "virtualize", "FlatList", or a list that scrolls badly. For how it looks — CSS Modules, Unistyles, tokens, themes — use a React component styling capability instead.
+description: The ability to build a React component — its composition, props contract, extracted logic, state, testability, and list virtualization — on web and mobile native alike. Covers kebab-case files and cohesion-grouped directories, named exports and flat name-prefixed compound parts wired through a private variant context, the `ComponentProps` base type, one-level props destructuring and the mandatory `...props` spread, whole-model props, closed-union variants, `data-*` attributes, the styling-prop merge contract on both platforms, helpers-versus-hooks extraction and platform-forked files, `useState`/Context/store-library state, memoization under and without an auto-memoizing compiler, shared loading-empty-error surfaces, scope-relative test hooks, and when a list earns virtualization.
+when_to_use: Use when writing, reviewing, or refactoring a React component or its props — "props", "spread props", "compound component", "data-testid", "testID", "extract a hook", "where should state live", "memo", "useCallback", "virtualize", "FlatList", or a surface that re-renders or scrolls badly. For styling — CSS Modules, Unistyles, tokens, themes — use a React component styling capability instead.
 user-invocable: false
 ---
 
@@ -69,6 +69,16 @@ See [state.md](./references/state.md) for:
 - sharing state through context by default, and what a context provider should expose
 - using the host project's store library when it has one, and exposing narrow selector hooks
 - recognizing state that belongs to a server-state layer rather than to the component
+
+## Memoization
+
+See [memoization.md](./references/memoization.md) for:
+
+- establishing whether the project auto-memoizes at build time before adding any by hand
+- the narrow set of cases where `memo`, `useCallback`, and `useMemo` pay for themselves
+- why an unstable callback or object identity defeats a memoized child
+- keeping a dependency list complete, and why an incomplete one returns stale values
+- the nested-component-definition mistake that remounts a subtree regardless of memoization
 
 ## Loading, Empty, and Error Surfaces
 

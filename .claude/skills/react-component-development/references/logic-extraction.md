@@ -23,6 +23,8 @@ Three destinations, chosen by what the logic needs:
 | uses React state or effects, and is reused | a hook                            | carries the lifecycle its callers need          |
 | is pure, and used by exactly one component | a module-scope function beside it | no indirection to chase, still unit-addressable |
 
+Naming the literals an extraction surfaces is owned by the project's code-maintainability practices, and is not restated here.
+
 **Guidelines:**
 
 - MUST extract pure logic reused by two or more components into a helper module owned by the feature, or the shared location when features cross.
@@ -30,7 +32,6 @@ Three destinations, chosen by what the logic needs:
 - SHOULD keep a single-use pure function at module scope in the component's own file, below the component, rather than creating a helper module for one caller.
 - MUST NOT wrap a pure function in a hook merely to place it; a hook that calls no React API is a helper with extra ceremony.
 - SHOULD move a module-scope function into a helper module the moment a second file needs it.
-- MUST hoist a magic number or a repeated literal to a named module-scope constant, following the host project's casing convention for constants.
 
 ## Route-Local and Single-Use Sub-Components
 
@@ -49,7 +50,7 @@ When one component needs a genuinely different implementation per platform, fork
 
 **Example:**
 
-```text
+```
 linear-progress.tsx          # base: prop contract + universal fallback
 linear-progress.ios.tsx      # imports the contract via ComponentProps<typeof …>
 linear-progress.android.tsx
