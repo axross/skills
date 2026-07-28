@@ -20,7 +20,8 @@
 //                     list, or blockquote all count as the demonstration.
 //   * guideline voice a top-level bullet inside a `**Guidelines:**` block must
 //                     open with an RFC-2119 keyword. Nested bullets are exempt:
-//                     they carry continuation detail, not rules.
+//                     they carry continuation detail, not rules. Carries a known
+//                     limitation — see the note on guidelineKeywordFailures.
 //   * link scope      a relative link must resolve inside its own skill
 //                     directory; a path link into another skill is what the
 //                     topic-based cross-reference rule exists to prevent.
@@ -362,6 +363,18 @@ function sectionIntroFailures(body, file, offset) {
  * A blank line does NOT end the block — a loose list is still one list, and
  * treating the gap as a boundary would silently stop checking every bullet
  * after it. The block ends at a heading or at an unindented non-bullet line.
+ *
+ * KNOWN LIMITATION: an unindented fence is one of those lines, so every bullet
+ * after one is invisible to this check — and to the `placement:` advisory too,
+ * which by design only examines keyword-BEARING bullets. A bullet with no
+ * RFC-2119 keyword, placed after an unindented fence inside a `**Guidelines:**`
+ * block, therefore passes both. The remedy today is document-level: nest the
+ * fence under the bullet it illustrates, which is better Markdown regardless.
+ * Note that the corpus's only instance was fixed that way, so no live example
+ * remains to rediscover this from. Closing it properly means treating a fence
+ * as continuation rather than a terminator, which widens THIS check's scan
+ * area — that belongs to a change that can measure the widening against a
+ * corpus, not to one that only adds warnings.
  */
 function guidelineKeywordFailures(body, file, offset) {
   const failures = [];
