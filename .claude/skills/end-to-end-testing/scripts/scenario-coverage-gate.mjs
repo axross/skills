@@ -43,8 +43,23 @@ import { readFile } from "node:fs/promises";
 const PRIORITIES = ["must", "should", "may"];
 
 /** Parse `--flag value` pairs; returns { catalog, results }. */
+const USAGE = `Usage: scenario-coverage-gate.mjs --catalog <file.md> --results <file.json>
+
+Join a human-authored journey catalog against the scenario tags carried by
+passing tests, report covered/total overall and per priority, and fail on the
+phased gate.
+
+  --catalog  Markdown file with a table of Id | Title | Area | Priority
+  --results  JSON array of { title, tags?, status }
+
+Exit codes: 0 gate passed, 1 gate failed, 2 bad invocation or unreadable input.`;
+
 function parseArgs(argv) {
   const args = {};
+  if (argv.includes("--help") || argv.includes("-h")) {
+    process.stdout.write(`${USAGE}\n`);
+    process.exit(0);
+  }
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     if (flag === "--catalog" || flag === "--results") {
@@ -56,9 +71,7 @@ function parseArgs(argv) {
       fail2(`Unknown argument: ${flag}`);
     }
   }
-  if (!args.catalog || !args.results) {
-    fail2("Usage: scenario-coverage-gate.mjs --catalog <file.md> --results <file.json>");
-  }
+  if (!args.catalog || !args.results) fail2(USAGE);
   return args;
 }
 

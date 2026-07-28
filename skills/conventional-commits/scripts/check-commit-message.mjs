@@ -53,6 +53,14 @@ function fail2(message) {
   process.exit(2);
 }
 
+const USAGE = `Usage: check-commit-message.mjs [<file> | -]
+
+Validate a Conventional Commits header. The same format governs pull request
+titles, so pass a title as a one-line message. With no argument, or with "-",
+the message is read from stdin.
+
+Exit codes: 0 the header conforms, 1 MUST violations found, 2 bad invocation.`;
+
 /**
  * Read the commit message from the first CLI argument (a file path, or `-` for
  * stdin) or, when no argument is given, from stdin. Exits 2 when nothing can be
@@ -60,6 +68,10 @@ function fail2(message) {
  */
 async function readMessage() {
   const arg = process.argv[2];
+  if (arg === "--help" || arg === "-h") {
+    process.stdout.write(`${USAGE}\n`);
+    process.exit(0);
+  }
   if (arg && arg !== "-") {
     try {
       return await readFile(arg, "utf8");

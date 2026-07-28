@@ -7,15 +7,13 @@
     "format": "prettier --write \"**/*.{md,json,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml}\"",
     "lint": "markdownlint-cli2 \"**/*.md\"",
-    "links": "./.claude/skills/agent-skill-authoring/scripts/check-links.sh",
-    "skill-structure": "node ./.claude/skills/agent-skill-authoring/scripts/check-skill.mjs --require-claude-code-fields skills .claude/skills",
-    "installed-copies": "node ./scripts/check-installed-copies.mjs",
-    "test": "node --test \"test/**/*.test.mjs\"",
-    "check": "npm run format:check && npm run lint && npm run links && npm run skill-structure && npm run installed-copies && npm test"
+    "test": "vitest run",
+    "check": "npm run format:check && npm run lint && npm test"
   },
   "devDependencies": {
     "markdownlint-cli2": "^0.15.0",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": "26"

@@ -3,23 +3,28 @@
 // Fixtures are written into a per-test temporary directory and removed when the
 // test finishes. Nothing is committed: a fixture that intentionally represents
 // an INVALID skill must never be discoverable as a real skill, and must stay out
-// of reach of `npm run lint`, `npm run format:check`, and the link checker. A
-// temp directory achieves that with no ignore-list entry anywhere — which
-// matters most for the link checker, whose prune list lives inside a
-// distributable script that must not learn this repository's paths.
+// of reach of `npm run format:check`, `npm run lint`, and the link check the
+// suite itself runs. A temp directory achieves that with no ignore-list entry
+// anywhere — which matters most for the link check, whose prune list lives
+// inside a distributable script that must not learn this repository's paths.
+//
+// Cleanup is registered with Vitest's `onTestFinished`, so a fixture is torn
+// down even when the test that built it fails, and no test needs to thread a
+// context object through to get one.
 
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import { onTestFinished } from "vitest";
+
 /**
- * Create a temporary directory removed when the test (or suite) finishes.
- * @param {{ after: (fn: () => unknown) => void }} t a `node:test` context
+ * Create a temporary directory removed when the current test finishes.
  * @returns {Promise<string>} absolute path of the directory
  */
-export async function tempDir(t) {
+export async function tempDir() {
   const dir = await mkdtemp(join(tmpdir(), "skills-validator-test-"));
-  t.after(() => rm(dir, { recursive: true, force: true }));
+  onTestFinished(() => rm(dir, { recursive: true, force: true }));
   return dir;
 }
 

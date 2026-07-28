@@ -121,11 +121,26 @@ async function checkFile(path) {
   return [...externalFetchFailures(text), ...placeholderFailures(text)];
 }
 
+const USAGE = `Usage: check-wireframe.mjs <file.html> [more files…]
+
+Check a filled wireframe page for the two mechanically checkable MUST rules:
+it stays self-contained (no external resource fetch) and carries no leftover
+template placeholders (FILL: markers or lorem ipsum filler).
+
+The un-filled kit deliberately contains FILL: markers, so it is EXPECTED to
+fail here. Run this on your filled copy.
+
+Exit codes: 0 every file passed, 1 one or more failed, 2 bad invocation.`;
+
 /** Entry point: validate every file argument, print a per-file report, and set the exit code. */
 async function main() {
   const paths = process.argv.slice(2);
+  if (paths.includes("--help") || paths.includes("-h")) {
+    process.stdout.write(`${USAGE}\n`);
+    process.exit(0);
+  }
   if (paths.length === 0) {
-    process.stderr.write("Usage: check-wireframe.mjs <file.html> [more files…]\n");
+    process.stderr.write(`${USAGE}\n`);
     process.exit(2);
   }
 

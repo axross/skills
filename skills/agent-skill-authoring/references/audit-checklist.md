@@ -34,7 +34,7 @@ node .claude/skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
 
 It verifies, per skill's **frontmatter and layout**: the block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 characters; `description` + `when_to_use` stays within 1,536 characters when `when_to_use` is present; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword.
 
-Across each skill's **prose documents** — its `SKILL.md` and every `references/*.md`, but not `scripts/` or `assets/`, which carry payload rather than rules — it further verifies that no `##`+ heading is separated from its `**Guidelines:**` block by nothing but blank lines (a fenced block, table, list, or paragraph all count as the demonstration); that every top-level bullet inside a `**Guidelines:**` block opens with an RFC-2119 keyword, nested bullets exempt; that every relative link resolves inside its own skill directory; and that every `#fragment` matches a heading in its target file, using GitHub's slug rules. A fragment whose target file does not resolve is left to `check-links.sh` rather than reported twice.
+Across each skill's **prose documents** — its `SKILL.md` and every `references/*.md`, but not `scripts/` or `assets/`, which carry payload rather than rules — it further verifies that no `##`+ heading is separated from its `**Guidelines:**` block by nothing but blank lines (a fenced block, table, list, or paragraph all count as the demonstration); that every top-level bullet inside a `**Guidelines:**` block opens with an RFC-2119 keyword, nested bullets exempt; that every relative link resolves inside its own skill directory; and that every `#fragment` matches a heading in its target file, using GitHub's slug rules. A fragment whose target file does not resolve is left to `check-links.mjs` rather than reported twice.
 
 It exits 0 when every skill passes, 1 when any check fails, and 2 on a bad invocation or an unrecognized option.
 
@@ -56,7 +56,7 @@ The token estimate is a **proxy, not a token count**: the validator takes no tok
 
 ## Structural Checks
 
-Structural checks should be repeatable. The bundled validator above automates the frontmatter, naming, reference-linkage, routing-keyword, section-intro, guideline-bullet, link-scope, and anchor checks, and `check-links.sh` resolves every relative link. Run both first, then use the list below for what they still cannot decide — whether frontmatter is valid YAML beyond the minimal `key: value` subset the validator parses, which `user-invocable` value an archetype takes, whether a routing section uses the expected heading-and-`See` shape at all, whether a section that states rules carries a `**Guidelines:**` block, whether a nested bullet is really a rule in disguise, whether an in-skill cross-reference is topic-based rather than merely well-formed, and whether a stale plain label outside the three the `labels:` advisory matches has crept in — and when auditing by hand. All checks should ignore fenced code blocks so embedded examples do not create false positives.
+Structural checks should be repeatable. The bundled validator above automates the frontmatter, naming, reference-linkage, routing-keyword, section-intro, guideline-bullet, link-scope, and anchor checks, and `check-links.mjs` resolves every relative link. Run both first, then use the list below for what they still cannot decide — whether frontmatter is valid YAML beyond the minimal `key: value` subset the validator parses, which `user-invocable` value an archetype takes, whether a routing section uses the expected heading-and-`See` shape at all, whether a section that states rules carries a `**Guidelines:**` block, whether a nested bullet is really a rule in disguise, whether an in-skill cross-reference is topic-based rather than merely well-formed, and whether a stale plain label outside the three the `labels:` advisory matches has crept in — and when auditing by hand. All checks should ignore fenced code blocks so embedded examples do not create false positives.
 
 **Example:**
 
@@ -71,7 +71,7 @@ find .claude/skills -name '*.md' -print | sort
 - MUST check that every parent `SKILL.md` reference-routing section uses `## Section/Topic Name`, `See [file.md](./references/file.md) for:`, and descriptive bullets without RFC-2119-style requirement keywords.
 - MUST check that every substantive rule section has a `**Guidelines:**` block after its explanation or demonstration.
 - MUST check that every guideline bullet begins with an RFC-2119 keyword.
-- MUST check that relative Markdown links outside fenced code blocks resolve; this skill's `scripts/check-links.sh` automates the check (see [cross-referencing.md](./cross-referencing.md)).
+- MUST check that relative Markdown links outside fenced code blocks resolve; this skill's `scripts/check-links.mjs` automates the check (see [cross-referencing.md](./cross-referencing.md)).
 - MUST check that cross-skill references are topic-based and discovery-resolvable, not path links into another skill's `SKILL.md` or `references/` files.
 - SHOULD check for stale plain labels such as `Guidelines:` or `Example:` when the project standard is bold subheading-like labels.
 

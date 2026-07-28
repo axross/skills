@@ -5,7 +5,7 @@
 // the discovery contract in frontmatter, the directory/name match, the
 // description length caps, reference-file linkage (no orphans), the parent
 // routing-section format, and the document-body rules below. It complements
-// check-links.sh (repo-wide Markdown link integrity) by adding the frontmatter,
+// check-links.mjs (repo-wide Markdown link integrity) by adding the frontmatter,
 // orphan-reference, and body-structure checks that link-checking cannot see.
 //
 // Scanned per skill: SKILL.md and every references/*.md. Those are the files a
@@ -28,7 +28,7 @@
 //                     topic-based cross-reference rule exists to prevent.
 //   * anchor validity a link's `#fragment` must match a heading in the target
 //                     file, using GitHub's slug rules. A fragment whose target
-//                     file does not resolve is left to check-links.sh rather
+//                     file does not resolve is left to check-links.mjs rather
 //                     than reported twice.
 //
 // It is dependency-light (Node standard library only) and host-agnostic: the
@@ -88,6 +88,11 @@
 
 import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
+
+// The CommonMark fenced-block rule lives in a sibling module because
+// check-links.mjs needs the identical rule. See commonmark.mjs for why one
+// implementation with two callers replaced two implementations that drifted.
+import { FENCE_RE, scanLines } from "./commonmark.mjs";
 
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const RFC2119_RE =
@@ -221,61 +226,6 @@ function splitFrontmatter(text) {
     if (match) fields[match[1]] = match[2];
   }
   return { fields, body, offset };
-}
-
-// A line that opens or closes a fenced block: 3+ backticks or 3+ tildes after
-// optional leading whitespace. Group 1 is the marker, group 2 the rest of the
-// line (an info string on an opening fence, blank on a closing one).
-const FENCE_RE = /^[ \t]*(`{3,}|~{3,})(.*)$/;
-
-/**
- * Per CommonMark, a fence closes only on a marker of the SAME character, at
- * least as long as the opener, carrying no info string. That is what lets a
- * longer fence legally contain shorter ones — a ````markdown block wrapping a
- * ```ts block, as this repository's own references do. Toggling on any
- * fence-looking line inverts the state inside such a block and exposes its
- * content as body text.
- */
-function closesFence(marker, char, length) {
-  return (
-    marker !== null &&
-    marker[1][0] === char &&
-    marker[1].length >= length &&
-    marker[2].trim() === ""
-  );
-}
-
-/**
- * Walk a document's lines while tracking fenced blocks, yielding
- * { line, text, fence } for every line OUTSIDE a fence, plus each fence's
- * OPENING line marked `fence: true`.
- *
- * Surfacing the opener is what lets a caller treat a fenced block as content
- * without seeing inside it. The section-intro check needs exactly that: a
- * section whose demonstration IS a code block must not read as a heading
- * abutting its `**Guidelines:**` label. Callers that only care about prose
- * skip the marked lines.
- */
-function* scanLines(body) {
-  let fenceChar = null; // open fence's marker character, or null outside a fence
-  let fenceLength = 0; // and its length — a closer must be at least this long
-  const lines = body.split("\n");
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const text = lines[index];
-    const marker = text.match(FENCE_RE);
-    if (fenceChar !== null) {
-      if (closesFence(marker, fenceChar, fenceLength)) fenceChar = null;
-      continue;
-    }
-    if (marker) {
-      fenceChar = marker[1][0];
-      fenceLength = marker[1].length;
-      yield { line: index + 1, text, fence: true };
-      continue;
-    }
-    yield { line: index + 1, text, fence: false };
-  }
 }
 
 /**
@@ -676,7 +626,7 @@ async function documentFindings(dir, documents) {
 
       if (fragment === "" || !resolved.endsWith(".md")) continue;
       const anchors = await anchorsOf(resolved);
-      // A target that does not resolve is check-links.sh's finding, not this
+      // A target that does not resolve is check-links.mjs's finding, not this
       // one; reporting it here would put the same defect behind two gates.
       if (anchors === null) continue;
       if (!anchors.has(fragment)) {
@@ -815,12 +765,26 @@ function collapseDuplicates(results) {
   return collapsed;
 }
 
-const USAGE = `Usage: check-skill.mjs [${REQUIRE_CLAUDE_CODE_FIELDS}] <skill-dir | skill-root> [more paths…]`;
+const USAGE = `Usage: check-skill.mjs [${REQUIRE_CLAUDE_CODE_FIELDS}] <skill-dir | skill-root> [more paths…]
+
+Check each skill's frontmatter, naming, reference linkage, and body structure.
+A <path> is either a skill directory (one holding SKILL.md) or a directory whose
+immediate subdirectories are skills.
+
+  ${REQUIRE_CLAUDE_CODE_FIELDS}  additionally require when_to_use and user-invocable
+
+Exit codes: 0 all skills passed, 1 one or more failed, 2 bad invocation.
+Advisory WARN lines never affect the exit code.`;
 
 async function main() {
   const args = process.argv.slice(2);
   const paths = [];
   let requireClaudeCodeFields = false;
+
+  if (args.includes("--help") || args.includes("-h")) {
+    process.stdout.write(`${USAGE}\n`);
+    process.exit(0);
+  }
 
   for (const arg of args) {
     if (!arg.startsWith("--")) {
