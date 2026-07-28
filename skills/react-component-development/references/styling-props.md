@@ -2,7 +2,9 @@
 
 Apply this reference when a component accepts a `className`, a `style`, or whatever styling prop the host project's mechanism uses.
 
-> **Twin section.** This topic is deliberately stated in full in two places: here, as part of the props contract, and in a React component styling capability's style-composition reference, as part of style ownership. Both are maintained; a rule change in one belongs in the other. The two differ only in framing — this copy names mechanisms generically so the skill stays portable, that one names the project's concrete tooling. A difference in what the rules **require** is a defect in whichever was edited alone, not a distinction to preserve.
+> **Twin section.** Two things in this reference are deliberately restated from a React component styling capability's style-composition reference, so this skill stands alone where that one is not installed: the **three obligations** below — accept, never drop, merge last — and the **override-versus-variant** split at the end. Both copies are maintained; a change to either belongs in the other, and a difference in what they **require** is a defect in whichever was edited alone, not a distinction to preserve. Where that capability is installed it governs, naming the project's concrete tooling; this copy names mechanisms generically to stay portable, and is the shorter of the two by design.
+>
+> Everything else here has no twin and is this skill's own: how the props spread interacts with the styling prop, which composition helper a project uses, and how the style prop is typed are props-contract concerns, not style-ownership ones.
 
 ## The Contract
 
