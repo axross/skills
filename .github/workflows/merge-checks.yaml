@@ -1,18 +1,22 @@
 name: Merge Checks
 
 # The project's own CI: the format, lint, and test checks that gate merges to
-# the default branch. The test step is the wide one — besides the validator unit
-# tests it runs the relative-link, skill-structure, and installed-copy checks
-# over this repository (see tests/repository/), which were once three separate
-# steps here. This is the CI the loop-engineering change loop's tail polls after
-# a push (see .claude/skills/loop-engineering/SKILL.md). Keep REVIEW.md's
-# do-not-report list in sync with exactly what this job enforces.
+# the default branch. Each gate is its own job, so the three run in parallel and
+# one failing gate still lets the others report; none declares `needs`. The
+# Tests job is the wide one — besides the validator unit tests it runs the
+# relative-link, skill-structure, and installed-copy checks over this repository
+# (see tests/repository/), which were once separate gates of their own. This is
+# the CI the loop-engineering change loop's tail polls after a push (see
+# .claude/skills/loop-engineering/SKILL.md). Keep REVIEW.md's do-not-report list
+# in sync with exactly what these jobs enforce.
 #
 # Every check step invokes an npm script, and
 # tests/repository/gate-consistency.test.mjs asserts that the set of scripts run
 # here equals the set in package.json's `check` chain — so a gate added to one
 # and forgotten in the other fails rather than silently going unenforced in the
-# place it was missed.
+# place it was missed. That comparison collects every `run:` line in this file
+# regardless of which job holds it, so splitting the gates across jobs does not
+# weaken it.
 
 on:
   pull_request:
@@ -30,8 +34,8 @@ permissions:
   contents: read
 
 jobs:
-  checks:
-    name: Checks
+  format-validation:
+    name: Format Validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,7 +49,35 @@ jobs:
         run: "npm install"
       - name: Format Check
         run: "npm run format:check"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: Dependency Installation
+        run: "npm install"
       - name: Lint
         run: "npm run lint"
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: Dependency Installation
+        run: "npm install"
       - name: Tests
         run: "npm test"

@@ -234,7 +234,7 @@ is the wide one: besides covering the bundled validators against fixtures, it
 runs the relative-link, skill-structure, and installed-copy checks over this
 repository, so `npm test` is every mechanical gate except formatting and
 linting. `npm run check` is the aggregate that runs all three, and each gates a
-merge as its own named step in
+merge as its own parallel job in
 [`merge-checks.yaml`](./.github/workflows/merge-checks.yaml).
 
 Each validator is also a standalone CLI — one command, one responsibility,
