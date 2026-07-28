@@ -58,10 +58,16 @@ Do not attach parts to the parent as properties (`Button.Text`). The dot form de
 
 Variant state reaches the parts through a **private context** the parent provides, so a caller sets `variant` once on the parent instead of repeating it on every child. The context hook throws when a part renders outside its parent, turning a misuse into an immediate, named error.
 
-**Example:**
+**Example** — three files, then the call site:
 
 ```tsx
 // button-context.tsx — private to the directory; not exported from a barrel
+type ButtonContextValue = { variant: ButtonVariant };
+
+const ButtonContext = createContext<ButtonContextValue | null>(null);
+
+export const ButtonContextProvider = ButtonContext.Provider;
+
 export function useButtonContext({
   componentName,
 }: {
@@ -78,6 +84,52 @@ export function useButtonContext({
   return value;
 }
 ```
+
+```tsx
+// button.tsx — the parent owns the variant and publishes it
+type ButtonVariant = "primary" | "danger";
+
+type ButtonProps = ComponentProps<"button"> & { variant?: ButtonVariant };
+
+export function Button({
+  variant = "primary",
+  children,
+  ...props
+}: ButtonProps) {
+  // Manual-memoization regime only — an auto-memoizing compiler already covers this.
+  const context = useMemo(() => ({ variant }), [variant]);
+
+  return (
+    <ButtonContextProvider value={context}>
+      <button {...props}>{children}</button>
+    </ButtonContextProvider>
+  );
+}
+```
+
+```tsx
+// button-text.tsx — a part reads the variant instead of re-declaring it
+export function ButtonText({ children, ...props }: ComponentProps<"span">) {
+  const { variant } = useButtonContext({ componentName: "ButtonText" });
+
+  return (
+    <span className={styles[variant]} {...props}>
+      {children}
+    </span>
+  );
+}
+```
+
+The caller sets `variant` once, and every part picks it up:
+
+```tsx
+<Button variant="danger" onClick={onDelete}>
+  <ButtonIcon name="trash" />
+  <ButtonText>Delete</ButtonText>
+</Button>
+```
+
+`ButtonText` renders outside a `<Button>` — a copy-paste into another tree, say — and `useButtonContext` throws `<ButtonText> must be used within a <Button> component.` rather than rendering with a silently wrong variant.
 
 **Guidelines:**
 
