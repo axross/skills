@@ -9,82 +9,73 @@
 // suite to a 748-line template would break it on an unrelated kit edit and would
 // record a shipped asset as failing its own validator.
 
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 
-import { tempDir, writeFileIn } from "./helpers/fixtures.mjs";
-import { SCRIPTS, runNodeScript } from "./helpers/run.mjs";
+import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
+import { SCRIPTS, validator } from "../helpers/run.mjs";
+
+const checkWireframe = validator(SCRIPTS.checkWireframe);
 
 const page = (body) =>
   `<!doctype html>\n<html lang="en">\n<head><title>Wireframe</title></head>\n<body>\n${body}\n</body>\n</html>\n`;
 
-const checkWireframe = (...args) =>
-  runNodeScript(SCRIPTS.checkWireframe, args);
+/** Write a one-off wireframe page into a fresh temp directory. */
+async function wireframe(body) {
+  const root = await tempDir();
+  return writeFileIn(root, "wireframe.html", page(body));
+}
 
 describe("check-wireframe.mjs", () => {
-  it("exits 0 on a self-contained page with no placeholders", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(
-      root,
-      "wireframe.html",
-      page('<h1>Dashboard</h1>\n<a href="#detail">Open detail</a>'),
+  it("exits 0 on a self-contained page with no placeholders", async () => {
+    const file = await wireframe(
+      '<h1>Dashboard</h1>\n<a href="#detail">Open detail</a>',
     );
 
     const result = checkWireframe(file);
 
-    assert.equal(result.code, 0, result.output);
-    assert.match(result.stdout, /^PASS {2}/m);
+    expect(result).toPassCleanly();
+    expect(result.stdout).toMatch(/^PASS {2}/m);
   });
 
-  it("exits 1 on a leftover FILL: placeholder", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(
-      root,
-      "wireframe.html",
-      page("<h1>FILL: screen title</h1>"),
-    );
+  it.each([
+    {
+      what: "a leftover FILL: placeholder",
+      body: "<h1>FILL: screen title</h1>",
+      reported: /placeholder: leftover "FILL:" marker/,
+    },
+    {
+      what: "leftover lorem ipsum filler",
+      body: "<p>Lorem ipsum dolor sit amet</p>",
+      reported: /lorem ipsum/i,
+    },
+    {
+      what: "an external resource reference",
+      body: '<img src="https://example.com/logo.png" alt="Logo">',
+      reported: /https:\/\/example\.com\/logo\.png/,
+    },
+  ])("exits 1 on $what", async ({ body, reported }) => {
+    const file = await wireframe(body);
 
-    const result = checkWireframe(file);
-
-    assert.equal(result.code, 1);
-    assert.match(result.stdout, /placeholder: leftover "FILL:" marker/);
+    expect(checkWireframe(file)).toReportFailure(reported);
   });
 
-  it("exits 1 on leftover lorem ipsum filler", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(
-      root,
-      "wireframe.html",
-      page("<p>Lorem ipsum dolor sit amet</p>"),
-    );
+  it("exits 1 when a file cannot be read", async () => {
+    const root = await tempDir();
 
-    assert.equal(checkWireframe(file).code, 1);
-  });
-
-  it("exits 1 on an external resource reference", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(
-      root,
-      "wireframe.html",
-      page('<img src="https://example.com/logo.png" alt="Logo">'),
-    );
-
-    const result = checkWireframe(file);
-
-    assert.equal(result.code, 1);
-    assert.match(result.stdout, /https:\/\/example\.com\/logo\.png/);
-  });
-
-  it("exits 1 when a file cannot be read", async (t) => {
-    const root = await tempDir(t);
-
-    assert.equal(checkWireframe(`${root}/missing.html`).code, 1);
+    expect(checkWireframe(`${root}/missing.html`)).toExitWith(1);
   });
 
   it("exits 2 when given no file arguments", () => {
     const result = checkWireframe();
 
-    assert.equal(result.code, 2);
-    assert.match(result.stderr, /Usage: check-wireframe\.mjs/);
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/Usage: check-wireframe\.mjs/);
+  });
+
+  it("prints usage on --help", () => {
+    const result = checkWireframe("--help");
+
+    expect(result).toPassCleanly();
+    expect(result.stdout).toMatch(/^Usage: check-wireframe\.mjs/);
   });
 });

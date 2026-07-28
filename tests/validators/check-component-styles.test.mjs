@@ -3,11 +3,12 @@
 // Documented contract: 0 when every checked file passes, 1 on any violation or
 // an unreadable path, 2 on a bad invocation.
 
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 
-import { tempDir, writeFileIn } from "./helpers/fixtures.mjs";
-import { SCRIPTS, runNodeScript } from "./helpers/run.mjs";
+import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
+import { SCRIPTS, validator } from "../helpers/run.mjs";
+
+const checkStyles = validator(SCRIPTS.checkComponentStyles);
 
 /** A CSS Module satisfying every floor check the script implements. */
 const CONFORMING_MODULE = `@layer components {
@@ -22,68 +23,58 @@ const CONFORMING_MODULE = `@layer components {
 }
 `;
 
-const checkStyles = (...args) =>
-  runNodeScript(SCRIPTS.checkComponentStyles, args);
+/** Write a CSS Module into a fresh temp directory. */
+async function cssModule(content) {
+  const root = await tempDir();
+  return writeFileIn(root, "card.module.css", content);
+}
 
 describe("check-component-styles.mjs", () => {
-  it("exits 0 on a conforming CSS Module", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(root, "card.module.css", CONFORMING_MODULE);
+  it("exits 0 on a conforming CSS Module", async () => {
+    const file = await cssModule(CONFORMING_MODULE);
 
-    const result = checkStyles(file);
-
-    assert.equal(result.code, 0, result.output);
+    expect(checkStyles(file)).toPassCleanly();
   });
 
-  it("exits 1 on a raw colour literal where a token belongs", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(
-      root,
-      "card.module.css",
-      CONFORMING_MODULE.replace("var(--color-text-primary)", "#1a1a1a"),
-    );
+  it.each([
+    {
+      what: "a raw colour literal where a token belongs",
+      content: CONFORMING_MODULE.replace("var(--color-text-primary)", "#1a1a1a"),
+      reported: /#1a1a1a/,
+    },
+    {
+      what: "a raw length on a token-required property",
+      content: CONFORMING_MODULE.replace("var(--spacing-16)", "16px"),
+      reported: /`padding` uses a raw length/,
+    },
+    {
+      what: "no components layer",
+      content: ":where(:scope) { color: var(--color-text-primary); }\n",
+      reported: /@layer components/,
+    },
+  ])("exits 1 on $what", async ({ content, reported }) => {
+    const file = await cssModule(content);
 
-    const result = checkStyles(file);
-
-    assert.equal(result.code, 1);
-    assert.match(result.output, /#1a1a1a/);
+    expect(checkStyles(file)).toReportFailure(reported);
   });
 
-  it("exits 1 on a raw length on a token-required property", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(
-      root,
-      "card.module.css",
-      CONFORMING_MODULE.replace("var(--spacing-16)", "16px"),
-    );
+  it("exits 1 when a path cannot be read", async () => {
+    const root = await tempDir();
 
-    assert.equal(checkStyles(file).code, 1);
-  });
-
-  it("exits 1 when the module declares no components layer", async (t) => {
-    const root = await tempDir(t);
-    const file = await writeFileIn(
-      root,
-      "card.module.css",
-      ":where(:scope) { color: var(--color-text-primary); }\n",
-    );
-
-    const result = checkStyles(file);
-
-    assert.equal(result.code, 1);
-    assert.match(result.output, /@layer components/);
-  });
-
-  it("exits 1 when a path cannot be read", async (t) => {
-    const root = await tempDir(t);
-
-    assert.equal(checkStyles(`${root}/missing.module.css`).code, 1);
+    expect(checkStyles(`${root}/missing.module.css`)).toExitWith(1);
   });
 
   it("exits 2 when given no paths", () => {
     const result = checkStyles();
 
-    assert.equal(result.code, 2);
-    assert.match(result.stderr, /Usage: node check-component-styles\.mjs/);
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/Usage: check-component-styles\.mjs/);
+  });
+
+  it("prints usage on --help", () => {
+    const result = checkStyles("--help");
+
+    expect(result).toPassCleanly();
+    expect(result.stdout).toMatch(/^Usage: check-component-styles\.mjs/);
   });
 });

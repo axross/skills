@@ -1,24 +1,25 @@
 // The enforced-gate set must not drift between package.json and CI.
 //
-// After the aggregate `check` chain and the merge-checks workflow both grew
-// beyond format/lint/links, the set of gates lives in four places: this
-// repository's `check` script, merge-checks.yaml's steps, README.md's commands
-// table, and REVIEW.md's do-not-report enumeration. Update one and miss another
-// and CI silently stops enforcing something the documentation claims it does.
+// The set of enforced gates lives in four places: this repository's `check`
+// script, merge-checks.yaml's steps, README.md's commands table, and REVIEW.md's
+// do-not-report enumeration. Update one and miss another and CI silently stops
+// enforcing something the documentation claims it does.
 //
 // Two of those four can be tied mechanically, which is what this asserts. The
 // README and REVIEW.md couplings stay prose and remain a reviewer's job.
 //
-// One coupling runs the other way: a gate's ARGUMENTS can weaken it without
-// changing the set of scripts. `npmScriptsIn` below deliberately discards
-// arguments, so the last case here pins the one argument REVIEW.md's
-// do-not-report list depends on.
+// Since the link, skill-structure, and installed-copy checks became Vitest tests
+// rather than npm run-scripts, the npm-script coupling covers three gates
+// instead of six — and the ARGUMENTS that used to live in package.json now live
+// in gates.mjs. The last case pins the one argument REVIEW.md's do-not-report
+// list depends on, in its new home.
 
-import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { describe, it } from "node:test";
 
-import { repoPath } from "./helpers/run.mjs";
+import { describe, expect, it } from "vitest";
+
+import { repoPath } from "../helpers/run.mjs";
+import { gate, GATES } from "./gates.mjs";
 
 /**
  * The npm scripts a shell command invokes. `npm test` is npm's own shorthand
@@ -43,17 +44,18 @@ function workflowRunCommands(yaml) {
   );
 }
 
+const readPackageJson = async () =>
+  JSON.parse(await readFile(repoPath("package.json"), "utf8"));
+
+const readWorkflow = () =>
+  readFile(repoPath(".github/workflows/merge-checks.yaml"), "utf8");
+
 const sorted = (set) => [...set].sort();
 
 describe("enforced-gate consistency", () => {
   it("runs the same npm scripts in CI as in the aggregate check chain", async () => {
-    const packageJson = JSON.parse(
-      await readFile(repoPath("package.json"), "utf8"),
-    );
-    const workflow = await readFile(
-      repoPath(".github/workflows/merge-checks.yaml"),
-      "utf8",
-    );
+    const packageJson = await readPackageJson();
+    const workflow = await readWorkflow();
 
     const inCheckChain = npmScriptsIn(packageJson.scripts.check);
     const inWorkflow = new Set(
@@ -62,51 +64,58 @@ describe("enforced-gate consistency", () => {
       ]),
     );
 
-    assert.ok(inCheckChain.size > 0, "the check chain must run npm scripts");
-    assert.deepEqual(
+    expect(
+      inCheckChain.size,
+      "the check chain must run npm scripts",
+    ).toBeGreaterThan(0);
+    expect(
       sorted(inWorkflow),
-      sorted(inCheckChain),
       "merge-checks.yaml and package.json's `check` chain must enforce the same gates",
-    );
+    ).toEqual(sorted(inCheckChain));
   });
 
   it("names only scripts that exist", async () => {
-    const packageJson = JSON.parse(
-      await readFile(repoPath("package.json"), "utf8"),
-    );
+    const packageJson = await readPackageJson();
 
     for (const name of npmScriptsIn(packageJson.scripts.check)) {
-      assert.ok(
+      expect(
         Object.hasOwn(packageJson.scripts, name),
         `the check chain runs "${name}", which is not a defined script`,
-      );
+      ).toBe(true);
     }
-  });
-
-  it("keeps the skill-structure gate opted into the Claude Code field checks", async () => {
-    const packageJson = JSON.parse(
-      await readFile(repoPath("package.json"), "utf8"),
-    );
-
-    assert.match(
-      packageJson.scripts["skill-structure"],
-      /--require-claude-code-fields\b/,
-      "REVIEW.md's do-not-report list excludes a missing `when_to_use`/`user-invocable` as CI-enforced, which holds only while this gate passes --require-claude-code-fields; the flag is off by default so the validator stays host-agnostic where it is installed",
-    );
   });
 
   it("keeps every workflow check step on an npm script", async () => {
-    const workflow = await readFile(
-      repoPath(".github/workflows/merge-checks.yaml"),
-      "utf8",
-    );
+    const workflow = await readWorkflow();
 
     for (const command of workflowRunCommands(workflow)) {
-      assert.match(
+      expect(
         command,
-        /^npm\s+(run\s+[\w:-]+|test|install)$/,
         `workflow step "${command}" bypasses the npm scripts the check chain is compared against`,
-      );
+      ).toMatch(/^npm\s+(run\s+[\w:-]+|test|install)$/);
     }
+  });
+
+  it("runs the folded gates through `npm test`, not through their own scripts", async () => {
+    const packageJson = await readPackageJson();
+
+    expect(
+      sorted(npmScriptsIn(packageJson.scripts.check)),
+      "the check chain is format:check, lint, and the suite that carries the rest",
+    ).toEqual(["format:check", "lint", "test"]);
+
+    for (const { name } of GATES) {
+      expect(
+        Object.hasOwn(packageJson.scripts, name),
+        `"${name}" is a Vitest gate now; a same-named npm script would run it twice and drift from gates.mjs`,
+      ).toBe(false);
+    }
+  });
+
+  it("keeps the skill-structure gate opted into the Claude Code field checks", () => {
+    expect(
+      gate("skill-structure").args,
+      "REVIEW.md's do-not-report list excludes a missing `when_to_use`/`user-invocable` as CI-enforced, which holds only while this gate passes --require-claude-code-fields; the flag is off by default so the validator stays host-agnostic where it is installed",
+    ).toContain("--require-claude-code-fields");
   });
 });

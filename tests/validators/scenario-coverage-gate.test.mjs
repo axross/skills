@@ -8,12 +8,14 @@
 // exactly what that asset documents itself as — a real catalog the gate parses.
 // Only the results side is generated.
 
-import assert from "node:assert/strict";
 import { join } from "node:path";
-import { describe, it } from "node:test";
 
-import { tempDir, writeFileIn } from "./helpers/fixtures.mjs";
-import { SCRIPTS, repoPath, runNodeScript } from "./helpers/run.mjs";
+import { describe, expect, it } from "vitest";
+
+import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
+import { SCRIPTS, repoPath, validator } from "../helpers/run.mjs";
+
+const scenarioCoverageGate = validator(SCRIPTS.scenarioCoverageGate);
 
 const CATALOG = repoPath(
   "skills/end-to-end-testing/assets/scenarios.example.md",
@@ -29,91 +31,95 @@ const passing = (id) => ({
 });
 
 /** Run the gate against the example catalog and a generated results file. */
-async function runGate(t, results, { catalog = CATALOG } = {}) {
-  const root = await tempDir(t);
+async function runGate(results, { catalog = CATALOG } = {}) {
+  const root = await tempDir();
   const resultsPath = await writeFileIn(
     root,
     "results.json",
     JSON.stringify(results),
   );
-  return runNodeScript(SCRIPTS.scenarioCoverageGate, [
-    "--catalog",
-    catalog,
-    "--results",
-    resultsPath,
-  ]);
+  return scenarioCoverageGate("--catalog", catalog, "--results", resultsPath);
 }
 
 describe("scenario-coverage-gate.mjs", () => {
-  it("exits 0 when every must-priority journey has a passing test", async (t) => {
-    const result = await runGate(t, MUST_JOURNEYS.map(passing));
+  it("exits 0 when every must-priority journey has a passing test", async () => {
+    const result = await runGate(MUST_JOURNEYS.map(passing));
 
-    assert.equal(result.code, 0, result.output);
-    assert.match(result.stdout, /GATE PASSED/);
+    expect(result).toPassCleanly();
+    expect(result.stdout).toMatch(/GATE PASSED/);
   });
 
-  it("exits 1 when a must-priority journey has no passing test", async (t) => {
-    const result = await runGate(t, MUST_JOURNEYS.slice(1).map(passing));
+  it("exits 1 when a must-priority journey has no passing test", async () => {
+    const result = await runGate(MUST_JOURNEYS.slice(1).map(passing));
 
-    assert.equal(result.code, 1);
-    assert.match(result.stdout, /cards\.browse/);
+    expect(result).toReportFailure(/cards\.browse/);
   });
 
-  it("exits 1 when a failing test is the only one asserting a must journey", async (t) => {
-    const result = await runGate(t, [
+  it("exits 1 when a failing test is the only one asserting a must journey", async () => {
+    const result = await runGate([
       ...MUST_JOURNEYS.slice(1).map(passing),
       { ...passing("cards.browse"), status: "failed" },
     ]);
 
-    assert.equal(result.code, 1);
+    expect(result).toExitWith(1);
   });
 
-  it("exits 1 on a scenario tag with no catalog row", async (t) => {
-    const result = await runGate(t, [
+  it("exits 1 on a scenario tag with no catalog row", async () => {
+    const result = await runGate([
       ...MUST_JOURNEYS.map(passing),
       passing("no.such.journey"),
     ]);
 
-    assert.equal(result.code, 1);
-    assert.match(result.stdout, /no\.such\.journey/);
+    expect(result).toReportFailure(/no\.such\.journey/);
   });
 
   it("exits 2 when required arguments are missing", () => {
-    const result = runNodeScript(SCRIPTS.scenarioCoverageGate, []);
+    const result = scenarioCoverageGate();
 
-    assert.equal(result.code, 2);
-    assert.match(result.stderr, /Usage: scenario-coverage-gate\.mjs/);
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/Usage: scenario-coverage-gate\.mjs/);
   });
 
   it("exits 2 on an unknown argument", () => {
-    const result = runNodeScript(SCRIPTS.scenarioCoverageGate, ["--nope"]);
+    const result = scenarioCoverageGate("--nope");
 
-    assert.equal(result.code, 2);
-    assert.match(result.stderr, /Unknown argument: --nope/);
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/Unknown argument: --nope/);
   });
 
-  it("exits 2 when the catalog cannot be read", async (t) => {
-    const root = await tempDir(t);
-    const result = await runGate(t, MUST_JOURNEYS.map(passing), {
+  it("exits 2 when the catalog cannot be read", async () => {
+    const root = await tempDir();
+    const result = await runGate(MUST_JOURNEYS.map(passing), {
       catalog: join(root, "no-such-catalog.md"),
     });
 
-    assert.equal(result.code, 2);
-    assert.match(result.stderr, /Cannot read catalog file/);
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/Cannot read catalog file/);
   });
 
-  it("exits 2 when the results file is not a JSON array", async (t) => {
-    const root = await tempDir(t);
-    const resultsPath = await writeFileIn(root, "results.json", '{"not":"an array"}');
+  it("exits 2 when the results file is not a JSON array", async () => {
+    const root = await tempDir();
+    const resultsPath = await writeFileIn(
+      root,
+      "results.json",
+      '{"not":"an array"}',
+    );
 
-    const result = runNodeScript(SCRIPTS.scenarioCoverageGate, [
+    const result = scenarioCoverageGate(
       "--catalog",
       CATALOG,
       "--results",
       resultsPath,
-    ]);
+    );
 
-    assert.equal(result.code, 2);
-    assert.match(result.stderr, /must be a JSON array/);
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/must be a JSON array/);
+  });
+
+  it("prints usage on --help", () => {
+    const result = scenarioCoverageGate("--help");
+
+    expect(result).toPassCleanly();
+    expect(result.stdout).toMatch(/^Usage: scenario-coverage-gate\.mjs/);
   });
 });

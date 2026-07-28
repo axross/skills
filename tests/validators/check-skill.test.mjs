@@ -5,53 +5,88 @@
 // documented contract is: 0 when every checked skill passes (warnings alone do
 // not fail a skill), 1 when any check fails, and 2 on a bad invocation or a path
 // that holds no skill.
+//
+// Running the validator over THIS repository's own skill roots is a gate rather
+// than a contract test, and lives in tests/repository/skill-structure.test.mjs.
 
-import assert from "node:assert/strict";
 import { join } from "node:path";
-import { describe, it } from "node:test";
 
-import { writeSkill, tempDir } from "./helpers/fixtures.mjs";
-import { SCRIPTS, runNodeScript } from "./helpers/run.mjs";
+import { describe, expect, it } from "vitest";
 
-const check = (...args) => runNodeScript(SCRIPTS.checkSkill, args);
+import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
+import { SCRIPTS, validator } from "../helpers/run.mjs";
+
+const checkSkill = validator(SCRIPTS.checkSkill);
+
+/**
+ * Assert that a fixture fails with exit 1 and reports `expected`.
+ *
+ * The two framing assertions are soft: when a rule stops firing, the useful
+ * signal is which of the three claims broke, and a hard assert on the first
+ * hides the rest.
+ * @param {string} dir
+ * @param {RegExp} expected
+ */
+function expectFailure(dir, expected) {
+  const result = checkSkill(dir);
+
+  expect(result).toReportFailure(expected);
+  expect.soft(result.stdout).toMatch(/^FAIL {2}/m);
+  expect.soft(result.stdout).toMatch(/1 of 1 skill\(s\) failed structural checks\./);
+}
+
+/**
+ * Assert that a fixture raises `expected` as a WARN and still exits 0. Every
+ * case using this asserts the exit code, because the whole point of the
+ * advisory tier is that none of it can fail a build.
+ * @param {string} dir
+ * @param {RegExp} expected
+ */
+function expectWarning(dir, expected) {
+  const result = checkSkill(dir);
+
+  expect(result, "a WARN must not fail the run").toPassCleanly();
+  expect.soft(result.stdout).toMatch(/^WARN/m);
+  expect(result.stdout).toMatch(expected);
+}
 
 describe("check-skill.mjs", () => {
   describe("exit 0 — a passing skill", () => {
-    it("passes a well-formed skill", async (t) => {
-      const root = await tempDir(t);
+    it("passes a well-formed skill", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "well-formed-skill");
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0);
-      assert.match(result.stdout, /^PASS {2}/m);
-      assert.match(result.stdout, /All 1 skill\(s\) passed structural checks\./);
+      expect(result).toPassCleanly();
+      expect(result.stdout).toMatch(/^PASS {2}/m);
+      expect(result.stdout).toMatch(/All 1 skill\(s\) passed structural checks\./);
     });
 
-    it("resolves a skill root into its immediate skill subdirectories", async (t) => {
-      const root = await tempDir(t);
+    it("resolves a skill root into its immediate skill subdirectories", async () => {
+      const root = await tempDir();
       await writeSkill(root, "first-skill");
       await writeSkill(root, "second-skill");
 
-      const result = check(root);
+      const result = checkSkill(root);
 
-      assert.equal(result.code, 0);
-      assert.match(result.stdout, /All 2 skill\(s\) passed structural checks\./);
+      expect(result).toPassCleanly();
+      expect(result.stdout).toMatch(/All 2 skill\(s\) passed structural checks\./);
     });
 
-    it("keeps a capability-framing warning advisory rather than fatal", async (t) => {
-      const root = await tempDir(t);
+    it("keeps a capability-framing warning advisory rather than fatal", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "some-guidelines");
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, "a WARN must not change the exit code");
-      assert.match(result.stdout, /^WARN/m);
-      assert.match(result.stdout, /names the document, not the capability/);
+      expect(result, "a WARN must not change the exit code").toPassCleanly();
+      expect(result.stdout).toMatch(/^WARN/m);
+      expect(result.stdout).toMatch(/names the document, not the capability/);
     });
 
-    it("warns on a document-voice description without failing", async (t) => {
-      const root = await tempDir(t);
+    it("warns on a document-voice description without failing", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "document-voice-skill", {
         frontmatter: {
           description:
@@ -59,14 +94,14 @@ describe("check-skill.mjs", () => {
         },
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0);
-      assert.match(result.stdout, /opens in document voice/);
+      expect(result).toPassCleanly();
+      expect(result.stdout).toMatch(/opens in document voice/);
     });
 
-    it("accepts a fenced demonstration between a heading and its guidelines", async (t) => {
-      const root = await tempDir(t);
+    it("accepts a fenced demonstration between a heading and its guidelines", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "fenced-demonstration", {
         body: [
           "# Fenced Demonstration",
@@ -86,14 +121,14 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, result.output);
-      assert.doesNotMatch(result.stdout, /^\s+- section:/m);
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/^\s+- section:/m);
     });
 
-    it("exempts a nested bullet from the RFC-2119 requirement", async (t) => {
-      const root = await tempDir(t);
+    it("exempts a nested bullet from the RFC-2119 requirement", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "nested-bullets", {
         body: [
           "# Nested Bullets",
@@ -109,14 +144,14 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, result.output);
-      assert.doesNotMatch(result.stdout, /^\s+- guidelines:/m);
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/^\s+- guidelines:/m);
     });
 
-    it("resolves anchor fragments the way GitHub slugs headings", async (t) => {
-      const root = await tempDir(t);
+    it("resolves anchor fragments the way GitHub slugs headings", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "slug-rules", {
         body: [
           "# Slug Rules",
@@ -147,14 +182,14 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, result.output);
-      assert.doesNotMatch(result.stdout, /^\s+- anchors:/m);
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/^\s+- anchors:/m);
     });
 
-    it("resolves anchors in a CRLF-encoded document", async (t) => {
-      const root = await tempDir(t);
+    it("resolves anchors in a CRLF-encoded document", async () => {
+      const root = await tempDir();
       // Written with Windows line endings: the anchor target is read straight
       // off disk, so without normalization every heading keeps a trailing \r,
       // matches no heading pattern, and every anchor into the file reads broken.
@@ -177,14 +212,14 @@ describe("check-skill.mjs", () => {
         ].join("\r\n"),
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, result.output);
-      assert.doesNotMatch(result.stdout, /^\s+- anchors:/m);
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/^\s+- anchors:/m);
     });
 
-    it("leaves a fragment on an unresolvable target to the link checker", async (t) => {
-      const root = await tempDir(t);
+    it("leaves a fragment on an unresolvable target to the link checker", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "missing-anchor-target", {
         body: [
           "# Missing Anchor Target",
@@ -194,131 +229,100 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, result.output);
-      assert.doesNotMatch(result.stdout, /^\s+- anchors:/m);
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/^\s+- anchors:/m);
     });
   });
 
   describe("exit 1 — each implemented failure class", () => {
-    /**
-     * Assert that a fixture fails with exit 1 and reports `expected`.
-     * @param {string} dir
-     * @param {RegExp} expected
-     */
-    const assertFailure = (dir, expected) => {
-      const result = check(dir);
-      assert.equal(result.code, 1, `expected exit 1, got ${result.code}`);
-      assert.match(result.stdout, /^FAIL {2}/m);
-      assert.match(result.stdout, expected);
-      assert.match(
-        result.stdout,
-        /1 of 1 skill\(s\) failed structural checks\./,
-      );
-    };
-
-    it("reports a missing frontmatter block", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "no-frontmatter", {
-        raw: "# Just a heading\n\nNo frontmatter at all.\n",
-      });
-
-      assertFailure(dir, /frontmatter: missing or unterminated leading/);
-    });
-
-    it("reports an unterminated frontmatter block", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "unterminated-frontmatter", {
-        raw: "---\nname: unterminated-frontmatter\ndescription: Never closed.\n",
-      });
-
-      assertFailure(dir, /frontmatter: missing or unterminated leading/);
-    });
-
-    it("reports a missing name", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "nameless-skill", {
-        frontmatter: { name: null },
-      });
-
-      assertFailure(dir, /frontmatter: `name` is missing\./);
-    });
-
-    it("reports a non-kebab-case name", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "Not_Kebab");
-
-      assertFailure(dir, /`name` "Not_Kebab" is not kebab-case/);
-    });
-
-    it("reports a name over the 64-character cap", async (t) => {
-      const root = await tempDir(t);
-      const longName = "a".repeat(65);
-      const dir = await writeSkill(root, longName);
-
-      assertFailure(dir, /frontmatter: `name` is 65 chars \(max 64\)\./);
-    });
-
-    it("reports a name that does not match its directory", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "directory-name", {
-        frontmatter: { name: "frontmatter-name" },
-      });
-
-      assertFailure(
-        dir,
-        /`name` "frontmatter-name" does not match directory "directory-name"/,
-      );
-    });
-
-    it("reports a missing description", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "no-description", {
-        frontmatter: { description: null },
-      });
-
-      assertFailure(dir, /frontmatter: `description` is missing or empty\./);
-    });
-
-    it("reports a description over the 1024-character cap", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "long-description", {
-        frontmatter: { description: `The ability to ${"x".repeat(1010)}` },
-      });
-
-      assertFailure(dir, /frontmatter: `description` is 1025 chars \(max 1024\)\./);
-    });
-
-    it("reports description + when_to_use over the 1536-character cap", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "long-combined", {
-        frontmatter: {
-          description: `The ability to ${"x".repeat(985)}`,
-          when_to_use: `Apply when ${"y".repeat(589)}`,
+    // Frontmatter and reference-linkage failures differ only in the fixture and
+    // the message, so they are one table rather than ten near-identical blocks.
+    it.each([
+      {
+        what: "a missing frontmatter block",
+        dirName: "no-frontmatter",
+        options: { raw: "# Just a heading\n\nNo frontmatter at all.\n" },
+        reported: /frontmatter: missing or unterminated leading/,
+      },
+      {
+        what: "an unterminated frontmatter block",
+        dirName: "unterminated-frontmatter",
+        options: {
+          raw: "---\nname: unterminated-frontmatter\ndescription: Never closed.\n",
         },
-      });
+        reported: /frontmatter: missing or unterminated leading/,
+      },
+      {
+        what: "a missing name",
+        dirName: "nameless-skill",
+        options: { frontmatter: { name: null } },
+        reported: /frontmatter: `name` is missing\./,
+      },
+      {
+        what: "a non-kebab-case name",
+        dirName: "Not_Kebab",
+        options: {},
+        reported: /`name` "Not_Kebab" is not kebab-case/,
+      },
+      {
+        what: "a name over the 64-character cap",
+        dirName: "a".repeat(65),
+        options: {},
+        reported: /frontmatter: `name` is 65 chars \(max 64\)\./,
+      },
+      {
+        what: "a name that does not match its directory",
+        dirName: "directory-name",
+        options: { frontmatter: { name: "frontmatter-name" } },
+        reported:
+          /`name` "frontmatter-name" does not match directory "directory-name"/,
+      },
+      {
+        what: "a missing description",
+        dirName: "no-description",
+        options: { frontmatter: { description: null } },
+        reported: /frontmatter: `description` is missing or empty\./,
+      },
+      {
+        what: "a description over the 1024-character cap",
+        dirName: "long-description",
+        options: {
+          frontmatter: { description: `The ability to ${"x".repeat(1010)}` },
+        },
+        reported: /frontmatter: `description` is 1025 chars \(max 1024\)\./,
+      },
+      {
+        what: "description + when_to_use over the 1536-character cap",
+        dirName: "long-combined",
+        options: {
+          frontmatter: {
+            description: `The ability to ${"x".repeat(985)}`,
+            when_to_use: `Apply when ${"y".repeat(589)}`,
+          },
+        },
+        reported:
+          /frontmatter: `description` \+ `when_to_use` is 1600 chars \(max 1536\)\./,
+      },
+      {
+        what: "a reference file that SKILL.md never links",
+        dirName: "orphan-reference",
+        options: {
+          references: { "orphan.md": "# Orphan\n\nLinked from nowhere.\n" },
+        },
+        reported:
+          /references: "references\/orphan\.md" is not linked from SKILL\.md \(orphan reference\)/,
+      },
+    ])("reports $what", async ({ dirName, options, reported }) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, dirName, options);
 
-      assertFailure(
-        dir,
-        /frontmatter: `description` \+ `when_to_use` is 1600 chars \(max 1536\)\./,
-      );
+      expectFailure(dir, reported);
     });
 
-    it("reports a reference file that SKILL.md never links", async (t) => {
-      const root = await tempDir(t);
-      const dir = await writeSkill(root, "orphan-reference", {
-        references: { "orphan.md": "# Orphan\n\nLinked from nowhere.\n" },
-      });
-
-      assertFailure(
-        dir,
-        /references: "references\/orphan\.md" is not linked from SKILL\.md \(orphan reference\)/,
-      );
-    });
-
-    it("reports a routing bullet that opens with an RFC-2119 keyword", async (t) => {
-      const root = await tempDir(t);
+    it("reports a routing bullet that opens with an RFC-2119 keyword", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "normative-routing", {
         body: [
           "# Normative Routing",
@@ -333,14 +337,14 @@ describe("check-skill.mjs", () => {
         references: { "topic.md": "# Topic\n\nDetail.\n" },
       });
 
-      assertFailure(
+      expectFailure(
         dir,
         /routing: section "Some Topic" has a routing bullet starting with an RFC-2119 keyword/,
       );
     });
 
-    it("reports a section heading that abuts its guidelines block", async (t) => {
-      const root = await tempDir(t);
+    it("reports a section heading that abuts its guidelines block", async () => {
+      const root = await tempDir();
       // Written raw so the reported line is unambiguous: the `##` heading sits at
       // file line 11, which only resolves if the frontmatter offset is applied.
       const dir = await writeSkill(root, "abutting-section", {
@@ -364,14 +368,14 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      assertFailure(
+      expectFailure(
         dir,
         /section: "What Belongs Here" \(SKILL\.md:11\) lists requirements/,
       );
     });
 
-    it("reports an abutting section inside a reference file", async (t) => {
-      const root = await tempDir(t);
+    it("reports an abutting section inside a reference file", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "reference-scanned", {
         body: [
           "# Reference Scanned",
@@ -397,14 +401,91 @@ describe("check-skill.mjs", () => {
         },
       });
 
-      assertFailure(
+      expectFailure(
         dir,
         /section: "Abutting Section" \(references\/detail\.md:3\) lists requirements/,
       );
     });
 
-    it("reports a guidelines bullet that opens with no RFC-2119 keyword", async (t) => {
-      const root = await tempDir(t);
+    // Nothing but a heading ends a `**Guidelines:**` block: not a blank line,
+    // not a fence, whether the fence follows the first bullet or stands before
+    // it. Each fixture hides an unmarked bullet behind one of those, and the
+    // bullet must still be read as a rule.
+    it.each([
+      {
+        boundary: "a blank line",
+        dirName: "loose-guidelines-list",
+        // A loose list: the trailing bullet is only reachable if a blank line
+        // does NOT end the block. `software-development` carries this shape.
+        lines: [
+          "- MUST run the steps in order:",
+          "  1. Format.",
+          "  2. Lint.",
+          "",
+          "- This trailing bullet is still inside the block.",
+        ],
+        reported: /keyword: "This trailing bullet/,
+      },
+      {
+        boundary: "an unindented fence",
+        dirName: "fenced-guidelines-list",
+        // A fence is continuation, not a terminator: an illustrative code block
+        // does not end a block's list of rules. `software-instrumentation`
+        // carried this shape before #82 nested the fence under its bullet.
+        lines: [
+          "- MUST do the first thing, for example:",
+          "",
+          "```ts",
+          "const x = 1;",
+          "```",
+          "",
+          "- This bullet sits after an unindented fence and carries no keyword.",
+        ],
+        reported: /keyword: "This bullet sits after/,
+      },
+      {
+        boundary: "a fence that opens the block",
+        dirName: "fence-opened-guidelines",
+        // A fence never changes block state, so one standing between the label
+        // and the first bullet leaves the block open rather than closing it
+        // before a single rule has been read.
+        lines: [
+          "```ts",
+          "const shape = { rule: true };",
+          "```",
+          "",
+          "- This first bullet follows the fence and carries no keyword.",
+        ],
+        reported: /keyword: "This first bullet follows/,
+      },
+    ])(
+      "keeps checking bullets after $boundary inside a guidelines block",
+      async ({ dirName, lines, reported }) => {
+        const root = await tempDir();
+        const dir = await writeSkill(root, dirName, {
+          body: [
+            `# ${dirName}`,
+            "",
+            "Prose for the fixture.",
+            "",
+            "**Guidelines:**",
+            "",
+            ...lines,
+            "",
+          ].join("\n"),
+        });
+
+        expectFailure(
+          dir,
+          new RegExp(
+            `guidelines: SKILL\\.md:\\d+ bullet does not open with an RFC-2119 ${reported.source}`,
+          ),
+        );
+      },
+    );
+
+    it("reports a guidelines bullet that opens with no RFC-2119 keyword", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "unmarked-guideline", {
         body: [
           "# Unmarked Guideline",
@@ -419,100 +500,14 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      assertFailure(
+      expectFailure(
         dir,
         /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "When used inside/,
       );
     });
 
-    it("keeps checking bullets after a blank line inside a guidelines block", async (t) => {
-      const root = await tempDir(t);
-      // A loose list: the trailing bullet is only reachable if a blank line does
-      // NOT end the block. `software-development` carries this shape today.
-      const dir = await writeSkill(root, "loose-guidelines-list", {
-        body: [
-          "# Loose Guidelines List",
-          "",
-          "Prose for the fixture.",
-          "",
-          "**Guidelines:**",
-          "",
-          "- MUST run the steps in order:",
-          "  1. Format.",
-          "  2. Lint.",
-          "",
-          "- This trailing bullet is still inside the block.",
-          "",
-        ].join("\n"),
-      });
-
-      assertFailure(
-        dir,
-        /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "This trailing bullet/,
-      );
-    });
-
-    it("keeps checking bullets after an unindented fence inside a guidelines block", async (t) => {
-      const root = await tempDir(t);
-      // A fence is continuation, not a terminator: an illustrative code block
-      // does not end a block's list of rules, so the bullet after it is still a
-      // rule. `software-instrumentation` carried this shape before #82 nested
-      // the fence under its introducing bullet.
-      const dir = await writeSkill(root, "fenced-guidelines-list", {
-        body: [
-          "# Fenced Guidelines List",
-          "",
-          "Prose for the fixture.",
-          "",
-          "**Guidelines:**",
-          "",
-          "- MUST do the first thing, for example:",
-          "",
-          "```ts",
-          "const x = 1;",
-          "```",
-          "",
-          "- This bullet sits after an unindented fence and carries no keyword.",
-          "",
-        ].join("\n"),
-      });
-
-      assertFailure(
-        dir,
-        /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "This bullet sits after/,
-      );
-    });
-
-    it("keeps checking bullets after a fence that opens a guidelines block", async (t) => {
-      const root = await tempDir(t);
-      // A fence never changes block state, so one standing between the label
-      // and the first bullet leaves the block open rather than closing it
-      // before a single rule has been read.
-      const dir = await writeSkill(root, "fence-opened-guidelines", {
-        body: [
-          "# Fence Opened Guidelines",
-          "",
-          "Prose for the fixture.",
-          "",
-          "**Guidelines:**",
-          "",
-          "```ts",
-          "const shape = { rule: true };",
-          "```",
-          "",
-          "- This first bullet follows the fence and carries no keyword.",
-          "",
-        ].join("\n"),
-      });
-
-      assertFailure(
-        dir,
-        /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "This first bullet follows/,
-      );
-    });
-
-    it("partitions a post-fence bullet between the guidelines check and the placement warning", async (t) => {
-      const root = await tempDir(t);
+    it("partitions a post-fence bullet between the guidelines check and the placement warning", async () => {
+      const root = await tempDir();
       // The failure check and the `placement:` advisory share one block
       // boundary, so a bullet after a fence must be claimed by exactly one of
       // them — never both, and never neither. Here the keyword-bearing bullet
@@ -538,18 +533,16 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 1, result.output);
-      assert.match(
-        result.stdout,
+      expect(result).toReportFailure(
         /guidelines: SKILL\.md:\d+ bullet does not open with an RFC-2119 keyword: "This unmarked bullet/,
       );
-      assert.doesNotMatch(result.stdout, /placement:/);
+      expect(result.stdout).not.toMatch(/placement:/);
     });
 
-    it("reports a relative link that escapes the skill directory", async (t) => {
-      const root = await tempDir(t);
+    it("reports a relative link that escapes the skill directory", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "escaping-link", {
         body: [
           "# Escaping Link",
@@ -563,14 +556,14 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      assertFailure(
+      expectFailure(
         dir,
         /links: SKILL\.md:\d+ relative link "\.\.\/other-skill\/SKILL\.md" resolves outside the skill directory/,
       );
     });
 
-    it("reports a heading-anchor fragment that resolves to no heading", async (t) => {
-      const root = await tempDir(t);
+    it("reports a heading-anchor fragment that resolves to no heading", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "broken-anchor", {
         body: [
           "# Broken Anchor",
@@ -584,14 +577,14 @@ describe("check-skill.mjs", () => {
         ].join("\n"),
       });
 
-      assertFailure(
+      expectFailure(
         dir,
         /anchors: SKILL\.md:\d+ link "#no-such-heading" resolves to no heading in SKILL\.md/,
       );
     });
 
-    it("reports an escaping link inside a reference file", async (t) => {
-      const root = await tempDir(t);
+    it("reports an escaping link inside a reference file", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "escaping-reference-link", {
         body: [
           "# Escaping Reference Link",
@@ -617,21 +610,19 @@ describe("check-skill.mjs", () => {
         },
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 1, result.output);
-      assert.match(
-        result.stdout,
+      expect(result).toReportFailure(
         /links: references\/detail\.md:7 relative link "\.\.\/\.\.\/other-skill\/SKILL\.md" resolves outside the skill directory/,
       );
       // A reference reaching up to its own SKILL.md is the common legitimate
       // shape; escaping is measured from the skill directory, not the file's.
-      assert.doesNotMatch(result.stdout, /theming\.md" resolves outside/);
-      assert.doesNotMatch(result.stdout, /"\.\.\/SKILL\.md" resolves outside/);
+      expect.soft(result.stdout).not.toMatch(/theming\.md" resolves outside/);
+      expect.soft(result.stdout).not.toMatch(/"\.\.\/SKILL\.md" resolves outside/);
     });
 
-    it("reports a broken anchor inside a reference file", async (t) => {
-      const root = await tempDir(t);
+    it("reports a broken anchor inside a reference file", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "broken-reference-anchor", {
         body: [
           "# Broken Reference Anchor",
@@ -660,172 +651,147 @@ describe("check-skill.mjs", () => {
         },
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 1, result.output);
+      expect(result).toExitWith(1);
       // Same-file fragment inside a reference…
-      assert.match(
-        result.stdout,
-        /anchors: references\/detail\.md:5 link "#removed-section" resolves to no heading in references\/detail\.md/,
-      );
+      expect
+        .soft(result.stdout)
+        .toMatch(
+          /anchors: references\/detail\.md:5 link "#removed-section" resolves to no heading in references\/detail\.md/,
+        );
       // …and a cross-file fragment naming the target by skill-relative path.
-      assert.match(
-        result.stdout,
-        /anchors: SKILL\.md:\d+ link "\.\/references\/detail\.md#missing-section" resolves to no heading in references\/detail\.md/,
-      );
-      assert.doesNotMatch(result.stdout, /#real-section" resolves to no heading/);
+      expect
+        .soft(result.stdout)
+        .toMatch(
+          /anchors: SKILL\.md:\d+ link "\.\/references\/detail\.md#missing-section" resolves to no heading in references\/detail\.md/,
+        );
+      expect.soft(result.stdout).not.toMatch(/#real-section" resolves to no heading/);
     });
 
-    it("fails the run when one skill in a root fails and another passes", async (t) => {
-      const root = await tempDir(t);
+    it("fails the run when one skill in a root fails and another passes", async () => {
+      const root = await tempDir();
       await writeSkill(root, "healthy-skill");
       await writeSkill(root, "broken-skill", {
         frontmatter: { description: null },
       });
 
-      const result = check(root);
-
-      assert.equal(result.code, 1);
-      assert.match(
-        result.stdout,
+      expect(checkSkill(root)).toReportFailure(
         /1 of 2 skill\(s\) failed structural checks\./,
       );
     });
   });
 
   describe("duplicate copies of one skill", () => {
-    it("reports an identical copy once, under the path given first", async (t) => {
-      const source = await tempDir(t);
-      const installed = await tempDir(t);
+    it("reports an identical copy once, under the path given first", async () => {
+      const source = await tempDir();
+      const installed = await tempDir();
       await writeSkill(source, "shared-skill");
       await writeSkill(installed, "shared-skill");
 
-      const result = check(source, installed);
+      const result = checkSkill(source, installed);
 
-      assert.equal(result.code, 0, result.output);
-      assert.match(result.stdout, /All 1 skill\(s\) passed structural checks\./);
-      assert.match(result.stdout, /1 duplicate path\(s\) collapsed/);
-      assert.match(result.stdout, /fix the reported path, not the copy/);
-      assert.match(
-        result.stdout,
-        new RegExp(`PASS {2}${source}/shared-skill {2}\\(= ${installed}/shared-skill\\)`),
-      );
+      expect(result).toPassCleanly();
+      expect.soft(result.stdout).toMatch(/All 1 skill\(s\) passed structural checks\./);
+      expect.soft(result.stdout).toMatch(/1 duplicate path\(s\) collapsed/);
+      expect.soft(result.stdout).toMatch(/fix the reported path, not the copy/);
+      expect
+        .soft(result.stdout)
+        .toMatch(
+          new RegExp(
+            `PASS {2}${source}/shared-skill {2}\\(= ${installed}/shared-skill\\)`,
+          ),
+        );
     });
 
-    it("collapses a shared failure once rather than twice", async (t) => {
-      const source = await tempDir(t);
-      const installed = await tempDir(t);
+    it("collapses a shared failure once rather than twice", async () => {
+      const source = await tempDir();
+      const installed = await tempDir();
       const broken = { frontmatter: { description: null } };
       await writeSkill(source, "shared-skill", broken);
       await writeSkill(installed, "shared-skill", broken);
 
-      const result = check(source, installed);
+      const result = checkSkill(source, installed);
 
-      assert.equal(result.code, 1);
-      assert.match(
-        result.stdout,
-        /1 of 1 skill\(s\) failed structural checks\./,
-      );
-      assert.equal(result.stdout.match(/^FAIL {2}/gm).length, 1);
+      expect(result).toReportFailure(/1 of 1 skill\(s\) failed structural checks\./);
+      expect(result.stdout.match(/^FAIL {2}/gm)).toHaveLength(1);
     });
 
-    it("reports both copies separately when their verdicts diverge", async (t) => {
-      const source = await tempDir(t);
-      const installed = await tempDir(t);
+    it("reports both copies separately when their verdicts diverge", async () => {
+      const source = await tempDir();
+      const installed = await tempDir();
       await writeSkill(source, "shared-skill");
       await writeSkill(installed, "shared-skill", {
         frontmatter: { description: null },
       });
 
-      const result = check(source, installed);
+      const result = checkSkill(source, installed);
 
-      assert.equal(result.code, 1);
-      assert.match(
-        result.stdout,
-        /1 of 2 skill\(s\) failed structural checks\./,
-      );
-      assert.doesNotMatch(result.stdout, /duplicate path\(s\) collapsed/);
+      expect(result).toReportFailure(/1 of 2 skill\(s\) failed structural checks\./);
+      expect(result.stdout).not.toMatch(/duplicate path\(s\) collapsed/);
     });
 
-    it("leaves single-root output unchanged", async (t) => {
-      const root = await tempDir(t);
+    it("leaves single-root output unchanged", async () => {
+      const root = await tempDir();
       await writeSkill(root, "only-skill");
 
-      const result = check(root);
+      const result = checkSkill(root);
 
-      assert.equal(result.code, 0);
-      assert.doesNotMatch(result.stdout, /duplicate path\(s\) collapsed/);
-      assert.doesNotMatch(result.stdout, /\(= /);
+      expect(result).toPassCleanly();
+      expect.soft(result.stdout).not.toMatch(/duplicate path\(s\) collapsed/);
+      expect.soft(result.stdout).not.toMatch(/\(= /);
     });
   });
 
   describe("--require-claude-code-fields", () => {
     // The default host-agnostic behaviour is the contract the script header
     // states; the flag is what this repository opts into.
-    it("passes a skill carrying neither discovery field when the flag is absent", async (t) => {
-      const root = await tempDir(t);
+    it("passes a skill carrying neither discovery field when the flag is absent", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "host-agnostic-skill", {
         frontmatter: { when_to_use: null },
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, result.output);
-      assert.doesNotMatch(result.stdout, /`when_to_use` is missing/);
-      assert.doesNotMatch(result.stdout, /`user-invocable` is missing/);
+      expect(result).toPassCleanly();
+      expect.soft(result.stdout).not.toMatch(/`when_to_use` is missing/);
+      expect.soft(result.stdout).not.toMatch(/`user-invocable` is missing/);
     });
 
-    it("reports a missing when_to_use under the flag", async (t) => {
-      const root = await tempDir(t);
+    it("reports a missing when_to_use under the flag", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "no-when-to-use", {
         frontmatter: { when_to_use: null, "user-invocable": "false" },
       });
 
-      const result = check("--require-claude-code-fields", dir);
+      const result = checkSkill("--require-claude-code-fields", dir);
 
-      assert.equal(result.code, 1, result.output);
-      assert.match(result.stdout, /frontmatter: `when_to_use` is missing\./);
-      assert.doesNotMatch(result.stdout, /`user-invocable` is missing/);
+      expect(result).toReportFailure(/frontmatter: `when_to_use` is missing\./);
+      expect(result.stdout).not.toMatch(/`user-invocable` is missing/);
     });
 
-    it("reports a missing user-invocable under the flag", async (t) => {
-      const root = await tempDir(t);
+    it("reports a missing user-invocable under the flag", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "no-user-invocable");
 
-      const result = check(dir, "--require-claude-code-fields");
+      const result = checkSkill(dir, "--require-claude-code-fields");
 
-      assert.equal(result.code, 1, result.output);
-      assert.match(result.stdout, /frontmatter: `user-invocable` is missing\./);
-      assert.doesNotMatch(result.stdout, /`when_to_use` is missing/);
+      expect(result).toReportFailure(/frontmatter: `user-invocable` is missing\./);
+      expect(result.stdout).not.toMatch(/`when_to_use` is missing/);
     });
 
-    it("passes a skill carrying both fields under the flag", async (t) => {
-      const root = await tempDir(t);
+    it("passes a skill carrying both fields under the flag", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "fully-declared-skill", {
         frontmatter: { "user-invocable": "false" },
       });
 
-      const result = check("--require-claude-code-fields", dir);
-
-      assert.equal(result.code, 0, result.output);
+      expect(checkSkill("--require-claude-code-fields", dir)).toPassCleanly();
     });
   });
 
   describe("advisory warnings — reported, never fatal", () => {
-    /**
-     * Assert that a fixture raises `expected` as a WARN and still exits 0.
-     * Every case in this block asserts the exit code, because the whole point
-     * of the advisory tier is that none of it can fail a build.
-     * @param {string} dir
-     * @param {RegExp} expected
-     */
-    const assertWarning = (dir, expected) => {
-      const result = check(dir);
-      assert.equal(result.code, 0, `a WARN must not fail the run\n${result.output}`);
-      assert.match(result.stdout, /^WARN/m);
-      assert.match(result.stdout, expected);
-    };
-
     /** A SKILL.md of exactly `bytes` UTF-8 bytes, padded with single-byte prose. */
     const skillOfBytes = (dirName, bytes) => {
       const head = `---\nname: ${dirName}\ndescription: ${"A".repeat(160)}\n---\n\n# Padded\n\nPad:\n\n`;
@@ -833,38 +799,38 @@ describe("check-skill.mjs", () => {
     };
 
     describe("size — the SKILL.md token budget", () => {
-      it("stays silent at exactly the trip point", async (t) => {
-        const root = await tempDir(t);
+      it("stays silent at exactly the trip point", async () => {
+        const root = await tempDir();
         const raw = skillOfBytes("at-the-budget", 23800);
-        assert.equal(Buffer.byteLength(raw, "utf8"), 23800);
+        expect(Buffer.byteLength(raw, "utf8")).toBe(23800);
         const dir = await writeSkill(root, "at-the-budget", { raw });
 
-        const result = check(dir);
+        const result = checkSkill(dir);
 
-        assert.equal(result.code, 0, result.output);
-        assert.doesNotMatch(result.stdout, /size:/);
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/size:/);
       });
 
-      it("warns one byte over the trip point, naming the raw byte count", async (t) => {
-        const root = await tempDir(t);
+      it("warns one byte over the trip point, naming the raw byte count", async () => {
+        const root = await tempDir();
         const raw = skillOfBytes("over-the-budget", 23801);
-        assert.equal(Buffer.byteLength(raw, "utf8"), 23801);
+        expect(Buffer.byteLength(raw, "utf8")).toBe(23801);
         const dir = await writeSkill(root, "over-the-budget", { raw });
 
-        assertWarning(dir, /size: SKILL\.md is 23801 bytes, ~5000 estimated tokens/);
+        expectWarning(dir, /size: SKILL\.md is 23801 bytes, ~5000 estimated tokens/);
       });
 
-      it("measures UTF-8 bytes, not UTF-16 string length", async (t) => {
-        const root = await tempDir(t);
+      it("measures UTF-8 bytes, not UTF-16 string length", async () => {
+        const root = await tempDir();
         // One em dash is three bytes but one UTF-16 unit, so this file is 23,799
         // units — under the threshold by `String.length` — and 23,801 bytes,
         // over it. The narrowest margin that can tell the two units apart.
         const raw = `${skillOfBytes("multi-byte-budget", 23798)}—`;
-        assert.equal(raw.length, 23799, "under the threshold by String.length");
-        assert.equal(Buffer.byteLength(raw, "utf8"), 23801, "over it by byte length");
+        expect(raw.length, "under the threshold by String.length").toBe(23799);
+        expect(Buffer.byteLength(raw, "utf8"), "over it by byte length").toBe(23801);
         const dir = await writeSkill(root, "multi-byte-budget", { raw });
 
-        assertWarning(dir, /size: SKILL\.md is 23801 bytes, ~5000 estimated tokens/);
+        expectWarning(dir, /size: SKILL\.md is 23801 bytes, ~5000 estimated tokens/);
       });
     });
 
@@ -886,38 +852,40 @@ describe("check-skill.mjs", () => {
           "",
         ].join("\n");
 
-      it("stays silent at seven bullets", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "seven-bullets", { body: withBullets(7) });
+      it("stays silent at seven bullets", async () => {
+        const root = await tempDir();
+        const dir = await writeSkill(root, "seven-bullets", {
+          body: withBullets(7),
+        });
 
-        const result = check(dir);
+        const result = checkSkill(dir);
 
-        assert.equal(result.code, 0, result.output);
-        assert.doesNotMatch(result.stdout, /length:/);
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/length:/);
       });
 
-      it("warns that eight bullets approach the ceiling", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "eight-bullets", { body: withBullets(8) });
+      it.each([
+        {
+          count: 8,
+          dirName: "eight-bullets",
+          reported:
+            /length: "Counted Section" \(SKILL\.md:\d+\) has 8 guideline bullets — approaching the ceiling of ten/,
+        },
+        {
+          count: 11,
+          dirName: "eleven-bullets",
+          reported:
+            /length: "Counted Section" \(SKILL\.md:\d+\) has 11 guideline bullets — over the ceiling of ten; split it or state why the exception is necessary\./,
+        },
+      ])("warns at $count bullets", async ({ count, dirName, reported }) => {
+        const root = await tempDir();
+        const dir = await writeSkill(root, dirName, { body: withBullets(count) });
 
-        assertWarning(
-          dir,
-          /length: "Counted Section" \(SKILL\.md:\d+\) has 8 guideline bullets — approaching the ceiling of ten/,
-        );
+        expectWarning(dir, reported);
       });
 
-      it("warns above ten, naming the rule's stated-exception escape hatch", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "eleven-bullets", { body: withBullets(11) });
-
-        assertWarning(
-          dir,
-          /length: "Counted Section" \(SKILL\.md:\d+\) has 11 guideline bullets — over the ceiling of ten; split it or state why the exception is necessary\./,
-        );
-      });
-
-      it("counts a nested subsection independently of its parent", async (t) => {
-        const root = await tempDir(t);
+      it("counts a nested subsection independently of its parent", async () => {
+        const root = await tempDir();
         const dir = await writeSkill(root, "nested-sections", {
           body: [
             "# Nested Sections",
@@ -943,11 +911,11 @@ describe("check-skill.mjs", () => {
           ].join("\n"),
         });
 
-        const result = check(dir);
+        const result = checkSkill(dir);
 
-        assert.equal(result.code, 0, result.output);
+        expect(result).toPassCleanly();
         // Twelve bullets in the section span, but six under each heading.
-        assert.doesNotMatch(result.stdout, /length:/);
+        expect(result.stdout).not.toMatch(/length:/);
       });
     });
 
@@ -958,8 +926,8 @@ describe("check-skill.mjs", () => {
         "- MUST end the turn whenever waiting on a human.",
       ];
 
-      it("warns when the bullets sit under a heading with no label", async (t) => {
-        const root = await tempDir(t);
+      it("warns when the bullets sit under a heading with no label", async () => {
+        const root = await tempDir();
         const dir = await writeSkill(root, "unlabelled-rules", {
           body: [
             "# Unlabelled Rules",
@@ -973,53 +941,25 @@ describe("check-skill.mjs", () => {
           ].join("\n"),
         });
 
-        assertWarning(
+        expectWarning(
           dir,
           /placement: SKILL\.md:\d+ RFC-2119 bullet sits outside any `\*\*Guidelines:\*\*` block/,
         );
       });
 
-      it("stays silent on the same bullets under a label, across a blank line", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "labelled-rules", {
-          body: [
-            "# Labelled Rules",
-            "",
-            "Prose for the fixture.",
-            "",
-            "## Termination",
-            "",
-            "Rationale for the section.",
-            "",
-            "**Guidelines:**",
-            "",
-            ...looseBullets,
-            "",
-          ].join("\n"),
-        });
-
-        const result = check(dir);
-
-        assert.equal(result.code, 0, result.output);
-        assert.doesNotMatch(result.stdout, /placement:/);
-      });
-
-      it("stays silent on a bullet an unindented fence stands before", async (t) => {
-        const root = await tempDir(t);
-        // A fence does not end the block, so this bullet is inside it — which
-        // is why the failure check, not this advisory, owns the position. The
-        // case below reaches the same verdict for the different reason that an
-        // indented fence never ended a block at all.
-        const dir = await writeSkill(root, "fence-spanned-block", {
-          body: [
-            "# Fence Spanned Block",
-            "",
-            "Prose for the fixture.",
-            "",
-            "## Logger Setup",
-            "",
-            "Rationale for the section.",
-            "",
+      // Three positions that must NOT warn, for three different reasons: the
+      // bullets are labelled; a fence does not end the block that contains
+      // them; and an indented fence never ended a block at all.
+      it.each([
+        {
+          position: "under a label, across a blank line",
+          dirName: "labelled-rules",
+          lines: ["**Guidelines:**", "", ...looseBullets],
+        },
+        {
+          position: "after an unindented fence inside the block",
+          dirName: "fence-spanned-block",
+          lines: [
             "**Guidelines:**",
             "",
             "- MUST derive loggers from the shared root logger, like this:",
@@ -1029,28 +969,12 @@ describe("check-skill.mjs", () => {
             "```",
             "",
             "- SHOULD choose an identifier that conveys the module's concern.",
-            "",
-          ].join("\n"),
-        });
-
-        const result = check(dir);
-
-        assert.equal(result.code, 0, result.output);
-        assert.doesNotMatch(result.stdout, /placement:/);
-      });
-
-      it("stays silent once that fence is nested under its bullet", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "fence-nested-block", {
-          body: [
-            "# Fence Nested Block",
-            "",
-            "Prose for the fixture.",
-            "",
-            "## Logger Setup",
-            "",
-            "Rationale for the section.",
-            "",
+          ],
+        },
+        {
+          position: "after a fence nested under its own bullet",
+          dirName: "fence-nested-block",
+          lines: [
             "**Guidelines:**",
             "",
             "- MUST derive loggers from the shared root logger, like this:",
@@ -1060,49 +984,72 @@ describe("check-skill.mjs", () => {
             "  ```",
             "",
             "- SHOULD choose an identifier that conveys the module's concern.",
+          ],
+        },
+      ])("stays silent on a bullet $position", async ({ dirName, lines }) => {
+        const root = await tempDir();
+        const dir = await writeSkill(root, dirName, {
+          body: [
+            `# ${dirName}`,
+            "",
+            "Prose for the fixture.",
+            "",
+            "## Logger Setup",
+            "",
+            "Rationale for the section.",
+            "",
+            ...lines,
             "",
           ].join("\n"),
         });
 
-        const result = check(dir);
+        const result = checkSkill(dir);
 
-        assert.equal(result.code, 0, result.output);
-        assert.doesNotMatch(result.stdout, /placement:/);
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/placement:/);
       });
     });
 
     describe("labels and fences — stale document style", () => {
-      it("warns on a plain Guidelines label", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "plain-label", {
-          body: ["# Plain Label", "", "Prose for the fixture.", "", "Guidelines:", "", "- MUST be labelled in bold.", ""].join("\n"),
+      it.each([
+        {
+          what: "a plain Guidelines label",
+          dirName: "plain-label",
+          lines: ["Guidelines:", "", "- MUST be labelled in bold."],
+          reported: /labels: SKILL\.md:\d+ plain "Guidelines:" label/,
+        },
+        {
+          what: "a plain Example label",
+          dirName: "plain-example-label",
+          lines: ["Example:", "", "> A short prose example."],
+          reported: /labels: SKILL\.md:\d+ plain "Example:" label/,
+        },
+        {
+          what: "a fenced text block, as a separate finding",
+          dirName: "text-fence",
+          lines: ["```text", "Too broad: use for code.", "```"],
+          reported: /fences: SKILL\.md:\d+ fenced `text` block/,
+        },
+      ])("warns on $what", async ({ dirName, lines, reported }) => {
+        const root = await tempDir();
+        const dir = await writeSkill(root, dirName, {
+          body: [
+            `# ${dirName}`,
+            "",
+            "Prose for the fixture.",
+            "",
+            ...lines,
+            "",
+          ].join("\n"),
         });
 
-        assertWarning(dir, /labels: SKILL\.md:\d+ plain "Guidelines:" label/);
-      });
-
-      it("warns on a plain Example label", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "plain-example-label", {
-          body: ["# Plain Example Label", "", "Prose for the fixture.", "", "Example:", "", "> A short prose example.", ""].join("\n"),
-        });
-
-        assertWarning(dir, /labels: SKILL\.md:\d+ plain "Example:" label/);
-      });
-
-      it("warns on a fenced text block, as a separate finding", async (t) => {
-        const root = await tempDir(t);
-        const dir = await writeSkill(root, "text-fence", {
-          body: ["# Text Fence", "", "Prose for the fixture.", "", "```text", "Too broad: use for code.", "```", ""].join("\n"),
-        });
-
-        assertWarning(dir, /fences: SKILL\.md:\d+ fenced `text` block/);
+        expectWarning(dir, reported);
       });
     });
 
     describe("hedging — a hedge immediately after the keyword", () => {
-      it("warns on an adverbial hedge", async (t) => {
-        const root = await tempDir(t);
+      it("warns on an adverbial hedge", async () => {
+        const root = await tempDir();
         const dir = await writeSkill(root, "hedged-rule", {
           body: [
             "# Hedged Rule",
@@ -1116,11 +1063,14 @@ describe("check-skill.mjs", () => {
           ].join("\n"),
         });
 
-        assertWarning(dir, /hedging: SKILL\.md:\d+ "SHOULD" is followed by the hedge "generally"/);
+        expectWarning(
+          dir,
+          /hedging: SKILL\.md:\d+ "SHOULD" is followed by the hedge "generally"/,
+        );
       });
 
-      it("stays silent on a volitional verb, which is the action, not a hedge", async (t) => {
-        const root = await tempDir(t);
+      it("stays silent on a volitional verb, which is the action, not a hedge", async () => {
+        const root = await tempDir();
         const dir = await writeSkill(root, "volitional-verb", {
           body: [
             "# Volitional Verb",
@@ -1134,15 +1084,15 @@ describe("check-skill.mjs", () => {
           ].join("\n"),
         });
 
-        const result = check(dir);
+        const result = checkSkill(dir);
 
-        assert.equal(result.code, 0, result.output);
-        assert.doesNotMatch(result.stdout, /hedging:/);
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/hedging:/);
       });
     });
 
-    it("reports warnings from a reference file by its skill-relative path", async (t) => {
-      const root = await tempDir(t);
+    it("reports warnings from a reference file by its skill-relative path", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "warned-reference", {
         body: [
           "# Warned Reference",
@@ -1157,15 +1107,27 @@ describe("check-skill.mjs", () => {
           "",
         ].join("\n"),
         references: {
-          "topic.md": ["# Topic", "", "Prose.", "", "## Rules", "", "- MUST be labelled to stay silent.", ""].join("\n"),
+          "topic.md": [
+            "# Topic",
+            "",
+            "Prose.",
+            "",
+            "## Rules",
+            "",
+            "- MUST be labelled to stay silent.",
+            "",
+          ].join("\n"),
         },
       });
 
-      assertWarning(dir, /placement: references\/topic\.md:\d+ RFC-2119 bullet sits outside/);
+      expectWarning(
+        dir,
+        /placement: references\/topic\.md:\d+ RFC-2119 bullet sits outside/,
+      );
     });
 
-    it("keeps exit 0 with every advisory check firing at once", async (t) => {
-      const root = await tempDir(t);
+    it("keeps exit 0 with every advisory check firing at once", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "every-warning", {
         raw:
           [
@@ -1189,7 +1151,10 @@ describe("check-skill.mjs", () => {
             "**Guidelines:**",
             "",
             "- SHOULD usually trip the hedging warning.",
-            ...Array.from({ length: 10 }, (_, i) => `- MUST trip the length warning (${i + 1}).`),
+            ...Array.from(
+              { length: 10 },
+              (_, i) => `- MUST trip the length warning (${i + 1}).`,
+            ),
             "",
             "Guidelines:",
             "",
@@ -1200,61 +1165,69 @@ describe("check-skill.mjs", () => {
           ].join("\n") + "x".repeat(24000),
       });
 
-      const result = check(dir);
+      const result = checkSkill(dir);
 
-      assert.equal(result.code, 0, `no combination of warnings may fail\n${result.output}`);
-      for (const prefix of [/size:/, /length:/, /placement:/, /labels:/, /fences:/, /hedging:/]) {
-        assert.match(result.stdout, prefix);
+      expect(result, "no combination of warnings may fail").toPassCleanly();
+      for (const prefix of [
+        /size:/,
+        /length:/,
+        /placement:/,
+        /labels:/,
+        /fences:/,
+        /hedging:/,
+      ]) {
+        expect.soft(result.stdout).toMatch(prefix);
       }
-      assert.match(result.stdout, /raised advisory warnings \(they do not affect the exit code\)/);
-    });
-
-    it("keeps the real skill roots at exit 0 with every check enabled", () => {
-      const result = check("--require-claude-code-fields", "skills", ".claude/skills");
-
-      assert.equal(result.code, 0, result.output);
-      assert.match(result.stdout, /All 18 skill\(s\) passed structural checks\./);
+      expect(result.stdout).toMatch(
+        /raised advisory warnings \(they do not affect the exit code\)/,
+      );
     });
   });
 
   describe("exit 2 — bad invocation or no skill at the path", () => {
     it("exits 2 with usage when given no arguments", () => {
-      const result = check();
+      const result = checkSkill();
 
-      assert.equal(result.code, 2);
-      assert.match(result.stderr, /Usage: check-skill\.mjs/);
+      expect(result).toExitWith(2);
+      expect(result.stderr).toMatch(/Usage: check-skill\.mjs/);
     });
 
-    it("exits 2 on an unrecognized option", async (t) => {
-      const root = await tempDir(t);
+    it("exits 2 on an unrecognized option", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "a-skill");
 
-      const result = check("--no-such-option", dir);
+      const result = checkSkill("--no-such-option", dir);
 
-      assert.equal(result.code, 2);
-      assert.match(result.stderr, /Unknown option "--no-such-option"/);
+      expect(result).toExitWith(2);
+      expect(result.stderr).toMatch(/Unknown option "--no-such-option"/);
     });
 
-    it("exits 2 when a path is not a directory", async (t) => {
-      const root = await tempDir(t);
+    it("exits 2 when a path is not a directory", async () => {
+      const root = await tempDir();
       const dir = await writeSkill(root, "a-skill");
 
-      const result = check(join(dir, "SKILL.md"));
+      const result = checkSkill(join(dir, "SKILL.md"));
 
-      assert.equal(result.code, 2);
-      assert.match(result.stderr, /Not a directory:/);
+      expect(result).toExitWith(2);
+      expect(result.stderr).toMatch(/Not a directory:/);
     });
 
-    it("exits 2 when a directory holds no SKILL.md and no skill subdirectory", async (t) => {
-      const root = await tempDir(t);
+    it("exits 2 when a directory holds no SKILL.md and no skill subdirectory", async () => {
+      const root = await tempDir();
 
-      const result = check(root);
+      const result = checkSkill(root);
 
-      assert.equal(result.code, 2);
-      assert.match(
-        result.stderr,
+      expect(result).toExitWith(2);
+      expect(result.stderr).toMatch(
         /No SKILL\.md in ".*" or its immediate subdirectories\./,
       );
     });
+  });
+
+  it("prints usage on --help", () => {
+    const result = checkSkill("--help");
+
+    expect(result).toPassCleanly();
+    expect(result.stdout).toMatch(/^Usage: check-skill\.mjs/);
   });
 });
