@@ -34,12 +34,10 @@ Agents match surface text as well as semantics. Include the terms users, reviewe
 
 ## Length Discipline
 
-Discovery metadata competes for context across the entire skill set. The goal is enough signal for routing without crowding out neighboring skills.
+Discovery metadata competes for context across the entire skill set. The goal is enough signal for routing without crowding out neighboring skills. Both hard caps — the spec's limit on `description`, and the combined limit at which the Claude Code skill listing truncates — are compared exactly by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run over any skill you change; the targets below are the judgment it cannot make.
 
 **Guidelines:**
 
-- MUST NOT exceed 1,024 characters in `description` — the spec's hard limit.
-- MUST keep `description` + `when_to_use` combined at or under 1,536 characters — the Claude Code skill listing truncates there.
 - SHOULD target roughly 300–800 characters for `description` and 150–400 for `when_to_use`.
 - SHOULD trim duplicated synonyms before trimming meaningful trigger coverage.
 - MUST assume over-limit text may be truncated, ignored, or rejected by a host runtime.

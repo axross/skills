@@ -18,8 +18,6 @@ A useful audit moves from inventory to mechanics to judgment. Mechanical checks 
 
 - MUST inventory every `SKILL.md` and reference file under the skill root.
 - MUST verify each skill directory has exactly one parent `SKILL.md`.
-- MUST verify every reference file is linked from its parent `SKILL.md`.
-- SHOULD run the bundled `scripts/check-skill.mjs` validator before manual review, so mechanical frontmatter, naming, linkage, and routing failures surface first.
 - SHOULD audit mechanical structure before judging writing quality.
 - SHOULD report improvement items in priority order instead of listing every small observation.
 
@@ -50,7 +48,6 @@ The token estimate is a **proxy, not a token count**: the validator takes no tok
 
 **Guidelines:**
 
-- SHOULD run `scripts/check-skill.mjs` over the changed skills before manual review, so mechanical failures surface first and the audit can focus on content.
 - MUST treat exit 1 as a blocker — a structural failure a discovery runtime depends on — and exit 2 as a bad invocation or a path holding no skill, to fix before trusting the result.
 - MUST run any script under a skill's `scripts/` that a change touches and confirm its documented exit codes, rather than assuming the edit preserved its behavior — a bundled script is a skill's output surface as much as its prose is.
 - SHOULD treat a `WARN` line as a recast prompt to weigh, not a blocker; framing is a SHOULD-level rule and an established name may be worth keeping.
@@ -59,7 +56,7 @@ The token estimate is a **proxy, not a token count**: the validator takes no tok
 
 ## Structural Checks
 
-Structural checks should be repeatable. The bundled validator above automates the frontmatter, naming, reference-linkage, routing-format, section-intro, guideline-bullet, link-scope, and anchor checks; run it first, then use the list below for what it still cannot decide — which `user-invocable` value an archetype takes, whether a section that states rules carries a `**Guidelines:**` block at all, whether a nested bullet is really a rule in disguise, and whether an in-skill cross-reference is topic-based rather than merely well-formed — and when auditing by hand. All checks should ignore fenced code blocks so embedded examples do not create false positives.
+Structural checks should be repeatable. The bundled validator above automates the frontmatter, naming, reference-linkage, routing-keyword, section-intro, guideline-bullet, link-scope, and anchor checks, and `check-links.sh` resolves every relative link. Run both first, then use the list below for what they still cannot decide — whether frontmatter is valid YAML beyond the minimal `key: value` subset the validator parses, which `user-invocable` value an archetype takes, whether a routing section uses the expected heading-and-`See` shape at all, whether a section that states rules carries a `**Guidelines:**` block, whether a nested bullet is really a rule in disguise, whether an in-skill cross-reference is topic-based rather than merely well-formed, and whether a stale plain label outside the three the `labels:` advisory matches has crept in — and when auditing by hand. All checks should ignore fenced code blocks so embedded examples do not create false positives.
 
 **Example:**
 
@@ -69,7 +66,7 @@ find .claude/skills -name '*.md' -print | sort
 
 **Guidelines:**
 
-- MUST check that every skill's frontmatter parses as YAML, its `name` matches its directory, and it carries both a `description` and a `when_to_use` within the length caps (1,024 for `description`; 1,536 combined), per [frontmatter-and-naming.md](./frontmatter-and-naming.md).
+- MUST check that every skill's frontmatter parses as YAML.
 - MUST check the invocation-control policy: guideline skills carry `user-invocable: false`; workflow entry-point skills carry `user-invocable: true` plus an `argument-hint`, and declare `arguments` only for discrete single-token parameters.
 - MUST check that every parent `SKILL.md` reference-routing section uses `## Section/Topic Name`, `See [file.md](./references/file.md) for:`, and descriptive bullets without RFC-2119-style requirement keywords.
 - MUST check that every substantive rule section has a `**Guidelines:**` block after its explanation or demonstration.
@@ -77,7 +74,6 @@ find .claude/skills -name '*.md' -print | sort
 - MUST check that relative Markdown links outside fenced code blocks resolve; this skill's `scripts/check-links.sh` automates the check (see [cross-referencing.md](./cross-referencing.md)).
 - MUST check that cross-skill references are topic-based and discovery-resolvable, not path links into another skill's `SKILL.md` or `references/` files.
 - SHOULD check for stale plain labels such as `Guidelines:` or `Example:` when the project standard is bold subheading-like labels.
-- SHOULD check for stale fenced `text` examples when a blockquote or table would be clearer.
 
 ## Content Review
 

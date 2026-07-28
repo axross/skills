@@ -20,7 +20,6 @@ Consult the project's verification-evidence practices when a review finding depe
 - MUST keep the topic phrasing specific enough to resolve to exactly one owning skill; where neighboring skills share a topic space (e.g. end-to-end vs. unit testing), keep the distinguishing token that separates them.
 - MUST use leading-dot relative paths for links inside the same skill, such as `./references/topic.md`; these stay relative because they move with the skill.
 - MAY use root-relative paths from a repo-root document (e.g. a working agreement, or a written index where the host maintains one) when the host renderer resolves them reliably.
-- MUST verify that every intra-skill relative link still resolves on disk, and that every cross-skill reference still names a topic a discoverable skill owns.
 
 ## No Content Duplication
 
@@ -63,10 +62,8 @@ The parent `SKILL.md` is the routing table for Markdown topic files under `refer
 **Guidelines:**
 
 - MUST update the parent `SKILL.md` when adding, deleting, or renaming a reference file.
-- MUST ensure every reference file is linked from the parent `SKILL.md`.
 - MUST keep split skill topic files under `references/` and link them as `./references/<topic>.md` from the parent `SKILL.md`.
 - MUST refresh the parent description when new reference content changes the skill's discovery scope.
-- MUST delete or wire in orphan reference files.
 
 ## Link Resolution Check
 
