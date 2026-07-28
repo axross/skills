@@ -100,6 +100,15 @@ import { FENCE_RE, scanLines } from "./commonmark.mjs";
 // guidelines.mjs for why they cannot each carry their own copy of the boundary.
 import { GUIDELINES_RE, RFC2119_RE, scanGuidelines } from "./guidelines.mjs";
 
+// The byte→token proxy behind the size advisory, for the same reason: the
+// reporting tooling that estimates a whole skill set's load must divide by the
+// SAME calibrated figure, or the two report different numbers for one file.
+import {
+  BYTES_PER_TOKEN,
+  estimateTokens,
+  PROXY_UNCERTAINTY,
+} from "./token-estimate.mjs";
+
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // An absolute URI (http:, https:, mailto:, …) or a protocol-relative URL: not a
 // path this validator can resolve on disk.
@@ -117,18 +126,10 @@ const DOC_VOICE_DESC_RE =
 
 // Structural advisories (warnings only — see the header note).
 //
-// BYTES_PER_TOKEN converts a SKILL.md's size into an estimated token count
-// WITHOUT a tokenizer, which this validator cannot take as a dependency: it
-// ships inside a skill and runs on Node's standard library alone. The unit is
-// UTF-8 BYTES, not `String.length` — these documents are dense in multi-byte
-// punctuation, and the two counts differ by roughly half a percent. Bytes are
-// chosen because they err HIGH, the conservative direction for a budget guard,
-// NOT because they are more accurate: measured against real o200k_base counts
-// over this corpus, bytes/token averages 4.800 and chars/token 4.781, and the
-// per-file spread runs 4.55–4.98. That spread is why the divisor is ±5% at
-// best, and why crossing it warns rather than fails. Re-measure before moving
-// it; a proxy calibrated on one corpus is not calibrated on another.
-const BYTES_PER_TOKEN = 4.76;
+// The byte→token proxy behind the size budget — why bytes rather than a
+// tokenizer, how the divisor was calibrated, and why it is only good to
+// PROXY_UNCERTAINTY — belongs to token-estimate.mjs, which this imports rather
+// than restating. The budget below is expressed in tokens and converted once.
 const SKILL_TOKEN_MAX = 5000;
 const SKILL_BYTES_MAX = Math.round(SKILL_TOKEN_MAX * BYTES_PER_TOKEN);
 // Near seven bullets is the target; above ten the rule requires a stated
@@ -425,8 +426,8 @@ function staleStyleWarnings(body, file, offset) {
 function skillSizeWarning(raw) {
   const bytes = Buffer.byteLength(raw, "utf8");
   if (bytes <= SKILL_BYTES_MAX) return null;
-  const estimate = Math.round(bytes / BYTES_PER_TOKEN);
-  return `size: SKILL.md is ${bytes} bytes, ~${estimate} estimated tokens (÷ ${BYTES_PER_TOKEN}, ±5%) — over the ~${SKILL_TOKEN_MAX}-token budget of ${SKILL_BYTES_MAX} bytes; move detail into references/.`;
+  const estimate = estimateTokens(bytes);
+  return `size: SKILL.md is ${bytes} bytes, ~${estimate} estimated tokens (÷ ${BYTES_PER_TOKEN}, ${PROXY_UNCERTAINTY}) — over the ~${SKILL_TOKEN_MAX}-token budget of ${SKILL_BYTES_MAX} bytes; move detail into references/.`;
 }
 
 /**

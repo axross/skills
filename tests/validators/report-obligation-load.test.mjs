@@ -19,6 +19,7 @@
 
 import { describe, expect, it } from "vitest";
 
+import { estimateTokens } from "../../skills/agent-skill-authoring/scripts/token-estimate.mjs";
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
 import { SCRIPTS, validator } from "../helpers/run.mjs";
 
@@ -153,8 +154,12 @@ describe("report-obligation-load.mjs", () => {
 
       const totals = totalsOf(report(`${root}/alpha-skill`).stdout);
 
-      // The reader is told they can redo the division; this holds the tool to it.
-      expect(totals.floorTokens).toBe(Math.round(totals.floorBytes / 4.76));
+      // The reader is told they can redo the division from the bytes shown; this
+      // holds the report's two columns to that. Derived through the shared
+      // estimator rather than a literal divisor, so re-calibrating the proxy —
+      // which its own header invites — moves this assertion with it instead of
+      // failing it.
+      expect(totals.floorTokens).toBe(estimateTokens(totals.floorBytes));
     });
   });
 

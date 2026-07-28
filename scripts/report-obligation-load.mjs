@@ -63,15 +63,22 @@
 //   2  bad invocation: an unknown flag, a name or path that resolves to no
 //      skill, or a selection that ends up empty
 //
-// Token figures are a byte proxy, not a tokenizer count — see BYTES_PER_TOKEN.
-// The obligation counts are exact, and they are the figure the instruction-
-// following evidence actually concerns.
+// Token figures are a byte proxy, not a tokenizer count — the divisor and its
+// uncertainty are imported from token-estimate.mjs, the same module
+// check-skill.mjs's size advisory divides by, so the two can never report a
+// different estimate for the same file. The obligation counts are exact, and
+// they are the figure the instruction-following evidence actually concerns.
 
 import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { countObligations } from "../skills/agent-skill-authoring/scripts/guidelines.mjs";
+import {
+  BYTES_PER_TOKEN,
+  estimateTokens,
+  PROXY_UNCERTAINTY,
+} from "../skills/agent-skill-authoring/scripts/token-estimate.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_ROOT = join(REPO_ROOT, "skills");
@@ -99,16 +106,6 @@ const MANDATED_SKILLS = [
   "software-development",
   "loop-engineering",
 ];
-
-// The byte→token proxy check-skill.mjs's size advisory calibrated, reused here
-// so the two report the same estimate for the same file. The unit is UTF-8
-// BYTES, not String.length. Measured against real o200k_base counts over this
-// corpus, bytes/token averages 4.800 with a per-file spread of 4.55–4.98 — which
-// is why every figure derived from it is reported as ±5% and shown alongside the
-// raw byte count, so a reader can redo the division. Re-measure before moving
-// it; a proxy calibrated on one corpus is not calibrated on another.
-const BYTES_PER_TOKEN = 4.76;
-const PROXY_UNCERTAINTY = "±5%";
 
 function fail2(message) {
   process.stderr.write(`${message}\n`);
@@ -218,7 +215,7 @@ async function measureSkill(dir) {
   return { name: basename(dir), floor, ceiling };
 }
 
-const tokens = (bytes) => Math.round(bytes / BYTES_PER_TOKEN);
+const tokens = estimateTokens;
 const group = (value) => value.toLocaleString("en-US");
 
 /**
