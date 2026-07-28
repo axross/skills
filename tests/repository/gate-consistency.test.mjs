@@ -1,7 +1,7 @@
 // The enforced-gate set must not drift between package.json and CI.
 //
 // The set of enforced gates lives in four places: this repository's `check`
-// script, merge-checks.yaml's steps, README.md's commands table, and REVIEW.md's
+// script, merge-checks.yaml's jobs, README.md's commands table, and REVIEW.md's
 // do-not-report enumeration. Update one and miss another and CI silently stops
 // enforcing something the documentation claims it does.
 //
