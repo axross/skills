@@ -20,8 +20,9 @@
 //                     list, or blockquote all count as the demonstration.
 //   * guideline voice a top-level bullet inside a `**Guidelines:**` block must
 //                     open with an RFC-2119 keyword. Nested bullets are exempt:
-//                     they carry continuation detail, not rules. Carries a known
-//                     limitation — see the note on guidelineKeywordFailures.
+//                     they carry continuation detail, not rules. Neither a blank
+//                     line nor a fence ends the block — see the note on
+//                     guidelineKeywordFailures for where it does end.
 //   * link scope      a relative link must resolve inside its own skill
 //                     directory; a path link into another skill is what the
 //                     topic-based cross-reference rule exists to prevent.
@@ -360,32 +361,22 @@ function sectionIntroFailures(body, file, offset) {
  * RFC-2119 keyword. Only bullets at zero indentation are rules; nested items
  * carry continuation detail and are exempt.
  *
- * A blank line does NOT end the block — a loose list is still one list, and
- * treating the gap as a boundary would silently stop checking every bullet
- * after it. The block ends at a heading or at an unindented non-bullet line.
- *
- * KNOWN LIMITATION: an unindented fence is one of those lines, so every bullet
- * after one is invisible to this check — and to the `placement:` advisory too,
- * which by design only examines keyword-BEARING bullets. A bullet with no
- * RFC-2119 keyword, placed after an unindented fence inside a `**Guidelines:**`
- * block, therefore passes both. The remedy today is document-level: nest the
- * fence under the bullet it illustrates, which is better Markdown regardless.
- * Note that the corpus's only instance was fixed that way, so no live example
- * remains to rediscover this from. Closing it properly means treating a fence
- * as continuation rather than a terminator, which widens THIS check's scan
- * area — that belongs to a change that can measure the widening against a
- * corpus, not to one that only adds warnings.
+ * Neither a blank line nor a fence ends the block. A loose list is still one
+ * list, and a `**Guidelines:**` block is a documentation convention rather than
+ * a CommonMark construct — nothing about it makes an illustrative code block
+ * the end of the rules, and authors interleave one naturally. Treating either
+ * as a boundary would silently stop checking every bullet after it. The block
+ * ends at a heading or at an unindented non-bullet line.
  */
 function guidelineKeywordFailures(body, file, offset) {
   const failures = [];
   let inBlock = false;
 
   for (const { line, text, fence } of scanLines(body)) {
-    if (fence) {
-      // An indented fence belongs to a bullet; an unindented one ends the block.
-      if (inBlock && !/^\s/.test(text)) inBlock = false;
-      continue;
-    }
+    // A fence is continuation. The scanner hides a fenced block's interior and
+    // yields only its opener, so skipping that opener leaves the guidelines
+    // block spanning it.
+    if (fence) continue;
     if (GUIDELINES_RE.test(text)) {
       inBlock = true;
       continue;
@@ -440,11 +431,9 @@ function guidelineStructureWarnings(body, file, offset) {
   };
 
   for (const { line, text, fence } of scanLines(body)) {
-    if (fence) {
-      // An indented fence belongs to a bullet; an unindented one ends the block.
-      if (inBlock && !/^\s/.test(text)) inBlock = false;
-      continue;
-    }
+    // Continuation, exactly as in `guidelineKeywordFailures` — the two share
+    // one boundary, so this branch and that one move together or not at all.
+    if (fence) continue;
     const heading = text.match(/^#{1,6}\s+(.*)$/);
     if (heading) {
       flushSection();
