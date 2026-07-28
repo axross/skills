@@ -151,6 +151,7 @@ format-on-edit and check-before-stop hooks are materialized from
 | Link integrity   | `.claude/skills/agent-skill-authoring/scripts/check-links.mjs` |
 | Skill structure  | `.claude/skills/agent-skill-authoring/scripts/check-skill.mjs` |
 | Installed copies | `scripts/check-installed-copies.mjs`                           |
+| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)    |
 | Tests            | Vitest                                                         |
 
 ### Delivering a unit of work end-to-end
@@ -260,6 +261,30 @@ contributors and agents alike.
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
+
+#### Reporting, not gating
+
+One script reports a number instead of judging one:
+
+```bash
+node scripts/report-obligation-load.mjs --mandated
+node scripts/report-obligation-load.mjs --help
+```
+
+`report-obligation-load.mjs` answers "how many rules is an agent holding right
+now?" — the concurrent RFC-2119 obligation count across a set of skills, as a
+**range**: the floor those skills cost with only their `SKILL.md` bodies read,
+and the ceiling once every `references/*.md` is read too. Pass skills by path,
+by name, or via `--mandated` for the always-on set [`CLAUDE.md`](./CLAUDE.md)
+requires in every session. It reads the obligation definition from the same
+module `check-skill.mjs` does, so the two never disagree about what a rule is.
+
+It defines **no threshold** and never fails: it exits 0 on every valid
+invocation however large the numbers, and belongs to no gate, no npm script, and
+no hook. There is no evidence for a defensible limit in this corpus yet, and a
+threshold nobody can defend becomes either a rule people route around or a
+warning people stop reading. `tests/repository/reporting-tools.test.mjs` keeps it
+out of the enforced set on purpose, so wiring it in has to be a deliberate act.
 
 ### Repository gotchas
 
