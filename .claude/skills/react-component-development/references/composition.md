@@ -129,7 +129,7 @@ The caller sets `variant` once, and every part picks it up:
 
 ```tsx
 <Button variant="danger" onClick={onDelete}>
-  <ButtonIcon name="trash" />
+  <ButtonIcon icon={TrashIcon} />
   <ButtonText>Delete</ButtonText>
 </Button>
 ```
