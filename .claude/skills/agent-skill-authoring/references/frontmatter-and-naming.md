@@ -15,13 +15,7 @@ description: The review methodology for pull requests and local diffs...
 ---
 ```
 
-**Guidelines:**
-
-- MUST include a `name` field.
-- MUST include a non-empty `description` field.
-- MUST keep `name` 1-64 characters and match `^[a-z0-9]+(-[a-z0-9]+)*$`.
-- MUST make the `name` field exactly match the parent directory name.
-- MUST keep `description` 1-1024 characters.
+Every constraint on those two fields — that both are present, that `name` is kebab-case, within 64 characters, and matches its directory, and that `description` stays within its length cap — is decided mechanically by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run over any skill you change. This section therefore states the contract and carries no rules of its own.
 
 ## Invocation-Control and Discovery Fields
 
@@ -40,7 +34,6 @@ Two skill archetypes take these fields differently: a **guideline skill** is ref
 **Guidelines:**
 
 - MUST give every skill a `when_to_use` stating when to apply it, alongside a `description` stating what it is and covers, per the [description-writing](./description-writing.md) reference.
-- MUST keep the combined `description` + `when_to_use` length at or under 1,536 characters; the Claude Code skill listing truncates there.
 - MUST set `user-invocable: false` on guideline skills — they are reference material the model routes to, not workflows a human launches from the `/` menu.
 - MUST give every workflow entry-point skill an explicit `user-invocable: true` (the default, written out for contrast with its siblings) and an `argument-hint`, and state in `when_to_use` both when to invoke the skill and when not to.
 - MUST declare `arguments` only when the skill's invocation takes discrete single-token parameters; a free-form or multi-word target MUST keep `$ARGUMENTS` instead, because shell-style quoting would otherwise split it across positional arguments.
@@ -84,12 +77,10 @@ user-invocable: false
 
 ## Naming Rules
 
-Kebab-case names are portable and predictable. The name should communicate the durable responsibility, not an incidental implementation detail.
+Kebab-case names are portable and predictable. The name should communicate the durable responsibility, not an incidental implementation detail. The kebab-case form itself — and the uppercase, underscore, dot, space, and stray-hyphen shapes it excludes — is decided by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run; what follows is the part a regex cannot judge.
 
 **Guidelines:**
 
-- MUST use kebab-case for skill directories and the `name` field.
-- MUST NOT use uppercase letters, underscores, dots, spaces, leading hyphens, trailing hyphens, or consecutive hyphens.
 - SHOULD describe the responsibility, such as `application-security` or `software-instrumentation`.
 - SHOULD avoid actor names such as `security-reviewer` unless the host's taxonomy is explicitly actor-based.
 - SHOULD avoid names that overlap conceptually with existing siblings.
