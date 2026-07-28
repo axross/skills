@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "447cba983d8de4b5e168fff52be695629207a4d8418480c464948951f72c8e77"
+      "computedHash": "cee1cce10d2d0904c4acc4ee8e6b56eb42ef27183019b259aeeb0d167bb2ea9e"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
@@ -44,7 +44,7 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0f40c44c400a66239992c9ab6bbfdb2e89069a7fffa8312e0a536d85cd6e7fdc"
+      "computedHash": "7629eddb79b8a0865f0ec658c5c466172447f28d4d1bf6ccf07918e21f89daa7"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -74,7 +74,7 @@
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "c3a31ec5ecc7b3b8f37a8cbca5a71d74b0b43ef3614470194f92d63e20e3e676"
+      "computedHash": "707406112e05198b5aecc5a579d9cf8cd799ce9f2540fae0ed3b02a62a16bc9e"
     },
     "unit-testing": {
       "source": "/home/user/skills/skills",
