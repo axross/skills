@@ -362,17 +362,32 @@ function fail(message) {
   process.exit(2);
 }
 
+const USAGE = `Usage: check-component-styles.mjs <path> [<path> ...] [--token-source=<substring>]
+
+Check the subset of the component-styling rules decidable from a file alone:
+cascade layer and @scope usage, raw colour and length literals where a token
+belongs, and inline easing or sub-second duration literals.
+
+  --token-source=<substring>  also treat paths containing <substring> as token
+                              sources, which are skipped
+
+A passing run is a floor, not a conformance claim.
+
+Exit codes: 0 every file passed, 1 one or more failed, 2 bad invocation.`;
+
 async function main() {
   const args = process.argv.slice(2);
+  if (args.includes("--help") || args.includes("-h")) {
+    process.stdout.write(`${USAGE}\n`);
+    process.exit(0);
+  }
   const extraTokenSources = args
     .filter((arg) => arg.startsWith("--token-source="))
     .map((arg) => arg.slice("--token-source=".length))
     .filter((value) => value.length > 0);
   const targets = args.filter((arg) => !arg.startsWith("--"));
 
-  if (targets.length === 0) {
-    fail("Usage: node check-component-styles.mjs <path> [<path> ...] [--token-source=<substring>]");
-  }
+  if (targets.length === 0) fail(USAGE);
 
   const files = [];
   let unreadable = 0;

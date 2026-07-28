@@ -64,7 +64,6 @@ See [input-validation.md](./references/input-validation.md) for:
 
 **Guidelines:**
 
-- MUST link every reference file from the parent `SKILL.md`.
 - MUST use the `## Section/Topic Name` + `See [file.md](./references/file.md) for:` + descriptive bullet-list format for reference-routing sections in `SKILL.md`.
 - MUST use a stable leading-dot relative link that resolves from the parent file, such as `./references/input-validation.md`.
 - MUST use the reference file name as the link label in parent routing sections, such as `[input-validation.md](./references/input-validation.md)`.
@@ -72,7 +71,6 @@ See [input-validation.md](./references/input-validation.md) for:
 - MUST put normative requirement bullets in the detailed reference file, not in the parent routing section.
 - SHOULD name reference files in kebab-case.
 - SHOULD order parent sections by likely consultation order.
-- MUST NOT leave orphan reference files under a skill directory.
 
 ## Triggering Conditions on Reference Links
 

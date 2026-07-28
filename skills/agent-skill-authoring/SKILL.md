@@ -13,6 +13,7 @@ Skills authored here follow the agentskills.io format. For the host project's ac
 
 **Guidelines:**
 
+- MUST run the bundled `scripts/check-skill.mjs` validator over every skill a change touches; it is the enforcement path for the frontmatter, naming, discovery length-cap, and reference-linkage rules this skill states nowhere else (see [audit-checklist.md](./references/audit-checklist.md)).
 - SHOULD propose or implement a skill update when any task exposes a reusable convention, outdated guidance, a recurring review issue, or a missing project rule — skill maintenance happens when work reveals durable learning, not after every narrow fix.
 - SHOULD skip skill maintenance when the work produced no generalizable learning, and state that it was skipped.
 

@@ -93,14 +93,53 @@ review — CI blocks the merge regardless, so restating them costs the author's
 attention without adding a gate. This exclusion governs **posted** reviews
 only; internal self-review triage still flags these findings.
 
-- Anything CI already enforces — the format, lint, and relative-link checks run
-  by the project's merge-checks workflow.
+The list is **enumerated, not generalized**, and deliberately so: a blanket
+"anything CI enforces" silently widens every time a check joins
+[`merge-checks.yaml`](.github/workflows/merge-checks.yaml), removing categories
+from this reviewer's scope without anyone deciding to. Each entry below names a
+check that is **coextensive** with the finding it excludes — the mechanical
+check and the finding are the same thing. A check that is only a narrow proxy
+for a broader prose rule does **not** silence the reviewer on that rule.
+
+- The format and lint checks run by the project's merge-checks workflow.
+- Relative-link integrity — a relative Markdown link whose target file does not
+  resolve on disk.
+- A heading-anchor fragment that resolves to no heading in its target file,
+  **within a skill's `SKILL.md` or `references/*.md`** — the only files
+  `check-skill.mjs` scans. The scope qualifier is load-bearing: an anchor in a
+  repository-root document such as this one is checked by nothing, so keep
+  reporting it. A fragment that resolves to the _wrong_ heading is a misroute
+  no check can see, and stays in scope everywhere.
+- The structural checks `check-skill.mjs` enforces: a frontmatter block that
+  does not parse; a `name` that is not kebab-case, exceeds 64 characters, or
+  does not match its directory; a missing `description`, or one over 1,024
+  characters; `description` + `when_to_use` over 1,536 characters; a missing
+  `when_to_use` or `user-invocable`; a `references/*.md` file that no `SKILL.md`
+  links; and a routing-section bullet opening with an RFC-2119 keyword.
+- A content mismatch between a `skills/<name>/` source and its generated
+  `.claude/skills/<name>/` copy.
 - Lockfiles and generated files.
+
+Two [Repository Severity Floors](#repository-severity-floors) rows stay **fully
+in scope** for exactly the proxy reason above, and are called out so they are
+not mistaken for CI-covered:
+
+- **Malformed frontmatter that breaks discovery/loading.** `check-skill.mjs`
+  checks presence, kebab-case, length caps, and the directory match — a narrow
+  subset of what a discovery runtime actually rejects at load time.
+- **A `description`/`when_to_use` that no longer matches its content.** Semantic,
+  and mechanically undecidable; nothing in CI touches it.
 
 **Guidelines:**
 
 - MUST NOT report, in a posted review, any finding on the do-not-report list
   above.
+- MUST keep reporting a finding whose CI check is only a narrow proxy for a
+  broader rule, including the two rows named above; a partial mechanical check
+  never removes a prose rule from this reviewer's scope.
+- MUST add an entry to the list above only when a new CI check is coextensive
+  with the category it would silence, and MUST NOT restore a blanket
+  "anything CI enforces" clause in its place.
 
 ## Reporting
 

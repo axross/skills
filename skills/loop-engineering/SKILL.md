@@ -31,35 +31,19 @@ You are the only long-lived actor. Advance the work as far as you can autonomous
 - MUST stop the turn and wait for a human resume at the plan-approval gate and whenever a machine event is stuck; resolve every _other_ human decision inline through the question UI. Never schedule a self-wake to re-check for human input.
 - MUST clear the [Phase 1](#phase-1--plan) clarify-before-building gate before writing the plan, and the plan-approval gate before implementing — never code against an unstated assumption or an unreviewed plan.
 - MUST treat a conflicting runtime-harness posture — "implement, commit, and push," or a restriction on opening a pull request — as a constraint on mechanics, never as permission to skip the tracking issue, the plan-approval gate, or the independent review; a "no pull request unless asked" clause is satisfied by the host project's standing mandate, deferral requires technical impossibility, and a change whose independent review was deferred is reported as not ready, never as done.
-- MUST treat the running session as the primary state store; write durable status to GitHub only as a recovery breadcrumb (see [GitHub as Lightweight State](#github-as-lightweight-state)), not as the mechanism of record.
+- MUST treat the running session as the primary state store; write durable status to GitHub only as a recovery breadcrumb (see [Run State and Reporting](#run-state-and-reporting)), not as the mechanism of record.
 - MUST keep each externally observable step idempotent, so a resume re-reads state and continues rather than duplicating work.
 
 ## Asking the Human
 
-Every human-gated **decision with options** — a Phase 1 Must-ask, an ambiguous review finding, a conflict-resolution judgment call, or a take-over decision — is asked through the harness's dedicated question tool where the session supports it (in Claude Code, **`AskUserQuestion`**): it renders your options as selectable choices and returns the answer inline, so the run continues in the same turn. (The plan-approval gate is **not** one of these — it is a full plan the human reads at their own pace, so it ends the turn and waits for a resume; see [Phase 1](#phase-1--plan).)
+Every human-gated decision with options goes through the harness's question tool (in Claude Code, **`AskUserQuestion`**) and is answered inline in the same turn; the plan-approval gate is **not** one of these — it ends the turn (see [Phase 1](#phase-1--plan)).
 
-**Guidelines:**
+See [asking-the-human.md](./references/asking-the-human.md) for:
 
-- MUST prefer the question tool when available: frame the decision as 2–4 concrete options, state the **default you would otherwise take** and mark it recommended, and rely on the tool's built-in "Other" choice for anything unanticipated. Never bury a decision in prose or silently assume an answer.
-- MUST NOT put two questions in one prompt when the answer to one would change, prune, or reframe the other; ask those one at a time, in dependency order. Only genuinely independent questions may share a prompt.
-- MUST treat a closed or errored question tool as a signal to **re-present and ask again**, never as proof the surface lacks a UI. On a remote or cloud session the permission stream can close transiently even though the human is reachable; the harness returns the same error for that case and for a genuinely headless run, so you cannot tell them apart from the error alone.
-- MUST, when the question tool errors, show the decision in plain text first — background, the question, and the numbered options with the recommended default marked — then call the question tool again with those same options, in the same order, and hold for the answer. Do not route around the human or end the turn as if blocked.
-- MUST, on the next turn, treat a bare answer token — an option number, a label, or free-form "Other" text — as answering the **still-open** question, reconciled against the options you presented, rather than restarting.
-- MUST keep the status block current with any open question so a session reclaimed mid-wait can re-present it; this breadcrumb records state, it is not a fallback channel for answering.
-- MUST convey pure notifications (ready-to-merge, a stuck-check dormancy notice, non-convergence) in the turn output and the status block, then end the turn — never as a GitHub comment or an @mention.
-
-### Never Manufacture the Human's Side
-
-A run parked at a gate is under pressure to move, and the cheapest way out is to narrate an approval that never arrived — an interrupted prompt plus a generic continuation retold as "they told me to proceed." That is not a misread of an ambiguous signal; it fabricates the very authorization the gate exists to require, and it costs the human their ability to trust your account of what they said. The rules below govern the human's half of the conversation: what you may state that they did.
-
-**Guidelines:**
-
-- MUST NOT attribute an action, instruction, approval, or utterance to the human unless it appears in an actual user turn.
-- MUST describe a continuation that carries no human-authored decision as a resume signal — never as a quoted or paraphrased human instruction, and never as approval of the gate the run is parked at.
-- MUST state an inference about an ambiguous signal as an inference, never as a settled report of what the human did.
-- MUST re-present a question whose prompt was interrupted, cancelled, closed, or left unanswered, and MUST NOT resolve it by adopting your own recommended defaults — a default you would have taken is not an answer they gave.
-- MUST NOT cite a later gate as license to pass an earlier one; that a human could still redirect at a downstream checkpoint is never a reason to pass an upstream one. This governs the rationalization itself — [Phase 1](#phase-1--plan) separately governs the artifacts no later approval can retroactively supply.
-- MUST, before asserting what the human said or did, confirm an actual user turn contains it — and when none does, say so plainly or ask, rather than filling the gap with a plausible narrative.
+- framing a decision as concrete options with a marked default, and ordering dependent questions
+- re-presenting a question when the tool closes or errors, and reading a bare answer token next turn
+- keeping an open question in the status block, and sending pure notifications to the turn output
+- what may be attributed to the human, and why a bare continuation is a resume signal, not approval
 
 ## GitHub Operation Conventions
 
@@ -113,7 +97,7 @@ Then step through the phase:
   - **Settle-and-note** — a fact the environment can answer: code, project conventions, documentation, or the output of a command. Resolve it by investigation and record the choice as a stated assumption in the plan.
   - **Must-ask** — a decision needing human judgment: a product outcome, a UX or interaction choice, a scope boundary or non-goal, empty/error/edge-case behavior, a data-model or persistence/migration decision, a trade-off between competing goods, or anything privacy-, platform-, security-, or compatibility-sensitive the issue does not pin down.
 
-  If any Must-ask remains, you **MUST NOT** start implementing — put them to the human through the question UI (see [Asking the Human](#asking-the-human)), then use the answers to finalize the plan. Ask only genuine spec gaps, never what local investigation already answers. Where the project ships its own clarifying-interview practices, follow them for how the interview is conducted — question order, depth, and the restatement that closes the gate; in their absence, the gate clears once no Must-ask remains. A continuation that arrives while a Must-ask question is still open is a resume signal that re-presents that question, never an answer to it (see [Never Manufacture the Human's Side](#never-manufacture-the-humans-side)).
+  If any Must-ask remains, you **MUST NOT** start implementing — put them to the human through the question UI (see [Asking the Human](#asking-the-human)), then use the answers to finalize the plan. Ask only genuine spec gaps, never what local investigation already answers. Where the project ships its own clarifying-interview practices, follow them for how the interview is conducted — question order, depth, and the restatement that closes the gate; in their absence, the gate clears once no Must-ask remains. A continuation that arrives while a Must-ask question is still open is a resume signal that re-presents that question, never an answer to it (see [Never Manufacture the Human's Side](./references/asking-the-human.md)).
 
 - Rewrite the issue body into a comprehensive plan following the canonical plan-document structure and its section craft (above). Refine the issue title to the concrete deliverable and move the original description into a collapsed `<details>` section, in a single issue write.
 - **Visual change → present options, do not imply one.** A plan for any visual change presents a choice of visual presentation options the human decides at the plan-approval gate, not a single implied design; construct and record the exhibit per the visual-change rules above. The visual direction is decided through this exhibit, never as a Must-ask question.
@@ -142,7 +126,7 @@ See [independent-review.md](./references/independent-review.md) for:
 
 Then step through the phase:
 
-- Open the pull request in **draft** with `Closes #<n>`, structured from any repository pull-request template, summarizing the change, the verification evidence, and the acceptance criteria with their status. Seed the status block into the description as an HTML comment (see [GitHub as Lightweight State](#github-as-lightweight-state)).
+- Open the pull request in **draft** with `Closes #<n>`, structured from any repository pull-request template, summarizing the change, the verification evidence, and the acceptance criteria with their status. Seed the status block into the description as an HTML comment (see [Run State and Reporting](#run-state-and-reporting)).
 - Request the review by posting a top-level comment whose body is exactly the review trigger phrase (`@claude review` in the reference workflow) plus the project's agent-comment marker line, and nothing else. Do not write that phrase anywhere else, or you will fire duplicate reviews.
 - The review is a machine event that completes on its own — poll for it in the tail alongside CI. Do NOT review the diff yourself in its place.
 
@@ -150,33 +134,28 @@ Then step through the phase:
 
 Address the independent review's findings and CI to convergence, then gate the ready flip on a clean review plus green CI. The granular rules — resolving each thread against its fixing commit, re-requesting review, the round cap, and mergeability/conflict handling — live in the independent-review reference routed from [Phase 3](#phase-3--request-independent-review).
 
+**Guidelines:**
+
 - MUST address and resolve each blocking finding and every unmet acceptance criterion, pushing fixes to the same branch and re-running the relevant verification after each batch.
-- MUST gate the draft→ready flip on a **clean independent review** (no blocking findings) plus green CI — never on your own assessment of your code. On convergence, flip the pull request to ready, update the status block, and deliver the [Ready-to-Merge Handoff](#ready-to-merge-handoff). Merging remains the human's decision.
+- MUST gate the draft→ready flip on a **clean independent review** (no blocking findings) plus green CI — never on your own assessment of your code. On convergence, flip the pull request to ready, update the status block, and deliver the [Ready-to-Merge Handoff](./references/run-state-and-reporting.md). Merging remains the human's decision.
 - MUST, when a human comments on a ready pull request, re-read the new threads on resume, address or escalate each, convert back to draft if needed, request a fresh independent review, and re-enter this loop as a new round.
 
-## Ready-to-Merge Handoff
+## Run State and Reporting
 
-When a run flips its pull request to ready, that same chat turn doubles as a **verification brief**: hand the human everything they need to exercise the change before merging. Deliver it in the session's chat turn output only — never as a GitHub comment.
+State lives in this running session; GitHub carries only a thin, **human-invisible** status block so a resumed session can recover, and the turn that flips the pull request to ready doubles as the human's verification brief.
 
-**Guidelines:**
+See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 
-- MUST name, in the handoff and in any completion claim, the tracking issue, the pull request, and the independent review's outcome (round count and verdict), with links — a completion report that cannot cite its pull request and review is reporting work that is not ready.
-- MUST judge whether the change is human-observable first. Write the brief only when the change alters something a human can see or operate — a route, a rendered surface, a command, an admin view. For a purely internal change (build, refactor, non-visible logic) with nothing to walk through, say so in one line and stop.
-- MUST spell out what to exercise and how, derived from the plan's acceptance criteria and the changed surfaces: the specific routes, pages, or commands to open, and the states to exercise (loading, empty, error, responsive widths, theme, locale) where they apply.
-- SHOULD hand over a per-PR preview URL when the project deploys one — sourced from the newest preview-deploy comment and verified against the branch-head SHA, never constructed from memory. When there is no usable preview, give the local verification steps instead; never fabricate a URL.
-
-## GitHub as Lightweight State
-
-State lives in this running session; GitHub carries a thin, **human-invisible** breadcrumb so a resumed or reclaimed session can recover. The run posts no status or attention comments — the only comments it authors are the dedicated review request (Phase 3) and the marked review-thread replies that tie each resolved finding to its commit (Phase 4).
-
-**Guidelines:**
-
-- MUST keep the run's state in a single **status block**: an HTML comment (`<!-- ... -->`) embedded in the pull request description — invisible in the rendered UI, present in the raw markdown. Before the pull request exists, keep the same block in the issue body. Record the current phase, the review-round count, what the run is waiting on, and any open question; update it in place.
-- MUST NOT post a separate status comment or @mention the maintainer for attention; convey ready-to-merge, dormancy, and non-convergence in the turn output instead.
-- MUST NOT write the literal review trigger phrase anywhere except the dedicated review request — a comment-triggered workflow fires on that phrase appearing anywhere in a body. Refer to it as "the independent review" everywhere else.
-- MUST reconstruct state from GitHub before acting on a resume, and resume the one pending step the block names rather than restarting from Plan.
+- what the status block records, and where it lives before and after the pull request exists
+- which comments the run may author, and why the review trigger phrase appears in exactly one
+- the ready-to-merge brief: naming the issue, pull request, and review outcome, and what to exercise
+- judging a change human-observable, and handing over a preview URL without fabricating one
 
 ## Termination Guard
+
+An autonomous run has no natural stopping point: a review that keeps finding new problems, a check that never reports, and a human who never returns all look the same from inside the loop — like work still in progress. Each cap below names where continuing stops being progress, and what to leave behind when it does.
+
+**Guidelines:**
 
 - MUST cap the address↔review loop at **8** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
 - MUST cap autonomous polling at **2 hours** per wait and go dormant rather than poll indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.

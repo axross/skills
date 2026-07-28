@@ -6,6 +6,8 @@ Global styles exist for things that have no component to own them: the document 
 
 ## What Belongs Here
 
+Ownership is the test, and it is worth applying literally: name the component that would hold the declaration. If one exists, the rule is not global. Only a short, closed list survives that question — the document itself, the reset, the browser chrome no component renders, and the typography every component inherits. Anything else reaching for global scope is a component rule that has not found its home yet.
+
 **Guidelines:**
 
 - MUST keep global styles to these categories:

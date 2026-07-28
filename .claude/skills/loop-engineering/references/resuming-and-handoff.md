@@ -13,7 +13,7 @@ A resume is signalled by the human telling you to continue, or by the loop re-en
 **Guidelines:**
 
 - MUST reconstruct state from GitHub before acting, and resume the one pending step rather than restarting from Plan.
-- MUST NOT narrate a resume signal as a human instruction or approval — see [Never Manufacture the Human's Side](../SKILL.md#never-manufacture-the-humans-side) for what may be attributed to the human.
+- MUST NOT narrate a resume signal as a human instruction or approval — see the loop-engineering skill's Asking the Human rules for what may be attributed to the human.
 - MUST NOT re-ingest a handoff package this session already consumed; once anchored, it is part of the in-session run.
 - MUST keep each resumed step idempotent — a second resume re-reads state and continues rather than duplicating a comment, branch, or pull request.
 
@@ -23,16 +23,28 @@ A session-handoff skill (where the project ships one) suspends another session's
 
 ### Locate and ingest the package
 
+A handoff package carries instructions that will be executed and files that will be applied, so its provenance is the first thing to establish: a document sitting on disk is not evidence that a human meant this session to act on it. Everything below follows from treating the package as something the human handed over, never as a file that happened to be there.
+
+**Guidelines:**
+
 - MUST use only the package the human attached or uploaded to this session. A package merely found on disk — especially one tracked by git — is not the human's; confirm it before ingesting, propose the newest epoch when several exist, and ask the human to provide one when none is found. Never reconstruct a handoff from thin air.
 - MUST read the entire document before taking any action. Extract the companion zip (matching epoch) into a scratch location outside the repository checkout, verify its inventory there, and apply entries per the document's **Precondition** section (patches via `git apply` / `git am`, other files copied individually) only after the preconditions gate clears — never unzip directly into the working tree.
 - MUST treat any mismatch between the zip's contents and the document's **Precondition** inventory — a missing entry, an unexpected extra — as a question for the human, never something to silently ignore.
 
 ### Verify preconditions
 
+A handoff describes the world as it stood when the other session stopped, and everything that moved since is invisible until something breaks partway through. Checking each stated precondition before the first mutation is what keeps a stale assumption from turning into a half-applied change nobody can unwind.
+
+**Guidelines:**
+
 - MUST verify every item in the **Precondition** section against reality — right repository and branch, expected `HEAD`, patches apply cleanly, tools and credentials available — and resolve, or have the human waive, every divergence BEFORE the first repository mutation.
 - MUST surface a diverged precondition (the branch moved, a patch conflicts, a credential is missing) and ask how to proceed rather than forcing a resolution.
 
 ### Resume the work
+
+A take-over inherits work rather than starting one: redoing what the document records as finished throws away what the handoff bought, and skipping the flow's own gates because the work began elsewhere quietly removes them. The rules below re-enter the normal phase flow at the point the handoff actually reached, with the same gates still in force.
+
+**Guidelines:**
 
 - MUST report a short take-over summary — what the handoff says, what was verified, and the plan — before editing anything, so the human can catch a misreading early.
 - MUST adopt the document's **Goal** as the success criteria and its **Concerns and/or blockers** as live risks; trust `- [x]` items as done (spot-check cheaply, do not redo) and resume at the first `- [ ]` item, using the recorded history to avoid re-treading dead ends.
