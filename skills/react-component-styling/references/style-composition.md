@@ -42,6 +42,8 @@ A component's own styles describe its interior: layout of its children, spacing 
 
 ## Accepting a Consumer's Styles
 
+> **Twin section.** This section's three obligations — accept, never drop, merge last — and the override-versus-variant split in [When a Consumer Overrides](#when-a-consumer-overrides) are deliberately restated, in shorter form, by a React component development capability's styling-props reference, so that skill stands alone where this one is not installed. Both copies are maintained; a change to either belongs in the other, and a difference in what they **require** is a defect in whichever was edited alone, not a distinction to preserve. This copy owns the topic and governs wherever both are installed, naming the project's concrete tooling where the other names mechanisms generically.
+
 Every component that renders a styled root accepts the consumer's styles and merges them **last**, so the consumer wins without escalating specificity. What "last" means differs by platform, and on mobile native the merge form is load-bearing.
 
 **Example — web:**

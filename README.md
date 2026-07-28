@@ -5,10 +5,10 @@ A curated, reusable library of agent skills.
 `skills` is a library of **agent skills** in the
 [agentskills.io](https://agentskills.io) format — self-contained capabilities
 you install into a coding agent so it plans, builds, reviews, and verifies work
-the way you want it done. Eighteen of them cover the whole arc: handling what
+the way you want it done. Nineteen of them cover the whole arc: handling what
 the agent does not know, turning a request into a spec, driving that spec to a
 reviewed pull request, keeping the code maintainable and secure, testing it,
-designing its UI, and authoring more skills.
+designing and building its UI, and authoring more skills.
 They install into any agent the [`skills`
 CLI](https://github.com/vercel-labs/skills) supports.
 
@@ -56,7 +56,7 @@ rather than one option among several.
 ## Skill catalog
 
 Every skill in the library, grouped by what you would reach for it to do. All
-eighteen install the same way; the ✱ marks where a skill's source lives in
+nineteen install the same way; the ✱ marks where a skill's source lives in
 _this_ repository, which matters only if you contribute here.
 
 ### Working with you
@@ -99,11 +99,12 @@ _this_ repository, which matters only if you contribute here.
 
 ### Designing a UI
 
-| Skill                                                                  | What it gives your agent                                                                                                                                                              |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`wireframe-design`](./skills/wireframe-design/SKILL.md)               | Grey-box screens and flows, with a self-contained HTML kit, so layout gets settled before anyone argues about color.                                                                  |
-| [`high-fidelity-ui-design`](./skills/high-fidelity-ui-design/SKILL.md) | For when the greys become a real interface — semantic tokens, dark mode, readable type, WCAG contrast, visible focus, and states for every way a control can behave.                  |
-| [`react-component-styling`](./skills/react-component-styling/SKILL.md) | Builds that interface for real: which styles a component owns and which its caller does, tokens that survive a theme swap, and surfaces that hold up at any width, pointer, or gamut. |
+| Skill                                                                          | What it gives your agent                                                                                                                                                              |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`wireframe-design`](./skills/wireframe-design/SKILL.md)                       | Grey-box screens and flows, with a self-contained HTML kit, so layout gets settled before anyone argues about color.                                                                  |
+| [`high-fidelity-ui-design`](./skills/high-fidelity-ui-design/SKILL.md)         | For when the greys become a real interface — semantic tokens, dark mode, readable type, WCAG contrast, visible focus, and states for every way a control can behave.                  |
+| [`react-component-styling`](./skills/react-component-styling/SKILL.md)         | Builds that interface for real: which styles a component owns and which its caller does, tokens that survive a theme swap, and surfaces that hold up at any width, pointer, or gamut. |
+| [`react-component-development`](./skills/react-component-development/SKILL.md) | The component underneath the styling: how its files are laid out, what its props promise, where its state lives, how a test reaches it, and when a long list earns virtualizing.      |
 
 ### Authoring skills
 
@@ -202,7 +203,7 @@ checks below, open a pull request, and get it reviewed before merge.
 
 ### Authoring a skill
 
-Skills live in two tiers. Seventeen are **distributable**: their source is
+Skills live in two tiers. Eighteen are **distributable**: their source is
 [`skills/<name>/SKILL.md`](./skills) (with any `references/` and `scripts/`
 beside it), and the installed copies under `.claude/skills/` are generated from
 it with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
