@@ -20,7 +20,7 @@ Three obligations, and all three are load-bearing:
 - MUST apply the accepted value; a destructured styling prop that never reaches an element is a defect even though it type-checks.
 - MUST merge the consumer's value **last**, after the component's own styles and after any variant or state styles.
 - MUST NOT let the props spread overwrite the styling prop — destructure it out explicitly and merge it (see [props.md](./props.md)).
-- MUST keep the component's own root selector at the lowest specificity the mechanism allows, so a single consumer value is enough to override it.
+- MUST keep the component's own root selector at zero specificity on web — the platform equivalent on native — so a single incoming value is enough to override it.
 
 ## Composing Class Names on Web
 
@@ -45,7 +45,7 @@ export function JobListItem({
 - MUST use the host project's existing class-composition helper rather than string concatenation or template literals, so falsy values drop out predictably.
 - MUST pass the consumer's `className` as the final argument to that helper.
 - MUST use a conflict-aware merge helper when the host project styles with utility classes, since plain concatenation leaves both conflicting utilities in the list and lets source order decide the winner.
-- MUST import a CSS Module under a consistent local name and MUST NOT import another component's style module.
+- MUST import a CSS Module under a consistent local name. Which modules a component may import at all — one per component, never another's — is owned by the project's React component styling practices.
 - MUST determine the mechanism from the project itself — its dependencies, its existing components, its build configuration — rather than assuming one.
 
 ## Merging Styles on Mobile Native

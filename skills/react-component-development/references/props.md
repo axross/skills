@@ -34,7 +34,6 @@ function JobListItem({
 - MUST intersect custom props onto that base with `&` rather than re-declaring the element's own attributes.
 - MUST declare the component's return type explicitly (`JSX.Element`, `JSX.Element | null`, or `null` for a component that renders nothing).
 - MUST `Omit` a base prop before redefining it, rather than shadowing it with an incompatible type.
-- MUST NOT use `any` in a props type.
 - SHOULD follow the host project's convention for marking props read-only — per-prop `readonly`, a `Readonly<>` wrapper, or neither — and its linter settings where they decide the question. There is no default; consistency within the project is the requirement.
 
 ## One-Level Destructuring and the Props Spread
@@ -163,7 +162,7 @@ A third-party component that publishes its own state attributes (`data-highlight
 - SHOULD drive a component's own variant styling from a `data-*` attribute when the variant must also be visible to a test or to a descendant selector; otherwise a class is sufficient.
 - MUST add a stable, non-sensitive identifier — a slug, an opaque id — as a `data-*` attribute on a repeated list element when a test needs to address one specific item, rather than relying on its index.
 - MUST style a third-party component through the state attributes it publishes, not by reaching into its markup.
-- MUST NOT put user-identifying or otherwise sensitive values in a `data-*` attribute; it is readable by anything running on the page.
+- MUST NOT put user-identifying or otherwise sensitive values in a `data-*` attribute; it is readable by anything running on the page. What counts as sensitive is owned by the project's data-exposure and privacy practices.
 
 Mobile native has no `data-*` equivalent — its test hook is the platform's own test-identifier prop, and its state is expressed through props and accessibility attributes. See [testability.md](./testability.md).
 

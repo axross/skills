@@ -6,15 +6,16 @@ Memoization buys **referential stability**, not speed on its own. A memoized chi
 
 ## Check the Compiler First
 
-A gotcha that inverts the usual advice: when the host project enables an auto-memoizing React compiler, it inserts equivalent memoization during the build, and hand-written `memo`/`useCallback`/`useMemo` becomes redundant ceremony that still costs a reader's attention and can mask a genuinely missing dependency.
+A gotcha worth knowing before anything else: when the host project enables an auto-memoizing React compiler, it inserts equivalent memoization during the build, so hand-written `memo`/`useCallback`/`useMemo` is often redundant ceremony that still costs a reader's attention.
 
-Establish which regime the project is in before adding anything — the build configuration answers it, and the answer changes what the rest of this reference asks for.
+Enabling the compiler does not, in practice, mean a codebase stops memoizing by hand — plenty of compiler-enabled projects keep doing both, and a file's existing style is a better guide than the build flag alone. So establish the regime, then match what is already there rather than converting either way as a side effect of an unrelated change.
 
 **Guidelines:**
 
-- MUST determine whether the host project enables an auto-memoizing compiler before adding manual memoization, rather than assuming either regime.
-- MUST NOT add manual memoization to a compiler-enabled project except where a measurement shows the compiler did not cover the case, and say so in a comment when you do.
-- MUST follow the surrounding file's existing practice when the project's regime is ambiguous, rather than introducing a second convention beside it.
+- MUST determine whether the host project enables an auto-memoizing compiler before reasoning about whether memoization is needed at all.
+- MUST match the surrounding file's existing practice rather than introducing a second convention beside it, whichever regime the project is in.
+- SHOULD leave new manual memoization out of a compiler-enabled project unless the surrounding code memoizes by hand, a measurement shows the compiler missed the case, or one of the narrow cases below applies.
+- MUST NOT strip existing manual memoization from a compiler-enabled project as a side effect of another change; removing it is its own change, with its own verification.
 
 ## What to Memoize
 
@@ -37,7 +38,6 @@ A memo is a cache, and a cache with a wrong key returns stale data. The dependen
 
 **Guidelines:**
 
-- MUST list every reactive value a memoized callback or computation reads in its dependency list.
-- MUST NOT silence a dependency-completeness lint rule to keep a memo stable; restructure so the value genuinely does not change, or accept the recomputation.
-- MUST NOT define a component inside another component's body — it is a new component type on every render, so its subtree remounts and loses its state regardless of any memoization around it.
+- MUST NOT silence a dependency-completeness lint rule to keep a memo stable; restructure so the value genuinely does not change, or accept the recomputation. Listing every reactive value the computation reads is what that rule already enforces.
+- MUST NOT define a component inside another component's body where it renders as part of that component's own tree — it is a new type on every render, so its subtree remounts and loses its state regardless of any memoization around it. Building a lookup table of components inside a body and rendering them elsewhere is a different shape and is fine, provided the table itself is stable across renders.
 - SHOULD prefer a stable identity at the source — a module-scope constant, a value from a store — over memoizing the same construction at each consumer.

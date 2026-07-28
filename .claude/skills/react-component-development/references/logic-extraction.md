@@ -13,6 +13,26 @@ A component that reaches into the data layer directly scatters caching, validati
 - MUST return a parsed domain model from the data layer, not a raw row or an unvalidated response body, so the component never performs schema-shaped defensive checks.
 - SHOULD keep a component's knowledge of loading and failure to _which branch to render_, delegating what a failure means to a helper (see [component-states.md](./component-states.md)).
 
+## Effects
+
+An effect is for synchronizing a component with something **outside React** — a subscription, a timer, a listener, an imperative browser or native API. Almost every other use has a simpler form that runs at the right time instead of one render too late.
+
+The three that recur, and what each should have been:
+
+| The effect…                          | Should be                                    |
+| ------------------------------------ | -------------------------------------------- |
+| computes a value from props or state | that value derived during render             |
+| responds to something the user did   | logic in the event handler that did it       |
+| fetches data                         | a call into the project's server-state layer |
+
+**Guidelines:**
+
+- MUST NOT use an effect to compute a value derivable from props or state during render; an effect writes the value a render too late, so the first paint shows a stale one.
+- MUST NOT use an effect to react to a user action a handler can own — the handler knows which action fired, whereas an effect only sees that a value changed and cannot tell why.
+- MUST NOT fetch in an effect where the host project has a server-state layer; route it there instead (see [state.md](./state.md)).
+- MUST return a cleanup from any effect that subscribes, opens, times, or listens, and MUST make that cleanup undo exactly what the effect set up.
+- SHOULD extract an effect into a named hook once its setup and cleanup exceed a few lines, or once a second component needs the same synchronization.
+
 ## Helpers, Hooks, and Module-Scope Functions
 
 Three destinations, chosen by what the logic needs:

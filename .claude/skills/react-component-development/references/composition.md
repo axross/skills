@@ -21,12 +21,12 @@ job-list/
 
 **Guidelines:**
 
-- MUST name component files in kebab-case, and name the exported component the PascalCase of the file name.
-- MUST give a component its own directory once it has sub-components, and place every part of it in that directory.
-- MUST name the file bearing the parent component after the component itself, so the directory and its main file share a name.
-- MUST name each sub-component file after the component it exports, prefixed by the parent's name (`job-list-item.tsx` exports `JobListItem`).
+- SHOULD name component files in kebab-case, and MUST match the host project's existing file-name casing where it has one.
+- MUST name the exported component the PascalCase of its file name, so a reader who sees `<JobListItem>` in a tree finds the file without searching.
+- MUST group a component's parts into one directory named for the component once it has sub-components, so the parts that change together sit together.
 - MUST NOT scatter a component's parts across sibling directories, or leave a sub-component beside an unrelated component because it happened to be written there first.
-- SHOULD keep a component with no sub-components as a single file rather than creating a directory for it alone.
+- SHOULD name the parent's file after the component and each part's file after what it exports, prefixed by the parent's name (`job-list-item.tsx` exports `JobListItem`) — but MUST follow the host project's existing shape where it differs, such as a parent file sitting beside its directory with role-named parts (`job-list.tsx` alongside `job-list/loaded.tsx`).
+- SHOULD keep a component with no sub-components as a single file, unless the host project gives every component its own directory — some do, and consistency there beats saving a directory.
 - MUST follow the host project's directory layout for where component directories themselves live — a feature-owned components directory, a route-local underscore directory, or a shared component root — rather than imposing a new one.
 
 ## Exports
@@ -47,7 +47,7 @@ A barrel re-exports a directory's public parts from one module. It shortens impo
 **Guidelines:**
 
 - SHOULD NOT add a barrel file by default; import each part from the file that defines it.
-- MUST add barrels when the host project consistently uses them, matching its placement and naming.
+- MUST match the host project's barrel convention where it consistently uses them, following its placement and naming — while respecting the project's development practices, which prohibit importing _through_ a barrel where a direct path exists. A barrel added under this rule serves consumers outside the directory, not siblings inside it.
 - MUST, when a barrel exists, export only the parts a consumer outside the directory may use, keeping internal parts (a context module, a private sub-component) out of it.
 
 ## Compound Components
@@ -83,8 +83,9 @@ export function useButtonContext({
 
 - MUST export compound parts as flat, named exports whose names begin with the parent component's name.
 - MUST NOT expose parts as properties of the parent component (`Button.Text`, `Card.Header`).
-- MUST pass variant state (`variant`, `intent`, `size`, and similar) from the parent to its parts through a private context module named `<parent>-context.tsx`, rather than re-declaring those props on every part.
-- MUST make the context hook throw a message naming both the part and its required parent when the part renders outside it.
+- MUST pass variant state (`variant`, `intent`, `size`, and similar) from the parent to its parts through a private context rather than re-declaring those props on every part.
+- SHOULD place that context in a module named `<parent>-context.tsx` beside the parts it serves.
+- MUST expose the context through a hook that throws when a part renders outside its parent, naming both — the general contract for a context hook lives in [state.md](./state.md).
 - MUST NOT export the context or its hook outside the component's own directory.
 - SHOULD keep a part's own props limited to what that part alone varies; anything the whole component varies belongs on the parent.
 
@@ -107,9 +108,10 @@ Promoting too early costs as much as promoting too late. A component pulled into
 
 **Guidelines:**
 
-- MUST keep a component in the feature that owns it until a second feature needs it identically, or a third needs it at all; only then promote it to the shared location.
-- MUST NOT build variants, props, or slots that no current consumer uses.
+- MUST keep a component in the feature that owns it until a second feature needs it identically, or a third needs it at all; only then promote it to the shared location. This deliberately tightens, for components specifically, the second-consumer threshold the project's code-maintainability practices set for modules generally — a shared component is far more expensive to reshape than a shared helper.
 - SHOULD promote by moving the component and updating its importers in one change, rather than copying it and leaving two divergent versions.
+
+Building a variant, prop, or slot no current consumer uses is prohibited by the project's code-maintainability practices, which own speculative-configuration rules generally.
 
 ## Icon Components
 
@@ -138,7 +140,7 @@ export function MenuItem({
 
 **Guidelines:**
 
-- MUST accept a caller-chosen icon as a component-typed prop, and alias it to a capitalized local name (`icon: Icon`) so it renders as an element.
-- MUST NOT accept a glyph-name string when the icon set exposes components.
-- MUST colour an icon from the project's design tokens, never from a hard-coded literal; its drawn size is a fixed element dimension and MAY stay a numeric literal.
-- MUST source icons from the host project's single icon set rather than introducing a second one.
+- MUST alias a component-typed icon prop to a capitalized local name (`icon: Icon`) so it renders as an element rather than an unknown tag.
+- MUST spread the rest object onto the root even when a component's only visible job is to place an icon and a label; an icon wrapper is a component like any other.
+
+What an icon is coloured and sized _with_ — a token, `currentColor`, or a literal — and which icon set a project draws from are owned by the project's React component styling practices, not restated here. That capability also owns the rule that a caller-chosen icon arrives as a component rather than a glyph-name string; this section covers only how that prop is received and forwarded.

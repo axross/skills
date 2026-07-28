@@ -2,7 +2,7 @@
 
 Apply this reference when adding the hooks a test uses to reach into a component, or when a component's shape makes it hard to assert against.
 
-This reference owns the **component's** side: which elements carry a hook, how it is named, and how it propagates. The test's side — the locator fallback order, what to assert, how to wait — belongs to the host project's testing capability.
+This reference owns the **component's** side: which elements carry a hook, how it is named, and how it propagates. The test's side is owned elsewhere — the locator fallback order, what to assert, and how to wait belong to the project's end-to-end testing practices; mock, fixture, and test-isolation design generally belongs to its unit-testing practices.
 
 ## Test Hooks on Meaningful Elements
 
@@ -11,10 +11,11 @@ A test that locates an element by its copy breaks on a wording change; one that 
 **Guidelines:**
 
 - MUST put a test hook on every element a test needs to locate: a component's root, each interactive control, and each element whose content is asserted.
-- MUST use kebab-case for hook values.
+- SHOULD use kebab-case for hook values, and MUST match the host project's existing case convention where it has one.
 - MUST NOT put a hook on an element no test reaches; add one when a test needs it rather than pre-instrumenting every node.
 - MUST NOT encode a hook value from user data — derive it from a stable identifier such as a slug or an id.
-- SHOULD add a hook rather than fall back to a structural or copy-based locator when a test cannot reach an element.
+
+When no element can carry a hook, the fallback order — and the requirement to add one rather than reach for a structural selector — is owned by the project's end-to-end testing practices.
 
 ## Naming: Scope-Relative by Default
 
@@ -28,7 +29,7 @@ page
   content
 ```
 
-Some runners cannot scope: their locator matches a single flat identifier across the whole screen with no container narrowing. Under those, hooks **must** be globally unique, which means prefixing each with its owning surface (`job-list-screen`, `job-list-error`, `job-list-item-<slug>`). This is a concession to the runner, not a better convention.
+Some runners cannot scope: their locator matches a single flat identifier across the whole screen with no container narrowing — Maestro's `id:` matcher is the common example. Under those, hooks **must** be globally unique, which means prefixing each with its owning surface (`job-list-screen`, `job-list-error`, `job-list-item-<slug>`). This is a concession to the runner, not a better convention, and it is the one case where the project's end-to-end testing practices' preference for chained, container-scoped locators cannot be honoured.
 
 **Guidelines:**
 
@@ -90,9 +91,9 @@ Mock at the **data layer** — the function that performs the request or reads t
 
 **Guidelines:**
 
-- MUST mock the data-access function a component's data path ultimately calls, not the hook, the query, or the state selector between them.
+- MUST mock at or below the data-access function a component's data path ultimately calls — that function itself, or the network layer beneath it — never the hook, the query, or the state selector between it and the component. This deliberately reaches past the nearest boundary the project's unit-testing practices would fake, because the mapping and error classification in between are the component's logic under test.
 - MUST keep domain error types real, so the component's error-classification path is exercised rather than stubbed past.
-- MUST give each test an isolated instance of any shared client or cache, so one test's cached result cannot satisfy another's assertion.
+- MUST give each test its own instance of the shared query client or cache the component reads through, so one test's cached result cannot satisfy another's assertion.
 - SHOULD seed a store directly for a test that needs an authenticated or otherwise pre-conditioned state, rather than driving the UI through the steps that produce it.
 - SHOULD keep components free of module-scope side effects, so importing one into a test does not start timers, open connections, or read storage.
 

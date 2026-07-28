@@ -32,9 +32,9 @@ A loading state that does not match the shape of the loaded content produces a l
 
 **Guidelines:**
 
-- MUST give a loading component the same outer dimensions, spacing, and structure as the loaded component it stands in for.
-- MUST keep a loading component and its loaded sibling in the same component directory, per the cohesion rules in [composition.md](./composition.md).
-- MUST accept the same styling prop passthrough on the loading component as on the loaded one, so a parent swaps only the component and not the surrounding markup.
+- MUST give a loading component the same internal structure and spacing as the loaded component it stands in for, so the two occupy identical space under the same consumer-supplied size.
+- MUST accept the same styling prop and test-hook passthrough on the loading component as on the loaded one, so a parent swaps only the component and not the surrounding markup.
+- SHOULD place a loading component beside the loaded sibling it stands in for, following the host project's component layout (see [composition.md](./composition.md)) — one directory per component puts them in adjacent directories, which is equally fine.
 - SHOULD update both siblings together when either grows a row, a column, or a spacing change.
 
 ## Mapping a Failure to Copy
@@ -43,7 +43,7 @@ What a failure _means_ to a user — is it retryable, is it a permission problem
 
 **Guidelines:**
 
-- MUST map an error to its user-facing copy, tone, and retryability in a helper, and render the helper's result.
+- MUST map an error to its user-facing copy, tone, and retryability in a helper, and render the helper's result. What that copy should say, and how the failure should read, are owned by the project's high-fidelity UI design practices; this rule governs only where the mapping lives.
 - MUST NOT branch on transport-level details (status codes, error class names) inside a component body.
 - MUST distinguish a retryable failure from a terminal one, and render a retry control only for the former — offering a retry that cannot succeed is worse than offering none.
 - SHOULD share one error-mapping helper across the surfaces of a feature, parameterized by the subject nouns each surface needs.
@@ -78,7 +78,7 @@ return (
 
 **Guidelines:**
 
-- MUST handle all four branches for any component backed by data that can be pending, failing, or empty; an unhandled empty branch that renders a bare container is a defect.
+- MUST handle all four branches for any component backed by data that can be pending, failing, or empty; an unhandled empty branch that renders a bare container is a defect. Whether the pending branch shows a visible cue at all is a latency decision owned by the project's high-fidelity UI design practices — handle the branch structurally regardless, and let that capability decide the treatment.
 - MUST check the empty branch on the loaded data explicitly, rather than letting an empty collection render as an empty list.
-- SHOULD select the branch into one value and render it inside the component's single root, rather than returning early from several places.
+- SHOULD select the branch into one value and render it inside the component's single root, rather than returning early from several places. This narrows the general preference for early returns that the project's code-maintainability practices set, and applies only where there is a shared root and test hook to preserve.
 - SHOULD keep the root element — and its test hook — outside the branch, so a test can assert the component mounted regardless of which state it is in.

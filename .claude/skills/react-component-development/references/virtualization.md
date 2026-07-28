@@ -10,7 +10,7 @@ On web, a plain `.map` is correct until the row count makes it expensive — whi
 
 Use **more than 100 items** as the trigger to raise the question: a list that is not paginated and can exceed roughly a hundred rows, or a paginated list rendering more than roughly a hundred rows per page.
 
-**Crossing that threshold is a recommendation to the human, not a decision to make unilaterally.** Introducing virtualization adds a dependency and changes the component's structure, its scroll behavior, and its accessibility characteristics. Say what the count is, what it costs to leave as-is, and which library you would reach for — then let the human decide.
+**Crossing that threshold is a recommendation to the human, not a decision to make unilaterally** — it adds a dependency and changes the component's structure, scroll behavior, and accessibility characteristics at once. Say what the count is, what it costs to leave as-is, and which library you would reach for.
 
 **Guidelines:**
 
@@ -27,8 +27,8 @@ The choice is usually already made: a project that virtualizes anywhere has paid
 **Guidelines:**
 
 - MUST use a virtualization library the host project already installs, rather than adding a second one for consistency with this default.
-- SHOULD choose TanStack Virtual when the project has none and the human approves adding one; it is headless, so it composes with whatever markup and styling mechanism the project already uses.
-- MUST confirm the library's current API against its own documentation before writing against it rather than from memory, since this is a surface that changes across major versions.
+- SHOULD start the evaluation from a headless virtualizer such as TanStack Virtual, since it composes with whatever markup and styling mechanism the project already uses. Admitting the dependency still goes through the project's supply-chain and change-management practices, which require weighing alternatives rather than adopting the first fit.
+- MUST treat a virtualization library as a fast-moving dependency whose API the project's current-documentation practices require refreshing before writing against it.
 - MUST keep the row component independent of the virtualizer, so the same row renders under a plain map in a test.
 
 ## When a Mobile Native List Earns It
@@ -76,8 +76,8 @@ Split the list into a **wrapper** and a **row**. The wrapper owns the list conta
 **Guidelines:**
 
 - MUST export the row component separately from the list wrapper, so a test can render one row in isolation.
-- MUST supply an explicit key extractor derived from the item's stable identifier, never from its index.
-- MUST memoize the row, the separator, and the section header components, since the list re-creates their elements on every scroll-driven render (see [memoization.md](./memoization.md)).
+- MUST supply an explicit key extractor built on the item's stable identifier rather than on its position alone; a composite that carries the index alongside the id is acceptable, an index by itself is not, because reordering then reuses the wrong row state.
+- MUST memoize the row, the separator, and the section header components under manual memoization, since the list re-creates their elements on every scroll-driven render; check the project's regime first (see [memoization.md](./memoization.md)).
 - MUST NOT define the render callback's component inline in the callback body; an inline component remounts every row on each render and defeats memoization.
 - SHOULD let the wrapper accept and forward the underlying list's props, so a caller sets refresh, end-reached, and scroll behavior without the wrapper enumerating each one (see [props.md](./props.md)).
 - SHOULD keep the empty branch out of the list itself and select it alongside the other states (see [component-states.md](./component-states.md)).
