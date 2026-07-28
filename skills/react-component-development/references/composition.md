@@ -62,6 +62,8 @@ Variant state reaches the parts through a **private context** the parent provide
 
 ```tsx
 // button-context.tsx — private to the directory; not exported from a barrel
+export type ButtonVariant = "primary" | "danger";
+
 type ButtonContextValue = { variant: ButtonVariant };
 
 const ButtonContext = createContext<ButtonContextValue | null>(null);
@@ -87,7 +89,7 @@ export function useButtonContext({
 
 ```tsx
 // button.tsx — the parent owns the variant and publishes it
-type ButtonVariant = "primary" | "danger";
+import { ButtonContextProvider, type ButtonVariant } from "./button-context";
 
 type ButtonProps = ComponentProps<"button"> & { variant?: ButtonVariant };
 
