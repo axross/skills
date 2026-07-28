@@ -54,11 +54,11 @@ One shared root logger owns severity and transport configuration; per-module chi
 - MUST derive loggers from the project's shared **root logger** instead of constructing a new logger instance in each module.
 - MUST create one **child logger per module**, tagged with a `module` (or namespace) field that identifies the emitting module, so lines are filterable by module:
 
-```typescript
-import { rootLogger } from "the project's shared logger module";
+  ```typescript
+  import { rootLogger } from "the project's shared logger module";
 
-const logger = rootLogger.child({ module: "data-fetch" });
-```
+  const logger = rootLogger.child({ module: "data-fetch" });
+  ```
 
 - SHOULD choose a `module` identifier that conveys the module's concern at a glance and is unique per module.
 - MAY adopt a short, scannable convention for the identifier (for example an emoji per module) when the team finds it useful.

@@ -134,6 +134,8 @@ Then step through the phase:
 
 Address the independent review's findings and CI to convergence, then gate the ready flip on a clean review plus green CI. The granular rules — resolving each thread against its fixing commit, re-requesting review, the round cap, and mergeability/conflict handling — live in the independent-review reference routed from [Phase 3](#phase-3--request-independent-review).
 
+**Guidelines:**
+
 - MUST address and resolve each blocking finding and every unmet acceptance criterion, pushing fixes to the same branch and re-running the relevant verification after each batch.
 - MUST gate the draft→ready flip on a **clean independent review** (no blocking findings) plus green CI — never on your own assessment of your code. On convergence, flip the pull request to ready, update the status block, and deliver the [Ready-to-Merge Handoff](./references/run-state-and-reporting.md). Merging remains the human's decision.
 - MUST, when a human comments on a ready pull request, re-read the new threads on resume, address or escalate each, convert back to draft if needed, request a fresh independent review, and re-enter this loop as a new round.
@@ -150,6 +152,10 @@ See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 - judging a change human-observable, and handing over a preview URL without fabricating one
 
 ## Termination Guard
+
+An autonomous run has no natural stopping point: a review that keeps finding new problems, a check that never reports, and a human who never returns all look the same from inside the loop — like work still in progress. Each cap below names where continuing stops being progress, and what to leave behind when it does.
+
+**Guidelines:**
 
 - MUST cap the address↔review loop at **8** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
 - MUST cap autonomous polling at **2 hours** per wait and go dormant rather than poll indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.

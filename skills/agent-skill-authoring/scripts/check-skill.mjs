@@ -20,7 +20,8 @@
 //                     list, or blockquote all count as the demonstration.
 //   * guideline voice a top-level bullet inside a `**Guidelines:**` block must
 //                     open with an RFC-2119 keyword. Nested bullets are exempt:
-//                     they carry continuation detail, not rules.
+//                     they carry continuation detail, not rules. Carries a known
+//                     limitation — see the note on guidelineKeywordFailures.
 //   * link scope      a relative link must resolve inside its own skill
 //                     directory; a path link into another skill is what the
 //                     topic-based cross-reference rule exists to prevent.
@@ -37,11 +38,27 @@
 // that flag is off by default precisely to keep the sentence above true. It is
 // a starting point to adapt per project, not a fixed contract.
 //
-// Alongside failures it reports advisory WARN lines for capability framing — a
-// document-style name suffix, or a description opening in document voice. That
-// rule is SHOULD-level, so warnings never affect the exit code; they surface a
-// recast candidate for a human to weigh. The detectors are deliberately narrow
-// and stay silent on the judgment calls the prose rule owns.
+// Alongside failures it reports advisory WARN lines. Every rule behind them is
+// SHOULD-level, or a MUST whose exception clause a threshold would misencode, so
+// warnings NEVER affect the exit code: they surface a candidate for a human to
+// weigh. Each detector is deliberately narrow and stays silent on the judgment
+// calls its prose rule owns. The advisory checks are:
+//   * framing       a document-style `name` suffix, or a `description` opening
+//                   in document voice.
+//   * size          a SKILL.md over the ~5,000-token budget, estimated from a
+//                   byte proxy (see BYTES_PER_TOKEN) rather than a tokenizer.
+//   * length        a section over the guideline-bullet ceiling — near seven is
+//                   the target, and above ten the rule wants a stated reason.
+//   * placement     an RFC-2119 bullet outside any `**Guidelines:**` block. The
+//                   owning rule says "usually under a label", so this warns.
+//   * labels        a stale plain `Guidelines:`/`Example:` label where the
+//                   standard is a bold subheading-like paragraph.
+//   * fences        a fenced `text` block where a blockquote usually reads
+//                   better — occasionally the fence is right, hence a warning.
+//   * hedging       an adverbial hedge immediately after an RFC-2119 keyword.
+//                   Anchored to that position, and adverbs only: a volitional
+//                   verb ("MUST NOT attempt …") is the prohibited action, not a
+//                   hedged obligation, and reporting it would be wrong.
 //
 // Usage:
 //   node check-skill.mjs [--require-claude-code-fields] <path> [<path> ...]
@@ -88,6 +105,34 @@ const DOC_NAME_SUFFIX_RE =
   /-(guidelines|best-practices|principles|conventions|rules|requirements)$/;
 const DOC_VOICE_DESC_RE =
   /^(This skill|This document|These guidelines|A collection of|Guidelines for|Rules for|Instructions for|Information about)\b/i;
+
+// Structural advisories (warnings only — see the header note).
+//
+// BYTES_PER_TOKEN converts a SKILL.md's size into an estimated token count
+// WITHOUT a tokenizer, which this validator cannot take as a dependency: it
+// ships inside a skill and runs on Node's standard library alone. The unit is
+// UTF-8 BYTES, not `String.length` — these documents are dense in multi-byte
+// punctuation, and the two counts differ by roughly half a percent. Bytes are
+// chosen because they err HIGH, the conservative direction for a budget guard,
+// NOT because they are more accurate: measured against real o200k_base counts
+// over this corpus, bytes/token averages 4.800 and chars/token 4.781, and the
+// per-file spread runs 4.55–4.98. That spread is why the divisor is ±5% at
+// best, and why crossing it warns rather than fails. Re-measure before moving
+// it; a proxy calibrated on one corpus is not calibrated on another.
+const BYTES_PER_TOKEN = 4.76;
+const SKILL_TOKEN_MAX = 5000;
+const SKILL_BYTES_MAX = Math.round(SKILL_TOKEN_MAX * BYTES_PER_TOKEN);
+// Near seven bullets is the target; above ten the rule requires a stated
+// reason, which a bare threshold cannot see — so both bands only warn.
+const SECTION_BULLETS_NEAR = 8;
+const SECTION_BULLETS_MAX = 10;
+// Adverbs only, and only immediately after the keyword. A wider list, or an
+// unanchored match, was measured at ~95% false positives on real skill prose.
+const HEDGE_RE =
+  /^(generally|usually|typically|ideally|probably|possibly|perhaps|maybe|often|sometimes|normally)\b/i;
+// A label the project standard wants emphasized as `**Guidelines:**`.
+const PLAIN_LABEL_RE = /^(Guidelines|Examples?):\s*$/;
+const TEXT_FENCE_RE = /^text\b/i;
 
 function fail2(message) {
   process.stderr.write(`${message}\n`);
@@ -318,6 +363,18 @@ function sectionIntroFailures(body, file, offset) {
  * A blank line does NOT end the block — a loose list is still one list, and
  * treating the gap as a boundary would silently stop checking every bullet
  * after it. The block ends at a heading or at an unindented non-bullet line.
+ *
+ * KNOWN LIMITATION: an unindented fence is one of those lines, so every bullet
+ * after one is invisible to this check — and to the `placement:` advisory too,
+ * which by design only examines keyword-BEARING bullets. A bullet with no
+ * RFC-2119 keyword, placed after an unindented fence inside a `**Guidelines:**`
+ * block, therefore passes both. The remedy today is document-level: nest the
+ * fence under the bullet it illustrates, which is better Markdown regardless.
+ * Note that the corpus's only instance was fixed that way, so no live example
+ * remains to rediscover this from. Closing it properly means treating a fence
+ * as continuation rather than a terminator, which widens THIS check's scan
+ * area — that belongs to a change that can measure the widening against a
+ * corpus, not to one that only adds warnings.
  */
 function guidelineKeywordFailures(body, file, offset) {
   const failures = [];
@@ -352,6 +409,126 @@ function guidelineKeywordFailures(body, file, offset) {
     inBlock = false;
   }
   return failures;
+}
+
+/**
+ * The advisory warnings a document's guideline structure raises, in one walk:
+ * section length, bullet placement, and hedging.
+ *
+ * The `**Guidelines:**` block boundary here is the SAME one
+ * `guidelineKeywordFailures` uses — deliberately, since "outside a block" is
+ * defined as the complement of "inside" one. Two definitions would let the two
+ * checks disagree about the same bullet, each silently believing the other
+ * covered it. Change one and you must change both.
+ *
+ * A section is the span under one heading of ANY level, so a nested subsection
+ * is counted independently of its parent: the ceiling rule applies to each.
+ */
+function guidelineStructureWarnings(body, file, offset) {
+  const warnings = [];
+  let inBlock = false;
+  let section = null; // { line, title, bullets } of the heading in scope
+
+  const flushSection = () => {
+    if (!section || section.bullets < SECTION_BULLETS_NEAR) return;
+    const at = `${file}:${section.line + offset}`;
+    warnings.push(
+      section.bullets > SECTION_BULLETS_MAX
+        ? `length: "${section.title}" (${at}) has ${section.bullets} guideline bullets — over the ceiling of ten; split it or state why the exception is necessary.`
+        : `length: "${section.title}" (${at}) has ${section.bullets} guideline bullets — approaching the ceiling of ten; the target is near seven.`,
+    );
+  };
+
+  for (const { line, text, fence } of scanLines(body)) {
+    if (fence) {
+      // An indented fence belongs to a bullet; an unindented one ends the block.
+      if (inBlock && !/^\s/.test(text)) inBlock = false;
+      continue;
+    }
+    const heading = text.match(/^#{1,6}\s+(.*)$/);
+    if (heading) {
+      flushSection();
+      section = { line, title: heading[1].trim(), bullets: 0 };
+      inBlock = false;
+      continue;
+    }
+    if (GUIDELINES_RE.test(text)) {
+      inBlock = true;
+      continue;
+    }
+    const bullet = text.match(/^-\s+(.*)$/);
+    if (bullet) {
+      const rule = bullet[1].trim();
+      const keyword = rule.match(RFC2119_RE);
+      if (inBlock) {
+        if (section) section.bullets += 1;
+        const hedge = keyword
+          ? rule.slice(keyword[0].length).trimStart().match(HEDGE_RE)
+          : null;
+        if (hedge) {
+          warnings.push(
+            `hedging: ${file}:${line + offset} "${keyword[0]}" is followed by the hedge "${hedge[0]}": "${rule.slice(0, 60)}…"`,
+          );
+        }
+      } else if (keyword) {
+        warnings.push(
+          `placement: ${file}:${line + offset} RFC-2119 bullet sits outside any \`**Guidelines:**\` block: "${rule.slice(0, 60)}…"`,
+        );
+      }
+      continue;
+    }
+    if (!inBlock) continue;
+    if (text.trim() === "" || /^\s/.test(text)) continue;
+    inBlock = false;
+  }
+  flushSection();
+  return warnings;
+}
+
+/**
+ * Stale document style: a plain `Guidelines:`/`Example:` label where the
+ * standard is a bold subheading-like paragraph, and a fenced `text` block where
+ * a blockquote usually reads better.
+ *
+ * Two findings rather than one, because they mechanize different rules at
+ * different requirement levels and their remedies are unrelated — one merged
+ * message would have to misstate one of them.
+ */
+function staleStyleWarnings(body, file, offset) {
+  const warnings = [];
+
+  for (const { line, text, fence } of scanLines(body)) {
+    if (fence) {
+      // The scanner yields a fence's opener so callers can treat the block as
+      // content; re-matching it here is how its info string is read, which
+      // keeps the shared scanner's shape unchanged.
+      if (TEXT_FENCE_RE.test(text.match(FENCE_RE)[2].trim())) {
+        warnings.push(
+          `fences: ${file}:${line + offset} fenced \`text\` block — a blockquote under a bold example label is usually clearer.`,
+        );
+      }
+      continue;
+    }
+    const label = text.match(PLAIN_LABEL_RE);
+    if (label) {
+      warnings.push(
+        `labels: ${file}:${line + offset} plain "${label[1]}:" label — emphasize it as a bold paragraph (\`**${label[1]}:**\`).`,
+      );
+    }
+  }
+  return warnings;
+}
+
+/**
+ * The SKILL.md size advisory, or null when the file is within budget. Reports
+ * the raw byte count alongside the estimate so a reader can redo the division
+ * and judge a borderline case themselves — the proxy is only good to ±5%.
+ */
+function skillSizeWarning(raw) {
+  const bytes = Buffer.byteLength(raw, "utf8");
+  if (bytes <= SKILL_BYTES_MAX) return null;
+  const estimate = Math.round(bytes / BYTES_PER_TOKEN);
+  return `size: SKILL.md is ${bytes} bytes, ~${estimate} estimated tokens (÷ ${BYTES_PER_TOKEN}, ±5%) — over the ~${SKILL_TOKEN_MAX}-token budget of ${SKILL_BYTES_MAX} bytes; move detail into references/.`;
 }
 
 /**
@@ -463,10 +640,13 @@ async function skillDocuments(dir, skillBody, skillOffset) {
 
 /**
  * The body-structure checks across a skill's documents: section intros,
- * guideline voice, link scope, and anchor validity.
+ * guideline voice, link scope, and anchor validity as failures, plus the
+ * structural advisories as warnings. Both come out of the same pass so a
+ * document is walked once per concern, not once per finding kind.
  */
-async function documentFailures(dir, documents) {
+async function documentFindings(dir, documents) {
   const failures = [];
+  const warnings = [];
   const skillRoot = resolve(dir);
   const anchorCache = new Map();
 
@@ -485,6 +665,8 @@ async function documentFailures(dir, documents) {
   for (const { file, path, body, offset } of documents) {
     failures.push(...sectionIntroFailures(body, file, offset));
     failures.push(...guidelineKeywordFailures(body, file, offset));
+    warnings.push(...guidelineStructureWarnings(body, file, offset));
+    warnings.push(...staleStyleWarnings(body, file, offset));
 
     for (const { line, target } of documentLinks(body)) {
       const at = `${file}:${line + offset}`;
@@ -515,7 +697,7 @@ async function documentFailures(dir, documents) {
       }
     }
   }
-  return failures;
+  return { failures, warnings };
 }
 
 /**
@@ -534,6 +716,9 @@ async function checkSkill(dir, { requireClaudeCodeFields = false } = {}) {
   } catch (error) {
     return { failures: [`SKILL.md is unreadable: ${error.message}`], warnings };
   }
+
+  const size = skillSizeWarning(raw);
+  if (size) warnings.push(size);
 
   const { fields, body, offset } = splitFrontmatter(raw);
   if (!fields) {
@@ -608,7 +793,9 @@ async function checkSkill(dir, { requireClaudeCodeFields = false } = {}) {
   }
 
   failures.push(...routingKeywordFailures(body));
-  failures.push(...(await documentFailures(dir, documents)));
+  const documentResults = await documentFindings(dir, documents);
+  failures.push(...documentResults.failures);
+  warnings.push(...documentResults.warnings);
   return { failures, warnings };
 }
 
@@ -704,7 +891,7 @@ async function main() {
   }
   if (warnedCount > 0) {
     lines.push(
-      `${warnedCount} skill(s) raised advisory capability-framing warnings (they do not affect the exit code).`,
+      `${warnedCount} skill(s) raised advisory warnings (they do not affect the exit code).`,
     );
   }
   process.stdout.write(`${lines.join("\n")}\n`);
