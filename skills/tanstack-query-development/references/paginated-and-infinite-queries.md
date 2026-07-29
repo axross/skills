@@ -14,6 +14,7 @@ export function getCollectionRecordsInfiniteQueryOptions(scope: RecordsScope) {
     queryKey: ["users", scope.userId, "collections", scope.slug, "records"],
     queryFn: ({ pageParam }) => fetchRecords(scope, pageParam),
     initialPageParam: 1,
+    getPreviousPageParam: (firstPage) => firstPage.previousPage ?? undefined,
     getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
     maxPages: 5,
   });

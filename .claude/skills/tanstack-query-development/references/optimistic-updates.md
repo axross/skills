@@ -56,7 +56,9 @@ onMutate: async (newTodo, context) => {
   return { previous };
 },
 onError: (_error, _variables, onMutateResult, context) => {
-  context.client.setQueryData(todosKey, onMutateResult.previous);
+  // Optional-chained: the callback signature types this as possibly
+  // undefined, since onMutate may not have run.
+  context.client.setQueryData(todosKey, onMutateResult?.previous);
 },
 onSettled: (_data, _error, _variables, _onMutateResult, context) =>
   context.client.invalidateQueries({ queryKey: todosKey }),
