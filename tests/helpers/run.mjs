@@ -36,6 +36,8 @@ export const SCRIPTS = {
   checkComponentStyles:
     "skills/react-component-styling/scripts/check-component-styles.mjs",
   checkWireframe: "skills/wireframe-design/scripts/check-wireframe.mjs",
+  checkSentryWiring:
+    "skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs",
   checkInstalledCopies: "scripts/check-installed-copies.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
 };

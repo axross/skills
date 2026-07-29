@@ -39,7 +39,7 @@
     "expo-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "c1acbeca9ccb16b37b5b7a577533d49f210563ce54beed1518b0421122bc7565"
+      "computedHash": "650e3c6369915dc330059bca3b8fc6e45843cd22aad33ae48a8c35428aad5457"
     },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
@@ -54,7 +54,7 @@
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "a962f5cd9d7d52457b7f71d0c015bd8881614325e31b1eb0ace1396f5975f779"
+      "computedHash": "ff72ffa619aa9ea7993db2b93929f17cf57c070bb136a6cc902f025fc1e3dd89"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -81,6 +81,11 @@
       "sourceType": "local",
       "computedHash": "01719c71d8a2dd33aa383b85c05292faf8df98a3eef9107e9e3152215ca8575c"
     },
+    "sentry-instrumentation": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "733fe26a3095c5fffc064ee6e3b055ed90f59124089ebd03b02613c1f47e2f4b"
+    },
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -89,7 +94,7 @@
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "707406112e05198b5aecc5a579d9cf8cd799ce9f2540fae0ed3b02a62a16bc9e"
+      "computedHash": "95d2707fbfb803d2b05ff2ad6e10ebb684f10f8783b1341870690b4aa08ae519"
     },
     "tanstack-query-development": {
       "source": "/home/user/skills/skills",
