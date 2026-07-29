@@ -1,0 +1,179 @@
+name: Discovery Evaluation
+
+# Runs this repository's prompt fixture through REAL Claude Code skill discovery
+# and reports which expected skills were missed and which unexpected ones fired.
+#
+# THIS IS NOT A GATE, AND MUST NOT BECOME ONE. It is non-deterministic, it costs
+# money per run, and it needs a secret that fork pull requests do not receive.
+# It is never a required check, it is not in merge-checks.yaml, and
+# tests/repository/reporting-tools.test.mjs asserts it appears in this workflow
+# and in no other — so wiring it into a gate has to be a deliberate act that
+# breaks a test first.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 1 of 4 — MANUAL DISPATCH IS THE ONLY TRIGGER.
+# There is no event here that a pull request can raise. `workflow_dispatch`
+# requires write access on the repository and always runs the workflow file from
+# the DEFAULT BRANCH, so a contributor cannot cause a run, cannot cause one by
+# editing this file in a pull request, and cannot cause one by having a label
+# applied. Do NOT add `pull_request`, and do NOT add back `pull_request_target`:
+# the latter runs in the base repository's context with a privileged token and
+# is the classic footgun this workflow deliberately does not stand on.
+#
+# Properties 2-4 below are therefore defence in depth rather than the primary
+# bound — the primary bound is that only a maintainer can start this at all.
+# They are kept because the evaluation still reads pull request head content
+# when a run names one, and because a workflow that is safe only by virtue of
+# who can press the button is one trigger change away from not being safe.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 2 of 4 — default-branch checkout, as in
+# claude-review.yaml. Every line of EXECUTABLE code — the runner, the fixture,
+# the baseline, package.json — comes from the default branch. A pull request
+# head is never checked out, and `npm ci` never installs from head content.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 3 of 4 — head skill text crosses as DATA,
+# through an allowlist. The evaluation is only worth running against a CHANGED
+# skill, so when a run names a pull request its `SKILL.md` files are fetched
+# through the API and staged in $RUNNER_TEMP. scripts/discovery-eval/overlay.mjs
+# is the real bound: it accepts only `.claude/skills/<kebab-name>/SKILL.md`,
+# rejects traversal, absolute paths and backslashes, caps the size of what it
+# accepts, and derives every destination from the DIFF PATH rather than from any
+# `name:` field inside the head file. The `grep` filter below is convenience;
+# the allowlist is the security property, and it is unit-tested.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 4 of 4 — the evaluation subprocess is
+# credential-free. Skills are prompt content, so allowlisted head text does
+# reach a model. What that model can then do is nothing: one turn, only the
+# `Skill` tool, no Bash, no network fetch. GITHUB_TOKEN is not in the
+# evaluation step's environment, and overlay.mjs strips anything
+# credential-shaped from what it inherits regardless.
+#
+# Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
+# claude-review.yaml already uses. No new secret, and no label, is required.
+
+on:
+  workflow_dispatch:
+    inputs:
+      repeats:
+        description: "Runs per case (higher is steadier and costs more)"
+        required: false
+        default: "5"
+      pull_request:
+        description: "Pull request number to evaluate head skills from (optional)"
+        required: false
+
+# Least privilege: read the base tree, write one comment. Nothing else. No
+# contents:write — this never pushes, and its token cannot.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  evaluate:
+    name: Evaluate discovery
+    # No `if:` guard is needed. workflow_dispatch is the only trigger, so there
+    # is no other event shape to exclude — the gate is GitHub's own write-access
+    # check on dispatching, not a condition evaluated here.
+    concurrency:
+      group: discovery-eval-${{ github.event.inputs.pull_request || 'manual' }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PR_NUMBER: ${{ github.event.inputs.pull_request }}
+      REPEATS: ${{ github.event.inputs.repeats || '5' }}
+    steps:
+      # SAFETY PROPERTY 2 — no `ref:` input, so this is always the default
+      # branch. Never `github.event.pull_request.head.sha`, and never the ref of
+      # a pull request named in the inputs.
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code@2.1.220
+
+      # SAFETY PROPERTY 3 — head SKILL.md files staged as data, at
+      # repository-relative paths so the runner's allowlist judges the same
+      # string the diff reported. GITHUB_TOKEN is scoped to THIS step. Skipped
+      # entirely unless the dispatch named a pull request.
+      - name: Stage changed head skills
+        id: stage
+        if: env.PR_NUMBER != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          head_sha="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          echo "head_sha=${head_sha}" >> "$GITHUB_OUTPUT"
+
+          staged="${RUNNER_TEMP}/head-skills"
+          mkdir -p "${staged}"
+
+          # Convenience filter only — overlay.mjs re-judges every path and is
+          # the actual bound. Anything this lets through that the allowlist
+          # rejects is reported and skipped, not silently overlaid.
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" \
+            --jq '.[] | select(.status != "removed") | .filename' \
+            | grep -E '^\.claude/skills/[a-z0-9-]+/SKILL\.md$' > "${RUNNER_TEMP}/changed.txt" || true
+
+          while IFS= read -r path; do
+            [ -z "${path}" ] && continue
+            mkdir -p "${staged}/$(dirname "${path}")"
+            gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${head_sha}" \
+              --jq '.content' | base64 -d > "${staged}/${path}"
+            echo "staged ${path}"
+          done < "${RUNNER_TEMP}/changed.txt"
+
+          echo "staged_dir=${staged}" >> "$GITHUB_OUTPUT"
+
+      # SAFETY PROPERTY 4 — no GITHUB_TOKEN in this step's environment. The only
+      # secret present is the one the CLI needs to authenticate at all.
+      - name: Run the evaluation
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          args=(--repeats "${REPEATS}")
+          if [ -n "${{ steps.stage.outputs.staged_dir || '' }}" ]; then
+            args+=(--head-skills "${{ steps.stage.outputs.staged_dir }}")
+            args+=(--head-sha "${{ steps.stage.outputs.head_sha }}")
+          fi
+          node scripts/discovery-eval/run.mjs "${args[@]}" | tee "${RUNNER_TEMP}/report.txt"
+
+      # The report body contains only base-tree prompts and allowlist-validated
+      # kebab-case skill names — head SKILL.md CONTENT never reaches it — and is
+      # posted from a file, so nothing is interpolated through a shell.
+      - name: Post the report
+        # Deliberately NOT always(): if the evaluation step failed there is no
+        # report to post, and a step that then fails on a missing file reads as
+        # a second, unrelated problem.
+        #
+        # A dispatch that names no pull request has nowhere to post; its report
+        # is the job log, which is where the dispatcher is already looking.
+        if: env.PR_NUMBER != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Skill discovery evaluation"
+            echo
+            echo "Reports which skills the fixture's prompts actually surfaced."
+            echo "**This is not a gate** — it never blocks a merge."
+            echo
+            echo '```text'
+            cat "${RUNNER_TEMP}/report.txt"
+            echo '```'
+            echo
+            echo "---"
+            echo "_Generated by [Claude Code](https://claude.ai/code)_"
+          } > "${RUNNER_TEMP}/comment.md"
+          gh pr comment "${PR_NUMBER}" --body-file "${RUNNER_TEMP}/comment.md"
