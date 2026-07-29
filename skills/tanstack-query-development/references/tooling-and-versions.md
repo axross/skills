@@ -19,6 +19,8 @@ The library ships an ESLint plugin. Each of its rules is stated below as somethi
 
 Seven are in the recommended set; `prefer-query-options` is in the stricter one, and it is the rule that mechanically enforces the pattern in [option-factories.md](./option-factories.md).
 
+**One of them cannot see the factory pattern.** `mutation-property-order` matches `useMutation()` call sites only; its sibling also matches `infiniteQueryOptions`. So a project following [option-factories.md](./option-factories.md) — where mutation callbacks live in `mutationOptions()`, never inline — gets **no** linter coverage of the mutation ordering rule, even with the plugin installed. It stays a review check regardless.
+
 **The two ordering rules are looser than the plugin's own documentation says.** Its pages list a strict three-way order for each, but both implementations sort a _leading_ property before an unordered _group_ — `queryFn` before `{getPreviousPageParam, getNextPageParam}`, and `onMutate` before `{onError, onSettled}`. The table above states what the rules enforce. Treating the documented three-way order as normative makes a reviewer flag correct code.
 
 **Guidelines:**
