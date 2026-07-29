@@ -3,6 +3,9 @@
 // Documented contract: 0 when every checked project passes, 1 on any finding or
 // an unreadable path, 2 on a bad invocation.
 
+import { mkdir } from "node:fs/promises";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
@@ -43,6 +46,10 @@ const INSTRUMENTATION_WITHOUT_HOOK = `export async function register() {}
  */
 async function project(dependencies, files = {}) {
   const root = await tempDir();
+  // A `.git` marker makes the fixture a self-contained repository, so the
+  // Metro-config walk terminates here instead of ascending out of the temp
+  // directory and picking up whatever happens to sit above it.
+  await mkdir(join(root, ".git"), { recursive: true });
   await writeFileIn(
     root,
     "package.json",
@@ -186,7 +193,43 @@ describe("check-sentry-wiring.mjs", () => {
     it("reports a React Native project with no Metro config at all", async () => {
       const root = await project({ "@sentry/react-native": "~8.20.0" });
 
-      expect(checkWiring(root)).toReportFailure(/no Metro config/);
+      expect(checkWiring(root)).toReportFailure(/no Metro config was found/);
+    });
+
+    it("accepts a Metro config inherited from the workspace root", async () => {
+      // The standard monorepo layout: the SDK is a package dependency and the
+      // Metro config lives above it. Reporting this would be a false positive.
+      const workspace = await tempDir();
+      await mkdir(join(workspace, ".git"), { recursive: true });
+      await writeFileIn(workspace, "metro.config.js", WRAPPED_METRO);
+      await writeFileIn(
+        workspace,
+        "packages/app/package.json",
+        JSON.stringify({
+          name: "app",
+          dependencies: { "@sentry/react-native": "~8.20.0" },
+        }),
+      );
+
+      expect(checkWiring(join(workspace, "packages/app"))).toPassCleanly();
+    });
+
+    it("still reports when no ancestor up to the repository root has one", async () => {
+      const workspace = await tempDir();
+      await mkdir(join(workspace, ".git"), { recursive: true });
+      await writeFileIn(workspace, "metro.config.js", UNWRAPPED_METRO);
+      await writeFileIn(
+        workspace,
+        "packages/app/package.json",
+        JSON.stringify({
+          name: "app",
+          dependencies: { "@sentry/react-native": "~8.20.0" },
+        }),
+      );
+
+      expect(checkWiring(join(workspace, "packages/app"))).toReportFailure(
+        /bundler wrapper/,
+      );
     });
 
     it("ignores the Metro config when the SDK is not a dependency", async () => {

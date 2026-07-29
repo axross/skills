@@ -110,6 +110,15 @@ async function isFile(candidate) {
   }
 }
 
+/** `true` when the path exists and is a directory. */
+async function isDirectory(candidate) {
+  try {
+    return (await stat(candidate)).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 /** Read a file, or return `null` when it is absent or unreadable. */
 async function readIfPresent(candidate) {
   try {
@@ -198,22 +207,40 @@ async function readDependencies(root) {
   ]);
 }
 
+/**
+ * The nearest Metro config at or above `root`, or `null`.
+ *
+ * A monorepo package legitimately inherits its Metro config from the workspace
+ * root, so concluding "no Metro config" from the package directory alone
+ * reports a defect that is not there. The walk stops at the repository root —
+ * the first directory holding `.git` — so it never wanders outside the project.
+ */
+async function findMetroConfig(root) {
+  let directory = path.resolve(root);
+
+  for (;;) {
+    for (const name of METRO_CONFIGS) {
+      const candidate = path.join(directory, name);
+      if (await isFile(candidate)) return candidate;
+    }
+
+    // `.git` marks the repository root: check it, then stop.
+    if (await isDirectory(path.join(directory, ".git"))) return null;
+
+    const parent = path.dirname(directory);
+    if (parent === directory) return null;
+    directory = parent;
+  }
+}
+
 /** Findings for the React Native Metro-wrapper check. */
 async function checkMetroWrapper(root) {
-  let found = null;
-
-  for (const name of METRO_CONFIGS) {
-    const candidate = path.join(root, name);
-    if (await isFile(candidate)) {
-      found = candidate;
-      break;
-    }
-  }
+  const found = await findMetroConfig(root);
 
   if (found === null) {
     return [
       {
-        message: `depends on @sentry/react-native but has no Metro config; without ${METRO_WRAPPER_MODULE} no source map is generated.`,
+        message: `depends on @sentry/react-native and no Metro config was found at or above it; without ${METRO_WRAPPER_MODULE} no source map is generated.`,
       },
     ];
   }
