@@ -39,7 +39,7 @@
     "expo-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "03795e5202a7710526c667fe69001cecacf53557ddb624df4085cd75672bed0b"
+      "computedHash": "c1acbeca9ccb16b37b5b7a577533d49f210563ce54beed1518b0421122bc7565"
     },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
@@ -54,7 +54,7 @@
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "3471376b909f2041e537821d120c5b4800db9b8967bf15de46ae350fe9c351b2"
+      "computedHash": "a962f5cd9d7d52457b7f71d0c015bd8881614325e31b1eb0ace1396f5975f779"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -74,7 +74,7 @@
     "react-component-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "fa08280feeb97c51b4d1815b5ca5fc0ba73c341635337f69f7c39a8e3f9eab72"
+      "computedHash": "0fd483d7cb74a663e78ba3113045f97ddb5f7cb9a94b72e18a37bb38a21d1320"
     },
     "react-component-styling": {
       "source": "/home/user/skills/skills",
@@ -90,6 +90,11 @@
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "707406112e05198b5aecc5a579d9cf8cd799ce9f2540fae0ed3b02a62a16bc9e"
+    },
+    "tanstack-query-development": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "c50677920327ea2e4a58849b74529673264220b3741fda7f89f090cc0c369996"
     },
     "unit-testing": {
       "source": "/home/user/skills/skills",

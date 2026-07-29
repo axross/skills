@@ -13,7 +13,7 @@ It does **not** own how a component looks. Design tokens, colour, typography, sp
 
 Two further boundaries keep this skill portable:
 
-- **Server-state libraries are out of scope.** How queries, mutations, cache keys, and invalidation are organized follows the host project's own server-state conventions. This skill stops at the boundary: a component consumes server state, it does not fetch.
+- **Server-state libraries are out of scope.** How queries, mutations, cache keys, and invalidation are organized follows the host project's own server-state conventions, or a TanStack Query development capability where the project uses that library. This skill stops at the boundary: a component consumes server state, it does not fetch.
 - **Framework specifics are out of scope.** React Server Components, `"use client"`, Suspense streaming, framework caching directives, navigator wiring, and native-module concerns follow the host project's own framework conventions; safe-area styling belongs to the styling capability above.
 - **Semantics and keyboard behaviour are out of scope.** Which element carries which role, what an accessible name says, and how focus moves belong to a high-fidelity UI design capability. This skill states only what follows for a test hook (see [testability.md](./references/testability.md)).
 

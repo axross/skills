@@ -5,10 +5,11 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done. The
-twenty here cover the whole arc: handling what the agent does not know, turning a
-request into a spec, driving that spec to a reviewed pull request, keeping the
-code maintainable and secure, testing it, designing and building its UI,
-standing up the application around it, and authoring more skills. They install
+twenty-two here cover the whole arc: handling what the agent does not know,
+turning a request into a spec, driving that spec to a reviewed pull request,
+keeping the code maintainable and secure, testing it, designing and building its
+UI, standing up the application around it and the server state behind it, and
+authoring more skills. They install
 into any agent the [`skills` CLI](https://github.com/vercel-labs/skills)
 supports.
 
@@ -112,14 +113,15 @@ question answered, a review given, a change delivered — not only to changes.
 
 ### Building an app
 
-The only framework-specific group. These skills pin a version and state it, so a
-rule that inverts on the next major is a rule you can see rather than one you
-inherit.
+The framework- and library-specific group. These skills pin a version and state
+it, so a rule that inverts on the next major is a rule you can see rather than
+one you inherit.
 
-| Skill                                                            | What it gives your agent                                                                                                                                                                                                                                   |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`expo-app-development`](./skills/expo-app-development/SKILL.md) | The Expo app around the components: where files live, how a URL becomes a screen, what the native build contains, and how it reaches a device — checked against the SDK the app actually has.                                                              |
-| [`next-app-development`](./skills/next-app-development/SKILL.md) | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
+| Skill                                                                        | What it gives your agent                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`expo-app-development`](./skills/expo-app-development/SKILL.md)             | The Expo app around the components: where files live, how a URL becomes a screen, what the native build contains, and how it reaches a device — checked against the SDK the app actually has.                                                              |
+| [`next-app-development`](./skills/next-app-development/SKILL.md)             | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
+| [`tanstack-query-development`](./skills/tanstack-query-development/SKILL.md) | The server state behind all of it, on TanStack Query v5: where a query lives, what identifies it in the cache, when it refetches, what a write invalidates, and how a failure surfaces — plus the review checks for each of those going wrong.             |
 
 ### Authoring skills
 
