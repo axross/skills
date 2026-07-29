@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "expectAlways": ["professional-behavior"],
+  "cases": [
+    {
+      "id": "wf-checkout-layout",
+      "prompt": "Sketch the layout and flow for a two-step checkout screen.",
+      "mustInclude": ["wireframe-design"],
+      "mustExclude": ["high-fidelity-ui-design"],
+      "rationale": "Layout and flow with no real colour, type or spacing named. wireframe-design's own text claims exactly this; high-fidelity-ui-design's text disclaims it as a separate later round."
+    },
+    {
+      "id": "wf-breadboard-onboarding",
+      "prompt": "Breadboard the onboarding flow — what places exist and what connects them?",
+      "mustInclude": ["wireframe-design"],
+      "mustExclude": ["react-component-styling"],
+      "rationale": "\"Breadboard\" is a term only wireframe-design claims. Nothing is being implemented, so a styling capability firing here would be a genuine over-reach."
+    },
+    {
+      "id": "wf-layout-options",
+      "prompt": "Give me two low-fidelity layout options for a settings page so we can pick one.",
+      "mustInclude": ["wireframe-design"],
+      "mustExclude": ["high-fidelity-ui-design"],
+      "rationale": "\"Low-fidelity\" and options-comparison are both named in wireframe-design's text. The explicit fidelity marker makes this the clearest case in the set."
+    },
+    {
+      "id": "wf-grey-box-dashboard",
+      "prompt": "Grey-box the regions of an analytics dashboard before we argue about colour.",
+      "mustInclude": ["wireframe-design"],
+      "mustExclude": ["high-fidelity-ui-design", "react-component-styling"],
+      "rationale": "Deliberately defers colour. If either colour-bearing skill fires on a prompt that rules colour out in words, the boundary is not holding."
+    },
+    {
+      "id": "hf-semantic-tokens",
+      "prompt": "Define the semantic colour tokens for our app, including dark mode.",
+      "mustInclude": ["high-fidelity-ui-design"],
+      "mayInclude": ["react-component-styling"],
+      "rationale": "Token design is high-fidelity-ui-design's; the styling skill also names tokens because it implements them, so its appearance is legitimate rather than spurious."
+    },
+    {
+      "id": "hf-contrast-audit",
+      "prompt": "Check whether our button colours meet WCAG contrast in both themes.",
+      "mustInclude": ["high-fidelity-ui-design"],
+      "mustExclude": ["wireframe-design"],
+      "rationale": "Real colour and a WCAG target: precisely what the wireframe skill says it does not cover."
+    },
+    {
+      "id": "hf-type-scale",
+      "prompt": "Design a type scale and decide the body text size for readability.",
+      "mustInclude": ["high-fidelity-ui-design"],
+      "mustExclude": ["wireframe-design"],
+      "rationale": "Typography as the subject rather than as a placeholder — the fidelity line wireframe-design draws against itself."
+    },
+    {
+      "id": "hf-interaction-states",
+      "prompt": "What states does a primary button need — hover, disabled, loading, error?",
+      "mustInclude": ["high-fidelity-ui-design"],
+      "mayInclude": ["react-component-styling", "react-component-development"],
+      "rationale": "Complete interaction-state sets are high-fidelity-ui-design's. Both React skills name states too, so either appearing is defensible."
+    },
+    {
+      "id": "hf-touch-targets",
+      "prompt": "Are our tap targets big enough on mobile, and is the focus ring visible?",
+      "mustInclude": ["high-fidelity-ui-design"],
+      "mayInclude": ["react-component-styling"],
+      "rationale": "Touch-target sizing and visible focus are named in high-fidelity-ui-design's text; react-component-styling names pointer-sized targets as an implementation concern."
+    },
+    {
+      "id": "rcs-css-module",
+      "prompt": "Write the CSS Module for a Card component.",
+      "mustInclude": ["react-component-styling"],
+      "mustExclude": ["wireframe-design"],
+      "rationale": "Naming the concrete file type should route unambiguously to the styling implementation skill."
+    },
+    {
+      "id": "rcs-unistyles-variants",
+      "prompt": "Convert this React Native StyleSheet.create over to Unistyles with variants.",
+      "mustInclude": ["react-component-styling"],
+      "mustExclude": ["wireframe-design", "high-fidelity-ui-design"],
+      "rationale": "A named library and a mechanical conversion. Neither design skill has anything to contribute, so either firing is a spurious trigger."
+    },
+    {
+      "id": "rcs-container-query",
+      "prompt": "This sidebar breaks below 600px — container query or media query?",
+      "mustInclude": ["react-component-styling"],
+      "mustExclude": ["wireframe-design"],
+      "rationale": "Container-driven responsiveness is named directly in react-component-styling's discovery text."
+    },
+    {
+      "id": "rcs-class-name-prop",
+      "prompt": "Should this component take a className prop, and how do I merge it?",
+      "mustInclude": ["react-component-styling"],
+      "mayInclude": ["react-component-development"],
+      "rationale": "The styling-prop merge contract is react-component-styling's. The component skill also names the props spread, so it is a legitimate co-selection."
+    },
+    {
+      "id": "rcs-property-order",
+      "prompt": "What order should the properties go in inside this stylesheet?",
+      "mustInclude": ["react-component-styling"],
+      "mustExclude": ["wireframe-design", "high-fidelity-ui-design"],
+      "rationale": "Style property order is a mechanic only the styling skill claims — a narrow probe of whether the design skills over-trigger on the word 'style'."
+    },
+    {
+      "id": "rcs-reduced-motion",
+      "prompt": "Make this animated accordion respect prefers-reduced-motion.",
+      "mustInclude": ["react-component-styling"],
+      "mayInclude": ["high-fidelity-ui-design"],
+      "rationale": "Both name reduced motion — the styling skill as an adaptive rule, the design skill as preference-aware motion. Implementation is asked for, so the styling skill must appear."
+    },
+    {
+      "id": "boundary-hierarchy-and-css",
+      "prompt": "Review this component for both its visual hierarchy and how its CSS is organised.",
+      "mustInclude": ["high-fidelity-ui-design", "react-component-styling"],
+      "rationale": "Deliberately contested: it asks two questions that two skills own separately. The coverage line is the point — a split distribution here is healthy, and neither skill should read as a miss."
+    },
+    {
+      "id": "boundary-wireframe-to-tokens",
+      "prompt": "The wireframe is settled — now pick the real colours and spacing for it.",
+      "mustInclude": ["high-fidelity-ui-design"],
+      "mustExclude": ["wireframe-design"],
+      "rationale": "Names the wireframe as finished context. Tests whether the word 'wireframe' pulls the wrong skill in even when the ask has moved past it."
+    },
+    {
+      "id": "neg-database-migration",
+      "prompt": "Add a database migration that backfills the orders table.",
+      "mustExclude": [
+        "wireframe-design",
+        "high-fidelity-ui-design",
+        "react-component-styling"
+      ],
+      "rationale": "No UI surface at all. A control: if any design skill fires here, its discovery text is far too broad."
+    },
+    {
+      "id": "neg-flaky-e2e",
+      "prompt": "This Playwright test is flaky — fix the waiting.",
+      "mustInclude": ["end-to-end-testing"],
+      "mustExclude": [
+        "wireframe-design",
+        "high-fidelity-ui-design",
+        "react-component-styling"
+      ],
+      "rationale": "A control with a positive expectation attached: end-to-end-testing names Playwright and flakiness explicitly, so this also checks the fixture can detect a plain hit outside the pilot trio."
+    },
+    {
+      "id": "neg-commit-message",
+      "prompt": "Write the commit message for this change.",
+      "mustInclude": ["conventional-commits"],
+      "mustExclude": [
+        "wireframe-design",
+        "high-fidelity-ui-design",
+        "react-component-styling"
+      ],
+      "rationale": "A second outside-the-trio control. conventional-commits claims this in as many words, so a miss here would point at the harness rather than at the trio."
+    }
+  ]
+}
