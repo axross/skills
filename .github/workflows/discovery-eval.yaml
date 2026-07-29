@@ -10,25 +10,35 @@ name: Discovery Evaluation
 # and in no other — so wiring it into a gate has to be a deliberate act that
 # breaks a test first.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 1 of 4 — the trigger is the maintainer gate.
-# `pull_request_target` runs in the BASE repository's context with a privileged
-# token, which is the classic footgun. The bound is that it fires only on a
-# LABEL applied by someone with triage or write permission. A fork pull request
-# cannot label itself, so it cannot cause a run. Never add `pull_request` here.
+# ── LOAD-BEARING SAFETY PROPERTY 1 of 4 — MANUAL DISPATCH IS THE ONLY TRIGGER.
+# There is no event here that a pull request can raise. `workflow_dispatch`
+# requires write access on the repository and always runs the workflow file from
+# the DEFAULT BRANCH, so a contributor cannot cause a run, cannot cause one by
+# editing this file in a pull request, and cannot cause one by having a label
+# applied. Do NOT add `pull_request`, and do NOT add back `pull_request_target`:
+# the latter runs in the base repository's context with a privileged token and
+# is the classic footgun this workflow deliberately does not stand on.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 2 of 4 — base-ref checkout, as in
+# Properties 2-4 below are therefore defence in depth rather than the primary
+# bound — the primary bound is that only a maintainer can start this at all.
+# They are kept because the evaluation still reads pull request head content
+# when a run names one, and because a workflow that is safe only by virtue of
+# who can press the button is one trigger change away from not being safe.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 2 of 4 — default-branch checkout, as in
 # claude-review.yaml. Every line of EXECUTABLE code — the runner, the fixture,
-# the baseline, package.json — comes from the base ref. The pull request head is
-# never checked out, and `npm ci` never installs from head content.
+# the baseline, package.json — comes from the default branch. A pull request
+# head is never checked out, and `npm ci` never installs from head content.
 #
 # ── LOAD-BEARING SAFETY PROPERTY 3 of 4 — head skill text crosses as DATA,
 # through an allowlist. The evaluation is only worth running against a CHANGED
-# skill, so head `SKILL.md` files are fetched through the API and staged in
-# $RUNNER_TEMP. scripts/discovery-eval/overlay.mjs is the real bound: it accepts
-# only `.claude/skills/<kebab-name>/SKILL.md`, rejects traversal, absolute paths
-# and backslashes, and derives every destination from the DIFF PATH rather than
-# from any `name:` field inside the head file. The `jq` filter below is
-# convenience; the allowlist is the security property, and it is unit-tested.
+# skill, so when a run names a pull request its `SKILL.md` files are fetched
+# through the API and staged in $RUNNER_TEMP. scripts/discovery-eval/overlay.mjs
+# is the real bound: it accepts only `.claude/skills/<kebab-name>/SKILL.md`,
+# rejects traversal, absolute paths and backslashes, caps the size of what it
+# accepts, and derives every destination from the DIFF PATH rather than from any
+# `name:` field inside the head file. The `grep` filter below is convenience;
+# the allowlist is the security property, and it is unit-tested.
 #
 # ── LOAD-BEARING SAFETY PROPERTY 4 of 4 — the evaluation subprocess is
 # credential-free. Skills are prompt content, so allowlisted head text does
@@ -37,15 +47,8 @@ name: Discovery Evaluation
 # evaluation step's environment, and overlay.mjs strips anything
 # credential-shaped from what it inherits regardless.
 #
-# Operator prerequisites (the label path no-ops until the first is done):
-#   1. Create the `eval:discovery` label in this repository. It does not exist
-#      by default, and GitHub does not create a label just because a workflow
-#      names one — so until it is created, the label trigger below can never
-#      fire and this workflow is reachable only by manual dispatch. Applying it
-#      needs triage or write permission, which is what makes the label the
-#      maintainer gate in safety property 1.
-#   2. The CLAUDE_CODE_OAUTH_TOKEN secret that claude-review.yaml already uses.
-#      No new secret is required.
+# Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
+# claude-review.yaml already uses. No new secret, and no label, is required.
 
 on:
   workflow_dispatch:
@@ -57,8 +60,6 @@ on:
       pull_request:
         description: "Pull request number to evaluate head skills from (optional)"
         required: false
-  pull_request_target:
-    types: [labeled]
 
 # Least privilege: read the base tree, write one comment. Nothing else. No
 # contents:write — this never pushes, and its token cannot.
@@ -69,23 +70,22 @@ permissions:
 jobs:
   evaluate:
     name: Evaluate discovery
-    # SAFETY PROPERTY 1 (continued). Manual dispatch, or the one label.
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.label.name == 'eval:discovery'
+    # No `if:` guard is needed. workflow_dispatch is the only trigger, so there
+    # is no other event shape to exclude — the gate is GitHub's own write-access
+    # check on dispatching, not a condition evaluated here.
     concurrency:
-      group: discovery-eval-${{ github.event.pull_request.number || github.event.inputs.pull_request || 'manual' }}
+      group: discovery-eval-${{ github.event.inputs.pull_request || 'manual' }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      PR_NUMBER: ${{ github.event.pull_request.number || github.event.inputs.pull_request }}
+      PR_NUMBER: ${{ github.event.inputs.pull_request }}
       REPEATS: ${{ github.event.inputs.repeats || '5' }}
     steps:
-      # SAFETY PROPERTY 2 — base ref only. No `ref:` input, so this is the
-      # default branch for a dispatch and the BASE of the pull request for a
-      # label event. Never `github.event.pull_request.head.sha`.
-      - name: Checkout base
+      # SAFETY PROPERTY 2 — no `ref:` input, so this is always the default
+      # branch. Never `github.event.pull_request.head.sha`, and never the ref of
+      # a pull request named in the inputs.
+      - name: Checkout default branch
         uses: actions/checkout@v4
 
       - name: Set up Node
@@ -102,7 +102,8 @@ jobs:
 
       # SAFETY PROPERTY 3 — head SKILL.md files staged as data, at
       # repository-relative paths so the runner's allowlist judges the same
-      # string the diff reported. GITHUB_TOKEN is scoped to THIS step.
+      # string the diff reported. GITHUB_TOKEN is scoped to THIS step. Skipped
+      # entirely unless the dispatch named a pull request.
       - name: Stage changed head skills
         id: stage
         if: env.PR_NUMBER != ''
@@ -154,6 +155,9 @@ jobs:
         # Deliberately NOT always(): if the evaluation step failed there is no
         # report to post, and a step that then fails on a missing file reads as
         # a second, unrelated problem.
+        #
+        # A dispatch that names no pull request has nowhere to post; its report
+        # is the job log, which is where the dispatcher is already looking.
         if: env.PR_NUMBER != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

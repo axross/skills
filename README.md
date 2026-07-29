@@ -337,12 +337,14 @@ for three independent reasons: it is non-deterministic, it costs real money per
 run (`$2.57` measured for the full fixture), and it needs a secret that fork
 pull requests do not receive.
 
-Run it on a pull request by applying the **`eval:discovery`** label — create
-that label once in the repository first, since the trigger cannot fire until it
-exists — which triggers
+Run it in CI from the Actions tab by dispatching
 [`discovery-eval.yaml`](./.github/workflows/discovery-eval.yaml) — the only
-workflow allowed to invoke it. `--dry-run` validates the fixture with no model
-call and no secret. See
+workflow allowed to invoke it, and **manual dispatch is its only trigger**, so
+nothing a pull request does can start it or spend money. Give the dispatch a
+pull request number to evaluate that branch's changed skills and have the report
+posted as a comment; leave it blank to evaluate the default branch and read the
+report in the job log. `--dry-run` validates the fixture with no model call and
+no secret. See
 [`evals/discovery/README.md`](./evals/discovery/README.md) for the fixture
 format, how a verdict is reached, and when to re-record the baseline.
 

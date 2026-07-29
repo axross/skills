@@ -29,21 +29,26 @@ only amortizes it once a run is long enough to reuse it. Use `--only` and
 `--dry-run` needs neither a network nor a secret: it validates the fixture and
 the baseline and prints what would run. That is the path `npm test` exercises.
 
-## Running it on a pull request
+## Running it in CI
 
-Apply the **`eval:discovery`** label. Two one-time operator steps first:
+Dispatch [`discovery-eval.yaml`](../../.github/workflows/discovery-eval.yaml)
+from the Actions tab. Two inputs, both optional:
 
-1. **Create the `eval:discovery` label.** It does not exist by default, and
-   GitHub does not create one just because a workflow names it — until it
-   exists, the label trigger can never fire and
-   [`discovery-eval.yaml`](../../.github/workflows/discovery-eval.yaml) is
-   reachable only by manual dispatch.
-2. **Have the `CLAUDE_CODE_OAUTH_TOKEN` secret set** — the same one
-   `claude-review.yaml` already uses. No new secret is needed.
+| Input          | Effect                                                                                                                                                                                         |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repeats`      | Runs per case. Higher is steadier and costs more. Defaults to 5.                                                                                                                               |
+| `pull_request` | A pull request number. Its changed `SKILL.md` files are evaluated, and the report is posted there as a comment. Leave blank to evaluate the default branch and read the report in the job log. |
 
-Applying the label requires triage or write permission, which is precisely what
-makes it the maintainer gate: a fork pull request cannot label itself, so it
-cannot spend money here.
+**Manual dispatch is the only trigger.** There is no event a pull request can
+raise that starts this — no `pull_request`, and deliberately no
+`pull_request_target`. Dispatching requires write access, so a contributor
+cannot start a run, cannot start one by editing the workflow in a pull request
+(dispatch always runs the file from the default branch), and cannot start one
+by getting a label applied. That is the primary bound on both the money this
+spends and the untrusted text it reads.
+
+The only operator prerequisite is the `CLAUDE_CODE_OAUTH_TOKEN` secret that
+`claude-review.yaml` already uses. No new secret, and no label.
 
 ## It never gates
 
