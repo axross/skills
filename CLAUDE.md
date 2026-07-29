@@ -1,16 +1,6 @@
 # CLAUDE.md
 
-## Requirement Level Keywords
-
-Apply these keywords consistently in this document and the documents linked from this document.
-
-| Keyword      | Synonym           | Meaning                                                                        |
-| ------------ | ----------------- | ------------------------------------------------------------------------------ |
-| "MUST"       | "REQUIRED"        | Non-negotiable requirement; no exceptions.                                     |
-| "MUST NOT"   |                   | Non-negotiable prohibition; no exceptions.                                     |
-| "SHOULD"     | "RECOMMENDED"     | Strongly preferred; deviation is allowed only after weighing the implications. |
-| "SHOULD NOT" | "NOT RECOMMENDED" | Strongly discouraged; allowed only after weighing the implications.            |
-| "MAY"        | "OPTIONAL"        | Genuinely optional; no preference implied.                                     |
+The keywords "MUST", "MUST NOT", "SHOULD", "SHOULD NOT", and "MAY" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
 ## Project Overview
 
