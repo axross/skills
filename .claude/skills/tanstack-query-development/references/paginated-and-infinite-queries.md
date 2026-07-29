@@ -6,7 +6,7 @@ Apply this reference when building a "load more" list, an infinite scroll, or a 
 
 An infinite query keeps every fetched page under **one** cache entry: `data.pages` and `data.pageParams`. The factory needs `initialPageParam` and at least `getNextPageParam`.
 
-**Property order matters.** `queryFn`, then `getPreviousPageParam`, then `getNextPageParam` — the page-parameter type is inferred through them in that order, and a different order degrades inference without producing an error.
+**Property order matters, but only partly.** `queryFn` must come before both page-parameter callbacks, because the page-parameter type is inferred from it. `getPreviousPageParam` and `getNextPageParam` are **order-insensitive relative to each other** — swapping them changes nothing, and a rule stating a strict three-way order would flag correct code.
 
 ```ts
 export function getCollectionRecordsInfiniteQueryOptions(scope: RecordsScope) {
@@ -27,7 +27,7 @@ export function getCollectionRecordsInfiniteQueryOptions(scope: RecordsScope) {
 
 **Guidelines:**
 
-- MUST order the options `queryFn` → `getPreviousPageParam` → `getNextPageParam`; a different order silently degrades type inference.
+- MUST place `queryFn` before `getPreviousPageParam` and `getNextPageParam`, since the page-parameter type is inferred from it; the two page callbacks may appear in either order.
 - MUST return `undefined` from `getNextPageParam` to signal the end, and make sure a valid falsy page parameter is not mistaken for it.
 - SHOULD set `maxPages` on a list a user can scroll far into, and supply `getPreviousPageParam` alongside it.
 - MUST use `infiniteQueryOptions` rather than `queryOptions`; the latter does not carry the page-parameter types.
@@ -99,7 +99,7 @@ const { data, isPlaceholderData } = useQuery({
 
 **Review checks:**
 
-- `getNextPageParam` before `queryFn` or `getPreviousPageParam` — **Minor**; inference degrades silently, and the symptom appears far from the cause.
+- Either page-parameter callback declared before `queryFn` — **Minor**; inference degrades silently, and the symptom appears far from the cause. The two page callbacks appearing in either order is **not** a finding.
 - `fetchNextPage` unguarded on a scroll handler — **Major**; produces duplicated or skipped rows under fast scrolling.
 - A valid falsy page parameter treated as the end of the list — **Major**; pagination stops one page early.
 - Row keys derived from array index — **Major**; rows re-key on every insertion and refetch.

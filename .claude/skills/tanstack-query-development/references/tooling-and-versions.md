@@ -12,12 +12,14 @@ The library ships an ESLint plugin. Each of its rules is stated below as somethi
 | `no-rest-destructuring`         | no `...rest` on a query result, which subscribes to every field                           |
 | `stable-query-client`           | the client is not constructed inside a render body                                        |
 | `no-unstable-deps`              | a query or mutation result object is not put in a React hook's dependency array           |
-| `infinite-query-property-order` | `queryFn` → `getPreviousPageParam` → `getNextPageParam`                                   |
+| `infinite-query-property-order` | `queryFn` precedes both page-param callbacks; those two are unordered                     |
 | `no-void-query-fn`              | the `queryFn` returns a value                                                             |
-| `mutation-property-order`       | `onMutate` → `onError` → `onSettled`                                                      |
+| `mutation-property-order`       | `onMutate` precedes `onError` and `onSettled`; those two are unordered                    |
 | `prefer-query-options`          | key and function are wrapped in an option helper, and cache calls reuse the factory's key |
 
 Seven are in the recommended set; `prefer-query-options` is in the stricter one, and it is the rule that mechanically enforces the pattern in [option-factories.md](./option-factories.md).
+
+**The two ordering rules are looser than the plugin's own documentation says.** Its pages list a strict three-way order for each, but both implementations sort a _leading_ property before an unordered _group_ — `queryFn` before `{getPreviousPageParam, getNextPageParam}`, and `onMutate` before `{onError, onSettled}`. The table above states what the rules enforce. Treating the documented three-way order as normative makes a reviewer flag correct code.
 
 **Guidelines:**
 

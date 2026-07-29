@@ -103,26 +103,28 @@ interface MutationCallbacks<TVariables, TData, TError, TOnMutateResult> {
   onMutate: (
     variables: TVariables,
     context: MutationFunctionContext,
-  ) => Promise<TOnMutateResult | void> | TOnMutateResult | void;
+  ) => Promise<TOnMutateResult> | TOnMutateResult;
+  // Non-optional here: onSuccess runs only after onMutate resolved.
   onSuccess: (
     data: TData,
     variables: TVariables,
-    onMutateResult: TOnMutateResult | undefined,
+    onMutateResult: TOnMutateResult,
     context: MutationFunctionContext,
-  ) => unknown;
+  ) => Promise<unknown> | unknown;
+  // Optional here: these can run when onMutate never did.
   onError: (
     error: TError,
     variables: TVariables,
     onMutateResult: TOnMutateResult | undefined,
     context: MutationFunctionContext,
-  ) => unknown;
+  ) => Promise<unknown> | unknown;
   onSettled: (
     data: TData | undefined,
     error: TError | null,
     variables: TVariables,
     onMutateResult: TOnMutateResult | undefined,
     context: MutationFunctionContext,
-  ) => unknown;
+  ) => Promise<unknown> | unknown;
 }
 ```
 
@@ -130,14 +132,16 @@ interface MutationCallbacks<TVariables, TData, TError, TOnMutateResult> {
 
 Code written against the older three-argument shape reads `context` where `onMutateResult` now sits, and fails at runtime rather than in the type checker if the shapes happen to be compatible.
 
-**Property order matters** here too: `onMutate` → `onError` → `onSettled`, for the same inference reason as an infinite query's page callbacks.
+The nullability differs by callback, and the reason is worth knowing: `onSuccess` runs only once `onMutate` has resolved, so its rollback handle is guaranteed. `onError` and `onSettled` can run when `onMutate` never did — a failure before it, or no `onMutate` at all — so theirs is possibly `undefined`. The call-site options passed to `mutate(variables, { … })` are a **different** interface, where `onSuccess`'s handle is optional too.
+
+**Property order matters** here too, but less than it is often stated: `onMutate` must come before `onError` and `onSettled`; those two are **order-insensitive relative to each other**.
 
 Returning a promise from any callback makes the mutation await it before the next one runs — which is how an invalidation keeps `isPending` true until the refetch finishes.
 
 **Guidelines:**
 
 - MUST write callbacks against the current signatures and verify them against the installed version before relying on argument positions.
-- MUST order the options `onMutate` → `onError` → `onSettled`.
+- MUST place `onMutate` before `onError` and `onSettled`; their mutual order is unconstrained.
 - SHOULD reach the query client through `context.client` inside a callback rather than importing the singleton.
 - MUST return the promise from a callback whose work should complete before the mutation settles.
 
@@ -161,4 +165,4 @@ Concurrent calls to the same mutation run in **parallel** by default. A `scope` 
 - Invalidation placed in a call-site callback rather than the factory — **Major**; it silently does not happen when the component unmounts first.
 - `retry` on a non-idempotent mutation — **Critical**.
 - A missing `mutationKey` where the project relies on `useMutationState` or offline resumption — **Major**; both need a key to target.
-- `onSettled` before `onMutate` in the options object — **Minor**.
+- `onError` or `onSettled` before `onMutate` in the options object — **Minor**. Flagging `onSettled` before `onError` is **not** a finding; that pair is unordered.
