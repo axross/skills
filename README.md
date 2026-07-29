@@ -56,7 +56,7 @@ rather than one option among several.
 ## Skill catalog
 
 Every skill in the library, grouped by what you would reach for it to do. All
-nineteen install the same way; the ✱ marks where a skill's source lives in
+twenty install the same way; the ✱ marks where a skill's source lives in
 _this_ repository, which matters only if you contribute here.
 
 ### Working with you
@@ -105,6 +105,12 @@ _this_ repository, which matters only if you contribute here.
 | [`high-fidelity-ui-design`](./skills/high-fidelity-ui-design/SKILL.md)         | For when the greys become a real interface — semantic tokens, dark mode, readable type, WCAG contrast, visible focus, and states for every way a control can behave.                  |
 | [`react-component-styling`](./skills/react-component-styling/SKILL.md)         | Builds that interface for real: which styles a component owns and which its caller does, tokens that survive a theme swap, and surfaces that hold up at any width, pointer, or gamut. |
 | [`react-component-development`](./skills/react-component-development/SKILL.md) | The component underneath the styling: how its files are laid out, what its props promise, where its state lives, how a test reaches it, and when a long list earns virtualizing.      |
+
+### Building an app
+
+| Skill                                                            | What it gives your agent                                                                                                                                                          |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`expo-app-development`](./skills/expo-app-development/SKILL.md) | The Expo app around the components: where files live, how a URL becomes a screen, what the native build contains, and how it reaches a device — checked against the SDK you have. |
 
 ### Authoring skills
 

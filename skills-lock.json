@@ -36,6 +36,11 @@
       "sourceType": "local",
       "computedHash": "4dc34bcd562b136d08e6cc240dee7cabf8278be18866944114a5cb64ce136fd4"
     },
+    "expo-app-development": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "ae2c9a295548b75b9288a630a596c8e78faf421c2f9fb1f8cbc9deb3f2d8b186"
+    },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -69,7 +74,7 @@
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "01e53b8c62f4afdf3b80b9cd0349f9260d23b139f357168cb1f477eeb885c94b"
+      "computedHash": "01719c71d8a2dd33aa383b85c05292faf8df98a3eef9107e9e3152215ca8575c"
     },
     "software-development": {
       "source": "/home/user/skills/skills",
