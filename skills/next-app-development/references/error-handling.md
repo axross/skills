@@ -66,7 +66,10 @@ try {
 }
 redirect("/done");
 
-// Also right — rethrow control flow
+// Also right — rethrow control flow, so the redirect can stay inside the try
+try {
+  await save(input);
+  redirect("/done");
 } catch (error) {
   unstable_rethrow(error);
   return { error: "Save failed" };
