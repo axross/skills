@@ -51,7 +51,7 @@ queryFn: async () => {
 
 ## What the Function Receives
 
-The `queryFn` is called with a context object:
+The `queryFn` is called with a `QueryFunctionContext`:
 
 | Field       | What it carries                                          |
 | ----------- | -------------------------------------------------------- |

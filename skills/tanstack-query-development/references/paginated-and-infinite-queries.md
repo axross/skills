@@ -4,7 +4,7 @@ Apply this reference when building a "load more" list, an infinite scroll, or a 
 
 ## Defining a Page-Walking Query
 
-An infinite query keeps every fetched page under **one** cache entry: `data.pages` and `data.pageParams`. The factory needs `initialPageParam` and at least `getNextPageParam`.
+An infinite query — `useInfiniteQuery`, or `useSuspenseInfiniteQuery` under a boundary — keeps every fetched page under **one** cache entry: `data.pages` and `data.pageParams`. The factory needs `initialPageParam` and at least `getNextPageParam`.
 
 **Property order matters, but only partly.** `queryFn` must come before both page-parameter callbacks, because the page-parameter type is inferred from it. `getPreviousPageParam` and `getNextPageParam` are **order-insensitive relative to each other** — swapping them changes nothing, and a rule stating a strict three-way order would flag correct code.
 

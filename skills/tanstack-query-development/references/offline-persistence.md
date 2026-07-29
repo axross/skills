@@ -30,6 +30,8 @@ A paused mutation is retained and resumes when connectivity returns, **in the or
 
 `scope` serializes writes that must not interleave — see [mutations.md](./mutations.md).
 
+`queryClient.resumePausedMutations()` is what drains that queue. Connectivity returning triggers it automatically; a restore from persistence does **not**, so it has to be called once restoration finishes.
+
 Resuming after a **restart** needs more, because functions cannot be serialized. Only mutation _state_ persists, so the rehydrated mutation has no function to call unless one is registered against its key:
 
 ```ts
@@ -45,11 +47,11 @@ Without that registration, resumption fails with a missing-function error — at
 - MUST register `setMutationDefaults` for every mutation expected to resume after a restart; the persisted state carries no function.
 - MUST make a resumable mutation idempotent, since resumption can replay a write the server already applied.
 - SHOULD scope writes that must apply in order rather than relying on queue order alone.
-- MUST resume paused mutations explicitly after a restore completes, rather than assuming restoration triggers them.
+- MUST call `resumePausedMutations()` after a restore completes, rather than assuming restoration triggers the queue itself.
 
 ## Persisting and Restoring
 
-Persistence writes the dehydrated cache to storage and restores it on launch. The provider form handles both, and `useIsRestoring` reports the window in between — during which queries should not fetch, or the restore lands on top of results it did not produce.
+Persistence writes the dehydrated cache to storage and restores it on launch. `persistQueryClient` wires it imperatively; `PersistQueryClientProvider` does the same in the tree and is the usual choice, since it holds rendering until the restore settles. `useIsRestoring` reports the window in between — during which queries should not fetch, or the restore lands on top of results it did not produce.
 
 A restore is asynchronous. A surface that renders before it completes shows empty data and then a populated cache a moment later, which reads as a flash of missing content.
 
@@ -58,7 +60,7 @@ A restore is asynchronous. A surface that renders before it completes shows empt
 - MUST gate rendering, or at least fetching, on the restore completing; a query that runs mid-restore races the restored value.
 - SHOULD set `gcTime` at least as long as the intended persistence window, since an entry collected before it is written back is not persisted.
 - SHOULD persist deliberately rather than wholesale — the whole cache written on every change costs storage and serialization time on every mutation.
-- MUST verify the per-query persister's API against the installed version; it is experimental and its signature moves.
+- MUST verify `experimental_createQueryPersister`'s API against the installed version before using it to persist per query rather than whole-cache; it is experimental and its signature moves.
 
 ## Invalidating a Persisted Cache
 

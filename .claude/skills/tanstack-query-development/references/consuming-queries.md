@@ -104,12 +104,38 @@ By default an error only reaches a boundary when there is no data to show; a que
 
 When a key changes in response to user input, wrap the update in `startTransition` so the boundary's fallback does not replace the current screen.
 
+**Suspending without the Suspense hooks.** An ordinary `useQuery` result carries a `promise` field that `React.use()` can suspend on in a child component. That keeps everything the Suspense hooks give up — `enabled`, `placeholderData`, cancellation — while still moving the loading surface to a boundary.
+
+It is gated behind a feature flag on the client, and does nothing without it:
+
+```tsx
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { experimental_prefetchInRender: true } },
+});
+
+function Parent() {
+  const { promise } = useQuery(getCollectionListQueryOptions(scope));
+  return (
+    <Suspense fallback={<ListSkeleton />}>
+      <Child promise={promise} />
+    </Suspense>
+  );
+}
+
+function Child({ promise }: { promise: Promise<Collection[]> }) {
+  const collections = use(promise);
+  // …
+}
+```
+
 **Guidelines:**
 
 - MUST use `useSuspenseQueries` for a parallel set inside one component; side-by-side suspense hooks fetch serially.
 - MUST NOT reach for a Suspense hook where the query needs to be conditionally disabled; there is no `enabled`.
 - SHOULD wrap a key-changing state update in `startTransition` so the fallback does not replace visible content.
 - MUST pair a Suspense read with an error-boundary reset path — see [error-handling.md](./error-handling.md).
+- SHOULD reach for `useQuery().promise` with `React.use()` rather than a Suspense hook where the query still needs `enabled`, `placeholderData`, or cancellation.
+- MUST enable `experimental_prefetchInRender` on the client before relying on `promise`; without it the field does not resolve, and treat the flag as experimental at the installed version.
 
 **Review checks:**
 

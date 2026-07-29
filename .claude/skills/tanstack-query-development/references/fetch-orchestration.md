@@ -99,6 +99,12 @@ Prefetching populates an entry before anything renders it. The variants differ i
 | `fetchQuery`      | the data        | throws       |
 | `ensureQueryData` | the data        | throws       |
 
+An infinite query has its own warming call, `prefetchInfiniteQuery`, taking the same options the factory produces. `prefetchQuery` does not carry the page-parameter types, so warming a page-walking query through it primes the wrong shape.
+
+| Call                    | Returns         | On failure   |
+| ----------------------- | --------------- | ------------ |
+| `prefetchInfiniteQuery` | `Promise<void>` | never throws |
+
 `prefetchQuery` respects `staleTime`, so a prefetch of fresh data is a no-op — which is why an event-handler prefetch usually wants an explicit `staleTime`. `ensureQueryData` returns cached data if present and fetches only when it is absent.
 
 `usePrefetchQuery` is the variant for starting a fetch during render, ahead of a Suspense boundary — the ordinary hook cannot do this, because it would suspend.
@@ -120,6 +126,7 @@ function ArticleLayout({ id }: { id: string }) {
 - SHOULD pass an explicit `staleTime` to an interaction-triggered prefetch, or it silently does nothing for already-fresh data.
 - SHOULD prefetch from the router's loader where the project has one, so the request starts before the route's component is even imported.
 - MUST use `usePrefetchQuery` rather than an ordinary query hook to warm a sibling query ahead of a Suspense boundary.
+- MUST warm a page-walking query with `prefetchInfiniteQuery`, never `prefetchQuery`; the latter does not carry the page-parameter types.
 
 **Review checks:**
 

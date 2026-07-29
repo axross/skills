@@ -48,7 +48,7 @@ new QueryCache({
 
 Under Suspense, `throwOnError` defaults to throwing **only when there is no data**: a query that previously succeeded renders its stale data rather than surfacing the failure. Forcing every error to the boundary means throwing manually.
 
-An error boundary also needs a way to let the query try again — otherwise the fallback is terminal.
+An error boundary also needs a way to let the query try again — otherwise the fallback is terminal. `QueryErrorResetBoundary` supplies that as a render prop; `useQueryErrorResetBoundary` is the hook form, for a boundary that reads the reset function itself rather than receiving it.
 
 ```tsx
 <QueryErrorResetBoundary>
