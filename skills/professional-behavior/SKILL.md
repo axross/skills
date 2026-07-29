@@ -21,6 +21,8 @@ Accuracy is what makes that sort non-optional: when resolving an uncertainty pro
 
 Load only the references a given turn needs; each section below routes to the detail.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+
 ## Uncertainty Triage
 
 See [uncertainty-triage.md](./references/uncertainty-triage.md) for:

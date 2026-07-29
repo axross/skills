@@ -1,0 +1,62 @@
+{
+  "recordedAt": "2026-07-29",
+  "model": "claude-sonnet-5",
+  "repeats": 5,
+  "cases": {
+    "wf-checkout-layout": {
+      "wireframe-design": 5
+    },
+    "wf-breadboard-onboarding": {
+      "wireframe-design": 4
+    },
+    "wf-layout-options": {
+      "wireframe-design": 5
+    },
+    "wf-grey-box-dashboard": {
+      "wireframe-design": 5
+    },
+    "hf-semantic-tokens": {
+      "high-fidelity-ui-design": 2,
+      "react-component-styling": 2
+    },
+    "hf-contrast-audit": {
+      "high-fidelity-ui-design": 4
+    },
+    "hf-type-scale": {
+      "high-fidelity-ui-design": 5
+    },
+    "hf-interaction-states": {
+      "high-fidelity-ui-design": 2
+    },
+    "hf-touch-targets": {
+      "high-fidelity-ui-design": 1
+    },
+    "rcs-css-module": {
+      "react-component-styling": 5
+    },
+    "rcs-unistyles-variants": {
+      "react-component-styling": 2
+    },
+    "rcs-container-query": {
+      "react-component-styling": 1
+    },
+    "rcs-class-name-prop": {
+      "react-component-styling": 5
+    },
+    "rcs-property-order": {
+      "react-component-styling": 3
+    },
+    "rcs-reduced-motion": {
+      "react-component-styling": 2
+    },
+    "boundary-hierarchy-and-css": {},
+    "boundary-wireframe-to-tokens": {},
+    "neg-database-migration": {},
+    "neg-flaky-e2e": {
+      "end-to-end-testing": 5
+    },
+    "neg-commit-message": {
+      "conventional-commits": 3
+    }
+  }
+}

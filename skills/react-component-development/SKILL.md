@@ -19,6 +19,8 @@ Two further boundaries keep this skill portable:
 
 **The host project's existing convention always wins.** Every rule here names a default for a project that has not decided yet. Where the surrounding codebase, its linter, or its formatter already answers a question — barrel files, export syntax, `readonly` style, the styling mechanism, the virtualization library — match what is there and do not migrate the codebase toward this skill as a side effect of an unrelated change.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+
 ## Composition
 
 See [composition.md](./references/composition.md) for:

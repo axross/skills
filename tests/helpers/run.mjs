@@ -40,6 +40,7 @@ export const SCRIPTS = {
     "skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs",
   checkInstalledCopies: "scripts/check-installed-copies.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
+  discoveryEval: "scripts/discovery-eval/run.mjs",
 };
 
 /**

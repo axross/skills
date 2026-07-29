@@ -19,6 +19,8 @@ It also does not own the **framework hook** an integration occupies. That there 
 
 **Out of scope.** Sentry's product and organization configuration — alert rules, notification routing, ownership rules, inbound filters, spike protection, retention, and dashboards — is configured in Sentry's own interface, not in a repository, and no rule here was derived for it. When a task reaches one of those, say so rather than extrapolating from the rules below.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+
 ## SDK and Wrapper
 
 See [sdk-and-wrapper.md](./references/sdk-and-wrapper.md) for:
