@@ -2,7 +2,7 @@
   "name": "skills",
   "version": "0.0.0",
   "private": true,
-  "description": "A curated, reusable library of Claude Code agent skills.",
+  "description": "An opinionated library of agent skills.",
   "scripts": {
     "format": "prettier --write \"**/*.{md,json,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml}\"",

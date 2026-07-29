@@ -14,7 +14,7 @@ Apply these keywords consistently in this document and the documents linked from
 
 ## Project Overview
 
-- **skills** is a Claude Code agent-skills library: a curated, reusable collection of agent skills — the working agreement plus guideline and workflow skills that a Claude Code project loads through `CLAUDE.md`.
+- **skills** is a Claude Code agent-skills library: an opinionated collection of agent skills — the working agreement plus guideline and workflow skills that a Claude Code project loads through `CLAUDE.md`.
 - Primary language: Markdown (with occasional JavaScript for scripting). Runtime: Claude Code.
 - Tooling: npm for packages, markdownlint-cli2 for linting, Prettier for formatting. Relative-link integrity is checked by `.claude/skills/agent-skill-authoring/scripts/check-links.mjs`.
 - [README.md](./README.md) is the authoritative record of this repository's run-script commands and its development gotchas — the fast-moving dependencies that require a docs refresh, and the files whose mismatch breaks skill discovery or the verification gate rather than one rendered page. It is not a skill, so skill discovery never surfaces it on its own.

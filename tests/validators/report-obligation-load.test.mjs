@@ -17,11 +17,13 @@
 // file adds is the claim that the reporter and check-skill.mjs READ that shared
 // definition consistently — see the partition case.
 
+import { access, readdir } from "node:fs/promises";
+
 import { describe, expect, it } from "vitest";
 
 import { estimateTokens } from "../../skills/agent-skill-authoring/scripts/token-estimate.mjs";
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
-import { SCRIPTS, validator } from "../helpers/run.mjs";
+import { repoPath, SCRIPTS, validator } from "../helpers/run.mjs";
 
 const report = validator(SCRIPTS.reportObligationLoad);
 const checkSkill = validator(SCRIPTS.checkSkill);
@@ -74,6 +76,54 @@ function totalsOf(stdout) {
     ceilingBytes,
     ceilingTokens,
   };
+}
+
+/**
+ * The skill directory names directly under a repository skill root, read from
+ * disk.
+ *
+ * An oracle for the selection cases below, independent of the code under test:
+ * this answers only "what is on disk", while the reporter owns argument
+ * resolution, cross-root dedup, ordering, and measurement. Deriving the
+ * expectation rather than writing the count as a literal is what keeps those
+ * cases failing when selection breaks instead of when a skill is added.
+ */
+async function skillNamesUnder(root) {
+  const names = [];
+  for (const entry of await readdir(repoPath(root), { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const holdsSkillFile = await access(
+      repoPath(root, entry.name, "SKILL.md"),
+    ).then(
+      () => true,
+      () => false,
+    );
+    if (holdsSkillFile) names.push(entry.name);
+  }
+  return names.sort();
+}
+
+/**
+ * The per-skill row names of a report, in printed order.
+ *
+ * Rows sit between the two dashed rules, and the `total` row follows the
+ * second — so slicing between them drops the total without matching its name.
+ */
+function rowNamesOf(stdout) {
+  const lines = stdout.split("\n");
+  const rules = [];
+  lines.forEach((line, index) => {
+    if (/^-{3,}$/.test(line)) rules.push(index);
+  });
+  if (rules.length < 2) throw new Error(`No row block in report:\n${stdout}`);
+  return lines.slice(rules[0] + 1, rules[1]).map((line) => line.split(/\s+/)[0]);
+}
+
+/** The skill count the report's headline states. */
+function headlineCountOf(stdout) {
+  const match = stdout.match(/^Obligation load for (\d+) skill\(s\)/m);
+  if (!match) throw new Error(`No headline in report:\n${stdout}`);
+  return Number(match[1]);
 }
 
 describe("report-obligation-load.mjs", () => {
@@ -189,12 +239,17 @@ describe("report-obligation-load.mjs", () => {
     });
 
     it("expands a directory whose subdirectories are skills", async () => {
+      // The claim is that the expansion is COMPLETE — every skill under the
+      // root, not merely the first one found. A literal count said that only
+      // until the corpus next changed size, which is how this suite went red on
+      // main; the oracle says it for any corpus.
+      const expected = await skillNamesUnder("skills");
+
       const result = report("skills");
 
       expect(result).toPassCleanly();
-      // The distributable tier: every skill except repository-local
-      // github-operation. Bumped when react-component-development (#77) landed.
-      expect(result.stdout).toMatch(/Obligation load for 18 skill\(s\)/);
+      expect(rowNamesOf(result.stdout)).toEqual(expected);
+      expect(headlineCountOf(result.stdout)).toBe(expected.length);
     });
 
     it("combines --mandated with further named skills", async () => {
@@ -212,12 +267,25 @@ describe("report-obligation-load.mjs", () => {
     });
 
     it("reports every skill in the repository when given no arguments", async () => {
+      // "Every skill" is the DEDUPLICATED UNION of the two roots, and that is
+      // what this asserts — not a total, which a broken union and a broken
+      // dedup could both produce by coincidence. The installed root holds a copy
+      // of every distributable skill, so a missing `seen` guard reports each one
+      // twice; the source root holds no copy of a repository-local skill, so a
+      // root left unscanned drops it entirely.
+      const sourceTier = await skillNamesUnder("skills");
+      const installedTier = await skillNamesUnder(".claude/skills");
+      const union = [...new Set([...sourceTier, ...installedTier])].sort();
+
       const result = report();
 
       expect(result).toPassCleanly();
-      // Both tiers, deduplicated by name. Bumped when
-      // react-component-development (#77) landed.
-      expect(result.stdout).toMatch(/Obligation load for 19 skill\(s\)/);
+      expect(rowNamesOf(result.stdout)).toEqual(union);
+      expect(headlineCountOf(result.stdout)).toBe(union.length);
+      // Guards the case against going vacuous: the two-tier model this covers
+      // only exists while some skill lives outside the source root. If that
+      // stops being true, this case needs rethinking rather than relaxing.
+      expect(union.length).toBeGreaterThan(sourceTier.length);
     });
 
     it("resolves every mandated skill name to a real skill", async () => {
@@ -295,8 +363,9 @@ describe("report-obligation-load.mjs", () => {
     it("exits 0 on the whole repository, where the numbers are largest", async () => {
       const result = report();
 
-      // 1,719 obligations is an alarming number and still not a failure: this
-      // tool has no threshold to cross.
+      // A four-figure obligation count is an alarming number and still not a
+      // failure: this tool has no threshold to cross. Stated as a magnitude
+      // rather than the figure of the day, which drifts with every skill added.
       expect(result).toExitWith(0);
       expect(totalsOf(result.stdout).ceilingObligations).toBeGreaterThan(1_000);
     });
