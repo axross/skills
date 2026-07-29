@@ -42,7 +42,7 @@ Every human-gated decision with options goes through the harness's question tool
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
-- framing a decision as concrete options with a marked default, and ordering dependent questions
+- framing a decision as concrete options in dependency order, and where the general rule is owned
 - re-presenting a question when the tool closes or errors, and reading a bare answer token next turn
 - keeping an open question in the status block, and sending pure notifications to the turn output
 - what may be attributed to the human, and why a bare continuation is a resume signal, not approval
