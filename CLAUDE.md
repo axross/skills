@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-The keywords "MUST", "MUST NOT", "SHOULD", "SHOULD NOT", and "MAY" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
-
 ## Project Overview
 
 - **skills** is a Claude Code agent-skills library: an opinionated collection of agent skills — the working agreement plus guideline and workflow skills that a Claude Code project loads through `CLAUDE.md`.

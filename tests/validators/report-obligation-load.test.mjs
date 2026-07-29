@@ -353,9 +353,9 @@ describe("report-obligation-load.mjs", () => {
       const totals = totalsOf(report("--mandated").stdout);
 
       expect.soft(totals.floorObligations).toBe(20);
-      expect.soft(totals.floorTokens).toBe(6_649);
+      expect.soft(totals.floorTokens).toBe(6_801);
       expect.soft(totals.ceilingObligations).toBe(291);
-      expect.soft(totals.ceilingTokens).toBe(24_046);
+      expect.soft(totals.ceilingTokens).toBe(24_199);
     });
   });
 

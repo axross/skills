@@ -17,6 +17,8 @@ This skill is **self-contained**: it names no repository-specific file or layout
 
 - MUST keep the host project's master skill index in sync whenever a skill in either tier is added, renamed, moved, or removed, per your project's skill-authoring conventions.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+
 ## Choosing a Tier
 
 Every skill lives in exactly one tier, decided by one question: **would the skill work, unchanged, installed into another project?**

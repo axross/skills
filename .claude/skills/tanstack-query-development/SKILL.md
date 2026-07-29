@@ -11,6 +11,8 @@ Use this capability whenever you write or review code that reads or writes **ser
 
 Server state is not application state. It goes stale on its own, it can be refetched, and two components asking for it should get one request. That is the whole reason this layer exists, and the rules below follow from it.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+
 ## Baseline and Scope
 
 **TanStack Query v5 is the baseline**, verified against **5.101.4** — the current release at the time of writing. React 18 and TypeScript 5.4 are the minimums. Types ship as **patch** releases rather than majors, so a project should pin the patch version and expect type changes between them.
