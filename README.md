@@ -5,11 +5,12 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done. The
-nineteen here cover the whole arc: handling what the agent does not know,
-turning a request into a spec, driving that spec to a reviewed pull request,
-keeping the code maintainable and secure, testing it, designing and building its
-UI, and authoring more skills. They install into any agent the [`skills`
-CLI](https://github.com/vercel-labs/skills) supports.
+twenty here cover the whole arc: handling what the agent does not know, turning a
+request into a spec, driving that spec to a reviewed pull request, keeping the
+code maintainable and secure, testing it, designing and building its UI,
+standing up the application around it, and authoring more skills. They install
+into any agent the [`skills` CLI](https://github.com/vercel-labs/skills)
+supports.
 
 The library is Markdown-first — the skills _are_ the deliverable — with a little
 JavaScript tooling to keep them formatted, linted, and link-checked.
@@ -108,6 +109,16 @@ question answered, a review given, a change delivered — not only to changes.
 | [`high-fidelity-ui-design`](./skills/high-fidelity-ui-design/SKILL.md)         | For when the greys become a real interface — semantic tokens, dark mode, readable type, WCAG contrast, visible focus, and states for every way a control can behave.                  |
 | [`react-component-styling`](./skills/react-component-styling/SKILL.md)         | Builds that interface for real: which styles a component owns and which its caller does, tokens that survive a theme swap, and surfaces that hold up at any width, pointer, or gamut. |
 | [`react-component-development`](./skills/react-component-development/SKILL.md) | The component underneath the styling: how its files are laid out, what its props promise, where its state lives, how a test reaches it, and when a long list earns virtualizing.      |
+
+### Building an app
+
+The only framework-specific group. These skills pin a version and state it, so a
+rule that inverts on the next major is a rule you can see rather than one you
+inherit.
+
+| Skill                                                            | What it gives your agent                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`next-app-development`](./skills/next-app-development/SKILL.md) | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
 
 ### Authoring skills
 
