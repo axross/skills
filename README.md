@@ -153,6 +153,7 @@ format-on-edit and check-before-stop hooks are materialized from
 | Skill structure  | `.claude/skills/agent-skill-authoring/scripts/check-skill.mjs` |
 | Installed copies | `scripts/check-installed-copies.mjs`                           |
 | Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)    |
+| Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)        |
 | Tests            | Vitest                                                         |
 
 ### Delivering a unit of work end-to-end
@@ -265,7 +266,9 @@ and the residual risk — rather than presenting the change as fully verified.
 
 #### Reporting, not gating
 
-One script reports a number instead of judging one:
+Two tools report instead of judging. Neither belongs to a gate, an npm script,
+or a hook, and `tests/repository/reporting-tools.test.mjs` keeps both out of the
+enforced set on purpose, so wiring either in has to be a deliberate act.
 
 ```bash
 node scripts/report-obligation-load.mjs --mandated
@@ -281,11 +284,36 @@ requires in every session. It reads the obligation definition from the same
 module `check-skill.mjs` does, so the two never disagree about what a rule is.
 
 It defines **no threshold** and never fails: it exits 0 on every valid
-invocation however large the numbers, and belongs to no gate, no npm script, and
-no hook. There is no evidence for a defensible limit in this corpus yet, and a
-threshold nobody can defend becomes either a rule people route around or a
-warning people stop reading. `tests/repository/reporting-tools.test.mjs` keeps it
-out of the enforced set on purpose, so wiring it in has to be a deliberate act.
+invocation however large the numbers. There is no evidence for a defensible
+limit in this corpus yet, and a threshold nobody can defend becomes either a
+rule people route around or a warning people stop reading.
+
+```bash
+node scripts/discovery-eval/run.mjs --dry-run
+node scripts/discovery-eval/run.mjs --help
+```
+
+`scripts/discovery-eval/run.mjs` answers "does a prompt actually surface the
+right skills?" — the first check here that measures an **outcome** rather than
+form. It runs a labelled prompt fixture through the real Claude Code CLI in a
+scratch workspace and reports which expected skills were missed and which
+unexpected ones fired, as a delta against a recorded baseline. It cannot gate
+for three independent reasons: it is non-deterministic, it costs real money per
+run (roughly `$10` for the full fixture), and it needs a secret that fork pull
+requests do not receive.
+
+Run it on a pull request by applying the **`eval:discovery`** label, which
+triggers
+[`discovery-eval.yaml`](./.github/workflows/discovery-eval.yaml) — the only
+workflow allowed to invoke it. `--dry-run` validates the fixture with no model
+call and no secret. See
+[`evals/discovery/README.md`](./evals/discovery/README.md) for the fixture
+format, how a verdict is reached, and when to re-record the baseline.
+
+`npm test` reads the two JSON files under `evals/discovery/` to confirm every
+skill they name still exists — a deterministic data check that never invokes the
+runner. A fixture or baseline naming a renamed skill would otherwise rot in
+silence.
 
 ### Repository gotchas
 

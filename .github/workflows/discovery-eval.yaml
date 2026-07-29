@@ -1,0 +1,165 @@
+name: Discovery Evaluation
+
+# Runs this repository's prompt fixture through REAL Claude Code skill discovery
+# and reports which expected skills were missed and which unexpected ones fired.
+#
+# THIS IS NOT A GATE, AND MUST NOT BECOME ONE. It is non-deterministic, it costs
+# money per run, and it needs a secret that fork pull requests do not receive.
+# It is never a required check, it is not in merge-checks.yaml, and
+# tests/repository/reporting-tools.test.mjs asserts it appears in this workflow
+# and in no other — so wiring it into a gate has to be a deliberate act that
+# breaks a test first.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 1 of 4 — the trigger is the maintainer gate.
+# `pull_request_target` runs in the BASE repository's context with a privileged
+# token, which is the classic footgun. The bound is that it fires only on a
+# LABEL applied by someone with triage or write permission. A fork pull request
+# cannot label itself, so it cannot cause a run. Never add `pull_request` here.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 2 of 4 — base-ref checkout, as in
+# claude-review.yaml. Every line of EXECUTABLE code — the runner, the fixture,
+# the baseline, package.json — comes from the base ref. The pull request head is
+# never checked out, and `npm ci` never installs from head content.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 3 of 4 — head skill text crosses as DATA,
+# through an allowlist. The evaluation is only worth running against a CHANGED
+# skill, so head `SKILL.md` files are fetched through the API and staged in
+# $RUNNER_TEMP. scripts/discovery-eval/overlay.mjs is the real bound: it accepts
+# only `.claude/skills/<kebab-name>/SKILL.md`, rejects traversal, absolute paths
+# and backslashes, and derives every destination from the DIFF PATH rather than
+# from any `name:` field inside the head file. The `jq` filter below is
+# convenience; the allowlist is the security property, and it is unit-tested.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 4 of 4 — the evaluation subprocess is
+# credential-free. Skills are prompt content, so allowlisted head text does
+# reach a model. What that model can then do is nothing: one turn, only the
+# `Skill` tool, no Bash, no network fetch. GITHUB_TOKEN is not in the
+# evaluation step's environment, and overlay.mjs strips anything
+# credential-shaped from what it inherits regardless.
+#
+# Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
+# claude-review.yaml already uses. No new secret is required.
+
+on:
+  workflow_dispatch:
+    inputs:
+      repeats:
+        description: "Runs per case (higher is steadier and costs more)"
+        required: false
+        default: "5"
+      pull_request:
+        description: "Pull request number to evaluate head skills from (optional)"
+        required: false
+  pull_request_target:
+    types: [labeled]
+
+# Least privilege: read the base tree, write one comment. Nothing else. No
+# contents:write — this never pushes, and its token cannot.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  evaluate:
+    name: Evaluate discovery
+    # SAFETY PROPERTY 1 (continued). Manual dispatch, or the one label.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.label.name == 'eval:discovery'
+    concurrency:
+      group: discovery-eval-${{ github.event.pull_request.number || github.event.inputs.pull_request || 'manual' }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number || github.event.inputs.pull_request }}
+      REPEATS: ${{ github.event.inputs.repeats || '5' }}
+    steps:
+      # SAFETY PROPERTY 2 — base ref only. No `ref:` input, so this is the
+      # default branch for a dispatch and the BASE of the pull request for a
+      # label event. Never `github.event.pull_request.head.sha`.
+      - name: Checkout base
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code@2.1.220
+
+      # SAFETY PROPERTY 3 — head SKILL.md files staged as data, at
+      # repository-relative paths so the runner's allowlist judges the same
+      # string the diff reported. GITHUB_TOKEN is scoped to THIS step.
+      - name: Stage changed head skills
+        id: stage
+        if: env.PR_NUMBER != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          head_sha="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          echo "head_sha=${head_sha}" >> "$GITHUB_OUTPUT"
+
+          staged="${RUNNER_TEMP}/head-skills"
+          mkdir -p "${staged}"
+
+          # Convenience filter only — overlay.mjs re-judges every path and is
+          # the actual bound. Anything this lets through that the allowlist
+          # rejects is reported and skipped, not silently overlaid.
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" \
+            --jq '.[] | select(.status != "removed") | .filename' \
+            | grep -E '^\.claude/skills/[a-z0-9-]+/SKILL\.md$' > "${RUNNER_TEMP}/changed.txt" || true
+
+          while IFS= read -r path; do
+            [ -z "${path}" ] && continue
+            mkdir -p "${staged}/$(dirname "${path}")"
+            gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${head_sha}" \
+              --jq '.content' | base64 -d > "${staged}/${path}"
+            echo "staged ${path}"
+          done < "${RUNNER_TEMP}/changed.txt"
+
+          echo "staged_dir=${staged}" >> "$GITHUB_OUTPUT"
+
+      # SAFETY PROPERTY 4 — no GITHUB_TOKEN in this step's environment. The only
+      # secret present is the one the CLI needs to authenticate at all.
+      - name: Run the evaluation
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          args=(--repeats "${REPEATS}")
+          if [ -n "${{ steps.stage.outputs.staged_dir || '' }}" ]; then
+            args+=(--head-skills "${{ steps.stage.outputs.staged_dir }}")
+            args+=(--head-sha "${{ steps.stage.outputs.head_sha }}")
+          fi
+          node scripts/discovery-eval/run.mjs "${args[@]}" | tee "${RUNNER_TEMP}/report.txt"
+
+      # The report body contains only base-tree prompts and allowlist-validated
+      # kebab-case skill names — head SKILL.md CONTENT never reaches it — and is
+      # posted from a file, so nothing is interpolated through a shell.
+      - name: Post the report
+        if: env.PR_NUMBER != '' && always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Skill discovery evaluation"
+            echo
+            echo "Reports which skills the fixture's prompts actually surfaced."
+            echo "**This is not a gate** — it never blocks a merge."
+            echo
+            echo '```text'
+            cat "${RUNNER_TEMP}/report.txt"
+            echo '```'
+            echo
+            echo "---"
+            echo "_Generated by [Claude Code](https://claude.ai/code)_"
+          } > "${RUNNER_TEMP}/comment.md"
+          gh pr comment "${PR_NUMBER}" --body-file "${RUNNER_TEMP}/comment.md"
