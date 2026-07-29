@@ -33,19 +33,14 @@ const config = getSentryExpoConfig(__dirname);
 
 ## Where Initialization Goes
 
-Sentry's own Expo documentation initializes in the root layout. This project's convention is the entry module instead, and the reasoning is worth stating precisely because it is easy to overclaim.
+Sentry's own Expo documentation initializes in the root layout. Initialize in the **entry module** instead, so initialization runs before the application's own modules evaluate rather than after the tree has begun mounting.
 
-Initializing in the entry module runs before the application's own modules evaluate and well before first render, which is the window in which startup failures happen and nothing else is listening. That is the benefit, and it is real.
-
-What it does **not** do is run before the router. The entry module imports the router's entry, and ES module imports are hoisted and evaluated before any statement in the importing module's body — so the router's entry evaluates first regardless of where the initialization call sits in the file. Anything failing inside the router's own module evaluation is outside the reach of an initialization call placed there.
-
-Making initialization genuinely first requires a separate side-effect module imported ahead of the router's entry. That is a real option, at the cost of a file whose only purpose is import ordering.
+That placement buys less than it looks like it does: it does **not** precede the router's entry, because module imports are hoisted. The Expo framework capability owns that reasoning, the exact window entry-module placement covers, and the side-effect-module arrangement that closes the remaining gap — consult its error-tracker wiring rules before depending on initialization order.
 
 **Guidelines:**
 
-- MUST initialize in the entry module rather than in the root layout, so initialization precedes the application's own modules.
-- MUST NOT claim entry-module initialization precedes the router; import hoisting means it does not.
-- SHOULD add a dedicated side-effect module imported before the router's entry only where failures during the router's own evaluation must be captured, and comment why the file exists.
+- MUST initialize in the entry module rather than the root layout, contrary to Sentry's own Expo snippet.
+- MUST consult the Expo framework capability's error-tracker wiring rules for what entry-module placement does and does not achieve relative to the router, rather than assuming it runs first.
 - MUST wrap the root layout's default export with the SDK's root wrapper, which is what installs the mobile instrumentation.
 
 ## Router Instrumentation
