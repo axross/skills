@@ -56,12 +56,12 @@ An app that already has an alias keeps it. The rule is that exactly one alias co
 
 ```jsonc
 // tsconfig.json
-{ "compilerOptions": { "paths": { "~/*": ["./src/*"] } } }
+{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }
 ```
 
 ```js
 // jest.config.cjs — the same mapping, in the test runner's own syntax
-moduleNameMapper: { "^~/(.*)$": "<rootDir>/src/$1" }
+moduleNameMapper: { "^@/(.*)$": "<rootDir>/src/$1" }
 ```
 
 **Guidelines:**

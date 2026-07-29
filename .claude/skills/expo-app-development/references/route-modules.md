@@ -14,7 +14,7 @@ The screen body lives in the owning domain directory — conventionally `screens
 
 ```tsx
 // src/app/(tabs)/collections/[slug].tsx
-import { CollectionScreen } from "~/collections/screens/collection-screen";
+import { CollectionScreen } from "@/collections/screens/collection-screen";
 
 export default function CollectionRoute() {
   return <CollectionScreen />;

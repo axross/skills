@@ -53,11 +53,11 @@ Providers compose in dependency order, outermost first: a provider that another 
 
 ```tsx
 // src/app/_layout.tsx
-import "~/unistyles";
+import "@/unistyles";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { RootNavigator } from "~/auth/components/root-navigator";
-import { queryClient } from "~/core/helpers/query-client";
+import { RootNavigator } from "@/auth/components/root-navigator";
+import { queryClient } from "@/core/helpers/query-client";
 
 function RootLayout() {
   return (
