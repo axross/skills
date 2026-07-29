@@ -94,6 +94,18 @@ describe("check-sentry-wiring.mjs", () => {
       expect(checkWiring(root)).toReportFailure(/public environment prefix/);
     });
 
+    it("reports a public-prefixed token declared YAML-style in a workflow", async () => {
+      const root = await project(
+        {},
+        {
+          ".github/workflows/build.yml":
+            "jobs:\n  build:\n    env:\n      NEXT_PUBLIC_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}\n",
+        },
+      );
+
+      expect(checkWiring(root)).toReportFailure(/public environment prefix/);
+    });
+
     it("reports a committed literal auth token", async () => {
       const root = await project(
         {},

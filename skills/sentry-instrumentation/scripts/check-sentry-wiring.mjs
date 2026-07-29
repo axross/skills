@@ -154,8 +154,11 @@ function checkSecrets(file, source) {
 
   source.split("\n").forEach((line, index) => {
     // A commented-out placeholder is documentation, not a leak. Only a line
-    // that actually assigns something counts.
-    const assigns = /=\s*\S/.test(line);
+    // that actually assigns something counts. Both assignment styles are
+    // recognized: `KEY=value` in env, shell, and properties files, and
+    // `KEY: value` in the YAML and TOML this script also scans — a CI workflow
+    // declaring a public-prefixed token is exactly the case worth catching.
+    const assigns = /[=:]\s*\S/.test(line);
 
     if (assigns && PUBLIC_PREFIXED_TOKEN.test(line)) {
       findings.push({
