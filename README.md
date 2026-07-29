@@ -118,6 +118,7 @@ inherit.
 
 | Skill                                                            | What it gives your agent                                                                                                                                                                                                                                   |
 | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`expo-app-development`](./skills/expo-app-development/SKILL.md) | The Expo app around the components: where files live, how a URL becomes a screen, what the native build contains, and how it reaches a device — checked against the SDK the app actually has.                                                              |
 | [`next-app-development`](./skills/next-app-development/SKILL.md) | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
 
 ### Authoring skills

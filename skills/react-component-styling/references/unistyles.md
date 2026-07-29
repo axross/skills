@@ -29,6 +29,8 @@ const styles = StyleSheet.create((theme, rt) => ({
 
 ## Safe Areas
 
+> **Twin section.** The stylesheet mechanics below are deliberately restated, in shorter form, by an Expo app development capability's safe-areas reference, so that skill stands alone where this one is not installed. This copy owns the topic and governs wherever both are installed, naming the concrete style system where the other names mechanisms generically. Both copies are maintained; a difference in what they **require** is a defect in whichever was edited alone. That skill additionally owns what this one does not: which edges a screen owns once navigators supply their own chrome, edge-to-edge configuration, and the fallback when no style system exposes insets.
+
 The mini runtime carries the safe-area insets, so safe-area handling belongs in the stylesheet rather than in a provider-and-hook wrapper around the component. An inset is a _minimum_ clearance, not a padding value — a device with no notch reports zero, and a surface that uses the raw inset then has no gutter at all.
 
 **Example:**
@@ -149,6 +151,8 @@ Where a platform's native control differs enough that one component cannot serve
 - SHOULD fork only the component that genuinely differs, rather than the whole surface that contains it.
 
 ## The Navigation-Cloning Caveat
+
+> **Twin section.** Deliberately restated, in shorter form, by an Expo app development capability's navigation-and-links reference, so that skill stands alone where this one is not installed. This copy owns the topic and governs wherever both are installed. Both copies are maintained; a difference in what they **require** is a defect in whichever was edited alone. That skill frames the same defect around the router's own link primitive, which is where it is met in an Expo app.
 
 A navigation primitive that clones its child to inject press and href props takes over the ref Unistyles applies styles through. Cloning a Unistyles-styled `Pressable` directly therefore **drops its computed style** — often only on a release build, where it appears as a control rendering with no background at all.
 
