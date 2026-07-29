@@ -15,6 +15,8 @@ It does **not** own what a component is. Composition, props contracts, extracted
 
 **Scope of the routing sections.** Expo also ships surfaces this skill deliberately excludes, because no rule here was derived for them: API routes (`+api.ts`), server output and web deployment, native module authoring, brownfield integration, DOM components, and App Clips. Where a task reaches one of those, say so rather than extrapolating from the rules below.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+
 ## Project Layout
 
 See [project-layout.md](./references/project-layout.md) for:

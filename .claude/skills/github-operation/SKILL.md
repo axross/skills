@@ -11,6 +11,8 @@ Use this capability whenever you read or write GitHub from inside a harness that
 
 This capability is GitHub-specific. Operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+
 ## The Sanctioned Channel
 
 These rules govern GitHub access **from inside an agent session**, where access is proxy-mediated as the connected operator; an in-session write cannot act as a distinct bot identity. A CI job — such as a review workflow — is a separate execution context: it uses its own CI token and posts under its own bot login (see [Agent-vs-Human Comments](#agent-vs-human-comments)), so these in-session tool rules do not apply to it.
