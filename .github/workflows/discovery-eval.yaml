@@ -144,7 +144,10 @@ jobs:
       # kebab-case skill names — head SKILL.md CONTENT never reaches it — and is
       # posted from a file, so nothing is interpolated through a shell.
       - name: Post the report
-        if: env.PR_NUMBER != '' && always()
+        # Deliberately NOT always(): if the evaluation step failed there is no
+        # report to post, and a step that then fails on a missing file reads as
+        # a second, unrelated problem.
+        if: env.PR_NUMBER != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
