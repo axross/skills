@@ -22,14 +22,14 @@ export const config = {
 };
 ```
 
-The config export is named `config` — **not** `proxyConfig`. What v16 renamed is the _next.config_ flags that carried "middleware" in their names: `skipMiddlewareUrlNormalize` became `skipProxyUrlNormalize`.
+The config object is exported as `config`. Separately, the _next.config_ flags that carried "middleware" in their names were renamed: `skipMiddlewareUrlNormalize` became `skipProxyUrlNormalize`.
 
 `middleware.ts` and its `middleware` export are deprecated. A codemod (`npx @next/codemod@canary middleware-to-proxy .`) performs the rename.
 
 **Guidelines:**
 
 - MUST use `proxy.ts` with a `proxy` function in new code; treat `middleware.ts` only as a migration source.
-- MUST name the config export `config`; there is no `proxyConfig` export.
+- MUST name the config export `config`.
 - MUST rename `skipMiddlewareUrlNormalize` to `skipProxyUrlNormalize` in `next.config.ts` when migrating.
 - MUST place the file at the same level as `app/`; anywhere else it silently never runs.
 - MUST NOT define more than one proxy function in the file; multiple are unsupported.
