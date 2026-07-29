@@ -192,7 +192,9 @@ describe("report-obligation-load.mjs", () => {
       const result = report("skills");
 
       expect(result).toPassCleanly();
-      expect(result.stdout).toMatch(/Obligation load for 17 skill\(s\)/);
+      // The distributable tier: every skill except repository-local
+      // github-operation. Bumped when react-component-development (#77) landed.
+      expect(result.stdout).toMatch(/Obligation load for 18 skill\(s\)/);
     });
 
     it("combines --mandated with further named skills", async () => {
@@ -213,7 +215,9 @@ describe("report-obligation-load.mjs", () => {
       const result = report();
 
       expect(result).toPassCleanly();
-      expect(result.stdout).toMatch(/Obligation load for 18 skill\(s\)/);
+      // Both tiers, deduplicated by name. Bumped when
+      // react-component-development (#77) landed.
+      expect(result.stdout).toMatch(/Obligation load for 19 skill\(s\)/);
     });
 
     it("resolves every mandated skill name to a real skill", async () => {
