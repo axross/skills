@@ -30,7 +30,7 @@ A paused mutation is retained and resumes when connectivity returns, **in the or
 
 `scope` serializes writes that must not interleave — see [mutations.md](./mutations.md).
 
-`queryClient.resumePausedMutations()` is what drains that queue. Connectivity returning triggers it automatically; a restore from persistence does **not**, so it has to be called once restoration finishes.
+`queryClient.resumePausedMutations()` is what drains that queue. The client calls it itself whenever connectivity returns **or** the app regains focus — both managers trigger it, which is one more reason to wire them on React Native. A restore from persistence does **not**, so it has to be called once restoration finishes.
 
 Resuming after a **restart** needs more, because functions cannot be serialized. Only mutation _state_ persists, so the rehydrated mutation has no function to call unless one is registered against its key:
 
@@ -51,13 +51,16 @@ Without that registration, resumption fails with a missing-function error — at
 
 ## Persisting and Restoring
 
-Persistence writes the dehydrated cache to storage and restores it on launch. `persistQueryClient` wires it imperatively; `PersistQueryClientProvider` does the same in the tree and is the usual choice, since it holds rendering until the restore settles. `useIsRestoring` reports the window in between — during which queries should not fetch, or the restore lands on top of results it did not produce.
+Persistence writes the dehydrated cache to storage and restores it on launch. `persistQueryClient` wires it imperatively; `PersistQueryClientProvider` does the same in the tree and is the usual choice, since it wires the restore and supplies `useIsRestoring` to everything beneath it.
 
-A restore is asynchronous. A surface that renders before it completes shows empty data and then a populated cache a moment later, which reads as a flash of missing content.
+It does **not** hold rendering. Children render immediately; what the provider suppresses is _fetching_, holding queries at `fetchStatus: 'idle'` until the restore settles — which is what stops a query from racing the restored value and landing on top of it.
+
+Gating what appears on screen is the half left to the caller. A restore is asynchronous, so a surface that renders through it shows empty data and then a populated cache a moment later, reading as a flash of missing content. `useIsRestoring` is how a component decides to wait.
 
 **Guidelines:**
 
-- MUST gate rendering, or at least fetching, on the restore completing; a query that runs mid-restore races the restored value.
+- MUST gate rendering on `useIsRestoring` where a flash of empty content matters; the provider suppresses fetching on its own, but renders children immediately.
+- MUST gate fetching explicitly when wiring the restore with `persistQueryClient` rather than the provider; only the provider supplies the restoring state.
 - SHOULD set `gcTime` at least as long as the intended persistence window, since an entry collected before it is written back is not persisted.
 - SHOULD persist deliberately rather than wholesale — the whole cache written on every change costs storage and serialization time on every mutation.
 - MUST verify `experimental_createQueryPersister`'s API against the installed version before using it to persist per query rather than whole-cache; it is experimental and its signature moves.
@@ -114,7 +117,8 @@ The rule tells a reader to defer persistence to the server-state layer. This is 
 - A spinner driven by `isPending` with no paused state — **Major**; it never resolves offline, which is exactly when it renders.
 - A resumable mutation with no `setMutationDefaults` — **Major**; it fails at restart, for a write the user believes succeeded.
 - A non-idempotent mutation marked resumable — **Critical**; resumption can replay a write the server already applied.
-- Queries running during a restore with no `useIsRestoring` gate — **Major**; the restore overwrites fresher results.
+- A restore wired with `persistQueryClient` and no `useIsRestoring` gate on fetching — **Major**; the restore lands on top of results it did not produce. Not a finding under `PersistQueryClientProvider`, which suppresses fetching itself.
+- A surface rendered through a restore where a flash of empty content matters — **Minor**; the provider gates fetching, never rendering.
 - Persistence with no buster — **Major**; a shape change crashes on launch against data the user cannot clear.
 - A persisted cache not cleared or scoped at sign-out — **Critical**; another account's data is readable from disk.
 - Credentials or sensitive personal data inside persisted query data — **Critical**.
