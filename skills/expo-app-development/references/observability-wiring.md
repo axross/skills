@@ -2,7 +2,7 @@
 
 Apply this reference when installing or configuring an error tracker in an Expo app, or when reported errors arrive without source context, without a release, or not at all.
 
-This reference covers the **Expo wiring** only — the plugin, the bundler wrapper, the root wrap, and the build-time upload. What to log, at which level, where to catch, what an error's context may carry, and when to report versus rethrow belong to a software instrumentation capability, which owns them. Roles are named generically here ("the error tracker", "the analytics tool") because the wiring is the same shape whichever vendor fills them; for the concrete package names, options, and integrations of a specific tracker, use that vendor's own capability — a Sentry instrumentation capability owns Sentry's.
+This reference covers the **Expo wiring** only — the plugin, the bundler wrapper, the root wrap, and the build-time upload. What to log, at which level, where to catch, what an error's context may carry, and when to report versus rethrow belong to a software instrumentation capability, which owns them. Roles are named generically here ("the error tracker", "the analytics tool") because the wiring is the same shape whichever vendor fills them; for the concrete package names, options, and integrations of whichever tracker is installed, consult that vendor's own instrumentation capability.
 
 ## The Plugin and the Bundler Wrapper
 

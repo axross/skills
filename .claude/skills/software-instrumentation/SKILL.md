@@ -11,7 +11,7 @@ Use this capability whenever you instrument software to make its behavior observ
 
 The guidance is deliberately tool-agnostic. It names roles — **your structured logger**, **your error tracker** (error-reporting service), **your analytics tool** — rather than specific SDKs, and the code snippets use placeholder function names such as `logger.info(...)`, `reportError(...)`, and `trackEvent(...)` that map onto whatever your project has adopted. Substitute the concrete names when applying a rule; keep the shape.
 
-That substitution is where a vendor-specific capability takes over. Which package to depend on, which option controls what is collected, how source maps reach the service, and where its build-time token may appear are vendor questions this skill deliberately does not answer — a Sentry instrumentation capability owns them for Sentry. Use both together: this skill decides what to instrument, the vendor's decides how that is carried out.
+That substitution is where a vendor-specific capability takes over. Which package to depend on, which option controls what is collected, how source maps reach the service, and where its build-time token may appear are vendor questions this skill deliberately does not answer; the installed tracker's own instrumentation capability owns them. Use both together: this skill decides what to instrument, the vendor's decides how that is carried out.
 
 Observability rests on three signal types — **logs**, **metrics**, and **traces** — made actionable by disciplined **error handling** and a dedicated **error tracker**. Each reference below owns one of those concerns; load the ones the change touches.
 
