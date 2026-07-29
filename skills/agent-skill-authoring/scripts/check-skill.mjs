@@ -94,10 +94,22 @@ import { basename, dirname, join, relative, resolve, sep } from "node:path";
 // implementation with two callers replaced two implementations that drifted.
 import { FENCE_RE, scanLines } from "./commonmark.mjs";
 
+// The `**Guidelines:**` block boundary and the RFC-2119 rule likewise live in a
+// sibling module. The guideline-voice check and the structural advisories below
+// are two readings of ONE walk, and obligation-counting tooling is a third; see
+// guidelines.mjs for why they cannot each carry their own copy of the boundary.
+import { GUIDELINES_RE, RFC2119_RE, scanGuidelines } from "./guidelines.mjs";
+
+// The byte→token proxy behind the size advisory, for the same reason: the
+// reporting tooling that estimates a whole skill set's load must divide by the
+// SAME calibrated figure, or the two report different numbers for one file.
+import {
+  BYTES_PER_TOKEN,
+  estimateTokens,
+  PROXY_UNCERTAINTY,
+} from "./token-estimate.mjs";
+
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-const RFC2119_RE =
-  /^(MUST NOT|MUST|SHOULD NOT|SHOULD|NOT RECOMMENDED|RECOMMENDED|REQUIRED|OPTIONAL|MAY)\b/;
-const GUIDELINES_RE = /^\*\*Guidelines:\*\*\s*$/;
 // An absolute URI (http:, https:, mailto:, …) or a protocol-relative URL: not a
 // path this validator can resolve on disk.
 const EXTERNAL_TARGET_RE = /^([a-z][a-z0-9+.-]*:|\/\/)/i;
@@ -114,18 +126,10 @@ const DOC_VOICE_DESC_RE =
 
 // Structural advisories (warnings only — see the header note).
 //
-// BYTES_PER_TOKEN converts a SKILL.md's size into an estimated token count
-// WITHOUT a tokenizer, which this validator cannot take as a dependency: it
-// ships inside a skill and runs on Node's standard library alone. The unit is
-// UTF-8 BYTES, not `String.length` — these documents are dense in multi-byte
-// punctuation, and the two counts differ by roughly half a percent. Bytes are
-// chosen because they err HIGH, the conservative direction for a budget guard,
-// NOT because they are more accurate: measured against real o200k_base counts
-// over this corpus, bytes/token averages 4.800 and chars/token 4.781, and the
-// per-file spread runs 4.55–4.98. That spread is why the divisor is ±5% at
-// best, and why crossing it warns rather than fails. Re-measure before moving
-// it; a proxy calibrated on one corpus is not calibrated on another.
-const BYTES_PER_TOKEN = 4.76;
+// The byte→token proxy behind the size budget — why bytes rather than a
+// tokenizer, how the divisor was calibrated, and why it is only good to
+// PROXY_UNCERTAINTY — belongs to token-estimate.mjs, which this imports rather
+// than restating. The budget below is expressed in tokens and converted once.
 const SKILL_TOKEN_MAX = 5000;
 const SKILL_BYTES_MAX = Math.round(SKILL_TOKEN_MAX * BYTES_PER_TOKEN);
 // Near seven bullets is the target; above ten the rule requires a stated
@@ -308,46 +312,21 @@ function sectionIntroFailures(body, file, offset) {
 
 /**
  * Top-level bullets inside a `**Guidelines:**` block that do not open with an
- * RFC-2119 keyword. Only bullets at zero indentation are rules; nested items
- * carry continuation detail and are exempt.
+ * RFC-2119 keyword.
  *
- * Neither a blank line nor a fence ends the block. A loose list is still one
- * list, and a `**Guidelines:**` block is a documentation convention rather than
- * a CommonMark construct — nothing about it makes an illustrative code block
- * the end of the rules, and authors interleave one naturally. Treating either
- * as a boundary would silently stop checking every bullet after it. The block
- * ends at a heading or at an unindented non-bullet line.
+ * The block boundary — what opens it, and why neither a blank line nor a fence
+ * closes it — belongs to guidelines.mjs, which this reads through
+ * `scanGuidelines`. `guidelineStructureWarnings` reads the SAME walk, so the two
+ * cannot disagree about whether a given bullet is inside a block.
  */
 function guidelineKeywordFailures(body, file, offset) {
   const failures = [];
-  let inBlock = false;
 
-  for (const { line, text, fence } of scanLines(body)) {
-    // A fence is continuation. The scanner hides a fenced block's interior and
-    // yields only its opener, so skipping that opener leaves the guidelines
-    // block spanning it.
-    if (fence) continue;
-    if (GUIDELINES_RE.test(text)) {
-      inBlock = true;
-      continue;
-    }
-    if (!inBlock) continue;
-    if (/^#{1,6}\s/.test(text)) {
-      inBlock = false;
-      continue;
-    }
-    const bullet = text.match(/^-\s+(.*)$/);
-    if (bullet) {
-      const rule = bullet[1].trim();
-      if (!RFC2119_RE.test(rule)) {
-        failures.push(
-          `guidelines: ${file}:${line + offset} bullet does not open with an RFC-2119 keyword: "${rule.slice(0, 60)}…"`,
-        );
-      }
-      continue;
-    }
-    if (text.trim() === "" || /^\s/.test(text)) continue;
-    inBlock = false;
+  for (const event of scanGuidelines(body)) {
+    if (event.kind !== "bullet" || !event.inBlock || event.keyword) continue;
+    failures.push(
+      `guidelines: ${file}:${event.line + offset} bullet does not open with an RFC-2119 keyword: "${event.rule.slice(0, 60)}…"`,
+    );
   }
   return failures;
 }
@@ -356,18 +335,16 @@ function guidelineKeywordFailures(body, file, offset) {
  * The advisory warnings a document's guideline structure raises, in one walk:
  * section length, bullet placement, and hedging.
  *
- * The `**Guidelines:**` block boundary here is the SAME one
- * `guidelineKeywordFailures` uses — deliberately, since "outside a block" is
- * defined as the complement of "inside" one. Two definitions would let the two
- * checks disagree about the same bullet, each silently believing the other
- * covered it. Change one and you must change both.
+ * Reads the same `scanGuidelines` walk `guidelineKeywordFailures` does, so
+ * "outside a block" is exactly the complement of "inside" one. That shared
+ * boundary is the point: two definitions would let the two checks disagree about
+ * the same bullet, each silently believing the other covered it.
  *
  * A section is the span under one heading of ANY level, so a nested subsection
  * is counted independently of its parent: the ceiling rule applies to each.
  */
 function guidelineStructureWarnings(body, file, offset) {
   const warnings = [];
-  let inBlock = false;
   let section = null; // { line, title, bullets } of the heading in scope
 
   const flushSection = () => {
@@ -380,45 +357,28 @@ function guidelineStructureWarnings(body, file, offset) {
     );
   };
 
-  for (const { line, text, fence } of scanLines(body)) {
-    // Continuation, exactly as in `guidelineKeywordFailures` — the two share
-    // one boundary, so this branch and that one move together or not at all.
-    if (fence) continue;
-    const heading = text.match(/^#{1,6}\s+(.*)$/);
-    if (heading) {
+  for (const event of scanGuidelines(body)) {
+    if (event.kind === "heading") {
       flushSection();
-      section = { line, title: heading[1].trim(), bullets: 0 };
-      inBlock = false;
+      section = { line: event.line, title: event.title, bullets: 0 };
       continue;
     }
-    if (GUIDELINES_RE.test(text)) {
-      inBlock = true;
-      continue;
-    }
-    const bullet = text.match(/^-\s+(.*)$/);
-    if (bullet) {
-      const rule = bullet[1].trim();
-      const keyword = rule.match(RFC2119_RE);
-      if (inBlock) {
-        if (section) section.bullets += 1;
-        const hedge = keyword
-          ? rule.slice(keyword[0].length).trimStart().match(HEDGE_RE)
-          : null;
-        if (hedge) {
-          warnings.push(
-            `hedging: ${file}:${line + offset} "${keyword[0]}" is followed by the hedge "${hedge[0]}": "${rule.slice(0, 60)}…"`,
-          );
-        }
-      } else if (keyword) {
+    const { line, rule, keyword, inBlock } = event;
+    if (inBlock) {
+      if (section) section.bullets += 1;
+      const hedge = keyword
+        ? rule.slice(keyword.length).trimStart().match(HEDGE_RE)
+        : null;
+      if (hedge) {
         warnings.push(
-          `placement: ${file}:${line + offset} RFC-2119 bullet sits outside any \`**Guidelines:**\` block: "${rule.slice(0, 60)}…"`,
+          `hedging: ${file}:${line + offset} "${keyword}" is followed by the hedge "${hedge[0]}": "${rule.slice(0, 60)}…"`,
         );
       }
-      continue;
+    } else if (keyword) {
+      warnings.push(
+        `placement: ${file}:${line + offset} RFC-2119 bullet sits outside any \`**Guidelines:**\` block: "${rule.slice(0, 60)}…"`,
+      );
     }
-    if (!inBlock) continue;
-    if (text.trim() === "" || /^\s/.test(text)) continue;
-    inBlock = false;
   }
   flushSection();
   return warnings;
@@ -466,8 +426,8 @@ function staleStyleWarnings(body, file, offset) {
 function skillSizeWarning(raw) {
   const bytes = Buffer.byteLength(raw, "utf8");
   if (bytes <= SKILL_BYTES_MAX) return null;
-  const estimate = Math.round(bytes / BYTES_PER_TOKEN);
-  return `size: SKILL.md is ${bytes} bytes, ~${estimate} estimated tokens (÷ ${BYTES_PER_TOKEN}, ±5%) — over the ~${SKILL_TOKEN_MAX}-token budget of ${SKILL_BYTES_MAX} bytes; move detail into references/.`;
+  const estimate = estimateTokens(bytes);
+  return `size: SKILL.md is ${bytes} bytes, ~${estimate} estimated tokens (÷ ${BYTES_PER_TOKEN}, ${PROXY_UNCERTAINTY}) — over the ~${SKILL_TOKEN_MAX}-token budget of ${SKILL_BYTES_MAX} bytes; move detail into references/.`;
 }
 
 /**
