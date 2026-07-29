@@ -61,9 +61,8 @@ all install the same way; the ✱ marks the one skill whose source lives outside
 
 ### Working with you
 
-One skill sits underneath all the others. `professional-behavior` applies in
-every session — a question answered, a review given, a change delivered — which
-is why it stands alone here rather than filed under any of the work below.
+`professional-behavior` stands alone because it applies in every session — a
+question answered, a review given, a change delivered — not only to changes.
 
 | Skill                                                              | What it gives your agent                                                                                                                                                                                                              |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -129,13 +128,9 @@ stepped through under
 Working without an agent does not lower the bar: branch, implement, run the
 [checks](#commands), open a pull request following
 [the template](./.github/pull_request_template.md), and get it reviewed before
-merge. Two gates never move — nothing is built before the plan is approved, and
-nothing merges on its author's own say-so.
+merge.
 
 ### Local setup
-
-The project pins **Node 26** in `package.json`'s `engines.node`, which CI reads
-through `node-version-file`.
 
 1. Install dependencies: `npm install`
 2. Run the checks: `npm run check` — see [Commands](#commands) for what each
@@ -150,19 +145,19 @@ dependencies (activating a Node version manager if one is present); the opt-in
 format-on-edit and check-before-stop hooks are materialized from
 [`.claude/settings.local-example.json`](./.claude/settings.local-example.json).
 
-| Area             | Tool                                                        |
-| ---------------- | ----------------------------------------------------------- |
-| Language         | Markdown (with occasional JavaScript for scripting)         |
-| Runtime          | Claude Code                                                 |
-| Node             | 26, pinned in `package.json`                                |
-| Package manager  | npm                                                         |
-| Formatting       | Prettier                                                    |
-| Linting          | markdownlint-cli2                                           |
-| Tests            | Vitest                                                      |
-| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`      |
-| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill.mjs`      |
-| Installed copies | `scripts/check-installed-copies.mjs`                        |
-| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates) |
+| Area             | Tool                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| Language         | Markdown (with occasional JavaScript for scripting)                                   |
+| Runtime          | Claude Code                                                                           |
+| Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
+| Package manager  | npm                                                                                   |
+| Formatting       | Prettier                                                                              |
+| Linting          | markdownlint-cli2                                                                     |
+| Tests            | Vitest                                                                                |
+| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
+| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill.mjs`                                |
+| Installed copies | `scripts/check-installed-copies.mjs`                                                  |
+| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
 
 ### Delivering a unit of work end-to-end
 
@@ -249,11 +244,10 @@ into your own project too.
 
 ### Commands
 
-The deliverable is documentation, so verification is a format check, a Markdown
-lint, and a Vitest suite. `npm run check` is the aggregate that runs all three,
-and each gates a merge as its own parallel job in
+Verification is a format check, a Markdown lint, and a Vitest suite.
+`npm run check` runs all three, and each gates a merge as its own parallel job in
 [`merge-checks.yaml`](./.github/workflows/merge-checks.yaml). The suite is the
-wide one — the `npm test` row below says what it carries.
+wide one — the `npm test` row says what it carries.
 
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
@@ -270,12 +264,9 @@ contributors and agents alike.
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
-#### Running a validator directly
-
-Each validator is also a standalone CLI — one command, one responsibility,
-`--help` on every one — so a single check can be run without the suite. Run them
-from the source tier under [`skills/`](./skills), which is what the suite itself
-invokes; the copies under `.claude/skills/` are generated and go stale mid-edit.
+Each validator is also a standalone CLI with `--help`, so a single check can run
+without the suite. Run them from the source tier under [`skills/`](./skills) —
+what the suite itself invokes; the `.claude/skills/` copies go stale mid-edit.
 
 ```bash
 # This repository's own three gates, run over the whole tree by `npm test`:
