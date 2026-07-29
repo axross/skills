@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f7ab18a2f160c523956ac38f4f2215c28c3fe635bbb03ee4ec3a51c590ac5e7c"
+      "computedHash": "71bb895fd13c8dc64f678b53bae2da40891880080667288c37205a62f5736a23"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
@@ -49,7 +49,7 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "7629eddb79b8a0865f0ec658c5c466172447f28d4d1bf6ccf07918e21f89daa7"
+      "computedHash": "c445bf01d95c6b86dd29b173086374364f784f2385542fea60d37b6487df9481"
     },
     "next-app-development": {
       "source": "/home/user/skills/skills",
@@ -64,7 +64,7 @@
     "professional-behavior": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f746f8e34eecede022a373f15781aeef0f1ca2fdd7e452c7aec3b1aac24ec4ab"
+      "computedHash": "7c9a9f53f15310d6b38d4b412d5ed50af60d6a3426c0c9e8b048bc99608aa801"
     },
     "quality-assurance": {
       "source": "/home/user/skills/skills",
