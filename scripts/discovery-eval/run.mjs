@@ -64,6 +64,7 @@ import { fileURLToPath } from "node:url";
 import { deltaAgainst, tallyAll } from "./compare.mjs";
 import { parseBaseline, parseFixture, ValidationError } from "./fixture.mjs";
 import {
+  allowOverlayContent,
   assertRealDirectory,
   evalEnvironment,
   planOverlay,
@@ -188,6 +189,18 @@ async function buildWorkspace(headSkillsDir) {
     }
     for (const { path, skill } of allowed) {
       const source = join(headSkillsDir, path);
+      const text = await readFile(source, "utf8");
+
+      // The path allowlist bounds what a hostile skill can do; this bounds what
+      // it can cost, since overlaid discovery text is re-sent with every probe.
+      const content = allowOverlayContent(text);
+      if (!content.allowed) {
+        process.stderr.write(
+          `overlay refused ${JSON.stringify(path)}: ${content.reason}\n`,
+        );
+        continue;
+      }
+
       // Destination derived from the DIFF PATH, never from any `name:` field
       // inside the head file, and re-checked for containment before the write.
       const destination = resolveInside(skillRoot, join(skill, "SKILL.md"));
@@ -197,7 +210,7 @@ async function buildWorkspace(headSkillsDir) {
       await mkdir(dirname(destination), { recursive: true });
       await assertRealDirectory(dirname(destination));
       await rm(destination, { force: true });
-      await writeFile(destination, await readFile(source, "utf8"), "utf8");
+      await writeFile(destination, text, "utf8");
       overlaid.push(skill);
     }
   }

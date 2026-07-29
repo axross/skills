@@ -22,6 +22,15 @@
 // the `description` and `when_to_use` frontmatter keys, so a reference file
 // cannot change what this measures and therefore has no reason to cross the
 // boundary at all.
+//
+// The allowed path is the INSTALLED copy (`.claude/skills/…`), not the source
+// (`skills/…`), because the installed tree is what an agent actually loads —
+// the same tier the evaluation workspace is built from. On a green pull request
+// the two agree, since the installed-copy drift check gates exactly that. The
+// consequence when they do not: a pull request that edits a skill's source and
+// forgets to reinstall is evaluated against the STALE installed text, and the
+// report will look unchanged. That is the correct reading of what the agent
+// would load, but it is easy to misread as "my edit changed no routing".
 
 import { lstat } from "node:fs/promises";
 import { resolve, sep } from "node:path";
@@ -32,7 +41,7 @@ import { resolve, sep } from "node:path";
  * a runner adds secrets this repository has never heard of, and the safe default
  * for an unrecognised `*_TOKEN` is to drop it.
  */
-const CREDENTIAL_RE = /(TOKEN|SECRET|PASSWORD|CREDENTIAL|API_?KEY)/i;
+const CREDENTIAL_RE = /(TOKEN|SECRET|PASSWORD|CREDENTIAL|KEY)/i;
 
 /**
  * The two variables that survive that rule, because the subprocess IS the Claude
@@ -153,6 +162,79 @@ export function resolveInside(root, relative) {
     );
   }
   return target;
+}
+
+/**
+ * Size caps on overlaid content.
+ *
+ * The allowlist above bounds what a hostile skill can DO. These bound what it
+ * can COST. Overlaid discovery text enters the system prompt of every probe in
+ * the run — 100 of them in the current fixture, at real money — so a pull
+ * request shipping a megabyte `description`, innocently or otherwise, would
+ * inflate the bill far past what a maintainer applying the label expects.
+ *
+ * The two frontmatter figures are the caps `check-skill.mjs` already enforces
+ * on exactly these fields. They are copied rather than imported: those
+ * constants are not exported, and exporting them would mean editing a
+ * distributable skill's script, which is an authoring change this is not. The
+ * coupling is therefore by convention — the same trade `report-obligation-load.mjs`
+ * documents for `MANDATED_SKILLS`. If they drift, this cap becomes conservative
+ * rather than wrong.
+ *
+ * `FILE_BYTES_MAX` is a coarser backstop for the body, which discovery never
+ * reads but a selected skill does.
+ */
+export const DESCRIPTION_MAX = 1024;
+export const COMBINED_MAX = 1536;
+export const FILE_BYTES_MAX = 64 * 1024;
+
+/** The value of one frontmatter key, up to the next key or the block's end. */
+function frontmatterValue(block, key) {
+  const match = new RegExp(
+    `^${key}:[ \\t]*([\\s\\S]*?)(?=\\n[A-Za-z_][A-Za-z0-9_]*:|$)`,
+    "m",
+  ).exec(block);
+  return match ? match[1].trim() : "";
+}
+
+/**
+ * Decide whether an overlaid file's CONTENT is within the cost bounds.
+ *
+ * Over-cap content is refused and reported like an out-of-allowlist path, not
+ * treated as a fatal error: the head of an in-progress pull request has not
+ * necessarily passed `check-skill.mjs` yet, and the useful behaviour there is to
+ * evaluate the base text for that skill and say so — not to abort the run.
+ *
+ * @param {string} text the head file's contents
+ * @returns {{ allowed: true } | { allowed: false, reason: string }}
+ */
+export function allowOverlayContent(text) {
+  const bytes = Buffer.byteLength(text, "utf8");
+  if (bytes > FILE_BYTES_MAX) {
+    return { allowed: false, reason: `file is ${bytes} bytes (max ${FILE_BYTES_MAX})` };
+  }
+
+  const block = /^---\n([\s\S]*?)\n---/.exec(text)?.[1];
+  if (block === undefined) {
+    return { allowed: false, reason: "no frontmatter block" };
+  }
+
+  const description = frontmatterValue(block, "description");
+  const whenToUse = frontmatterValue(block, "when_to_use");
+  if (description.length > DESCRIPTION_MAX) {
+    return {
+      allowed: false,
+      reason: `description is ${description.length} chars (max ${DESCRIPTION_MAX})`,
+    };
+  }
+  const combined = description.length + whenToUse.length;
+  if (combined > COMBINED_MAX) {
+    return {
+      allowed: false,
+      reason: `description + when_to_use is ${combined} chars (max ${COMBINED_MAX})`,
+    };
+  }
+  return { allowed: true };
 }
 
 /**

@@ -26,9 +26,13 @@ import {
   ValidationError,
 } from "../../scripts/discovery-eval/fixture.mjs";
 import {
+  allowOverlayContent,
   allowOverlayPath,
   assertRealDirectory,
+  COMBINED_MAX,
+  DESCRIPTION_MAX,
   evalEnvironment,
+  FILE_BYTES_MAX,
   planOverlay,
   resolveInside,
 } from "../../scripts/discovery-eval/overlay.mjs";
@@ -415,6 +419,43 @@ describe("head overlay allowlist", () => {
     await expect(assertRealDirectory(linked)).rejects.toThrow(
       /not a real directory/,
     );
+  });
+});
+
+describe("overlay content caps", () => {
+  const skillFile = (description, whenToUse = "Apply when testing.", body = "# X\n") =>
+    `---\nname: a-skill\ndescription: ${description}\nwhen_to_use: ${whenToUse}\n---\n\n${body}`;
+
+  it("allows an ordinary skill file", () => {
+    expect(allowOverlayContent(skillFile("A short description."))).toEqual({
+      allowed: true,
+    });
+  });
+
+  it("refuses an oversized description", () => {
+    // The cost bound, not the authoring rule: overlaid discovery text is
+    // re-sent with every probe in the run.
+    const verdict = allowOverlayContent(skillFile("x".repeat(DESCRIPTION_MAX + 1)));
+    expect(verdict.allowed).toBe(false);
+    expect(verdict.reason).toMatch(/description is \d+ chars/);
+  });
+
+  it("refuses an oversized description plus when_to_use", () => {
+    const verdict = allowOverlayContent(
+      skillFile("x".repeat(DESCRIPTION_MAX), "y".repeat(COMBINED_MAX)),
+    );
+    expect(verdict.allowed).toBe(false);
+    expect(verdict.reason).toMatch(/description \+ when_to_use is \d+ chars/);
+  });
+
+  it("refuses a file past the byte backstop before parsing it", () => {
+    const verdict = allowOverlayContent(skillFile("ok", "ok", "z".repeat(FILE_BYTES_MAX)));
+    expect(verdict.allowed).toBe(false);
+    expect(verdict.reason).toMatch(/file is \d+ bytes/);
+  });
+
+  it("refuses a file with no frontmatter block", () => {
+    expect(allowOverlayContent("just prose\n").allowed).toBe(false);
   });
 });
 

@@ -148,8 +148,8 @@ appear, so the report keeps claiming a regression that is really a rename.
 - **The fixture is a judgment product.** A wrong label produces a "finding" that
   is really a labelling error. That is what `rationale` is for.
 - **The corpus is always installed whole.** Even though only the design trio is
-  labelled, all 19 skills go into the workspace — otherwise a spurious trigger
-  from any other skill would be structurally invisible.
+  labelled, every installed skill goes into the workspace — otherwise a spurious
+  trigger from any other skill would be structurally invisible.
 - **The workspace carries no `CLAUDE.md`.** This repository's own working
   agreement mandates three skills in every session; evaluating inside this
   checkout would measure that agreement instead of discovery, and would do so
