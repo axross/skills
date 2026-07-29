@@ -1,15 +1,14 @@
 # skills
 
-A curated, reusable library of agent skills.
+An opinionated library of agent skills.
 
-`skills` is a library of **agent skills** in the
-[agentskills.io](https://agentskills.io) format — self-contained capabilities
-you install into a coding agent so it plans, builds, reviews, and verifies work
-the way you want it done. Nineteen of them cover the whole arc: handling what
-the agent does not know, turning a request into a spec, driving that spec to a
-reviewed pull request, keeping the code maintainable and secure, testing it,
-designing and building its UI, and authoring more skills.
-They install into any agent the [`skills`
+These are **agent skills** in the [agentskills.io](https://agentskills.io)
+format — self-contained capabilities you install into a coding agent so it
+plans, builds, reviews, and verifies work the way you want it done. The
+nineteen here cover the whole arc: handling what the agent does not know,
+turning a request into a spec, driving that spec to a reviewed pull request,
+keeping the code maintainable and secure, testing it, designing and building its
+UI, and authoring more skills. They install into any agent the [`skills`
 CLI](https://github.com/vercel-labs/skills) supports.
 
 The library is Markdown-first — the skills _are_ the deliverable — with a little
@@ -55,11 +54,16 @@ rather than one option among several.
 
 ## Skill catalog
 
-Every skill in the library, grouped by what you would reach for it to do. All
-nineteen install the same way; the ✱ marks where a skill's source lives in
-_this_ repository, which matters only if you contribute here.
+Every skill in the library, grouped by what you would reach for it to do. They
+all install the same way; the ✱ marks the one skill whose source lives outside
+[`skills/`](./skills), which matters only if you contribute here — see
+[Authoring a skill](#authoring-a-skill).
 
 ### Working with you
+
+One skill sits underneath all the others. `professional-behavior` applies in
+every session — a question answered, a review given, a change delivered — which
+is why it stands alone here rather than filed under any of the work below.
 
 | Skill                                                              | What it gives your agent                                                                                                                                                                                                              |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -113,25 +117,29 @@ _this_ repository, which matters only if you contribute here.
 | [`agent-skill-authoring`](./skills/agent-skill-authoring/SKILL.md)   | How to write a skill an agent will actually find and follow: framing, frontmatter, discovery text, and a validator that checks the structure. |
 | [`agent-skill-management`](./skills/agent-skill-management/SKILL.md) | Where a skill's source belongs, how it gets installed and refreshed, and what to do when you want to change one you do not own.               |
 
-✱ `github-operation`'s source is committed under
-[`.claude/skills/`](./.claude/skills); every other skill is sourced under
-[`skills/`](./skills). That split is an authoring detail of this repository —
-see [Authoring a skill](#authoring-a-skill) — and has no bearing on how you
-install them.
-
 ## Contributing
 
 Development here is agent-assisted via
 [Claude Code](https://claude.com/claude-code). The working agreement lives in
 [`CLAUDE.md`](./CLAUDE.md) and routes to the detailed skills under
-[`.claude/skills/`](./.claude/skills). Human and agent contributors follow the
-same loop: plan → implement → self-review → verify → report.
+[`.claude/skills/`](./.claude/skills). Every change goes through the same loop —
+**plan → approve → code → verify → independent review → address → ready** —
+stepped through under
+[Delivering a unit of work end-to-end](#delivering-a-unit-of-work-end-to-end).
+Working without an agent does not lower the bar: branch, implement, run the
+[checks](#commands), open a pull request following
+[the template](./.github/pull_request_template.md), and get it reviewed before
+merge. Two gates never move — nothing is built before the plan is approved, and
+nothing merges on its author's own say-so.
 
 ### Local setup
 
+The project pins **Node 26** in `package.json`'s `engines.node`, which CI reads
+through `node-version-file`.
+
 1. Install dependencies: `npm install`
-2. Run the checks: `npm run check` (format check, lint, then the test suite —
-   which carries the relative-link, skill-structure, and installed-copy checks)
+2. Run the checks: `npm run check` — see [Commands](#commands) for what each
+   one covers
 
 There is no dev server — authoring a skill means editing Markdown under
 [`skills/`](./skills) (or `.claude/skills/` for a repository-local skill),
@@ -142,18 +150,19 @@ dependencies (activating a Node version manager if one is present); the opt-in
 format-on-edit and check-before-stop hooks are materialized from
 [`.claude/settings.local-example.json`](./.claude/settings.local-example.json).
 
-| Area             | Tool                                                           |
-| ---------------- | -------------------------------------------------------------- |
-| Language         | Markdown (with occasional JavaScript for scripting)            |
-| Runtime          | Claude Code                                                    |
-| Package manager  | npm                                                            |
-| Formatting       | Prettier                                                       |
-| Linting          | markdownlint-cli2                                              |
-| Link integrity   | `.claude/skills/agent-skill-authoring/scripts/check-links.mjs` |
-| Skill structure  | `.claude/skills/agent-skill-authoring/scripts/check-skill.mjs` |
-| Installed copies | `scripts/check-installed-copies.mjs`                           |
-| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)    |
-| Tests            | Vitest                                                         |
+| Area             | Tool                                                        |
+| ---------------- | ----------------------------------------------------------- |
+| Language         | Markdown (with occasional JavaScript for scripting)         |
+| Runtime          | Claude Code                                                 |
+| Node             | 26, pinned in `package.json`                                |
+| Package manager  | npm                                                         |
+| Formatting       | Prettier                                                    |
+| Linting          | markdownlint-cli2                                           |
+| Tests            | Vitest                                                      |
+| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`      |
+| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill.mjs`      |
+| Installed copies | `scripts/check-installed-copies.mjs`                        |
+| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates) |
 
 ### Delivering a unit of work end-to-end
 
@@ -183,31 +192,41 @@ free-form request (with no issue yet, it files a tracking issue first, then
 delivers it). To approve a paused plan or resume after a question, continue the
 session and tell it to continue.
 
+One check backs the loop from outside any session:
+[`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)
+sweeps hourly and flags any `claude/` branch pushed ahead of the default branch
+with no open pull request — work delivered outside the loop, and so never
+independently reviewed. It is deliberately a scheduled sweep rather than a
+push-triggered gate, because step 2 legitimately pushes before step 3 opens the
+pull request; a grace window skips a branch whose latest commit is still fresh.
+
 ### `@claude review` — get findings on any PR
 
 Comment **`@claude review`** on a pull request to run this repository's review
 policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line`
 evidence and concrete fixes, posted as inline comments by the CI reviewer
 ([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
-pre-merge check on a hand-written change or a second opinion before merging; the
-same review runs automatically against the change loop's pull requests.
+pre-merge check on a hand-written change or a second opinion before merging. It
+is the same reviewer the change loop relies on: step 3 above requests it by
+posting that comment itself, so no review starts without one.
 
-The reviewer is inert until a one-time operator setup is done: install the
-[Claude GitHub App](https://github.com/apps/claude) and add a
+Two things make it stay silent. It answers **repository owners, members, and
+collaborators only**, gating on the commenting author's association and skipping
+everyone else — so an outside contributor's request looks like nothing happened
+at all. And it is inert everywhere until a one-time operator setup is done:
+install the [Claude GitHub App](https://github.com/apps/claude) and add a
 `CLAUDE_CODE_OAUTH_TOKEN` repository secret (generate it with
 `claude setup-token`), or set an `ANTHROPIC_API_KEY` secret for pay-as-you-go
 billing. See the header of
 [`claude-review.yaml`](./.github/workflows/claude-review.yaml) for details.
 
-Changes made without an agent follow the same bar: branch, implement, run the
-checks below, open a pull request, and get it reviewed before merge.
-
 ### Authoring a skill
 
-Skills live in two tiers. Eighteen are **distributable**: their source is
-[`skills/<name>/SKILL.md`](./skills) (with any `references/` and `scripts/`
-beside it), and the installed copies under `.claude/skills/` are generated from
-it with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
+Skills live in two tiers. Every one but `github-operation` is
+**distributable**: its source is [`skills/<name>/SKILL.md`](./skills) (with any
+`references/` and `scripts/` beside it), and the installed copies under
+`.claude/skills/` are generated from it with the
+[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
 
 ```bash
 npx skills add ./skills --agent claude-code --skill '*' --yes --copy
@@ -230,30 +249,18 @@ into your own project too.
 
 ### Commands
 
-There is no development server — the deliverable is documentation, so
-verification is a format check, a Markdown lint, and a Vitest suite. The suite
-is the wide one: besides covering the bundled validators against fixtures, it
-runs the relative-link, skill-structure, and installed-copy checks over this
-repository, so `npm test` is every mechanical gate except formatting and
-linting. `npm run check` is the aggregate that runs all three, and each gates a
-merge as its own parallel job in
-[`merge-checks.yaml`](./.github/workflows/merge-checks.yaml).
-
-Each validator is also a standalone CLI — one command, one responsibility,
-`--help` on every one — so a single check can be run directly without the
-suite:
-
-```bash
-node .claude/skills/agent-skill-authoring/scripts/check-links.mjs
-node .claude/skills/agent-skill-authoring/scripts/check-skill.mjs --help
-```
+The deliverable is documentation, so verification is a format check, a Markdown
+lint, and a Vitest suite. `npm run check` is the aggregate that runs all three,
+and each gates a merge as its own parallel job in
+[`merge-checks.yaml`](./.github/workflows/merge-checks.yaml). The suite is the
+wide one — the `npm test` row below says what it carries.
 
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
 | Command                | What it does                                                                                                                                                                                                                                                                                                                                                            | When to run it                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2) pinned in `package.json`.                                                                                                                                                                                                                                                                                          | Once per checkout, and after `package.json` changes.             |
+| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                  | Once per checkout, and after `package.json` changes.             |
 | `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                         | After every set of edits, before committing.                     |
 | `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                           | In CI, or to check formatting without touching the working tree. |
 | `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                        | After formatting, and fix every reported error before finishing. |
@@ -263,9 +270,30 @@ contributors and agents alike.
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
+#### Running a validator directly
+
+Each validator is also a standalone CLI — one command, one responsibility,
+`--help` on every one — so a single check can be run without the suite. Run them
+from the source tier under [`skills/`](./skills), which is what the suite itself
+invokes; the copies under `.claude/skills/` are generated and go stale mid-edit.
+
+```bash
+# This repository's own three gates, run over the whole tree by `npm test`:
+node skills/agent-skill-authoring/scripts/check-links.mjs
+node skills/agent-skill-authoring/scripts/check-skill.mjs --help
+node scripts/check-installed-copies.mjs
+
+# Four more ship inside a skill, for the projects that install it — this
+# repository exercises them only against fixtures:
+node skills/conventional-commits/scripts/check-commit-message.mjs --help
+node skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs --help
+node skills/react-component-styling/scripts/check-component-styles.mjs --help
+node skills/wireframe-design/scripts/check-wireframe.mjs --help
+```
+
 #### Reporting, not gating
 
-One script reports a number instead of judging one:
+The eighth script reports a number instead of judging one:
 
 ```bash
 node scripts/report-obligation-load.mjs --mandated
@@ -298,6 +326,7 @@ current official docs before changing behavior these govern:
 | ---------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Claude Code                  | Skill format and frontmatter, hook and settings configuration, slash-command behavior, MCP configuration |
 | markdownlint-cli2 / Prettier | Lint and format configuration, suppression syntax, rule names                                            |
+| Vitest                       | Suite configuration, runner and matcher APIs, CLI flags                                                  |
 
 **Some files fail globally rather than locally.** A small mismatch in one of
 these breaks skill discovery or the verification gate outright, not just one
@@ -307,6 +336,19 @@ rendered page — so refresh the owning tool's docs before editing one:
   the hooks under `.claude/hooks/`.
 - **markdownlint-cli2 / Prettier** — `.markdownlint-cli2.jsonc`,
   `.prettierrc.json`, and `.prettierignore`.
+- **Vitest** — `vitest.config.mjs`, which every gate inside `npm test` runs
+  through.
+- **The gate set itself** — `package.json`'s `check` chain and
+  [`merge-checks.yaml`](./.github/workflows/merge-checks.yaml)'s jobs.
+
+That last pair is only half the problem. The enforced-gate set lives in **four**
+places — those two, the commands table above, and [`REVIEW.md`](./REVIEW.md)'s
+do-not-report list — and all four must agree or CI quietly stops enforcing
+something the documentation still claims it does.
+`tests/repository/gate-consistency.test.mjs` ties the first two mechanically:
+add a gate to one, forget the other, and the suite fails. The two prose copies
+are tied to nothing, so changing the gate set means editing this file and
+`REVIEW.md` by hand — and a reviewer checking that you did.
 
 **The installed skill copies are generated, not source.** The distributable
 skills under [`skills/`](./skills) are the source of truth, and their copies
