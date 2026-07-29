@@ -337,8 +337,9 @@ for three independent reasons: it is non-deterministic, it costs real money per
 run (`$2.57` measured for the full fixture), and it needs a secret that fork
 pull requests do not receive.
 
-Run it on a pull request by applying the **`eval:discovery`** label, which
-triggers
+Run it on a pull request by applying the **`eval:discovery`** label — create
+that label once in the repository first, since the trigger cannot fire until it
+exists — which triggers
 [`discovery-eval.yaml`](./.github/workflows/discovery-eval.yaml) — the only
 workflow allowed to invoke it. `--dry-run` validates the fixture with no model
 call and no secret. See

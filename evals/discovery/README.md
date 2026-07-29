@@ -29,6 +29,22 @@ only amortizes it once a run is long enough to reuse it. Use `--only` and
 `--dry-run` needs neither a network nor a secret: it validates the fixture and
 the baseline and prints what would run. That is the path `npm test` exercises.
 
+## Running it on a pull request
+
+Apply the **`eval:discovery`** label. Two one-time operator steps first:
+
+1. **Create the `eval:discovery` label.** It does not exist by default, and
+   GitHub does not create one just because a workflow names it — until it
+   exists, the label trigger can never fire and
+   [`discovery-eval.yaml`](../../.github/workflows/discovery-eval.yaml) is
+   reachable only by manual dispatch.
+2. **Have the `CLAUDE_CODE_OAUTH_TOKEN` secret set** — the same one
+   `claude-review.yaml` already uses. No new secret is needed.
+
+Applying the label requires triage or write permission, which is precisely what
+makes it the maintainer gate: a fork pull request cannot label itself, so it
+cannot spend money here.
+
 ## It never gates
 
 Not in `npm run check`, not in `merge-checks.yaml`, not a required check, not in

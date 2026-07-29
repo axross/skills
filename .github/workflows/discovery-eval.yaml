@@ -37,8 +37,15 @@ name: Discovery Evaluation
 # evaluation step's environment, and overlay.mjs strips anything
 # credential-shaped from what it inherits regardless.
 #
-# Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
-# claude-review.yaml already uses. No new secret is required.
+# Operator prerequisites (the label path no-ops until the first is done):
+#   1. Create the `eval:discovery` label in this repository. It does not exist
+#      by default, and GitHub does not create a label just because a workflow
+#      names one — so until it is created, the label trigger below can never
+#      fire and this workflow is reachable only by manual dispatch. Applying it
+#      needs triage or write permission, which is what makes the label the
+#      maintainer gate in safety property 1.
+#   2. The CLAUDE_CODE_OAUTH_TOKEN secret that claude-review.yaml already uses.
+#      No new secret is required.
 
 on:
   workflow_dispatch:
