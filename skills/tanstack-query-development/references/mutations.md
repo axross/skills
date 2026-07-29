@@ -30,9 +30,15 @@ export function getSignInMutationOptions() {
 Build the key from the same tenancy-rooted resource path as the data it writes, with the **action verb last**. A create omits the identifier, since the resource does not exist yet.
 
 ```ts
-["users", userId, "collections", "create"][
-  ("users", userId, "collections", slug, "update")
-][("users", userId, "collections", slug, "delete")][("session", "sign-in")];
+// A create omits the identifier — the resource does not exist yet.
+["users", userId, "collections", "create"];
+
+// An action on an existing resource includes it.
+["users", userId, "collections", slug, "update"];
+["users", userId, "collections", slug, "delete"];
+
+// An action on the current session.
+["session", "sign-in"];
 ```
 
 **Guidelines:**
@@ -93,10 +99,31 @@ Both run: the factory's callbacks fire first, then the call site's. Two caveats 
 The signatures gained arguments during v5 — verified against **5.101.4**:
 
 ```ts
-onMutate: (variables, context) => Promise<TOnMutateResult | void> | TOnMutateResult | void
-onSuccess: (data, variables, onMutateResult, context) => unknown
-onError:   (error, variables, onMutateResult, context) => unknown
-onSettled: (data, error, variables, onMutateResult, context) => unknown
+interface MutationCallbacks<TVariables, TData, TError, TOnMutateResult> {
+  onMutate: (
+    variables: TVariables,
+    context: MutationFunctionContext,
+  ) => Promise<TOnMutateResult | void> | TOnMutateResult | void;
+  onSuccess: (
+    data: TData,
+    variables: TVariables,
+    onMutateResult: TOnMutateResult | undefined,
+    context: MutationFunctionContext,
+  ) => unknown;
+  onError: (
+    error: TError,
+    variables: TVariables,
+    onMutateResult: TOnMutateResult | undefined,
+    context: MutationFunctionContext,
+  ) => unknown;
+  onSettled: (
+    data: TData | undefined,
+    error: TError | null,
+    variables: TVariables,
+    onMutateResult: TOnMutateResult | undefined,
+    context: MutationFunctionContext,
+  ) => unknown;
+}
 ```
 
 `onMutateResult` is what `onMutate` returned — the rollback handle. `context` carries `context.client`, so a callback can reach the query client without importing a singleton or calling a hook.

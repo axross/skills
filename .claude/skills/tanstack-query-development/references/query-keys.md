@@ -7,8 +7,13 @@ Apply this reference when shaping a key, adding an input to a query, or reviewin
 A key is an array, hashed deterministically. Object property order inside a key does not matter; **array position does**.
 
 ```ts
-["todos", { status, page }][("todos", { page, status })]; // identical
-["todos", status, page][("todos", page, status)]; // different
+// Identical — object property order does not matter.
+["todos", { status, page }];
+["todos", { page, status }];
+
+// Different — array position does.
+["todos", status, page];
+["todos", page, status];
 ```
 
 Everything in a key must survive `JSON.stringify`. A `Date`, `Map`, or class instance in a key hashes unreliably and silently splits or merges entries.
@@ -24,14 +29,14 @@ Everything in a key must survive `JSON.stringify`. A `Date`, `Map`, or class ins
 When more than one account, session, server, or region can exist at a time, **the tenant identifier is the root of the key**, as a `[kind, id]` pair — not a filter object trailing the resource.
 
 ```ts
-[
-  "users",
-  userId,
-  "collections",
-] // the signed-in user's collections
-[("users", userId, "collections", collectionSlug, "records")][
-  ("users", userId)
-]; // that collection's records // everything belonging to that user
+// The signed-in user's collections.
+["users", userId, "collections"];
+
+// That collection's records.
+["users", userId, "collections", collectionSlug, "records"];
+
+// Everything belonging to that user — one prefix reaches all of it.
+["users", userId];
 ```
 
 Putting the tenant in a trailing filter — `["collections", { userId }]` — still separates entries correctly, so nothing looks broken. What it loses is **reach**: no prefix selects one tenant's entries, so signing out cannot evict them in one call, and a per-tenant invalidation has to enumerate every resource kind.
@@ -51,17 +56,20 @@ A single-tenant application does not need the root, and adding one there is nois
 Beneath the tenancy root, a key mirrors the resource's path: alternating kind and identifier segments, nesting the way a URL does. A **list** ends at the kind and omits the identifier, which is what keeps a list and a single item from colliding.
 
 ```ts
-[
-  "users",
-  userId,
-  "collections",
-] // a list
-[("users", userId, "collections", slug)][
-  ("users", userId, "collections", slug, "records")
-] // one item // a nested list
-[("users", userId, "collections", slug, "records", recordId)][
-  ("users", userId, "collections", { sort: "-createdAt" })
-]; // one nested item // a sorted list
+// A list — ends at the kind, no identifier.
+["users", userId, "collections"];
+
+// One item.
+["users", userId, "collections", slug];
+
+// A nested list.
+["users", userId, "collections", slug, "records"];
+
+// One nested item.
+["users", userId, "collections", slug, "records", recordId];
+
+// A sorted list — the filter object goes last.
+["users", userId, "collections", { sort: "-createdAt" }];
 ```
 
 Filters, sorting, and pagination go in a **single object** in the last position — never as loose positional segments, which are order-dependent and unreadable.
