@@ -81,7 +81,7 @@ Large binaries live on the file system, with the app keeping the path. Two disti
 
 Data fetched from a server is **server state**: it has an owner elsewhere, it goes stale, and it is managed by the app's server-state layer — its caching, invalidation, retries, and offline behavior. This skill covers the Expo-layer concerns beneath it: that a request is cancelled when a screen goes away, and that the app behaves when the network is absent.
 
-How queries and mutations are organized, how cache keys are shaped, and when a cache is invalidated are that layer's own concerns, not this skill's.
+How queries and mutations are organized, how cache keys are shaped, and when a cache is invalidated are that layer's own concerns, not this skill's — a TanStack Query development capability owns them where the project uses that library, including the mechanism for the cancellation rule below and the sanctioned way to persist that layer's own cache.
 
 **Guidelines:**
 
