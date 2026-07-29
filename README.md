@@ -299,8 +299,8 @@ form. It runs a labelled prompt fixture through the real Claude Code CLI in a
 scratch workspace and reports which expected skills were missed and which
 unexpected ones fired, as a delta against a recorded baseline. It cannot gate
 for three independent reasons: it is non-deterministic, it costs real money per
-run (roughly `$10` for the full fixture), and it needs a secret that fork pull
-requests do not receive.
+run (`$2.57` measured for the full fixture), and it needs a secret that fork
+pull requests do not receive.
 
 Run it on a pull request by applying the **`eval:discovery`** label, which
 triggers

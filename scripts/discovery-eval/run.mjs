@@ -354,10 +354,11 @@ async function main() {
         baseline
           ? `Baseline OK: recorded on "${baseline.model}" at ${baseline.repeats} repeat(s).`
           : "No baseline recorded yet.",
-        // Measured against the full 19-skill corpus, which is what makes a
-        // probe cost what it does: the discovery listing is ~4,500 tokens of
-        // always-resident system prompt before the prompt itself is read.
-        `Would spawn ${runs} one-turn probe(s); measured cost is roughly $0.10 each.`,
+        // Measured over a full 100-probe run against the 19-skill corpus:
+        // $2.57, so ~$0.026 each. A short run costs MORE per probe — the
+        // ~4,500-token discovery listing is identical every time, so prompt
+        // caching amortizes it only once a run is long enough to reuse it.
+        `Would spawn ${runs} one-turn probe(s); a full run measured $2.57 (~$0.026 each).`,
         "No model call was made.",
         "",
       ].join("\n"),

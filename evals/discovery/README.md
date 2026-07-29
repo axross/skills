@@ -20,9 +20,11 @@ node scripts/discovery-eval/run.mjs --repeats 5 --emit-baseline
 ```
 
 It drives the real `claude` CLI, so it needs the CLI on `PATH` and working
-authentication. **A full run costs real money** — roughly `$0.10` per probe
-against the full 19-skill corpus, so the default 20 cases × 5 repeats is about
-`$10`. Use `--only` and `--repeats` while iterating.
+authentication. **A full run costs real money** — the 20 cases × 5 repeats
+measured **`$2.57`**, about `$0.026` a probe. Short runs cost more per probe:
+the ~4,500-token discovery listing is identical every time, so prompt caching
+only amortizes it once a run is long enough to reuse it. Use `--only` and
+`--repeats` while iterating anyway; a handful of probes is still cents.
 
 `--dry-run` needs neither a network nor a secret: it validates the fixture and
 the baseline and prints what would run. That is the path `npm test` exercises.
