@@ -46,6 +46,7 @@ import {
 } from "../../scripts/discovery-eval/overlay.mjs";
 import {
   renderBaseline,
+  renderProbeBudget,
   renderReport,
 } from "../../scripts/discovery-eval/report.mjs";
 import { parseStream } from "../../scripts/discovery-eval/stream.mjs";
@@ -910,6 +911,33 @@ describe("report rendering", () => {
       }),
     );
     expect("corpus" in emitted).toBe(false);
+  });
+});
+
+describe("dry-run probe budget", () => {
+  // Derived, never recorded. The figure this replaced read "a full run measured
+  // $2.57" beside a probe count that had grown past the run it was measured on,
+  // so the line contradicted itself on every invocation.
+  it("derives the total from the probe count and the rate", () => {
+    expect(renderProbeBudget(110, 0.026)).toBe(
+      "Would spawn 110 one-turn probe(s); ~$0.026 each, so ~$2.86 for this fixture.",
+    );
+  });
+
+  it("tracks a shorter run rather than staying fixed", () => {
+    const line = renderProbeBudget(3, 0.026);
+    expect(line).toContain("3 one-turn probe(s)");
+    expect(line).toContain("~$0.08 for this fixture");
+  });
+
+  it("rounds the total to cents", () => {
+    expect(renderProbeBudget(1, 0.026)).toContain("~$0.03 for this fixture");
+  });
+
+  it("prints the rate it was given, so the line cannot disagree with itself", () => {
+    const line = renderProbeBudget(200, 0.05);
+    expect(line).toContain("~$0.05 each");
+    expect(line).toContain("~$10.00 for this fixture");
   });
 });
 

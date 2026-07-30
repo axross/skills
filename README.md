@@ -142,6 +142,112 @@ one you inherit.
 | [`agent-skill-authoring`](./skills/agent-skill-authoring/SKILL.md)   | How to write a skill an agent will actually find and follow: framing, frontmatter, discovery text, and a validator that checks the structure. |
 | [`agent-skill-management`](./skills/agent-skill-management/SKILL.md) | Where a skill's source belongs, how it gets installed and refreshed, and what to do when you want to change one you do not own.               |
 
+## How this library evaluates its skills
+
+A skill only earns its place if an agent actually reaches for it at the right
+moment. That is an **outcome**, and it is the part that is hard to check: it does
+not follow from a skill being well-formed, and no amount of structural validation
+will surface it. Nearly everything a tool can check cheaply is **form** —
+frontmatter shape, section anatomy, link integrity, whether an installed copy
+still matches its source. Every form check in this repository gates a merge, and
+not one of them can tell you whether a skill _works_. A skill can be immaculately
+structured and never get picked up, or get picked up for the wrong prompt.
+
+**Evaluation in this space, where it exists at all, tends to stop at form** — that
+a skill is shaped correctly, not that it works. This library measures the outcome
+as well, and commits the measurements: the recorded results live in
+[`evals/discovery/baseline.json`](./evals/discovery/baseline.json), so what the
+measurement found is something you can read rather than take on trust. That is the
+axis worth comparing libraries on — whether the discovery text is _measured_ or
+merely asserted. It has already produced negative results about this library's own
+skills, and those are recorded rather than quietly dropped, which is the entire
+point of running it. Two tools do the measuring, and deliberately neither of them
+gates.
+
+**Does discovery surface the right skill?** An installed skill is found by its
+`description`/`when_to_use` pair and nothing else, so that pair is what is worth
+measuring. The discovery evaluation runs a fixture of labelled prompts through
+the real Claude Code CLI in a scratch workspace and records which skills got
+selected. Each prompt names the skills it should surface and the ones it should
+not, and repeated runs of the same prompt give a distribution rather than a
+single verdict, because selection is not deterministic. The assertion is plain
+set membership — was this skill selected or not — so no model is ever asked to
+grade another model's prose.
+
+**The two directions are judged differently, on purpose.** A skill that should
+surface has to appear **at least once** across the repeats: never appearing is a
+miss, while appearing in a minority of runs is weak rather than broken. A skill
+that should _not_ surface is only called spurious when it appears in **a
+majority** of runs. That asymmetry is there because this library deliberately
+labels skills that compete — `wireframe-design`, `high-fidelity-ui-design`, and
+`react-component-styling` each disclaim the others in their own discovery text. A
+prompt two of them could legitimately answer splits the distribution, so a
+symmetric majority rule would report correct behaviour as a failure, and would do
+it worst on exactly the cases that carry the most information. For a prompt
+naming more than one acceptable skill, the report also prints how many runs
+picked at least one of them — which is what tells healthy contention from a real
+gap.
+
+**A result is reported as a delta, not a score.** A bare number would say nothing
+you could act on, so a run is expressed as the change against a recorded
+baseline. That holds only while the baseline and the current run are comparable,
+and there are two ways they stop being:
+
+- **The model changed.** A result is not durable across models — it moves when a
+  new model ships, with no change to this repository at all. The report
+  suppresses the delta entirely and says why, rather than printing a comparison
+  that looks meaningful and is not.
+- **The corpus changed.** Every installed skill goes into the workspace, so a
+  skill added — or an existing skill's discovery text rewritten — competes for
+  the same selection whether or not the fixture names it. Here the report
+  **marks** the affected comparisons as unattributable and still renders them,
+  because a repository that ships skill edits weekly would otherwise have a
+  permanently unusable baseline.
+
+**The corpus fingerprint covers only what discovery reads.** The baseline records
+a short digest of each skill's `description` and `when_to_use` and nothing else,
+so editing a skill's body never invalidates a measurement, and a rename shows up
+as one removal plus one addition. When the corpus matches, the report says
+nothing at all — a notice that fires on every run is one that gets skipped on the
+run that matters.
+
+**The second tool measures cost instead of outcome.** It answers "how many rules
+is an agent holding right now?" — the concurrent RFC-2119 obligation count across
+a set of skills, as a **range**: the floor when only the `SKILL.md` bodies are
+read, and the ceiling once every reference file is read too. It defines **no
+threshold** and never fails. There is no evidence for a defensible limit in this
+corpus yet, and a threshold nobody can defend becomes either a rule people route
+around or a warning people stop reading.
+
+**Neither tool gates, and that is deliberate.** The discovery evaluation is
+non-deterministic, it costs real money every run, and it needs a secret that fork
+pull requests never receive — and a flaky merge gate gets bypassed or deleted
+rather than fixed. The obligation report has no threshold to gate on in the first
+place. Neither belongs to an npm script, a workflow gate, or a hook, and a test
+keeps both out of the enforced set, so wiring either one in has to be a
+deliberate act rather than an accident.
+
+**What the measurement cannot tell you** is worth knowing before you trust it:
+
+- **One turn per probe.** It captures what discovery selects immediately, so
+  repeats give a distribution rather than a set of skills used together.
+- **The fixture is a judgment product.** A wrong label produces a "finding" that
+  is really a labelling error — which is why every case carries a written
+  rationale a human can disagree with without reading code.
+- **The evaluation workspace carries no `CLAUDE.md`.** This repository's own
+  working agreement mandates skills in every session, so measuring inside this
+  checkout would measure that agreement instead of discovery, and would do it
+  silently.
+- **A universal-application claim is informational for now.** A skill can claim
+  in its own `when_to_use` that it applies to every session; whether that holds
+  under a one-turn measurement is an open question, so a shortfall is reported
+  rather than counted as a finding.
+
+[`evals/discovery/README.md`](./evals/discovery/README.md) carries the fixture
+format, the exact verdict table, the known limits in full, and when to re-record
+the baseline. [Reporting, not gating](#reporting-not-gating) has the commands for
+both tools.
+
 ## Contributing
 
 Development here is agent-assisted via
@@ -356,7 +462,7 @@ form. It runs a labelled prompt fixture through the real Claude Code CLI in a
 scratch workspace and reports which expected skills were missed and which
 unexpected ones fired, as a delta against a recorded baseline. It cannot gate
 for three independent reasons: it is non-deterministic, it costs real money per
-run (`$2.57` measured for the full fixture), and it needs a secret that fork
+run (`--dry-run` prints the current estimate), and it needs a secret that fork
 pull requests do not receive.
 
 Run it in CI from the Actions tab by dispatching

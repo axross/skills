@@ -20,11 +20,15 @@ node scripts/discovery-eval/run.mjs --repeats 5 --emit-baseline
 ```
 
 It drives the real `claude` CLI, so it needs the CLI on `PATH` and working
-authentication. **A full run costs real money** — the 20 cases × 5 repeats
-measured **`$2.57`**, about `$0.026` a probe. Short runs cost more per probe:
-the ~4,500-token discovery listing is identical every time, so prompt caching
-only amortizes it once a run is long enough to reuse it. Use `--only` and
-`--repeats` while iterating anyway; a handful of probes is still cents.
+authentication. **A full run costs real money** — about **`$0.026`** a probe,
+measured over a 100-probe run against the 19-skill corpus of the time. The rate
+is the durable figure: a full fixture is one probe per case per repeat, so the
+total moves whenever the fixture or `--repeats` does. **`--dry-run` prints the
+current estimate, and is the number to trust over this paragraph.** Short runs
+cost more per probe: the ~4,500-token discovery listing is identical every time,
+so prompt caching only amortizes it once a run is long enough to reuse it. Use
+`--only` and `--repeats` while iterating anyway; a handful of probes is still
+cents.
 
 `--dry-run` needs neither a network nor a secret: it validates the fixture and
 the baseline and prints what would run. That is the path `npm test` exercises.
@@ -198,8 +202,9 @@ error. **When the corpus matches, the report says nothing at all**; a notice
 that fires on every run is one that gets skipped on the run that matters.
 
 The field is **optional**, because the baseline in this tree predates it and
-re-recording costs $2.57. A baseline carrying no `corpus` reports as "corpus not
-recorded" — honestly weaker than "no drift" — and its delta still renders.
+re-recording costs a full run's worth of probes. A baseline carrying no `corpus`
+reports as "corpus not recorded" — honestly weaker than "no drift" — and its
+delta still renders.
 `--dry-run` prints the same comparison, computed from `.claude/skills` with no
 model call; a real run fingerprints the workspace it assembles, so a
 `--head-skills` evaluation records the head text it actually measured.

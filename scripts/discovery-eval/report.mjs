@@ -154,6 +154,27 @@ export function renderCorpusBuckets(corpus) {
 }
 
 /**
+ * The dry-run's cost estimate.
+ *
+ * The per-probe RATE is the measured constant and the total is always derived
+ * from it, never written down. A total recorded as a property of "a full run" is
+ * really a property of the fixture that was current when someone paid for it, so
+ * it starts contradicting the probe count beside it the moment a case is added —
+ * which is exactly what happened to the figure this replaced.
+ *
+ * Takes the rate as an argument rather than reading it here: the caller owns what
+ * a probe costs, this owns how the estimate reads.
+ *
+ * @param {number} runs           probes the run would spawn
+ * @param {number} costPerProbe   measured dollars per probe
+ * @returns {string} the estimate line, total rounded to cents
+ */
+export function renderProbeBudget(runs, costPerProbe) {
+  const total = (runs * costPerProbe).toFixed(2);
+  return `Would spawn ${runs} one-turn probe(s); ~$${costPerProbe} each, so ~$${total} for this fixture.`;
+}
+
+/**
  * The corpus notice — or, when the corpus matches, nothing at all.
  *
  * SILENT ON A CLEAN RUN, on purpose. This harness runs rarely and costs real
