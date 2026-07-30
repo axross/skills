@@ -89,6 +89,16 @@ const DEFAULT_BASELINE = join(REPO_ROOT, "evals", "discovery", "baseline.json");
 const DEFAULT_REPEATS = 5;
 
 /**
+ * Dollars per one-turn probe, measured over a 100-probe run against the
+ * 19-skill corpus of the time. The rate is the figure that survives a fixture
+ * change; a full-run total is always derived from it, so a printed estimate
+ * cannot drift out of step with the probe count beside it. A short run costs
+ * MORE per probe — the ~4,500-token discovery listing is identical every time,
+ * so prompt caching amortizes it only once a run is long enough to reuse it.
+ */
+const PROBE_COST_USD = 0.026;
+
+/**
  * Every tool except `Skill` is denied. The measurement is which skill discovery
  * selects; a run that starts doing the work is noise, and a run that can reach
  * the filesystem or the network is a liability given it may be holding
@@ -389,11 +399,7 @@ async function main() {
           ? `Baseline OK: recorded on "${baseline.model}" at ${baseline.repeats} repeat(s).`
           : "No baseline recorded yet.",
         ...(baseline ? dryRunCorpusLines(baseline, installedCorpus) : []),
-        // Measured over a full 100-probe run against the 19-skill corpus:
-        // $2.57, so ~$0.026 each. A short run costs MORE per probe — the
-        // ~4,500-token discovery listing is identical every time, so prompt
-        // caching amortizes it only once a run is long enough to reuse it.
-        `Would spawn ${runs} one-turn probe(s); a full run measured $2.57 (~$0.026 each).`,
+        `Would spawn ${runs} one-turn probe(s); ~$${PROBE_COST_USD} each, so ~$${(runs * PROBE_COST_USD).toFixed(2)} for this fixture.`,
         "No model call was made.",
         "",
       ].join("\n"),
