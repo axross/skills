@@ -151,6 +151,20 @@
         "react-component-styling"
       ],
       "rationale": "A second outside-the-trio control. conventional-commits claims this in as many words, so a miss here would point at the harness rather than at the trio."
+    },
+    {
+      "id": "sentry-minified-traces",
+      "prompt": "Our production stack traces come through minified even though the Sentry build plugin runs on every deploy. What should I check?",
+      "mustInclude": ["sentry-instrumentation"],
+      "mayInclude": ["software-instrumentation"],
+      "rationale": "A vendor-specific wiring failure — source maps, release/dist matching, the bundler wrapper. sentry-instrumentation's when_to_use names 'source maps' and 'an unsymbolicated stack trace' in as many words. software-instrumentation is legitimately adjacent because it owns error tracking generally, but owns none of these mechanics, so its appearance is neither required nor wrong."
+    },
+    {
+      "id": "neg-log-level-vendor-neutral",
+      "prompt": "Should this recoverable retry be logged at warn or info, and where should the catch live?",
+      "mustInclude": ["software-instrumentation"],
+      "mustExclude": ["sentry-instrumentation"],
+      "rationale": "The counterpart to sentry-minified-traces, and the direction that matters: log-level choice and catch placement are vendor-neutral, named in software-instrumentation's own text, and sentry-instrumentation explicitly hands them back ('For log levels, catch placement, and which failures are worth capturing at all, use a software instrumentation capability instead'). A spurious selection here means the vendor skill's triggers are too broad — the collision this pair exists to detect."
     }
   ]
 }
