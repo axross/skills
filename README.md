@@ -132,6 +132,7 @@ one you inherit.
 | [`expo-app-development`](./skills/expo-app-development/SKILL.md)             | The Expo app around the components: where files live, how a URL becomes a screen, what the native build contains, and how it reaches a device — checked against the SDK the app actually has.                                                              |
 | [`next-app-development`](./skills/next-app-development/SKILL.md)             | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
 | [`tanstack-query-development`](./skills/tanstack-query-development/SKILL.md) | The server state behind all of it, on TanStack Query v5: where a query lives, what identifies it in the cache, when it refetches, what a write invalidates, and how a failure surfaces — plus the review checks for each of those going wrong.             |
+| [`sentry-instrumentation`](./skills/sentry-instrumentation/SKILL.md)         | The Sentry layer under all four: which package, which option, which file, which token — what it is allowed to collect, how a minified frame gets a name back, and which of its silent misconfigurations only surface during an incident.                   |
 
 ### Authoring skills
 
@@ -299,22 +300,23 @@ node skills/agent-skill-authoring/scripts/check-links.mjs
 node skills/agent-skill-authoring/scripts/check-skill.mjs --help
 node scripts/check-installed-copies.mjs
 
-# Four more ship inside a skill, for the projects that install it — this
+# Five more ship inside a skill, for the projects that install it — this
 # repository exercises them only against fixtures:
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs --help
 node skills/react-component-styling/scripts/check-component-styles.mjs --help
+node skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs --help
 node skills/wireframe-design/scripts/check-wireframe.mjs --help
 ```
 
 #### Reporting, not gating
 
-The eighth and ninth scripts report instead of judging. Neither belongs to a
+The ninth and tenth scripts report instead of judging. Neither belongs to a
 gate, an npm script, or a hook, and
 `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced set
 on purpose, so wiring either in has to be a deliberate act.
 
-The eighth reports a number:
+The ninth reports a number:
 
 ```bash
 node scripts/report-obligation-load.mjs --mandated
@@ -334,7 +336,7 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The ninth reports a routing outcome:
+The tenth reports a routing outcome:
 
 ```bash
 node scripts/discovery-eval/run.mjs --dry-run

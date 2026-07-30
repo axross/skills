@@ -2,7 +2,7 @@
 
 Apply this reference when installing or configuring an error tracker in an Expo app, or when reported errors arrive without source context, without a release, or not at all.
 
-This reference covers the **Expo wiring** only — the plugin, the bundler wrapper, the root wrap, and the build-time upload. What to log, at which level, where to catch, what an error's context may carry, and when to report versus rethrow belong to a software instrumentation capability, which owns them. Roles are named generically here ("the error tracker", "the analytics tool") because the wiring is the same shape whichever vendor fills them.
+This reference covers the **Expo wiring** only — the plugin, the bundler wrapper, the root wrap, and the build-time upload. What to log, at which level, where to catch, what an error's context may carry, and when to report versus rethrow belong to a software instrumentation capability, which owns them. Roles are named generically here ("the error tracker", "the analytics tool") because the wiring is the same shape whichever vendor fills them; for the concrete package names, options, and integrations of whichever tracker is installed, consult that vendor's own instrumentation capability.
 
 ## The Plugin and the Bundler Wrapper
 
@@ -12,14 +12,7 @@ Its **config plugin** performs the native-side setup and, at build time, uploads
 
 The failure mode is characteristic: errors arrive, but every frame is minified with no source context, and nobody notices until an incident.
 
-**Example:**
-
-```js
-// metro.config.js — the tracker's wrapper replaces the default config factory
-const { getSentryExpoConfig } = require("@sentry/react-native/metro");
-
-const config = getSentryExpoConfig(__dirname);
-```
+The wrapper replaces the default Metro config factory rather than sitting beside it, so project customization layers on top of what the wrapper returns. Keeping the default factory and adding the tracker's plugin separately is the common mistake, and it produces exactly that failure.
 
 **Guidelines:**
 
@@ -30,13 +23,16 @@ const config = getSentryExpoConfig(__dirname);
 
 ## Initialization and the Root Wrap
 
-Initialize the tracker in the entry module, before the first render, so failures during startup are captured rather than lost — startup is exactly when unrecoverable failures happen and exactly when nothing else is listening.
+Initialize the tracker in the entry module, so failures during startup are captured rather than lost — startup is exactly when unrecoverable failures happen and exactly when nothing else is listening.
+
+Be precise about what that placement buys. It runs before the app's own modules evaluate and well before the first render, which is the window that matters. It does **not** run before the router: the entry module imports the router's entry, and ES module imports are hoisted and evaluated before any statement in the importing module's body, so the router evaluates first regardless of where the initialization call sits in the file. Capturing failures inside the router's own module evaluation needs a separate side-effect module imported ahead of it.
 
 Wrapping the root component additionally installs the tracker's own instrumentation: an error boundary above the app's tree, plus whatever navigation and interaction context the tracker attaches to reports.
 
 **Guidelines:**
 
-- MUST initialize the error tracker in the entry module, before any component renders.
+- MUST initialize the error tracker in the entry module, before the app's own modules evaluate and before any component renders.
+- MUST NOT claim entry-module initialization precedes the router entry; import hoisting means it does not.
 - MUST wrap the root component with the tracker's root wrapper, and export the wrapped component as the root layout's default.
 - MUST leave the app functional when the tracker is not configured — a missing key disables reporting rather than failing the launch.
 - MUST keep the app's own top-level error boundary regardless — a software instrumentation capability owns that rule, and the tracker's wrapper reports an error rather than presenting a usable screen.

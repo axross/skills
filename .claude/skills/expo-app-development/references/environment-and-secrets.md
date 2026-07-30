@@ -22,11 +22,11 @@ The substitution is a textual one performed by the bundler, so it only happens w
 
 ```ts
 // Substituted at build time.
-const dsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 // Not substituted — undefined in a production bundle.
-const { EXPO_PUBLIC_SENTRY_DSN } = process.env;
-const dsn2 = process.env[`EXPO_PUBLIC_${name}`];
+const { EXPO_PUBLIC_API_BASE_URL } = process.env;
+const apiBaseUrl2 = process.env[`EXPO_PUBLIC_${name}`];
 ```
 
 **Guidelines:**
@@ -46,11 +46,11 @@ Validating at that boundary turns a misconfigured build into an immediate, legib
 ```ts
 // src/core/helpers/env.ts — the only module that touches process.env
 export const envSchema = z.object({
-  EXPO_PUBLIC_SENTRY_DSN: z.url().optional(),
+  EXPO_PUBLIC_API_BASE_URL: z.url().optional(),
 });
 
 export const env = envSchema.parse({
-  EXPO_PUBLIC_SENTRY_DSN: process.env.EXPO_PUBLIC_SENTRY_DSN || undefined,
+  EXPO_PUBLIC_API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || undefined,
 });
 ```
 
