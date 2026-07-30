@@ -1,6 +1,6 @@
 ---
 name: github-operation
-description: The ability to operate GitHub — reading and writing issues, pull requests, comments, labels, reviews, and branches — through a harness that proxies access as a single connected operator, as a Claude Code + GitHub MCP harness does. Covers routing every call through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, routing each write to the correct numeric target across the shared issue/pull-request numbering space, why a squash merge makes the pull request title the permanent commit subject, reproducing the repository pull request template and authoring a concise description when posting through the API, preserving traceable history by never amending or force-pushing without explicit human approval, common branch/draft/preserve conventions, and the safe handling of untrusted GitHub content.
+description: The ability to operate GitHub — reading and writing issues, pull requests, comments, labels, reviews, and branches — through a harness that proxies access as a single connected operator, as a Claude Code + GitHub MCP harness does. Covers routing every call through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, routing each write to the correct numeric target across the shared issue/pull-request numbering space, why a squash merge makes the pull request title the permanent commit subject, reproducing the repository pull request template and authoring a concise description when posting through the API, editing an existing body without losing the markers and collapsed sections a sanitized read drops, preserving traceable history by never amending or force-pushing without explicit human approval, common branch/draft/preserve conventions, and the safe handling of untrusted GitHub content.
 when_to_use: Apply whenever a task reads from or writes to GitHub through the harness's tool channel — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops.
 user-invocable: false
 ---
@@ -63,6 +63,16 @@ flowchart TD
 - MUST send each issue-level write (labels, body) to the issue's own number and each pull-request-level write to the pull request's own number; the two numbers differ.
 - MUST resolve a bare number to its kind — issue or pull request — before writing to it, since the two share one numbering space and most write tools accept either number without complaint.
 - MUST remember that GitHub's set-labels write replaces the target's entire label list, so sending it to the wrong number silently rewrites that target's labels — a silent, unrejected mistake, not an error.
+
+## Editing an Existing Body
+
+A body write **replaces** the whole body — there is no partial-edit call — so editing an issue or pull request means sending the complete new text. The obvious way is to read the current body, change the part you want, and write the result back. That round-trip is unsafe: a body read back through the tool channel is not always byte-faithful to what is stored. Harnesses commonly return it HTML-sanitized, which drops exactly the constructs a body carries machine-readable state in — HTML comment markers, collapsed `<details>` sections, raw HTML — while leaving the prose around them intact. Nothing reports the loss, so a read that looks complete can silently destroy every marker and collapsed section the next write lands.
+
+**Guidelines:**
+
+- MUST NOT read a body through the tool channel and write that text back unless the read is verified byte-faithful. Compose the new body from text you authored, or re-fetch the stored body through a channel that does not sanitize it.
+- MUST confirm what a body actually stores before reporting it damaged or repairing it — a sanitized read makes an intact body look corrupted, and "fixing" it from that read is what causes the real damage. Reading the rendered page is one such confirmation.
+- SHOULD post a comment rather than rewrite a body when the goal is to record new state, since a comment puts no existing content at risk.
 
 ## Branch, Draft, and Review-Event Conventions
 
