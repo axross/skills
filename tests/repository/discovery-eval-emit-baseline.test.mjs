@@ -78,6 +78,17 @@ describe("the discovery evaluation's baseline-emitting dispatch", () => {
     expect(yaml).toContain("if-no-files-found: error");
   });
 
+  it("leaves the repeats input with no default, so per-case counts survive CI", async () => {
+    const yaml = await readWorkflow();
+    // The trap this guards. An explicitly passed --repeats overrides every
+    // per-case declaration, so a default of "5" here would mean CI always
+    // forced a uniform count — every declaration silently ignored in the one
+    // place that spends money, while the change looked correct locally.
+    expect(yaml).toMatch(/repeats:\s*\n(\s+#.*\n)*\s+description:[^\n]*\n\s+required: false\s*\n/);
+    expect(yaml).not.toMatch(/REPEATS:.*\|\|\s*'5'/);
+    expect(yaml).toContain('if [ -n "${REPEATS}" ]; then');
+  });
+
   it("adds no permission to the workflow's least-privilege grant", async () => {
     const yaml = await readWorkflow();
     // Artifact upload needs nothing beyond what was already declared. If this

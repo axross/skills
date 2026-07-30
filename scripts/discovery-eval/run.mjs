@@ -289,6 +289,7 @@ function probe(prompt, workspace) {
 function parseArguments(argv) {
   const options = {
     repeats: DEFAULT_REPEATS,
+    repeatsExplicit: false,
     only: [],
     fixture: DEFAULT_FIXTURE,
     baseline: DEFAULT_BASELINE,
@@ -316,6 +317,10 @@ function parseArguments(argv) {
           fail2("--repeats needs a positive integer.");
         }
         options.repeats = value;
+        // Passing the flag is a deliberate "use THIS many", so it wins over
+        // every per-case declaration. That is what keeps `--only <case>
+        // --repeats 10` doing the obvious thing while iterating on one case.
+        options.repeatsExplicit = true;
         break;
       }
       case "--only":
@@ -391,11 +396,25 @@ async function main() {
     };
   }
 
+  // One rule, used by the dry run and the real run alike, so the estimate can
+  // never describe a plan the run does not follow.
+  const repeatsFor = (testCase) =>
+    options.repeatsExplicit ? options.repeats : (testCase.repeats ?? options.repeats);
+  const totalProbes = fixture.cases.reduce(
+    (sum, testCase) => sum + repeatsFor(testCase),
+    0,
+  );
+  const reduced = fixture.cases.filter(
+    (testCase) => repeatsFor(testCase) !== options.repeats,
+  );
+  const repeatsNote =
+    reduced.length > 0 ? `${reduced.length} case(s) declare fewer` : null;
+
   if (options.dryRun) {
-    const runs = fixture.cases.length * options.repeats;
+    const runs = totalProbes;
     process.stdout.write(
       [
-        `Fixture OK: ${fixture.cases.length} case(s), ${options.repeats} repeat(s) each.`,
+        `Fixture OK: ${fixture.cases.length} case(s), ${options.repeats} repeat(s) each${repeatsNote ? ` except ${reduced.length} that declare their own` : ""}.`,
         `Corpus: ${knownSkills.length} skill(s) would be installed into the workspace.`,
         baseline
           ? `Baseline OK: recorded on "${baseline.model}" at ${baseline.repeats} repeat(s).`
@@ -426,7 +445,8 @@ async function main() {
   try {
     for (const testCase of fixture.cases) {
       const runs = [];
-      for (let repeat = 0; repeat < options.repeats; repeat += 1) {
+      const repeats = repeatsFor(testCase);
+      for (let repeat = 0; repeat < repeats; repeat += 1) {
         const result = probe(testCase.prompt, workspace);
         runs.push(result.skills);
         model ??= result.model;
@@ -450,6 +470,7 @@ async function main() {
       context: {
         model: observedModel,
         repeats: options.repeats,
+        repeatsNote,
         corpusSize,
         headSha: options.headSha,
         workspaceNote:

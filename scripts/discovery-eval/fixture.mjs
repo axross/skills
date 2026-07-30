@@ -29,6 +29,18 @@ export const TIERS = ["mustInclude", "mustExclude", "mayInclude"];
 /** Case ids and skill names share one shape: lowercase kebab-case. */
 const ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/**
+ * The fewest repeats a case may declare.
+ *
+ * TWO, and this is arithmetic rather than taste. A `SPURIOUS` verdict fires
+ * above SELECTION_RATE, so at ONE repeat a single stray selection is `1/1` —
+ * clear of the bar, reported as a finding, on evidence of one probe. At two it
+ * is `1/2`, which is not ABOVE half and reports as `occasional`. Two is
+ * therefore the smallest count at which both verdicts still demand unanimity,
+ * which is the whole reason a settled case can afford to drop to it.
+ */
+export const MIN_CASE_REPEATS = 2;
+
 /** Raised when a fixture or baseline is malformed. Carries every problem found. */
 export class ValidationError extends Error {
   /** @param {string[]} problems */
@@ -199,7 +211,21 @@ export function parseFixture(text, { knownSkills } = {}) {
       // The rationale is what makes a label reviewable by someone who will not
       // read this code, so it is required rather than optional.
       rationale: readText(entry.rationale, `${where} — "rationale"`, problems),
+      // OPTIONAL. Absent means the run's default. Repeats buy RESOLUTION, and
+      // resolution is only worth buying where the rate is intermediate: a case
+      // recorded with every tracked skill at 0 or at full can afford the floor,
+      // because neither verdict can turn on the probes it stops spending.
+      repeats: null,
     };
+    if (entry.repeats !== undefined) {
+      if (!Number.isInteger(entry.repeats) || entry.repeats < MIN_CASE_REPEATS) {
+        problems.push(
+          `${where} — "repeats" must be an integer of at least ${MIN_CASE_REPEATS}, not ${JSON.stringify(entry.repeats)}. At one repeat a single stray selection is 1/1, which clears the above-half bar and reports a SPURIOUS finding on the evidence of one probe.`,
+        );
+      } else {
+        parsed.repeats = entry.repeats;
+      }
+    }
     for (const tier of TIERS) {
       parsed[tier] = readSkillList(
         entry[tier],
@@ -251,7 +277,7 @@ export function parseFixture(text, { knownSkills } = {}) {
  *
  * @param {string} text            raw file contents
  * @param {{ knownSkills?: Iterable<string> }} [options]
- * @returns {{ recordedAt: string, model: string, repeats: number, corpus: Record<string, string>|null, unmeasured: string[], cases: Record<string, Record<string, number>> }}
+ * @returns {{ recordedAt: string, model: string, repeats: number, corpus: Record<string, string>|null, unmeasured: string[], caseRepeats: Record<string, number>, cases: Record<string, Record<string, number>> }}
  * @throws {ValidationError} carrying every problem found
  */
 export function parseBaseline(text, { knownSkills } = {}) {
@@ -351,6 +377,39 @@ export function parseBaseline(text, { knownSkills } = {}) {
     }
   }
 
+  // OPTIONAL and SPARSE: only the cases whose repeat count differs from the
+  // document-level `repeats` appear. A sibling map rather than a reshaped
+  // `cases` entry, because reshaping would rewrite every line of the file,
+  // invalidate every baseline recorded so far, and bury the tallies a human
+  // reads one level deeper for the sake of a value most cases do not carry.
+  const caseRepeats = {};
+  if (raw.caseRepeats !== undefined) {
+    if (!isPlainObject(raw.caseRepeats)) {
+      problems.push(
+        'The baseline\'s "caseRepeats" must be an object mapping case ids to repeat counts.',
+      );
+    } else {
+      for (const [id, count] of Object.entries(raw.caseRepeats)) {
+        if (!ID_RE.test(id)) {
+          problems.push(
+            `The baseline's "caseRepeats" names "${id}", which is not a kebab-case case id.`,
+          );
+          continue;
+        }
+        if (!Number.isInteger(count) || count < 1) {
+          problems.push(
+            `The baseline's "caseRepeats" gives "${id}" a count that is not a positive integer.`,
+          );
+          continue;
+        }
+        caseRepeats[id] = count;
+      }
+    }
+  }
+
+  /** How many runs a case was recorded over — its own count, or the default. */
+  const repeatsOf = (id) => caseRepeats[id] ?? raw.repeats;
+
   const cases = {};
   if (!isPlainObject(raw.cases)) {
     problems.push('The baseline\'s "cases" must be an object keyed by case id.');
@@ -384,9 +443,12 @@ export function parseBaseline(text, { knownSkills } = {}) {
           );
           continue;
         }
-        if (Number.isInteger(raw.repeats) && hits > raw.repeats) {
+        // Against the case's OWN denominator: a case recorded at two repeats
+        // cannot carry three hits just because the document's default is five.
+        const over = repeatsOf(id);
+        if (Number.isInteger(over) && hits > over) {
           problems.push(
-            `Baseline case "${id}" gives "${skill}" ${hits} hits out of ${raw.repeats} repeats.`,
+            `Baseline case "${id}" gives "${skill}" ${hits} hits out of ${over} repeats.`,
           );
           continue;
         }
@@ -408,6 +470,22 @@ export function parseBaseline(text, { knownSkills } = {}) {
     }
   }
 
+  for (const id of Object.keys(caseRepeats)) {
+    if (!(id in cases)) {
+      problems.push(
+        `The baseline's "caseRepeats" names "${id}", for which it records no tally.`,
+      );
+    }
+  }
+
   if (problems.length > 0) throw new ValidationError(problems);
-  return { recordedAt, model, repeats: raw.repeats, corpus, unmeasured, cases };
+  return {
+    recordedAt,
+    model,
+    repeats: raw.repeats,
+    corpus,
+    unmeasured,
+    caseRepeats,
+    cases,
+  };
 }

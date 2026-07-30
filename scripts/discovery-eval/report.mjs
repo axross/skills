@@ -34,6 +34,7 @@ const ratio = (hits, repeats) => `${hits}/${repeats}`;
 function renderHeader({
   model,
   repeats,
+  repeatsNote,
   caseCount,
   corpusSize,
   headSha,
@@ -43,7 +44,10 @@ function renderHeader({
     "Skill discovery evaluation",
     bar("="),
     `model            ${model}`,
-    `repeats          ${repeats} per case`,
+    // The count is a DEFAULT once cases may declare their own, and every
+    // finding below carries its own denominator anyway. Saying "per case"
+    // unqualified when some cases ran fewer would misdescribe the run.
+    `repeats          ${repeats} per case${repeatsNote ? `, ${repeatsNote}` : ""}`,
     `cases            ${caseCount}`,
     `skills installed ${corpusSize}`,
   ];
@@ -56,8 +60,8 @@ function renderHeader({
   lines.push(
     "",
     "Classification — a finding is only ever one of these two:",
-    `  MISS      a mustInclude skill selected in ZERO of the ${repeats} runs   (remedy: widen)`,
-    `  SPURIOUS  a mustExclude skill selected in more than ${Math.floor(SELECTION_RATE * 100)}% of runs  (remedy: narrow)`,
+    "  MISS      a mustInclude skill selected in ZERO of a case's runs   (remedy: widen)",
+    `  SPURIOUS  a mustExclude skill selected in more than ${Math.floor(SELECTION_RATE * 100)}% of them  (remedy: narrow)`,
     "",
     "Everything else is informational: a mustInclude skill selected some of the",
     "time is 'weak', not a miss — two skills that legitimately compete split the",
@@ -273,7 +277,7 @@ function renderDelta(delta, expectAlways = []) {
       // recorded at 5 repeats compared against a 10-repeat run would otherwise
       // read as every skill doubling.
       lines.push(
-        `  ${entry.id}: ${change.skill} ${ratio(change.was, delta.baselineRepeats)} -> ${ratio(change.now, entry.repeats)}${mark}`,
+        `  ${entry.id}: ${change.skill} ${ratio(change.was, change.wasRepeats ?? delta.baselineRepeats)} -> ${ratio(change.now, entry.repeats)}${mark}`,
       );
     }
   }
@@ -333,6 +337,10 @@ export function renderBaseline(
   { model, repeats, recordedAt, corpus = null },
 ) {
   const cases = {};
+  // Sparse on purpose: only the cases that did NOT run at the document's
+  // default. Recording every case's count would restate `repeats` 38 times and
+  // bury the one line a reader needs to notice.
+  const caseRepeats = {};
   for (const tally of tallies) {
     const entry = {};
     for (const skill of [...tally.skills].sort((a, b) =>
@@ -341,6 +349,7 @@ export function renderBaseline(
       if (skill.hits > 0) entry[skill.name] = skill.hits;
     }
     cases[tally.id] = entry;
+    if (tally.repeats !== repeats) caseRepeats[tally.id] = tally.repeats;
   }
 
   const document = { recordedAt, model, repeats };
@@ -351,6 +360,13 @@ export function renderBaseline(
       Object.keys(corpus)
         .sort()
         .map((name) => [name, corpus[name]]),
+    );
+  }
+  if (Object.keys(caseRepeats).length > 0) {
+    document.caseRepeats = Object.fromEntries(
+      Object.keys(caseRepeats)
+        .sort()
+        .map((id) => [id, caseRepeats[id]]),
     );
   }
   document.cases = cases;

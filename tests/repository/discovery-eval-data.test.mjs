@@ -91,6 +91,52 @@ describe("discovery evaluation data", () => {
     ).toEqual([]);
   });
 
+  it("reduces repeats only where the recording justifies it", async () => {
+    const knownSkills = await installedSkills();
+    const fixture = parseFixture(
+      await readFile(repoPath("evals/discovery/fixture.json"), "utf8"),
+      { knownSkills },
+    );
+    const baseline = parseBaseline(
+      await readFile(repoPath("evals/discovery/baseline.json"), "utf8"),
+      { knownSkills },
+    );
+
+    // Two repeats is affordable only because neither verdict can turn on the
+    // probes it stops spending, and that holds ONLY at an extreme. A case that
+    // drifts to 1/2 fails here, and the ways out are to drop the override or to
+    // re-measure at full repeats — so an override cannot quietly outlive the
+    // evidence that justified it.
+    const unjustified = [];
+    for (const entry of fixture.cases) {
+      if (entry.repeats === null) continue;
+      const tally = baseline.cases[entry.id];
+      if (!tally) {
+        unjustified.push(`${entry.id} (declares ${entry.repeats}, never measured)`);
+        continue;
+      }
+      const recorded = baseline.caseRepeats?.[entry.id] ?? baseline.repeats;
+      const tracked = [...entry.mustInclude, ...entry.mustExclude];
+      for (const skill of tracked) {
+        const hits = tally[skill] ?? 0;
+        if (hits !== 0 && hits !== recorded) {
+          unjustified.push(`${entry.id} (${skill} at ${hits}/${recorded})`);
+        }
+      }
+      // A standing finding is a result we EXPECT to change — si-neutral-consent-gate
+      // has an issue open against the very text it measures. Fewer repeats there
+      // cuts the power to notice the fix landing, which is backwards.
+      if (entry.mustInclude.some((skill) => (tally[skill] ?? 0) === 0)) {
+        unjustified.push(`${entry.id} (a standing MISS, so its result should move)`);
+      }
+    }
+
+    expect(
+      unjustified,
+      "a case may declare fewer repeats only while every tracked skill sits at 0 or at full and the case is not itself a finding",
+    ).toEqual([]);
+  });
+
   it("declares no case the fixture does not define", async () => {
     const knownSkills = await installedSkills();
     const fixture = parseFixture(

@@ -40,7 +40,7 @@ from the Actions tab. Three inputs, all optional:
 
 | Input           | Effect                                                                                                                                                                                         |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `repeats`       | Runs per case. Higher is steadier and costs more. Defaults to 5.                                                                                                                               |
+| `repeats`       | Runs per case, **overriding whatever a case declares**. Leave blank — the normal case — to honour the fixture's own counts.                                                                    |
 | `pull_request`  | A pull request number. Its changed `SKILL.md` files are evaluated, and the report is posted there as a comment. Leave blank to evaluate the default branch and read the report in the job log. |
 | `emit_baseline` | Also produce a proposed baseline, downloadable from the run as the `proposed-baseline` artifact. Off by default. See [Re-recording it](#re-recording-it).                                      |
 
@@ -99,7 +99,35 @@ files](#why-npm-test-reads-these-files).
 | `mustExclude`  | Selected by most runs ⇒ **spurious**. Remedy: narrow it.              |
 | `mayInclude`   | Legitimate either way. Never a finding.                               |
 | `rationale`    | Required. A human must be able to disagree without reading code.      |
+| `repeats`      | Optional. How many runs this case earns. See below.                   |
 | `expectAlways` | Fixture-level. Skills claiming to apply universally.                  |
+
+### `repeats` — spending probes where the answer is in doubt
+
+Repeats buy **resolution**, and resolution is only worth buying where the rate
+is intermediate. A `MISS` fires at zero hits and a `SPURIOUS` above half, so for
+a case whose tracked skills sit at `0/5` or `5/5` the extra three probes cannot
+change either verdict. Those cases declare `"repeats": 2` and the run costs
+proportionally less.
+
+**Two is the floor, and it is arithmetic rather than taste.** At one repeat a
+single stray selection is `1/1` — clear of the above-half bar, reported as a
+`SPURIOUS` finding on the evidence of one probe. At two it is `1/2`, which is
+not _above_ half and reports as `occasional`. Two is the smallest count at which
+both verdicts still demand unanimity. A declared `1` is refused.
+
+A case earns the reduction only while it keeps deserving it. `npm test` fails
+when a case declaring `repeats` is recorded anywhere but at an extreme, and also
+when it is a **standing finding** — a result under active remediation is one we
+expect to move, so cutting its repeats would cut the power to notice the fix
+landing. So the override cannot outlive the evidence for it: the ways out are to
+drop it or to re-measure at full repeats.
+
+An explicitly passed `--repeats` **overrides every declaration**, which keeps
+`--only <case> --repeats 10` doing the obvious thing while iterating. That is
+also why the CI workflow's `repeats` input has no default — a default would mean
+CI always passed the flag, and every declaration would be silently ignored in
+the one place that actually spends money.
 
 A skill named in no tier is reported as an _unlabelled selection_ —
 informational, never a failure. A spurious trigger is only ever claimed where a
@@ -155,6 +183,12 @@ takes minutes. **The value in this file, `2026-07-29T00:00:00Z`, is a
 normalisation, not a measurement.** The baseline it belongs to was recorded when
 the runner emitted a bare `2026-07-29`, so its true time of day is unrecoverable;
 midnight is a placeholder and nothing was measured at it.
+
+`repeats` is the **default** a case ran at, and `caseRepeats` records the ones
+that ran at something else — sparse, so a file where every case ran at the
+default carries no such key. A delta compares each case against its own
+denominator, so a case recorded `2/2` and now running `5/5` is the same rate and
+reports no change.
 
 The `model` field is the one this whole comparison hangs on. **A result is not
 durable across models** — it moves when a new model ships, with no change to

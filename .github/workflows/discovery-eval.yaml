@@ -60,9 +60,14 @@ on:
   workflow_dispatch:
     inputs:
       repeats:
-        description: "Runs per case (higher is steadier and costs more)"
+        # NO DEFAULT, and that is load-bearing rather than tidy. A fixture case
+        # may declare its own repeat count, and an explicitly passed --repeats
+        # overrides every one of them. Defaulting this to "5" would mean CI
+        # always passed the flag, so every per-case declaration would be
+        # silently ignored in the one place that actually spends money — the
+        # change would look right locally and save nothing here.
+        description: "Runs per case, overriding what any case declares (leave blank to honour the fixture)"
         required: false
-        default: "5"
       pull_request:
         description: "Pull request number to evaluate head skills from (optional)"
         required: false
@@ -98,7 +103,7 @@ jobs:
     timeout-minutes: 45
     env:
       PR_NUMBER: ${{ github.event.inputs.pull_request }}
-      REPEATS: ${{ github.event.inputs.repeats || '5' }}
+      REPEATS: ${{ github.event.inputs.repeats }}
       # `inputs`, not `github.event.inputs`, and deliberately unlike its two
       # neighbours: only the typed context applies a declared `default`, so a
       # dispatch that omits this input entirely still reads "false" here rather
@@ -180,7 +185,13 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
           set -euo pipefail
-          args=(--repeats "${REPEATS}")
+          # Passed ONLY when the dispatcher asked for a specific count. Left
+          # blank, the runner honours whatever each case declares — which is
+          # where the saving lives.
+          args=()
+          if [ -n "${REPEATS}" ]; then
+            args+=(--repeats "${REPEATS}")
+          fi
           if [ -n "${{ steps.stage.outputs.staged_dir || '' }}" ]; then
             args+=(--head-skills "${{ steps.stage.outputs.staged_dir }}")
             args+=(--head-sha "${{ steps.stage.outputs.head_sha }}")
