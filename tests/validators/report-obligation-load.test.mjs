@@ -355,7 +355,11 @@ describe("report-obligation-load.mjs", () => {
       expect.soft(totals.floorObligations).toBe(20);
       expect.soft(totals.floorTokens).toBe(6_896);
       expect.soft(totals.ceilingObligations).toBe(299);
-      expect.soft(totals.ceilingTokens).toBe(25_230);
+      // Drifted from 25,230 in #114, which added one prose clause to
+      // professional-behavior's reporting.md to name the owner of document
+      // prose. The floor and both obligation counts hold: the clause sits in a
+      // reference, not the SKILL.md body, and it states no rule.
+      expect.soft(totals.ceilingTokens).toBe(25_264);
     });
   });
 

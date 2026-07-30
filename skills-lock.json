@@ -44,7 +44,7 @@
     "expo-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "095ea0b4cf3c47763bce92fce8cec49b56af75c311b9c58240aa16eb6c3cde64"
+      "computedHash": "dd1f351a40dfdf9843267e0a382bfc8d5e0c6bca709cedc039859857cf72e1e7"
     },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
@@ -59,7 +59,7 @@
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "d63e0627503656fe784fc62acb8cf1a129b520e4db87c56cc4263b5f85078080"
+      "computedHash": "4fd071ac3c9b5411e8635410f9a6f7d08fc28233282e67e09bfad7df374c637d"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -69,7 +69,7 @@
     "professional-behavior": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "19dc92ca9ac8649e970726a79b27f0785f5823e728a2372512e68d0850a00d3f"
+      "computedHash": "45a3361ecca5eac141e5016f8c5dedf8937205815a4403484df6029c294f2a51"
     },
     "quality-assurance": {
       "source": "/home/user/skills/skills",
@@ -86,6 +86,11 @@
       "sourceType": "local",
       "computedHash": "34fe33802a595bbab5c2a4e68e7dc0b46504fce77759d8e735f6235987f9c827"
     },
+    "sentry-instrumentation": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "a61850cfebbd6abc4125dce43e9af268b58242d9f1383f979ab61eb74fb9d5d9"
+    },
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -94,12 +99,17 @@
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "74d3eaa3cff93b460498ecee8651aa5e666605f3e7410ea0ae2c782de57b12ae"
+      "computedHash": "9a51f13f32ab30602abca247e30023ffb1199d62782391d84cc97429022c0f7e"
     },
     "tanstack-query-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "f9912d0cff57d1bb6eb1cfdb12fb7e513ccc015940642752fa1af90b2dac93e7"
+    },
+    "technical-document-authoring": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "88a46419afe65500c2e1aaa7d3f7d14f11d3dd1fa479b974eef45945d629f005"
     },
     "unit-testing": {
       "source": "/home/user/skills/skills",

@@ -163,8 +163,8 @@
       "id": "amp-session-replay-sampling",
       "prompt": "Set up Amplitude Session Replay without recording every single session.",
       "mustInclude": ["amplitude-analytics"],
-      "mustExclude": ["software-instrumentation"],
-      "rationale": "sampleRate and Session Replay are Amplitude product surfaces. Nothing vendor-neutral has a rule about them."
+      "mustExclude": ["software-instrumentation", "sentry-instrumentation"],
+      "rationale": "The sharpest vendor-versus-vendor collision in the set: Amplitude and Sentry both ship a product called Session Replay, both document a sample rate, and both skills name masking. The prompt names Amplitude, so the other vendor firing here is a genuine mis-route rather than a defensible co-selection — and this is the one case that would catch two vendor skills competing for a shared product noun."
     },
     {
       "id": "amp-identify-operator",
@@ -192,6 +192,20 @@
       "prompt": "We use Amplitude — name this checkout event and wire up the track call.",
       "mustInclude": ["amplitude-analytics", "software-instrumentation"],
       "rationale": "Deliberately contested, and the one case where both are correct: naming belongs to software-instrumentation, the Amplitude track mechanism to amplitude-analytics. A split distribution is the healthy outcome and neither skill should read as a miss."
+    },
+    {
+      "id": "sentry-minified-traces",
+      "prompt": "Our production stack traces come through minified even though the Sentry build plugin runs on every deploy. What should I check?",
+      "mustInclude": ["sentry-instrumentation"],
+      "mayInclude": ["software-instrumentation"],
+      "rationale": "A vendor-specific wiring failure — source maps, release/dist matching, the bundler wrapper. sentry-instrumentation's when_to_use names 'source maps' and 'an unsymbolicated stack trace' in as many words. software-instrumentation is legitimately adjacent because it owns error tracking generally, but owns none of these mechanics, so its appearance is neither required nor wrong."
+    },
+    {
+      "id": "neg-log-level-vendor-neutral",
+      "prompt": "Should this recoverable retry be logged at warn or info, and where should the catch live?",
+      "mustInclude": ["software-instrumentation"],
+      "mustExclude": ["sentry-instrumentation"],
+      "rationale": "The counterpart to sentry-minified-traces, and the direction that matters: log-level choice and catch placement are vendor-neutral, named in software-instrumentation's own text, and sentry-instrumentation explicitly hands them back ('For log levels, catch placement, and which failures are worth capturing at all, use a software instrumentation capability instead'). A spurious selection here means the vendor skill's triggers are too broad — the collision this pair exists to detect."
     }
   ]
 }

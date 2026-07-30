@@ -38,6 +38,8 @@ export const SCRIPTS = {
   checkWireframe: "skills/wireframe-design/scripts/check-wireframe.mjs",
   checkAmplitudeWiring:
     "skills/amplitude-analytics/scripts/check-amplitude-wiring.mjs",
+  checkSentryWiring:
+    "skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs",
   checkInstalledCopies: "scripts/check-installed-copies.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",

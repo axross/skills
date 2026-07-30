@@ -57,6 +57,12 @@
     },
     "neg-commit-message": {
       "conventional-commits": 3
+    },
+    "sentry-minified-traces": {
+      "sentry-instrumentation": 5
+    },
+    "neg-log-level-vendor-neutral": {
+      "software-instrumentation": 5
     }
   }
 }
