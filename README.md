@@ -9,8 +9,7 @@ twenty-three here cover the whole arc: handling what the agent does not know,
 turning a request into a spec, driving that spec to a reviewed pull request,
 keeping the code maintainable and secure, testing it, designing and building its
 UI, standing up the application around it and the server state behind it,
-writing the documents that explain it, and
-authoring more skills. They install
+writing the documents that explain it, and authoring more skills. They install
 into any agent the [`skills` CLI](https://github.com/vercel-labs/skills)
 supports.
 
