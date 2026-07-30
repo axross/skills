@@ -35,6 +35,8 @@
 import { lstat } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 
+import { readDiscoveryText } from "./corpus.mjs";
+
 /**
  * Anything whose NAME looks like a credential is withheld from the evaluation
  * subprocess. A denylist by shape rather than an enumeration of known variables:
@@ -188,15 +190,6 @@ export const DESCRIPTION_MAX = 1024;
 export const COMBINED_MAX = 1536;
 export const FILE_BYTES_MAX = 64 * 1024;
 
-/** The value of one frontmatter key, up to the next key or the block's end. */
-function frontmatterValue(block, key) {
-  const match = new RegExp(
-    `^${key}:[ \\t]*([\\s\\S]*?)(?=\\n[A-Za-z_][A-Za-z0-9_]*:|$)`,
-    "m",
-  ).exec(block);
-  return match ? match[1].trim() : "";
-}
-
 /**
  * Decide whether an overlaid file's CONTENT is within the cost bounds.
  *
@@ -214,13 +207,16 @@ export function allowOverlayContent(text) {
     return { allowed: false, reason: `file is ${bytes} bytes (max ${FILE_BYTES_MAX})` };
   }
 
-  const block = /^---\n([\s\S]*?)\n---/.exec(text)?.[1];
-  if (block === undefined) {
+  // Read through corpus.mjs rather than parsed again here: "what discovery
+  // reads" is one claim, and the digest that fingerprints a corpus and the cap
+  // that bounds an overlay's cost must never disagree about which fields it
+  // covers.
+  const discovery = readDiscoveryText(text);
+  if (discovery === null) {
     return { allowed: false, reason: "no frontmatter block" };
   }
 
-  const description = frontmatterValue(block, "description");
-  const whenToUse = frontmatterValue(block, "when_to_use");
+  const { description, whenToUse } = discovery;
   if (description.length > DESCRIPTION_MAX) {
     return {
       allowed: false,

@@ -127,12 +127,22 @@ what **moved** rather than a bare score:
 
 ```jsonc
 {
-  "recordedAt": "2026-07-29",
+  "recordedAt": "2026-07-29T14:32:07Z",
   "model": "claude-sonnet-5",
   "repeats": 5,
+  "corpus": { "wireframe-design": "b17c4e2a8d61" },
   "cases": { "wf-checkout-layout": { "wireframe-design": 5 } },
 }
 ```
+
+`recordedAt` is a UTC instant to the second — exactly `YYYY-MM-DDTHH:MM:SSZ`,
+and anything else is refused: a bare date, a local time with no zone, an offset
+such as `+09:00`, a millisecond fraction, or a well-shaped impossible instant
+like `2026-02-30T00:00:00Z`. Seconds rather than milliseconds because a run
+takes minutes. **The value in this file, `2026-07-29T00:00:00Z`, is a
+normalisation, not a measurement.** The baseline it belongs to was recorded when
+the runner emitted a bare `2026-07-29`, so its true time of day is unrecoverable;
+midnight is a placeholder and nothing was measured at it.
 
 The `model` field is the one this whole comparison hangs on. **A result is not
 durable across models** — it moves when a new model ships, with no change to
@@ -147,6 +157,52 @@ node scripts/discovery-eval/run.mjs --repeats 5 --emit-baseline
 That prints a proposed baseline to **stdout**; a human commits it deliberately.
 The runner never writes the working tree. Deltas compare **rates**, so a
 baseline recorded at 5 repeats stays comparable against a 10-repeat run.
+
+### `corpus` — the fingerprint of what a measurement ran against
+
+A result is not durable across a changed **corpus** either, for the reason under
+[Known limits](#known-limits): every installed skill goes into the workspace, so
+a skill added — or an existing skill's `description`/`when_to_use` rewritten —
+competes for the same selection whether or not the fixture names it. `corpus`
+records one short digest per skill over exactly those two frontmatter fields, so
+the report can tell "this is the discovery text I measured" from "it is not"
+without storing 22,000 characters of prose in a file a human reads before
+committing.
+
+The digest covers `description` and `when_to_use` and nothing else, which is the
+same premise that keeps `references/*.md` out of the head overlay: those two
+fields are all discovery reads. Editing a skill's **body** therefore does not
+invalidate a baseline. A rename shows up as one removal plus one addition.
+
+**Corpus drift marks; it does not suppress.** A model mismatch kills the whole
+delta because it is rare and total. A corpus change is frequent and partial —
+this repository ships skill edits weekly — so the report instead names the
+drifted skills once, in three buckets, and tags each affected comparison
+`(unattributable)`:
+
+```text
+Corpus drift — the baseline was recorded against a different skill corpus.
+  added         expo-app-development, next-app-development
+  text-changed  professional-behavior
+  note          professional-behavior is an expectAlways skill, tracked on every case,
+                so its text change degrades every comparison, not some.
+
+  hf-touch-targets: high-fidelity-ui-design 1/5 -> 3/5  (unattributable)
+```
+
+Every case is marked, not a subset: the whole corpus is installed for every
+probe, so there is no case the drift provably could not have touched. A skill
+recorded in `corpus` that no longer exists is reported as a removal rather than
+failing the run — unlike the same name in a `cases` tally, which is a hard
+error. **When the corpus matches, the report says nothing at all**; a notice
+that fires on every run is one that gets skipped on the run that matters.
+
+The field is **optional**, because the baseline in this tree predates it and
+re-recording costs $2.57. A baseline carrying no `corpus` reports as "corpus not
+recorded" — honestly weaker than "no drift" — and its delta still renders.
+`--dry-run` prints the same comparison, computed from `.claude/skills` with no
+model call; a real run fingerprints the workspace it assembles, so a
+`--head-skills` evaluation records the head text it actually measured.
 
 ## Why `npm test` reads these files
 

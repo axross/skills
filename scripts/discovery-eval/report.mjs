@@ -18,6 +18,9 @@ import { SELECTION_RATE, VERDICTS } from "./compare.mjs";
 
 const RULE_WIDTH = 78;
 
+/** Width of the corpus notice's bucket labels, so their names line up. */
+const BUCKET_LABEL_WIDTH = 12;
+
 const bar = (character = "-") => character.repeat(RULE_WIDTH);
 
 /** `3/5` — always with the denominator. */
@@ -127,8 +130,85 @@ function renderFindings(tallies) {
   return lines.join("\n");
 }
 
-/** The delta block, or the reason there is not one. */
-function renderDelta(delta) {
+/**
+ * The three drift buckets, indented and aligned.
+ *
+ * Exported because `--dry-run` prints the same comparison outside the report:
+ * one owner for the layout means the two cannot describe the same drift
+ * differently.
+ *
+ * @param {{ added: string[], removed: string[], changed: string[] }} corpus
+ * @returns {string[]} one line per non-empty bucket
+ */
+export function renderCorpusBuckets(corpus) {
+  return [
+    ["added", corpus.added],
+    ["removed", corpus.removed],
+    ["text-changed", corpus.changed],
+  ]
+    .filter(([, names]) => names.length > 0)
+    .map(
+      ([label, names]) =>
+        `  ${label.padEnd(BUCKET_LABEL_WIDTH)}  ${names.join(", ")}`,
+    );
+}
+
+/**
+ * The corpus notice — or, when the corpus matches, nothing at all.
+ *
+ * SILENT ON A CLEAN RUN, on purpose. This harness runs rarely and costs real
+ * money, so a line printed on every run is a line skipped on the run that
+ * matters. "Corpus unchanged" would be exactly that line.
+ *
+ * @param {object|undefined} corpus  the comparison from `deltaAgainst`
+ * @param {string[]} expectAlways    fixture-level skills tracked on every case
+ */
+function renderCorpusNotice(corpus, expectAlways) {
+  if (!corpus?.recorded) {
+    return [
+      "Corpus not recorded — this baseline predates corpus fingerprinting, so a",
+      "skill added, removed, or reworded since it was taken is invisible here.",
+      "Re-record with --emit-baseline to gain the check.",
+      "",
+    ];
+  }
+  if (!corpus.drifted) return [];
+
+  const lines = [
+    "Corpus drift — the baseline was recorded against a different skill corpus.",
+    ...renderCorpusBuckets(corpus),
+  ];
+
+  // An expectAlways skill is tracked on EVERY case, so its discovery text
+  // changing degrades every comparison rather than some. That is the exact
+  // instance this field was added to catch, so it is said out loud instead of
+  // being left for a reader to infer from the fixture.
+  for (const name of corpus.changed.filter((skill) =>
+    expectAlways.includes(skill),
+  )) {
+    lines.push(
+      `  ${"note".padEnd(BUCKET_LABEL_WIDTH)}  ${name} is an expectAlways skill, tracked on every case,`,
+      `  ${"".padEnd(BUCKET_LABEL_WIDTH)}  so its text change degrades every comparison, not some.`,
+    );
+  }
+
+  lines.push(
+    "",
+    "Every probe runs against the whole corpus, so any of these could have moved",
+    "a result. Comparisons below are marked (unattributable) rather than read as",
+    "regressions.",
+    "",
+  );
+  return lines;
+}
+
+/**
+ * The delta block, or the reason there is not one.
+ *
+ * @param {object} delta
+ * @param {string[]} [expectAlways]
+ */
+function renderDelta(delta, expectAlways = []) {
   const lines = ["", bar("="), "Change against the recorded baseline", bar("=")];
 
   if (!delta.usable) {
@@ -141,6 +221,8 @@ function renderDelta(delta) {
     );
     return lines.join("\n");
   }
+
+  lines.push(...renderCorpusNotice(delta.corpus, expectAlways));
 
   const changed = delta.cases.filter(
     (entry) => entry.isNew || entry.changes.length > 0,
@@ -155,12 +237,15 @@ function renderDelta(delta) {
       lines.push(`  ${entry.id}: new case, not in the baseline`);
       continue;
     }
+    // Per line, not per case: the drifted skills are named once above, and what
+    // a reader needs beside a number is whether THIS number can be trusted.
+    const mark = entry.unattributable ? "  (unattributable)" : "";
     for (const change of entry.changes) {
       // Both denominators are printed because they can differ: a baseline
       // recorded at 5 repeats compared against a 10-repeat run would otherwise
       // read as every skill doubling.
       lines.push(
-        `  ${entry.id}: ${change.skill} ${ratio(change.was, delta.baselineRepeats)} -> ${ratio(change.now, entry.repeats)}`,
+        `  ${entry.id}: ${change.skill} ${ratio(change.was, delta.baselineRepeats)} -> ${ratio(change.now, entry.repeats)}${mark}`,
       );
     }
   }
@@ -186,7 +271,7 @@ export function renderReport({ fixture, tallies, delta, context }) {
     renderHeader({ ...context, caseCount: fixture.cases.length }),
     ...tallies.map((tally) => renderCase(tally, byId.get(tally.id))),
     renderFindings(tallies),
-    renderDelta(delta),
+    renderDelta(delta, fixture.expectAlways ?? []),
     "",
     "This evaluation reports; it does not gate. It exits 0 whatever it finds.",
     "",
@@ -200,10 +285,13 @@ export function renderReport({ fixture, tallies, delta, context }) {
  * should be a deliberate reviewable act, not a side effect of running a report.
  *
  * @param {object[]} tallies
- * @param {{ model: string, repeats: number, recordedAt: string }} context
+ * @param {{ model: string, repeats: number, recordedAt: string, corpus?: Record<string, string>|null }} context
  * @returns {string}
  */
-export function renderBaseline(tallies, { model, repeats, recordedAt }) {
+export function renderBaseline(
+  tallies,
+  { model, repeats, recordedAt, corpus = null },
+) {
   const cases = {};
   for (const tally of tallies) {
     const entry = {};
@@ -214,5 +302,18 @@ export function renderBaseline(tallies, { model, repeats, recordedAt }) {
     }
     cases[tally.id] = entry;
   }
-  return `${JSON.stringify({ recordedAt, model, repeats, cases }, null, 2)}\n`;
+
+  const document = { recordedAt, model, repeats };
+  if (corpus) {
+    // Sorted, so re-recording a baseline diffs line by line against the one it
+    // replaces instead of as a reshuffled block.
+    document.corpus = Object.fromEntries(
+      Object.keys(corpus)
+        .sort()
+        .map((name) => [name, corpus[name]]),
+    );
+  }
+  document.cases = cases;
+
+  return `${JSON.stringify(document, null, 2)}\n`;
 }
