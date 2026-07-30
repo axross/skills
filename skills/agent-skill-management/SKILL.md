@@ -9,13 +9,13 @@ user-invocable: false
 
 Use this capability whenever you add, edit, rename, move, or remove an agent skill in a project that holds its skills in two tiers. **Distributable** skills — portable capabilities other projects can install — are authored in a source directory (conventionally `skills/`, the source of truth) and **installed** into the skill root (the directory the agent actually loads, conventionally `.claude/skills/`) with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); a `skills-lock.json` file records what was installed. **Repository-local** skills — the ones that encode a single project's own conventions — are committed directly under the skill root and are never touched by the CLI.
 
-One index — the host project's master skill index — routes to every skill regardless of tier.
+Discovery is what routes to a skill in either tier: each skill advertises when it applies through its own `description`/`when_to_use`, so no written index is required. Some hosts maintain one anyway (e.g. an `AGENTS.md` table), which then becomes a second record to keep current.
 
 This skill is **self-contained**: it names no repository-specific file or layout and references no repository-root index, so it works installed on its own. The directory names `skills/` and `.claude/skills/` and the tooling below are the conventional defaults; substitute the host project's chosen paths where they differ.
 
 **Guidelines:**
 
-- MUST keep the host project's master skill index in sync whenever a skill in either tier is added, renamed, moved, or removed, per your project's skill-authoring conventions.
+- MUST, where the host project maintains a written skill index, keep it in sync whenever a skill in either tier is added, renamed, moved, or removed, per your project's skill-authoring conventions; where it maintains none, each skill's `description`/`when_to_use` frontmatter is the whole of discovery and no index is owed.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
@@ -62,7 +62,7 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
   ```
 
 - List installed skills: `npx skills list`
-- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source and update the master skill index).
+- Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source, and update the host's written skill index where it keeps one).
 
 **Guidelines:**
 
