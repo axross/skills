@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "3c7173f9d6052e62fbaf7e5d72dfaa8df72e40ebfa9d45405e668e8706c1b967"
+      "computedHash": "ecec263518bb43a0812bcb317a105e69e4df0df9e3ec9b257431c4e05afa10eb"
     },
     "amplitude-analytics": {
       "source": "/home/user/skills/skills",
