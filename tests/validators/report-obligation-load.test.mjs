@@ -271,8 +271,17 @@ describe("report-obligation-load.mjs", () => {
       // what this asserts — not a total, which a broken union and a broken
       // dedup could both produce by coincidence. The installed root holds a copy
       // of every distributable skill, so a missing `seen` guard reports each one
-      // twice; the source root holds no copy of a repository-local skill, so a
-      // root left unscanned drops it entirely.
+      // twice, and that is the tooth this case still has.
+      //
+      // It used to have a second one: while some skill lived only under the
+      // installed root, `union.length > sourceTier.length` caught a root left
+      // unscanned. No skill is repository-local any more — every skill is
+      // authored under `skills/` and installed — so the two roots hold the same
+      // names and NO assertion over them can tell "scanned both" from "scanned
+      // one". That tooth is therefore gone rather than weakened, and it returns
+      // on its own the moment a repository-local skill is added back. The
+      // previous assertion is deleted instead of relaxed to `>=`, which would
+      // have left a line reading as a guard that guards nothing.
       const sourceTier = await skillNamesUnder("skills");
       const installedTier = await skillNamesUnder(".claude/skills");
       const union = [...new Set([...sourceTier, ...installedTier])].sort();
@@ -282,10 +291,10 @@ describe("report-obligation-load.mjs", () => {
       expect(result).toPassCleanly();
       expect(rowNamesOf(result.stdout)).toEqual(union);
       expect(headlineCountOf(result.stdout)).toBe(union.length);
-      // Guards the case against going vacuous: the two-tier model this covers
-      // only exists while some skill lives outside the source root. If that
-      // stops being true, this case needs rethinking rather than relaxing.
-      expect(union.length).toBeGreaterThan(sourceTier.length);
+      // Keeps the dedup tooth sharp: both roots must actually be populated and
+      // overlapping, or "reports each one twice" is not a failure mode here.
+      expect(sourceTier.length).toBeGreaterThan(0);
+      expect(installedTier).toEqual(expect.arrayContaining(sourceTier));
     });
 
     it("resolves every mandated skill name to a real skill", async () => {

@@ -5,7 +5,7 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done. The
-twenty-three here cover the whole arc: handling what the agent does not know,
+twenty-four here cover the whole arc: handling what the agent does not know,
 turning a request into a spec, driving that spec to a reviewed pull request,
 keeping the code maintainable and secure, testing it, designing and building its
 UI, standing up the application around it and the server state behind it,
@@ -57,9 +57,9 @@ rather than one option among several.
 ## Skill catalog
 
 Every skill in the library, grouped by what you would reach for it to do. They
-all install the same way; the ✱ marks the one skill whose source lives outside
-[`skills/`](./skills), which matters only if you contribute here — see
-[Authoring a skill](#authoring-a-skill).
+all install the same way, and every one of them has its source under
+[`skills/`](./skills) — see [Authoring a skill](#authoring-a-skill) if you
+contribute here.
 
 ### Working with you
 
@@ -78,7 +78,7 @@ question answered, a review given, a change delivered — not only to changes.
 | [`product-requirement-document-authoring`](./skills/product-requirement-document-authoring/SKILL.md) | Turns a vague ask into a spec someone can build from and check against, with acceptance criteria that are actually verifiable.                                                             |
 | [`software-development`](./skills/software-development/SKILL.md)                                     | The baseline every project-touching task runs on: keep the change scoped, format and lint it, find out how the project is really run, and describe the result so a reviewer can follow it. |
 | [`conventional-commits`](./skills/conventional-commits/SKILL.md)                                     | One header contract for commit messages and pull request titles, with a validator that catches a malformed header before it reaches your history.                                          |
-| [`github-operation`](./.claude/skills/github-operation/SKILL.md) ✱                                   | Keeps an agent's GitHub writes safe when it shares your login — one sanctioned channel, comments marked as its own, and history it never rewrites.                                         |
+| [`github-operation`](./skills/github-operation/SKILL.md)                                             | Keeps an agent's GitHub writes safe when it shares your login — one sanctioned channel, comments marked as its own, and history it never rewrites.                                         |
 
 ### Writing a document
 
@@ -243,10 +243,10 @@ billing. See the header of
 
 ### Authoring a skill
 
-Skills live in two tiers. Every one but `github-operation` is
-**distributable**: its source is [`skills/<name>/SKILL.md`](./skills) (with any
-`references/` and `scripts/` beside it), and the installed copies under
-`.claude/skills/` are generated from it with the
+Skills live in two tiers. Every skill here is currently **distributable**: its
+source is [`skills/<name>/SKILL.md`](./skills) (with any `references/` and
+`scripts/` beside it), and the installed copies under `.claude/skills/` are
+generated from it with the
 [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
 
 ```bash
@@ -256,10 +256,15 @@ npx skills add ./skills --agent claude-code --skill '*' --yes --copy
 Commit the regenerated `.claude/skills/<name>/` copies and `skills-lock.json`
 alongside the source — they are tracked artifacts, not build output to ignore.
 
-`github-operation` is **repository-local**: it encodes conventions specific to
-this repository's harness, so its source is committed directly under
+The second tier is **repository-local**: a skill that encodes conventions
+specific to this repository would have its source committed directly under
 [`.claude/skills/`](./.claude/skills), hand-edited in place, and never touched
-by the CLI or listed in `skills-lock.json`.
+by the CLI or listed in `skills-lock.json`. No skill is in that tier today —
+`github-operation` was the last one and is now distributable — so the tier is
+available rather than in use. Registering one means adding its name to
+`REPOSITORY_LOCAL` in
+[`scripts/check-installed-copies.mjs`](./scripts/check-installed-copies.mjs),
+which otherwise treats an installed skill with no source as drift.
 
 [Agent Skill Management](./skills/agent-skill-management/SKILL.md) covers which
 tier a new skill belongs to and the full install, lockfile, and
@@ -408,8 +413,9 @@ skills under [`skills/`](./skills) are the source of truth, and their copies
 under `.claude/skills/` are produced by `npx skills`. Edit the source and
 reinstall — a hand-edit to an installed copy is silently discarded by the next
 install. The installed-copy check inside `npm test` fails on any mismatch, so a
-forgotten reinstall is caught before merge rather than discovered later;
-`github-operation` is excluded from it as the one repository-local skill.
+forgotten reinstall is caught before merge rather than discovered later. Every
+skill is in scope for it; the repository-local tier that the check exempts is
+currently empty.
 
 **`npx skills` can fail to resolve the CLI.** In some environments — a fresh
 container with no local install, or a stale npx cache — both `npx skills …` and
