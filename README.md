@@ -152,15 +152,16 @@ still matches its source. Every form check in this repository gates a merge, and
 not one of them can tell you whether a skill _works_. A skill can be immaculately
 structured and never get picked up, or get picked up for the wrong prompt.
 
-**So this library measures the outcome as well, and commits the measurements.**
-The recorded results live in
+**Evaluation in this space, where it exists at all, tends to stop at form** — that
+a skill is shaped correctly, not that it works. This library measures the outcome
+as well, and commits the measurements: the recorded results live in
 [`evals/discovery/baseline.json`](./evals/discovery/baseline.json), so what the
-measurement found is something you can read rather than take on trust. If you are
-choosing between skill libraries, that is the axis worth comparing on: whether a
-library's discovery text is _measured_ or merely asserted. It has already produced
-negative results about this library's own skills, and those are recorded rather
-than quietly dropped — which is the entire point of running it. Two tools do the
-measuring, and deliberately neither of them gates.
+measurement found is something you can read rather than take on trust. That is the
+axis worth comparing libraries on — whether the discovery text is _measured_ or
+merely asserted. It has already produced negative results about this library's own
+skills, and those are recorded rather than quietly dropped, which is the entire
+point of running it. Two tools do the measuring, and deliberately neither of them
+gates.
 
 **Does discovery surface the right skill?** An installed skill is found by its
 `description`/`when_to_use` pair and nothing else, so that pair is what is worth
