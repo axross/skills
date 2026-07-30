@@ -38,6 +38,7 @@ export const SCRIPTS = {
   checkWireframe: "skills/wireframe-design/scripts/check-wireframe.mjs",
   checkInstalledCopies: "scripts/check-installed-copies.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
+  discoveryEval: "scripts/discovery-eval/run.mjs",
 };
 
 /**

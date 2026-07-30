@@ -1,6 +1,6 @@
 ---
 name: technical-document-authoring
-description: The ability to write and review a technical document in software engineering — a design doc, RFC, ADR, runbook, README, or API reference. Covers naming the primary reader and stating scope and prerequisites; picking one of the four Divio document types and mapping each doc form onto it; leading with the answer, motivating change, task-based headings, skimmable paragraphs, and progressive disclosure; active voice, one idea per sentence, strong verbs, consistent terminology, acronyms, and ambiguous pronouns; choosing between prose, lists, tables, and code, with parallel items, procedure steps, table contracts, minimal runnable examples, and Mermaid diagrams; and conversational-professional voice, inclusive and global language, a plain-English vocabulary ceiling, document accessibility, and maintenance. Distilled from the Divio documentation system, the Cambridge English Vocabulary Profile, and the Oxford 5000. Self-contained — every sibling reference is conditional, so it works installed on its own.
+description: The ability to write and review a technical document in software engineering — a design doc, RFC, ADR, runbook, README, or API reference. Covers naming the primary reader and stating scope and prerequisites; picking one of the four Divio document types and mapping each doc form onto it; leading with the answer, motivating change, task-based headings, skimmable paragraphs, and progressive disclosure; active voice, one idea per sentence, strong verbs, consistent terminology, acronyms, and ambiguous pronouns; choosing between prose, lists, tables, and code, with parallel items, procedure steps, table contracts, minimal runnable examples, and diagrams; and conversational-professional voice, inclusive and global language, a plain-English vocabulary ceiling, document accessibility, and maintenance. Distilled from the Divio documentation system, the Cambridge English Vocabulary Profile, the Oxford 5000, and Mermaid. Self-contained — every sibling reference is conditional, so it works installed on its own.
 when_to_use: Apply when drafting, structuring, editing, or reviewing a technical document — a design doc, RFC, ADR, runbook, README, API reference, changelog, or post-mortem. Triggers include "make this clearer", "how should I structure this", "is this readable", "too wordy", "passive voice", "hard to follow", and "tighten this prose". While authoring, each rule is a practice to uphold; while reviewing, it is a finding to raise against the draft.
 user-invocable: false
 ---
@@ -25,6 +25,8 @@ This capability is the owner of plain-English and vocabulary-level discipline fo
 
 - MUST defer a rule to its owning capability by topic where the project ships one, summarizing rather than duplicating that capability's wording.
 - MUST treat a deferral gated on a capability the project does not ship as inapplicable — not a violation — and apply this capability's own rules in its place.
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
 ## Audience and Document Type
 
