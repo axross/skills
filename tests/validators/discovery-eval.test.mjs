@@ -7,12 +7,12 @@
 // when fed a deliberately wrong expected set, and reports clean when fed the
 // right one.
 
-import { mkdir, symlink } from "node:fs/promises";
+import { mkdir, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { tempDir } from "../helpers/fixtures.mjs";
+import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
 
 import {
   deltaAgainst,
@@ -20,6 +20,14 @@ import {
   tallyCase,
   verdictFor,
 } from "../../scripts/discovery-eval/compare.mjs";
+import {
+  compareCorpus,
+  corpusDigest,
+  DIGEST_LENGTH,
+  digestDiscoveryText,
+  isDigest,
+  readDiscoveryText,
+} from "../../scripts/discovery-eval/corpus.mjs";
 import {
   parseBaseline,
   parseFixture,
@@ -139,7 +147,7 @@ describe("fixture parsing", () => {
 describe("baseline parsing", () => {
   const baseline = (overrides = {}) =>
     JSON.stringify({
-      recordedAt: "2026-07-29",
+      recordedAt: "2026-07-29T14:32:07Z",
       model: "claude-opus-5",
       repeats: 5,
       cases: { "a-case": { "wireframe-design": 4 } },
@@ -169,6 +177,82 @@ describe("baseline parsing", () => {
     expect(() =>
       parseBaseline(baseline({ cases: { "a-case": { "wireframe-design": 9 } } })),
     ).toThrow(/9 hits out of 5 repeats/);
+  });
+
+  it("accepts a UTC instant recorded to the second", () => {
+    expect(parseBaseline(baseline()).recordedAt).toBe("2026-07-29T14:32:07Z");
+  });
+
+  it.each([
+    // The shape the runner used to emit, before this field carried a time.
+    ["2026-07-29", "bare date"],
+    ["2026-07-29T14:32:07", "no zone"],
+    ["2026-07-29T14:32:07+09:00", "an offset rather than UTC"],
+    ["2026-07-29T14:32:07.678Z", "a millisecond fraction"],
+  ])("rejects %s — %s", (recordedAt) => {
+    expect(() => parseBaseline(baseline({ recordedAt }))).toThrow(
+      /must be a UTC timestamp of the form YYYY-MM-DDTHH:MM:SSZ/,
+    );
+  });
+
+  it.each([
+    // Date does NOT reject this one: it rolls February 30th over to March 2nd,
+    // so only comparing the parsed instant back against the string catches it.
+    "2026-02-30T00:00:00Z",
+    // A legal ISO 8601 spelling of the next midnight. Refused because one
+    // instant with two spellings defeats diffing the file it lives in.
+    "2026-07-29T24:00:00Z",
+  ])("rejects %s, which has the right shape and is not a real instant", (recordedAt) => {
+    expect(() => parseBaseline(baseline({ recordedAt }))).toThrow(
+      /which is not a real UTC instant/,
+    );
+  });
+
+  it("accepts a baseline that records no corpus at all", () => {
+    // The baseline in this tree. Refusing it would leave the harness unusable
+    // until someone paid $2.57 for a fresh recording.
+    expect(parseBaseline(baseline()).corpus).toBeNull();
+  });
+
+  it("accepts a well-formed corpus record", () => {
+    const corpus = { "wireframe-design": "b17c4e2a8d61" };
+    expect(parseBaseline(baseline({ corpus }), { knownSkills: KNOWN }).corpus).toEqual(
+      corpus,
+    );
+  });
+
+  it("accepts a corpus entry naming a skill that no longer exists", () => {
+    // The deliberate asymmetry with a TALLY, which is a hard failure for the
+    // same name: in the corpus record, a vanished skill is the signal itself.
+    const parsed = parseBaseline(
+      baseline({ corpus: { "deleted-skill": "b17c4e2a8d61" } }),
+      { knownSkills: KNOWN },
+    );
+    expect(parsed.corpus).toEqual({ "deleted-skill": "b17c4e2a8d61" });
+  });
+
+  it("rejects a corpus that is not an object", () => {
+    expect(() => parseBaseline(baseline({ corpus: ["wireframe-design"] }))).toThrow(
+      /"corpus" must be an object mapping skill names to discovery-text digests/,
+    );
+  });
+
+  it("rejects a corpus key that is not a kebab-case skill name", () => {
+    expect(() =>
+      parseBaseline(baseline({ corpus: { "Not A Skill": "b17c4e2a8d61" } })),
+    ).toThrow(/"corpus" names "Not A Skill", which is not a kebab-case skill name/);
+  });
+
+  it.each([
+    ["b17c4e2a8d6", "too short"],
+    ["b17c4e2a8d61f", "too long"],
+    ["B17C4E2A8D61", "uppercase"],
+    ["b17c4e2a8d6z", "not hex"],
+    [42, "not a string"],
+  ])("rejects the digest %s — %s, naming the entry", (digest) => {
+    expect(() =>
+      parseBaseline(baseline({ corpus: { "wireframe-design": digest } })),
+    ).toThrow(/"corpus" entry for "wireframe-design"/);
   });
 });
 
@@ -343,6 +427,200 @@ describe("baseline delta", () => {
 
   it("is unusable when there is no baseline at all", () => {
     expect(deltaAgainst(tallies, null, "m").usable).toBe(false);
+  });
+});
+
+describe("corpus fingerprint", () => {
+  const discovery = (description, whenToUse) => ({ description, whenToUse });
+
+  it("produces a short lowercase hex digest", () => {
+    const digest = digestDiscoveryText(discovery("A description.", "Apply when X."));
+    expect(digest).toHaveLength(DIGEST_LENGTH);
+    expect(isDigest(digest)).toBe(true);
+  });
+
+  it("is stable for the same discovery text", () => {
+    expect(digestDiscoveryText(discovery("A.", "B."))).toBe(
+      digestDiscoveryText(discovery("A.", "B.")),
+    );
+  });
+
+  it.each([
+    ["description", discovery("Changed.", "Apply when X.")],
+    ["when_to_use", discovery("A description.", "Apply when Y.")],
+  ])("moves when %s changes", (_field, changed) => {
+    expect(digestDiscoveryText(changed)).not.toBe(
+      digestDiscoveryText(discovery("A description.", "Apply when X.")),
+    );
+  });
+
+  it("moves when text is relocated between the two fields", () => {
+    // What the NUL separator buys. Concatenating without one would digest
+    // "ab" + "" identically to "a" + "b", and that move changes what discovery
+    // reads for each field.
+    expect(digestDiscoveryText(discovery("ab", ""))).not.toBe(
+      digestDiscoveryText(discovery("a", "b")),
+    );
+  });
+
+  it("reads only the two keys discovery reads", () => {
+    const parsed = readDiscoveryText(
+      "---\nname: a-skill\ndescription: D.\nwhen_to_use: W.\n---\n\n# Body\n",
+    );
+    expect(parsed).toEqual({ description: "D.", whenToUse: "W." });
+  });
+
+  it("returns nothing for a file with no frontmatter block", () => {
+    expect(readDiscoveryText("just prose\n")).toBeNull();
+  });
+
+  it("digests a skill root, skipping anything that is not a skill", async () => {
+    const root = await tempDir();
+    await writeSkill(root, "alpha-skill");
+    await writeSkill(root, "beta-skill");
+    // A directory with no SKILL.md, and a loose file beside the directories.
+    await mkdir(join(root, "not-a-skill"), { recursive: true });
+    await writeFile(join(root, "README.md"), "# not a skill\n", "utf8");
+
+    const digests = await corpusDigest(root);
+    expect(Object.keys(digests)).toEqual(["alpha-skill", "beta-skill"]);
+    expect(Object.values(digests).every(isDigest)).toBe(true);
+  });
+
+  it("does not move when only a skill's body changes", async () => {
+    // The premise the whole field rests on: discovery never reads the body, so
+    // editing it must not invalidate a baseline.
+    const root = await tempDir();
+    await writeSkill(root, "alpha-skill", { body: "# One\n\nFirst body.\n" });
+    const before = await corpusDigest(root);
+
+    await writeSkill(root, "alpha-skill", { body: "# Two\n\nRewritten body.\n" });
+    const after = await corpusDigest(root);
+
+    expect(after).toEqual(before);
+  });
+
+  it("moves when a skill's discovery text changes", async () => {
+    const root = await tempDir();
+    await writeSkill(root, "alpha-skill");
+    const before = await corpusDigest(root);
+
+    await writeSkill(root, "alpha-skill", {
+      frontmatter: { when_to_use: "Apply under entirely different circumstances." },
+    });
+    const after = await corpusDigest(root);
+
+    expect(after["alpha-skill"]).not.toBe(before["alpha-skill"]);
+  });
+});
+
+describe("corpus comparison", () => {
+  const recorded = { alpha: "aaaaaaaaaaaa", beta: "bbbbbbbbbbbb" };
+
+  it("reports no drift when the corpus matches", () => {
+    expect(compareCorpus(recorded, { ...recorded })).toEqual({
+      recorded: true,
+      added: [],
+      removed: [],
+      changed: [],
+      drifted: false,
+    });
+  });
+
+  it("sorts each of the three buckets", () => {
+    const result = compareCorpus(recorded, {
+      beta: "cccccccccccc",
+      zeta: "dddddddddddd",
+      delta: "eeeeeeeeeeee",
+    });
+    expect(result).toEqual({
+      recorded: true,
+      added: ["delta", "zeta"],
+      removed: ["alpha"],
+      changed: ["beta"],
+      drifted: true,
+    });
+  });
+
+  it.each([
+    ["the baseline recorded none", null, recorded],
+    ["the run computed none", recorded, null],
+  ])("reports 'not recorded' when %s", (_case, before, now) => {
+    expect(compareCorpus(before, now)).toEqual({
+      recorded: false,
+      added: [],
+      removed: [],
+      changed: [],
+      drifted: false,
+    });
+  });
+});
+
+describe("corpus drift in the delta", () => {
+  const tallies = [
+    { id: "a-case", repeats: 5, skills: [{ name: "wireframe-design", hits: 5 }] },
+  ];
+  const withCorpus = (corpus) => ({
+    model: "m",
+    repeats: 5,
+    corpus,
+    cases: { "a-case": { "wireframe-design": 2 } },
+  });
+  const current = { "wireframe-design": "aaaaaaaaaaaa" };
+
+  it("renders the delta and says so when the baseline recorded no corpus", () => {
+    const delta = deltaAgainst(tallies, withCorpus(null), "m", current);
+    expect(delta.usable).toBe(true);
+    expect(delta.corpus.recorded).toBe(false);
+    expect(delta.cases[0].changes).toHaveLength(1);
+    expect(delta.cases[0].unattributable).toBe(false);
+  });
+
+  it("marks nothing when the corpus matches", () => {
+    const delta = deltaAgainst(tallies, withCorpus({ ...current }), "m", current);
+    expect(delta.corpus.drifted).toBe(false);
+    expect(delta.cases[0].unattributable).toBe(false);
+  });
+
+  it.each([
+    ["a skill was added", {}],
+    ["a skill's text changed", { "wireframe-design": "bbbbbbbbbbbb" }],
+    // Removal marks too. A skill absent from the corpus was still competing for
+    // selection while the baseline was being measured, so its disappearance can
+    // move a result exactly as an addition can.
+    ["a skill was removed", { ...current, gone: "cccccccccccc" }],
+  ])("marks the comparison unattributable when %s", (_case, recorded) => {
+    const delta = deltaAgainst(tallies, withCorpus(recorded), "m", current);
+    expect(delta.corpus.drifted).toBe(true);
+    expect(delta.cases[0].unattributable).toBe(true);
+    // Marked, NOT suppressed — the change is still there to read.
+    expect(delta.usable).toBe(true);
+    expect(delta.cases[0].changes).toEqual([
+      { skill: "wireframe-design", was: 2, now: 5 },
+    ]);
+  });
+
+  it("never marks a case the baseline never measured", () => {
+    const delta = deltaAgainst(
+      [{ id: "new-case", repeats: 5, skills: [] }],
+      withCorpus({}),
+      "m",
+      current,
+    );
+    expect(delta.cases[0].isNew).toBe(true);
+    expect(delta.cases[0].unattributable).toBe(false);
+  });
+
+  it("lets a model mismatch suppress the delta before the corpus rule runs", () => {
+    // The corpus rule annotates; it must not soften the one rule that refuses.
+    const delta = deltaAgainst(
+      tallies,
+      { ...withCorpus({}), model: "claude-sonnet-5" },
+      "claude-opus-5",
+      current,
+    );
+    expect(delta.usable).toBe(false);
+    expect(delta.corpus).toBeUndefined();
   });
 });
 
@@ -586,14 +864,205 @@ describe("report rendering", () => {
       renderBaseline(tallies, {
         model: "claude-opus-5",
         repeats: 3,
-        recordedAt: "2026-07-29",
+        recordedAt: "2026-07-29T14:32:07Z",
       }),
     );
     expect(emitted).toEqual({
-      recordedAt: "2026-07-29",
+      recordedAt: "2026-07-29T14:32:07Z",
       model: "claude-opus-5",
       repeats: 3,
       cases: { "a-case": { "wireframe-design": 1 } },
     });
+  });
+
+  it("emits the corpus record sorted, and parses it straight back", () => {
+    // The round trip that --dry-run cannot cover: it exits before any baseline
+    // is emitted, so asserting it end-to-end would mean paying for a real run.
+    const emitted = renderBaseline(tallies, {
+      model: "claude-opus-5",
+      repeats: 3,
+      recordedAt: "2026-07-29T14:32:07Z",
+      corpus: {
+        "wireframe-design": "b17c4e2a8d61",
+        "high-fidelity-ui-design": "3f2a1c9d0b47",
+      },
+    });
+
+    expect(Object.keys(JSON.parse(emitted).corpus)).toEqual([
+      "high-fidelity-ui-design",
+      "wireframe-design",
+    ]);
+    expect(parseBaseline(emitted, { knownSkills: KNOWN })).toMatchObject({
+      recordedAt: "2026-07-29T14:32:07Z",
+      corpus: {
+        "high-fidelity-ui-design": "3f2a1c9d0b47",
+        "wireframe-design": "b17c4e2a8d61",
+      },
+    });
+  });
+
+  it("omits the corpus entirely when the run recorded none", () => {
+    const emitted = JSON.parse(
+      renderBaseline(tallies, {
+        model: "claude-opus-5",
+        repeats: 3,
+        recordedAt: "2026-07-29T14:32:07Z",
+      }),
+    );
+    expect("corpus" in emitted).toBe(false);
+  });
+});
+
+describe("corpus notice rendering", () => {
+  const fixture = parseFixture(
+    fixtureWith({}, { expectAlways: ["professional-behavior"] }),
+  );
+  const tallies = [tallyCase(fixture.cases[0], runsOf("wireframe-design", "", ""))];
+
+  const render = (corpus, cases) =>
+    renderReport({
+      fixture,
+      tallies,
+      delta: { usable: true, baselineRepeats: 3, corpus, cases, removed: [] },
+      context: { model: "claude-opus-5", repeats: 3, corpusSize: 22 },
+    });
+
+  const movedCase = (unattributable) => [
+    {
+      id: "a-case",
+      repeats: 3,
+      isNew: false,
+      unattributable,
+      changes: [{ skill: "wireframe-design", was: 3, now: 1 }],
+    },
+  ];
+
+  it("says nothing at all when the corpus matches", () => {
+    // A notice on every clean run is a notice skipped on the run that matters.
+    const report = render(
+      { recorded: true, added: [], removed: [], changed: [], drifted: false },
+      movedCase(false),
+    );
+    expect(report).not.toContain("Corpus drift");
+    expect(report).not.toContain("Corpus not recorded");
+    expect(report).not.toContain("(unattributable)");
+    // The delta itself is still rendered.
+    expect(report).toContain("a-case: wireframe-design 3/3 -> 1/3");
+  });
+
+  it("states that an older baseline recorded no corpus, and still renders the delta", () => {
+    const report = render({ recorded: false, drifted: false }, movedCase(false));
+    expect(report).toContain("Corpus not recorded");
+    expect(report).toContain("a-case: wireframe-design 3/3 -> 1/3");
+    expect(report).not.toContain("(unattributable)");
+  });
+
+  it("names all three buckets once and marks the affected comparison", () => {
+    const report = render(
+      {
+        recorded: true,
+        added: ["next-app-development"],
+        removed: ["a-deleted-skill"],
+        changed: ["wireframe-design"],
+        drifted: true,
+      },
+      movedCase(true),
+    );
+
+    expect(report).toContain("added         next-app-development");
+    expect(report).toContain("removed       a-deleted-skill");
+    expect(report).toContain("text-changed  wireframe-design");
+    expect(report).toContain("a-case: wireframe-design 3/3 -> 1/3  (unattributable)");
+    // Named once at the top, not repeated per case.
+    expect(report.match(/next-app-development/g)).toHaveLength(1);
+  });
+
+  it("gives an expectAlways skill its own line, because it is tracked everywhere", () => {
+    const report = render(
+      {
+        recorded: true,
+        added: [],
+        removed: [],
+        changed: ["professional-behavior"],
+        drifted: true,
+      },
+      movedCase(true),
+    );
+    expect(report).toMatch(
+      /note\s+professional-behavior is an expectAlways skill, tracked on every case/,
+    );
+  });
+
+  it("omits that line for a text-changed skill the fixture does not track everywhere", () => {
+    const report = render(
+      {
+        recorded: true,
+        added: [],
+        removed: [],
+        changed: ["wireframe-design"],
+        drifted: true,
+      },
+      movedCase(true),
+    );
+    expect(report).not.toContain("is an expectAlways skill");
+  });
+});
+
+describe("negative control — the corpus notice can actually fire", () => {
+  // A drift check that silently never triggers is not evidence. These two build
+  // a real skill tree on disk and compare a recorded digest map against it: one
+  // agreeing, one not. The pair is what proves the check has teeth.
+  const fixture = parseFixture(fixtureWith());
+  const tallies = [tallyCase(fixture.cases[0], runsOf("wireframe-design", "", ""))];
+
+  const reportFor = async (recorded, current) =>
+    renderReport({
+      fixture,
+      tallies,
+      delta: deltaAgainst(
+        [{ id: "a-case", repeats: 3, skills: [{ name: "wireframe-design", hits: 1 }] }],
+        {
+          model: "m",
+          repeats: 3,
+          corpus: recorded,
+          cases: { "a-case": { "wireframe-design": 3 } },
+        },
+        "m",
+        current,
+      ),
+      context: { model: "m", repeats: 3, corpusSize: 2 },
+    });
+
+  it("stays silent against a record that agrees with the tree", async () => {
+    const root = await tempDir();
+    await writeSkill(root, "alpha-skill");
+    await writeSkill(root, "beta-skill");
+    const onDisk = await corpusDigest(root);
+
+    const report = await reportFor({ ...onDisk }, onDisk);
+    expect(report).not.toContain("Corpus drift");
+    expect(report).not.toContain("(unattributable)");
+  });
+
+  it("fires against a record that disagrees with the same tree", async () => {
+    const root = await tempDir();
+    await writeSkill(root, "alpha-skill");
+    await writeSkill(root, "beta-skill");
+    const onDisk = await corpusDigest(root);
+
+    // One skill reworded since the recording, one added, one since deleted.
+    const recorded = {
+      ...onDisk,
+      "alpha-skill": "000000000000",
+      "gone-skill": "111111111111",
+    };
+    delete recorded["beta-skill"];
+
+    const report = await reportFor(recorded, onDisk);
+    expect(report).toContain("Corpus drift");
+    expect(report).toContain("added         beta-skill");
+    expect(report).toContain("removed       gone-skill");
+    expect(report).toContain("text-changed  alpha-skill");
+    expect(report).toContain("(unattributable)");
   });
 });
