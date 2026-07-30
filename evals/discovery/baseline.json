@@ -2,6 +2,18 @@
   "recordedAt": "2026-07-29T00:00:00Z",
   "model": "claude-sonnet-5",
   "repeats": 5,
+  "unmeasured": [
+    "expo-deep-link-route",
+    "expo-prebuild-permission",
+    "next-server-action-authorization",
+    "next-stale-after-write",
+    "tq-invalidate-after-mutation",
+    "tq-query-key-collision",
+    "tda-runbook-readability",
+    "boundary-spec-and-prose",
+    "gho-issue-body-edit",
+    "rcd-extract-hook"
+  ],
   "cases": {
     "wf-checkout-layout": {
       "wireframe-design": 5

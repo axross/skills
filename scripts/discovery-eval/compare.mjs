@@ -217,15 +217,27 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
   const cases = tallies.map((tally) => {
     const before = baseline.cases[tally.id];
     if (!before) {
-      // A case with no baseline entry has no comparison to attribute.
+      // A case with no baseline entry has no comparison to attribute — but
+      // there are two ways to get here and they are not the same event. A case
+      // the baseline DECLARES unmeasured is waiting for the next re-record; one
+      // it does not is a case somebody added and never recorded. Reporting both
+      // as "new" would bury the second in the first for as long as the first
+      // lasts.
       return {
         id: tally.id,
         repeats: tally.repeats,
         isNew: true,
+        isUnmeasured: baseline.unmeasured?.includes(tally.id) ?? false,
         unattributable: false,
         changes: [],
       };
     }
+
+    // The case's OWN recorded denominator. Since cases may declare their own
+    // repeat count, the document-level `repeats` is a default rather than the
+    // answer — and using it for a case recorded at two would report a settled
+    // 2/2 against a 5/5 run as though the rate had fallen by half.
+    const wasRepeats = baseline.caseRepeats?.[tally.id] ?? baseline.repeats;
 
     const names = new Set([
       ...Object.keys(before),
@@ -235,11 +247,11 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
       .map((name) => {
         const wasHits = before[name] ?? 0;
         const nowHits = tally.skills.find((skill) => skill.name === name)?.hits ?? 0;
-        return { skill: name, was: wasHits, now: nowHits };
+        return { skill: name, was: wasHits, now: nowHits, wasRepeats };
       })
       // Rates, not raw hits: a baseline recorded at 5 repeats compared against a
       // 10-repeat run must not report every skill as doubled.
-      .filter((change) => change.was / baseline.repeats !== change.now / tally.repeats)
+      .filter((change) => change.was / wasRepeats !== change.now / tally.repeats)
       .sort((a, b) => a.skill.localeCompare(b.skill));
 
     // EVERY case, not a subset. The whole corpus is installed for every probe,
@@ -249,6 +261,7 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
       id: tally.id,
       repeats: tally.repeats,
       isNew: false,
+      isUnmeasured: false,
       unattributable: corpusComparison.drifted,
       changes,
     };

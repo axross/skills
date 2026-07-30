@@ -43,6 +43,7 @@ export const SCRIPTS = {
   checkInstalledCopies: "scripts/check-installed-copies.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
+  extractBaseline: "scripts/discovery-eval/extract-baseline.mjs",
 };
 
 /**

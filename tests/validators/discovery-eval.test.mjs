@@ -13,6 +13,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
+import { runScript, SCRIPTS } from "../helpers/run.mjs";
 
 import {
   deltaAgainst,
@@ -28,7 +29,9 @@ import {
   isDigest,
   readDiscoveryText,
 } from "../../scripts/discovery-eval/corpus.mjs";
+import { sliceBaseline } from "../../scripts/discovery-eval/extract-baseline.mjs";
 import {
+  MIN_CASE_REPEATS,
   parseBaseline,
   parseFixture,
   ValidationError,
@@ -45,6 +48,7 @@ import {
   resolveInside,
 } from "../../scripts/discovery-eval/overlay.mjs";
 import {
+  BASELINE_MARKER,
   renderBaseline,
   renderProbeBudget,
   renderReport,
@@ -132,6 +136,30 @@ describe("fixture parsing", () => {
     ).toThrow(/expectAlways/);
   });
 
+  it("accepts a case declaring its own repeat count", () => {
+    const parsed = parseFixture(fixtureWith({ repeats: 2 }));
+    expect(parsed.cases[0].repeats).toBe(2);
+  });
+
+  it("leaves repeats null when a case declares none", () => {
+    expect(parseFixture(fixtureWith()).cases[0].repeats).toBeNull();
+  });
+
+  it("refuses a single repeat, naming the false-SPURIOUS reason", () => {
+    // The floor is arithmetic, not taste: at 1 repeat a stray selection is 1/1,
+    // which clears the above-half bar and reports a finding on one probe.
+    expect(() => parseFixture(fixtureWith({ repeats: 1 }))).toThrow(/1\/1/);
+    expect(() => parseFixture(fixtureWith({ repeats: 1 }))).toThrow(
+      new RegExp(`at least ${MIN_CASE_REPEATS}`),
+    );
+  });
+
+  it("refuses a repeat count that is not a whole number of runs", () => {
+    expect(() => parseFixture(fixtureWith({ repeats: 0 }))).toThrow(/"repeats"/);
+    expect(() => parseFixture(fixtureWith({ repeats: 2.5 }))).toThrow(/"repeats"/);
+    expect(() => parseFixture(fixtureWith({ repeats: "2" }))).toThrow(/"repeats"/);
+  });
+
   it("rejects duplicate case ids", () => {
     const doubled = JSON.parse(fixtureWith());
     doubled.cases.push({ ...doubled.cases[0] });
@@ -161,6 +189,73 @@ describe("baseline parsing", () => {
 
   it("requires the model identifier the delta hangs on", () => {
     expect(() => parseBaseline(baseline({ model: "" }))).toThrow(/"model"/);
+  });
+
+  it("treats an absent unmeasured list as none declared", () => {
+    // Every baseline recorded before this field existed must keep parsing, or
+    // adding the field would invalidate the one document in the tree.
+    expect(parseBaseline(baseline(), { knownSkills: KNOWN }).unmeasured).toEqual([]);
+  });
+
+  it("accepts a case declared unmeasured", () => {
+    const parsed = parseBaseline(
+      baseline({ unmeasured: ["later-case", "another-case"] }),
+      { knownSkills: KNOWN },
+    );
+    expect(parsed.unmeasured).toEqual(["later-case", "another-case"]);
+  });
+
+  it("rejects a case that is both measured and declared unmeasured", () => {
+    // The contradiction that would hollow the declaration out: if a tally can
+    // sit beside the claim that no tally was taken, an absent case stops being
+    // trustworthy evidence of anything.
+    expect(() =>
+      parseBaseline(baseline({ unmeasured: ["a-case"] }), { knownSkills: KNOWN }),
+    ).toThrow(/"a-case".+"unmeasured".+tally/s);
+  });
+
+  it("rejects an unmeasured list that is not a list of case ids", () => {
+    expect(() => parseBaseline(baseline({ unmeasured: "a-case" }))).toThrow(
+      /"unmeasured" must be an array/,
+    );
+    expect(() => parseBaseline(baseline({ unmeasured: ["Not A Case"] }))).toThrow(
+      /not a kebab-case case id/,
+    );
+    expect(() =>
+      parseBaseline(baseline({ unmeasured: ["twice-case", "twice-case"] })),
+    ).toThrow(/lists "twice-case" twice/);
+  });
+
+  it("records per-case denominators, and defaults the rest", () => {
+    const parsed = parseBaseline(
+      baseline({
+        caseRepeats: { "a-case": 2 },
+        cases: { "a-case": { "wireframe-design": 2 } },
+      }),
+      { knownSkills: KNOWN },
+    );
+    expect(parsed.caseRepeats).toEqual({ "a-case": 2 });
+    expect(parseBaseline(baseline(), { knownSkills: KNOWN }).caseRepeats).toEqual({});
+  });
+
+  it("counts hits against the case's own denominator, not the document's", () => {
+    // 3 hits is fine at the document's 5 and impossible at the case's 2. Using
+    // the document default here would let a mis-recorded tally through.
+    expect(() =>
+      parseBaseline(
+        baseline({
+          caseRepeats: { "a-case": 2 },
+          cases: { "a-case": { "wireframe-design": 3 } },
+        }),
+        { knownSkills: KNOWN },
+      ),
+    ).toThrow(/3 hits out of 2 repeats/);
+  });
+
+  it("rejects a denominator for a case it records no tally for", () => {
+    expect(() =>
+      parseBaseline(baseline({ caseRepeats: { "ghost-case": 2 } })),
+    ).toThrow(/records no tally/);
   });
 
   it("rejects a baseline naming a skill that no longer exists", () => {
@@ -254,6 +349,60 @@ describe("baseline parsing", () => {
     expect(() =>
       parseBaseline(baseline({ corpus: { "wireframe-design": digest } })),
     ).toThrow(/"corpus" entry for "wireframe-design"/);
+  });
+});
+
+describe("the extractor as a CLI", () => {
+  it("answers --help with the usage text and exit 0", () => {
+    // Asking for help is not a bad invocation. Exit 2 here would also contradict
+    // run.mjs, which answers --help before looking at anything else.
+    const result = runScript(SCRIPTS.extractBaseline, ["--help"]);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("Usage: extract-baseline.mjs");
+  });
+
+  it("still refuses an invocation missing its paths", () => {
+    const result = runScript(SCRIPTS.extractBaseline, []);
+    expect(result.code).toBe(2);
+    expect(result.output).toMatch(/report file and an output file are required/);
+  });
+});
+
+describe("lifting an emitted baseline out of a report", () => {
+  const document = '{\n  "model": "m"\n}\n';
+  const emitted = (body) => `${BASELINE_MARKER}\n${document}${body ?? ""}`;
+
+  it("returns everything after the marker line", () => {
+    expect(sliceBaseline(`a report\n\n${emitted()}`)).toBe(document);
+  });
+
+  it("finds a marker that opens the text", () => {
+    // Not the shape run.mjs produces, but the shape a piped or trimmed capture
+    // can arrive in, and an off-by-one here silently drops the opening brace.
+    expect(sliceBaseline(emitted())).toBe(document);
+  });
+
+  it("returns null when the run emitted no baseline", () => {
+    // The ordinary dispatch. It must be distinguishable from a slice that found
+    // nothing useful, because the remedy is different: pass --emit-baseline.
+    expect(sliceBaseline("a report with no proposed baseline\n")).toBeNull();
+  });
+
+  it("ignores the marker quoted mid-line", () => {
+    // A report that merely mentions the phrase — a future doc-comment, a copied
+    // log — must not cut the document short at the mention.
+    const mentioned = `see "${BASELINE_MARKER}" below\n${emitted()}`;
+    expect(sliceBaseline(mentioned)).toBe(document);
+  });
+
+  it("round-trips through parseBaseline, which is what the workflow relies on", () => {
+    const real = renderBaseline(
+      [{ id: "a-case", skills: [{ name: "wireframe-design", hits: 3 }] }],
+      { model: "claude-opus-5", repeats: 3, recordedAt: "2026-07-29T14:32:07Z" },
+    );
+    const sliced = sliceBaseline(`report text\n\n${BASELINE_MARKER}\n${real}`);
+    expect(sliced).toBe(real);
+    expect(parseBaseline(sliced, { knownSkills: KNOWN }).model).toBe("claude-opus-5");
   });
 });
 
@@ -421,13 +570,66 @@ describe("baseline delta", () => {
       "m",
     );
     expect(delta.cases[0].changes).toEqual([
-      { skill: "wireframe-design", was: 2, now: 5 },
+      { skill: "wireframe-design", was: 2, now: 5, wasRepeats: 5 },
     ]);
     expect(delta.removed).toEqual(["gone-case"]);
   });
 
   it("is unusable when there is no baseline at all", () => {
     expect(deltaAgainst(tallies, null, "m").usable).toBe(false);
+  });
+
+  it("compares a reduced-repeat case against its own denominator", () => {
+    // The saving is only safe if it does not manufacture findings: a case
+    // recorded 2/2 and now running 5/5 is the SAME rate and must report no
+    // change. Against the document's default of 5 it would read as 2/5 -> 5/5.
+    const delta = deltaAgainst(
+      tallies,
+      {
+        model: "m",
+        repeats: 5,
+        caseRepeats: { "a-case": 2 },
+        cases: { "a-case": { "wireframe-design": 2 } },
+      },
+      "m",
+    );
+    expect(delta.usable).toBe(true);
+    expect(delta.cases[0].changes).toEqual([]);
+  });
+
+  it("prints a moved reduced-repeat case against the denominator it was recorded at", () => {
+    const delta = deltaAgainst(
+      tallies,
+      {
+        model: "m",
+        repeats: 5,
+        caseRepeats: { "a-case": 2 },
+        cases: { "a-case": { "wireframe-design": 1 } },
+      },
+      "m",
+    );
+    expect(delta.cases[0].changes).toEqual([
+      { skill: "wireframe-design", was: 1, now: 5, wasRepeats: 2 },
+    ]);
+  });
+
+  it("tells a declared unmeasured case from one nobody recorded", () => {
+    // Both are absent from `cases` and both are `isNew`. Only the declared one
+    // is a gap somebody planned, and the delta has to carry that difference or
+    // the report cannot state it.
+    const declared = deltaAgainst(
+      tallies,
+      { model: "m", repeats: 5, unmeasured: ["a-case"], cases: {} },
+      "m",
+    );
+    expect(declared.cases[0]).toMatchObject({ isNew: true, isUnmeasured: true });
+
+    const undeclared = deltaAgainst(
+      tallies,
+      { model: "m", repeats: 5, unmeasured: [], cases: {} },
+      "m",
+    );
+    expect(undeclared.cases[0]).toMatchObject({ isNew: true, isUnmeasured: false });
   });
 });
 
@@ -597,7 +799,7 @@ describe("corpus drift in the delta", () => {
     // Marked, NOT suppressed — the change is still there to read.
     expect(delta.usable).toBe(true);
     expect(delta.cases[0].changes).toEqual([
-      { skill: "wireframe-design", was: 2, now: 5 },
+      { skill: "wireframe-design", was: 2, now: 5, wasRepeats: 5 },
     ]);
   });
 
@@ -840,7 +1042,9 @@ describe("report rendering", () => {
     expect(report).toContain("claude-opus-5");
     expect(report).toContain("3 per case");
     expect(report).toContain("abc1234");
-    expect(report).toMatch(/MISS.+ZERO of the 3 runs/);
+    // Count-agnostic since cases may declare their own: the header states the
+    // default, and every finding below carries its own denominator.
+    expect(report).toMatch(/MISS.+ZERO of a case's runs/);
   });
 
   it("carries a denominator on every count", () => {
@@ -858,6 +1062,72 @@ describe("report rendering", () => {
     const report = render({ usable: true, baselineRepeats: 3, cases: [], removed: [] });
     expect(report).not.toMatch(/\/(home|Users|tmp)\//);
     expect(report).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("words a declared unmeasured case differently from an unrecorded one", () => {
+    const declared = render({
+      usable: true,
+      baselineRepeats: 3,
+      cases: [{ id: "a-case", repeats: 3, isNew: true, isUnmeasured: true, changes: [] }],
+      removed: [],
+    });
+    expect(declared).toContain("awaiting the next re-record");
+    expect(declared).not.toContain("new case, not in the baseline");
+
+    const unrecorded = render({
+      usable: true,
+      baselineRepeats: 3,
+      cases: [{ id: "a-case", repeats: 3, isNew: true, isUnmeasured: false, changes: [] }],
+      removed: [],
+    });
+    expect(unrecorded).toContain("new case, not in the baseline");
+    expect(unrecorded).not.toContain("awaiting the next re-record");
+  });
+
+  it("records the denominators it actually measured against", () => {
+    // Without this the emitted document would claim every case ran at the
+    // default, and the next delta would compare a 2-repeat tally as though it
+    // were a 5-repeat one.
+    const mixed = [
+      { id: "a-case", repeats: 2, skills: [{ name: "wireframe-design", hits: 2 }] },
+      { id: "b-case", repeats: 5, skills: [{ name: "wireframe-design", hits: 5 }] },
+    ];
+    const emitted = JSON.parse(
+      renderBaseline(mixed, {
+        model: "claude-opus-5",
+        repeats: 5,
+        recordedAt: "2026-07-29T14:32:07Z",
+      }),
+    );
+    expect(emitted.caseRepeats).toEqual({ "a-case": 2 });
+    expect(emitted.cases).toEqual({
+      "a-case": { "wireframe-design": 2 },
+      "b-case": { "wireframe-design": 5 },
+    });
+  });
+
+  it("omits caseRepeats entirely when every case ran at the default", () => {
+    const emitted = JSON.parse(
+      renderBaseline(tallies, {
+        model: "claude-opus-5",
+        repeats: 3,
+        recordedAt: "2026-07-29T14:32:07Z",
+      }),
+    );
+    expect(emitted).not.toHaveProperty("caseRepeats");
+  });
+
+  it("emits no unmeasured key, so a re-record clears the declaration by itself", () => {
+    // The property that keeps the relaxation from becoming permanent: a
+    // measurement covers every case it ran, so the emitted document has nothing
+    // left to declare and nobody has to remember to delete the field.
+    const emitted = renderBaseline(tallies, {
+      model: "claude-opus-5",
+      repeats: 3,
+      recordedAt: "2026-07-29T14:32:07Z",
+    });
+    expect(JSON.parse(emitted)).not.toHaveProperty("unmeasured");
+    expect(parseBaseline(emitted, { knownSkills: KNOWN }).unmeasured).toEqual([]);
   });
 
   it("emits a baseline document keyed by case and skill", () => {

@@ -64,7 +64,7 @@ describe("discovery evaluation data", () => {
     expect(baseline.model).not.toBe("");
   });
 
-  it("records a baseline for every case the fixture defines", async () => {
+  it("accounts for every case the fixture defines", async () => {
     const knownSkills = await installedSkills();
     const fixture = parseFixture(
       await readFile(repoPath("evals/discovery/fixture.json"), "utf8"),
@@ -75,12 +75,88 @@ describe("discovery evaluation data", () => {
       { knownSkills },
     );
 
-    const missing = fixture.cases
+    // Accounted for means measured OR declared unmeasured. The declaration
+    // exists because a case cannot be measured before it lands — a dispatch
+    // evaluates the default branch's fixture — so requiring a tally outright
+    // would mean no case could ever be added. What it must NOT become is a way
+    // to add a case and forget it, which is why the third expectation below
+    // fails on a name the fixture no longer defines.
+    const unaccounted = fixture.cases
       .map((entry) => entry.id)
-      .filter((id) => !(id in baseline.cases));
+      .filter((id) => !(id in baseline.cases))
+      .filter((id) => !baseline.unmeasured.includes(id));
     expect(
-      missing,
-      "a case with no baseline entry reports as new on every single run, which reads as churn rather than as the unmeasured case it is",
+      unaccounted,
+      'a case with no baseline entry reports as new on every single run, which reads as churn rather than as the unmeasured case it is — record a tally, or declare it in "unmeasured"',
+    ).toEqual([]);
+  });
+
+  it("reduces repeats only where the recording justifies it", async () => {
+    const knownSkills = await installedSkills();
+    const fixture = parseFixture(
+      await readFile(repoPath("evals/discovery/fixture.json"), "utf8"),
+      { knownSkills },
+    );
+    const baseline = parseBaseline(
+      await readFile(repoPath("evals/discovery/baseline.json"), "utf8"),
+      { knownSkills },
+    );
+
+    // Two repeats is affordable only because neither verdict can turn on the
+    // probes it stops spending, and that holds ONLY at an extreme. A case that
+    // drifts to 1/2 fails here, and the ways out are to drop the override or to
+    // re-measure at full repeats — so an override cannot quietly outlive the
+    // evidence that justified it.
+    const unjustified = [];
+    for (const entry of fixture.cases) {
+      if (entry.repeats === null) continue;
+      const tally = baseline.cases[entry.id];
+      if (!tally) {
+        unjustified.push(`${entry.id} (declares ${entry.repeats}, never measured)`);
+        continue;
+      }
+      const recorded = baseline.caseRepeats?.[entry.id] ?? baseline.repeats;
+      const tracked = [...entry.mustInclude, ...entry.mustExclude];
+      for (const skill of tracked) {
+        const hits = tally[skill] ?? 0;
+        if (hits !== 0 && hits !== recorded) {
+          unjustified.push(`${entry.id} (${skill} at ${hits}/${recorded})`);
+        }
+      }
+      // A standing finding is a result we EXPECT to change — si-neutral-consent-gate
+      // has an issue open against the very text it measures. Fewer repeats there
+      // cuts the power to notice the fix landing, which is backwards.
+      if (entry.mustInclude.some((skill) => (tally[skill] ?? 0) === 0)) {
+        unjustified.push(`${entry.id} (a standing MISS, so its result should move)`);
+      }
+    }
+
+    expect(
+      unjustified,
+      "a case may declare fewer repeats only while every tracked skill sits at 0 or at full and the case is not itself a finding",
+    ).toEqual([]);
+  });
+
+  it("declares no case the fixture does not define", async () => {
+    const knownSkills = await installedSkills();
+    const fixture = parseFixture(
+      await readFile(repoPath("evals/discovery/fixture.json"), "utf8"),
+      { knownSkills },
+    );
+    const baseline = parseBaseline(
+      await readFile(repoPath("evals/discovery/baseline.json"), "utf8"),
+      { knownSkills },
+    );
+
+    // The same rot the tally check catches, one field over. A declaration left
+    // behind by a renamed or deleted case is a promise to measure something
+    // that no longer exists, and it would silently widen what the check above
+    // is willing to forgive.
+    const ids = new Set(fixture.cases.map((entry) => entry.id));
+    const stale = baseline.unmeasured.filter((id) => !ids.has(id));
+    expect(
+      stale,
+      'a name in "unmeasured" that the fixture no longer defines is a declaration nothing can ever clear',
     ).toEqual([]);
   });
 });
