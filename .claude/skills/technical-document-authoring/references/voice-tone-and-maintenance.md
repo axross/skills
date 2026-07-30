@@ -10,7 +10,7 @@ The target voice is conversational but professional — the way a senior enginee
 
 - SHOULD aim for **conversational but professional** — write the way a senior engineer explains something at a whiteboard to a colleague, not the way a vendor whitepaper performs authority.
 - MUST NOT be jokey, sarcastic, or self-deprecating in technical documentation; humor that lands for one reader fails for the next, and dated jokes age the document.
-- SHOULD use plain words over inflated ones — `use` over `utilize`, `start` over `commence`, `help` over `facilitate`.
+- SHOULD use plain words over inflated ones — `find out` over `ascertain`, `many` over `plethora`, `earlier` over `aforementioned`. A word that carries a precise technical sense is not "inflated"; see the exempt list under [Vocabulary Level](#vocabulary-level--cefr-c1-ceiling).
 - SHOULD NOT hedge with "obviously", "simply", "just", "of course", or "as everyone knows" — these phrases shame any reader for whom the topic is not obvious.
 - SHOULD keep the narrator invisible — a technical document is about the system, not the writer; "I think" and "I prefer" have no place in a team or product document.
 
@@ -53,7 +53,7 @@ The ceiling is a strong default rather than an absolute: a doc set whose entire 
 
 - SHOULD keep word choice at CEFR C1 or below — if a plain everyday alternative carries the same meaning, use it. The test is not "could a native speaker understand this" but "would a B2/C1 reader read it without a dictionary".
 - SHOULD NOT use words above C1 — both explicitly C2-graded words _and_ words rarer than C2 (off-list in EVP and Oxford 5000) count. Off-list words are often _more_ obscure than C2 words, not less; rarity is the harm, not the label.
-- SHOULD prefer Germanic-rooted everyday words over Latinate or literary synonyms even when both sit at C1 — `start` over `commence`, `find out` over `ascertain`, `many` over `myriad`, `despite` over `notwithstanding`. C1 is the ceiling, not the target; aim lower when a B1/B2 word fits.
+- SHOULD prefer Germanic-rooted everyday words over Latinate or literary synonyms even when both sit at C1 — `stop` over `cease`, `try` over `endeavor`, `despite` over `notwithstanding`, each of which the table below grades C1 and therefore allows. C1 is the ceiling, not the target; aim lower when a B1/B2 word fits.
 - MUST NOT treat a domain term of art as a ceiling violation, whatever its CEFR grade — the graded lists measure rarity in general English, not in the reader's field, and a plainer synonym for a precise technical word costs meaning. Check the exempt list below before flagging a word.
 - SHOULD avoid uncommon phrasal verbs and metaphorical idioms (`drill down into`, `roll out`, `iron out`, `shake out`, `walk back`); plain verbs (`investigate`, `release`, `resolve`, `surface`, `revise`) translate cleanly.
 - MAY use the common Latin abbreviations `i.e.`, `e.g.`, and `etc.` freely — they are conventional in technical writing and reliably understood by B2/C1 readers. Rarer Latinisms (`ergo`, `ipso facto`, `inter alia`, `qua`) SHOULD be avoided.
