@@ -157,7 +157,7 @@
       "prompt": "Our React Native app's Amplitude device ID resets on every launch. What's wrong?",
       "mustInclude": ["amplitude-instrumentation"],
       "mustExclude": ["software-instrumentation"],
-      "rationale": "The AsyncStorage identity slot is a pure Amplitude mechanism, named in amplitude-instrumentation' text. software-instrumentation is deliberately vendor-neutral and owns no SDK's storage behaviour, so its appearance would mean the vendor boundary is not holding."
+      "rationale": "The AsyncStorage identity slot is a pure Amplitude mechanism, named in amplitude-instrumentation's text. software-instrumentation is deliberately vendor-neutral and owns no SDK's storage behaviour, so its appearance would mean the vendor boundary is not holding."
     },
     {
       "id": "amp-session-replay-sampling",
