@@ -2,7 +2,7 @@
 
 Apply this reference when writing or reviewing the code that emits product and usage events — a feature used, a funnel step reached, a conversion recorded — or the wrapper, identity calls, and gating those events flow through. This file uses `trackEvent(...)`, `identifyUser(...)`, and `resetUser(...)` for the call shapes; substitute whatever your project's analytics tool names them.
 
-This is the **engineer's** half of the subject: what the code does. Which metric the business chases, how a funnel or retention curve is read, and the statistics behind an experiment are a different discipline and are out of scope here. Where a project uses a specific analytics vendor, that vendor's own capability owns its SDK options, ingestion limits, and product configuration; the rules below hold whichever one fills the role.
+This is the **engineer's** half of the subject: what the code does. Which metric the business chases, how a funnel or retention curve is read, and the statistics behind an experiment are a different discipline and are out of scope here. Where a project uses a specific analytics vendor, that vendor's own capability owns its SDK options, ingestion limits, and product configuration — an Amplitude analytics capability, for instance, owns Amplitude's initialization options, identity and session calls, autocapture defaults, and cost model. The rules below hold whichever vendor fills the role.
 
 System-health measurement — request rate, latency, saturation — is the metrics signal and lives in [metrics.md](./metrics.md).
 

@@ -5,7 +5,7 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done. The
-twenty-two here cover the whole arc: handling what the agent does not know,
+twenty-three here cover the whole arc: handling what the agent does not know,
 turning a request into a spec, driving that spec to a reviewed pull request,
 keeping the code maintainable and secure, testing it, designing and building its
 UI, standing up the application around it and the server state behind it, and
@@ -117,11 +117,12 @@ The framework- and library-specific group. These skills pin a version and state
 it, so a rule that inverts on the next major is a rule you can see rather than
 one you inherit.
 
-| Skill                                                                        | What it gives your agent                                                                                                                                                                                                                                   |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`expo-app-development`](./skills/expo-app-development/SKILL.md)             | The Expo app around the components: where files live, how a URL becomes a screen, what the native build contains, and how it reaches a device — checked against the SDK the app actually has.                                                              |
-| [`next-app-development`](./skills/next-app-development/SKILL.md)             | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
-| [`tanstack-query-development`](./skills/tanstack-query-development/SKILL.md) | The server state behind all of it, on TanStack Query v5: where a query lives, what identifies it in the cache, when it refetches, what a write invalidates, and how a failure surfaces — plus the review checks for each of those going wrong.             |
+| Skill                                                                        | What it gives your agent                                                                                                                                                                                                                                           |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`expo-app-development`](./skills/expo-app-development/SKILL.md)             | The Expo app around the components: where files live, how a URL becomes a screen, what the native build contains, and how it reaches a device — checked against the SDK the app actually has.                                                                      |
+| [`next-app-development`](./skills/next-app-development/SKILL.md)             | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong.         |
+| [`tanstack-query-development`](./skills/tanstack-query-development/SKILL.md) | The server state behind all of it, on TanStack Query v5: where a query lives, what identifies it in the cache, when it refetches, what a write invalidates, and how a failure surfaces — plus the review checks for each of those going wrong.                     |
+| [`amplitude-analytics`](./skills/amplitude-analytics/SKILL.md)               | The product-analytics vendor underneath the event calls: which Amplitude package, what `init` fixes for good, how identity and sessions resolve, what autocapture already collects, and which mistakes cost money — with a validator for the three that cost most. |
 
 ### Authoring skills
 
@@ -289,8 +290,9 @@ node skills/agent-skill-authoring/scripts/check-links.mjs
 node skills/agent-skill-authoring/scripts/check-skill.mjs --help
 node scripts/check-installed-copies.mjs
 
-# Four more ship inside a skill, for the projects that install it — this
+# Five more ship inside a skill, for the projects that install it — this
 # repository exercises them only against fixtures:
+node skills/amplitude-analytics/scripts/check-amplitude-wiring.mjs --help
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs --help
 node skills/react-component-styling/scripts/check-component-styles.mjs --help
@@ -299,12 +301,12 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 
 #### Reporting, not gating
 
-The eighth and ninth scripts report instead of judging. Neither belongs to a
+The ninth and tenth scripts report instead of judging. Neither belongs to a
 gate, an npm script, or a hook, and
 `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced set
 on purpose, so wiring either in has to be a deliberate act.
 
-The eighth reports a number:
+The ninth reports a number:
 
 ```bash
 node scripts/report-obligation-load.mjs --mandated
@@ -324,7 +326,7 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The ninth reports a routing outcome:
+The tenth reports a routing outcome:
 
 ```bash
 node scripts/discovery-eval/run.mjs --dry-run
