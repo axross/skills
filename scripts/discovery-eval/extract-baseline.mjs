@@ -46,7 +46,8 @@ const USAGE = `Usage: extract-baseline.mjs <report-file> <output-file>
 Slice the proposed baseline out of a captured --emit-baseline report, validate
 it, and write it where a workflow can upload it as an artifact.
 
-Exit codes: 0 written, 2 no marker or invalid document.`;
+Exit codes: 0 written (or --help), 2 bad invocation, no marker, or an invalid
+document.`;
 
 function fail2(message) {
   process.stderr.write(`${message}\n`);
@@ -72,10 +73,17 @@ export function sliceBaseline(report) {
 }
 
 async function main() {
-  const [reportPath, outputPath] = process.argv.slice(2);
-  if (process.argv.includes("--help") || !reportPath || !outputPath) {
+  // Asking for help is not a bad invocation, so it succeeds — matching run.mjs,
+  // which answers `--help` before it looks at anything else. Folding the two
+  // together made `--help` on its own exit 2, since it carries no paths.
+  if (process.argv.includes("--help")) {
     process.stdout.write(`${USAGE}\n`);
-    process.exit(reportPath && outputPath ? 0 : 2);
+    process.exit(0);
+  }
+
+  const [reportPath, outputPath] = process.argv.slice(2);
+  if (!reportPath || !outputPath) {
+    fail2(`Both a report file and an output file are required.\n${USAGE}`);
   }
 
   let report;

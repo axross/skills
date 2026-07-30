@@ -13,6 +13,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
+import { runScript, SCRIPTS } from "../helpers/run.mjs";
 
 import {
   deltaAgainst,
@@ -348,6 +349,22 @@ describe("baseline parsing", () => {
     expect(() =>
       parseBaseline(baseline({ corpus: { "wireframe-design": digest } })),
     ).toThrow(/"corpus" entry for "wireframe-design"/);
+  });
+});
+
+describe("the extractor as a CLI", () => {
+  it("answers --help with the usage text and exit 0", () => {
+    // Asking for help is not a bad invocation. Exit 2 here would also contradict
+    // run.mjs, which answers --help before looking at anything else.
+    const result = runScript(SCRIPTS.extractBaseline, ["--help"]);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("Usage: extract-baseline.mjs");
+  });
+
+  it("still refuses an invocation missing its paths", () => {
+    const result = runScript(SCRIPTS.extractBaseline, []);
+    expect(result.code).toBe(2);
+    expect(result.output).toMatch(/report file and an output file are required/);
   });
 });
 
