@@ -76,7 +76,9 @@
     "si-neutral-event-naming": {
       "software-instrumentation": 5
     },
-    "si-neutral-consent-gate": {},
+    "si-neutral-consent-gate": {
+      "software-instrumentation": 5
+    },
     "boundary-amplitude-event-naming": {
       "amplitude-instrumentation": 5
     }
