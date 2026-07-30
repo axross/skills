@@ -5,7 +5,7 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done. The
-twenty-four here cover the whole arc: handling what the agent does not know,
+twenty-five here cover the whole arc: handling what the agent does not know,
 turning a request into a spec, driving that spec to a reviewed pull request,
 keeping the code maintainable and secure, testing it, designing and building its
 UI, standing up the application around it and the server state behind it,
@@ -133,6 +133,7 @@ one you inherit.
 | [`next-app-development`](./skills/next-app-development/SKILL.md)             | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
 | [`tanstack-query-development`](./skills/tanstack-query-development/SKILL.md) | The server state behind all of it, on TanStack Query v5: where a query lives, what identifies it in the cache, when it refetches, what a write invalidates, and how a failure surfaces — plus the review checks for each of those going wrong.             |
 | [`sentry-instrumentation`](./skills/sentry-instrumentation/SKILL.md)         | The Sentry layer under all four: which package, which option, which file, which token — what it is allowed to collect, how a minified frame gets a name back, and which of its silent misconfigurations only surface during an incident.                   |
+| [`amplitude-instrumentation`](./skills/amplitude-instrumentation/SKILL.md)   | The product-analytics vendor beside it: which Amplitude package, what `init` fixes for good, how identity and sessions resolve, what autocapture already collects, and which mistakes cost money — with a validator for the three that cost most.          |
 
 ### Authoring skills
 
@@ -411,8 +412,9 @@ node skills/agent-skill-authoring/scripts/check-links.mjs
 node skills/agent-skill-authoring/scripts/check-skill.mjs --help
 node scripts/check-installed-copies.mjs
 
-# Five more ship inside a skill, for the projects that install it — this
+# Six more ship inside a skill, for the projects that install it — this
 # repository exercises them only against fixtures:
+node skills/amplitude-instrumentation/scripts/check-amplitude-wiring.mjs --help
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs --help
 node skills/react-component-styling/scripts/check-component-styles.mjs --help
@@ -422,12 +424,12 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 
 #### Reporting, not gating
 
-The ninth and tenth scripts report instead of judging. Neither belongs to a
+The tenth and eleventh scripts report instead of judging. Neither belongs to a
 gate, an npm script, or a hook, and
 `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced set
 on purpose, so wiring either in has to be a deliberate act.
 
-The ninth reports a number:
+The tenth reports a number:
 
 ```bash
 node scripts/report-obligation-load.mjs --mandated
@@ -447,7 +449,7 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The tenth reports a routing outcome:
+The eleventh reports a routing outcome:
 
 ```bash
 node scripts/discovery-eval/run.mjs --dry-run

@@ -153,6 +153,48 @@
       "rationale": "A second outside-the-trio control. conventional-commits claims this in as many words, so a miss here would point at the harness rather than at the trio."
     },
     {
+      "id": "amp-rn-identity-resets",
+      "prompt": "Our React Native app's Amplitude device ID resets on every launch. What's wrong?",
+      "mustInclude": ["amplitude-instrumentation"],
+      "mustExclude": ["software-instrumentation"],
+      "rationale": "The AsyncStorage identity slot is a pure Amplitude mechanism, named in amplitude-instrumentation's text. software-instrumentation is deliberately vendor-neutral and owns no SDK's storage behaviour, so its appearance would mean the vendor boundary is not holding."
+    },
+    {
+      "id": "amp-session-replay-sampling",
+      "prompt": "Set up Amplitude Session Replay without recording every single session.",
+      "mustInclude": ["amplitude-instrumentation"],
+      "mustExclude": ["software-instrumentation", "sentry-instrumentation"],
+      "rationale": "The sharpest vendor-versus-vendor collision in the set: Amplitude and Sentry both ship a product called Session Replay, both document a sample rate, and both skills name masking. The prompt names Amplitude, so the other vendor firing here is a genuine mis-route rather than a defensible co-selection — and this is the one case that would catch two vendor skills competing for a shared product noun."
+    },
+    {
+      "id": "amp-identify-operator",
+      "prompt": "Should this Amplitude user property use set or setOnce?",
+      "mustInclude": ["amplitude-instrumentation"],
+      "mustExclude": ["software-instrumentation"],
+      "rationale": "The Identify operator set is Amplitude's API. A narrow probe of whether an Amplitude-named API question pulls the vendor-neutral skill in unnecessarily."
+    },
+    {
+      "id": "si-neutral-event-naming",
+      "prompt": "What should we name this event so it survives a redesign, and where should the tracking call go?",
+      "mustInclude": ["software-instrumentation"],
+      "mustExclude": ["amplitude-instrumentation"],
+      "rationale": "The reverse direction. Naming and call-site placement are exactly what software-instrumentation's product-event reference claims and what amplitude-instrumentation explicitly disclaims. If the vendor skill fires on an unnamed vendor, its discovery text is too broad."
+    },
+    {
+      "id": "si-neutral-consent-gate",
+      "prompt": "Make sure no analytics fires before the user accepts cookies.",
+      "mustInclude": ["software-instrumentation"],
+      "mustExclude": ["amplitude-instrumentation"],
+      "rationale": "Consent gating is covered by both, but no vendor is named. The vendor-specific skill firing here would mean it is competing for every analytics prompt rather than Amplitude ones — that half passed, at amplitude-instrumentation 0/5. software-instrumentation measured 0/5 and is a standing MISS: its when_to_use lists both \"analytics\" and \"consent gating\" as literal triggers, yet natural phrasing about accepting cookies surfaces neither skill. Left deliberately red rather than relabelled, because it is a real discoverability gap in that skill and this evaluation reports rather than gates. Tracked separately; do not silence this case without fixing the text it measures."
+    },
+    {
+      "id": "boundary-amplitude-event-naming",
+      "prompt": "We use Amplitude — name this checkout event and wire up the track call.",
+      "mustInclude": ["amplitude-instrumentation"],
+      "mayInclude": ["software-instrumentation"],
+      "rationale": "Deliberately contested: naming belongs to software-instrumentation, the Amplitude track mechanism to amplitude-instrumentation. Originally labelled with both as mustInclude; the first real run measured amplitude-instrumentation 5/5 and software-instrumentation 0/5 at coverage 5/5, so nothing was lost and the label was the error rather than the behaviour. Demoted to mayInclude because the only other remedy — widening software-instrumentation until it fires on a prompt that names a vendor — would break the three amp-* cases that require it absent. A one-turn measurement picking the more specific skill on an explicitly vendor-named prompt is legitimate either way."
+    },
+    {
       "id": "sentry-minified-traces",
       "prompt": "Our production stack traces come through minified even though the Sentry build plugin runs on every deploy. What should I check?",
       "mustInclude": ["sentry-instrumentation"],
