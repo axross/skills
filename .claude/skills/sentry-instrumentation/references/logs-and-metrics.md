@@ -60,6 +60,8 @@ This is a distinct API from an earlier metrics offering Sentry withdrew. Guidanc
 
 Attributes are the dimensions a metric is grouped and filtered by, and they can be set per metric or shared across every metric and log through a scope.
 
+Whether a signal earns a metric at all, which instrument type fits it, and what a dimension may contain are not Sentry questions — a software instrumentation capability owns them, vendor-neutrally, and its rules apply in full to everything emitted here. What follows is only the part Sentry decides.
+
 **Example:**
 
 ```ts
@@ -69,11 +71,10 @@ Sentry.metrics.distribution("api_latency", 187, { unit: "millisecond" });
 
 **Guidelines:**
 
-- MUST choose a metric over a log line when the question is a rate, a count, or a distribution rather than a specific occurrence.
-- MUST keep attribute cardinality low; a per-user or per-request attribute makes a metric unusable and expensive.
-- MUST specify a unit on any gauge or distribution whose value is not dimensionless.
+- MUST declare the unit through the SDK's own `unit` option rather than encoding it in the metric name, since that is the field the product reads.
+- MUST respect the 2KB attribute limit, and check what the installed SDK does when a metric exceeds it rather than assuming truncation.
 - SHOULD set dimensions that apply to every metric once through the scope rather than repeating them at each call site.
-- MUST NOT put user content in a metric name or attribute.
+- MUST keep metric names and attributes inside the data-class rules in [data-collection.md](./data-collection.md), which owns them.
 
 ## Filtering Either Signal
 
