@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-07-29",
+  "recordedAt": "2026-07-30",
   "model": "claude-sonnet-5",
   "repeats": 5,
   "cases": {
@@ -63,6 +63,22 @@
     },
     "neg-log-level-vendor-neutral": {
       "software-instrumentation": 5
+    },
+    "amp-rn-identity-resets": {
+      "amplitude-instrumentation": 5
+    },
+    "amp-session-replay-sampling": {
+      "amplitude-instrumentation": 5
+    },
+    "amp-identify-operator": {
+      "amplitude-instrumentation": 5
+    },
+    "si-neutral-event-naming": {
+      "software-instrumentation": 5
+    },
+    "si-neutral-consent-gate": {},
+    "boundary-amplitude-event-naming": {
+      "amplitude-instrumentation": 5
     }
   }
 }
