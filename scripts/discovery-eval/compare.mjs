@@ -23,6 +23,8 @@
 // measured this corpus's noise floor, which is the exact mistake that probe
 // exists to prevent.
 
+import { compareCorpus } from "./corpus.mjs";
+
 /**
  * A skill counts as selected for a case above this hit rate.
  * Only `mustExclude` uses it; `mustInclude` keys on zero hits instead.
@@ -183,15 +185,25 @@ export function tallyAll(fixture, runsByCase) {
 /**
  * Compare tallies against a recorded baseline.
  *
- * Returns `null` when the delta would be meaningless — a baseline recorded on a
- * different model. That is this harness's most likely rot, so it is refused
- * rather than rendered with a caveat nobody reads.
+ * THREE RESPONSES TO A STALE BASELINE, AND CORPUS DRIFT GETS THE THIRD.
+ * A different MODEL suppresses the delta entirely — that is this harness's most
+ * likely rot, so it is refused rather than rendered with a caveat nobody reads.
+ * A different REPEAT COUNT is normalised away, since deltas compare rates. A
+ * different CORPUS only ANNOTATES: it marks the comparisons it could explain
+ * and leaves them readable.
+ *
+ * The asymmetry is deliberate, not an inconsistency. This repository ships
+ * skill edits weekly, so suppressing on corpus drift would make the baseline
+ * stale almost continuously — and a suppression that fires on nearly every run
+ * is one that gets ignored or re-recorded away at real expense. A model change
+ * is rare and total; a corpus change is frequent and partial.
  *
  * @param {object[]} tallies
  * @param {object|null} baseline
  * @param {string} model  the model identifier the current run observed
+ * @param {Record<string, string>|null} [corpus]  digests of the corpus this run measured
  */
-export function deltaAgainst(tallies, baseline, model) {
+export function deltaAgainst(tallies, baseline, model, corpus = null) {
   if (!baseline) return { usable: false, reason: "no baseline recorded" };
   if (baseline.model !== model) {
     return {
@@ -200,10 +212,19 @@ export function deltaAgainst(tallies, baseline, model) {
     };
   }
 
+  const corpusComparison = compareCorpus(baseline.corpus, corpus);
+
   const cases = tallies.map((tally) => {
     const before = baseline.cases[tally.id];
     if (!before) {
-      return { id: tally.id, repeats: tally.repeats, isNew: true, changes: [] };
+      // A case with no baseline entry has no comparison to attribute.
+      return {
+        id: tally.id,
+        repeats: tally.repeats,
+        isNew: true,
+        unattributable: false,
+        changes: [],
+      };
     }
 
     const names = new Set([
@@ -221,12 +242,27 @@ export function deltaAgainst(tallies, baseline, model) {
       .filter((change) => change.was / baseline.repeats !== change.now / tally.repeats)
       .sort((a, b) => a.skill.localeCompare(b.skill));
 
-    return { id: tally.id, repeats: tally.repeats, isNew: false, changes };
+    // EVERY case, not a subset. The whole corpus is installed for every probe,
+    // so a skill that was added, removed, or reworded competed in all of them —
+    // there is no case the drift provably could not have touched.
+    return {
+      id: tally.id,
+      repeats: tally.repeats,
+      isNew: false,
+      unattributable: corpusComparison.drifted,
+      changes,
+    };
   });
 
   const removed = Object.keys(baseline.cases)
     .filter((id) => !tallies.some((tally) => tally.id === id))
     .sort();
 
-  return { usable: true, baselineRepeats: baseline.repeats, cases, removed };
+  return {
+    usable: true,
+    baselineRepeats: baseline.repeats,
+    corpus: corpusComparison,
+    cases,
+    removed,
+  };
 }

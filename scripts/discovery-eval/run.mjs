@@ -62,6 +62,7 @@ import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { deltaAgainst, tallyAll } from "./compare.mjs";
+import { compareCorpus, corpusDigest } from "./corpus.mjs";
 import { parseBaseline, parseFixture, ValidationError } from "./fixture.mjs";
 import {
   allowOverlayContent,
@@ -70,11 +71,17 @@ import {
   planOverlay,
   resolveInside,
 } from "./overlay.mjs";
-import { renderBaseline, renderReport } from "./report.mjs";
+import {
+  renderBaseline,
+  renderCorpusBuckets,
+  renderReport,
+} from "./report.mjs";
 import { parseStream } from "./stream.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const INSTALLED_ROOT = join(REPO_ROOT, ".claude", "skills");
+/** The same path as the reader knows it — absolute paths never enter output. */
+const INSTALLED_DISPLAY = ".claude/skills";
 const DEFAULT_FIXTURE = join(REPO_ROOT, "evals", "discovery", "fixture.json");
 const DEFAULT_BASELINE = join(REPO_ROOT, "evals", "discovery", "baseline.json");
 
@@ -133,20 +140,27 @@ async function isDir(path) {
   }
 }
 
-/** Every skill directory name under the installed root. */
-async function installedSkills() {
-  const entries = await readdir(INSTALLED_ROOT, { withFileTypes: true });
-  const names = [];
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    try {
-      await stat(join(INSTALLED_ROOT, entry.name, "SKILL.md"));
-      names.push(entry.name);
-    } catch {
-      // Not a skill directory.
-    }
+/**
+ * The corpus comparison as `--dry-run` prints it: compact, and silent when the
+ * corpus matches, exactly as the report's own notice is.
+ *
+ * Dry-run builds no workspace, so this reads the installed root — which is what
+ * a real run's workspace is copied from, and differs from it only when a head
+ * overlay is applied. The line says which root it read so that distinction is
+ * never guessed at.
+ */
+function dryRunCorpusLines(baseline, installedCorpus) {
+  const corpus = compareCorpus(baseline.corpus, installedCorpus);
+  if (!corpus.recorded) {
+    return [
+      "Corpus not recorded in the baseline, so drift cannot be ruled out.",
+    ];
   }
-  return names.sort();
+  if (!corpus.drifted) return [];
+  return [
+    `Corpus drift against the baseline, over ${INSTALLED_DISPLAY}:`,
+    ...renderCorpusBuckets(corpus),
+  ];
 }
 
 /**
@@ -157,7 +171,7 @@ async function installedSkills() {
  * other skill structurally invisible, which is the opposite of what the fixture
  * is for.
  *
- * @returns {Promise<{ dir: string, corpusSize: number }>}
+ * @returns {Promise<{ dir: string, corpusSize: number, overlaid: string[], corpus: Record<string, string> }>}
  */
 async function buildWorkspace(headSkillsDir) {
   const dir = await mkdtemp(join(tmpdir(), "discovery-eval-"));
@@ -215,8 +229,11 @@ async function buildWorkspace(headSkillsDir) {
     }
   }
 
-  const corpusSize = (await readdir(skillRoot)).length;
-  return { dir, corpusSize, overlaid };
+  // Digested from the ASSEMBLED workspace, not from the installed root, so a
+  // run with a head overlay fingerprints the text it actually measured. With no
+  // overlay the two are identical, which is the ordinary case.
+  const corpus = await corpusDigest(skillRoot);
+  return { dir, corpusSize: Object.keys(corpus).length, overlaid, corpus };
 }
 
 /** One probe: spawn the CLI in the workspace and read back what it selected. */
@@ -325,7 +342,11 @@ async function main() {
   }
 
   const options = parseArguments(argv);
-  const knownSkills = await installedSkills();
+  // One enumeration of the installed root: its keys are the known skill names
+  // the fixture and baseline are validated against, and its values are the
+  // digests --dry-run compares.
+  const installedCorpus = await corpusDigest(INSTALLED_ROOT);
+  const knownSkills = Object.keys(installedCorpus);
 
   let fixture;
   try {
@@ -367,6 +388,7 @@ async function main() {
         baseline
           ? `Baseline OK: recorded on "${baseline.model}" at ${baseline.repeats} repeat(s).`
           : "No baseline recorded yet.",
+        ...(baseline ? dryRunCorpusLines(baseline, installedCorpus) : []),
         // Measured over a full 100-probe run against the 19-skill corpus:
         // $2.57, so ~$0.026 each. A short run costs MORE per probe — the
         // ~4,500-token discovery listing is identical every time, so prompt
@@ -383,9 +405,12 @@ async function main() {
     fail2(`--head-skills directory does not exist: ${options.headSkills}`);
   }
 
-  const { dir: workspace, corpusSize, overlaid } = await buildWorkspace(
-    options.headSkills,
-  );
+  const {
+    dir: workspace,
+    corpusSize,
+    overlaid,
+    corpus,
+  } = await buildWorkspace(options.headSkills);
 
   const runsByCase = new Map();
   let model = null;
@@ -407,7 +432,7 @@ async function main() {
 
   const observedModel = model ?? "unknown";
   const tallies = tallyAll(fixture, runsByCase);
-  const delta = deltaAgainst(tallies, baseline, observedModel);
+  const delta = deltaAgainst(tallies, baseline, observedModel, corpus);
 
   process.stdout.write(
     renderReport({
@@ -433,9 +458,12 @@ async function main() {
       `\nProposed baseline — commit this deliberately:\n${renderBaseline(tallies, {
         model: observedModel,
         repeats: options.repeats,
+        corpus,
         // Supplied rather than stamped inside the renderer so the pure module
-        // stays deterministic and testable.
-        recordedAt: new Date().toISOString().slice(0, 10),
+        // stays deterministic and testable. Truncated to whole seconds: a run
+        // takes minutes, so milliseconds would claim a precision the
+        // measurement does not have.
+        recordedAt: `${new Date().toISOString().slice(0, 19)}Z`,
       })}`,
     );
   }
