@@ -16,11 +16,17 @@
 // is a poor authority for what should exist; directory contents are the truth.
 //
 // Usage:
-//   node scripts/check-installed-copies.mjs [<source-root> [<installed-root>]]
+//   node scripts/check-installed-copies.mjs [--local <name>]...
+//                                           [<source-root> [<installed-root>]]
 //
-//     Both default to this repository's `skills` and `.claude/skills`, resolved
-//     from the script's own location so the cwd does not matter. The arguments
-//     exist so the check can be exercised against fixtures.
+//     Both roots default to this repository's `skills` and `.claude/skills`,
+//     resolved from the script's own location so the cwd does not matter. The
+//     arguments exist so the check can be exercised against fixtures.
+//
+//     `--local <name>` adds one name to the repository-local set below, which is
+//     empty for this repository. It is repeatable, and it is what lets the
+//     repository-local code path stay exercised by a test while no skill in this
+//     repository is repository-local.
 //
 // Exit codes:
 //   0  every distributable skill's installed copy matches its source
@@ -39,8 +45,15 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
  * so they legitimately have no source under `skills/`. Kept explicit rather
  * than inferred from "installed with no source": inferring it would let a
  * deleted source pass silently as repository-local.
+ *
+ * Deliberately EMPTY: this repository currently has no repository-local skill —
+ * every skill is distributable, authored under `skills/` and installed. The set
+ * and the code path it feeds are kept because the two-tier model is still
+ * available; register a future repository-local skill by adding its name here.
+ * The `--local` flag adds to this set for one invocation, which is how the tests
+ * exercise that path while the set is empty.
  */
-const REPOSITORY_LOCAL = new Set(["github-operation"]);
+const REPOSITORY_LOCAL = new Set([]);
 
 function fail2(message) {
   process.stderr.write(`${message}\n`);
@@ -115,12 +128,17 @@ async function compareSkill(sourceDir, installedDir) {
   return differences;
 }
 
-const USAGE = `Usage: check-installed-copies.mjs [<source-root> [<installed-root>]]
+const USAGE = `Usage: check-installed-copies.mjs [--local <name>]... [<source-root> [<installed-root>]]
 
 Fail when a distributable skill's source differs from its generated installed
 copy. Both roots default to this repository's "skills" and ".claude/skills",
 resolved from the script's own location, so the working directory does not
 matter; the arguments exist so the check can be exercised against fixtures.
+
+  --local <name>  Treat an installed skill with no source as repository-local
+                  rather than drift. Repeatable. This repository's own
+                  repository-local set is empty, so without this flag every
+                  sourceless installed skill is drift.
 
 Exit codes: 0 every installed copy matches, 1 drift found, 2 bad invocation.`;
 
@@ -130,9 +148,23 @@ async function main() {
     process.stdout.write(`${USAGE}\n`);
     process.exit(0);
   }
-  if (args.length > 2) fail2(USAGE);
-  const sourceRoot = args[0] ?? join(REPO_ROOT, "skills");
-  const installedRoot = args[1] ?? join(REPO_ROOT, ".claude", "skills");
+
+  const repositoryLocal = new Set(REPOSITORY_LOCAL);
+  const positional = [];
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] !== "--local") {
+      positional.push(args[index]);
+      continue;
+    }
+    const name = args[index + 1];
+    if (name === undefined) fail2("--local requires a skill name.");
+    repositoryLocal.add(name);
+    index += 1;
+  }
+
+  if (positional.length > 2) fail2(USAGE);
+  const sourceRoot = positional[0] ?? join(REPO_ROOT, "skills");
+  const installedRoot = positional[1] ?? join(REPO_ROOT, ".claude", "skills");
 
   for (const root of [sourceRoot, installedRoot]) {
     if (!(await isDir(root))) fail2(`Not a directory: "${root}".`);
@@ -170,7 +202,7 @@ async function main() {
 
   for (const name of installedNames) {
     if (sourceSet.has(name)) continue;
-    if (REPOSITORY_LOCAL.has(name)) {
+    if (repositoryLocal.has(name)) {
       lines.push(`LOCAL ${name} (repository-local; no source under "${sourceRoot}")`);
       continue;
     }

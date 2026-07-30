@@ -92,14 +92,18 @@ describe("check-installed-copies.mjs", () => {
     );
   });
 
+  // This repository's own repository-local set is empty — every skill here is
+  // distributable — so `--local` is what keeps this code path exercised. The
+  // fixture is named neutrally on purpose: naming it after a real skill is what
+  // made the previous version of this case read as a claim about the corpus.
   it("accepts a known repository-local skill that has no source", async () => {
     const { source, installed } = await twoRoots(["alpha-skill"]);
-    await writeSkill(installed, "github-operation");
+    await writeSkill(installed, "local-only-skill");
 
-    const result = checkCopies(source, installed);
+    const result = checkCopies("--local", "local-only-skill", source, installed);
 
     expect(result).toPassCleanly();
-    expect(result.stdout).toMatch(/LOCAL github-operation \(repository-local/);
+    expect(result.stdout).toMatch(/LOCAL local-only-skill \(repository-local/);
   });
 
   it("exits 1 on an installed skill that is neither sourced nor repository-local", async () => {
@@ -110,6 +114,27 @@ describe("check-installed-copies.mjs", () => {
 
     expect(result).toReportFailure(/DRIFT orphaned-skill/);
     expect(result.stdout).toMatch(/not a known repository-local skill/);
+  });
+
+  it("exits 1 on a sourceless installed skill that --local does not name", async () => {
+    // --local must accept exactly what it names, not widen into "accept any
+    // installed skill with no source" — which would make the whole check
+    // vacuous for anyone who passes the flag once.
+    const { source, installed } = await twoRoots(["alpha-skill"]);
+    await writeSkill(installed, "local-only-skill");
+    await writeSkill(installed, "orphaned-skill");
+
+    const result = checkCopies("--local", "local-only-skill", source, installed);
+
+    expect(result).toReportFailure(/DRIFT orphaned-skill/);
+    expect.soft(result.stdout).toMatch(/LOCAL local-only-skill \(repository-local/);
+  });
+
+  it("exits 2 when --local is given no name", () => {
+    const result = checkCopies("--local");
+
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/--local requires a skill name\./);
   });
 
   it("exits 2 when a root is not a directory", async () => {
