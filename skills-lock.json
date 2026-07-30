@@ -64,7 +64,7 @@
     "professional-behavior": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "19dc92ca9ac8649e970726a79b27f0785f5823e728a2372512e68d0850a00d3f"
+      "computedHash": "45a3361ecca5eac141e5016f8c5dedf8937205815a4403484df6029c294f2a51"
     },
     "quality-assurance": {
       "source": "/home/user/skills/skills",
@@ -95,6 +95,11 @@
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "f9912d0cff57d1bb6eb1cfdb12fb7e513ccc015940642752fa1af90b2dac93e7"
+    },
+    "technical-document-authoring": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "88a46419afe65500c2e1aaa7d3f7d14f11d3dd1fa479b974eef45945d629f005"
     },
     "unit-testing": {
       "source": "/home/user/skills/skills",

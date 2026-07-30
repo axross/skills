@@ -5,11 +5,11 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done. The
-twenty-two here cover the whole arc: handling what the agent does not know,
+twenty-three here cover the whole arc: handling what the agent does not know,
 turning a request into a spec, driving that spec to a reviewed pull request,
 keeping the code maintainable and secure, testing it, designing and building its
-UI, standing up the application around it and the server state behind it, and
-authoring more skills. They install
+UI, standing up the application around it and the server state behind it,
+writing the documents that explain it, and authoring more skills. They install
 into any agent the [`skills` CLI](https://github.com/vercel-labs/skills)
 supports.
 
@@ -79,6 +79,16 @@ question answered, a review given, a change delivered — not only to changes.
 | [`software-development`](./skills/software-development/SKILL.md)                                     | The baseline every project-touching task runs on: keep the change scoped, format and lint it, find out how the project is really run, and describe the result so a reviewer can follow it. |
 | [`conventional-commits`](./skills/conventional-commits/SKILL.md)                                     | One header contract for commit messages and pull request titles, with a validator that catches a malformed header before it reaches your history.                                          |
 | [`github-operation`](./.claude/skills/github-operation/SKILL.md) ✱                                   | Keeps an agent's GitHub writes safe when it shares your login — one sanctioned channel, comments marked as its own, and history it never rewrites.                                         |
+
+### Writing a document
+
+Sits beside `product-requirement-document-authoring` rather than overlapping it:
+that one owns a spec's sections and the phrasing of a requirement, this one owns
+the sentences inside whatever document you are writing.
+
+| Skill                                                                            | What it gives your agent                                                                                                                                                                                                          |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`technical-document-authoring`](./skills/technical-document-authoring/SKILL.md) | Makes a design doc, RFC, ADR, runbook, or README worth reading: one document type instead of four blurred together, the answer at the top, sentences nobody has to reparse, and words a non-native reader gets on the first pass. |
 
 ### Reviewing a change
 
