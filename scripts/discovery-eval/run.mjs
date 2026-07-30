@@ -74,6 +74,7 @@ import {
 import {
   renderBaseline,
   renderCorpusBuckets,
+  renderProbeBudget,
   renderReport,
 } from "./report.mjs";
 import { parseStream } from "./stream.mjs";
@@ -399,7 +400,7 @@ async function main() {
           ? `Baseline OK: recorded on "${baseline.model}" at ${baseline.repeats} repeat(s).`
           : "No baseline recorded yet.",
         ...(baseline ? dryRunCorpusLines(baseline, installedCorpus) : []),
-        `Would spawn ${runs} one-turn probe(s); ~$${PROBE_COST_USD} each, so ~$${(runs * PROBE_COST_USD).toFixed(2)} for this fixture.`,
+        renderProbeBudget(runs, PROBE_COST_USD),
         "No model call was made.",
         "",
       ].join("\n"),
