@@ -1,5 +1,5 @@
 ---
-name: amplitude-analytics
+name: amplitude-instrumentation
 description: The ability to wire Amplitude into an application and keep it honest — the vendor-specific mechanism a tool-agnostic product-event capability defers to. Covers SDK selection across the browser, React Native, server and unified packages and the project wrapper in front of them; initialization, project-per-environment topology and API key handling; device, user and Amplitude IDs, reset-on-logout and session definitions; the track call, the Identify operator set, groups, revenue and the per-project ceilings; autocapture defaults, its privacy protections and enrichment plugins; the Amplitude Data tracking plan, schema enforcement and Ampli; post-ingestion repair and its limits; consent models, identity storage and deletion; session replay sampling and masking; the Experiment exposure interface; server-side and HTTP ingestion; the MTU-versus-event-volume cost model; delivery proxying and verification; and the Amplitude MCP server. Lookup-first on versions.
 when_to_use: Use whenever a task touches Amplitude specifically — "Amplitude", "@amplitude/analytics-browser", "@amplitude/analytics-react-native", "@amplitude/unified", "amplitude.init", "amplitude.track", "setUserId", "autocapture", "defaultTracking", "sampleRate", "session replay", "Ampli", "tracking plan", "insert_id", "MTU", "serverZone", "identityStorage", "Amplitude MCP", or an Amplitude API key. For vendor-neutral event naming, call-site, or what-to-track questions, use a software-instrumentation capability.
 user-invocable: false
@@ -96,7 +96,7 @@ See [privacy-and-consent.md](./references/privacy-and-consent.md) for:
 
 See [session-replay.md](./references/session-replay.md) for:
 
-- Plugin versus standalone, and the three different `sampleRate` behaviours across install paths
+- Plugin versus standalone, and `sampleRate` defaulting to zero so a correct-looking integration records nothing
 - Targeted capture and the absence of any lookback before the trigger
 - Mask levels, the element-level controls, and the attribute values no level masks
 - Replay following the analytics SDK's `optOut`, and the separate privacy review it earns

@@ -133,7 +133,7 @@ one you inherit.
 | [`next-app-development`](./skills/next-app-development/SKILL.md)             | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong. |
 | [`tanstack-query-development`](./skills/tanstack-query-development/SKILL.md) | The server state behind all of it, on TanStack Query v5: where a query lives, what identifies it in the cache, when it refetches, what a write invalidates, and how a failure surfaces — plus the review checks for each of those going wrong.             |
 | [`sentry-instrumentation`](./skills/sentry-instrumentation/SKILL.md)         | The Sentry layer under all four: which package, which option, which file, which token — what it is allowed to collect, how a minified frame gets a name back, and which of its silent misconfigurations only surface during an incident.                   |
-| [`amplitude-analytics`](./skills/amplitude-analytics/SKILL.md)               | The product-analytics vendor beside it: which Amplitude package, what `init` fixes for good, how identity and sessions resolve, what autocapture already collects, and which mistakes cost money — with a validator for the three that cost most.          |
+| [`amplitude-instrumentation`](./skills/amplitude-instrumentation/SKILL.md)   | The product-analytics vendor beside it: which Amplitude package, what `init` fixes for good, how identity and sessions resolve, what autocapture already collects, and which mistakes cost money — with a validator for the three that cost most.          |
 
 ### Authoring skills
 
@@ -303,7 +303,7 @@ node scripts/check-installed-copies.mjs
 
 # Six more ship inside a skill, for the projects that install it — this
 # repository exercises them only against fixtures:
-node skills/amplitude-analytics/scripts/check-amplitude-wiring.mjs --help
+node skills/amplitude-instrumentation/scripts/check-amplitude-wiring.mjs --help
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs --help
 node skills/react-component-styling/scripts/check-component-styles.mjs --help

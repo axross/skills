@@ -37,7 +37,7 @@ export const SCRIPTS = {
     "skills/react-component-styling/scripts/check-component-styles.mjs",
   checkWireframe: "skills/wireframe-design/scripts/check-wireframe.mjs",
   checkAmplitudeWiring:
-    "skills/amplitude-analytics/scripts/check-amplitude-wiring.mjs",
+    "skills/amplitude-instrumentation/scripts/check-amplitude-wiring.mjs",
   checkSentryWiring:
     "skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs",
   checkInstalledCopies: "scripts/check-installed-copies.mjs",

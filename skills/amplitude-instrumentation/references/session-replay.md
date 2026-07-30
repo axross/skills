@@ -24,20 +24,14 @@ Mobile replay exists for iOS, Android, and React Native, where `AmpMaskView` pro
 
 ## `sampleRate` Is the Whole Cost Story
 
-`sampleRate` decides what fraction of sessions are recorded, and its behaviour differs across the three ways it gets set — which is exactly why replay integrations end up capturing either nothing or everything.
+`sampleRate` decides what fraction of sessions are recorded, and **it defaults to `0`** — captures nothing. An integration that wires replay correctly and never sets it looks complete, passes review, and silently records no sessions at all. That is the single most common way a replay integration fails.
 
-| Surface                                          | `sampleRate`                           |
-| ------------------------------------------------ | -------------------------------------- |
-| `@amplitude/session-replay-browser` (standalone) | Defaults to **`0`** — captures nothing |
-| `@amplitude/plugin-session-replay-browser`       | Documented as **required**, no default |
-| The Session Replay snippet installer             | Sets **`1`** — captures every session  |
-
-Both ends are production incidents. A default of `0` means an integration that looks complete, passes review, and silently records nothing. A snippet-installed `1` means every session is captured and the quota is spent long before anyone checks.
+Two caveats on where that default applies. The `0` is documented on the standalone `@amplitude/session-replay-browser`; the plugin package `@amplitude/plugin-session-replay-browser` documents `sampleRate` as **required** with no default, and the Session Replay **snippet installer sets it to `1`**, which captures every session and burns the quota. So the failure runs in both directions depending on how replay was installed, and neither end is a value you want to inherit.
 
 **Guidelines:**
 
-- MUST set `sampleRate` explicitly rather than relying on any default, because the defaults disagree across packages and one of them is "capture nothing".
-- MUST NOT leave the snippet's `1` in place beyond testing; it captures every session and burns the replay quota.
+- MUST set `sampleRate` explicitly rather than relying on the default, because the default is `0` and a zero sample rate records nothing while looking correctly configured.
+- MUST NOT leave the snippet installer's `1` in place beyond testing; it captures every session and burns the replay quota.
 - MUST verify after wiring replay that sessions are actually appearing in Amplitude — a zero sample rate is indistinguishable from a broken integration from inside the code.
 - SHOULD prefer targeted capture over a raised blanket sample rate when the goal is to see a specific behaviour, so the quota is spent on sessions someone will watch.
 

@@ -155,21 +155,21 @@
     {
       "id": "amp-rn-identity-resets",
       "prompt": "Our React Native app's Amplitude device ID resets on every launch. What's wrong?",
-      "mustInclude": ["amplitude-analytics"],
+      "mustInclude": ["amplitude-instrumentation"],
       "mustExclude": ["software-instrumentation"],
-      "rationale": "The AsyncStorage identity slot is a pure Amplitude mechanism, named in amplitude-analytics' text. software-instrumentation is deliberately vendor-neutral and owns no SDK's storage behaviour, so its appearance would mean the vendor boundary is not holding."
+      "rationale": "The AsyncStorage identity slot is a pure Amplitude mechanism, named in amplitude-instrumentation' text. software-instrumentation is deliberately vendor-neutral and owns no SDK's storage behaviour, so its appearance would mean the vendor boundary is not holding."
     },
     {
       "id": "amp-session-replay-sampling",
       "prompt": "Set up Amplitude Session Replay without recording every single session.",
-      "mustInclude": ["amplitude-analytics"],
+      "mustInclude": ["amplitude-instrumentation"],
       "mustExclude": ["software-instrumentation", "sentry-instrumentation"],
       "rationale": "The sharpest vendor-versus-vendor collision in the set: Amplitude and Sentry both ship a product called Session Replay, both document a sample rate, and both skills name masking. The prompt names Amplitude, so the other vendor firing here is a genuine mis-route rather than a defensible co-selection — and this is the one case that would catch two vendor skills competing for a shared product noun."
     },
     {
       "id": "amp-identify-operator",
       "prompt": "Should this Amplitude user property use set or setOnce?",
-      "mustInclude": ["amplitude-analytics"],
+      "mustInclude": ["amplitude-instrumentation"],
       "mustExclude": ["software-instrumentation"],
       "rationale": "The Identify operator set is Amplitude's API. A narrow probe of whether an Amplitude-named API question pulls the vendor-neutral skill in unnecessarily."
     },
@@ -177,21 +177,21 @@
       "id": "si-neutral-event-naming",
       "prompt": "What should we name this event so it survives a redesign, and where should the tracking call go?",
       "mustInclude": ["software-instrumentation"],
-      "mustExclude": ["amplitude-analytics"],
-      "rationale": "The reverse direction. Naming and call-site placement are exactly what software-instrumentation's product-event reference claims and what amplitude-analytics explicitly disclaims. If the vendor skill fires on an unnamed vendor, its discovery text is too broad."
+      "mustExclude": ["amplitude-instrumentation"],
+      "rationale": "The reverse direction. Naming and call-site placement are exactly what software-instrumentation's product-event reference claims and what amplitude-instrumentation explicitly disclaims. If the vendor skill fires on an unnamed vendor, its discovery text is too broad."
     },
     {
       "id": "si-neutral-consent-gate",
       "prompt": "Make sure no analytics fires before the user accepts cookies.",
       "mustInclude": ["software-instrumentation"],
-      "mustExclude": ["amplitude-analytics"],
+      "mustExclude": ["amplitude-instrumentation"],
       "rationale": "Consent gating is covered by both, but no vendor is named. The vendor-specific skill firing here would mean it is competing for every analytics prompt rather than Amplitude ones."
     },
     {
       "id": "boundary-amplitude-event-naming",
       "prompt": "We use Amplitude — name this checkout event and wire up the track call.",
-      "mustInclude": ["amplitude-analytics", "software-instrumentation"],
-      "rationale": "Deliberately contested, and the one case where both are correct: naming belongs to software-instrumentation, the Amplitude track mechanism to amplitude-analytics. A split distribution is the healthy outcome and neither skill should read as a miss."
+      "mustInclude": ["amplitude-instrumentation", "software-instrumentation"],
+      "rationale": "Deliberately contested, and the one case where both are correct: naming belongs to software-instrumentation, the Amplitude track mechanism to amplitude-instrumentation. A split distribution is the healthy outcome and neither skill should read as a miss."
     },
     {
       "id": "sentry-minified-traces",

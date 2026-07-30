@@ -16,6 +16,11 @@
       "sourceType": "local",
       "computedHash": "bbc24b018afa3021c4dd19aa964e7f3ef4dbc66c68371e56d1f341d9f195efee"
     },
+    "amplitude-instrumentation": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "c83628499cce9bb38ef579f676532e6ca0f446e2d204b7ebe278f8744dcb5d7e"
+    },
     "application-security": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -99,7 +104,7 @@
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "9a51f13f32ab30602abca247e30023ffb1199d62782391d84cc97429022c0f7e"
+      "computedHash": "aa07d034426123113e6df69da171e7b3906195ea43ad4fd7d5768dbe2661afb5"
     },
     "tanstack-query-development": {
       "source": "/home/user/skills/skills",
