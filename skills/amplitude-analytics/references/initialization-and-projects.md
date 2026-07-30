@@ -21,7 +21,7 @@ Passing a user id positionally at init is only correct when the app already know
 
 **Guidelines:**
 
-- MUST call `init` exactly once per client, from the one module that owns the SDK, and never from feature code.
+- MUST call `init` exactly once per client — a second call re-reads marketing attribution from whatever URL is current at that moment, so a re-init on navigation overwrites the acquisition source with an internal one.
 - MUST NOT pass a user id at init unless the identity is already resolved at that point; call the identity API after login instead.
 - SHOULD defer `init` on web until the page has its final URL and its identity, because attribution and the initial session are both derived at that moment.
 - MUST treat the option set as fixed after `init` — several options cannot be changed on a live client, so a value that varies by environment is read at init or not at all.

@@ -55,13 +55,12 @@ Every device that has not been linked to a user id is its own tracked user. A pr
 
 ## What a Runaway Release Costs
 
-The expensive failures are structural, not gradual. An event emitted in a render path, a retry loop without an `insert_id`, or an event name templated with an identifier can multiply volume by orders of magnitude between a release and the moment somebody notices.
+The expensive failures are structural, not gradual. An event emitted in a render path, a retry loop without an `insert_id`, or an event name templated with an identifier can multiply volume by orders of magnitude between a release and the moment somebody notices. Where a call site belongs is a vendor-neutral question owned by a product-event capability; what this reference adds is the size of the bill when it is wrong.
 
 > An event in a component that re-renders on scroll does not add a percentage to event volume. It adds a multiple.
 
 **Guidelines:**
 
-- MUST NOT emit an event from a render path, an effect that re-runs, or a polling loop; emit where the fact becomes true, once.
 - MUST set an `insert_id` on retryable server-side events so a retry storm deduplicates rather than multiplying.
 - SHOULD configure volume alert thresholds in Amplitude so a runaway release surfaces within hours rather than at the invoice.
 - SHOULD review any new instrumentation for its per-user event count before release, since that ratio is what the MTU guardrail meters.

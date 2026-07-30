@@ -10,23 +10,17 @@ Verified against Amplitude's documentation on **2026-07-29**. Amplitude Data's g
 
 A tracking plan is organised around **sources** — an SDK integration, a server, a warehouse import — with events and properties defined against them, each carrying metadata, a type, and rules. Ampli generates a wrapper for a source, so events must be assigned to one before it can.
 
-Amplitude's own naming guidance is specific, and it matches what a vendor-neutral product-event capability prescribes:
+What an event should be called is owned by the naming section of a vendor-neutral product-event capability, and this file does not restate it. Amplitude adds exactly one thing to that: its documentation prescribes **Title Case**, which is the dimension the neutral rule deliberately leaves to the project. Adopt it or override it in writing — but pick one, because the plan is the artifact that has to hold it.
 
-| Dimension      | Convention                      |
-| -------------- | ------------------------------- |
-| Capitalization | Title Case                      |
-| Syntax         | Noun + past-tense verb          |
-| Perspective    | The user's, not the interface's |
+The Amplitude-specific hazard is not a badly-named event; it is two conventions arriving in one project.
+
+> **Found across `axross/oraculo` and `axross/porousel`**: Title Case in one, kebab-case in the other, for the same kind of event. One project per convention is survivable; two conventions in one Amplitude project is not — Amplitude distinguishes names that differ only in case, so the two never merge into one series.
 
 **Guidelines:**
 
 - MUST assign events to a source before expecting Ampli to generate anything for them.
 - SHOULD write the plan's naming convention down in the repository as well as in Amplitude, since the repository is where the next engineer looks.
-- MUST NOT name an event after the UI mechanic that triggered it; the name should survive a redesign of that mechanic.
-
-> **Found in `axross/aqua`**: event names like `Tap a Key of Card Keyboard` and `Transition to $screenName` describe the interface rather than the user's action. A redesign invalidates both the name and its history.
-
-> **Found across `axross/oraculo` and `axross/porousel`**: Title Case in one, kebab-case in the other, for the same kind of event. One project per convention is survivable; two conventions in one Amplitude project is not.
+- MUST apply one casing convention across every source feeding a project, because Amplitude treats names differing only in case as different events and no later transformation merges their history cleanly.
 
 ## Branches, Publishing, and Versions
 

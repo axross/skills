@@ -8,11 +8,10 @@ Verified against Amplitude's documentation on **2026-07-29**.
 
 The Node SDK is a family member with a prescribed lookup, like the other non-first-class SDKs — but one rule is universal and worth stating here, because getting it wrong corrupts every server-sent event.
 
-On a client, the SDK holds the current user. On a server, it does not: one process serves every user. Identity must be passed **per call**, from the authenticated request.
+On a client, the SDK holds the current user. On a server, it does not: one process serves every user. That per-call identity is a vendor-neutral rule a product-event capability owns; what makes it sharp on Amplitude is that the SDK still exposes the client-shaped setter, and calling it on a server is silently wrong rather than unavailable.
 
 **Guidelines:**
 
-- MUST pass the user id explicitly on every server-side event, resolved from the request being handled.
 - MUST NOT call a server SDK's global identity setter in a request handler — it is process-wide, and it attributes concurrent requests to whichever user set it last.
 - MUST initialize a server client once per process, not per request.
 - SHOULD send a device id alongside the user id only when the server genuinely knows the originating device; inventing one fragments the user's identity.
@@ -66,6 +65,7 @@ const insertId = `order-completed:${orderId}`;
 
 - MUST set a deterministic `insert_id` derived from the fact being recorded, never a fresh random value, or a retry produces a second event.
 - MUST NOT retry past the seven-day dedup window and expect deduplication; beyond it the same `insert_id` is a new event.
+- MUST verify deduplication actually holds for a producer that sends a user id and no device id, rather than assuming it: Amplitude documents the window as applying to the same `insert_id` **on the same `device_id`**, and this reference separately warns against inventing a device id server-side. Those two rules can leave a server producer with no documented dedup scope, so confirm the behaviour against your own project before relying on a retry being safe.
 - SHOULD retry with backoff on transient failures and MUST NOT retry a 400, which will fail identically every time.
 
 ## Client-Side Versus Server-Side
