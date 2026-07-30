@@ -255,7 +255,14 @@ function renderDelta(delta, expectAlways = []) {
 
   for (const entry of changed) {
     if (entry.isNew) {
-      lines.push(`  ${entry.id}: new case, not in the baseline`);
+      // Two different states, deliberately worded so neither reads as the
+      // other: a declared case is waiting for a run somebody has planned, an
+      // undeclared one is a recording nobody took.
+      lines.push(
+        entry.isUnmeasured
+          ? `  ${entry.id}: declared unmeasured, awaiting the next re-record`
+          : `  ${entry.id}: new case, not in the baseline`,
+      );
       continue;
     }
     // Per line, not per case: the drifted skills are named once above, and what
@@ -298,6 +305,18 @@ export function renderReport({ fixture, tallies, delta, context }) {
     "",
   ].join("\n");
 }
+
+/**
+ * The line that introduces an emitted baseline on stdout.
+ *
+ * Exported because it is a boundary, not a caption. `extract-baseline.mjs`
+ * slices the proposed document out of a captured report at exactly this line, so
+ * a maintainer dispatching the workflow can download the result as an artifact
+ * instead of transcribing ~90 lines of JSON out of a log viewer. Both sides
+ * import this constant rather than spelling it twice, so rewording the line
+ * cannot leave the extractor cutting at text that no longer appears.
+ */
+export const BASELINE_MARKER = "Proposed baseline — commit this deliberately:";
 
 /**
  * Render a baseline document for a human to commit.

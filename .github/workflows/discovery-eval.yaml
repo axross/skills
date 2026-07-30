@@ -49,6 +49,12 @@ name: Discovery Evaluation
 #
 # Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
 # claude-review.yaml already uses. No new secret, and no label, is required.
+#
+# `emit_baseline` affects NONE of the four properties above. It adds one flag
+# that makes the runner print an extra block, and one step that lifts that block
+# into an artifact. It reads no head content, needs no permission beyond what is
+# declared below, and never writes the repository — a human still commits the
+# document deliberately.
 
 on:
   workflow_dispatch:
@@ -60,6 +66,11 @@ on:
       pull_request:
         description: "Pull request number to evaluate head skills from (optional)"
         required: false
+      emit_baseline:
+        description: "Also emit a proposed baseline as a downloadable artifact (cannot be combined with a pull request)"
+        required: false
+        type: boolean
+        default: false
 
 # Least privilege: read the base tree, write one comment. Nothing else. No
 # contents:write — this never pushes, and its token cannot.
@@ -74,14 +85,42 @@ jobs:
     # is no other event shape to exclude — the gate is GitHub's own write-access
     # check on dispatching, not a condition evaluated here.
     concurrency:
-      group: discovery-eval-${{ github.event.inputs.pull_request || 'manual' }}
+      # A baseline run gets its own group. `cancel-in-progress` is right for a
+      # report — the newer answer supersedes the older one — but an emitting run
+      # produces a document that cost a full fixture's worth of probes, and
+      # before this input existed every manual run shared one group. Somebody
+      # dispatching an ordinary default-branch report would have cancelled a
+      # re-record in flight and destroyed the measurement it paid for. Two
+      # emitting runs still supersede each other, which is the intended reading.
+      group: discovery-eval-${{ github.event.inputs.pull_request || (inputs.emit_baseline && 'emit-baseline') || 'manual' }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
       PR_NUMBER: ${{ github.event.inputs.pull_request }}
       REPEATS: ${{ github.event.inputs.repeats || '5' }}
+      # `inputs`, not `github.event.inputs`, and deliberately unlike its two
+      # neighbours: only the typed context applies a declared `default`, so a
+      # dispatch that omits this input entirely still reads "false" here rather
+      # than empty.
+      EMIT_BASELINE: ${{ inputs.emit_baseline }}
     steps:
+      # MUTUALLY EXCLUSIVE, and refused rather than documented. When a dispatch
+      # names a pull request the run overlays that pull request's head SKILL.md
+      # files, so the emitted `corpus` would fingerprint UN-MERGED head text.
+      # That document looks exactly like a committable baseline and is not one:
+      # committing it would record a measurement against text that does not
+      # exist on the default branch, which is the precise class of silent
+      # staleness the corpus fingerprint exists to prevent.
+      #
+      # First step on purpose. It runs before the checkout, so a dispatch that
+      # asks for the impossible costs nothing and spawns no probe.
+      - name: Refuse to emit a baseline from head text
+        if: env.EMIT_BASELINE == 'true' && env.PR_NUMBER != ''
+        run: |
+          echo "::error::emit_baseline cannot be combined with a pull request number. A run that overlays head SKILL.md files would fingerprint un-merged text, producing a document that looks committable and is not. Dispatch with emit_baseline and no pull request to re-record, or with a pull request and no emit_baseline to evaluate a branch."
+          exit 1
+
       # SAFETY PROPERTY 2 — no `ref:` input, so this is always the default
       # branch. Never `github.event.pull_request.head.sha`, and never the ref of
       # a pull request named in the inputs.
@@ -146,7 +185,31 @@ jobs:
             args+=(--head-skills "${{ steps.stage.outputs.staged_dir }}")
             args+=(--head-sha "${{ steps.stage.outputs.head_sha }}")
           fi
+          if [ "${EMIT_BASELINE}" = "true" ]; then
+            args+=(--emit-baseline)
+          fi
           node scripts/discovery-eval/run.mjs "${args[@]}" | tee "${RUNNER_TEMP}/report.txt"
+
+      # Uploaded as a file rather than left in the log. The document must land
+      # byte-exact in a committed file, and transcribing ~90 lines of JSON out of
+      # a log viewer is the one step of a re-record a human can silently get
+      # wrong. The extractor validates through the same parseBaseline that reads
+      # the committed file, so a bad slice fails the job instead of producing a
+      # plausible artifact.
+      - name: Extract the proposed baseline
+        if: env.EMIT_BASELINE == 'true'
+        run: |
+          set -euo pipefail
+          node scripts/discovery-eval/extract-baseline.mjs \
+            "${RUNNER_TEMP}/report.txt" "${RUNNER_TEMP}/baseline.json"
+
+      - name: Upload the proposed baseline
+        if: env.EMIT_BASELINE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: proposed-baseline
+          path: ${{ runner.temp }}/baseline.json
+          if-no-files-found: error
 
       # The report body contains only base-tree prompts and allowlist-validated
       # kebab-case skill names — head SKILL.md CONTENT never reaches it — and is

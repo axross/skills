@@ -251,7 +251,7 @@ export function parseFixture(text, { knownSkills } = {}) {
  *
  * @param {string} text            raw file contents
  * @param {{ knownSkills?: Iterable<string> }} [options]
- * @returns {{ recordedAt: string, model: string, repeats: number, corpus: Record<string, string>|null, cases: Record<string, Record<string, number>> }}
+ * @returns {{ recordedAt: string, model: string, repeats: number, corpus: Record<string, string>|null, unmeasured: string[], cases: Record<string, Record<string, number>> }}
  * @throws {ValidationError} carrying every problem found
  */
 export function parseBaseline(text, { knownSkills } = {}) {
@@ -314,6 +314,43 @@ export function parseBaseline(text, { knownSkills } = {}) {
     }
   }
 
+  // OPTIONAL, and self-clearing. A fixture case can be added before the paid run
+  // that would measure it — the fixture and the measurement move on different
+  // schedules, and a dispatch can only ever evaluate the DEFAULT branch's
+  // fixture, so a new case cannot be measured until after it lands.
+  //
+  // What it must not do is borrow `{}`. An empty tally means "measured, and
+  // discovery selected nothing", which is a real finding on three cases in this
+  // tree — one of them a standing MISS with an issue open against it. Reusing
+  // that spelling for "never run" would make the two indistinguishable in the
+  // one file a human reads before committing.
+  //
+  // Nothing has to remember to remove a name from here: `renderBaseline` writes
+  // only what it measured, so the first re-record after the case lands emits a
+  // document with no "unmeasured" key at all.
+  const unmeasured = [];
+  if (raw.unmeasured !== undefined) {
+    if (!Array.isArray(raw.unmeasured)) {
+      problems.push(
+        'The baseline\'s "unmeasured" must be an array of fixture case ids.',
+      );
+    } else {
+      for (const id of raw.unmeasured) {
+        if (typeof id !== "string" || !ID_RE.test(id)) {
+          problems.push(
+            `The baseline's "unmeasured" contains ${JSON.stringify(id)}, which is not a kebab-case case id.`,
+          );
+          continue;
+        }
+        if (unmeasured.includes(id)) {
+          problems.push(`The baseline's "unmeasured" lists "${id}" twice.`);
+          continue;
+        }
+        unmeasured.push(id);
+      }
+    }
+  }
+
   const cases = {};
   if (!isPlainObject(raw.cases)) {
     problems.push('The baseline\'s "cases" must be an object keyed by case id.');
@@ -359,6 +396,18 @@ export function parseBaseline(text, { knownSkills } = {}) {
     }
   }
 
+  // A case cannot be both measured and awaiting measurement. Catching the
+  // contradiction here rather than letting the tally silently win keeps the
+  // declaration honest: the whole value of the field is that a reader can trust
+  // an absent case to be absent on purpose.
+  for (const id of unmeasured) {
+    if (id in cases) {
+      problems.push(
+        `The baseline lists "${id}" in "unmeasured" and also records a tally for it.`,
+      );
+    }
+  }
+
   if (problems.length > 0) throw new ValidationError(problems);
-  return { recordedAt, model, repeats: raw.repeats, corpus, cases };
+  return { recordedAt, model, repeats: raw.repeats, corpus, unmeasured, cases };
 }

@@ -471,15 +471,18 @@ workflow allowed to invoke it, and **manual dispatch is its only trigger**, so
 nothing a pull request does can start it or spend money. Give the dispatch a
 pull request number to evaluate that branch's changed skills and have the report
 posted as a comment; leave it blank to evaluate the default branch and read the
-report in the job log. `--dry-run` validates the fixture with no model call and
+report in the job log. Check `emit_baseline` — which no dispatch naming a pull
+request may combine with — to have the run also produce a proposed baseline as a
+downloadable artifact, which is how the baseline gets re-recorded without a local
+CLI or local credentials. `--dry-run` validates the fixture with no model call and
 no secret. See
 [`evals/discovery/README.md`](./evals/discovery/README.md) for the fixture
-format, how a verdict is reached, and when to re-record the baseline.
+format, how a verdict is reached, and how to re-record the baseline.
 
 `npm test` reads the two JSON files under `evals/discovery/` to confirm every
-skill they name still exists — a deterministic data check that never invokes the
-runner. A fixture or baseline naming a renamed skill would otherwise rot in
-silence.
+skill they name still exists, and that every fixture case is either measured or
+declared unmeasured — a deterministic data check that never invokes the runner.
+A fixture or baseline naming a renamed skill would otherwise rot in silence.
 
 ### Repository gotchas
 

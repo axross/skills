@@ -217,11 +217,17 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
   const cases = tallies.map((tally) => {
     const before = baseline.cases[tally.id];
     if (!before) {
-      // A case with no baseline entry has no comparison to attribute.
+      // A case with no baseline entry has no comparison to attribute — but
+      // there are two ways to get here and they are not the same event. A case
+      // the baseline DECLARES unmeasured is waiting for the next re-record; one
+      // it does not is a case somebody added and never recorded. Reporting both
+      // as "new" would bury the second in the first for as long as the first
+      // lasts.
       return {
         id: tally.id,
         repeats: tally.repeats,
         isNew: true,
+        isUnmeasured: baseline.unmeasured?.includes(tally.id) ?? false,
         unattributable: false,
         changes: [],
       };
@@ -249,6 +255,7 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
       id: tally.id,
       repeats: tally.repeats,
       isNew: false,
+      isUnmeasured: false,
       unattributable: corpusComparison.drifted,
       changes,
     };

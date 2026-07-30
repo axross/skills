@@ -207,6 +207,79 @@
       "mustInclude": ["software-instrumentation"],
       "mustExclude": ["sentry-instrumentation"],
       "rationale": "The counterpart to sentry-minified-traces, and the direction that matters: log-level choice and catch placement are vendor-neutral, named in software-instrumentation's own text, and sentry-instrumentation explicitly hands them back ('For log levels, catch placement, and which failures are worth capturing at all, use a software instrumentation capability instead'). A spurious selection here means the vendor skill's triggers are too broad — the collision this pair exists to detect."
+    },
+    {
+      "id": "expo-deep-link-route",
+      "prompt": "Make our Expo app open the order screen when someone taps an orders/42 link.",
+      "mustInclude": ["expo-app-development"],
+      "mustExclude": ["next-app-development"],
+      "rationale": "\"Expo\" and deep linking are literal triggers in expo-app-development's when_to_use. next-app-development owns the library's other file-based router and scopes itself to the App Router, so its appearance on a prompt that names Expo would mean the two framework skills compete for each other's work."
+    },
+    {
+      "id": "expo-prebuild-permission",
+      "prompt": "Add the camera permission through a config plugin and re-run prebuild.",
+      "mustInclude": ["expo-app-development"],
+      "mustExclude": ["react-component-development", "react-component-styling"],
+      "rationale": "\"prebuild\", config plugins and runtime permissions are all named in expo-app-development's text, and its when_to_use hands a component's composition and styling back to the React capabilities in as many words. Nothing here is a component, so either React skill firing is the over-reach that disclaimer exists to prevent."
+    },
+    {
+      "id": "next-server-action-authorization",
+      "prompt": "Where should the authorization check live in this server action?",
+      "mustInclude": ["next-app-development"],
+      "mustExclude": ["expo-app-development"],
+      "mayInclude": ["application-security"],
+      "rationale": "next-app-development's description names server functions that authenticate and authorize inside every call. application-security owns access control generally, so its appearance is a legitimate co-selection rather than a mis-route; expo-app-development has no server runtime to place the check in."
+    },
+    {
+      "id": "next-stale-after-write",
+      "prompt": "The product list still shows the old rows after the server action writes. How do I revalidate it?",
+      "mustInclude": ["next-app-development"],
+      "mayInclude": ["tanstack-query-development"],
+      "rationale": "Half of the sharpest collision in the set: \"a stale list after a write\" is a literal trigger in tanstack-query-development's when_to_use and \"revalidateTag\" is one in next-app-development's, so the two claim the same symptom in nearly the same words. This prompt names a server action, so the framework skill must appear and the server-state skill appearing is defensible."
+    },
+    {
+      "id": "tq-invalidate-after-mutation",
+      "prompt": "After this useMutation succeeds the list is stale — what should it invalidate?",
+      "mustInclude": ["tanstack-query-development"],
+      "mustExclude": ["next-app-development"],
+      "rationale": "The other half of that collision, and the direction that matters. useMutation and invalidateQueries are TanStack Query's own API and appear verbatim in its when_to_use, while next-app-development owns none of them. A selection here would mean its triggers reach every staleness prompt rather than the ones about its own cache."
+    },
+    {
+      "id": "tq-query-key-collision",
+      "prompt": "Two tenants are sharing a cached list they should not — how should the query keys be structured?",
+      "mustInclude": ["tanstack-query-development"],
+      "mustExclude": ["react-component-development"],
+      "rationale": "Tenancy-rooted query keys and \"a duplicate or colliding cache entry\" are both named in tanstack-query-development's text. react-component-development is the nearest neighbour that could over-trigger on shared-state phrasing, and owns where a component's own state lives rather than anything in the cache."
+    },
+    {
+      "id": "tda-runbook-readability",
+      "prompt": "This runbook is hard to follow and too wordy — restructure it.",
+      "mustInclude": ["technical-document-authoring"],
+      "mustExclude": ["product-requirement-document-authoring"],
+      "rationale": "\"Runbook\", \"hard to follow\" and \"too wordy\" are all literal triggers in technical-document-authoring's when_to_use. The PRD skill owns a spec's sections and the phrasing of a requirement, not the sentences inside an operational document, so its selection here is the over-reach this pair exists to detect."
+    },
+    {
+      "id": "boundary-spec-and-prose",
+      "prompt": "Write the spec for this feature, and make sure it actually reads well.",
+      "mustInclude": [
+        "product-requirement-document-authoring",
+        "technical-document-authoring"
+      ],
+      "rationale": "Deliberately contested, over the one boundary this library's own README draws between two document skills: one owns a spec's sections and requirement phrasing, the other the sentences inside whatever is being written. A split distribution is healthy and the coverage line is the point — neither should read as a miss."
+    },
+    {
+      "id": "gho-issue-body-edit",
+      "prompt": "Update the labels on this issue and rewrite its body without losing the collapsed sections.",
+      "mustInclude": ["github-operation"],
+      "mustExclude": ["code-review"],
+      "rationale": "Editing a body without losing what a sanitized read drops, and GitHub's replace-the-whole-set label semantics, are mechanics only github-operation claims. code-review is the nearest skill that also writes to GitHub, and owns judging a diff rather than operating the API — so it firing here would mean it competes for every GitHub prompt."
+    },
+    {
+      "id": "rcd-extract-hook",
+      "prompt": "This component's useEffect is doing three unrelated things — should I pull a hook out?",
+      "mustInclude": ["react-component-development"],
+      "mustExclude": ["react-component-styling"],
+      "rationale": "\"extract a hook\" and \"useEffect\" are literal triggers in react-component-development's when_to_use, and react-component-styling's own text hands logic back to it. This is also the first case to require the component skill at all — it was labelled only as mayInclude before, so no case could report it missing."
     }
   ]
 }

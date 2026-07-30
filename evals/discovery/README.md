@@ -36,12 +36,20 @@ the baseline and prints what would run. That is the path `npm test` exercises.
 ## Running it in CI
 
 Dispatch [`discovery-eval.yaml`](../../.github/workflows/discovery-eval.yaml)
-from the Actions tab. Two inputs, both optional:
+from the Actions tab. Three inputs, all optional:
 
-| Input          | Effect                                                                                                                                                                                         |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `repeats`      | Runs per case. Higher is steadier and costs more. Defaults to 5.                                                                                                                               |
-| `pull_request` | A pull request number. Its changed `SKILL.md` files are evaluated, and the report is posted there as a comment. Leave blank to evaluate the default branch and read the report in the job log. |
+| Input           | Effect                                                                                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repeats`       | Runs per case. Higher is steadier and costs more. Defaults to 5.                                                                                                                               |
+| `pull_request`  | A pull request number. Its changed `SKILL.md` files are evaluated, and the report is posted there as a comment. Leave blank to evaluate the default branch and read the report in the job log. |
+| `emit_baseline` | Also produce a proposed baseline, downloadable from the run as the `proposed-baseline` artifact. Off by default. See [Re-recording it](#re-recording-it).                                      |
+
+**`emit_baseline` and `pull_request` cannot be combined**, and a dispatch
+supplying both fails before it spawns a single probe. A run that names a pull
+request overlays that pull request's head `SKILL.md` files, so the emitted
+`corpus` would fingerprint text that exists on no branch — a document that looks
+exactly like a committable baseline and is not one. Refusing the combination is
+cheaper than documenting the trap.
 
 **Manual dispatch is the only trigger.** There is no event a pull request can
 raise that starts this — no `pull_request`, and deliberately no
@@ -152,15 +160,58 @@ The `model` field is the one this whole comparison hangs on. **A result is not
 durable across models** — it moves when a new model ships, with no change to
 this repository at all. When the observed model differs from the baseline's, the
 report suppresses the delta entirely and says so, rather than printing a
-comparison that looks meaningful and is not. Re-record with:
+comparison that looks meaningful and is not. Deltas compare **rates**, so a
+baseline recorded at 5 repeats stays comparable against a 10-repeat run.
+
+### Re-recording it
+
+Two routes, and **neither is a plain dispatch** — an ordinary run produces a
+report and no baseline document at all.
+
+Dispatch `discovery-eval.yaml` with **`emit_baseline` checked and no pull
+request number**, then download the `proposed-baseline` artifact from the
+finished run and commit it. This is the route that needs no local CLI and no
+local credentials, and it is the one to reach for.
+
+Or run it locally, if you have the CLI and working authentication:
 
 ```bash
 node scripts/discovery-eval/run.mjs --repeats 5 --emit-baseline
 ```
 
-That prints a proposed baseline to **stdout**; a human commits it deliberately.
-The runner never writes the working tree. Deltas compare **rates**, so a
-baseline recorded at 5 repeats stays comparable against a 10-repeat run.
+That prints the proposed baseline to **stdout**, after the report and after a
+fixed marker line. The runner never writes the working tree either way: CI lifts
+the document into an artifact with
+[`extract-baseline.mjs`](../../scripts/discovery-eval/extract-baseline.mjs),
+which validates it through the same `parseBaseline` that reads the committed
+file, so a bad slice fails the job instead of uploading something plausible.
+**A human commits it deliberately** — nothing here pushes.
+
+### `unmeasured` — a case that exists but has not been run
+
+A fixture case and its measurement move on different schedules. A dispatch can
+only ever evaluate the **default branch's** fixture, so a case cannot be
+measured until after it lands — and `npm test` requires every case to be
+accounted for. `unmeasured` is how a case says "recorded on purpose as not yet
+run":
+
+```jsonc
+{
+  "unmeasured": ["expo-deep-link-route"],
+  "cases": { "wf-checkout-layout": { "wireframe-design": 5 } },
+}
+```
+
+What it must not do is borrow `{}`. An empty tally means _measured, and
+discovery selected nothing_ — a real finding on three cases in this file, one of
+them a standing `MISS`. Reusing that spelling for "never run" would make the two
+indistinguishable in the one file a human reads before committing.
+
+The declaration **clears itself**: a re-record measures every case in the
+fixture it ran, so `--emit-baseline` emits a document with no `unmeasured` key
+at all. Nobody has to remember to delete it. Until then the report says
+`declared unmeasured, awaiting the next re-record`, which is deliberately not
+the wording an undeclared absence gets.
 
 ### `corpus` — the fingerprint of what a measurement ran against
 
@@ -221,6 +272,12 @@ was added, and `loop-engineering`'s references were split and then removed. A
 anything — the case still runs and still reports. A **baseline** entry naming
 one is worse: every later delta is computed against a skill that can never
 appear, so the report keeps claiming a regression that is really a rename.
+
+It also checks that every fixture case is **accounted for** — measured, or named
+in `unmeasured` — and that nothing in `unmeasured` names a case the fixture no
+longer defines. The second half is the same rot one field over: a declaration
+left behind by a renamed case is a promise to measure something that cannot be
+measured, and it would quietly widen what the first half forgives.
 
 ## Known limits
 

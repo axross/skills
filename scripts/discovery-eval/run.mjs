@@ -72,6 +72,7 @@ import {
   resolveInside,
 } from "./overlay.mjs";
 import {
+  BASELINE_MARKER,
   renderBaseline,
   renderCorpusBuckets,
   renderProbeBudget,
@@ -462,7 +463,7 @@ async function main() {
 
   if (options.emitBaseline) {
     process.stdout.write(
-      `\nProposed baseline — commit this deliberately:\n${renderBaseline(tallies, {
+      `\n${BASELINE_MARKER}\n${renderBaseline(tallies, {
         model: observedModel,
         repeats: options.repeats,
         corpus,

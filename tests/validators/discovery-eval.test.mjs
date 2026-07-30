@@ -28,6 +28,7 @@ import {
   isDigest,
   readDiscoveryText,
 } from "../../scripts/discovery-eval/corpus.mjs";
+import { sliceBaseline } from "../../scripts/discovery-eval/extract-baseline.mjs";
 import {
   parseBaseline,
   parseFixture,
@@ -45,6 +46,7 @@ import {
   resolveInside,
 } from "../../scripts/discovery-eval/overlay.mjs";
 import {
+  BASELINE_MARKER,
   renderBaseline,
   renderProbeBudget,
   renderReport,
@@ -163,6 +165,41 @@ describe("baseline parsing", () => {
     expect(() => parseBaseline(baseline({ model: "" }))).toThrow(/"model"/);
   });
 
+  it("treats an absent unmeasured list as none declared", () => {
+    // Every baseline recorded before this field existed must keep parsing, or
+    // adding the field would invalidate the one document in the tree.
+    expect(parseBaseline(baseline(), { knownSkills: KNOWN }).unmeasured).toEqual([]);
+  });
+
+  it("accepts a case declared unmeasured", () => {
+    const parsed = parseBaseline(
+      baseline({ unmeasured: ["later-case", "another-case"] }),
+      { knownSkills: KNOWN },
+    );
+    expect(parsed.unmeasured).toEqual(["later-case", "another-case"]);
+  });
+
+  it("rejects a case that is both measured and declared unmeasured", () => {
+    // The contradiction that would hollow the declaration out: if a tally can
+    // sit beside the claim that no tally was taken, an absent case stops being
+    // trustworthy evidence of anything.
+    expect(() =>
+      parseBaseline(baseline({ unmeasured: ["a-case"] }), { knownSkills: KNOWN }),
+    ).toThrow(/"a-case".+"unmeasured".+tally/s);
+  });
+
+  it("rejects an unmeasured list that is not a list of case ids", () => {
+    expect(() => parseBaseline(baseline({ unmeasured: "a-case" }))).toThrow(
+      /"unmeasured" must be an array/,
+    );
+    expect(() => parseBaseline(baseline({ unmeasured: ["Not A Case"] }))).toThrow(
+      /not a kebab-case case id/,
+    );
+    expect(() =>
+      parseBaseline(baseline({ unmeasured: ["twice-case", "twice-case"] })),
+    ).toThrow(/lists "twice-case" twice/);
+  });
+
   it("rejects a baseline naming a skill that no longer exists", () => {
     // The failure this repository has already produced twice: a skill is
     // renamed or removed, and every later delta is silently computed against
@@ -254,6 +291,44 @@ describe("baseline parsing", () => {
     expect(() =>
       parseBaseline(baseline({ corpus: { "wireframe-design": digest } })),
     ).toThrow(/"corpus" entry for "wireframe-design"/);
+  });
+});
+
+describe("lifting an emitted baseline out of a report", () => {
+  const document = '{\n  "model": "m"\n}\n';
+  const emitted = (body) => `${BASELINE_MARKER}\n${document}${body ?? ""}`;
+
+  it("returns everything after the marker line", () => {
+    expect(sliceBaseline(`a report\n\n${emitted()}`)).toBe(document);
+  });
+
+  it("finds a marker that opens the text", () => {
+    // Not the shape run.mjs produces, but the shape a piped or trimmed capture
+    // can arrive in, and an off-by-one here silently drops the opening brace.
+    expect(sliceBaseline(emitted())).toBe(document);
+  });
+
+  it("returns null when the run emitted no baseline", () => {
+    // The ordinary dispatch. It must be distinguishable from a slice that found
+    // nothing useful, because the remedy is different: pass --emit-baseline.
+    expect(sliceBaseline("a report with no proposed baseline\n")).toBeNull();
+  });
+
+  it("ignores the marker quoted mid-line", () => {
+    // A report that merely mentions the phrase — a future doc-comment, a copied
+    // log — must not cut the document short at the mention.
+    const mentioned = `see "${BASELINE_MARKER}" below\n${emitted()}`;
+    expect(sliceBaseline(mentioned)).toBe(document);
+  });
+
+  it("round-trips through parseBaseline, which is what the workflow relies on", () => {
+    const real = renderBaseline(
+      [{ id: "a-case", skills: [{ name: "wireframe-design", hits: 3 }] }],
+      { model: "claude-opus-5", repeats: 3, recordedAt: "2026-07-29T14:32:07Z" },
+    );
+    const sliced = sliceBaseline(`report text\n\n${BASELINE_MARKER}\n${real}`);
+    expect(sliced).toBe(real);
+    expect(parseBaseline(sliced, { knownSkills: KNOWN }).model).toBe("claude-opus-5");
   });
 });
 
@@ -428,6 +503,25 @@ describe("baseline delta", () => {
 
   it("is unusable when there is no baseline at all", () => {
     expect(deltaAgainst(tallies, null, "m").usable).toBe(false);
+  });
+
+  it("tells a declared unmeasured case from one nobody recorded", () => {
+    // Both are absent from `cases` and both are `isNew`. Only the declared one
+    // is a gap somebody planned, and the delta has to carry that difference or
+    // the report cannot state it.
+    const declared = deltaAgainst(
+      tallies,
+      { model: "m", repeats: 5, unmeasured: ["a-case"], cases: {} },
+      "m",
+    );
+    expect(declared.cases[0]).toMatchObject({ isNew: true, isUnmeasured: true });
+
+    const undeclared = deltaAgainst(
+      tallies,
+      { model: "m", repeats: 5, unmeasured: [], cases: {} },
+      "m",
+    );
+    expect(undeclared.cases[0]).toMatchObject({ isNew: true, isUnmeasured: false });
   });
 });
 
@@ -858,6 +952,39 @@ describe("report rendering", () => {
     const report = render({ usable: true, baselineRepeats: 3, cases: [], removed: [] });
     expect(report).not.toMatch(/\/(home|Users|tmp)\//);
     expect(report).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("words a declared unmeasured case differently from an unrecorded one", () => {
+    const declared = render({
+      usable: true,
+      baselineRepeats: 3,
+      cases: [{ id: "a-case", repeats: 3, isNew: true, isUnmeasured: true, changes: [] }],
+      removed: [],
+    });
+    expect(declared).toContain("awaiting the next re-record");
+    expect(declared).not.toContain("new case, not in the baseline");
+
+    const unrecorded = render({
+      usable: true,
+      baselineRepeats: 3,
+      cases: [{ id: "a-case", repeats: 3, isNew: true, isUnmeasured: false, changes: [] }],
+      removed: [],
+    });
+    expect(unrecorded).toContain("new case, not in the baseline");
+    expect(unrecorded).not.toContain("awaiting the next re-record");
+  });
+
+  it("emits no unmeasured key, so a re-record clears the declaration by itself", () => {
+    // The property that keeps the relaxation from becoming permanent: a
+    // measurement covers every case it ran, so the emitted document has nothing
+    // left to declare and nobody has to remember to delete the field.
+    const emitted = renderBaseline(tallies, {
+      model: "claude-opus-5",
+      repeats: 3,
+      recordedAt: "2026-07-29T14:32:07Z",
+    });
+    expect(JSON.parse(emitted)).not.toHaveProperty("unmeasured");
+    expect(parseBaseline(emitted, { knownSkills: KNOWN }).unmeasured).toEqual([]);
   });
 
   it("emits a baseline document keyed by case and skill", () => {
