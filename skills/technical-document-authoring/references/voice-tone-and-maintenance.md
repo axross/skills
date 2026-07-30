@@ -41,7 +41,11 @@ Inclusive phrasing avoids gendered and ableist language, and global-friendly phr
 
 The [Common European Framework of Reference for Languages (CEFR)](https://www.coe.int/en/web/common-european-framework-reference-languages/level-descriptions) classifies language proficiency from A1 (beginner) through C2 (mastery). Most working software engineers who use English as a second language sit between B2 and C1; vocabulary above C1 — rare, literary, or Latinate words that native speakers absorb passively — forces non-native readers to stop and look words up, and often defeats machine translation. Keep working vocabulary at **CEFR C1**.
 
-The two canonical sources for word-level CEFR grading are the [Cambridge English Vocabulary Profile (EVP)](https://www.englishprofile.org/wordlists/evp) and the [Oxford 5000 by CEFR level](https://www.oxfordlearnersdictionaries.com/about/wordlists/cefr). Both grade words A1 through C2; words rarer than C2 are simply not on either list. Sources occasionally disagree by one level on the same word — when they do, write to the lower (more conservative) ceiling. Domain technical terms (`idempotent`, `eventual consistency`, `mutex`, `epoch`) are _not_ CEFR-restricted — they are vocabulary the named primary reader is assumed to know (see [audience-and-document-types.md](./audience-and-document-types.md)); the C1 ceiling applies to _general_ English, not to terms of art.
+The two canonical sources for word-level CEFR grading are the [Cambridge English Vocabulary Profile (EVP)](https://www.englishprofile.org/wordlists/evp) and the [Oxford 5000 by CEFR level](https://www.oxfordlearnersdictionaries.com/about/wordlists/cefr). Both grade words A1 through C2; words rarer than C2 are simply not on either list. Sources occasionally disagree by one level on the same word — when they do, write to the lower (more conservative) ceiling.
+
+**The ceiling governs general English only, never terms of art.** Both graded lists are built from general-English corpora, so they measure how rare a word is across all writing — not how rare it is in the writing your reader actually does. A word an engineer meets constantly in specifications, code, and review comments is not rare _for that reader_, however a general corpus grades it. `terminate` is what `SIGTERM` means; `paradigm` is the word in "programming paradigm"; `utilization` is what a CPU graph is labelled; `obfuscate` is what a minifier does; `ubiquitous` is the U in Domain-Driven Design's Ubiquitous Language. Replacing any of them with a plainer synonym loses precision instead of gaining clarity, and the substitute reads as though the writer did not know the field.
+
+So apply the ceiling to the words a document could have chosen freely, and exempt the vocabulary the named primary reader is assumed to know (see [audience-and-document-types.md](./audience-and-document-types.md)) — `idempotent`, `eventual consistency`, `mutex`, `epoch`, and the domain words below.
 
 The ceiling is a strong default rather than an absolute: a doc set whose entire readership reads English natively pays less for an above-C1 word than a globally distributed one does. Weigh the deviation deliberately, and hold the ceiling wherever the readership is unknown — which, for anything published beyond one team, it usually is.
 
@@ -49,24 +53,21 @@ The ceiling is a strong default rather than an absolute: a doc set whose entire 
 
 - SHOULD keep word choice at CEFR C1 or below — if a plain everyday alternative carries the same meaning, use it. The test is not "could a native speaker understand this" but "would a B2/C1 reader read it without a dictionary".
 - SHOULD NOT use words above C1 — both explicitly C2-graded words _and_ words rarer than C2 (off-list in EVP and Oxford 5000) count. Off-list words are often _more_ obscure than C2 words, not less; rarity is the harm, not the label.
-- SHOULD prefer Germanic-rooted everyday words over Latinate or literary synonyms even when both sit at C1 — `use` over `utilize`, `start` over `commence`, `help` over `facilitate`, `end` over `terminate`. C1 is the ceiling, not the target; aim lower when a B1/B2 word fits.
+- SHOULD prefer Germanic-rooted everyday words over Latinate or literary synonyms even when both sit at C1 — `start` over `commence`, `find out` over `ascertain`, `many` over `myriad`, `despite` over `notwithstanding`. C1 is the ceiling, not the target; aim lower when a B1/B2 word fits.
+- MUST NOT treat a domain term of art as a ceiling violation, whatever its CEFR grade — the graded lists measure rarity in general English, not in the reader's field, and a plainer synonym for a precise technical word costs meaning. Check the exempt list below before flagging a word.
 - SHOULD avoid uncommon phrasal verbs and metaphorical idioms (`drill down into`, `roll out`, `iron out`, `shake out`, `walk back`); plain verbs (`investigate`, `release`, `resolve`, `surface`, `revise`) translate cleanly.
 - MAY use the common Latin abbreviations `i.e.`, `e.g.`, and `etc.` freely — they are conventional in technical writing and reliably understood by B2/C1 readers. Rarer Latinisms (`ergo`, `ipso facto`, `inter alia`, `qua`) SHOULD be avoided.
 - SHOULD run unfamiliar word choices through the [English Vocabulary Profile](https://www.englishprofile.org/wordlists/evp) or the [Oxford 5000 by CEFR level](https://www.oxfordlearnersdictionaries.com/about/wordlists/cefr) when in doubt; the cost of looking up a word once is far smaller than the cost of every reader looking it up forever.
 
 **Reference:**
 
-The following table pairs common engineering-prose offenders with plainer alternatives. The **Level** column gives the CEFR grading where it exists; `above C2` means the word is rarer than the C2 list in both the [English Vocabulary Profile](https://www.englishprofile.org/wordlists/evp) and the [Oxford 5000](https://www.oxfordlearnersdictionaries.com/about/wordlists/cefr). Rows are grouped from worst (rarest) to best (allowed but plainer alternative exists):
+The following table pairs general-English offenders with plainer alternatives. Every entry is a word a technical document could have chosen freely — none carries a technical sense a synonym would lose, which is what separates this list from the exempt one after it. The **Level** column gives the CEFR grading where it exists; `above C2` means the word is rarer than the C2 list in both the [English Vocabulary Profile](https://www.englishprofile.org/wordlists/evp) and the [Oxford 5000](https://www.oxfordlearnersdictionaries.com/about/wordlists/cefr). Rows are grouped from worst (rarest) to best (allowed but plainer alternative exists):
 
 | Avoid                           | Level     | Prefer (plainer)                           |
 | ------------------------------- | --------- | ------------------------------------------ |
 | `ascertain`                     | above C2  | `find out`, `confirm`                      |
-| `myriad`, `manifold`            | above C2  | `many`, `several`                          |
-| `ubiquitous`                    | above C2  | `everywhere`, `common`                     |
-| `cumbersome`                    | above C2  | `awkward`, `hard to use`                   |
+| `myriad`                        | above C2  | `many`, `several`                          |
 | `exacerbate`                    | above C2  | `make worse`                               |
-| `circumvent`                    | above C2  | `get around`, `avoid`                      |
-| `obfuscate`                     | above C2  | `hide`, `make unclear`                     |
 | `henceforth`, `heretofore`      | above C2  | `from now on`, `until now`                 |
 | `tantamount to`                 | above C2  | `the same as`, `equal to`                  |
 | `ostensibly`                    | above C2  | `apparently`, `seemingly`                  |
@@ -78,31 +79,43 @@ The following table pairs common engineering-prose offenders with plainer altern
 | `vis-à-vis`                     | above C2  | `compared to`, `in relation to`            |
 | `leverage` (verb)               | above C2  | `use`, `take advantage of`                 |
 | `plethora`                      | C2        | `many`                                     |
-| `paradigm`                      | C2        | `model`, `approach`                        |
 | `endeavor` / `endeavour` (noun) | C2        | `effort`, `attempt`                        |
-| `commence`, `initiate`          | C1 / C2 † | `start`, `begin`                           |
+| `commence`                      | C1 / C2 † | `start`, `begin`                           |
 | `albeit`                        | C1 / C2 † | `although`, `even though`                  |
-| `utilize`                       | C1        | `use`                                      |
-| `terminate`, `cease`            | C1        | `stop`, `end`                              |
-| `facilitate`                    | C1        | `help`, `make easier`                      |
+| `cease`                         | C1        | `stop`, `end`                              |
 | `endeavor` / `endeavour` (verb) | C1        | `try`                                      |
 | `notwithstanding`               | C1        | `despite`, `even so`                       |
 
 † Sources disagree: the Cambridge EVP grades these C2; the Oxford 5000 grades them C1. Treat them as advanced regardless. The C1 entries are still allowed by the rule, but plainer alternatives exist and SHOULD be preferred.
 
+**Exempt — do not flag these.** Each grades above C1 in general English and is nonetheless standard software-engineering vocabulary, so the ceiling does not reach it. The plainer synonym in the right-hand column of the table above would be wrong here, not merely plainer:
+
+| Term of art                | The technical sense that a synonym loses                                                  |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| `terminate`, `termination` | `SIGTERM`; terminating a process, connection, or instance; a loop's termination condition |
+| `initiate`                 | Initiating a connection, a handshake, or a transaction                                    |
+| `paradigm`                 | Programming paradigm — imperative, functional, object-oriented                            |
+| `utilize`, `utilization`   | CPU, memory, and resource utilization                                                     |
+| `obfuscate`, `obfuscation` | The deliberately unreadable output of a minifier or packer                                |
+| `ubiquitous`               | Ubiquitous Language in Domain-Driven Design; ubiquitous computing                         |
+| `manifold`                 | The geometric object in mathematics and machine learning                                  |
+| `circumvent`               | Circumventing a security control, in security and threat-model writing                    |
+
+Two further words — `cumbersome` and `facilitate` — are **not** terms of art, but they appear often enough in ordinary engineering prose that a B2/C1 reader does not stumble on either. Neither is worth flagging. This list is not closed: when a word carries a precise meaning in the document's own domain, exempt it and move on rather than reaching for a synonym.
+
 **Bad Examples:**
 
-> Utilize the new client to ascertain whether the migration has commenced.
+> Ascertain whether the migration has commenced before you cut over.
 
-> The legacy adapter, albeit cumbersome, remains ubiquitous across the fleet.
+> The legacy adapter, albeit slow, still runs on a myriad of hosts.
 
 > Notwithstanding the aforementioned caveats, the change is tantamount to a rewrite.
 
 **Good Examples:**
 
-> Use the new client to check whether the migration has started.
+> Check whether the migration has started before you cut over.
 
-> The legacy adapter is awkward to use, but it still runs on every machine in the fleet.
+> The legacy adapter is slow, but it still runs on many hosts.
 
 > Despite the earlier caveats, the change is effectively a rewrite.
 
