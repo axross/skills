@@ -78,4 +78,4 @@ Commit association is what turns "this release regressed" into "these commits ar
 - MUST create each release through exactly one mechanism; two of them running produces duplicate or conflicting release records.
 - SHOULD associate commits with the release wherever the pipeline has repository history available.
 - SHOULD finalize a release only once its artifacts are uploaded, so a release is never briefly present without its source maps.
-- MUST supply the auth token these mechanisms need from build-time secret storage, per the source-map and token rules.
+- MUST supply the auth token these mechanisms need from build-time secret storage, per the rules in [source-maps-and-tokens.md](./source-maps-and-tokens.md).

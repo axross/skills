@@ -51,7 +51,7 @@ Two exports do most of the work, and both are easy to omit because the applicati
 
 - MUST export the server error hook in any application with Sentry configured; without it server errors go unreported.
 - MUST export the router transition hook so client navigation is scoped correctly.
-- MUST NOT report the framework's control-flow interrupts as errors, per the capture rules.
+- MUST NOT report the framework's control-flow interrupts as errors, per the rules in [capture-and-scopes.md](./capture-and-scopes.md).
 - MUST NOT let either hook throw; a failing reporter must not turn a handled error into an unhandled one.
 
 ## The Build Wrapper and the Bundler Split
@@ -67,7 +67,7 @@ Turbopack has its own, currently experimental, equivalents for part of that surf
 - MUST determine which bundler actually builds the application before setting any bundler-specific option; a plain build command on Next.js 16 means Turbopack.
 - MUST NOT leave a webpack option block in a Turbopack-built application; delete it or migrate it, rather than leaving dead configuration that reads as active.
 - MUST verify the effect of any auto-instrumentation option rather than inferring it from the option being set — the failure mode here is silence, not an error.
-- SHOULD supply the auth token and organization and project slugs to the wrapper from build-time configuration, per the source-map and token rules.
+- SHOULD supply the auth token and organization and project slugs to the wrapper from build-time configuration, per the rules in [source-maps-and-tokens.md](./source-maps-and-tokens.md).
 - SHOULD silence the plugin's build output outside continuous integration, where it is noise rather than signal.
 
 ## Server Functions and Route Handlers
@@ -102,11 +102,11 @@ Tunnelling routes events through the application's own origin. In Next.js the co
 
 - MUST exclude the tunnel path from request-matching configuration when tunnelling is enabled.
 - MUST verify events arrive after enabling tunnelling, since the failure is silent from the application's side.
-- SHOULD account for the added first-party traffic, per the delivery rules.
+- SHOULD account for the added first-party traffic, per the rules in [delivery-and-footprint.md](./delivery-and-footprint.md).
 
 ## Distributed Tracing
 
-Requests the application makes to its own origin, and server functions invoked with headers forwarded, continue the trace automatically. Anything crossing to another origin depends on the propagation targets and the receiver accepting the headers, per the tracing rules.
+Requests the application makes to its own origin, and server functions invoked with headers forwarded, continue the trace automatically. Anything crossing to another origin depends on the propagation targets and the receiver accepting the headers, per the rules in [tracing.md](./tracing.md).
 
 **Guidelines:**
 

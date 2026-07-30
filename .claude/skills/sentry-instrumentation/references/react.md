@@ -35,14 +35,14 @@ A project that has its own boundary component does not need to adopt Sentry's â€
 
 ## Component Attribution
 
-Two related capabilities attach component identity to telemetry. One records render timing for a wrapped component or subtree. The other replaces minified element names with component names in breadcrumbs and spans, and depends on build-time annotation covered with bundle footprint.
+Two related capabilities attach component identity to telemetry. One records render timing for a wrapped component or subtree. The other replaces minified element names with component names in breadcrumbs and spans, and depends on build-time annotation covered in [delivery-and-footprint.md](./delivery-and-footprint.md).
 
 Render-timing instrumentation is worth adding around a specific suspected subtree and not worth adding everywhere; it produces a span per render.
 
 **Guidelines:**
 
 - MUST NOT wrap every component in render-timing instrumentation; scope it to a subtree under investigation.
-- SHOULD enable component-name annotation where breadcrumbs are actually read during triage, per the footprint rules.
+- SHOULD enable component-name annotation where breadcrumbs are actually read during triage, per the rules in [delivery-and-footprint.md](./delivery-and-footprint.md).
 - SHOULD remove render-timing instrumentation once the question it was added to answer has been answered.
 
 ## Routing and Bundler Integrations
@@ -59,7 +59,7 @@ For both, the rule is the shape rather than the symbol.
 
 - MUST install a routing integration matching the router and its major version, looked up in the SDK's documentation for the installed versions rather than copied from a snippet of unknown vintage.
 - MUST confirm transaction names arrive parameterized after wiring routing; an unparameterized name is the symptom of the wrong integration or the wrong wiring style, and it also leaks path content.
-- MUST upload source maps through the plugin for the bundler in use, per the source-map rules.
+- MUST upload source maps through the plugin for the bundler in use, per the rules in [source-maps-and-tokens.md](./source-maps-and-tokens.md).
 - SHOULD re-check the routing integration after a router major upgrade; it is a routine casualty of one.
 
 ## Non-Standard Environments
@@ -73,5 +73,5 @@ Three situations change the rules, and each has a documented path:
 **Guidelines:**
 
 - MUST NOT install a default global client in a shared page or extension; scope capture to the code you own.
-- MUST keep the SDK inert during tests, per the verification rules.
+- MUST keep the SDK inert during tests, per the rules in [verification.md](./verification.md).
 - SHOULD consult the SDK's documented path for workers rather than initializing a second client ad hoc.

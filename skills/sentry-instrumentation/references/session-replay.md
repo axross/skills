@@ -56,7 +56,7 @@ The mobile integration additionally only supports one request mechanism today, s
 **Guidelines:**
 
 - MUST list specific URLs when enabling network detail, never a wildcard.
-- MUST NOT capture request or response bodies for any endpoint carrying user content or credentials, per the content-class rules.
+- MUST NOT capture request or response bodies for any endpoint carrying user content or credentials, per the data-class rules in [data-collection.md](./data-collection.md).
 - SHOULD verify capture actually applies to the request mechanism the application uses, rather than assuming configuration implies coverage.
 
 ## Platform Caveats

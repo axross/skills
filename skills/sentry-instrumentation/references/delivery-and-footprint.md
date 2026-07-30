@@ -27,7 +27,7 @@ Client reports are the least obvious and the most useful during an investigation
 
 - MUST leave client reports enabled; without them a quiet project is indistinguishable from a broken integration.
 - SHOULD bound the offline cache deliberately on mobile rather than accepting the default without checking it against the application's storage budget.
-- MUST flush before a short-lived context ends, per the capture rules.
+- MUST flush before a short-lived context ends, per the rules in [capture-and-scopes.md](./capture-and-scopes.md).
 - SHOULD check the SDK's own debug output before concluding events are being blocked; a misconfigured DSN presents identically.
 
 ## Bundle Footprint

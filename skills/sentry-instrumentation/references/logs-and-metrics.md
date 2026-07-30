@@ -38,7 +38,7 @@ Sentry.logger.info(Sentry.logger.fmt`User ${userId} purchased ${productName}`);
 **Guidelines:**
 
 - MUST use the template helper for any message with an interpolated value, so the message aggregates and the value stays queryable.
-- MUST keep log messages and attributes within the content rules; logs ship to a third party like any other signal.
+- MUST keep log messages and attributes within the content rules in [data-collection.md](./data-collection.md); logs ship to a third party like any other signal.
 - SHOULD map the project logger's levels onto Sentry's explicitly rather than passing a level string through and hoping they align.
 - SHOULD reserve the two highest levels for conditions that genuinely warrant waking someone, so severity keeps its meaning.
 
@@ -84,4 +84,4 @@ Both signals have a send hook — one for logs, one for metrics — that can mod
 - MUST scrub project-specific sensitive attributes in the relevant hook, since neither signal is covered by the error-side hooks.
 - SHOULD drop high-volume, low-value entries at the hook rather than paying to store them.
 - MUST keep both hooks total; a throw loses the signal and can disturb the surrounding operation.
-- SHOULD flush explicitly before a short-lived context exits, since both signals are buffered.
+- SHOULD flush explicitly before a short-lived context exits, since both signals are buffered, per the rules in [capture-and-scopes.md](./capture-and-scopes.md).

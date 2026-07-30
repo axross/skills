@@ -82,11 +82,11 @@ The failure mode is putting a high-cardinality value in a tag — a user identif
 
 Breadcrumbs are the trail of recent activity attached to the next captured event — the difference between a bare stack trace and a sequence that explains it. Most arrive automatically: navigation, requests, console output, user interaction.
 
-A project's own structured logger is the highest-value source, because logging well then produces a useful trail for free. Whether log lines are also sent to Sentry's log store is a separate decision, covered with logs.
+A project's own structured logger is the highest-value source, because logging well then produces a useful trail for free. Whether log lines are also sent to Sentry's log store is a separate decision, covered in [logs-and-metrics.md](./logs-and-metrics.md).
 
 **Guidelines:**
 
-- MUST apply the same content rules to breadcrumb messages and data as to event context; breadcrumbs ship with the event.
+- MUST keep breadcrumb messages and data inside the data-class rules in [data-collection.md](./data-collection.md), which owns them; breadcrumbs ship with the event.
 - SHOULD populate the trail through ordinary logging rather than scattered manual breadcrumb calls.
 - SHOULD reserve a manual breadcrumb for a non-log event worth placing on the timeline — a state transition, a deliberate user action.
 - SHOULD attach a public identifier as breadcrumb data so the trail is filterable.

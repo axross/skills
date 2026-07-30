@@ -39,9 +39,9 @@ It authenticates with the same build-time token as everything else, and the same
 
 **Guidelines:**
 
-- MUST supply the client's token from build-time secret storage, per the token rules.
+- MUST supply the client's token from build-time secret storage, per the token rules in [source-maps-and-tokens.md](./source-maps-and-tokens.md).
 - MUST NOT run release-mutating commands from a development machine against production releases by hand; put them in the pipeline where they are reproducible.
-- SHOULD pick one release mechanism per project — the plugin, the client, or a pipeline action — rather than combining them, per the identity rules.
+- SHOULD pick one release mechanism per project — the plugin, the client, or a pipeline action — rather than combining them, per the rules in [identity-and-releases.md](./identity-and-releases.md).
 
 ## Handling What You Read
 

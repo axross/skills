@@ -2,7 +2,7 @@
 
 Apply this reference when wiring Sentry into a React Native application, uploading its symbols, instrumenting navigation, or diagnosing a documented platform failure.
 
-Verified against `@sentry/react-native` 8.20.0. An Expo-managed application has additional required wiring covered in its own reference; everything here applies there too.
+Verified against `@sentry/react-native` 8.20.0. An Expo-managed application has additional required wiring covered in [expo.md](./expo.md); everything here applies there too.
 
 ## One Package, Three Crash Classes
 
@@ -40,7 +40,7 @@ Its absence is invisible until an incident. The build succeeds, the application 
 
 - MUST apply the SDK's bundler-configuration wrapper as the base of the project's bundler config, then layer project customization on top of it.
 - MUST NOT replace the wrapper with the platform's default configuration factory while keeping the rest of the Sentry wiring; the two are not interchangeable.
-- SHOULD verify a resolved frame from a release build after any change to the bundler configuration, per the source-map rules.
+- SHOULD verify a resolved frame from a release build after any change to the bundler configuration, per the rules in [source-maps-and-tokens.md](./source-maps-and-tokens.md).
 
 ## Native Symbols and the Build-Tool Conflict
 
@@ -73,7 +73,7 @@ Wrapping the root component installs the SDK's own instrumentation. What it prov
 - MUST wrap the root component; without it most of the above does not exist and the SDK's error boundary is absent too.
 - MUST keep the application's own top-level error boundary regardless of the wrap, which reports rather than presenting a usable screen.
 - SHOULD filter development-server requests out of span creation, or a development build produces an unbounded stream of spans.
-- SHOULD verify interaction breadcrumbs carry legible names in a release build, per the footprint rules on name preservation.
+- SHOULD verify interaction breadcrumbs carry legible names in a release build, per the rules in [delivery-and-footprint.md](./delivery-and-footprint.md) on name preservation.
 
 ## Navigation Instrumentation
 
@@ -84,7 +84,7 @@ Route parameters are the hazard here: the integration captures them automaticall
 **Guidelines:**
 
 - MUST install the navigation integration matching the navigation library in use.
-- MUST strip sensitive route parameters, in the transaction send hook or through server-side scrubbing, per the content rules.
+- MUST strip sensitive route parameters, in the transaction send hook or through server-side scrubbing, per the content rules in [data-collection.md](./data-collection.md).
 - SHOULD confirm transaction names arrive as route patterns rather than concrete paths after wiring.
 
 ## Documented Failure Modes

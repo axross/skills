@@ -29,7 +29,7 @@ For a long-running agent, the delivery mode matters: buffered spans on a run las
 
 - MUST keep the agent's structure in the span tree — a tool call is a child of the step that invoked it, not a sibling.
 - SHOULD name each span for the step or tool rather than for its arguments.
-- SHOULD consider streaming span delivery for an agent whose runs outlive a normal request, per the tracing rules.
+- SHOULD consider streaming span delivery for an agent whose runs outlive a normal request, per the rules in [tracing.md](./tracing.md).
 
 ## Content Stays Out
 
@@ -39,7 +39,7 @@ This is the single most consequential default in the AI surface, and it is easy 
 
 **Guidelines:**
 
-- MUST disable generative-AI input and output collection unless there is a stated, reviewed reason to send it, per the content-class rules.
+- MUST disable generative-AI input and output collection unless there is a stated, reviewed reason to send it, per the data-class rules in [data-collection.md](./data-collection.md).
 - MUST verify what an integration collects by default when adding it, rather than assuming the diagnostic dimensions come without the content.
 - SHOULD attach a prompt identifier, a template name, or a hash where the prompt itself would have been useful, so the span stays diagnosable without carrying the text.
 - MUST NOT reintroduce prompt or completion text through a span attribute, a log line, or a breadcrumb after excluding it through the collection options.

@@ -56,13 +56,13 @@ Some capabilities depend on a development build rather than the general-purpose 
 - MUST install the router integration rather than a generic navigation integration in an Expo Router application.
 - MUST wrap the router object where the application navigates imperatively, or those navigations produce no transaction.
 - MUST gate any option unavailable in the general-purpose client application on a runtime check, rather than assuming a development build.
-- SHOULD confirm transaction names arrive as route patterns, and strip sensitive route parameters per the content rules.
+- SHOULD confirm transaction names arrive as route patterns, and strip sensitive route parameters per the content rules in [data-collection.md](./data-collection.md).
 
 ## Update Context
 
 For an application shipping over-the-air updates, the SDK attaches an update context to every event automatically, carrying the running update's identifier, its channel, and its runtime version as searchable tags.
 
-This is what makes an over-the-air deployment diagnosable at all: two devices on the same store version can be running different JavaScript, and the store version alone cannot distinguish them. It is also the natural source for the release and distribution values, per the identity rules.
+This is what makes an over-the-air deployment diagnosable at all: two devices on the same store version can be running different JavaScript, and the store version alone cannot distinguish them. It is also the natural source for the release and distribution values, per the rules in [identity-and-releases.md](./identity-and-releases.md).
 
 The SDK additionally reports a warning-level event on its own when the update mechanism fails to load the latest update and falls back to the embedded bundle. That event is worth alerting on — it is a class of degradation that otherwise leaves no trace, because the application keeps working on older code.
 
