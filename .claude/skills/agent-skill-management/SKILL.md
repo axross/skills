@@ -61,6 +61,12 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
   npx skills add ./skills --agent claude-code --skill <name> --yes --copy
   ```
 
+- Refresh several named skills — one `--skill` flag each:
+
+  ```bash
+  npx skills add ./skills --agent claude-code --skill <name> --skill <other-name> --yes --copy
+  ```
+
 - List installed skills: `npx skills list`
 - Remove an installed skill: `npx skills remove <name>` (then delete its `skills/<name>/` source, and update the host's written skill index where it keeps one).
 
@@ -71,9 +77,10 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
 - MUST re-run the install after editing any source skill so the committed installed copy and `skills-lock.json` match the source.
 - MUST commit the installed `.claude/skills/<name>/` copies and `skills-lock.json` alongside the `skills/` source; they are tracked artifacts, not gitignored.
 - MUST pass `--copy` when symlinks are unsupported; a symlink install leaves the skill root empty or broken there.
-- MUST use `--skill '*'` to refresh all managed skills after a broad change, or `--skill <name>` for a targeted one.
+- MUST use `--skill '*'` to refresh all managed skills after a broad change, or `--skill <name>` for a targeted one; `--skill` takes exactly one skill per flag, so installing several means repeating it (`--skill <name> --skill <other-name>`), not passing a list.
+- MUST read a `No matching skills found` response — the CLI answering with the source's available-skill list where an install summary belongs — as a run that installed nothing: no skill reaches the skill root and no lockfile is written. A comma-separated `--skill a,b,c` is the usual cause, since the CLI does not split the value and so matches no skill at all, and that available-skill list reads like ordinary help rather than a failure.
 - SHOULD run `npx skills add` from the repository root so `./skills` resolves and `skills-lock.json` is written there.
-- SHOULD confirm the install summary lists every expected skill as `copied` before committing.
+- SHOULD confirm the install summary lists every expected skill as `copied` before committing — the check that catches a run which matched nothing and installed nothing.
 - SHOULD retry with an explicit version specifier (`npx --yes skills@latest …`) when `npx skills` aborts with `could not determine executable to run`; the plain form above stays canonical, and the specifier is a fallback for environments where `npx` cannot resolve the bare package name.
 
 ## Proposing a Change to an Installed Skill
