@@ -238,6 +238,11 @@ deliberate act rather than an accident.
   working agreement mandates skills in every session, so measuring inside this
   checkout would measure that agreement instead of discovery, and would do it
   silently.
+- **The workspace does not bound what the CLI loads.** A machine's own skills,
+  and whatever a managed environment injects, compete in every probe alongside
+  the installed corpus. A run strips the tier it can and **records** the rest, so
+  a recorded baseline says what it ran against — and a run that could not isolate
+  itself refuses to produce one at all.
 - **A universal-application claim is informational for now.** A skill can claim
   in its own `when_to_use` that it applies to every session; whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported

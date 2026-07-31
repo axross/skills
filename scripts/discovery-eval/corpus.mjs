@@ -71,6 +71,11 @@ export function isDigest(value) {
   return typeof value === "string" && DIGEST_RE.test(value);
 }
 
+/** The frontmatter block's body, or `null` when the file carries none. */
+function frontmatterBlock(text) {
+  return /^---\n([\s\S]*?)\n---/.exec(text)?.[1] ?? null;
+}
+
 /** The value of one frontmatter key, up to the next key or the block's end. */
 function frontmatterValue(block, key) {
   const match = new RegExp(
@@ -91,12 +96,76 @@ function frontmatterValue(block, key) {
  *   file carries no frontmatter block at all
  */
 export function readDiscoveryText(text) {
-  const block = /^---\n([\s\S]*?)\n---/.exec(text)?.[1];
-  if (block === undefined) return null;
+  const block = frontmatterBlock(text);
+  if (block === null) return null;
   const [description, whenToUse] = DISCOVERY_KEYS.map((key) =>
     frontmatterValue(block, key),
   );
   return { description, whenToUse };
+}
+
+/**
+ * The three states a skill's `user-invocable` field can be read as.
+ *
+ * A TRI-STATE, not a boolean, because "the field says something this parser
+ * does not understand" is a distinct outcome from either answer — and for the
+ * isolation check that consumes this, it is the outcome that must never be
+ * mistaken for "invocable". See `readInvocable`.
+ */
+export const INVOCABLE = "invocable";
+export const NOT_INVOCABLE = "not-invocable";
+export const UNRECOGNISED = "unrecognised";
+
+const INVOCABLE_KEY = "user-invocable";
+
+/**
+ * Whether the key is written at all, judged over the frontmatter block ALONE.
+ *
+ * Scoping matters: skill bodies in this repository quote frontmatter inside
+ * fenced code blocks — the authoring skill's own references do — so testing
+ * this against raw file text would read a documentation example as a
+ * declaration. `frontmatterValue` never had this exposure because it is only
+ * ever handed an extracted block; presence testing reintroduces it unless it is
+ * scoped the same way.
+ */
+const INVOCABLE_KEY_PRESENT = new RegExp(`^${INVOCABLE_KEY}:`, "m");
+
+/**
+ * Read one SKILL.md's invocability.
+ *
+ * PRESENCE FIRST, THEN VALUE, and both halves are load-bearing. Two traps sit
+ * on this one predicate, and each was written before it was caught:
+ *
+ *   1. `frontmatterValue` returns a STRING, always — this repository writes the
+ *      field bare and unquoted, so it yields `"false"`, and `"false" !== false`
+ *      is `true`. A boolean comparison therefore classifies every skill here as
+ *      invocable. Do NOT reintroduce `!== false`.
+ *   2. A PRESENT-BUT-EMPTY key (`user-invocable:` with nothing after it) yields
+ *      `""` — byte-identical to what an absent key yields. A value-only
+ *      predicate maps it to the absent-key default, and it is the one spelling
+ *      that also passes `check-skill.mjs`, which checks presence only.
+ *
+ * An absent key really does mean invocable — that is the observed CLI default,
+ * and it is the ONLY state where "nothing to read" is an answer rather than a
+ * parse failure. Everything else unrecognised fails LOUD, because the consumer
+ * uses `INVOCABLE` to suppress a contamination warning: reading "I could not
+ * parse this" as "this one is ours" would silence the alarm this exists to ring.
+ *
+ * @param {string} text the file's contents
+ * @returns {typeof INVOCABLE | typeof NOT_INVOCABLE | typeof UNRECOGNISED}
+ */
+export function readInvocable(text) {
+  const block = frontmatterBlock(text);
+  // No frontmatter at all is not a well-formed skill. `corpusDigest` tolerates
+  // it — a fingerprint can honestly record two empty strings — but here it is a
+  // parse failure, and parse failures go to the loud side.
+  if (block === null) return UNRECOGNISED;
+  if (!INVOCABLE_KEY_PRESENT.test(block)) return INVOCABLE;
+
+  const value = frontmatterValue(block, INVOCABLE_KEY);
+  if (value === "true") return INVOCABLE;
+  if (value === "false") return NOT_INVOCABLE;
+  return UNRECOGNISED;
 }
 
 /**
@@ -125,9 +194,8 @@ export function digestDiscoveryText({ description, whenToUse }) {
  * @param {string} root a directory of skill directories, e.g. `.claude/skills`
  * @returns {Promise<Record<string, string>>} skill name → digest, sorted by name
  */
-export async function corpusDigest(root) {
+async function* skillFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
-  const digests = {};
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     if (!entry.isDirectory()) continue;
     let text;
@@ -137,11 +205,38 @@ export async function corpusDigest(root) {
       // Not a skill directory.
       continue;
     }
-    digests[entry.name] = digestDiscoveryText(
+    yield { name: entry.name, text };
+  }
+}
+
+export async function corpusDigest(root) {
+  const digests = {};
+  for await (const { name, text } of skillFiles(root)) {
+    digests[name] = digestDiscoveryText(
       readDiscoveryText(text) ?? { description: "", whenToUse: "" },
     );
   }
   return digests;
+}
+
+/**
+ * Read every skill's invocability under a skill root, keyed by directory name.
+ *
+ * Shares `skillFiles` with `corpusDigest` rather than duplicating the traversal,
+ * so the two can never disagree about which directories are skills. It stays a
+ * SEPARATE function, and `user-invocable` stays out of `DISCOVERY_KEYS`:
+ * discovery does not read this field, so folding it into the digest would
+ * invalidate every recorded baseline over a value no probe can see.
+ *
+ * @param {string} root a directory of skill directories, e.g. `.claude/skills`
+ * @returns {Promise<Record<string, string>>} skill name → one of the three states
+ */
+export async function corpusInvocability(root) {
+  const states = {};
+  for await (const { name, text } of skillFiles(root)) {
+    states[name] = readInvocable(text);
+  }
+  return states;
 }
 
 /**

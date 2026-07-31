@@ -1,0 +1,139 @@
+// What the CLI loaded that the workspace did not put there.
+//
+// `corpus.mjs` fingerprints what a SKILL.md ON DISK says. This module answers a
+// different question — what the spawned CLI actually loaded AT RUNTIME — and the
+// two are deliberately not the same name.
+//
+// THE PROBLEM. run.mjs builds a scratch workspace holding exactly this
+// repository's installed skills, but the CLI also loads skills from the user
+// level and from a managed environment. Measured against CLI 2.1.220 in a Claude
+// Code cloud container: 23 foreign skills by default, 17 after
+// `--setting-sources project` strips the user-level tier — among them
+// `code-review`, `simplify`, `run`, `loop` and `dataviz`, every one of which
+// competes for this fixture's prompts. Nothing in the corpus fingerprint could
+// see any of it, because the fingerprint only ever covered what the runner
+// installed.
+//
+// FULL ISOLATION IS NOT REACHABLE. Every switch that removes the managed tier —
+// `--bare`, `--safe-mode`, `--setting-sources ''`, `--disable-slash-commands` —
+// removes the workspace's own skills with it, which measures nothing. So the
+// runner isolates the one tier it can and RECORDS the rest.
+//
+// WHAT THIS CAN AND CANNOT SEE. The signal is the `system`/`init` event's
+// `skills` array, which lists USER-INVOCABLE skills only. Every skill in this
+// repository carries `user-invocable: false`, so none of them appears there —
+// which is exactly why a loaded name that MATCHES one of ours is so
+// interesting. The blind spot is the mirror of that: a foreign skill which is
+// itself `user-invocable: false` is invisible here, and no signal in the stream
+// can see it. Report wording says "user-invocable only" for that reason.
+
+import { INVOCABLE, UNRECOGNISED } from "./corpus.mjs";
+
+/**
+ * Sort a set of names into the three things a loaded skill can be.
+ *
+ * The classification is three-way rather than "ours or not", and each of the two
+ * simpler versions was written before it was rejected:
+ *
+ *   * `foreign = loaded − corpus` looks obviously right and is actively harmful.
+ *     A `user-invocable: false` corpus skill can never BE in `loaded`, so the
+ *     subtraction only ever fires on a name COLLISION — and a collision is the
+ *     worst case, not an exemption. It would have silently dropped a foreign
+ *     `code-review`, which is the first contamination this evaluation's own
+ *     issue names.
+ *   * `foreign = loaded`, with no corpus lookup, misreports one of OUR skills as
+ *     foreign the moment it is `user-invocable: true` — a state this
+ *     repository's authoring rules REQUIRE for workflow entry-point skills. It
+ *     would refuse a baseline on a completely clean run, naming a skill the
+ *     reader knows is ours.
+ *
+ * `UNRECOGNISED` joins `NOT_INVOCABLE` on the colliding side deliberately: only
+ * a positively-read `INVOCABLE` may excuse a loaded name, because `own` is the
+ * one bucket that suppresses the refusal.
+ *
+ * @param {string[]} loaded        names the CLI reported loading
+ * @param {Record<string, string>} invocability  corpus name → invocability state
+ * @returns {{ own: string[], colliding: string[], foreign: string[] }} each sorted
+ */
+export function classifyLoaded(loaded, invocability) {
+  const own = [];
+  const colliding = [];
+  const foreign = [];
+
+  for (const name of [...new Set(loaded)].sort()) {
+    const state = invocability[name];
+    if (state === undefined) {
+      foreign.push(name);
+    } else if (state === INVOCABLE) {
+      own.push(name);
+    } else {
+      // NOT_INVOCABLE — that corpus skill cannot be the one loaded, so
+      // something else is wearing its name — or UNRECOGNISED, which fails loud.
+      colliding.push(name);
+    }
+  }
+
+  return { own, colliding, foreign };
+}
+
+/**
+ * Summarise a whole run: the union of what every probe loaded, classified once.
+ *
+ * A UNION rather than an intersection or a first-probe sample. Contamination
+ * that appears in even one probe of a run is contamination the run's numbers
+ * carry, so anything less than a union would under-report it.
+ *
+ * `recorded: false` when NO probe reported a list at all — an older CLI that
+ * emits no `skills` field. That is distinct from every probe reporting an empty
+ * list, and the report must not render the two the same way: one is "clean", the
+ * other is "cannot tell".
+ *
+ * @param {Array<string[]|null>} perProbeLoaded  one entry per probe, `null` when unreported
+ * @param {Record<string, string>} invocability
+ * @returns {{ recorded: boolean, own: string[], colliding: string[], foreign: string[] }}
+ */
+export function summariseIsolation(perProbeLoaded, invocability) {
+  const reported = perProbeLoaded.filter((entry) => Array.isArray(entry));
+  if (reported.length === 0) {
+    return { recorded: false, own: [], colliding: [], foreign: [] };
+  }
+  return {
+    recorded: true,
+    ...classifyLoaded(reported.flat(), invocability),
+  };
+}
+
+/**
+ * The names that make a run unfit to record a baseline from.
+ *
+ * Colliding and foreign, never `own`. A skill of ours that is legitimately
+ * user-invocable appears in the loaded list BY DESIGN, so refusing on it would
+ * break recording for a corpus state this repository's own authoring rules
+ * require of every workflow entry-point skill.
+ *
+ * A separate function rather than an inline `[...colliding, ...foreign]` at the
+ * one call site, so the rule that decides a refusal is testable without
+ * spawning a CLI and paying for a fixture's worth of probes.
+ *
+ * @param {{ colliding: string[], foreign: string[] }} isolation
+ * @returns {string[]} sorted; empty means the run may emit a baseline
+ */
+export function contamination({ colliding, foreign }) {
+  return [...colliding, ...foreign].sort();
+}
+
+/**
+ * Corpus skills whose `user-invocable` value could not be read.
+ *
+ * Named in the report so a false collision is diagnosable. Without this a
+ * mistyped field produces a loud, correct-by-design warning about a skill the
+ * reader knows perfectly well is theirs, and nothing says why.
+ *
+ * @param {Record<string, string>} invocability
+ * @returns {string[]} sorted
+ */
+export function unrecognisedInvocability(invocability) {
+  return Object.keys(invocability)
+    .filter((name) => invocability[name] === UNRECOGNISED)
+    .sort();
+}

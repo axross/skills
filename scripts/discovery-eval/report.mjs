@@ -27,6 +27,77 @@ const bar = (character = "-") => character.repeat(RULE_WIDTH);
 const ratio = (hits, repeats) => `${hits}/${repeats}`;
 
 /**
+ * The header's foreign-skill count, or an honest admission that it is unknown.
+ *
+ * "unknown" and "0" must never render the same way: the first means the CLI
+ * reported no skill list at all, the second means it reported one and nothing in
+ * it was foreign.
+ *
+ * @param {{ recorded: boolean, colliding: string[], foreign: string[] }|undefined} isolation
+ */
+function renderForeignCount(isolation) {
+  if (!isolation?.recorded) return "unknown (CLI reported no skill list)";
+  const total = isolation.foreign.length + isolation.colliding.length;
+  const collisions = isolation.colliding.length;
+  return `${total} (user-invocable only)${collisions > 0 ? `, ${collisions} colliding with ours` : ""}`;
+}
+
+/**
+ * The contamination detail — or, when the run was clean, nothing at all.
+ *
+ * COLLISIONS FIRST. A foreign skill wearing one of our names is the worst case:
+ * it competes for exactly the prompts our skill is labelled for, and a reader
+ * scanning the plain foreign list would see a familiar name and move on.
+ *
+ * @param {{ recorded: boolean, own: string[], colliding: string[], foreign: string[] }|undefined} isolation
+ * @param {string[]} unrecognised corpus skills whose `user-invocable` could not be read
+ */
+function renderIsolationNotice(isolation, unrecognised = []) {
+  if (!isolation?.recorded) return [];
+  if (isolation.foreign.length === 0 && isolation.colliding.length === 0) {
+    return [];
+  }
+
+  const lines = [
+    "",
+    bar("="),
+    "Skills the run could not isolate",
+    bar("="),
+    "The CLI loaded these; the evaluation workspace did not install them. They",
+    "compete for every prompt below, and the corpus fingerprint cannot see them.",
+  ];
+
+  if (isolation.colliding.length > 0) {
+    lines.push(
+      "",
+      `  colliding with a skill of ours (${isolation.colliding.length}) — same name, different skill:`,
+      `    ${isolation.colliding.join(", ")}`,
+    );
+  }
+  if (isolation.foreign.length > 0) {
+    lines.push("", `  foreign (${isolation.foreign.length}):`, `    ${isolation.foreign.join(", ")}`);
+  }
+  if (unrecognised.length > 0) {
+    lines.push(
+      "",
+      "  NOTE — these skills of ours carry a `user-invocable` value this runner",
+      "  could not read, so any of their names above is reported as colliding out",
+      "  of caution rather than on evidence:",
+      `    ${unrecognised.join(", ")}`,
+    );
+  }
+
+  lines.push(
+    "",
+    "Only the user-level tier can be stripped (--setting-sources project, already",
+    "applied). The rest arrive from the managed environment and cannot be removed",
+    "without removing the workspace's own skills too. A foreign skill that is",
+    "itself `user-invocable: false` is invisible here.",
+  );
+  return lines;
+}
+
+/**
  * The header block: what ran, against what, judged how.
  *
  * @param {object} context
@@ -37,6 +108,7 @@ function renderHeader({
   repeatsNote,
   caseCount,
   corpusSize,
+  isolation,
   headSha,
   workspaceNote,
 }) {
@@ -50,6 +122,12 @@ function renderHeader({
     `repeats          ${repeats} per case${repeatsNote ? `, ${repeatsNote}` : ""}`,
     `cases            ${caseCount}`,
     `skills installed ${corpusSize}`,
+    // ALWAYS printed, unlike the corpus notice below, which stays silent on a
+    // clean run. The asymmetry is deliberate: a corpus notice fires on drift, so
+    // silence carries information, whereas here a reader must be able to see a
+    // "0" and know the run was checked and clean — an absent line would be
+    // indistinguishable from a runner too old to look.
+    `foreign skills   ${renderForeignCount(isolation)}`,
   ];
   if (headSha) {
     lines.push(`evaluated head   ${headSha}`);
@@ -301,6 +379,7 @@ export function renderReport({ fixture, tallies, delta, context }) {
   const byId = new Map(fixture.cases.map((entry) => [entry.id, entry]));
   return [
     renderHeader({ ...context, caseCount: fixture.cases.length }),
+    ...renderIsolationNotice(context.isolation, context.unrecognisedInvocability),
     ...tallies.map((tally) => renderCase(tally, byId.get(tally.id))),
     renderFindings(tallies),
     renderDelta(delta, fixture.expectAlways ?? []),
@@ -329,12 +408,12 @@ export const BASELINE_MARKER = "Proposed baseline — commit this deliberately:"
  * should be a deliberate reviewable act, not a side effect of running a report.
  *
  * @param {object[]} tallies
- * @param {{ model: string, repeats: number, recordedAt: string, corpus?: Record<string, string>|null }} context
+ * @param {{ model: string, repeats: number, recordedAt: string, corpus?: Record<string, string>|null, foreignSkills?: string[] }} context
  * @returns {string}
  */
 export function renderBaseline(
   tallies,
-  { model, repeats, recordedAt, corpus = null },
+  { model, repeats, recordedAt, corpus = null, foreignSkills = [] },
 ) {
   const cases = {};
   // Sparse on purpose: only the cases that did NOT run at the document's
@@ -362,6 +441,14 @@ export function renderBaseline(
         .map((name) => [name, corpus[name]]),
     );
   }
+  // UNCONDITIONAL, including as `[]`, and deliberately unlike `corpus` and
+  // `caseRepeats` above. Those two are omitted when empty because an empty value
+  // cannot occur for them, so absence unambiguously means "not recorded". Here
+  // `[]` is a REAL state — "recorded, and nothing foreign was loaded" — which
+  // absence cannot express: a baseline predating this field would look
+  // identical. Do not "fix" this into an `if`; it would destroy the distinction.
+  document.foreignSkills = [...foreignSkills].sort();
+
   if (Object.keys(caseRepeats).length > 0) {
     document.caseRepeats = Object.fromEntries(
       Object.keys(caseRepeats)

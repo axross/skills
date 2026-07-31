@@ -243,10 +243,79 @@ a claim can hold under a one-turn measurement is unsettled. The result is
 recorded here; what to do about it is a question nothing measured so far can
 close.
 
+### `foreignSkills` — the skills the run could not isolate
+
+The workspace holds exactly this repository's installed skills. **The CLI loads
+more than that.** Whatever a machine carries at the user level, and whatever a
+managed environment injects, competes in every probe — and
+[`corpus`](#corpus--the-fingerprint-of-what-a-measurement-ran-against) cannot
+see any of it, because it only ever fingerprinted what the runner installed.
+
+Measured against the pinned CLI in a Claude Code cloud container, reading the
+`system`/`init` event's `skills` array:
+
+| Spawn                       | Skills loaded | Workspace corpus still reaches the model? |
+| --------------------------- | ------------- | ----------------------------------------- |
+| no flag                     | 24            | yes                                       |
+| `--setting-sources project` | **18**        | **yes**                                   |
+| `--setting-sources ''`      | 17            | no                                        |
+| `--bare`                    | 15            | no                                        |
+
+So the runner passes `--setting-sources project` on every probe, which strips
+the six user-level skills for free. The seventeen that remain arrive from the
+managed environment, and **every** switch that removes them removes the
+workspace's own skills too — which measures nothing. Full isolation is not
+reachable, so the run records what it could not isolate instead.
+
+Each loaded name is sorted three ways, against the invocability of the skill of
+ours it might match:
+
+| Bucket      | Meaning                                              | Triggers a refusal? |
+| ----------- | ---------------------------------------------------- | ------------------- |
+| `own`       | matches one of ours carrying `user-invocable: true`  | no                  |
+| `colliding` | matches one of ours carrying `user-invocable: false` | yes                 |
+| `foreign`   | matches nothing of ours                              | yes                 |
+
+**`colliding` is the loudest case, and the one a naive `loaded − corpus`
+subtraction would have hidden.** A skill of ours that is `user-invocable: false`
+can never appear in that array, so a loaded name matching it is something else
+wearing its name — `code-review` really does collide in the cloud container.
+`own` exists because this repository's authoring rules require
+`user-invocable: true` on every workflow entry-point skill, and reporting such a
+skill as foreign would refuse a baseline on a completely clean run.
+
+**The field is written on every re-record, `[]` included** — deliberately unlike
+`corpus` and `caseRepeats`, which are omitted when empty. An empty corpus cannot
+occur, so for those two absence unambiguously means "not recorded". Here `[]` is
+a real state — _recorded, and nothing foreign loaded_ — that absence cannot
+express, since a baseline predating the field looks identical. Do not "fix" that
+inconsistency; it is the distinction.
+
+**What this cannot see.** The init event lists **user-invocable skills only**, so
+a foreign skill that is itself `user-invocable: false` is invisible, and no
+signal in the stream can find it. The report says "user-invocable only" for that
+reason. The runner also reads a skill's `user-invocable` value by **key presence
+first, then value** — a present-but-empty `user-invocable:` is indistinguishable
+by value from an absent key, and anything it cannot parse is treated as _not_
+invocable, so an unreadable field produces a noisy false collision rather than a
+silent clean bill of health.
+
 ### Re-recording it
 
 Two routes, and **neither is a plain dispatch** — an ordinary run produces a
 report and no baseline document at all.
+
+**A contaminated run refuses to emit one.** When the CLI loaded skills the
+workspace did not install — see
+[`foreignSkills`](#foreignskills--the-skills-the-run-could-not-isolate) — the
+runner prints its report and then exits **3** without emitting a document. The
+report is still worth having, and the probes are paid for either way; a
+_baseline_ is different, because its whole purpose is to be compared against
+later, so recording one against a corpus that was never the one measured is the
+precise staleness `corpus` exists to prevent, arriving through a door that
+fingerprint cannot watch. In CI the emitting job fails and uploads no artifact.
+There is no override flag: if the CI runner itself turns out to be contaminated,
+that is a finding to act on rather than a check to bypass.
 
 Dispatch `discovery-eval.yaml` with **`emit_baseline` checked and no pull
 request number**, then download the `proposed-baseline` artifact from the
@@ -373,6 +442,13 @@ measured, and it would quietly widen what the first half forgives.
   agreement mandates three skills in every session; evaluating inside this
   checkout would measure that agreement instead of discovery, and would do so
   silently.
+- **The workspace does not bound what the CLI loads.** A managed environment
+  injects skills no flag can strip without stripping the workspace's own, so
+  some runs measure a corpus wider than the one installed. What could not be
+  isolated is recorded in
+  [`foreignSkills`](#foreignskills--the-skills-the-run-could-not-isolate), and a
+  contaminated run cannot emit a baseline — but a foreign skill that is itself
+  `user-invocable: false` stays invisible to that record.
 - **`expectAlways` is informational for now.** `professional-behavior` claims in
   its own `when_to_use` that it applies to every session. Whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported
