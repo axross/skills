@@ -35,6 +35,7 @@ import {
   UNRECOGNISED,
 } from "../../scripts/discovery-eval/corpus.mjs";
 import {
+  baselineRefusal,
   classifyLoaded,
   contamination,
   summariseIsolation,
@@ -1618,6 +1619,34 @@ describe("deciding whether a run may record a baseline", () => {
       "code-review": NOT_INVOCABLE,
     });
     expect(contamination(isolation)).toEqual(["code-review"]);
+  });
+
+  it("refuses when no probe reported what the CLI loaded", () => {
+    // THE STATE THAT LOOKS LIKE SUCCESS. `colliding` and `foreign` are both
+    // empty here because nothing was ever observed, not because nothing was
+    // there — so a check that only counts names emits a document whose
+    // `foreignSkills: []` is byte-identical to a verified-clean run, and a
+    // reader of the committed baseline can no longer tell the two apart.
+    const isolation = summariseIsolation([null, null], {
+      "code-review": NOT_INVOCABLE,
+    });
+    expect(contamination(isolation)).toEqual([]);
+    expect(baselineRefusal(isolation)).toMatchObject({ names: [] });
+    expect(baselineRefusal(isolation).reason).toMatch(/never checked/);
+  });
+
+  it("permits a measured, genuinely clean run", () => {
+    expect(baselineRefusal(summariseIsolation([[]], {}))).toBeNull();
+  });
+
+  it("names the offenders when it refuses for contamination", () => {
+    const refusal = baselineRefusal(
+      summariseIsolation([["simplify", "code-review"]], {
+        "code-review": NOT_INVOCABLE,
+      }),
+    );
+    expect(refusal.names).toEqual(["code-review", "simplify"]);
+    expect(refusal.reason).toMatch(/did not install/);
   });
 });
 

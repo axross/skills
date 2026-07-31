@@ -123,6 +123,46 @@ export function contamination({ colliding, foreign }) {
 }
 
 /**
+ * Whether a run may record a baseline at all, and why not when it may not.
+ *
+ * TWO ways to be unfit, and only one of them has names to print. The second is
+ * the easier one to miss, because it looks exactly like success:
+ *
+ *   * CONTAMINATED — the CLI loaded skills the workspace did not install.
+ *   * UNCHECKED — no probe reported a skill list, so what the CLI loaded was
+ *     never observed. `colliding` and `foreign` are both `[]` here, so a check
+ *     that only counts names reads this as a clean run and emits a document
+ *     whose `foreignSkills: []` is byte-identical to a verified-clean one. That
+ *     silently destroys the distinction the field exists to carry: a reader of
+ *     the committed baseline could no longer tell "measured, and nothing
+ *     foreign loaded" from "never looked".
+ *
+ * `report.mjs` already keeps the two apart on screen — it prints "unknown (CLI
+ * reported no skill list)" rather than "0" — and this is what keeps them apart
+ * in the persisted document.
+ *
+ * @param {{ recorded: boolean, colliding: string[], foreign: string[] }} isolation
+ * @returns {{ reason: string, names: string[] }|null} `null` when the run may record
+ */
+export function baselineRefusal(isolation) {
+  if (!isolation.recorded) {
+    return {
+      reason:
+        "no probe reported which skills the CLI loaded, so isolation was never checked",
+      names: [],
+    };
+  }
+  const names = contamination(isolation);
+  if (names.length > 0) {
+    return {
+      reason: `the CLI loaded ${names.length} skill(s) this workspace did not install`,
+      names,
+    };
+  }
+  return null;
+}
+
+/**
  * Corpus skills whose `user-invocable` value could not be read.
  *
  * Named in the report so a false collision is diagnosable. Without this a

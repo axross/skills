@@ -45,10 +45,11 @@
 // Exit codes:
 //   0  a report was produced — ALWAYS, whatever it found
 //   2  bad invocation: an unknown flag, an unparseable fixture, a missing CLI
-//   3  --emit-baseline was asked for on a run the CLI contaminated with skills
-//      the workspace did not install. The report still printed; only the
-//      baseline document is withheld. Reachable from NO other flag, so the
-//      no-gate promise above is unaffected.
+//   3  --emit-baseline was asked for on a run whose isolation does not hold —
+//      either the CLI loaded skills the workspace did not install, or it
+//      reported no skill list at all so nothing could be checked. The report
+//      still printed; only the baseline document is withheld. Reachable from NO
+//      other flag, so the no-gate promise above is unaffected.
 
 import { spawnSync } from "node:child_process";
 import {
@@ -69,6 +70,7 @@ import { deltaAgainst, tallyAll } from "./compare.mjs";
 import { compareCorpus, corpusDigest, corpusInvocability } from "./corpus.mjs";
 import { parseBaseline, parseFixture, ValidationError } from "./fixture.mjs";
 import {
+  baselineRefusal,
   contamination,
   summariseIsolation,
   unrecognisedInvocability,
@@ -169,7 +171,8 @@ and report which expected skills were missed and which unexpected ones fired.
   --help               this text
 
 Exit codes: 0 a report was produced (always), 2 bad invocation, 3 --emit-baseline
-on a run the CLI loaded foreign skills into (the report still printed).
+on a run whose isolation does not hold — foreign skills loaded, or no skill list
+reported at all (the report still printed).
 This reports; it never gates.`;
 
 function fail2(message) {
@@ -540,18 +543,19 @@ async function main() {
     // user-invocable appears in the loaded list by design, and refusing on it
     // would break recording for a corpus state this repository's own authoring
     // rules require.
-    const contaminated = contamination(isolation);
-    if (contaminated.length > 0) {
+    const refusal = baselineRefusal(isolation);
+    if (refusal) {
       process.stderr.write(
         [
           "",
-          `Refusing to emit a baseline: the CLI loaded ${contaminated.length} skill(s) this workspace did not install.`,
-          `  ${contaminated.join(", ")}`,
+          `Refusing to emit a baseline: ${refusal.reason}.`,
+          ...(refusal.names.length > 0 ? [`  ${refusal.names.join(", ")}`] : []),
           "",
-          "Those competed in every probe, so the tallies above do not describe the",
-          "corpus a committed baseline would name. Re-record where the CLI loads",
-          "nothing extra — dispatching discovery-eval.yaml with emit_baseline is the",
-          "route that needs no local CLI and no local credentials.",
+          "The tallies above therefore do not describe the corpus a committed",
+          "baseline would name. Re-record where the CLI loads nothing extra and",
+          "reports what it loaded — dispatching discovery-eval.yaml with",
+          "emit_baseline is the route that needs no local CLI and no local",
+          "credentials.",
           "",
         ].join("\n"),
       );
@@ -563,7 +567,10 @@ async function main() {
         model: observedModel,
         repeats: options.repeats,
         corpus,
-        foreignSkills: contaminated,
+        // Reached only past the refusal above, so `recorded` is true and there
+        // is nothing foreign: `[]` here is a MEASURED clean state, never an
+        // unchecked one.
+        foreignSkills: contamination(isolation),
         // Supplied rather than stamped inside the renderer so the pure module
         // stays deterministic and testable. Truncated to whole seconds: a run
         // takes minutes, so milliseconds would claim a precision the

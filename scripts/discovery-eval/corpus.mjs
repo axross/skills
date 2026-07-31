@@ -185,14 +185,12 @@ export function digestDiscoveryText({ description, whenToUse }) {
  * Digest every skill under a skill root, keyed by directory name.
  *
  * Its keys are also the corpus's skill list, so this is the ONE enumeration of
- * an installed root rather than a second copy of one.
- *
- * A SKILL.md carrying no frontmatter digests as two empty strings rather than
- * being dropped: a skill with no discovery text is a fact about the corpus
- * worth recording, not a reason to omit it from the record.
+ * an installed root rather than a second copy of one — and the reason the walk
+ * lives in `skillFiles` below rather than in either reader.
  *
  * @param {string} root a directory of skill directories, e.g. `.claude/skills`
- * @returns {Promise<Record<string, string>>} skill name → digest, sorted by name
+ * @yields {{ name: string, text: string }} directory name and raw SKILL.md text,
+ *   in name order; a directory holding no readable SKILL.md is skipped
  */
 async function* skillFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
@@ -209,6 +207,16 @@ async function* skillFiles(root) {
   }
 }
 
+/**
+ * Digest every skill's discovery text under a skill root, keyed by directory name.
+ *
+ * A SKILL.md carrying no frontmatter digests as two empty strings rather than
+ * being dropped: a skill with no discovery text is a fact about the corpus
+ * worth recording, not a reason to omit it from the record.
+ *
+ * @param {string} root a directory of skill directories, e.g. `.claude/skills`
+ * @returns {Promise<Record<string, string>>} skill name → digest, sorted by name
+ */
 export async function corpusDigest(root) {
   const digests = {};
   for await (const { name, text } of skillFiles(root)) {

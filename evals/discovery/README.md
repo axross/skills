@@ -291,6 +291,10 @@ a real state — _recorded, and nothing foreign loaded_ — that absence cannot
 express, since a baseline predating the field looks identical. Do not "fix" that
 inconsistency; it is the distinction.
 
+That `[]` can only ever mean a **measured** clean run, because a run that could
+not measure its isolation refuses to emit a document at all. Without that
+refusal the field would quietly acquire a third meaning it cannot signal.
+
 **What this cannot see.** The init event lists **user-invocable skills only**, so
 a foreign skill that is itself `user-invocable: false` is invisible, and no
 signal in the stream can find it. The report says "user-invocable only" for that
@@ -305,8 +309,14 @@ silent clean bill of health.
 Two routes, and **neither is a plain dispatch** — an ordinary run produces a
 report and no baseline document at all.
 
-**A contaminated run refuses to emit one.** When the CLI loaded skills the
-workspace did not install — see
+**A run whose isolation does not hold refuses to emit one**, and there are two
+ways for it not to hold. The obvious one is that the CLI loaded skills the
+workspace did not install. The other is that **no probe reported a skill list at
+all**, so nothing could be checked — an older or different CLI. That second state
+is the dangerous one, because it looks exactly like success: nothing foreign was
+found, since nothing was ever looked at, and the emitted `foreignSkills: []`
+would be byte-identical to a genuinely verified run. Both refuse. When the CLI
+loaded skills the workspace did not install — see
 [`foreignSkills`](#foreignskills--the-skills-the-run-could-not-isolate) — the
 runner prints its report and then exits **3** without emitting a document. The
 report is still worth having, and the probes are paid for either way; a
