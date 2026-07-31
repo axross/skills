@@ -197,6 +197,52 @@ report suppresses the delta entirely and says so, rather than printing a
 comparison that looks meaningful and is not. Deltas compare **rates**, so a
 baseline recorded at 5 repeats stays comparable against a 10-repeat run.
 
+### What this baseline already records
+
+The most consequential result in this file is a negative one, and it is about a
+skill of this library's own. `professional-behavior` — the fixture's sole
+`expectAlways` entry, a skill whose `when_to_use` claims it applies to **every**
+session — was selected in **none** of the recorded probes:
+
+```bash
+node -e '
+const b = require("./evals/discovery/baseline.json");
+const named = Object.values(b.cases).filter((t) => "professional-behavior" in t).length;
+console.log("cases naming professional-behavior:", named);
+'
+# cases naming professional-behavior: 0
+```
+
+That command counts **tallies** rather than hits because a 0-hit skill is
+recorded by being absent from a tally, never by a `0`:
+[`renderBaseline`](../../scripts/discovery-eval/report.mjs) writes a skill only
+when `hits > 0`. The skill was tracked on every case regardless —
+[`tallyCase`](../../scripts/discovery-eval/compare.mjs) unions `expectAlways`
+into the names it tallies — so the absence is a measured zero rather than a
+skill that was never tracked.
+
+**What produced it.** `claude-sonnet-5`, at 5 repeats on each of the 28 measured
+cases: 140 probes, and no selection in any of them.
+
+**Why it is not a statement about today.** Two reasons, and re-reading the file
+resolves neither. The tallies are not one run — they accreted across four
+commits as new skills landed, against an installed corpus that grew from 22
+skills to 25. And nothing records which version of `professional-behavior`'s own
+discovery text the probes read: #111 rewrote both its `description` and its
+`when_to_use` in the commit immediately before the first tallies landed, the
+probes themselves ran on a branch, and this baseline predates the
+[`corpus`](#corpus--the-fingerprint-of-what-a-measurement-ran-against)
+fingerprint that would have settled which side of that rewrite they fell on.
+Only a re-record yields a live figure.
+
+**It is not a verdict on the skill.** That rewrite kept the "apply in EVERY
+session" claim, so the claim this result bears on is still being made — but the
+text competing for selection is no longer the text that was measured, and
+[`expectAlways` is informational](#known-limits) precisely because whether such
+a claim can hold under a one-turn measurement is unsettled. The result is
+recorded here; what to do about it is a question nothing measured so far can
+close.
+
 ### Re-recording it
 
 Two routes, and **neither is a plain dispatch** — an ordinary run produces a
@@ -330,4 +376,6 @@ measured, and it would quietly widen what the first half forgives.
 - **`expectAlways` is informational for now.** `professional-behavior` claims in
   its own `when_to_use` that it applies to every session. Whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported
-  but not counted as a finding.
+  but not counted as a finding. It has already fallen short once, and the
+  recorded result is written up under [What this baseline already
+  records](#what-this-baseline-already-records).
