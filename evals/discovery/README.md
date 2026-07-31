@@ -237,9 +237,10 @@ run":
 ```
 
 What it must not do is borrow `{}`. An empty tally means _measured, and
-discovery selected nothing_ — a real finding on three cases in this file, one of
-them a standing `MISS`. Reusing that spelling for "never run" would make the two
-indistinguishable in the one file a human reads before committing.
+discovery selected nothing_ — a real finding
+on <!-- count:empty-tally-cases -->three<!-- /count --> cases in this file, one
+of them a standing `MISS`. Reusing that spelling for "never run" would make the
+two indistinguishable in the one file a human reads before committing.
 
 The declaration **clears itself**: a re-record measures every case in the
 fixture it ran, so `--emit-baseline` emits a document with no `unmeasured` key
@@ -324,9 +325,9 @@ measured, and it would quietly widen what the first half forgives.
   labelled, every installed skill goes into the workspace — otherwise a spurious
   trigger from any other skill would be structurally invisible.
 - **The workspace carries no `CLAUDE.md`.** This repository's own working
-  agreement mandates three skills in every session; evaluating inside this
-  checkout would measure that agreement instead of discovery, and would do so
-  silently.
+  agreement mandates <!-- count:mandated-skills -->three<!-- /count --> skills in
+  every session; evaluating inside this checkout would measure that agreement
+  instead of discovery, and would do so silently.
 - **`expectAlways` is informational for now.** `professional-behavior` claims in
   its own `when_to_use` that it applies to every session. Whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported

@@ -4,14 +4,14 @@ An opinionated library of agent skills.
 
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
-plans, builds, reviews, and verifies work the way you want it done. The
-twenty-five here cover the whole arc: handling what the agent does not know,
-turning a request into a spec, driving that spec to a reviewed pull request,
-keeping the code maintainable and secure, testing it, designing and building its
-UI, standing up the application around it and the server state behind it,
-writing the documents that explain it, and authoring more skills. They install
-into any agent the [`skills` CLI](https://github.com/vercel-labs/skills)
-supports.
+plans, builds, reviews, and verifies work the way you want it done.
+The <!-- count:distributable-skills -->twenty-five<!-- /count --> here cover the
+whole arc: handling what the agent does not know, turning a request into a spec,
+driving that spec to a reviewed pull request, keeping the code maintainable and
+secure, testing it, designing and building its UI, standing up the application
+around it and the server state behind it, writing the documents that explain it,
+and authoring more skills. They install into any agent the
+[`skills` CLI](https://github.com/vercel-labs/skills) supports.
 
 The library is Markdown-first — the skills _are_ the deliverable — with a little
 JavaScript tooling to keep them formatted, linted, and link-checked.
@@ -311,7 +311,8 @@ single continuing session:
    reviewer, a separate bot session, so the change's author never certifies its
    own work.
 4. **Address** — fixes review findings and CI failures, tying each resolved
-   thread to the resolving commit, for up to eight rounds.
+   thread to the resolving commit, for up
+   to <!-- count:address-review-round-cap -->eight<!-- /count --> rounds.
 5. **Ready** — flips the pull request to ready once CI is green and the review
    is clean. Merging always stays a human decision.
 
@@ -390,14 +391,14 @@ wide one — the `npm test` row says what it carries.
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
-| Command                | What it does                                                                                                                                                                                                                                                                                                                                                            | When to run it                                                   |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                  | Once per checkout, and after `package.json` changes.             |
-| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                         | After every set of edits, before committing.                     |
-| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                           | In CI, or to check formatting without touching the working tree. |
-| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                        | After formatting, and fix every reported error before finishing. |
-| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (`check-skill.mjs` over both roots, with the Claude Code field opt-in), and the installed-copy drift check. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, or a reference file.  |
-| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                            | Before opening or updating a pull request.                       |
+| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                          | When to run it                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                | Once per checkout, and after `package.json` changes.             |
+| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                       | After every set of edits, before committing.                     |
+| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                         | In CI, or to check formatting without touching the working tree. |
+| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                      | After formatting, and fix every reported error before finishing. |
+| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (`check-skill.mjs` over both roots, with the Claude Code field opt-in), the installed-copy drift check, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, or a reference file.  |
+| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                          | Before opening or updating a pull request.                       |
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
@@ -424,12 +425,14 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 
 #### Reporting, not gating
 
-The tenth and eleventh scripts report instead of judging. Neither belongs to a
-gate, an npm script, or a hook, and
-`tests/repository/reporting-tools.test.mjs` keeps both out of the enforced set
-on purpose, so wiring either in has to be a deliberate act.
+The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> and
+the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> scripts
+report instead of judging. Neither belongs to a gate, an npm script, or a hook,
+and `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced
+set on purpose, so wiring either in has to be a deliberate act.
 
-The tenth reports a number:
+The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> reports a
+number:
 
 ```bash
 node scripts/report-obligation-load.mjs --mandated
@@ -449,7 +452,8 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The eleventh reports a routing outcome:
+The <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> reports a
+routing outcome:
 
 ```bash
 node scripts/discovery-eval/run.mjs --dry-run
@@ -486,7 +490,8 @@ A fixture or baseline naming a renamed skill would otherwise rot in silence.
 
 ### Repository gotchas
 
-Four things about this repository are worth knowing before changing it.
+There are <!-- count:repository-gotchas -->five<!-- /count --> things about this
+repository worth knowing before changing it.
 
 **Some dependencies move fast enough that memory is unreliable.** Consult the
 current official docs before changing behavior these govern:
@@ -518,6 +523,37 @@ something the documentation still claims it does.
 add a gate to one, forget the other, and the suite fails. The two prose copies
 are tied to nothing, so changing the gate set means editing this file and
 `REVIEW.md` by hand — and a reviewer checking that you did.
+
+**A number in prose can be a checked claim.** Wrap one in a `count:` marker and
+`npm test` holds it to the file it describes — the skill count at the top of
+this page, the round cap it quotes from a skill, the empty tallies in the
+discovery baseline. The marker is invisible once rendered:
+
+```markdown
+The <!-- count:distributable-skills -->twenty-five<!-- /count --> here cover the
+whole arc.
+```
+
+Each key is registered in
+[`tests/repository/documented-counts.mjs`](./tests/repository/documented-counts.mjs)
+alongside the derivation that proves it, and the failure names the file, the
+claim, the truth, and what else moves with the number. Three rules the check
+enforces:
+
+- **A marker sits inline, whole, on one line, and never at the start of one.** A
+  line beginning with `<!--` is an HTML block in CommonMark, so a marker placed
+  there splits the paragraph in two.
+- **A marker never appears in a distributable skill.** Those install into other
+  people's projects, where the derivation names files that do not exist.
+- **A registered key with no marker fails**, so a derivation cannot outlive the
+  sentence it was written for.
+
+Marking is opt-in, which is the deliberate limit: a number nobody wrapped still
+drifts silently, and stays a reviewer's job. Grepping prose for digits was the
+alternative, and it both misses a count spelled as a word and fires on every
+unrelated number. Note that a marker is only invisible in _prose_ — inside a
+fenced block it renders as text, so a code sample a reader copies carries none
+(the sample above is a real, checked claim, which is why it has one).
 
 **The installed skill copies are generated, not source.** The distributable
 skills under [`skills/`](./skills) are the source of truth, and their copies
