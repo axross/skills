@@ -55,6 +55,16 @@ name: Discovery Evaluation
 # into an artifact. It reads no head content, needs no permission beyond what is
 # declared below, and never writes the repository — a human still commits the
 # document deliberately.
+#
+# AN EMITTING RUN CAN NOW FAIL ON PURPOSE. The runner records the skills the CLI
+# loaded that the evaluation workspace did not install — a user-level tier it
+# strips with `--setting-sources project`, and a managed-environment tier no flag
+# can remove without removing the workspace's own skills too. When any remain,
+# `--emit-baseline` prints its report and then exits 3 rather than emitting a
+# document recorded against a corpus that was never the one measured. `set -euo
+# pipefail` turns that into a failed job, and the extract and upload steps below
+# do not run, so no artifact is produced. The report still reaches the job log
+# through `tee`. An ordinary report run is unaffected and still exits 0.
 
 on:
   workflow_dispatch:
