@@ -298,87 +298,6 @@ format-on-edit, check-before-stop, and
 | Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
 | Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
 
-### Session telemetry
-
-Cloud sessions report tool usage, token cost, and efficiency to New Relic
-through [Preflight](https://github.com/newrelic-experimental/preflight). Two
-halves make that work, and only one of them can live in this repository.
-
-**What is committed here.** [`.mcp.json`](./.mcp.json) registers the Preflight
-MCP server — the process that drains the event buffer and ships it — and
-`.claude/settings.json` names it in `enabledMcpjsonServers`. The
-`PreToolUse`/`PostToolUse` collector hooks live in
-[`.claude/settings.local-example.json`](./.claude/settings.local-example.json),
-so a cloud session materializes them and a local session does not. Both entry
-points go through wrappers under [`.claude/hooks/`](./.claude/hooks) that skip
-when Preflight is missing or unconfigured, which is why a fork or a fresh
-checkout needs no setup and sees no failure.
-
-**What is configured at claude.ai**, per cloud environment, and cannot be
-committed:
-
-| Setting               | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Network access        | **Custom**, with _"Also include default list of common package managers"_ checked. Add `*.newrelic.com` and `*.nr-data.net` — the **Trusted** default list reaches no New Relic host, so telemetry silently fails without this. The US ingest hosts are `insights-collector.newrelic.com`, `metric-api.newrelic.com`, and `log-api.newrelic.com`; EU accounts use `insights-collector.eu01.nr-data.net` and `metric-api.eu.newrelic.com`. Region is derived from the license key's own prefix. |
-| Environment variables | `NEW_RELIC_LICENSE_KEY`, `NEW_RELIC_ACCOUNT_ID`, `NR_AI_MODE=cloud`, and `NEW_RELIC_AI_MCP_DEVELOPER=<your handle>`. The last one matters more than it looks: every cloud session is a fresh anonymous VM, so without it the developer dimension is noise.                                                                                                                                                                                                                                     |
-| Setup script          | `npm install -g @newrelic/preflight \|\| true` — it runs as root before Claude Code launches, and the environment's filesystem snapshot caches the result.                                                                                                                                                                                                                                                                                                                                     |
-
-> **A cloud environment has no secrets store.** Anyone who can use the
-> environment can read its variables, so keep it to the **ingest** license key.
-> The `NRAK-…` user API key belongs nowhere near it.
-
-**What the telemetry contains.** Tool names, file paths, glob patterns, command
-classifications, sizes, and hashes. Not file contents and not prompts:
-Preflight's `recordContent` defaults to `false`, nothing here turns it on, and
-the payload carries extracted metadata only. Telemetry counts against the
-account's New Relic data ingest.
-
-**Deploy the dashboards once, from a laptop**, never from a cloud environment,
-because this is the step that needs the user API key:
-
-```bash
-NEW_RELIC_API_KEY=NRAK-... NEW_RELIC_ACCOUNT_ID=... preflight deploy-dashboards --all
-```
-
-**Verifying the wiring** in a cloud session, in order of dependability:
-
-1. `preflight doctor` from a shell — the primary check. The harness launches
-   with a fixed tool allowlist that does not name `mcp__newrelic-preflight__*`,
-   so Preflight's own MCP tools may not be callable even when the server is
-   connected and exposing them.
-2. `ls ~/.newrelic-preflight/buffer-*.jsonl` — non-empty means the collector
-   hooks are firing.
-3. The New Relic dashboards, which are the only end-to-end proof that events
-   left the container.
-
-**Three things look like faults and are not:**
-
-- **`claude mcp list` reporting `⏸ Pending approval`.** Measured in a fresh
-  clone inside a cloud container: the CLI printed that for a server a real
-  session had connected in 776ms and whose tools it had exposed. The CLI's read
-  path disagrees with session behavior in a folder whose trust dialog was never
-  accepted — which is every cloned repository. Trust the session, not the list.
-- **`newrelic-preflight` shown as unavailable** in a session without Preflight
-  or its credentials. That is the wrappers skipping, by design. The connection
-  fails in well under a second rather than waiting out the 30s connect timeout,
-  so nothing is slowed.
-- **Telemetry stopping in a local session.** The collector hooks are cloud-only
-  by placement, and `NR_AI_MODE=local` is the supported way to run Preflight on
-  your own machine — the wrappers treat it as configured and need no credentials
-  for it.
-
-**Two upstream defects to route around.** Both were found by running Preflight
-v1.14.15 rather than reading it, and both contradict its own README:
-
-- **`preflight install --mode cloud …` does not exist.** The shipped CLI answers
-  `error: unknown option '--mode'`; `--eu` and `--fedramp` are absent from
-  `install` too. Environment variables configure everything instead, which is
-  why nothing here calls `preflight install`.
-- **`preflight install` writes its MCP entry to `~/.mcp.json`**, a path Claude
-  Code never reads — user-scope MCP lives in `~/.claude.json`, project scope in
-  `.mcp.json` at the repository root. The registration has to be committed by
-  hand, which is what [`.mcp.json`](./.mcp.json) is.
-
 ### Delivering a unit of work end-to-end
 
 [Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
@@ -664,3 +583,89 @@ npx --yes skills@latest add ./skills --agent claude-code --skill '*' --yes --cop
 The plain `npx skills` form stays canonical — reach for the specifier only after
 seeing that error, since pinning `@latest` on every run fetches the newest CLI
 build each time.
+
+### Session telemetry
+
+Cloud sessions report tool usage, token cost, and efficiency to New Relic
+through [Preflight](https://github.com/newrelic-experimental/preflight). Two
+halves make that work, and only one of them can live in this repository.
+
+**What is committed here.** [`.mcp.json`](./.mcp.json) registers the Preflight
+MCP server — the process that drains the event buffer and ships it — and
+`.claude/settings.json` names it in `enabledMcpjsonServers`. The
+`PreToolUse`/`PostToolUse` collector hooks live in
+[`.claude/settings.local-example.json`](./.claude/settings.local-example.json),
+so a cloud session materializes them and a local session does not. Both entry
+points go through wrappers under [`.claude/hooks/`](./.claude/hooks) that skip
+when Preflight is missing or unconfigured, which is why a fork or a fresh
+checkout needs no setup and sees no failure.
+
+**What is configured at claude.ai**, per cloud environment, and cannot be
+committed:
+
+| Setting               | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Network access        | **Custom**, with _"Also include default list of common package managers"_ checked. Add `*.newrelic.com` and `*.nr-data.net` — the **Trusted** default list reaches no New Relic host, so telemetry silently fails without this. The US ingest hosts are `insights-collector.newrelic.com`, `metric-api.newrelic.com`, and `log-api.newrelic.com`; EU accounts use `insights-collector.eu01.nr-data.net` and `metric-api.eu.newrelic.com`. Region is derived from the license key's own prefix. |
+| Environment variables | `NEW_RELIC_LICENSE_KEY`, `NEW_RELIC_ACCOUNT_ID`, `NR_AI_MODE=cloud`, and `NEW_RELIC_AI_MCP_DEVELOPER=<your handle>`. The last one matters more than it looks: every cloud session is a fresh anonymous VM, so without it the developer dimension is noise.                                                                                                                                                                                                                                     |
+| Setup script          | `npm install -g @newrelic/preflight \|\| true` — it runs as root before Claude Code launches, and the environment's filesystem snapshot caches the result.                                                                                                                                                                                                                                                                                                                                     |
+
+> **A cloud environment has no secrets store.** Anyone who can use the
+> environment can read its variables, so keep it to the **ingest** license key.
+> The `NRAK-…` user API key belongs nowhere near it.
+
+**What the telemetry contains.** Tool names, file paths, glob patterns, command
+classifications, sizes, and hashes. Not file contents and not prompts:
+Preflight's `recordContent` defaults to `false`, nothing here turns it on, and
+the payload carries extracted metadata only. Telemetry counts against the
+account's New Relic data ingest.
+
+**Deploy the dashboards once, from a laptop**, never from a cloud environment,
+because this is the step that needs the user API key:
+
+```bash
+NEW_RELIC_API_KEY=NRAK-... NEW_RELIC_ACCOUNT_ID=... preflight deploy-dashboards --all
+```
+
+**Verifying the wiring** in a cloud session, cheapest first:
+
+1. The `nr_observe_health` MCP tool — returns status, version, and the
+   configured developer. Its presence proves three things at once: the committed
+   `.mcp.json` was read, the wrapper found Preflight configured rather than
+   skipping, and `enabledMcpjsonServers` exposed the tools.
+2. `preflight doctor` from a shell, which checks configuration and connectivity
+   without depending on tool permissions at all.
+3. `ls ~/.newrelic-preflight/buffer-*.jsonl` — non-empty means the collector
+   hooks are firing. Note that the hooks arrive with
+   `.claude/settings.local.json`, which the SessionStart hook writes _during_
+   startup, so the session that first materializes them may not have them
+   active.
+4. The New Relic dashboards, which are the only end-to-end proof that events
+   left the container.
+
+**Three things look like faults and are not:**
+
+- **`claude mcp list` reporting `⏸ Pending approval`.** Measured in a fresh
+  clone inside a cloud container: the CLI printed that for a server a real
+  session had connected in 776ms and whose tools it had exposed. The CLI's read
+  path disagrees with session behavior in a folder whose trust dialog was never
+  accepted — which is every cloned repository. Trust the session, not the list.
+- **`newrelic-preflight` shown as unavailable** in a session without Preflight
+  or its credentials. That is the wrappers skipping, by design. The connection
+  fails in well under a second rather than waiting out the 30s connect timeout,
+  so nothing is slowed.
+- **Telemetry stopping in a local session.** The collector hooks are cloud-only
+  by placement, and `NR_AI_MODE=local` is the supported way to run Preflight on
+  your own machine — the wrappers treat it as configured and need no credentials
+  for it.
+
+**Two upstream defects to route around.** Both were found by running Preflight
+v1.14.15 rather than reading it, and both contradict its own README:
+
+- **`preflight install --mode cloud …` does not exist.** The shipped CLI answers
+  `error: unknown option '--mode'`; `--eu` and `--fedramp` are absent from
+  `install` too. Environment variables configure everything instead, which is
+  why nothing here calls `preflight install`.
+- **`preflight install` writes its MCP entry to `~/.mcp.json`**, a path Claude
+  Code never reads — user-scope MCP lives in `~/.claude.json`, project scope in
+  `.mcp.json` at the repository root. The registration has to be committed by
+  hand, which is what [`.mcp.json`](./.mcp.json) is.
