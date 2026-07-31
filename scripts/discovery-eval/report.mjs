@@ -27,19 +27,25 @@ const bar = (character = "-") => character.repeat(RULE_WIDTH);
 const ratio = (hits, repeats) => `${hits}/${repeats}`;
 
 /**
- * The header's foreign-skill count, or an honest admission that it is unknown.
+ * The header's foreign-skill count, or an honest admission of what it rests on.
  *
- * "unknown" and "0" must never render the same way: the first means the CLI
- * reported no skill list at all, the second means it reported one and nothing in
- * it was foreign.
+ * THREE renderings, never collapsed into two. "0" means every probe reported and
+ * none of them saw anything foreign. "unknown" means no probe reported at all.
+ * A partial says so out loud with its coverage, because a count drawn from 1 of
+ * 145 probes reads identically to one drawn from 145 unless the denominator is
+ * printed beside it.
  *
- * @param {{ recorded: boolean, colliding: string[], foreign: string[] }|undefined} isolation
+ * @param {{ recorded: boolean, complete: boolean, reported: number, total: number, colliding: string[], foreign: string[] }|undefined} isolation
  */
 function renderForeignCount(isolation) {
   if (!isolation?.recorded) return "unknown (CLI reported no skill list)";
   const total = isolation.foreign.length + isolation.colliding.length;
   const collisions = isolation.colliding.length;
-  return `${total} (user-invocable only)${collisions > 0 ? `, ${collisions} colliding with ours` : ""}`;
+  const counted = `${total} (user-invocable only)${collisions > 0 ? `, ${collisions} colliding with ours` : ""}`;
+  if (!isolation.complete) {
+    return `${counted} — PARTIAL: only ${isolation.reported} of ${isolation.total} probes reported`;
+  }
+  return counted;
 }
 
 /**
@@ -54,8 +60,24 @@ function renderForeignCount(isolation) {
  */
 function renderIsolationNotice(isolation, unrecognised = []) {
   if (!isolation?.recorded) return [];
-  if (isolation.foreign.length === 0 && isolation.colliding.length === 0) {
-    return [];
+  const nothingFound =
+    isolation.foreign.length === 0 && isolation.colliding.length === 0;
+  // A partial run earns the block even when it found nothing, because "nothing
+  // found" is the reading a partial most easily fakes. A complete clean run
+  // stays silent, as the corpus notice does.
+  if (nothingFound && isolation.complete) return [];
+
+  if (nothingFound) {
+    return [
+      "",
+      bar("="),
+      "Isolation was only partly observed",
+      bar("="),
+      `Only ${isolation.reported} of ${isolation.total} probes reported which skills the CLI`,
+      "loaded. Nothing foreign was seen in those, but the probes that went",
+      "unreported are exactly the ones that could have differed — so this run",
+      "cannot record a baseline (--emit-baseline exits 3).",
+    ];
   }
 
   const lines = [
@@ -84,6 +106,14 @@ function renderIsolationNotice(isolation, unrecognised = []) {
       "  could not read, so any of their names above is reported as colliding out",
       "  of caution rather than on evidence:",
       `    ${unrecognised.join(", ")}`,
+    );
+  }
+
+  if (!isolation.complete) {
+    lines.push(
+      "",
+      `  PARTIAL — only ${isolation.reported} of ${isolation.total} probes reported what the CLI loaded,`,
+      "  so this list is a lower bound rather than the whole picture.",
     );
   }
 

@@ -83,23 +83,52 @@ export function classifyLoaded(loaded, invocability) {
  * that appears in even one probe of a run is contamination the run's numbers
  * carry, so anything less than a union would under-report it.
  *
- * `recorded: false` when NO probe reported a list at all — an older CLI that
- * emits no `skills` field. That is distinct from every probe reporting an empty
- * list, and the report must not render the two the same way: one is "clean", the
- * other is "cannot tell".
+ * COVERAGE IS COUNTED, NOT ASSUMED, and this is the whole subtlety. Three states
+ * have to stay distinct, because only one of them can back a committed baseline:
+ *
+ *   * `reported === 0` — no probe reported a list. "Cannot tell", not "clean".
+ *   * `0 < reported < total` — a PARTIAL run. The tempting reading is that some
+ *     evidence beats none, and it does for a report; it does not for a baseline.
+ *     A single probe that saw nothing foreign, out of 145, would otherwise write
+ *     the same `foreignSkills: []` as a run where all 145 agreed — and the
+ *     contamination this looks for is present in every probe or none, so the
+ *     probes that went unobserved are exactly the ones that could have differed.
+ *   * `reported === total` — the only shape that supports the claim
+ *     `evals/discovery/README.md` makes for `[]`: a MEASURED clean run.
+ *
+ * That a partial is even reachable is this project's own premise: `parseStream`
+ * keeps `null` and `[]` apart precisely because a probe can fail to report, and
+ * it parses forgivingly enough that one truncated stream among many is ordinary.
  *
  * @param {Array<string[]|null>} perProbeLoaded  one entry per probe, `null` when unreported
  * @param {Record<string, string>} invocability
- * @returns {{ recorded: boolean, own: string[], colliding: string[], foreign: string[] }}
+ * @returns {{ recorded: boolean, complete: boolean, reported: number, total: number, own: string[], colliding: string[], foreign: string[] }}
  */
 export function summariseIsolation(perProbeLoaded, invocability) {
-  const reported = perProbeLoaded.filter((entry) => Array.isArray(entry));
-  if (reported.length === 0) {
-    return { recorded: false, own: [], colliding: [], foreign: [] };
+  const reportedProbes = perProbeLoaded.filter((entry) => Array.isArray(entry));
+  const coverage = {
+    reported: reportedProbes.length,
+    total: perProbeLoaded.length,
+  };
+  // `complete` demands a non-empty run: zero probes reporting out of zero is
+  // vacuous agreement, not confirmation.
+  const complete = coverage.total > 0 && coverage.reported === coverage.total;
+
+  if (reportedProbes.length === 0) {
+    return {
+      recorded: false,
+      complete,
+      ...coverage,
+      own: [],
+      colliding: [],
+      foreign: [],
+    };
   }
   return {
     recorded: true,
-    ...classifyLoaded(reported.flat(), invocability),
+    complete,
+    ...coverage,
+    ...classifyLoaded(reportedProbes.flat(), invocability),
   };
 }
 
@@ -125,23 +154,28 @@ export function contamination({ colliding, foreign }) {
 /**
  * Whether a run may record a baseline at all, and why not when it may not.
  *
- * TWO ways to be unfit, and only one of them has names to print. The second is
- * the easier one to miss, because it looks exactly like success:
+ * THREE ways to be unfit, and only one of them has names to print. The two
+ * quiet ones both look exactly like success, and each was written wrong first:
  *
  *   * CONTAMINATED — the CLI loaded skills the workspace did not install.
  *   * UNCHECKED — no probe reported a skill list, so what the CLI loaded was
  *     never observed. `colliding` and `foreign` are both `[]` here, so a check
  *     that only counts names reads this as a clean run and emits a document
- *     whose `foreignSkills: []` is byte-identical to a verified-clean one. That
- *     silently destroys the distinction the field exists to carry: a reader of
- *     the committed baseline could no longer tell "measured, and nothing
- *     foreign loaded" from "never looked".
+ *     whose `foreignSkills: []` is byte-identical to a verified-clean one.
+ *   * PARTIAL — some probes reported and some did not. Counting names does not
+ *     catch this either, and neither does a boolean "did anything report":
+ *     ONE probe reporting out of 145 satisfies both and writes the same `[]`.
+ *     The evidence that would have distinguished a contaminated run from a
+ *     clean one is precisely what the unreported probes were carrying.
  *
- * `report.mjs` already keeps the two apart on screen — it prints "unknown (CLI
- * reported no skill list)" rather than "0" — and this is what keeps them apart
- * in the persisted document.
+ * Together those destroy the distinction the field exists to carry: a reader of
+ * the committed baseline could no longer tell "measured, and nothing foreign
+ * loaded" from "never looked" or "looked at some of it".
  *
- * @param {{ recorded: boolean, colliding: string[], foreign: string[] }} isolation
+ * `report.mjs` keeps all three apart on screen; this is what keeps them apart in
+ * the persisted document, which is the only place the distinction has to survive.
+ *
+ * @param {{ recorded: boolean, complete: boolean, reported: number, total: number, colliding: string[], foreign: string[] }} isolation
  * @returns {{ reason: string, names: string[] }|null} `null` when the run may record
  */
 export function baselineRefusal(isolation) {
@@ -149,6 +183,12 @@ export function baselineRefusal(isolation) {
     return {
       reason:
         "no probe reported which skills the CLI loaded, so isolation was never checked",
+      names: [],
+    };
+  }
+  if (!isolation.complete) {
+    return {
+      reason: `only ${isolation.reported} of ${isolation.total} probes reported which skills the CLI loaded, so isolation holds for part of the run rather than all of it`,
       names: [],
     };
   }

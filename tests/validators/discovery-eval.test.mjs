@@ -1556,6 +1556,9 @@ describe("summarising isolation across a run", () => {
     const summary = summariseIsolation([["a-skill"], ["b-skill"], ["a-skill"]], {});
     expect(summary).toEqual({
       recorded: true,
+      complete: true,
+      reported: 3,
+      total: 3,
       own: [],
       colliding: [],
       foreign: ["a-skill", "b-skill"],
@@ -1566,6 +1569,25 @@ describe("summarising isolation across a run", () => {
     // An older CLI emitting no skills field must never read as a clean run.
     expect(summariseIsolation([null, null], {}).recorded).toBe(false);
     expect(summariseIsolation([[]], {}).recorded).toBe(true);
+  });
+
+  it("counts coverage rather than collapsing it to a boolean", () => {
+    expect(summariseIsolation([[], [], null], {})).toMatchObject({
+      recorded: true,
+      complete: false,
+      reported: 2,
+      total: 3,
+    });
+    expect(summariseIsolation([[], []], {})).toMatchObject({
+      complete: true,
+      reported: 2,
+      total: 2,
+    });
+  });
+
+  it("does not call an empty run complete", () => {
+    // Zero of zero is vacuous agreement, not confirmation.
+    expect(summariseIsolation([], {}).complete).toBe(false);
   });
 });
 
@@ -1637,6 +1659,21 @@ describe("deciding whether a run may record a baseline", () => {
 
   it("permits a measured, genuinely clean run", () => {
     expect(baselineRefusal(summariseIsolation([[]], {}))).toBeNull();
+  });
+
+  it("refuses a PARTIAL run, however many probes did report", () => {
+    // The state that most convincingly fakes success: names are empty and
+    // something did report, so both a name count and a "did anything report?"
+    // boolean wave it through. One probe out of 145 would otherwise write the
+    // same `foreignSkills: []` as 145 agreeing probes — and the unreported
+    // probes are exactly the ones that could have carried the contamination.
+    const nearlyAll = summariseIsolation([...Array(142).fill([]), null, null, null], {});
+    expect(nearlyAll.recorded).toBe(true);
+    expect(contamination(nearlyAll)).toEqual([]);
+    expect(baselineRefusal(nearlyAll).reason).toMatch(/142 of 145/);
+
+    const barelyAny = summariseIsolation([[], ...Array(144).fill(null)], {});
+    expect(baselineRefusal(barelyAny).reason).toMatch(/1 of 145/);
   });
 
   it("names the offenders when it refuses for contamination", () => {
