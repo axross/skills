@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "newrelic-preflight": {
+      "command": "${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/preflight-mcp.sh"
+    }
+  }
+}

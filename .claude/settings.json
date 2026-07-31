@@ -1,5 +1,6 @@
 {
   "effortLevel": "xhigh",
+  "enabledMcpjsonServers": ["newrelic-preflight"],
   "hooks": {
     "SessionStart": [
       {
