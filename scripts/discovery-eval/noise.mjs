@@ -40,8 +40,26 @@
  */
 export const NOISE_ALPHA = 0.05;
 
-/** Digits of scale used when an exact rational is finally turned into a float. */
-const NUMBER_SCALE = 10n ** 25n;
+/**
+ * The same band as an exact rational, which is what comparisons actually use.
+ *
+ * `0.05` is not representable in binary, so comparing an exact tail against the
+ * double would decide the on-boundary cases — `floor(prior 2/2, run 3)` and its
+ * mirror `floor(prior 0/2, run 3)`, both exactly `1/20` — by whichever way that
+ * representation error happened to fall. Deriving this from `NOISE_ALPHA` by
+ * scaling would reintroduce the same problem one step earlier, so the two are
+ * written independently and a test asserts they agree.
+ */
+export const NOISE_BAND = { numerator: 1n, denominator: 20n };
+
+/**
+ * Decimal places carried when an exact rational is finally turned into a float.
+ *
+ * Well past a double's ~17 significant digits, so the conversion is limited by
+ * the float rather than by this.
+ */
+const DECIMAL_DIGITS = 25;
+const NUMBER_SCALE = 10n ** BigInt(DECIMAL_DIGITS);
 
 function greatestCommonDivisor(a, b) {
   let left = a < 0n ? -a : a;
@@ -94,8 +112,17 @@ export const equalExact = (a, b) => compareExact(a, b) === 0;
  * @param {Exact} value
  * @returns {number}
  */
-export const toNumber = ({ numerator, denominator }) =>
-  Number((numerator * NUMBER_SCALE) / denominator) / Number(NUMBER_SCALE);
+export const toNumber = ({ numerator, denominator }) => {
+  // The division happens in BigInt and the result is assembled as a DECIMAL
+  // STRING, not as `Number(a) / Number(b)`. Both of those operands exceed 2^53
+  // at 30 repeats, so each would be rounded before the division and the error
+  // would compound: that spelling returned 0.049999999999999996 for 1/20, which
+  // is the one value this module compares against most often.
+  const scaled = (numerator * NUMBER_SCALE) / denominator;
+  const whole = scaled / NUMBER_SCALE;
+  const fraction = (scaled % NUMBER_SCALE).toString().padStart(DECIMAL_DIGITS, "0");
+  return Number(`${whole}.${fraction}`);
+};
 
 /**
  * The rising factorial `a(a+1)...(a+count-1)`, on an exact rational `a`.
@@ -158,7 +185,7 @@ function posterior({ hits, repeats }, shape) {
  * @param {"uniform"|"jeffreys"} [shape]
  * @returns {Exact}
  */
-export function predictiveMass(prior, n, k, shape = "uniform") {
+function predictiveMass(prior, n, k, shape = "uniform") {
   const { alpha, beta } = posterior(prior, shape);
   return multiply(
     multiply(binomial(n, k), rising(alpha, k)),
@@ -297,10 +324,9 @@ export function readingFor({
   const tail = predictiveTail(prior, run, directionOf(prior, run));
   const floor = resolvabilityFloor(prior, run.repeats);
   const probability = toNumber(tail);
-  const band = exact(BigInt(Math.round(NOISE_ALPHA * 1000)), 1000n);
 
   // 4. No outcome could have cleared the band, so no verdict was ever in doubt.
-  if (compareExact(floor, band) >= 0) {
+  if (compareExact(floor, NOISE_BAND) >= 0) {
     return {
       kind: "cannot-resolve",
       label: `cannot resolve at ${run.repeats} repeats`,
@@ -311,7 +337,7 @@ export function readingFor({
   }
 
   // 5. The ordinary case.
-  const below = compareExact(tail, band) < 0;
+  const below = compareExact(tail, NOISE_BAND) < 0;
   return {
     kind: below ? "moved" : "consistent",
     label: below ? movedWord : "consistent with no change",

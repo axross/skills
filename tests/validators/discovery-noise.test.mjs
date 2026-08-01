@@ -19,6 +19,7 @@ import {
   equalExact,
   exact,
   NOISE_ALPHA,
+  NOISE_BAND,
   predictiveTail,
   readingFor,
   resolvabilityFloor,
@@ -56,6 +57,16 @@ const OUTCOMES = [];
 for (let n = 1; n <= 5; n += 1) {
   for (let k = 0; k <= n; k += 1) OUTCOMES.push({ n, k });
 }
+
+describe("the band", () => {
+  it("has an exact form that agrees with the documented one", () => {
+    // Written independently rather than derived, because deriving an exact
+    // rational by scaling the double would reintroduce the representation error
+    // it exists to avoid. This is the assertion that keeps the two in step.
+    expect(toNumber(NOISE_BAND)).toBe(NOISE_ALPHA);
+    expect(frac(NOISE_BAND)).toBe("1/20");
+  });
+});
 
 describe("the predictive tail", () => {
   it("is a distribution: the mass over every outcome sums to exactly one", () => {
@@ -255,6 +266,10 @@ describe("the resolvability floor", () => {
       const floor = resolvabilityFloor(prior, 3);
       expect(frac(floor)).toBe("1/20");
       expect(toNumber(floor)).toBeCloseTo(NOISE_ALPHA, 12);
+      // Stronger than the tolerance, and only true because the comparison is
+      // made on exact rationals rather than on the double: the two are the
+      // same value, not merely near each other.
+      expect(equalExact(floor, NOISE_BAND)).toBe(true);
     }
   });
 

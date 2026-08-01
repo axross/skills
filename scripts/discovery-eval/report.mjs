@@ -142,7 +142,7 @@ function renderCase(tally, testCase) {
  * cannot support; the floor and the test statistics take three because they are
  * compared against each other rather than against a threshold.
  */
-const percent = (value, digits = 1) => `${(value * 100).toFixed(digits)}%`;
+const percent = (value) => `${(value * 100).toFixed(1)}%`;
 
 /**
  * The parenthesised annotation both blocks put after a line.
