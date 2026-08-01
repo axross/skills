@@ -6,7 +6,7 @@ Apply this reference when creating a Next.js application's directory layout, add
 
 The router only cares about one directory. Everything else is yours to organize, and the failure mode is letting `app/` absorb code that has nothing to do with routing — a route directory that accumulates components, queries, and helpers becomes unmovable, because every import points at a URL path rather than at a capability.
 
-Group what remains by the **domain** it serves — the bounded concern a reader would name — not by the technical kind of file it is. A by-kind top level (`components/`, `hooks/`, `utils/`) scatters one domain across three directories and makes the blast radius of a change invisible; a by-domain top level keeps a domain's components, hooks, models, and helpers adjacent, so deleting the domain is deleting a directory. Per-kind subdirectories are the organizing axis _inside_ a domain, never above it.
+Group what remains by the **domain** it serves — the bounded concern a reader would name — not by the technical kind of file it is. A by-kind top level (`components/`, `hooks/`, `utils/`, `queries/`) scatters one domain across four directories and makes the blast radius of a change invisible; a by-domain top level keeps a domain's components, hooks, models, and helpers adjacent, so deleting the domain is deleting a directory. Per-kind subdirectories are the organizing axis _inside_ a domain, never above it.
 
 The default is a `src/` source root holding domain directories, with `src/app/` as the router's entrypoint layer:
 
@@ -46,23 +46,21 @@ export default async function Page(props: PageProps<"/articles/[slug]">) {
 - MUST follow the host repository's existing source-root convention when it has one — a repository-root `app/` is as valid as `src/app/`, and moving it is a migration, not a side effect of a feature change.
 - SHOULD default a new application to a `src/` source root with domain directories beneath it, and `src/app/` reserved for route entrypoints.
 - MUST keep `app/` route files thin: a route module composes and configures, and imports its substance from a domain directory.
-- MUST group modules under the source root by domain, and name each directory after the domain rather than after a file kind.
+- MUST group modules under the source root by domain and name each directory for that domain — an `article/` directory beats parallel `components/`, `queries/`, and `types/` trees that force a three-directory edit per change.
 - MUST NOT introduce top-level `components/`, `hooks/`, `utils/`, or `queries/` directories as the application's primary organizing axis.
 - SHOULD keep a domain's components, helpers, hooks, models, and stores in per-kind subdirectories inside that domain's directory.
-- MUST NOT import from one domain's internals into another when the owning domain exposes a public surface; cross-domain reuse is a signal to promote the code to `common/`.
+- MUST NOT reach into another domain's internals from outside it; when a second domain needs the code, promote it to `common/` rather than importing across the boundary.
 
 ## Cross-Cutting Tiers
 
-Two directories sit outside the domains, and what separates them is what each one knows. `common/` holds reusable UI and utility primitives that know nothing about the application — a button, a date formatter, a hook whose signature carries no domain vocabulary. `core/` holds app-wide infrastructure and the singletons the application is wired from — environment access, the HTTP or query client, the error tracker, storage. A `common/` module could be lifted into a different application unchanged; a `core/` module could not, because it encodes this one's configuration.
+Two directories sit outside the domains. `common/` holds reusable primitives that know nothing about this application — a button, a date formatter. `core/` holds the app-wide infrastructure it is wired from — environment access, the query client, the error tracker. The test is portability: a `common/` module lifts into another application unchanged, a `core/` module does not, because it encodes this one's configuration.
 
-Everything else earns a domain. A module reaches `common/` only once a second domain imports it — until then it belongs to the domain that uses it, where deleting that domain deletes it too.
+**The tier pair and the bar a module clears to enter `common/` belong to an Expo app development capability** — that skill owns them in full, for web and native alike; defer to its treatment where it is present. What follows is what a Next application needs to apply them.
 
 **Guidelines:**
 
-- MUST keep `common/` to primitives that carry no domain vocabulary and no application configuration.
-- MUST keep `core/` to app-wide infrastructure and singletons — environment access, clients, the error tracker, storage — rather than to shared UI.
-- SHOULD place a new module in the domain that uses it, and move it into `common/` only once a second domain imports it.
-- MUST NOT place a module in `common/` on first use in anticipation of reuse.
+- MUST keep `common/` to primitives carrying no domain vocabulary and no application configuration, and `core/` to app-wide infrastructure rather than to shared UI.
+- SHOULD start a module in the domain that uses it and move it into `common/` only once a second domain imports it, never on first use in anticipation of reuse.
 
 ## Import Alias
 
