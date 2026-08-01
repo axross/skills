@@ -1,61 +1,49 @@
 name: Claude Code Review
 
-# Independent pull-request review. Runs as a separate Claude Code session on a
-# GitHub-hosted runner — a different session, on different infrastructure,
-# under a bot identity distinct from the connected operator — triggered by a
-# comment containing the review trigger phrase (`@claude review`; if you change
-# it, change it in .claude/skills/loop-engineering/SKILL.md too). It bootstraps
-# REVIEW.md at the repo root as the review policy. This is the authoritative
-# review for the loop-engineering change loop
-# (.claude/skills/loop-engineering/SKILL.md), which posts the trigger phrase
-# after opening a PR and then addresses the findings this workflow leaves.
+# Independent pull-request review: a separate Claude Code session, on a
+# GitHub-hosted runner, under a bot identity distinct from the connected
+# operator. Triggered by a comment containing the review trigger phrase
+# (`@claude review`; change it here and in
+# .claude/skills/loop-engineering/SKILL.md together). It bootstraps REVIEW.md
+# as the review policy, and is the authoritative review for the
+# loop-engineering change loop, which posts the trigger phrase after opening a
+# pull request and then addresses the findings left here.
 #
 # NOTE: issue_comment workflows run only from the version on the DEFAULT
-# branch, so this reviewer fires on PRs only once this file is merged there —
-# the PR that introduces it cannot be reviewed by it.
+# branch, so a change here takes effect after it merges — the pull request
+# introducing it is always reviewed by the previous version.
 #
-# Operator prerequisites (one-time; the workflow no-ops until the first two
-# are done):
+# Operator prerequisites (one-time; the workflow no-ops until the first two are
+# done):
 #   1. Install the Claude GitHub App: https://github.com/apps/claude
-#   2. Generate a subscription token locally with `claude setup-token` and add
-#      it as the repo secret CLAUDE_CODE_OAUTH_TOKEN
-#      (Settings → Secrets and variables → Actions).
-#      To use pay-as-you-go API billing instead of a subscription, set an
-#      ANTHROPIC_API_KEY secret and swap the `claude_code_oauth_token` input
-#      below for `anthropic_api_key`.
+#   2. Add the repo secret CLAUDE_CODE_OAUTH_TOKEN, from `claude setup-token`
+#      (Settings → Secrets and variables → Actions). For pay-as-you-go billing
+#      instead, set ANTHROPIC_API_KEY and swap the `claude_code_oauth_token`
+#      input below for `anthropic_api_key`.
+#   3. Optional, for telemetry: the repo variable
+#      CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT and repo secret
+#      CLAUDE_OTEL_EXPORTER_OTLP_HEADERS (Grafana Cloud supplies both from its
+#      OpenTelemetry tile). Scope the token to metrics:write and logs:write
+#      only — the review session's own shell can read any job-level value. The
+#      CLAUDE_ prefix keeps these clear of a cloning project's own OTLP
+#      configuration. Unset, telemetry is off and the reviewer is unaffected.
 #
-# Optional (telemetry; the reviewer runs exactly as it does without them):
-#   3. To export this session's Claude Code metrics and events to an OTLP
-#      collector, add the repo variable CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT and
-#      the repo secret CLAUDE_OTEL_EXPORTER_OTLP_HEADERS (for Grafana Cloud,
-#      both come from the stack's OpenTelemetry tile; scope the access-policy
-#      token to metrics:write and logs:write only, since the review session's
-#      own shell can read any job-level value). The names are namespaced under
-#      CLAUDE_ on purpose: a project cloning this workflow may already hold
-#      OTEL_EXPORTER_OTLP_ENDPOINT / OTEL_EXPORTER_OTLP_HEADERS for its own
-#      application telemetry, and the prefix keeps the two configurations from
-#      overwriting each other. Leave them unset and the `env` block below
-#      disables telemetry outright rather than starting an exporter that fails.
-#
-#      Grafana Cloud constraint, learned the hard way (#150, #151): its OTLP
-#      gateway runs Prometheus's translator, which accepts ONLY cumulative
-#      temporality and answers delta with
-#      `400 otlp parse error: invalid temporality and type combination`.
-#      Claude Code defaults to delta, the rejection discards the whole request,
-#      and the client is told nothing — Mimir returns HTTP 200 on partial
-#      ingestion and Claude Code prints no export error even at debug level.
-#      Hence OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE below, and hence
-#      the probe step: it is the only place a broken export becomes visible.
+#      Grafana Cloud accepts ONLY cumulative temporality, answering Claude
+#      Code's delta default with `400 otlp parse error: invalid temporality and
+#      type combination` — discarding the whole request while telling the
+#      client nothing (#151). Hence the temporality variable below. A probe
+#      step POSTing to the endpoint was tried and removed (#156): rejection is
+#      counted after authentication, so it reported healthy all through the
+#      outage it was meant to expose.
 
 on:
   issue_comment:
     types: [created]
 
 # LOAD-BEARING SAFETY PROPERTY 1 of 3 — least privilege, read-only contents.
-# The reviewer can read code and write review output, nothing else. No
-# contents:write — it never pushes, and its token cannot. pull-requests /
-# issues / checks writes cover inline review comments, the summary comment,
-# and the check-run respectively.
+# The reviewer reads code and writes review output, nothing else: without
+# contents:write it cannot push, whatever it is asked to do. The other writes
+# cover inline comments, the summary comment, and the check-run.
 permissions:
   contents: read
   pull-requests: write
@@ -67,119 +55,61 @@ jobs:
   review:
     name: Review
     # LOAD-BEARING SAFETY PROPERTY 1 (continued) — the author-association gate.
-    # Only fire on: a comment on a pull request (not a plain issue), containing
-    # the review trigger phrase, from a trusted user (owner/member/
-    # collaborator). This keeps untrusted authors from spending tokens or
-    # steering the reviewer. Do not widen the association list.
+    # Fire only on a comment carrying the trigger phrase, on a pull request
+    # rather than a plain issue, from an owner, member, or collaborator. This
+    # is what stops an untrusted author from spending tokens or steering the
+    # reviewer. Do not widen the association list.
     if: >-
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '@claude review') &&
       (github.event.comment.author_association == 'OWNER' ||
        github.event.comment.author_association == 'MEMBER' ||
        github.event.comment.author_association == 'COLLABORATOR')
-    # Job-level (not workflow-level) concurrency: only a job that passes the
-    # `if` gate joins the group, so an unrelated issue_comment — e.g. a
-    # deploy-preview bot comment — skips the job and cannot cancel an in-flight
-    # review. A fresh trigger comment still supersedes a running one.
+    # Job-level, not workflow-level: only a job passing the `if` gate joins the
+    # group, so an unrelated issue_comment cannot cancel an in-flight review.
+    # A fresh trigger comment still supersedes a running one.
     concurrency:
       group: claude-review-${{ github.event.issue.number }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Telemetry for this review session. `claude-code-action` forwards exactly
-    # these nine variables from the workflow `env` context into the Claude Code
-    # process it launches, so this block is the whole wiring — no `with:` input
-    # and no prompt change. Left of each colon is the name Claude Code reads;
-    # right of it is where this repository keeps the value, namespaced under
-    # CLAUDE_ so a cloning project's own application OTLP configuration stays
-    # separate (see prerequisite 3 in the header). The gate on the endpoint
-    # variable is what keeps observability from becoming a dependency of the
-    # review: with nothing configured, no exporter starts at all.
+    # claude-code-action forwards these from the workflow `env` context into
+    # the Claude Code process, so this block is the whole telemetry wiring — no
+    # `with:` input and no prompt change. Gating enablement on the endpoint
+    # variable keeps observability from becoming a dependency of the review:
+    # unset, no exporter starts at all.
     env:
       CLAUDE_CODE_ENABLE_TELEMETRY: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT != '' && '1' || '0' }}
       OTEL_METRICS_EXPORTER: otlp
       OTEL_LOGS_EXPORTER: otlp
-      # Claude Code has no default protocol, and the Grafana Cloud OTLP gateway
-      # is HTTP rather than gRPC, so the HTTP form is set explicitly.
+      # Claude Code has no default protocol; Grafana Cloud's gateway is HTTP.
       OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
       OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT }}
       OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.CLAUDE_OTEL_EXPORTER_OTLP_HEADERS }}
-      # Well under the 30-minute timeout (metrics default to 60000) so a review
-      # that finishes in under a minute still flushes at least once — whether
-      # Claude Code force-flushes at process exit is undocumented.
+      # Default is 60000, and whether Claude Code flushes at exit is
+      # undocumented, so a sub-minute review would export nothing.
       OTEL_METRIC_EXPORT_INTERVAL: "10000"
       OTEL_LOGS_EXPORT_INTERVAL: "5000"
-      # Grafana Cloud rejects Claude Code's default delta temporality outright
-      # (see the header). Cumulative is what Prometheus's OTLP translator
-      # accepts, and setting it is the difference between HTTP 400 and 200 on
-      # every metrics push this session makes.
+      # Without this every metrics push is discarded; see the header.
       OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: cumulative
-      # NOT the source that wins. Measured since this block was written: a
-      # settings file's `env` overrides the process environment, so the
-      # checkout's own .claude/settings.json (which sets repository=skills
-      # alone) strips `ci` and `workflow` from this value. The winning copy is
-      # the --settings file written below; this line stays because it costs
-      # nothing and keeps the intended value visible in the job log beside the
-      # rest of the telemetry configuration. Values may not contain a space.
+      # Fallback only: the --settings file below outranks this, because a
+      # settings file's `env` beats the process environment. Kept so the
+      # session is still tagged if that file is ever missing.
       OTEL_RESOURCE_ATTRIBUTES: repository=skills,ci=github_actions,workflow=claude_review
     steps:
       # LOAD-BEARING SAFETY PROPERTY 2 of 3 — base-ref checkout. Check out the
-      # base ref (the default branch), NEVER the PR head: the review reads the
-      # diff through the GitHub API, so untrusted head code is never executed
-      # on the runner. The checkout only supplies CLAUDE.md, REVIEW.md, and
-      # the project skills as trusted review context.
+      # base ref, NEVER the PR head: the review reads the diff through the
+      # GitHub API, so untrusted head code never executes on the runner. The
+      # checkout supplies only CLAUDE.md, REVIEW.md, and the project skills as
+      # trusted review context.
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Log-only telemetry probe. Claude Code reports NOTHING when an OTLP
-      # export fails — verified against an unreachable collector with
-      # OTEL_DIAG_STDERR=debug and OTEL_LOG_LEVEL=debug — and Grafana answers
-      # HTTP 200 even while discarding, so a broken endpoint or credential is
-      # invisible from inside the review session. This step is the only signal.
-      # It never fails the job: observability must not become a dependency of
-      # code review, so a Grafana outage or an expired token degrades to a
-      # warning annotation rather than a blocked review. It sends an empty body
-      # on purpose — a credential that is accepted answers 400 (body rejected),
-      # which distinguishes "auth works" from 401/403 without pushing data.
-      - name: Probe the OTLP endpoint
-        if: vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT != ''
-        continue-on-error: true
-        env:
-          OTLP_ENDPOINT: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT }}
-          OTLP_HEADERS: ${{ secrets.CLAUDE_OTEL_EXPORTER_OTLP_HEADERS }}
-        run: |
-          # The secret holds a `key=value` header pair; curl wants the value.
-          # Never echoed — GitHub masks the secret, not substrings of it.
-          auth="${OTLP_HEADERS#Authorization=}"
-          status=$(curl -sS -o "${RUNNER_TEMP}/otlp-probe.out" -w '%{http_code}' \
-            --max-time 20 -X POST \
-            -H 'Content-Type: application/x-protobuf' \
-            -H "Authorization: ${auth}" \
-            --data-binary '' "${OTLP_ENDPOINT%/}/v1/metrics") || status=000
-          echo "OTLP probe: HTTP ${status}"
-          # Grafana names the reason in the body; it carries no credential.
-          # Non-printable bytes are protobuf framing, not content.
-          head -c 400 "${RUNNER_TEMP}/otlp-probe.out" | tr -c '[:print:]\n' '.'
-          echo
-          case "${status}" in
-            400) echo "Credential accepted; empty body rejected as expected." ;;
-            2*) echo "Endpoint accepted the request." ;;
-            401 | 403) echo "::warning::OTLP credential rejected (HTTP ${status}). This session's metrics will be discarded silently." ;;
-            000) echo "::warning::OTLP endpoint unreachable. This session's metrics will be discarded silently." ;;
-            *) echo "::warning::Unexpected OTLP status ${status}. Check the response above." ;;
-          esac
-
-      # The resource attributes that mark this session as CI. They cannot ride
-      # in the `env` block above: a settings file's `env` outranks the process
-      # environment, and the checkout's .claude/settings.json sets
-      # OTEL_RESOURCE_ATTRIBUTES to repository=skills alone. Nor can they ride
-      # in a .claude/settings.local.json written here — claude-code-action
-      # deletes the entire .claude/ directory before launching the CLI
-      # (restore-config.ts), precisely because the CLI reads settings from cwd.
-      # A --settings file OUTSIDE the repository is the one source that both
-      # outranks the project file and survives that delete. Written
-      # unconditionally so --settings never points at a missing path;
-      # attributes are inert when telemetry is off.
+      # The CI resource attributes, which must live outside the repository
+      # tree: a settings file's `env` outranks the process environment and the
+      # checkout's .claude/settings.json sets repository=skills alone, while
+      # claude-code-action deletes .claude/ wholesale before launching the CLI.
+      # Written unconditionally so --settings never points at a missing path.
       - name: Write the review session's telemetry settings
         run: |
           cat > "${RUNNER_TEMP}/claude-otel-settings.json" <<'JSON'
@@ -194,40 +124,32 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # Run the official code-review plugin against this PR. The plugin
-          # ONLY posts when invoked with `--comment`; without it, it analyzes
-          # and stops silently. With `--comment` it posts inline comments via
-          # mcp__github_inline_comment__create_inline_comment plus one
-          # `gh pr comment` summary; it never submits a formal `gh pr review`.
+          # The official code-review plugin posts ONLY when invoked with
+          # `--comment`: inline comments plus one `gh pr comment` summary,
+          # never a formal `gh pr review`. Without the flag it analyzes and
+          # stops silently.
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
           prompt: "/code-review:code-review https://github.com/${{ github.repository }}/pull/${{ github.event.issue.number }} --comment"
           # --allowedTools is REQUIRED: the action does not honor a plugin
-          # command's own `allowed-tools` frontmatter, so without this the
-          # plugin is denied the tools it needs and posts nothing. Allow
-          # general `Bash`, not a narrow per-subcommand allow-list: the plugin
-          # issues compound and non-gh shell commands to gather context, and
-          # the permission matcher cannot match those to a single prefix. This
-          # broad Bash is safe ONLY because of safety property 2: the runner
-          # only ever holds the trusted base tree, never the PR head, so no
-          # untrusted code can execute; and the token is contents:read, so it
-          # cannot push. Read/Grep/Glob let it inspect the base tree for
-          # conventions and sibling files.
+          # command's own `allowed-tools` frontmatter, so without it the plugin
+          # is denied the tools it needs and posts nothing. `Bash` is broad
+          # rather than per-subcommand because the plugin issues compound shell
+          # commands no prefix matcher can match — safe ONLY because of safety
+          # property 2 (trusted base tree, never the PR head) and contents:read.
           claude_args: >-
             --append-system-prompt "Read REVIEW.md at the repository root and follow it as the highest-priority, review-only instructions for this review. Review this pull request even if it is a draft — do not skip it for being a draft. Do the ENTIRE review within this single turn: run every check and review pass yourself, synchronously and in order. Do NOT kick off background or parallel work and then end your turn to wait for it — this is a one-shot job that terminates the instant your turn ends, so anything you defer is lost and no review is posted. You MUST post your findings (inline comments plus a summary via `gh pr comment`) before your turn ends. This reviewer is advisory and does not gate merges."
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Read,Grep,Glob,Bash"
             --disallowedTools "WebFetch,WebSearch,Task"
             --max-turns 200
             --settings "${{ runner.temp }}/claude-otel-settings.json"
-          # LOAD-BEARING SAFETY PROPERTY 3 of 3 — background-task denial
-          # (--disallowedTools above). Denying Task forces a synchronous review
-          # that completes and posts within the one turn: the plugin otherwise
-          # fans review passes out to BACKGROUND sub-agents, and when the main
-          # agent ends its turn while those still run, this single-shot action
-          # terminates and orphans them — nothing posts. WebFetch/WebSearch
-          # stay disallowed too (no external calls from the reviewer).
+          # LOAD-BEARING SAFETY PROPERTY 3 of 3 — background-task denial.
+          # Denying Task forces a synchronous review: the plugin otherwise fans
+          # its passes out to BACKGROUND sub-agents, and this single-shot action
+          # terminates the instant the main agent's turn ends, orphaning them so
+          # nothing posts. WebFetch/WebSearch stay denied so the reviewer makes
+          # no external calls.
           #
-          # Turn count scales with PR size and is high-variance even on a tiny
-          # diff, so size --max-turns for the worst case and let
-          # `timeout-minutes: 30` be the real backstop; the cap only guards
-          # against a pathological loop.
+          # --max-turns is sized for the worst case because turn count is
+          # high-variance even on a tiny diff; `timeout-minutes: 30` is the real
+          # backstop, and the cap only guards against a pathological loop.
