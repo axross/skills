@@ -45,6 +45,11 @@
 // Exit codes:
 //   0  a report was produced — ALWAYS, whatever it found
 //   2  bad invocation: an unknown flag, an unparseable fixture, a missing CLI
+//   3  --emit-baseline was asked for on a run whose isolation does not hold —
+//      either the CLI loaded skills the workspace did not install, or it
+//      reported no skill list at all so nothing could be checked. The report
+//      still printed; only the baseline document is withheld. Reachable from NO
+//      other flag, so the no-gate promise above is unaffected.
 
 import { spawnSync } from "node:child_process";
 import {
@@ -62,13 +67,19 @@ import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { deltaAgainst, tallyAll, trackedSkills } from "./compare.mjs";
-import { compareCorpus, corpusDigest } from "./corpus.mjs";
+import { compareCorpus, corpusDigest, corpusInvocability } from "./corpus.mjs";
 import {
   DEFAULT_DETERMINISM_REPEATS,
   MIN_DETERMINISM_REPEATS,
   renderDeterminism,
 } from "./determinism.mjs";
 import { parseBaseline, parseFixture, ValidationError } from "./fixture.mjs";
+import {
+  baselineRefusal,
+  contamination,
+  summariseIsolation,
+  unrecognisedInvocability,
+} from "./isolation.mjs";
 import {
   allowOverlayContent,
   assertRealDirectory,
@@ -104,6 +115,29 @@ const DEFAULT_REPEATS = 5;
  * so prompt caching amortizes it only once a run is long enough to reuse it.
  */
 const PROBE_COST_USD = 0.026;
+
+/**
+ * The one skill tier a spawned CLI can be told not to load.
+ *
+ * Measured against CLI 2.1.220 in a Claude Code cloud container, reading the
+ * `system`/`init` event's `skills` array. Workspace holding one user-invocable
+ * canary, so the last column is the isolation question:
+ *
+ *   spawn                        skills   workspace corpus still loads?
+ *   ---------------------------  ------   -----------------------------
+ *   (no flag)                      24     yes
+ *   CLAUDE_CONFIG_DIR=<empty>      23     yes
+ *   --setting-sources project      18     yes     <- what this buys
+ *   --setting-sources ''           17     NO
+ *   --bare                         15     NO
+ *
+ * So this strips the six user-level skills and keeps the corpus reaching the
+ * model — confirmed by a real probe, not only by the inventory. The seventeen
+ * that remain arrive from the managed environment, and EVERY switch that removes
+ * them takes the workspace's own skills with it, which measures nothing. That is
+ * why the runner records what it cannot isolate rather than isolating it.
+ */
+const SETTING_SOURCES = ["--setting-sources", "project"];
 
 /**
  * Every tool except `Skill` is denied. The measurement is which skill discovery
@@ -143,7 +177,9 @@ and report which expected skills were missed and which unexpected ones fired.
                        of the usual report; ${DEFAULT_DETERMINISM_REPEATS} repeats by default, ${MIN_DETERMINISM_REPEATS} minimum
   --help               this text
 
-Exit codes: 0 a report was produced (always), 2 bad invocation.
+Exit codes: 0 a report was produced (always), 2 bad invocation, 3 --emit-baseline
+on a run whose isolation does not hold — foreign skills loaded, or no skill list
+reported at all (the report still printed).
 This reports; it never gates.`;
 
 function fail2(message) {
@@ -271,6 +307,7 @@ function probe(prompt, workspace) {
       "Skill",
       "--disallowedTools",
       DISALLOWED_TOOLS,
+      ...SETTING_SOURCES,
     ],
     {
       cwd: workspace,
@@ -506,6 +543,7 @@ async function main() {
   } = await buildWorkspace(options.headSkills);
 
   const runsByCase = new Map();
+  const loadedPerProbe = [];
   let model = null;
   let cost = 0;
   try {
@@ -515,6 +553,7 @@ async function main() {
       for (let repeat = 0; repeat < repeats; repeat += 1) {
         const result = probe(testCase.prompt, workspace);
         runs.push(result.skills);
+        loadedPerProbe.push(result.loaded);
         model ??= result.model;
         cost += result.cost;
       }
@@ -523,6 +562,14 @@ async function main() {
   } finally {
     await rm(workspace, { recursive: true, force: true });
   }
+
+  // Read from the INSTALLED root rather than the workspace, which is gone by
+  // now — and correctly so: a head overlay may rewrite a skill's discovery text,
+  // but the question here is which of OUR skills a loaded name could be, and
+  // that is a property of the corpus this repository ships.
+  const invocability = await corpusInvocability(INSTALLED_ROOT);
+  const isolation = summariseIsolation(loadedPerProbe, invocability);
+  const unrecognised = unrecognisedInvocability(invocability);
 
   const observedModel = model ?? "unknown";
 
@@ -539,6 +586,12 @@ async function main() {
         runs: runsByCase.get(testCase.id) ?? [],
         tracked: trackedSkills(testCase, fixture.expectAlways ?? []),
         context: { model: observedModel, corpusSize },
+        // What the run could not isolate matters MORE here than in the ordinary
+        // report. This mode exists to ask whether sequential probes are
+        // independent draws against a fixed corpus; a skill the workspace never
+        // installed, competing in all 30, is exactly the confound that would
+        // make a clustered sequence mean something other than a warm cache.
+        unisolated: contamination(isolation),
       }),
     );
     process.stderr.write(`Approximate cost of this run: $${cost.toFixed(2)}\n`);
@@ -558,6 +611,8 @@ async function main() {
         repeats: options.repeats,
         repeatsNote,
         corpusSize,
+        isolation,
+        unrecognisedInvocability: unrecognised,
         headSha: options.headSha,
         workspaceNote:
           overlaid.length > 0
@@ -569,11 +624,45 @@ async function main() {
   process.stderr.write(`Approximate cost of this run: $${cost.toFixed(2)}\n`);
 
   if (options.emitBaseline) {
+    // THE ONE PLACE THIS REFUSES. A report from a contaminated run is still
+    // worth having — it is honest about what competed, and the probes are paid
+    // for either way. A BASELINE is different: its entire purpose is to be
+    // compared against later, so recording one against a corpus that was never
+    // the one measured is the precise staleness the `corpus` fingerprint exists
+    // to prevent, arriving through a door that fingerprint cannot watch.
+    //
+    // `own` never triggers this. A skill of ours that is legitimately
+    // user-invocable appears in the loaded list by design, and refusing on it
+    // would break recording for a corpus state this repository's own authoring
+    // rules require.
+    const refusal = baselineRefusal(isolation);
+    if (refusal) {
+      process.stderr.write(
+        [
+          "",
+          `Refusing to emit a baseline: ${refusal.reason}.`,
+          ...(refusal.names.length > 0 ? [`  ${refusal.names.join(", ")}`] : []),
+          "",
+          "The tallies above therefore do not describe the corpus a committed",
+          "baseline would name. Re-record where the CLI loads nothing extra and",
+          "reports what it loaded — dispatching discovery-eval.yaml with",
+          "emit_baseline is the route that needs no local CLI and no local",
+          "credentials.",
+          "",
+        ].join("\n"),
+      );
+      process.exit(3);
+    }
+
     process.stdout.write(
       `\n${BASELINE_MARKER}\n${renderBaseline(tallies, {
         model: observedModel,
         repeats: options.repeats,
         corpus,
+        // Reached only past the refusal above, so `recorded` is true and there
+        // is nothing foreign: `[]` here is a MEASURED clean state, never an
+        // unchecked one.
+        foreignSkills: contamination(isolation),
         // Supplied rather than stamped inside the renderer so the pure module
         // stays deterministic and testable. Truncated to whole seconds: a run
         // takes minutes, so milliseconds would claim a precision the

@@ -277,7 +277,7 @@ export function parseFixture(text, { knownSkills } = {}) {
  *
  * @param {string} text            raw file contents
  * @param {{ knownSkills?: Iterable<string> }} [options]
- * @returns {{ recordedAt: string, model: string, repeats: number, corpus: Record<string, string>|null, unmeasured: string[], caseRepeats: Record<string, number>, cases: Record<string, Record<string, number>> }}
+ * @returns {{ recordedAt: string, model: string, repeats: number, corpus: Record<string, string>|null, foreignSkills: string[]|null, unmeasured: string[], caseRepeats: Record<string, number>, cases: Record<string, Record<string, number>> }}
  * @throws {ValidationError} carrying every problem found
  */
 export function parseBaseline(text, { knownSkills } = {}) {
@@ -336,6 +336,42 @@ export function parseBaseline(text, { knownSkills } = {}) {
           continue;
         }
         corpus[skill] = digest;
+      }
+    }
+  }
+
+  // OPTIONAL, and — like `corpus` — deliberately EXEMPT from the knownSkills
+  // check. A foreign skill is BY DEFINITION not a skill in this repository, so
+  // the strictness that makes a rotten tally a hard error would reject exactly
+  // this field's legitimate contents. It records what the CLI loaded that the
+  // workspace did not install, so a reader can tell whether a measurement ran
+  // against the corpus the file names.
+  //
+  // Written UNCONDITIONALLY by renderBaseline, including as `[]`, which breaks
+  // the pattern `corpus` and `caseRepeats` follow. See the note in
+  // evals/discovery/README.md: an empty corpus cannot occur, so for `corpus`
+  // absence unambiguously means "not recorded" — whereas `[]` here is a real,
+  // meaningful state ("recorded, and clean") that absence cannot express.
+  let foreignSkills = null;
+  if (raw.foreignSkills !== undefined) {
+    if (!Array.isArray(raw.foreignSkills)) {
+      problems.push(
+        'The baseline\'s "foreignSkills" must be an array of skill names.',
+      );
+    } else {
+      foreignSkills = [];
+      for (const name of raw.foreignSkills) {
+        if (typeof name !== "string" || !ID_RE.test(name)) {
+          problems.push(
+            `The baseline's "foreignSkills" contains ${JSON.stringify(name)}, which is not a kebab-case skill name.`,
+          );
+          continue;
+        }
+        if (foreignSkills.includes(name)) {
+          problems.push(`The baseline's "foreignSkills" lists "${name}" twice.`);
+          continue;
+        }
+        foreignSkills.push(name);
       }
     }
   }
@@ -484,6 +520,7 @@ export function parseBaseline(text, { knownSkills } = {}) {
     model,
     repeats: raw.repeats,
     corpus,
+    foreignSkills,
     unmeasured,
     caseRepeats,
     cases,

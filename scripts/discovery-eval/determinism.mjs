@@ -155,9 +155,11 @@ export function reportedSkills(runs, tracked) {
  * @param {string[][]} input.runs      per probe, the skills it selected
  * @param {string[]} input.tracked     skills reported even at zero hits
  * @param {object} input.context       model, corpus size
+ * @param {string[]} [input.unisolated]  skills the CLI loaded that the workspace
+ *                                       did not install
  * @returns {string}
  */
-export function renderDeterminism({ testCase, runs, tracked, context }) {
+export function renderDeterminism({ testCase, runs, tracked, context, unisolated = [] }) {
   const repeats = runs.length;
   const names = reportedSkills(runs, tracked);
   const width = Math.max(0, ...names.map((name) => name.length));
@@ -171,8 +173,19 @@ export function renderDeterminism({ testCase, runs, tracked, context }) {
     "=".repeat(78),
     `model            ${context.model}`,
     `case             ${testCase.id}  ${JSON.stringify(testCase.prompt)}`,
-    `repeats          ${repeats} sequential probes, one workspace, corpus unchanged throughout`,
+    // "unchanged" is a claim about the WORKSPACE, which is all this can honestly
+    // assert. Whether the corpus the model actually saw was the installed one is
+    // a separate question, answered by the line below when the answer is no.
+    `repeats          ${repeats} sequential probes, one workspace, unchanged throughout`,
     `skills installed ${context.corpusSize}`,
+    ...(unisolated.length > 0
+      ? [
+          `NOT ISOLATED     ${unisolated.length} skill(s) the CLI loaded that this workspace did not install:`,
+          `                 ${unisolated.join(", ")}`,
+          "                 They competed in every probe below, so a clustered",
+          "                 sequence may be their doing rather than the cache's.",
+        ]
+      : []),
     "",
     `  ${"skill".padEnd(width)}  hits    rate   95% CI          sequence`,
   ];

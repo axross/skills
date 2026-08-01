@@ -256,6 +256,11 @@ deliberate act rather than an accident.
   working agreement mandates skills in every session, so measuring inside this
   checkout would measure that agreement instead of discovery, and would do it
   silently.
+- **The workspace does not bound what the CLI loads.** A machine's own skills,
+  and whatever a managed environment injects, compete in every probe alongside
+  the installed corpus. A run strips the tier it can and **records** the rest, so
+  a recorded baseline says what it ran against — and a run that could not isolate
+  itself refuses to produce one at all.
 - **A universal-application claim is informational for now.** A skill can claim
   in its own `when_to_use` that it applies to every session; whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported
@@ -309,95 +314,6 @@ format-on-edit and check-before-stop hooks are materialized from
 | Installed copies | `scripts/check-installed-copies.mjs`                                                  |
 | Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
 | Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
-
-### Delivering a unit of work end-to-end
-
-[Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
-repository's default change loop. It runs **model-invoked** — there is no
-slash command; describe the work (a GitHub issue, a pull request, or a free-form
-prompt) and the loop drives it from intake to a merge-ready pull request in a
-single continuing session:
-
-1. **Plan** — reads the issue and its thread, asks you the scope questions the
-   spec leaves open, and rewrites the issue body into a reviewable plan with
-   acceptance criteria. It then **always pauses for your approval**: nothing
-   gets built until you review the plan and tell it to continue.
-2. **Code + verify** — implements the approved plan on an agent-namespaced
-   `claude/` branch, runs the checks the change requires, and self-reviews the
-   diff.
-3. **Independent review** — opens a draft pull request and requests the CI
-   reviewer, a separate bot session, so the change's author never certifies its
-   own work.
-4. **Address** — fixes review findings and CI failures, tying each resolved
-   thread to the resolving commit, for up
-   to <!-- count:address-review-round-cap -->eight<!-- /count --> rounds.
-5. **Ready** — flips the pull request to ready once CI is green and the review
-   is clean. Merging always stays a human decision.
-
-Kick it off by naming the work — "deliver issue #42", "pick up PR 57", or a
-free-form request (with no issue yet, it files a tracking issue first, then
-delivers it). To approve a paused plan or resume after a question, continue the
-session and tell it to continue.
-
-One check backs the loop from outside any session:
-[`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)
-sweeps hourly and flags any `claude/` branch pushed ahead of the default branch
-with no open pull request — work delivered outside the loop, and so never
-independently reviewed. It is deliberately a scheduled sweep rather than a
-push-triggered gate, because step 2 legitimately pushes before step 3 opens the
-pull request; a grace window skips a branch whose latest commit is still fresh.
-
-### `@claude review` — get findings on any PR
-
-Comment **`@claude review`** on a pull request to run this repository's review
-policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line`
-evidence and concrete fixes, posted as inline comments by the CI reviewer
-([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
-pre-merge check on a hand-written change or a second opinion before merging. It
-is the same reviewer the change loop relies on: step 3 above requests it by
-posting that comment itself, so no review starts without one.
-
-Two things make it stay silent. It answers **repository owners, members, and
-collaborators only**, gating on the commenting author's association and skipping
-everyone else — so an outside contributor's request looks like nothing happened
-at all. And it is inert everywhere until a one-time operator setup is done:
-install the [Claude GitHub App](https://github.com/apps/claude) and add a
-`CLAUDE_CODE_OAUTH_TOKEN` repository secret (generate it with
-`claude setup-token`), or set an `ANTHROPIC_API_KEY` secret for pay-as-you-go
-billing. See the header of
-[`claude-review.yaml`](./.github/workflows/claude-review.yaml) for details.
-
-### Authoring a skill
-
-Skills live in two tiers. Every skill here is currently **distributable**: its
-source is [`skills/<name>/SKILL.md`](./skills) (with any `references/` and
-`scripts/` beside it), and the installed copies under `.claude/skills/` are
-generated from it with the
-[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
-
-```bash
-npx skills add ./skills --agent claude-code --skill '*' --yes --copy
-```
-
-Commit the regenerated `.claude/skills/<name>/` copies and `skills-lock.json`
-alongside the source — they are tracked artifacts, not build output to ignore.
-
-The second tier is **repository-local**: a skill that encodes conventions
-specific to this repository would have its source committed directly under
-[`.claude/skills/`](./.claude/skills), hand-edited in place, and never touched
-by the CLI or listed in `skills-lock.json`. No skill is in that tier today —
-`github-operation` was the last one and is now distributable — so the tier is
-available rather than in use. Registering one means adding its name to
-`REPOSITORY_LOCAL` in
-[`scripts/check-installed-copies.mjs`](./scripts/check-installed-copies.mjs),
-which otherwise treats an installed skill with no source as drift.
-
-[Agent Skill Management](./skills/agent-skill-management/SKILL.md) covers which
-tier a new skill belongs to and the full install, lockfile, and
-refresh-and-verify workflow;
-[Agent Skill Authoring](./skills/agent-skill-authoring/SKILL.md) covers how to
-write the skill itself. Both are in the catalog above, so you can install them
-into your own project too.
 
 ### Commands
 
@@ -512,7 +428,7 @@ A fixture or baseline naming a renamed skill would otherwise rot in silence.
 
 ### Repository gotchas
 
-There are <!-- count:repository-gotchas -->five<!-- /count --> things about this
+There are <!-- count:repository-gotchas -->six<!-- /count --> things about this
 repository worth knowing before changing it.
 
 **Some dependencies move fast enough that memory is unreliable.** Consult the
@@ -545,6 +461,20 @@ something the documentation still claims it does.
 add a gate to one, forget the other, and the suite fails. The two prose copies
 are tied to nothing, so changing the gate set means editing this file and
 `REVIEW.md` by hand — and a reviewer checking that you did.
+
+**Session telemetry is tagged here, and cannot be checked from inside a
+session.** [`.claude/settings.json`](./.claude/settings.json) carries an `env`
+block stamping `repository=skills` and the session's launch surface onto the
+OpenTelemetry metrics Claude Code exports, so this repository's usage separates
+from every other repository sharing an account or a cloud environment. It
+configures nothing else — no endpoint, no credential, no
+`CLAUDE_CODE_ENABLE_TELEMETRY` — so a contributor who has never set telemetry up
+sees no behavior change from it. Verifying a change to that block is the catch:
+Claude Code does not pass `OTEL_*` variables to the subprocesses it spawns, so
+`echo $OTEL_RESOURCE_ATTRIBUTES` inside a session prints nothing even when the
+exporter holds the value. Confirm it in the metrics backend instead, against a
+session started _after_ the change — an already-running session read its
+configuration at startup.
 
 **A number in prose can be a checked claim.** Wrap one in a `count:` marker and
 `npm test` holds it to the file it describes — the skill count at the top of
@@ -599,3 +529,104 @@ npx --yes skills@latest add ./skills --agent claude-code --skill '*' --yes --cop
 The plain `npx skills` form stays canonical — reach for the specifier only after
 seeing that error, since pinning `@latest` on every run fetches the newest CLI
 build each time.
+
+### Authoring a skill
+
+Skills live in two tiers. Every skill here is currently **distributable**: its
+source is [`skills/<name>/SKILL.md`](./skills) (with any `references/` and
+`scripts/` beside it), and the installed copies under `.claude/skills/` are
+generated from it with the
+[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
+
+```bash
+npx skills add ./skills --agent claude-code --skill '*' --yes --copy
+```
+
+Commit the regenerated `.claude/skills/<name>/` copies and `skills-lock.json`
+alongside the source — they are tracked artifacts, not build output to ignore.
+
+The second tier is **repository-local**: a skill that encodes conventions
+specific to this repository would have its source committed directly under
+[`.claude/skills/`](./.claude/skills), hand-edited in place, and never touched
+by the CLI or listed in `skills-lock.json`. No skill is in that tier today —
+`github-operation` was the last one and is now distributable — so the tier is
+available rather than in use. Registering one means adding its name to
+`REPOSITORY_LOCAL` in
+[`scripts/check-installed-copies.mjs`](./scripts/check-installed-copies.mjs),
+which otherwise treats an installed skill with no source as drift.
+
+[Agent Skill Management](./skills/agent-skill-management/SKILL.md) covers which
+tier a new skill belongs to and the full install, lockfile, and
+refresh-and-verify workflow;
+[Agent Skill Authoring](./skills/agent-skill-authoring/SKILL.md) covers how to
+write the skill itself. Both are in the catalog above, so you can install them
+into your own project too.
+
+### Delivering a unit of work end-to-end
+
+[Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
+repository's default change loop. It runs **model-invoked** — there is no
+slash command; describe the work (a GitHub issue, a pull request, or a free-form
+prompt) and the loop drives it from intake to a merge-ready pull request in a
+single continuing session:
+
+1. **Plan** — reads the issue and its thread, asks you the scope questions the
+   spec leaves open, and rewrites the issue body into a reviewable plan with
+   acceptance criteria. It then **always pauses for your approval**: nothing
+   gets built until you review the plan and tell it to continue.
+2. **Code + verify** — implements the approved plan on an agent-namespaced
+   `claude/` branch, runs the checks the change requires, and self-reviews the
+   diff.
+3. **Independent review** — opens a draft pull request and requests the CI
+   reviewer, a separate bot session, so the change's author never certifies its
+   own work.
+4. **Address** — fixes review findings and CI failures, tying each resolved
+   thread to the resolving commit, for up
+   to <!-- count:address-review-round-cap -->eight<!-- /count --> rounds.
+5. **Ready** — flips the pull request to ready once CI is green and the review
+   is clean. Merging always stays a human decision.
+
+Kick it off by naming the work — "deliver issue #42", "pick up PR 57", or a
+free-form request (with no issue yet, it files a tracking issue first, then
+delivers it). To approve a paused plan or resume after a question, continue the
+session and tell it to continue.
+
+One check backs the loop from outside any session:
+[`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)
+sweeps hourly and flags any `claude/` branch pushed ahead of the default branch
+with no open pull request — work delivered outside the loop, and so never
+independently reviewed. It is deliberately a scheduled sweep rather than a
+push-triggered gate, because step 2 legitimately pushes before step 3 opens the
+pull request; a grace window skips a branch whose latest commit is still fresh.
+
+### `@claude review` — get findings on any PR
+
+Comment **`@claude review`** on a pull request to run this repository's review
+policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line`
+evidence and concrete fixes, posted as inline comments by the CI reviewer
+([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
+pre-merge check on a hand-written change or a second opinion before merging. It
+is the same reviewer the change loop relies on: step 3 above requests it by
+posting that comment itself, so no review starts without one.
+
+Two things make it stay silent. It answers **repository owners, members, and
+collaborators only**, gating on the commenting author's association and skipping
+everyone else — so an outside contributor's request looks like nothing happened
+at all. And it is inert everywhere until a one-time operator setup is done:
+install the [Claude GitHub App](https://github.com/apps/claude) and add a
+`CLAUDE_CODE_OAUTH_TOKEN` repository secret (generate it with
+`claude setup-token`), or set an `ANTHROPIC_API_KEY` secret for pay-as-you-go
+billing. See the header of
+[`claude-review.yaml`](./.github/workflows/claude-review.yaml) for details.
+
+A third pair of names is optional, and telemetry stays off until you add it.
+Set the repository variable `CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT` and the
+repository secret `CLAUDE_OTEL_EXPORTER_OTLP_HEADERS`, and every review session
+exports its Claude Code metrics and events to that OTLP collector; leave them
+unset and the workflow disables telemetry outright rather than starting an
+exporter that fails, so the reviewer behaves exactly as it does today. The
+`CLAUDE_` prefix is deliberate: a project cloning this workflow may already keep
+`OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` for its own
+application telemetry, and neither configuration should overwrite the other.
+Scope the ingestion token to writing metrics and logs and nothing else — the
+reviewer is allowed broad `Bash`, so it can read any value the job holds.

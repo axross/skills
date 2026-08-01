@@ -28,6 +28,7 @@ import {
 import {
   DEFAULT_DETERMINISM_REPEATS,
   MIN_DETERMINISM_REPEATS,
+  renderDeterminism,
   reportedSkills,
   runsTest,
   wilsonInterval,
@@ -577,6 +578,30 @@ describe("the determinism probe's statistics", () => {
     expect([test.n1, test.n2, test.runs]).toEqual([2, 28, 5]);
     expect(test.expected.toFixed(3)).toBe("4.733");
     expect(test.state).toBe("withheld");
+  });
+
+  it("names what the run could not isolate, and claims only what it can", () => {
+    // #140 established that the CLI loads skills the workspace never installed.
+    // This mode is the one that most needs to say so: it asks whether probes
+    // are independent draws against a FIXED corpus, and a foreign skill
+    // competing in all 30 is exactly the confound that would make a clustered
+    // sequence mean something other than a warm cache.
+    const shared = {
+      testCase: { id: "a-case", prompt: "p" },
+      runs: Array.from({ length: 30 }, () => ["wireframe-design"]),
+      tracked: ["wireframe-design"],
+      context: { model: "m", corpusSize: 25 },
+    };
+    const clean = renderDeterminism(shared);
+    expect(clean).not.toContain("NOT ISOLATED");
+    // The header claims the WORKSPACE was unchanged, which is all it can know.
+    expect(clean).toContain("one workspace, unchanged throughout");
+    expect(clean).not.toContain("corpus unchanged throughout");
+
+    const contaminated = renderDeterminism({ ...shared, unisolated: ["some-foreign-skill"] });
+    expect(contaminated).toContain("NOT ISOLATED");
+    expect(contaminated).toContain("some-foreign-skill");
+    expect(contaminated).toContain("competed in every probe");
   });
 
   it("reports a tracked skill that was never selected", () => {

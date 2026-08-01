@@ -24,11 +24,23 @@ import {
 import {
   compareCorpus,
   corpusDigest,
+  corpusInvocability,
   DIGEST_LENGTH,
   digestDiscoveryText,
+  INVOCABLE,
   isDigest,
+  NOT_INVOCABLE,
   readDiscoveryText,
+  readInvocable,
+  UNRECOGNISED,
 } from "../../scripts/discovery-eval/corpus.mjs";
+import {
+  baselineRefusal,
+  classifyLoaded,
+  contamination,
+  summariseIsolation,
+  unrecognisedInvocability,
+} from "../../scripts/discovery-eval/isolation.mjs";
 import { sliceBaseline } from "../../scripts/discovery-eval/extract-baseline.mjs";
 import {
   MIN_CASE_REPEATS,
@@ -1003,6 +1015,9 @@ describe("stream parsing", () => {
 
     expect(parseStream(stdout)).toEqual({
       skills: ["wireframe-design"],
+      // The init event carried no `skills` array, so what the CLI loaded is
+      // UNKNOWN rather than empty — the distinction the isolation check rests on.
+      loaded: null,
       model: "claude-opus-5",
       cost: 0.04,
     });
@@ -1160,8 +1175,33 @@ describe("report rendering", () => {
       recordedAt: "2026-07-29T14:32:07Z",
       model: "claude-opus-5",
       repeats: 3,
+      // Present even when empty, unlike `corpus` and `caseRepeats`. `[]` is a
+      // real state — "recorded, and nothing foreign loaded" — that absence
+      // cannot express, since a baseline predating the field looks identical.
+      foreignSkills: [],
       cases: { "a-case": { "wireframe-design": 1 } },
     });
+  });
+
+  it("always writes foreignSkills, so absence can only mean 'not recorded'", () => {
+    const clean = JSON.parse(
+      renderBaseline(tallies, {
+        model: "claude-opus-5",
+        repeats: 3,
+        recordedAt: "2026-07-29T14:32:07Z",
+      }),
+    );
+    expect(clean.foreignSkills).toEqual([]);
+
+    const contaminated = JSON.parse(
+      renderBaseline(tallies, {
+        model: "claude-opus-5",
+        repeats: 3,
+        recordedAt: "2026-07-29T14:32:07Z",
+        foreignSkills: ["simplify", "code-review"],
+      }),
+    );
+    expect(contaminated.foreignSkills).toEqual(["code-review", "simplify"]);
   });
 
   it("emits the corpus record sorted, and parses it straight back", () => {
@@ -1398,5 +1438,416 @@ describe("negative control — the corpus notice can actually fire", () => {
     expect(report).toContain("removed       gone-skill");
     expect(report).toContain("text-changed  alpha-skill");
     expect(report).toContain("(unattributable)");
+  });
+});
+
+describe("reading a skill's invocability", () => {
+  /** Wrap a frontmatter body in the block shape a SKILL.md carries. */
+  const skill = (line) =>
+    [
+      "---",
+      "name: probe-skill",
+      "description: A probe skill for the invocability reader.",
+      "when_to_use: Only inside this suite.",
+      ...(line === null ? [] : [line]),
+      "---",
+      "",
+      "# Probe",
+      "",
+    ].join("\n");
+
+  // The whole table, because two separate defects were written into this one
+  // predicate before it was specified spelling by spelling: a boolean
+  // comparison (`!== false`) against a reader that returns strings, and a
+  // value-only test that cannot tell a present-but-empty key from an absent one.
+  it.each([
+    ["the key absent", null, INVOCABLE],
+    ["an explicit true", "user-invocable: true", INVOCABLE],
+    ["an explicit false", "user-invocable: false", NOT_INVOCABLE],
+    ["a present but EMPTY value", "user-invocable:", UNRECOGNISED],
+    ["a quoted value", 'user-invocable: "false"', UNRECOGNISED],
+    ["a capitalised value", "user-invocable: FALSE", UNRECOGNISED],
+    ["a typo", "user-invocable: fasle", UNRECOGNISED],
+  ])("reads %s as %s", (_label, line, expected) => {
+    expect(readInvocable(skill(line))).toBe(expected);
+  });
+
+  it("reads a present-but-empty key differently from an absent one", () => {
+    // Both yield "" from the value reader. Only key PRESENCE separates them,
+    // and only the absent case is a well-defined default rather than a parse
+    // failure.
+    expect(readInvocable(skill(null))).toBe(INVOCABLE);
+    expect(readInvocable(skill("user-invocable:"))).toBe(UNRECOGNISED);
+  });
+
+  it("treats a file with no frontmatter as unrecognised, not invocable", () => {
+    expect(readInvocable("# Just a heading\n")).toBe(UNRECOGNISED);
+  });
+
+  it("ignores a user-invocable line in the body, outside the frontmatter", () => {
+    // Skill bodies here quote frontmatter inside fenced code blocks — the
+    // authoring skill's own references do — so a documentation example must
+    // never be read as a declaration.
+    const text = [
+      "---",
+      "name: probe-skill",
+      "description: A probe skill.",
+      "when_to_use: Only inside this suite.",
+      "---",
+      "",
+      "# Probe",
+      "",
+      "```yaml",
+      "user-invocable: false",
+      "```",
+      "",
+    ].join("\n");
+    expect(readInvocable(text)).toBe(INVOCABLE);
+  });
+});
+
+describe("corpus invocability over a skill root", () => {
+  it("maps every skill directory to a state", async () => {
+    const root = await tempDir();
+    await writeSkill(root, "guideline-skill", {
+      frontmatter: { "user-invocable": "false" },
+    });
+    await writeSkill(root, "entry-point-skill", {
+      frontmatter: { "user-invocable": "true" },
+    });
+    await writeSkill(root, "silent-skill");
+
+    expect(await corpusInvocability(root)).toEqual({
+      "guideline-skill": NOT_INVOCABLE,
+      "entry-point-skill": INVOCABLE,
+      "silent-skill": INVOCABLE,
+    });
+  });
+
+  it("leaves the discovery digest untouched", async () => {
+    // `user-invocable` must never join DISCOVERY_KEYS: discovery does not read
+    // it, so folding it into the digest would invalidate every recorded
+    // baseline over a value no probe can see.
+    const root = await tempDir();
+    await writeSkill(root, "alpha-skill", {
+      frontmatter: { "user-invocable": "false" },
+    });
+    const before = await corpusDigest(root);
+
+    await writeSkill(root, "alpha-skill", {
+      frontmatter: { "user-invocable": "true" },
+    });
+    expect(await corpusDigest(root)).toEqual(before);
+  });
+});
+
+describe("classifying what the CLI loaded", () => {
+  const invocability = {
+    "guideline-skill": NOT_INVOCABLE,
+    "entry-point-skill": INVOCABLE,
+    "broken-skill": UNRECOGNISED,
+  };
+
+  it("calls an unknown name foreign", () => {
+    expect(classifyLoaded(["some-plugin-skill"], invocability)).toEqual({
+      own: [],
+      colliding: [],
+      foreign: ["some-plugin-skill"],
+    });
+  });
+
+  it("calls one of ours that is legitimately invocable `own`", () => {
+    // The state this repository's authoring rules REQUIRE for a workflow
+    // entry-point skill. Reporting it foreign would refuse a clean baseline.
+    expect(classifyLoaded(["entry-point-skill"], invocability).own).toEqual([
+      "entry-point-skill",
+    ]);
+  });
+
+  it("calls a name shared with a non-invocable skill of ours `colliding`", () => {
+    // Our skill cannot BE the loaded one, so something else is wearing its
+    // name. This is the case a plain `loaded - corpus` subtraction would have
+    // silently dropped.
+    expect(classifyLoaded(["guideline-skill"], invocability).colliding).toEqual([
+      "guideline-skill",
+    ]);
+  });
+
+  it("puts an unreadable invocability on the loud side", () => {
+    expect(classifyLoaded(["broken-skill"], invocability)).toEqual({
+      own: [],
+      colliding: ["broken-skill"],
+      foreign: [],
+    });
+  });
+
+  it("de-duplicates and sorts", () => {
+    const result = classifyLoaded(["zeta", "alpha", "zeta"], {});
+    expect(result.foreign).toEqual(["alpha", "zeta"]);
+  });
+});
+
+describe("summarising isolation across a run", () => {
+  it("unions every probe rather than sampling one", () => {
+    const summary = summariseIsolation([["a-skill"], ["b-skill"], ["a-skill"]], {});
+    expect(summary).toEqual({
+      recorded: true,
+      complete: true,
+      reported: 3,
+      total: 3,
+      own: [],
+      colliding: [],
+      foreign: ["a-skill", "b-skill"],
+    });
+  });
+
+  it("distinguishes 'reported nothing' from 'reported an empty list'", () => {
+    // An older CLI emitting no skills field must never read as a clean run.
+    expect(summariseIsolation([null, null], {}).recorded).toBe(false);
+    expect(summariseIsolation([[]], {}).recorded).toBe(true);
+  });
+
+  it("counts coverage rather than collapsing it to a boolean", () => {
+    expect(summariseIsolation([[], [], null], {})).toMatchObject({
+      recorded: true,
+      complete: false,
+      reported: 2,
+      total: 3,
+    });
+    expect(summariseIsolation([[], []], {})).toMatchObject({
+      complete: true,
+      reported: 2,
+      total: 2,
+    });
+  });
+
+  it("does not call an empty run complete", () => {
+    // Zero of zero is vacuous agreement, not confirmation.
+    expect(summariseIsolation([], {}).complete).toBe(false);
+  });
+});
+
+describe("isolation against the real installed corpus", () => {
+  // THE TEST A HAND-BUILT MAP CANNOT REPLACE. Every defect written into
+  // `readInvocable` — the boolean comparison, and the empty-value conflation —
+  // passes straight through a test that hands `classifyLoaded` an invocability
+  // map built by hand. Only going through `corpusInvocability` over real
+  // SKILL.md text exercises the parser where those errors live.
+  it("classifies a real guideline skill's name as colliding, not own", async () => {
+    const invocability = await corpusInvocability(
+      join(process.cwd(), ".claude", "skills"),
+    );
+    // `code-review` is the collision that actually occurs: this repository ships
+    // one, and the managed environment loads another under the same name.
+    expect(invocability["code-review"]).toBe(NOT_INVOCABLE);
+
+    const result = classifyLoaded(["code-review"], invocability);
+    expect(result.colliding).toEqual(["code-review"]);
+    expect(result.own).toEqual([]);
+  });
+
+  it("reads no corpus skill as unrecognised", async () => {
+    const invocability = await corpusInvocability(
+      join(process.cwd(), ".claude", "skills"),
+    );
+    expect(unrecognisedInvocability(invocability)).toEqual([]);
+  });
+});
+
+describe("deciding whether a run may record a baseline", () => {
+  it("refuses on foreign and colliding names alike", () => {
+    expect(
+      contamination({ colliding: ["code-review"], foreign: ["simplify"] }),
+    ).toEqual(["code-review", "simplify"]);
+  });
+
+  it("never refuses on a skill of ours that is legitimately invocable", () => {
+    // `own` is populated exactly when a workflow entry-point skill loads as
+    // designed. Refusing there would break recording for a corpus state this
+    // repository's own authoring rules require.
+    const isolation = summariseIsolation([["entry-point-skill"]], {
+      "entry-point-skill": INVOCABLE,
+    });
+    expect(isolation.own).toEqual(["entry-point-skill"]);
+    expect(contamination(isolation)).toEqual([]);
+  });
+
+  it("refuses when a foreign skill wears one of our names", () => {
+    const isolation = summariseIsolation([["code-review"]], {
+      "code-review": NOT_INVOCABLE,
+    });
+    expect(contamination(isolation)).toEqual(["code-review"]);
+  });
+
+  it("refuses when no probe reported what the CLI loaded", () => {
+    // THE STATE THAT LOOKS LIKE SUCCESS. `colliding` and `foreign` are both
+    // empty here because nothing was ever observed, not because nothing was
+    // there — so a check that only counts names emits a document whose
+    // `foreignSkills: []` is byte-identical to a verified-clean run, and a
+    // reader of the committed baseline can no longer tell the two apart.
+    const isolation = summariseIsolation([null, null], {
+      "code-review": NOT_INVOCABLE,
+    });
+    expect(contamination(isolation)).toEqual([]);
+    expect(baselineRefusal(isolation)).toMatchObject({ names: [] });
+    expect(baselineRefusal(isolation).reason).toMatch(/never checked/);
+  });
+
+  it("permits a measured, genuinely clean run", () => {
+    expect(baselineRefusal(summariseIsolation([[]], {}))).toBeNull();
+  });
+
+  it("refuses a PARTIAL run, however many probes did report", () => {
+    // The state that most convincingly fakes success: names are empty and
+    // something did report, so both a name count and a "did anything report?"
+    // boolean wave it through. One probe out of 145 would otherwise write the
+    // same `foreignSkills: []` as 145 agreeing probes — and the unreported
+    // probes are exactly the ones that could have carried the contamination.
+    const nearlyAll = summariseIsolation([...Array(142).fill([]), null, null, null], {});
+    expect(nearlyAll.recorded).toBe(true);
+    expect(contamination(nearlyAll)).toEqual([]);
+    expect(baselineRefusal(nearlyAll).reason).toMatch(/142 of 145/);
+
+    const barelyAny = summariseIsolation([[], ...Array(144).fill(null)], {});
+    expect(baselineRefusal(barelyAny).reason).toMatch(/1 of 145/);
+  });
+
+  it("names the offenders when it refuses for contamination", () => {
+    const refusal = baselineRefusal(
+      summariseIsolation([["simplify", "code-review"]], {
+        "code-review": NOT_INVOCABLE,
+      }),
+    );
+    expect(refusal.names).toEqual(["code-review", "simplify"]);
+    expect(refusal.reason).toMatch(/did not install/);
+  });
+});
+
+describe("the runner's published exit-code contract", () => {
+  it("documents exit 3 in --help", () => {
+    // Adding a third code changes a contract a caller may key on, so the help
+    // text and the header comment have to say so.
+    const result = runScript(SCRIPTS.discoveryEval, ["--help"]);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toMatch(/3 --emit-baseline/);
+  });
+});
+
+describe("baseline parsing of the foreign-skill record", () => {
+  const withForeign = (value) =>
+    JSON.stringify({
+      recordedAt: "2026-07-29T14:32:07Z",
+      model: "claude-opus-5",
+      repeats: 5,
+      foreignSkills: value,
+      cases: { "a-case": { "wireframe-design": 4 } },
+    });
+
+  it("accepts a name that is not a skill in this repository", () => {
+    // THE POINT OF THE FIELD. A foreign skill is by definition not one of ours,
+    // so the knownSkills strictness that makes a rotten tally a hard error would
+    // reject exactly this field's legitimate contents.
+    const parsed = parseBaseline(withForeign(["simplify", "dataviz"]), {
+      knownSkills: KNOWN,
+    });
+    expect(parsed.foreignSkills).toEqual(["simplify", "dataviz"]);
+  });
+
+  it("accepts an empty list as a recorded clean run", () => {
+    expect(parseBaseline(withForeign([]), { knownSkills: KNOWN }).foreignSkills).toEqual(
+      [],
+    );
+  });
+
+  it("reports absence as not recorded, distinct from clean", () => {
+    const parsed = parseBaseline(
+      JSON.stringify({
+        recordedAt: "2026-07-29T14:32:07Z",
+        model: "claude-opus-5",
+        repeats: 5,
+        cases: {},
+      }),
+    );
+    expect(parsed.foreignSkills).toBeNull();
+  });
+
+  it("rejects a malformed entry", () => {
+    expect(() => parseBaseline(withForeign(["Not A Skill"]))).toThrow(
+      /not a kebab-case skill name/,
+    );
+    expect(() => parseBaseline(withForeign("simplify"))).toThrow(
+      /must be an array of skill names/,
+    );
+    expect(() => parseBaseline(withForeign(["simplify", "simplify"]))).toThrow(
+      /lists "simplify" twice/,
+    );
+  });
+
+  it("round-trips through the emitted document", () => {
+    const emitted = renderBaseline(
+      [{ id: "a-case", repeats: 5, skills: [{ name: "wireframe-design", hits: 4 }] }],
+      {
+        model: "claude-opus-5",
+        repeats: 5,
+        recordedAt: "2026-07-29T14:32:07Z",
+        foreignSkills: ["simplify"],
+      },
+    );
+    expect(parseBaseline(emitted, { knownSkills: KNOWN }).foreignSkills).toEqual([
+      "simplify",
+    ]);
+  });
+});
+
+describe("reporting what a run could not isolate", () => {
+  const fixture = parseFixture(fixtureWith(), { knownSkills: KNOWN });
+  const tallies = [tallyCase(fixture.cases[0], runsOf("wireframe-design"), [])];
+
+  const reportWith = (isolation, unrecognised = []) =>
+    renderReport({
+      fixture,
+      tallies,
+      delta: { usable: false, reason: "no baseline recorded" },
+      context: {
+        model: "claude-opus-5",
+        repeats: 1,
+        corpusSize: 25,
+        isolation,
+        unrecognisedInvocability: unrecognised,
+      },
+    });
+
+  it("always prints a count, so a clean run is visibly clean", () => {
+    // Unlike the corpus notice, which is silent when clean. Here an absent line
+    // would be indistinguishable from a runner too old to look.
+    const report = reportWith({ recorded: true, own: [], colliding: [], foreign: [] });
+    expect(report).toMatch(/foreign skills\s+0 \(user-invocable only\)/);
+    expect(report).not.toContain("could not isolate");
+  });
+
+  it("says 'unknown' rather than 0 when the CLI reported no list", () => {
+    const report = reportWith({ recorded: false, own: [], colliding: [], foreign: [] });
+    expect(report).toContain("unknown (CLI reported no skill list)");
+  });
+
+  it("names the skills, collisions first", () => {
+    const report = reportWith({
+      recorded: true,
+      own: [],
+      colliding: ["code-review"],
+      foreign: ["simplify"],
+    });
+    expect(report).toContain("Skills the run could not isolate");
+    expect(report).toContain("colliding with a skill of ours (1)");
+    expect(report.indexOf("code-review")).toBeLessThan(report.indexOf("simplify"));
+  });
+
+  it("explains a collision caused by an unreadable field of ours", () => {
+    const report = reportWith(
+      { recorded: true, own: [], colliding: ["odd-skill"], foreign: [] },
+      ["odd-skill"],
+    );
+    expect(report).toMatch(/could not read/);
+    expect(report).toContain("odd-skill");
   });
 });
