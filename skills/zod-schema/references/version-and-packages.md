@@ -80,7 +80,9 @@ The check is cheap and worth making rather than skipping: read the version the p
 
 The following are deprecated, not removed. Each is a signal that a file was written against Zod 3 or copied from a Zod 3 source, and each has a current replacement covered in the reference named.
 
-| Superseded                                         | Current                                             | Covered in                                                 |
+Read this table in one direction only: **from a construct found in a Zod 4 codebase, to what should replace it.** It is a detection aid for stale code, not a migration guide — it says nothing about how a Zod 3 project upgrades, and a project still on Zod 3 is outside this capability's scope entirely.
+
+| Found in the code                                  | Write instead                                       | Covered in                                                 |
 | -------------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------- |
 | `z.string().email()`, `.uuid()`, `.url()`, …       | `z.email()`, `z.uuid()`, `z.url()`, …               | [primitives-and-formats.md](./primitives-and-formats.md)   |
 | `z.nativeEnum(…)`                                  | `z.enum(…)`                                         | [primitives-and-formats.md](./primitives-and-formats.md)   |

@@ -10,9 +10,9 @@ A `ZodError` carries an `issues` array. Each issue has a `code`, a `path` array 
 
 `path` is the load-bearing part. It is how a nested failure is located, and it is the contract between a schema and any per-field error display (see [forms.md](./forms.md)).
 
-Several Zod 3 accessors are gone or deprecated and appear in older code:
+Several accessors are gone or deprecated and still appear in code copied from a Zod 3 source. As in [version-and-packages.md](./version-and-packages.md), read this from what is in the code to what replaces it:
 
-| Superseded                         | Current            |
+| Found in the code                  | Write instead      |
 | ---------------------------------- | ------------------ |
 | `error.errors`, `error.formErrors` | `error.issues`     |
 | `error.format()`                   | `z.treeifyError()` |
@@ -48,7 +48,7 @@ Pick by consumer: a nested form wants the tree, a flat form wants the flattened 
 
 Zod 4 replaced four separate mechanisms with one `error` parameter, accepted by nearly every API. It takes a string, or a function receiving the issue.
 
-| Superseded           | Current                                  |
+| Found in the code    | Write instead                            |
 | -------------------- | ---------------------------------------- |
 | `{ message: "…" }`   | `{ error: "…" }`                         |
 | `invalid_type_error` | `error` callback branching on `iss.code` |
