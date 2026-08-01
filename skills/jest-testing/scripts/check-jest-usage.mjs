@@ -311,6 +311,82 @@ async function findConfig(root) {
   return null;
 }
 
+/** Quote characters that open a string literal. */
+const QUOTES = new Set(['"', "'", "`"]);
+
+/**
+ * Every string literal declared for `key` in a config source.
+ *
+ * Hand-scanned rather than matched with a single regular expression, because a
+ * glob legitimately contains `]` inside a bracket class — `*.[jt]s?(x)` is the
+ * shape of Jest's OWN default `testMatch` — and any pattern that stops at the
+ * first `]` truncates the declaration mid-string and silently yields nothing.
+ * That failure is invisible: the check reports no findings, which is
+ * indistinguishable from a project that is correctly configured.
+ *
+ * Scanning skips whole string literals while tracking bracket depth, so a `]`
+ * inside a pattern cannot end the array. Every occurrence of the key is read
+ * rather than only the first, so a `projects` config declaring several is
+ * covered too.
+ */
+function declaredPatterns(source, key) {
+  const patterns = [];
+
+  for (const match of source.matchAll(new RegExp(`(?<![\\w$])${key}\\s*:`, "g"))) {
+    let index = match.index + match[0].length;
+    while (index < source.length && /\s/.test(source[index])) index += 1;
+
+    /** Read the literal starting at `index`, advancing past its closing quote. */
+    const readLiteral = () => {
+      const quote = source[index];
+      let cursor = index + 1;
+      let value = "";
+
+      while (cursor < source.length) {
+        if (source[cursor] === "\\") {
+          value += source[cursor + 1] ?? "";
+          cursor += 2;
+          continue;
+        }
+        if (source[cursor] === quote) {
+          cursor += 1;
+          break;
+        }
+        value += source[cursor];
+        cursor += 1;
+      }
+
+      index = cursor;
+      return value;
+    };
+
+    if (QUOTES.has(source[index])) {
+      patterns.push(readLiteral());
+      continue;
+    }
+
+    if (source[index] !== "[") continue;
+
+    index += 1;
+    let depth = 1;
+
+    while (index < source.length && depth > 0) {
+      const char = source[index];
+
+      if (QUOTES.has(char)) {
+        patterns.push(readLiteral());
+        continue;
+      }
+
+      if (char === "[") depth += 1;
+      else if (char === "]") depth -= 1;
+      index += 1;
+    }
+  }
+
+  return patterns;
+}
+
 /**
  * Findings for a discovery pattern reaching into another runner's directory.
  *
@@ -318,54 +394,76 @@ async function findConfig(root) {
  * project whose patterns merely could match one is not reported.
  */
 async function checkForeignDiscovery(root, configPath, source) {
-  // Every string literal in a testMatch or testRegex array.
-  const patterns = [];
-  for (const key of ["testMatch", "testRegex"]) {
-    const declaration = source.match(
-      new RegExp(`${key}\\s*:\\s*(\\[[^\\]]*\\]|["'\`][^"'\`]*["'\`])`),
-    );
-    if (declaration === null) continue;
-    for (const literal of declaration[1].matchAll(/["'`]([^"'`]+)["'`]/g)) {
-      patterns.push(literal[1]);
-    }
-  }
-  if (patterns.length === 0) return [];
+  // `testMatch` holds globs and `testRegex` holds regular expressions. They are
+  // different languages and are judged separately below; feeding a regex to the
+  // glob heuristic silently misreads it.
+  const globs = declaredPatterns(source, "testMatch");
+  const regexes = declaredPatterns(source, "testRegex");
+  if (globs.length === 0 && regexes.length === 0) return [];
 
   const findings = [];
 
   for (const directory of FOREIGN_TEST_DIRECTORIES) {
-    const candidate = path.join(root, directory);
-    if (!(await isDirectoryWithSpecs(candidate))) continue;
+    const specs = await foreignSpecs(root, directory);
+    if (specs.length === 0) continue;
 
-    const reaching = patterns.filter((pattern) =>
-      selectsDirectory(pattern, directory),
-    );
-    if (reaching.length === 0) continue;
+    const reaching =
+      globs.find((glob) => selectsDirectory(glob, directory)) ??
+      regexes.find((regex) => matchesAnyPath(regex, specs));
+    if (reaching === undefined) continue;
 
     findings.push({
       file: configPath,
-      message: `pattern ${JSON.stringify(reaching[0])} also selects ${directory}/, which holds another runner's tests; Jest will collect files it cannot run.`,
+      message: `pattern ${JSON.stringify(reaching)} also selects ${directory}/, which holds another runner's tests; Jest will collect files it cannot run.`,
     });
   }
 
   return findings;
 }
 
-/** `true` when the directory exists and contains at least one spec file. */
-async function isDirectoryWithSpecs(candidate) {
+/** Root-relative paths of the spec files under `root/directory`, if any. */
+async function foreignSpecs(root, directory) {
+  const candidate = path.join(root, directory);
+
   try {
-    if (!(await stat(candidate)).isDirectory()) return false;
+    if (!(await stat(candidate)).isDirectory()) return [];
   } catch {
-    return false;
+    return [];
   }
-  return (await collectSpecs(candidate)).length > 0;
+
+  return (await collectSpecs(candidate)).map((spec) =>
+    path.relative(root, spec).split(path.sep).join("/"),
+  );
 }
 
 /**
- * `true` when `pattern` would select files under `directory`.
+ * `true` when `pattern`, read as a regular expression, matches any of `paths`.
  *
- * A pattern anchored at a different top-level directory cannot reach it; an
- * unanchored recursive pattern can.
+ * This is how Jest itself decides `testRegex`, so testing the pattern against
+ * the paths actually on disk is exact rather than heuristic. An invalid pattern
+ * is not a finding — it is a different defect, and one Jest reports on its own.
+ */
+function matchesAnyPath(pattern, paths) {
+  let expression;
+  try {
+    expression = new RegExp(pattern);
+  } catch {
+    return false;
+  }
+  return paths.some((candidate) => expression.test(candidate));
+}
+
+/**
+ * `true` when a `testMatch` glob would select files under `directory`.
+ *
+ * A glob anchored at a different top-level directory cannot reach it; an
+ * unanchored recursive one can. Deliberately a structural check on the leading
+ * segment rather than full glob matching, which would need a dependency this
+ * script does not take — so it errs toward silence, and only a glob that plainly
+ * reaches everywhere is reported.
+ *
+ * Globs only. A `testRegex` is a different language and is judged by
+ * `matchesAnyPath` against the paths actually on disk.
  */
 function selectsDirectory(pattern, directory) {
   const normalized = pattern.replace("<rootDir>/", "").replace(/^\.\//, "");

@@ -232,6 +232,50 @@ test("a journey", async ({ page }) => {
       });
       expect(checkJestUsage(root)).toPassCleanly();
     });
+
+    // A glob's bracket class contains a literal `]`, and Jest's OWN default
+    // testMatch is exactly that shape. Reading the array with a pattern that
+    // stops at the first `]` truncates it mid-string and yields no patterns at
+    // all — so the check reports nothing, which looks identical to a correctly
+    // configured project. These two cases pin the parser against that.
+    it("reports a bracket-class array pattern, as in Jest's own defaults", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = {
+  testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[tj]s?(x)"],
+};
+`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
+
+    it("reports a bracket-class testRegex", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = {
+  testRegex: ["(/__tests__/.*|(\\\\.|/)(test|spec))\\\\.[jt]sx?$"],
+};
+`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
+
+    it("reads every declaration, not only the first, in a projects config", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = {
+  projects: [
+    { displayName: "unit", testMatch: ["<rootDir>/src/**/*.spec.ts"] },
+    { displayName: "wide", testMatch: ["**/*.[jt]s?(x)"] },
+  ],
+};
+`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
   });
 
   describe("multiple roots", () => {
