@@ -17,6 +17,7 @@ node scripts/discovery-eval/run.mjs --help
 node scripts/discovery-eval/run.mjs --dry-run          # validate, no model call
 node scripts/discovery-eval/run.mjs --only wf-checkout-layout --repeats 3
 node scripts/discovery-eval/run.mjs --repeats 5 --emit-baseline
+node scripts/discovery-eval/run.mjs --determinism --only hf-touch-targets
 ```
 
 It drives the real `claude` CLI, so it needs the CLI on `PATH` and working
@@ -36,13 +37,16 @@ the baseline and prints what would run. That is the path `npm test` exercises.
 ## Running it in CI
 
 Dispatch [`discovery-eval.yaml`](../../.github/workflows/discovery-eval.yaml)
-from the Actions tab. Three inputs, all optional:
+from the Actions tab. Four inputs, all optional:
 
-| Input           | Effect                                                                                                                                                                                         |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `repeats`       | Runs per case, **overriding whatever a case declares**. Leave blank — the normal case — to honour the fixture's own counts.                                                                    |
-| `pull_request`  | A pull request number. Its changed `SKILL.md` files are evaluated, and the report is posted there as a comment. Leave blank to evaluate the default branch and read the report in the job log. |
-| `emit_baseline` | Also produce a proposed baseline, downloadable from the run as the `proposed-baseline` artifact. Off by default. See [Re-recording it](#re-recording-it).                                      |
+| Input           | Effect                                                                                                                                                                                                                                                           |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repeats`       | Runs per case, **overriding whatever a case declares**. Leave blank — the normal case — to honour the fixture's own counts.                                                                                                                                      |
+| `pull_request`  | A pull request number. Its changed `SKILL.md` files are evaluated, and the report is posted there as a comment. Leave blank to evaluate the default branch and read the report in the job log.                                                                   |
+| `emit_baseline` | Also produce a proposed baseline, downloadable from the run as the `proposed-baseline` artifact. Off by default. See [Re-recording it](#re-recording-it).                                                                                                        |
+| `determinism`   | A case id. Repeats **that one case** against an unchanged corpus and reports its stability instead of running the fixture. **30 repeats by default, overriding any per-case declaration**, and a `repeats` below 10 is refused. See [the probe](#--determinism). |
+
+Two combinations are refused, and one is explicitly allowed.
 
 **`emit_baseline` and `pull_request` cannot be combined**, and a dispatch
 supplying both fails before it spawns a single probe. A run that names a pull
@@ -50,6 +54,17 @@ request overlays that pull request's head `SKILL.md` files, so the emitted
 `corpus` would fingerprint text that exists on no branch — a document that looks
 exactly like a committable baseline and is not one. Refusing the combination is
 cheaper than documenting the trap.
+
+**`emit_baseline` and `determinism` cannot be combined either**, for a different
+reason and from a separate step with its own message: a determinism run measures
+one case, a baseline is a fixture-wide document, and there is no partial
+baseline worth emitting.
+
+**`determinism` and `pull_request` _can_ be combined.** Measuring how stably a
+changed skill is selected, against that pull request's own head text, is a
+reasonable thing to ask for — and it produces a report rather than a document,
+so nothing committable is fingerprinted. The posted comment says which of the
+two reports it carries.
 
 **Manual dispatch is the only trigger.** There is no event a pull request can
 raise that starts this — no `pull_request`, and deliberately no
@@ -159,6 +174,122 @@ healthy contention from a real gap:
 coverage: 5/5 runs selected at least one of wireframe-design, high-fidelity-ui-design
 coverage: 3/5 runs selected at least one of … — 2 selected none of them
 ```
+
+## What a finding is measured against
+
+A verdict alone cannot tell a marginal result from a broken one. `MISS` fires at
+**zero** hits, so a case whose skill genuinely sits at `1/5` draws zero about a
+third of the time and reports a finding indistinguishable from a real
+regression. `SPURIOUS` has the sharper version of the same problem: it fires
+above half, so a skill genuinely sitting at half fires it half the time.
+
+So **both** findings carry the prior the baseline recorded, and — where that
+baseline fingerprinted its corpus — `P`, the chance of a result at least this
+extreme if the rate had not moved:
+
+```text
+  hf-touch-targets: high-fidelity-ui-design 0/5  (prior 1/5, P 27.3% — consistent with no change)
+  si-neutral-consent-gate: software-instrumentation 0/5  (prior 5/5, P 0.2% — regression)
+  hf-contrast-audit: wireframe-design 5/5  (prior 0/5, P 0.2% — regression)
+  hf-contrast-audit: wireframe-design 3/5  (prior 0/5, P 6.1% — consistent with no change)
+```
+
+The last two are the case this exists for. Today they render identically; their
+evidence differs by a factor of exactly **28**.
+
+**The estimator is a posterior predictive tail, not `(1 − p̂)ⁿ`.** The point
+estimate treats a rate measured from five samples as the truth, and at `p̂ = 1`
+returns exactly `0%` — so a `2/2` prior would call two probes proof of
+impossibility. Integrating over `Beta(h + 1, n₀ − h + 1)` counts the prior's own
+sampling error, which is the whole difficulty when every prior comes from a
+handful of probes. The 5% band is **not** a measured noise floor; it is a
+benchmark, and [`--determinism`](#--determinism) is what will eventually measure
+the real thing. Under a Jeffreys `Beta(0.5, 0.5)` prior instead, no verdict in
+this fixture flips.
+
+**A tally entry is always a prior; an absence is one only for a skill the run
+tracked.** A baseline records a zero-hit skill by omitting it, so an absence
+means _measured, and zero_ for a skill in `mustInclude`, `mustExclude` or
+`expectAlways` — and _nobody ever looked_ for anything else. `mayInclude` is
+deliberately outside that set: those skills are never a finding, so a run has no
+obligation to tally them, and reading their silence as a measured zero would
+manufacture priors. A line with no prior prints an em dash, never a `0`:
+
+```text
+  hf-touch-targets: react-component-styling —/5 -> 2/5  (no prior: not tracked, and nothing recorded)
+```
+
+The inference stays sound only while, since the tally was recorded, **(a)** no
+measured case has gained a `mustInclude`/`mustExclude` label and **(b)**
+`expectAlways` has gained no skill. Both hold today. The second is the sharper
+edge: an `expectAlways` addition changes the tracked set for **every** case at
+once, where a per-case label changes one.
+
+**A zero prior against a zero run is `standing`, not a probability** — and it
+renders even with no corpus fingerprint, because it is a statement about counts:
+
+```text
+  boundary-hierarchy-and-css: high-fidelity-ui-design 0/5  (prior 0/5 — standing)
+```
+
+**Some prior/run pairs cannot clear the band at all.** The _resolvability floor_
+is the smallest tail any attainable outcome could have produced. Where it sits
+at or above 5%, every possible result would have read as "consistent with no
+change", so the line says that outright rather than carrying a verdict that was
+never in doubt:
+
+```text
+  rcs-css-module: react-component-styling 0/2  (prior 2/2, P 10.0% — cannot resolve at 2 repeats)
+```
+
+That is the cost of [`repeats`](#repeats--spending-probes-where-the-answer-is-in-doubt),
+made visible. It can only ever replace `consistent with no change`, never a
+finding: `floor ≤ P` holds by construction.
+
+**Without a `corpus` fingerprint there is no `P` at all** — counts, and the
+reason. That is the state this ships in, since the committed baseline predates
+fingerprinting:
+
+```text
+  hf-touch-targets: high-fidelity-ui-design 0/5  (prior 1/5 — no P: baseline records no corpus)
+```
+
+The delta block reads the same priors through the same helper, so the two blocks
+cannot disagree about one event. Below the band each uses its own word: a
+finding is a `regression`, a delta line has `moved`.
+
+## `--determinism`
+
+Every probability above assumes a case's repeats are independent draws from a
+fixed rate. **Nothing has ever measured that.** Probes run sequentially, in one
+workspace, against a warm prompt cache, so they could be correlated in either
+direction. `compare.mjs` has refused to choose tuned constants "before the
+determinism probe has measured this corpus's noise floor" since it was written;
+this is that probe.
+
+```bash
+node scripts/discovery-eval/run.mjs --determinism --only hf-touch-targets
+```
+
+It repeats **one** case — exactly one `--only` — against a single unchanged
+workspace, and reports a 95% Wilson score interval plus a Wald–Wolfowitz runs
+test over the probe-ordered sequence. The interval says how precisely the rate
+is pinned; the runs test is the one that addresses the assumption, by asking
+whether hits **cluster** in probe order, which is what a warm cache would cause.
+
+It defaults to **30** repeats, overriding any per-case `repeats` declaration —
+a case that earns 2 repeats for a settled verdict is exactly the kind whose
+stability is worth measuring. An explicit `--repeats` still overrides both, and
+fewer than 10 is refused: below that the runs test has no power. It refuses
+`--emit-baseline`, it records nothing, and it exits 0 whatever it finds.
+
+A row appears for every skill selected at least once, **plus** every skill the
+case labels and every `expectAlways` skill — so a skill selected in none of the
+probes still gets a line, which is the only way the report can say so. The runs
+test reports three ways, and they are not interchangeable: a constant sequence
+is **undefined** rather than extreme, and a non-constant one with fewer than ten
+of either outcome keeps its expected count but has `Z` **withheld**, because
+what fails there is the normal approximation rather than the statistic.
 
 ## `baseline.json`
 
@@ -323,8 +454,12 @@ Corpus drift — the baseline was recorded against a different skill corpus.
   note          professional-behavior is an expectAlways skill, tracked on every case,
                 so its text change degrades every comparison, not some.
 
-  hf-touch-targets: high-fidelity-ui-design 1/5 -> 3/5  (unattributable)
+  hf-touch-targets: high-fidelity-ui-design 1/5 -> 3/5  (P 19.7% — consistent with no change)  (unattributable)
 ```
+
+The reading and the drift mark are separate parentheses on purpose. One says
+what the number means; the other says whether it can be attributed to anything
+in this repository at all.
 
 Every case is marked, not a subset: the whole corpus is installed for every
 probe, so there is no case the drift provably could not have touched. A skill
@@ -374,6 +509,26 @@ measured, and it would quietly widen what the first half forgives.
   agreement mandates <!-- count:mandated-skills -->three<!-- /count --> skills in
   every session; evaluating inside this checkout would measure that agreement
   instead of discovery, and would do so silently.
+- **Repeats are assumed independent, not measured.** Every `P` above treats a
+  case's probes as independent draws from a fixed rate. They run sequentially in
+  one workspace against a warm prompt cache, so they may not be.
+  [`--determinism`](#--determinism) is what measures it, and until it has been
+  run the band is a benchmark rather than a noise floor.
+- **The band is per line.** Among the lines that can fire it, roughly one clean
+  line in twenty reads `regression` or `moved` by chance alone. Nothing here
+  corrects for multiple comparisons.
+- **A two-repeat case cannot resolve much, by construction.** The reduction to
+  `"repeats": 2` buys a cheaper run at the cost of resolution, and the
+  resolvability floor makes the size of that cost visible: against a `2/2` prior
+  at 2 repeats the floor is `10.000%`, so **no outcome at all** could have
+  cleared the 5% band and every line reads `cannot resolve at 2 repeats`. At 3
+  repeats the floor is `5.000%` — exactly on the band — and only at 4 does it
+  drop to `2.857%`. This is accepted rather than bought back: restoring the
+  probes would undo the saving [`repeats`](#repeats--spending-probes-where-the-answer-is-in-doubt)
+  exists for.
+- **The band ships dormant.** No `P` renders against the baseline in this tree,
+  because it records no `corpus`. It activates on the first re-record that
+  fingerprints one.
 - **`expectAlways` is informational for now.** `professional-behavior` claims in
   its own `when_to_use` that it applies to every session. Whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported

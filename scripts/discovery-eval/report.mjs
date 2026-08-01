@@ -15,8 +15,18 @@
 // find that out.
 
 import { SELECTION_RATE, VERDICTS } from "./compare.mjs";
+import { NOISE_ALPHA, readingFor } from "./noise.mjs";
 
 const RULE_WIDTH = 78;
+
+/**
+ * The glyph for a count that was never measured.
+ *
+ * Never a `0`. A zero is a real measurement with a real reading — a zero prior
+ * against a zero run is a STANDING finding — so spelling "unknown" as "0" would
+ * make the two indistinguishable in the one place a reader looks.
+ */
+const NO_COUNT = "—";
 
 /** Width of the corpus notice's bucket labels, so their names line up. */
 const BUCKET_LABEL_WIDTH = 12;
@@ -66,6 +76,24 @@ function renderHeader({
     "Everything else is informational: a mustInclude skill selected some of the",
     "time is 'weak', not a miss — two skills that legitimately compete split the",
     "distribution, and the per-case coverage line says whether anything was lost.",
+    "",
+    "Both findings carry the PRIOR the baseline recorded for that skill. Where the",
+    "baseline carries a corpus fingerprint they also carry P — the chance of a result",
+    "at least this extreme if the rate had not moved, integrating over the",
+    `uncertainty in a prior measured from few samples. Below ${Math.round(NOISE_ALPHA * 100)}% the result reads as a`,
+    "regression — movement toward what the label calls failure, in either direction;",
+    "at or above it the prior cannot resolve the question. Where no outcome could",
+    "have cleared the band at all, the line says so instead of carrying a verdict it",
+    "could not have avoided — that can only ever replace 'consistent with no change',",
+    "never a finding. A recorded tally is always a prior; an absence is one only for",
+    "a skill the run tracked, so a skill nobody labelled gets none. Three caveats,",
+    "all live:",
+    "  - Probes run in sequence against a warm prompt cache, so independence is",
+    "    assumed rather than measured. `--determinism` is what measures it.",
+    "  - The band is per line; among the lines that can fire it, roughly one clean",
+    "    line in twenty reads 'regression' or 'moved' by chance alone.",
+    "  - A baseline with no corpus fingerprint gets counts and no P: its tallies may",
+    "    have accreted across commits, against a corpus that has since changed.",
   );
   return lines.join("\n");
 }
@@ -106,8 +134,58 @@ function renderCase(tally, testCase) {
   return lines.join("\n");
 }
 
+/**
+ * `P` to one decimal place — and only ever one.
+ *
+ * The precision is fixed by field on purpose. `P` is a tail probability read
+ * against a 5% band, so a second decimal implies a resolution five probes
+ * cannot support; the floor and the test statistics take three because they are
+ * compared against each other rather than against a threshold.
+ */
+const percent = (value, digits = 1) => `${(value * 100).toFixed(digits)}%`;
+
+/**
+ * The parenthesised annotation both blocks put after a line.
+ *
+ * ONE FUNCTION, TWO CALL SITES. The findings roll-up and the delta block report
+ * the same events from different angles, and a reader who sees them disagree
+ * about one line has no way to tell which is wrong. They share this renderer and
+ * the precedence behind it, so they cannot.
+ *
+ * @param {{ hits: number, repeats: number }|null} prior
+ * @param {{ hits: number, repeats: number }} run
+ * @param {object} options
+ * @param {boolean} options.fingerprinted
+ * @param {string} [options.noPriorReason]
+ * @param {"regression"|"moved"} [options.movedWord]
+ * @param {boolean} [options.showPrior]  false in the delta, whose line already prints it
+ * @returns {string}
+ */
+export function annotate(prior, run, { fingerprinted, noPriorReason, movedWord, showPrior = true }) {
+  const reading = readingFor({ prior, run, fingerprinted, noPriorReason, movedWord });
+
+  if (reading.kind === "no-prior") {
+    // The em dash stands where the count would be, so the absence is visible in
+    // the same position a number would have occupied.
+    return showPrior ? `(prior ${NO_COUNT}, ${reading.label})` : `(${reading.label})`;
+  }
+
+  // A probability is joined to the prior with a comma and to its reading with a
+  // dash — "prior 1/5, P 27.3% — consistent with no change". With no
+  // probability the reading attaches to the prior directly: "prior 0/5 —
+  // standing".
+  const body =
+    reading.probability === null
+      ? reading.label
+      : `P ${percent(reading.probability)} — ${reading.label}`;
+  if (!showPrior) return `(${body})`;
+
+  const separator = reading.probability === null ? " — " : ", ";
+  return `(prior ${ratio(prior.hits, prior.repeats)}${separator}${body})`;
+}
+
 /** The findings roll-up — the part a reviewer reads first. */
-function renderFindings(tallies) {
+function renderFindings(tallies, delta) {
   const findings = tallies.flatMap((tally) =>
     tally.findings.map((finding) => ({ ...finding, id: tally.id })),
   );
@@ -126,12 +204,69 @@ function renderFindings(tallies) {
     if (group.length === 0) continue;
     lines.push("", `${VERDICTS[kind].label} (${group.length}) — remedy: ${VERDICTS[kind].remedy} the discovery text`);
     for (const finding of group) {
+      const run = { hits: finding.hits, repeats: finding.repeats };
+      const reading = annotate(priorIn(delta, finding.id, finding.skill), run, {
+        fingerprinted: isFingerprinted(delta),
+        noPriorReason: noPriorReasonIn(delta, finding.id),
+        movedWord: "regression",
+      });
+      // The same drift mark the delta lines carry, for the same reason: a
+      // prior measured against a corpus that has since changed cannot be
+      // attributed to anything in this repository, and a finding is exactly
+      // where that matters most.
       lines.push(
-        `  ${finding.id}: ${finding.skill} ${ratio(finding.hits, finding.repeats)}`,
+        `  ${finding.id}: ${finding.skill} ${ratio(finding.hits, finding.repeats)}  ${reading}${
+          isUnattributable(delta, finding.id) ? "  (unattributable)" : ""
+        }`,
       );
     }
   }
   return lines.join("\n");
+}
+
+/**
+ * Whether the baseline fingerprinted the corpus it measured.
+ *
+ * Read from the corpus comparison rather than mirrored into a field of its own.
+ * A second copy would be a second thing to keep in step, and two flags that can
+ * disagree about one baseline is exactly the failure the annotation exists to
+ * prevent one level up — a line claiming "no corpus recorded" beside a drift
+ * notice that names the drifted skills.
+ */
+const isFingerprinted = (delta) => delta?.corpus?.recorded ?? false;
+
+/**
+ * The prior the baseline recorded for one skill in one case, or `null`.
+ *
+ * Read out of the delta rather than recomputed: the two blocks must agree about
+ * one event, and the only way to guarantee that is for both to read the same
+ * record.
+ */
+function priorIn(delta, caseId, skill) {
+  if (!delta?.usable) return null;
+  const entry = delta.cases.find((item) => item.id === caseId);
+  return entry?.priors?.[skill] ?? null;
+}
+
+/** Whether this case's comparisons were measured against a corpus that has since drifted. */
+function isUnattributable(delta, caseId) {
+  if (!delta?.usable) return false;
+  return delta.cases.find((item) => item.id === caseId)?.unattributable ?? false;
+}
+
+/** Which of the four reasons a line has no prior to claim. */
+function noPriorReasonIn(delta, caseId) {
+  if (!delta) return "no baseline recorded";
+  // A model mismatch and a missing file both arrive as an unusable delta, and
+  // the delta already phrases each of them.
+  if (!delta.usable) return delta.reason;
+  const entry = delta.cases.find((item) => item.id === caseId);
+  if (entry?.isNew) {
+    return entry.isUnmeasured
+      ? "case declared unmeasured, awaiting the next re-record"
+      : "case is not in the baseline";
+  }
+  return "not tracked, and nothing recorded";
 }
 
 /**
@@ -171,11 +306,13 @@ export function renderCorpusBuckets(corpus) {
  *
  * @param {number} runs           probes the run would spawn
  * @param {number} costPerProbe   measured dollars per probe
+ * @param {string} [subject]      what the total is for; a determinism probe is
+ *                                one case, not the fixture
  * @returns {string} the estimate line, total rounded to cents
  */
-export function renderProbeBudget(runs, costPerProbe) {
+export function renderProbeBudget(runs, costPerProbe, subject = "this fixture") {
   const total = (runs * costPerProbe).toFixed(2);
-  return `Would spawn ${runs} one-turn probe(s); ~$${costPerProbe} each, so ~$${total} for this fixture.`;
+  return `Would spawn ${runs} one-turn probe(s); ~$${costPerProbe} each, so ~$${total} for ${subject}.`;
 }
 
 /**
@@ -276,8 +413,22 @@ function renderDelta(delta, expectAlways = []) {
       // Both denominators are printed because they can differ: a baseline
       // recorded at 5 repeats compared against a 10-repeat run would otherwise
       // read as every skill doubling.
+      const wasRepeats = change.wasRepeats ?? delta.baselineRepeats;
+      const was = change.was === null ? NO_COUNT : change.was;
+      const reading = annotate(
+        change.prior,
+        { hits: change.now, repeats: entry.repeats },
+        {
+          fingerprinted: isFingerprinted(delta),
+          noPriorReason: "not tracked, and nothing recorded",
+          // A delta line reports movement; only the verdict rule calls
+          // something a regression, and it has not been applied here.
+          movedWord: "moved",
+          showPrior: false,
+        },
+      );
       lines.push(
-        `  ${entry.id}: ${change.skill} ${ratio(change.was, change.wasRepeats ?? delta.baselineRepeats)} -> ${ratio(change.now, entry.repeats)}${mark}`,
+        `  ${entry.id}: ${change.skill} ${was}/${wasRepeats} -> ${ratio(change.now, entry.repeats)}  ${reading}${mark}`,
       );
     }
   }
@@ -302,7 +453,7 @@ export function renderReport({ fixture, tallies, delta, context }) {
   return [
     renderHeader({ ...context, caseCount: fixture.cases.length }),
     ...tallies.map((tally) => renderCase(tally, byId.get(tally.id))),
-    renderFindings(tallies),
+    renderFindings(tallies, delta),
     renderDelta(delta, fixture.expectAlways ?? []),
     "",
     "This evaluation reports; it does not gate. It exits 0 whatever it finds.",

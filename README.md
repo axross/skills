@@ -211,6 +211,24 @@ as one removal plus one addition. When the corpus matches, the report says
 nothing at all — a notice that fires on every run is one that gets skipped on the
 run that matters.
 
+**A finding carries the prior it is measured against.** A verdict alone cannot
+tell a marginal result from a broken one: a miss fires at zero selections, so a
+skill that genuinely sits at one run in five draws zero about a third of the time
+and reports a finding that is noise. Every finding therefore states what the
+baseline recorded, and — where that baseline fingerprinted its corpus — the
+chance of a result at least this extreme had the rate not moved, integrating over
+the uncertainty in a rate measured from a handful of probes. Where the repeat
+counts make the question unanswerable in principle, the line says **that**
+instead of a verdict that was never in doubt; and where the baseline recorded
+nothing, no prior is invented.
+
+**Whether repeats are independent is now measurable.** Every such probability
+assumes a case's probes are independent draws from a fixed rate, and until now
+nothing had checked it — they run in sequence against a warm prompt cache, so
+they may cluster. A determinism mode repeats one case against an unchanged corpus
+and reports whether they do. It has not been run yet, so nothing here claims a
+measured noise floor.
+
 **The second tool measures cost instead of outcome.** It answers "how many rules
 is an agent holding right now?" — the concurrent RFC-2119 obligation count across
 a set of skills, as a **range**: the floor when only the `SKILL.md` bodies are
@@ -478,7 +496,11 @@ posted as a comment; leave it blank to evaluate the default branch and read the
 report in the job log. Check `emit_baseline` — which no dispatch naming a pull
 request may combine with — to have the run also produce a proposed baseline as a
 downloadable artifact, which is how the baseline gets re-recorded without a local
-CLI or local credentials. `--dry-run` validates the fixture with no model call and
+CLI or local credentials. Give it a case id in `determinism` instead to repeat
+that one case against an unchanged corpus and measure whether its probes behave
+as independent draws; that combines with a pull request but not with
+`emit_baseline`, since one case cannot produce a fixture-wide document.
+`--dry-run` validates the fixture with no model call and
 no secret. See
 [`evals/discovery/README.md`](./evals/discovery/README.md) for the fixture
 format, how a verdict is reached, and how to re-record the baseline.
