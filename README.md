@@ -5,7 +5,7 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done.
-The <!-- count:distributable-skills -->twenty-five<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-six<!-- /count --> here cover the
 whole arc: handling what the agent does not know, turning a request into a spec,
 driving that spec to a reviewed pull request, keeping the code maintainable and
 secure, testing it, designing and building its UI, standing up the application
@@ -107,10 +107,11 @@ the sentences inside whatever document you are writing.
 
 ### Testing
 
-| Skill                                                        | What it gives your agent                                                                                       |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| [`unit-testing`](./skills/unit-testing/SKILL.md)             | Fast, isolated tests written from the caller's side, so a refactor does not break them and a bug does.         |
-| [`end-to-end-testing`](./skills/end-to-end-testing/SKILL.md) | Tests that drive the whole system like a real user — locators that do not rot, no sleeps, and no live network. |
+| Skill                                                        | What it gives your agent                                                                                                                                                                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`unit-testing`](./skills/unit-testing/SKILL.md)             | Fast, isolated tests written from the caller's side, so a refactor does not break them and a bug does.                                                                                                             |
+| [`end-to-end-testing`](./skills/end-to-end-testing/SKILL.md) | Tests that drive the whole system like a real user — locators that do not rot, no sleeps, and no live network.                                                                                                     |
+| [`jest-testing`](./skills/jest-testing/SKILL.md)             | The runner under the first two, on Jest 30: which API expresses a decision, which option makes the suite find and transform your files, and which of its silent failures explains a green run that tested nothing. |
 
 ### Designing a UI
 
@@ -347,11 +348,12 @@ node skills/agent-skill-authoring/scripts/check-links.mjs
 node skills/agent-skill-authoring/scripts/check-skill.mjs --help
 node scripts/check-installed-copies.mjs
 
-# Six more ship inside a skill, for the projects that install it — this
+# Seven more ship inside a skill, for the projects that install it — this
 # repository exercises them only against fixtures:
 node skills/amplitude-instrumentation/scripts/check-amplitude-wiring.mjs --help
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs --help
+node skills/jest-testing/scripts/check-jest-usage.mjs --help
 node skills/react-component-styling/scripts/check-component-styles.mjs --help
 node skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs --help
 node skills/wireframe-design/scripts/check-wireframe.mjs --help
@@ -359,13 +361,13 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 
 #### Reporting, not gating
 
-The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> and
-the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> scripts
+The <!-- count:first-reporting-tool-ordinal -->eleventh<!-- /count --> and
+the <!-- count:second-reporting-tool-ordinal -->twelfth<!-- /count --> scripts
 report instead of judging. Neither belongs to a gate, an npm script, or a hook,
 and `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced
 set on purpose, so wiring either in has to be a deliberate act.
 
-The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> reports a
+The <!-- count:first-reporting-tool-ordinal -->eleventh<!-- /count --> reports a
 number:
 
 ```bash
@@ -386,7 +388,7 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> reports a
+The <!-- count:second-reporting-tool-ordinal -->twelfth<!-- /count --> reports a
 routing outcome:
 
 ```bash
@@ -482,7 +484,7 @@ this page, the round cap it quotes from a skill, the empty tallies in the
 discovery baseline. The marker is invisible once rendered:
 
 ```markdown
-The <!-- count:distributable-skills -->twenty-five<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-six<!-- /count --> here cover the
 whole arc.
 ```
 
