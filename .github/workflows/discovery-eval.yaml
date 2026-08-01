@@ -56,6 +56,14 @@ name: Discovery Evaluation
 # declared below, and never writes the repository — a human still commits the
 # document deliberately.
 #
+# `determinism` affects none of them either. It narrows a run to ONE case and
+# swaps which report the runner prints; it reads the same base-tree fixture,
+# runs the same credential-free subprocess, and posts through the same step. It
+# does change two things worth naming: the run gets its own concurrency group,
+# because 30 sequential probes against an unchanged corpus are exactly what an
+# unrelated dispatch must not cancel, and the posted comment's preamble follows
+# the mode so the body is never introduced as a report it is not.
+#
 # AN EMITTING RUN CAN NOW FAIL ON PURPOSE. The runner records the skills the CLI
 # loaded that the evaluation workspace did not install — a user-level tier it
 # strips with `--setting-sources project`, and a managed-environment tier no flag
@@ -86,6 +94,14 @@ on:
         required: false
         type: boolean
         default: false
+      determinism:
+        # Untyped and undefaulted, like `pull_request` and `repeats` above and
+        # deliberately UNLIKE `emit_baseline`. Only the typed context applies a
+        # declared default, so an input with no default must be read through
+        # `github.event.inputs` — reading this one through `inputs` would work
+        # by accident today and break the moment somebody gives it a type.
+        description: "Case id to repeat against an unchanged corpus, measuring probe independence instead of running the fixture (cannot be combined with emit_baseline)"
+        required: false
 
 # Least privilege: read the base tree, write one comment. Nothing else. No
 # contents:write — this never pushes, and its token cannot.
@@ -107,7 +123,19 @@ jobs:
       # dispatching an ordinary default-branch report would have cancelled a
       # re-record in flight and destroyed the measurement it paid for. Two
       # emitting runs still supersede each other, which is the intended reading.
-      group: discovery-eval-${{ github.event.inputs.pull_request || (inputs.emit_baseline && 'emit-baseline') || 'manual' }}
+      #
+      # A determinism run earns the same protection for the same reason: it is
+      # 30 sequential probes whose whole value is that the corpus did not change
+      # underneath them, and without its own group it would land in
+      # `discovery-eval-manual` where any ordinary dispatch could cancel it.
+      #
+      # ITS BRANCH IS EVALUATED FIRST, and that ordering is the point rather
+      # than a style choice. Placed after `pull_request`, a determinism run that
+      # also names a pull request would fall into `discovery-eval-<n>` and share
+      # a group with an ordinary evaluation of that same pull request — which is
+      # the half of the hazard the obvious fix misses. Two determinism runs on
+      # one case still supersede each other, which is intended.
+      group: discovery-eval-${{ github.event.inputs.determinism && format('determinism-{0}', github.event.inputs.determinism) || github.event.inputs.pull_request || (inputs.emit_baseline && 'emit-baseline') || 'manual' }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -119,6 +147,9 @@ jobs:
       # dispatch that omits this input entirely still reads "false" here rather
       # than empty.
       EMIT_BASELINE: ${{ inputs.emit_baseline }}
+      # `github.event.inputs` again, matching PR_NUMBER and REPEATS: this input
+      # declares no default, so there is none for the typed context to apply.
+      DETERMINISM: ${{ github.event.inputs.determinism }}
     steps:
       # MUTUALLY EXCLUSIVE, and refused rather than documented. When a dispatch
       # names a pull request the run overlays that pull request's head SKILL.md
@@ -134,6 +165,25 @@ jobs:
         if: env.EMIT_BASELINE == 'true' && env.PR_NUMBER != ''
         run: |
           echo "::error::emit_baseline cannot be combined with a pull request number. A run that overlays head SKILL.md files would fingerprint un-merged text, producing a document that looks committable and is not. Dispatch with emit_baseline and no pull request to re-record, or with a pull request and no emit_baseline to evaluate a branch."
+          exit 1
+
+      # A SECOND REFUSAL, AND A SEPARATE STEP RATHER THAN A WIDER `if:` ON THE
+      # ONE ABOVE. That step is named for head text and its message is entirely
+      # about pull request numbers; widening its condition would fire it on a
+      # combination it does not describe, and a maintainer would read a reason
+      # that has nothing to do with what they dispatched.
+      #
+      # The reason here is different too: a determinism run measures ONE case,
+      # and a baseline is a fixture-wide document. There is no partial baseline
+      # to emit, so the combination cannot be honoured in any form.
+      #
+      # `determinism` WITH `pull_request` is deliberately allowed — measuring a
+      # changed skill's stability against its own head text is a sensible thing
+      # to ask for, and it produces a report rather than a document.
+      - name: Refuse to emit a baseline from a single-case probe
+        if: env.EMIT_BASELINE == 'true' && env.DETERMINISM != ''
+        run: |
+          echo "::error::determinism cannot be combined with emit_baseline. A determinism run repeats ONE case, and a baseline is a fixture-wide document, so the run could only ever produce a partial one that looks committable and is not. Dispatch with determinism and no emit_baseline to measure a case, or with emit_baseline and no determinism to re-record."
           exit 1
 
       # SAFETY PROPERTY 2 — no `ref:` input, so this is always the default
@@ -209,6 +259,12 @@ jobs:
           if [ "${EMIT_BASELINE}" = "true" ]; then
             args+=(--emit-baseline)
           fi
+          # Both flags or neither. The runner refuses --determinism without
+          # exactly one --only, so passing them apart would turn a dispatch
+          # mistake into an exit-2 the maintainer has to decode from the log.
+          if [ -n "${DETERMINISM}" ]; then
+            args+=(--determinism --only "${DETERMINISM}")
+          fi
           node scripts/discovery-eval/run.mjs "${args[@]}" | tee "${RUNNER_TEMP}/report.txt"
 
       # Uploaded as a file rather than left in the log. The document must land
@@ -248,9 +304,19 @@ jobs:
         run: |
           set -euo pipefail
           {
-            echo "## Skill discovery evaluation"
-            echo
-            echo "Reports which skills the fixture's prompts actually surfaced."
+            # The preamble follows the mode. A determinism report contains no
+            # verdicts and no delta, so introducing it as "which skills the
+            # prompts surfaced" would describe a report nobody posted. The
+            # not-a-gate line stays in both — it is true of every run here.
+            if [ -n "${DETERMINISM}" ]; then
+              echo "## Skill discovery determinism probe"
+              echo
+              echo "Repeats one fixture case against an unchanged corpus to measure whether sequential probes behave as the independent draws the arithmetic assumes."
+            else
+              echo "## Skill discovery evaluation"
+              echo
+              echo "Reports which skills the fixture's prompts actually surfaced."
+            fi
             echo "**This is not a gate** — it never blocks a merge."
             echo
             echo '```text'

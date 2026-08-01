@@ -66,8 +66,13 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { deltaAgainst, tallyAll } from "./compare.mjs";
+import { deltaAgainst, tallyAll, trackedSkills } from "./compare.mjs";
 import { compareCorpus, corpusDigest, corpusInvocability } from "./corpus.mjs";
+import {
+  DEFAULT_DETERMINISM_REPEATS,
+  MIN_DETERMINISM_REPEATS,
+  renderDeterminism,
+} from "./determinism.mjs";
 import { parseBaseline, parseFixture, ValidationError } from "./fixture.mjs";
 import {
   baselineRefusal,
@@ -168,6 +173,8 @@ and report which expected skills were missed and which unexpected ones fired.
   --head-sha <sha>     record the evaluated head commit in the report
   --dry-run            validate the fixture and print the plan; no model call
   --emit-baseline      also print a baseline document for a human to commit
+  --determinism        repeat ONE case (--only) and report its stability instead
+                       of the usual report; ${DEFAULT_DETERMINISM_REPEATS} repeats by default, ${MIN_DETERMINISM_REPEATS} minimum
   --help               this text
 
 Exit codes: 0 a report was produced (always), 2 bad invocation, 3 --emit-baseline
@@ -334,6 +341,7 @@ function parseArguments(argv) {
     headSha: null,
     dryRun: false,
     emitBaseline: false,
+    determinism: false,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -381,11 +389,51 @@ function parseArguments(argv) {
       case "--emit-baseline":
         options.emitBaseline = true;
         break;
+      case "--determinism":
+        options.determinism = true;
+        break;
       default:
         fail2(`Unknown option "${argument}".\n${USAGE}`);
     }
   }
   return options;
+}
+
+/**
+ * The determinism mode's own invocation rules, refused before anything is read.
+ *
+ * Checked here rather than after the fixture loads because none of them depend
+ * on it: the mode's repeat count deliberately ignores per-case declarations, so
+ * every one of these is knowable from the argument list alone — and a refusal
+ * that costs nothing is a refusal that can be made freely.
+ *
+ * @param {object} options
+ * @returns {number} the effective repeat count
+ */
+function determinismRepeats(options) {
+  if (options.only.length !== 1) {
+    fail2(
+      `--determinism measures ONE case repeated against an unchanged corpus, so it needs exactly one --only; ${
+        options.only.length === 0 ? "none was given" : `${options.only.length} were given`
+      }. Its whole subject is how a single case behaves under repetition, and a run spanning several cases would confound that with the difference between them.`,
+    );
+  }
+  if (options.emitBaseline) {
+    fail2(
+      "--determinism cannot be combined with --emit-baseline. A baseline is a fixture-wide document, and a single case's probe run cannot produce one; emitting a partial document that looks committable is the failure this refuses.",
+    );
+  }
+
+  // An explicit --repeats still wins, as it does everywhere else — but the
+  // floor is checked against the EFFECTIVE count, so `--repeats 9` is refused
+  // whether or not the case declares something smaller.
+  const repeats = options.repeatsExplicit ? options.repeats : DEFAULT_DETERMINISM_REPEATS;
+  if (repeats < MIN_DETERMINISM_REPEATS) {
+    fail2(
+      `--determinism needs at least ${MIN_DETERMINISM_REPEATS} repeats to say anything; ${repeats} was requested. Below that the runs test has no power and the interval spans most of the unit line, so the run would spend money to produce a result no reader could act on.`,
+    );
+  }
+  return repeats;
 }
 
 async function main() {
@@ -396,6 +444,7 @@ async function main() {
   }
 
   const options = parseArguments(argv);
+  const determinismCount = options.determinism ? determinismRepeats(options) : null;
   // One enumeration of the installed root: its keys are the known skill names
   // the fixture and baseline are validated against, and its values are the
   // digests --dry-run compares.
@@ -434,9 +483,13 @@ async function main() {
   }
 
   // One rule, used by the dry run and the real run alike, so the estimate can
-  // never describe a plan the run does not follow.
+  // never describe a plan the run does not follow. In determinism mode the
+  // count is fixed for the run — the per-case declaration is deliberately
+  // overridden, since a case that earns 2 repeats for a settled verdict is
+  // exactly the kind whose stability is worth measuring.
   const repeatsFor = (testCase) =>
-    options.repeatsExplicit ? options.repeats : (testCase.repeats ?? options.repeats);
+    determinismCount ??
+    (options.repeatsExplicit ? options.repeats : (testCase.repeats ?? options.repeats));
   const totalProbes = fixture.cases.reduce(
     (sum, testCase) => sum + repeatsFor(testCase),
     0,
@@ -446,6 +499,19 @@ async function main() {
   );
   const repeatsNote =
     reduced.length > 0 ? `${reduced.length} case(s) declare fewer` : null;
+
+  if (options.dryRun && determinismCount) {
+    process.stdout.write(
+      [
+        `Determinism probe: ${fixture.cases[0].id}, ${determinismCount} sequential repeat(s) against one unchanged workspace.`,
+        `Corpus: ${knownSkills.length} skill(s) would be installed into the workspace.`,
+        renderProbeBudget(determinismCount, PROBE_COST_USD, "this one case"),
+        "No model call was made.",
+        "",
+      ].join("\n"),
+    );
+    process.exit(0);
+  }
 
   if (options.dryRun) {
     const runs = totalProbes;
@@ -506,6 +572,32 @@ async function main() {
   const unrecognised = unrecognisedInvocability(invocability);
 
   const observedModel = model ?? "unknown";
+
+  // A DISTINCT RENDER, not a variant of the report. It shares the workspace
+  // builder, the probe function, the corpus digest and the cost accounting —
+  // but it answers a different question, has no verdicts and no baseline to
+  // compare against, so folding it into renderReport would mean threading a
+  // mode flag through every block of a report that no longer applies.
+  if (determinismCount) {
+    const [testCase] = fixture.cases;
+    process.stdout.write(
+      renderDeterminism({
+        testCase,
+        runs: runsByCase.get(testCase.id) ?? [],
+        tracked: trackedSkills(testCase, fixture.expectAlways ?? []),
+        context: { model: observedModel, corpusSize },
+        // What the run could not isolate matters MORE here than in the ordinary
+        // report. This mode exists to ask whether sequential probes are
+        // independent draws against a fixed corpus; a skill the workspace never
+        // installed, competing in all 30, is exactly the confound that would
+        // make a clustered sequence mean something other than a warm cache.
+        unisolated: contamination(isolation),
+      }),
+    );
+    process.stderr.write(`Approximate cost of this run: $${cost.toFixed(2)}\n`);
+    process.exit(0);
+  }
+
   const tallies = tallyAll(fixture, runsByCase);
   const delta = deltaAgainst(tallies, baseline, observedModel, corpus);
 

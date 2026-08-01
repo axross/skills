@@ -582,7 +582,13 @@ describe("baseline delta", () => {
       "m",
     );
     expect(delta.cases[0].changes).toEqual([
-      { skill: "wireframe-design", was: 2, now: 5, wasRepeats: 5 },
+      {
+        skill: "wireframe-design",
+        was: 2,
+        now: 5,
+        wasRepeats: 5,
+        prior: { hits: 2, repeats: 5, inferred: false },
+      },
     ]);
     expect(delta.removed).toEqual(["gone-case"]);
   });
@@ -621,7 +627,13 @@ describe("baseline delta", () => {
       "m",
     );
     expect(delta.cases[0].changes).toEqual([
-      { skill: "wireframe-design", was: 1, now: 5, wasRepeats: 2 },
+      {
+        skill: "wireframe-design",
+        was: 1,
+        now: 5,
+        wasRepeats: 2,
+        prior: { hits: 1, repeats: 2, inferred: false },
+      },
     ]);
   });
 
@@ -811,7 +823,13 @@ describe("corpus drift in the delta", () => {
     // Marked, NOT suppressed — the change is still there to read.
     expect(delta.usable).toBe(true);
     expect(delta.cases[0].changes).toEqual([
-      { skill: "wireframe-design", was: 2, now: 5, wasRepeats: 5 },
+      {
+        skill: "wireframe-design",
+        was: 2,
+        now: 5,
+        wasRepeats: 5,
+        prior: { hits: 2, repeats: 5, inferred: false },
+      },
     ]);
   });
 
@@ -1271,7 +1289,19 @@ describe("corpus notice rendering", () => {
       repeats: 3,
       isNew: false,
       unattributable,
-      changes: [{ skill: "wireframe-design", was: 3, now: 1 }],
+      // The prior travels WITH the change row. A row carrying only `was` would
+      // leave the annotation unable to tell "measured at 3" from "never
+      // measured", which is the distinction the whole prior mechanism exists
+      // to preserve.
+      changes: [
+        {
+          skill: "wireframe-design",
+          was: 3,
+          now: 1,
+          wasRepeats: 3,
+          prior: { hits: 3, repeats: 3, inferred: false },
+        },
+      ],
     },
   ];
 
@@ -1310,7 +1340,13 @@ describe("corpus notice rendering", () => {
     expect(report).toContain("added         next-app-development");
     expect(report).toContain("removed       a-deleted-skill");
     expect(report).toContain("text-changed  wireframe-design");
-    expect(report).toContain("a-case: wireframe-design 3/3 -> 1/3  (unattributable)");
+    // The reading and the drift mark are separate parentheses on purpose: one
+    // says what the number means, the other says whether it can be attributed
+    // to this change at all. Folding them together would let a drifted line
+    // read as a clean verdict.
+    expect(report).toContain(
+      "a-case: wireframe-design 3/3 -> 1/3  (P 14.3% — consistent with no change)  (unattributable)",
+    );
     // Named once at the top, not repeated per case.
     expect(report.match(/next-app-development/g)).toHaveLength(1);
   });

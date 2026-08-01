@@ -44,6 +44,33 @@ export const VERDICTS = {
 };
 
 /**
+ * The skills a run TRACKS for a case — the union of the tiers whose absence is
+ * itself a measurement.
+ *
+ * This is the set that makes an inferred zero prior sound. A baseline records a
+ * zero-hit skill by omitting it, so "absent from the tally" means "measured,
+ * and zero" for a tracked skill and "nobody ever looked" for any other.
+ *
+ * `mayInclude` is deliberately excluded. Its skills are legitimate either way
+ * and are never a finding, so a run has no obligation to tally them — reading
+ * an absence there as a measured zero would manufacture priors out of silence.
+ *
+ * The inference stays sound only while, since the tally was recorded, no
+ * measured case has gained a `mustInclude`/`mustExclude` label and
+ * `expectAlways` has gained no skill. The second is the sharper edge: an
+ * `expectAlways` addition changes this set for EVERY case at once.
+ *
+ * @param {object} testCase
+ * @param {string[]} expectAlways
+ * @returns {string[]}
+ */
+export function trackedSkills(testCase, expectAlways = []) {
+  return [
+    ...new Set([...testCase.mustInclude, ...testCase.mustExclude, ...expectAlways]),
+  ];
+}
+
+/**
  * Which tier a case puts a skill in.
  * @returns {"mustInclude"|"mustExclude"|"mayInclude"|"expectAlways"|null}
  */
@@ -118,12 +145,8 @@ export function tallyCase(testCase, runs, { expectAlways = [] } = {}) {
 
   // Labelled-but-never-selected skills must still appear, or a miss would be
   // invisible — the whole point is reporting what did NOT happen.
-  const names = new Set([
-    ...hitsBySkill.keys(),
-    ...testCase.mustInclude,
-    ...testCase.mustExclude,
-    ...expectAlways,
-  ]);
+  const tracked = trackedSkills(testCase, expectAlways);
+  const names = new Set([...hitsBySkill.keys(), ...tracked]);
 
   const skills = [...names]
     .map((name) => {
@@ -164,7 +187,10 @@ export function tallyCase(testCase, runs, { expectAlways = [] } = {}) {
       remedy: VERDICTS[skill.verdict].remedy,
     }));
 
-  return { id: testCase.id, repeats, skills, coverage, findings };
+  // `tracked` travels with the tally rather than being restated downstream:
+  // the delta has to decide whether an absence is a measured zero, and deriving
+  // that set twice is how the two ends start disagreeing about one skill.
+  return { id: testCase.id, repeats, tracked, skills, coverage, findings };
 }
 
 /**
@@ -229,6 +255,9 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
         isNew: true,
         isUnmeasured: baseline.unmeasured?.includes(tally.id) ?? false,
         unattributable: false,
+        // Not an empty record: a case the baseline never measured has no prior
+        // for ANY skill, which is a different claim from "every prior is zero".
+        priors: null,
         changes: [],
       };
     }
@@ -243,15 +272,44 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
       ...Object.keys(before),
       ...tally.skills.map((skill) => skill.name),
     ]);
+
+    // THE `?? 0` THIS REPLACED WAS THE BUG. It read every absence as a measured
+    // zero, for every name in a union that includes each skill the RUN selected
+    // — so a skill nobody labelled, appearing for the first time, was compared
+    // against a measurement that was never taken. Absence is informative only
+    // for a skill the run tracked; anywhere else it is silence, and silence
+    // gets `null` rather than a number that reads like evidence.
+    const tracked = new Set(tally.tracked ?? []);
+    const priorFor = (name) => {
+      if (name in before) return { hits: before[name], repeats: wasRepeats, inferred: false };
+      if (tracked.has(name)) return { hits: 0, repeats: wasRepeats, inferred: true };
+      return null;
+    };
+
+    const priors = Object.fromEntries([...names].sort().map((name) => [name, priorFor(name)]));
+
     const changes = [...names]
       .map((name) => {
-        const wasHits = before[name] ?? 0;
+        const prior = priors[name];
         const nowHits = tally.skills.find((skill) => skill.name === name)?.hits ?? 0;
-        return { skill: name, was: wasHits, now: nowHits, wasRepeats };
+        return {
+          skill: name,
+          was: prior ? prior.hits : null,
+          now: nowHits,
+          wasRepeats,
+          prior,
+        };
       })
       // Rates, not raw hits: a baseline recorded at 5 repeats compared against a
-      // 10-repeat run must not report every skill as doubled.
-      .filter((change) => change.was / wasRepeats !== change.now / tally.repeats)
+      // 10-repeat run must not report every skill as doubled. A row with no
+      // prior has no rate to compare, so it is included on the strength of the
+      // run alone — explicitly, rather than by falling through arithmetic that
+      // happens to work.
+      .filter((change) =>
+        change.prior
+          ? change.was / wasRepeats !== change.now / tally.repeats
+          : change.now > 0,
+      )
       .sort((a, b) => a.skill.localeCompare(b.skill));
 
     // EVERY case, not a subset. The whole corpus is installed for every probe,
@@ -263,6 +321,7 @@ export function deltaAgainst(tallies, baseline, model, corpus = null) {
       isNew: false,
       isUnmeasured: false,
       unattributable: corpusComparison.drifted,
+      priors,
       changes,
     };
   });
