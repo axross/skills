@@ -22,7 +22,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 See [project-layout.md](./references/project-layout.md) for:
 
 - choosing a source root, and keeping configuration files outside it
-- organizing by domain, and the by-kind layout to avoid
+- organizing by domain with per-kind subdirectories, and the by-kind top level to avoid
+- separating the `common/` and `core/` cross-cutting tiers, and when a module earns a place in `common/`
 - declaring a path alias and mirroring it into the test runner's module mapper
 - forking a module per platform, and the extension-free base file a fork requires
 - pointing the package entry at a module that runs before the router
