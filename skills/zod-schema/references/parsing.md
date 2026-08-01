@@ -30,10 +30,18 @@ The middle case — a third-party API whose shape may drift — is a judgment ca
 
 The obligation is transitive: composing a schema with an async check into a larger object makes the larger schema async too, and every existing synchronous parse of that larger schema breaks. See [refinements.md](./refinements.md) for why keeping the lookup out of the schema is usually the better structure.
 
+A **promise is never the thing parsed**. `z.promise()` is deprecated, and the replacement is to await the value and parse what it resolved to. A schema wrapping a promise buys nothing — the shape worth validating is the resolved value's, awaiting first keeps the parse synchronous, and a rejection is then an ordinary error at the `await` rather than a validation failure with no stack.
+
+```ts
+const body: unknown = await response.json();
+const parsed = BlogPost.parse(body);
+```
+
 **Guidelines:**
 
 - MUST use the async parse methods for any schema containing an async check, at every call site including tests.
 - MUST audit existing parse call sites before composing an async schema into a shared one.
+- MUST await a promise and parse its resolved value rather than reaching for the deprecated `z.promise()`.
 
 ## The Result Is a Clone
 
