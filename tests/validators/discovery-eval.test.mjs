@@ -994,6 +994,41 @@ describe("evaluation environment", () => {
       ANTHROPIC_API_KEY: "keep",
     });
   });
+
+  it("keeps the telemetry variables, credential-carrying header included", () => {
+    const env = evalEnvironment({
+      CLAUDE_CODE_ENABLE_TELEMETRY: "1",
+      OTEL_METRICS_EXPORTER: "otlp",
+      OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp.example",
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic abc",
+      OTEL_RESOURCE_ATTRIBUTES: "repository=skills,workflow=discovery_eval",
+    });
+    // The exporter lives inside the probe, so an exporter variable the filter
+    // withheld would switch CI telemetry off with no failing test and no log
+    // line — the silent-failure class this repository has already paid for.
+    expect(env).toEqual({
+      CLAUDE_CODE_ENABLE_TELEMETRY: "1",
+      OTEL_METRICS_EXPORTER: "otlp",
+      OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp.example",
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic abc",
+      OTEL_RESOURCE_ATTRIBUTES: "repository=skills,workflow=discovery_eval",
+    });
+  });
+
+  it("withholds an authorization-shaped name it is not explicitly told to keep", () => {
+    // Every one of these would have crossed before OTLP headers were allowlisted,
+    // because none of them says TOKEN, SECRET, PASSWORD, CREDENTIAL or KEY. The
+    // allowlist is the reason the one above crosses; nothing may inherit that by
+    // resembling it.
+    const env = evalEnvironment({
+      PATH: "/usr/bin",
+      GRAFANA_AUTHORIZATION: "drop",
+      X_OTLP_HEADERS: "drop",
+      OTEL_EXPORTER_OTLP_TRACES_HEADERS: "drop",
+      BASIC_AUTH: "drop",
+    });
+    expect(env).toEqual({ PATH: "/usr/bin" });
+  });
 });
 
 describe("stream parsing", () => {
