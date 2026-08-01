@@ -14,7 +14,8 @@ name: Claude Code Review
 # branch, so this reviewer fires on PRs only once this file is merged there —
 # the PR that introduces it cannot be reviewed by it.
 #
-# Operator prerequisites (one-time; the workflow no-ops until both are done):
+# Operator prerequisites (one-time; the workflow no-ops until the first two
+# are done):
 #   1. Install the Claude GitHub App: https://github.com/apps/claude
 #   2. Generate a subscription token locally with `claude setup-token` and add
 #      it as the repo secret CLAUDE_CODE_OAUTH_TOKEN
@@ -22,6 +23,19 @@ name: Claude Code Review
 #      To use pay-as-you-go API billing instead of a subscription, set an
 #      ANTHROPIC_API_KEY secret and swap the `claude_code_oauth_token` input
 #      below for `anthropic_api_key`.
+#
+# Optional (telemetry; the reviewer runs exactly as it does without them):
+#   3. To export this session's Claude Code metrics and events to an OTLP
+#      collector, add the repo variable CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT and
+#      the repo secret CLAUDE_OTEL_EXPORTER_OTLP_HEADERS (for Grafana Cloud,
+#      both come from the stack's OpenTelemetry tile; scope the access-policy
+#      token to metrics:write and logs:write only, since the review session's
+#      own shell can read any job-level value). The names are namespaced under
+#      CLAUDE_ on purpose: a project cloning this workflow may already hold
+#      OTEL_EXPORTER_OTLP_ENDPOINT / OTEL_EXPORTER_OTLP_HEADERS for its own
+#      application telemetry, and the prefix keeps the two configurations from
+#      overwriting each other. Leave them unset and the `env` block below
+#      disables telemetry outright rather than starting an exporter that fails.
 
 on:
   issue_comment:
@@ -62,6 +76,35 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Telemetry for this review session. `claude-code-action` forwards exactly
+    # these nine variables from the workflow `env` context into the Claude Code
+    # process it launches, so this block is the whole wiring — no `with:` input
+    # and no prompt change. Left of each colon is the name Claude Code reads;
+    # right of it is where this repository keeps the value, namespaced under
+    # CLAUDE_ so a cloning project's own application OTLP configuration stays
+    # separate (see prerequisite 3 in the header). The gate on the endpoint
+    # variable is what keeps observability from becoming a dependency of the
+    # review: with nothing configured, no exporter starts at all.
+    env:
+      CLAUDE_CODE_ENABLE_TELEMETRY: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT != '' && '1' || '0' }}
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+      # Claude Code has no default protocol, and the Grafana Cloud OTLP gateway
+      # is HTTP rather than gRPC, so the HTTP form is set explicitly.
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT }}
+      OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.CLAUDE_OTEL_EXPORTER_OTLP_HEADERS }}
+      # Well under the 30-minute timeout (metrics default to 60000) so a review
+      # that finishes in under a minute still flushes at least once — whether
+      # Claude Code force-flushes at process exit is undocumented.
+      OTEL_METRIC_EXPORT_INTERVAL: "10000"
+      OTEL_LOGS_EXPORT_INTERVAL: "5000"
+      # Self-sufficient on purpose: the checkout below puts this repository's
+      # .claude/settings.json in scope for this session too, and which source
+      # wins when both set OTEL_RESOURCE_ATTRIBUTES is undocumented — so each
+      # must carry a complete set on its own. The value may not contain a
+      # space; snake_case keeps every value in one lexical form.
+      OTEL_RESOURCE_ATTRIBUTES: repository=skills,ci=github_actions,workflow=claude_review
     steps:
       # LOAD-BEARING SAFETY PROPERTY 2 of 3 — base-ref checkout. Check out the
       # base ref (the default branch), NEVER the PR head: the review reads the

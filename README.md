@@ -596,3 +596,15 @@ install the [Claude GitHub App](https://github.com/apps/claude) and add a
 `claude setup-token`), or set an `ANTHROPIC_API_KEY` secret for pay-as-you-go
 billing. See the header of
 [`claude-review.yaml`](./.github/workflows/claude-review.yaml) for details.
+
+A third pair of names is optional, and telemetry stays off until you add it.
+Set the repository variable `CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT` and the
+repository secret `CLAUDE_OTEL_EXPORTER_OTLP_HEADERS`, and every review session
+exports its Claude Code metrics and events to that OTLP collector; leave them
+unset and the workflow disables telemetry outright rather than starting an
+exporter that fails, so the reviewer behaves exactly as it does today. The
+`CLAUDE_` prefix is deliberate: a project cloning this workflow may already keep
+`OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` for its own
+application telemetry, and neither configuration should overwrite the other.
+Scope the ingestion token to writing metrics and logs and nothing else — the
+reviewer is allowed broad `Bash`, so it can read any value the job holds.
