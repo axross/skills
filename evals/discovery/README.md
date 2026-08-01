@@ -618,16 +618,13 @@ measured, and it would quietly widen what the first half forgives.
 - **The band ships dormant.** No `P` renders against the baseline in this tree,
   because it records no `corpus`. It activates on the first re-record that
   fingerprints one.
-  \- **The workspace does not bound what the CLI loads.** A managed environment
+- **The workspace does not bound what the CLI loads.** A managed environment
   injects skills no flag can strip without stripping the workspace's own, so
   some runs measure a corpus wider than the one installed. What could not be
   isolated is recorded in
   [`foreignSkills`](#foreignskills--the-skills-the-run-could-not-isolate), and a
   contaminated run cannot emit a baseline — but a foreign skill that is itself
   `user-invocable: false` stays invisible to that record.
-
-> > > > > > > origin/main
-
 - **`expectAlways` is informational for now.** `professional-behavior` claims in
   its own `when_to_use` that it applies to every session. Whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported
