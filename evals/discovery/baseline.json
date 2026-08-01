@@ -12,7 +12,10 @@
     "tda-runbook-readability",
     "boundary-spec-and-prose",
     "gho-issue-body-edit",
-    "rcd-extract-hook"
+    "rcd-extract-hook",
+    "zod-default-vs-prefault",
+    "zod-boundary-fetch-cast",
+    "zod-coerce-empty-number"
   ],
   "cases": {
     "wf-checkout-layout": {
