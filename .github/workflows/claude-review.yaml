@@ -139,8 +139,11 @@ jobs:
       # It never fails the job: observability must not become a dependency of
       # code review, so a Grafana outage or an expired token degrades to a
       # warning annotation rather than a blocked review. It sends an empty body
-      # on purpose — a credential that is accepted answers 400 (body rejected),
-      # which distinguishes "auth works" from 401/403 without pushing data.
+      # on purpose — an accepted credential answers 2xx or 400, and either one
+      # distinguishes "auth works" from 401/403 without pushing data. This
+      # gateway answers 200 (observed on run 30689782011); a gateway that
+      # rejects an empty payload answers 400. Both mean the same thing here,
+      # because a bad credential is refused before the body is looked at.
       - name: Probe the OTLP endpoint
         if: vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT != ''
         continue-on-error: true
@@ -162,7 +165,7 @@ jobs:
           head -c 400 "${RUNNER_TEMP}/otlp-probe.out" | tr -c '[:print:]\n' '.'
           echo
           case "${status}" in
-            400) echo "Credential accepted; empty body rejected as expected." ;;
+            400) echo "Credential accepted; empty body rejected." ;;
             2*) echo "Endpoint accepted the request." ;;
             401 | 403) echo "::warning::OTLP credential rejected (HTTP ${status}). This session's metrics will be discarded silently." ;;
             000) echo "::warning::OTLP endpoint unreachable. This session's metrics will be discarded silently." ;;
