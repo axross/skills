@@ -17,9 +17,9 @@ Application code belongs under a single source root, conventionally `src/`. Conf
 
 ## Organizing by Domain
 
-Within the source root, group modules by the **domain** they serve — the feature or bounded concern a reader would name — not by the technical kind of file they are. A by-kind layout (`components/`, `hooks/`, `utils/`, `screens/`) scatters one feature across four directories and makes the blast radius of a change invisible; a by-domain layout keeps a feature's screens, components, hooks, models, and helpers adjacent, so deleting the feature is deleting a directory.
+Within the source root, group modules by the **domain** they serve — the bounded concern a reader would name — not by the technical kind of file they are. A by-kind top level (`components/`, `hooks/`, `utils/`, `screens/`) scatters one domain across four directories and makes the blast radius of a change invisible; a by-domain top level keeps a domain's screens, components, hooks, models, and helpers adjacent, so deleting the domain is deleting a directory. Per-kind subdirectories are the organizing axis _inside_ a domain, never above it.
 
-A small number of cross-cutting directories are legitimate: one for genuinely shared primitives and one for app-wide infrastructure. Everything else earns a domain.
+Two cross-cutting directories sit alongside the domains — `common/` and `core/` — and the next section draws the line between them. Everything else earns a domain.
 
 **Example:**
 
@@ -42,9 +42,21 @@ src/
 
 - MUST group modules under the source root by domain, and name each directory after the domain rather than after a file kind.
 - MUST NOT introduce top-level `components/`, `hooks/`, `utils/`, or `screens/` directories as the app's primary organizing axis.
-- SHOULD keep a domain's screens, components, hooks, models, and helpers inside that domain's directory.
-- MAY keep one shared-primitive directory and one infrastructure directory alongside the domains.
-- SHOULD move a module into a domain once a second module in that domain imports it, rather than leaving it in the shared directory by default.
+- SHOULD keep a domain's screens, components, hooks, models, helpers, and stores in per-kind subdirectories inside that domain's directory.
+- MUST NOT import from one domain's internals into another when the owning domain exposes a public surface; cross-domain reuse is a signal to promote the code to `common/`.
+
+## Cross-Cutting Tiers
+
+Two directories sit outside the domains, and what separates them is what each one knows. `common/` holds reusable UI and utility primitives that know nothing about the application — a button, a date formatter, a hook whose signature carries no domain vocabulary. `core/` holds app-wide infrastructure and the singletons the application is wired from — environment access, the HTTP or query client, the error tracker, storage. A `common/` module could be lifted into a different application unchanged; a `core/` module could not, because it encodes this one's configuration.
+
+Everything else earns a domain. A module reaches `common/` only once a second domain imports it — until then it belongs to the domain that uses it, where deleting that domain deletes it too.
+
+**Guidelines:**
+
+- MUST keep `common/` to primitives that carry no domain vocabulary and no application configuration.
+- MUST keep `core/` to app-wide infrastructure and singletons — environment access, clients, the error tracker, storage — rather than to shared UI.
+- SHOULD place a new module in the domain that uses it, and move it into `common/` only once a second domain imports it.
+- MUST NOT place a module in `common/` on first use in anticipation of reuse.
 
 ## Path Aliases
 
