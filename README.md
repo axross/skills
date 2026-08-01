@@ -406,7 +406,7 @@ A fixture or baseline naming a renamed skill would otherwise rot in silence.
 
 ### Repository gotchas
 
-There are <!-- count:repository-gotchas -->five<!-- /count --> things about this
+There are <!-- count:repository-gotchas -->six<!-- /count --> things about this
 repository worth knowing before changing it.
 
 **Some dependencies move fast enough that memory is unreliable.** Consult the
@@ -439,6 +439,20 @@ something the documentation still claims it does.
 add a gate to one, forget the other, and the suite fails. The two prose copies
 are tied to nothing, so changing the gate set means editing this file and
 `REVIEW.md` by hand — and a reviewer checking that you did.
+
+**Session telemetry is tagged here, and cannot be checked from inside a
+session.** [`.claude/settings.json`](./.claude/settings.json) carries an `env`
+block stamping `repository=skills` and the session's launch surface onto the
+OpenTelemetry metrics Claude Code exports, so this repository's usage separates
+from every other repository sharing an account or a cloud environment. It
+configures nothing else — no endpoint, no credential, no
+`CLAUDE_CODE_ENABLE_TELEMETRY` — so a contributor who has never set telemetry up
+sees no behavior change from it. Verifying a change to that block is the catch:
+Claude Code does not pass `OTEL_*` variables to the subprocesses it spawns, so
+`echo $OTEL_RESOURCE_ATTRIBUTES` inside a session prints nothing even when the
+exporter holds the value. Confirm it in the metrics backend instead, against a
+session started _after_ the change — an already-running session read its
+configuration at startup.
 
 **A number in prose can be a checked claim.** Wrap one in a `count:` marker and
 `npm test` holds it to the file it describes — the skill count at the top of
