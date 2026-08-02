@@ -91,13 +91,7 @@ While detached the query neither refetches nor re-renders; re-subscribing brings
 
 ## Fetching on a Device
 
-A mobile network drops far more often than a desktop one, which makes `networkMode` a real choice rather than a default to inherit.
-
-| Mode           | Behaviour                                                    |
-| -------------- | ------------------------------------------------------------ |
-| `online`       | the default; does not fetch without connectivity, and pauses |
-| `always`       | always fetches, ignoring connectivity                        |
-| `offlineFirst` | fetches once, then pauses retries                            |
+A mobile network drops far more often than a desktop one, which makes `networkMode` a real choice rather than a default to inherit. Its three values are defined in the [Network Mode guide](https://tanstack.com/query/latest/docs/framework/react/guides/network-mode), which describes them for a browser.
 
 `always` is the correct mode for a query that reads from **on-device** storage — a local database read has no network dependency, and leaving it in `online` mode means it stops working exactly when the device goes offline.
 

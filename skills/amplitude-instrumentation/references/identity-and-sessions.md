@@ -4,7 +4,7 @@ Apply this reference when wiring login, logout, or anonymous-to-known transition
 
 None of the three inspected repositories called `identify`, set a user id correctly, or reset on logout. This reference is written against that floor.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's user-identification documentation](https://amplitude.com/docs/get-started/identify-users) on **2026-08-02**.
 
 ## The Three Identifiers
 

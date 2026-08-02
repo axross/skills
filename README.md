@@ -2,10 +2,10 @@
 
 An opinionated library of agent skills.
 
-These are **agent skills** in the [agentskills.io](https://agentskills.io)
+These are **agent skills** in the [agentskills.io](https://agentskills.io/home)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done.
-The <!-- count:distributable-skills -->twenty-seven<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-eight<!-- /count --> here cover the
 whole arc: handling what the agent does not know, turning a request into a spec,
 driving that spec to a reviewed pull request, keeping the code maintainable and
 secure, testing it, designing and building its UI, standing up the application
@@ -107,11 +107,12 @@ the sentences inside whatever document you are writing.
 
 ### Testing
 
-| Skill                                                        | What it gives your agent                                                                                                                                                              |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`unit-testing`](./skills/unit-testing/SKILL.md)             | Fast, isolated tests written from the caller's side, so a refactor does not break them and a bug does.                                                                                |
-| [`end-to-end-testing`](./skills/end-to-end-testing/SKILL.md) | Tests that drive the whole system like a real user — locators that do not rot, no sleeps, and no live network.                                                                        |
-| [`vitest-testing`](./skills/vitest-testing/SKILL.md)         | The runner underneath both, on Vitest 4: which option, which `vi` call, which flag — what a version bump silently stopped reading, and how to drive it without hanging on watch mode. |
+| Skill                                                        | What it gives your agent                                                                                                                                                                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`unit-testing`](./skills/unit-testing/SKILL.md)             | Fast, isolated tests written from the caller's side, so a refactor does not break them and a bug does.                                                                                                             |
+| [`end-to-end-testing`](./skills/end-to-end-testing/SKILL.md) | Tests that drive the whole system like a real user — locators that do not rot, no sleeps, and no live network.                                                                                                     |
+| [`jest-testing`](./skills/jest-testing/SKILL.md)             | The runner under the first two, on Jest 30: which API expresses a decision, which option makes the suite find and transform your files, and which of its silent failures explains a green run that tested nothing. |
+| [`vitest-testing`](./skills/vitest-testing/SKILL.md)         | The runner underneath both, on Vitest 4: which option, which `vi` call, which flag — what a version bump silently stopped reading, and how to drive it without hanging on watch mode.                              |
 
 ### Designing a UI
 
@@ -587,7 +588,7 @@ this page, the round cap it quotes from a skill, the empty tallies in the
 discovery baseline. The marker is invisible once rendered:
 
 ```markdown
-The <!-- count:distributable-skills -->twenty-seven<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-eight<!-- /count --> here cover the
 whole arc.
 ```
 

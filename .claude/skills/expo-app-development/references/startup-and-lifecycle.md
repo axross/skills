@@ -106,7 +106,7 @@ Edge-to-edge rendering, where the app draws beneath the system bars, is the mode
 
 ## Splash Configuration Across SDKs
 
-How the splash screen is configured has moved. A top-level `splash` key in the app config was the mechanism on SDK 51; the splash-screen library's config plugin is the mechanism on SDK 54 and 57. The exact release where the key stopped being honoured was not verified here — determine it from the installed SDK's own documentation rather than from this range.
+How the splash screen is configured has moved. A top-level `splash` key in the app config was the mechanism on SDK 51; the [splash-screen library's config plugin](https://docs.expo.dev/versions/latest/sdk/splash-screen/) is the mechanism on SDK 54 and 57. The exact release where the key stopped being honoured was not verified here — determine it from the installed SDK's own documentation rather than from this range.
 
 The practical risk is an app carrying the legacy key on a current SDK: it reads as configured while configuring nothing, and the symptom is a default splash rather than an error.
 

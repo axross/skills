@@ -4,7 +4,7 @@ Apply this reference when connecting an agent to Expo's MCP server, when documen
 
 Expo publishes an MCP server that answers questions about Expo itself — versioned documentation, SDK compatibility, and the state of a running project. It matters here for a specific reason: this skill's version-discipline rules require checking the **installed** SDK rather than assuming, and the server is the cheapest way to do that without a documentation round trip.
 
-Verified against SDK 54 through 57.
+Verified against SDK 54 through 57, checked against [Expo's MCP documentation](https://docs.expo.dev/mcp/) on **2026-08-02**.
 
 ## The Hosted Server
 

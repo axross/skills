@@ -2,7 +2,7 @@
 
 Apply this reference when emitting an event, attaching properties, updating a user profile, or tuning how events reach Amplitude. What to track, how to name it, and where the call site goes belong to the product-event-tracking guidance in a software-instrumentation capability; this reference owns the Amplitude mechanism underneath — the operators, the ceilings, and the batching behaviour.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's HTTP V2 API documentation](https://amplitude.com/docs/apis/analytics/http-v2) on **2026-08-02**.
 
 ## Tracking an Event
 
@@ -20,15 +20,9 @@ Every SDK's `track` compiles down to the HTTP V2 event shape, so the transport's
 
 ## The Project Ceilings
 
-These are per-project and they are hard. Past each, **Amplitude stops indexing new values** — the data arrives but becomes unreachable from ordinary queries.
+A project caps event types, event properties, and user properties, at the figures in [Amplitude's limits documentation](https://amplitude.com/docs/faq/limits-and-quotas). What that page does not say is what crossing one costs: past each ceiling **Amplitude stops indexing new values** — the data still arrives, it just becomes unreachable from ordinary queries, so the failure looks like missing data rather than like a quota error.
 
-| Ceiling          | Limit |
-| ---------------- | ----- |
-| Event types      | 2,000 |
-| Event properties | 2,000 |
-| User properties  | 1,000 |
-
-Only the first **1,000 values** of a given property appear in dropdown menus, which is what makes a high-cardinality property feel broken in the UI long before it hits a ceiling.
+A second, lower ceiling bites first: only the first **1,000 values** of a given property appear in dropdown menus, which is what makes a high-cardinality property feel broken in the UI long before the project is anywhere near its limit.
 
 **Guidelines:**
 
@@ -40,7 +34,7 @@ Only the first **1,000 values** of a given property appear in dropdown menus, wh
 
 An event property describes one occurrence. A user property describes the person, and applies to every one of their future events. Choosing wrong is not cosmetic: a user property overwrites, so recording a per-event value there destroys the history.
 
-Amplitude exposes a set of `Identify` operators, and the operator is the decision:
+Amplitude exposes a set of `Identify` operators, catalogued in the [user-properties documentation](https://amplitude.com/docs/get-started/identify-users). Which one to reach for is the decision, and that is the column upstream does not have:
 
 | Operator                   | Use for                                                         |
 | -------------------------- | --------------------------------------------------------------- |
@@ -74,14 +68,7 @@ Amplitude exposes a set of `Identify` operators, and the operator is the decisio
 
 ## Delivery, Batching, and Dedup
 
-Events queue and flush rather than sending one request each. The defaults, verified on Browser SDK 2 and the React Native SDK:
-
-| Option                | Default   |
-| --------------------- | --------- |
-| `flushQueueSize`      | 30 events |
-| `flushIntervalMillis` | 1,000 ms  |
-| `flushMaxRetries`     | 5         |
-| `useBatch`            | `false`   |
+Events queue and flush rather than sending one request each, under `flushQueueSize`, `flushIntervalMillis`, `flushMaxRetries`, and `useBatch` — each with its default in the [Browser SDK 2 reference](https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2).
 
 `insert_id` is the deduplication contract: Amplitude ignores a subsequent event carrying the same `insert_id` on the same `device_id` within a **seven-day** window. That is what makes a retry safe.
 

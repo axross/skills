@@ -2,7 +2,7 @@
 
 Apply this reference when wiring Amplitude into a React Native or Expo app. Two of the three inspected repositories are React Native apps, and between them they demonstrate most of what this file warns about. The platform differs from web in ways that are easy to miss precisely because the JavaScript API looks identical.
 
-Verified against Amplitude's documentation on **2026-07-29**, for `@amplitude/analytics-react-native`.
+Verified against [Amplitude's React Native SDK documentation](https://amplitude.com/docs/sdks/analytics/react-native/react-native-sdk) on **2026-08-02**.
 
 ## AsyncStorage Backs Both Storage Slots
 
@@ -78,17 +78,7 @@ Amplitude's stated support policy is narrow: _"Amplitude supports only the lates
 
 ## Configuration Defaults Worth Knowing
 
-| Option                  | Default                     |
-| ----------------------- | --------------------------- |
-| `trackingSessionEvents` | `false`                     |
-| `migrateLegacyData`     | `true`                      |
-| `sessionTimeout`        | 1,800,000 ms                |
-| `minIdLength`           | `5`                         |
-| `flushQueueSize`        | 30 events                   |
-| `flushIntervalMillis`   | 1,000 ms                    |
-| `flushMaxRetries`       | 5                           |
-| `offline`               | `false` (detection enabled) |
-| `logLevel`              | `LogLevel.Warn`             |
+Every option and its default is in the [React Native SDK reference](https://amplitude.com/docs/sdks/analytics/react-native/react-native-sdk). Two of them differ from the Browser SDK's, and that divergence is the thing worth knowing rather than the values themselves: `trackingSessionEvents` defaults to **`false`** here while the browser autocaptures sessions by default, and `migrateLegacyData` defaults to **`true`**, which matters only when coming from a maintenance-line SDK and is dead weight otherwise.
 
 **Guidelines:**
 

@@ -89,6 +89,8 @@ Updates must be immutable — see [seeding-the-cache.md](./seeding-the-cache.md)
 
 ## Invalidate, Refetch, Reset, Remove
 
+Four `QueryClient` methods overlap enough to be picked wrongly. Each is specified in the [`QueryClient` reference](https://tanstack.com/query/latest/docs/reference/QueryClient); what no page there states is which one a given situation calls for.
+
 | Call                | Effect                                                  | Reach for it when                             |
 | ------------------- | ------------------------------------------------------- | --------------------------------------------- |
 | `invalidateQueries` | marks stale; refetches what is rendered                 | the default after a write                     |

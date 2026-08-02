@@ -108,13 +108,18 @@ describe("extractUrls", () => {
 
   describe("a comment opener that is only being quoted", () => {
     it("does not let an inline-code `<!--` swallow the prose after it", () => {
-      // THE REGRESSION THIS FILE EXISTS FOR. README.md documents the `count:`
-      // marker rule with the sentence "a line beginning with `<!--` is an HTML
-      // block in CommonMark" — a comment opener inside an inline code span.
-      // Stripping comments from the RAW source believes that opener and discards
-      // everything up to the next `-->`, which in README.md is 89 lines later:
-      // real prose, real links, silently unread. Blanking code spans FIRST is
-      // what makes an opener have to be real text to count.
+      // README.md documents the `count:` marker rule with the sentence "a line
+      // beginning with `<!--` is an HTML block in CommonMark" — a comment opener
+      // inside an inline code span. Stripping comments from the RAW source
+      // believes that opener and discards everything up to the next `-->`, which
+      // in README.md was ~90 lines later: real prose, real links, silently
+      // unread. Blanking code spans FIRST is what makes an opener have to be
+      // real text to count.
+      //
+      // The ordering now lives in commonmark.mjs (#185), shared with
+      // check-links.mjs, which carried the same defect until then. This case
+      // stays here anyway: it asserts what THIS module's callers get, and would
+      // catch a future extractUrls that stopped going through extractProse.
       const source = [
         "A line beginning with `<!--` is an HTML block in CommonMark.",
         "",

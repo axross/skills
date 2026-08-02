@@ -4,7 +4,7 @@ Apply this reference when the app needs a capability the user must grant — cam
 
 ## The Three States
 
-A permission check does not answer yes or no. It answers with a status and a separate flag saying whether asking again is still possible, which yields three distinct states, each needing a different branch:
+A permission check does not answer yes or no. It answers with a status and a separate flag saying whether asking again is still possible — the shape [Expo's permissions guide](https://docs.expo.dev/guides/permissions/) documents — which yields three distinct states, each needing a different branch:
 
 | State                         | What the app should do                          |
 | ----------------------------- | ----------------------------------------------- |

@@ -46,15 +46,9 @@ Retries are already **0** on the server, so a slow failure does not hold the res
 
 ## Moving Entries Across the Boundary
 
-`dehydrate` serializes a client's entries; `HydrationBoundary` restores them into the browser's client. Only successful queries are included by default, and only paused mutations.
+`dehydrate` serializes a client's entries; `HydrationBoundary` restores them into the browser's client. Only successful queries are included by default, and only paused mutations. The full option set is in the [SSR guide](https://tanstack.com/query/latest/docs/framework/react/guides/ssr).
 
-Three options matter, and one is a security control:
-
-| Option                 | Purpose                                                         |
-| ---------------------- | --------------------------------------------------------------- |
-| `shouldDehydrateQuery` | which entries cross — extend the default rather than replace it |
-| `serializeData`        | transform values that do not survive serialization              |
-| `shouldRedactErrors`   | strip error detail before it reaches the browser                |
+Three of those options matter here, and one is a security control: `shouldDehydrateQuery` decides which entries cross, `serializeData` transforms values that do not survive serialization, and `shouldRedactErrors` strips error detail before it reaches the browser.
 
 Everything dehydrated is embedded in the response and readable by anyone who can read the page. A cache entry holding data the browser should not see must not cross, and a server error's message or stack must be redacted rather than shipped — server errors routinely carry internal paths, query fragments, and identifiers.
 

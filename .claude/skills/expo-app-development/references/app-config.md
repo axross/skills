@@ -4,7 +4,7 @@ Apply this reference when editing the app config, adding a config plugin, regene
 
 The app config is the single description of what the native app _is_ — its identity, its icons, its capabilities, its native dependencies. It is read at build time to generate the native projects, and a subset of it is readable at runtime.
 
-Verified against SDK 51 through 57.
+Verified against SDK 51 through 57, checked against [Expo's app-configuration reference](https://docs.expo.dev/workflow/configuration/) on **2026-08-02**.
 
 ## Static and Dynamic Config
 

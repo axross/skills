@@ -15,7 +15,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Baseline and Scope
 
-**TanStack Query v5 is the baseline**, verified against **5.101.4** — the current release at the time of writing. React 18 and TypeScript 5.4 are the minimums. Types ship as **patch** releases rather than majors, so a project should pin the patch version and expect type changes between them.
+**TanStack Query v5 is the baseline**, verified against **5.101.4** on **2026-08-02** against the [React adapter's documentation](https://tanstack.com/query/latest/docs/framework/react/overview). React 18 and TypeScript 5.4 are the minimums. Types ship as **patch** releases rather than majors, so a project should pin the patch version and expect type changes between them.
 
 **The React adapter is the only one in scope.** The Vue, Svelte, Solid, Angular, Lit, and Preact adapters version independently of it and are out of scope entirely — no rule, no comparison.
 
@@ -192,7 +192,7 @@ See [typescript.md](./references/typescript.md) for:
 
 See [testing.md](./references/testing.md) for:
 
-- giving each test its own client, and the settings a test client needs
+- giving each test its own client, and the `retry: false` that keeps an error path from timing out
 - what to mock, and the layer that must never be mocked
 - asserting on an asynchronous result, and covering each state branch
 - testing an option factory on its own
@@ -203,7 +203,7 @@ See [testing.md](./references/testing.md) for:
 See [tooling-and-versions.md](./references/tooling-and-versions.md) for:
 
 - the eight lint rules, each as a rule a reader can follow without the linter
-- when installing the plugin is worth it and when the rules stay review checks
+- when `@tanstack/eslint-plugin-query` is worth installing, and why `mutation-property-order` stays a review check
 - inspecting the cache while diagnosing, on web and elsewhere
 - what changed on the way to v5, for a codebase arriving from v4
 - reading documentation at the version actually installed
