@@ -1092,6 +1092,214 @@ describe("check-skill.mjs", () => {
       });
     });
 
+    describe("citation — a version claim with nothing to check it against", () => {
+      /** A skill whose SKILL.md is `lines`, with one linked reference file. */
+      const skillWith = (root, name, lines, reference = "# Topic\n\nProse.\n") =>
+        writeSkill(root, name, {
+          body: [
+            `# ${name}`,
+            "",
+            ...lines,
+            "",
+            "## Topic",
+            "",
+            "Prose introducing the reference.",
+            "",
+            "See [topic.md](./references/topic.md) for:",
+            "",
+            "- what the reference covers",
+            "",
+          ].join("\n"),
+          references: { "topic.md": reference },
+        });
+
+      it("warns on a `Verified against` line carrying no URL", async () => {
+        const root = await tempDir();
+        const dir = await skillWith(root, "unverifiable-claim", [
+          "Verified against `@vendor/sdk` 4.2.0.",
+        ]);
+
+        expectWarning(dir, /citation: SKILL\.md:\d+ "Verified against/);
+      });
+
+      it("stays silent when the URL rides the claim", async () => {
+        const root = await tempDir();
+        const dir = await skillWith(root, "verifiable-claim", [
+          "Verified against `@vendor/sdk` 4.2.0, per https://example.com/docs/sdk.",
+        ]);
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/citation:/);
+      });
+
+      it("warns on a version-pinning document that cites nothing", async () => {
+        const root = await tempDir();
+        const dir = await skillWith(root, "uncited-pin", [
+          "Everything here is written against SDK 57 and inverts before it.",
+        ]);
+
+        expectWarning(dir, /citation: SKILL\.md:\d+ pins a version/);
+      });
+
+      it("stays silent once the document cites any documentation URL", async () => {
+        const root = await tempDir();
+        const dir = await skillWith(root, "cited-pin", [
+          "Everything here is written against SDK 57, documented at",
+          "https://example.com/docs/sdk-57.",
+        ]);
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/citation:/);
+      });
+
+      it("does not count the RFC-2119 boilerplate as a citation", async () => {
+        const root = await tempDir();
+        // Every skill carries this link. Counting it would silence the check on
+        // the whole corpus, which is why #171 measured "non-RFC URLs".
+        const dir = await skillWith(root, "boilerplate-only", [
+          "Everything here is written against SDK 57.",
+          "",
+          'The key word "MUST" is to be interpreted as described in',
+          "[RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).",
+        ]);
+
+        expectWarning(dir, /citation: SKILL\.md:\d+ pins a version/);
+      });
+
+      it("reports one citation warning per document, not two", async () => {
+        const root = await tempDir();
+        // Both signals fire on this document; they share a remedy, so reporting
+        // both would double the count that scopes the cleanup.
+        const dir = await skillWith(root, "both-signals", [
+          "Verified against SDK 57.",
+          "",
+          "The behaviour below changed in v57.",
+        ]);
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout.match(/citation:/g)).toHaveLength(1);
+        expect(result.stdout).toMatch(/states a verification with no URL/);
+      });
+    });
+
+    describe("routing — a bullet that gestures instead of naming", () => {
+      /** A skill whose single routing bullet is `bullet`. */
+      const skillRouting = (root, name, bullet) =>
+        writeSkill(root, name, {
+          body: [
+            `# ${name}`,
+            "",
+            "Prose for the fixture.",
+            "",
+            "## Topic",
+            "",
+            "Prose introducing the reference.",
+            "",
+            "See [topic.md](./references/topic.md) for:",
+            "",
+            `- ${bullet}`,
+            "",
+          ].join("\n"),
+          references: { "topic.md": "# Topic\n\nProse.\n" },
+        });
+
+      it("warns on a bullet that names nothing it points at", async () => {
+        const root = await tempDir();
+        const dir = await skillRouting(
+          root,
+          "gestural-routing",
+          "what makes a route static or dynamic, and the flag that changes the model",
+        );
+
+        expectWarning(
+          dir,
+          /routing: SKILL\.md:\d+ section "Topic" gestures at a fact without naming it/,
+        );
+      });
+
+      it("stays silent once the bullet names the thing", async () => {
+        const root = await tempDir();
+        const dir = await skillRouting(
+          root,
+          "concrete-routing",
+          "what makes a route static or dynamic, and how `cacheComponents` redraws that boundary",
+        );
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/routing:/);
+      });
+
+      it("stays silent on a bullet stating the rule about gesturing", async () => {
+        const root = await tempDir();
+        // `agent-skill-authoring`'s own bullet for this rule. Every hand-run
+        // count of this defect has reported it as a violation of the rule it
+        // states; a metric that reproduces that error replaces nothing.
+        const dir = await skillRouting(
+          root,
+          "the-rule-itself",
+          "stating the fact a routing bullet points at — the flag, limit, or rule by name — instead of announcing that one exists",
+        );
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/routing:/);
+      });
+
+      it("still warns when the bullet merely contains \"rather than\"", async () => {
+        const root = await tempDir();
+        // "rather than" was once excluded alongside "by name" and silenced this
+        // very bullet. The phrase carries no connection to naming, so only the
+        // naming phrase may exempt one.
+        const dir = await skillRouting(
+          root,
+          "rather-than-bullet",
+          "a typed config file, and the options that change behaviour rather than tune it",
+        );
+
+        expectWarning(dir, /routing: SKILL\.md:\d+ .*gestures at a fact/);
+      });
+
+      it("stays silent on a hyphenated compound that only starts with a gesture noun", async () => {
+        const root = await tempDir();
+        // "the file-notation set" never uses the noun "file"; matching its
+        // prefix would report a bullet for a word it does not contain.
+        const dir = await skillRouting(
+          root,
+          "hyphenated-compound",
+          "the file-notation set the router recognizes, and what each segment shape produces",
+        );
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/routing:/);
+      });
+
+      it("stays silent when a gerund governs the noun", async () => {
+        const root = await tempDir();
+        // An activity performed on the thing, not its name withheld.
+        const dir = await skillRouting(
+          root,
+          "gerund-governed",
+          "separating the settings a component owns from the ones its consumer owns",
+        );
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/routing:/);
+      });
+    });
+
     it("reports warnings from a reference file by its skill-relative path", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "warned-reference", {
