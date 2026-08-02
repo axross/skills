@@ -1,10 +1,9 @@
 // Reporting tools must stay out of the enforced-gate set.
 //
 // Three scripts here report instead of judging, for three different reasons,
-// and each is one careless wiring away from becoming a gate that can never
-// fail — which is worse than no gate at all: it occupies the slot, costs CI
-// time, and reads to everyone downstream as though something were being
-// enforced.
+// and each is one careless wiring away from becoming a gate that can never fail
+// — which is worse than no gate at all: it occupies the slot, costs CI time, and
+// reads to everyone downstream as though something were being enforced.
 //
 // scripts/report-obligation-load.mjs reports a number with NO threshold: it
 // exits 0 on every valid invocation however large the figures get. There is no
@@ -12,16 +11,17 @@
 // threshold becomes either a rule people route around or a warning people stop
 // reading.
 //
+// scripts/report-skill-duplication.mjs ranks rules stated in more than one
+// skill. Its reason is the strongest of the three: the defect is not decidable
+// from the text at all. The Portable Source Exception lets a self-contained
+// distributable skill restate a rule another skill owns, and every skill here is
+// distributable — so a gate on similarity would fail correct prose. Only intent
+// separates the cases, and intent is not in the corpus.
+//
 // scripts/discovery-eval/run.mjs reports which skills a prompt surfaced. It
 // cannot gate for three independent reasons: it is non-deterministic, it costs
 // money per run, and it needs a secret that fork pull requests do not receive.
 // A flaky merge gate gets bypassed or deleted.
-//
-// scripts/scan-duplicate-rules.mjs reports how similarly two skills word a
-// rule. Similarity is evidence, not a verdict: the Portable Source Exception
-// makes some near-identical pairs correct, so a threshold that failed a build
-// would fail it on sanctioned duplication. Whether a reported pair is a defect
-// is a judgment a human or a reviewer makes.
 //
 // The tracking issues asked for a grep confirming nothing invokes either. A grep
 // confirms today; this file confirms every day, which is what the claim actually
@@ -56,11 +56,9 @@ const REPORTING_TOOLS = [
     runnable: true,
   },
   {
-    script: SCRIPTS.scanDuplicateRules,
-    // A distinctive basename, so this catches `node ./scripts/scan-…` too.
-    needle: "scan-duplicate-rules.mjs",
+    script: SCRIPTS.reportSkillDuplication,
+    needle: "report-skill-duplication.mjs",
     workflow: null,
-    // Pure filesystem reads over the skill sources — no network, no secret.
     runnable: true,
   },
   {
