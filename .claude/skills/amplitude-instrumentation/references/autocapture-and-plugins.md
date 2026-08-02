@@ -2,7 +2,7 @@
 
 Apply this reference when enabling autocapture, auditing what it already sends, or writing a plugin to enrich or drop events. Autocapture is the fastest way to get data into Amplitude and the fastest way to get data you did not intend to collect — it emits a fixed event and property schema without a line of instrumentation, which makes it a validation contract you inherit rather than one you write.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's Browser SDK 2 documentation](https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2) on **2026-08-02**.
 
 ## Platform Support
 
@@ -17,20 +17,9 @@ This is the single most consequential fact in the reference, because it inverts 
 
 ## The Web Option Set
 
-Browser SDK 2, with defaults verified at **2026-07-29**. The option is `autocapture`; `defaultTracking` is the deprecated name (see the SDK reference).
+The option is `autocapture`; `defaultTracking` is the deprecated name it replaced in Browser SDK **2.10.0**. Each sub-option and its default is listed in the [Browser SDK 2 reference](https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2).
 
-| Option                    | Default |
-| ------------------------- | ------- |
-| `attribution`             | `true`  |
-| `pageViews`               | `true`  |
-| `sessions`                | `true`  |
-| `formInteractions`        | `true`  |
-| `fileDownloads`           | `true`  |
-| `pageUrlEnrichment`       | `true`  |
-| `elementInteractions`     | `false` |
-| `frustrationInteractions` | `false` |
-| `networkTracking`         | `false` |
-| `webVitals`               | `false` |
+Two things that list does not tell you. The defaults split into an **on** group — attribution, page views, sessions, form interactions, file downloads, page-URL enrichment — and an **off** group led by `elementInteractions`, and the split is not arbitrary: what is off is what is high-volume or high-cardinality. And the defaults differ per platform, so a project reading the web list and assuming it holds elsewhere is wrong twice over.
 
 The events these emit — `Page viewed`, `Start session`, `End session`, `Form started`, `Form submitted`, `File downloaded`, `Element clicked`, `Element changed`, `Network request`, `Web vitals` — occupy the project's 2,000-event-type ceiling and appear in the taxonomy alongside hand-written events.
 

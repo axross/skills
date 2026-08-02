@@ -91,7 +91,7 @@ Three ways to flatten one, in rough order of preference:
 
 ## Warming the Cache
 
-Prefetching populates an entry before anything renders it. The variants differ in what they return and how they fail:
+Prefetching populates an entry before anything renders it. The [`QueryClient` reference](https://tanstack.com/query/latest/docs/reference/QueryClient) documents each of these calls on its own; what it does not do is line them up, and the axis that decides which one a caller wants is how they fail:
 
 | Call              | Returns         | On failure   |
 | ----------------- | --------------- | ------------ |
@@ -99,11 +99,7 @@ Prefetching populates an entry before anything renders it. The variants differ i
 | `fetchQuery`      | the data        | throws       |
 | `ensureQueryData` | the data        | throws       |
 
-An infinite query has its own warming call, `prefetchInfiniteQuery`, taking the same options the factory produces. `prefetchQuery` does not carry the page-parameter types, so warming a page-walking query through it primes the wrong shape.
-
-| Call                    | Returns         | On failure   |
-| ----------------------- | --------------- | ------------ |
-| `prefetchInfiniteQuery` | `Promise<void>` | never throws |
+An infinite query has its own warming call, `prefetchInfiniteQuery`, which behaves like `prefetchQuery` — returns `Promise<void>`, never throws — and takes the same options the factory produces. `prefetchQuery` does not carry the page-parameter types, so warming a page-walking query through it primes the wrong shape.
 
 `prefetchQuery` respects `staleTime`, so a prefetch of fresh data is a no-op — which is why an event-handler prefetch usually wants an explicit `staleTime`. `ensureQueryData` returns cached data if present and fetches only when it is absent.
 

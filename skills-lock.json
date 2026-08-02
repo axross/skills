@@ -19,7 +19,7 @@
     "amplitude-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "c83628499cce9bb38ef579f676532e6ca0f446e2d204b7ebe278f8744dcb5d7e"
+      "computedHash": "8cc1097b4a5aff52386dd6bf0ada44c2aadcd1e4a2ebf57e44988274d30bd936"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
@@ -49,7 +49,7 @@
     "expo-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "a98e2e75830b2fee9ba98319a91513bbd5ba37798d7f1dc925d4e5d770bbe461"
+      "computedHash": "043415eb0c4d929592e3846639f230a3d8edf85e15ddc0184fa43540a6bb5177"
     },
     "github-operation": {
       "source": "/home/user/skills/skills",
@@ -74,7 +74,7 @@
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "3df3db9f607fc064f8ca330ee8b90de16dd7c758e2217cf4e135b0bdce1b0b84"
+      "computedHash": "848aece0f703f9fe9a916ca1c443e1443ac51c812f0b498597370154f9168dff"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -104,7 +104,7 @@
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "77911b26e4a42715f3a23e8ec45cac48b170c2b1e7c68a95e07570f1d7fd5900"
+      "computedHash": "2168df93fc802a9e426613efb2a110c959563cbaf11de1394685a2bff1b0eb26"
     },
     "software-development": {
       "source": "/home/user/skills/skills",
@@ -119,7 +119,7 @@
     "tanstack-query-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "e9f503b0e0a710bb35866154b73efcd00ed3d6cd5679dfd7aa964ee0c9fba287"
+      "computedHash": "eeed85c28cbf5a3f605c24f87e6b8f234e540ee97221d8a888845ae80dea511a"
     },
     "technical-document-authoring": {
       "source": "/home/user/skills/skills",

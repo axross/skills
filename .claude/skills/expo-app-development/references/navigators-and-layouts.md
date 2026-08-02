@@ -6,7 +6,7 @@ Apply this reference when writing a `_layout` file, choosing a tabs implementati
 
 Expo Router ships more than one tabs implementation, and which one is current **changes between SDK releases** — as does the API surface of the newer one. Treating either as a fixed answer produces guidance that is wrong within a release or two.
 
-As of SDK 57, native tabs are the recommended implementation: they render the platform's own tab bar, which brings the system's appearance, accessibility behavior, and per-platform affordances for free. Their API has already moved once — SDK 55 relocated the label, icon, badge, and vector-icon components from separate module exports onto static properties of the trigger component — so an app on an older SDK and an app on a current one do not share import statements.
+As of SDK 57, [native tabs](https://docs.expo.dev/router/advanced/native-tabs/) are the recommended implementation, with the [JavaScript tabs](https://docs.expo.dev/router/advanced/tabs/) documented alongside them: they render the platform's own tab bar, which brings the system's appearance, accessibility behavior, and per-platform affordances for free. Their API has already moved once — SDK 55 relocated the label, icon, badge, and vector-icon components from separate module exports onto static properties of the trigger component — so an app on an older SDK and an app on a current one do not share import statements.
 
 There is also a real fallback. The native tab host has been observed to crash on Android's New Architecture, and an app that hits it is correct to run the JavaScript tabs implementation instead. That is a documented platform constraint, not a lapse to correct on sight.
 

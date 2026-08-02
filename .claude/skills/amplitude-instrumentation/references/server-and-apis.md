@@ -2,7 +2,7 @@
 
 Apply this reference when sending events from a backend, building a producer against Amplitude's HTTP endpoints, or choosing which Amplitude API a task needs. Server-side ingestion has different failure modes from client-side: identity is not ambient, retries are real, and a loop can exceed a rate limit in seconds.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's HTTP V2 API documentation](https://amplitude.com/docs/apis/analytics/http-v2) on **2026-08-02**.
 
 ## Server-Side Identity
 
@@ -18,12 +18,9 @@ On a client, the SDK holds the current user. On a server, it does not: one proce
 
 ## Choosing an Ingestion Endpoint
 
-| Endpoint               | Shape                                    |
-| ---------------------- | ---------------------------------------- |
-| **HTTP V2**            | The general-purpose ingestion endpoint   |
-| **Batch Event Upload** | Higher throughput, for bulk and backfill |
+Two endpoints ingest events: [HTTP V2](https://amplitude.com/docs/apis/analytics/http-v2) is the general-purpose one, and [Batch Event Upload](https://amplitude.com/docs/apis/analytics/batch-event-upload) trades latency for throughput on bulk and backfill.
 
-Regional endpoints: `https://api2.amplitude.com` (US) and `https://api.eu.amplitude.com` (EU).
+Each has a regional pair — `https://api2.amplitude.com` (US) and `https://api.eu.amplitude.com` (EU) — and the two are separate worlds rather than mirrors, which is what makes the wrong choice silent.
 
 **Guidelines:**
 
@@ -32,16 +29,9 @@ Regional endpoints: `https://api2.amplitude.com` (US) and `https://api.eu.amplit
 
 ## The Limits That Shape a Producer
 
-| Limit                               | Value                           |
-| ----------------------------------- | ------------------------------- |
-| Maximum request size                | Under **1 MB**                  |
-| Maximum events per request          | Fewer than **2,000**            |
-| String character limit              | **1,024** characters            |
-| Project throughput, HTTP API and V2 | **50,000** events/second        |
-| SDK endpoint throughput             | up to **150,000** events/second |
-| User-property updates for one user  | **1,800** per hour              |
+Request size, events per request, string length, per-project throughput, and the per-user update rate are all capped, at the figures in [Amplitude's HTTP V2 documentation](https://amplitude.com/docs/apis/analytics/http-v2) and [limits documentation](https://amplitude.com/docs/faq/limits-and-quotas).
 
-On the Free plan: 1,000 events/second, a recommended maximum of 10 events per batch, and 100 batches/second.
+Two things a producer has to design around rather than look up. The **string cap truncates rather than rejects**, so an over-long value lands quietly wrong instead of erroring. And the Free plan's ceilings are an order of magnitude lower than the paid ones — a producer sized against the published throughput figure will not run on a trial project.
 
 An oversized request returns **413**; an invalid time format or a problematic id returns **400**.
 

@@ -4,6 +4,8 @@ Apply this reference when a write should appear applied before the server confir
 
 ## Two Approaches
 
+Both are shown in the [Optimistic Updates guide](https://tanstack.com/query/latest/docs/framework/react/guides/optimistic-updates), as two worked examples rather than as a choice with consequences:
+
 | Approach          | Where the pending value lives | Rollback                | Visible in              |
 | ----------------- | ----------------------------- | ----------------------- | ----------------------- |
 | Through the UI    | the mutation's `variables`    | automatic — none needed | the triggering surface  |

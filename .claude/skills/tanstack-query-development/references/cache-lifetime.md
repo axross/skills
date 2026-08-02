@@ -6,18 +6,11 @@ Apply this reference when choosing how long data stays fresh, deciding what trig
 
 The out-of-the-box configuration is deliberately aggressive. Knowing it is what makes a deviation a decision rather than an accident.
 
-| Default                | Value                                      |
-| ---------------------- | ------------------------------------------ |
-| `staleTime`            | `0` — data is stale the moment it arrives  |
-| `gcTime`               | 5 minutes after the last observer unmounts |
-| `retry`                | 3, with exponential backoff                |
-| `refetchOnMount`       | `true` when stale                          |
-| `refetchOnWindowFocus` | `true` when stale                          |
-| `refetchOnReconnect`   | `true` when stale                          |
-| `structuralSharing`    | `true`                                     |
-| mutation `retry`       | `0`                                        |
+Every default is stated per option in the [`useQuery` reference](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery), with the reasoning behind the aggressive ones in [Important Defaults](https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults). Three things those pages do not tell a reader.
 
 `staleTime: 0` is the one that surprises: every new observer of a key triggers a background refetch. That is correct for volatile data and wasteful for anything that changes on a human timescale.
+
+**A query retries three times; a mutation retries none.** The two defaults sit on separate reference pages and read as an inconsistency, so a reader who has internalized the query default assumes a failed write is being retried when nothing is.
 
 **Structural sharing** keeps references stable across refetches when the data has not actually changed, which is what stops a background refetch from re-rendering everything downstream. It works on JSON-compatible values only — a response containing a `Date`, `Map`, or class instance is always treated as changed.
 
@@ -30,7 +23,7 @@ The out-of-the-box configuration is deliberately aggressive. Knowing it is what 
 
 ## Choosing a Staleness Window
 
-`staleTime` is how long data is considered fresh. While fresh, none of the automatic triggers refetch it.
+`staleTime` is how long data is considered fresh. While fresh, none of the automatic triggers refetch it. Its accepted forms — a duration, a function, `Infinity`, and `'static'` — are listed in the [`useQuery` reference](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery).
 
 Two values stop staleness-driven refetching entirely, and they are not interchangeable:
 
@@ -48,7 +41,7 @@ Two values stop staleness-driven refetching entirely, and they are not interchan
 
 ## Refetch Triggers
 
-Three triggers refetch a **stale** query automatically: a new observer mounting, the window regaining focus, and the network reconnecting. Each can be turned off per query or globally, and each accepts `"always"` to fire regardless of staleness.
+Three triggers refetch a **stale** query automatically: a new observer mounting, the window regaining focus, and the network reconnecting. Each has its own option — `refetchOnMount`, `refetchOnWindowFocus`, `refetchOnReconnect`, all documented in the [`useQuery` reference](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) — can be turned off per query or globally, and accepts `"always"` to fire regardless of staleness.
 
 On React Native, focus and reconnect do nothing until the corresponding managers are wired — the options are present and silently inert. See [react-native.md](./react-native.md).
 
@@ -69,7 +62,7 @@ refetchInterval: (query) =>
   query.state.data?.status === "complete" ? false : 2_000,
 ```
 
-Returning `false` clears the timer; returning a number again resumes it. By default polling pauses when the window loses focus — `refetchIntervalInBackground: true` overrides that.
+Returning `false` clears the timer; returning a number again resumes it — the contract is in the [`useQuery` reference](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) alongside `refetchIntervalInBackground`, which overrides the default of pausing when the window loses focus.
 
 Each observer runs its own timer. Two components polling one key each fire on their own schedule; what is deduplicated is the concurrent **fetch**, not the timer.
 
