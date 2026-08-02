@@ -102,7 +102,9 @@ Validating a list means parsing the **array schema once**, not calling an item s
 
 ## Records, Maps, and Sets
 
-`z.record(keySchema, valueSchema)` requires **both** arguments in Zod 4; the single-argument form is gone. Two behaviours follow from the key schema:
+`z.record(keySchema, valueSchema)` takes **both** a key schema and a value schema in Zod 4. The single-argument form does not error — it silently uses that one schema as **both** the key type and the value type, so `z.record(z.string())` accepts `{ a: "x" }` and rejects `{ a: 1 }`. Anyone carrying over the Zod 3 habit of writing the value schema alone gets a record that quietly refuses every non-string value, with no construction-time complaint to point at. Verified against 4.4.3.
+
+Two further behaviours follow from the key schema:
 
 - A record keyed by an **enum** is **exhaustive** — every enum member is a required key. `z.partialRecord()` is the form where they are optional.
 - `z.looseRecord()` relaxes key validation where the key set is genuinely open.
@@ -113,7 +115,7 @@ Also as of 4.4, a transform on the key schema actually runs, so a record whose k
 
 **Guidelines:**
 
-- MUST pass both a key schema and a value schema to `z.record()`.
+- MUST pass both a key schema and a value schema to `z.record()`; a single argument is accepted and reused as the value type, which fails silently rather than at construction.
 - MUST use `z.partialRecord()` when an enum-keyed record does not require every member; `z.record()` with an enum key demands all of them.
 - SHOULD prefer an object schema to a record when the key set is known and small, so each value can be typed independently.
 
