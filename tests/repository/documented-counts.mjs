@@ -362,6 +362,12 @@ async function distributableSkillDirs() {
  * gates, plus the ones that ship inside a skill for the projects that install
  * it. A module imported by a validator is not one of them, which is what the
  * shebang distinguishes — those files are executable entry points and say so.
+ *
+ * The walk is RECURSIVE. A multi-module tool groups its files in a subdirectory
+ * of `scripts/` rather than flattening them among a skill's other scripts, and
+ * an immediate-entries-only walk stops seeing that tool's CLI entirely — a
+ * validator would silently drop out of the count while the prose kept claiming
+ * it. Recursing costs nothing here and removes the layout dependency.
  */
 async function countDocumentedValidators() {
   const gateScripts = new Set(GATES.map((entry) => entry.script));
@@ -371,13 +377,16 @@ async function countDocumentedValidators() {
     const dir = repoPath("skills", name, "scripts");
     let files;
     try {
-      files = await readdir(dir);
+      files = await readdir(dir, { recursive: true });
     } catch {
       continue; // Most skills bundle no scripts.
     }
     for (const file of files.sort()) {
       if (!file.endsWith(".mjs")) continue;
-      if (gateScripts.has(`skills/${name}/scripts/${file}`)) continue;
+      // Not named `relative`: this module imports node:path's `relative`, and
+      // shadowing it here would be a trap for the next edit in this scope.
+      const relativePath = file.split(sep).join("/");
+      if (gateScripts.has(`skills/${name}/scripts/${relativePath}`)) continue;
       const source = await readFile(join(dir, file), "utf8");
       if (source.startsWith("#!")) bundled += 1;
     }
@@ -412,21 +421,21 @@ export const CLAIMS = {
   "first-reporting-tool-ordinal": {
     owner:
       "one past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above states those two figures as "three gates" and "Six more" — comments a reader copies, so they carry no marker and move by hand',
+    note: 'the code fence above splits the same total across three comments — "three gates", "One more", and "Two more" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 1,
   },
 
   "second-reporting-tool-ordinal": {
     owner:
       "two past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above states those two figures as "three gates" and "Six more" — comments a reader copies, so they carry no marker and move by hand',
+    note: 'the code fence above splits the same total across three comments — "three gates", "One more", and "Two more" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 2,
   },
 
   "third-reporting-tool-ordinal": {
     owner:
       "three past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above states those two figures as "three gates" and "Six more" — comments a reader copies, so they carry no marker and move by hand',
+    note: 'the code fence above splits the same total across three comments — "three gates", "One more", and "Two more" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 3,
   },
 

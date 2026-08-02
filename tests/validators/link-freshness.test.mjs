@@ -16,7 +16,7 @@ import { describe, expect, it } from "vitest";
 import {
   isReservedAddress,
   refusalReason,
-} from "../../scripts/link-freshness/address-guard.mjs";
+} from "../../skills/agent-skill-authoring/scripts/link-freshness/address-guard.mjs";
 import {
   ALIVE,
   classifyOutcome,
@@ -27,11 +27,11 @@ import {
   isRetryableStatus,
   MOVED,
   UNVERIFIABLE,
-} from "../../scripts/link-freshness/classify.mjs";
+} from "../../skills/agent-skill-authoring/scripts/link-freshness/classify.mjs";
 import {
   collectUrls,
   extractUrls,
-} from "../../scripts/link-freshness/urls.mjs";
+} from "../../skills/agent-skill-authoring/scripts/link-freshness/urls.mjs";
 import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
 import { runScript, SCRIPTS } from "../helpers/run.mjs";
 

@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "aa7401fd781dea5303868f68945c5ff61e71b0df661b7d2b5c43c4c876dcdbea"
+      "computedHash": "aff64020da51cd646a86a057f40bc51592d66f33fe38dab441ae4a9c81ab50f1"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "420d25e0b8b5d78ea824fe634ad1aae764b461c1a0b49ea0859c4a48a8b86b48"
+      "computedHash": "9f358dcdec62c231f67d0c414d3612db6c0546c5cab1c83c2fff9fa72c1e1f4e"
     },
     "amplitude-analytics": {
       "source": "/home/user/skills/skills",
@@ -19,7 +19,7 @@
     "amplitude-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "c83628499cce9bb38ef579f676532e6ca0f446e2d204b7ebe278f8744dcb5d7e"
+      "computedHash": "50aeeaa8deec4535e781faaeba4a505ee89534464976d7bb1e6e99887fda8a45"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
@@ -44,7 +44,7 @@
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "e524b0efcad7748c914bd941de6ce06f1ae3e01b53a72af2903e33d034b765e9"
+      "computedHash": "79ea6cb6b96395b16f50264f7ea61fd6f233aeb3c8c0feb51adfdf33d50ecb60"
     },
     "expo-app-development": {
       "source": "/home/user/skills/skills",
@@ -94,12 +94,12 @@
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "60b94edb62f53fdaa2bc2b2da35c8c13d621d6edad1db363f489df726119e32c"
+      "computedHash": "c35f60260555b68c7d3aac4f6a694ed45a8ca864e27fb85a3a75d4d63f2f07f4"
     },
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "e6938f261bdcdbae0e8ff06151e02774a6c3a21331bec01a1d7778c59d167f82"
+      "computedHash": "620183b66281e939427fb8627a858d09e1cd6fcb991259e3bd163ddd58df915e"
     },
     "software-development": {
       "source": "/home/user/skills/skills",

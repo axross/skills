@@ -14,11 +14,11 @@
 // dutifully issues that request from a GitHub runner. Nothing at review time
 // could have shown it, because at review time the redirect did not exist.
 //
-// `.claude/skills/application-security/references/ssrf-and-embeds.md` states the
-// rule this closes: "MUST disable redirect following (`redirect: \"manual\"`) on
-// an untrusted-URL fetch, or re-resolve and re-validate the final host after
-// each redirect to defeat DNS rebinding." The audit does both — manual mode AND
-// re-validation at every hop, including the first.
+// An application-security capability states the rule this closes: disable
+// redirect following (`redirect: "manual"`) on an untrusted-URL fetch, or
+// re-resolve and re-validate the final host after each redirect to defeat DNS
+// rebinding. The audit does both — manual mode AND re-validation at every hop,
+// including the first.
 //
 // ── WHAT THIS DOES NOT CLOSE. Validation resolves the hostname and then hands
 // the NAME to `fetch`, which resolves it again. A name that answers with a

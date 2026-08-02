@@ -18,7 +18,7 @@
 
 import { readdir, readFile, stat } from "node:fs/promises";
 
-import { scanLines } from "../../skills/agent-skill-authoring/scripts/commonmark.mjs";
+import { scanLines } from "../commonmark.mjs";
 
 /**
  * Directory names never worth walking, mirroring check-links.mjs's list for the

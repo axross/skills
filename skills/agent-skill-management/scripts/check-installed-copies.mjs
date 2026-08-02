@@ -1,32 +1,35 @@
 #!/usr/bin/env node
-// check-installed-copies.mjs — installed-skill drift check for THIS repository.
+// check-installed-copies.mjs — installed-skill drift check for a two-tier
+// skill tree.
 //
-// Distributable skills are authored under `skills/<name>/` and installed into
-// `.claude/skills/<name>/` with the vercel-labs/skills CLI. README.md calls the
-// installed copies tracked artifacts rather than build output, and warns that a
-// hand-edit to one is silently discarded by the next install. Nothing verified
-// that claim, so the two roots matched by luck. This makes the mismatch fail.
+// A distributable skill is authored under a SOURCE root (`skills/<name>/`) and
+// installed into a SKILL root (`.claude/skills/<name>/`) with the
+// vercel-labs/skills CLI. The installed copies are tracked artifacts rather than
+// build output, and a hand-edit to one is silently discarded by the next
+// install. Nothing checks that on its own, so the two roots match by luck. This
+// makes the mismatch fail.
 //
-// It lives at the repository root rather than inside a skill's `scripts/`
-// because the invariant is repository-only: a project that installs these
-// skills has no second copy to compare against.
+// It ships with the agent-skill-management skill (see ../SKILL.md) because the
+// invariant it enforces is exactly the one that skill teaches: any project
+// running the two-tier model has both roots, and therefore has this drift
+// problem. A project that only ever INSTALLS somebody else's skills has one
+// root and no use for this check — which is the same thing as saying it is not
+// running the model.
 //
 // `skills-lock.json` is deliberately NOT consulted. Every entry records an
 // absolute `source` path, so the lockfile is not portable across checkouts and
 // is a poor authority for what should exist; directory contents are the truth.
 //
 // Usage:
-//   node scripts/check-installed-copies.mjs [--local <name>]...
-//                                           [<source-root> [<installed-root>]]
+//   node check-installed-copies.mjs [--local <name>]... <source-root> <installed-root>
 //
-//     Both roots default to this repository's `skills` and `.claude/skills`,
-//     resolved from the script's own location so the cwd does not matter. The
-//     arguments exist so the check can be exercised against fixtures.
+//     Both roots are REQUIRED. There is no default: a directory layout is a
+//     project's own choice, and a wrong guess reports "0 skills, no drift" —
+//     a pass that means nothing and looks exactly like a real one.
 //
-//     `--local <name>` adds one name to the repository-local set below, which is
-//     empty for this repository. It is repeatable, and it is what lets the
-//     repository-local code path stay exercised by a test while no skill in this
-//     repository is repository-local.
+//     `--local <name>` marks one installed skill as repository-local: committed
+//     directly under the skill root and hand-edited in place, so it has no
+//     source. Repeatable. Without it, every sourceless installed skill is drift.
 //
 // Exit codes:
 //   0  every distributable skill's installed copy matches its source
@@ -35,23 +38,17 @@
 //   2  bad invocation, or a root that is not a directory
 
 import { readFile, readdir, stat } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+import { join } from "node:path";
 
 /**
- * Skills committed directly under the installed root and hand-edited in place,
- * so they legitimately have no source under `skills/`. Kept explicit rather
- * than inferred from "installed with no source": inferring it would let a
- * deleted source pass silently as repository-local.
+ * Skills committed directly under the skill root and hand-edited in place, so
+ * they legitimately have no source. Kept explicit rather than inferred from
+ * "installed with no source": inferring it would let a DELETED source pass
+ * silently as repository-local, which is the failure this set exists to make
+ * loud.
  *
- * Deliberately EMPTY: this repository currently has no repository-local skill —
- * every skill is distributable, authored under `skills/` and installed. The set
- * and the code path it feeds are kept because the two-tier model is still
- * available; register a future repository-local skill by adding its name here.
- * The `--local` flag adds to this set for one invocation, which is how the tests
- * exercise that path while the set is empty.
+ * Empty by default, so the decision is always the caller's: name each one with
+ * `--local`, or hard-code them here in a project's own copy.
  */
 const REPOSITORY_LOCAL = new Set([]);
 
@@ -128,17 +125,16 @@ async function compareSkill(sourceDir, installedDir) {
   return differences;
 }
 
-const USAGE = `Usage: check-installed-copies.mjs [--local <name>]... [<source-root> [<installed-root>]]
+const USAGE = `Usage: check-installed-copies.mjs [--local <name>]... <source-root> <installed-root>
 
 Fail when a distributable skill's source differs from its generated installed
-copy. Both roots default to this repository's "skills" and ".claude/skills",
-resolved from the script's own location, so the working directory does not
-matter; the arguments exist so the check can be exercised against fixtures.
+copy. Both roots are required — a typical invocation names "skills" and
+".claude/skills" — because a guessed layout that matches nothing reports no
+drift, which is indistinguishable from a real pass.
 
   --local <name>  Treat an installed skill with no source as repository-local
-                  rather than drift. Repeatable. This repository's own
-                  repository-local set is empty, so without this flag every
-                  sourceless installed skill is drift.
+                  rather than drift. Repeatable. Without it, every sourceless
+                  installed skill is drift.
 
 Exit codes: 0 every installed copy matches, 1 drift found, 2 bad invocation.`;
 
@@ -162,9 +158,12 @@ async function main() {
     index += 1;
   }
 
-  if (positional.length > 2) fail2(USAGE);
-  const sourceRoot = positional[0] ?? join(REPO_ROOT, "skills");
-  const installedRoot = positional[1] ?? join(REPO_ROOT, ".claude", "skills");
+  if (positional.length !== 2) {
+    fail2(
+      `Both a source root and an installed root are required (got ${positional.length}).\n${USAGE}`,
+    );
+  }
+  const [sourceRoot, installedRoot] = positional;
 
   for (const root of [sourceRoot, installedRoot]) {
     if (!(await isDir(root))) fail2(`Not a directory: "${root}".`);

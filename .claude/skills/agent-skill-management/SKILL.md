@@ -1,6 +1,6 @@
 ---
 name: agent-skill-management
-description: The ability to store, install, and maintain a project's agent skills across two tiers — repository-local skills committed directly under the skill root (e.g. `.claude/skills/`) and hand-edited in place, and distributable skills authored in a source directory (e.g. `skills/`) and installed into the skill root with the vercel-labs/skills CLI (`npx skills`) plus a `skills-lock.json` lockfile — the decision rule for which tier a new skill belongs to, and how to route a defect or gap you find in an installed skill — edit-and-reinstall when you own its source, or a feature-request issue opened on the upstream repository, with the human's go-ahead, when you do not.
+description: The ability to store, install, and maintain a project's agent skills across two tiers — repository-local skills committed directly under the skill root (e.g. `.claude/skills/`) and hand-edited in place, and distributable skills authored in a source directory (e.g. `skills/`) and installed into the skill root with the vercel-labs/skills CLI (`npx skills`) plus a `skills-lock.json` lockfile and a bundled installed-copy drift check — the decision rule for which tier a new skill belongs to, and how to route a defect or gap you find in an installed skill — edit-and-reinstall when you own its source, or a feature-request issue opened on the upstream repository, with the human's go-ahead, when you do not.
 when_to_use: Apply when adding, editing, renaming, moving, or removing an agent skill in a project that manages skills across two tiers, when deciding which tier a new skill belongs to, when `git status` shows the installed copies or `skills-lock.json` out of sync with their source, or when a skill you loaded turns out to be wrong, outdated, or missing a rule — including mid-task, and including when the installed copy came from an upstream you do not own.
 user-invocable: false
 ---
@@ -130,6 +130,27 @@ The upstream repository is the source of truth for a third-party skill, so chang
 - MUST commit `skills-lock.json` and regenerate it by running the install command, never by hand-editing.
 - MUST treat a `computedHash` change with no corresponding source edit as install drift to investigate, not to blindly commit.
 - SHOULD be aware that a `local` `source` is an absolute path, so it can differ between machines; regenerate the lock with the install command in your own checkout rather than expecting a foreign checkout's lock to be byte-identical.
+
+## Installed-Copy Drift Check
+
+The installed copies are tracked artifacts, not build output, so nothing stops a hand-edit to one — and the next install discards it silently. This skill bundles `scripts/check-installed-copies.mjs`, a dependency-light Node check (standard library only) that compares each source skill against its installed copy file by file and byte for byte, so a forgotten reinstall or a hand-edit fails before merge instead of surfacing later.
+
+**Example:**
+
+```bash
+node .claude/skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
+```
+
+Both roots are **required**, and there is no default: a directory layout is a project's own choice, and a guessed root that matches nothing reports no drift — a pass indistinguishable from a real one. It reports four kinds of difference (a file missing from the installed copy, a file present only there, differing content, and a source skill with no installed copy at all), plus an installed skill that has neither a source nor repository-local status. Mark each repository-local skill with a repeatable `--local <name>`, or the check reads it as drift. It deliberately ignores `skills-lock.json`, whose entries record absolute `source` paths and so are not portable across checkouts; directory contents are the truth.
+
+It exits 0 when every installed copy matches, 1 on drift, and 2 on a bad invocation or a root that is not a directory.
+
+**Guidelines:**
+
+- MUST run this check after any change to a distributable skill, and treat exit 1 as a forgotten reinstall or a hand-edited copy rather than as a reason to edit the installed tree.
+- MUST name both roots explicitly at every call site, including the project's own gate, since the check cannot infer a layout it was not told.
+- MUST register every repository-local skill through `--local` (or the set inside a project's own copy) rather than letting a sourceless installed skill pass, or a DELETED source becomes indistinguishable from a deliberate one.
+- SHOULD wire it into the project's merge gate: it is offline and deterministic, which is exactly what a gate needs.
 
 ## Verification
 

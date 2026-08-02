@@ -40,7 +40,7 @@ name: Link Freshness Audit
 # ~80 hosts, several of which refuse datacentre egress by policy, and an audit
 # that went red every time a publisher throttled a runner would be red most
 # weeks. Only a 404 or 410 that survives a retry fails the run. The full
-# reasoning lives in scripts/link-freshness/classify.mjs.
+# reasoning lives in skills/agent-skill-authoring/scripts/link-freshness/classify.mjs.
 
 on:
   schedule:
@@ -82,7 +82,7 @@ jobs:
         id: audit
         run: |
           set -o pipefail
-          node scripts/link-freshness/check.mjs | tee "${RUNNER_TEMP}/report.txt"
+          node skills/agent-skill-authoring/scripts/link-freshness/check.mjs | tee "${RUNNER_TEMP}/report.txt"
 
       # `always()`, so the summary is written on the failing run too — the run
       # where somebody actually wants to read which link died.

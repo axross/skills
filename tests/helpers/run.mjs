@@ -31,21 +31,15 @@ export const SCRIPTS = {
   checkLinks: "skills/agent-skill-authoring/scripts/check-links.mjs",
   checkCommitMessage:
     "skills/conventional-commits/scripts/check-commit-message.mjs",
-  scenarioCoverageGate:
-    "skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs",
-  checkComponentStyles:
-    "skills/react-component-styling/scripts/check-component-styles.mjs",
   checkWireframe: "skills/wireframe-design/scripts/check-wireframe.mjs",
-  checkAmplitudeWiring:
-    "skills/amplitude-instrumentation/scripts/check-amplitude-wiring.mjs",
-  checkSentryWiring:
-    "skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs",
-  checkInstalledCopies: "scripts/check-installed-copies.mjs",
+  checkInstalledCopies:
+    "skills/agent-skill-management/scripts/check-installed-copies.mjs",
+  linkFreshness:
+    "skills/agent-skill-authoring/scripts/link-freshness/check.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
   reportSkillDuplication: "scripts/report-skill-duplication.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
   extractBaseline: "scripts/discovery-eval/extract-baseline.mjs",
-  linkFreshness: "scripts/link-freshness/check.mjs",
 };
 
 /**

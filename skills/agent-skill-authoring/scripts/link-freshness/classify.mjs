@@ -12,15 +12,15 @@
 //   dead          404 or 410, stable across retries. THE ONLY FAILING VERDICT.
 //   unverifiable  Everything else — 403, 429, 5xx, timeout, DNS, TLS.
 //
-// The split between `dead` and `unverifiable` is the whole design. This corpus
-// cites ~80 hosts, and several of them (nngroup.com, smashingmagazine.com,
+// The split between `dead` and `unverifiable` is the whole design. A skill
+// corpus of any size cites dozens of hosts, and several of the ones this kind of
+// documentation reaches for (nngroup.com, smashingmagazine.com,
 // developer.apple.com among them) rate-limit or outright block datacentre
-// egress. An audit that went red because a publisher throttled a GitHub runner
-// would be red most weeks, and this repository's own argument — recorded in
-// tests/repository/reporting-tools.test.mjs — is that a check which cries wolf
-// gets bypassed or deleted rather than fixed. So a host that REFUSES to answer
-// and a host that ANSWERS "gone" are different findings, and only the second is
-// a defect in this repository's text.
+// egress. An audit that went red because a publisher throttled a CI runner would
+// be red most weeks, and a check which cries wolf gets bypassed or deleted
+// rather than fixed. So a host that REFUSES to answer and a host that ANSWERS
+// "gone" are different findings, and only the second is a defect in the audited
+// tree's text.
 //
 // `moved` is deliberately not a failure either. A permanent redirect still
 // serves the reader, so failing on one would punish a working link — but a deep
