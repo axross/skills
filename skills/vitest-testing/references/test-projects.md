@@ -2,7 +2,7 @@
 
 Apply this reference when one repository needs more than one test configuration — a monorepo, a Node suite beside a browser suite, or fast and slow tiers with different isolation.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/projects>
 
 ## Projects Replaced Three Mechanisms
 

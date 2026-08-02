@@ -2,7 +2,7 @@
 
 Apply this reference when a suite is slow, when tests interfere with each other, or when choosing a pool.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/parallelism>
 
 ## Two Axes
 

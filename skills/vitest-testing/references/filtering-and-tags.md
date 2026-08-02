@@ -2,7 +2,7 @@
 
 Apply this reference when running a subset of a suite, organizing tests into categories, or bounding what CI runs.
 
-Verified against Vitest 4.1.10; test tags require 4.1.0+, `TestRunner.matchesTags()` 4.1.1+.
+Verified against Vitest 4.1.10; test tags require 4.1.0+, `TestRunner.matchesTags()` 4.1.1+ — <https://vitest.dev/guide/test-tags>
 
 ## Narrowing a Run
 
@@ -52,15 +52,15 @@ TypeScript can enforce the available set by augmenting the `TestTags` interface.
 
 ## Filtering on Tags
 
-`--tags-filter` takes an expression with `and` / `&&`, `or` / `||`, `not` / `!`, `*` wildcards, and parentheses. Precedence runs `not` > `and` > `or`, and repeated flags combine with AND.
+`--tags-filter` takes a boolean expression over tag names; the linked reference has the full operator set and its syntax.
+
+Three properties of it bite in practice. Precedence is `not` > `and` > `or`, so `unit or e2e and not slow` does not group the way it reads and needs parentheses. Repeated `--tags-filter` flags combine with **AND**, not OR. And a tag may not be named `and`, `or`, or `not`, nor contain `( ) & | ! *` or a space — the parser would otherwise read the name as syntax.
 
 ```bash
-vitest run --tags-filter="unit/*"
-vitest run --tags-filter="frontend && !flaky"
 vitest run --tags-filter="(unit || e2e) && !slow"
 ```
 
-Tags cannot be named `and`, `or`, or `not`, or contain `( ) & | ! *` or spaces. `--list-tags` prints the declared set, with `=json` for machine output.
+`--list-tags` prints the declared set, with `=json` for machine output.
 
 `TestRunner.matchesTags()` lets setup skip work the current filter does not need — seeding a database only when `db`-tagged tests will actually run. It returns `true` when no filter is active.
 

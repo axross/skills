@@ -2,29 +2,28 @@
 
 Apply this reference when choosing a matcher, asserting on a promise, waiting for a value to settle, or writing a custom matcher.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/api/expect>
 
 ## The Three Equality Matchers
 
 `toBe` compares by `Object.is` — reference identity for objects, value for primitives. `toEqual` compares structurally. `toStrictEqual` compares structurally **and** checks types, rejecting sparse arrays and treating a present-but-`undefined` key as different from an absent one.
 
-The difference between the last two is where a real bug hides: `toEqual` passes when a field the code should have set is `undefined`.
+That last distinction is the one to know: `toEqual` and `toStrictEqual` disagree exactly when a key is present with an `undefined` value, or an array is sparse.
 
 **Guidelines:**
 
-- SHOULD prefer `toStrictEqual` over `toEqual` when asserting on an object the code constructs, so a missing field fails.
-- MUST use `toBe` for primitives and identity, not for structural comparison of objects.
+- MUST use `toBe` for primitives and identity; it does not compare structure.
+- SHOULD pick between `toEqual` and `toStrictEqual` on whether the `undefined`-key and sparse-array distinction is part of the contract — which assertion a test should make at all is owned by the tool-agnostic unit-testing capability.
 
-## Assert the Part That Matters
+## Asymmetric Matchers
 
-Pinning a whole payload makes a test fail on every unrelated field change. Asymmetric matchers — `expect.any`, `expect.objectContaining`, `expect.arrayContaining`, `expect.stringContaining`, `expect.stringMatching`, `expect.closeTo`, `expect.schemaMatching` — assert the parts under test and ignore the rest.
-
-They compose inside `toEqual`, `toHaveBeenCalledWith`, and the other structural matchers.
+Asymmetric matchers match a shape rather than a value, and compose inside `toEqual`, `toMatchObject`, `toHaveBeenCalledWith`, and the other structural matchers: `expect.any`, `expect.anything`, `expect.objectContaining`, `expect.arrayContaining`, `expect.stringContaining`, `expect.stringMatching`, `expect.closeTo`, and `expect.schemaMatching`, which validates against a Standard Schema v1 implementation.
 
 **Guidelines:**
 
-- SHOULD assert the fields the behavior under test determines, using an asymmetric matcher for generated ids, timestamps, and unrelated payload.
-- MUST NOT use `expect.anything()` where a real assertion is possible; it asserts only non-nullness.
+- MUST NOT use `expect.anything()` where a concrete matcher applies; it asserts only that a value is neither `null` nor `undefined`.
+- SHOULD use `expect.schemaMatching` rather than a hand-written shape where the project already defines a Standard Schema validator for the type.
+- SHOULD consult the tool-agnostic unit-testing capability for how much of a payload an assertion ought to pin; this reference owns the matchers available to do it.
 
 ## Promises
 

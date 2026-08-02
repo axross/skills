@@ -2,7 +2,7 @@
 
 Apply this reference when replacing a module's exports, partially mocking one, or diagnosing a mock that does not take effect.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/mocking/modules>
 
 ## Hoisting
 

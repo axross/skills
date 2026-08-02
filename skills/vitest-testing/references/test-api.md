@@ -2,7 +2,7 @@
 
 Apply this reference when declaring tests and suites, parametrizing them, or choosing a hook.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/api/>
 
 ## Signatures and the Argument That Moved
 
@@ -21,9 +21,7 @@ test("retries a failed upload", { retry: 2, timeout: 10_000 }, async () => {});
 
 ## Modifiers
 
-`skip`, `skipIf`, `runIf`, `only`, `todo`, `fails`, and `concurrent` apply to both tests and suites. `sequential` is deprecated in favour of `concurrent: false`.
-
-`fails` asserts that the body throws — useful for pinning a known-broken behavior, and misleading if left behind after the fix.
+The modifier set is in the linked reference and applies to both tests and suites. Two carry a catch: `sequential` is deprecated in favour of `concurrent: false`, and `fails` inverts the result — it passes when the body throws, so one left behind after a fix turns a working test into a failing one.
 
 **Guidelines:**
 
@@ -46,12 +44,12 @@ That context is what concurrent snapshots require, so `for` is the right form wh
 
 `retry` re-runs a failing test; `repeats` runs a passing one again; `tags` attaches filterable labels; `meta` attaches data for reporters.
 
-`retry` deserves suspicion. It converts a flaky test into a passing one without addressing the flake, and the report shows green. It is legitimate for genuinely non-deterministic external conditions and a poor substitute for finding a race.
+`retry` takes a count, a delay, and an optional error predicate, so it can be narrowed to the failure it is meant to absorb rather than applied to every error the test can produce.
 
 **Guidelines:**
 
-- MUST NOT add `retry` to stabilize a test whose flakiness has not been diagnosed.
-- SHOULD record why a `retry` exists, in the same way a non-default timeout carries its reason.
+- SHOULD scope a `retry` with its error predicate so it absorbs only the non-deterministic failure it was added for, rather than masking every failure mode of the test.
+- SHOULD consult the tool-agnostic unit-testing capability on whether a retried test should exist at all; this reference owns the option, not the decision.
 
 ## Hooks
 

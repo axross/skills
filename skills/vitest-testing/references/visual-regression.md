@@ -2,7 +2,7 @@
 
 Apply this reference when comparing rendered appearance across runs, or deciding whether to adopt screenshot testing at all.
 
-Verified against Vitest 4.1.10; ARIA snapshots require 4.1.4+. Requires Browser Mode.
+Verified against Vitest 4.1.10; ARIA snapshots require 4.1.4+. Requires Browser Mode — <https://vitest.dev/guide/browser/visual-regression-testing>
 
 ## Capturing and Storing
 
@@ -38,14 +38,14 @@ Vitest also runs stable-screenshot detection: it captures, re-captures, compares
 
 ## Why Local Never Matches CI
 
-Font rendering, GPU drivers, browser build, and headless-versus-headed all shift pixels. A developer's screenshot and CI's will differ on an unchanged page — this is expected, not a misconfiguration.
+Font rendering, GPU drivers, browser build, and headless-versus-headed all shift pixels, so a developer's screenshot and CI's differ on an unchanged page. The platform suffix in the reference filename keeps the two from overwriting each other; it does not make them agree.
 
-The only real fix is making the capture environment identical: a container, or a cloud browser service. Tuning thresholds until both pass instead widens the tolerance until the test stops detecting anything.
+The fix is to make the capture environment identical — a container, or a cloud browser service — so one set of references serves both.
 
 **Guidelines:**
 
 - MUST generate reference screenshots in the same environment CI uses — a container or a cloud service — not on a developer machine.
-- MUST NOT widen tolerance to reconcile two environments; fix the environment.
+- MUST NOT widen `threshold` or `allowedMismatchedPixelRatio` to reconcile two environments; the tolerance that absorbs a font-rendering difference also absorbs a real regression.
 - SHOULD await `document.fonts.ready` before capturing, so a font swap does not race the screenshot.
 
 ## Operating It
@@ -68,12 +68,4 @@ For most component work it answers the real question at a fraction of the cost.
 **Guidelines:**
 
 - SHOULD prefer an ARIA snapshot over a screenshot when the regression being guarded against is structural rather than visual.
-
-## The Honest Cost
-
-This is the most expensive and most flakiness-prone thing in a suite: binaries in CI, binary files in history, and an ongoing baseline-maintenance burden.
-
-**Guidelines:**
-
-- MUST be able to state which regression class visual testing guards against before adopting it; "catching visual bugs" is not a specific enough answer to justify the cost.
-- SHOULD scope it to the few surfaces where appearance is the product, rather than applying it broadly.
+- SHOULD weigh the standing costs this carries — a browser binary in CI, binary references in history, and manual baseline maintenance — against the alternative before adopting it broadly.

@@ -2,7 +2,7 @@
 
 Apply this reference before writing or reviewing any Vitest configuration, and whenever an option appears to have no effect.
 
-Verified against Vitest 4.1.10, which requires Node >= 20 and Vite >= 6. Vitest 4.1 consumes the project's installed Vite rather than bundling its own, and supports Vite 8.
+Verified against Vitest 4.1.10, which requires Node >= 20 and Vite >= 6. Vitest 4.1 consumes the project's installed Vite rather than bundling its own, and supports Vite 8 — <https://vitest.dev/guide/migration>
 
 ## Renamed Options Fail Silently
 

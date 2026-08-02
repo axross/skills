@@ -2,7 +2,7 @@
 
 Apply this reference when a test needs a real browser — component rendering, CSS layout, genuine event dispatch — rather than a DOM shim.
 
-Verified against Vitest 4.1.10, where Browser Mode is stable.
+Verified against Vitest 4.1.10, where Browser Mode is stable — <https://vitest.dev/guide/browser/>
 
 ## What It Buys
 

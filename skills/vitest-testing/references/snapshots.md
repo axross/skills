@@ -2,7 +2,7 @@
 
 Apply this reference when choosing a snapshot form, updating one, or reviewing a snapshot change.
 
-Verified against Vitest 4.1.10; custom snapshot matchers require 4.1.3+, custom domains and ARIA snapshots 4.1.4+.
+Verified against Vitest 4.1.10; custom snapshot matchers require 4.1.3+, custom domains and ARIA snapshots 4.1.4+ — <https://vitest.dev/guide/snapshot>
 
 ## Choosing a Form
 
@@ -55,12 +55,4 @@ The second is the one people do not expect, and it is doing real work: it catche
 
 - MUST commit a new snapshot with the test that produces it; CI cannot create it.
 - MUST delete obsolete snapshots as part of the change that orphaned them, rather than leaving CI to report them.
-
-## The Discipline No Tool Enforces
-
-A snapshot assertion is a deferred code review: it asserts that output matches what someone approved. If nobody read the approved value, it asserts nothing at all — and a large snapshot updated wholesale after a refactor is the usual way that happens.
-
-**Guidelines:**
-
-- MUST review the content of a snapshot before approving it, and keep snapshots small enough that this is realistic.
-- MUST NOT update a large snapshot in bulk to make a suite green without accounting for what changed within it.
+- SHOULD consult the tool-agnostic unit-testing capability for whether a snapshot is the right assertion and how large one may reasonably get; this reference owns the four forms and their mechanics.

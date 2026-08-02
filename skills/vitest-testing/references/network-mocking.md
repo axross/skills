@@ -2,7 +2,7 @@
 
 Apply this reference when code under test makes an HTTP, GraphQL, or WebSocket request.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/mocking/requests>
 
 ## Intercept, Do Not Stub
 

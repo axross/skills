@@ -2,7 +2,7 @@
 
 Apply this reference when a test needs per-test setup, when setup is duplicated across files, or when a fixture must outlive a single test.
 
-Verified against Vitest 4.1.10; the builder form and `test.override` require 4.1.0+.
+Verified against Vitest 4.1.10; the builder form and `test.override` require 4.1.0+ — <https://vitest.dev/guide/test-context>
 
 ## The Built-In Context
 

@@ -2,7 +2,7 @@
 
 Apply this reference when enabling coverage, setting a threshold, excluding code from a report, or explaining a percentage that looks wrong.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/coverage>
 
 ## The Providers Are Separate Packages
 
@@ -28,16 +28,16 @@ Vitest 4 removed `coverage.all` and `coverage.extensions`, which is how v3 opted
 - MUST set `coverage.include` to the project's source globs; without it the percentage describes only what was already imported.
 - SHOULD exclude generated files, type-only modules, and config from the report rather than tolerating them as permanent zeros.
 
-## Thresholds Are a Ratchet
+## Thresholds
 
-`thresholds` accepts global values, per-glob values, `100`, and `autoUpdate`. The useful posture is a floor that only ever rises: set it at or just below the current number so a change cannot lower coverage, and raise it when work legitimately does.
+`thresholds` accepts global values, per-glob values keyed by pattern, `100` as shorthand for full coverage on all four metrics, and `autoUpdate`.
 
-A threshold set aspirationally above the current number fails every build until someone lowers it, which teaches the team that the threshold is noise.
+`autoUpdate` is the one with a trap: it rewrites the configured numbers in place after a run, so a drop is recorded rather than rejected — the gate stops gating and the config keeps looking like one.
 
 **Guidelines:**
 
-- MUST set a threshold at or below current coverage so it gates regressions rather than blocking every build.
-- SHOULD raise the threshold in the change that improves coverage, rather than as a separate aspirational edit.
+- MUST NOT enable `autoUpdate` on a threshold intended to gate; it rewrites the number instead of failing the run.
+- SHOULD treat threshold values and file exclusions as deliberate project decisions rather than knobs to loosen when a run fails — the tool-agnostic unit-testing capability owns that judgment.
 
 ## Ignore Hints Need `@preserve`
 
@@ -67,12 +67,4 @@ Reporters render the collected data; `coverage.htmlDir` places the HTML output; 
 
 - SHOULD add a machine-readable reporter alongside the text one when CI ingests coverage.
 - SHOULD reach for `DEBUG=vitest:coverage` before assuming coverage is inherently slow.
-
-## What Coverage Measures
-
-Coverage records that a line executed. It says nothing about whether anything was asserted about it — a test calling a function and asserting nothing produces the same coverage as one that checks every branch.
-
-**Guidelines:**
-
-- MUST treat coverage as a floor that catches untested code, never as evidence that tested code is verified.
-- MUST NOT report a coverage percentage as verification evidence for a change; name the assertions instead.
+- SHOULD consult a capability owning verification evidence for what a coverage number does and does not establish about a change; this reference owns collecting it, not interpreting it.

@@ -2,7 +2,7 @@
 
 Apply this reference when creating a mock function, observing an existing method, or reasoning about what a reset actually clears.
 
-Verified against Vitest 4.1.10; `mockThrow` and `vi.defineHelper` require 4.1.0+.
+Verified against Vitest 4.1.10; `mockThrow` and `vi.defineHelper` require 4.1.0+ — <https://vitest.dev/api/mock>
 
 ## Create a Boundary or Observe One
 
@@ -17,20 +17,14 @@ The constraint that catches people: **a spy only sees calls made after it is ins
 
 ## Setting Behavior
 
-| Call                                            | Effect                                 |
-| ----------------------------------------------- | -------------------------------------- |
-| `mockReturnValue` / `mockReturnValueOnce`       | a fixed return                         |
-| `mockResolvedValue` / `mockResolvedValueOnce`   | a resolved promise                     |
-| `mockRejectedValue` / `mockRejectedValueOnce`   | a rejected promise                     |
-| `mockImplementation` / `mockImplementationOnce` | a full body                            |
-| `mockThrow` / `mockThrowOnce`                   | throws, without wrapping in a function |
-| `withImplementation`                            | a temporary body for one callback      |
-| `mockReturnThis`                                | returns the `this` context             |
+A mock takes its behavior from the setter family in the linked reference — `mockReturnValue`, `mockResolvedValue`, `mockRejectedValue`, `mockImplementation`, and `mockThrow` (4.1.0+), each with a `Once` twin, plus `withImplementation` and `mockReturnThis`.
+
+Two things about that family are not obvious from the list. The `Once` twins **queue**: successive calls consume them in order and then fall back to the non-`Once` behavior, which is what expresses "fails twice, then succeeds" in one place instead of reassigning between assertions. And `mockThrow` exists because `mockImplementation(() => { throw e })` is the only other way to make a mock throw, which reads as a body when it is a value.
 
 **Guidelines:**
 
-- SHOULD prefer the specific setter over `mockImplementation` where one exists; it states intent in the call name.
-- MUST use the `Once` variants for a sequence rather than reassigning between calls, so the sequence is visible in one place.
+- MUST use the `Once` variants for a call sequence rather than reassigning the implementation between calls, so the sequence is visible at one site.
+- SHOULD prefer the specific setter over `mockImplementation` where one exists; the call name states the intent that a body only implies.
 
 ## The Three Resets, Precisely
 

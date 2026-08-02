@@ -2,7 +2,7 @@
 
 Apply this reference when creating a Vitest config, adding an option to one, or reviewing a config someone else wrote.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/config/>
 
 ## Where the Config Lives
 
@@ -56,15 +56,14 @@ Setting `globals: true` injects them instead, and then requires `vitest/globals`
 
 ## Timeouts
 
-`testTimeout` defaults to 5,000 ms; `hookTimeout` and `teardownTimeout` cover hooks and teardown. A raised timeout is usually a symptom — real waiting that should be a fake clock, or a real network call that should be intercepted.
+`testTimeout` defaults to 5,000 ms; `hookTimeout` and `teardownTimeout` cover hooks and teardown separately, so a slow global fixture does not need the per-test budget raised to accommodate it.
 
-When a raised value is genuinely correct, the reason belongs beside it. This repository's own config is the pattern: `testTimeout: 30_000` with a comment stating that each case spawns a child process, so the cost is process startup rather than computation.
+`vi.setConfig({ testTimeout })` overrides the value for one file at runtime, and the per-test option overrides it for one case — three scopes, narrowest winning.
 
 **Guidelines:**
 
-- MUST state the reason in a comment beside any non-default timeout.
-- MUST NOT raise a timeout to make a flaky test pass; find what it is waiting on.
-- SHOULD prefer a per-test timeout over a suite-wide one when a single case is legitimately slow.
+- MUST raise the narrowest scope that covers the slow thing — the per-test option or `hookTimeout` — rather than the suite-wide `testTimeout`.
+- SHOULD state the reason in a comment beside any non-default timeout, so a later reader can tell a measured value from an inherited one.
 
 ## Other Options Worth Setting Deliberately
 

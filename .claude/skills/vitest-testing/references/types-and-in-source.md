@@ -2,7 +2,7 @@
 
 Apply this reference when asserting on types rather than values, or when colocating tests inside a source file.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/testing-types>
 
 ## Type Tests
 

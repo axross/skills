@@ -2,7 +2,7 @@
 
 Apply this reference when setting up a suite's guardrails, or when reviewing a Vitest change.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://github.com/vitest-dev/eslint-plugin-vitest>
 
 ## Lint Rules That Catch What Review Misses
 

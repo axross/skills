@@ -2,7 +2,7 @@
 
 Apply this reference when a built-in reporter, environment, or pool does not cover a need, or when driving the runner from a script.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/advanced/>
 
 ## Reporters
 
@@ -47,12 +47,4 @@ It is experimental, and it **adds startup cost to every worker** unless the run 
 
 - MUST treat the OpenTelemetry integration as experimental — record why it is enabled, and re-check it on each upgrade.
 - SHOULD enable it for a specific investigation rather than leaving it on, given the per-worker startup cost.
-
-## Deciding Whether to Extend at All
-
-Every extension point here is code the project owns, that Vitest can break at a major, and that a new contributor must learn before the suite makes sense.
-
-**Guidelines:**
-
-- MUST rule out the built-in answer explicitly before adopting an extension point, and record the reason alongside the code.
-- SHOULD re-check on each Vitest upgrade whether a built-in has since covered what the extension was written for.
+- SHOULD re-check on each Vitest upgrade whether a built-in now covers what an extension point here was adopted for; every one of them is an interface Vitest has already rewritten once at a major.

@@ -2,7 +2,7 @@
 
 Apply this reference when attaching a debugger, when a run will not exit, or when a run fails in a way the assertion output does not explain.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/debugging>
 
 ## Making a Breakpoint Work
 

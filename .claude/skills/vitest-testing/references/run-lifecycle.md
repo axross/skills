@@ -2,7 +2,7 @@
 
 Apply this reference when deciding where setup belongs, when state leaks between files, or when a value needs to reach tests from outside the worker.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/lifecycle>
 
 ## Phase Order
 

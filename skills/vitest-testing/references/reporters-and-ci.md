@@ -2,24 +2,16 @@
 
 Apply this reference when configuring output, wiring a suite into CI, or reducing what a run prints.
 
-Verified against Vitest 4.1.10; the `minimal` / `agent` reporter requires 4.1.0+.
+Verified against Vitest 4.1.10; the `minimal` / `agent` reporter requires 4.1.0+ — <https://vitest.dev/guide/reporters>
 
 ## The Built-In Set
 
-| Reporter                  | Output                                                     |
-| ------------------------- | ---------------------------------------------------------- |
-| `default`                 | summary with status; full tree on failure or a single file |
-| `tree`                    | hierarchical, after each suite completes                   |
-| `verbose`                 | every test individually, errors immediately (flat in v4)   |
-| `dot`                     | one character per test                                     |
-| `minimal` (alias `agent`) | failures and their errors only                             |
-| `json`                    | machine-readable, including coverage                       |
-| `junit`                   | XML for CI ingestion                                       |
-| `tap` / `tap-flat`        | TAP, nested or flat                                        |
-| `html`                    | browsable report; needs `@vitest/ui`                       |
-| `github-actions`          | inline annotations plus a job summary                      |
-| `blob`                    | intermediate results for `--merge-reports`                 |
-| `hanging-process`         | what is preventing exit; resource-intensive                |
+The full list is in the linked reference. Four carry behavior a reader would not guess from the name:
+
+- **`verbose`** prints a **flat** list in v4; `tree` is what produces the nested shape v3's `verbose` had.
+- **`minimal`** is aliased **`agent`**, and is the subject of the next section.
+- **`blob`** writes intermediate results rather than a report, and is meaningless without `--merge-reports`.
+- **`hanging-process`** is a diagnostic that costs real time on every run, not a reporter to leave configured.
 
 **Guidelines:**
 

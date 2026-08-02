@@ -2,7 +2,7 @@
 
 Apply this reference when a test involves time, a global the environment lacks, an environment variable, or the file system.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/api/vi>
 
 ## Installing and Restoring a Clock
 
@@ -24,9 +24,9 @@ afterEach(() => vi.useRealTimers());
 
 ## Advancing
 
-`advanceTimersByTime`, `advanceTimersToNextTimer`, `advanceTimersToNextFrame`, `runAllTimers`, `runOnlyPendingTimers`, `runAllTicks`, `getTimerCount`, and `clearAllTimers`.
+The advance and inspection calls — `advanceTimersByTime`, `advanceTimersToNextTimer`, `runAllTimers`, `runOnlyPendingTimers`, and the rest — are enumerated in the linked reference.
 
-Each has an `Async` variant, and the rule for choosing is precise: **if a timer's callback awaits anything, the synchronous form returns before that work completes.** The test then asserts against a state that has not been reached yet.
+The part that is not in the list is how to choose between a call and its `Async` twin, and it is precise: **if a timer's callback awaits anything, the synchronous form returns before that work completes.** The test then asserts against a state that has not been reached yet, and the failure looks like a bug in the code rather than in the advance.
 
 `setTimerTickMode` (`manual`, `nextTimerAsync`, `interval`) controls how time advances without explicit calls.
 

@@ -2,7 +2,7 @@
 
 Apply this reference when choosing an environment, when a test needs a DOM, or when an import fails only under a DOM shim.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/environment>
 
 ## Pick the Cheapest That Answers the Question
 

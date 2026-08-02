@@ -2,7 +2,7 @@
 
 Apply this reference before invoking Vitest at all — in a session, in a hook, or in CI. These rules cost nothing to follow and each prevents a specific, observed failure.
 
-Verified against Vitest 4.1.10.
+Verified against Vitest 4.1.10 — <https://vitest.dev/guide/learn/writing-tests-with-ai>
 
 ## The Watch-Mode Hang
 
