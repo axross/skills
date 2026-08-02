@@ -2,7 +2,7 @@
 
 Apply this reference when declaring tests and suites, parametrizing them, or choosing a hook.
 
-Verified against Vitest 4.1.10 — <https://vitest.dev/api/>
+Verified against Vitest 4.1.10 — <https://vitest.dev/api/test>, <https://vitest.dev/api/describe>, <https://vitest.dev/api/hooks>
 
 ## Signatures and the Argument That Moved
 

@@ -9,9 +9,9 @@
 // Ships with the agent-skill-authoring skill (see
 // ../references/cross-referencing.md) so link verification survives template
 // adaptation and stays runnable in any project that keeps the skill. It is
-// dependency-light (Node standard library only), and shares the CommonMark
-// fenced-block rule with check-skill.mjs through commonmark.mjs beside it —
-// one implementation, so the two can never disagree about what is example text.
+// dependency-light (Node standard library only), and reads what counts as prose
+// from commonmark.mjs beside it — the same module check-skill.mjs reads, so the
+// two can never disagree about what is example text.
 //
 // Usage:
 //   node check-links.mjs           # check the whole tree
@@ -22,7 +22,9 @@
 // `#anchor` links are ignored. Illustrative example links inside fenced code
 // blocks, inline code spans, and HTML comments are skipped so the
 // skill-authoring docs can show `[file.md](./references/file.md)` without
-// tripping the check.
+// tripping the check. Which text that leaves — and the order the three are
+// removed in, which decides whether a QUOTED comment opener gets believed — is
+// commonmark.mjs's `extractProse`, not this file's own.
 //
 // A path argument that does not exist is skipped rather than reported: the
 // check answers "do the links under these roots resolve", and a root that is
@@ -35,7 +37,7 @@
 
 import { readFile, readdir, stat } from "node:fs/promises";
 
-import { scanLines, unterminatedFenceLine } from "./commonmark.mjs";
+import { extractProse } from "./commonmark.mjs";
 
 const USAGE = `Usage: check-links.mjs [<path> ...]
 
@@ -75,38 +77,6 @@ function fail2(message) {
   process.exit(2);
 }
 
-/** A string of just the newlines in `text`, so a removed span keeps the line numbers after it intact. */
-function newlinesOf(text) {
-  return "\n".repeat((text.match(/\n/g) ?? []).length);
-}
-
-/**
- * Drop every HTML comment, replacing each span with its own newlines so later
- * lines keep their original numbers — which the unterminated-fence warning
- * reports. A dangling unclosed `<!--` is kept: it comments out the rest of the
- * document in a renderer, but treating it as a comment here would silently stop
- * checking at that point.
- *
- * @param {string} content
- * @returns {string}
- */
-function stripHtmlComments(content) {
-  let stripped = "";
-  let rest = content;
-
-  for (;;) {
-    const openAt = rest.indexOf("<!--");
-    if (openAt === -1) break;
-    const closeOffset = rest.slice(openAt + 4).indexOf("-->");
-    if (closeOffset === -1) break;
-
-    const spanLength = closeOffset + 7; // "<!--" + body + "-->"
-    stripped += rest.slice(0, openAt) + newlinesOf(rest.slice(openAt, openAt + spanLength));
-    rest = rest.slice(openAt + spanLength);
-  }
-  return stripped + rest;
-}
-
 /**
  * Split `target#fragment` at the fragment: the target is the prefix up to the
  * first `.md` that is followed by `#` or ends the parenthesised text. Scanning
@@ -133,21 +103,21 @@ function linkTarget(inside) {
  * Every candidate `.md` link target in a document, plus whether a fence was
  * left open at end of file.
  *
- * HTML comments, fenced code blocks, and inline code spans are removed first —
+ * Fenced code blocks, inline code spans, and HTML comments are blanked first —
  * all three carry illustrative links a reader is meant to see and a checker is
- * not meant to resolve.
+ * not meant to resolve. `extractProse` owns that pass and its ordering, and
+ * returns the fence state from the same walk, so the warning below always
+ * describes the scan the targets actually came from.
  *
  * @param {string} source raw file content
  * @returns {{ targets: string[], unterminatedFenceAt: number | null }}
  */
 function extractLinkTargets(source) {
-  const content = stripHtmlComments(source.replace(/\r/g, ""));
+  const { lines, unterminatedFenceAt } = extractProse(source);
   const targets = [];
 
-  for (const { text, fence } of scanLines(content)) {
-    if (fence) continue;
-
-    let line = text.replace(/`+[^`]+`+/g, "");
+  for (const { text } of lines) {
+    let line = text;
     for (;;) {
       const match = line.match(MD_LINK_RE);
       if (!match) break;
@@ -157,7 +127,7 @@ function extractLinkTargets(source) {
       if (!EXTERNAL_TARGET_RE.test(target)) targets.push(target);
     }
   }
-  return { targets, unterminatedFenceAt: unterminatedFenceLine(content) };
+  return { targets, unterminatedFenceAt };
 }
 
 /**

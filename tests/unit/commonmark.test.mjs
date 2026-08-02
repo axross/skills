@@ -1,6 +1,7 @@
-// The shared CommonMark fence rule, tested directly.
+// The shared rules for reading a Markdown document — which lines are inside a
+// fence, and which text is prose rather than an example — tested directly.
 //
-// commonmark.mjs is the one place the rule lives, so it is also the one place
+// commonmark.mjs is the one place both rules live, so it is also the one place
 // worth testing exhaustively. Everything here used to be reachable only by
 // spawning a CLI and inferring the parse from whether a link resolved — which
 // made the cheap cases expensive and the awkward ones (an unterminated fence's
@@ -14,6 +15,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   closesFence,
+  extractProse,
   FENCE_RE,
   scanLines,
   unterminatedFenceLine,
@@ -22,6 +24,9 @@ import {
 /** The text of every line the scanner reports as outside a fence. */
 const proseOf = (body) =>
   [...scanLines(body)].filter((line) => !line.fence).map((line) => line.text);
+
+/** Just the text of `extractProse`'s lines, one entry per source line. */
+const textOf = (body) => extractProse(body).lines.map((line) => line.text);
 
 describe("commonmark.mjs", () => {
   describe("FENCE_RE", () => {
@@ -139,6 +144,110 @@ describe("commonmark.mjs", () => {
       const opener = [...scanLines(body)].find((line) => line.fence);
 
       expect(unterminatedFenceLine(body)).toBe(opener.line);
+    });
+  });
+
+  describe("extractProse()", () => {
+    it("returns one entry per source line, numbered from 1", () => {
+      const { lines } = extractProse("a\nb\nc\n");
+
+      expect(lines).toEqual([
+        { line: 1, text: "a" },
+        { line: 2, text: "b" },
+        { line: 3, text: "c" },
+        { line: 4, text: "" },
+      ]);
+    });
+
+    it("blanks a fenced block's content AND its opening fence", () => {
+      expect(textOf("before\n```ts\nhidden\n```\nafter")).toEqual([
+        "before",
+        "",
+        "",
+        "",
+        "after",
+      ]);
+    });
+
+    it("blanks an inline code span but keeps the prose around it", () => {
+      expect(textOf("Write `[x](./y.md)` in prose.")).toEqual(["Write  in prose."]);
+    });
+
+    it("blanks an HTML comment", () => {
+      expect(textOf("<!-- parked -->after")).toEqual(["after"]);
+    });
+
+    it("keeps the lines after a multi-line comment at their own numbers", () => {
+      const { lines } = extractProse("<!--\nparked\n-->\nreal\n");
+
+      expect(lines).toEqual([
+        { line: 1, text: "" },
+        { line: 2, text: "" },
+        { line: 3, text: "" },
+        { line: 4, text: "real" },
+        { line: 5, text: "" },
+      ]);
+    });
+
+    // THE REGRESSION THIS EXPORT EXISTS FOR (#185). README.md documents the
+    // `count:` marker rule with the sentence "a line beginning with `<!--` is an
+    // HTML block in CommonMark" — a comment opener inside an inline code span.
+    // Stripping comments from the RAW source believes that opener and discards
+    // everything up to the next `-->`, which in README.md was 90 lines of real
+    // prose and three unchecked relative links. Blanking code spans FIRST is
+    // what makes an opener have to be real text to count.
+    it("does not let a quoted comment opener swallow the prose after it", () => {
+      const body = [
+        "A line beginning with `<!--` is an HTML block in CommonMark.",
+        "",
+        "See [a](./a.md).",
+        "",
+        "<!-- count:things -->three<!-- /count -->",
+        "",
+        "And [b](./b.md).",
+      ].join("\n");
+
+      expect(textOf(body)).toEqual([
+        "A line beginning with  is an HTML block in CommonMark.",
+        "",
+        "See [a](./a.md).",
+        "",
+        "three",
+        "",
+        "And [b](./b.md).",
+      ]);
+    });
+
+    it("does not let a comment opener inside a fence swallow the prose after it", () => {
+      const body = ["```markdown", "<!--", "```", "real", "-->", "still real"].join(
+        "\n",
+      );
+
+      expect(textOf(body)).toEqual(["", "", "", "real", "-->", "still real"]);
+    });
+
+    it("treats an unterminated comment opener as content rather than stopping", () => {
+      // A dangling `<!--` comments out the rest of a rendered document, but
+      // honouring it here would silently stop reading — the failure mode that
+      // looks like a clean result.
+      expect(textOf("<!-- dangling\nSee [x](./x.md).")).toEqual([
+        "<!-- dangling",
+        "See [x](./x.md).",
+      ]);
+    });
+
+    it("normalises carriage returns so no caller has to", () => {
+      expect(textOf("a\r\nb\r\n")).toEqual(["a", "b", ""]);
+    });
+
+    it("reports the open fence from the same walk as the lines", () => {
+      const body = "a\n```ts\nx\n";
+
+      expect(extractProse(body).unterminatedFenceAt).toBe(unterminatedFenceLine(body));
+    });
+
+    it("reports no open fence when every fence closes", () => {
+      expect(extractProse("a\n```\nx\n```\nb\n").unterminatedFenceAt).toBeNull();
     });
   });
 });

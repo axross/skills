@@ -66,6 +66,49 @@ describe("check-links.mjs", () => {
     expect(checkLinks(root)).toPassCleanly();
   });
 
+  // The mirror image of the three cases above: text that only LOOKS like it
+  // opens a comment must not hide the real links after it. commonmark.mjs's
+  // extractProse owns the ordering that decides this; these two drive the CLI,
+  // because a correct module and a caller reading it correctly are different
+  // claims.
+  describe("a comment opener that never really opens a comment", () => {
+    it("checks the links after a comment opener that is only being quoted", async () => {
+      // README.md documents the `count:` marker rule with this exact sentence.
+      // Read raw, that opener swallowed everything up to the next `-->` — 90
+      // lines of prose and three relative links the gate silently stopped
+      // watching, while still reporting clean.
+      const root = await tempDir();
+      await writeFileIn(
+        root,
+        "source.md",
+        [
+          "A line beginning with `<!--` is an HTML block in CommonMark.",
+          "",
+          "See [gone](./missing.md).",
+          "",
+          "<!-- count:things -->three<!-- /count -->",
+          "",
+        ].join("\n"),
+      );
+
+      expect(checkLinks(root)).toReportFailure(/source\.md -> \.\/missing\.md/);
+    });
+
+    it("keeps checking after a dangling opener that closes nowhere", async () => {
+      // A dangling `<!--` comments out the rest of a rendered document, but
+      // honouring it here would silently stop checking — the failure mode that
+      // looks like a clean result.
+      const root = await tempDir();
+      await writeFileIn(
+        root,
+        "source.md",
+        "<!-- dangling\n\nSee [gone](./missing.md).\n",
+      );
+
+      expect(checkLinks(root)).toReportFailure(/source\.md -> \.\/missing\.md/);
+    });
+  });
+
   it("ignores absolute http(s) and mailto targets", async () => {
     const root = await tempDir();
     await writeFileIn(

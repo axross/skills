@@ -192,7 +192,7 @@ See [typescript.md](./references/typescript.md) for:
 
 See [testing.md](./references/testing.md) for:
 
-- giving each test its own client, and the settings a test client needs
+- giving each test its own client, and the `retry: false` that keeps an error path from timing out
 - what to mock, and the layer that must never be mocked
 - asserting on an asynchronous result, and covering each state branch
 - testing an option factory on its own
@@ -203,7 +203,7 @@ See [testing.md](./references/testing.md) for:
 See [tooling-and-versions.md](./references/tooling-and-versions.md) for:
 
 - the eight lint rules, each as a rule a reader can follow without the linter
-- when installing the plugin is worth it and when the rules stay review checks
+- when `@tanstack/eslint-plugin-query` is worth installing, and why `mutation-property-order` stays a review check
 - inspecting the cache while diagnosing, on web and elsewhere
 - what changed on the way to v5, for a codebase arriving from v4
 - reading documentation at the version actually installed
