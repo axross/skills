@@ -297,6 +297,26 @@
       "rationale": "\"extract a hook\" and \"useEffect\" are literal triggers in react-component-development's when_to_use, and react-component-styling's own text hands logic back to it. This is also the first case to require the component skill at all — it was labelled only as mayInclude before, so no case could report it missing."
     },
     {
+      "id": "vitest-v4-dead-config",
+      "prompt": "Our vitest.config.ts still sets poolOptions and singleThread from before the upgrade — why do they do nothing now?",
+      "mustInclude": ["vitest-testing"],
+      "mustExclude": ["end-to-end-testing"],
+      "rationale": "A pure runner-configuration question about option names Vitest 4 silently ignores rather than rejecting. vitest-testing claims version discipline and the config surface outright; end-to-end-testing owns journeys, locators and server lifecycle, so a runner config key is not its concern."
+    },
+    {
+      "id": "boundary-what-to-assert",
+      "prompt": "I have a function that parses a date range. What should this test actually assert?",
+      "mustInclude": ["unit-testing"],
+      "mustExclude": ["vitest-testing"],
+      "rationale": "A runner-neutral question about assertion design, naming no tool. unit-testing owns what to assert; vitest-testing disclaims exactly this in its own description and defers it, so vitest-testing surfacing here would be the boundary failing in the direction that matters most."
+    },
+    {
+      "id": "boundary-vitest-browser-flake",
+      "prompt": "Our Vitest browser-mode screenshot tests pass locally and fail in CI. Sort out the flakiness.",
+      "mustInclude": ["vitest-testing", "end-to-end-testing"],
+      "rationale": "Both are legitimately correct. Screenshot tolerance, masking and environment parity are vitest-testing's visual-regression coverage; diagnosing a flaky browser-driven run is a stated end-to-end-testing trigger. This case measures healthy contention rather than picking a winner."
+    },
+    {
       "id": "zod-default-vs-prefault",
       "prompt": "Should this trimmed-and-uppercased Zod string schema use .default() or .prefault()?",
       "mustInclude": ["zod-schema"],

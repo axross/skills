@@ -13,6 +13,9 @@
     "boundary-spec-and-prose",
     "gho-issue-body-edit",
     "rcd-extract-hook",
+    "vitest-v4-dead-config",
+    "boundary-what-to-assert",
+    "boundary-vitest-browser-flake",
     "zod-default-vs-prefault",
     "zod-boundary-fetch-cast",
     "zod-coerce-empty-number"

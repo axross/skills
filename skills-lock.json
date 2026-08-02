@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "6dc79a3924021bc74fcfe874cace94ff344a8bb0a3fdb2b391c4cd2c1d7d43b7"
+      "computedHash": "aa7401fd781dea5303868f68945c5ff61e71b0df661b7d2b5c43c4c876dcdbea"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
@@ -44,7 +44,7 @@
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "709155dbf9803d2b56ea99c15f7160a95b7f15929ec6c1b3de99c36e4b5679be"
+      "computedHash": "e524b0efcad7748c914bd941de6ce06f1ae3e01b53a72af2903e33d034b765e9"
     },
     "expo-app-development": {
       "source": "/home/user/skills/skills",
@@ -124,7 +124,12 @@
     "unit-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "7282054b611e2cc0ece9181274cfdc5590bb87f75a36e91ee679c71393af5af3"
+      "computedHash": "cb526390d838185ae35896b9e0575b0c5d815a746696f67a9eb1f7f48363b193"
+    },
+    "vitest-testing": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "d103da183c69d6824b6435848e74ada90e190036fc78e79872541a3ddc4cdbed"
     },
     "wireframe-design": {
       "source": "/home/user/skills/skills",
