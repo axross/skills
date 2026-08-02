@@ -39,7 +39,7 @@ Costing nothing at runtime is not the same as being available, and these are bui
 **Guidelines:**
 
 - MUST strip debug and logging statements from production builds wherever the bundler actually building the application provides the option; they exist for development and ship otherwise.
-- MUST establish which bundler actually builds the application before counting one of these options as applied — on Next.js, per the rules in [nextjs.md](./nextjs.md) — and where no plugin covers that build, look up a framework-level route rather than treating the rule as met.
+- MUST confirm the SDK ships a plugin covering the build before counting one of these options as applied, and look up a framework-level route where it ships none — for Next.js, per the rules in [nextjs.md](./nextjs.md).
 - SHOULD exclude tracing code from the bundle only where the application genuinely does not trace, since re-enabling it later is easy to forget.
 - SHOULD measure the SDK's contribution before optimizing it, rather than assuming which option matters.
 
