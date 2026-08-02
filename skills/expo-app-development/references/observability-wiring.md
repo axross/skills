@@ -58,8 +58,9 @@ The tracker's own ingest key is a different thing — designed to be public, shi
 **Guidelines:**
 
 - MUST supply the upload token through the build pipeline's secret storage, never through a prefixed environment variable.
-- MUST NOT commit an upload token, including in an example environment file.
 - SHOULD confirm from the tracker's documentation which of its keys are public before prefixing one.
+
+Whether a secret of any kind may enter the repository, and what an example environment file may carry in its place, is **owned by an application-security capability** under its secret-handling topic. It states that for every secret a project holds, not only this one.
 
 ## Development Gating
 

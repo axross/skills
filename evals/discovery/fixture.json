@@ -315,6 +315,27 @@
       "prompt": "Our Vitest browser-mode screenshot tests pass locally and fail in CI. Sort out the flakiness.",
       "mustInclude": ["vitest-testing", "end-to-end-testing"],
       "rationale": "Both are legitimately correct. Screenshot tolerance, masking and environment parity are vitest-testing's visual-regression coverage; diagnosing a flaky browser-driven run is a stated end-to-end-testing trigger. This case measures healthy contention rather than picking a winner."
+    },
+    {
+      "id": "zod-default-vs-prefault",
+      "prompt": "Should this trimmed-and-uppercased Zod string schema use .default() or .prefault()?",
+      "mustInclude": ["zod-schema"],
+      "mustExclude": ["application-security"],
+      "rationale": "A pure library-semantics question: .default() short-circuits and .prefault() parses, which zod-schema names in as many words. There is no untrusted-input dimension at all, and application-security owns whether an input must be validated rather than which Zod construct expresses a fallback — so a selection here would mean its triggers reach every schema-shaped prompt."
+    },
+    {
+      "id": "zod-boundary-fetch-cast",
+      "prompt": "This fetch response is cast straight to our BlogPost type. Should it be parsed instead, and where does the parse belong?",
+      "mustInclude": ["zod-schema"],
+      "mayInclude": ["application-security"],
+      "rationale": "Deliberately contested, and the mirror of the case above. Where the parse belongs and why the type is derived from the schema are zod-schema's; whether a response is untrusted enough to need checking at all is application-security's. Either or both is defensible, so only zod-schema's absence is a finding."
+    },
+    {
+      "id": "zod-coerce-empty-number",
+      "prompt": "Our numeric field passes its min(0) check even when the user leaves it blank — we validate it with z.coerce.number().",
+      "mustInclude": ["zod-schema"],
+      "mayInclude": ["react-component-development"],
+      "rationale": "A symptom-shaped prompt that never says Zod is the subject: the cause is that JavaScript's Number(\"\") is 0, which zod-schema states concretely. react-component-development is the nearest neighbour that could fire on the form-field phrasing and owns a component's composition and state rather than what a validator does to a value, so its appearance is neither required nor wrong."
     }
   ]
 }
