@@ -85,4 +85,4 @@ A module that is externalized as a dependency is not transformed, so mocking it 
 
 - MUST re-import a module dynamically after `vi.doMock`; the already-imported binding is unaffected.
 - MUST add a dependency to `server.deps.inline` when `vi.mock` against it has no effect.
-- SHOULD mock only what is slow, non-deterministic, or has uncontrollable side effects, and never the module under test — the tool-agnostic unit-testing capability owns that judgment.
+- SHOULD consult the tool-agnostic unit-testing capability for which dependency is worth mocking; this reference owns `vi.mock`'s mechanics once that choice is made.

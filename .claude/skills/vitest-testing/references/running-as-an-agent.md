@@ -6,11 +6,13 @@ Verified against Vitest 4.1.10 — <https://vitest.dev/guide/learn/writing-tests
 
 ## The Watch-Mode Hang
 
-`vitest` with no subcommand starts **watch mode** in an interactive terminal and never exits. An agent that runs it waits for a process that has already finished its work and is sitting at a prompt, and the session is spent waiting on nothing.
+`vitest` with no subcommand may start **watch mode**, which never exits. An agent that runs it waits on a process that has already finished its work and is sitting at a prompt, and the session is spent waiting on nothing.
 
-Vitest's own documentation states this rule directly: when telling an agent to run tests, always use `vitest run` or `vitest --no-watch`. Watch mode does fall back to run mode when Vitest detects CI or a non-interactive terminal, but that detection is not something to rely on — a session with a TTY looks interactive, and the fallback does not fire.
+The default is not simply "watch unless CI". In 4.1.10 it resolves from three conditions — `watch: !isCI && process.stdin.isTTY && !isAgent` — where `isAgent` is the same `std-env` AI-agent detection the reporter uses below. A recognized agent therefore gets run mode even in a TTY, which upstream added deliberately to close that gap.
 
-The project's own script is the usual source of the problem. A `"test"` script defined as `vitest` or `vitest --watch` hands the hang to anyone who runs `npm test`, and the script name gives no warning.
+That detection is a fingerprint, not a guarantee: `std-env` recognizes a fixed set of harnesses, so an unrecognized one in a TTY still falls through to watch mode. Passing `run` removes the dependency on being recognized at all, which is why Vitest's own documentation states it as the rule rather than as a fallback.
+
+The project's own script is the usual source of the problem. A `"test"` script defined as `vitest` or `vitest --watch` hands the hang to anyone who runs `npm test`, and an explicit `--watch` overrides the detection above entirely.
 
 **Guidelines:**
 

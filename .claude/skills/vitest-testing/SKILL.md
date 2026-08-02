@@ -9,7 +9,7 @@ user-invocable: false
 
 This skill equips you to configure, run, debug, and review a Vitest suite: the runner's own surface — its config file, its `vi` API, its pools and reporters, its coverage providers, and its Browser Mode — plus the operational rules an agent needs to drive it without hanging a session or burning a context window.
 
-It is the **runner-specific layer**. A tool-agnostic unit-testing capability owns what to assert, how to name a spec, what makes a fixture good, and whether a behavior deserves a unit test at all; those questions have the same answers whatever runner executes them. This skill owns the mechanism underneath: which option, which file, which `vi` call, which flag. Where a rule here touches judgment — mock only what is slow or non-deterministic, how much of a payload to pin, whether a snapshot earns its place — it names the tool-agnostic owner rather than re-deciding it.
+It is the **runner-specific layer**. A tool-agnostic unit-testing capability owns what to assert, how to name a spec, what makes a fixture good, and whether a behavior deserves a unit test at all; those questions have the same answers whatever runner executes them. This skill owns the mechanism underneath: which option, which file, which `vi` call, which flag. Where a rule here touches judgment — which dependency is worth mocking, how much of a payload to pin, whether a snapshot earns its place — it points at the tool-agnostic owner rather than answering it.
 
 Two neighbours are disclaimed explicitly. An end-to-end capability owns user journeys, the locator fallback hierarchy, server lifecycle, and scenario coverage **even when the runner underneath is Vitest**; this skill owns the runner configuration that suite runs on. A component-development capability owns test-hook conventions such as `data-testid` and `testID`; this skill owns the Browser Mode machinery that queries them. A project on a different runner should reach for that runner's own capability, not this one.
 
@@ -258,7 +258,7 @@ See [suite-hygiene.md](./references/suite-hygiene.md) for:
 - `allowOnly` and obsolete-snapshot failures as the two guards against an abandoned edit
 - `restoreMocks`/`unstubEnvs`/`unstubGlobals` moving hygiene out of every author's memory
 - `--detect-async-leaks` for a handle that outlives the test that opened it
-- the review questions specific to this runner, including a config key that no longer exists
+- whether CI invokes `vitest run` rather than a form that can enter watch mode, and whether a changed config key still exists in the installed version
 
 ## Extending Vitest
 

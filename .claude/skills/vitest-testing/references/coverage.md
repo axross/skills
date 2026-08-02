@@ -37,7 +37,7 @@ Vitest 4 removed `coverage.all` and `coverage.extensions`, which is how v3 opted
 **Guidelines:**
 
 - MUST NOT enable `autoUpdate` on a threshold intended to gate; it rewrites the number instead of failing the run.
-- SHOULD treat threshold values and file exclusions as deliberate project decisions rather than knobs to loosen when a run fails — the tool-agnostic unit-testing capability owns that judgment.
+- SHOULD consult the tool-agnostic unit-testing capability for whether a coverage threshold or exclusion is deliberate; this reference owns the config that enforces it.
 
 ## Ignore Hints Need `@preserve`
 
