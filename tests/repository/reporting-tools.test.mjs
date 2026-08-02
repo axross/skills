@@ -1,8 +1,8 @@
 // Reporting tools must stay out of the enforced-gate set.
 //
-// Two scripts here report instead of judging, for two different reasons, and
-// both are one careless wiring away from becoming a gate that can never fail —
-// which is worse than no gate at all: it occupies the slot, costs CI time, and
+// Three scripts here report instead of judging, for three different reasons,
+// and each is one careless wiring away from becoming a gate that can never fail
+// — which is worse than no gate at all: it occupies the slot, costs CI time, and
 // reads to everyone downstream as though something were being enforced.
 //
 // scripts/report-obligation-load.mjs reports a number with NO threshold: it
@@ -10,6 +10,13 @@
 // evidence for any particular limit in this corpus, and an indefensible
 // threshold becomes either a rule people route around or a warning people stop
 // reading.
+//
+// scripts/report-skill-duplication.mjs ranks rules stated in more than one
+// skill. Its reason is the strongest of the three: the defect is not decidable
+// from the text at all. The Portable Source Exception lets a self-contained
+// distributable skill restate a rule another skill owns, and every skill here is
+// distributable — so a gate on similarity would fail correct prose. Only intent
+// separates the cases, and intent is not in the corpus.
 //
 // scripts/discovery-eval/run.mjs reports which skills a prompt surfaced. It
 // cannot gate for three independent reasons: it is non-deterministic, it costs
@@ -45,6 +52,12 @@ const REPORTING_TOOLS = [
     script: SCRIPTS.reportObligationLoad,
     // A distinctive basename, so this catches `node ./scripts/report-…` too.
     needle: "report-obligation-load.mjs",
+    workflow: null,
+    runnable: true,
+  },
+  {
+    script: SCRIPTS.reportSkillDuplication,
+    needle: "report-skill-duplication.mjs",
     workflow: null,
     runnable: true,
   },

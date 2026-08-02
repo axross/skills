@@ -423,6 +423,13 @@ export const CLAIMS = {
     derive: async () => (await countDocumentedValidators()) + 2,
   },
 
+  "third-reporting-tool-ordinal": {
+    owner:
+      "three past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
+    note: 'the code fence above states those two figures as "three gates" and "Six more" — comments a reader copies, so they carry no marker and move by hand',
+    derive: async () => (await countDocumentedValidators()) + 3,
+  },
+
   "repository-gotchas": {
     owner: 'the bold lead-in paragraphs of README.md\'s "Repository gotchas"',
     note: "add or remove a gotcha and this sentence counts them",

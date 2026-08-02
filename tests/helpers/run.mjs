@@ -43,6 +43,7 @@ export const SCRIPTS = {
   checkJestUsage: "skills/jest-testing/scripts/check-jest-usage.mjs",
   checkInstalledCopies: "scripts/check-installed-copies.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
+  reportSkillDuplication: "scripts/report-skill-duplication.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
   extractBaseline: "scripts/discovery-eval/extract-baseline.mjs",
 };
