@@ -2,7 +2,7 @@
 
 Apply this reference when events are not arriving, when an ad blocker or a content security policy sits between the app and Amplitude, or when deciding what "this instrumentation works" should mean before a change ships. Verification is the step every inspected repository skipped: none of the three has a single test, assertion, or documented manual check covering its analytics.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's HTTP V2 API documentation](https://amplitude.com/docs/apis/analytics/http-v2) on **2026-08-02**.
 
 ## Why Events Go Missing
 

@@ -2,7 +2,7 @@
 
 Apply this reference when wiring Amplitude into a web application — choosing between the script loader and npm, handling cookies and domains, or getting attribution and page views right in a single-page application.
 
-Verified against Amplitude's Browser SDK 2 documentation on **2026-07-29**.
+Verified against [Amplitude's Browser SDK 2 documentation](https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2) on **2026-08-02**.
 
 ## Script Loader Versus npm
 
@@ -36,13 +36,9 @@ result.message; // response message
 
 ## Cookies and Domains
 
-Amplitude writes a small set of cookies, roughly **240 bytes** per project API key:
+Amplitude writes a small set of cookies — an identity cookie named `AMP_` plus the first ten characters of the API key, a marketing cookie prefixed `AMP_MKTG_`, and temporary `AMP_TEST_`/`AMP_TLDTEST_` capability probes that remove themselves. What each holds is in [Amplitude's cookies and consent-management documentation](https://amplitude.com/docs/sdks/analytics/browser/cookies-and-consent-management).
 
-| Cookie                            | Holds                                                                      |
-| --------------------------------- | -------------------------------------------------------------------------- |
-| `AMP_[first 10 chars of API key]` | `deviceId`, `userId` (Base64), `sessionId`, `lastEventTime`, `lastEventId` |
-| `AMP_MKTG_[first 10 chars]`       | UTM parameters, referrer, advertising click ids                            |
-| `AMP_TEST_…`, `AMP_TLDTEST_…`     | Temporary capability probes, removed automatically                         |
+Two facts that page does not lead with, and that a consent banner has to account for: the whole set is roughly **240 bytes** per project API key, and the identity cookie carries the `userId` Base64-encoded rather than hashed — so it is readable by anything that can read the cookie.
 
 `identityStorage` selects where identity lives: `cookie` (the default), `localStorage` (scoped per subdomain), or `none`.
 

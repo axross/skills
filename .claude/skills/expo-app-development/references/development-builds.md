@@ -4,7 +4,7 @@ Apply this reference when setting up a local development loop, deciding whether 
 
 ## Which Changes Need a Native Build
 
-The most common time sink in Expo development is reloading after a change that required a rebuild, and concluding the change did not work. The line is whether the change affects **native** content.
+The most common time sink in Expo development is reloading after a change that required a rebuild, and concluding the change did not work. The line is whether the change affects **native** content — a distinction [Expo's development-builds documentation](https://docs.expo.dev/develop/development-builds/introduction/) explains but does not reduce to a lookup:
 
 | Change                                                         | Needs          |
 | -------------------------------------------------------------- | -------------- |

@@ -2,16 +2,11 @@
 
 Apply this reference when an application reads a feature flag or an experiment variant from Amplitude, or when experiment data appears in the analytics project and someone needs to know where it came from. This file covers the **interface** — the events, the user property, the evaluation modes, and the cost treatment. Designing an experiment, sizing it, and reading its results are a different discipline and belong to an experimentation capability, not here.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude Experiment's documentation](https://amplitude.com/docs/feature-experiment) on **2026-08-02**.
 
 ## The Two Events
 
-Amplitude Experiment emits two events with exact bracketed names:
-
-| Event                     | Meaning                                      |
-| ------------------------- | -------------------------------------------- |
-| `[Experiment] Assignment` | A variant was assigned to a user             |
-| `[Experiment] Exposure`   | The user was actually exposed to the variant |
+Amplitude Experiment emits two events with exact bracketed names, documented in [Amplitude's Experiment documentation](https://amplitude.com/docs/feature-experiment): `[Experiment] Assignment`, when a variant was assigned to a user, and `[Experiment] Exposure`, when the user was actually exposed to it.
 
 **`[Experiment] Exposure` is the one analysis runs on.** It determines which variant a participant experienced and powers the core analysis queries. Assignment records that a bucket was chosen; exposure records that it mattered.
 

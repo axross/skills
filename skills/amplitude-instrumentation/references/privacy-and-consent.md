@@ -2,7 +2,7 @@
 
 Apply this reference when wiring consent, handling a data-subject request, or reviewing what an Amplitude integration collects. None of the three inspected repositories has any consent handling at all, which is the usual starting point: consent is added after a legal review rather than when the SDK goes in.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's privacy-and-consent implementation guide](https://amplitude.com/docs/data/privacy-and-consent-implementation) on **2026-08-02**.
 
 ## The Rule Everything Else Follows From
 

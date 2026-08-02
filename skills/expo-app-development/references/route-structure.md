@@ -4,22 +4,13 @@ Apply this reference when adding, renaming, moving, or deleting a route file, wh
 
 Expo Router is the routing solution for an Expo app. Reaching for the underlying navigation library directly is a legacy arrangement: it costs the file-based routes, the generated types, deep-link resolution, and the router's own testing helpers, and the historical reasons for it — no way to set an initial route, no nested navigators — have since been answered by `unstable_settings.anchor` and nested layout files. Migrate such an app rather than extending it.
 
-Verified against SDK 57.
+Verified against SDK 57, checked against [Expo Router's file-notation reference](https://docs.expo.dev/router/basics/notation/) on **2026-08-02**.
 
 ## The Notation Set
 
-A file's name determines what it matches. The notation is a closed set; a name outside it is a plain segment, which is a silent bug when a special form was intended.
+A file's name determines what it matches. Every form — `index`, `_layout`, `[param]`, `[...rest]`, `(group)`, `(a,b)`, `+not-found`, `+native-intent` — is defined in [Expo Router's file-notation reference](https://docs.expo.dev/router/basics/notation/).
 
-| Form             | Produces                                                            |
-| ---------------- | ------------------------------------------------------------------- |
-| `index`          | the parent path itself                                              |
-| `_layout`        | a layout wrapping every route in the directory — not itself a route |
-| `[param]`        | a single dynamic segment                                            |
-| `[...rest]`      | a catch-all matching one or more remaining segments                 |
-| `(group)`        | an organizing directory that contributes nothing to the path        |
-| `(a,b)`          | an array group producing one route tree per listed group            |
-| `+not-found`     | the fallback for an unmatched path                                  |
-| `+native-intent` | the handler for an inbound link the router cannot route on its own  |
+What that page does not say is that the notation is a **closed set**: a name outside it is not an error, it is a plain path segment. So a mistyped special form produces a route that exists and matches the wrong URL, rather than a build failure — which is the whole reason to check a name against the reference rather than against intuition.
 
 The router also recognizes forms belonging to web output and server routes — customizing the static HTML shell, and server middleware. Both sit outside this skill's scope, so no rule here covers them; consult the installed SDK's documentation directly if the app ships a web or server target.
 

@@ -80,13 +80,7 @@ declare module "@tanstack/react-query" {
 
 ## Project-Wide Registration
 
-The `Register` interface is the one place a project changes types for the whole layer:
-
-| Field                        | Effect                                            |
-| ---------------------------- | ------------------------------------------------- |
-| `defaultError`               | the error type at every call site                 |
-| `queryMeta` / `mutationMeta` | the shape of `meta`, which is otherwise free-form |
-| `queryKey` / `mutationKey`   | a required shape for every key                    |
+The `Register` interface is the one place a project changes types for the whole layer. Its fields — `defaultError`, `queryMeta`/`mutationMeta`, `queryKey`/`mutationKey` — are documented under [TypeScript › Registering global types](https://tanstack.com/query/latest/docs/framework/react/typescript). What that page presents as typing conveniences are enforcement levers here.
 
 Registering `queryKey` is what mechanically enforces a tenancy root — a key not starting with the tenant pair stops compiling:
 

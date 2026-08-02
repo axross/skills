@@ -2,18 +2,11 @@
 
 Apply this reference when instrumentation has already shipped wrong and the question is what can be fixed after the fact. The short answer sets expectations for everything else: **ingested event data is immutable**, and Amplitude's repair tools change how data is _read_, not what was stored.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's transformations documentation](https://amplitude.com/docs/data/transformations) on **2026-08-02**.
 
 ## Transformations Are Query-Time
 
-Amplitude's transformations apply when a chart or a cohort computes its result. The raw data is untouched — which is why they are reversible, and why they do not reach a warehouse export.
-
-| Transformation         | Fixes                                                      |
-| ---------------------- | ---------------------------------------------------------- |
-| Merge events           | Two event names that should have been one                  |
-| Merge properties       | The same attribute recorded under different property names |
-| Rename property values | A misspelled or inconsistent value                         |
-| Hide property values   | A value that should not appear in the UI                   |
+Amplitude's [transformations](https://amplitude.com/docs/data/transformations) — merging events, merging properties, renaming property values, hiding property values — apply when a chart or a cohort computes its result. The raw data is untouched, which is why they are reversible, and why they do not reach a warehouse export.
 
 Three constraints, all verified:
 
@@ -33,7 +26,7 @@ Three constraints, all verified:
 
 ## Hiding Is Not Removing
 
-Four operations get conflated, and they differ in what they cost and what they destroy:
+Four operations get conflated, and they differ in what they cost and what they destroy. Amplitude documents each in its own place — [transformations](https://amplitude.com/docs/data/transformations) for hiding, the [User Privacy API](https://amplitude.com/docs/apis/analytics/user-privacy) for deletion — and nowhere sets them side by side:
 
 | Operation  | Effect                                                                                |
 | ---------- | ------------------------------------------------------------------------------------- |

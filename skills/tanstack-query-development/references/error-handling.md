@@ -6,7 +6,7 @@ Apply this reference when deciding how a failure surfaces, mapping one to user-f
 
 A query fails only if its function throws — see [query-functions.md](./query-functions.md). Everything below assumes that.
 
-v5 **removed** the per-query `onError`, `onSuccess`, and `onSettled` callbacks. Code carrying them is either pre-v5 or written from memory; the options are ignored rather than rejected, so the handler silently never runs.
+v5 **removed** the per-query `onError`, `onSuccess`, and `onSettled` callbacks — recorded in [Migrating to v5](https://tanstack.com/query/latest/docs/framework/react/guides/migrating-to-v5). Code carrying them is either pre-v5 or written from memory; the options are ignored rather than rejected, so the handler silently never runs, which is the part the migration guide does not say.
 
 **Guidelines:**
 
@@ -15,7 +15,7 @@ v5 **removed** the per-query `onError`, `onSuccess`, and `onSettled` callbacks. 
 
 ## One Channel per Query
 
-Three channels exist. Pick one per query, deliberately.
+Three channels exist, and upstream documents each in a different place — the returned state in the [`useQuery` reference](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery), `throwOnError` in [Error Boundaries](https://tanstack.com/query/latest/docs/framework/react/guides/error-boundaries), and the global handler in the [`QueryCache` reference](https://tanstack.com/query/latest/docs/reference/QueryCache). Nothing upstream presents them as a choice of exactly one. Pick one per query, deliberately.
 
 | Channel                              | Suits                                              |
 | ------------------------------------ | -------------------------------------------------- |

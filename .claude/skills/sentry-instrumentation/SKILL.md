@@ -15,7 +15,7 @@ It also does not own the **framework hook** an integration occupies. That there 
 
 **Version discipline.** Sentry ships two independent release lines — the JavaScript SDK (`@sentry/react`, `@sentry/nextjs`) and the React Native SDK — and the React Native line trails the JavaScript one, so an option documented for one may not exist in the other yet. Options also move within a major: `sendDefaultPii` is deprecated in favour of `dataCollection`, and `profilesSampleRate` in favour of `profileSessionSampleRate`. Every version-sensitive statement here names what it was verified against, and where a surface is known to move the rule is a **lookup** — consult the installed SDK's own options page — rather than a frozen option name. Treat an unversioned claim about a Sentry option, in this skill or anywhere else, as suspect.
 
-**Verified against** `@sentry/react` and `@sentry/nextjs` 10.69.0, `@sentry/react-native` 8.20.0, `@sentry/wizard` 6.13.0, and `@sentry/cli` 3.6.2, as published on 2026-07-29.
+**Verified against** `@sentry/react` and `@sentry/nextjs` 10.69.0, `@sentry/react-native` 8.20.0, `@sentry/wizard` 6.13.0, and `@sentry/cli` 3.6.2, checked against [Sentry's JavaScript](https://docs.sentry.io/platforms/javascript/) and [React Native](https://docs.sentry.io/platforms/react-native/) SDK documentation on **2026-08-02**.
 
 **Out of scope.** Sentry's product and organization configuration — alert rules, notification routing, ownership rules, inbound filters, spike protection, retention, and dashboards — is configured in Sentry's own interface, not in a repository, and no rule here was derived for it. When a task reaches one of those, say so rather than extrapolating from the rules below.
 

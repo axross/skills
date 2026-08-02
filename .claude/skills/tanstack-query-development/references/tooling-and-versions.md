@@ -4,7 +4,7 @@ Apply this reference when setting up linting for this layer, diagnosing a cache 
 
 ## The Eight Rules
 
-The library ships an ESLint plugin. Each of its rules is stated below as something a reader can check without the linter installed, because a project that lints with a different tool still needs the rule.
+The library ships [an ESLint plugin](https://tanstack.com/query/latest/docs/eslint/eslint-plugin-query). Each of its rules is stated below as something a reader can check without the linter installed, because a project that lints with a different tool still needs the rule — an axis the plugin's own pages do not present.
 
 | Rule                            | What it requires                                                                          |
 | ------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -32,7 +32,7 @@ Seven are in the recommended set; `prefer-query-options` is in the stricter one,
 
 ## Inspecting the Cache
 
-The devtools show every entry, its key, its status, its data, and its observers — which turns most cache defects from guesswork into reading. They ship as a separate package and are excluded from production builds by default.
+The [devtools](https://tanstack.com/query/latest/docs/framework/react/devtools) show every entry, its key, its status, its data, and its observers — which turns most cache defects from guesswork into reading. They ship as a separate package and are excluded from production builds by default.
 
 Four things they answer quickly:
 
@@ -51,21 +51,9 @@ Browser extensions provide the same view without adding a dependency. React Nati
 
 ## Arriving From v4
 
-The changes most likely to be encountered in an existing codebase, and what each becomes:
+Every rename and removal is enumerated in [Migrating to v5](https://tanstack.com/query/latest/docs/framework/react/guides/migrating-to-v5) — `cacheTime` to `gcTime`, `useErrorBoundary` to `throwOnError`, positional arguments to a single options object, and the rest.
 
-| v4                                          | v5                                                                   |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| positional arguments                        | a single options object                                              |
-| `cacheTime`                                 | `gcTime`                                                             |
-| `useErrorBoundary`                          | `throwOnError`                                                       |
-| `status: 'loading'`                         | `status: 'pending'`; `isLoading` now means `isPending && isFetching` |
-| `keepPreviousData: true`                    | `placeholderData: keepPreviousData`                                  |
-| per-query `onError`/`onSuccess`/`onSettled` | removed — choose an error channel instead                            |
-| infinite query with no `initialPageParam`   | `initialPageParam` is required                                       |
-| `refetchPage`                               | `maxPages`                                                           |
-| `TError` defaulting to `unknown`            | defaults to `Error`                                                  |
-
-Two of these fail **silently** rather than loudly: the removed per-query callbacks are ignored rather than rejected, and the `isLoading` semantics changed under the same name, so a v4-era loading check keeps compiling while meaning something different.
+What that guide does not sort for you is which changes fail **loudly** and which fail **silently**. Two are silent: the removed per-query `onError`/`onSuccess`/`onSettled` are ignored rather than rejected, and `status: 'loading'` became `status: 'pending'` while `isLoading` was redefined as `isPending && isFetching` — so a v4-era loading check keeps compiling and type-checking while meaning something different. Everything else on the list breaks at build time and finds itself.
 
 Minimums rose too: React 18 and TypeScript 5.4.
 
@@ -77,7 +65,7 @@ Minimums rose too: React 18 and TypeScript 5.4.
 
 ## Reading Documentation at the Installed Version
 
-Behaviour has moved **inside** v5. The mutation callback signatures gained arguments, and `staleTime: 'static'`, `subscribed`, `environmentManager`, and `mutationOptions` are all recent additions — a codebase on an earlier 5.x does not have them.
+Behaviour has moved **inside** v5. The mutation callback signatures gained arguments, and `staleTime: 'static'`, `subscribed`, `environmentManager`, and `mutationOptions` are all recent additions — a codebase on an earlier 5.x does not have them. The [React adapter's own documentation](https://tanstack.com/query/latest/docs/framework/react/overview) tracks `latest` rather than an installed version, so it describes APIs a project may not have.
 
 The adapters also version independently: the React package being on v5 says nothing about what the Vue or Svelte packages are on, and documentation for one is not documentation for another.
 

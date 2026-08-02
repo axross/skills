@@ -6,13 +6,7 @@ Apply it when the cache must outlive the process, when writes have to queue offl
 
 ## Behaviour With No Connection
 
-`networkMode` decides what happens when there is no connectivity, and it applies to queries and mutations alike.
-
-| Mode           | Behaviour                                     |
-| -------------- | --------------------------------------------- |
-| `online`       | the default; does not run, and pauses instead |
-| `always`       | runs regardless of connectivity               |
-| `offlineFirst` | runs once, then pauses retries                |
+`networkMode` decides what happens when there is no connectivity, and it applies to queries and mutations alike. Its three values — `online` (the default), `always`, and `offlineFirst` — are defined in the [Network Mode guide](https://tanstack.com/query/latest/docs/framework/react/guides/network-mode).
 
 A paused query keeps `status: 'pending'` and reports `fetchStatus: 'paused'`. This is the trap: a surface keyed on `isPending` alone shows a spinner that can never resolve, because nothing is running and nothing will fail.
 
@@ -51,7 +45,7 @@ Without that registration, resumption fails with a missing-function error — at
 
 ## Persisting and Restoring
 
-Persistence writes the dehydrated cache to storage and restores it on launch. `persistQueryClient` wires it imperatively; `PersistQueryClientProvider` does the same in the tree and is the usual choice, since it wires the restore and supplies `useIsRestoring` to everything beneath it.
+Persistence writes the dehydrated cache to storage and restores it on launch. `persistQueryClient` wires it imperatively; `PersistQueryClientProvider` does the same in the tree and is the usual choice, since it wires the restore and supplies `useIsRestoring` to everything beneath it. Both, and the persister packages behind them, are documented under [persistQueryClient](https://tanstack.com/query/latest/docs/framework/react/plugins/persistQueryClient).
 
 It does **not** hold rendering. Children render immediately; what the provider suppresses is _fetching_, holding queries at `fetchStatus: 'idle'` until the restore settles — which is what stops a query from racing the restored value and landing on top of it.
 

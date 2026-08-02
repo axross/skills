@@ -4,7 +4,7 @@ Apply this reference when the project governs its taxonomy in Amplitude Data, or
 
 None of the three inspected repositories uses a tracking plan or Ampli. All three hand-wrote a wrapper, and two of them drifted in naming as a direct result.
 
-Verified against Amplitude's documentation on **2026-07-29**. Amplitude Data's governance surfaces move more than the SDK's; where this file says to look something up, look it up rather than trusting a remembered menu.
+Verified against [Amplitude Data's documentation](https://amplitude.com/docs/data) on **2026-08-02**. Amplitude Data's governance surfaces move more than the SDK's; where this file says to look something up, look it up rather than trusting a remembered menu.
 
 ## What the Tracking Plan Holds
 
@@ -50,13 +50,7 @@ Two properties of this are worth knowing regardless of the current menu:
 
 ## Ampli
 
-Ampli generates a typed wrapper from the tracking plan, so event names and property types are enforced at compile time rather than by convention.
-
-| Command           | Does                                                                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `ampli pull`      | Downloads the generated wrapper for a source, optionally to a given `--path`                                          |
-| `ampli status`    | Scans the source tree, reports how many times each event is tracked, and errors when planned events are unimplemented |
-| `ampli configure` | Changes the source's platform, language, or SDK                                                                       |
+[Ampli](https://amplitude.com/docs/sdks/ampli) generates a typed wrapper from the tracking plan, so event names and property types are enforced at compile time rather than by convention. Its CLI — `ampli pull`, `ampli status`, `ampli configure` — is documented there.
 
 `ampli.json` and the generated wrapper are both committed.
 

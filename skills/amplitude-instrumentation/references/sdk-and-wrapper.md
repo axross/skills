@@ -71,12 +71,14 @@ export function track<E extends Event>(event: E) {
 
 ## Renamed and Moving Surfaces
 
-Two renames are worth knowing because both appear in live projects and neither fails loudly — the old key is simply ignored.
+Two renames are worth knowing because both appear in live projects and neither fails loudly — the old key is simply ignored. The current names live in the [Browser SDK 2 reference](https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2); what that page does not carry is a deprecation record, which is why this one exists.
 
-| Old surface         | Current surface                  | Verified                                |
-| ------------------- | -------------------------------- | --------------------------------------- |
-| `defaultTracking`   | `autocapture`                    | Deprecated as of Browser SDK **2.10.0** |
-| `fetchRemoteConfig` | `remoteConfig.fetchRemoteConfig` | Browser SDK 2, 2026-07-29               |
+| Old surface         | Current surface                  | Verified                                           |
+| ------------------- | -------------------------------- | -------------------------------------------------- |
+| `defaultTracking`   | `autocapture`                    | Replaced as of Browser SDK **2.10.0**, 2026-08-02  |
+| `fetchRemoteConfig` | `remoteConfig.fetchRemoteConfig` | Browser SDK 2, 2026-07-29 — **unconfirmed**, below |
+
+The second row did not re-verify on 2026-08-02: the Browser SDK 2 reference still shows `fetchRemoteConfig` as a top-level `init` option in its own quickstart snippet, alongside a separate `remoteConfig` object documented for proxying. Whether the top-level key is deprecated, aliased, or current is not decidable from that page, so treat the row as a prompt to check the installed version rather than as a settled rename.
 
 **Guidelines:**
 

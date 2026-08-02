@@ -4,7 +4,7 @@ Apply this reference when a surface should render something before its own fetch
 
 ## Written to the Cache, or Only Standing In
 
-Two options seed a query, and the difference is whether the value is **persisted**.
+Two options seed a query, and the difference is whether the value is **persisted**. Upstream documents them apart — [Initial Query Data](https://tanstack.com/query/latest/docs/framework/react/guides/initial-query-data) and [Placeholder Query Data](https://tanstack.com/query/latest/docs/framework/react/guides/placeholder-query-data) — so the axis that decides between them has to be assembled by the reader:
 
 | Option            | Written to the cache | Query status while it shows | Flagged as                |
 | ----------------- | -------------------- | --------------------------- | ------------------------- |

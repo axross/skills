@@ -15,7 +15,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Baseline and Scope
 
-**Next.js 16 is the baseline.** Every rule here is written against v16 semantics and verified against the 16.2.x documentation. No rule is qualified as holding only on 14 or 15 — where a v16 rule inverts an older one, the older behaviour appears solely in the arrival checklist in [version-and-tooling.md](./references/version-and-tooling.md).
+**Next.js 16 is the baseline.** Every rule here is written against v16 semantics, verified against the [16.2.x App Router documentation](https://nextjs.org/docs/app) on **2026-08-02**. No rule is qualified as holding only on 14 or 15 — where a v16 rule inverts an older one, the older behaviour appears solely in the arrival checklist in [version-and-tooling.md](./references/version-and-tooling.md).
 
 **The App Router is the only router in scope.** The Pages Router — `pages/`, `getServerSideProps`, `getStaticProps`, API Routes — is out of scope entirely: no rule, no migration path, no comparison.
 

@@ -2,7 +2,7 @@
 
 Apply this reference when events are not arriving, when the SDK's contribution to a bundle matters, or when deciding how much build-time work to spend on legible stack traces.
 
-Verified against `@sentry/react` and `@sentry/nextjs` 10.69.0, `@sentry/react-native` 8.20.0, and the Sentry bundler plugins on `@sentry/bundler-plugin-core` 5.3.0.
+Verified against `@sentry/react` and `@sentry/nextjs` 10.69.0, `@sentry/react-native` 8.20.0, and the Sentry bundler plugins on `@sentry/bundler-plugin-core` 5.3.0, checked against [Sentry's configuration options](https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/) on **2026-08-02**.
 
 ## Getting Past a Content Blocker
 

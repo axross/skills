@@ -2,7 +2,7 @@
 
 Apply this reference when wiring source-map upload, uploading native debug symbols, handling the build-time auth token, or investigating a stack trace that arrives minified.
 
-Verified against `@sentry/nextjs` 10.69.0, `@sentry/react-native` 8.20.0, and `@sentry/cli` 3.6.2.
+Verified against `@sentry/nextjs` 10.69.0, `@sentry/react-native` 8.20.0, and `@sentry/cli` 3.6.2, checked against [Sentry's source-maps guide](https://docs.sentry.io/platforms/javascript/guides/nextjs/sourcemaps/) on **2026-08-02**.
 
 ## How a Frame Gets Resolved
 

@@ -96,7 +96,7 @@ Both run: the factory's callbacks fire first, then the call site's. Two caveats 
 
 ## Callback Signatures and Property Order
 
-The signatures gained arguments during v5 — verified against **5.101.4**:
+The signatures gained arguments during v5 — verified against **5.101.4** on **2026-08-02** against the [`useMutation` reference](https://tanstack.com/query/latest/docs/framework/react/reference/useMutation). Reproduced here because the optionality annotations are the point, and no upstream page states them:
 
 ```ts
 interface MutationCallbacks<TVariables, TData, TError, TOnMutateResult> {

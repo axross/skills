@@ -51,15 +51,7 @@ queryFn: async () => {
 
 ## What the Function Receives
 
-The `queryFn` is called with a `QueryFunctionContext`:
-
-| Field       | What it carries                                          |
-| ----------- | -------------------------------------------------------- |
-| `queryKey`  | the key this call is running under                       |
-| `client`    | the `QueryClient` executing it                           |
-| `signal`    | an `AbortSignal` that aborts when the query is cancelled |
-| `meta`      | the static metadata declared on the options              |
-| `pageParam` | the current page parameter, for a page-walking query     |
+The `queryFn` is called with a `QueryFunctionContext`, whose fields are listed in the [Query Functions guide](https://tanstack.com/query/latest/docs/framework/react/guides/query-functions). Two of them carry obligations the guide does not spell out: `signal` is the `AbortSignal` that must be forwarded to the transport or cancellation does nothing (see [Query Cancellation](https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation)), and `pageParam` is present only on a page-walking query.
 
 Reading an input back out of `queryKey` is possible but rarely worth it: the factory already closed over the same value, and destructuring the key couples the function to the key's positional layout.
 

@@ -2,7 +2,7 @@
 
 Apply this reference when adding Amplitude Session Replay, tuning what it captures, or reviewing its privacy posture. Session Replay records what a user saw and did. That makes it the highest-privacy-risk surface Amplitude offers and the one most likely to capture something nobody intended, so it earns a privacy review of its own rather than inheriting the analytics integration's.
 
-Verified against Amplitude's documentation and the published SDK READMEs on **2026-07-29**.
+Verified against [Amplitude's Session Replay documentation](https://amplitude.com/docs/session-replay) on **2026-08-02**.
 
 ## Plugin Versus Standalone
 
@@ -46,13 +46,7 @@ Targeted Replay Capture evaluates conditions fetched from a remote config servic
 
 ## Masking
 
-Three privacy levels ship, with **medium** as the default:
-
-| Level        | Masks                                                                    |
-| ------------ | ------------------------------------------------------------------------ |
-| Conservative | All text and all form fields — HTML text, user input, and links          |
-| Medium       | All form fields and text inputs                                          |
-| Light        | A subset of sensitive inputs — passwords, credit cards, telephone, email |
+Three privacy levels ship — conservative, medium, light — with **medium** as the default, each defined in [Amplitude's Session Replay documentation](https://amplitude.com/docs/session-replay).
 
 Element-level controls: `.amp-mask` masks text in non-input elements, `.amp-unmask` reveals input text that would otherwise be masked, `.amp-block` hides an element as a placeholder, and `AmpMaskView` does the same job on React Native.
 
