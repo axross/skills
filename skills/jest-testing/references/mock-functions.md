@@ -2,7 +2,7 @@
 
 Apply this reference when creating a test double, recording what a dependency received, replacing a method or a property for the duration of a test, or resetting one between tests.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Mock Functions API](https://jestjs.io/docs/mock-function-api).
 
 This reference covers the **Jest mechanism**. Whether a boundary deserves a double at all, and whether a double is hiding the behavior under test, belong to a unit-testing capability.
 

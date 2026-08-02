@@ -13,9 +13,9 @@ It does **not** own what to test. Whether a behavior deserves a test at all, how
 
 It also does not own the **framework** an integration sits inside. That Next.js has a build config to wrap, or that an Expo app has a Metro config, is a framework fact owned by that framework's own capability; what the Jest side of that wiring looks like is owned here.
 
-**Version discipline.** Jest's option surface moves between majors, and Jest 30 removed a decade of aliases in one release: `toBeCalledWith`, `toThrowError`, `jest.genMockFromModule`, `jest.SpyInstance`, and `jest --init` are all gone rather than deprecated. Options also behave differently than their names suggest — `waitForUnhandledRejections` defaults to `false`, not on. Every version-sensitive statement here names what it was verified against, and where a surface is known to move the rule is a **lookup** — consult the installed Jest's own documentation — rather than a frozen option name. Treat an unversioned claim about a Jest option, in this skill or anywhere else, as suspect.
+**Version discipline.** Jest's option surface moves between majors, and Jest 30 removed a decade of aliases in one release: `toBeCalledWith`, `toThrowError`, `jest.genMockFromModule`, `jest.SpyInstance`, and `jest --init` are all gone rather than deprecated. Options also behave differently than their names suggest — `waitForUnhandledRejections` defaults to `false`, not on. Every version-sensitive statement here names what it was verified against and links the upstream page it was checked against, and where a surface is known to move the rule is a **lookup** — consult [Jest — Configuring Jest](https://jestjs.io/docs/configuration) for the installed version — rather than a frozen option name. Treat an unversioned claim about a Jest option, in this skill or anywhere else, as suspect.
 
-**Verified against** `jest` 30.4.2, as published on npm on 2026-08-01, whose `engines.node` is `^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0`.
+**Verified against** `jest` 30.4.2 — [Jest — Getting Started](https://jestjs.io/docs/getting-started) — published to npm on 2026-05-09 and still latest as of 2026-08-01, whose `engines.node` is `^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0`.
 
 **Out of scope.** Vitest, Node's built-in test runner, and Bun's are named only where the honest answer to "should this project run Jest at all" is no. React Testing Library's own query and assertion conventions belong to a component-testing capability; only its Jest-side wiring is covered here.
 
@@ -31,232 +31,232 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 See [boundary-and-versions.md](./references/boundary-and-versions.md) for:
 
-- deciding whether a question belongs to this capability or to the runner-agnostic one above it
-- recognising the projects where Jest is the wrong runner, and what to say instead
-- what Jest 30 removed outright, and the migration lever that finds each occurrence
-- the changes that alter behavior without changing a name you would grep for
-- reading a rule's verified-against marker when the installed Jest disagrees
+- the mechanism-versus-judgment split deciding whether a question belongs here or to a unit-testing capability
+- why a Vite project, a browser-driven test, and an async Server Component each need a different runner
+- the Jest 30 removals — `toBeCalledWith`, `toThrowError`, `genMockFromModule`, `SpyInstance`, `--testPathPattern` — and `no-alias-methods` to auto-fix them
+- the silent Jest 30 changes: case-sensitive `jest.mock` paths, `toEqual` ignoring non-enumerable properties, `.mts`/`.cts` in the defaults, `glob@10`
+- checking the installed version against a rule's `Verified against` marker and its linked upstream page
 
 ## Configuration
 
 See [configuration.md](./references/configuration.md) for:
 
-- choosing where the configuration lives, and the form an ESM package needs
-- adopting a preset without losing track of what it already set
-- splitting one repository's suites into separately configured projects
-- resolving paths from a root, and keeping one source of truth for a value two tools need
-- getting the configuration type-checked rather than trusted
+- where the config may live, and why `"type": "module"` forces a `jest.config.cjs`
+- adopting a preset without discarding the `transform` it already set
+- `projects` and `displayName` for suites needing different environments or timeouts
+- `rootDir`, `<rootDir>`, `roots`, and deriving `moduleNameMapper` from `tsconfig.json` paths
+- `/** @type {import("jest").Config} */` so a misspelled option is caught in the editor
 
 ## Test Discovery
 
 See [test-discovery.md](./references/test-discovery.md) for:
 
-- selecting test files by glob or by pattern, and why setting both is a mistake
-- placing specs beside their subject or under a dedicated directory
-- keeping a Jest suite and a non-Jest end-to-end suite from selecting each other's files
-- excluding build output and vendored code from a run
-- proving what the configuration actually selects before trusting it
+- `testMatch` versus `testRegex`, and why setting both is a configuration error
+- colocated specs versus a `__tests__/` directory
+- separating a Jest suite from a Playwright suite by extension, so neither collects the other's files
+- `testPathIgnorePatterns` versus `modulePathIgnorePatterns` for a stale `dist/`
+- `--listTests`, and why `--passWithNoTests` turns the worst misconfiguration into a pass
 
 ## The Test API
 
 See [test-api.md](./references/test-api.md) for:
 
-- importing the test API explicitly, and the half-imported file that still passes
-- making the implicit form fail loudly rather than silently
-- choosing one case function and holding a project to it
-- grouping, focusing, skipping, and marking a case as a known failure
-- the hook set, its scoping, and the order everything actually runs in
-- why a case built asynchronously never registers
-- building a table-driven case, and titling its rows so a failure names itself
+- `@jest/globals`, and the half-imported file that still passes because the rest resolve as globals
+- `injectGlobals: false` to make that half-imported file fail loudly
+- `it` versus `test`, and `consistent-test-it` to enforce one per project
+- `describe`, `.only`, `.skip`, `test.todo`, `test.failing` — and why `describe.skip` still runs its body
+- hook scoping, and why every `describe` body runs before any `beforeAll`
+- why a case registered after an `await` never runs, so a `.each` table cannot be built in `beforeEach`
+- `.each` in its array and tagged-template forms, and the `%p`/`$name` placeholders that title a row
 
 ## Matchers
 
 See [matchers.md](./references/matchers.md) for:
 
-- choosing among the equality matchers, which differ in ways their names do not reveal
-- asserting on collections, numbers, and thrown errors
-- asserting what a mock received without over-pinning how it was called
-- matching part of a value and ignoring the rest
-- adding a domain matcher rather than repeating a compound assertion
-- preferring a specific matcher over a hand-rolled boolean, for the failure message
+- `toBe`, `toEqual`, `toStrictEqual`, `toMatchObject` — and which of them treat `{a: undefined}` as `{}`
+- `toContain` versus `toContainEqual`, `toHaveLength`, `toHaveProperty`, `toBeCloseTo`, and why a bare `toThrow()` asserts almost nothing
+- the `toHaveBeenCalled*` family, and why an exact call count on a framework-driven callback is brittle
+- `expect.any`, `objectContaining`, `arrayContaining`, `stringMatching`, `closeTo` for a non-deterministic field
+- `expect.extend` and `addEqualityTesters`, registered once in `setupFilesAfterEnv`
+- `expect.assertions(n)` and `hasAssertions()` for a case whose assertions sit inside a `catch` or a callback
 
 ## Asynchronous Tests
 
 See [asynchronous.md](./references/asynchronous.md) for:
 
-- the four ways to await work, and the one to avoid
-- the omission that makes an async test pass without asserting anything
-- guarding a rejection test so a resolution cannot satisfy it
-- setting a timeout at the right scope when work legitimately takes longer
-- the trade-off behind Jest's handling of an unhandled rejection
+- the four await forms, and why `done` needs a `try`/`catch` or a failed assertion surfaces as a timeout
+- the missing `await` that makes a test pass asserting nothing, and `valid-expect` which catches it
+- `.rejects` and `expect.assertions(n)`, so a resolution cannot satisfy a rejection test
+- the 5000 ms default, and setting `testTimeout` at the narrowest scope that needs it
+- `waitForUnhandledRejections`, which defaults to `false` despite what its name suggests
 
 ## Mock Functions and Spies
 
 See [mock-functions.md](./references/mock-functions.md) for:
 
-- creating a mock and reading what it recorded
-- setting a return, a resolution, a rejection, or a one-shot implementation
-- wrapping an existing method rather than replacing it, and the accessor form
-- replacing a value that is not a function
-- the three reset levels, and which one a given mock actually responds to
-- typing a mock so a signature change breaks the test rather than the build
-- deciding what deserves a mock at all
+- `jest.fn()` and the `.mock` surface — `calls`, `lastCall`, `results`, `instances`, `contexts`
+- `mockReturnValue`, `mockResolvedValue`, `mockRejectedValue`, their `Once` variants, and `withImplementation`
+- `jest.spyOn` including its `"get"`/`"set"` form, and why an assigned `jest.fn()` cannot be restored
+- `jest.replaceProperty` for a non-function property such as one on `process.env`
+- `mockClear` versus `mockReset` versus `mockRestore`, and why `mockRestore` does nothing to a bare `jest.fn()`
+- `jest.mocked()`, `jest.Mocked<T>`, and `jest.Spied<T>` replacing the removed `jest.SpyInstance`
+- why an injected hand-rolled fake usually beats every call above
 
 ## Module Mocking
 
 See [module-mocking.md](./references/module-mocking.md) for:
 
-- replacing a module, and the hoisting that makes the call order misleading
-- the variable-naming rule a module factory imposes, and why
-- the three different rules governing a manual mock directory
-- mocking part of a module while keeping the rest real
-- reaching past your own mock for the real implementation a test needs
-- mocking a class, and the member an automatic mock silently misses
+- `jest.mock` hoisting above the imports, and `jest.doMock` when that hoisting is wrong
+- the `mock` name prefix a factory's out-of-scope check requires
+- `__mocks__` beside the module versus beside `node_modules`, and which of the three cases needs an explicit `jest.mock()`
+- `jest.requireActual` spread into a partial mock, and `__esModule: true` for a default export
+- `jest.requireActual` again, to reach a real export out of a module you mocked
+- class mocking, and why an automatic mock misses an arrow-function class property
 
 ## ESM Mocking
 
 See [esm-mocking.md](./references/esm-mocking.md) for:
 
-- why the ordinary module-mocking call does nothing in an ES module
-- the replacement call, its mandatory factory, and the import order it demands
-- the runtime flag and configuration an ESM suite needs before anything runs
-- reaching the runner's own object without a global
-- mocking a CommonJS dependency from an ES module test
-- what remains experimental, and how much weight to put on it
+- why `jest.mock()` silently does nothing under ESM, since static imports evaluate first
+- `jest.unstable_mockModule`, its required factory, and the `await import()` it forces
+- `--experimental-vm-modules`, `extensionsToTreatAsEsm`, and a transformer that emits ESM
+- `import.meta.jest` as an alternative to importing `jest` from `@jest/globals`
+- `jest.mock()` plus `createRequire(import.meta.url)` for a CommonJS dependency
+- how much to rely on an API Jest still ships behind an `unstable_` prefix
 
 ## Fake Timers
 
 See [fake-timers.md](./references/fake-timers.md) for:
 
-- taking control of the clock, and giving it back
-- choosing how far to advance, and the choice a self-rescheduling timer forces
-- advancing a clock whose timers resolve promises
-- keeping specific time APIs real while faking the rest
-- moving the wall clock rather than the timer queue
-- recognising the real-clock wait this replaces, and what it costs a suite
+- `jest.useFakeTimers()`, `useRealTimers()`, and `fakeTimers.enableGlobally`
+- `advanceTimersByTime` versus `runOnlyPendingTimers` versus `runAllTimers`, and the `timerLimit` a self-rescheduling timer hits
+- the `*Async` advance variants, needed whenever a timer callback resolves a promise
+- `doNotFake` to keep `performance` or `nextTick` real while faking the rest
+- `setSystemTime` and `now`, which move `Date` without running any timer
+- the `await new Promise((r) => setTimeout(r, 100))` anti-pattern all of this replaces
 
 ## Snapshots
 
 See [snapshots.md](./references/snapshots.md) for:
 
-- choosing between a stored snapshot and one written into the test
-- capturing an error message as a contract
-- keeping a generated or time-dependent field from failing every run
-- updating snapshots, and the flag that stops an unreviewed one from passing
-- keeping a snapshot small enough that a reviewer actually reads it
-- teaching the serializer about a domain type
+- `toMatchSnapshot` versus `toMatchInlineSnapshot`
+- `toThrowErrorMatchingInlineSnapshot` where an error message is part of the contract
+- property matchers for a generated id or timestamp, and fixing the clock before snapshotting a date
+- `-u` narrowed to specific tests, and `--ci` refusing to write a new snapshot
+- `no-large-snapshots` and `no-interpolation-in-snapshots`
+- `snapshotSerializers`, `snapshotResolver`, and `snapshotFormat`
 
 ## TypeScript
 
 See [typescript.md](./references/typescript.md) for:
 
-- the three transformer routes, and what each one gives up
-- getting type errors caught once rather than per test file
-- the compilation mode that trades cross-file analysis for speed
-- typing a mocked module, a spy, and a replaced property
-- the inference change that turns a previously silent mismatch into a build error
+- `ts-jest` versus `@swc/jest` versus `babel-jest`, and that only the first type-checks
+- pairing a stripping transformer with a separate `tsc --noEmit`
+- `isolatedModules`, which trades cross-file analysis for speed and makes `import type` necessary
+- `jest.mocked`, `jest.Mocked<T>`, `jest.Spied<T>`, `jest.Replaced<T>`
+- Jest 30's stricter `toHaveBeenCalledWith` inference, which surfaces real argument drift as a build error
 
 ## Transforms and Module Resolution
 
 See [transforms-and-resolution.md](./references/transforms-and-resolution.md) for:
 
-- mapping file patterns to transformers, and switching transformation off entirely
-- the untransformed dependency behind the most common Jest failure message
-- letting specific packages through an exclusion without letting everything through
-- mapping path aliases, stylesheets, and static assets, and why mapping order matters
-- the transform cache, and what to do when an edit appears to have no effect
+- `transform`, its `babel-jest` default, and `transform: {}` to disable transformation entirely
+- `transformIgnorePatterns` and the untransformed dependency behind `Cannot use import statement outside a module`
+- the negative-lookahead pattern that transforms named packages without transforming all of `node_modules`
+- `moduleNameMapper`, `moduleFileExtensions`, `moduleDirectories`, and why first-match-wins ordering matters
+- `getCacheKey`, `--no-cache`, and `--clearCache` when an edit appears to have no effect
 
 ## Test Environment
 
 See [test-environment.md](./references/test-environment.md) for:
 
-- choosing between the two built-in environments, and the one that is a separate install
-- letting a single file differ from the project default
-- passing options into an environment
-- the browser APIs the emulated environment does not implement
-- the four setup slots, what belongs in each, and the symptom of the wrong choice
+- `node` versus `jsdom`, and that `jest-environment-jsdom` has been a separate install since Jest 28
+- the `@jest-environment` docblock, which has to precede every import in the file
+- `testEnvironmentOptions` — `url`, `userAgent`, `customExportConditions`
+- `matchMedia`, `IntersectionObserver`, `ResizeObserver`, and the layout engine jsdom does not have
+- `globalSetup`, `setupFiles`, `setupFilesAfterEnv`, `globalTeardown` — and why `expect.extend` works only in the third
 
 ## Isolation
 
 See [isolation.md](./references/isolation.md) for:
 
-- resetting mock state between tests once, in configuration, rather than per file
-- reloading a module whose top-level state a test has already changed
-- the module-scope side effect in a spec and how far it reaches
-- what each test file gets its own copy of, and what it shares with every other worker
-- partitioning an external resource per worker
-- diagnosing a test that passes alone and fails in the suite
+- `clearMocks`, `resetMocks`, `restoreMocks` in config, and why `clearMocks` is the right default
+- `resetModules`, `jest.resetModules()`, and `jest.isolateModules` for module-level state
+- why quieting a logger at a spec's module scope is fine while mutating a shared global is not
+- the per-file module registry, against the ports, directories, and databases every worker shares
+- `JEST_WORKER_ID` to partition a port or a database schema per worker
+- the `--runInBand` → `--randomize` → `-t` sequence for a test that passes alone and fails in the suite
 
 ## Coverage
 
 See [coverage.md](./references/coverage.md) for:
 
-- collecting coverage, and choosing which files count as uncovered
-- the two instrumentation providers, and why they disagree
-- setting thresholds, including the form that caps uncovered units instead
-- excluding a branch, and recording where it is verified instead
-- the Babel plugin that silently disables the exclusion list
+- `collectCoverageFrom`, without which an untested file raises the percentage by disappearing
+- the `babel` versus `v8` providers, whose numbers are not comparable
+- `coverageThreshold`, including the negative form that caps uncovered units instead of setting a floor
+- `coveragePathIgnorePatterns` and the `istanbul ignore` pragma
+- `babel-plugin-istanbul` in a Babel config silently disabling those exclusions
 
 ## Running and Performance
 
 See [running-and-performance.md](./references/running-and-performance.md) for:
 
-- selecting a subset of tests by name, path, or version-control state
-- the two watch modes, and what the continuous-integration flag changes
-- sizing the worker pool for the machine actually running the suite
-- splitting a suite across machines
-- finding the file that costs the run, and the transformation that usually explains it
-- recognising a benchmark that has been checked in as a test
-- the standalone packages Jest publishes, for when a suite needs one directly
+- `-t`, `--testPathPatterns`, `--onlyChanged`, `--changedSince`, `--findRelatedTests`
+- `--watch` versus `--watchAll`, and `--ci` refusing to write a new snapshot
+- `maxWorkers`, whose default over-subscribes a two-core CI container
+- `--shard=<index>/<count>` for splitting a suite across machines
+- `slowTestThreshold`, `--logHeapUsage`, and comparing against `--no-cache` before blaming the tests
+- the checked-in benchmark — a 100 000-iteration loop asserted with `toBeCloseTo`
+- `jest-diff`, `pretty-format`, `jest-worker`, and the rest Jest publishes standalone
 
 ## Diagnosing Failures
 
 See [diagnosing-failures.md](./references/diagnosing-failures.md) for:
 
-- surfacing order dependence deliberately, and reproducing a red run exactly
-- treating a retry as a diagnostic rather than a fix
-- finding what keeps a run from exiting, and the flag that hides it instead
-- attaching a debugger to a single test
-- narrowing to one case when the failure is not obvious
-- clearing a cache that is answering with stale output
+- `--randomize`, `--seed`, and `--showSeed` for order dependence
+- `jest.retryTimes` as a diagnostic rather than a fix, and `logErrorsBeforeRetry` so failures stay visible
+- `--detectOpenHandles` for a run that will not exit, and why `--forceExit` can truncate coverage output
+- `node --inspect-brk node_modules/.bin/jest --runInBand -t` to attach a debugger
+- `-t`, `--runTestsByPath`, and `-e`/`--expand` when a diff elides the differing region
+- `--clearCache` and `--no-watchman` when an edit appears to have no effect
 
 ## Next.js
 
 See [nextjs.md](./references/nextjs.md) for:
 
-- what the framework's Jest helper configures on your behalf
-- exporting the configuration in the shape the helper's asynchronous loading requires
-- the component kind Jest cannot render, and where that confidence has to come from
-- testing a server-fenced module's logic without importing the fence
-- a working configuration for a Next.js app whose suite runs outside a browser
+- what `next/jest` configures — the compiler transform, asset and font mocks, `.env` loading
+- exporting `createJestConfig(config)`'s return value rather than the config object it was given
+- why Jest cannot render an async Server Component, so that confidence needs an e2e test
+- keeping decision logic out of a `server-only` module rather than mocking the fence
+- a working `jest.config.cjs` for a Next.js app on `testEnvironment: "node"`
 
 ## React and React Native
 
 See [react-and-native.md](./references/react-and-native.md) for:
 
-- the presets a React Native or Expo project needs, and the exclusion pattern they depend on
-- wiring the DOM environment and its custom matchers
-- the renderer that is no longer the right default
-- assertions that pin the framework's call pattern instead of the component's behavior
-- the warning about state updates outside the framework's batching, and what it means
-- the behavior a Jest test cannot establish at all
+- `jest-expo` and the `react-native` preset, and extending rather than replacing their `transformIgnorePatterns`
+- `jest-environment-jsdom` plus `@testing-library/jest-dom` registered in `setupFilesAfterEnv`
+- why `react-test-renderer` is deprecated in favour of a testing-library renderer
+- why `toHaveBeenCalledTimes(9)` on a render prop pins React's scheduling rather than the component's behavior
+- what an `act(...)` warning is actually reporting, and awaiting the settled state instead of silencing it
+- layout, gestures, animation, and platform navigation, which neither jsdom nor the native environment can verify
 
 ## Beyond Unit Scope
 
 See [beyond-unit-scope.md](./references/beyond-unit-scope.md) for:
 
-- what running an end-to-end test in Jest legitimately means, and what it does not
-- giving a slower suite its own configuration rather than loosening the fast one
-- starting and stopping a real dependency around a run
-- waiting for readiness by polling rather than by sleeping
-- the point where Jest stops being the right tool
+- where Jest legitimately drives real HTTP or a real database, and where the client has to be a browser
+- a separate `projects` entry with its own `testTimeout` and `maxWorkers`, rather than loosening the fast suite
+- `globalSetup`/`globalTeardown`, which run in their own context and cannot pass state through module scope
+- polling a health endpoint with a bounded deadline instead of sleeping a fixed interval
+- the point where accumulating jsdom approximations should become a real browser runner
 
 ## Review and Enforcement
 
 See [review-and-enforcement.md](./references/review-and-enforcement.md) for:
 
-- the lint rules that enforce most of this skill mechanically
-- the opt-in rules worth turning on deliberately, and what each one prevents
-- reviewing a Jest change for the defects a lint rule cannot see
-- the verification evidence a Jest change owes a reviewer
-- running the bundled validator, and what a passing run does and does not establish
+- the `eslint-plugin-jest` recommended set — `valid-expect`, `no-focused-tests`, `no-alias-methods`, `expect-expect`
+- the opt-in rules — `prefer-importing-jest-globals`, `prefer-jest-mocked`, `no-large-snapshots`, `valid-mock-module-path`
+- the review questions lint cannot answer: does the mock hide the behavior, would the test fail for its regression
+- the Jest-specific evidence a change owes — a `--listTests` count when discovery changed, a `--randomize` run
+- running `check-jest-usage.mjs`, and why a pass is a floor rather than a conformance claim

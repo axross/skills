@@ -2,7 +2,7 @@
 
 Apply this reference when a case awaits work, asserts on a rejection, tests a callback-based API, or times out for a reason that is not the code being slow.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Testing Asynchronous Code](https://jestjs.io/docs/asynchronous).
 
 ## The Four Forms
 

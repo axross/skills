@@ -2,7 +2,7 @@
 
 Apply this reference when choosing an assertion, when a matcher is passing or failing for a reason that is not obvious, or when a compound assertion is repeated enough to deserve its own matcher.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Expect](https://jestjs.io/docs/expect).
 
 This reference covers **which matcher expresses an assertion**. Whether the assertion pins behavior or implementation belongs to a unit-testing capability, which owns it runner-agnostically.
 
@@ -55,7 +55,7 @@ The trap is precision that pins the wrong thing. `toHaveBeenCalledTimes` on a ca
 - MUST NOT assert an exact call count for a callback whose invocation frequency is decided by a framework rather than by the code under test.
 - MUST prefer `toHaveBeenCalledWith` over inspecting `mock.calls` by index, so the failure message shows the diff.
 - SHOULD assert the call that carries the behavior — usually the last, or the one matching a predicate — rather than every call in sequence.
-- SHOULD combine a call assertion with an assertion on the observable result, so the test still fails if the call happens and the effect does not.
+- SHOULD prefer an observable result to a call assertion where one exists, which the unit-testing capability named above owns and this family makes easy to ignore.
 
 ## Matching Part of a Value
 

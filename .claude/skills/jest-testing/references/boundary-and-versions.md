@@ -2,7 +2,7 @@
 
 Apply this reference when deciding whether a question belongs to this capability at all, when a project is choosing or questioning Jest as its runner, and whenever a rule's behavior depends on which Jest is installed.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Upgrading to Jest 30](https://jestjs.io/docs/upgrading-to-jest30).
 
 ## What This Capability Owns
 

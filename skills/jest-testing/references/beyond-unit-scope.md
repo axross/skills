@@ -2,7 +2,7 @@
 
 Apply this reference when a Jest suite needs to exercise more than one module together, drive a real server over HTTP, or use a real database — and when deciding whether Jest is still the right runner for it.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Configuring Jest](https://jestjs.io/docs/configuration).
 
 ## What Jest Can Legitimately Do Above a Unit
 
@@ -61,9 +61,7 @@ A dependency left running holds the event loop open and produces the non-exit wa
 
 ## Waiting for Readiness
 
-A started server is not immediately accepting connections. A fixed sleep is both too long on a fast machine and too short on a loaded one — the defining property of a flaky test.
-
-Polling a readiness signal until it succeeds, with a bounded timeout, is correct on both.
+Polling a readiness signal with a bounded deadline instead of sleeping a guessed duration is a rule an end-to-end-testing capability already owns, and it holds here for the same reason: a fixed sleep is too long on a fast machine and too short on a loaded one. What follows is only what that looks like inside a Jest `globalSetup`, which has no runner-provided server manager to fall back on.
 
 ```ts
 async function waitUntilReady(url: string, timeoutMs = 30_000): Promise<void> {
@@ -83,9 +81,8 @@ async function waitUntilReady(url: string, timeoutMs = 30_000): Promise<void> {
 
 **Guidelines:**
 
-- MUST poll a readiness signal with a bounded timeout rather than sleeping for a fixed interval.
-- MUST fail with a message naming what was being waited for when the deadline passes, rather than proceeding.
-- SHOULD poll the dependency's own health endpoint rather than a proxy for it, such as a port being open.
+- MUST fail with a message naming what was being waited for when the deadline passes, rather than letting the specs run against a dependency that never came up.
+- SHOULD put the wait in `globalSetup` rather than a `beforeAll`, so the cost is paid once per run instead of once per file.
 
 ## Where Jest Stops
 

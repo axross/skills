@@ -2,7 +2,7 @@
 
 Apply this reference when a suite runs as native ES modules — a package with `"type": "module"`, `.mjs` files, or `extensionsToTreatAsEsm` — and a test needs to replace a module.
 
-Verified against `jest` 30.4.2. Jest's own documentation labels this support **experimental**, and the Node APIs underneath it are experimental too; rules here are written accordingly.
+Verified against `jest` 30.4.2 — [Jest — ECMAScript Modules](https://jestjs.io/docs/ecmascript-modules). Jest's own documentation labels this support **experimental**, and the Node APIs underneath it are experimental too; rules here are written accordingly.
 
 ## Why the Ordinary Call Does Nothing
 

@@ -2,7 +2,7 @@
 
 Apply this reference when setting up or changing how a TypeScript project's tests are compiled, when the suite is slow and the transformer is suspected, or when typing a mock.
 
-Verified against `jest` 30.4.2, whose minimum supported TypeScript is 5.4.
+Verified against `jest` 30.4.2, whose minimum supported TypeScript is 5.4 — [Jest — Getting Started](https://jestjs.io/docs/getting-started).
 
 ## The Three Transformer Routes
 

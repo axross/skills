@@ -2,7 +2,7 @@
 
 Apply this reference when enabling coverage, setting or changing a threshold, excluding code from measurement, or explaining a coverage number that looks wrong.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Configuring Jest](https://jestjs.io/docs/configuration).
 
 ## Collecting
 
@@ -43,13 +43,12 @@ coverageThreshold: {
 };
 ```
 
-A threshold is a project decision. Lowering it so a run passes converts a signal into a formality, and nobody notices the second time.
+That a threshold is a deliberate project decision rather than a number to loosen when a run goes red is owned by a unit-testing capability, which owns it runner-agnostically. What Jest adds is the shape of the option.
 
 **Guidelines:**
 
-- MUST NOT lower a coverage threshold to make a run pass; either cover the code or record why the gap is accepted.
 - MUST set a per-path threshold for a critical module rather than relying on a global figure that a large well-covered module can carry.
-- SHOULD treat a coverage percentage as a floor rather than a goal; a fully covered module with weak assertions is worse than an honest gap.
+- MUST re-read the negative form as a count, not a percentage, before changing it; `-10` and `10` are different kinds of limit.
 
 ## Exclusions
 
@@ -59,11 +58,11 @@ A threshold is a project decision. Lowering it so a run passes converts a signal
 /* istanbul ignore next -- unreachable without a real device; covered by the e2e suite */
 ```
 
+When an exclusion is justified, and that dead code should be deleted rather than excluded, are owned by the same unit-testing capability. The Jest-side rule is only which mechanism to reach for.
+
 **Guidelines:**
 
-- MUST record, beside every ignore pragma, where the excluded branch is verified instead.
-- MUST prefer deleting provably dead code to excluding it from coverage.
-- SHOULD exclude a branch that genuinely cannot run in the test environment, and cover it in a suite that can.
+- SHOULD use `coveragePathIgnorePatterns` for a whole path and the inline pragma for a single branch, rather than widening a pattern to cover one line.
 
 ## The Silent Exclusion Failure
 

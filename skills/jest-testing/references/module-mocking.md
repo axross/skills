@@ -2,7 +2,7 @@
 
 Apply this reference when replacing a whole module, writing a manual mock directory, mocking part of a module, or mocking a class — in a CommonJS or transpiled-to-CommonJS suite.
 
-Verified against `jest` 30.4.2. For an ES module suite, the mechanism is different: see [esm-mocking.md](./esm-mocking.md).
+Verified against `jest` 30.4.2 — [Jest — Manual Mocks](https://jestjs.io/docs/manual-mocks). For an ES module suite, the mechanism is different: see [esm-mocking.md](./esm-mocking.md).
 
 Module mocking is the heaviest tool in this skill. Read the opening of [mock-functions.md](./mock-functions.md) first — a dependency reachable as an argument does not need any of this.
 

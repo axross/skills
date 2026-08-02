@@ -2,7 +2,7 @@
 
 Apply this reference when configuring Jest in a Next.js application, or when deciding what a Next.js codebase can and cannot verify with Jest.
 
-Verified against `jest` 30.4.2 and Next.js 16. The framework's own conventions — routing, the server/client boundary, caching — belong to a Next.js capability; only the Jest side is covered here.
+Verified against `jest` 30.4.2 and Next.js 16 — [Next.js — Testing with Jest](https://nextjs.org/docs/app/guides/testing/jest). The framework's own conventions — routing, the server/client boundary, caching — belong to a Next.js capability; only the Jest side is covered here.
 
 ## What the Framework's Helper Configures
 

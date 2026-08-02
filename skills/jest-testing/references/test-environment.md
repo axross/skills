@@ -2,7 +2,7 @@
 
 Apply this reference when choosing the runtime a suite executes in, when a browser API is missing or needs stubbing, or when deciding which of Jest's four setup slots a piece of setup belongs in.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Configuring Jest](https://jestjs.io/docs/configuration).
 
 ## Choosing an Environment
 

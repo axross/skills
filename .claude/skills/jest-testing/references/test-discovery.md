@@ -2,7 +2,7 @@
 
 Apply this reference when deciding where spec files live, when Jest runs too many or too few files, and whenever a repository holds a Jest suite alongside a suite belonging to a different runner.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Configuring Jest](https://jestjs.io/docs/configuration).
 
 ## Selecting Test Files
 

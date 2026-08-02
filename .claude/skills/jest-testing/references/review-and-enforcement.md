@@ -2,7 +2,7 @@
 
 Apply this reference when setting up lint enforcement for a Jest suite, when reviewing a change that touches tests, or when reporting what a Jest change was verified against.
 
-Verified against `jest` 30.4.2 and `eslint-plugin-jest`.
+Verified against `jest` 30.4.2 and `eslint-plugin-jest` 29.16.0 — [eslint-plugin-jest](https://github.com/jest-community/eslint-plugin-jest#readme), whose `docs/rules/` directory holds a page per rule named below.
 
 ## What Lint Enforces
 

@@ -2,7 +2,7 @@
 
 Apply this reference when configuring Jest for a React, React Native, or Expo project, or when a component test is failing for a reason that belongs to the runner rather than the component.
 
-Verified against `jest` 30.4.2. Component composition, props, and state belong to a React component capability; only the Jest side is covered here.
+Verified against `jest` 30.4.2 — [Jest — Testing React Native Apps](https://jestjs.io/docs/tutorial-react-native). Component composition, props, and state belong to a React component capability; only the Jest side is covered here.
 
 ## Presets and the Exclusion Pattern
 

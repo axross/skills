@@ -2,7 +2,7 @@
 
 Apply this reference when creating, reading, or changing a project's Jest configuration — choosing where it lives, adopting a preset, splitting a repository into several suites, or resolving a value two tools both need.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Configuring Jest](https://jestjs.io/docs/configuration).
 
 ## Where the Configuration Lives
 

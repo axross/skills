@@ -2,7 +2,7 @@
 
 Apply this reference when Jest cannot parse a file it should, cannot resolve an import it should, or when an edit to a transformer appears to have no effect.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Code Transformation](https://jestjs.io/docs/code-transformation).
 
 ## Transforms
 

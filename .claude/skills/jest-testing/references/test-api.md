@@ -2,7 +2,7 @@
 
 Apply this reference when writing or reviewing the structure of a spec file — how the test API is imported, how cases are grouped and focused, where setup hooks belong, and how a table-driven case is built.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Globals](https://jestjs.io/docs/api).
 
 This reference covers the **Jest mechanism**. What a `describe` block or a case should be _called_, and whether a case is testing behavior or implementation, belong to a unit-testing capability, which owns them runner-agnostically.
 

@@ -2,7 +2,7 @@
 
 Apply this reference when a test is flaky, when a run will not exit, when a failure message is not enough to locate the cause, or when an edit appears to have no effect.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Troubleshooting](https://jestjs.io/docs/troubleshooting).
 
 ## Order Dependence
 

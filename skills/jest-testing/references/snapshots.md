@@ -2,7 +2,7 @@
 
 Apply this reference when adding or updating a snapshot, capturing an error message, deciding whether a snapshot is the right assertion at all, or reviewing a snapshot diff.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Snapshot Testing](https://jestjs.io/docs/snapshot-testing).
 
 This reference covers the **Jest mechanism**. Whether a behavior deserves a snapshot rather than an explicit assertion belongs to a unit-testing capability, which owns it runner-agnostically.
 
@@ -16,7 +16,6 @@ Inline keeps the expectation next to the assertion, which is what makes a small 
 
 - MUST prefer an inline snapshot for a value of a few lines, so the expectation is visible where the assertion is.
 - MUST commit `.snap` files; a snapshot not in version control asserts nothing on the next run.
-- SHOULD prefer an explicit assertion to a snapshot when the test cares about two or three fields, and reserve snapshots for a shape too large to state and too incidental to enumerate.
 - SHOULD give a stored snapshot a hint argument when a file has several, so the entries are distinguishable.
 
 ## Error Messages as Contracts
@@ -63,19 +62,17 @@ The alternative for a value embedded in a string is to normalise it before snaps
 
 - MUST run continuous integration with `--ci`, so a snapshot that was never reviewed cannot pass.
 - MUST narrow `-u` to the specific tests being updated rather than rewriting the whole suite.
-- MUST read every line of a snapshot diff before accepting it; accepting a diff is the entire review of a snapshot test.
 - SHOULD delete obsolete snapshots that Jest reports rather than leaving them, since they hide the removal of the test that owned them.
 
-## Keeping Snapshots Reviewable
+## Enforcing Reviewability
 
-A snapshot nobody reads asserts nothing — it records whatever the code produced, including a bug, and every subsequent diff gets accepted because the baseline was never understood. Size is the practical proxy: a snapshot too large to read in review is too large to be a test.
+That a snapshot has to stay small and reviewable, and that reaching for one instead of deciding what to assert is a defect, belongs to the unit-testing capability named above. Jest's contribution is that both are mechanically enforceable rather than left to review.
 
 **Guidelines:**
 
-- MUST keep a snapshot small enough to review line by line; split the assertion or narrow the value when it is not.
-- MUST NOT use a snapshot to avoid deciding what the assertion should be.
-- SHOULD enable `eslint-plugin-jest`'s `no-large-snapshots` rule with a line ceiling, and `no-interpolation-in-snapshots`, which catches a template literal that silently makes a snapshot self-fulfilling.
-- SHOULD write a snapshot title that states the case, since the title is what a reviewer reads first in a `.snap` file.
+- SHOULD enable `eslint-plugin-jest`'s `no-large-snapshots` with an explicit line ceiling, which turns the size rule into a check instead of a habit.
+- SHOULD enable `no-interpolation-in-snapshots`, which catches a template literal that makes a snapshot assert against itself.
+- SHOULD write a snapshot title that states the case, since in a `.snap` file the title is the only context a reviewer gets.
 
 ## Serializers and Resolvers
 

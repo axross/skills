@@ -2,7 +2,7 @@
 
 Apply this reference when a test passes alone and fails in the suite, when mock state appears to survive between cases, or when a suite touches a resource that every worker would share.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — The Jest Object](https://jestjs.io/docs/jest-object).
 
 ## Resetting Mocks in Configuration
 

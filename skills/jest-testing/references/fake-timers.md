@@ -2,7 +2,7 @@
 
 Apply this reference when code under test schedules work with a timer, debounces or throttles, polls, animates, or reads the clock — and whenever a test waits on real elapsed time.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — Timer Mocks](https://jestjs.io/docs/timer-mocks).
 
 ## The Wait This Replaces
 

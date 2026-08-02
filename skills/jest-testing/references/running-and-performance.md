@@ -2,7 +2,7 @@
 
 Apply this reference when invoking Jest directly, when configuring the command a pipeline runs, or when a suite is slower than it should be.
 
-Verified against `jest` 30.4.2.
+Verified against `jest` 30.4.2 — [Jest — CLI Options](https://jestjs.io/docs/cli).
 
 ## Selecting What Runs
 
@@ -76,7 +76,7 @@ for (const matchup of evaluator.take(100_000)) {
 expect(wins / evaluated).toBeCloseTo(9 / 44, 2);
 ```
 
-The behavior is worth verifying; the cost belongs somewhere other than the suite every commit runs.
+That unit tests stay fast is a unit-testing rule; what Jest adds is that `slowTestThreshold` and `projects` make the offender visible and give it somewhere else to live.
 
 **Guidelines:**
 
