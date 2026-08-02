@@ -286,6 +286,37 @@ test("a journey", async ({ page }) => {
       expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
     });
 
+    // A false positive is worse here than a miss: the script's contract is that
+    // a report is always a real defect. Both shapes below were checked against
+    // `jest@30.4.2 --listTests`, which selects nothing under `e2e/` for either.
+    it("does not report a single-star pattern, which cannot cross a slash", async () => {
+      const root = await project({
+        "root.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["<rootDir>/*.spec.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toPassCleanly();
+    });
+
+    it("does not report a testRegex anchored at the start, which Jest applies to the absolute path", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testRegex: ["^e2e/.*\\\\.test\\\\.ts$"] };\n`,
+      });
+      expect(checkJestUsage(root)).toPassCleanly();
+    });
+
+    it("still reports a single star followed by a further segment", async () => {
+      // `*/**/*.test.ts` does reach `e2e/`, so silence here would be a miss.
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["*/**/*.test.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
+
     it("reads every declaration, not only the first, in a projects config", async () => {
       const root = await project({
         "src/a.spec.ts": CLEAN_SPEC,

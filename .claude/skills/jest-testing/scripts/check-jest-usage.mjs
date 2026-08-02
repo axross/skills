@@ -427,7 +427,15 @@ async function checkForeignDiscovery(root, configPath, source) {
   return findings;
 }
 
-/** Root-relative paths of the spec files under `root/directory`, if any. */
+/**
+ * Absolute paths of the spec files under `root/directory`, if any.
+ *
+ * Absolute, not root-relative, because Jest applies `testRegex` to the full
+ * path. An anchored pattern like `^e2e/` therefore matches nothing under real
+ * Jest — verified against 30.4.2, whose `--listTests` returns no files for it —
+ * while against a relative path it would appear to match, reporting a defect
+ * that is not there.
+ */
 async function foreignSpecs(root, directory) {
   const candidate = path.join(root, directory);
 
@@ -438,7 +446,7 @@ async function foreignSpecs(root, directory) {
   }
 
   return (await collectSpecs(candidate)).map((spec) =>
-    path.relative(root, spec).split(path.sep).join("/"),
+    path.resolve(spec).split(path.sep).join("/"),
   );
 }
 
@@ -446,8 +454,9 @@ async function foreignSpecs(root, directory) {
  * `true` when `pattern`, read as a regular expression, matches any of `paths`.
  *
  * This is how Jest itself decides `testRegex`, so testing the pattern against
- * the paths actually on disk is exact rather than heuristic. An invalid pattern
- * is not a finding — it is a different defect, and one Jest reports on its own.
+ * the absolute paths actually on disk is exact rather than heuristic. An
+ * invalid pattern is not a finding — it is a different defect, and one Jest
+ * reports on its own.
  */
 function matchesAnyPath(pattern, paths) {
   let expression;
@@ -462,11 +471,23 @@ function matchesAnyPath(pattern, paths) {
 /**
  * `true` when a `testMatch` glob would select files under `directory`.
  *
- * A glob anchored at a different top-level directory cannot reach it; an
- * unanchored recursive one can. Deliberately a structural check on the leading
- * segment rather than full glob matching, which would need a dependency this
- * script does not take — so it errs toward silence, and only a glob that plainly
- * reaches everywhere is reported.
+ * Decided on the leading path segment, because only that segment determines
+ * whether the glob can descend into a sibling directory at all:
+ *
+ *   `**` matches any number of segments, so it reaches everywhere.
+ *   `*`  matches exactly one segment and CANNOT cross a `/`, so it reaches a
+ *        subdirectory only when another segment follows it.
+ *   anything literal anchors the glob elsewhere.
+ *
+ * The `*` distinction is the one worth stating: `<rootDir>/*.test.ts` selects
+ * only files sitting at the project root — verified against `jest` 30.4.2,
+ * whose `--listTests` returns the root file alone for that pattern. Treating it
+ * as recursive produced a finding against a config that is entirely correct,
+ * which is worse than saying nothing, since this script's whole contract is
+ * that a report is a real defect.
+ *
+ * Deliberately a structural check rather than full glob matching, which would
+ * need a dependency this script does not take — so it errs toward silence.
  *
  * Globs only. A `testRegex` is a different language and is judged by
  * `matchesAnyPath` against the paths actually on disk.
@@ -477,12 +498,14 @@ function selectsDirectory(pattern, directory) {
   // Explicitly names the directory.
   if (normalized.startsWith(`${directory}/`)) return true;
 
-  // Anchored somewhere else — a literal first segment that is not a wildcard.
-  const [head] = normalized.split("/");
-  if (head !== "" && !head.includes("*")) return false;
+  const segments = normalized.split("/");
+  const [head] = segments;
 
-  // Starts with a recursive wildcard, so it reaches every directory.
-  return normalized.startsWith("**") || normalized.startsWith("*");
+  if (head === "**") return true;
+
+  // A lone `*` stands in for one directory name — possibly the foreign one —
+  // but only where a further segment follows. Alone it is a filename glob.
+  return head === "*" && segments.length > 1;
 }
 
 function fail(message) {
