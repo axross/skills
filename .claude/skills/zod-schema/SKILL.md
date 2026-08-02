@@ -220,10 +220,10 @@ See [security-posture.md](./references/security-posture.md) for:
 
 See [testing-schemas.md](./references/testing-schemas.md) for:
 
-- testing the schema's judgment — its optionality, transforms, and refinements — not its field list
+- why asserting that `z.email()` rejects `"nope"` tests Zod rather than the schema
 - `z.input<typeof Schema>` as the fixture type, built from an observed payload rather than the schema
-- asserting the rejections, without which a schema that accepts everything still passes
-- round-tripping a codec, since no read path exercises its encode half
+- asserting a rejection through `.safeParse().success` or `.toThrow()`, and on `path`/`code` not the message
+- round-tripping through the codec's own `.decode()` and `.encode()` rather than re-implementing either
 - generated data being unable to show that the schema itself is wrong
 
 ## Interop and Library Code

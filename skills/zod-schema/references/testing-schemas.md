@@ -6,28 +6,16 @@ Verified against `zod@4.4.3` — <https://zod.dev/ecosystem>.
 
 What counts as adequate coverage — which schemas and codecs earn a test, what a rejection test must assert, and whether an encoded output is part of the public contract — belongs to a unit-testing capability. This reference owns only the Zod-specific mechanics of writing those tests.
 
-## Which Schemas Earn a Test
+## What Zod Already Tests
 
-Not every schema does. A schema that is a plain restatement of a type — three required strings and a number — is tested by the compiler, and a test asserting it accepts a valid object asserts that Zod works.
+The coverage floor is a unit-testing capability's, and it is unconditional there. What is Zod-specific is a line inside it: the library's own checks are already tested by the library, so a test asserting that `z.email()` rejects `"nope"` or that `z.int()` rejects `1.5` measures Zod, not the schema.
 
-What earns a test is the schema's **judgment**: the places where it accepts something surprising, rejects something plausible, or produces something different from what it received.
-
-| Worth a test                                         | Why                                                       |
-| ---------------------------------------------------- | --------------------------------------------------------- |
-| The shape a producer actually emits                  | The schema's only real contract                           |
-| A field that is nullable, optional, or both          | Each absent case is a branch the schema chose             |
-| A transform's output                                 | The domain type is produced here, not declared            |
-| A refinement                                         | Hand-written logic, hand-written bugs                     |
-| A codec's encode direction                           | Not exercised by any read path                            |
-| Every field a production bug proved could be missing | A regression guard, and the highest-value test of the set |
-
-That last row is worth emphasizing. When a draft record turns out to lack a field the schema required, or a producer starts sending `null` where it sent a string, the fix is a schema change and a test that pins it — because nothing else prevents the next edit from reintroducing it.
+What is worth asserting is the part the schema's author chose — an optionality decision, a transform's output, a refinement's verdict, a codec's encode direction. Those are hand-written, so they are where a schema is wrong.
 
 **Guidelines:**
 
-- MUST add a regression test pinning the accepted shape whenever a production failure is fixed by relaxing or changing a schema.
-- MUST NOT write tests that assert Zod's own built-in checks work.
-- SHOULD test the schema's judgment — its optionality choices, transforms, and refinements — rather than its field list.
+- MUST NOT write a test that asserts one of Zod's own built-in checks works; the assertion belongs to the library's suite, not the project's.
+- MUST target an assertion at what the schema's author decided — an optionality choice, a transform, a refinement — rather than at a constructor's documented behaviour.
 
 ## Fixtures Are Input
 
