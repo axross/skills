@@ -170,7 +170,7 @@ See [nextjs.md](./references/nextjs.md) for:
 
 - the initialization files, and which runtime each one serves
 - the hook that sees every server error, and the one that follows client navigation
-- the build wrapper's options, and which of them the default bundler ignores
+- the build wrapper's options, which of them the default bundler ignores, and the one framework-level replacement that exists for any of them
 - instrumenting server functions and route handlers
 - the tunnel route's interaction with request-matching configuration
 
