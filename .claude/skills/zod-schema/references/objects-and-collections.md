@@ -102,7 +102,7 @@ Validating a list means parsing the **array schema once**, not calling an item s
 
 ## Records, Maps, and Sets
 
-`z.record(keySchema, valueSchema)` takes **both** a key schema and a value schema in Zod 4. The single-argument form does not error — it silently uses that one schema as **both** the key type and the value type, so `z.record(z.string())` accepts `{ a: "x" }` and rejects `{ a: 1 }`. Anyone carrying over the Zod 3 habit of writing the value schema alone gets a record that quietly refuses every non-string value, with no construction-time complaint to point at. Verified against 4.4.3.
+`z.record(keySchema, valueSchema)` takes **both** a key schema and a value schema in Zod 4. The single-argument form does not error — it silently defaults the key type to `z.string()` and uses the one schema given only as the **value** type, so `z.record(z.string())` accepts `{ a: "x" }` and rejects `{ a: 1 }`. Anyone carrying over the Zod 3 habit of writing the value schema alone gets a record whose keys are never checked against the schema they passed, with no construction-time complaint to point at. Verified against `zod@4.4.3`.
 
 Two further behaviours follow from the key schema:
 
