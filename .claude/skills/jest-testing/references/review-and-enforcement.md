@@ -83,14 +83,14 @@ A Jest change is not verified by having been written.
 - MUST report the file count from `--listTests` when a discovery option changed.
 - SHOULD run the changed spec in isolation as well as in the suite, and say that both were done.
 
-## The Bundled Validator
+## What Nothing Checks For You
 
-`scripts/check-jest-usage.mjs` checks four defects that are decidable from source and fail silently: a partially imported test API, `it` and `test` mixed in one file, a Jest 30-removed API still in use, and a `testMatch` that also selects another runner's directory.
+Three defects in this skill fail silently and have no lint rule: a spec importing part of its test API from `@jest/globals` and taking the rest off the global object, `it` and `test` mixed in one file where `consistent-test-it` is not enabled, and a `testMatch` reaching into another runner's directory.
 
-It deliberately checks nothing requiring judgment, so a report is always a real defect rather than an argument.
+An earlier draft of this skill shipped a script for these. It was withdrawn: six defects in eight review rounds, every one in the `testMatch` check, each from modelling Jest's own matching rather than consulting it. A validator that reports against a correct configuration is worse than none, because it teaches people to ignore it — and the lesson generalises past this script. Reproducing a runner's resolution logic outside the runner is a losing position, and the cheap alternative is to ask the runner.
 
 **Guidelines:**
 
-- MUST run the validator over a project whose Jest specs or configuration a change touches, and report the result.
-- MUST NOT treat a passing run as evidence that a suite is well tested; it is a floor, and every rule in this skill that needs judgment is outside it.
-- SHOULD run it after a Jest major upgrade, where the removed-API check does the most work.
+- MUST confirm a discovery change with `--listTests` rather than by reading the pattern, since Jest matches globs against absolute paths in ways that do not read off the page.
+- MUST enable `consistent-test-it` and `prefer-importing-jest-globals` rather than relying on review to catch either, per the rules above.
+- SHOULD ask Jest what it selects, rather than reimplementing its matching, whenever a tool needs that answer.

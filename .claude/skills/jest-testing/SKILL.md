@@ -1,6 +1,6 @@
 ---
 name: jest-testing
-description: The ability to author, configure, run, and debug tests with Jest — the runner layer beneath a runner-agnostic unit-testing capability. Covers the configuration surface and test discovery; explicit `@jest/globals` imports, suite structure, and `.each` tables; the matcher inventory and asymmetric matchers; the async forms and their silent-pass traps; mock functions, spies, and the clear/reset/restore distinction; module mocking in CommonJS and under ESM; fake timers; snapshot discipline; TypeScript transformer choice; transforms, module resolution, and test environments; isolation between tests, coverage, the CLI, suite performance, and diagnosing a flaky or hanging run; the Jest side of Next.js, React Native, and Expo wiring; and a bundled validator for the defects that fail silently. Names Jest 30.4.2 as the baseline every version-sensitive rule was verified against.
+description: The ability to author, configure, run, and debug tests with Jest — the runner layer beneath a runner-agnostic unit-testing capability. Covers the configuration surface and test discovery; explicit `@jest/globals` imports, suite structure, and `.each` tables; the matcher inventory and asymmetric matchers; the async forms and their silent-pass traps; mock functions, spies, and the clear/reset/restore distinction; module mocking in CommonJS and under ESM; fake timers; snapshot discipline; TypeScript transformer choice; transforms, module resolution, and test environments; isolation between tests, coverage, the CLI, suite performance, and diagnosing a flaky or hanging run; the Jest side of Next.js, React Native, and Expo wiring; and the lint rules that enforce most of this mechanically. Names Jest 30.4.2 as the baseline every version-sensitive rule was verified against.
 when_to_use: Use whenever a change touches Jest itself — a Jest config, `testMatch`, `@jest/globals`, `jest.fn`, `jest.spyOn`, `jest.mock`, `unstable_mockModule`, `useFakeTimers`, `toMatchSnapshot`, `moduleNameMapper`, `transformIgnorePatterns`, `setupFilesAfterEnv`, `next/jest`, `jest-expo`, a `--runInBand` or `--detectOpenHandles` run, or `Cannot use import statement outside a module`. For what is worth testing, case naming, and the unit-versus-e2e scope call, use a unit-testing capability instead; for browser- or device-driven suites, an end-to-end-testing one.
 user-invocable: false
 ---
@@ -21,8 +21,8 @@ It also does not own the **framework** an integration sits inside. That Next.js 
 
 **Guidelines:**
 
-- MUST run the bundled `scripts/check-jest-usage.mjs` over a project whose Jest specs or configuration a change touches; it catches the four defects below that fail silently, and states nothing that needs judgment.
 - MUST resolve a version-sensitive question against the installed Jest's own documentation rather than from memory, and state the version the answer came from.
+- MUST ask Jest itself — `--listTests`, `--showConfig` — what a configuration actually selects, rather than reasoning about the pattern; its glob and regex matching does not read off the page.
 - SHOULD type every mock against the interface it replaces; a bare `jest.fn()` accepts and returns anything, so it survives a signature change that should have broken the test.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
@@ -259,4 +259,4 @@ See [review-and-enforcement.md](./references/review-and-enforcement.md) for:
 - the opt-in rules — `prefer-importing-jest-globals`, `prefer-jest-mocked`, `no-large-snapshots`, `valid-mock-module-path`
 - the review questions lint cannot answer: does the mock hide the behavior, would the test fail for its regression
 - the Jest-specific evidence a change owes — a `--listTests` count when discovery changed, a `--randomize` run
-- running `check-jest-usage.mjs`, and why a pass is a floor rather than a conformance claim
+- the three silent defects no lint rule catches, and why asking Jest beats reimplementing its matching

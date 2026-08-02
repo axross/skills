@@ -40,7 +40,6 @@ export const SCRIPTS = {
     "skills/amplitude-instrumentation/scripts/check-amplitude-wiring.mjs",
   checkSentryWiring:
     "skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs",
-  checkJestUsage: "skills/jest-testing/scripts/check-jest-usage.mjs",
   checkInstalledCopies: "scripts/check-installed-copies.mjs",
   reportObligationLoad: "scripts/report-obligation-load.mjs",
   reportSkillDuplication: "scripts/report-skill-duplication.mjs",

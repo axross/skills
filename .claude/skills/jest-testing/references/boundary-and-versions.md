@@ -66,7 +66,7 @@ The matcher aliases have a mechanical migration: `eslint-plugin-jest`'s `no-alia
 - MUST replace a removed alias rather than pinning Jest below 30 to keep it working.
 - MUST use `eslint-plugin-jest`'s `no-alias-methods` rule to find every occurrence, rather than grepping for the ones you remember.
 - MUST update a script passing `--testPathPattern`; the flag is renamed and now takes multiple patterns.
-- SHOULD run the bundled `check-jest-usage.mjs` after an upgrade, which reports every removed API it can see from source alone.
+- SHOULD re-run the full suite after the rewrite, since an alias replaced by hand is easy to mistype into a matcher that does not exist.
 
 ## What Changed Without Changing a Name
 

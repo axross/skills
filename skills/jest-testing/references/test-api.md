@@ -29,7 +29,7 @@ import { describe } from "@jest/globals";
 - MUST import every Jest symbol a file uses from `@jest/globals` when the project has adopted explicit imports, rather than importing some and inheriting the rest.
 - MUST NOT install `@types/jest` alongside `@jest/globals`; they describe the same globals and the community package lags the runner.
 - SHOULD set `injectGlobals: false` once a project's specs import consistently, so a regression fails immediately instead of silently.
-- SHOULD run the bundled `check-jest-usage.mjs`, which reports a partially-imported file that no linter rule catches.
+- SHOULD grep a converted file for each symbol it calls against the ones it imports; a half-imported file passes every check a project runs, so nothing else will report it.
 
 ## One Case Function
 
