@@ -493,6 +493,17 @@ contributor just wrote. Scheduled, it only ever probes text already merged.
 mechanically — the trigger shape, the read-only token, and its absence from
 every gate, npm script, and hook.
 
+Being merged makes a URL reviewed; it does not make the **host** honest, and the
+audit follows redirects by hand so it can tell a permanent move from a temporary
+one. A citation that was ordinary at review time can start redirecting to an
+internal address weeks later, so every hop — the first included — is
+re-validated against `scripts/link-freshness/address-guard.mjs`, which refuses
+loopback, RFC 1918, carrier-grade NAT, link-local (`169.254.169.254`), and their
+IPv6 and IPv4-mapped equivalents. A refused hop is reported as `unverifiable`
+and does not fail the run. That file also states the DNS-rebinding window the
+check does **not** close, and why the residual risk is bounded to blind
+reachability probing.
+
 Because scheduled workflows run only from the default branch, the audit does not
 run on the pull request that changes it. `--dry-run` is the offline preview, and
 it is what `npm test` exercises: no test in this repository probes a URL.

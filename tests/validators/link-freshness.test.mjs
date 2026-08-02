@@ -14,6 +14,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isReservedAddress,
+  refusalReason,
+} from "../../scripts/link-freshness/address-guard.mjs";
+import {
   ALIVE,
   classifyOutcome,
   DEAD,
@@ -293,6 +297,123 @@ describe("failsRun", () => {
 
   it("does not fail on an empty run", () => {
     expect(failsRun([])).toBe(false);
+  });
+});
+
+describe("isReservedAddress", () => {
+  // Pure and offline, which is the point: the redirect guard's whole rule is
+  // testable without a resolver or a socket.
+  describe("IPv4", () => {
+    it.each([
+      { address: "127.0.0.1", range: "loopback" },
+      { address: "10.1.2.3", range: "RFC 1918" },
+      { address: "172.16.0.1", range: "RFC 1918, low edge" },
+      { address: "172.31.255.254", range: "RFC 1918, high edge" },
+      { address: "192.168.1.1", range: "RFC 1918" },
+      { address: "169.254.169.254", range: "cloud metadata" },
+      { address: "100.64.0.1", range: "carrier-grade NAT" },
+      { address: "0.0.0.0", range: "this network" },
+      { address: "198.18.0.1", range: "benchmarking" },
+      { address: "224.0.0.1", range: "multicast" },
+      { address: "255.255.255.255", range: "broadcast" },
+    ])("refuses $address ($range)", ({ address }) => {
+      expect(isReservedAddress(address)).toBe(true);
+    });
+
+    it.each(["8.8.8.8", "1.1.1.1", "140.82.121.4", "172.15.0.1", "172.32.0.1"])(
+      "allows the public address %s",
+      (address) => {
+        expect(isReservedAddress(address)).toBe(false);
+      },
+    );
+
+    it("does not mistake a neighbour of a private range for a private address", () => {
+      // 172.16.0.0/12 runs to 172.31.255.255 — an off-by-one mask would swallow
+      // 172.32.x, and a naive prefix match would swallow 172.15.x.
+      expect(isReservedAddress("172.15.255.255")).toBe(false);
+      expect(isReservedAddress("172.32.0.0")).toBe(false);
+    });
+  });
+
+  describe("IPv6", () => {
+    it.each([
+      { address: "::1", range: "loopback" },
+      { address: "::", range: "unspecified" },
+      { address: "fc00::1", range: "unique local" },
+      { address: "fd12:3456::1", range: "unique local" },
+      { address: "fe80::1", range: "link-local" },
+      { address: "ff02::1", range: "multicast" },
+    ])("refuses $address ($range)", ({ address }) => {
+      expect(isReservedAddress(address)).toBe(true);
+    });
+
+    it.each(["2606:4700:4700::1111", "2001:4860:4860::8888"])(
+      "allows the public address %s",
+      (address) => {
+        expect(isReservedAddress(address)).toBe(false);
+      },
+    );
+
+    it("judges an IPv4-mapped address by the IPv4 inside it", () => {
+      // The bypass this exists for: ::ffff:169.254.169.254 reaches exactly the
+      // same endpoint as 169.254.169.254 and matches none of the IPv6 prefixes.
+      expect(isReservedAddress("::ffff:169.254.169.254")).toBe(true);
+      expect(isReservedAddress("::ffff:127.0.0.1")).toBe(true);
+      expect(isReservedAddress("::ffff:8.8.8.8")).toBe(false);
+    });
+
+    it("strips a zone identifier before judging", () => {
+      expect(isReservedAddress("fe80::1%eth0")).toBe(true);
+    });
+  });
+
+  it("refuses anything it cannot parse", () => {
+    // An address this cannot understand is one it cannot vouch for, so the
+    // failure direction is refusal rather than a probe.
+    for (const address of ["not-an-address", "1.2.3", "::ffff::1", ""]) {
+      expect(isReservedAddress(address)).toBe(true);
+    }
+  });
+});
+
+describe("refusalReason", () => {
+  it("refuses a URL naming a reserved address literally", async () => {
+    expect(await refusalReason("http://169.254.169.254/latest/meta-data/")).toMatch(
+      /reserved address/,
+    );
+  });
+
+  it("refuses a bracketed IPv6 loopback", async () => {
+    expect(await refusalReason("http://[::1]:8080/")).toMatch(/reserved address/);
+  });
+
+  it.each(["file:///etc/passwd", "gopher://example.com/", "ftp://example.com/"])(
+    "refuses the non-HTTP scheme in %s",
+    async (target) => {
+      // A `location` header can name any scheme at all, so the audit picks the
+      // two it probes rather than letting fetch decide.
+      expect(await refusalReason(target)).toMatch(/non-HTTP scheme/);
+    },
+  );
+
+  it("refuses a string that is not a URL", async () => {
+    expect(await refusalReason("http://[unclosed")).toMatch(/not a valid URL/);
+  });
+
+  it("allows a public IP literal without consulting DNS", async () => {
+    expect(await refusalReason("https://8.8.8.8/")).toBeNull();
+  });
+
+  it("classifies a refusal as unverifiable, never as dead", () => {
+    // A refused hop must not fail the run: the citation is not proven gone, and
+    // a redirect the audit declined to follow is not this repository's defect.
+    const result = classifyOutcome({
+      kind: "error",
+      reason: "refused: reserved address (169.254.169.254)",
+    });
+
+    expect(result.verdict).toBe(UNVERIFIABLE);
+    expect(failsRun([result.verdict])).toBe(false);
   });
 });
 

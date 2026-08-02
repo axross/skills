@@ -29,6 +29,14 @@
 // is a request forgery primitive with this repository's egress. Scheduled, from
 // the default branch, the URLs probed are only ever ones already merged.
 //
+// ── THE OTHER FORGERY VECTOR, WHICH THE TRIGGER DOES NOT CLOSE. Being merged
+// makes a URL reviewed; it does not make the HOST honest, and this script
+// follows redirects by hand — re-requesting whatever a `location` header names.
+// A citation that was ordinary at review time can start redirecting to an
+// internal address weeks later. Every hop, the first included, is therefore
+// re-validated by address-guard.mjs, which is where that threat and its residual
+// rebinding window are set out in full.
+//
 // ── WHY IT CAN FAIL, UNLIKE THE THREE REPORTING TOOLS.
 // report-obligation-load.mjs, report-skill-duplication.mjs, and the discovery
 // evaluation cannot fail by construction — no threshold, an undecidable defect,
@@ -45,6 +53,7 @@
 //   1  at least one link is confirmed dead
 //   2  bad invocation
 
+import { refusalReason } from "./address-guard.mjs";
 import {
   ALIVE,
   classifyOutcome,
@@ -130,6 +139,14 @@ function errorReason(error) {
  * says the citation is out of date even though it still works. Following
  * manually is what makes `moved` mean something.
  *
+ * Manual following also means re-issuing a request to a host the REMOTE SERVER
+ * names, so every hop — the first included — is re-validated against
+ * address-guard.mjs before it is made. Without that, a merged citation whose
+ * host later starts redirecting to `169.254.169.254` would have this runner
+ * probe the cloud metadata endpoint on the next scheduled run, and nothing at
+ * review time could have shown it. See address-guard.mjs for the threat and for
+ * the rebinding window it does not close.
+ *
  * @returns {Promise<import("./classify.mjs").Outcome>}
  */
 async function requestOnce(url, { method, timeout, maxHops }) {
@@ -137,6 +154,12 @@ async function requestOnce(url, { method, timeout, maxHops }) {
   let permanentRedirect = false;
 
   for (let hop = 0; hop <= maxHops; hop += 1) {
+    const refusal = await refusalReason(current);
+    // Deterministic, so it is marked non-retryable: re-resolving a name that
+    // just answered with a private address three more times learns nothing and
+    // triples the lookups.
+    if (refusal) return { kind: "error", reason: refusal, retryable: false };
+
     const response = await fetch(current, {
       method,
       redirect: "manual",
@@ -195,6 +218,8 @@ async function attempt(url, method, options) {
     if (outcome.kind === "status" && !isRetryableStatus(outcome.status)) {
       return outcome;
     }
+    // A refused address is a decision, not a transport blip.
+    if (outcome.kind === "error" && outcome.retryable === false) return outcome;
   }
   return outcome;
 }
