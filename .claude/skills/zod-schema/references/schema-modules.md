@@ -2,7 +2,7 @@
 
 Apply this reference when deciding where a schema lives, what to call it, how to build a variant of it, how to give a primitive a nominal type, and where schema construction happens.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## Where a Schema Lives, and What It Is Called
 

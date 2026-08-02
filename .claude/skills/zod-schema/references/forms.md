@@ -2,7 +2,7 @@
 
 Apply this reference when wiring a schema into a form library, typing a form's values, landing a validation error on a specific field, or handling the string-valued inputs a form produces.
 
-Verified against `zod@4.4.3`. Resolver package behaviour is a lookup against the installed version.
+Verified against `zod@4.4.3` — <https://zod.dev/ecosystem>. Resolver package behaviour is a lookup against the installed version.
 
 ## Wiring the Schema In
 

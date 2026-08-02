@@ -2,7 +2,7 @@
 
 Apply this reference when reshaping a validated value, fixing up an input before validation, chaining two schemas, or reasoning about the difference between the type a schema accepts and the type it produces.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## Transform, Preprocess, and Pipe
 

@@ -2,7 +2,7 @@
 
 Apply this reference when adding a constraint no built-in check expresses, reporting a validation error against a specific field, controlling when a check runs, or validating against something asynchronous.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## Three Levels of Custom Check
 

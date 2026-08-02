@@ -2,7 +2,7 @@
 
 Apply this reference when a schema stands between untrusted input and the rest of a system — deciding what unknown-key handling protects, what a parse does not establish, and which schema shapes let a caller consume unbounded work.
 
-Verified against `zod@4.4.3`. Which inputs are untrusted at all is owned by an application-security capability; this reference covers what the schema layer does about them.
+Verified against `zod@4.4.3` — <https://zod.dev/api>. Which inputs are untrusted at all is owned by an application-security capability; this reference covers what the schema layer does about them.
 
 ## Unknown-Key Handling Is a Real Protection
 
@@ -94,7 +94,7 @@ The field **name** and the issue **path** are what a caller needs to correct the
 
 A schema on the way in constrains nothing on the way out. A private field — an email address, an internal status, an authorization token, a soft-deleted record's contents — reaches the caller unless something on the response path removes it.
 
-The construct is a response schema, which strips by default, or a sanitizing codec where the document's shape varies too much to validate (see [codecs.md](./codecs.md) and [model-structured-output.md](./model-structured-output.md)). Either way it must be an **allowlist**: a denylist of fields not to expose fails open the moment the store gains a field nobody updated it for.
+The construct is a response schema, which strips by default, or — where the document's shape varies too much for one to validate — a sanitizing codec, per [codecs.md](./codecs.md). Either way it must be an **allowlist**: a denylist of fields not to expose fails open the moment the store gains a field nobody updated it for.
 
 **Guidelines:**
 

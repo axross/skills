@@ -2,7 +2,7 @@
 
 Apply this reference when choosing a parse method, placing a parse call, converting a validation failure into a domain error, or deciding what a failed parse should record.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/basics>.
 
 ## Throwing or Returning
 

@@ -2,7 +2,7 @@
 
 Apply this reference when a schema is the output contract for a language-model call, a tool definition, or an agent-facing server's tool parameters.
 
-Verified against `zod@4.4.3`. SDK-specific option names are a lookup against the installed SDK.
+Verified against `zod@4.4.3` — <https://zod.dev/json-schema>. SDK-specific option names are a lookup against the installed SDK.
 
 ## A Schema as the Output Contract
 
@@ -97,10 +97,10 @@ An agent-facing server returning documents has the inverse problem: the response
 
 A response schema does that — `z.object()` strips (see [objects-and-collections.md](./objects-and-collections.md)). But where the document's shape varies with query depth, draft state, or locale, a validating response schema fails on legitimate variation and turns a real response into an empty one.
 
-The construct for that case is a **total codec** that allowlists keys and passes values through unvalidated (see [codecs.md](./codecs.md)). It keeps the sanitization guarantee — a private field cannot pass an allowlist — while removing the failure mode. It provides no shape guarantee, which must be stated where it is used.
+That is the case a total codec exists for; [codecs.md](./codecs.md) owns it and the conditions it carries.
 
 **Guidelines:**
 
 - MUST apply a response-side schema or sanitizer to any document leaving an agent-facing surface; an inbound schema does not constrain what goes out.
 - MUST allowlist the fields that may leave, rather than denylisting the ones that may not.
-- SHOULD use a total sanitizing codec where the document shape varies legitimately, and state that it validates nothing.
+- SHOULD reach for a total codec, per [codecs.md](./codecs.md), where a validating response schema would fail on legitimate query-depth, draft, or locale variation.

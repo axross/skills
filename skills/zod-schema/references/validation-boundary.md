@@ -2,7 +2,7 @@
 
 Apply this reference when deciding where a parse belongs in a system, what this capability owns against neighbouring ones, how the static types either side of a parse are produced, and whether a schema is the right tool at all.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/basics>.
 
 ## What This Capability Owns
 

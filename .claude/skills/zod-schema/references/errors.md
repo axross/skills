@@ -2,7 +2,7 @@
 
 Apply this reference when reading a validation failure, reshaping it for a caller, replacing a default message, localizing messages, or deciding what a message may contain.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/error-customization>.
 
 ## The Error Shape
 
@@ -28,7 +28,7 @@ Several accessors are gone or deprecated and still appear in code copied from a 
 
 ## Reshaping a Failure for a Caller
 
-Three functions convert the flat issue list into the shape a particular consumer needs:
+Three functions convert the flat issue list into the shape a particular consumer needs (see the [error-formatting reference](https://zod.dev/error-formatting)):
 
 | Function            | Produces                                                                   |
 | ------------------- | -------------------------------------------------------------------------- |

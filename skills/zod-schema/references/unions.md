@@ -2,7 +2,7 @@
 
 Apply this reference when a value arrives in more than one shape, when combining two schemas that must both hold, or when deciding whether a union is the right model at all.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## Prefer a Discriminated Union
 

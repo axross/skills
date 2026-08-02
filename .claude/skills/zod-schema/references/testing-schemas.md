@@ -2,7 +2,7 @@
 
 Apply this reference when deciding which schemas earn a test, writing fixtures, asserting failures, or checking that a two-way boundary survives a round trip.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/ecosystem>.
 
 ## Which Schemas Earn a Test
 

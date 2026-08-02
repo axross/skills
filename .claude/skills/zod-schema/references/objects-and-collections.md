@@ -2,7 +2,7 @@
 
 Apply this reference when modelling an object, deciding what happens to keys the schema does not describe, modelling a structure that contains itself, or modelling an array, tuple, record, map, set, file, or opaque JSON value.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## Unknown Keys Are Stripped by Default
 

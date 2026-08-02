@@ -2,7 +2,7 @@
 
 Apply this reference when deciding how a field expresses absence, supplying a fallback value, deliberately swallowing a parse failure, or normalising a producer that treats null and undefined as interchangeable.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## Absent, Null, or Either
 

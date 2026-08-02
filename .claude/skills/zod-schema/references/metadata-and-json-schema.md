@@ -2,11 +2,11 @@
 
 Apply this reference when attaching descriptive metadata to a schema, defining a project's own metadata shape, or emitting a JSON Schema document from a Zod schema.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/metadata>.
 
 ## Attaching Metadata
 
-`.meta({ … })` attaches metadata to a schema and registers it in the global registry. Called with no argument, it returns what was attached.
+`.meta({ … })` attaches metadata to a schema and registers it in the global registry. Called with no argument, it returns what was attached. See the [metadata and registries reference](https://zod.dev/metadata) for the full registry API.
 
 The global registry accepts `id`, `title`, `description`, `deprecated`, and `examples`, plus any additional keys. `id` is special: registering two schemas under the same `id` throws.
 
@@ -62,7 +62,7 @@ To extend the **global** registry's accepted fields instead, declaration-merge `
 
 ## Emitting a JSON Schema
 
-`z.toJSONSchema(schema, options)` converts a schema into a JSON Schema document. It replaces the third-party converters that predate it.
+`z.toJSONSchema(schema, options)` converts a schema into a JSON Schema document, replacing the third-party converters that predate it. The full option surface is in the [JSON Schema reference](https://zod.dev/json-schema); the ones below are the ones that change the output in ways a caller notices.
 
 | Option            | Controls                                                                      |
 | ----------------- | ----------------------------------------------------------------------------- |

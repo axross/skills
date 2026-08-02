@@ -2,7 +2,7 @@
 
 Apply this reference when modelling a database row, a document-store record, or a CMS payload — including the read and write halves of a converter, partial writes, driver-specific types, and a payload whose shape varies by query.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## The Stored Shape Is Not the Domain Model
 
@@ -95,7 +95,7 @@ Three techniques cover most of it, and the choice matters:
 
 - **Model the union.** A relation that arrives as an id or an object is a union with a transform normalising it to one form. This is the right answer when the variation is small and enumerable.
 - **Model the query.** Select specific fields in the query and write a schema for exactly those, rather than one schema every call site must satisfy. A focused schema per read is less coupling, not more.
-- **Do not validate.** Where the variation is not enumerable — an all-locale read, an arbitrary editor state — a validating schema fails on legitimate data. A total sanitizing codec or a `z.custom()` with a structural guard is honest; a schema that rejects real payloads is not.
+- **Do not validate.** Where the variation is not enumerable — an all-locale read, an arbitrary editor state — a validating schema fails on legitimate data. A `z.custom()` with a structural guard, or a total codec per [codecs.md](./codecs.md), is honest; a schema that rejects real payloads is not.
 
 The failure mode to avoid is one maximal schema with every field optional, which accepts everything and guarantees nothing while looking like validation.
 

@@ -2,7 +2,7 @@
 
 Apply this reference when choosing an import path, checking whether a remembered or researched API is current, or judging whether an existing schema uses a superseded idiom.
 
-Verified against `zod@4.4.3`, published 2026-05-04.
+Verified against `zod@4.4.3`, published 2026-05-04 — <https://zod.dev/>.
 
 ## Zod 4 Is the Baseline, and the Web Disagrees
 
@@ -25,7 +25,7 @@ A search result, an answer, or a recalled snippet that does not identify its ver
 
 ## The Export Map
 
-The published package exposes several entry points. Which one to import from depends on what is being written.
+The published package exposes several entry points, declared in its own `exports` map. Which one to import from depends on what is being written; the library-facing ones are documented at <https://zod.dev/library-authors>.
 
 | Entry point      | Use it for                                                        |
 | ---------------- | ----------------------------------------------------------------- |

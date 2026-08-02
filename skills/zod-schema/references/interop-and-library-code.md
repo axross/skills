@@ -2,7 +2,7 @@
 
 Apply this reference when writing code that accepts a schema from its caller, when consuming a schema without depending on which library produced it, or when publishing a package that integrates with Zod.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/library-authors>.
 
 ## Accepting a Caller's Schema
 
@@ -26,7 +26,7 @@ Where the helper needs a specific kind of schema, constrain to it — an object-
 
 ## Consuming a Schema Library-Agnostically
 
-Standard Schema is a shared interface implemented by several validation libraries, exposed on a `~standard` property. A tool consuming it validates through that interface and does not care which library produced the schema.
+Standard Schema is a shared interface implemented by several validation libraries, exposed on a `~standard` property, and specified at <https://standardschema.dev/>. A tool consuming it validates through that interface and does not care which library produced the schema.
 
 It is the better contract in two situations: a library whose users may reasonably prefer a different validator, and a shared component in a codebase that already runs more than one (see [validation-boundary.md](./validation-boundary.md)).
 

@@ -2,24 +2,15 @@
 
 Apply this reference when validating a formatted string, a number, an integer, a date or timestamp, or a closed set of values.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## String Formats Are Top-Level Functions
 
 Zod 4 moved every string format from a method on `z.string()` to a top-level function. `z.string().email()` still compiles and is deprecated; `z.email()` is current.
 
-The available formats, all as `z.<name>()`:
+Every format is now a top-level `z.<name>()` — `z.email()`, `z.url()`, `z.uuid()`, `z.ipv4()`, `z.base64()`, `z.jwt()`, and the rest; the full set is in the [string-format reference](https://zod.dev/api). The chainable constraints (`.min()`, `.max()`, `.regex()`, `.trim()`, `.toLowerCase()`, …) remain methods and compose onto any of them.
 
-| Group         | Functions                                                                       |
-| ------------- | ------------------------------------------------------------------------------- |
-| Contact       | `email`, `e164`, `hostname`                                                     |
-| Web           | `url`, `httpUrl`, `emoji`                                                       |
-| Identifiers   | `uuid`, `uuidv4`, `uuidv6`, `uuidv7`, `guid`, `nanoid`, `cuid`, `cuid2`, `ulid` |
-| Network       | `ipv4`, `ipv6`, `cidrv4`, `cidrv6`, `mac`                                       |
-| Encoding      | `base64`, `base64url`, `hex`, `hash`, `jwt`                                     |
-| Date and time | `iso.date`, `iso.time`, `iso.datetime`, `iso.duration`                          |
-
-The chainable constraints — `.min()`, `.max()`, `.length()`, `.regex()`, `.startsWith()`, `.includes()`, `.trim()`, `.toLowerCase()`, `.normalize()` — remain methods and compose onto any of these.
+What the reference does not tell you is which one to reach for, which is what the rest of this section covers.
 
 **Guidelines:**
 

@@ -2,7 +2,7 @@
 
 Apply this reference when converting a value whose type the producer got wrong, reading booleans or numbers out of strings, or validating a process's configuration.
 
-Verified against `zod@4.4.3`.
+Verified against `zod@4.4.3` — <https://zod.dev/api>.
 
 ## Coercion Runs JavaScript's Own Conversions
 

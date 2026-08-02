@@ -2,7 +2,7 @@
 
 Apply this reference when a schema is on a measured hot path, when bundle size is a stated constraint, or when compilation time has become a problem.
 
-Verified against `zod@4.4.3`. All figures below are the library's own published benchmarks for Zod 4 against Zod 3, not independent measurements.
+Verified against `zod@4.4.3` — <https://zod.dev/v4>. All figures below are the library's own published benchmarks for Zod 4 against Zod 3, not independent measurements.
 
 ## What the Library Costs
 
@@ -24,7 +24,7 @@ The compile-time figure is the one most likely to matter and least likely to be 
 
 ## The Tree-Shakable Distribution
 
-`zod/mini` implements the same functionality through a **functional** API — wrapper functions instead of chained methods — because bundlers can eliminate unused top-level functions and cannot eliminate unused methods on a class instance.
+`zod/mini` implements the same functionality through a **functional** API — wrapper functions instead of chained methods — because bundlers can eliminate unused top-level functions and cannot eliminate unused methods on a class instance. See the [Zod Mini reference](https://zod.dev/packages/mini).
 
 ```ts
 // zod

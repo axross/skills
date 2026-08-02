@@ -2,7 +2,7 @@
 
 Apply this reference when a boundary has to be crossed in both directions — decoding a wire format into a domain value and encoding that value back — and when deciding between a codec and a one-way transform.
 
-Verified against `zod@4.4.3`. `z.invertCodec()` requires 4.4 or later.
+Verified against `zod@4.4.3` — <https://zod.dev/codecs>. `z.invertCodec()` requires 4.4 or later.
 
 ## What a Codec Is For
 
@@ -71,7 +71,7 @@ The first three mean an encode path needs its own testing rather than inheriting
 
 ## The Built-In Conversions
 
-Zod documents a set of ready-made codecs covering the conversions that recur across projects. They are worth reading before writing one, both to use directly and as templates:
+Zod ships a set of ready-made codecs covering the conversions that recur across projects, listed in full in the [codec reference](https://zod.dev/codecs). They are worth reading before writing one, both to use directly and as templates. The groups:
 
 | Group      | Codecs                                                                          |
 | ---------- | ------------------------------------------------------------------------------- |
