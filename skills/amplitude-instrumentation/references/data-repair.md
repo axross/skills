@@ -26,7 +26,7 @@ Three constraints, all verified:
 
 ## Hiding Is Not Removing
 
-Four operations get conflated, and they differ in what they cost and what they destroy. Amplitude documents each in its own place — transformations for hiding, the [User Privacy API](https://amplitude.com/docs/apis/analytics/user-privacy) for deletion — and nowhere sets them side by side:
+Four operations get conflated, and they differ in what they cost and what they destroy. Amplitude documents each in its own place — [transformations](https://amplitude.com/docs/data/transformations) for hiding, the [User Privacy API](https://amplitude.com/docs/apis/analytics/user-privacy) for deletion — and nowhere sets them side by side:
 
 | Operation  | Effect                                                                                |
 | ---------- | ------------------------------------------------------------------------------------- |
