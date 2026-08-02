@@ -87,7 +87,7 @@ See [tracing.md](./references/tracing.md) for:
 
 See [session-replay.md](./references/session-replay.md) for:
 
-- the two integrations and the option sets that differ between them
+- the web integration recording the DOM and the mobile one recording the view hierarchy, whose option names never transfer
 - what masking hides by default, and what turning it off exposes
 - recording every session versus recording only the ones that failed
 - capturing network detail without capturing bodies
@@ -110,7 +110,7 @@ See [profiling.md](./references/profiling.md) for:
 - what browser profiling requires from the server before it works at all
 - profiling a native app, and the engine that has to be running
 - choosing between profiling on demand and profiling alongside traces
-- the option that superseded the older sampling rate
+- the session sample rate and lifecycle mode that superseded the single rate Sentry's quickstart still shows
 
 ## User Feedback
 

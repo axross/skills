@@ -104,7 +104,7 @@ See [refinements.md](./references/refinements.md) for:
 - `ctx.addIssue()`, `z.NEVER`, and the `path` that lands an error on a specific field
 - `abort` to stop a chain, and 4.4's `when` to skip a check whose inputs are already invalid
 - an async refinement forcing `.parseAsync()` on every existing caller of the composed schema
-- the rule needing external state, which belongs in the domain rather than the schema
+- a permission, quota, or uniqueness rule belonging in the domain rather than the schema
 
 ## Transforms and Pipes
 
