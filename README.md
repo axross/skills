@@ -315,6 +315,7 @@ format-on-edit and check-before-stop hooks are materialized from
 | Installed copies | `scripts/check-installed-copies.mjs`                                                  |
 | Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
 | Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
+| Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
 
 ### Commands
 
@@ -360,11 +361,12 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 
 #### Reporting, not gating
 
-The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> and
-the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> scripts
-report instead of judging. Neither belongs to a gate, an npm script, or a hook,
-and `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced
-set on purpose, so wiring either in has to be a deliberate act.
+The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count -->,
+the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count -->, and
+the <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> scripts
+report instead of judging. None belongs to a gate, an npm script, or a hook, and
+`tests/repository/reporting-tools.test.mjs` keeps all three out of the enforced
+set on purpose, so wiring any of them in has to be a deliberate act.
 
 The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> reports a
 number:
@@ -426,6 +428,32 @@ format, how a verdict is reached, and how to re-record the baseline.
 skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
 A fixture or baseline naming a renamed skill would otherwise rot in silence.
+
+The <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> reports a
+ranking:
+
+```bash
+node scripts/report-skill-duplication.mjs
+node scripts/report-skill-duplication.mjs --help
+```
+
+`report-skill-duplication.mjs` answers "which rule is stated in more than one
+skill?" — a question `check-skill.mjs` structurally cannot ask, because it
+validates one skill directory at a time and is host-agnostic. Two rules are
+compared as sets of content words, cross-skill only, and every pair above the
+similarity floor is listed with both `file:line` sites and both rules in full.
+It reads the obligation definition from the same module `check-skill.mjs` does,
+so the three tools never disagree about what a rule is.
+
+Its reason for never gating is the strongest of the three, and it is not a
+missing threshold: **the defect is not decidable from the text.**
+[`scoping-and-mece.md`](./skills/agent-skill-authoring/references/scoping-and-mece.md)'s
+Portable Source Exception lets a self-contained distributable skill restate a
+rule another skill owns, and every skill here is distributable — so two
+identical bullets may be one rule with two sources of truth (which
+[`REVIEW.md`](./REVIEW.md) rates Major) or a portable skill standing on its own
+(which is correct). Only intent separates them, and intent is not in the corpus.
+The ranking is a place to look; a human decides.
 
 ### Repository gotchas
 

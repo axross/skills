@@ -60,6 +60,14 @@
 //                   Anchored to that position, and adverbs only: a volitional
 //                   verb ("MUST NOT attempt …") is the prohibited action, not a
 //                   hedged obligation, and reporting it would be wrong.
+//   * citation      a `Verified against …` line carrying no URL, or a document
+//                   that pins a version while carrying no documentation URL at
+//                   all. Two readings of one rule pair; see the note above
+//                   citationWarnings for why the second is document-level and
+//                   fires only at a count of zero.
+//   * routing       a routing bullet that gestures at a fact ("the flag", "the
+//                   approaches available") while naming nothing. Silent as soon
+//                   as the bullet names anything, which is the whole remedy.
 //
 // Usage:
 //   node check-skill.mjs [--require-claude-code-fields] <path> [<path> ...]
@@ -143,6 +151,70 @@ const HEDGE_RE =
 // A label the project standard wants emphasized as `**Guidelines:**`.
 const PLAIN_LABEL_RE = /^(Guidelines|Examples?):\s*$/;
 const TEXT_FENCE_RE = /^text\b/i;
+
+// Upstream-citation advisories (warnings only — see the header note).
+//
+// The rule pair these mechanize sits in body-content-style.md: a MUST to cite
+// the upstream URL in any section that pins a version or mirrors a vendor's
+// option surface, and a SHOULD to attach that URL to a `Verified against` line.
+// The SHOULD is checkable as written. The MUST is not: "mirrors a vendor's
+// option surface" is a judgment about content that no pattern decides, which is
+// exactly the exception clause the header says a threshold would misencode.
+// So the second signal proxies only the half that IS mechanical — a version
+// pin — and only in its least ambiguous form, a document citing NOTHING.
+const VERIFIED_AGAINST_RE = /^\s*(?:[*_]{1,2})?Verified against\b/i;
+const URL_RE = /https?:\/\/[^\s)>\]"']+/g;
+// Separate and non-global, because a /g/ regex carries lastIndex between calls
+// and `.test()` on one would skip every other line it was asked about.
+const HAS_URL_RE = /https?:\/\//i;
+// The RFC-2119 boilerplate every skill carries, and the tracker it redirects
+// through. Counting these as documentation would make every skill look cited,
+// which is why #171's own table measured "non-RFC URLs" rather than URLs.
+const SPEC_BOILERPLATE_HOST_RE = /^https?:\/\/(?:www\.)?(?:rfc-editor\.org|datatracker\.ietf\.org)\//i;
+// A version pin, in the four shapes this corpus actually writes. Each requires
+// a digit bound to a version-bearing word, so prose numbers ("8px grid", "Top
+// 10") cannot match: a package at a semver, an SDK or release line, a `v`-
+// prefixed major, and a spelled-out "version <n>".
+const VERSION_PIN_RES = [
+  /(?:^|[\s`(])@?[a-z0-9][a-z0-9.@/-]*[a-z0-9]\s+\d+\.\d+\.\d+\b/i,
+  /\bSDK\s+\d+\b/i,
+  /(?:^|[\s`(])v\d+(?:\.\d+)*\b/,
+  /\bversion\s+\d+\b/i,
+];
+
+// Routing-concreteness advisory (warnings only — see the header note).
+//
+// The abstract nouns a gestural routing bullet reaches for, held to the set the
+// rule and its examples actually enumerate. Wider sets were measured on this
+// corpus and cost more than they found: `function`, `property`, `value`,
+// `field`, and `parameter` all appear in bullets that name their subject
+// perfectly well ("separating the properties a component owns from the ones its
+// consumer owns"), so including them bought noise only.
+const GESTURE_NOUNS =
+  "flags?|limits?|files?|rules?|options?|settings?|approaches|details?|caveats?|conditions?|requirements?|thresholds?|caps?";
+// Three refinements, each measured against the corpus rather than assumed:
+//   * emphasis markers are skipped, so a bolded gesture ("the **flag**") reads
+//     the same as a plain one — the defect is the word, not its weight;
+//   * `(?![\w-])` rather than `\b`, or "the file-notation set" matches on its
+//     "file" prefix and reports a bullet for a noun it never used;
+//   * a gerund immediately before it exempts the phrase, because "naming the
+//     file" and "separating the properties" describe an ACTIVITY performed on
+//     the thing rather than withholding its name.
+const ROUTING_GESTURE_RE = new RegExp(
+  `(?<!ing\\s)\\bthe\\s+[*_]{0,2}(?:${GESTURE_NOUNS})(?![\\w-])`,
+  "i",
+);
+// A bullet instructing the reader to NAME something is stating this rule, not
+// breaking it. `agent-skill-authoring`'s own A2 bullet — "the flag, limit, or
+// rule BY NAME" — is the case every hand-run count of this defect has
+// mis-flagged, so the exclusion is deliberate rather than incidental.
+//
+// Held to that one phrase. "rather than" and "instead of" were tried alongside
+// it and silenced a real gesture — next-app-development's "the options that
+// change behaviour RATHER THAN tune it" — because those phrases carry no
+// connection to naming. An exclusion that hides the defect it was meant to
+// measure around is worse than the false positive it was buying off.
+const ROUTING_META_RE = /\bby name\b/i;
 
 function fail2(message) {
   process.stderr.write(`${message}\n`);
@@ -419,6 +491,79 @@ function staleStyleWarnings(body, file, offset) {
 }
 
 /**
+ * Upstream-citation advisories for one document.
+ *
+ * Signal 1 fires once per uncited `Verified against` line, so a document
+ * carrying several reports several. Signal 2 fires at most once, and only when
+ * signal 1 found nothing. No document in this corpus repeats a `Verified
+ * against` line today, which makes the two indistinguishable here — an
+ * observation about this tree, not a cap the code enforces.
+ *
+ * Two signals, in priority order:
+ *
+ *   1. A `Verified against …` line carrying no URL ON THAT LINE. This one is
+ *      exact, and needs no document-level context: the line asserts that
+ *      something WAS checked, the rule is that the URL rides the claim, and a
+ *      citation three sections away does not discharge it.
+ *   2. Failing that, a document that pins a version anywhere in its prose while
+ *      citing no documentation URL at all.
+ *
+ * The second is deliberately the weaker half of its rule. The MUST it proxies
+ * turns on "pins a version OR mirrors a vendor's option surface", and only the
+ * first disjunct is mechanical — so a document that reproduces an option table
+ * without naming a version stays silent here, and remains a reviewer's finding.
+ * It is document-level rather than section-level because this corpus puts the
+ * citation in a document's opening line, which a section-scoped check would read
+ * as absent from every section below it. And it fires only at a count of ZERO,
+ * so one URL anywhere silences it: at one citation the question stops being
+ * "was anything checked?" and becomes "is this the right page?", which is
+ * judgment.
+ *
+ * Signal 1 suppresses signal 2 in the same document. Both have the identical
+ * remedy — add the URL — and reporting one missing citation twice would inflate
+ * the count that scopes the cleanup.
+ *
+ * URLs are counted across the WHOLE document including fenced blocks, because a
+ * link in a code sample still tells a reader where to look. Version pins are
+ * read from prose only, so a lockfile excerpt showing `"vitest": "^4.1.10"` is
+ * not read as the document pinning Vitest. Both choices push toward silence.
+ */
+function citationWarnings(body, file, offset) {
+  const warnings = [];
+  let pin = null;
+
+  for (const { line, text, fence } of scanLines(body)) {
+    if (fence) continue;
+
+    if (VERIFIED_AGAINST_RE.test(text)) {
+      // Judged on THIS line, not on the document: the rule is that the URL
+      // rides the claim, so a citation three sections away does not discharge
+      // it. This is the exact half, and it needs no document-level context.
+      if (!HAS_URL_RE.test(text)) {
+        warnings.push(
+          `citation: ${file}:${line + offset} "${text.trim().slice(0, 60)}…" states a verification with no URL to check it against.`,
+        );
+      }
+      continue;
+    }
+    if (!pin && VERSION_PIN_RES.some((pattern) => pattern.test(text))) {
+      pin = { line, text };
+    }
+  }
+
+  if (warnings.length > 0 || !pin) return warnings;
+
+  const cited = (body.match(URL_RE) ?? []).some(
+    (url) => !SPEC_BOILERPLATE_HOST_RE.test(url),
+  );
+  if (cited) return warnings;
+
+  return [
+    `citation: ${file}:${pin.line + offset} pins a version ("${pin.text.trim().slice(0, 60)}…") but the document cites no documentation URL.`,
+  ];
+}
+
+/**
  * The SKILL.md size advisory, or null when the file is within budget. Reports
  * the raw byte count alongside the estimate so a reader can redo the division
  * and judge a borderline case themselves — the proxy is only good to ±5%.
@@ -450,51 +595,123 @@ function documentLinks(body) {
 }
 
 /**
- * Routing-section bullets must stay descriptive — no RFC-2119 keywords. Only
- * the contiguous bullet list immediately following a `See […](./references/…)
- * for:` line is a routing list; a later `**Guidelines:**` block in the same
- * section (as a self-contained workflow skill may carry) is left alone.
+ * Every routing bullet in a SKILL.md, with the section heading above it.
+ *
+ * Only the contiguous bullet list immediately following a
+ * `See […](./references/…) for:` line is a routing list; a later
+ * `**Guidelines:**` block in the same section (as a self-contained workflow
+ * skill may carry) is left alone.
+ *
+ * One walk with one boundary, for the same reason guidelines.mjs owns the
+ * `**Guidelines:**` boundary: two readers ask different questions of a routing
+ * bullet — "does it open with an RFC-2119 keyword?" (a failure) and "does it
+ * name what it points at?" (an advisory) — and a second copy of this boundary
+ * would let them disagree about which bullets are routing bullets at all.
+ *
+ * @yields {{ line: number, section: string, rule: string }} `line` is 1-based
+ *   within `body`; `rule` is the bullet's trimmed text.
  */
-function routingKeywordFailures(body) {
-  const failures = [];
+function* routingBullets(body) {
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
   let seenBullet = false; // a routing bullet has appeared since the See line
 
-  for (const { text: line, fence } of scanLines(body)) {
+  for (const { line, text, fence } of scanLines(body)) {
     if (fence) continue;
 
-    const heading = line.match(/^#{2,}\s+(.*)$/);
+    const heading = text.match(/^#{2,}\s+(.*)$/);
     if (heading) {
       section = heading[1].trim();
       inRouting = false;
       seenBullet = false;
       continue;
     }
-    if (/See \[[^\]]+\.md\]\(\.\/references\/[^)]+\) for:/.test(line)) {
+    if (/See \[[^\]]+\.md\]\(\.\/references\/[^)]+\) for:/.test(text)) {
       inRouting = true;
       seenBullet = false;
       continue;
     }
     if (!inRouting) continue;
 
-    const bullet = line.match(/^\s*-\s+(.*)$/);
+    const bullet = text.match(/^\s*-\s+(.*)$/);
     if (bullet) {
       seenBullet = true;
-      if (RFC2119_RE.test(bullet[1].trim())) {
-        const preview = bullet[1].trim().slice(0, 60);
-        failures.push(
-          `routing: section "${section}" has a routing bullet starting with an RFC-2119 keyword: "${preview}…"`,
-        );
-      }
+      yield { line, section, rule: bullet[1].trim() };
       continue;
     }
     // A blank line before the first bullet is the lead-in gap; any other line,
     // or a blank line after the bullets, ends the routing list.
-    if (line.trim() === "" && !seenBullet) continue;
+    if (text.trim() === "" && !seenBullet) continue;
     inRouting = false;
   }
+}
+
+/** Routing-section bullets must stay descriptive — no RFC-2119 keywords. */
+function routingKeywordFailures(body) {
+  const failures = [];
+
+  for (const { section, rule } of routingBullets(body)) {
+    if (!RFC2119_RE.test(rule)) continue;
+    failures.push(
+      `routing: section "${section}" has a routing bullet starting with an RFC-2119 keyword: "${rule.slice(0, 60)}…"`,
+    );
+  }
   return failures;
+}
+
+/**
+ * Whether a routing bullet names anything a reader could look up: a code span,
+ * a camelCased identifier, an acronym, or a proper noun past the first word.
+ *
+ * The first word is excluded from the proper-noun test because a leading
+ * capital may only be opening the sentence. Every other form is positional
+ * evidence that a specific thing is being named rather than alluded to.
+ */
+function namesSomething(rule) {
+  if (/`[^`]+`/.test(rule)) return true;
+  return rule
+    .split(/\s+/)
+    .some(
+      (word, index) =>
+        /[a-z]\w*[A-Z]/.test(word) ||
+        /^[A-Z]{2,}/.test(word) ||
+        (index > 0 && /^[A-Z][a-z]/.test(word)),
+    );
+}
+
+/**
+ * Routing bullets that gesture at a fact instead of stating it.
+ *
+ * A bullet warns only when all three hold: it opens an abstract noun with a
+ * bare `the`, it names nothing anywhere in the bullet, and it is not itself
+ * describing the rule. All three conditions push toward silence, which is what
+ * the advisory tier is for — the prose rule owns the judgment about whether a
+ * particular bullet earns its reference, and a pattern cannot make it.
+ *
+ * The third condition is not a nicety. `agent-skill-authoring`'s own bullet for
+ * this rule reads "the flag, limit, or rule BY NAME", and every hand-run count
+ * of this defect has reported it as a violation of the rule it states. A metric
+ * that reproduces the error it was built to replace is worse than no metric.
+ *
+ * KNOWN FALSE POSITIVE, stated rather than papered over: a compound noun whose
+ * modifier is a gesture noun — "the file system", "the rule set" — reads as a
+ * gesture and is not one. It cannot be separated by pattern, because the shape
+ * is identical to a real gesture that happens to be compound ("the option sets
+ * that differ between them"), and silencing one silences the other. On this
+ * corpus that is one hit in ten. An advisory surfaces candidates for a human to
+ * weigh, so the miscount is visible where a suppression would not be.
+ */
+function routingConcretenessWarnings(body, file, offset) {
+  const warnings = [];
+
+  for (const { line, section, rule } of routingBullets(body)) {
+    if (!ROUTING_GESTURE_RE.test(rule)) continue;
+    if (ROUTING_META_RE.test(rule) || namesSomething(rule)) continue;
+    warnings.push(
+      `routing: ${file}:${line + offset} section "${section}" gestures at a fact without naming it: "${rule.slice(0, 60)}…"`,
+    );
+  }
+  return warnings;
 }
 
 /** A skill-relative path, always forward-slashed so a message reads the same on any platform. */
@@ -566,6 +783,7 @@ async function documentFindings(dir, documents) {
     failures.push(...guidelineKeywordFailures(body, file, offset));
     warnings.push(...guidelineStructureWarnings(body, file, offset));
     warnings.push(...staleStyleWarnings(body, file, offset));
+    warnings.push(...citationWarnings(body, file, offset));
 
     for (const { line, target } of documentLinks(body)) {
       const at = `${file}:${line + offset}`;
@@ -692,6 +910,7 @@ async function checkSkill(dir, { requireClaudeCodeFields = false } = {}) {
   }
 
   failures.push(...routingKeywordFailures(body));
+  warnings.push(...routingConcretenessWarnings(body, "SKILL.md", offset));
   const documentResults = await documentFindings(dir, documents);
   failures.push(...documentResults.failures);
   warnings.push(...documentResults.warnings);
