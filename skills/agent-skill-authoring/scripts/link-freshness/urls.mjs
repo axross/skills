@@ -21,7 +21,7 @@
 
 import { readdir, readFile, stat } from "node:fs/promises";
 
-import { extractProse } from "../../skills/agent-skill-authoring/scripts/commonmark.mjs";
+import { extractProse } from "../commonmark.mjs";
 
 /**
  * Directory names never worth walking, mirroring check-links.mjs's list for the

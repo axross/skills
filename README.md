@@ -135,15 +135,15 @@ one you inherit.
 | [`next-app-development`](./skills/next-app-development/SKILL.md)             | The framework layer under the components, on Next.js 16's App Router: which code runs on the server, what reaches the browser, how data is fetched, cached, and invalidated — and, for a reviewer, what each of those seams looks like when it goes wrong.                   |
 | [`tanstack-query-development`](./skills/tanstack-query-development/SKILL.md) | The server state behind all of it, on TanStack Query v5: where a query lives, what identifies it in the cache, when it refetches, what a write invalidates, and how a failure surfaces — plus the review checks for each of those going wrong.                               |
 | [`sentry-instrumentation`](./skills/sentry-instrumentation/SKILL.md)         | The Sentry layer under all four: which package, which option, which file, which token — what it is allowed to collect, how a minified frame gets a name back, and which of its silent misconfigurations only surface during an incident.                                     |
-| [`amplitude-instrumentation`](./skills/amplitude-instrumentation/SKILL.md)   | The product-analytics vendor beside it: which Amplitude package, what `init` fixes for good, how identity and sessions resolve, what autocapture already collects, and which mistakes cost money — with a validator for the three that cost most.                            |
+| [`amplitude-instrumentation`](./skills/amplitude-instrumentation/SKILL.md)   | The product-analytics vendor beside it: which Amplitude package, what `init` fixes for good, how identity and sessions resolve, what autocapture already collects, and which mistakes cost money.                                                                            |
 | [`zod-schema`](./skills/zod-schema/SKILL.md)                                 | The type layer over everything untrusted, on Zod 4: where the one parse goes, why the schema makes the type rather than the other way round, how a wire format is decoded and encoded back, which coercions quietly lie — and what a passing parse still does not make safe. |
 
 ### Authoring skills
 
-| Skill                                                                | What it gives your agent                                                                                                                      |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`agent-skill-authoring`](./skills/agent-skill-authoring/SKILL.md)   | How to write a skill an agent will actually find and follow: framing, frontmatter, discovery text, and a validator that checks the structure. |
-| [`agent-skill-management`](./skills/agent-skill-management/SKILL.md) | Where a skill's source belongs, how it gets installed and refreshed, and what to do when you want to change one you do not own.               |
+| Skill                                                                | What it gives your agent                                                                                                                                                                          |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`agent-skill-authoring`](./skills/agent-skill-authoring/SKILL.md)   | How to write a skill an agent will actually find and follow: framing, frontmatter, discovery text, a validator that checks the structure, and an audit that catches a cited vendor URL going 404. |
+| [`agent-skill-management`](./skills/agent-skill-management/SKILL.md) | Where a skill's source belongs, how it gets installed and refreshed, a check that fails when an installed copy drifts from it, and what to do when you want to change one you do not own.         |
 
 ## How this library evaluates its skills
 
@@ -314,11 +314,11 @@ format-on-edit and check-before-stop hooks are materialized from
 | Tests            | Vitest                                                                                |
 | Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
 | Skill structure  | `skills/agent-skill-authoring/scripts/check-skill.mjs`                                |
-| Installed copies | `scripts/check-installed-copies.mjs`                                                  |
+| Installed copies | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
 | Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
 | Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
 | Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
-| Link freshness   | `scripts/link-freshness/check.mjs` (scheduled; never gates)                           |
+| Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
 
 ### Commands
 
@@ -342,36 +342,49 @@ contributors and agents alike.
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
-Each validator is also a standalone CLI with `--help`, so a single check can run
-without the suite. Run them from the source tier under [`skills/`](./skills) —
-what the suite itself invokes; the `.claude/skills/` copies go stale mid-edit.
+**Every validator lives in the skill that owns it.** A validator here is an agent
+utility — the thing you run after doing the work its skill governs — so it ships
+with that skill rather than sitting beside the repository it happens to be
+written in. Each is also a standalone CLI with `--help`, so a single check can
+run without the suite. Run them from the source tier under [`skills/`](./skills)
+— what the suite itself invokes; the `.claude/skills/` copies go stale mid-edit.
 
 ```bash
 # This repository's own three gates, run over the whole tree by `npm test`:
 node skills/agent-skill-authoring/scripts/check-links.mjs
 node skills/agent-skill-authoring/scripts/check-skill.mjs --help
-node scripts/check-installed-copies.mjs
+node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
 
-# Six more ship inside a skill, for the projects that install it — this
+# One more ships in a skill and this repository runs it too, from a schedule
+# rather than a gate — see "Scheduled, and off the merge path" below:
+node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
+
+# Two more ship inside a skill purely for the projects that install it — this
 # repository exercises them only against fixtures:
-node skills/amplitude-instrumentation/scripts/check-amplitude-wiring.mjs --help
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
-node skills/end-to-end-testing/scripts/scenario-coverage-gate.mjs --help
-node skills/react-component-styling/scripts/check-component-styles.mjs --help
-node skills/sentry-instrumentation/scripts/check-sentry-wiring.mjs --help
 node skills/wireframe-design/scripts/check-wireframe.mjs --help
 ```
 
+A validator earns its place when the defect it finds is **not visible in the text
+its author just wrote** — because it spans files, because it counts, or because
+it compares bytes. Four scripts that failed that test were removed rather than
+rehomed: two mirrored a vendor's option surface in regular expressions, which is
+the same staleness [#179](https://github.com/axross/skills/issues/179) is moving
+the vendor skills away from and less visible, since a pattern never renders; and
+two re-checked rules an agent holding the skill can see in the file in front of
+it. What each of those skills teaches is unchanged — only the claim that this
+repository ships a runnable checker for it is gone.
+
 #### Reporting, not gating
 
-The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count -->,
-the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count -->, and
-the <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> scripts
+The <!-- count:first-reporting-tool-ordinal -->seventh<!-- /count -->,
+the <!-- count:second-reporting-tool-ordinal -->eighth<!-- /count -->, and
+the <!-- count:third-reporting-tool-ordinal -->ninth<!-- /count --> scripts
 report instead of judging. None belongs to a gate, an npm script, or a hook, and
 `tests/repository/reporting-tools.test.mjs` keeps all three out of the enforced
 set on purpose, so wiring any of them in has to be a deliberate act.
 
-The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> reports a
+The <!-- count:first-reporting-tool-ordinal -->seventh<!-- /count --> reports a
 number:
 
 ```bash
@@ -392,7 +405,7 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> reports a
+The <!-- count:second-reporting-tool-ordinal -->eighth<!-- /count --> reports a
 routing outcome:
 
 ```bash
@@ -432,7 +445,7 @@ skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
 A fixture or baseline naming a renamed skill would otherwise rot in silence.
 
-The <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> reports a
+The <!-- count:third-reporting-tool-ordinal -->ninth<!-- /count --> reports a
 ranking:
 
 ```bash
@@ -460,15 +473,16 @@ The ranking is a place to look; a human decides.
 
 #### Scheduled, and off the merge path
 
-One more script neither gates nor merely reports. It **can** fail, and it runs
-on a schedule rather than on a pull request:
+One more script neither gates nor merely reports. It **can** fail, it runs on a
+schedule rather than on a pull request, and — unlike the three above — it ships
+inside a skill, because it is an agent utility like every other validator here:
 
 ```bash
-node scripts/link-freshness/check.mjs --dry-run
-node scripts/link-freshness/check.mjs --help
+node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
+node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --help
 ```
 
-`scripts/link-freshness/check.mjs` answers "do the URLs this repository cites
+`link-freshness/check.mjs` answers "do the URLs this repository cites
 still resolve?" — a question nothing here asked before, because
 `check-links.mjs` resolves relative `.md` targets on disk and ignores
 `http(s)://` entirely. It exists because the vendor skills are moving off
@@ -482,6 +496,15 @@ reported as `moved` without failing. That split is the design: this corpus cites
 ~80 hosts, several of which refuse CI traffic by policy, and an audit that went
 red whenever a publisher throttled a runner would be red most weeks — the same
 argument that keeps the three tools above out of every gate.
+
+It lives in
+[`agent-skill-authoring`](./skills/agent-skill-authoring/SKILL.md) rather than at
+this repository's root: the rot it catches is a rot in _cited skill prose_, which
+is that skill's subject, and the same skill already warns when a version-pinning
+document cites nothing at all. What cannot travel with it is this repository's
+wiring, so the skill states the schedule-only, never-`pull_request` rule as a
+`MUST NOT` of its own — a consuming project inherits the argument, not just the
+code.
 
 It runs from
 [`link-freshness.yaml`](./.github/workflows/link-freshness.yaml) weekly, and
@@ -498,7 +521,7 @@ Being merged makes a URL reviewed; it does not make the **host** honest, and the
 audit follows redirects by hand so it can tell a permanent move from a temporary
 one. A citation that was ordinary at review time can start redirecting to an
 internal address weeks later, so every hop — the first included — is
-re-validated against `scripts/link-freshness/address-guard.mjs`, which refuses
+re-validated against its `address-guard.mjs`, which refuses
 loopback, RFC 1918, carrier-grade NAT, link-local (`169.254.169.254`), and their
 IPv6 and IPv4-mapped equivalents. A refused hop is reported as `unverifiable`
 and does not fail the run. That file also states the DNS-rebinding window the
@@ -633,10 +656,10 @@ specific to this repository would have its source committed directly under
 [`.claude/skills/`](./.claude/skills), hand-edited in place, and never touched
 by the CLI or listed in `skills-lock.json`. No skill is in that tier today —
 `github-operation` was the last one and is now distributable — so the tier is
-available rather than in use. Registering one means adding its name to
-`REPOSITORY_LOCAL` in
-[`scripts/check-installed-copies.mjs`](./scripts/check-installed-copies.mjs),
-which otherwise treats an installed skill with no source as drift.
+available rather than in use. Registering one means passing its name to the
+installed-copy check as `--local <name>` from
+[`tests/repository/gates.mjs`](./tests/repository/gates.mjs), which otherwise
+treats an installed skill with no source as drift.
 
 [Agent Skill Management](./skills/agent-skill-management/SKILL.md) covers which
 tier a new skill belongs to and the full install, lockfile, and

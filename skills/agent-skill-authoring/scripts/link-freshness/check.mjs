@@ -1,33 +1,34 @@
 #!/usr/bin/env node
-// check.mjs — external documentation-link freshness audit for THIS repository.
+// check.mjs — external documentation-link freshness audit for a skill tree.
 //
 // Answers a question no offline check can: do the URLs this tree cites still
-// resolve? check-links.mjs resolves RELATIVE `.md` links against the file system
-// and ignores `http(s)://` targets entirely, so until now nothing here looked at
-// an external link at all.
+// resolve? check-links.mjs beside it resolves RELATIVE `.md` links against the
+// file system and ignores `http(s)://` targets entirely, so nothing else here
+// looks at an external link at all.
 //
-// WHY IT EXISTS NOW. The skills that mirror a vendor's API are being moved off
-// reproduced option tables and onto a link plus the non-obvious caveat (#179).
-// That trades a table which goes stale VISIBLY — a wrong default a reader can
-// catch — for a link that rots SILENTLY. This audit is the other half of that
-// trade, and without it the trade is not safe to make.
+// WHY IT EXISTS. A skill that mirrors a vendor's API ages badly, so the better
+// shape is a link plus the non-obvious caveat rather than a reproduced option
+// table. That trades a table which goes stale VISIBLY — a wrong default a reader
+// can catch — for a link that rots SILENTLY. This audit is the other half of
+// that trade, and without it the trade is not safe to make.
 //
 // ── IT REACHES THE NETWORK, SO IT IS NOT A GATE AND NOT A TEST.
-// It runs from one scheduled workflow (.github/workflows/link-freshness.yaml) on
-// the default branch and nowhere else. It is in no npm script, no merge gate,
-// and no hook, and tests/repository/scheduled-audit-tools.test.mjs asserts every
-// one of those — so wiring it into `npm run check` has to break a test first.
-// That matters more than tidiness: `npm test` must stay offline and
-// deterministic, and a network call inside it would make the merge gate depend
-// on whether a publisher's CDN is up.
+// It belongs in a scheduled job on the default branch and nowhere else: not in a
+// merge gate, not in a package script, not in an editor or session hook. A test
+// suite must stay offline and deterministic, and a network call inside one makes
+// the merge gate depend on whether a publisher's CDN is up — a gate that fails
+// for reasons no contributor can fix is a gate that gets bypassed or deleted
+// rather than repaired.
 //
-// ── WHY IT IS NOT PULL-REQUEST TRIGGERED. #171 specifies this and the reason is
-// load-bearing: the reviewer workflow denies `WebFetch,WebSearch,Task` against
-// an untrusted pull request head, and a fetching job triggered by a pull request
-// would hand that capability back on head-controlled content. A `SKILL.md` in a
-// fork's branch is text an outsider writes; a job that fetches every URL in it
-// is a request forgery primitive with this repository's egress. Scheduled, from
-// the default branch, the URLs probed are only ever ones already merged.
+// ── WHY IT MUST NOT BE PULL-REQUEST TRIGGERED. This is the load-bearing one,
+// and ../SKILL.md states it as a rule rather than leaving it here. A review
+// harness that runs against an untrusted pull request head denies it any
+// fetching capability; a fetching job triggered by a pull request hands that
+// capability straight back on head-controlled content. A `SKILL.md` on a fork's
+// branch is text an outsider writes, and a job that dereferences every URL in it
+// is a request forgery primitive with the repository's egress, reachable by
+// anyone who can open a pull request. Scheduled, from the default branch, the
+// URLs probed are only ever ones already merged and reviewed.
 //
 // ── THE OTHER FORGERY VECTOR, WHICH THE TRIGGER DOES NOT CLOSE. Being merged
 // makes a URL reviewed; it does not make the HOST honest, and this script
@@ -37,16 +38,15 @@
 // re-validated by address-guard.mjs, which is where that threat and its residual
 // rebinding window are set out in full.
 //
-// ── WHY IT CAN FAIL, UNLIKE THE THREE REPORTING TOOLS.
-// report-obligation-load.mjs, report-skill-duplication.mjs, and the discovery
-// evaluation cannot fail by construction — no threshold, an undecidable defect,
-// and non-determinism respectively. A dead link has none of those problems: it
-// is a fact, it is decidable, and it is repairable. So this one fails, in the
-// shape branch-governance-audit.yaml already uses. What it will NOT fail on is a
-// host that refused to answer — see classify.mjs, where that decision lives.
+// ── WHY IT CAN FAIL AT ALL, UNLIKE A REPORTING TOOL. A tool reports rather than
+// judges when it has no defensible threshold, when the defect is undecidable
+// from the text, or when it is non-deterministic. A dead link has none of those
+// problems: it is a fact, it is decidable, and it is repairable. So this one
+// fails. What it will NOT fail on is a host that refused to answer — see
+// classify.mjs, where that decision lives.
 //
 // Usage:
-//   node scripts/link-freshness/check.mjs [options] [<path> ...]
+//   node check.mjs [options] [<path> ...]
 //
 // Exit codes:
 //   0  no link was confirmed dead (unverifiable and moved links are reported)

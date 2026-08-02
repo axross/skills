@@ -42,8 +42,11 @@ export const GATES = [
   {
     name: "installed-copies",
     script: SCRIPTS.checkInstalledCopies,
-    // No arguments: both roots default to this repository's own.
-    args: [],
+    // Both roots are named rather than defaulted. The script ships inside
+    // agent-skill-management now, where "two levels up from the script" would
+    // resolve to `.claude/` instead of a repository root — and a root that
+    // matches nothing reports no drift, which reads exactly like a pass.
+    args: ["skills", ".claude/skills"],
     passes: /All \d+ distributable skill\(s\) match their installed copies\./,
   },
 ];

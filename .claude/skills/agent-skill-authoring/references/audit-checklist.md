@@ -54,6 +54,31 @@ The token estimate is a **proxy, not a token count**: the validator takes no tok
 - MUST fix every reported failure, or record why the skill is a deliberate, documented exception.
 - MAY extend the validator when the project adopts a new mechanical rule, keeping it dependency-light so it runs anywhere the skill is installed.
 
+## External Link Freshness Audit
+
+A skill that pins a version or mirrors a vendor's option surface should cite the upstream page rather than reproduce it, because a reproduced table goes stale where a reader can see it. The link that replaces the table rots the other way — silently — and neither `check-skill.mjs` nor `check-links.mjs` can see it: both resolve relative `.md` targets on disk and ignore `http(s)://` entirely. This skill bundles `scripts/link-freshness/check.mjs` to close that gap, a dependency-light Node audit (standard library only) that probes every external URL the tree cites.
+
+**Example:**
+
+```sh
+# Offline preview: validate extraction and print the plan, making no request.
+node .claude/skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
+```
+
+It reports four verdicts and **fails on one**: `alive` (2xx), `moved` (2xx reached through a permanent redirect — informational, since the link still serves the reader), `unverifiable` (403, 429, 5xx, timeout, DNS, TLS — the host refused to answer), and `dead` (404 or 410 surviving a retry). Only `dead` fails the run. That split is the design rather than leniency: a documentation corpus cites dozens of publishers, several of which rate-limit or block datacentre egress by policy, and an audit that went red whenever one throttled a runner would be red most weeks — and a check that cries wolf gets bypassed rather than repaired.
+
+It follows redirects **by hand**, because automatic following hides each hop's status and the audit needs to tell a permanent move from a temporary one. Following by hand means re-requesting whatever host a `location` header names, and that header is written by a remote server. Every hop, the first included, is therefore re-validated against `scripts/link-freshness/address-guard.mjs`, which refuses loopback, RFC 1918, carrier-grade NAT, link-local (`169.254.169.254`), and their IPv6 and IPv4-mapped equivalents. That file also states the DNS-rebinding window the check does **not** close, and why the residual risk is bounded to blind reachability probing.
+
+It exits 0 when no link was confirmed dead, 1 when one was, and 2 on a bad invocation.
+
+**Guidelines:**
+
+- MUST run this audit from a scheduled job on the default branch, so the only URLs ever dereferenced are ones already merged and reviewed.
+- MUST NOT give the workflow that runs it a `pull_request` or `pull_request_target` trigger. A `SKILL.md` on a fork's branch is text an outsider writes, and a job that dereferences every URL in it is a server-side request forgery primitive pointed at the repository's egress, reachable by anyone who can open a pull request — the same capability a review harness denies against an untrusted head.
+- MUST NOT wire it into a merge gate, a package script, or a session hook: it reaches the network, and a gate that depends on other people's servers being up fails for reasons no contributor can fix.
+- MUST keep `unverifiable` and `moved` out of the failure condition when adapting it; widening the audit to fail on a refused answer is what turns it into the check people learn to ignore.
+- SHOULD act on a `moved` verdict rather than filing it: a permanent redirect still serves the reader, but a deep link that now lands on a generic documentation index is exactly the rot this audit exists to surface.
+
 ## Structural Checks
 
 Structural checks should be repeatable. The bundled validator above automates the frontmatter, naming, reference-linkage, routing-keyword, section-intro, guideline-bullet, link-scope, and anchor checks, and `check-links.mjs` resolves every relative link. Run both first, then use the list below for what they still cannot decide — whether frontmatter is valid YAML beyond the minimal `key: value` subset the validator parses, which `user-invocable` value an archetype takes, whether a routing section uses the expected heading-and-`See` shape at all, whether a section that states rules carries a `**Guidelines:**` block, whether a nested bullet is really a rule in disguise, whether an in-skill cross-reference is topic-based rather than merely well-formed, and whether a stale plain label outside the three the `labels:` advisory matches has crept in — and when auditing by hand. All checks should ignore fenced code blocks so embedded examples do not create false positives.

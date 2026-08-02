@@ -45,7 +45,13 @@ const SCHEDULED_AUDITS = [
     script: SCRIPTS.linkFreshness,
     // Matched by PATH, not basename: "check.mjs" alone is generic enough to
     // collide with unrelated text and would make the assertions meaningless.
-    needle: "scripts/link-freshness/check.mjs",
+    //
+    // The audit now ships inside agent-skill-authoring, so this path also
+    // appears under `.claude/skills/` as an installed copy. That is harmless
+    // here on purpose: every sweep below reads .github/workflows, package.json,
+    // .claude/hooks, and the gate registry — never the installed skill tree — so
+    // a copy of the SCRIPT can never be mistaken for a WIRING of it.
+    needle: "skills/agent-skill-authoring/scripts/link-freshness/check.mjs",
     workflow: "link-freshness.yaml",
   },
 ];

@@ -4,22 +4,17 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "a5d200a01bab780754499c0fb530ad3ef7f5f55e05bbe135198994062bb28993"
+      "computedHash": "94ce2b926b54a2602f20f959993c7777020a4d14fc079141b73e1e50d85fc56d"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "420d25e0b8b5d78ea824fe634ad1aae764b461c1a0b49ea0859c4a48a8b86b48"
-    },
-    "amplitude-analytics": {
-      "source": "/home/user/skills/skills",
-      "sourceType": "local",
-      "computedHash": "bbc24b018afa3021c4dd19aa964e7f3ef4dbc66c68371e56d1f341d9f195efee"
+      "computedHash": "9f358dcdec62c231f67d0c414d3612db6c0546c5cab1c83c2fff9fa72c1e1f4e"
     },
     "amplitude-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "8cc1097b4a5aff52386dd6bf0ada44c2aadcd1e4a2ebf57e44988274d30bd936"
+      "computedHash": "52ad5cadad2c8ec3facf83a4782892b4e06c3e55d14f91ab1891789b29428690"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
@@ -44,7 +39,7 @@
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "e524b0efcad7748c914bd941de6ce06f1ae3e01b53a72af2903e33d034b765e9"
+      "computedHash": "79ea6cb6b96395b16f50264f7ea61fd6f233aeb3c8c0feb51adfdf33d50ecb60"
     },
     "expo-app-development": {
       "source": "/home/user/skills/skills",
@@ -99,12 +94,12 @@
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "03e14a61ea87117feca1151ef4a7204304d763f621732418b34c93c8568d2a25"
+      "computedHash": "56de9ce78a97282df7854a5833e41398170bc1d98bfedfd0192c2ee1178460e0"
     },
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "8495cfcba1ba34b77e2e31a2e98a016d73efba552bab3f8269af57824651c705"
+      "computedHash": "463b0d6271a73b8411994cbb3b29a5f2d24c49e5d934f524ff069ef4bb368090"
     },
     "software-development": {
       "source": "/home/user/skills/skills",

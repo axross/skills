@@ -1,8 +1,15 @@
-// Exit-code contract for the repository's installed-copy drift check, exercised
-// against fixture roots.
+// Exit-code contract for the installed-copy drift check agent-skill-management
+// bundles, exercised against fixture roots.
 //
 // Documented contract: 0 when every distributable skill matches its installed
 // copy, 1 on drift, 2 on a bad invocation or a root that is not a directory.
+//
+// BOTH ROOTS ARE REQUIRED, and the two invocation cases at the bottom are what
+// hold that. The script used to default them from its own location, which
+// stopped being safe once it moved inside a skill: two levels up now lands in
+// `.claude/`, and a root that matches nothing reports "0 skills, no drift" —
+// a pass indistinguishable from a real one. Requiring the roots converts that
+// silent nothing into an exit 2.
 //
 // Running the check against THIS repository's own two roots is a gate rather
 // than a contract test, and lives in tests/repository/gate-runs.test.mjs, which
@@ -151,6 +158,24 @@ describe("check-installed-copies.mjs", () => {
 
     expect(result).toExitWith(2);
     expect(result.stderr).toMatch(/Usage: check-installed-copies\.mjs/);
+  });
+
+  // The case the removed default made unreachable: with no roots the script
+  // once inspected two guessed directories, and a wrong guess passed.
+  it("exits 2 when both roots are omitted", () => {
+    const result = checkCopies();
+
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/Both a source root and an installed root are required \(got 0\)/);
+  });
+
+  it("exits 2 when only one root is given", async () => {
+    const { source } = await twoRoots(["alpha-skill"]);
+
+    const result = checkCopies(source);
+
+    expect(result).toExitWith(2);
+    expect(result.stderr).toMatch(/\(got 1\)/);
   });
 
   it("prints usage on --help", () => {
