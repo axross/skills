@@ -99,7 +99,7 @@ A section that pins a version or mirrors a vendor's option surface is making a c
 
 **Good Example:**
 
-> `init` takes the vendor's full option set (see the linked reference). Two are load-bearing here: `serverZone` cannot change after init, and `flushQueueSize` silently drops events past its default of 30.
+> `init` takes the vendor's full option set (see the linked reference). Two are load-bearing here: `serverZone` must match the organization's residency, since a mismatch sends data to an endpoint the project does not exist in; and raising `flushQueueSize` past its default of 30 widens the loss window when the app closes.
 
 **Guidelines:**
 

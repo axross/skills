@@ -80,9 +80,10 @@ skill in the finding.
 - **Subtractive pass** — on a change that adds content, say what should be
   **cut** and why. The other two checks ask whether what is present is correct;
   only this one can see what should not be present at all. Silence here is a
-  claim rather than a default: a review of a content-adding change that reports
-  no findings is invalid unless its summary walks each lens below and records
-  either a finding or an explicit "checked, none".
+  claim rather than a default: every review of a content-adding change walks
+  each lens below in its summary and records either a finding or an explicit
+  "checked, none". Finding something under one lens discharges none of the
+  others.
   1. **Duplicated judgment** — a rule the change states that a tool-agnostic
      neighbour already owns.
   2. **Reproduced upstream** — vendor documentation copied in where a link plus
@@ -104,7 +105,8 @@ skill in the finding.
   each miss.
 - MUST enumerate every subtractive lens in the summary of any review of a
   content-adding change, recording a finding or an explicit "checked, none"
-  against each; a `0 findings` verdict without that enumeration is invalid.
+  against each; a review lacking that enumeration is invalid whatever it
+  reported, and a finding under one lens discharges none of the others.
 - MUST give each finding a severity label, `file:line` evidence, and a concrete
   fix, per
   [Code Review](.claude/skills/code-review/SKILL.md).
@@ -123,6 +125,10 @@ cannot see the sections that should have had one and do not.
 - MUST open every skill the change's own boundary text names as an owner, and
   compare the change against what that owner actually states, section by
   section.
+- MUST additionally open any skill whose declared scope overlaps the change's
+  topic, whether or not the change names it; a change that duplicates without
+  deferring names no owner to follow, and is the case this check most needs to
+  reach.
 - MUST treat a file being outside the diff as no exemption from reading it;
   opening a neighbour is the cost of checking a boundary claim, not extra
   scope.
