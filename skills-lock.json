@@ -61,6 +61,11 @@
       "sourceType": "local",
       "computedHash": "1d499c3b4f7ad7fa39caafa9995caefd61ce7c01f6d800c9fc46c76bcb27a1cd"
     },
+    "jest-testing": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "08988bd5c881328d085cf54922bf62d2e2b17013cc2ee2c52d35d2cd30677b35"
+    },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -69,7 +74,7 @@
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "4eb8e04d11bf23599bdf92baccb781c21ae3eb219f04babf77a5210b8a031c1f"
+      "computedHash": "3df3db9f607fc064f8ca330ee8b90de16dd7c758e2217cf4e135b0bdce1b0b84"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -99,7 +104,7 @@
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "e6938f261bdcdbae0e8ff06151e02774a6c3a21331bec01a1d7778c59d167f82"
+      "computedHash": "77911b26e4a42715f3a23e8ec45cac48b170c2b1e7c68a95e07570f1d7fd5900"
     },
     "software-development": {
       "source": "/home/user/skills/skills",
@@ -114,7 +119,7 @@
     "tanstack-query-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f9912d0cff57d1bb6eb1cfdb12fb7e513ccc015940642752fa1af90b2dac93e7"
+      "computedHash": "e9f503b0e0a710bb35866154b73efcd00ed3d6cd5679dfd7aa964ee0c9fba287"
     },
     "technical-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -139,7 +144,7 @@
     "zod-schema": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "56c1980d8f6c7abaab478a0917dae3596dae778cabdfd67c3eb43440a652e3b0"
+      "computedHash": "41506c0d6716759c432d6b3bee13718371537e99a9293b100a8f8598b286579b"
     }
   }
 }
