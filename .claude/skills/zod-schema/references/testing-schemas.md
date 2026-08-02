@@ -1,8 +1,10 @@
 # Testing Schemas
 
-Apply this reference when deciding which schemas earn a test, writing fixtures, asserting failures, or checking that a two-way boundary survives a round trip.
+Apply this reference when writing a fixture for a schema, asserting a parse failure, or round-tripping a codec.
 
 Verified against `zod@4.4.3` — <https://zod.dev/ecosystem>.
+
+What counts as adequate coverage — which schemas and codecs earn a test, what a rejection test must assert, and whether an encoded output is part of the public contract — belongs to a unit-testing capability. This reference owns only the Zod-specific mechanics of writing those tests.
 
 ## Which Schemas Earn a Test
 
@@ -56,11 +58,7 @@ A branded schema (see [schema-modules.md](./schema-modules.md)) adds a wrinkle: 
 
 ## Assert the Failures
 
-A test suite that only asserts successes cannot distinguish a correct schema from one that accepts everything. Removing a required field from a schema breaks nothing in a happy-path-only suite.
-
-Every constraint worth having is worth one rejection test: the field that must be present, the format that must hold, the bound that must not be exceeded, the cross-field rule.
-
-The paired form is the most informative — one test that a permitted edge case is accepted, one that a neighbouring case is still rejected:
+A unit-testing capability owns how much rejection coverage a schema needs. What is Zod-specific is how a rejection is asserted, and the paired form that keeps a relaxation bounded — one test that a permitted edge case is accepted, one that a neighbouring case is still rejected:
 
 ```ts
 it("accepts a null cover image so autosaved drafts still parse", () => {
@@ -76,23 +74,21 @@ it("still rejects a cover image missing its Open Graph size", () => {
 
 **Guidelines:**
 
-- MUST assert a rejection for every constraint the schema is relied upon to enforce.
+- MUST assert a Zod rejection through `.safeParse().success` or by expecting `.parse()` to throw, not by asserting on the thrown value's shape.
 - MUST pair a relaxation with a test that the neighbouring case is still rejected, so the relaxation is bounded.
 - SHOULD assert on the issue `path` or `code` rather than the message, which is localizable (see [errors.md](./errors.md)).
 
 ## Round-Tripping a Codec
 
-A codec's read half is exercised by every read path. Its write half usually is not, and the asymmetries in [codecs.md](./codecs.md) mean a working decode implies nothing about encode.
+Whether a codec's encoded output is part of the public contract, and so earns a test, is a unit-testing capability's call. What Zod adds is a reason that call is easy to get wrong: a codec's read half is exercised by every read path, its write half usually is not, and the asymmetries in [codecs.md](./codecs.md) mean a passing decode implies nothing at all about encode.
 
-The test is a round trip: encode a decoded value and compare. What it catches is the field the decode side reads and the encode side forgets — which produces a record that loses data every time it is written back, silently, until someone notices the field is empty.
-
-For a codec that is deliberately lossy, the round trip still belongs in a test, asserting exactly what is dropped rather than that nothing is.
+The Zod-specific shape of the test is a round trip through the codec's own two directions — `.encode()` over a `.decode()` result — which catches the field the decode side reads and the encode side forgets.
 
 **Guidelines:**
 
-- MUST test the encode direction of every codec explicitly.
-- MUST assert what a deliberately lossy codec drops, rather than skipping the round-trip test.
-- SHOULD round-trip in both directions where the codec is inverted anywhere in the codebase.
+- MUST round-trip through the codec's own `.decode()` and `.encode()` rather than re-implementing either direction in the test.
+- MUST assert what a deliberately lossy codec drops, rather than treating a failed round trip as the test being wrong.
+- SHOULD exercise `z.invertCodec()` separately where the inverted codec is used anywhere in the codebase, since inversion is its own construct.
 
 ## Generated and Fuzzed Data
 
