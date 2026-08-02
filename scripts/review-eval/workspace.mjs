@@ -15,7 +15,7 @@
 // manual dispatch only, a recorded fixture, and the default branch.
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -27,18 +27,30 @@ function git(repoRoot, args) {
 }
 
 /**
- * The diff a probe reviews, plus the REVIEW.md it reviews under.
+ * The tree a probe reviews, the diff that produced it, and the REVIEW.md it
+ * reviews under.
+ *
+ * THE TREE IS REAL, not just the diff. A probe is given a git worktree checked
+ * out at headSha, so the changed files and every neighbouring skill actually
+ * exist on disk. Handing over diff text alone would defeat the contract being
+ * measured: REVIEW.md's neighbour-read procedure requires opening the skills a
+ * change names as owners, and those are by construction NOT in the diff. It
+ * would also make a probe that tries to read a changed file for context fail
+ * silently, which reads downstream as "the contract did not find the defect".
  *
  * @param {object} options
  * @param {string} options.repoRoot
  * @param {{id: string, baseSha: string, headSha: string}} options.testCase
  * @param {string|null} options.reviewRef git ref to take REVIEW.md from, or null for the working tree
- * @returns {{dir: string, diffPath: string, reviewPath: string, files: string[]}}
+ * @returns {{dir: string, diffPath: string, reviewPath: string, files: string[], cleanup: () => void}}
  */
 export function materialise({ repoRoot, testCase, reviewRef }) {
   const { baseSha, headSha } = testCase;
 
-  for (const [label, sha] of [["baseSha", baseSha], ["headSha", headSha]]) {
+  for (const [label, sha] of [
+    ["baseSha", baseSha],
+    ["headSha", headSha],
+  ]) {
     try {
       git(repoRoot, ["cat-file", "-e", `${sha}^{commit}`]);
     } catch {
@@ -50,6 +62,11 @@ export function materialise({ repoRoot, testCase, reviewRef }) {
   }
 
   const dir = mkdtempSync(join(tmpdir(), `review-eval-${testCase.id}-`));
+  const tree = join(dir, "tree");
+
+  // --detach because the case is a commit, not a branch, and several probes of
+  // the same case must not contend for one ref.
+  git(repoRoot, ["worktree", "add", "--detach", "--quiet", tree, headSha]);
 
   const diff = git(repoRoot, ["diff", `${baseSha}..${headSha}`]);
   const diffPath = join(dir, "change.diff");
@@ -59,13 +76,29 @@ export function materialise({ repoRoot, testCase, reviewRef }) {
     .split("\n")
     .filter(Boolean);
 
+  // No ref means the working tree's REVIEW.md — the file as it stands right
+  // now, uncommitted edits included. Reading `HEAD:REVIEW.md` instead would
+  // silently score the last commit rather than the change being worked on,
+  // which is the opposite of useful while iterating on a contract.
   const review = reviewRef
     ? git(repoRoot, ["show", `${reviewRef}:REVIEW.md`])
-    : git(repoRoot, ["show", "HEAD:REVIEW.md"]);
-  const reviewPath = join(dir, "REVIEW.md");
+    : readFileSync(join(repoRoot, "REVIEW.md"), "utf8");
+  // Written INTO the worktree, overwriting whatever REVIEW.md headSha carried:
+  // a probe that opens REVIEW.md by its ordinary path must get the contract
+  // under test, not the one that happened to be committed on the branch.
+  const reviewPath = join(tree, "REVIEW.md");
   writeFileSync(reviewPath, review);
 
-  return { dir, diffPath, reviewPath, files };
+  const cleanup = () => {
+    try {
+      git(repoRoot, ["worktree", "remove", "--force", tree]);
+    } catch {
+      // A worktree that never registered is not worth failing a run over.
+    }
+    rmSync(dir, { recursive: true, force: true });
+  };
+
+  return { dir, tree, diffPath, reviewPath, files, cleanup };
 }
 
 /**
@@ -82,7 +115,9 @@ export function probePrompt({ diffPath, reviewPath, files }) {
     `Read ${reviewPath} and follow it as the highest-priority, review-only instructions for this review.`,
     "",
     `Review the change in ${diffPath}. It is a unified diff against the base commit.`,
-    "The files it touches are present in the repository you are running in, so read them for context.",
+    "You are running inside a checkout of the repository AT THE CHANGED COMMIT, so every file the",
+    "diff touches exists on disk, and so does every other file in the repository — read whatever you",
+    "need for context, including files the diff does not touch.",
     "",
     "Files changed:",
     ...files.map((file) => `  ${file}`),

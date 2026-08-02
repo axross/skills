@@ -17,8 +17,7 @@
 // EXIT 0 ON EVERY VALID INVOCATION, whatever the numbers. See report.mjs.
 
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -119,7 +118,10 @@ function probe({ workspace, anchorLog }) {
       String(MAX_TURNS),
     ],
     {
-      cwd: REPO_ROOT,
+      // The case's own worktree, not this checkout: the probe must read the
+      // repository as it stood at headSha, including files the diff never
+      // touches that the neighbour-read procedure requires.
+      cwd: workspace.tree,
       encoding: "utf8",
       maxBuffer: 256 * 1024 * 1024,
       env: { ...process.env, REVIEW_EVAL_ANCHOR_LOG: anchorLog },
@@ -172,7 +174,7 @@ function runArm({ fixture, cases, reviewRef }) {
       }
     }
 
-    rmSync(workspace.dir, { recursive: true, force: true });
+    workspace.cleanup();
     if (probes.length > 0) results.push(scoreCase(testCase, probes));
   }
 

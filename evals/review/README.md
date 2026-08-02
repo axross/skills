@@ -33,6 +33,29 @@ anchors are the artifact the contract itself produces. A probe posts findings
 through a `create_inline_comment` tool, and the anchors are read back from the
 tool calls in the CLI's JSONL stream.
 
+### How anchor recovery was settled
+
+Whether anchors are recoverable at all decides whether this instrument measures
+anything, so it was settled empirically before the scoring code was written
+rather than assumed.
+
+A stub MCP server was loaded with `--mcp-config` and `--strict-mcp-config`, and
+a probe was asked to report a planted off-by-one through it. The call appears in
+the CLI's JSONL stream as a `tool_use` block carrying its full input:
+
+```json
+{
+  "path": "sample.js",
+  "line": 3,
+  "body": "Off-by-one: loop condition should be `i < items.length`…"
+}
+```
+
+and the stub's record file held the identical call. So anchors are read from the
+stream's `tool_use` blocks, with the recorder file as the cross-check — and a
+probe killed at its turn cap still yields every anchor it managed to emit. No
+prompt variant was needed, and nothing reached GitHub.
+
 **Nothing is posted anywhere.** The real inline-comment tool writes to GitHub;
 [`anchor-server.mjs`](../../scripts/review-eval/anchor-server.mjs) is a local MCP
 server exposing a tool of the same name that appends each call to a file and
@@ -136,8 +159,18 @@ write scope.
 - **One case.** The fixture currently holds #166 alone. A contract that reaches
   its defects has been shown to work on the one change it was written in
   response to, which is weaker than working in general.
-- **No baseline is committed.** Committing one nobody has run would be
-  fabricating a measurement. The first real runs produce one.
+- **There is no baseline, and no way to record one yet.** This is a deliberate
+  gap rather than an oversight, and it is the clearest difference from the
+  sibling harness, which has an `--emit-baseline` flag and a
+  [documented re-record procedure](../discovery/README.md). Committing a
+  baseline nobody has run would be fabricating a measurement, and a baseline
+  recorded from a one-case fixture would mostly measure that one case. Adding
+  one means three things: enough fixture cases that a baseline says something
+  general, an `--emit-baseline` flag on `run.mjs`, and a corpus fingerprint —
+  the sibling's equivalent covers skill discovery text, and this one's would
+  have to cover `REVIEW.md` itself, since that is the input under test. Until
+  then a run is read against the previous run by hand, which is what the
+  `--review-ref` comparison is for.
 - **The estimate is not a quote.** `--dry-run` prices a probe at an
   order-of-magnitude figure; a real run reports its actual cost.
 - **It never gates**, for three independent reasons: it is non-deterministic, it
