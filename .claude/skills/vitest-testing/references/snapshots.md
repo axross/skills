@@ -20,7 +20,6 @@ The inline form is the default worth reaching for. A snapshot a reviewer sees in
 **Guidelines:**
 
 - SHOULD prefer `toMatchInlineSnapshot` for values small enough to read in a diff.
-- MUST NOT snapshot a value a plain assertion states better; a snapshot of a boolean or a single string asserts less clearly than `toBe`.
 - SHOULD use `toMatchFileSnapshot` for markup, so the stored form stays readable.
 
 ## Serializers and Format
