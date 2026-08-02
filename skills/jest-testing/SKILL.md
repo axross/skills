@@ -23,7 +23,7 @@ It also does not own the **framework** an integration sits inside. That Next.js 
 
 - MUST run the bundled `scripts/check-jest-usage.mjs` over a project whose Jest specs or configuration a change touches; it catches the four defects below that fail silently, and states nothing that needs judgment.
 - MUST resolve a version-sensitive question against the installed Jest's own documentation rather than from memory, and state the version the answer came from.
-- SHOULD reach for a hand-rolled fake at a real boundary before reaching for `jest.mock`; the module registry is the heaviest tool in this skill and the one most often used first.
+- SHOULD type every mock against the interface it replaces; a bare `jest.fn()` accepts and returns anything, so it survives a signature change that should have broken the test.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
@@ -100,7 +100,7 @@ See [mock-functions.md](./references/mock-functions.md) for:
 - `jest.replaceProperty` for a non-function property such as one on `process.env`
 - `mockClear` versus `mockReset` versus `mockRestore`, and why `mockRestore` does nothing to a bare `jest.fn()`
 - `jest.mocked()`, `jest.Mocked<T>`, and `jest.Spied<T>` replacing the removed `jest.SpyInstance`
-- why an injected hand-rolled fake usually beats every call above
+- the type safety a bare `jest.fn()` gives up that an injected fake keeps
 
 ## Module Mocking
 

@@ -328,11 +328,17 @@ const QUOTES = new Set(['"', "'", "`"]);
  * inside a pattern cannot end the array. Every occurrence of the key is read
  * rather than only the first, so a `projects` config declaring several is
  * covered too.
+ *
+ * The key itself may be quoted: `jest.config.json` is one of the formats this
+ * script reads, and a JavaScript config may equally be written with quoted
+ * properties. Missing that spelling failed the same silent way.
  */
 function declaredPatterns(source, key) {
   const patterns = [];
 
-  for (const match of source.matchAll(new RegExp(`(?<![\\w$])${key}\\s*:`, "g"))) {
+  const declaration = new RegExp(`(?<![\\w$])${key}["']?\\s*:`, "g");
+
+  for (const match of source.matchAll(declaration)) {
     let index = match.index + match[0].length;
     while (index < source.length && /\s/.test(source[index])) index += 1;
 

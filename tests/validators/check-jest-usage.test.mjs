@@ -262,6 +262,30 @@ test("a journey", async ({ page }) => {
       expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
     });
 
+    // `jest.config.json` is one of the formats the script reads, and its keys
+    // are necessarily quoted. Missing that spelling failed the same silent way
+    // as the bracket class above: no patterns extracted, so no findings.
+    it("reads a quoted key, as jest.config.json necessarily has", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.json": `{
+  "testMatch": ["**/*.[jt]s?(x)"]
+}
+`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
+
+    it("reads a quoted key in a JavaScript config", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { "testMatch": ["**/*.[jt]s?(x)"] };\n`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
+
     it("reads every declaration, not only the first, in a projects config", async () => {
       const root = await project({
         "src/a.spec.ts": CLEAN_SPEC,

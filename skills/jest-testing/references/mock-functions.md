@@ -6,34 +6,16 @@ Verified against `jest` 30.4.2 — [Jest — Mock Functions API](https://jestjs.
 
 This reference covers the **Jest mechanism**. Whether a boundary deserves a double at all, and whether a double is hiding the behavior under test, belong to a unit-testing capability.
 
-## Prefer a Hand-Rolled Fake First
+## What a Mock Costs That a Fake Does Not
 
-Jest's mocking API is powerful enough that it gets reached for before simpler options. A dependency passed as an argument needs no mocking API at all — a plain object or closure serves, is typed by the parameter it satisfies, and cannot drift from the interface the way an untyped `jest.fn()` can.
+Whether a boundary deserves a double, and whether a manual fake serves better than a mock, belong to the unit-testing capability named above. The Jest-specific part is what you give up by choosing this API: **type safety**.
 
-```ts
-// A fake at a real boundary: typed by the parameter, records what it needs to.
-function createRepository(): { repository: Repository; saved: () => boolean } {
-  let didSave = false;
-  return {
-    repository: {
-      find: async () => [{ id: 1, slug: "hello" }],
-      save: async () => {
-        didSave = true;
-      },
-    },
-    saved: () => didSave,
-  };
-}
-```
-
-A bare `jest.fn()` is decoupled from the interface it stands in for: nothing stops it returning the wrong shape, and the test keeps passing after the real signature changes.
+An injected fake is checked against the parameter it satisfies, so a change to the real interface breaks compilation. A bare `jest.fn()` is not — it is typed as accepting anything and returning `undefined`, so nothing stops it returning a shape the real dependency never had, and the test keeps passing after the signature changes underneath it. That gap is closable, but only deliberately, with the helpers under **Typing a Mock** below.
 
 **Guidelines:**
 
-- MUST prefer an injected fake to a mocked module when the dependency is reachable as a parameter, a constructor argument, or a field.
-- MUST type a mock against the interface it replaces — via `jest.mocked`, a typed factory, or a satisfying literal — so a signature change fails the test rather than the runtime.
-- SHOULD treat a spec that is mostly mock setup as a signal about the code's dependency structure, not merely about the test.
-- SHOULD NOT mock the module under test's own collaborators when the behavior can be exercised through its public contract with real ones.
+- MUST type a mock against the interface it replaces — via `jest.mocked`, a typed factory, or a `satisfies` literal — so a signature change fails the build rather than surviving in a green test.
+- MUST NOT leave a bare `jest.fn()` standing in for a typed dependency; it silently accepts and returns anything.
 
 ## Creating and Reading a Mock
 
