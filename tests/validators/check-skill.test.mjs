@@ -1284,6 +1284,25 @@ describe("check-skill.mjs", () => {
         expect(result.stdout).not.toMatch(/routing:/);
       });
 
+      it("stays silent on `loop-engineering`'s named false positive", async () => {
+        const root = await tempDir();
+        // Reproduced verbatim from loop-engineering/SKILL.md:56. TWO
+        // independent mechanisms silence it: "channel" is outside
+        // GESTURE_NOUNS, and "MCP" makes namesSomething true. Either alone
+        // would do, so this pins the real-world bullet end-to-end rather than
+        // any one path through the check.
+        const dir = await skillRouting(
+          root,
+          "untracked-gesture-noun",
+          "the one sanctioned MCP tool channel, and why a direct REST/GraphQL call from a session fails",
+        );
+
+        const result = checkSkill(dir);
+
+        expect(result).toPassCleanly();
+        expect(result.stdout).not.toMatch(/routing:/);
+      });
+
       it("stays silent when a gerund governs the noun", async () => {
         const root = await tempDir();
         // An activity performed on the thing, not its name withheld.

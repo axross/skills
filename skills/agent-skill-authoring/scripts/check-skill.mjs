@@ -491,7 +491,13 @@ function staleStyleWarnings(body, file, offset) {
 }
 
 /**
- * Upstream-citation advisories for one document, at most one per document.
+ * Upstream-citation advisories for one document.
+ *
+ * Signal 1 fires once per uncited `Verified against` line, so a document
+ * carrying several reports several. Signal 2 fires at most once, and only when
+ * signal 1 found nothing. No document in this corpus repeats a `Verified
+ * against` line today, which makes the two indistinguishable here — an
+ * observation about this tree, not a cap the code enforces.
  *
  * Two signals, in priority order:
  *
