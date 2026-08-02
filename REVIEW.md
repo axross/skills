@@ -63,8 +63,8 @@ remains onto the Important/Nit labels above.
 
 ## Mandatory Checks
 
-Run both checks on every review and raise a finding for each miss — they are
-not skippable. Grade each miss by its real impact: a miss that breaks a hard
+Run all three checks on every review and raise a finding for each miss — they
+are not skippable. Grade each miss by its real impact: a miss that breaks a hard
 requirement is **Important**, a gap that does not is a **Nit**. Cite the owning
 skill in the finding.
 
@@ -77,14 +77,90 @@ skill in the finding.
   the pull request links one. Each criterion that is unmet, or that cannot be
   confirmed from the diff, is an **Important** finding named explicitly in the
   summary. If the pull request links no issue, say so in the summary.
+- **Subtractive pass** — on a change that adds content, say what should be
+  **cut** and why. The other two checks ask whether what is present is correct;
+  only this one can see what should not be present at all. Silence here is a
+  claim rather than a default: a review of a content-adding change that reports
+  no findings is invalid unless its summary walks each lens below and records
+  either a finding or an explicit "checked, none".
+  1. **Duplicated judgment** — a rule the change states that a tool-agnostic
+     neighbour already owns.
+  2. **Reproduced upstream** — vendor documentation copied in where a link plus
+     the non-obvious caveat would carry it.
+  3. **General knowledge** — content the model already holds, restated as
+     though it were project-specific.
+  4. **Routing concreteness** — a routing bullet that gestures at a fact
+     instead of stating it.
+  5. **Obligation load** — the rule count the change adds, set against peer
+     skills of comparable scope.
+
+  The list is a floor, not a closed set. A lens added later joins the
+  enumeration without changing the check's shape, and a defect matching none of
+  them is still a finding.
 
 **Guidelines:**
 
-- MUST run both mandatory checks on every review and raise a finding for each
-  miss.
+- MUST run all three mandatory checks on every review and raise a finding for
+  each miss.
+- MUST enumerate every subtractive lens in the summary of any review of a
+  content-adding change, recording a finding or an explicit "checked, none"
+  against each; a `0 findings` verdict without that enumeration is invalid.
 - MUST give each finding a severity label, `file:line` evidence, and a concrete
   fix, per
   [Code Review](.claude/skills/code-review/SKILL.md).
+
+## Reading Beyond the Diff
+
+A change that adds or edits a skill makes claims about its own boundaries — the
+neighbours it names as owners, the rules it says it defers to rather than
+restates. Those claims are checkable only against the neighbour's text, which by
+construction is not in the diff. A review confined to changed files can confirm
+that a deferral was written; it cannot confirm the deferral is true, and it
+cannot see the sections that should have had one and do not.
+
+**Guidelines:**
+
+- MUST open every skill the change's own boundary text names as an owner, and
+  compare the change against what that owner actually states, section by
+  section.
+- MUST treat a file being outside the diff as no exemption from reading it;
+  opening a neighbour is the cost of checking a boundary claim, not extra
+  scope.
+- MUST NOT generalize from one compliant instance to the whole change — a
+  single correct deferral is evidence about that section and no other.
+- MUST report a duplicated rule as a finding even where the change cites the
+  owner, whenever the citation sits beside a restatement instead of replacing
+  it.
+
+## What Is Not Evidence
+
+The author's own account of a change cannot corroborate it. A verification
+table, a criteria checklist, and a disclosed figure are all products of the same
+loop that produced the diff, so agreement between them and the change is
+self-consistency, not correctness. A review that re-runs the author's checks and
+confirms the author's numbers has audited the arithmetic, not the change.
+
+Self-authored acceptance criteria carry a specific blind spot worth naming.
+Criteria asserting that something is **present** are monotone in content: adding
+text can satisfy them but never violate them. A change can therefore meet every
+criterion and still be substantially duplication and bloat.
+
+**Guidelines:**
+
+- MUST NOT treat the pull request body's verification table as evidence of
+  correctness; that the diff matches the numbers in the description is a
+  consistency check the author already ran.
+- MUST NOT treat "all acceptance criteria met" as sufficient when the criteria
+  were authored in the same loop as the change; search separately for what
+  presence-only criteria cannot detect — duplication, bloat, and content that
+  should have been cut.
+- MUST compare the actual against any expected numeric band stated in a linked
+  issue or plan, and raise a finding when it falls outside; the author having
+  disclosed the miss does not discharge it.
+- MUST treat a fired tripwire as a finding wherever the expectation was
+  recorded — a band that lived only in issue prose still binds the review.
+- SHOULD re-derive a figure the review relies on rather than quoting the
+  author's, and say so in the summary when it could not be re-derived.
 
 ## Do Not Report
 
