@@ -34,9 +34,13 @@ const FIXTURE = join(REPO_ROOT, "evals", "review", "fixture.json");
 const ANCHOR_SERVER = join(HERE, "anchor-server.mjs");
 
 // A review probe reads a whole diff across many turns, unlike a discovery
-// probe's single turn. This is an order-of-magnitude placeholder for --dry-run
-// arithmetic, not a measurement; a real run reports its actual cost.
-const ESTIMATED_USD_PER_PROBE = 0.75;
+// probe's single turn. Calibrated against the first real run of the #166 case:
+// four probes over a 58-file diff cost $18.81, or ~$4.70 each. The first
+// estimate here was $0.75 and under-priced a run six-fold, which is the wrong
+// direction to be wrong in for the number a maintainer reads before spending.
+// Still an order of magnitude rather than a quote — cost scales with diff size,
+// and a real run reports what it actually spent.
+const ESTIMATED_USD_PER_PROBE = 4.7;
 const MAX_TURNS = 60;
 
 const HELP = `review-eval — does a review contract catch what it was written for?

@@ -157,6 +157,34 @@ describe("scoring", () => {
     expect(result.findings).toBe(1);
   });
 
+  it("reports a lens as never named only when NO probe named it", () => {
+    // Regression: this was a union, which answered "missing from at least one
+    // probe" and rendered "enumerated in 1/2" beside "never named: <all five>"
+    // — a report that contradicts itself and would be believed.
+    const named = { anchors: [], lens: { enumerated: true, missing: [] } };
+    const silent = {
+      anchors: [],
+      lens: { enumerated: false, missing: ["general knowledge", "obligation load"] },
+    };
+
+    const result = scoreCase({ id: "c", mustAnchor: ["x.md"], expectLensEnumeration: true }, [
+      named,
+      silent,
+    ]);
+
+    expect(result.lens.enumeratedIn).toBe(1);
+    expect(result.lens.missingLenses).toEqual([]);
+  });
+
+  it("reports the lenses no probe named", () => {
+    const a = { anchors: [], lens: { enumerated: false, missing: ["obligation load", "x"] } };
+    const b = { anchors: [], lens: { enumerated: false, missing: ["obligation load"] } };
+
+    const result = scoreCase({ id: "c", mustAnchor: ["x.md"], expectLensEnumeration: true }, [a, b]);
+
+    expect(result.lens.missingLenses).toEqual(["obligation load"]);
+  });
+
   it("flags a false positive only on a majority of probes", () => {
     const minority = scoreCase({ id: "c", mustAnchor: ["x.md"], mustNotAnchor: ["n.md"] }, [
       probe(["x.md", "n.md"]),

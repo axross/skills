@@ -77,9 +77,16 @@ export function scoreCase(testCase, probes) {
   let lens = null;
   if (testCase.expectLensEnumeration) {
     const enumeratedIn = probes.filter((probe) => probe.lens?.enumerated).length;
-    const missingLenses = [
-      ...new Set(probes.flatMap((probe) => probe.lens?.missing ?? [])),
-    ].sort();
+    // INTERSECTION, not union. A union answers "missing from at least one
+    // probe", which is a different question and produces a self-contradicting
+    // report: a case where one probe named all five and another named none
+    // rendered as "enumerated in 1/2" beside "never named: <all five>". Only a
+    // lens no probe named has genuinely never been named.
+    const missingLenses = probes.length
+      ? (probes[0].lens?.missing ?? []).filter((lens) =>
+          probes.every((probe) => (probe.lens?.missing ?? []).includes(lens)),
+        )
+      : [];
     lens = { expected: true, enumeratedIn, missingLenses };
   }
 
