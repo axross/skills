@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "vitest-skill-duplication",
+      "pr": 166,
+      "baseSha": "49a11b276927272e1a1050abd604036200ef044a",
+      "headSha": "2b948ee91f7c973c101599c6ca57cf1b74118203",
+      "mustAnchor": [
+        "skills/vitest-testing/references/assertions-and-async.md",
+        "skills/vitest-testing/references/version-discipline.md",
+        "skills/vitest-testing/SKILL.md"
+      ],
+      "mustNotAnchor": [
+        "skills/vitest-testing/references/running-as-an-agent.md"
+      ],
+      "expectLensEnumeration": true,
+      "repeats": 2,
+      "rationale": "The case this instrument was built for. The CI reviewer read all 24 new reference files here and reported '0 important, 0 nits'; a scoped follow-up found four real findings. The three targets are where those findings anchor: assertions-and-async.md carries judgment duplicated from unit-testing (the largest of nine such sections), version-discipline.md opens 'Verified against Vitest 4.1.10' with no upstream URL anywhere in 25 files, and SKILL.md carries routing bullets that gesture at facts instead of naming them. running-as-an-agent.md is the false-positive guard: it looks like reproduced upstream documentation but is genuinely absent from vitest.dev, so a reviewer that faults it is over-cutting rather than finding. Targets are paths rather than path:line because the defects are section-scoped and a reviewer may reasonably anchor anywhere within one."
+    }
+  ]
+}

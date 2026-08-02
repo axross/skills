@@ -1,0 +1,138 @@
+name: Review Evaluation
+
+# Runs a recorded pull request through a REAL review under a chosen REVIEW.md and
+# reports which of that change's known defects the review anchored a finding on.
+#
+# THIS IS NOT A GATE, AND MUST NOT BECOME ONE. It is non-deterministic, it costs
+# money per run, and it needs a secret that fork pull requests do not receive. It
+# is never a required check, it is not in merge-checks.yaml, and
+# tests/repository/reporting-tools.test.mjs asserts it appears in this workflow
+# and in no other — so wiring it into a gate has to be a deliberate act that
+# breaks a test first.
+#
+# WHY THIS EXISTS. #170 rewrote REVIEW.md into a disconfirmatory contract and
+# could only hand-walk the result by eye: claude-review.yaml reads REVIEW.md from
+# the BASE REF, so the pull request introducing a contract is reviewed under the
+# previous one. This workflow inverts that deliberately — `--review-ref` selects
+# which REVIEW.md a probe runs under — which is what lets a contract be scored
+# before it merges rather than after.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 1 of 4 — MANUAL DISPATCH IS THE ONLY TRIGGER.
+# There is no event here that a pull request can raise. `workflow_dispatch`
+# requires write access and always runs the workflow file from the DEFAULT
+# BRANCH. Do NOT add `pull_request`, and do NOT add `pull_request_target`.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 2 of 4 — default-branch checkout. Every line of
+# EXECUTABLE code — the runner, the fixture, package.json — comes from the
+# default branch. Fixture commits are fetched as git objects and are only ever
+# read as diff text; `npm ci` never installs from them.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 3 of 4 — the probe is credential-free and
+# sealed. GITHUB_TOKEN is not in the evaluation step's environment. The probe
+# runs with `--strict-mcp-config` and a single local MCP server that records
+# inline comments to a file, so the session's real GitHub tools are absent and a
+# probe cannot post anywhere. WebFetch, WebSearch and Task are denied, as in
+# claude-review.yaml.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 4 of 4 — THE PROBE NEVER RECEIVES A PULL
+# REQUEST URL, and this is a measurement property as much as a safety one. #166's
+# own thread now spells out all four of its defects with file:line locations and
+# fix diffs, because diagnosing that miss is what motivated this instrument. A
+# probe that could read the conversation would transcribe the answer key and the
+# run would report a contract that found everything. scripts/review-eval/
+# fixture.mjs rejects any fixture field containing a pull-request URL, and
+# workspace.mjs builds the probe's input from commits alone.
+#
+# Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
+# claude-review.yaml already uses. No new secret is required.
+
+on:
+  workflow_dispatch:
+    inputs:
+      review_ref:
+        # Repeatable through a comma-separated list rather than two inputs,
+        # because the interesting run is always a comparison: the same fixture
+        # under the contract before a change and the contract after it.
+        description: "Comma-separated git refs to take REVIEW.md from (blank = the default branch's current REVIEW.md)"
+        required: false
+      case:
+        description: "Fixture case id to run on its own (blank = every case)"
+        required: false
+
+# Least privilege: read the tree. Nothing else. This posts nowhere — its report
+# is the job log — so it needs no write scope at all.
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    name: Evaluate review contract
+    # No `if:` guard is needed. workflow_dispatch is the only trigger, so there
+    # is no other event shape to exclude — the gate is GitHub's own write-access
+    # check on dispatching.
+    concurrency:
+      # Keyed by what the run measures, so two dispatches comparing different
+      # contracts do not cancel each other. A repeat of the same comparison
+      # supersedes the older answer, which is the intended reading.
+      group: review-eval-${{ github.event.inputs.review_ref || 'default' }}-${{ github.event.inputs.case || 'all' }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    # Generous, unlike the sibling's 45. A review probe reads a whole diff across
+    # many turns rather than taking one, and a comparison runs the fixture twice.
+    timeout-minutes: 120
+    env:
+      REVIEW_REFS: ${{ github.event.inputs.review_ref }}
+      CASE: ${{ github.event.inputs.case }}
+    steps:
+      # SAFETY PROPERTY 2 — no `ref:` input, so this is always the default
+      # branch. fetch-depth 0 because the fixture pins commits by sha and a
+      # shallow clone cannot diff them.
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Fixture cases pin commits that may live on an unmerged pull request
+      # branch, which a default clone does not carry. Fetching the pull request
+      # head REFS retrieves code only — it is not the conversation, and nothing
+      # here hands a probe a pull request number or URL. See safety property 4.
+      - name: Fetch fixture commits
+        run: git fetch origin '+refs/pull/*/head:refs/remotes/origin/pr/*' --quiet
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code@2.1.220
+
+      # Cheap and first: a malformed fixture should cost nothing and spawn no
+      # probe. --dry-run makes no model call and reads no secret.
+      - name: Validate the fixture
+        run: node scripts/review-eval/run.mjs --dry-run
+
+      # SAFETY PROPERTY 3 — no GITHUB_TOKEN in this step's environment. The only
+      # secret present is the one the CLI needs to authenticate at all.
+      - name: Run the evaluation
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ -n "${REVIEW_REFS}" ]; then
+            # Split on commas so one input can name both arms of a comparison.
+            IFS=',' read -ra refs <<< "${REVIEW_REFS}"
+            for ref in "${refs[@]}"; do
+              trimmed="$(echo "${ref}" | tr -d '[:space:]')"
+              [ -n "${trimmed}" ] && args+=(--review-ref "${trimmed}")
+            done
+          fi
+          if [ -n "${CASE}" ]; then
+            args+=(--case "${CASE}")
+          fi
+          node scripts/review-eval/run.mjs "${args[@]}"

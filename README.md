@@ -359,11 +359,12 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 
 #### Reporting, not gating
 
-The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> and
-the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> scripts
-report instead of judging. Neither belongs to a gate, an npm script, or a hook,
-and `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced
-set on purpose, so wiring either in has to be a deliberate act.
+The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count -->,
+the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> and
+the <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> scripts
+report instead of judging. None belongs to a gate, an npm script, or a hook, and
+`tests/repository/reporting-tools.test.mjs` keeps all three out of the enforced
+set on purpose, so wiring any of them in has to be a deliberate act.
 
 The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> reports a
 number:
@@ -425,6 +426,45 @@ format, how a verdict is reached, and how to re-record the baseline.
 skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
 A fixture or baseline naming a renamed skill would otherwise rot in silence.
+
+The <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> reports
+whether a review contract works:
+
+```bash
+node scripts/review-eval/run.mjs --dry-run
+node scripts/review-eval/run.mjs --help
+```
+
+`scripts/review-eval/run.mjs` answers "does [`REVIEW.md`](./REVIEW.md) actually
+catch what it was written for?" — the second check here that measures an
+**outcome** rather than form. It runs a recorded pull request through a real
+review under a chosen `REVIEW.md` and reports which of that change's known
+defects the review anchored a finding on.
+
+It exists because the contract could not otherwise be measured at all:
+[`claude-review.yaml`](./.github/workflows/claude-review.yaml) reads `REVIEW.md`
+from the **base ref**, so a pull request that changes the review contract is
+reviewed under the previous one. `--review-ref` inverts that, which is safe here
+and not there — manual dispatch, a recorded fixture, the default branch, never an
+attacker-controllable head.
+
+Two properties carry the validity. It scores an **anchored finding, never a
+mention**: a review names files it approves of as readily as files it faults, so
+counting cited paths would have scored the review that missed #166's duplication
+as having caught it. And a probe **never receives a pull request URL** — that
+pull request's own thread now spells out its defects with fixes attached, so a
+probe that could read it would transcribe the answer key. Findings are posted
+through a local MCP server that records instead of posting, so nothing reaches
+GitHub.
+
+Results are an **existence proof, not a rate**: reached or not reached, never a
+percentage. Repeat counts affordable here cannot separate a rate from noise, and
+severity — "capped at Nit", which was three of #166's four findings — is not
+measured at all. Run it in CI by dispatching
+[`review-eval.yaml`](./.github/workflows/review-eval.yaml), whose **only trigger
+is manual dispatch**. See
+[`evals/review/README.md`](./evals/review/README.md) for the fixture format, the
+verdicts, and what the measurement cannot tell you.
 
 ### Repository gotchas
 

@@ -44,6 +44,7 @@ export const SCRIPTS = {
   reportObligationLoad: "scripts/report-obligation-load.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
   extractBaseline: "scripts/discovery-eval/extract-baseline.mjs",
+  reviewEval: "scripts/review-eval/run.mjs",
 };
 
 /**

@@ -61,6 +61,15 @@ const REPORTING_TOOLS = [
     // guarantee is asserted through --dry-run instead.
     runnable: false,
   },
+  {
+    script: SCRIPTS.reviewEval,
+    // By path for the same reason as the sibling above: "run.mjs" is generic.
+    needle: "scripts/review-eval/run.mjs",
+    workflow: "review-eval.yaml",
+    // Same constraint as the discovery evaluation, and dearer still: a review
+    // probe reads a whole diff across many turns rather than taking one.
+    runnable: false,
+  },
 ];
 
 const label = (tool) => tool.script;
@@ -166,5 +175,14 @@ describe("reporting tools are not gates", () => {
     const result = runScript(SCRIPTS.discoveryEval, ["--dry-run"]);
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("No model call was made.");
+  });
+
+  it("exits 0 from the review evaluation's offline path", () => {
+    // Same reasoning as above: the evaluation drives the real CLI, so its
+    // no-fail guarantee is asserted on the path that needs neither network nor
+    // secret. --dry-run validates the fixture and prices the run.
+    const result = runScript(SCRIPTS.reviewEval, ["--dry-run"]);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("No model was called and no secret was read.");
   });
 });
