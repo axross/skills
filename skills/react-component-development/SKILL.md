@@ -118,7 +118,7 @@ See [virtualization.md](./references/virtualization.md) for:
 
 ## Verifying a Component Change
 
-A component change is verified by rendering it, not by the type-checker — which sees none of the branches, platforms, or pass-throughs these rules turn on.
+A component change is verified by rendering it, not by the type-checker — which sees none of the branches, platforms, or pass-throughs these rules turn on. This section names the checks a component change earns; how the result is then reported — which of them ran, which were skipped, and what risk a skip leaves — belongs to a **software development capability** under its verification topic, which owns it for every kind of change.
 
 **Guidelines:**
 
@@ -126,4 +126,3 @@ A component change is verified by rendering it, not by the type-checker — whic
 - MUST exercise both platforms when the change touches a platform-forked file; a fork that compiles proves nothing about the sibling.
 - MUST confirm a caller-supplied test hook and styling prop actually reach the rendered root, since a dropped rest object type-checks and fails silently.
 - SHOULD render a list at a realistic item count when the change touches list rendering, not with three fixture rows.
-- MUST report which of these were run and which were skipped, rather than presenting the change as fully verified.

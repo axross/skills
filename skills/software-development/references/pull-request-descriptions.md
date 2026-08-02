@@ -50,6 +50,8 @@ A closing keyword ties the pull request to the work it delivers: merging auto-cl
 
 A reviewer weighs claims they can check; "tests pass" is an assertion, not evidence. Evidence states what was run and what was observed, so the reviewer can audit it instead of re-deriving it.
 
+The skipped-check rule below reads much like one a code-review capability states for a review's own evidence section. That overlap is deliberate rather than a duplication to resolve: the two govern **different artifacts** — the pull request body an author writes, and the report a reviewer posts — and a code-review capability is authored to reference no other skill, so neither can defer to the other.
+
 **Guidelines:**
 
 - MUST report the verification commands run and their observed results, per [verification.md](./verification.md).

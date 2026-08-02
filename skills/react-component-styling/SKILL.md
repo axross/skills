@@ -115,7 +115,7 @@ See [unistyles.md](./references/unistyles.md) for:
 
 ## Verifying a Styling Change
 
-A styling change is verified by looking at the surface under every condition the rules above make conditional — not by the type-checker, which sees none of them. Reviewing one rendering proves one branch.
+A styling change is verified by looking at the surface under every condition the rules above make conditional — not by the type-checker, which sees none of them. Reviewing one rendering proves one branch. This section names the checks a styling change earns; how the result is then reported — which of them ran, which were skipped, and what risk a skip leaves — belongs to a **software development capability** under its verification topic, which owns it for every kind of change.
 
 **Guidelines:**
 
@@ -125,7 +125,6 @@ A styling change is verified by looking at the surface under every condition the
 - MUST check the width range a fluid or container-tiered surface spans, at minimum the two ends and one point either side of each breakpoint.
 - SHOULD check a wide-gamut display and an sRGB display when a colour is authored outside the sRGB gamut.
 - SHOULD check a right-to-left rendering when a change adds directional properties.
-- MUST report which of these checks were run and which were skipped, rather than presenting the change as fully verified.
 
 ## Validator
 
