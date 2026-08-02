@@ -71,17 +71,9 @@ The first three mean an encode path needs its own testing rather than inheriting
 
 ## The Built-In Conversions
 
-Zod ships a set of ready-made codecs covering the conversions that recur across projects, listed in full in the [codec reference](https://zod.dev/codecs). They are worth reading before writing one, both to use directly and as templates. The groups:
+Zod ships ready-made codecs for the conversions that recur across projects — numeric widening, ISO and epoch timestamps, JSON strings, binary and base64 encodings, and URLs — listed in full in the [codec reference](https://zod.dev/codecs). Check there before writing one: a hand-written conversion for a case Zod already covers is code to maintain and a second place for the two directions to drift.
 
-| Group      | Codecs                                                                          |
-| ---------- | ------------------------------------------------------------------------------- |
-| Numeric    | `stringToNumber`, `stringToInt`, `stringToBigInt`, `numberToBigInt`             |
-| Temporal   | `isoDatetimeToDate`, `epochSecondsToDate`, `epochMillisToDate`                  |
-| Structured | `json(schema)`                                                                  |
-| Binary     | `utf8ToBytes`, `bytesToUtf8`, `base64ToBytes`, `base64urlToBytes`, `hexToBytes` |
-| URL        | `stringToURL`, `stringToHttpURL`, `uriComponent`                                |
-
-`json(schema)` is the one most often reimplemented by hand: it decodes a JSON **string** into a value validated by the inner schema, and encodes back. It replaces the `JSON.parse` followed by a separate parse that appears in most caching and storage code.
+`json(schema)` is the one most often reimplemented by hand, and the one worth naming here: it decodes a JSON **string** into a value validated by the inner schema, and encodes back. It replaces the `JSON.parse` followed by a separate parse that appears in most caching and storage code — two boundaries collapsed into one schema.
 
 **Guidelines:**
 

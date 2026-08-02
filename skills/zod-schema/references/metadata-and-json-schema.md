@@ -79,7 +79,7 @@ Two behaviours are worth knowing before the first surprise:
 
 **`io` matters for any schema that is not symmetric.** A coerced, transformed, or piped schema produces a different document for its input than for its output, and the default is the output. An API documenting what a client should _send_ wants `io: "input"`.
 
-**`additionalProperties` follows the object variant.** `z.object()` and `z.strictObject()` set it to `false`; `z.looseObject()` never sets it. A consumer rejecting extra properties is reflecting the schema's own key policy (see [objects-and-collections.md](./objects-and-collections.md)).
+**`additionalProperties` follows the object variant.** `z.object()` and `z.strictObject()` set it to `false`; `z.looseObject()` never sets it to `false` — it emits `additionalProperties: {}` instead, permitting any additional value. The key is present either way, so detecting a loose object by its absence does not work. A consumer rejecting extra properties is reflecting the schema's own key policy (see [objects-and-collections.md](./objects-and-collections.md)).
 
 **Guidelines:**
 
