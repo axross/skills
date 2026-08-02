@@ -69,16 +69,27 @@ The first three mean an encode path needs its own testing rather than inheriting
 - MUST test the encode direction explicitly rather than assuming a working decode implies it (see [testing-schemas.md](./testing-schemas.md)).
 - SHOULD NOT rely on a default or a `.catch()` to apply during encoding; supply the value before encoding instead.
 
-## The Built-In Conversions
+## The Documented Codec Templates
 
-Zod ships ready-made codecs for the conversions that recur across projects — numeric widening, ISO and epoch timestamps, JSON strings, binary and base64 encodings, and URLs — listed in full in the [codec reference](https://zod.dev/codecs). Check there before writing one: a hand-written conversion for a case Zod already covers is code to maintain and a second place for the two directions to drift.
+Zod's documentation publishes a set of ready-made codecs for the conversions that recur across projects. They are **not exports** — the [codec reference](https://zod.dev/codecs) states outright that they "are not included as first-class APIs in Zod itself", and the package has no `./codecs` subpath. They are source to copy into a project and adapt, and reading them before writing a codec by hand is the point:
 
-`json(schema)` is the one most often reimplemented by hand, and the one worth naming here: it decodes a JSON **string** into a value validated by the inner schema, and encodes back. It replaces the `JSON.parse` followed by a separate parse that appears in most caching and storage code — two boundaries collapsed into one schema.
+| Group      | Templates                                                                       |
+| ---------- | ------------------------------------------------------------------------------- |
+| Numeric    | `stringToNumber`, `stringToInt`, `stringToBigInt`, `numberToBigInt`             |
+| Temporal   | `isoDatetimeToDate`, `epochSecondsToDate`, `epochMillisToDate`                  |
+| Structured | `json(schema)`                                                                  |
+| Binary     | `utf8ToBytes`, `bytesToUtf8`, `base64ToBytes`, `base64urlToBytes`, `hexToBytes` |
+| URL        | `stringToURL`, `stringToHttpURL`, `uriComponent`                                |
+
+The `json(schema)` template is the one most often reimplemented from scratch: it decodes a JSON **string** into a value validated by the inner schema, and encodes back — replacing the `JSON.parse` followed by a separate parse that appears in most caching and storage code.
+
+Do not confuse it with `z.json()`, which **is** a real export and a different thing: a recursive schema matching an already-parsed JSON _value_. It performs no decoding, so substituting it for the template silently skips the parse.
 
 **Guidelines:**
 
-- MUST check the built-in set before hand-writing a codec for a common conversion.
-- SHOULD use the `json` codec rather than a manual `JSON.parse` plus parse, so the string boundary and the shape boundary are one schema.
+- MUST copy a documented template into the project rather than importing it; none of the names above is exported by the package.
+- MUST NOT substitute `z.json()` for the `json(schema)` template; the export validates a parsed value and decodes nothing.
+- SHOULD read the templates before hand-writing a codec for a common conversion, so the two directions start from a form that already pairs them.
 
 ## Total Codecs
 

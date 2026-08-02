@@ -122,7 +122,7 @@ See [codecs.md](./references/codecs.md) for:
 
 - `z.codec(input, output, { decode, encode })` for a boundary `.transform()` cannot reverse
 - `.decode()` and `.encode()` with their `safe*` and `*Async` forms, plus `z.invertCodec()`
-- the built-in `isoDatetimeToDate`, `json`, `stringToURL`, and `base64ToBytes` conversions
+- the documented `isoDatetimeToDate`, `json`, `stringToURL`, and `base64ToBytes` templates — copied, not imported
 - defaults and `.catch()` applying on decode only, and a `.transform()` making encode throw a non-`ZodError`
 - the total codec that cannot fail, and the shape guarantee it therefore does not give
 
