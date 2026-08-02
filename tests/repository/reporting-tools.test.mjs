@@ -1,9 +1,10 @@
 // Reporting tools must stay out of the enforced-gate set.
 //
-// Two scripts here report instead of judging, for two different reasons, and
-// both are one careless wiring away from becoming a gate that can never fail —
-// which is worse than no gate at all: it occupies the slot, costs CI time, and
-// reads to everyone downstream as though something were being enforced.
+// Three scripts here report instead of judging, for three different reasons,
+// and each is one careless wiring away from becoming a gate that can never
+// fail — which is worse than no gate at all: it occupies the slot, costs CI
+// time, and reads to everyone downstream as though something were being
+// enforced.
 //
 // scripts/report-obligation-load.mjs reports a number with NO threshold: it
 // exits 0 on every valid invocation however large the figures get. There is no
@@ -15,6 +16,12 @@
 // cannot gate for three independent reasons: it is non-deterministic, it costs
 // money per run, and it needs a secret that fork pull requests do not receive.
 // A flaky merge gate gets bypassed or deleted.
+//
+// scripts/scan-duplicate-rules.mjs reports how similarly two skills word a
+// rule. Similarity is evidence, not a verdict: the Portable Source Exception
+// makes some near-identical pairs correct, so a threshold that failed a build
+// would fail it on sanctioned duplication. Whether a reported pair is a defect
+// is a judgment a human or a reviewer makes.
 //
 // The tracking issues asked for a grep confirming nothing invokes either. A grep
 // confirms today; this file confirms every day, which is what the claim actually
@@ -46,6 +53,14 @@ const REPORTING_TOOLS = [
     // A distinctive basename, so this catches `node ./scripts/report-…` too.
     needle: "report-obligation-load.mjs",
     workflow: null,
+    runnable: true,
+  },
+  {
+    script: SCRIPTS.scanDuplicateRules,
+    // A distinctive basename, so this catches `node ./scripts/scan-…` too.
+    needle: "scan-duplicate-rules.mjs",
+    workflow: null,
+    // Pure filesystem reads over the skill sources — no network, no secret.
     runnable: true,
   },
   {

@@ -314,6 +314,7 @@ format-on-edit and check-before-stop hooks are materialized from
 | Installed copies | `scripts/check-installed-copies.mjs`                                                  |
 | Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
 | Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
+| Rule duplication | `scripts/scan-duplicate-rules.mjs` (reports; never gates)                             |
 
 ### Commands
 
@@ -359,11 +360,12 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 
 #### Reporting, not gating
 
-The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> and
-the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count --> scripts
-report instead of judging. Neither belongs to a gate, an npm script, or a hook,
-and `tests/repository/reporting-tools.test.mjs` keeps both out of the enforced
-set on purpose, so wiring either in has to be a deliberate act.
+The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count -->,
+the <!-- count:second-reporting-tool-ordinal -->eleventh<!-- /count -->, and
+the <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> scripts
+report instead of judging. None belongs to a gate, an npm script, or a hook,
+and `tests/repository/reporting-tools.test.mjs` keeps all three out of the
+enforced set on purpose, so wiring any of them in has to be a deliberate act.
 
 The <!-- count:first-reporting-tool-ordinal -->tenth<!-- /count --> reports a
 number:
@@ -425,6 +427,28 @@ format, how a verdict is reached, and how to re-record the baseline.
 skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
 A fixture or baseline naming a renamed skill would otherwise rot in silence.
+
+The <!-- count:third-reporting-tool-ordinal -->twelfth<!-- /count --> reports a
+measurement:
+
+```bash
+node scripts/scan-duplicate-rules.mjs
+node scripts/scan-duplicate-rules.mjs skills 0.7
+```
+
+`scan-duplicate-rules.mjs` answers "do two skills state the same rule?" — it
+compares every `- MUST`/`- SHOULD`/`- MAY` bullet across skills as a
+content-word set and prints the cross-skill pairs above a Jaccard threshold
+(0.62 by default), which is what
+[`body-content-style.md`](./skills/agent-skill-authoring/references/body-content-style.md)
+forbids and `REVIEW.md` floors at Major.
+
+It reports similarity, never a verdict, which is why it cannot gate: the
+[Portable Source Exception](./skills/agent-skill-authoring/references/scoping-and-mece.md)
+makes some near-identical pairs correct, so a build that failed on a high score
+would fail on sanctioned duplication. Whether a reported pair is a defect, an
+annotated twin, or two skills deliberately holding independent rules is a call
+a human or a reviewer makes.
 
 ### Repository gotchas
 
