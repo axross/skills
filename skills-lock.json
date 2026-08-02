@@ -64,12 +64,12 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "67347300f3ede56fa58dd96859b5550c2a073160b906fadbd512804ee2964df3"
+      "computedHash": "d4a1c16afe2e1313f1ee859b58e376ae14661ad10f99fbc4a1894a36b8ee6e5a"
     },
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "143e3d6463b42f4140e9a633591c4b1c01a8da57deee2d703328715fa4a9901d"
+      "computedHash": "803b8101c938d99cb7dc8813d45494b66c830951e08777522beca9d9f447949e"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -89,22 +89,22 @@
     "react-component-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "dd91a9a72e671a5f32ce7596500f87eeb3c3f789eb2c36599beb3e405e6e90d3"
+      "computedHash": "36b12f985b0b4331e525754f39bfe924ab67c480a6fff5c7eac711493d3da9a5"
     },
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "34fe33802a595bbab5c2a4e68e7dc0b46504fce77759d8e735f6235987f9c827"
+      "computedHash": "d41d6eb709d715de6ebd6e6424932fddd8e865681464c0c85d5f7e541b5d8fe4"
     },
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "a61850cfebbd6abc4125dce43e9af268b58242d9f1383f979ab61eb74fb9d5d9"
+      "computedHash": "a4351084d3d8923e8329417ac7fb3034bac421600f682462bb6e71640bffa2ad"
     },
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "6d902c022c28041023701546a2128cab65d3d9d01a5e22ed095434e4dced734d"
+      "computedHash": "14bd30814eb3e5fde871e3ae68df0e50c9c285d4ba74a2c154504556dfaeab26"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",

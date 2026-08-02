@@ -88,8 +88,8 @@ A project's own structured logger is the highest-value source, because logging w
 
 - MUST keep breadcrumb messages and data inside the data-class rules in [data-collection.md](./data-collection.md), which owns them; breadcrumbs ship with the event.
 - SHOULD populate the trail through ordinary logging rather than scattered manual breadcrumb calls.
-- SHOULD reserve a manual breadcrumb for a non-log event worth placing on the timeline — a state transition, a deliberate user action.
-- SHOULD attach a public identifier as breadcrumb data so the trail is filterable.
+
+Which occurrences earn a manual breadcrumb, and what belongs in its data, survive swapping Sentry for any other tracker — so they are judgment a **software instrumentation capability** owns under its error-tracking topic, not Sentry configuration. This reference stops at the SDK call that records one; consult that capability for what to record.
 
 ## Grouping and Fingerprints
 

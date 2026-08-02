@@ -36,8 +36,9 @@ export async function register() {
 
 - MUST branch on the runtime and load each configuration module through a dynamic import; a static import runs before the guard.
 - MUST place the instrumentation files where the framework looks for them relative to the application directory; elsewhere they never run.
-- MUST keep registration fast and total — it blocks server startup and a throw there takes the process.
 - MUST NOT put a secret in the client instrumentation entry; everything there ships to the browser. The DSN is fine, an auth token is not.
+
+What the registration function owes the server regardless of what runs inside it — that it stay fast, and that it not throw — is a property of the framework export rather than of Sentry, and a **Next.js app development capability** owns it. Consult its observability-wiring rules alongside this section.
 
 ## The Two Framework Hooks
 
@@ -52,7 +53,8 @@ Two exports do most of the work, and both are easy to omit because the applicati
 - MUST export the server error hook in any application with Sentry configured; without it server errors go unreported.
 - MUST export the router transition hook so client navigation is scoped correctly.
 - MUST NOT report the framework's control-flow interrupts as errors, per the rules in [capture-and-scopes.md](./capture-and-scopes.md).
-- MUST NOT let either hook throw; a failing reporter must not turn a handled error into an unhandled one.
+
+That neither hook may throw — a failing reporter must not turn a handled error into an unhandled one — holds whichever tracker fills the role, so a **Next.js app development capability** owns it under its observability-wiring topic rather than this reference.
 
 ## The Build Wrapper and the Bundler Split
 
