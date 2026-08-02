@@ -59,7 +59,7 @@
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "1d499c3b4f7ad7fa39caafa9995caefd61ce7c01f6d800c9fc46c76bcb27a1cd"
+      "computedHash": "0d60c624b2b2949bc9339c6846eb9b73d297762e591bb6b290fa0ef2b19ca877"
     },
     "jest-testing": {
       "source": "/home/user/skills/skills",
@@ -79,7 +79,7 @@
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "13faa73bf19936e13c6ae25247cd9a334b6a072a8e4f83544b912ea2b7e6ed99"
+      "computedHash": "90c37a3df7d27e3dd250554aea6e78407089a243b8ce14f9d4b0ef09fc36f6b3"
     },
     "professional-behavior": {
       "source": "/home/user/skills/skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "60b94edb62f53fdaa2bc2b2da35c8c13d621d6edad1db363f489df726119e32c"
+      "computedHash": "03e14a61ea87117feca1151ef4a7204304d763f621732418b34c93c8568d2a25"
     },
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
@@ -124,7 +124,7 @@
     "technical-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "88a46419afe65500c2e1aaa7d3f7d14f11d3dd1fa479b974eef45945d629f005"
+      "computedHash": "7f6e2193314fb9d323f0073ceaca93e9aee24db8edb9d80cd473b19a73aa1b46"
     },
     "unit-testing": {
       "source": "/home/user/skills/skills",
@@ -134,12 +134,12 @@
     "vitest-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "d103da183c69d6824b6435848e74ada90e190036fc78e79872541a3ddc4cdbed"
+      "computedHash": "49cfc3c50cdbdd27ec3b48eea058f9390cad9db29653e66bbe7c1a2ce77c991e"
     },
     "wireframe-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "1446d492f062af04878f0e9025778dd477ada9d03b47867c9c5dd341f67cfb29"
+      "computedHash": "b445a587c6ef12d79e4008d2c8d8e75ef8c5a67b0a5bb132e0bddaffc7fddb5c"
     },
     "zod-schema": {
       "source": "/home/user/skills/skills",
