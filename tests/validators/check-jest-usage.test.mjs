@@ -359,6 +359,49 @@ test("a journey", async ({ page }) => {
       expect(checkJestUsage(root)).toPassCleanly();
     });
 
+    // Jest matches a testMatch pattern as written against the absolute path and
+    // does NOT resolve a bare relative one against rootDir, so `e2e/**` selects
+    // nothing — `jest@30.4.2 --listTests` returns no files for it. Reporting
+    // here would flag a config that collects nothing at all.
+    it("does not report a bare relative pattern, which Jest never resolves against the root", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["e2e/**/*.test.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toPassCleanly();
+    });
+
+    it("reports the same pattern once it is rooted", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["<rootDir>/e2e/**/*.test.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
+
+    it("does not report a pattern that reaches the directory but cannot match its filenames", async () => {
+      // `**/*.spec.ts` descends into e2e/, but the Playwright file is named
+      // `.test.ts`, so Jest collects nothing there. Reachability alone is not
+      // enough — this is the dimension the Cypress `.cy.ts` case turns on too.
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["**/*.spec.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toPassCleanly();
+    });
+
+    it("reports the same pattern once it is recursive", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "e2e/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["**/e2e/**/*.test.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
+    });
+
     it("reports a Playwright directory by that name", async () => {
       const root = await project({
         "src/a.spec.ts": CLEAN_SPEC,

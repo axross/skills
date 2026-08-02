@@ -463,30 +463,35 @@ async function checkForeignDiscovery(root, configPath, source) {
 /**
  * `true` when a `testMatch` glob selects any of `paths`.
  *
- * Uses the platform's own glob matcher against the absolute paths, with
- * `<rootDir>` expanded — which is what Jest matches too, so the answer is exact
- * rather than inferred. That exactness is what keeps the two shapes this check
- * previously misjudged correct by construction: a lone `*` cannot cross a `/`,
- * and Jest's default extglob (`**‍/?(*.)+(spec|test).?([mc])[jt]s?(x)`) does not
- * match a Cypress `.cy.ts`.
+ * Split into two independent questions, because no single matcher available
+ * here answers both the way Jest does:
  *
- * `path.matchesGlob` needs Node 22.5; Jest itself supports Node 18 and 20, so a
- * project running this script on either falls back to `selectsDirectory`, which
- * decides on the leading path segment alone.
+ *   Reachability — can the pattern descend into this directory at all? Decided
+ *     structurally by `reachesDirectory`, from Jest's own matcher's behavior.
+ *   Filename — could the pattern's last segment match this file's name? Decided
+ *     by `path.matchesGlob` on the BASENAMES alone, where no path semantics are
+ *     involved and it agrees with the picomatch family Jest uses.
+ *
+ * Matching whole paths with `path.matchesGlob` was tried and is wrong: it and
+ * Jest's matcher disagree on an unanchored pattern — `*​/**​/*.test.ts` selects
+ * `e2e/journey.test.ts` under Jest and does not under `matchesGlob` — so it
+ * looked exact while quietly missing cases.
  */
 function globSelectsAny(pattern, paths, root, directory) {
+  if (!reachesDirectory(pattern, root, directory)) return false;
+
+  const basename = pattern.split("/").pop() ?? "";
+
+  // Without a matcher, fall back to Jest's own naming convention: a file it
+  // would not recognise as a spec is one a default pattern does not collect.
   if (typeof path.matchesGlob !== "function") {
-    return selectsDirectory(pattern, directory);
+    return paths.some((candidate) => isJestSpec(path.basename(candidate)));
   }
 
-  const absoluteRoot = path.resolve(root).split(path.sep).join("/");
-  const expanded = pattern.replaceAll("<rootDir>", absoluteRoot);
-  const absolute = expanded.startsWith("/")
-    ? expanded
-    : `${absoluteRoot}/${expanded.replace(/^\.\//, "")}`;
-
   try {
-    return paths.some((candidate) => path.matchesGlob(candidate, absolute));
+    return paths.some((candidate) =>
+      path.matchesGlob(path.basename(candidate), basename),
+    );
   } catch {
     // A malformed glob is a different defect, and Jest reports it itself.
     return false;
@@ -559,13 +564,29 @@ function matchesAnyPath(pattern, paths) {
  * Globs only. A `testRegex` is a different language and is judged by
  * `matchesAnyPath` against the paths actually on disk.
  */
-function selectsDirectory(pattern, directory) {
-  const normalized = pattern.replace("<rootDir>/", "").replace(/^\.\//, "");
+function reachesDirectory(pattern, root, directory) {
+  const absoluteRoot = path.resolve(root).split(path.sep).join("/");
+  const expanded = pattern.replaceAll("<rootDir>", absoluteRoot);
 
-  // Explicitly names the directory.
-  if (normalized.startsWith(`${directory}/`)) return true;
+  let remainder;
 
-  const segments = normalized.split("/");
+  if (expanded.startsWith("/")) {
+    // An absolute pattern anchored outside this project cannot reach it.
+    if (!expanded.startsWith(`${absoluteRoot}/`)) return false;
+    remainder = expanded.slice(absoluteRoot.length + 1);
+  } else {
+    // Jest matches the pattern as written against an ABSOLUTE path, so a
+    // literal leading segment can never match — `e2e/**/*.test.ts` selects
+    // nothing at all. A leading wildcard still can, because it absorbs the
+    // path's own leading segments.
+    const [head] = expanded.split("/");
+    if (head !== "*" && head !== "**") return false;
+    remainder = expanded;
+  }
+
+  if (remainder.startsWith(`${directory}/`)) return true;
+
+  const segments = remainder.split("/");
   const [head] = segments;
 
   if (head === "**") return true;
