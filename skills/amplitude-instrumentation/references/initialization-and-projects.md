@@ -2,7 +2,7 @@
 
 Apply this reference when writing or reviewing the `init` call, deciding how many Amplitude projects a system needs, or handling the API key. Initialization is the highest-leverage code in an Amplitude integration: several options cannot change afterwards, and the two most common production defects — a hardcoded key and an initialization that runs before the user's identity is known — both live here.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's Browser SDK 2 documentation](https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2) on **2026-08-02**.
 
 ## The `init` Call
 

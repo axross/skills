@@ -2,7 +2,7 @@
 
 Apply this reference when an agent has Amplitude tooling available — the MCP server, Amplitude's own published skills, or its instrumentation CLI — and needs to know what each is for and where the boundaries are. This skill stands on its own: everything in it works with none of this tooling installed. What follows is what changes when it is.
 
-Verified against Amplitude's documentation on **2026-07-29**.
+Verified against [Amplitude's MCP documentation](https://amplitude.com/docs/amplitude-ai/amplitude-mcp) on **2026-08-02**.
 
 ## The Amplitude MCP Server
 

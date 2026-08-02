@@ -2,20 +2,13 @@
 
 Apply this reference when wiring Sentry into a Next.js application, configuring the build plugin, capturing server errors, or investigating why client and server events do not share a trace.
 
-Verified against `@sentry/nextjs` 10.69.0 against Next.js 16, where Turbopack is the default bundler for both development and production builds.
+Verified against `@sentry/nextjs` 10.69.0 on Next.js 16, where Turbopack is the default bundler for both development and production builds, checked against [Sentry's Next.js guide](https://docs.sentry.io/platforms/javascript/guides/nextjs/) on **2026-08-02**.
 
 The framework's own hooks — the server-startup registration file, the client instrumentation entry, the global error boundary — are framework surfaces owned by a Next.js capability. What Sentry puts inside them is owned here.
 
 ## The Initialization Files
 
-Next.js runs code in more than one runtime, and each needs its own initialization. The conventional layout is four files:
-
-| File                             | Runtime                            |
-| -------------------------------- | ---------------------------------- |
-| The client instrumentation entry | Browser                            |
-| A server configuration module    | Node.js                            |
-| An edge configuration module     | Edge                               |
-| The server registration file     | Loads whichever of the two applies |
+Next.js runs code in more than one runtime, and each needs its own initialization. [Sentry's Next.js manual setup](https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/) names the files: a client instrumentation entry for the browser, a server configuration module for Node.js, an edge configuration module for the Edge runtime, and a server registration file that loads whichever of the last two applies.
 
 The registration file is where the branch lives, and the branch has to be a dynamic import rather than a static one — a static import of a Node-targeting module evaluates before any runtime check can guard it, which breaks the other runtime outright.
 

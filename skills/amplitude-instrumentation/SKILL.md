@@ -13,7 +13,7 @@ It does not own **what to track, how to name it, or where the call site goes**. 
 
 **Version posture.** Amplitude renames configuration surfaces between minors — `defaultTracking` became `autocapture`, `fetchRemoteConfig` moved under `remoteConfig` — and a wrong option key is ignored rather than raising an error. Every concrete option name, default, and limit in these references was verified on **2026-07-29** and says so. Treat each as verified-at-that-date, and look it up in the installed version's own documentation before depending on it. Where a surface moves faster than it can usefully be frozen, the reference prescribes a lookup instead of a value.
 
-**Platform scope.** Browser SDK 2 and the React Native SDK are first-class. iOS, Android, Flutter, Unity, Unreal, and Node are named as families with a prescribed lookup: the concepts carry across them, the method names do not.
+**Platform scope.** [Browser SDK 2](https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2) and the [React Native SDK](https://amplitude.com/docs/sdks/analytics/react-native/react-native-sdk) are first-class. iOS, Android, Flutter, Unity, Unreal, and Node are named as families with a prescribed lookup: the concepts carry across them, the method names do not.
 
 This skill stands alone. Amplitude's own MCP servers, published skills, and `.amplitude/` configuration are covered where they change what you should do, but nothing here requires any of them to be installed.
 

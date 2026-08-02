@@ -15,7 +15,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Baseline and Scope
 
-**TanStack Query v5 is the baseline**, verified against **5.101.4** — the current release at the time of writing. React 18 and TypeScript 5.4 are the minimums. Types ship as **patch** releases rather than majors, so a project should pin the patch version and expect type changes between them.
+**TanStack Query v5 is the baseline**, verified against **5.101.4** on **2026-08-02** against the [React adapter's documentation](https://tanstack.com/query/latest/docs/framework/react/overview). React 18 and TypeScript 5.4 are the minimums. Types ship as **patch** releases rather than majors, so a project should pin the patch version and expect type changes between them.
 
 **The React adapter is the only one in scope.** The Vue, Svelte, Solid, Angular, Lit, and Preact adapters version independently of it and are out of scope entirely — no rule, no comparison.
 

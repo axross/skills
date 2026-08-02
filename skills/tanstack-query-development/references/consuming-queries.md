@@ -23,19 +23,7 @@ Spreading is also what lets the same factory serve `useQuery`, `useSuspenseQuery
 
 ## Two Status Fields
 
-`status` describes the **data**; `fetchStatus` describes the **function**. They vary independently, and reading the wrong one is the most common loading-state bug.
-
-| `status`  | Meaning                 |
-| --------- | ----------------------- |
-| `pending` | there is no data yet    |
-| `error`   | the last attempt failed |
-| `success` | data is available       |
-
-| `fetchStatus` | Meaning                                    |
-| ------------- | ------------------------------------------ |
-| `fetching`    | the function is running                    |
-| `paused`      | it wants to run but there is no connection |
-| `idle`        | it is not running                          |
+`status` describes the **data** — `pending`, `error`, `success`; `fetchStatus` describes the **function** — `fetching`, `paused`, `idle`. Both are defined in the [Queries guide](https://tanstack.com/query/latest/docs/framework/react/guides/queries), which also explains why they are separate fields. What that page does not say is that reading the wrong one is the most common loading-state bug.
 
 A query can be `pending` **without fetching** — disabled, or paused with no network. Rendering a spinner on `isPending` alone therefore shows a spinner forever on a device that is offline. The derived flag `isLoading` (`isPending && isFetching`) is the one a first-load spinner should read.
 
@@ -64,7 +52,7 @@ A data-backed component has four branches — loading, error, empty, loaded. Tha
 
 ## What a Component Subscribes To
 
-The result object is a proxy: a component re-renders only for the fields it actually **reads**. Two habits defeat that, and both are silent.
+The result object is a proxy: a component re-renders only for the fields it actually **reads**, as [Render Optimizations](https://tanstack.com/query/latest/docs/framework/react/guides/render-optimizations) describes. Two habits defeat that, and both are silent.
 
 **Rest destructuring** touches every field, so the component subscribes to all of them and re-renders on every internal change:
 
@@ -96,7 +84,7 @@ The result object itself is **not** referentially stable — a new object every 
 
 ## Suspense Variants
 
-`useSuspenseQuery`, `useSuspenseInfiniteQuery`, and `useSuspenseQueries` move loading and error handling to boundaries. `data` is then guaranteed defined, which removes the narrowing at every call site.
+`useSuspenseQuery`, `useSuspenseInfiniteQuery`, and `useSuspenseQueries` — the set introduced in v5, catalogued in the [Suspense guide](https://tanstack.com/query/latest/docs/framework/react/guides/suspense) — move loading and error handling to boundaries. `data` is then guaranteed defined, which removes the narrowing at every call site.
 
 What they give up is real: no `enabled`, so a query cannot be conditionally disabled; no `placeholderData`; and no cancellation. Queries in one component also fetch **serially** — the first suspends before the second starts — so a parallel set needs `useSuspenseQueries` rather than several hooks side by side.
 

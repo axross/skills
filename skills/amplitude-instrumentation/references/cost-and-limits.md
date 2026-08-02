@@ -2,16 +2,11 @@
 
 Apply this reference when deciding whether an instrumentation change is affordable, diagnosing a bill that moved, or reviewing a change that could multiply event volume. Amplitude's pricing is driven by two different meters, and the cheapest way to learn which one your plan uses is not from an invoice.
 
-Verified against Amplitude's documentation on **2026-07-29**. Plan structures and prices change; confirm the current terms with whoever owns the Amplitude contract rather than treating any figure here as your plan's.
+Verified against [Amplitude's limits documentation](https://amplitude.com/docs/faq/limits-and-quotas) on **2026-08-02**. Plan structures and prices change; confirm the current terms with whoever owns the Amplitude contract rather than treating any figure here as your plan's.
 
 ## The Two Meters
 
-| Meter                           | Counts                         |
-| ------------------------------- | ------------------------------ |
-| **MTU** (monthly tracked users) | Distinct users seen in a month |
-| **Event volume**                | Events ingested                |
-
-Which one prices your plan is a contract question. Amplitude also applies an **MTU guardrail**: an average of up to **1,000 events per MTU**, with excess converting into additional MTUs at plan rates. So an MTU-priced plan is not indifferent to event volume — it is indifferent only until the ratio crosses that line.
+Amplitude prices on one of two meters — **MTU** (monthly tracked users, the distinct users seen in a month) or **event volume** (events ingested). Which one prices your plan is a contract question. Amplitude also applies an **MTU guardrail**: an average of up to **1,000 events per MTU**, with excess converting into additional MTUs at plan rates. So an MTU-priced plan is not indifferent to event volume — it is indifferent only until the ratio crosses that line.
 
 **Guidelines:**
 
