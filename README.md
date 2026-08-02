@@ -5,7 +5,7 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done.
-The <!-- count:distributable-skills -->twenty-seven<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-eight<!-- /count --> here cover the
 whole arc: handling what the agent does not know, turning a request into a spec,
 driving that spec to a reviewed pull request, keeping the code maintainable and
 secure, testing it, designing and building its UI, standing up the application
@@ -513,7 +513,7 @@ this page, the round cap it quotes from a skill, the empty tallies in the
 discovery baseline. The marker is invisible once rendered:
 
 ```markdown
-The <!-- count:distributable-skills -->twenty-seven<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-eight<!-- /count --> here cover the
 whole arc.
 ```
 

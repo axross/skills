@@ -19,7 +19,7 @@ jsdom is not free: it constructs a document, a window, and a large API surface f
 
 ## Per-File Override
 
-A docblock at the top of a file overrides the project default for that file alone. It is the right tool when a handful of specs need a different environment.
+A docblock overrides the project default for one file. Jest reads it from the **first** docblock in the file, so it has to precede every import — placed lower it is silently ignored, and the file runs under the project default while appearing to ask for something else.
 
 ```ts
 /**
@@ -29,7 +29,7 @@ A docblock at the top of a file overrides the project default for that file alon
 
 **Guidelines:**
 
-- MUST place the docblock at the very top of the file, before any import, or it is not read.
+- MUST confirm the environment a file actually ran under, rather than assuming the docblock took, when a DOM-dependent spec fails on a missing global.
 - SHOULD use the docblock for a small number of exceptions and a separate project for a large number.
 
 ## Environment Options
