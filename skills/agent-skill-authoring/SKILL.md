@@ -1,6 +1,6 @@
 ---
 name: agent-skill-authoring
-description: The ability to author, structure, name, refine, split, and audit agent skills in the agentskills.io format under the host project's skill root (e.g., `.claude/skills/`). Covers capability framing (naming and voice that present a skill as an ability, not a document), frontmatter and invocation-control fields, kebab-case naming, writing `description`/`when_to_use` for discovery, section anatomy with concise examples plus RFC-2119 guideline bullets, progressive disclosure into reference files, topic-based cross-references, archetype skeletons for the project skills a scaffolding pass creates (structure, component, UI/design), and a runnable structure validator.
+description: The ability to author, structure, name, refine, split, and audit agent skills in the agentskills.io format under the host project's skill root (e.g., `.claude/skills/`). Covers capability framing (naming and voice that present a skill as an ability, not a document), frontmatter and invocation-control fields, kebab-case naming, writing `description`/`when_to_use` for discovery, section anatomy with concise examples plus RFC-2119 guideline bullets, upstream-documentation citation for version-pinned or vendor-mirroring sections, progressive disclosure into reference files whose routing bullets state the fact rather than announce one, splitting mechanism from judgment when a vendor-specific skill sits beneath a tool-agnostic owner, topic-based cross-references, archetype skeletons for the project skills a scaffolding pass creates (structure, component, UI/design), and a runnable structure validator.
 when_to_use: Apply whenever creating, refining, restructuring, splitting, consolidating, renaming, deleting, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, running the structure validator, or refreshing a skill's discovery metadata. Use for "add a skill", "split this skill", "audit skills", "recast this skill as a capability", or any change to `SKILL.md` files or their references.
 user-invocable: false
 ---
@@ -25,6 +25,7 @@ See [scoping-and-mece.md](./references/scoping-and-mece.md) for:
 
 - choosing a coherent skill boundary, skill name, split, consolidation, or source-of-truth location
 - checking overlap with neighboring skills before adding new guidance
+- classifying every section as mechanism or judgment when a vendor- or runner-specific skill sits beneath a tool-agnostic owner
 - using section length and topic growth as signals for restructuring
 
 ## Capability Framing
@@ -59,6 +60,7 @@ See [body-content-style.md](./references/body-content-style.md) for:
 
 - writing or revising substantive skill-body or reference-file sections
 - balancing concise topic explanation, examples, and guideline bullets
+- citing the upstream documentation URL in a section that pins a version or mirrors a vendor's option surface
 - placing normative RFC-2119 requirement bullets in detailed reference content rather than parent routing sections
 
 ## Progressive Disclosure
@@ -68,6 +70,7 @@ See [progressive-disclosure.md](./references/progressive-disclosure.md) for:
 - deciding when a skill should stay single-file or split into `references/`
 - the size thresholds that signal a skill or reference file has grown too large
 - using the parent routing-section format: `## Topic`, `See [file.md](./references/file.md) for:`, then descriptive situation bullets
+- stating the fact a routing bullet points at — the flag, limit, or rule by name — instead of announcing that one exists
 - keeping parent routing bullets free of RFC-2119-style requirement keywords so they remain routing cues, not duplicated rules
 
 ## Cross-Referencing and Discovery
