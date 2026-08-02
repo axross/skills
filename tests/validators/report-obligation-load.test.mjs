@@ -367,15 +367,18 @@ describe("report-obligation-load.mjs", () => {
       // paragraph replacing them lives in the SKILL.md body, so the floor's
       // prose grew even as the ceiling's obligations fell.
       expect.soft(totals.floorTokens).toBe(6_958);
-      // Drifted from 299 in #174. All eight come from loop-engineering's
+      // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
-      // to their owner: ten restated bullets out, two loop-specific routing
-      // bullets kept. The other two mandated skills are unchanged in count.
-      expect.soft(totals.ceilingObligations).toBe(291);
+      // to their owner: twelve restated bullets out, two loop-specific ones
+      // kept — the loop's own write routing, and the fixing-commit hash each
+      // resolved review thread is tied to. The other two mandated skills are
+      // unchanged in count.
+      expect.soft(totals.ceilingObligations).toBe(289);
       // Drifted from 25,230 in #114, which added one prose clause to
       // professional-behavior's reporting.md to name the owner of document
-      // prose; then from 25,264 in #174, alongside the obligation drop above.
-      expect.soft(totals.ceilingTokens).toBe(25_199);
+      // prose; then in #174, where deferral prose replacing those twelve
+      // bullets reads longer than the bullets did.
+      expect.soft(totals.ceilingTokens).toBe(25_265);
     });
   });
 
