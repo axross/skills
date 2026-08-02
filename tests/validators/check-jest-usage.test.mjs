@@ -317,6 +317,57 @@ test("a journey", async ({ page }) => {
       expect(checkJestUsage(root)).toReportFailure(/also selects e2e\//);
     });
 
+    // Each foreign runner names its files its own way. Deciding "does this
+    // directory hold tests?" with Jest's own `.spec.`/`.test.` filter excused
+    // Cypress and Maestro entirely — their branches could never fire.
+    it("reports a broad pattern reaching a Cypress .cy.ts spec", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "cypress/e2e/journey.cy.ts": `describe("j", () => { it("w", () => {}); });\n`,
+        "jest.config.js": `module.exports = { testMatch: ["**/*.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects cypress\//);
+    });
+
+    it("does not report a Cypress spec under Jest's default testMatch", async () => {
+      // `.cy.ts` carries neither `.spec.` nor `.test.`, so Jest's default never
+      // collects it — reporting here would be a false positive.
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "cypress/e2e/journey.cy.ts": `describe("j", () => { it("w", () => {}); });\n`,
+        "jest.config.js": `module.exports = { testMatch: ["**/?(*.)+(spec|test).?([mc])[jt]s?(x)"] };\n`,
+      });
+      expect(checkJestUsage(root)).toPassCleanly();
+    });
+
+    it("reports a JS spec misfiled under a Maestro directory", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "maestro/flow.yaml": `appId: com.example\n`,
+        "maestro/legacy.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["**/*.test.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects maestro\//);
+    });
+
+    it("does not report a Maestro directory holding only YAML flows", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "maestro/flow.yaml": `appId: com.example\n`,
+        "jest.config.js": `module.exports = { testMatch: ["**/*.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toPassCleanly();
+    });
+
+    it("reports a Playwright directory by that name", async () => {
+      const root = await project({
+        "src/a.spec.ts": CLEAN_SPEC,
+        "playwright/journey.test.ts": FOREIGN_SPEC,
+        "jest.config.js": `module.exports = { testMatch: ["**/*.test.ts"] };\n`,
+      });
+      expect(checkJestUsage(root)).toReportFailure(/also selects playwright\//);
+    });
+
     it("reads every declaration, not only the first, in a projects config", async () => {
       const root = await project({
         "src/a.spec.ts": CLEAN_SPEC,

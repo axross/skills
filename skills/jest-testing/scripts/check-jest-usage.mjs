@@ -71,14 +71,45 @@ const CONFIG_FILES = [
   "jest.config.json",
 ];
 
+/** `true` when the filename is a Jest spec by the default naming conventions. */
+const isJestSpec = (name) =>
+  SPEC_NAME.test(name) && SPEC_EXTENSIONS.has(path.extname(name));
+
+/** Cypress's default spec suffix since version 10. */
+const CYPRESS_SPEC = /\.cy\.[cm]?[jt]sx?$/i;
+
 /**
- * Directory names that conventionally belong to a different test runner.
+ * Directories that conventionally belong to a different test runner, each with
+ * the naming convention that runner actually uses.
  *
- * A Jest pattern reaching into one of these collects files Jest cannot run —
- * the other runner's imports do not resolve — and reports them as failures
- * that have nothing to do with the code under test.
+ * A Jest pattern reaching a file in one of these collects something Jest cannot
+ * run — the other runner's imports do not resolve — and reports it as a failure
+ * that has nothing to do with the code under test.
+ *
+ * Each entry needs its OWN convention: deciding "does this directory hold
+ * tests?" with Jest's `.spec.`/`.test.` filter silently excused Cypress and
+ * Maestro entirely, since neither names files that way, so those two branches
+ * could never fire however broad the Jest pattern was.
  */
-const FOREIGN_TEST_DIRECTORIES = ["e2e", "playwright", "cypress", "maestro"];
+const FOREIGN_TEST_DIRECTORIES = [
+  // A generic name both conventions are found under.
+  {
+    directory: "e2e",
+    holds: (name) => isJestSpec(name) || CYPRESS_SPEC.test(name),
+  },
+  { directory: "playwright", holds: isJestSpec },
+  // `.spec.*` is Cypress's pre-10 default and still widely configured.
+  {
+    directory: "cypress",
+    holds: (name) => CYPRESS_SPEC.test(name) || isJestSpec(name),
+  },
+  // Maestro flows are YAML, which no realistic `testMatch` selects — listed so
+  // a JS/TS file misfiled here is still caught.
+  {
+    directory: "maestro",
+    holds: (name) => /\.ya?ml$/i.test(name) || isJestSpec(name),
+  },
+];
 
 /**
  * The Jest API symbols a spec may import from `@jest/globals`.
@@ -130,8 +161,11 @@ async function isFile(candidate) {
   }
 }
 
-/** Every spec file under `root`, excluding skipped directories. */
-async function collectSpecs(root) {
+/**
+ * Every file under `root` whose name satisfies `holds`, excluding skipped
+ * directories. Defaults to Jest's own spec-naming convention.
+ */
+async function collectSpecs(root, holds = isJestSpec) {
   const entries = await readdir(root, { withFileTypes: true });
   const collected = [];
 
@@ -140,13 +174,12 @@ async function collectSpecs(root) {
 
     if (entry.isDirectory()) {
       if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
-      collected.push(...(await collectSpecs(child)));
+      collected.push(...(await collectSpecs(child, holds)));
       continue;
     }
 
     if (!entry.isFile()) continue;
-    if (!SPEC_NAME.test(entry.name)) continue;
-    if (!SPEC_EXTENSIONS.has(path.extname(entry.name))) continue;
+    if (!holds(entry.name)) continue;
 
     collected.push(child);
   }
@@ -409,18 +442,18 @@ async function checkForeignDiscovery(root, configPath, source) {
 
   const findings = [];
 
-  for (const directory of FOREIGN_TEST_DIRECTORIES) {
-    const specs = await foreignSpecs(root, directory);
+  for (const entry of FOREIGN_TEST_DIRECTORIES) {
+    const specs = await foreignSpecs(root, entry);
     if (specs.length === 0) continue;
 
     const reaching =
-      globs.find((glob) => selectsDirectory(glob, directory)) ??
+      globs.find((glob) => globSelectsAny(glob, specs, root, entry.directory)) ??
       regexes.find((regex) => matchesAnyPath(regex, specs));
     if (reaching === undefined) continue;
 
     findings.push({
       file: configPath,
-      message: `pattern ${JSON.stringify(reaching)} also selects ${directory}/, which holds another runner's tests; Jest will collect files it cannot run.`,
+      message: `pattern ${JSON.stringify(reaching)} also selects ${entry.directory}/, which holds another runner's tests; Jest will collect files it cannot run.`,
     });
   }
 
@@ -428,16 +461,50 @@ async function checkForeignDiscovery(root, configPath, source) {
 }
 
 /**
- * Absolute paths of the spec files under `root/directory`, if any.
+ * `true` when a `testMatch` glob selects any of `paths`.
  *
- * Absolute, not root-relative, because Jest applies `testRegex` to the full
- * path. An anchored pattern like `^e2e/` therefore matches nothing under real
- * Jest — verified against 30.4.2, whose `--listTests` returns no files for it —
- * while against a relative path it would appear to match, reporting a defect
- * that is not there.
+ * Uses the platform's own glob matcher against the absolute paths, with
+ * `<rootDir>` expanded — which is what Jest matches too, so the answer is exact
+ * rather than inferred. That exactness is what keeps the two shapes this check
+ * previously misjudged correct by construction: a lone `*` cannot cross a `/`,
+ * and Jest's default extglob (`**‍/?(*.)+(spec|test).?([mc])[jt]s?(x)`) does not
+ * match a Cypress `.cy.ts`.
+ *
+ * `path.matchesGlob` needs Node 22.5; Jest itself supports Node 18 and 20, so a
+ * project running this script on either falls back to `selectsDirectory`, which
+ * decides on the leading path segment alone.
  */
-async function foreignSpecs(root, directory) {
-  const candidate = path.join(root, directory);
+function globSelectsAny(pattern, paths, root, directory) {
+  if (typeof path.matchesGlob !== "function") {
+    return selectsDirectory(pattern, directory);
+  }
+
+  const absoluteRoot = path.resolve(root).split(path.sep).join("/");
+  const expanded = pattern.replaceAll("<rootDir>", absoluteRoot);
+  const absolute = expanded.startsWith("/")
+    ? expanded
+    : `${absoluteRoot}/${expanded.replace(/^\.\//, "")}`;
+
+  try {
+    return paths.some((candidate) => path.matchesGlob(candidate, absolute));
+  } catch {
+    // A malformed glob is a different defect, and Jest reports it itself.
+    return false;
+  }
+}
+
+/**
+ * Absolute paths of the files under `root/<entry.directory>` that belong to
+ * that runner, by its own naming convention.
+ *
+ * Absolute, not root-relative, because Jest applies both `testMatch` and
+ * `testRegex` to the full path. An anchored pattern like `^e2e/` therefore
+ * matches nothing under real Jest — verified against 30.4.2, whose
+ * `--listTests` returns no files for it — while against a relative path it
+ * would appear to match, reporting a defect that is not there.
+ */
+async function foreignSpecs(root, entry) {
+  const candidate = path.join(root, entry.directory);
 
   try {
     if (!(await stat(candidate)).isDirectory()) return [];
@@ -445,7 +512,7 @@ async function foreignSpecs(root, directory) {
     return [];
   }
 
-  return (await collectSpecs(candidate)).map((spec) =>
+  return (await collectSpecs(candidate, entry.holds)).map((spec) =>
     path.resolve(spec).split(path.sep).join("/"),
   );
 }
