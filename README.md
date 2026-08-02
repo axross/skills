@@ -317,6 +317,7 @@ format-on-edit and check-before-stop hooks are materialized from
 | Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
 | Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
 | Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
+| Link freshness   | `scripts/link-freshness/check.mjs` (scheduled; never gates)                           |
 
 ### Commands
 
@@ -455,6 +456,57 @@ identical bullets may be one rule with two sources of truth (which
 [`REVIEW.md`](./REVIEW.md) rates Major) or a portable skill standing on its own
 (which is correct). Only intent separates them, and intent is not in the corpus.
 The ranking is a place to look; a human decides.
+
+#### Scheduled, and off the merge path
+
+One more script neither gates nor merely reports. It **can** fail, and it runs
+on a schedule rather than on a pull request:
+
+```bash
+node scripts/link-freshness/check.mjs --dry-run
+node scripts/link-freshness/check.mjs --help
+```
+
+`scripts/link-freshness/check.mjs` answers "do the URLs this repository cites
+still resolve?" — a question nothing here asked before, because
+`check-links.mjs` resolves relative `.md` targets on disk and ignores
+`http(s)://` entirely. It exists because the vendor skills are moving off
+reproduced option tables and onto a link plus the non-obvious caveat, which
+trades a table that goes stale **visibly** for a link that rots **silently**.
+
+**Only a link confirmed dead fails it** — a 404 or 410 that survives a retry. A
+host that rate-limits, blocks datacentre egress, or times out is reported as
+`unverifiable` and never affects the outcome, and a permanent redirect is
+reported as `moved` without failing. That split is the design: this corpus cites
+~80 hosts, several of which refuse CI traffic by policy, and an audit that went
+red whenever a publisher throttled a runner would be red most weeks — the same
+argument that keeps the three tools above out of every gate.
+
+It runs from
+[`link-freshness.yaml`](./.github/workflows/link-freshness.yaml) weekly, and
+that workflow **must never gain a pull-request trigger**. The reason is the
+mirror of [`@claude review`](#claude-review--get-findings-on-any-pr)'s
+`--disallowedTools "WebFetch,WebSearch,Task"` denial: a job that dereferences
+every URL in the tree, triggered by a pull request, dereferences URLs an outside
+contributor just wrote. Scheduled, it only ever probes text already merged.
+`tests/repository/scheduled-audit-tools.test.mjs` holds all of that
+mechanically — the trigger shape, the read-only token, and its absence from
+every gate, npm script, and hook.
+
+Being merged makes a URL reviewed; it does not make the **host** honest, and the
+audit follows redirects by hand so it can tell a permanent move from a temporary
+one. A citation that was ordinary at review time can start redirecting to an
+internal address weeks later, so every hop — the first included — is
+re-validated against `scripts/link-freshness/address-guard.mjs`, which refuses
+loopback, RFC 1918, carrier-grade NAT, link-local (`169.254.169.254`), and their
+IPv6 and IPv4-mapped equivalents. A refused hop is reported as `unverifiable`
+and does not fail the run. That file also states the DNS-rebinding window the
+check does **not** close, and why the residual risk is bounded to blind
+reachability probing.
+
+Because scheduled workflows run only from the default branch, the audit does not
+run on the pull request that changes it. `--dry-run` is the offline preview, and
+it is what `npm test` exercises: no test in this repository probes a URL.
 
 ### Repository gotchas
 
