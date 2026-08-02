@@ -69,7 +69,7 @@
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "00d78d270788a4173a092d75320aee7fd553158a2901342c32bc707ff867cc71"
+      "computedHash": "4eb8e04d11bf23599bdf92baccb781c21ae3eb219f04babf77a5210b8a031c1f"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
@@ -89,12 +89,12 @@
     "react-component-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "36b12f985b0b4331e525754f39bfe924ab67c480a6fff5c7eac711493d3da9a5"
+      "computedHash": "46abb0b1d5a13fbcdc5168c73e994eeb37b019a957c6b40eb091bb1f37c50c44"
     },
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "d41d6eb709d715de6ebd6e6424932fddd8e865681464c0c85d5f7e541b5d8fe4"
+      "computedHash": "60b94edb62f53fdaa2bc2b2da35c8c13d621d6edad1db363f489df726119e32c"
     },
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",

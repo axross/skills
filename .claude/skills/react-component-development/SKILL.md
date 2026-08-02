@@ -118,7 +118,7 @@ See [virtualization.md](./references/virtualization.md) for:
 
 ## Verifying a Component Change
 
-A component change is verified by rendering it, not by the type-checker — which sees none of the branches, platforms, or pass-throughs these rules turn on. This section names the checks a component change earns; how the result is then reported — which of them ran, which were skipped, and what risk a skip leaves — belongs to a verification-evidence reporting capability, which owns it for every kind of change.
+A component change is verified by rendering it, not by the type-checker — which sees none of the branches, platforms, or pass-throughs these rules turn on. This section names the checks a component change earns; how the result is then reported — which of them ran, which were skipped, and what risk a skip leaves — belongs to a **software development capability** under its verification topic, which owns it for every kind of change.
 
 **Guidelines:**
 
