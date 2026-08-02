@@ -45,6 +45,7 @@ export const SCRIPTS = {
   reportSkillDuplication: "scripts/report-skill-duplication.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
   extractBaseline: "scripts/discovery-eval/extract-baseline.mjs",
+  linkFreshness: "scripts/link-freshness/check.mjs",
 };
 
 /**
