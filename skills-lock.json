@@ -61,6 +61,11 @@
       "sourceType": "local",
       "computedHash": "1d499c3b4f7ad7fa39caafa9995caefd61ce7c01f6d800c9fc46c76bcb27a1cd"
     },
+    "jest-testing": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "08988bd5c881328d085cf54922bf62d2e2b17013cc2ee2c52d35d2cd30677b35"
+    },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
