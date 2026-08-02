@@ -135,6 +135,11 @@
       "source": "/home/user/skills/skills",
       "sourceType": "local",
       "computedHash": "b074a0ebdcb842196e94b2ca3e59e14b4b0ac355c78f34e34e6833fb63c8c0ef"
+    },
+    "zod-schema": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "56c1980d8f6c7abaab478a0917dae3596dae778cabdfd67c3eb43440a652e3b0"
     }
   }
 }
