@@ -11,6 +11,8 @@ This skill equips you to author, refactor, review, and run unit tests: fast, iso
 
 The conventions are framework-agnostic — they hold whether the project runs Jest, Vitest, Node's built-in test runner, or a similar runner. Examples are written in TypeScript with `describe`/`it`/`expect`, the vocabulary most runners share; read `it`/`test`, the assertion entrypoint, and the mocking calls as stand-ins for whatever the project's runner provides.
 
+Where a project ships a capability for its specific runner, that capability owns the **mechanism** — the config file, pools and isolation, coverage providers, reporters, and the runner's own mocking and fake-timer API — and this skill owns what to assert, how a spec is shaped, and whether the behavior belongs in a unit test at all. Reach for the runner's capability when the question is which option or which call; reach for this one when the question is what the test should verify.
+
 A unit test earns its place when it exercises a small exported contract quickly, independently, and from the outside. It becomes a liability when it overfits implementation details or stands in for higher-confidence integration or e2e coverage — so part of this capability is knowing when _not_ to write one, and routing that behavior to a broader test instead.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
