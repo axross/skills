@@ -2,7 +2,7 @@
 
 An opinionated library of agent skills.
 
-These are **agent skills** in the [agentskills.io](https://agentskills.io)
+These are **agent skills** in the [agentskills.io](https://agentskills.io/home)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done.
 The <!-- count:distributable-skills -->twenty-eight<!-- /count --> here cover the
