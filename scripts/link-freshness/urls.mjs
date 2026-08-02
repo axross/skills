@@ -5,10 +5,13 @@
 // testable offline and deterministically — which is what keeps the audit's
 // extraction covered by `npm test` while the probing stays out of it.
 //
-// The fenced-block rule is NOT re-implemented: it comes from commonmark.mjs, the
+// What counts as prose is NOT re-implemented: it comes from commonmark.mjs, the
 // same module check-links.mjs and check-skill.mjs read. A skill that documents a
 // URL inside a ```bash sample is showing it, not citing it, and probing an
-// illustrative `https://example.com` would report a finding nobody can fix.
+// illustrative `https://example.com` would report a finding nobody can fix. That
+// module also owns the ORDER the fenced blocks, code spans, and HTML comments
+// come out in — see `extractProse`, and the 90 README lines that order cost when
+// this file and check-links.mjs each carried their own copy of it.
 //
 // WHY THIS IS A SEPARATE CONCERN FROM check-links.mjs. That script resolves
 // RELATIVE `.md` links against the file system and deliberately ignores
@@ -18,7 +21,7 @@
 
 import { readdir, readFile, stat } from "node:fs/promises";
 
-import { scanLines } from "../../skills/agent-skill-authoring/scripts/commonmark.mjs";
+import { extractProse } from "../../skills/agent-skill-authoring/scripts/commonmark.mjs";
 
 /**
  * Directory names never worth walking, mirroring check-links.mjs's list for the
@@ -56,96 +59,29 @@ const URL_RE = /https?:\/\/[^\s)\]"'`<>]+/g;
  */
 const TRAILING_PUNCTUATION_RE = /[.,;:!?]+$/;
 
-/** A string of just the newlines in `text`, so a removed span keeps later line numbers intact. */
-function newlinesOf(text) {
-  return "\n".repeat((text.match(/\n/g) ?? []).length);
-}
-
-/**
- * Drop every HTML comment, replacing each span with its own newlines so the
- * lines after it keep their original numbers.
- *
- * A commented-out URL is text the reader never sees, so probing it would report
- * rot in prose nobody reads and nobody renders. This repository's own status
- * blocks and `count:` markers are HTML comments, and a section parked behind one
- * is a normal way to retire content here.
- *
- * A dangling unclosed `<!--` is KEPT rather than treated as running to end of
- * file: honouring it would silently stop extracting at that point, which is the
- * failure mode that looks like a clean result. check-links.mjs makes the same
- * call for the same reason.
- *
- * ORDERING IS LOAD-BEARING, and this is where this module deliberately differs
- * from check-links.mjs. That script strips comments from the RAW source, before
- * fenced blocks and inline code spans are removed. README.md documents the
- * `count:` marker rule with the sentence "a line beginning with `<!--` is an
- * HTML block in CommonMark" — an inline code span holding a comment opener. Read
- * raw, that opener is believed, and everything up to the next `-->` 89 lines
- * later is discarded as a comment: real prose, real links, silently unread.
- * `extractUrls` therefore blanks fences and code spans FIRST and calls this on
- * the result, so a comment opener has to be real text to count.
- *
- * The same defect is present in check-links.mjs today, where it means those 89
- * lines of README go unchecked for broken relative links. Fixing it there is an
- * edit to a merge gate's script inside a distributable skill, which this change
- * deliberately does not make — it is reported instead.
- *
- * @param {string} content
- * @returns {string}
- */
-function stripHtmlComments(content) {
-  let stripped = "";
-  let rest = content;
-
-  for (;;) {
-    const openAt = rest.indexOf("<!--");
-    if (openAt === -1) break;
-    const closeOffset = rest.slice(openAt + 4).indexOf("-->");
-    if (closeOffset === -1) break;
-
-    const spanLength = closeOffset + 7; // "<!--" + body + "-->"
-    stripped +=
-      rest.slice(0, openAt) + newlinesOf(rest.slice(openAt, openAt + spanLength));
-    rest = rest.slice(openAt + spanLength);
-  }
-  return stripped + rest;
-}
-
 /**
  * Every external URL a document cites, with the 1-based line carrying it.
  *
- * Three kinds of text are removed first, all of them showing a URL rather than
- * claiming it: HTML comments, fenced code blocks, and inline code spans.
+ * Three kinds of text are blanked first, all of them showing a URL rather than
+ * claiming it: fenced code blocks, inline code spans, and HTML comments — in
+ * that order, which is `extractProse`'s to enforce and this file's to rely on. A
+ * commented-out URL is text the reader never sees, so probing it would report
+ * rot in prose nobody reads and nobody renders; this repository's own status
+ * blocks and `count:` markers are HTML comments, and a section parked behind one
+ * is a normal way to retire content here.
  *
  * @param {string} source raw file content
  * @returns {Array<{ url: string, line: number }>}
  */
 export function extractUrls(source) {
-  const content = source.replace(/\r/g, "");
-
-  // Blank what a URL may not be read from, KEEPING every line in place, so the
-  // comment pass below sees only real prose and the line numbers it reports are
-  // still the file's own. scanLines omits fenced content entirely and marks each
-  // opening fence, so anything it does not yield is blanked here by absence.
-  const byLine = [];
-  for (const { line, text, fence } of scanLines(content)) {
-    byLine[line] = fence ? "" : text.replace(/`+[^`]+`+/g, "");
-  }
-  const lineCount = content.split("\n").length;
-  const prose = Array.from(
-    { length: lineCount },
-    (_, index) => byLine[index + 1] ?? "",
-  ).join("\n");
-
   const found = [];
-  stripHtmlComments(prose)
-    .split("\n")
-    .forEach((text, index) => {
-      for (const match of text.matchAll(URL_RE)) {
-        const url = match[0].replace(TRAILING_PUNCTUATION_RE, "");
-        if (url.length > 0) found.push({ url, line: index + 1 });
-      }
-    });
+
+  for (const { line, text } of extractProse(source).lines) {
+    for (const match of text.matchAll(URL_RE)) {
+      const url = match[0].replace(TRAILING_PUNCTUATION_RE, "");
+      if (url.length > 0) found.push({ url, line });
+    }
+  }
   return found;
 }
 
