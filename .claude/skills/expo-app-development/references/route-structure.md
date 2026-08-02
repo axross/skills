@@ -8,7 +8,7 @@ Verified against SDK 57, checked against [Expo Router's file-notation reference]
 
 ## The Notation Set
 
-A file's name determines what it matches. Every form — `index`, `_layout`, `[param]`, `[...rest]`, `(group)`, `(a,b)`, `+not-found`, `+native-intent` — is defined in [Expo Router's file-notation reference](https://docs.expo.dev/router/basics/notation/).
+A file's name determines what it matches. Every form — `index`, `_layout`, `[param]`, `[...rest]`, `(group)`, `(a,b)`, `+not-found`, `+native-intent` — is defined in the file-notation reference linked above.
 
 What that page does not say is that the notation is a **closed set**: a name outside it is not an error, it is a plain path segment. So a mistyped special form produces a route that exists and matches the wrong URL, rather than a build failure — which is the whole reason to check a name against the reference rather than against intuition.
 
