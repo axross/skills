@@ -1,7 +1,6 @@
 ---
 name: code-maintainability
-description: The ability to keep changed code maintainable — the naming and file organization, route-local vs shared abstraction boundaries, complexity and readability limits, magic-number and dead-code discipline, scope control, and SOLID/DRY/KISS/YAGNI judgment that keep a codebase readable and cheap to change. Applied both while writing or refactoring code and while reviewing a change, on top of the project's development and structure conventions and any project-defined component/routing rules.
-when_to_use: Use when writing, refactoring, or reviewing code for maintainability or design — "readable", "too long", "refactor", "abstraction", "magic number", "dead code", or "should this live elsewhere". While authoring, each concern below is a practice to uphold; while reviewing, it is a finding to raise against the diff.
+description: Writing, refactoring, or reviewing code for maintainability or design — "readable", "too long", "refactor", "abstraction", "magic number", "dead code", or "should this live elsewhere". Naming and file organization, route-local versus shared abstraction boundaries, complexity and readability limits, magic-number and dead-code discipline, scope control, and SOLID/DRY/KISS/YAGNI judgment. While authoring, each concern is a practice to uphold; while reviewing, a finding to raise against the diff.
 user-invocable: false
 ---
 
