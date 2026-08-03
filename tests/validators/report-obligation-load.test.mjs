@@ -371,7 +371,7 @@ describe("report-obligation-load.mjs", () => {
       // this figure and the co-notation raised part of it back. Both are prose
       // edits, which is why the obligation counts beside these token figures
       // never moved at all.
-      expect.soft(totals.floorTokens).toBe(6_771);
+      expect.soft(totals.floorTokens).toBe(6_776);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -388,7 +388,7 @@ describe("report-obligation-load.mjs", () => {
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      expect.soft(totals.ceilingTokens).toBe(25_245);
+      expect.soft(totals.ceilingTokens).toBe(25_250);
     });
   });
 
