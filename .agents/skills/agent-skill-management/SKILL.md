@@ -1,7 +1,6 @@
 ---
 name: agent-skill-management
-description: The ability to store, install, and maintain a project's agent skills across two tiers — repository-local skills committed directly under the skill root (e.g. `.claude/skills/`) and hand-edited in place, and distributable skills authored in a source directory (e.g. `skills/`) and installed into the skill root with the vercel-labs/skills CLI (`npx skills`) plus a `skills-lock.json` lockfile and a bundled installed-copy drift check — the decision rule for which tier a new skill belongs to, and how to route a defect or gap you find in an installed skill — edit-and-reinstall when you own its source, or a feature-request issue opened on the upstream repository, with the human's go-ahead, when you do not.
-when_to_use: Apply when adding, editing, renaming, moving, or removing an agent skill in a project that manages skills across two tiers, when deciding which tier a new skill belongs to, when `git status` shows the installed copies or `skills-lock.json` out of sync with their source, or when a skill you loaded turns out to be wrong, outdated, or missing a rule — including mid-task, and including when the installed copy came from an upstream you do not own.
+description: Adding, editing, renaming, moving, or removing an agent skill in a project that keeps skills in two tiers; deciding which tier a new skill belongs to; a `git status` showing installed copies or `skills-lock.json` out of sync with their source; or a skill you loaded turning out to be wrong, outdated, or missing a rule — including mid-task, and including when its upstream is one you do not own. The storage and install model, the drift check, and how to route a defect found in an installed skill.
 user-invocable: false
 ---
 
