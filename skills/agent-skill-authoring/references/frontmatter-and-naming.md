@@ -17,6 +17,29 @@ description: The review methodology for pull requests and local diffs...
 
 Every constraint on those two fields — that both are present, that `name` is kebab-case, within 64 characters, and matches its directory, and that `description` stays within its length cap — is decided mechanically by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run over any skill you change. This section therefore states the contract and carries no rules of its own.
 
+## Frontmatter Is YAML, and a Description Is a YAML Scalar
+
+Frontmatter is parsed as YAML, so a `description` is not free text: a handful of constructs make a parser read the value as structure rather than as prose. The failure is severe and quiet. A host either refuses the skill outright — `Nested mappings are not allowed in compact mappings` — or, worse, loads it carrying a value the author never wrote, because ` #` opens a comment and truncates everything after it and a leading `&` is read as an anchor and dropped.
+
+**Example:**
+
+```yaml
+# Breaks: the colon before a space opens a nested mapping.
+description: The agentskills.io format: capability framing and discovery metadata.
+
+# Works: quoting makes the same text a plain scalar again.
+description: "The agentskills.io format: capability framing and discovery metadata."
+```
+
+The hazards are a colon before a space or at the end of the value, a `#` at the start or after a space, and an opening `[ { ] } , & * ! | > % @ ` " '`— or an opening`-`, `?`, or `:`before a space. A colon with no space after it is fine, which is why`Top 10:2025` needs no quoting.
+
+**Guidelines:**
+
+- MUST quote a `description` that carries any of the constructs above, rather than rewording to avoid them — the text is the routing signal, and quoting costs nothing but two characters.
+- MUST escape a literal `"` as `\"` inside a double-quoted value, and double a literal `'` to `''` inside a single-quoted one; an unpaired quote ends the scalar early and the rest of the line becomes a parse error.
+- SHOULD leave a description unquoted when it carries no hazard, since quoting every value forces escape handling on the many descriptions that need none.
+- MUST NOT treat a passing `scripts/check-skill.mjs` run as proof that a host will load the skill unless that run includes this check; a validator reading frontmatter with a regex cannot see a construct that only a parser resolves.
+
 ## Invocation-Control and Discovery Fields
 
 Claude Code merged custom slash commands into skills: a skill at its skill root (`.claude/skills/<name>/SKILL.md`) is invocable as `/<name>` by the human, and the model can also load it when its discovery metadata matches the task. A set of Claude-Code-defined frontmatter fields controls both directions. They are not part of the portable agentskills.io spec — treat them as harness fields (see [Host-Project Harness Fields](#host-project-harness-fields)) — so manage them deliberately on every skill in a project that targets Claude Code, and substitute the equivalents on a host that defines its own.
