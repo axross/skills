@@ -84,17 +84,17 @@
     "quality-assurance": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "4f9dd6b2f4342d58299df52817a2eda5fe893964a861bd6dfe1f0698ae284877"
+      "computedHash": "db84edd3990d83447ba3136da625671ee3655202793d363f913c4e17c12d6ebf"
     },
     "react-component-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "46abb0b1d5a13fbcdc5168c73e994eeb37b019a957c6b40eb091bb1f37c50c44"
+      "computedHash": "0ef5cdc6172245abb3bf2839b44e7d40042cd0ad8fa3ae41484f49f8be41e7ca"
     },
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "56de9ce78a97282df7854a5833e41398170bc1d98bfedfd0192c2ee1178460e0"
+      "computedHash": "046f6905617aafe309105781ef5d1b64e8cc1e2a390bc68957d23b1fb4ee4fc4"
     },
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
@@ -104,7 +104,7 @@
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "14bd30814eb3e5fde871e3ae68df0e50c9c285d4ba74a2c154504556dfaeab26"
+      "computedHash": "889c5979ca9ef6fec9292406917b9d30c2cce30fe35864adf1ac981840549273"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
@@ -124,7 +124,7 @@
     "unit-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "cb526390d838185ae35896b9e0575b0c5d815a746696f67a9eb1f7f48363b193"
+      "computedHash": "5487a4823d89e323f51045f77546a134855b4de69d230f0673307f526c36d46f"
     },
     "vitest-testing": {
       "source": "/home/user/skills/skills",
