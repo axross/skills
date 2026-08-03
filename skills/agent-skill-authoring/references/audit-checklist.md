@@ -29,7 +29,8 @@ Mechanical structure checks should be automated so an audit spends its judgment 
 
 ```sh
 # One skill, several skills, or a whole skill root (globs expand to skill dirs).
-node .claude/skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
+# Substitute the skill root the host reads (.claude/skills, .agents/skills, …).
+node skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
 ```
 
 It verifies, per skill's **frontmatter and layout**: the block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 **bytes** — measured in bytes because that is the stricter reading and the one a host has been observed to apply, so a description of 1,024 characters carrying non-ASCII punctuation still fails to load; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword.
@@ -62,7 +63,7 @@ A skill that pins a version or mirrors a vendor's option surface should cite the
 
 ```sh
 # Offline preview: validate extraction and print the plan, making no request.
-node .claude/skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
+node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
 ```
 
 It reports four verdicts and **fails on one**: `alive` (2xx), `moved` (2xx reached through a permanent redirect — informational, since the link still serves the reader), `unverifiable` (403, 429, 5xx, timeout, DNS, TLS — the host refused to answer), and `dead` (404 or 410 surviving a retry). Only `dead` fails the run. That split is the design rather than leniency: a documentation corpus cites dozens of publishers, several of which rate-limit or block datacentre egress by policy, and an audit that went red whenever one throttled a runner would be red most weeks — and a check that cries wolf gets bypassed rather than repaired.
@@ -86,7 +87,7 @@ Structural checks should be repeatable. The bundled validator above automates th
 **Example:**
 
 ```sh
-find .claude/skills -name '*.md' -print | sort
+find .claude/skills -name '*.md' -print | sort  # or .agents/skills
 ```
 
 **Guidelines:**

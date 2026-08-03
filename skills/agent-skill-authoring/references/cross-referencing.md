@@ -73,7 +73,7 @@ Link checks catch quiet skill failures — a renamed reference file or moved lin
 
 ```sh
 # From the repository root; pass paths to narrow the scan.
-.claude/skills/agent-skill-authoring/scripts/check-links.mjs
+skills/agent-skill-authoring/scripts/check-links.mjs
 ```
 
 **Example Verification Flow:**
