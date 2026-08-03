@@ -9,57 +9,57 @@
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0ec755ecfbec76c697470d2b5904a75bf292be9c9c5f8d5ce558be168c253fa7"
+      "computedHash": "97642326545cd085285660af971e0e1f9ffae41f6a19961af3f674f54eb28e90"
     },
     "amplitude-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "52ad5cadad2c8ec3facf83a4782892b4e06c3e55d14f91ab1891789b29428690"
+      "computedHash": "ed8c6a03ff799d7790302de79d7853e484288631d2e72ed379724c29b2ce808d"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "643d9061062a3cfe35f2bc1ccd0c779743c0a8b4ca7734e6d6851387e441e66a"
+      "computedHash": "6f08bd602a0999d516e6bdf4fced781cec799ee4e79f54ce965d23bd3f63958d"
     },
     "code-maintainability": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "571fb376230bd1ed742f16c5941f72a1dd8146e101cca1d20614431ba525d9f4"
+      "computedHash": "fcb494029cc5fa1fcb64fd79c86c062a4b4008e46053068e090b9191d2b3337f"
     },
     "code-review": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f28e7420b263c44f609529b900829f3dc4405b0b35a82461acbaf0322d9e25ac"
+      "computedHash": "c30ef5b247584781ff1a32208dee056e756a38a9a623f6340084ced55992aecb"
     },
     "conventional-commits": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f5bf3b8b2db6e65338a9cefdf8d600f41b5f4a7f8d525bbcb5a478cb5fd82a98"
+      "computedHash": "4bda385eff6c7611f68eff516a2c981efa72cfec6c679c6c98c5e07d7c609847"
     },
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "79ea6cb6b96395b16f50264f7ea61fd6f233aeb3c8c0feb51adfdf33d50ecb60"
+      "computedHash": "cc8db69e7e10b2155d3c44c057e0b15193d0a22f6cb1f11673092d1243a83238"
     },
     "expo-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "043415eb0c4d929592e3846639f230a3d8edf85e15ddc0184fa43540a6bb5177"
+      "computedHash": "70f626360fd4a0c3d4e80e6c0b666e3b51c528c1c49dd064483e8c9f002397eb"
     },
     "github-operation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "caf2496b541a540ce573ff56b5c1dc14f5df02e4db2e4d5209001a31996cc5bb"
+      "computedHash": "1a49ee5142bb5fa462d925e1f44d64715c601e6a19cf800e8c22ceb8e1c5793c"
     },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0d60c624b2b2949bc9339c6846eb9b73d297762e591bb6b290fa0ef2b19ca877"
+      "computedHash": "9f0c7150a09edec54a34b4172b5d989bd39ddd545e8c1b652435ac043bf2ae4d"
     },
     "jest-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "08988bd5c881328d085cf54922bf62d2e2b17013cc2ee2c52d35d2cd30677b35"
+      "computedHash": "1210ee0238b9d551fdac23da577f42139c8e45f8245df7908dad7f06d7b749d3"
     },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
@@ -69,17 +69,17 @@
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "848aece0f703f9fe9a916ca1c443e1443ac51c812f0b498597370154f9168dff"
+      "computedHash": "6f13ec4d2ac139c55556e3ffa8859b5c6d3a5d14ce46e9fd42244b583b73b2ae"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "90c37a3df7d27e3dd250554aea6e78407089a243b8ce14f9d4b0ef09fc36f6b3"
+      "computedHash": "0e3661c292df89d58a20b49dc1838b4b64f6eb8cf4562ce4897ed20e135fe628"
     },
     "professional-behavior": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "45a3361ecca5eac141e5016f8c5dedf8937205815a4403484df6029c294f2a51"
+      "computedHash": "d93d7ec9ca089cff12f6949162b534a87336a8b110f611b4b06700d8d3b48f88"
     },
     "quality-assurance": {
       "source": "/home/user/skills/skills",
