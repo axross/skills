@@ -859,7 +859,7 @@ describe("corpus drift in the delta", () => {
 
 describe("head overlay allowlist", () => {
   it("allows a skill's own SKILL.md", () => {
-    expect(allowOverlayPath(".claude/skills/code-review/SKILL.md")).toEqual({
+    expect(allowOverlayPath(".agents/skills/code-review/SKILL.md")).toEqual({
       allowed: true,
       skill: "code-review",
     });
@@ -867,7 +867,7 @@ describe("head overlay allowlist", () => {
 
   it.each([
     ["../../etc/passwd", "parent-directory segment"],
-    [".claude/skills/../../../etc/passwd", "parent-directory segment"],
+    [".agents/skills/../../../etc/passwd", "parent-directory segment"],
     ["/etc/passwd", "absolute path"],
     [".claude\\skills\\x\\SKILL.md", "backslash in path"],
     ["", "empty path"],
@@ -878,30 +878,30 @@ describe("head overlay allowlist", () => {
   it.each([
     // References cannot affect discovery, so they have no reason to cross the
     // boundary at all — narrower than "any markdown under a skill".
-    ".claude/skills/code-review/references/severity.md",
+    ".agents/skills/code-review/references/severity.md",
     "scripts/discovery-eval/run.mjs",
     ".github/workflows/merge-checks.yaml",
     "package.json",
     "skills/code-review/SKILL.md",
-    ".claude/skills/code-review/SKILL.md.bak",
-    ".claude/skills/nested/deeper/SKILL.md",
+    ".agents/skills/code-review/SKILL.md.bak",
+    ".agents/skills/nested/deeper/SKILL.md",
   ])("refuses %s as outside the allowlist", (path) => {
     expect(allowOverlayPath(path).allowed).toBe(false);
   });
 
   it("refuses a skill directory name that is not kebab-case", () => {
-    const verdict = allowOverlayPath(".claude/skills/Not_A_Skill/SKILL.md");
+    const verdict = allowOverlayPath(".agents/skills/Not_A_Skill/SKILL.md");
     expect(verdict.allowed).toBe(false);
     expect(verdict.reason).toMatch(/kebab-case/);
   });
 
   it("partitions a mixed changed-file list", () => {
     const { allowed, rejected } = planOverlay([
-      ".claude/skills/code-review/SKILL.md",
+      ".agents/skills/code-review/SKILL.md",
       ".github/workflows/merge-checks.yaml",
     ]);
     expect(allowed).toEqual([
-      { path: ".claude/skills/code-review/SKILL.md", skill: "code-review" },
+      { path: ".agents/skills/code-review/SKILL.md", skill: "code-review" },
     ]);
     expect(rejected).toHaveLength(1);
   });

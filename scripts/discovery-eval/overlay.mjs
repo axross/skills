@@ -23,8 +23,13 @@
 // cannot change what this measures and therefore has no reason to cross the
 // boundary at all.
 //
-// The allowed path is the INSTALLED copy (`.claude/skills/…`), not the source
+// The allowed path is the INSTALLED copy (`.agents/skills/…`), not the source
 // (`skills/…`), because the installed tree is what an agent actually loads —
+// and `.agents/skills` rather than `.claude/skills` because the latter is now a
+// tree of SYMLINKS. Git records a symlink as one blob holding its target, so no
+// path under `.claude/skills/<name>/` ever appears in a diff; an allowlist
+// keyed to it would reject every changed skill, leave `changed.txt` empty, and
+// evaluate zero staged skills while reporting a clean run —
 // the same tier the evaluation workspace is built from. On a green pull request
 // the two agree, since the installed-copy drift check gates exactly that. The
 // consequence when they do not: a pull request that edits a skill's source and
@@ -77,7 +82,7 @@ export function evalEnvironment(source) {
 export const SKILL_NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /** The one head path shape that may be overlaid. */
-const ALLOWED_RE = /^\.claude\/skills\/([^/]+)\/SKILL\.md$/;
+const ALLOWED_RE = /^\.agents\/skills\/([^/]+)\/SKILL\.md$/;
 
 /**
  * Decide whether one changed head path may be overlaid onto the workspace.
@@ -112,7 +117,7 @@ export function allowOverlayPath(path) {
   if (!match) {
     return {
       allowed: false,
-      reason: "not a .claude/skills/<name>/SKILL.md path",
+      reason: "not a .agents/skills/<name>/SKILL.md path",
     };
   }
 

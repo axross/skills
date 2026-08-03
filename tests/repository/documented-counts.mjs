@@ -445,6 +445,25 @@ export const CLAIMS = {
     derive: async () => (await countDocumentedValidators()) + 3,
   },
 
+  "skill-description-byte-cap": {
+    owner: "DESCRIPTION_MAX_BYTES in skills/agent-skill-authoring/scripts/check-skill.mjs",
+    note: "AGENTS.md and REVIEW.md both state this cap, and nothing else ties the two copies together — the validator is the only authority",
+    derive: async () => {
+      const source = await readFile(
+        repoPath("skills/agent-skill-authoring/scripts/check-skill.mjs"),
+        "utf8",
+      );
+      return Number(
+        anchored(
+          source,
+          /const DESCRIPTION_MAX_BYTES = (\d+);/,
+          "skills/agent-skill-authoring/scripts/check-skill.mjs",
+          "the DESCRIPTION_MAX_BYTES constant",
+        ),
+      );
+    },
+  },
+
   "repository-gotchas": {
     owner: 'the bold lead-in paragraphs of README.md\'s "Repository gotchas"',
     note: "add or remove a gotcha and this sentence counts them",

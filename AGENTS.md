@@ -34,7 +34,7 @@ Rules for reviewing a change to this repository. Formatting, linting, and the st
 
 ### Skill discovery metadata
 
-- A skill's `description` is the only text every host reads before loading it, and it is capped at 1,024 bytes — not characters. A `description` that no longer matches what the skill covers misroutes silently, and no check can see it.
+- A skill's `description` is the only text every host reads before loading it, and it is capped at <!-- count:skill-description-byte-cap -->1024<!-- /count --> bytes — not characters. A `description` that no longer matches what the skill covers misroutes silently, and no check can see it.
   Safe path: when a skill's scope changes, re-read its `description` against the new body and say in the pull request whether discovery still routes to it.
 
 ### The enforced-gate set lives in four places

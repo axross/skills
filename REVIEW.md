@@ -194,7 +194,8 @@ for a broader prose rule does **not** silence the reviewer on that rule.
   no check can see, and stays in scope everywhere.
 - The structural checks `check-skill.mjs` enforces: a frontmatter block that
   does not parse; a `name` that is not kebab-case, exceeds 64 characters, or
-  does not match its directory; a missing `description`, or one over 1,024
+  does not match its directory; a missing `description`, or one whose UTF-8
+  length exceeds <!-- count:skill-description-byte-cap -->1024<!-- /count -->
   **bytes**; a `references/*.md` file that no `SKILL.md` links; and a
   routing-section bullet opening with an RFC-2119 keyword.
 - A content mismatch between a `skills/<name>/` source and its generated
