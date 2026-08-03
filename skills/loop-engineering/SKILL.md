@@ -37,7 +37,7 @@ You are the only long-lived actor. Advance the work as far as you can autonomous
 
 ## Asking the Human
 
-Every human-gated decision with options goes through the harness's question tool (in Claude Code, **`AskUserQuestion`**; in Codex, **`request_user_input`**) and is answered inline in the same turn; where that tool is unavailable in the session's current mode, put the same options in the turn output and end the turn instead; the plan-approval gate is **not** one of these — it ends the turn (see [Phase 1](#phase-1--plan)).
+Every human-gated decision with options goes through the harness's question tool (in Claude Code, **`AskUserQuestion`**; in Codex, **`request_user_input`**) and is answered inline in the same turn. Use it whenever the session exposes it, judged from the tools actually available rather than assumed from the host; only where no such tool exists does the decision go into the turn output and end the turn instead. the plan-approval gate is **not** one of these — it ends the turn (see [Phase 1](#phase-1--plan)).
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
