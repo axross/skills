@@ -34,7 +34,10 @@ async function installedSkills() {
   const entries = await readdir(root, { withFileTypes: true });
   const names = [];
   for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
+    // A symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
+    // by symlink, and `isDirectory()` is false for one. The SKILL.md
+    // test below stats through the link and does the real filtering.
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
     try {
       await stat(join(root, entry.name, "SKILL.md"));
       names.push(entry.name);

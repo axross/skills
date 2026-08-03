@@ -51,8 +51,14 @@ import { join, relative, sep } from "node:path";
 import { REPO_ROOT, repoPath } from "../helpers/run.mjs";
 import { GATES } from "./gates.mjs";
 
-/** Roots whose Markdown ships to other projects, so a marker may never appear. */
-const SKILL_ROOTS = ["skills", ".claude/skills"];
+/**
+ * Roots whose Markdown ships to other projects, so a marker may never appear.
+ *
+ * `.agents/skills` holds the installed files and `.claude/skills` symlinks into
+ * it. Both are listed: the walk below records a symlinked file under whichever
+ * root it reached first, and a marker must be a failure under either name.
+ */
+const SKILL_ROOTS = ["skills", ".agents/skills", ".claude/skills"];
 
 /** Directories no scan descends into. */
 const SKIPPED_DIRS = new Set(["node_modules", ".git"]);

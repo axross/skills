@@ -91,7 +91,10 @@ function totalsOf(stdout) {
 async function skillNamesUnder(root) {
   const names = [];
   for (const entry of await readdir(repoPath(root), { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
+    // A symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
+    // by symlink, and `isDirectory()` is false for one. The SKILL.md
+    // test below stats through the link and does the real filtering.
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
     const holdsSkillFile = await access(
       repoPath(root, entry.name, "SKILL.md"),
     ).then(

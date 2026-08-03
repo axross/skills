@@ -195,7 +195,10 @@ export function digestDiscoveryText({ description, whenToUse }) {
 async function* skillFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-    if (!entry.isDirectory()) continue;
+    // A symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
+    // by symlink, and `isDirectory()` is false for one. The SKILL.md
+    // test below stats through the link and does the real filtering.
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
     let text;
     try {
       text = await readFile(join(root, entry.name, "SKILL.md"), "utf8");

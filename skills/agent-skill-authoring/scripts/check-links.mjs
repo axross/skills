@@ -35,7 +35,7 @@
 //   1  one or more broken links
 //   2  bad invocation
 
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readFile, readdir, realpath, stat } from "node:fs/promises";
 
 import { extractProse } from "./commonmark.mjs";
 
@@ -150,9 +150,23 @@ async function listMarkdownFiles(root) {
 
   const found = [];
   const pending = [root.length > 1 ? root.replace(/\/+$/, "") : root];
+  // Real paths already descended into. `withFileTypes` reports a symlinked
+  // directory as neither a file nor a directory, so a tree that installs one
+  // skill source into a second agent's root by symlinking it would be walked
+  // as if those skills held no Markdown at all. Following the link fixes that
+  // and introduces the risk it always carries — a link pointing at an ancestor
+  // walks forever — so every descent is recorded by its resolved path.
+  const descended = new Set();
 
   while (pending.length > 0) {
     const dir = pending.pop();
+    try {
+      const real = await realpath(dir);
+      if (descended.has(real)) continue;
+      descended.add(real);
+    } catch {
+      continue; // a broken link resolves to nothing: nothing to walk
+    }
     let entries;
     try {
       entries = await readdir(dir, { withFileTypes: true });
@@ -161,9 +175,20 @@ async function listMarkdownFiles(root) {
     }
     for (const entry of entries) {
       const path = `${dir}/${entry.name}`;
-      if (entry.isDirectory()) {
+      let isDirectory = entry.isDirectory();
+      let isFile = entry.isFile();
+      if (entry.isSymbolicLink()) {
+        try {
+          const target = await stat(path);
+          isDirectory = target.isDirectory();
+          isFile = target.isFile();
+        } catch {
+          continue; // a broken link points at nothing to check
+        }
+      }
+      if (isDirectory) {
         if (!PRUNED_DIRS.has(entry.name)) pending.push(path);
-      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      } else if (isFile && entry.name.endsWith(".md")) {
         found.push(path);
       }
     }

@@ -34,9 +34,9 @@ export const GATES = [
   {
     name: "skill-structure",
     script: SCRIPTS.checkSkill,
-    // `--require-claude-code-fields` is what REVIEW.md's do-not-report list
-    // depends on; gate-consistency.test.mjs pins it here rather than in prose.
-    args: ["--require-claude-code-fields", "skills", ".claude/skills"],
+    // `.agents/skills` is the tier holding real files; `.claude/skills` is 28
+    // symlinks into it, so checking both would report one verdict twice.
+    args: ["skills", ".agents/skills"],
     passes: /All \d+ skill\(s\) passed structural checks\./,
   },
   {
@@ -46,6 +46,12 @@ export const GATES = [
     // agent-skill-management now, where "two levels up from the script" would
     // resolve to `.claude/` instead of a repository root — and a root that
     // matches nothing reports no drift, which reads exactly like a pass.
+    //
+    // The INSTALLED root named here is `.claude/skills`, the symlink tier,
+    // rather than `.agents/skills` where the bytes actually live. Comparing
+    // through the links checks both invariants at once: that the install still
+    // matches its source, AND that all 28 symlinks resolve. Pointed at
+    // `.agents/skills` it would only ever check the first.
     args: ["skills", ".claude/skills"],
     passes: /All \d+ distributable skill\(s\) match their installed copies\./,
   },

@@ -287,24 +287,12 @@ describe("check-skill.mjs", () => {
         reported: /frontmatter: `description` is missing or empty\./,
       },
       {
-        what: "a description over the 1024-character cap",
+        what: "a description over the 1024-byte cap",
         dirName: "long-description",
         options: {
           frontmatter: { description: `The ability to ${"x".repeat(1010)}` },
         },
-        reported: /frontmatter: `description` is 1025 chars \(max 1024\)\./,
-      },
-      {
-        what: "description + when_to_use over the 1536-character cap",
-        dirName: "long-combined",
-        options: {
-          frontmatter: {
-            description: `The ability to ${"x".repeat(985)}`,
-            when_to_use: `Apply when ${"y".repeat(589)}`,
-          },
-        },
-        reported:
-          /frontmatter: `description` \+ `when_to_use` is 1600 chars \(max 1536\)\./,
+        reported: /frontmatter: `description` is 1025 bytes \(max 1024 bytes\)/,
       },
       {
         what: "a reference file that SKILL.md never links",
@@ -744,51 +732,33 @@ describe("check-skill.mjs", () => {
     });
   });
 
-  describe("--require-claude-code-fields", () => {
-    // The default host-agnostic behaviour is the contract the script header
-    // states; the flag is what this repository opts into.
-    it("passes a skill carrying neither discovery field when the flag is absent", async () => {
+  describe("host-specific frontmatter extensions", () => {
+    it("neither requires nor rejects a Claude Code discovery field", async () => {
       const root = await tempDir();
-      const dir = await writeSkill(root, "host-agnostic-skill", {
+      const dir = await writeSkill(root, "no-when-to-use", {
         frontmatter: { when_to_use: null },
       });
 
       const result = checkSkill(dir);
 
-      expect(result).toPassCleanly();
-      expect.soft(result.stdout).not.toMatch(/`when_to_use` is missing/);
-      expect.soft(result.stdout).not.toMatch(/`user-invocable` is missing/);
+      expect(
+        result,
+        "`when_to_use` is a host extension, not part of the Agent Skills spec; a validator that demanded it would fail a correct skill on every host that ignores the field",
+      ).toPassCleanly();
+      expect.soft(result.stdout).not.toMatch(/`when_to_use`/);
     });
 
-    it("reports a missing when_to_use under the flag", async () => {
+    it("rejects an unknown option rather than silently ignoring it", async () => {
       const root = await tempDir();
-      const dir = await writeSkill(root, "no-when-to-use", {
-        frontmatter: { when_to_use: null, "user-invocable": "false" },
-      });
+      const dir = await writeSkill(root, "unknown-option", {});
 
       const result = checkSkill("--require-claude-code-fields", dir);
 
-      expect(result).toReportFailure(/frontmatter: `when_to_use` is missing\./);
-      expect(result.stdout).not.toMatch(/`user-invocable` is missing/);
-    });
-
-    it("reports a missing user-invocable under the flag", async () => {
-      const root = await tempDir();
-      const dir = await writeSkill(root, "no-user-invocable");
-
-      const result = checkSkill(dir, "--require-claude-code-fields");
-
-      expect(result).toReportFailure(/frontmatter: `user-invocable` is missing\./);
-      expect(result.stdout).not.toMatch(/`when_to_use` is missing/);
-    });
-
-    it("passes a skill carrying both fields under the flag", async () => {
-      const root = await tempDir();
-      const dir = await writeSkill(root, "fully-declared-skill", {
-        frontmatter: { "user-invocable": "false" },
-      });
-
-      expect(checkSkill("--require-claude-code-fields", dir)).toPassCleanly();
+      expect(
+        result.code,
+        "the flag was removed; accepting it silently would let a caller believe a check ran",
+      ).toBe(2);
+      expect.soft(result.stderr).toMatch(/Unknown option/);
     });
   });
 

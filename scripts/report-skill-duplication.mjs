@@ -133,7 +133,10 @@ async function resolveArgument(argument) {
     const entries = await readdir(argument, { withFileTypes: true });
     const found = [];
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
+      // A symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
+      // by symlink, and `isDirectory()` is false for one. The SKILL.md
+      // test below stats through the link and does the real filtering.
+      if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
       const child = join(argument, entry.name);
       if (await isSkillDir(child)) found.push(resolve(child));
     }
