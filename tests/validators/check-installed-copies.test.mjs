@@ -15,7 +15,7 @@
 // than a contract test, and lives in tests/repository/gate-runs.test.mjs, which
 // takes its invocation from tests/repository/gates.mjs.
 
-import { rm, writeFile } from "node:fs/promises";
+import { mkdir, rm, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -38,6 +38,38 @@ async function twoRoots(names) {
 }
 
 describe("check-installed-copies.mjs", () => {
+  it("compares through an installed root whose entries are symlinks", async () => {
+    const source = await tempDir();
+    await writeSkill(source, "linked-skill");
+    const installed = await tempDir();
+    const real = await tempDir();
+    await writeSkill(real, "linked-skill");
+    await mkdir(installed, { recursive: true });
+    await symlink(join(real, "linked-skill"), join(installed, "linked-skill"));
+
+    const result = checkCopies(source, installed);
+
+    expect(
+      result,
+      "`Dirent.isDirectory()` is false for a symlink pointing at a directory, so an installed root of symlinks would enumerate as EMPTY — and an empty root reports no drift, which reads exactly like a pass",
+    ).toPassCleanly();
+    expect(result.stdout).toMatch(/All 1 distributable skill\(s\) match/);
+  });
+
+  it("reports a symlink that does not resolve as drift", async () => {
+    const source = await tempDir();
+    await writeSkill(source, "linked-skill");
+    const installed = await tempDir();
+    await symlink("/nonexistent/linked-skill", join(installed, "linked-skill"));
+
+    const result = checkCopies(source, installed);
+
+    expect(
+      result,
+      "a broken link means the host reading this root silently loses the skill, so it must not pass",
+    ).toReportFailure(/linked-skill/);
+  });
+
   it("exits 0 when every installed copy matches its source", async () => {
     const { source, installed } = await twoRoots(["alpha-skill", "beta-skill"]);
 

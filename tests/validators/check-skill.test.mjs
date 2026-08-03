@@ -12,6 +12,8 @@
 
 import { join } from "node:path";
 
+import { mkdir, symlink } from "node:fs/promises";
+
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
@@ -729,6 +731,34 @@ describe("check-skill.mjs", () => {
       expect(result).toPassCleanly();
       expect.soft(result.stdout).not.toMatch(/duplicate path\(s\) collapsed/);
       expect.soft(result.stdout).not.toMatch(/\(= /);
+    });
+  });
+
+  describe("a root whose entries are symlinks", () => {
+    it("reports the real skill count instead of zero", async () => {
+      const root = await tempDir();
+      await writeSkill(`${root}/real`, "linked-skill");
+      await mkdir(`${root}/mirror`, { recursive: true });
+      await symlink("../real/linked-skill", `${root}/mirror/linked-skill`);
+
+      const result = checkSkill(`${root}/mirror`);
+
+      expect(
+        result,
+        "`Dirent.isDirectory()` is false for a symlink pointing at a directory, so filtering on it makes a symlinked root read as EMPTY — and an empty root prints `All 0 skill(s) passed`, which is indistinguishable from a real pass",
+      ).toPassCleanly();
+      expect(result.stdout).toMatch(/All 1 skill\(s\) passed/);
+    });
+
+    it("ignores a link that does not resolve rather than crashing", async () => {
+      const root = await tempDir();
+      await writeSkill(`${root}/mirror`, "real-skill");
+      await symlink("../nowhere/gone", `${root}/mirror/dangling`);
+
+      const result = checkSkill(`${root}/mirror`);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).toMatch(/All 1 skill\(s\) passed/);
     });
   });
 
