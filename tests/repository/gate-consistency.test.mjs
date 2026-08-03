@@ -112,10 +112,10 @@ describe("enforced-gate consistency", () => {
     }
   });
 
-  it("keeps the skill-structure gate opted into the Claude Code field checks", () => {
+  it("checks drift through the symlink tier, not around it", () => {
     expect(
-      gate("skill-structure").args,
-      "REVIEW.md's do-not-report list excludes a missing `when_to_use`/`user-invocable` as CI-enforced, which holds only while this gate passes --require-claude-code-fields; the flag is off by default so the validator stays host-agnostic where it is installed",
-    ).toContain("--require-claude-code-fields");
+      gate("installed-copies").args,
+      "`.claude/skills` holds 28 symlinks into `.agents/skills`. Comparing the source against the SYMLINK tier proves the links resolve as well as that the bytes match; pointed straight at `.agents/skills` a broken symlink would go unreported and every agent reading `.claude/skills` would silently lose that skill",
+    ).toContain(".claude/skills");
   });
 });

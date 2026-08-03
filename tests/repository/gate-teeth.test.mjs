@@ -47,28 +47,13 @@ describe("repository gates have teeth", () => {
     await writeSkill(`${root}/skills`, "broken-skill", {
       frontmatter: { description: null },
     });
-    await writeSkill(`${root}/.claude/skills`, "broken-skill", {
+    await writeSkill(`${root}/.agents/skills`, "broken-skill", {
       frontmatter: { description: null },
     });
 
     const result = runScript(script, args, { cwd: root });
 
     expect(result).toReportFailure(/`description` is missing or empty/);
-  });
-
-  it("the skill-structure gate fails on a missing Claude Code discovery field", async () => {
-    const { script, args } = gate("skill-structure");
-    const root = await tempDir();
-    const options = { frontmatter: { when_to_use: null } };
-    await writeSkill(`${root}/skills`, "no-when-to-use", options);
-    await writeSkill(`${root}/.claude/skills`, "no-when-to-use", options);
-
-    const result = runScript(script, args, { cwd: root });
-
-    expect(
-      result,
-      "REVIEW.md excludes this finding from review as CI-enforced, which holds only while the gate passes --require-claude-code-fields",
-    ).toReportFailure(/`when_to_use` is missing/);
   });
 
   it("the installed-copies gate fails on a hand-edited installed copy", async () => {

@@ -51,8 +51,14 @@ import { join, relative, sep } from "node:path";
 import { REPO_ROOT, repoPath } from "../helpers/run.mjs";
 import { GATES } from "./gates.mjs";
 
-/** Roots whose Markdown ships to other projects, so a marker may never appear. */
-const SKILL_ROOTS = ["skills", ".claude/skills"];
+/**
+ * Roots whose Markdown ships to other projects, so a marker may never appear.
+ *
+ * `.agents/skills` holds the installed files and `.claude/skills` symlinks into
+ * it. Both are listed: the walk below records a symlinked file under whichever
+ * root it reached first, and a marker must be a failure under either name.
+ */
+const SKILL_ROOTS = ["skills", ".agents/skills", ".claude/skills"];
 
 /** Directories no scan descends into. */
 const SKIPPED_DIRS = new Set(["node_modules", ".git"]);
@@ -437,6 +443,25 @@ export const CLAIMS = {
       "three past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
     note: 'the code fence above splits the same total across three comments — "three gates", "One more", and "Two more" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 3,
+  },
+
+  "skill-description-byte-cap": {
+    owner: "DESCRIPTION_MAX_BYTES in skills/agent-skill-authoring/scripts/check-skill.mjs",
+    note: "AGENTS.md and REVIEW.md both state this cap, and nothing else ties the two copies together — the validator is the only authority",
+    derive: async () => {
+      const source = await readFile(
+        repoPath("skills/agent-skill-authoring/scripts/check-skill.mjs"),
+        "utf8",
+      );
+      return Number(
+        anchored(
+          source,
+          /const DESCRIPTION_MAX_BYTES = (\d+);/,
+          "skills/agent-skill-authoring/scripts/check-skill.mjs",
+          "the DESCRIPTION_MAX_BYTES constant",
+        ),
+      );
+    },
   },
 
   "repository-gotchas": {

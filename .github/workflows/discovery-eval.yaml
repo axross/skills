@@ -34,7 +34,7 @@ name: Discovery Evaluation
 # through an allowlist. The evaluation is only worth running against a CHANGED
 # skill, so when a run names a pull request its `SKILL.md` files are fetched
 # through the API and staged in $RUNNER_TEMP. scripts/discovery-eval/overlay.mjs
-# is the real bound: it accepts only `.claude/skills/<kebab-name>/SKILL.md`,
+# is the real bound: it accepts only `.agents/skills/<kebab-name>/SKILL.md`,
 # rejects traversal, absolute paths and backslashes, caps the size of what it
 # accepts, and derives every destination from the DIFF PATH rather than from any
 # `name:` field inside the head file. The `grep` filter below is convenience;
@@ -226,7 +226,7 @@ jobs:
           # rejects is reported and skipped, not silently overlaid.
           gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" \
             --jq '.[] | select(.status != "removed") | .filename' \
-            | grep -E '^\.claude/skills/[a-z0-9-]+/SKILL\.md$' > "${RUNNER_TEMP}/changed.txt" || true
+            | grep -E '^\.agents/skills/[a-z0-9-]+/SKILL\.md$' > "${RUNNER_TEMP}/changed.txt" || true
 
           while IFS= read -r path; do
             [ -z "${path}" ] && continue

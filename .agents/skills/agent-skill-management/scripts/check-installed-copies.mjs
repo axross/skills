@@ -65,13 +65,27 @@ async function isDir(path) {
   }
 }
 
-/** Immediate subdirectory names of `root`, sorted. */
+/**
+ * Immediate subdirectory names of `root`, sorted.
+ *
+ * A symlinked entry counts. `withFileTypes` reports one as a symlink and NOT a
+ * directory, so filtering on `isDirectory()` alone would see nothing in a root
+ * whose skills are symlinks into another agent's root — and an empty root is
+ * reported as "no drift", which reads exactly like a pass. That is the same
+ * silent-pass hazard the usage note gives as the reason both roots are
+ * required rather than guessed.
+ */
 async function skillNames(root) {
   const entries = await readdir(root, { withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
+  const names = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
+    if (entry.isSymbolicLink() && !(await isDir(join(root, entry.name)))) {
+      continue; // a broken link, or one pointing at a file
+    }
+    names.push(entry.name);
+  }
+  return names.sort();
 }
 
 /**

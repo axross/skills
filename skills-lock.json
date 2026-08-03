@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "94ce2b926b54a2602f20f959993c7777020a4d14fc079141b73e1e50d85fc56d"
+      "computedHash": "fe6acc62e3a0170967e613f91f2a1356637fe5c2d8d1fd07042eed0f1608e8c2"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "9f358dcdec62c231f67d0c414d3612db6c0546c5cab1c83c2fff9fa72c1e1f4e"
+      "computedHash": "0ec755ecfbec76c697470d2b5904a75bf292be9c9c5f8d5ce558be168c253fa7"
     },
     "amplitude-instrumentation": {
       "source": "/home/user/skills/skills",

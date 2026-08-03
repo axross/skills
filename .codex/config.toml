@@ -1,0 +1,14 @@
+# Project-level Codex configuration.
+#
+# This file configures TAGGING only. It starts no exporter, names no endpoint,
+# and holds no credential, so a contributor who has never set telemetry up sees
+# no behavior change from it — the same posture as `.claude/settings.json`'s
+# `env` block, which is its Claude Code counterpart. Keep the two in step.
+#
+# Codex's OTel export is opt-in and off until a user enables it in their own
+# `~/.codex/config.toml`; `environment` below only labels the sessions of a user
+# who has already done so, so this repository's usage separates from every other
+# repository sharing an account.
+
+[otel]
+environment = "repository=skills"

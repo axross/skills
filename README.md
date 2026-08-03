@@ -27,9 +27,13 @@ choosing deliberately:
 npx skills add axross/skills --agent <your-agent> --skill code-review
 ```
 
-Replace `<your-agent>` with your agent's identifier; the CLI's
+Replace `<your-agent>` with your agent's identifier — `claude-code`, `codex`,
+and around seventy-five others; the CLI's
 [supported agents](https://github.com/vercel-labs/skills#supported-agents) list
-has them all. Browse what is on offer in the [skill catalog](#skill-catalog)
+has them all, along with the directory each installs into. Note that a host
+reads only what its own format defines: Codex routes on `description` alone and
+caps it at 1,024 bytes, so a skill written for Claude Code's `when_to_use`
+extension needs that trigger text folded into `description` to route there. Browse what is on offer in the [skill catalog](#skill-catalog)
 below, or ask the CLI:
 
 ```bash
@@ -279,7 +283,7 @@ both tools.
 Development here is agent-assisted via
 [Claude Code](https://claude.com/claude-code). The working agreement lives in
 [`CLAUDE.md`](./CLAUDE.md) and routes to the detailed skills under
-[`.claude/skills/`](./.claude/skills). Every change goes through the same loop —
+[`skills/`](./skills). Every change goes through the same loop —
 **plan → approve → code → verify → independent review → address → ready** —
 stepped through under
 [Delivering a unit of work end-to-end](#delivering-a-unit-of-work-end-to-end).
@@ -295,18 +299,21 @@ merge.
    one covers
 
 There is no dev server — authoring a skill means editing Markdown under
-[`skills/`](./skills) (or `.claude/skills/` for a repository-local skill),
+[`skills/`](./skills) (or a skill root for a repository-local skill),
 reinstalling if it is distributable, and running `npm run check`. In a Claude
 Code cloud session,
 [`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) installs
 dependencies (activating a Node version manager if one is present); the opt-in
 format-on-edit and check-before-stop hooks are materialized from
 [`.claude/settings.local-example.json`](./.claude/settings.local-example.json).
+A Codex session runs the same session-start and check scripts through
+[`.codex/hooks.json`](./.codex/hooks.json); format-on-edit is not wired there,
+because `format.sh` reads the edited path from a Claude Code payload field.
 
 | Area             | Tool                                                                                  |
 | ---------------- | ------------------------------------------------------------------------------------- |
 | Language         | Markdown (with occasional JavaScript for scripting)                                   |
-| Runtime          | Claude Code                                                                           |
+| Runtimes         | Claude Code and Codex                                                                 |
 | Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
 | Package manager  | npm                                                                                   |
 | Formatting       | Prettier                                                                              |
@@ -330,14 +337,14 @@ wide one — the `npm test` row says what it carries.
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
-| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                          | When to run it                                                   |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                | Once per checkout, and after `package.json` changes.             |
-| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                       | After every set of edits, before committing.                     |
-| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                         | In CI, or to check formatting without touching the working tree. |
-| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                      | After formatting, and fix every reported error before finishing. |
-| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (`check-skill.mjs` over both roots, with the Claude Code field opt-in), the installed-copy drift check, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, or a reference file.  |
-| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                          | Before opening or updating a pull request.                       |
+| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                               | When to run it                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                     | Once per checkout, and after `package.json` changes.             |
+| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                            | After every set of edits, before committing.                     |
+| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                              | In CI, or to check formatting without touching the working tree. |
+| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                           | After formatting, and fix every reported error before finishing. |
+| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (`check-skill.mjs` over the source and the installed files), the installed-copy drift check, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, or a reference file.  |
+| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                               | Before opening or updating a pull request.                       |
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
@@ -347,7 +354,7 @@ utility — the thing you run after doing the work its skill governs — so it s
 with that skill rather than sitting beside the repository it happens to be
 written in. Each is also a standalone CLI with `--help`, so a single check can
 run without the suite. Run them from the source tier under [`skills/`](./skills)
-— what the suite itself invokes; the `.claude/skills/` copies go stale mid-edit.
+— what the suite itself invokes; the installed roots go stale mid-edit.
 
 ```bash
 # This repository's own three gates, run over the whole tree by `npm test`:
@@ -534,7 +541,7 @@ it is what `npm test` exercises: no test in this repository probes a URL.
 
 ### Repository gotchas
 
-There are <!-- count:repository-gotchas -->six<!-- /count --> things about this
+There are <!-- count:repository-gotchas -->eight<!-- /count --> things about this
 repository worth knowing before changing it.
 
 **Some dependencies move fast enough that memory is unreliable.** Consult the
@@ -613,14 +620,33 @@ unrelated number. Note that a marker is only invisible in _prose_ — inside a
 fenced block it renders as text, so a code sample a reader copies carries none
 (the sample above is a real, checked claim, which is why it has one).
 
-**The installed skill copies are generated, not source.** The distributable
-skills under [`skills/`](./skills) are the source of truth, and their copies
-under `.claude/skills/` are produced by `npx skills`. Edit the source and
-reinstall — a hand-edit to an installed copy is silently discarded by the next
-install. The installed-copy check inside `npm test` fails on any mismatch, so a
-forgotten reinstall is caught before merge rather than discovered later. Every
-skill is in scope for it; the repository-local tier that the check exempts is
-currently empty.
+**The installed skills live once and are read from two roots.** The
+distributable skills under [`skills/`](./skills) are the source of truth.
+`npx skills` installs them into `.agents/skills/`, where Codex reads them, and
+each `.claude/skills/<name>` is a **symlink** into that directory, which is the
+form Claude Code documents for a skill entry. Both roots are committed. Edit the
+source and reinstall — a hand-edit to an installed copy is silently discarded by
+the next install. The installed-copy check inside `npm test` compares the source
+against the symlink root, so one run catches both a forgotten reinstall and a
+symlink that stopped resolving. Every skill is in scope for it; the
+repository-local tier that the check exempts is currently empty.
+
+**A symlinked skill root is invisible to a naive directory walk.**
+`Dirent.isDirectory()` is false for a symlink pointing at a directory, so code
+that filters on it sees an empty root — and an empty root reports `All 0
+skill(s) passed` or `no drift`, which is indistinguishable from a real pass.
+Every enumeration here stats through the link instead. Anything new that walks a
+skill root has to do the same, or it will silently check nothing.
+
+**Codex reads less of a skill than Claude Code does.** It reads `name` and
+`description`; `when_to_use` is a Claude Code extension it ignores. It refuses
+to load a skill whose `description` exceeds 1,024 bytes — `check-skill.mjs`
+enforces that in bytes rather than characters for the reason its comment gives —
+and it truncates per-skill descriptions to fit the whole listing into a context
+budget, so the front of a `description` is the part that reliably arrives. Its
+default sandbox also runs commands with **network disabled**, which of the
+bundled scripts affects only `link-freshness/check.mjs`; `--dry-run` needs no
+network.
 
 **`npx skills` can fail to resolve the CLI.** In some environments — a fresh
 container with no local install, or a stale npx cache — both `npx skills …` and
@@ -629,7 +655,7 @@ run`, which reads like a broken command rather than a resolution failure. An
 explicit version specifier fixes it:
 
 ```bash
-npx --yes skills@latest add ./skills --agent claude-code --skill '*' --yes --copy
+npx --yes skills@latest add ./skills --agent codex --skill '*' --yes
 ```
 
 The plain `npx skills` form stays canonical — reach for the specifier only after
@@ -640,21 +666,46 @@ build each time.
 
 Skills live in two tiers. Every skill here is currently **distributable**: its
 source is [`skills/<name>/SKILL.md`](./skills) (with any `references/` and
-`scripts/` beside it), and the installed copies under `.claude/skills/` are
+`scripts/` beside it), and the installed files under `.agents/skills/` are
 generated from it with the
 [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
 
 ```bash
-npx skills add ./skills --agent claude-code --skill '*' --yes --copy
+npx skills add ./skills --agent codex --skill '*' --yes
 ```
 
-Commit the regenerated `.claude/skills/<name>/` copies and `skills-lock.json`
-alongside the source — they are tracked artifacts, not build output to ignore.
+That writes `.agents/skills/<name>/`. The CLI copies rather than symlinks when
+the source is a local path — `--copy`'s "instead of symlinking" governs remote
+and `node_modules`-mediated installs — so the `.claude/skills/<name>` links are
+made once and simply kept:
+
+```bash
+for d in .agents/skills/*/; do
+  n=$(basename "$d")
+  ln -sfn "../../.agents/skills/$n" ".claude/skills/$n"
+done
+```
+
+Commit both roots and `skills-lock.json` alongside the source — they are tracked
+artifacts, not build output to ignore. A skill added or removed needs the
+corresponding link added or removed with it; the installed-copy check fails on
+either half being missed.
+
+**Confirm both hosts actually load them.** The suite checks that the files are
+well-formed and in the right place; it cannot check that a host read them, and
+each host is loaded at session start, so neither is observable from inside the
+session that changed the tree. Verify each once, in a fresh session:
+
+- **Codex** — run `/skills` and confirm the library is listed. Codex warns when
+  the listing exceeds its context budget and truncates descriptions to fit, so
+  read the warning rather than only the names.
+- **Claude Code** — run `/context` and confirm the skills appear, which is what
+  proves the `.claude/skills/<name>` symlinks resolved.
 
 The second tier is **repository-local**: a skill that encodes conventions
-specific to this repository would have its source committed directly under
-[`.claude/skills/`](./.claude/skills), hand-edited in place, and never touched
-by the CLI or listed in `skills-lock.json`. No skill is in that tier today —
+specific to this repository would have its source committed directly under a
+skill root, hand-edited in place, and never touched by the CLI or listed in
+`skills-lock.json`. No skill is in that tier today —
 `github-operation` was the last one and is now distributable — so the tier is
 available rather than in use. Registering one means passing its name to the
 installed-copy check as `--local <name>` from

@@ -32,13 +32,13 @@ Mechanical structure checks should be automated so an audit spends its judgment 
 node .claude/skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
 ```
 
-It verifies, per skill's **frontmatter and layout**: the block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 characters; `description` + `when_to_use` stays within 1,536 characters when `when_to_use` is present; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword.
+It verifies, per skill's **frontmatter and layout**: the block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 **bytes** — measured in bytes because that is the stricter reading and the one a host has been observed to apply, so a description of 1,024 characters carrying non-ASCII punctuation still fails to load; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword.
 
 Across each skill's **prose documents** — its `SKILL.md` and every `references/*.md`, but not `scripts/` or `assets/`, which carry payload rather than rules — it further verifies that no `##`+ heading is separated from its `**Guidelines:**` block by nothing but blank lines (a fenced block, table, list, or paragraph all count as the demonstration); that every top-level bullet inside a `**Guidelines:**` block opens with an RFC-2119 keyword, nested bullets exempt; that every relative link resolves inside its own skill directory; and that every `#fragment` matches a heading in its target file, using GitHub's slug rules. A fragment whose target file does not resolve is left to `check-links.mjs` rather than reported twice.
 
 It exits 0 when every skill passes, 1 when any check fails, and 2 on a bad invocation or an unrecognized option.
 
-Two Claude-Code-specific fields, `when_to_use` and `user-invocable`, are required only under `--require-claude-code-fields`. The flag is off by default so the validator stays usable on a host that defines neither; a project targeting Claude Code should pass it from whatever command runs the validator.
+A host-specific frontmatter extension such as Claude Code's `when_to_use` or `user-invocable` is neither required nor rejected: the Agent Skills specification defines neither, so requiring one would fail a correct skill on every host that ignores it. Whether a skill carries them is a project's own convention to enforce, not this validator's.
 
 Pointed at two paths holding the same skill — a source tree plus the generated copy installed from it — it reports that skill **once**, under whichever path came first on the command line, and notes the collapsed copies. Only an identical verdict collapses, so diverged copies are still reported separately. Listing the source tree first therefore makes every failure name the copy a fix belongs in.
 

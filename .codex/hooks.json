@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "SKILLS_SESSION_BOOTSTRAP=1 ./.claude/hooks/session-start.sh",
+            "statusMessage": "Installing dependencies"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/check.sh",
+            "statusMessage": "Running lint and the relative-link check"
+          }
+        ]
+      }
+    ]
+  }
+}

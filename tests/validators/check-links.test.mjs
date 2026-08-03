@@ -5,6 +5,8 @@
 // Documented contract: 0 when every relative link resolves, 1 when one or more
 // are broken, 2 on a bad invocation.
 
+import { mkdir, symlink } from "node:fs/promises";
+
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
@@ -118,6 +120,44 @@ describe("check-links.mjs", () => {
     );
 
     expect(checkLinks(root)).toPassCleanly();
+  });
+
+  describe("a root whose entries are symlinks", () => {
+    it("walks into a symlinked directory instead of skipping it", async () => {
+      const root = await tempDir();
+      await writeFileIn(root, "real/a-skill/SKILL.md", "See [ref](./r.md).\n");
+      await writeFileIn(root, "real/a-skill/r.md", "# Ref\n");
+      await mkdir(`${root}/mirror`, { recursive: true });
+      await symlink("../real/a-skill", `${root}/mirror/a-skill`);
+
+      const result = checkLinks(`${root}/mirror`);
+
+      expect(
+        result,
+        "`withFileTypes` reports a symlinked directory as neither file nor directory, so filtering on isDirectory() walks past a whole skill tree and reports `links OK (0 links…)` — a pass that checked nothing",
+      ).toPassCleanly();
+      expect(result.stdout).toMatch(/1 links? across 2 Markdown files? checked/);
+    });
+
+    it("still reports a broken link reached through a symlink", async () => {
+      const root = await tempDir();
+      await writeFileIn(root, "real/a-skill/SKILL.md", "See [gone](./missing.md).\n");
+      await mkdir(`${root}/mirror`, { recursive: true });
+      await symlink("../real/a-skill", `${root}/mirror/a-skill`);
+
+      expect(checkLinks(`${root}/mirror`)).toReportFailure(/missing\.md/);
+    });
+
+    it("ignores a link that does not resolve rather than crashing the walk", async () => {
+      const root = await tempDir();
+      await writeFileIn(root, "mirror/kept.md", "# Kept\n");
+      await symlink("../nowhere/gone", `${root}/mirror/dangling`);
+
+      const result = checkLinks(`${root}/mirror`);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).toMatch(/1 Markdown files? checked/);
+    });
   });
 
   it("walks dot-directories, where a skill tree actually lives", async () => {

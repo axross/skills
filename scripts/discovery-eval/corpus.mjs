@@ -188,14 +188,17 @@ export function digestDiscoveryText({ description, whenToUse }) {
  * an installed root rather than a second copy of one — and the reason the walk
  * lives in `skillFiles` below rather than in either reader.
  *
- * @param {string} root a directory of skill directories, e.g. `.claude/skills`
+ * @param {string} root a directory of skill directories, e.g. `.agents/skills`
  * @yields {{ name: string, text: string }} directory name and raw SKILL.md text,
  *   in name order; a directory holding no readable SKILL.md is skipped
  */
 async function* skillFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-    if (!entry.isDirectory()) continue;
+    // A symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
+    // by symlink, and `isDirectory()` is false for one. The SKILL.md
+    // test below stats through the link and does the real filtering.
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
     let text;
     try {
       text = await readFile(join(root, entry.name, "SKILL.md"), "utf8");
@@ -214,7 +217,7 @@ async function* skillFiles(root) {
  * being dropped: a skill with no discovery text is a fact about the corpus
  * worth recording, not a reason to omit it from the record.
  *
- * @param {string} root a directory of skill directories, e.g. `.claude/skills`
+ * @param {string} root a directory of skill directories, e.g. `.agents/skills`
  * @returns {Promise<Record<string, string>>} skill name → digest, sorted by name
  */
 export async function corpusDigest(root) {
@@ -236,7 +239,7 @@ export async function corpusDigest(root) {
  * discovery does not read this field, so folding it into the digest would
  * invalidate every recorded baseline over a value no probe can see.
  *
- * @param {string} root a directory of skill directories, e.g. `.claude/skills`
+ * @param {string} root a directory of skill directories, e.g. `.agents/skills`
  * @returns {Promise<Record<string, string>>} skill name → one of the three states
  */
 export async function corpusInvocability(root) {

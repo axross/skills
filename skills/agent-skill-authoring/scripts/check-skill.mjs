@@ -32,12 +32,12 @@
 //                     than reported twice.
 //
 // It is dependency-light (Node standard library only) and host-agnostic: the
-// spec-required rules (name, description) always apply; the Claude-Code
-// discovery fields (when_to_use, user-invocable) are checked only when present,
-// so the validator stays useful on hosts that do not define them. A project
-// targeting Claude Code can require both with --require-claude-code-fields;
-// that flag is off by default precisely to keep the sentence above true. It is
-// a starting point to adapt per project, not a fixed contract.
+// spec-required rules (name, description) are the whole frontmatter contract,
+// because they are the whole of what the Agent Skills specification defines and
+// the only fields every host reads. A host-specific extension such as Claude
+// Code's `when_to_use` is neither required nor rejected — an unknown key is
+// simply not this validator's business. It is a starting point to adapt per
+// project, not a fixed contract.
 //
 // Alongside failures it reports advisory WARN lines. Every rule behind them is
 // SHOULD-level, or a MUST whose exception clause a threshold would misencode, so
@@ -70,14 +70,12 @@
 //                   as the bullet names anything, which is the whole remedy.
 //
 // Usage:
-//   node check-skill.mjs [--require-claude-code-fields] <path> [<path> ...]
+//   node check-skill.mjs <path> [<path> ...]
 //     <path>  a skill directory (one holding SKILL.md), OR a directory whose
 //             immediate subdirectories are skills (e.g. the skill root). A shell
-//             glob such as `.claude/skills/*` expands to the former.
-//     --require-claude-code-fields
-//             additionally require `when_to_use` and `user-invocable` on every
-//             skill. Presence only — which value `user-invocable` should carry
-//             depends on the skill's archetype, which is not decidable here.
+//             glob such as `.claude/skills/*` expands to the former. A symlinked
+//             entry is followed, so a root whose skills are symlinks into
+//             another agent's root is checked rather than silently skipped.
 //
 // When two paths hold the same skill — a source tree plus the generated copy
 // installed from it — the two are reported once, under whichever path came
@@ -121,10 +119,16 @@ const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // An absolute URI (http:, https:, mailto:, …) or a protocol-relative URL: not a
 // path this validator can resolve on disk.
 const EXTERNAL_TARGET_RE = /^([a-z][a-z0-9+.-]*:|\/\/)/i;
-const REQUIRE_CLAUDE_CODE_FIELDS = "--require-claude-code-fields";
 const NAME_MAX = 64;
-const DESCRIPTION_MAX = 1024;
-const COMBINED_MAX = 1536;
+// The spec states 1024 CHARACTERS. It is measured here in BYTES because that
+// is the stricter reading and the one a host has been observed to apply: Codex
+// rejects a skill outright with "invalid description: exceeds maximum length of
+// 1024 characters", and its limit is reported to be byte-measured, so a
+// description of 1024 characters carrying any non-ASCII punctuation fails to
+// load. UTF-8 never encodes a character in fewer than one byte, so a
+// byte-conformant description is character-conformant too and one check covers
+// both readings.
+const DESCRIPTION_MAX_BYTES = 1024;
 
 // Capability-framing advisories (warnings only — see the header note).
 const DOC_NAME_SUFFIX_RE =
@@ -261,8 +265,16 @@ async function resolveSkillDirs(paths) {
     const entries = await readdir(path, { withFileTypes: true });
     let found = 0;
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
+      // `isDirectory()` comes from lstat semantics and is FALSE for a symlink
+      // pointing at a directory, so testing it here would skip every entry of a
+      // symlinked skill root and report "All 0 skill(s) passed" — a pass that
+      // checked nothing. `isDir` stats through the link instead. Installing one
+      // source into two agents' roots by symlinking the second is a supported
+      // layout (Claude Code documents following a symlinked `<skill-name>`
+      // entry), so this is a real arrangement rather than a hypothetical one.
+      if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
       const child = join(path, entry.name);
+      if (!(await isDir(child))) continue;
       if (await isFile(join(child, "SKILL.md"))) {
         found += 1;
         add(child);
@@ -822,7 +834,7 @@ async function documentFindings(dir, documents) {
  * { failures, warnings }: failures decide the exit code, warnings are advisory
  * capability-framing notes that do not.
  */
-async function checkSkill(dir, { requireClaudeCodeFields = false } = {}) {
+async function checkSkill(dir) {
   const failures = [];
   const warnings = [];
   const dirName = basename(dir);
@@ -866,8 +878,15 @@ async function checkSkill(dir, { requireClaudeCodeFields = false } = {}) {
     if (!description) {
       failures.push("frontmatter: `description` is missing or empty.");
     } else {
-      if (description.length > DESCRIPTION_MAX) {
-        failures.push(`frontmatter: \`description\` is ${description.length} chars (max ${DESCRIPTION_MAX}).`);
+      const descriptionBytes = Buffer.byteLength(description, "utf8");
+      if (descriptionBytes > DESCRIPTION_MAX_BYTES) {
+        const width =
+          descriptionBytes === description.length
+            ? `${descriptionBytes} bytes`
+            : `${descriptionBytes} bytes (${description.length} chars)`;
+        failures.push(
+          `frontmatter: \`description\` is ${width} (max ${DESCRIPTION_MAX_BYTES} bytes) — a host that measures the cap in bytes refuses to load the skill.`,
+        );
       }
       const opening = description.match(DOC_VOICE_DESC_RE);
       if (opening) {
@@ -877,23 +896,6 @@ async function checkSkill(dir, { requireClaudeCodeFields = false } = {}) {
       }
     }
 
-    if (fields.when_to_use && description) {
-      const combined = description.length + fields.when_to_use.length;
-      if (combined > COMBINED_MAX) {
-        failures.push(`frontmatter: \`description\` + \`when_to_use\` is ${combined} chars (max ${COMBINED_MAX}).`);
-      }
-    }
-
-    // Opt-in only: on a host that defines neither field, requiring them would
-    // fail a correct skill tree. See the header's host-agnosticism note.
-    if (requireClaudeCodeFields) {
-      if (!fields.when_to_use) {
-        failures.push("frontmatter: `when_to_use` is missing.");
-      }
-      if (fields["user-invocable"] === undefined) {
-        failures.push("frontmatter: `user-invocable` is missing.");
-      }
-    }
   }
 
   const { documents, unreadable } = await skillDocuments(dir, body, offset);
@@ -944,13 +946,12 @@ function collapseDuplicates(results) {
   return collapsed;
 }
 
-const USAGE = `Usage: check-skill.mjs [${REQUIRE_CLAUDE_CODE_FIELDS}] <skill-dir | skill-root> [more paths…]
+const USAGE = `Usage: check-skill.mjs <skill-dir | skill-root> [more paths…]
 
 Check each skill's frontmatter, naming, reference linkage, and body structure.
 A <path> is either a skill directory (one holding SKILL.md) or a directory whose
-immediate subdirectories are skills.
-
-  ${REQUIRE_CLAUDE_CODE_FIELDS}  additionally require when_to_use and user-invocable
+immediate subdirectories are skills. A symlinked entry is followed, so a root
+whose skills are symlinks into another agent's root is checked, not skipped.
 
 Exit codes: 0 all skills passed, 1 one or more failed, 2 bad invocation.
 Advisory WARN lines never affect the exit code.`;
@@ -958,7 +959,6 @@ Advisory WARN lines never affect the exit code.`;
 async function main() {
   const args = process.argv.slice(2);
   const paths = [];
-  let requireClaudeCodeFields = false;
 
   if (args.includes("--help") || args.includes("-h")) {
     process.stdout.write(`${USAGE}\n`);
@@ -968,8 +968,6 @@ async function main() {
   for (const arg of args) {
     if (!arg.startsWith("--")) {
       paths.push(arg);
-    } else if (arg === REQUIRE_CLAUDE_CODE_FIELDS) {
-      requireClaudeCodeFields = true;
     } else {
       fail2(`Unknown option "${arg}".\n${USAGE}`);
     }
@@ -983,7 +981,7 @@ async function main() {
 
   const results = [];
   for (const dir of skills) {
-    const { failures, warnings } = await checkSkill(dir, { requireClaudeCodeFields });
+    const { failures, warnings } = await checkSkill(dir);
     results.push({ dir, name: basename(dir), failures, warnings });
   }
 

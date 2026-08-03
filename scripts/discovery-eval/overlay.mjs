@@ -23,8 +23,13 @@
 // cannot change what this measures and therefore has no reason to cross the
 // boundary at all.
 //
-// The allowed path is the INSTALLED copy (`.claude/skills/…`), not the source
+// The allowed path is the INSTALLED copy (`.agents/skills/…`), not the source
 // (`skills/…`), because the installed tree is what an agent actually loads —
+// and `.agents/skills` rather than `.claude/skills` because the latter is now a
+// tree of SYMLINKS. Git records a symlink as one blob holding its target, so no
+// path under `.claude/skills/<name>/` ever appears in a diff; an allowlist
+// keyed to it would reject every changed skill, leave `changed.txt` empty, and
+// evaluate zero staged skills while reporting a clean run —
 // the same tier the evaluation workspace is built from. On a green pull request
 // the two agree, since the installed-copy drift check gates exactly that. The
 // consequence when they do not: a pull request that edits a skill's source and
@@ -77,7 +82,7 @@ export function evalEnvironment(source) {
 export const SKILL_NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /** The one head path shape that may be overlaid. */
-const ALLOWED_RE = /^\.claude\/skills\/([^/]+)\/SKILL\.md$/;
+const ALLOWED_RE = /^\.agents\/skills\/([^/]+)\/SKILL\.md$/;
 
 /**
  * Decide whether one changed head path may be overlaid onto the workspace.
@@ -112,7 +117,7 @@ export function allowOverlayPath(path) {
   if (!match) {
     return {
       allowed: false,
-      reason: "not a .claude/skills/<name>/SKILL.md path",
+      reason: "not a .agents/skills/<name>/SKILL.md path",
     };
   }
 
@@ -175,19 +180,31 @@ export function resolveInside(root, relative) {
  * request shipping a megabyte `description`, innocently or otherwise, would
  * inflate the bill far past what a maintainer applying the label expects.
  *
- * The two frontmatter figures are the caps `check-skill.mjs` already enforces
- * on exactly these fields. They are copied rather than imported: those
- * constants are not exported, and exporting them would mean editing a
- * distributable skill's script, which is an authoring change this is not. The
- * coupling is therefore by convention — the same trade `report-obligation-load.mjs`
- * documents for `MANDATED_SKILLS`. If they drift, this cap becomes conservative
- * rather than wrong.
+ * The frontmatter figure is the cap `check-skill.mjs` already enforces on that
+ * field. It is copied rather than imported: that constant is not exported, and
+ * exporting it would mean editing a distributable skill's script, which is an
+ * authoring change this is not. The coupling is therefore by convention — the
+ * same trade `report-obligation-load.mjs` documents for `MANDATED_SKILLS` — and
+ * `tests/validators/discovery-eval.test.mjs` reads both sources so the two
+ * cannot drift silently.
+ *
+ * It is measured in BYTES for the same reason `check-skill.mjs` is. A
+ * character-counted copy is not the "conservative rather than wrong" failure
+ * this comment used to claim: a multi-byte description under 1024 characters
+ * but over 1024 bytes would be ACCEPTED here and REJECTED by the merge gate,
+ * which is permissive in exactly the wrong direction.
+ *
+ * There is deliberately no combined `description` + `when_to_use` cap. One used
+ * to live here, mirroring a check `check-skill.mjs` no longer has. A cap the
+ * merge gate does not enforce refuses a legitimate head file, and the
+ * evaluation then silently measures the BASE text for that skill — the
+ * reads-like-a-pass failure this tool exists to avoid. `FILE_BYTES_MAX` bounds
+ * the cost on its own.
  *
  * `FILE_BYTES_MAX` is a coarser backstop for the body, which discovery never
  * reads but a selected skill does.
  */
-export const DESCRIPTION_MAX = 1024;
-export const COMBINED_MAX = 1536;
+export const DESCRIPTION_MAX_BYTES = 1024;
 export const FILE_BYTES_MAX = 64 * 1024;
 
 /**
@@ -216,18 +233,12 @@ export function allowOverlayContent(text) {
     return { allowed: false, reason: "no frontmatter block" };
   }
 
-  const { description, whenToUse } = discovery;
-  if (description.length > DESCRIPTION_MAX) {
+  const { description } = discovery;
+  const descriptionBytes = Buffer.byteLength(description, "utf8");
+  if (descriptionBytes > DESCRIPTION_MAX_BYTES) {
     return {
       allowed: false,
-      reason: `description is ${description.length} chars (max ${DESCRIPTION_MAX})`,
-    };
-  }
-  const combined = description.length + whenToUse.length;
-  if (combined > COMBINED_MAX) {
-    return {
-      allowed: false,
-      reason: `description + when_to_use is ${combined} chars (max ${COMBINED_MAX})`,
+      reason: `description is ${descriptionBytes} bytes (max ${DESCRIPTION_MAX_BYTES})`,
     };
   }
   return { allowed: true };
