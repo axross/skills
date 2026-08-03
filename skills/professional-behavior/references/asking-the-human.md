@@ -18,7 +18,7 @@ That is the failure this section exists to prevent. It is not a refusal to ask �
 
 **Guidelines:**
 
-- MUST put every decision the triage assigned to the human through the harness's dedicated question tool where one exists (in Claude Code, `AskUserQuestion`), so it renders as a selectable choice and returns an answer inline.
+- MUST put every decision the triage assigned to the human through the harness's dedicated question tool where one exists (in Claude Code, `AskUserQuestion`), so it renders as a selectable choice and returns an answer inline. Where none exists — Codex today — put the same options in the turn output and end the turn rather than deciding.
 - MUST frame the decision as 2–4 concrete options, state the **default you would otherwise take** and mark it recommended, and rely on the tool's built-in "Other" choice for anything you did not anticipate.
 - MUST give each option the consequence of choosing it, so the human is choosing between outcomes rather than between labels.
 - MUST NOT bury a decision in prose, in a document section, or in a question appended to the end of a summary — a decision the human has to find is one you took for them.

@@ -383,7 +383,7 @@ describe("report-obligation-load.mjs", () => {
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      expect.soft(totals.ceilingTokens).toBe(25_075);
+      expect.soft(totals.ceilingTokens).toBe(25_100);
     });
   });
 
