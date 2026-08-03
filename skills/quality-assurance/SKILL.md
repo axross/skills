@@ -1,7 +1,6 @@
 ---
 name: quality-assurance
-description: The ability to judge whether a change carries adequate verification evidence before it merges — the reviewer's QA pass on top of the development verification rules. Covers requiring command evidence for the format and lint gate, treating a change to the gate's own configuration as a risk to the gate itself, matching manual checks to the changed output surfaces (non-default content states, not-found handling, dev-server output), mapping skipped checks to residual risk, and demanding second-pass verification after severe findings.
-when_to_use: Use when reviewing whether a change has adequate verification evidence — "is this verified", "did this break anything", or "were the required checks run".
+description: Reviewing whether a change carries adequate verification evidence — "is this verified", "did this break anything", "were the required checks run". The reviewer's QA pass on top of the development verification rules. Covers requiring command evidence for the format and lint gate, treating a change to the gate's own configuration as a risk to the gate itself, matching manual checks to the changed output surfaces, mapping skipped checks to residual risk, and demanding second-pass verification after severe findings.
 user-invocable: false
 ---
 
