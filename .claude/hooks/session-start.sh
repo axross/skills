@@ -8,7 +8,11 @@ set -euo pipefail
 
 # only run in the remote (web/cloud) environment. local sessions manage their
 # own toolchain; set CLAUDE_CODE_REMOTE=true to exercise this hook locally.
-if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
+# a host that is not Claude Code sets no CLAUDE_* variable, so it opts in
+# explicitly instead: .codex/hooks.json invokes this script with
+# SKILLS_SESSION_BOOTSTRAP=1. Sniffing a host-internal variable would be
+# guessing at a name this repository does not own.
+if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ] && [ "${SKILLS_SESSION_BOOTSTRAP:-}" != "1" ]; then
   exit 0
 fi
 

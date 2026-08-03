@@ -195,11 +195,12 @@ for a broader prose rule does **not** silence the reviewer on that rule.
 - The structural checks `check-skill.mjs` enforces: a frontmatter block that
   does not parse; a `name` that is not kebab-case, exceeds 64 characters, or
   does not match its directory; a missing `description`, or one over 1,024
-  characters; `description` + `when_to_use` over 1,536 characters; a missing
-  `when_to_use` or `user-invocable`; a `references/*.md` file that no `SKILL.md`
-  links; and a routing-section bullet opening with an RFC-2119 keyword.
+  **bytes**; a `references/*.md` file that no `SKILL.md` links; and a
+  routing-section bullet opening with an RFC-2119 keyword.
 - A content mismatch between a `skills/<name>/` source and its generated
-  `.claude/skills/<name>/` copy.
+  installed copy, or a `.claude/skills/<name>` symlink that does not resolve —
+  the drift gate compares the source through the symlink tier, so one run
+  covers both.
 - Lockfiles and generated files.
 
 Two [Repository Severity Floors](#repository-severity-floors) rows stay **fully
@@ -209,6 +210,11 @@ not mistaken for CI-covered:
 - **Malformed frontmatter that breaks discovery/loading.** `check-skill.mjs`
   checks presence, kebab-case, length caps, and the directory match — a narrow
   subset of what a discovery runtime actually rejects at load time.
+- **A missing or wrong `when_to_use` or `user-invocable`.** CI stopped checking
+  these: they are host extensions rather than Agent Skills fields, and the
+  validator that ships to other projects cannot require what their host ignores.
+  Nothing mechanical covers them here now, so both are back in a reviewer's
+  scope for the skills this repository ships.
 - **A `description`/`when_to_use` that no longer matches its content.** Semantic,
   and mechanically undecidable; nothing in CI touches it.
 
