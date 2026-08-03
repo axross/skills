@@ -1,6 +1,6 @@
 # GitHub Conventions
 
-Apply this reference for every GitHub read and write the loop performs. These conventions assume a harness that proxies GitHub access as a single connected operator — the Claude Code + GitHub MCP model. They are **not** a standalone account of operating GitHub: a GitHub-operation capability owns that subject, and this reference defers to it rather than carrying a second copy. What follows is what the loop itself contributes — where its own writes go, the title and description its pull request takes, the history discipline its review rounds depend on, and how it reads what others wrote. On a different host (GitLab, Gitea), the _shape_ carries over but the concrete API semantics have to be re-derived.
+Apply this reference for every GitHub read and write the loop performs. These conventions assume a harness that proxies GitHub access as a single connected operator — the model Claude Code with a GitHub MCP server operates under, and Codex with its own GitHub channel. They are **not** a standalone account of operating GitHub: a GitHub-operation capability owns that subject, and this reference defers to it rather than carrying a second copy. What follows is what the loop itself contributes — where its own writes go, the title and description its pull request takes, the history discipline its review rounds depend on, and how it reads what others wrote. On a different host (GitLab, Gitea), the _shape_ carries over but the concrete API semantics have to be re-derived.
 
 ## GitHub Operation Mechanics
 

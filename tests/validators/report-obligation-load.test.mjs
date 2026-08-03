@@ -365,23 +365,30 @@ describe("report-obligation-load.mjs", () => {
       const totals = totalsOf(report("--mandated").stdout);
 
       expect.soft(totals.floorObligations).toBe(20);
-      // Drifted from 6,896 in #174, which gave the GitHub-operation mechanics
-      // loop-engineering used to restate back to their owner. The deferral
-      // paragraph replacing them lives in the SKILL.md body, so the floor's
-      // prose grew even as the ceiling's obligations fell.
-      expect.soft(totals.floorTokens).toBe(6_958);
+      // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
+      // into its `description`, and then co-notated the harness references so
+      // each names both its Claude Code and its Codex form. The fold lowered
+      // this figure and the co-notation raised part of it back. Both are prose
+      // edits, which is why the obligation counts beside these token figures
+      // never moved at all.
+      expect.soft(totals.floorTokens).toBe(6_776);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
       // kept — the loop's own write routing, and the fixing-commit hash each
       // resolved review thread is tied to. The other two mandated skills are
       // unchanged in count.
-      expect.soft(totals.ceilingObligations).toBe(289);
-      // Drifted from 25,230 in #114, which added one prose clause to
-      // professional-behavior's reporting.md to name the owner of document
-      // prose; then in #174, where deferral prose replacing those twelve
-      // bullets reads longer than the bullets did.
-      expect.soft(totals.ceilingTokens).toBe(25_265);
+      // Drifted from 289 in #195. The only OBLIGATION change in that branch:
+      // professional-behavior's question-tool rule split in two, separating
+      // "use the tool whenever the session exposes one" from "fall back to the
+      // turn output only where none exists". One rule carrying both read as
+      // permission to skip the tool whenever you expected it to be missing.
+      expect.soft(totals.ceilingObligations).toBe(290);
+      // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
+      // the floor above; the reference files the ceiling adds carry no
+      // frontmatter of their own, so only their co-notation moves this one
+      // independently.
+      expect.soft(totals.ceilingTokens).toBe(25_250);
     });
   });
 

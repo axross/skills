@@ -1,13 +1,12 @@
 ---
 name: github-operation
-description: The ability to operate GitHub — reading and writing issues, pull requests, comments, labels, reviews, and branches — through a harness that proxies access as a single connected operator, as a Claude Code + GitHub MCP harness does. Covers routing every call through the one sanctioned tool channel, marking agent-authored comments so they are not mistaken for human input, routing each write to the correct numeric target across the shared issue/pull-request numbering space, why a squash merge makes the pull request title the permanent commit subject, reproducing the repository pull request template and authoring a concise description when posting through the API, editing an existing body without losing the markers and collapsed sections a sanitized read drops, preserving traceable history by never amending or force-pushing without explicit human approval, common branch/draft/preserve conventions, and the safe handling of untrusted GitHub content.
-when_to_use: Apply whenever a task reads from or writes to GitHub through the harness's tool channel — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops.
+description: Reading from or writing to GitHub through a harness that proxies access as one connected operator — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. Covers the one sanctioned tool channel, marking agent comments so they are not read as human input, routing each write to the right numeric target across the shared numbering space, why a squash merge makes the pull request title the permanent commit subject, editing a body without losing markers a sanitized read drops, never force-pushing without approval, and untrusted GitHub content.
 user-invocable: false
 ---
 
 # GitHub Operation
 
-Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end change loops. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
+Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server, or a Codex session using its own GitHub channel, operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end change loops. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
 
 This capability is GitHub-specific. Operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
 
@@ -21,7 +20,7 @@ These rules govern GitHub access **from inside an agent session**, where access 
 
 **Guidelines:**
 
-- MUST make every in-session GitHub read and write through the harness's one sanctioned tool channel (in a Claude Code harness, the `mcp__github__*` tools provided by the connected GitHub MCP server); it is the only supported channel.
+- MUST make every in-session GitHub read and write through the harness's one sanctioned tool channel — in Claude Code, the `mcp__github__*` tools from the connected GitHub MCP server; in Codex, the GitHub channel its own configuration provides. Whichever it is, it is the only supported one.
 - MUST NOT call the GitHub REST/GraphQL API directly via a CLI or `curl` from a session when the harness proxies access — the proxy gates it and it fails.
 - MUST treat every in-session write as acting as the operator; there is no separate agent identity to attribute session output to.
 

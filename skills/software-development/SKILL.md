@@ -1,7 +1,6 @@
 ---
 name: software-development
-description: The ability to make a well-formed, verified change in a project — the baseline discipline every project-touching task runs on. Covers the format/lint loop, scoped and incremental change management, mapping a change to the surfaces it puts at risk, consulting the project's own contributor documentation for how to operate it and closing gaps in that documentation, refreshing vendor docs for fast-moving dependencies, source-comment and doc-comment conventions, and pull request descriptions.
-when_to_use: Apply at the start of EVERY task that touches a project — implementing, refactoring, running a project command, or writing a pull request body — even when the request never mentions formatting, linting, comments, doc-comments, dependencies, docs, commands, or pull request descriptions. Also apply when you need to know how to run one of the project's operations (tests, dev server, build, lint, deploy) and must find it documented or ask. Not for a session that touches nothing — a quick question, an explanation, or a review-only pass, where the conduct baseline applies instead.
+description: Every task that touches a project — implementing, refactoring, running a project command, or writing a pull request body — even when the request never mentions formatting, linting, comments, dependencies, docs, or descriptions. Also when you need to know how to run one of the project's operations (tests, dev server, build, lint, deploy) and must find it documented or ask. Not for a session that touches nothing, where the conduct baseline applies instead. The baseline discipline — the format/lint loop, scoped change management, risk-surface mapping, and contributor docs.
 user-invocable: false
 ---
 

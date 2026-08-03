@@ -4,142 +4,142 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "fe6acc62e3a0170967e613f91f2a1356637fe5c2d8d1fd07042eed0f1608e8c2"
+      "computedHash": "92d7c503a98c255a15b42721975b9a9abb8fab062e50f8fc4d234e3c9b9e39dc"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0ec755ecfbec76c697470d2b5904a75bf292be9c9c5f8d5ce558be168c253fa7"
+      "computedHash": "de51fb43c61cbdc6705d47bb14cfcca80fdc8045c24717b9bc424143c3ca0ca9"
     },
     "amplitude-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "52ad5cadad2c8ec3facf83a4782892b4e06c3e55d14f91ab1891789b29428690"
+      "computedHash": "ed8c6a03ff799d7790302de79d7853e484288631d2e72ed379724c29b2ce808d"
     },
     "application-security": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "643d9061062a3cfe35f2bc1ccd0c779743c0a8b4ca7734e6d6851387e441e66a"
+      "computedHash": "6f08bd602a0999d516e6bdf4fced781cec799ee4e79f54ce965d23bd3f63958d"
     },
     "code-maintainability": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "571fb376230bd1ed742f16c5941f72a1dd8146e101cca1d20614431ba525d9f4"
+      "computedHash": "fcb494029cc5fa1fcb64fd79c86c062a4b4008e46053068e090b9191d2b3337f"
     },
     "code-review": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f28e7420b263c44f609529b900829f3dc4405b0b35a82461acbaf0322d9e25ac"
+      "computedHash": "c30ef5b247584781ff1a32208dee056e756a38a9a623f6340084ced55992aecb"
     },
     "conventional-commits": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f5bf3b8b2db6e65338a9cefdf8d600f41b5f4a7f8d525bbcb5a478cb5fd82a98"
+      "computedHash": "4bda385eff6c7611f68eff516a2c981efa72cfec6c679c6c98c5e07d7c609847"
     },
     "end-to-end-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "79ea6cb6b96395b16f50264f7ea61fd6f233aeb3c8c0feb51adfdf33d50ecb60"
+      "computedHash": "cc8db69e7e10b2155d3c44c057e0b15193d0a22f6cb1f11673092d1243a83238"
     },
     "expo-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "043415eb0c4d929592e3846639f230a3d8edf85e15ddc0184fa43540a6bb5177"
+      "computedHash": "70f626360fd4a0c3d4e80e6c0b666e3b51c528c1c49dd064483e8c9f002397eb"
     },
     "github-operation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "caf2496b541a540ce573ff56b5c1dc14f5df02e4db2e4d5209001a31996cc5bb"
+      "computedHash": "589a8537e6165d350021a8c921f7fa7de03195f77a7bb01722141d52ff55950f"
     },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0d60c624b2b2949bc9339c6846eb9b73d297762e591bb6b290fa0ef2b19ca877"
+      "computedHash": "9f0c7150a09edec54a34b4172b5d989bd39ddd545e8c1b652435ac043bf2ae4d"
     },
     "jest-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "08988bd5c881328d085cf54922bf62d2e2b17013cc2ee2c52d35d2cd30677b35"
+      "computedHash": "1210ee0238b9d551fdac23da577f42139c8e45f8245df7908dad7f06d7b749d3"
     },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "a601a983ac5e2c9694f6d134e2c5ffc8db3d4e8389d60ed71942d0db3a6b8616"
+      "computedHash": "f433c4a5db2809f10d8fe9defc85da0110f7012b07534c8382745dfb68a3cbf2"
     },
     "next-app-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "848aece0f703f9fe9a916ca1c443e1443ac51c812f0b498597370154f9168dff"
+      "computedHash": "6f13ec4d2ac139c55556e3ffa8859b5c6d3a5d14ce46e9fd42244b583b73b2ae"
     },
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "90c37a3df7d27e3dd250554aea6e78407089a243b8ce14f9d4b0ef09fc36f6b3"
+      "computedHash": "0e3661c292df89d58a20b49dc1838b4b64f6eb8cf4562ce4897ed20e135fe628"
     },
     "professional-behavior": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "45a3361ecca5eac141e5016f8c5dedf8937205815a4403484df6029c294f2a51"
+      "computedHash": "f18e568f54ea8c22f8f45f2a60ca8a24b23e9a9440ce86547c1ec951195ca8cb"
     },
     "quality-assurance": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "4f9dd6b2f4342d58299df52817a2eda5fe893964a861bd6dfe1f0698ae284877"
+      "computedHash": "4e69b2f6ca9a49d5c0adeb94752dd65fe3836a54f92726d59b06e850384c1921"
     },
     "react-component-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "46abb0b1d5a13fbcdc5168c73e994eeb37b019a957c6b40eb091bb1f37c50c44"
+      "computedHash": "0ef5cdc6172245abb3bf2839b44e7d40042cd0ad8fa3ae41484f49f8be41e7ca"
     },
     "react-component-styling": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "56de9ce78a97282df7854a5833e41398170bc1d98bfedfd0192c2ee1178460e0"
+      "computedHash": "046f6905617aafe309105781ef5d1b64e8cc1e2a390bc68957d23b1fb4ee4fc4"
     },
     "sentry-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "463b0d6271a73b8411994cbb3b29a5f2d24c49e5d934f524ff069ef4bb368090"
+      "computedHash": "13663bfcd7f416e876d7e9d2569c3b6bc9095ce0204320c464a041f20d50c65c"
     },
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "14bd30814eb3e5fde871e3ae68df0e50c9c285d4ba74a2c154504556dfaeab26"
+      "computedHash": "889c5979ca9ef6fec9292406917b9d30c2cce30fe35864adf1ac981840549273"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "6f5976dffbf87a90f842251a5202ce1cbd1275a0d819188591a5ded1f120dd42"
+      "computedHash": "e81d884437eb1ab8584fc17f3b1bd922bdb4ba95201d7d3f9b16b2b0b12d429c"
     },
     "tanstack-query-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "eeed85c28cbf5a3f605c24f87e6b8f234e540ee97221d8a888845ae80dea511a"
+      "computedHash": "5d65cc44f6441c82623c33c8bef19987b038c68b752c551e7e51d33e910ae0b3"
     },
     "technical-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "7f6e2193314fb9d323f0073ceaca93e9aee24db8edb9d80cd473b19a73aa1b46"
+      "computedHash": "757d6b587f77e9a9055d9567a0a2d6b2b13978bb06b773271b8ae7666256ae8e"
     },
     "unit-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "cb526390d838185ae35896b9e0575b0c5d815a746696f67a9eb1f7f48363b193"
+      "computedHash": "5487a4823d89e323f51045f77546a134855b4de69d230f0673307f526c36d46f"
     },
     "vitest-testing": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "49cfc3c50cdbdd27ec3b48eea058f9390cad9db29653e66bbe7c1a2ce77c991e"
+      "computedHash": "6d3133b8bd756b28bd0f0b826b14e3828108b560bd0fc5d5bc1b979251054a2b"
     },
     "wireframe-design": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "b445a587c6ef12d79e4008d2c8d8e75ef8c5a67b0a5bb132e0bddaffc7fddb5c"
+      "computedHash": "40b7bea7cf734d605cf8803aa7e263266fbefa812b24720c0c394cabf50e75a3"
     },
     "zod-schema": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "41506c0d6716759c432d6b3bee13718371537e99a9293b100a8f8598b286579b"
+      "computedHash": "4b84cdac79c5849706bf4c4c54b62ca3dc2b3619fb0ce0417b440911553b8113"
     }
   }
 }
