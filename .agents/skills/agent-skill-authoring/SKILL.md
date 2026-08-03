@@ -41,7 +41,7 @@ See [capability-framing.md](./references/capability-framing.md) for:
 See [frontmatter-and-naming.md](./references/frontmatter-and-naming.md) for:
 
 - creating or editing discovery-critical `SKILL.md` frontmatter
-- setting the invocation-control fields (`when_to_use`, `argument-hint`, `arguments`, `user-invocable`, `disable-model-invocation`) by skill archetype — guideline skill vs workflow entry point
+- setting the invocation-control fields (`argument-hint`, `arguments`, `user-invocable`, `disable-model-invocation`) by skill archetype — guideline skill vs workflow entry point
 - choosing the skill directory name and keeping it aligned with the `name` field
 - porting or preserving host-project harness fields
 

@@ -10,7 +10,7 @@ This governs **presentation**, not content. Normative RFC-2119 guideline bullets
 
 **Good Examples:**
 
-> `code-review` — "The ability to review a code change and report findings that hold up."
+> `code-review` — an H1 and opening paragraph reading "The ability to review a code change and report findings that hold up." (This models the `name` and body surfaces. `description` takes the trigger first instead — see [Frontmatter Voice](#frontmatter-voice).)
 
 > `software-instrumentation` — "Use this capability whenever you instrument software to make its behavior observable."
 

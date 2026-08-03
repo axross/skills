@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "41095eba05fed030e470c2b886e086adb48f08afadfd5268a4ab7a1f6adfd048"
+      "computedHash": "92d7c503a98c255a15b42721975b9a9abb8fab062e50f8fc4d234e3c9b9e39dc"
     },
     "agent-skill-management": {
       "source": "/home/user/skills/skills",
@@ -64,7 +64,7 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "41facc29c153d11324be0152aa45b161a5725592188963d6e547d5a5c95fcf5b"
+      "computedHash": "bfbb564fef03d13c0b25e9dc710b9089f75ac4ea9f0392f54abb94082a2e8a16"
     },
     "next-app-development": {
       "source": "/home/user/skills/skills",

@@ -37,7 +37,7 @@ You are the only long-lived actor. Advance the work as far as you can autonomous
 
 ## Asking the Human
 
-Every human-gated decision with options goes through the harness's question tool (in Claude Code, **`AskUserQuestion`**; in Codex, **`request_user_input`**) and is answered inline in the same turn. Use it whenever the session exposes it, judged from the tools actually available rather than assumed from the host; only where no such tool exists does the decision go into the turn output and end the turn instead. the plan-approval gate is **not** one of these — it ends the turn (see [Phase 1](#phase-1--plan)).
+Every human-gated decision with options goes through the harness's question tool (in Claude Code, **`AskUserQuestion`**; in Codex, **`request_user_input`**) and is answered inline in the same turn. Use it whenever the session exposes it, judged from the tools actually available rather than assumed from the host; only where no such tool exists does the decision go into the turn output and end the turn instead. The plan-approval gate is **not** one of these — it ends the turn (see [Phase 1](#phase-1--plan)).
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
@@ -116,7 +116,7 @@ Then step through the phase:
 
 ## Phase 3 — Request Independent Review
 
-Review is **not** done by you. It runs as a separate agent session on separate infrastructure — a different session under a bot identity distinct from the operator — so the code's author never certifies its own work. In the reference harness this is a CI workflow that applies the project's posted-review policy and submits findings as inline comments anchored to the diff, tagged by severity. The independent review exists only as that separate-identity review submitted on the pull request; any assessment produced inside the authoring session is self-review, whatever it is called, and MUST NOT be reported as the independent review.
+Review is **not** done by you. It runs as a separate agent session on separate infrastructure — a different session under a bot identity distinct from the operator — so the code's author never certifies its own work. In Claude Code this is a CI workflow triggered by `@claude review`; in Codex, the equivalent triggered by `@codex review`. Either applies the project's posted-review policy and submits findings as inline comments anchored to the diff, tagged by severity. The independent review exists only as that separate-identity review submitted on the pull request; any assessment produced inside the authoring session is self-review, whatever it is called, and MUST NOT be reported as the independent review.
 
 See [independent-review.md](./references/independent-review.md) for:
 
