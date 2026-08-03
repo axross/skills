@@ -214,7 +214,7 @@ not mistaken for CI-covered:
 - **A missing or wrong `user-invocable`.** CI stopped checking it: it is a host
   extension rather than an Agent Skills field, and the validator that ships to
   other projects cannot require what their host ignores. Nothing mechanical
-  covers it now, so it is a reviewer's to catch. Its companion `when_to_use` is
+  covers it now, so it is a reviewer's job to catch. Its companion `when_to_use` is
   no longer carried by any skill here — the trigger lives in `description` —
   so a diff that reintroduces the field is itself the finding.
 - **A `description` that no longer matches its content.** Semantic,
