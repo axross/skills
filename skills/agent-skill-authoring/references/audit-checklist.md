@@ -7,7 +7,7 @@ Apply this reference when auditing a skill tree for structure, discoverability, 
 A useful audit moves from inventory to mechanics to judgment. Mechanical checks catch broken structure; content review catches overlap, stale assumptions, and missing project-specific guidance.
 
 1. Inventory skills and reference files.
-2. Verify skill discovery metadata (`description`/`when_to_use`) and parent `SKILL.md` links.
+2. Verify skill discovery metadata (`description`) and parent `SKILL.md` links.
 3. Check frontmatter against the [frontmatter-and-naming](./frontmatter-and-naming.md) policy.
 4. Check parent routing-section format, section anatomy, and RFC-2119 guideline bullets.
 5. Check relative links outside code fences resolve, and that cross-skill references are topic-based rather than path links into another skill.

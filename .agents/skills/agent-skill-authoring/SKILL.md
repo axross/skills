@@ -1,7 +1,6 @@
 ---
 name: agent-skill-authoring
-description: The ability to author, structure, name, refine, split, and audit agent skills in the agentskills.io format under the host project's skill root (e.g., `.claude/skills/`). Covers capability framing (naming and voice that present a skill as an ability, not a document), frontmatter and invocation-control fields, kebab-case naming, writing `description`/`when_to_use` for discovery, section anatomy with concise examples plus RFC-2119 guideline bullets, upstream-documentation citation for version-pinned or vendor-mirroring sections, progressive disclosure into reference files whose routing bullets state the fact rather than announce one, splitting mechanism from judgment when a vendor-specific skill sits beneath a tool-agnostic owner, topic-based cross-references, archetype skeletons for the project skills a scaffolding pass creates (structure, component, UI/design), a runnable structure validator, and a scheduled external-link freshness audit.
-when_to_use: Apply whenever creating, refining, restructuring, splitting, consolidating, renaming, deleting, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, running the structure validator, or refreshing a skill's discovery metadata. Use for "add a skill", "split this skill", "audit skills", "recast this skill as a capability", or any change to `SKILL.md` files or their references.
+description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, or running the structure validator. Triggers on "add a skill", "split this skill", "audit skills", "recast this skill as a capability", and any change to a `SKILL.md` or its `references/`. The authoring rules for the agentskills.io format — capability framing, discovery metadata that survives a host's listing truncation, section anatomy, progressive disclosure, cross-references, and a bundled validator.
 user-invocable: false
 ---
 
@@ -9,7 +8,7 @@ user-invocable: false
 
 Use this capability whenever you create, refine, split, consolidate, rename, or audit an agent skill under the host project's skill root. It is what turns a durable convention into a well-formed, discoverable skill and keeps the skill tree coherent as it grows.
 
-Skills authored here follow the agentskills.io format. For the host project's active skill inventory and topic-to-skill routing, defer to each skill's own `description`/`when_to_use` discovery metadata and the directory listing under the skill root; where a host also maintains a written index (e.g. `AGENTS.md`), keep it in sync too.
+Skills authored here follow the agentskills.io format. For the host project's active skill inventory and topic-to-skill routing, defer to each skill's own `description` discovery metadata and the directory listing under the skill root; where a host also maintains a written index (e.g. `AGENTS.md`), keep it in sync too.
 
 **Guidelines:**
 
@@ -50,8 +49,8 @@ See [frontmatter-and-naming.md](./references/frontmatter-and-naming.md) for:
 
 See [description-writing.md](./references/description-writing.md) for:
 
-- drafting, trimming, or auditing the `description` and `when_to_use` fields
-- splitting what the skill covers (`description`) from when to apply it (`when_to_use`), within the length caps
+- drafting, trimming, or auditing the `description` field against its byte cap
+- ordering a `description` so the routing decision survives a host's listing truncation
 - adding likely user phrasings and symptom-based triggers without over-broadening the skill
 
 ## Body Content Style

@@ -99,7 +99,7 @@ flowchart TD
 
 - SHOULD split a skill when `SKILL.md` crosses the size thresholds in [progressive-disclosure.md](./progressive-disclosure.md).
 - SHOULD split when one section exceeds the section-length ceiling (below).
-- SHOULD split when the `description` and `when_to_use` together cannot cover what and when within the discovery length caps (see [frontmatter-and-naming.md](./frontmatter-and-naming.md)).
+- SHOULD split when one `description` cannot carry both the trigger and the coverage within the discovery length target (see [description-writing.md](./description-writing.md)).
 - SHOULD NOT split a small, cohesive skill only to match neighboring file layouts.
 
 ## When to Consolidate
