@@ -6,11 +6,11 @@ user-invocable: false
 
 # Agent Skill Management
 
-Use this capability whenever you add, edit, rename, move, or remove an agent skill in a project that holds its skills in two tiers. **Distributable** skills — portable capabilities other projects can install — are authored in a source directory (conventionally `skills/`, the source of truth) and **installed** into the skill root (the directory the agent actually loads, conventionally `.claude/skills/`) with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); a `skills-lock.json` file records what was installed. **Repository-local** skills — the ones that encode a single project's own conventions — are committed directly under the skill root and are never touched by the CLI.
+Use this capability whenever you add, edit, rename, move, or remove an agent skill in a project that holds its skills in two tiers. **Distributable** skills — portable capabilities other projects can install — are authored in a source directory (conventionally `skills/`, the source of truth) and **installed** into the skill root (the directory the agent actually loads — `.claude/skills/` for Claude Code, `.agents/skills/` for Codex and several others) with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); a `skills-lock.json` file records what was installed. **Repository-local** skills — the ones that encode a single project's own conventions — are committed directly under the skill root and are never touched by the CLI.
 
 Discovery is what routes to a skill in either tier: each skill advertises when it applies through its own `description`/`when_to_use`, so no written index is required. Some hosts maintain one anyway (e.g. an `AGENTS.md` table), which then becomes a second record to keep current.
 
-This skill is **self-contained**: it names no repository-specific file or layout and references no repository-root index, so it works installed on its own. The directory names `skills/` and `.claude/skills/` and the tooling below are the conventional defaults; substitute the host project's chosen paths where they differ.
+This skill is **self-contained**: it names no repository-specific file or layout and references no repository-root index, so it works installed on its own. The directory names below are the conventional defaults — `skills/` for the source, and a skill root of `.claude/skills/` on Claude Code or `.agents/skills/` on Codex. Substitute the host project's chosen paths where they differ, and note that a project targeting both hosts has two roots, one of which may be a symlink into the other.
 
 **Guidelines:**
 
@@ -23,7 +23,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 Every skill lives in exactly one tier, decided by one question: **would the skill work, unchanged, installed into another project?**
 
 - A skill that is self-contained and portable — it names no repository-specific file, workflow, or layout — is **distributable**: author it under the source directory (`skills/<name>/`) and install it with the CLI.
-- A skill that encodes one project's own structure or process — a repository-layout skill, a project-specific development baseline, the skill-authoring rules a project tailors to itself — is **repository-local**: commit it directly under the skill root (`.claude/skills/<name>/`).
+- A skill that encodes one project's own structure or process — a repository-layout skill, a project-specific development baseline, the skill-authoring rules a project tailors to itself — is **repository-local**: commit it directly under the skill root (`.claude/skills/<name>/`, or `.agents/skills/<name>/` on a host that reads that path).
 
 **Guidelines:**
 
@@ -38,7 +38,7 @@ A repository-local skill's committed copy under the skill root **is** its source
 
 **Guidelines:**
 
-- MUST edit a repository-local skill directly under the skill root (`.claude/skills/<name>/`) — its `SKILL.md`, `references/`, and any `scripts/` — and commit those files; there is no separate source directory and no install step.
+- MUST edit a repository-local skill directly under the skill root (`.claude/skills/<name>/`, or the equivalent path the host reads) — its `SKILL.md`, `references/`, and any `scripts/` — and commit those files; there is no separate source directory and no install step.
 - MUST author it to the same standard as any other skill — frontmatter, naming, discovery metadata, progressive disclosure — per your project's skill-authoring conventions.
 - MUST rename a repository-local skill with a `git mv` of its directory plus a matching frontmatter `name` update, and update every reference to the old name in the same change.
 
@@ -74,7 +74,7 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
 - MUST author a distributable skill under the source directory (`skills/<name>/`), never directly under the skill root.
 - MUST NOT hand-edit an installed copy under the skill root when you own its source; edit the source and reinstall.
 - MUST re-run the install after editing any source skill so the committed installed copy and `skills-lock.json` match the source.
-- MUST commit the installed `.claude/skills/<name>/` copies and `skills-lock.json` alongside the `skills/` source; they are tracked artifacts, not gitignored.
+- MUST commit every installed skill root — `.claude/skills/<name>/`, `.agents/skills/<name>/`, or both — and `skills-lock.json` alongside the `skills/` source; they are tracked artifacts, not gitignored.
 - MUST pass `--copy` when symlinks are unsupported; a symlink install leaves the skill root empty or broken there.
 - MUST use `--skill '*'` to refresh all managed skills after a broad change, or `--skill <name>` for a targeted one; `--skill` takes exactly one skill per flag, so installing several means repeating it (`--skill <name> --skill <other-name>`), not passing a list.
 - MUST read a `No matching skills found` response — the CLI answering with the source's available-skill list where an install summary belongs — as a run that installed nothing: no skill reaches the skill root and no lockfile is written. A comma-separated `--skill a,b,c` is the usual cause, since the CLI does not split the value and so matches no skill at all, and that available-skill list reads like ordinary help rather than a failure.
@@ -137,7 +137,8 @@ The installed copies are tracked artifacts, not build output, so nothing stops a
 **Example:**
 
 ```bash
-node .claude/skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
+# Substitute the skill root the host reads (.claude/skills, .agents/skills, …).
+node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
 ```
 
 Both roots are **required**, and there is no default: a directory layout is a project's own choice, and a guessed root that matches nothing reports no drift — a pass indistinguishable from a real one. It reports four kinds of difference (a file missing from the installed copy, a file present only there, differing content, and a source skill with no installed copy at all), plus an installed skill that has neither a source nor repository-local status. Mark each repository-local skill with a repeatable `--local <name>`, or the check reads it as drift. It deliberately ignores `skills-lock.json`, whose entries record absolute `source` paths and so are not portable across checkouts; directory contents are the truth.
