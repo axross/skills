@@ -7,13 +7,13 @@
 // when fed a deliberately wrong expected set, and reports clean when fed the
 // right one.
 
-import { mkdir, symlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
-import { runScript, SCRIPTS } from "../helpers/run.mjs";
+import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 import {
   deltaAgainst,
@@ -52,8 +52,7 @@ import {
   allowOverlayContent,
   allowOverlayPath,
   assertRealDirectory,
-  COMBINED_MAX,
-  DESCRIPTION_MAX,
+  DESCRIPTION_MAX_BYTES,
   evalEnvironment,
   FILE_BYTES_MAX,
   planOverlay,
@@ -946,17 +945,51 @@ describe("overlay content caps", () => {
   it("refuses an oversized description", () => {
     // The cost bound, not the authoring rule: overlaid discovery text is
     // re-sent with every probe in the run.
-    const verdict = allowOverlayContent(skillFile("x".repeat(DESCRIPTION_MAX + 1)));
-    expect(verdict.allowed).toBe(false);
-    expect(verdict.reason).toMatch(/description is \d+ chars/);
-  });
-
-  it("refuses an oversized description plus when_to_use", () => {
     const verdict = allowOverlayContent(
-      skillFile("x".repeat(DESCRIPTION_MAX), "y".repeat(COMBINED_MAX)),
+      skillFile("x".repeat(DESCRIPTION_MAX_BYTES + 1)),
     );
     expect(verdict.allowed).toBe(false);
-    expect(verdict.reason).toMatch(/description \+ when_to_use is \d+ chars/);
+    expect(verdict.reason).toMatch(/description is \d+ bytes/);
+  });
+
+  it("measures the description cap in bytes, not characters", () => {
+    // 400 three-byte characters: 400 chars, 1200 bytes. A character-counted cap
+    // would ACCEPT this while the merge gate rejects it — permissive in exactly
+    // the wrong direction, which is why the copy here has to count bytes too.
+    const description = "あ".repeat(400);
+    expect(description.length).toBeLessThan(DESCRIPTION_MAX_BYTES);
+    expect(Buffer.byteLength(description, "utf8")).toBeGreaterThan(
+      DESCRIPTION_MAX_BYTES,
+    );
+
+    const verdict = allowOverlayContent(skillFile(description));
+
+    expect(verdict.allowed).toBe(false);
+  });
+
+  it("applies no combined description + when_to_use cap", () => {
+    // `check-skill.mjs` enforces no such rule, and a cap the merge gate does
+    // not have refuses a legitimate head file — which makes the evaluation
+    // silently measure the BASE text for that skill.
+    const verdict = allowOverlayContent(
+      skillFile("x".repeat(1000), "y".repeat(4000)),
+    );
+    expect(verdict).toEqual({ allowed: true });
+  });
+
+  it("keeps its description cap equal to the one check-skill.mjs enforces", async () => {
+    const source = await readFile(
+      repoPath("skills/agent-skill-authoring/scripts/check-skill.mjs"),
+      "utf8",
+    );
+    const enforced = Number(
+      source.match(/const DESCRIPTION_MAX_BYTES = (\d+);/)?.[1],
+    );
+
+    expect(
+      DESCRIPTION_MAX_BYTES,
+      "this constant is a copy of the validator's, kept by convention because the validator does not export it; this test is what stops the two drifting silently",
+    ).toBe(enforced);
   });
 
   it("refuses a file past the byte backstop before parsing it", () => {

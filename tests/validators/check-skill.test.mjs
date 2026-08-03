@@ -297,6 +297,21 @@ describe("check-skill.mjs", () => {
         reported: /frontmatter: `description` is 1025 bytes \(max 1024 bytes\)/,
       },
       {
+        // Issue #194's verification strategy item 3. The all-ASCII case above
+        // cannot tell the new behaviour from the old one it replaced: its
+        // character and byte counts are equal, so it fails identically under
+        // either reading. This one is under the cap in CHARACTERS and over it
+        // in BYTES, so only a byte-measuring check rejects it — and a refactor
+        // back to `description.length` turns this red.
+        what: "a description under 1024 characters but over 1024 bytes",
+        dirName: "multibyte-description",
+        options: {
+          frontmatter: { description: `The ability to ${"あ".repeat(400)}` },
+        },
+        reported:
+          /frontmatter: `description` is 1215 bytes \(415 chars\) \(max 1024 bytes\)/,
+      },
+      {
         what: "a reference file that SKILL.md never links",
         dirName: "orphan-reference",
         options: {
