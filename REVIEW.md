@@ -24,7 +24,7 @@ output — they exist for self-review, not for the pull-request thread.
 - **Important** — MUST be addressed before merge: a finding that breaks
   behavior, corrupts persisted state, leaks data, regresses accessibility,
   violates a MUST rule of a matching skill (discovered by its
-  `description`/`when_to_use`), or leaves an acceptance criterion unmet or
+  `description`), or leaves an acceptance criterion unmet or
   unverifiable from the diff.
 - **Nit** — safe to defer: style, naming, and refactoring suggestions.
 
@@ -47,13 +47,13 @@ govern **internal** self-review triage; a posted review still suppresses any row
 the [Do Not Report](#do-not-report) list excludes as CI-enforced, and maps what
 remains onto the Important/Nit labels above.
 
-| Category                                                                                                       | Minimum severity |
-| -------------------------------------------------------------------------------------------------------------- | ---------------- |
-| A broken relative link introduced, or a link that misroutes to the wrong skill or reference                    | Critical         |
-| Malformed skill frontmatter (`name`, `description`, `when_to_use`) that breaks the skill's discovery/loading   | Critical         |
-| A skill's `description`/`when_to_use` no longer matches its content, so it misroutes or fails to be discovered | Major            |
-| A rule duplicated across skills instead of having one source of truth, so the copies can silently diverge      | Major            |
-| Inconsistent file/identifier naming that breaks the directory's established convention                         | Minor            |
+| Category                                                                                                  | Minimum severity |
+| --------------------------------------------------------------------------------------------------------- | ---------------- |
+| A broken relative link introduced, or a link that misroutes to the wrong skill or reference               | Critical         |
+| Malformed skill frontmatter (`name`, `description`) that breaks the skill's discovery/loading             | Critical         |
+| A skill's `description` no longer matches its content, so it misroutes or fails to be discovered          | Major            |
+| A rule duplicated across skills instead of having one source of truth, so the copies can silently diverge | Major            |
+| Inconsistent file/identifier naming that breaks the directory's established convention                    | Minor            |
 
 **Guidelines:**
 
@@ -69,7 +69,7 @@ requirement is **Important**, a gap that does not is a **Nit**. Cite the owning
 skill in the finding.
 
 - **Skill conformance** — verify the change conforms to **every** skill whose
-  discovery condition (`description`/`when_to_use`) matches the
+  discovery condition (`description`) matches the
   changed files, and flag any deviation from a skill's stated rule, citing the
   skill and the rule. A violated skill **MUST** rule is Important.
 - **Acceptance criteria** — verify the diff against **every** acceptance
@@ -211,12 +211,13 @@ not mistaken for CI-covered:
 - **Malformed frontmatter that breaks discovery/loading.** `check-skill.mjs`
   checks presence, kebab-case, length caps, and the directory match — a narrow
   subset of what a discovery runtime actually rejects at load time.
-- **A missing or wrong `when_to_use` or `user-invocable`.** CI stopped checking
-  these: they are host extensions rather than Agent Skills fields, and the
-  validator that ships to other projects cannot require what their host ignores.
-  Nothing mechanical covers them here now, so both are back in a reviewer's
-  scope for the skills this repository ships.
-- **A `description`/`when_to_use` that no longer matches its content.** Semantic,
+- **A missing or wrong `user-invocable`.** CI stopped checking it: it is a host
+  extension rather than an Agent Skills field, and the validator that ships to
+  other projects cannot require what their host ignores. Nothing mechanical
+  covers it now, so it is a reviewer's to catch. Its companion `when_to_use` is
+  no longer carried by any skill here — the trigger lives in `description` —
+  so a diff that reintroduces the field is itself the finding.
+- **A `description` that no longer matches its content.** Semantic,
   and mechanically undecidable; nothing in CI touches it.
 
 **Guidelines:**

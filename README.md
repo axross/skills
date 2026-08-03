@@ -32,8 +32,9 @@ and around seventy-five others; the CLI's
 [supported agents](https://github.com/vercel-labs/skills#supported-agents) list
 has them all, along with the directory each installs into. Note that a host
 reads only what its own format defines: Codex routes on `description` alone and
-caps it at 1,024 bytes, so a skill written for Claude Code's `when_to_use`
-extension needs that trigger text folded into `description` to route there. Browse what is on offer in the [skill catalog](#skill-catalog)
+caps it at 1,024 bytes. Every skill here therefore states its trigger in
+`description` and carries no `when_to_use`, so it routes the same on either
+host. Browse what is on offer in the [skill catalog](#skill-catalog)
 below, or ask the CLI:
 
 ```bash
@@ -51,7 +52,7 @@ Add `--copy` if your environment does not support symlinks — the skills then
 land as real directories instead of links.
 
 **Wiring them in.** An installed skill is discovered on its own: agents read its
-`description`/`when_to_use` and load it when a task matches, so nothing else is
+`description` and load it when a task matches, so nothing else is
 required. But discovery makes a skill _available_, not _binding_ — if you want
 one to govern how work happens rather than merely inform it, say so in your own
 agent instructions. This repository's [`CLAUDE.md`](./CLAUDE.md) is a worked
@@ -172,7 +173,7 @@ point of running it. Two tools do the measuring, and deliberately neither of the
 gates.
 
 **Does discovery surface the right skill?** An installed skill is found by its
-`description`/`when_to_use` pair and nothing else, so that pair is what is worth
+`description` and nothing else, so that field is what is worth
 measuring. The discovery evaluation runs a fixture of labelled prompts through
 the real Claude Code CLI in a scratch workspace and records which skills got
 selected. Each prompt names the skills it should surface and the ones it should
@@ -212,7 +213,7 @@ and there are two ways they stop being:
   permanently unusable baseline.
 
 **The corpus fingerprint covers only what discovery reads.** The baseline records
-a short digest of each skill's `description` and `when_to_use` and nothing else,
+a short digest of each skill's `description` and nothing else,
 so editing a skill's body never invalidates a measurement, and a rename shows up
 as one removal plus one addition. When the corpus matches, the report says
 nothing at all — a notice that fires on every run is one that gets skipped on the
@@ -269,7 +270,7 @@ deliberate act rather than an accident.
   a recorded baseline says what it ran against — and a run that could not isolate
   itself refuses to produce one at all.
 - **A universal-application claim is informational for now.** A skill can claim
-  in its own `when_to_use` that it applies to every session; whether that holds
+  in its own `description` that it applies to every session; whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported
   rather than counted as a finding.
 
@@ -639,7 +640,8 @@ Every enumeration here stats through the link instead. Anything new that walks a
 skill root has to do the same, or it will silently check nothing.
 
 **Codex reads less of a skill than Claude Code does.** It reads `name` and
-`description`; `when_to_use` is a Claude Code extension it ignores. It refuses
+`description`; `when_to_use` is a Claude Code extension it ignores, and no skill
+here carries one. It refuses
 to load a skill whose `description` exceeds 1,024 bytes — `check-skill.mjs`
 enforces that in bytes rather than characters for the reason its comment gives —
 and it truncates per-skill descriptions to fit the whole listing into a context
