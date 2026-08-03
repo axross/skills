@@ -34,11 +34,11 @@ Agents match surface text as well as semantics. Include the terms users, reviewe
 
 ## Length Discipline
 
-Discovery metadata competes for context across the entire skill set. The goal is enough signal for routing without crowding out neighboring skills. Both hard caps — the spec's limit on `description`, and the combined limit at which the Claude Code skill listing truncates — are compared exactly by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run over any skill you change; the targets below are the judgment it cannot make.
+Discovery metadata competes for context across the entire skill set. The goal is enough signal for routing without crowding out neighboring skills. One hard cap is compared exactly by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run over any skill you change: `description` measured in **bytes**, because a host that applies the spec's limit byte-wise refuses to load a skill that exceeds it. Everything else below is judgment the validator cannot make — including the `when_to_use` target, which no check backstops, since the field is a host extension rather than a spec field.
 
 **Guidelines:**
 
-- SHOULD target roughly 300–800 characters for `description` and 150–400 for `when_to_use`.
+- SHOULD target roughly 300–800 **bytes** for `description`, and 150–400 characters for `when_to_use` on a host that reads it. Non-ASCII punctuation makes the two counts differ, and only the byte count is enforced.
 - SHOULD trim duplicated synonyms before trimming meaningful trigger coverage.
 - MUST assume over-limit text may be truncated, ignored, or rejected by a host runtime.
 
