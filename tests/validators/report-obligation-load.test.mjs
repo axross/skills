@@ -366,11 +366,12 @@ describe("report-obligation-load.mjs", () => {
 
       expect.soft(totals.floorObligations).toBe(20);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
-      // into its `description` and rewrote both to a ~512-byte target. The
-      // frontmatter is part of the floor's prose, so shortening it lowers the
-      // floor without touching a single obligation — which is why the counts
-      // beside these token figures did not move.
-      expect.soft(totals.floorTokens).toBe(6_568);
+      // into its `description`, and then co-notated the harness references so
+      // each names both its Claude Code and its Codex form. The fold lowered
+      // this figure and the co-notation raised part of it back. Both are prose
+      // edits, which is why the obligation counts beside these token figures
+      // never moved at all.
+      expect.soft(totals.floorTokens).toBe(6_719);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -378,10 +379,11 @@ describe("report-obligation-load.mjs", () => {
       // resolved review thread is tied to. The other two mandated skills are
       // unchanged in count.
       expect.soft(totals.ceilingObligations).toBe(289);
-      // Drifted from 25,265 in #195, by the same frontmatter shortening as the
-      // floor above and by exactly the same amount — the reference files the
-      // ceiling adds carry no frontmatter of their own.
-      expect.soft(totals.ceilingTokens).toBe(24_875);
+      // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
+      // the floor above; the reference files the ceiling adds carry no
+      // frontmatter of their own, so only their co-notation moves this one
+      // independently.
+      expect.soft(totals.ceilingTokens).toBe(25_075);
     });
   });
 

@@ -8,7 +8,7 @@ After you push and request review, machine events run on their own: the merge-ch
 
 **Guidelines:**
 
-- MUST schedule a self-wake where the harness provides one (in Claude Code, `send_later`, which delivers a message back into this same session and survives container reclaim); without one, end the turn and wait for the human to resume.
+- MUST schedule a self-wake where the harness provides one (in Claude Code, `send_later`, which delivers a message back into this same session and survives container reclaim; in Codex, whatever equivalent its harness exposes); without one, end the turn and wait for the human to resume.
 - SHOULD poll at a **4-minute** cadence for the first ~15 minutes, then back off to a **10-minute** cadence while still pending. (The 4-minute figure suits a harness whose prompt cache has a ~5-minute TTL, so a wake under five minutes resumes cache-warm; adjust to the harness.)
 - MUST, on green CI plus a clean review, flip the pull request to ready, update the status block, deliver the Ready-to-Merge Handoff in the turn output, and end the turn.
 - MUST, on review findings or red CI, enter the addressing mechanics below; on only some checks resolved, keep polling for the rest.
