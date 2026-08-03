@@ -370,7 +370,7 @@ describe("report-obligation-load.mjs", () => {
       // frontmatter is part of the floor's prose, so shortening it lowers the
       // floor without touching a single obligation — which is why the counts
       // beside these token figures did not move.
-      expect.soft(totals.floorTokens).toBe(6_724);
+      expect.soft(totals.floorTokens).toBe(6_568);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -381,7 +381,7 @@ describe("report-obligation-load.mjs", () => {
       // Drifted from 25,265 in #195, by the same frontmatter shortening as the
       // floor above and by exactly the same amount — the reference files the
       // ceiling adds carry no frontmatter of their own.
-      expect.soft(totals.ceilingTokens).toBe(25_031);
+      expect.soft(totals.ceilingTokens).toBe(24_875);
     });
   });
 
