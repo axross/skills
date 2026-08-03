@@ -6,7 +6,7 @@ user-invocable: false
 
 # GitHub Operation
 
-Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end change loops. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
+Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server, or a Codex session using its own GitHub channel, operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end change loops. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
 
 This capability is GitHub-specific. Operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
 
@@ -20,7 +20,7 @@ These rules govern GitHub access **from inside an agent session**, where access 
 
 **Guidelines:**
 
-- MUST make every in-session GitHub read and write through the harness's one sanctioned tool channel (in a Claude Code harness, the `mcp__github__*` tools provided by the connected GitHub MCP server); it is the only supported channel.
+- MUST make every in-session GitHub read and write through the harness's one sanctioned tool channel — in Claude Code, the `mcp__github__*` tools from the connected GitHub MCP server; in Codex, the GitHub channel its own configuration provides. Whichever it is, it is the only supported one.
 - MUST NOT call the GitHub REST/GraphQL API directly via a CLI or `curl` from a session when the harness proxies access — the proxy gates it and it fails.
 - MUST treat every in-session write as acting as the operator; there is no separate agent identity to attribute session output to.
 
