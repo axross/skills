@@ -12,7 +12,7 @@ This skill carries the change-loop discipline, a condensed plan-document structu
 
 This skill can serve as a project's default change loop or be installed into a project that has none of its own. If the host project ships a _different_, more-specific change-loop skill, that skill owns the loop there — defer to it rather than running this one alongside it (a runtime harness's injected task framing is not such a skill; see the Execution Model's precedence rule).
 
-The concrete tooling named throughout is co-notated per host, because the loop's shape is the same on each and only the instrument differs. Where a rule names a tool it names both forms — in Claude Code, `AskUserQuestion`, `send_later`, `EnterPlanMode`, and a CI reviewer triggered by a comment phrase; in Codex, the equivalents its own harness provides, with `@codex review` as the review trigger. GitHub itself is reached through whichever sanctioned channel the harness proxies (in Claude Code, the `mcp__github__*` MCP tools). On a third harness that works the same way, substitute its equivalents; nothing about the loop changes.
+The concrete tooling named throughout is co-notated per host, because the loop's shape is the same on each and only the instrument differs. Where a rule names a tool it names both forms — in Claude Code, `AskUserQuestion`, `send_later`, `EnterPlanMode`, and a CI reviewer triggered by a comment phrase; in Codex, `request_user_input` and the equivalents its own harness provides, with `@codex review` as the review trigger. GitHub itself is reached through whichever sanctioned channel the harness proxies (in Claude Code, the `mcp__github__*` MCP tools). On a third harness that works the same way, substitute its equivalents; nothing about the loop changes.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
@@ -37,7 +37,7 @@ You are the only long-lived actor. Advance the work as far as you can autonomous
 
 ## Asking the Human
 
-Every human-gated decision with options goes through the harness's question tool (in Claude Code, **`AskUserQuestion`**; in Codex, which offers no equivalent, ask in the turn output and end the turn) and is answered inline in the same turn where one exists; the plan-approval gate is **not** one of these — it ends the turn (see [Phase 1](#phase-1--plan)).
+Every human-gated decision with options goes through the harness's question tool (in Claude Code, **`AskUserQuestion`**; in Codex, **`request_user_input`**) and is answered inline in the same turn; where that tool is unavailable in the session's current mode, put the same options in the turn output and end the turn instead; the plan-approval gate is **not** one of these — it ends the turn (see [Phase 1](#phase-1--plan)).
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
