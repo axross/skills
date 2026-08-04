@@ -383,7 +383,11 @@ describe("report-obligation-load.mjs", () => {
       // that branch's: #201 merged main and carried professional-behavior's
       // `description` edit into the source it had been applied around, which
       // lengthened the opening clause by eight bytes.
-      expect.soft(totals.floorTokens).toBe(7_661);
+      // And 42 more from the review's second nit: Phase 2's reviewer-mode
+      // self-check bullet had not been given the delegated carve-out its
+      // neighbour got, so a reader could take it to mean the main actor redoes
+      // the worker's full diff review after reclaiming the lease.
+      expect.soft(totals.floorTokens).toBe(7_703);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -405,10 +409,13 @@ describe("report-obligation-load.mjs", () => {
       // adequate to what it carries. The delegated path is optional at runtime
       // but its rules are not conditional in the corpus: an agent holding this
       // skill holds all of them, which is what this figure is for.
-      // The 361st is the independent review's nit on #201: the agent catalog
-      // being unenumerable was governed only through general preflight
-      // language, so it gained a rule naming the scenario.
-      expect.soft(totals.ceilingObligations).toBe(361);
+      // Net zero across #201's two review rounds, from two moves that cancel.
+      // Round 1 added one: the agent catalog being unenumerable was governed
+      // only through general preflight language, so it gained a rule naming the
+      // scenario. Round 2 removed one: the byte-faithful-channel rule was
+      // stated in both github-conventions.md and run-state-and-reporting.md,
+      // and the latter now points at the former instead of restating it.
+      expect.soft(totals.ceilingObligations).toBe(360);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -416,7 +423,7 @@ describe("report-obligation-load.mjs", () => {
       // Drifted again from 25,250 in #201, by the eight reference files above,
       // plus the same three-token professional-behavior edit noted at the floor,
       // plus the two review nits that named their scenarios directly.
-      expect.soft(totals.ceilingTokens).toBe(32_394);
+      expect.soft(totals.ceilingTokens).toBe(32_399);
     });
   });
 

@@ -12,8 +12,7 @@ State lives in this running session; GitHub carries a thin, **human-invisible** 
 - MUST NOT post a separate status comment or @mention the maintainer for attention; convey ready-to-merge, dormancy, and non-convergence in the turn output instead. The archival comment above is not an exception to this — it carries the original description, never run state.
 - MUST NOT write the literal review trigger phrase anywhere except the dedicated review request — a comment-triggered workflow fires on that phrase appearing anywhere in a body. Refer to it as "the independent review" everywhere else.
 - MUST reconstruct state from GitHub before acting on a resume, and resume the one pending step the block names rather than restarting from Plan.
-- MUST read the status block through a channel established as byte-faithful, and record which channel that was. The block is an HTML comment, and a sanitizing read removes it whole — so a read through such a channel returns a body that looks like one carrying no state at all.
-- MUST NOT treat an absent block as an absent run. Where no byte-faithful channel is available, reconstruct what the surviving signals support — branch, commits, pull-request existence and draft state, comment authors and markers, CI status — and treat anything they cannot establish as unknown rather than as a default.
+- MUST read the status block through a channel adequate to what it carries, and reconstruct from the signals that survive where no such channel exists — [github-conventions.md](./github-conventions.md) owns that rule for every body the loop reads, and states it once. The block being an HTML comment is what makes it acute here: a sanitizing read removes it whole, returning a body that looks like one carrying no state at all.
 
 ## Delegated Run State
 
