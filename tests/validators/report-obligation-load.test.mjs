@@ -408,7 +408,7 @@ describe("report-obligation-load.mjs", () => {
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
       // Drifted again from 25,250 in #201, by the eight reference files above.
-      expect.soft(totals.ceilingTokens).toBe(32_277);
+      expect.soft(totals.ceilingTokens).toBe(32_336);
     });
   });
 

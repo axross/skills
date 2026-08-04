@@ -4,12 +4,12 @@ Apply this reference when recording the run's durable state, and when the run re
 
 ## GitHub as Lightweight State
 
-State lives in this running session; GitHub carries a thin, **human-invisible** breadcrumb so a resumed or reclaimed session can recover. The run posts no status or attention comments — the only comments it authors are the dedicated review request (Phase 3) and the marked review-thread replies that tie each resolved finding to its commit (Phase 4).
+State lives in this running session; GitHub carries a thin, **human-invisible** breadcrumb so a resumed or reclaimed session can recover. The run posts no status or attention comments. It authors exactly three kinds: the dedicated review request (Phase 3), the marked review-thread replies that tie each resolved finding to its commit (Phase 4), and — only where the issue body cannot spare the room — the marked archival comment holding the original description (Phase 1, see [plan-document.md](./plan-document.md)).
 
 **Guidelines:**
 
 - MUST keep the run's state in a single **status block**: an HTML comment (`<!-- ... -->`) embedded in the pull request description — invisible in the rendered UI, present in the raw markdown. Before the pull request exists, keep the same block in the issue body. Record the current phase, the review-round count, what the run is waiting on, and any open question; update it in place.
-- MUST NOT post a separate status comment or @mention the maintainer for attention; convey ready-to-merge, dormancy, and non-convergence in the turn output instead.
+- MUST NOT post a separate status comment or @mention the maintainer for attention; convey ready-to-merge, dormancy, and non-convergence in the turn output instead. The archival comment above is not an exception to this — it carries the original description, never run state.
 - MUST NOT write the literal review trigger phrase anywhere except the dedicated review request — a comment-triggered workflow fires on that phrase appearing anywhere in a body. Refer to it as "the independent review" everywhere else.
 - MUST reconstruct state from GitHub before acting on a resume, and resume the one pending step the block names rather than restarting from Plan.
 - MUST read the status block through a channel established as byte-faithful, and record which channel that was. The block is an HTML comment, and a sanitizing read removes it whole — so a read through such a channel returns a body that looks like one carrying no state at all.
