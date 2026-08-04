@@ -158,6 +158,41 @@ const YAML_LEADING_ALWAYS = new Set(["[", "{", "]", "}", ",", "&", "*", "!", "|"
 // `- x` is a list item, `? x` a complex key, `: x` a value.
 const YAML_LEADING_BEFORE_SPACE = new Set(["-", "?", ":"]);
 
+// The escapes YAML defines inside a DOUBLE-quoted scalar, mapped to what they
+// produce. The set is closed: `\d`, `\s`, `\w` and every other undefined
+// sequence is a parse error, NOT a literal backslash. Accepting them would
+// reintroduce this check's own defect through the quoting path — a value the
+// validator passes and no host can load.
+//
+// Verified against a real parser rather than transcribed, on the same reasoning
+// as the hazard set above.
+const YAML_DQUOTE_ESCAPES = new Map([
+  ["0", "\0"],
+  ["a", "\x07"],
+  ["b", "\b"],
+  ["t", "\t"],
+  ["\t", "\t"],
+  ["n", "\n"],
+  ["v", "\v"],
+  ["f", "\f"],
+  ["r", "\r"],
+  ["e", "\x1b"],
+  [" ", " "],
+  ['"', '"'],
+  ["/", "/"],
+  ["\\", "\\"],
+  ["N", "\x85"],
+  ["_", "\xa0"],
+  ["L", "\u2028"],
+  ["P", "\u2029"],
+]);
+// The numeric forms, each taking a fixed run of hex digits after the marker.
+const YAML_DQUOTE_HEX_ESCAPES = new Map([
+  ["x", 2],
+  ["u", 4],
+  ["U", 8],
+]);
+
 // Capability-framing advisories (warnings only — see the header note).
 const DOC_NAME_SUFFIX_RE =
   /-(guidelines|best-practices|principles|conventions|rules|requirements)$/;
@@ -415,7 +450,26 @@ function readScalar(raw) {
       if (next === undefined) {
         return { value: null, error: "ends with a dangling `\\` inside a double-quoted value." };
       }
-      out += next === "n" ? "\n" : next === "t" ? "\t" : next;
+      const hexDigits = YAML_DQUOTE_HEX_ESCAPES.get(next);
+      if (hexDigits !== undefined) {
+        const digits = inner.slice(i + 2, i + 2 + hexDigits);
+        if (digits.length < hexDigits || !/^[0-9a-fA-F]+$/.test(digits)) {
+          return {
+            value: null,
+            error: `carries \`\\${next}\` with fewer than ${hexDigits} hex digits after it inside a double-quoted value.`,
+          };
+        }
+        out += String.fromCodePoint(Number.parseInt(digits, 16));
+        i += 1 + hexDigits;
+        continue;
+      }
+      if (!YAML_DQUOTE_ESCAPES.has(next)) {
+        return {
+          value: null,
+          error: `carries \`\\${next}\`, which YAML does not define as an escape inside a double-quoted value — use single quotes, or double the backslash.`,
+        };
+      }
+      out += YAML_DQUOTE_ESCAPES.get(next);
       i++;
     }
     return { value: out, error: null };

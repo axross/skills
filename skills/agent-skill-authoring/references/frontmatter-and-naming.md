@@ -31,12 +31,15 @@ description: The agentskills.io format: capability framing and discovery metadat
 description: "The agentskills.io format: capability framing and discovery metadata."
 ```
 
-The hazards are a colon before a space or at the end of the value, a `#` at the start or after a space, and an opening `[ { ] } , & * ! | > % @ ` " '`— or an opening`-`, `?`, or `:`before a space. A colon with no space after it is fine, which is why`Top 10:2025` needs no quoting.
+The hazards are a colon before a space or at the end of the value, a `#` at the start or after a space, and an opening ``[ { ] } , & * ! | > % @ ` " '`` — or an opening `-`, `?`, or `:` before a space. A colon with no space after it is fine, which is why `Top 10:2025` needs no quoting.
+
+Inside a double-quoted value only YAML's own escapes are legal: `\0`, `\a`, `\b`, `\t`, `\n`, `\v`, `\f`, `\r`, `\e`, `\"`, `\/`, `\\`, `\N`, `\_`, `\L`, `\P`, a literal escaped space, and the numeric `\xNN`, `\uNNNN`, and `\UNNNNNNNN` forms. Anything else — `\d`, `\s`, `\w` and the rest of the regex-flavored set a reader reaches for by habit — is a parse error, not a literal backslash.
 
 **Guidelines:**
 
 - MUST quote a `description` that carries any of the constructs above, rather than rewording to avoid them — the text is the routing signal, and quoting costs nothing but two characters.
 - MUST escape a literal `"` as `\"` inside a double-quoted value, and double a literal `'` to `''` inside a single-quoted one; an unpaired quote ends the scalar early and the rest of the line becomes a parse error.
+- MUST use single quotes, or a numeric escape, to carry a backslash sequence YAML does not define; a double-quoted value containing `\d` or `\s` is rejected outright rather than read as a literal backslash.
 - SHOULD leave a description unquoted when it carries no hazard, since quoting every value forces escape handling on the many descriptions that need none.
 - MUST NOT treat a passing `scripts/check-skill.mjs` run as proof that a host will load the skill unless that run includes this check; a validator reading frontmatter with a regex cannot see a construct that only a parser resolves.
 

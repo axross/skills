@@ -999,6 +999,53 @@ describe("check-skill.mjs", () => {
         });
       }
 
+      // YAML defines a CLOSED escape set inside double quotes. Accepting an
+      // undefined sequence as a literal backslash would reintroduce this
+      // check's own defect through the quoting path it adds: a value the
+      // validator passes and no host can load. Found by the independent
+      // review, on a fuzz wider than the differential this change shipped with.
+      const undefinedEscapes = [
+        { what: "\\d", dirName: "escape-d", description: '"Regex-flavored \\d+ matched inline in a description of some length."' },
+        { what: "\\s", dirName: "escape-s", description: '"Regex-flavored \\s* matched inline in a description of some length."' },
+        { what: "\\w", dirName: "escape-w", description: '"Regex-flavored \\w+ matched inline in a description of some length."' },
+        { what: "\\'", dirName: "escape-squote", description: '"An escaped \\\' apostrophe, which is legal in neither quote style."' },
+      ];
+
+      for (const { what, dirName, description } of undefinedEscapes) {
+        it(`rejects \`${what}\`, which YAML does not define as an escape`, async () => {
+          const root = await tempDir();
+          const dir = await withDescription(root, dirName, description);
+
+          expectFailure(dir, new RegExp(`\`description\` carries \`\\\\${what.slice(1)}\`, which YAML does not define`));
+        });
+      }
+
+      it("accepts every escape YAML does define", async () => {
+        const root = await tempDir();
+        // The whole closed set in one value, so a shrunken map fails here.
+        const dir = await withDescription(
+          root,
+          "escapes-legal",
+          '"Legal escapes \\0\\a\\b\\t\\n\\v\\f\\r\\e\\ \\"\\/\\\\\\N\\_\\L\\P and numerics \\x41\\u0041\\U00000041 together."',
+        );
+
+        expect(checkSkill(dir)).toPassCleanly();
+      });
+
+      it("rejects a numeric escape with too few hex digits", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "escape-short-hex", '"A truncated \\x4 numeric escape inside a description of some length."');
+
+        expectFailure(dir, /`description` carries `\\x` with fewer than 2 hex digits/);
+      });
+
+      it("leaves a backslash alone inside single quotes, where it is literal text", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "escape-single", "'Regex-flavored \\d+ is literal here, beside a colon: in one value.'");
+
+        expect(checkSkill(dir), "single-quoted YAML has no escapes but `''`, so a backslash is just a character").toPassCleanly();
+      });
+
       it("distinguishes a malformed quote from a hazard, so the remedy differs", async () => {
         const root = await tempDir();
         const dir = await withDescription(root, "malformed-not-hazard", '"The ability to leave this quote open: forever.');
