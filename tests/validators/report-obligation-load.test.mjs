@@ -371,7 +371,10 @@ describe("report-obligation-load.mjs", () => {
       // this figure and the co-notation raised part of it back. Both are prose
       // edits, which is why the obligation counts beside these token figures
       // never moved at all.
-      expect.soft(totals.floorTokens).toBe(6_776);
+      // Drifted from 6,776 in #203 when loop-engineering stopped naming a
+      // fixed section count in its parent routing line; the canonical plan can
+      // now evolve without requiring that summary to be updated again.
+      expect.soft(totals.floorTokens).toBe(6_773);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -383,12 +386,17 @@ describe("report-obligation-load.mjs", () => {
       // "use the tool whenever the session exposes one" from "fall back to the
       // turn output only where none exists". One rule carrying both read as
       // permission to skip the tool whenever you expected it to be missing.
-      expect.soft(totals.ceilingObligations).toBe(290);
+      // Drifted from 290 in #203. Loop-engineering's fallback gained the Todo
+      // rules and the conditional two-column Goals and Non-goals alternative;
+      // its replaced goal-framing rule left the rest of the count unchanged.
+      expect.soft(totals.ceilingObligations).toBe(294);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      expect.soft(totals.ceilingTokens).toBe(25_250);
+      // Drifted from 25,250 in #203 with the same fallback-plan additions that
+      // raised the ceiling obligation count above.
+      expect.soft(totals.ceilingTokens).toBe(25_471);
     });
   });
 

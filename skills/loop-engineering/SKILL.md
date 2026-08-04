@@ -86,7 +86,7 @@ Turn the target into a buildable specification recorded in the issue. Two gates 
 
 See [plan-document.md](./references/plan-document.md) for:
 
-- the canonical seven-section plan structure and each section's craft
+- the canonical plan structure and each section's craft
 - writing acceptance criteria as a plain, checkable bullet list
 - presenting and recording visual-change presentation options
 

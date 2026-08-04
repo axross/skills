@@ -11,12 +11,14 @@ Use this capability whenever you draft or review a product requirement document,
 This skill owns one canonical document structure, in this order. **Required** sections appear in every document; **conditional** sections are included when their trigger applies and omitted only with a one-line stated reason, never dropped silently.
 
 1. **Summary** _(required)_ — one standalone paragraph.
-2. **Background** _(required)_ — with **Goals**, **Non-goals**, and **Assumptions** subsections.
-3. **Functional requirements** _(conditional)_ — with **UI design** _(conditional)_ and **System design** _(conditional, carrying **Alternatives considered** when a plausible competing approach exists)_ nested under it.
-4. **Non-functional requirements** _(conditional)_.
-5. **Acceptance criteria** _(required)_.
-6. **Verification strategy** _(required)_.
-7. **Open questions** _(required, may be "None")_.
+2. **Todo** _(required)_ — a static, actionable list of the deliverables or change surfaces.
+3. **Background** _(required)_ — with an **Assumptions** subsection.
+4. **Goals and Non-goals** _(required)_ — one flat list whose opening verbs distinguish intended outcomes from deliberate exclusions.
+5. **Functional requirements** _(conditional)_ — with **UI design** _(conditional)_ and **System design** _(conditional, carrying **Alternatives considered** when a plausible competing approach exists)_ nested under it.
+6. **Non-functional requirements** _(conditional)_.
+7. **Acceptance criteria** _(required)_.
+8. **Verification strategy** _(required)_.
+9. **Open questions** _(required, may be "None")_.
 
 This skill deliberately does not own everything a spec touches. It owns the document structure, problem framing, scope boundaries, requirement and criteria craft, and the spec-level framing of the UI design and System design sections — how to _describe_ what a change must do and how it is verified. It does not own the implementation mechanics behind those descriptions:
 
@@ -28,13 +30,15 @@ Keeping those mechanics out is what lets this document stay stable when the impl
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
-## Summary and Background Framing
+## Summary, Todo, and Background Framing
 
 See [problem-and-scope.md](./references/problem-and-scope.md) for:
 
 - writing the standalone one-paragraph Summary
+- listing the deliverables or change surfaces in a static Todo without duplicating requirements, acceptance criteria, or verification
 - framing Background as concise bullets, with diagrams when they clarify the circumstances
-- stating goals, explicit non-goals, and assumptions distinct from open questions
+- stating assumptions under Background and keeping them distinct from open questions
+- combining goals and explicit non-goals in one flat, verb-led list
 - writing the trailing Open questions section, including known risks with mitigation
 - right-sizing the document to the size and reversibility of the change
 - replacing vague quality adjectives with concrete, checkable statements

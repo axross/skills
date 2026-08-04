@@ -4,23 +4,36 @@ Apply this reference when writing the Phase 1 plan into the issue body. A plan s
 
 ## Canonical Structure
 
-Every plan follows this seven-section order. **Required** sections are always present; **conditional** sections are included when they apply and omitted with a one-line stated reason when they do not.
+Every plan follows this order. **Required** sections are always present; **conditional** sections are included when they apply and omitted with a one-line stated reason when they do not.
 
 1. **Summary** _(required)_ — one standalone paragraph a reader can grasp without the rest.
-2. **Background** _(required)_ — with **Goals**, **Non-goals**, and **Assumptions** subsections.
-3. **Functional requirements** _(conditional)_ — with **UI design** and **System design** nested under it; the latter carries an **Alternatives considered** subsection when a plausible competing approach exists.
-4. **Non-functional requirements** _(conditional)_ — performance, security, accessibility, compatibility budgets that constrain the change.
-5. **Acceptance criteria** _(required)_ — the checkable list the reviewer verifies against the finished pull request.
-6. **Verification strategy** _(required)_ — which checks and manual steps prove each acceptance criterion.
-7. **Open questions** _(required, may be empty)_ — unresolved decisions and who must answer them.
+2. **Todo** _(required)_ — a static list of actionable deliverables or change surfaces, written as ordinary bullets.
+3. **Background** _(required)_ — with an **Assumptions** subsection.
+4. **Goals and Non-goals** _(required)_ — one flat list whose opening verbs distinguish intended outcomes from deliberate exclusions.
+5. **Functional requirements** _(conditional)_ — with **UI design** and **System design** nested under it; the latter carries an **Alternatives considered** subsection when a plausible competing approach exists.
+6. **Non-functional requirements** _(conditional)_ — performance, security, accessibility, compatibility budgets that constrain the change.
+7. **Acceptance criteria** _(required)_ — the checkable list the reviewer verifies against the finished pull request.
+8. **Verification strategy** _(required)_ — which checks and manual steps prove each acceptance criterion.
+9. **Open questions** _(required, may be empty)_ — unresolved decisions and who must answer them.
 
 **Guidelines:**
 
 - MUST include every required section and follow this order; omit a conditional section only with a one-line stated reason so a reader knows it was considered.
 - MUST right-size each section to the change — a one-file fix needs a paragraph per section, a cross-cutting feature needs the full treatment.
 - MUST separate stated **Assumptions** (decided, recorded) from **Open questions** (undecided, needing an answer); never leave a Must-ask decision buried as an assumption.
-- MUST frame **Goals** and **Non-goals** as concrete, checkable outcomes, not vague quality adjectives.
+- MUST write **Goals and Non-goals** as one flat list without fixed labels or nested Goals and Non-goals sections; begin goals with affirmative imperative verbs such as "Do", "Ensure", or "Build", and non-goals with negative or avoidance verbs such as "Do not" or "Avoid".
+- MAY replace that list with a two-column Goals and Non-goals table only when the items correspond directly and the table makes the comparison easier to read.
 - SHOULD add the **System design › Alternatives considered** subsection whenever a reviewer would reasonably ask "why not the other approach?".
+
+## Todo
+
+Todo tells the reader what will be changed or created without duplicating what the result must do or how it will be verified.
+
+**Guidelines:**
+
+- MUST place Todo immediately after Summary and write actionable deliverables or change surfaces as ordinary bullets, not task-list checkboxes.
+- MUST keep file, function, internal algorithm, completed-behavior, acceptance, and verification detail out of Todo.
+- MUST keep Todo fixed after plan approval rather than updating it as an implementation-progress tracker.
 
 ## Acceptance Criteria
 
