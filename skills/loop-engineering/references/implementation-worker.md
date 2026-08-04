@@ -20,6 +20,7 @@ Resolve in this order, taking the first that qualifies:
 - MUST resolve the executor after the plan-approval gate clears and before the first Phase 2 project-file edit, never earlier and never as an afterthought once editing has begun.
 - MUST NOT select an agent from a name substring, or because it merely holds file-editing tools. A general-purpose, default, exploratory, planning, research, or review-only agent does not qualify, because nothing portable guarantees it uses an implementation-appropriate model and effort, owns verification and diff self-check, creates cohesive commits, or honors the decision and escalation boundaries.
 - MUST fall back to single-agent mode when two or more non-explicit candidates remain ambiguous, rather than asking the human to choose on every run or launching competing workers.
+- MUST treat an agent catalog that cannot be enumerated at all as no qualifying candidate, and fall back the same way — a harness that will not say what it exposes has not said that a worker qualifies.
 - MUST treat single-agent fallback as a normal outcome that weakens no gate — planning, verification, review, and reporting are unchanged by it.
 
 ## Compatibility Preflight

@@ -405,14 +405,18 @@ describe("report-obligation-load.mjs", () => {
       // adequate to what it carries. The delegated path is optional at runtime
       // but its rules are not conditional in the corpus: an agent holding this
       // skill holds all of them, which is what this figure is for.
-      expect.soft(totals.ceilingObligations).toBe(360);
+      // The 361st is the independent review's nit on #201: the agent catalog
+      // being unenumerable was governed only through general preflight
+      // language, so it gained a rule naming the scenario.
+      expect.soft(totals.ceilingObligations).toBe(361);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
       // Drifted again from 25,250 in #201, by the eight reference files above,
-      // plus the same three-token professional-behavior edit noted at the floor.
-      expect.soft(totals.ceilingTokens).toBe(32_339);
+      // plus the same three-token professional-behavior edit noted at the floor,
+      // plus the two review nits that named their scenarios directly.
+      expect.soft(totals.ceilingTokens).toBe(32_394);
     });
   });
 
