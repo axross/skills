@@ -387,7 +387,7 @@ describe("report-obligation-load.mjs", () => {
       // self-check bullet had not been given the delegated carve-out its
       // neighbour got, so a reader could take it to mean the main actor redoes
       // the worker's full diff review after reclaiming the lease.
-      expect.soft(totals.floorTokens).toBe(7_703);
+      expect.soft(totals.floorTokens).toBe(7_704);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -409,13 +409,17 @@ describe("report-obligation-load.mjs", () => {
       // adequate to what it carries. The delegated path is optional at runtime
       // but its rules are not conditional in the corpus: an agent holding this
       // skill holds all of them, which is what this figure is for.
-      // Net zero across #201's two review rounds, from two moves that cancel.
-      // Round 1 added one: the agent catalog being unenumerable was governed
-      // only through general preflight language, so it gained a rule naming the
-      // scenario. Round 2 removed one: the byte-faithful-channel rule was
-      // stated in both github-conventions.md and run-state-and-reporting.md,
-      // and the latter now points at the former instead of restating it.
-      expect.soft(totals.ceilingObligations).toBe(360);
+      // Three later moves in #201, netting +1. Review round 1 added one: the
+      // agent catalog being unenumerable was governed only through general
+      // preflight language, so it gained a rule naming the scenario. Round 2
+      // removed one: the byte-faithful-channel rule was stated in both
+      // github-conventions.md and run-state-and-reporting.md, and the latter
+      // now points at the former. Plan revision 2 added one: executor
+      // resolution was screening for responsibilities the implementation
+      // package already supplies, which excluded the generic implementation
+      // workers a harness ships built in, so the exclusion rule split into an
+      // exclusion and a tie-break.
+      expect.soft(totals.ceilingObligations).toBe(361);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -423,7 +427,7 @@ describe("report-obligation-load.mjs", () => {
       // Drifted again from 25,250 in #201, by the eight reference files above,
       // plus the same three-token professional-behavior edit noted at the floor,
       // plus the two review nits that named their scenarios directly.
-      expect.soft(totals.ceilingTokens).toBe(32_399);
+      expect.soft(totals.ceilingTokens).toBe(32_566);
     });
   });
 

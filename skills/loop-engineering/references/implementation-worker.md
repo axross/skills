@@ -6,20 +6,23 @@ The main actor remains the only long-lived actor. A worker is a bounded executio
 
 ## Executor Resolution
 
-A worker qualifies by what its configuration says it does, not by what its name suggests. Resolution runs once per phase, after approval and before any project-file edit.
+A worker qualifies by what it can do — not by what its name suggests, and not by what its definition declares itself responsible for. Resolution runs once per phase, after approval and before any project-file edit.
 
 Resolve in this order, taking the first that qualifies:
 
 1. an implementation worker the project or host instructions name explicitly
-2. a custom agent whose declared configuration or description explicitly covers implementation, verification, diff self-check, and cohesive local commits
-3. a harness-built-in worker explicitly documented for execution, implementation, or production work
+2. a custom agent that can implement and whose declared purpose does not exclude implementing
+3. a harness-built-in worker that can implement and whose declared purpose does not exclude implementing
 4. the main actor, in single-agent fallback
+
+Screen only for what the implementation package cannot supply. The package carries the decision boundary, the verification obligation, the commit discipline, and the writer lease — that boundary is owned by the main actor and delivered per run, never expected from the worker. What the package cannot supply is execution capability and the model the worker runs. Capability is therefore what resolution checks, and a generic implementation-capable worker qualifies without a definition restating the contract it is about to be handed.
 
 **Guidelines:**
 
 - MUST resolve the executor after the plan-approval gate clears and before the first Phase 2 project-file edit, never earlier and never as an afterthought once editing has begun.
-- MUST NOT select an agent from a name substring, or because it merely holds file-editing tools. A general-purpose, default, exploratory, planning, research, or review-only agent does not qualify, because nothing portable guarantees it uses an implementation-appropriate model and effort, owns verification and diff self-check, creates cohesive commits, or honors the decision and escalation boundaries.
-- MUST fall back to single-agent mode when two or more non-explicit candidates remain ambiguous, rather than asking the human to choose on every run or launching competing workers.
+- MUST NOT require an agent definition to declare implementation responsibilities, and MUST NOT select an agent from a name substring.
+- MUST exclude an agent only where it cannot implement — no file editing, no command execution, no commit creation, no way to report back — or where its own definition forbids implementing, as a read-only, review-only, or explicitly non-editing agent does. Failing to declare implementation is not grounds for exclusion.
+- MUST break the tie rather than abandon delegation where more than one candidate qualifies: prefer the declared purpose closest to implementation, then the harness's documented default implementation worker, then single-agent fallback. Ambiguity alone must not force fallback, because the qualifying set is deliberately broad and that rule would suppress delegation in the common case.
 - MUST treat an agent catalog that cannot be enumerated at all as no qualifying candidate, and fall back the same way — a harness that will not say what it exposes has not said that a worker qualifies.
 - MUST treat single-agent fallback as a normal outcome that weakens no gate — planning, verification, review, and reporting are unchanged by it.
 

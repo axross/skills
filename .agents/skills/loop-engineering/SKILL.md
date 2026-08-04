@@ -66,7 +66,7 @@ Delegation happens only where the harness already exposes a worker that qualifie
 
 See [implementation-worker.md](./references/implementation-worker.md) for:
 
-- the four-step executor resolution order, and why a general-purpose or default agent does not qualify
+- the four-step executor resolution order, and why capability rather than a declared responsibility decides
 - the compatibility preflight that runs before the writer lease is granted, including the visual-capability check
 - classifying model and effort as verified, declared, or unknown
 
