@@ -387,6 +387,10 @@ describe("report-obligation-load.mjs", () => {
       // self-check bullet had not been given the delegated carve-out its
       // neighbour got, so a reader could take it to mean the main actor redoes
       // the worker's full diff review after reclaiming the lease.
+      // The last 1 is plan revision 2's: SKILL.md's routing bullet named the
+      // old exclusion ("why a general-purpose or default agent does not
+      // qualify") and had to name the new criterion instead ("why capability
+      // rather than a declared responsibility decides").
       expect.soft(totals.floorTokens).toBe(7_704);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
@@ -427,6 +431,12 @@ describe("report-obligation-load.mjs", () => {
       // Drifted again from 25,250 in #201, by the eight reference files above,
       // plus the same three-token professional-behavior edit noted at the floor,
       // plus the two review nits that named their scenarios directly.
+      // The last 167 are plan revision 2's, and land almost entirely in
+      // implementation-worker.md: the resolution criterion inverted from what
+      // an agent's definition declares to what it can do, which took a new
+      // paragraph stating that resolution screens only for what the package
+      // cannot supply, plus an exclusion rule and a tie-break in place of the
+      // single ambiguity rule they replaced.
       expect.soft(totals.ceilingTokens).toBe(32_566);
     });
   });
