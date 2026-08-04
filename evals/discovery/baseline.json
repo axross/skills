@@ -18,7 +18,18 @@
     "boundary-vitest-browser-flake",
     "zod-default-vs-prefault",
     "zod-boundary-fetch-cast",
-    "zod-coerce-empty-number"
+    "zod-coerce-empty-number",
+    "jest-esm-transform",
+    "jest-esm-module-mock",
+    "cm-long-function-split",
+    "cr-branch-diff-review",
+    "as-render-user-markdown",
+    "asa-tighten-description",
+    "asm-installed-copies-drift",
+    "le-deliver-issue",
+    "pb-verify-before-answering",
+    "sd-how-to-run-tests",
+    "qa-was-this-verified"
   ],
   "cases": {
     "wf-checkout-layout": {
