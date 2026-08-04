@@ -33,6 +33,28 @@ Acceptance criteria are the contract the reviewer checks the finished pull reque
 - MUST cover the not-default paths the change touches — empty, error, loading, unauthorized, and boundary states — not only the happy path.
 - SHOULD state the criterion in terms of user- or caller-visible behavior, so it survives an implementation change.
 
+## Plan Revision Identity
+
+A plan that can be delegated needs a name for _which_ plan was approved. Human approval binds to that identity, and a worker checks it before editing — so an edit made after the plan moved is caught rather than discovered later in review.
+
+The **canonical plan content** is the issue body from its first section heading through the end of Open questions, excluding the status block and any archived original description. The boundary is stated in headings rather than HTML constructs because a sanitizing read removes the latter and leaves the former intact.
+
+**Guidelines:**
+
+- MUST derive a stable revision for the canonical plan content — a digest of it, or another immutable identity offering equivalent guarantees — store it in the status block, bind the human's approval to it, carry it in any implementation package, and invalidate approval when the canonical content changes.
+- MUST NOT treat an issue-wide `updated_at` timestamp as that identity on its own; unrelated issue metadata moves it.
+- MUST decode HTML character references, numeric and named alike, before comparing — and apply no other normalization, since each further rule is another way for a real difference to be masked.
+- MUST stop before editing on a mismatch, whichever of its two causes applies: the plan moved, or the channel degraded the read. Distinguishing them is the main actor's job, not the reader's.
+
+## Archiving the Original Description
+
+The original description is provenance rather than specification, and the canonical content above already excludes it. Where the body cannot spare the room, it belongs in a marked comment instead of a collapsed section — a comment is reachable through any read channel, and a collapsed section is not.
+
+**Guidelines:**
+
+- MUST NOT compose a new body from a body read back through a sanitizing channel; such a read silently drops the collapsed section, the status block, and angle-bracket text in the prose.
+- SHOULD move the original description into a marked archival comment, leaving a link to it in the body, whenever keeping it inline would leave no room for a later plan revision to rewrite the body.
+
 ## Visual Change Options
 
 Any visual change — a public surface, the application UI, or an admin view a human operates — is decided by the human at the plan-approval gate from a set of options, never from a single implied design. The visual direction is therefore never a Must-ask question; it is settled through this exhibit.

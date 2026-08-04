@@ -364,14 +364,23 @@ describe("report-obligation-load.mjs", () => {
     it("reproduces the floor and ceiling the tracking issue records", async () => {
       const totals = totalsOf(report("--mandated").stdout);
 
-      expect.soft(totals.floorObligations).toBe(20);
+      // Drifted from 20 in #201, which added the optional delegated
+      // implementation path. Three OBLIGATION bullets reached loop-engineering's
+      // own body: keeping judgment and delivery with the main actor whether or
+      // not implementation is delegated, the Phase 4 permission to delegate a
+      // mechanical fix, and the retry cap in the Termination Guard. The
+      // contracts themselves went to references, which is why the floor moved
+      // by three while the ceiling moved by seventy.
+      expect.soft(totals.floorObligations).toBe(23);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. The fold lowered
       // this figure and the co-notation raised part of it back. Both are prose
       // edits, which is why the obligation counts beside these token figures
       // never moved at all.
-      expect.soft(totals.floorTokens).toBe(6_776);
+      // Drifted again from 6,776 in #201, by the routing and state-machine
+      // prose the delegated path added to the body.
+      expect.soft(totals.floorTokens).toBe(7_658);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -383,12 +392,23 @@ describe("report-obligation-load.mjs", () => {
       // "use the tool whenever the session exposes one" from "fall back to the
       // turn output only where none exists". One rule carrying both read as
       // permission to skip the tool whenever you expected it to be missing.
-      expect.soft(totals.ceilingObligations).toBe(290);
+      // Drifted from 290 in #201 — the largest single move this figure has
+      // taken. Four new loop-engineering references carry the delegated path's
+      // contracts (worker resolution and preflight, the implementation package
+      // and its artifact-fidelity rules, execution while a worker holds the
+      // writer lease, and writer ownership with retry and recovery), and four
+      // existing ones gained plan-revision identity, delegated run state,
+      // reconstructing a lost worker, and reading a body through a channel
+      // adequate to what it carries. The delegated path is optional at runtime
+      // but its rules are not conditional in the corpus: an agent holding this
+      // skill holds all of them, which is what this figure is for.
+      expect.soft(totals.ceilingObligations).toBe(360);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      expect.soft(totals.ceilingTokens).toBe(25_250);
+      // Drifted again from 25,250 in #201, by the eight reference files above.
+      expect.soft(totals.ceilingTokens).toBe(32_277);
     });
   });
 
