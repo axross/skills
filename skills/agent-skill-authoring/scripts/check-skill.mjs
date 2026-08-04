@@ -130,6 +130,69 @@ const NAME_MAX = 64;
 // both readings.
 const DESCRIPTION_MAX_BYTES = 1024;
 
+// A plain (unquoted) YAML scalar is read specially when it carries one of the
+// constructs below, so a `description` containing one either fails to parse or
+// — worse — parses to something other than what was written. Either way the
+// skill does not load with the text its author meant, while a regex-based
+// reader like this one sees nothing wrong.
+//
+// The set is EMPIRICAL, derived by running each construct through a real YAML
+// parser rather than from the specification's indicator table, because the two
+// disagree in both directions. `\` and `~` lead a plain scalar perfectly
+// legally and rejecting them would fail correct skills; `#`, and `-`/`?`/`:`
+// before a space, are hazards the indicator table alone does not obviously
+// predict. A construct is listed here only if a parser was observed to reject
+// or silently transform it.
+//
+// Silent transformation is the reason this is a failure rather than a warning.
+// `a #b` parses to `a` and `&x text` parses to `text`: no error anywhere, and
+// the skill loads carrying a description its author never wrote.
+
+// `:` before whitespace or at end of value — opens a nested mapping.
+const YAML_COLON_HAZARD_RE = /:(\s|$)/;
+// `#` at the start, or after whitespace — opens a comment and truncates.
+const YAML_COMMENT_HAZARD_RE = /(^|\s)#/;
+// Hazardous as the FIRST character whatever follows.
+const YAML_LEADING_ALWAYS = new Set(["[", "{", "]", "}", ",", "&", "*", "!", "|", ">", "%", "@", "`", '"', "'", "#"]);
+// Hazardous as the first character only when a space (or nothing) follows;
+// `- x` is a list item, `? x` a complex key, `: x` a value.
+const YAML_LEADING_BEFORE_SPACE = new Set(["-", "?", ":"]);
+
+// The escapes YAML defines inside a DOUBLE-quoted scalar, mapped to what they
+// produce. The set is closed: `\d`, `\s`, `\w` and every other undefined
+// sequence is a parse error, NOT a literal backslash. Accepting them would
+// reintroduce this check's own defect through the quoting path — a value the
+// validator passes and no host can load.
+//
+// Verified against a real parser rather than transcribed, on the same reasoning
+// as the hazard set above.
+const YAML_DQUOTE_ESCAPES = new Map([
+  ["0", "\0"],
+  ["a", "\x07"],
+  ["b", "\b"],
+  ["t", "\t"],
+  ["\t", "\t"],
+  ["n", "\n"],
+  ["v", "\v"],
+  ["f", "\f"],
+  ["r", "\r"],
+  ["e", "\x1b"],
+  [" ", " "],
+  ['"', '"'],
+  ["/", "/"],
+  ["\\", "\\"],
+  ["N", "\x85"],
+  ["_", "\xa0"],
+  ["L", "\u2028"],
+  ["P", "\u2029"],
+]);
+// The numeric forms, each taking a fixed run of hex digits after the marker.
+const YAML_DQUOTE_HEX_ESCAPES = new Map([
+  ["x", 2],
+  ["u", 4],
+  ["U", 8],
+]);
+
 // Capability-framing advisories (warnings only — see the header note).
 const DOC_NAME_SUFFIX_RE =
   /-(guidelines|best-practices|principles|conventions|rules|requirements)$/;
@@ -314,6 +377,130 @@ function splitFrontmatter(text) {
     if (match) fields[match[1]] = match[2];
   }
   return { fields, body, offset };
+}
+
+/**
+ * Read a frontmatter scalar the way a YAML parser would, without being one.
+ * Returns `{ value, error }`: `value` is the unwrapped string a parser would
+ * produce, or null when `error` is set.
+ *
+ * Three forms are recognized. A double-quoted value unwraps and unescapes; a
+ * single-quoted value unwraps and collapses `''` to `'`; anything else is a
+ * plain scalar, which is returned as-is unless it carries a construct from the
+ * hazard set above.
+ *
+ * Unwrapping has to happen BEFORE the byte cap and the framing check run.
+ * Otherwise quotes and escapes count against the 1024-byte budget an author
+ * did not spend, and the document-voice regex matches a leading `"` instead of
+ * the first word.
+ *
+ * This is deliberately not a YAML implementation. It covers the forms a
+ * frontmatter scalar is written in, and its job is to refuse anything it
+ * cannot read confidently rather than to guess.
+ */
+function readScalar(raw) {
+  // Whitespace around a scalar is syntax, not value — a parser strips it on
+  // both sides. Trimming BOTH matters: with only the trailing side stripped,
+  // `description:  "x"` (a second space before the quote) would not be seen as
+  // quoted at all, and would be read as plain text that happens to start with
+  // a quote character.
+  const text = raw.trim();
+  if (text === "") return { value: "", error: null };
+
+  const quote = text[0];
+  if (quote === '"' || quote === "'") {
+    if (text.length < 2 || text[text.length - 1] !== quote) {
+      return {
+        value: null,
+        error: `opens with ${quote === '"' ? "a double" : "a single"} quote but does not close — a quoted value must end with the same quote.`,
+      };
+    }
+    const inner = text.slice(1, -1);
+
+    if (quote === "'") {
+      // Inside single quotes only `''` is special. An odd-length run of quotes
+      // means one of them terminates the scalar early.
+      for (const run of inner.match(/'+/g) ?? []) {
+        if (run.length % 2 !== 0) {
+          return {
+            value: null,
+            error: "carries an unpaired `'` inside a single-quoted value — double it to `''` to mean a literal quote.",
+          };
+        }
+      }
+      return { value: inner.replace(/''/g, "'"), error: null };
+    }
+
+    // Inside double quotes a `"` must be backslash-escaped. Walk the string so
+    // an escaped backslash before a quote (`\\"`) is read as terminating.
+    let out = "";
+    for (let i = 0; i < inner.length; i++) {
+      const ch = inner[i];
+      if (ch !== "\\") {
+        if (ch === '"') {
+          return {
+            value: null,
+            error: 'carries an unescaped `"` inside a double-quoted value — write it as `\\"`.',
+          };
+        }
+        out += ch;
+        continue;
+      }
+      const next = inner[i + 1];
+      if (next === undefined) {
+        return { value: null, error: "ends with a dangling `\\` inside a double-quoted value." };
+      }
+      const hexDigits = YAML_DQUOTE_HEX_ESCAPES.get(next);
+      if (hexDigits !== undefined) {
+        const digits = inner.slice(i + 2, i + 2 + hexDigits);
+        if (digits.length < hexDigits || !/^[0-9a-fA-F]+$/.test(digits)) {
+          return {
+            value: null,
+            error: `carries \`\\${next}\` with fewer than ${hexDigits} hex digits after it inside a double-quoted value.`,
+          };
+        }
+        out += String.fromCodePoint(Number.parseInt(digits, 16));
+        i += 1 + hexDigits;
+        continue;
+      }
+      if (!YAML_DQUOTE_ESCAPES.has(next)) {
+        return {
+          value: null,
+          error: `carries \`\\${next}\`, which YAML does not define as an escape inside a double-quoted value — use single quotes, or double the backslash.`,
+        };
+      }
+      out += YAML_DQUOTE_ESCAPES.get(next);
+      i++;
+    }
+    return { value: out, error: null };
+  }
+
+  const lead = text[0];
+  if (YAML_LEADING_ALWAYS.has(lead)) {
+    return {
+      value: null,
+      error: `begins with \`${lead}\`, which YAML reads as an indicator rather than text — quote the value.`,
+    };
+  }
+  if (YAML_LEADING_BEFORE_SPACE.has(lead) && (text.length === 1 || /\s/.test(text[1]))) {
+    return {
+      value: null,
+      error: `begins with \`${lead}\` followed by a space, which YAML reads as an indicator rather than text — quote the value.`,
+    };
+  }
+  if (YAML_COLON_HAZARD_RE.test(text)) {
+    return {
+      value: null,
+      error: "contains `: ` (a colon before a space or at the end), which YAML reads as opening a nested mapping — quote the value.",
+    };
+  }
+  if (YAML_COMMENT_HAZARD_RE.test(text)) {
+    return {
+      value: null,
+      error: "contains ` #`, which YAML reads as starting a comment and silently truncates the value — quote it.",
+    };
+  }
+  return { value: text, error: null };
 }
 
 /**
@@ -874,8 +1061,14 @@ async function checkSkill(dir) {
       }
     }
 
-    const description = fields.description;
-    if (!description) {
+    const rawDescription = fields.description;
+    const scalar = rawDescription === undefined ? { value: null, error: null } : readScalar(rawDescription);
+    const description = scalar.value;
+    if (scalar.error) {
+      // Reported instead of the length and framing checks, not alongside them:
+      // until the value can be read, its length and opening words are unknown.
+      failures.push(`frontmatter: \`description\` ${scalar.error}`);
+    } else if (!description) {
       failures.push("frontmatter: `description` is missing or empty.");
     } else {
       const descriptionBytes = Buffer.byteLength(description, "utf8");

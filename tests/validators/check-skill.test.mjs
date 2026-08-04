@@ -807,6 +807,257 @@ describe("check-skill.mjs", () => {
     });
   });
 
+  describe("a description YAML would read as something other than text", () => {
+    // The defect's symptom is a PASS: this validator reads frontmatter with a
+    // regex, so a construct YAML treats specially sails through and the skill
+    // then fails to load on every host — with the merge gate green throughout.
+    // Every expectation below was checked against a real YAML parser, and the
+    // whole set was mutation-checked by disabling the hazard detection, which
+    // turns the rejection cases red.
+    //
+    // Two of these are worse than a parse error. `a #b` parses to `a` and
+    // `&x text` parses to `text` — no error anywhere, just a description the
+    // author never wrote. Those are why this is a failure, not a warning.
+
+    /** @param {string} description */
+    const withDescription = (root, dirName, description) =>
+      writeSkill(root, dirName, { raw: `---\nname: ${dirName}\ndescription: ${description}\n---\n\n# Fixture\n\nBody prose.\n` });
+
+    describe("rejects an unquoted value carrying a hazard", () => {
+      const cases = [
+        {
+          what: "a colon before a space, which opens a nested mapping",
+          dirName: "colon-space",
+          description: "The agentskills.io format: capability framing and discovery metadata.",
+          reported: /`description` contains `: `.*nested mapping.*quote the value/,
+        },
+        {
+          what: "a colon at the end of the value",
+          dirName: "colon-end",
+          description: "The ability to do the thing described after this colon:",
+          reported: /`description` contains `: `.*nested mapping/,
+        },
+        {
+          what: "a hash after a space, which truncates the value silently",
+          dirName: "space-hash",
+          description: "The ability to review a change # and everything after this vanishes.",
+          reported: /`description` contains ` #`.*silently truncates/,
+        },
+        {
+          what: "an indicator character leading the value",
+          dirName: "leading-bracket",
+          description: "[bracketed] opening that YAML reads as a flow sequence.",
+          reported: /`description` begins with `\[`.*indicator rather than text/,
+        },
+        {
+          what: "an anchor character leading the value, which is dropped silently",
+          dirName: "leading-ampersand",
+          description: "&anchor followed by the text a reader would expect to survive.",
+          reported: /`description` begins with `&`.*indicator rather than text/,
+        },
+        {
+          what: "a hyphen and a space, which YAML reads as a list item",
+          dirName: "leading-hyphen-space",
+          description: "- an opening that reads as a list item rather than a value.",
+          reported: /`description` begins with `-` followed by a space/,
+        },
+      ];
+
+      for (const { what, dirName, description, reported } of cases) {
+        it(`rejects ${what}`, async () => {
+          const root = await tempDir();
+          const dir = await withDescription(root, dirName, description);
+
+          expectFailure(dir, reported);
+        });
+      }
+    });
+
+    describe("leaves a legal plain scalar alone", () => {
+      const cases = [
+        {
+          what: "a colon with no following space",
+          dirName: "colon-tight",
+          description: "The OWASP Top 10:2025 lens applied to a change under review.",
+        },
+        {
+          what: "a hash with no preceding space",
+          dirName: "hash-tight",
+          description: "The ability to route a change through issue#197 and its follow-ups.",
+        },
+        {
+          what: "a hyphen with no following space",
+          dirName: "hyphen-tight",
+          description: "-prefixed opening that YAML reads as ordinary text, not a list item.",
+        },
+        {
+          // `\` and `~` sit in the specification's indicator table but lead a
+          // plain scalar legally. Rejecting them would fail a correct skill,
+          // which is why the hazard set was derived from a parser rather than
+          // from that table.
+          what: "a backslash leading the value",
+          dirName: "leading-backslash",
+          description: "\\escaped-looking opening that a YAML parser reads as plain text.",
+        },
+        {
+          what: "a tilde leading the value",
+          dirName: "leading-tilde",
+          description: "~approximately the opening character that reads as plain text here.",
+        },
+        {
+          what: "brackets and braces inside the value",
+          dirName: "inner-brackets",
+          description: "The ability to handle [brackets] and {braces} away from the opening.",
+        },
+      ];
+
+      for (const { what, dirName, description } of cases) {
+        it(`accepts ${what}`, async () => {
+          const root = await tempDir();
+          const dir = await withDescription(root, dirName, description);
+
+          expect(checkSkill(dir), "a construct a YAML parser reads faithfully must stay legal unquoted").toPassCleanly();
+        });
+      }
+    });
+
+    describe("accepts a hazard once it is quoted", () => {
+      it("reads a double-quoted value", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "dquoted", '"The agentskills.io format: capability framing, quoted so it parses."');
+
+        expect(checkSkill(dir)).toPassCleanly();
+      });
+
+      it("reads a single-quoted value", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "squoted", "'The agentskills.io format: capability framing, quoted so it parses.'");
+
+        expect(checkSkill(dir)).toPassCleanly();
+      });
+
+      it("reads an escaped quote inside a double-quoted value", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "dquoted-escape", '"The ability to handle a \\" inside a value that also carries a colon: here."');
+
+        expect(checkSkill(dir)).toPassCleanly();
+      });
+
+      it("reads a doubled quote inside a single-quoted value", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "squoted-double", "'The ability to handle it''s apostrophe beside a colon: in one value.'");
+
+        expect(checkSkill(dir)).toPassCleanly();
+      });
+
+      it("measures the byte cap against the unwrapped value, so quoting costs no budget", async () => {
+        const root = await tempDir();
+        // 1024 bytes of content inside quotes: 1026 bytes on the line, 1024
+        // once unwrapped. Counting the raw line would fail this.
+        const inner = `The ability to ${"x".repeat(1009)}`;
+        expect(Buffer.byteLength(inner, "utf8"), "fixture must sit exactly at the cap").toBe(1024);
+        const dir = await withDescription(root, "quoted-at-cap", `"${inner}"`);
+
+        expect(checkSkill(dir), "quotes and escapes are syntax, not description budget").toPassCleanly();
+      });
+    });
+
+    describe("rejects a quoted value it cannot read", () => {
+      const cases = [
+        {
+          what: "an unterminated double quote",
+          dirName: "dquote-open",
+          description: '"The ability to open a quote and never close it.',
+          reported: /`description` opens with a double quote but does not close/,
+        },
+        {
+          what: "an unterminated single quote",
+          dirName: "squote-open",
+          description: "'The ability to open a quote and never close it.",
+          reported: /`description` opens with a single quote but does not close/,
+        },
+        {
+          what: "an unescaped quote inside a double-quoted value",
+          dirName: "dquote-inner",
+          description: '"The ability to carry an unescaped " inside a quoted value."',
+          reported: /`description` carries an unescaped `"`.*write it as `\\"`/,
+        },
+        {
+          what: "an unpaired quote inside a single-quoted value",
+          dirName: "squote-inner",
+          description: "'The ability to carry an unpaired ' inside a quoted value.'",
+          reported: /`description` carries an unpaired `'`.*double it/,
+        },
+      ];
+
+      for (const { what, dirName, description, reported } of cases) {
+        it(`rejects ${what}`, async () => {
+          const root = await tempDir();
+          const dir = await withDescription(root, dirName, description);
+
+          expectFailure(dir, reported);
+        });
+      }
+
+      // YAML defines a CLOSED escape set inside double quotes. Accepting an
+      // undefined sequence as a literal backslash would reintroduce this
+      // check's own defect through the quoting path it adds: a value the
+      // validator passes and no host can load. Found by the independent
+      // review, on a fuzz wider than the differential this change shipped with.
+      const undefinedEscapes = [
+        { what: "\\d", dirName: "escape-d", description: '"Regex-flavored \\d+ matched inline in a description of some length."' },
+        { what: "\\s", dirName: "escape-s", description: '"Regex-flavored \\s* matched inline in a description of some length."' },
+        { what: "\\w", dirName: "escape-w", description: '"Regex-flavored \\w+ matched inline in a description of some length."' },
+        { what: "\\'", dirName: "escape-squote", description: '"An escaped \\\' apostrophe, which is legal in neither quote style."' },
+      ];
+
+      for (const { what, dirName, description } of undefinedEscapes) {
+        it(`rejects \`${what}\`, which YAML does not define as an escape`, async () => {
+          const root = await tempDir();
+          const dir = await withDescription(root, dirName, description);
+
+          expectFailure(dir, new RegExp(`\`description\` carries \`\\\\${what.slice(1)}\`, which YAML does not define`));
+        });
+      }
+
+      it("accepts every escape YAML does define", async () => {
+        const root = await tempDir();
+        // The whole closed set in one value, so a shrunken map fails here.
+        const dir = await withDescription(
+          root,
+          "escapes-legal",
+          '"Legal escapes \\0\\a\\b\\t\\n\\v\\f\\r\\e\\ \\"\\/\\\\\\N\\_\\L\\P and numerics \\x41\\u0041\\U00000041 together."',
+        );
+
+        expect(checkSkill(dir)).toPassCleanly();
+      });
+
+      it("rejects a numeric escape with too few hex digits", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "escape-short-hex", '"A truncated \\x4 numeric escape inside a description of some length."');
+
+        expectFailure(dir, /`description` carries `\\x` with fewer than 2 hex digits/);
+      });
+
+      it("leaves a backslash alone inside single quotes, where it is literal text", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "escape-single", "'Regex-flavored \\d+ is literal here, beside a colon: in one value.'");
+
+        expect(checkSkill(dir), "single-quoted YAML has no escapes but `''`, so a backslash is just a character").toPassCleanly();
+      });
+
+      it("distinguishes a malformed quote from a hazard, so the remedy differs", async () => {
+        const root = await tempDir();
+        const dir = await withDescription(root, "malformed-not-hazard", '"The ability to leave this quote open: forever.');
+
+        const result = checkSkill(dir);
+
+        expect(result).toReportFailure(/does not close/);
+        expect.soft(result.stdout, "telling an author to quote an already-quoted value would not help").not.toMatch(/quote the value/);
+      });
+    });
+  });
+
   describe("advisory warnings — reported, never fatal", () => {
     /** A SKILL.md of exactly `bytes` UTF-8 bytes, padded with single-byte prose. */
     const skillOfBytes = (dirName, bytes) => {
