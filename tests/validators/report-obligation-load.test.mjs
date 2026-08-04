@@ -379,8 +379,11 @@ describe("report-obligation-load.mjs", () => {
       // edits, which is why the obligation counts beside these token figures
       // never moved at all.
       // Drifted again from 6,776 in #201, by the routing and state-machine
-      // prose the delegated path added to the body.
-      expect.soft(totals.floorTokens).toBe(7_658);
+      // prose the delegated path added to the body. The last 3 of it are not
+      // that branch's: #201 merged main and carried professional-behavior's
+      // `description` edit into the source it had been applied around, which
+      // lengthened the opening clause by eight bytes.
+      expect.soft(totals.floorTokens).toBe(7_661);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -407,8 +410,9 @@ describe("report-obligation-load.mjs", () => {
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      // Drifted again from 25,250 in #201, by the eight reference files above.
-      expect.soft(totals.ceilingTokens).toBe(32_336);
+      // Drifted again from 25,250 in #201, by the eight reference files above,
+      // plus the same three-token professional-behavior edit noted at the floor.
+      expect.soft(totals.ceilingTokens).toBe(32_339);
     });
   });
 
