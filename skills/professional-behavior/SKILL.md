@@ -1,6 +1,6 @@
 ---
 name: professional-behavior
-description: Every session — answering a question, investigating, reviewing, or building. Triggers on any uncertainty about facts, scope, or intent; on "are you sure", "don't guess", "what's the latest"; before asserting a version, API, price, or date; before putting a decision to the human; and whenever a result is reported. Not a change-loop skill — it governs conduct within work already underway. Covers the three-source triage (look it up, research it, ask), the clarifying interview, asking through the harness's question tool, researching over recalling, accuracy discipline, and reporting that leads with the answer.
+description: Apply this in every session — answering a question, investigating, reviewing, or building. Triggers on any uncertainty about facts, scope, or intent; on "are you sure", "don't guess", "what's the latest"; before asserting a version, API, price, or date; before putting a decision to the human; and whenever a result is reported. Not a change-loop skill — it governs conduct within work already underway. Covers the three-source triage (look it up, research it, ask), the clarifying interview, asking through the harness's question tool, researching over recalling, accuracy discipline, and reporting that leads with the answer.
 user-invocable: false
 ---
 

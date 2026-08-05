@@ -364,17 +364,37 @@ describe("report-obligation-load.mjs", () => {
     it("reproduces the floor and ceiling the tracking issue records", async () => {
       const totals = totalsOf(report("--mandated").stdout);
 
-      expect.soft(totals.floorObligations).toBe(20);
+      // Drifted from 20 in #201, which added the optional delegated
+      // implementation path. Three OBLIGATION bullets reached loop-engineering's
+      // own body: keeping judgment and delivery with the main actor whether or
+      // not implementation is delegated, the Phase 4 permission to delegate a
+      // mechanical fix, and the retry cap in the Termination Guard. The
+      // contracts themselves went to references, which is why the floor moved
+      // by three while the ceiling moved by seventy.
+      expect.soft(totals.floorObligations).toBe(23);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. The fold lowered
       // this figure and the co-notation raised part of it back. Both are prose
       // edits, which is why the obligation counts beside these token figures
       // never moved at all.
-      // Drifted from 6,776 in #203 when loop-engineering stopped naming a
-      // fixed section count in its parent routing line; the canonical plan can
-      // now evolve without requiring that summary to be updated again.
-      expect.soft(totals.floorTokens).toBe(6_773);
+      // Drifted again from 6,776 in #201, by the routing and state-machine
+      // prose the delegated path added to the body. The last 3 of it are not
+      // that branch's: #201 merged main and carried professional-behavior's
+      // `description` edit into the source it had been applied around, which
+      // lengthened the opening clause by eight bytes.
+      // And 42 more from the review's second nit: Phase 2's reviewer-mode
+      // self-check bullet had not been given the delegated carve-out its
+      // neighbour got, so a reader could take it to mean the main actor redoes
+      // the worker's full diff review after reclaiming the lease.
+      // The last 1 is plan revision 2's: SKILL.md's routing bullet named the
+      // old exclusion ("why a general-purpose or default agent does not
+      // qualify") and had to name the new criterion instead ("why capability
+      // rather than a declared responsibility decides").
+      // Drifted from 7,704 in #203, which dropped the fixed section count from
+      // loop-engineering's parent routing line so the canonical plan structure
+      // can gain or lose a section without that summary going stale.
+      expect.soft(totals.floorTokens).toBe(7_701);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -386,17 +406,51 @@ describe("report-obligation-load.mjs", () => {
       // "use the tool whenever the session exposes one" from "fall back to the
       // turn output only where none exists". One rule carrying both read as
       // permission to skip the tool whenever you expected it to be missing.
-      // Drifted from 290 in #203. Loop-engineering's fallback gained the Todo
-      // rules and the conditional two-column Goals and Non-goals alternative;
-      // its replaced goal-framing rule left the rest of the count unchanged.
-      expect.soft(totals.ceilingObligations).toBe(294);
+      // Drifted from 290 in #201 — the largest single move this figure has
+      // taken. Four new loop-engineering references carry the delegated path's
+      // contracts (worker resolution and preflight, the implementation package
+      // and its artifact-fidelity rules, execution while a worker holds the
+      // writer lease, and writer ownership with retry and recovery), and four
+      // existing ones gained plan-revision identity, delegated run state,
+      // reconstructing a lost worker, and reading a body through a channel
+      // adequate to what it carries. The delegated path is optional at runtime
+      // but its rules are not conditional in the corpus: an agent holding this
+      // skill holds all of them, which is what this figure is for.
+      // Three later moves in #201, netting +1. Review round 1 added one: the
+      // agent catalog being unenumerable was governed only through general
+      // preflight language, so it gained a rule naming the scenario. Round 2
+      // removed one: the byte-faithful-channel rule was stated in both
+      // github-conventions.md and run-state-and-reporting.md, and the latter
+      // now points at the former. Plan revision 2 added one: executor
+      // resolution was screening for responsibilities the implementation
+      // package already supplies, which excluded the generic implementation
+      // workers a harness ships built in, so the exclusion rule split into an
+      // exclusion and a tie-break.
+      // Drifted from 361 in #203, net +4 in loop-engineering's fallback plan
+      // document. Three are the Todo section's own rules — where it sits and
+      // how its items are written, what detail stays out, and that it is fixed
+      // at approval rather than kept as a progress tracker — and the fourth is
+      // the conditional two-column Goals and Non-goals table. The single
+      // goal-framing rule the merged section replaced left the count level.
+      expect.soft(totals.ceilingObligations).toBe(365);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      // Drifted from 25,250 in #203 with the same fallback-plan additions that
-      // raised the ceiling obligation count above.
-      expect.soft(totals.ceilingTokens).toBe(25_471);
+      // Drifted again from 25,250 in #201, by the eight reference files above,
+      // plus the same three-token professional-behavior edit noted at the floor,
+      // plus the two review nits that named their scenarios directly.
+      // The last 167 are plan revision 2's, and land almost entirely in
+      // implementation-worker.md: the resolution criterion inverted from what
+      // an agent's definition declares to what it can do, which took a new
+      // paragraph stating that resolution screens only for what the package
+      // cannot supply, plus an exclusion rule and a tie-break in place of the
+      // single ambiguity rule they replaced.
+      // Drifted from 32,566 in #203, by the same fallback-plan additions that
+      // raised the ceiling obligation count above, plus the prose around them:
+      // the reordered nine-section list, the Todo section's framing paragraph,
+      // and the merged Goals and Non-goals rules.
+      expect.soft(totals.ceilingTokens).toBe(32_786);
     });
   });
 
