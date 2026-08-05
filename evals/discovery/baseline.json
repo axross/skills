@@ -18,7 +18,11 @@
     "boundary-vitest-browser-flake",
     "zod-default-vs-prefault",
     "zod-boundary-fetch-cast",
-    "zod-coerce-empty-number"
+    "zod-coerce-empty-number",
+    "lps-behaviour-change-invalidates-docs",
+    "lps-decision-record",
+    "lps-spec-first-boundary",
+    "lps-runbook-boundary"
   ],
   "cases": {
     "wf-checkout-layout": {

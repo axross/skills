@@ -336,6 +336,33 @@
       "mustInclude": ["zod-schema"],
       "mayInclude": ["react-component-development"],
       "rationale": "A symptom-shaped prompt that never says Zod is the subject: the cause is that JavaScript's Number(\"\") is 0, which zod-schema states concretely. react-component-development is the nearest neighbour that could fire on the form-field phrasing and owns a component's composition and state rather than what a validator does to a value, so its appearance is neither required nor wrong."
+    },
+    {
+      "id": "lps-behaviour-change-invalidates-docs",
+      "prompt": "We changed how invoices are generated. Update the docs that describe the billing behaviour.",
+      "mustInclude": ["living-product-specification"],
+      "rationale": "The upkeep trigger in its plainest form: a landed behaviour change has invalidated a document that describes the steady state. This is the case the skill exists for, so a miss here means the description never reaches the work it was written for."
+    },
+    {
+      "id": "lps-decision-record",
+      "prompt": "Record an architecture decision for choosing Postgres over DynamoDB.",
+      "mustInclude": ["living-product-specification"],
+      "mayInclude": ["technical-document-authoring"],
+      "rationale": "living-product-specification owns when a decision record is owed, how it is named, and how it is superseded. technical-document-authoring names ADR among the document types whose prose it improves, so its appearance is legitimate contention over one artefact rather than a spurious hit."
+    },
+    {
+      "id": "lps-spec-first-boundary",
+      "prompt": "Write the spec first, then generate the implementation from it.",
+      "mustInclude": ["product-requirement-document-authoring"],
+      "mustExclude": ["living-product-specification"],
+      "rationale": "Spec-driven development is the methodology living-product-specification disclaims in its own description: a plan drives the change there, while the corpus records what became true afterwards. If it fires on a spec-first prompt the disclaimer is not holding, and the prompt is routing away from the capability that owns a forward-looking spec."
+    },
+    {
+      "id": "lps-runbook-boundary",
+      "prompt": "Document how to run the test suite and deploy to staging.",
+      "mustInclude": ["technical-document-authoring"],
+      "mustExclude": ["living-product-specification"],
+      "rationale": "Runbooks and contributor instructions are named as out of scope in living-product-specification, which covers what the product is rather than how to operate its repository. A hit here would mean the corpus boundary is not carried by the discovery text."
     }
   ]
 }

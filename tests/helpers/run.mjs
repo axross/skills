@@ -32,6 +32,14 @@ export const SCRIPTS = {
   checkCommitMessage:
     "skills/conventional-commits/scripts/check-commit-message.mjs",
   checkWireframe: "skills/wireframe-design/scripts/check-wireframe.mjs",
+  checkIndex: "skills/living-product-specification/scripts/check-index.mjs",
+  checkReferences:
+    "skills/living-product-specification/scripts/check-references.mjs",
+  checkGlossary: "skills/living-product-specification/scripts/check-glossary.mjs",
+  checkDecisionNaming:
+    "skills/living-product-specification/scripts/check-decision-naming.mjs",
+  checkDecisionSupersede:
+    "skills/living-product-specification/scripts/check-decision-supersede.mjs",
   checkInstalledCopies:
     "skills/agent-skill-management/scripts/check-installed-copies.mjs",
   linkFreshness:

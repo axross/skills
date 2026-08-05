@@ -61,6 +61,11 @@
       "sourceType": "local",
       "computedHash": "1210ee0238b9d551fdac23da577f42139c8e45f8245df7908dad7f06d7b749d3"
     },
+    "living-product-specification": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "81769727af36b8775a31c8699faa83a55c99f6bbf8599cace5906c6fc056a4c4"
+    },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
@@ -104,7 +109,7 @@
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "889c5979ca9ef6fec9292406917b9d30c2cce30fe35864adf1ac981840549273"
+      "computedHash": "4e0206745837f4044ef23f89751dc0fcc68a5065ef0e15f6a15666593c480785"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",
