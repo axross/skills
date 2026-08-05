@@ -45,7 +45,7 @@ When a run flips its pull request to ready, that same chat turn doubles as a **v
 
 **Guidelines:**
 
-- MUST name, in the handoff and in any completion claim, the tracking issue, the pull request, and the independent review's outcome (round count and verdict), with links — a completion report that cannot cite its pull request and review is reporting work that is not ready.
+- MUST name, in the handoff and in any completion claim, the tracking issue, the pull request, the approved plan revision the work implements, and the independent review's outcome (round count and verdict), with links where they exist — a completion report that cannot cite its pull request, its plan revision, and its review is reporting work that is not ready.
 - MUST judge whether the change is human-observable first. Write the brief only when the change alters something a human can see or operate — a route, a rendered surface, a command, an admin view. For a purely internal change (build, refactor, non-visible logic) with nothing to walk through, say so in one line and stop.
 - MUST spell out what to exercise and how, derived from the plan's acceptance criteria and the changed surfaces: the specific routes, pages, or commands to open, and the states to exercise (loading, empty, error, responsive widths, theme, locale) where they apply.
 - SHOULD hand over a per-PR preview URL when the project deploys one — sourced from the newest preview-deploy comment and verified against the branch-head SHA, never constructed from memory. When there is no usable preview, give the local verification steps instead; never fabricate a URL.

@@ -447,7 +447,11 @@ describe("report-obligation-load.mjs", () => {
       // #203, #209, #208, #216, and #222 each moved this figure independently
       // and landed in that order; the value here is the measured total after
       // merging main, not any one branch's figure.
-      expect.soft(totals.floorTokens).toBe(8_209);
+      // And again in #212, which moved no obligation at all: Phase 4's gate
+      // rule and its intro prose were reworded to defer to the
+      // independent-review reference rather than enumerate the flip's
+      // conditions, so only bytes moved.
+      expect.soft(totals.floorTokens).toBe(8_229);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -601,12 +605,16 @@ describe("report-obligation-load.mjs", () => {
       // makes the rule follow-able had to be written out.
       // Measured after the same merge, for the same reason as the figure
       // above.
+      // #212 moved it once more, again with the obligation count above
+      // standing still: independent-review.md gained the paragraph stating the
+      // flip gate's three conditions, and four bullets across three files were
+      // reworded to point at it instead of restating the pair.
       // And 744 more in #229, for the seven obligations noted above plus the
       // prose that makes them follow-able: the paragraph separating capability
       // from permission, the one naming why neither neighbouring rule describes
       // a policy block, and the one on a conditional policy hiding the lever
       // that lifts it.
-      expect.soft(totals.ceilingTokens).toBe(38_962);
+      expect.soft(totals.ceilingTokens).toBe(39_195);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -650,20 +658,21 @@ describe("report-obligation-load.mjs", () => {
       // #211's own acceptance criterion quotes 361 as a snapshot at filing; the
       // criterion is measured against the base at merge time, as its own text
       // now says, because `main` moves these independently of this branch.
-      // Three of these four went stale on `main` before #229 opened, and are
-      // corrected here rather than by it: #222 moved the ceiling by four and
-      // both token figures with it, updating the totals above without updating
-      // this block, so the base carried 408 / 37,661 / 8,199 against a measured
-      // 412 / 38,218 / 8,209. #229's own contribution is the seven obligations
-      // and 744 tokens the totals note records — everything above that came
-      // from the base. The tiers are pinned separately from the totals for a
-      // reason, and this is the failure mode that argues for keeping them so:
-      // a total updated alone leaves the block that says WHICH tier moved
-      // asserting a corpus that no longer exists.
+      //
+      // THESE FOUR FIGURES ARE PINNED TWICE. The mandated-set assertions above
+      // state the same numbers, because tier 3 IS the whole mandated set — the
+      // closing assertions of this case say so. A branch that moves one copy
+      // and not the other merges without a textual conflict and reddens `main`
+      // on arrival: #223 added this copy while #224 was moving the other, and
+      // neither branch's CI could see the collision. Move both, or neither.
+      // #229 moved both, on the merge that brought #227's correction of this
+      // block into it — which is the warning above working as intended: the
+      // branch had moved only the copy above, and taking this block from the
+      // base is what surfaced the other half still to move.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_209);
+      expect.soft(tiers[2].floorTokens).toBe(8_229);
       expect.soft(tiers[2].ceilingObligations).toBe(419);
-      expect.soft(tiers[2].ceilingTokens).toBe(38_962);
+      expect.soft(tiers[2].ceilingTokens).toBe(39_195);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -682,8 +691,6 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      // Same figure as the tier block above, and stale on the base for the same
-      // reason; see the note there for what came from #222 and what from #229.
       expect(tiersOf(stdout)[2].ceilingObligations).toBe(419);
       expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(419);
     });
