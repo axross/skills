@@ -25,7 +25,7 @@ import { tempDir, writeFileIn, writeSkill } from "../helpers/fixtures.mjs";
 import { SCRIPTS, repoPath, validator } from "../helpers/run.mjs";
 
 const checkLinks = validator(SCRIPTS.checkLinks);
-const checkSkill = validator(SCRIPTS.checkSkill);
+const checkSkill = validator(SCRIPTS.checkSkillReferences);
 
 const NESTED_FENCE_FILE = repoPath(
   "skills/code-review/references/evidence-and-reporting.md",
@@ -182,7 +182,7 @@ describe("CommonMark fence parsing", () => {
     });
   });
 
-  describe("check-skill.mjs", () => {
+  describe("check-skill-references.mjs", () => {
     it("does not read a routing bullet nested inside a longer fence", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "nested-fence-skill", {

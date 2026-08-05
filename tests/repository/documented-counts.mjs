@@ -469,18 +469,18 @@ export const CLAIMS = {
   },
 
   "skill-description-byte-cap": {
-    owner: "DESCRIPTION_MAX_BYTES in skills/agent-skill-authoring/scripts/check-skill.mjs",
+    owner: "DESCRIPTION_MAX_BYTES in skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs",
     note: "AGENTS.md and REVIEW.md both state this cap, and nothing else ties the two copies together — the validator is the only authority",
     derive: async () => {
       const source = await readFile(
-        repoPath("skills/agent-skill-authoring/scripts/check-skill.mjs"),
+        repoPath("skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs"),
         "utf8",
       );
       return Number(
         anchored(
           source,
           /const DESCRIPTION_MAX_BYTES = (\d+);/,
-          "skills/agent-skill-authoring/scripts/check-skill.mjs",
+          "skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs",
           "the DESCRIPTION_MAX_BYTES constant",
         ),
       );
