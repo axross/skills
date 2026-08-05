@@ -213,7 +213,7 @@
       "mustInclude": ["sentry-instrumentation"],
       "mayInclude": ["software-instrumentation"],
       "repeats": 2,
-      "rationale": "A vendor-specific wiring failure — source maps, release/dist matching, the bundler wrapper. sentry-instrumentation's when_to_use names 'source maps' and 'an unsymbolicated stack trace' in as many words. software-instrumentation is legitimately adjacent because it owns error tracking generally, but owns none of these mechanics, so its appearance is neither required nor wrong."
+      "rationale": "A vendor-specific wiring failure — source maps, release/dist matching, the bundler wrapper. sentry-instrumentation's description names 'source maps' and 'an unsymbolicated stack trace' in as many words. software-instrumentation is legitimately adjacent because it owns error tracking generally, but owns none of these mechanics, so its appearance is neither required nor wrong."
     },
     {
       "id": "neg-log-level-vendor-neutral",
@@ -228,14 +228,14 @@
       "prompt": "Make our Expo app open the order screen when someone taps an orders/42 link.",
       "mustInclude": ["expo-app-development"],
       "mustExclude": ["next-app-development"],
-      "rationale": "\"Expo\" and deep linking are literal triggers in expo-app-development's when_to_use. next-app-development owns the library's other file-based router and scopes itself to the App Router, so its appearance on a prompt that names Expo would mean the two framework skills compete for each other's work."
+      "rationale": "\"Expo\" and \"deep link\" are literal triggers in expo-app-development's description. next-app-development owns the library's other file-based router and scopes itself to the App Router, so its appearance on a prompt that names Expo would mean the two framework skills compete for each other's work."
     },
     {
       "id": "expo-prebuild-permission",
       "prompt": "Add the camera permission through a config plugin and re-run prebuild.",
       "mustInclude": ["expo-app-development"],
       "mustExclude": ["react-component-development", "react-component-styling"],
-      "rationale": "\"prebuild\", config plugins and runtime permissions are all named in expo-app-development's text, and its when_to_use hands a component's composition and styling back to the React capabilities in as many words. Nothing here is a component, so either React skill firing is the over-reach that disclaimer exists to prevent."
+      "rationale": "\"prebuild\", config plugins and runtime permissions are all named in expo-app-development's text, and its description hands a component's composition, state and styling back to the React capabilities in as many words. Nothing here is a component, so either React skill firing is the over-reach that disclaimer exists to prevent."
     },
     {
       "id": "next-server-action-authorization",
@@ -250,14 +250,14 @@
       "prompt": "The product list still shows the old rows after the server action writes. How do I revalidate it?",
       "mustInclude": ["next-app-development"],
       "mayInclude": ["tanstack-query-development"],
-      "rationale": "Half of the sharpest collision in the set: \"a stale list after a write\" is a literal trigger in tanstack-query-development's when_to_use and \"revalidateTag\" is one in next-app-development's, so the two claim the same symptom in nearly the same words. This prompt names a server action, so the framework skill must appear and the server-state skill appearing is defensible."
+      "rationale": "Half of the sharpest collision in the set: \"a stale list after a write\" is a literal trigger in tanstack-query-development's description and \"revalidateTag\" is one in next-app-development's, so the two claim the same symptom in nearly the same words. This prompt names a server action, so the framework skill must appear and the server-state skill appearing is defensible."
     },
     {
       "id": "tq-invalidate-after-mutation",
       "prompt": "After this useMutation succeeds the list is stale — what should it invalidate?",
       "mustInclude": ["tanstack-query-development"],
       "mustExclude": ["next-app-development"],
-      "rationale": "The other half of that collision, and the direction that matters. useMutation and invalidateQueries are TanStack Query's own API and appear verbatim in its when_to_use, while next-app-development owns none of them. A selection here would mean its triggers reach every staleness prompt rather than the ones about its own cache."
+      "rationale": "The other half of that collision, and the direction that matters. useMutation and invalidateQueries are TanStack Query's own API and appear verbatim in its description, while next-app-development owns none of them. A selection here would mean its triggers reach every staleness prompt rather than the ones about its own cache."
     },
     {
       "id": "tq-query-key-collision",
@@ -271,7 +271,7 @@
       "prompt": "This runbook is hard to follow and too wordy — restructure it.",
       "mustInclude": ["technical-document-authoring"],
       "mustExclude": ["product-requirement-document-authoring"],
-      "rationale": "\"Runbook\", \"hard to follow\" and \"too wordy\" are all literal triggers in technical-document-authoring's when_to_use. The PRD skill owns a spec's sections and the phrasing of a requirement, not the sentences inside an operational document, so its selection here is the over-reach this pair exists to detect."
+      "rationale": "\"Runbook\", \"hard to follow\" and \"too wordy\" are all literal triggers in technical-document-authoring's description. The PRD skill owns a spec's sections and the phrasing of a requirement, not the sentences inside an operational document, so its selection here is the over-reach this pair exists to detect."
     },
     {
       "id": "boundary-spec-and-prose",
@@ -294,21 +294,21 @@
       "prompt": "This component's useEffect is doing three unrelated things — should I pull a hook out?",
       "mustInclude": ["react-component-development"],
       "mustExclude": ["react-component-styling"],
-      "rationale": "\"extract a hook\" and \"useEffect\" are literal triggers in react-component-development's when_to_use, and react-component-styling's own text hands logic back to it. This is also the first case to require the component skill at all — it was labelled only as mayInclude before, so no case could report it missing."
+      "rationale": "\"extract a hook\" and \"useEffect\" are literal triggers in react-component-development's description. react-component-styling scopes itself to a component's styles — a CSS Module, a Unistyles StyleSheet.create, a theme or token file — and names no hook or effect, so a selection here would mean it reaches past the styles it claims. This is also the first case to require the component skill at all — it was labelled only as mayInclude before, so no case could report it missing."
     },
     {
       "id": "vitest-v4-dead-config",
       "prompt": "Our vitest.config.ts still sets poolOptions and singleThread from before the upgrade — why do they do nothing now?",
       "mustInclude": ["vitest-testing"],
-      "mustExclude": ["end-to-end-testing"],
-      "rationale": "A pure runner-configuration question about option names Vitest 4 silently ignores rather than rejecting. vitest-testing claims version discipline and the config surface outright; end-to-end-testing owns journeys, locators and server lifecycle, so a runner config key is not its concern."
+      "mustExclude": ["end-to-end-testing", "jest-testing"],
+      "rationale": "A pure runner-configuration question about option names Vitest 4 silently ignores rather than rejecting. vitest-testing claims version discipline and the config surface outright; end-to-end-testing owns journeys, locators and server lifecycle, so a runner config key is not its concern. jest-testing is excluded as the reciprocal of the two jest-esm-* cases: the two runner skills are near-homographs, so the boundary is only measured if each direction is asserted, and jest-testing scopes itself to \"a change touching Jest itself\" while every option named here is Vitest's."
     },
     {
       "id": "boundary-what-to-assert",
       "prompt": "I have a function that parses a date range. What should this test actually assert?",
       "mustInclude": ["unit-testing"],
-      "mustExclude": ["vitest-testing"],
-      "rationale": "A runner-neutral question about assertion design, naming no tool. unit-testing owns what to assert; vitest-testing disclaims exactly this in its own description and defers it, so vitest-testing surfacing here would be the boundary failing in the direction that matters most."
+      "mustExclude": ["vitest-testing", "jest-testing"],
+      "rationale": "A runner-neutral question about assertion design, naming no tool. unit-testing owns what to assert; vitest-testing disclaims exactly this in its own description and defers it, so vitest-testing surfacing here would be the boundary failing in the direction that matters most. jest-testing carries the same disclaimer in the same words — \"for what is worth testing and the unit-versus-e2e call, use a unit-testing capability\" — so excluding only one of the pair was an asymmetry rather than a judgment."
     },
     {
       "id": "boundary-vitest-browser-flake",
@@ -336,6 +336,92 @@
       "mustInclude": ["zod-schema"],
       "mayInclude": ["react-component-development"],
       "rationale": "A symptom-shaped prompt that never says Zod is the subject: the cause is that JavaScript's Number(\"\") is 0, which zod-schema states concretely. react-component-development is the nearest neighbour that could fire on the form-field phrasing and owns a component's composition and state rather than what a validator does to a value, so its appearance is neither required nor wrong."
+    },
+    {
+      "id": "jest-esm-transform",
+      "prompt": "Our Jest suite fails with \"Cannot use import statement outside a module\" after we added an ESM-only package.",
+      "mustInclude": ["jest-testing"],
+      "mustExclude": ["vitest-testing"],
+      "mayInclude": ["unit-testing"],
+      "rationale": "The error string is quoted verbatim in jest-testing's description, and so is transformIgnorePatterns, where the fix lives. vitest-testing owns the other runner's configuration surface and shares none of this mechanism, so a selection there would mean the two near-homograph runner skills compete for each other's config; vitest-v4-dead-config asserts the same boundary from the Vitest side. unit-testing names mocks and fakes among what it covers, so its appearance is defensible rather than wrong. This is the first case to require jest-testing at all — before it, no case could report the skill missing."
+    },
+    {
+      "id": "jest-esm-module-mock",
+      "prompt": "We moved this helper to ESM and the mock in our Jest suite stopped intercepting it. What should it look like now?",
+      "mustInclude": ["jest-testing"],
+      "mustExclude": ["vitest-testing"],
+      "mayInclude": ["unit-testing"],
+      "rationale": "Deliberately symptom-shaped: no literal trigger from jest-testing's description appears in the prompt, and the answer — unstable_mockModule — is not named. The runner is named only as project context, without which mustInclude jest-testing would not be a defensible label on a prompt carrying no signal about which runner is in use. jest.spyOn and vi.spyOn are near-homographs, so this is the sharpest probe in the set of whether the two mocking surfaces are told apart, and a vitest-testing selection here is a mis-route rather than contention."
+    },
+    {
+      "id": "cm-long-function-split",
+      "prompt": "This function is over 200 lines and nobody can follow it any more. How should I break it up?",
+      "mustInclude": ["code-maintainability"],
+      "mustExclude": ["code-review"],
+      "mayInclude": ["software-development"],
+      "rationale": "\"too long\" and \"refactor\" are literal triggers in code-maintainability's description, and breaking up an unreadable function is its complexity-and-readability subject. code-review states in its own text that it is \"not for writing the change, only for judging one that already exists\" — no diff exists here, so a selection would mean that disclaimer is not holding. software-development claims implementing and refactoring as its baseline, so its appearance is legitimate. This is the first case to require code-maintainability at all."
+    },
+    {
+      "id": "cr-branch-diff-review",
+      "prompt": "Go through the diff on this branch and tell me what should block the merge.",
+      "mustInclude": ["code-review"],
+      "mustExclude": ["loop-engineering"],
+      "mayInclude": ["code-maintainability", "quality-assurance"],
+      "rationale": "A branch diff judged before merge is code-review's subject in as many words. loop-engineering is excluded because its own description ends \"not for work that changes nothing\" — a review request changes nothing, so entering the change loop here is a real mis-route, and le-deliver-issue asserts the same boundary from the other side. code-maintainability names raising findings against a diff while reviewing, and quality-assurance calls itself the reviewer's QA pass, so both are legitimate co-selections. This is the first case to require code-review; before it the skill appeared only as an exclusion."
+    },
+    {
+      "id": "as-render-user-markdown",
+      "prompt": "We render user-submitted markdown on the profile page. Is that safe as it stands?",
+      "mustInclude": ["application-security"],
+      "mustExclude": ["zod-schema"],
+      "mayInclude": ["code-review"],
+      "rationale": "\"is this safe\" is a literal trigger in application-security's description, and rendered content, XSS and output encoding are all named in it. zod-schema is excluded deliberately at the stronger of two defensible settings: its description ends by handing exactly this judgment away — \"what a passing parse still does not make safe\" — so a selection here would mean it reaches every prompt mentioning user input rather than the ones about a schema. Were it to fire, the remedy is to narrow zod-schema's triggers rather than to relabel this case. code-review is permitted because the prompt asks for a judgment on code that already exists. This is the first case to require application-security; before it the skill appeared only as an exclusion or a permission."
+    },
+    {
+      "id": "asa-tighten-description",
+      "prompt": "Tighten this SKILL.md's description so a host still routes to it after we cut the body down.",
+      "mustInclude": ["agent-skill-authoring"],
+      "mustExclude": ["agent-skill-management"],
+      "rationale": "\"tightening a description\" and \"any change to a SKILL.md\" are literal triggers in agent-skill-authoring's description, and discovery metadata that survives a host's listing truncation is its stated subject. agent-skill-management owns where a skill's files live, the two-tier storage model and the drift between a source and its installed copies — none of which this prompt touches. The pair is asserted in both directions: asm-installed-copies-drift excludes this skill in turn."
+    },
+    {
+      "id": "asm-installed-copies-drift",
+      "prompt": "git status shows the installed copies changed but nobody edited them. What should I do?",
+      "mustInclude": ["agent-skill-management"],
+      "mustExclude": ["agent-skill-authoring"],
+      "rationale": "A git status showing installed copies out of sync with their source is named near-verbatim in agent-skill-management's description, and the drift check is its stated subject. agent-skill-authoring owns what goes inside a SKILL.md — capability framing, frontmatter, section anatomy — and nothing here is about the file's content. The reciprocal of asa-tighten-description: these two are the most confusable pair of names in the corpus, so each direction is asserted separately rather than inferred from the other."
+    },
+    {
+      "id": "le-deliver-issue",
+      "prompt": "Deliver issue #42 end to end and get it to a merge-ready pull request.",
+      "mustInclude": ["loop-engineering"],
+      "mustExclude": ["code-review"],
+      "mayInclude": [
+        "product-requirement-document-authoring",
+        "github-operation",
+        "software-development"
+      ],
+      "rationale": "\"deliver this issue\" is quoted verbatim in loop-engineering's description as one of its triggers. code-review is excluded as the reciprocal of cr-branch-diff-review: its text says it is \"not for writing the change, only for judging one that already exists\", and at intake no change exists yet. product-requirement-document-authoring legitimately claims the plan-writing step of a delivery workflow, github-operation the pull request mechanics, and software-development the baseline every project-touching task runs on, so all three are permitted. This is the first case to require loop-engineering; before it the skill appeared in no case at all."
+    },
+    {
+      "id": "pb-verify-before-answering",
+      "prompt": "Are you sure that's the current version? Don't guess — check before you answer.",
+      "mustInclude": ["professional-behavior"],
+      "rationale": "\"are you sure\", \"don't guess\" and asserting a version are all literal triggers in professional-behavior's description. The skill is the fixture's sole expectAlways entry and was selected in zero of the baseline's 140 probes — a result recorded but not attributable, since those tallies accreted across commits and its discovery text has been rewritten since. A case that requires it directly is what separates \"cannot be selected at all\" from \"is not selected as a background skill\", a distinction the expectAlways tracking alone cannot draw. No exclusion is labelled: a prompt about verifying before answering has no neighbour whose selection would be wrong."
+    },
+    {
+      "id": "sd-how-to-run-tests",
+      "prompt": "How do I run this project's tests? I can't find it written down anywhere.",
+      "mustInclude": ["software-development"],
+      "mayInclude": ["unit-testing"],
+      "rationale": "software-development's description claims this outright — needing to know how to run one of the project's operations and having to find it documented or ask. unit-testing is permitted rather than excluded because running unit tests sits inside its own stated scope, so its selection is defensible. No exclusion is labelled: the skill claims every project-touching task, so a prompt this broad has no neighbour whose appearance would be a mis-route. This is the first case to require software-development at all."
+    },
+    {
+      "id": "qa-was-this-verified",
+      "prompt": "Before this merges — was it actually verified, or just written? Which checks ran?",
+      "mustInclude": ["quality-assurance"],
+      "mayInclude": ["code-review", "software-development"],
+      "rationale": "\"is this verified\" and \"were the required checks run\" are literal triggers in quality-assurance's description, and mapping skipped checks to residual risk is its stated subject. code-review is permitted because the prompt sits at review time, and software-development because it owns the author-side format-and-lint loop the same gate is asked about — the two are the reviewer-side and author-side of one concern, so neither is a mis-route. This is the first case to require quality-assurance; before it the skill appeared in no case at all."
     },
     {
       "id": "lps-behaviour-change-invalidates-docs",

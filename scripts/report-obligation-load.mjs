@@ -52,9 +52,14 @@
 //             then its `.claude/skills` root — so `code-review` works from
 //             anywhere without typing a path.
 //     --mandated
-//             the always-on set CLAUDE.md mandates for every session. Combines
-//             with further paths or names, so `--mandated code-review` reports
-//             what a review round actually carries.
+//             the set CLAUDE.md mandates, reported in the three tiers it is
+//             actually scoped to — every session, tasks that touch the project,
+//             and tasks that change something — cumulatively, so the first row
+//             is what a question-answering session carries and the last is what
+//             a change-delivering one does. Combines with further paths or
+//             names, so `--mandated code-review` reports what a review round
+//             actually carries; extra selectors land in the total, not in the
+//             tiers, which describe the mandated set alone.
 //
 //   With no arguments it reports every skill in the repository.
 //
@@ -85,27 +90,48 @@ const SOURCE_ROOT = join(REPO_ROOT, "skills");
 const INSTALLED_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 /**
- * The always-on set: the skills CLAUDE.md mandates in every session, on top of
- * which a task-specific skill loads.
+ * The mandated set, in the three tiers CLAUDE.md's Response Approach actually
+ * scopes it to — NOT one always-on set, which is what this constant used to
+ * claim and what the report used to print.
  *
- * CLAUDE.md's Response Approach is the AUTHORITY for this fact; this constant is
- * a convenience copy of it, and the coupling is by convention rather than by
- * parse. That is a deliberate limit, not an oversight: a prose parse cannot see
- * all three. `professional-behavior` appears in CLAUDE.md as a literal
- * hyphenated name and `loop-engineering` as a link path, but `software-development`
- * is named only descriptively — "the project's baseline development practices" —
- * so a parser would silently report two of three and look like it worked.
+ * Each tier states the condition under which a session carries it, and the
+ * tiers are cumulative: a session that changes something carries all three, a
+ * session that only touches the project carries the first two, and a session
+ * that does neither carries the first alone. Reporting the sum of all three as
+ * "every session" overstates what an ordinary question-answering session holds
+ * by the whole of the last two tiers.
+ *
+ * The scoping is quoted rather than invented. `professional-behavior` is
+ * required "in every session, before anything else … they apply to a task that
+ * changes nothing as fully as to a delivered change". `software-development` is
+ * required "at the start of every task that touches the project", and its own
+ * description adds "Not for a session that touches nothing".
+ * `loop-engineering` governs "any code change or document update", and the same
+ * section says "Tasks that change nothing stay outside the loop".
+ *
+ * CLAUDE.md's Response Approach is the AUTHORITY for all of it; this constant is
+ * a convenience copy, and the coupling is by convention rather than by parse —
+ * for the tier boundaries exactly as for the membership. That is a deliberate
+ * limit, not an oversight: a prose parse cannot see all three skills.
+ * `professional-behavior` appears in CLAUDE.md as a literal hyphenated name and
+ * `loop-engineering` as a link path, but `software-development` is named only
+ * descriptively — "the project's baseline development practices" — so a parser
+ * would silently report two of three and look like it worked. A parse of the
+ * conditions would fail the same way, and less visibly.
  *
  * What IS pinned mechanically: a test asserts every name here resolves to a real
  * skill, so renaming or deleting one fails loudly rather than silently dropping
  * it from the floor. Claiming a stronger pin than that would be worse than
  * documenting this one.
  */
-const MANDATED_SKILLS = [
-  "professional-behavior",
-  "software-development",
-  "loop-engineering",
+const MANDATED_TIERS = [
+  { condition: "every session", skills: ["professional-behavior"] },
+  { condition: "+ task touches the project", skills: ["software-development"] },
+  { condition: "+ task changes something", skills: ["loop-engineering"] },
 ];
+
+/** Flat membership in tier order, for resolution and for the resolves-to-a-real-skill test. */
+const MANDATED_SKILLS = MANDATED_TIERS.flatMap((tier) => tier.skills);
 
 function fail2(message) {
   process.stderr.write(`${message}\n`);
@@ -222,13 +248,61 @@ const tokens = estimateTokens;
 const group = (value) => value.toLocaleString("en-US");
 
 /**
+ * The cumulative-by-tier block, printed under the totals when `--mandated` ran.
+ *
+ * It exists because the single total above it answers "what does the whole
+ * selection cost", and that is not the question a reader of a *mandated* report
+ * has. Theirs is "what is a session of this kind holding", which only the
+ * cumulative tiers answer — the last row is the figure this report used to
+ * print alone, and the first is what an ordinary question-answering session
+ * actually carries.
+ */
+function tierBlock(tiers) {
+  const headers = ["session kind", "oblig.", "~tokens", "oblig.", "~tokens"];
+  const rows = tiers.map((tier) => [
+    tier.condition,
+    group(tier.floor.obligations),
+    group(tokens(tier.floor.bytes)),
+    group(tier.ceiling.obligations),
+    group(tokens(tier.ceiling.bytes)),
+  ]);
+  const widths = headers.map((header, column) =>
+    Math.max(header.length, ...rows.map((row) => row[column].length)),
+  );
+  const layout = (cells) =>
+    [
+      cells[0].padEnd(widths[0]),
+      ...cells.slice(1).map((cell, index) => cell.padStart(widths[index + 1] + 2)),
+    ].join("");
+  const width = widths.reduce((sum, w) => sum + w, 0) + (widths.length - 1) * 2;
+  const floorSpan = widths[1] + widths[2] + 4;
+  const ceilingSpan = widths[3] + widths[4] + 4;
+
+  return [
+    "Cumulative by session kind — each tier carries the ones above it, and",
+    "only the last is what this report used to print as a single total.",
+    "",
+    "".padEnd(widths[0]) +
+      "SKILL.md only".padStart(Math.floor((floorSpan + "SKILL.md only".length) / 2)).padEnd(floorSpan) +
+      "+ all references".padStart(Math.floor((ceilingSpan + "+ all references".length) / 2)),
+    layout(headers),
+    "-".repeat(width),
+    ...rows.map(layout),
+    "",
+  ];
+}
+
+/**
  * Render the report.
  *
  * Per-skill rows plus a total, so a maintainer diffing two runs sees WHICH skill
  * moved rather than only that the total did. Nothing checkout-dependent appears
  * — no timestamps, no absolute paths — so successive runs diff cleanly.
+ *
+ * `tiers`, when given, appends the cumulative block above; without it the output
+ * is byte-identical to what this function produced before that block existed.
  */
-function render(measurements, selectionLabel) {
+function render(measurements, selectionLabel, tiers = null) {
   const total = measurements.reduce(
     (sum, { floor, ceiling }) => ({
       floor: {
@@ -289,6 +363,7 @@ function render(measurements, selectionLabel) {
     `Floor   (SKILL.md bodies alone):    ${group(total.floor.obligations).padStart(5)} obligations, ~${group(tokens(total.floor.bytes))} tokens`,
     `Ceiling (every reference read too): ${group(total.ceiling.obligations).padStart(5)} obligations, ~${group(tokens(total.ceiling.bytes))} tokens`,
     "",
+    ...(tiers ? tierBlock(tiers) : []),
     "Obligation counts are exact. Token figures divide UTF-8 bytes by",
     `${BYTES_PER_TOKEN} and are good to ${PROXY_UNCERTAINTY}; the raw byte counts are shown so the`,
     "division can be redone. No threshold is defined — this reports a",
@@ -305,7 +380,7 @@ references/*.md read too). With no arguments, reports every skill.
 
   <path>      a skill directory, or a directory whose subdirectories are skills
   <name>      a skill name, resolved against this repository's skill roots
-  --mandated  the always-on set CLAUDE.md mandates for every session
+  --mandated  the set CLAUDE.md mandates, in its three cumulative tiers
 
 Exit codes: 0 a report was produced (always), 2 bad invocation.
 No threshold is defined — this never fails on the numbers it reports.`;
@@ -342,7 +417,7 @@ async function main() {
       const resolved = await resolveArgument(name);
       if (resolved.length === 0) {
         fail2(
-          `The mandated skill "${name}" resolves to no skill under "${SOURCE_ROOT}" or "${INSTALLED_ROOT}". CLAUDE.md's Response Approach owns this set; update MANDATED_SKILLS to match it.`,
+          `The mandated skill "${name}" resolves to no skill under "${SOURCE_ROOT}" or "${INSTALLED_ROOT}". CLAUDE.md's Response Approach owns this set and its per-tier scoping; update MANDATED_TIERS to match it — MANDATED_SKILLS is derived from it, not edited directly.`,
         );
       }
       resolved.forEach(add);
@@ -367,14 +442,42 @@ async function main() {
 
   const selectionLabel =
     mandated && selectors.length === 0
-      ? "the always-on set CLAUDE.md mandates"
+      ? "the set CLAUDE.md mandates, tiered by session kind below"
       : mandated
-        ? "the always-on set CLAUDE.md mandates, plus the skills named"
+        ? "the set CLAUDE.md mandates, plus the skills named"
         : selectors.length === 0
           ? "every skill in the repository"
           : "the skills named";
 
-  process.stdout.write(`${render(measurements, selectionLabel)}\n`);
+  // Cumulative tiers, computed only for --mandated: they describe the mandated
+  // set's own scoping, so they would be meaningless over an arbitrary selection.
+  // Extra selectors are excluded here and remain in the total above, where a
+  // reader of `--mandated code-review` wants them.
+  let tiers = null;
+  if (mandated) {
+    const byName = new Map(measurements.map((m) => [m.name, m]));
+    const running = {
+      floor: { obligations: 0, bytes: 0 },
+      ceiling: { obligations: 0, bytes: 0 },
+    };
+    tiers = MANDATED_TIERS.map((tier) => {
+      for (const name of tier.skills) {
+        const m = byName.get(name);
+        if (!m) continue;
+        running.floor.obligations += m.floor.obligations;
+        running.floor.bytes += m.floor.bytes;
+        running.ceiling.obligations += m.ceiling.obligations;
+        running.ceiling.bytes += m.ceiling.bytes;
+      }
+      return {
+        condition: tier.condition,
+        floor: { ...running.floor },
+        ceiling: { ...running.ceiling },
+      };
+    });
+  }
+
+  process.stdout.write(`${render(measurements, selectionLabel, tiers)}\n`);
   // Always 0: this reports, it never judges. See the header's no-threshold note.
   process.exit(0);
 }

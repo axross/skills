@@ -69,6 +69,7 @@ See [implementation-worker.md](./references/implementation-worker.md) for:
 - the four-step executor resolution order, and why capability rather than a declared responsibility decides
 - the compatibility preflight that runs before the writer lease is granted, including the visual-capability check
 - classifying model and effort as verified, declared, or unknown
+- what a project's own worker definition should carry, and what it must leave to the package
 
 See [implementation-package.md](./references/implementation-package.md) for:
 
@@ -149,6 +150,7 @@ Then step through the phase:
 - Implement strictly from the approved plan, keeping edits within the smallest surface that satisfies the acceptance criteria — yourself, or through the worker's package. Follow every project skill whose routing condition matches the changed files, and add or update the test coverage the plan named.
 - Run the verification the changed surface requires — the project's format, lint, type-check, and test commands — and record the evidence (commands run, results) in the pull request body. When a required check cannot run, say so and note the residual risk rather than claiming it passed.
 - **Reviewer-mode self-check.** Before opening the pull request, stop editing, reread the request, inspect `git status` and `git diff`, and review only the produced diff as if another author wrote it — fixing obvious Critical/Major issues. A delegated worker performs this on its own diff and reports it in the receipt; you then run the completion-evidence check against repository state rather than repeating the full review. Either way this is a self-check to avoid trivial hand-backs, NOT the authoritative review; that is the independent reviewer in Phase 3.
+- **Pre-flight review — optional, and advisory.** Where implementation was delegated and the harness exposes a second worker that qualifies as a reader, one review-only worker MAY judge the diff before the pull request opens, driving an implement→review loop until every finding it raises reaches a terminal state. It buys a reviewer free of the implementer's reasoning state, and nothing else; it is not the independent review and never reported as one. See [pre-flight-review.md](./references/pre-flight-review.md) for the input contract that excludes the implementer's receipt, the reader's position in the writer lease, the finding ledger and its durability, dismissal authority split by severity, and the round cap. With no compatible review worker the stage is skipped and the run continues from the self-check above.
 
 ## Phase 3 — Request Independent Review
 
@@ -199,6 +201,7 @@ An autonomous run has no natural stopping point: a review that keeps finding new
 - MUST cap the address↔review loop at **8** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
 - MUST cap autonomous polling at **2 hours** per wait and go dormant rather than poll indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.
 - MUST cap delegated execution at one initial attempt plus **2** retries per approved plan revision and task phase, and recover in single-agent mode rather than spawning a fourth worker.
+- MUST cap the optional pre-flight implement↔review loop at one initial implementation plus **3** autonomous rounds, then ask the human once per further round; this is a pre-pull-request cap and is distinct from the address↔review cap above.
 - MUST NOT cap the [Phase 1](#phase-1--plan) clarify-before-building gate with a question budget — unlike the loops above, it is deliberately uncapped.
 - MUST end the turn (never loop-block) whenever waiting on a human — the plan-approval gate, a stuck machine event, or a dormancy cap.
 - MUST keep edits to the smallest surface that satisfies the acceptance criteria, never push to the default branch, and never merge the pull request.
