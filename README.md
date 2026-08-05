@@ -761,8 +761,10 @@ drift from it. What it leaves out, and why, is explained host-neutrally in
 [`implementation-worker.md`](./skills/loop-engineering/references/implementation-worker.md).
 Only Claude Code is configured today —
 [#218](https://github.com/axross/skills/issues/218) tracks the Codex side. Delete
-the file and the loop returns to running every phase in one actor, with no gate
-weakened.
+the file and the loop keeps delegating — to a generic implementation-capable
+agent at the session's inherited model — rather than returning to single-agent
+execution, with no gate weakened. Single-agent execution is what a host
+exposing no capable agent at all produces.
 
 One check backs the loop from outside any session:
 [`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)
