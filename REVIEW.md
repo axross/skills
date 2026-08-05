@@ -187,12 +187,13 @@ for a broader prose rule does **not** silence the reviewer on that rule.
 - Relative-link integrity — a relative Markdown link whose target file does not
   resolve on disk.
 - A heading-anchor fragment that resolves to no heading in its target file,
-  **within a skill's `SKILL.md` or `references/*.md`** — the only files
-  `check-skill.mjs` scans. The scope qualifier is load-bearing: an anchor in a
-  repository-root document such as this one is checked by nothing, so keep
+  **within a skill's `SKILL.md` or `references/*.md`** — the only files the
+  skill-structure checks scan. The scope qualifier is load-bearing: an anchor in
+  a repository-root document such as this one is checked by nothing, so keep
   reporting it. A fragment that resolves to the _wrong_ heading is a misroute
   no check can see, and stays in scope everywhere.
-- The structural checks `check-skill.mjs` enforces: a frontmatter block that
+- The structural checks `check-skill-frontmatter.mjs`, `check-skill-body.mjs`,
+  and `check-skill-references.mjs` enforce: a frontmatter block that
   does not parse; a `name` that is not kebab-case, exceeds 64 characters, or
   does not match its directory; a missing `description`, or one whose UTF-8
   length exceeds <!-- count:skill-description-byte-cap -->1024<!-- /count -->
@@ -208,7 +209,8 @@ Two [Repository Severity Floors](#repository-severity-floors) rows stay **fully
 in scope** for exactly the proxy reason above, and are called out so they are
 not mistaken for CI-covered:
 
-- **Malformed frontmatter that breaks discovery/loading.** `check-skill.mjs`
+- **Malformed frontmatter that breaks discovery/loading.**
+  `check-skill-frontmatter.mjs`
   checks presence, kebab-case, length caps, and the directory match — a narrow
   subset of what a discovery runtime actually rejects at load time.
 - **A missing or wrong `user-invocable`.** CI stopped checking it: it is a host

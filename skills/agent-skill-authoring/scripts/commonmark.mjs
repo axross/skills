@@ -4,7 +4,7 @@
 // Two rules live here, and both exist for the same reason: a validator has to be
 // able to READ a document that SHOWS the very syntax it checks for.
 //
-// THE FENCED-BLOCK RULE (`scanLines`, `unterminatedFenceLine`). check-skill.mjs
+// THE FENCED-BLOCK RULE (`scanLines`, `unterminatedFenceLine`). The skill-body
 // and check-links.mjs must ignore content inside fenced code blocks, so the
 // skill-authoring docs can show `[file.md](./references/file.md)` or a
 // `- MUST …` bullet as an EXAMPLE without either validator reading it as the

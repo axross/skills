@@ -968,7 +968,7 @@ describe("overlay content caps", () => {
   });
 
   it("applies no combined description + when_to_use cap", () => {
-    // `check-skill.mjs` enforces no such rule, and a cap the merge gate does
+    // `check-skill-frontmatter.mjs` enforces no such rule, and a cap the merge gate does
     // not have refuses a legitimate head file — which makes the evaluation
     // silently measure the BASE text for that skill.
     const verdict = allowOverlayContent(
@@ -977,9 +977,9 @@ describe("overlay content caps", () => {
     expect(verdict).toEqual({ allowed: true });
   });
 
-  it("keeps its description cap equal to the one check-skill.mjs enforces", async () => {
+  it("keeps its description cap equal to the one check-skill-frontmatter.mjs enforces", async () => {
     const source = await readFile(
-      repoPath("skills/agent-skill-authoring/scripts/check-skill.mjs"),
+      repoPath("skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs"),
       "utf8",
     );
     const enforced = Number(

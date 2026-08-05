@@ -39,8 +39,13 @@ describe("repository gates have teeth", () => {
     ).toReportFailure(/missing\.md/);
   });
 
-  it("the skill-structure gate fails on a malformed skill", async () => {
-    const { script, args } = gate("skill-structure");
+  // The frontmatter gate is the one with teeth for a missing `description`.
+  // Its two siblings read the body and the reference wiring, and a skill can be
+  // malformed in the way below while both of those pass — which is the point of
+  // splitting them, and the reason this case names one gate rather than looping
+  // over all three.
+  it("the skill-frontmatter gate fails on a malformed skill", async () => {
+    const { script, args } = gate("skill-frontmatter");
     const root = await tempDir();
     // The gate names its roots relatively, so a tree of the same shape under a
     // different cwd exercises the real invocation.

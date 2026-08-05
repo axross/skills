@@ -9,7 +9,7 @@
 // comment was warning about: a blank line and a fenced block are CONTINUATION,
 // and only a heading or an unindented non-bullet line closes the block.
 //
-// The counterpart claim — that check-skill.mjs and the reporter each read this
+// The counterpart claim — that check-skill-body.mjs and the reporter each read this
 // module correctly — is tests/validators/report-obligation-load.test.mjs's
 // partition case, not this file's.
 

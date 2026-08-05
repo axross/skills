@@ -180,7 +180,7 @@ export function resolveInside(root, relative) {
  * request shipping a megabyte `description`, innocently or otherwise, would
  * inflate the bill far past what a maintainer applying the label expects.
  *
- * The frontmatter figure is the cap `check-skill.mjs` already enforces on that
+ * The frontmatter figure is the cap `check-skill-frontmatter.mjs` already enforces on that
  * field. It is copied rather than imported: that constant is not exported, and
  * exporting it would mean editing a distributable skill's script, which is an
  * authoring change this is not. The coupling is therefore by convention — the
@@ -188,14 +188,14 @@ export function resolveInside(root, relative) {
  * `tests/validators/discovery-eval.test.mjs` reads both sources so the two
  * cannot drift silently.
  *
- * It is measured in BYTES for the same reason `check-skill.mjs` is. A
+ * It is measured in BYTES for the same reason `check-skill-frontmatter.mjs` is. A
  * character-counted copy is not the "conservative rather than wrong" failure
  * this comment used to claim: a multi-byte description under 1024 characters
  * but over 1024 bytes would be ACCEPTED here and REJECTED by the merge gate,
  * which is permissive in exactly the wrong direction.
  *
  * There is deliberately no combined `description` + `when_to_use` cap. One used
- * to live here, mirroring a check `check-skill.mjs` no longer has. A cap the
+ * to live here, mirroring a check `check-skill-frontmatter.mjs` no longer has. A cap the
  * merge gate does not enforce refuses a legitimate head file, and the
  * evaluation then silently measures the BASE text for that skill — the
  * reads-like-a-pass failure this tool exists to avoid. `FILE_BYTES_MAX` bounds
@@ -212,7 +212,7 @@ export const FILE_BYTES_MAX = 64 * 1024;
  *
  * Over-cap content is refused and reported like an out-of-allowlist path, not
  * treated as a fatal error: the head of an in-progress pull request has not
- * necessarily passed `check-skill.mjs` yet, and the useful behaviour there is to
+ * necessarily passed `check-skill-frontmatter.mjs` yet, and the useful behaviour there is to
  * evaluate the base text for that skill and say so — not to abort the run.
  *
  * @param {string} text the head file's contents

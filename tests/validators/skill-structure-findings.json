@@ -1,0 +1,202 @@
+[
+  {
+    "skill": "authoring-guidelines",
+    "severity": "warning",
+    "message": "framing: `name` ends in \"-guidelines\" — names the document, not the capability; consider the activity beneath it."
+  },
+  {
+    "skill": "body-cases",
+    "severity": "failure",
+    "message": "guidelines: SKILL.md:22 bullet does not open with an RFC-2119 keyword: \"Bullets in a guidelines block open with an RFC-2119 keyword,…\""
+  },
+  {
+    "skill": "body-cases",
+    "severity": "failure",
+    "message": "section: \"Abutting Section\" (SKILL.md:10) lists requirements with nothing between the heading and its `**Guidelines:**` block."
+  },
+  {
+    "skill": "body-cases",
+    "severity": "warning",
+    "message": "citation: SKILL.md:47 \"**Verified against** the vendor docs on a date, with no URL.…\" states a verification with no URL to check it against."
+  },
+  {
+    "skill": "body-cases",
+    "severity": "warning",
+    "message": "fences: SKILL.md:33 fenced `text` block — a blockquote under a bold example label is usually clearer."
+  },
+  {
+    "skill": "body-cases",
+    "severity": "warning",
+    "message": "hedging: SKILL.md:23 \"MUST\" is followed by the hedge \"generally\": \"MUST generally avoid the hedge above this line.…\""
+  },
+  {
+    "skill": "body-cases",
+    "severity": "warning",
+    "message": "labels: SKILL.md:29 plain \"Guidelines:\" label — emphasize it as a bold paragraph (`**Guidelines:**`)."
+  },
+  {
+    "skill": "body-cases",
+    "severity": "warning",
+    "message": "length: \"Near The Ceiling\" (SKILL.md:53) has 9 guideline bullets — approaching the ceiling of ten; the target is near seven."
+  },
+  {
+    "skill": "body-cases",
+    "severity": "warning",
+    "message": "placement: SKILL.md:31 RFC-2119 bullet sits outside any `**Guidelines:**` block: \"MUST be reached by a plain label rather than a bold one.…\""
+  },
+  {
+    "skill": "body-cases",
+    "severity": "warning",
+    "message": "placement: SKILL.md:41 RFC-2119 bullet sits outside any `**Guidelines:**` block: \"MUST sit outside any guidelines block.…\""
+  },
+  {
+    "skill": "bullet-ceiling",
+    "severity": "warning",
+    "message": "length: \"Over The Ceiling\" (SKILL.md:10) has 11 guideline bullets — over the ceiling of ten; split it or state why the exception is necessary."
+  },
+  {
+    "skill": "description-missing",
+    "severity": "failure",
+    "message": "frontmatter: `description` is missing or empty."
+  },
+  {
+    "skill": "description-too-long",
+    "severity": "failure",
+    "message": "frontmatter: `description` is 1211 bytes (max 1024 bytes) — a host that measures the cap in bytes refuses to load the skill."
+  },
+  {
+    "skill": "document-voice",
+    "severity": "warning",
+    "message": "framing: `description` opens in document voice (\"This skill…\") — name the ability the skill gives the agent."
+  },
+  {
+    "skill": "hazard-colon",
+    "severity": "failure",
+    "message": "frontmatter: `description` contains `: ` (a colon before a space or at the end), which YAML reads as opening a nested mapping — quote the value."
+  },
+  {
+    "skill": "hazard-comment",
+    "severity": "failure",
+    "message": "frontmatter: `description` contains ` #`, which YAML reads as starting a comment and silently truncates the value — quote it."
+  },
+  {
+    "skill": "hazard-lead-indicator",
+    "severity": "failure",
+    "message": "frontmatter: `description` begins with `[`, which YAML reads as an indicator rather than text — quote the value."
+  },
+  {
+    "skill": "hazard-lead-space",
+    "severity": "failure",
+    "message": "frontmatter: `description` begins with `-` followed by a space, which YAML reads as an indicator rather than text — quote the value."
+  },
+  {
+    "skill": "Name_Not_Kebab",
+    "severity": "failure",
+    "message": "frontmatter: `name` \"Name_Not_Kebab\" is not kebab-case (^[a-z0-9]+(-[a-z0-9]+)*$)."
+  },
+  {
+    "skill": "name-mismatch",
+    "severity": "failure",
+    "message": "frontmatter: `name` \"different-name\" does not match directory \"name-mismatch\"."
+  },
+  {
+    "skill": "name-missing",
+    "severity": "failure",
+    "message": "frontmatter: `name` is missing."
+  },
+  {
+    "skill": "no-frontmatter",
+    "severity": "failure",
+    "message": "frontmatter: missing or unterminated leading `---` block."
+  },
+  {
+    "skill": "noooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+    "severity": "failure",
+    "message": "frontmatter: `name` is 71 chars (max 64)."
+  },
+  {
+    "skill": "oversized",
+    "severity": "warning",
+    "message": "size: SKILL.md is 31709 bytes, ~6662 estimated tokens (÷ 4.76, ±5%) — over the ~5000-token budget of 23800 bytes; move detail into references/."
+  },
+  {
+    "skill": "quote-dangling-backslash",
+    "severity": "failure",
+    "message": "frontmatter: `description` ends with a dangling `\\` inside a double-quoted value."
+  },
+  {
+    "skill": "quote-short-hex",
+    "severity": "failure",
+    "message": "frontmatter: `description` carries `\\x` with fewer than 2 hex digits after it inside a double-quoted value."
+  },
+  {
+    "skill": "quote-unclosed-double",
+    "severity": "failure",
+    "message": "frontmatter: `description` opens with a double quote but does not close — a quoted value must end with the same quote."
+  },
+  {
+    "skill": "quote-unclosed-single",
+    "severity": "failure",
+    "message": "frontmatter: `description` opens with a single quote but does not close — a quoted value must end with the same quote."
+  },
+  {
+    "skill": "quote-undefined-escape",
+    "severity": "failure",
+    "message": "frontmatter: `description` carries `\\q`, which YAML does not define as an escape inside a double-quoted value — use single quotes, or double the backslash."
+  },
+  {
+    "skill": "quote-unescaped-double",
+    "severity": "failure",
+    "message": "frontmatter: `description` carries an unescaped `\"` inside a double-quoted value — write it as `\\\"`."
+  },
+  {
+    "skill": "quote-unpaired-single",
+    "severity": "failure",
+    "message": "frontmatter: `description` carries an unpaired `'` inside a single-quoted value — double it to `''` to mean a literal quote."
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "failure",
+    "message": "anchors: references/linked.md:14 link \"./linked.md#absent-heading\" resolves to no heading in references/linked.md."
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "failure",
+    "message": "anchors: SKILL.md:22 link \"./references/linked.md#no-such-heading\" resolves to no heading in references/linked.md."
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "failure",
+    "message": "links: references/linked.md:13 relative link \"../../body-cases/SKILL.md\" resolves outside the skill directory."
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "failure",
+    "message": "links: SKILL.md:21 relative link \"../body-cases/SKILL.md\" resolves outside the skill directory."
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "failure",
+    "message": "references: \"references/orphan.md\" is not linked from SKILL.md (orphan reference)."
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "failure",
+    "message": "routing: section \"Routing\" has a routing bullet starting with an RFC-2119 keyword: \"MUST not open a routing bullet with a keyword…\""
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "failure",
+    "message": "section: \"Abutting In A Reference\" (references/linked.md:3) lists requirements with nothing between the heading and its `**Guidelines:**` block."
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "warning",
+    "message": "placement: SKILL.md:14 RFC-2119 bullet sits outside any `**Guidelines:**` block: \"MUST not open a routing bullet with a keyword…\""
+  },
+  {
+    "skill": "reference-cases",
+    "severity": "warning",
+    "message": "routing: SKILL.md:15 section \"Routing\" gestures at a fact without naming it: \"the flag that changes behaviour…\""
+  }
+]

@@ -3,9 +3,9 @@
 // repository.
 //
 // Answers a question no per-skill check can: "which rule is stated in more than
-// one skill?" check-skill.mjs validates one skill directory at a time and is
-// host-agnostic — it has no view of a sibling skill, and should not grow one,
-// because it ships to projects whose skill trees are none of its business. So
+// one skill?" The skill-structure checks validate one skill directory at a time and are
+// host-agnostic — they have no view of a sibling skill, and should not grow one,
+// because they ship to projects whose skill trees are none of their business. So
 // the comparison lives here, beside report-obligation-load.mjs, for the same
 // reason that one does: it reports on a tree rather than validating one.
 //
@@ -25,7 +25,7 @@
 // for the nine pairs a one-off scan already found.
 //
 // The obligation definition is NOT re-implemented here. It is imported from
-// guidelines.mjs, the same module check-skill.mjs reads for its `guidelines:`
+// guidelines.mjs, the same module check-skill-body.mjs reads for its `guidelines:`
 // failures and report-obligation-load.mjs counts through, so all three agree on
 // what a rule is and a boundary fix reaches every reader at once.
 //
@@ -200,7 +200,7 @@ function contentTokens(rule, keyword) {
 
 /**
  * Every RFC-2119 rule one skill states, across SKILL.md and every
- * references/*.md — the same file set check-skill.mjs scans, and for the same
+ * references/*.md — the same file set check-skill-body.mjs scans, and for the same
  * reason: scripts/ and assets/ carry payload rather than rule-bearing text.
  *
  * @returns {Promise<Array<{ skill: string, at: string, rule: string, tokens: Set<string> }>>}

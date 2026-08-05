@@ -31,11 +31,28 @@ export const GATES = [
     args: [],
     passes: /links OK \(\d+ links across \d+ Markdown files checked\)/,
   },
+  // The skill-structure gate is three commands rather than one: each answers
+  // for one kind of edit, so an author who changed a reference file is not made
+  // to read findings about frontmatter. They share `skill-documents.mjs`, which
+  // is what keeps them from disagreeing about what a skill is made of.
+  //
+  // `.agents/skills` is the tier holding real files; `.claude/skills` is
+  // symlinks into it, so checking both would report one verdict twice.
   {
-    name: "skill-structure",
-    script: SCRIPTS.checkSkill,
-    // `.agents/skills` is the tier holding real files; `.claude/skills` is 28
-    // symlinks into it, so checking both would report one verdict twice.
+    name: "skill-frontmatter",
+    script: SCRIPTS.checkSkillFrontmatter,
+    args: ["skills", ".agents/skills"],
+    passes: /All \d+ skill\(s\) passed structural checks\./,
+  },
+  {
+    name: "skill-body",
+    script: SCRIPTS.checkSkillBody,
+    args: ["skills", ".agents/skills"],
+    passes: /All \d+ skill\(s\) passed structural checks\./,
+  },
+  {
+    name: "skill-references",
+    script: SCRIPTS.checkSkillReferences,
     args: ["skills", ".agents/skills"],
     passes: /All \d+ skill\(s\) passed structural checks\./,
   },

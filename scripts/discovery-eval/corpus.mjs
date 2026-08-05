@@ -143,7 +143,7 @@ const INVOCABLE_KEY_PRESENT = new RegExp(`^${INVOCABLE_KEY}:`, "m");
  *   2. A PRESENT-BUT-EMPTY key (`user-invocable:` with nothing after it) yields
  *      `""` — byte-identical to what an absent key yields. A value-only
  *      predicate maps it to the absent-key default, and it is the one spelling
- *      that also passes `check-skill.mjs`, which checks presence only.
+ *      that also passes `check-skill-frontmatter.mjs`, which checks presence only.
  *
  * An absent key really does mean invocable — that is the observed CLI default,
  * and it is the ONLY state where "nothing to read" is an answer rather than a

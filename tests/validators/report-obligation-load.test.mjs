@@ -14,7 +14,7 @@
 // a reader of this report would want to be told about.
 //
 // The definition itself is tested in tests/unit/guidelines.test.mjs. What this
-// file adds is the claim that the reporter and check-skill.mjs READ that shared
+// file adds is the claim that the reporter and check-skill-body.mjs READ that shared
 // definition consistently — see the partition case.
 
 import { access, readdir } from "node:fs/promises";
@@ -26,7 +26,7 @@ import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
 import { repoPath, SCRIPTS, validator } from "../helpers/run.mjs";
 
 const report = validator(SCRIPTS.reportObligationLoad);
-const checkSkill = validator(SCRIPTS.checkSkill);
+const checkSkill = validator(SCRIPTS.checkSkillBody);
 
 /** The always-on set, mirroring the script's own MANDATED_SKILLS. */
 const MANDATED_SKILLS = [
@@ -715,7 +715,7 @@ describe("report-obligation-load.mjs", () => {
     });
   });
 
-  describe("agreement with check-skill.mjs", () => {
+  describe("agreement with check-skill-body.mjs", () => {
     it("partitions the same bullets the structure validator does", async () => {
       // Three readings of ONE definition, over a fixture built so each lands:
       //   2 in-block bullets WITH a keyword     → obligations

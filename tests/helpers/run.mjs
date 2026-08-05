@@ -27,7 +27,11 @@ export function repoPath(...segments) {
 
 /** Repository-relative paths of the bundled validators, from their source tier. */
 export const SCRIPTS = {
-  checkSkill: "skills/agent-skill-authoring/scripts/check-skill.mjs",
+  checkSkillFrontmatter:
+    "skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs",
+  checkSkillBody: "skills/agent-skill-authoring/scripts/check-skill-body.mjs",
+  checkSkillReferences:
+    "skills/agent-skill-authoring/scripts/check-skill-references.mjs",
   checkLinks: "skills/agent-skill-authoring/scripts/check-links.mjs",
   checkCommitMessage:
     "skills/conventional-commits/scripts/check-commit-message.mjs",
