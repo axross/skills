@@ -550,7 +550,14 @@ describe("report-obligation-load.mjs", () => {
       // #209's +2, #215/#221's +5, #208's +30, #216's +5, and #222's +4 — and
       // they are additive: 361 + 51 = 412, measured rather than carried from
       // any one of them. Only the last is this change's.
-      expect.soft(totals.ceilingObligations).toBe(412);
+      // And seven more in #229, which gave a spawn the harness's policy blocks
+      // its own branch of executor resolution: six in implementation-worker.md
+      // (the branch itself, the reporting rule that forbids restating it as one
+      // of its two neighbours, and the four governing a policy conditional on
+      // the human's request), plus one in pre-flight-review.md pointing the
+      // reader's spawn at the same branch. All seven land in reference files,
+      // which is why the floor above does not move with them.
+      expect.soft(totals.ceilingObligations).toBe(419);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -594,7 +601,12 @@ describe("report-obligation-load.mjs", () => {
       // makes the rule follow-able had to be written out.
       // Measured after the same merge, for the same reason as the figure
       // above.
-      expect.soft(totals.ceilingTokens).toBe(38_218);
+      // And 744 more in #229, for the seven obligations noted above plus the
+      // prose that makes them follow-able: the paragraph separating capability
+      // from permission, the one naming why neither neighbouring rule describes
+      // a policy block, and the one on a conditional policy hiding the lever
+      // that lifts it.
+      expect.soft(totals.ceilingTokens).toBe(38_962);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -638,10 +650,20 @@ describe("report-obligation-load.mjs", () => {
       // #211's own acceptance criterion quotes 361 as a snapshot at filing; the
       // criterion is measured against the base at merge time, as its own text
       // now says, because `main` moves these independently of this branch.
+      // Three of these four went stale on `main` before #229 opened, and are
+      // corrected here rather than by it: #222 moved the ceiling by four and
+      // both token figures with it, updating the totals above without updating
+      // this block, so the base carried 408 / 37,661 / 8,199 against a measured
+      // 412 / 38,218 / 8,209. #229's own contribution is the seven obligations
+      // and 744 tokens the totals note records — everything above that came
+      // from the base. The tiers are pinned separately from the totals for a
+      // reason, and this is the failure mode that argues for keeping them so:
+      // a total updated alone leaves the block that says WHICH tier moved
+      // asserting a corpus that no longer exists.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_199);
-      expect.soft(tiers[2].ceilingObligations).toBe(408);
-      expect.soft(tiers[2].ceilingTokens).toBe(37_661);
+      expect.soft(tiers[2].floorTokens).toBe(8_209);
+      expect.soft(tiers[2].ceilingObligations).toBe(419);
+      expect.soft(tiers[2].ceilingTokens).toBe(38_962);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -660,8 +682,10 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(408);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(408);
+      // Same figure as the tier block above, and stale on the base for the same
+      // reason; see the note there for what came from #222 and what from #229.
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(419);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(419);
     });
 
     it("prints no tier block without --mandated", async () => {
