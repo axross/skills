@@ -65,7 +65,14 @@ flowchart TD
 
 ## Editing an Existing Body
 
-A body write **replaces** the whole body — there is no partial-edit call — so editing an issue or pull request means sending the complete new text. The obvious way is to read the current body, change the part you want, and write the result back. That round-trip is unsafe: a body read back through the tool channel is not always byte-faithful to what is stored. Harnesses commonly return it HTML-sanitized, which drops exactly the constructs a body carries machine-readable state in — HTML comment markers, collapsed `<details>` sections, raw HTML — while leaving the prose around them intact. Nothing reports the loss, so a read that looks complete can silently destroy every marker and collapsed section the next write lands.
+A body write **replaces** the whole body — there is no partial-edit call — so editing an issue or pull request means sending the complete new text. The obvious way is to read the current body, change the part you want, and write the result back. That round-trip is unsafe: a body read back through the tool channel is not always byte-faithful to what is stored. Harnesses commonly return it HTML-sanitized, and the loss is wider than the constructs a body carries machine-readable state in:
+
+- an **HTML comment is removed together with its contents**, taking any marker block with it
+- a **collapsed `<details>` section loses its tags** while its inner text survives, so the section silently unfolds into the body
+- **angle-bracket text is deleted from ordinary prose and from inside code spans alike** — a placeholder such as `[agents.<name>]` comes back as `[agents.]`, which still reads as valid
+- **quotation marks and apostrophes come back HTML-escaped**, so a byte comparison fails even where nothing was dropped
+
+Nothing reports any of it. A read that looks complete can silently destroy every marker and collapsed section the next write lands, and the mangled prose reads as though the author wrote it that way.
 
 **Guidelines:**
 
