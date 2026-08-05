@@ -638,10 +638,17 @@ describe("report-obligation-load.mjs", () => {
       // #211's own acceptance criterion quotes 361 as a snapshot at filing; the
       // criterion is measured against the base at merge time, as its own text
       // now says, because `main` moves these independently of this branch.
+      //
+      // THESE FOUR FIGURES ARE PINNED TWICE. The mandated-set assertions above
+      // state the same numbers, because tier 3 IS the whole mandated set — the
+      // closing assertions of this case say so. A branch that moves one copy
+      // and not the other merges without a textual conflict and reddens `main`
+      // on arrival: #223 added this copy while #224 was moving the other, and
+      // neither branch's CI could see the collision. Move both, or neither.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_199);
-      expect.soft(tiers[2].ceilingObligations).toBe(408);
-      expect.soft(tiers[2].ceilingTokens).toBe(37_661);
+      expect.soft(tiers[2].floorTokens).toBe(8_209);
+      expect.soft(tiers[2].ceilingObligations).toBe(412);
+      expect.soft(tiers[2].ceilingTokens).toBe(38_218);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -660,8 +667,8 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(408);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(408);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(412);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(412);
     });
 
     it("prints no tier block without --mandated", async () => {
