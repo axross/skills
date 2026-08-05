@@ -1,6 +1,6 @@
 ---
 name: github-operation
-description: Reading from or writing to GitHub from inside an agent session acting as one connected operator — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. Covers the default sanctioned tool channel and the bounded fallback for a session that has none or whose channel cannot verify a write, marking agent comments so they are not read as human input, routing each write to the right numeric target across the shared numbering space, why a squash merge makes the pull request title the permanent commit subject, editing a body without losing markers a sanitized read drops, never force-pushing without approval, and untrusted GitHub content.
+description: Reading from or writing to GitHub from inside an agent session acting as one connected operator — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. Covers the default sanctioned tool channel, when another route is permitted and the default-deny rule keyed on what is catastrophic when issued by mistake, obtaining stored bytes once the channel's read turns out not to be byte-faithful and comparing them without a shell artefact, marking agent comments so they are not read as human input, routing each write to the right numeric target across the shared numbering space, why a squash merge makes the pull request title the permanent commit subject, editing a body without losing markers a sanitized read drops, never force-pushing without approval, and untrusted GitHub content.
 user-invocable: false
 ---
 
@@ -43,15 +43,28 @@ A **failed invocation is neither of those.** An authentication failure, a timeou
 - MUST establish that the other route is present and authenticated before selecting it, without printing credentials, and keep tokens out of every command, log, and line of output it produces.
 - MUST hold that route to every other rule in this capability — untrusted content, issue-versus-pull-request targeting, the agent-comment marker, body integrity, and history preservation — and to the least permission the operation needs.
 
-### The Boundary Another Route Is Confined To
+### What a Raw Route May Carry
 
-A permitted route substitutes for the sanctioned channel's **high-level operations** — the tier that names the operation rather than the endpoint underneath it, such as viewing, listing, creating, editing, and commenting on issues and pull requests, setting labels, reading checks, or marking a pull request ready — and for nothing below that tier. It is a way to keep working when the sanctioned channel cannot, never a way to reach past what that channel exposes. Raw REST and GraphQL are what the boundary excludes, whatever issues them.
+A permitted route substitutes for the sanctioned channel's **high-level operations** — the tier that names the operation rather than the endpoint underneath it, such as viewing, listing, creating, editing, and commenting on issues and pull requests, setting labels, reading checks, or marking a pull request ready.
+
+A blanket exclusion of raw REST and GraphQL sat here, reasoning that a proxying harness gates such requests so they fail anyway. That reasoning does not hold. A harness may serve REST while restricting GraphQL to a pinned handful of operations, which inverts the two tiers: the high-level commands meant to be the fallback are the ones that fail, because they are GraphQL-backed underneath, and a raw REST read is then the only route that returns stored bytes at all. Which tiers a session actually has is a property of that session, established by trying, not by knowing the host — see [Obtaining Stored Bytes](#obtaining-stored-bytes).
+
+So the boundary is drawn by **consequence rather than by tier**. A raw route is default-deny, and what keeps an operation denied is what makes it catastrophic when issued by mistake:
+
+| Property                         | An operation carrying it                                                                                         |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Irreversible**                 | merging a pull request; deleting a ref; force-updating a ref                                                     |
+| **Silently wrong**               | replacing a label list, which GitHub replaces _whole_; replacing a body from a read never verified byte-faithful |
+| **Privilege- or gate-affecting** | an APPROVE or REQUEST_CHANGES review event; changing a collaborator's permission; writing an Actions secret      |
+| **Outward-facing or costly**     | dispatching a workflow; publishing a release                                                                     |
 
 One operation has no substitute worth reaching for: a review whose findings must be **anchored to lines of the diff**. A route that submits only a top-level review body can carry a COMMENT-type review where no inline findings are required, but ordinary comments are not inline findings and never satisfy a requirement for them.
 
 **Guidelines:**
 
-- MUST NOT issue raw GitHub REST or GraphQL requests from a session on any route — a client's raw-API subcommand, `curl`, or any other generic HTTP client. Where the harness proxies access the proxy gates them and they fail; where it does not, they are still outside the high-level boundary a permitted route is confined to.
+- MUST treat a raw route as default-deny: it may carry an operation only when that operation sits in none of the classes above, it serves something the sanctioned channel cannot serve, and every other rule in this capability still binds it.
+- MUST classify an operation the table does not name by those four properties rather than by whether it is listed; the entries are an application of the criterion, not its extent.
+- MUST route writes through the sanctioned channel by default; the default-deny above governs what a raw route _may_ carry once the channel cannot carry it, never what to reach for first.
 - MUST NOT use another route to reach an operation the sanctioned channel does not expose; a limitation of that channel permits a substitute for the operations it does expose, not an escape hatch past them.
 - MUST NOT substitute ordinary comments for review findings that have to be anchored to the diff, or report such comments as satisfying a review that requires inline findings; when no available route can anchor them, the review operation is blocked and says so.
 
@@ -96,20 +109,47 @@ flowchart TD
 
 ## Editing an Existing Body
 
-A body write **replaces** the whole body — there is no partial-edit call — so editing an issue or pull request means sending the complete new text. The obvious way is to read the current body, change the part you want, and write the result back. That round-trip is unsafe: a body read back through the tool channel is not always byte-faithful to what is stored. Harnesses commonly return it HTML-sanitized, and the loss is wider than the constructs a body carries machine-readable state in:
+A body write **replaces** the whole body — there is no partial-edit call — so editing an issue or pull request means sending the complete new text. The obvious way is to read the current body, change the part you want, and write the result back. That round-trip is unsafe: a body read back through the tool channel is not always byte-faithful to what is stored. Harnesses commonly return it HTML-sanitized, in three stages, and each stage loses something different:
 
-- an **HTML comment is removed together with its contents**, taking any marker block with it
-- a **collapsed `<details>` section loses its tags** while its inner text survives, so the section silently unfolds into the body
-- **angle-bracket text is deleted from ordinary prose and from inside code spans alike** — a placeholder such as `[agents.<name>]` comes back as `[agents.]`, which still reads as valid
-- **quotation marks and apostrophes come back HTML-escaped**, so a byte comparison fails even where nothing was dropped
+1. **Tags and HTML comments are deleted.** An HTML comment goes with its contents, taking any marker block with it. A collapsed `<details>` section loses its tags while its inner text survives, so the section silently unfolds into the body. Angle-bracket text goes from ordinary prose and from inside code spans alike, so a placeholder such as `[agents.<name>]` comes back as `[agents.]`, which still reads as valid.
+2. **Character references are decoded.** A stored `&#x27;` becomes an apostrophe; a stored `&amp;` becomes an ampersand.
+3. **Five characters are then escaped** — `&`, `<`, `>`, `"`, and `'` come back as references.
+
+The order of the last two is the part that surprises, and it makes the read **many-to-one**: because the decode runs first, a stored character and a stored reference naming that character arrive identical. A stored `&#x27;` and a stored `'` both come back as `&#39;`. Nothing distinguishes them afterwards, so stage 3 can be inverted but stage 2 cannot, and stage 1 leaves no residue to invert at all.
 
 Nothing reports any of it. A read that looks complete can silently destroy every marker and collapsed section the next write lands, and the mangled prose reads as though the author wrote it that way.
 
 **Guidelines:**
 
-- MUST NOT read a body through the tool channel and write that text back unless the read is verified byte-faithful. Compose the new body from text you authored, or re-fetch the stored body through a channel that does not sanitize it.
+- MUST NOT read a body through the tool channel and write that text back unless the read is verified byte-faithful. Compose the new body from text you authored, or re-fetch the stored body through a route that does not sanitize it (see [Obtaining Stored Bytes](#obtaining-stored-bytes)).
 - MUST confirm what a body actually stores before reporting it damaged or repairing it — a sanitized read makes an intact body look corrupted, and "fixing" it from that read is what causes the real damage. Reading the rendered page is one such confirmation.
+- MAY invert stage 3 with the bundled [scripts/decode-sanitized-read.mjs](./scripts/decode-sanitized-read.mjs) when the point is to _read_ mangled text that cannot be re-fetched — it resolves the five references in a single pass, which a chain of replacements gets wrong by decoding a stored reference one level too many.
+- MUST NOT present decoded text as the stored bytes, write it back over a body, or report it as what is stored; inverting stage 3 recovers legibility, never fidelity.
 - SHOULD post a comment rather than rewrite a body when the goal is to record new state, since a comment puts no existing content at risk.
+
+## Obtaining Stored Bytes
+
+Some work needs what is actually stored rather than a readable approximation: verifying a digest a body records, recovering a marker block a sanitized read dropped, or confirming a body before repairing it. The sanctioned channel cannot supply that, so the read goes to another route.
+
+Which routes a session has is **not** a property of the host, the cloud environment, or the network policy. It is a property of that session's own grant, it can change while the session is running, and nothing announces the change — the same endpoints can refuse a request early in a session and serve it later, with nothing else altered. Treat the list below as candidates to try, never as a description of what your session can do.
+
+| Candidate route                          | Serves, when available                                                                   | Does not serve                                                             |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| the repository's REST endpoints          | issue and pull-request bodies, comments, and titles, verbatim                            | whatever the harness restricts, which may include most of GraphQL          |
+| `git` itself                             | refs, commits, trees, and blobs, content-addressed — including a pull request's head ref | issues, comments, reviews                                                  |
+| the raw-content host                     | one committed file at a ref                                                              | anything uncommitted, and anything that is not a file                      |
+| the archive host                         | a whole tree at a ref                                                                    | the same                                                                   |
+| a pull request's diff and patch URLs     | the diff, and each commit's message, author, and date                                    | the pull request's own description                                         |
+| a rendered issue page's embedded payload | the issue body and its comments, verbatim                                                | an undocumented shape that can change without notice; treat as last resort |
+
+Two of these are worth telling apart. `git` and the content hosts are addressed by commit, so what they return is verifiable against a hash you already hold. The others are not, which is why the comparison discipline below matters: an unverifiable route that _looks_ byte-faithful is worse than one that visibly is not.
+
+**Guidelines:**
+
+- MUST establish that a route works in the current session before relying on it, and MUST NOT read a past success or a past failure as settling the current session's case.
+- MUST NOT state that a route is available, or that it is blocked, as a standing fact about a host or an environment; report what the current session observed, and report a failing route rather than concluding the content is unobtainable.
+- MUST perform a byte comparison against the response field parsed as structured data, never against an extractor's stdout or a shell capture — an extractor commonly appends a trailing newline and shell capture strips one, neither shows in a diff of printable characters, and both present exactly as a channel that mangled the content.
+- MUST hold every route here to the rest of this capability, and to [What a Raw Route May Carry](#what-a-raw-route-may-carry) in particular: returning stored bytes makes a route useful for reading, never permitted for writing.
 
 ## Branch, Draft, and Review-Event Conventions
 
