@@ -10,6 +10,8 @@ Before resolving or spawning a worker, the main actor selects the checkout or wo
 
 The run tracks exactly one writer at a time: no writer, the main actor, or one worker instance.
 
+A participant that writes nothing does not appear in that accounting at all. The optional pre-flight reviewer is the one such participant the loop defines (see [pre-flight-review.md](./pre-flight-review.md)): it reads the diff and returns findings, so the lease stays wherever it already was while it runs.
+
 **Guidelines:**
 
 - MUST NOT modify any project file during planning, and MUST NOT let the main actor and a worker hold the lease at once.
@@ -17,6 +19,7 @@ The run tracks exactly one writer at a time: no writer, the main actor, or one w
 - MUST NOT let the worker create, switch, merge, rebase, or delete branches unless the package explicitly delegates that operation, and MUST NOT let it push.
 - MUST reclaim the lease only after the worker has completed, stopped, or been interrupted; no competing worker remains; write-capable background processes are stopped or accounted for; partial commits and uncommitted changes are known; and the receipt has been compared against actual Git state.
 - MUST describe the lease as a behavioral contract rather than an enforced lock unless the harness actually enforces one — claiming mechanical enforcement that does not exist invites exactly the concurrency it is meant to prevent.
+- MUST NOT grant, transfer, or reclaim the lease on account of a read-only participant; a reader neither holds it nor displaces whoever does.
 
 ## Cohesive Local Commits
 

@@ -371,7 +371,14 @@ describe("report-obligation-load.mjs", () => {
       // mechanical fix, and the retry cap in the Termination Guard. The
       // contracts themselves went to references, which is why the floor moved
       // by three while the ceiling moved by seventy.
-      expect.soft(totals.floorObligations).toBe(23);
+      // Drifted again from 23 in #208, which added the optional pre-flight
+      // review stage. Exactly one OBLIGATION bullet reached the body: the
+      // Termination Guard's cap on the pre-pull-request implement↔review loop,
+      // stated there so it is not mistaken for the address↔review cap beside
+      // it. The Phase 2 bullet that introduces the stage sits outside a
+      // Guidelines block, so it is prose and not a rule — which is why the
+      // floor moved by one while the ceiling moved by twenty-six.
+      expect.soft(totals.floorObligations).toBe(24);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. The fold lowered
@@ -391,7 +398,11 @@ describe("report-obligation-load.mjs", () => {
       // old exclusion ("why a general-purpose or default agent does not
       // qualify") and had to name the new criterion instead ("why capability
       // rather than a declared responsibility decides").
-      expect.soft(totals.floorTokens).toBe(7_704);
+      // And 225 more in #208, from the two paragraphs the pre-flight stage adds
+      // to the body: the Phase 2 bullet routing to it and stating the skip when
+      // no compatible review worker resolves, and the Termination Guard cap
+      // above.
+      expect.soft(totals.floorTokens).toBe(7_929);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -423,7 +434,31 @@ describe("report-obligation-load.mjs", () => {
       // package already supplies, which excluded the generic implementation
       // workers a harness ships built in, so the exclusion rule split into an
       // exclusion and a tie-break.
-      expect.soft(totals.ceilingObligations).toBe(361);
+      // Drifted from 361 in #208, which added the optional pre-flight review
+      // stage between the completion-evidence check and the pull request.
+      // Twenty-one of the twenty-seven are the new pre-flight-review.md: the advisory
+      // framing with its skip-and-fall-back rule and read-only worker
+      // resolution, the input contract that excludes the implementer's receipt,
+      // the merge-base policy read, the reader's position in the writer lease,
+      // the fresh-reviewer-per-round rule that deliberately inverts the
+      // resume-preferred default around it, the finding ledger with its
+      // terminal states and its durability across a reclaimed session, the
+      // dismissal split by severity with the no-re-grading rule that is the
+      // only thing keeping the split from being evaded, and the round cap with
+      // its declined-round outcome, and — found by the plan's own desk-check
+      // rather than written first — an explicit prohibition on spawning the
+      // reviewer while an implementation worker still runs, which until then
+      // resolved only through a conditional MAY and the reference's opening
+      // sentence. Five of the remaining six land in existing
+      // references — two in delegated-execution.md (a reader is not the second
+      // implementation worker the Waiting rules forbid, and scope-changing
+      // input mid-review takes the plan-revision path rather than the interrupt
+      // sequence written for an editing worker), one each in
+      // writer-ownership-and-recovery.md, run-state-and-reporting.md, and
+      // resuming-and-handoff.md — and the sixth is the Termination Guard bullet
+      // noted at the floor. As with the delegated path itself, the stage is
+      // optional at runtime and its rules are not conditional in the corpus.
+      expect.soft(totals.ceilingObligations).toBe(388);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -437,7 +472,13 @@ describe("report-obligation-load.mjs", () => {
       // paragraph stating that resolution screens only for what the package
       // cannot supply, plus an exclusion rule and a tie-break in place of the
       // single ambiguity rule they replaced.
-      expect.soft(totals.ceilingTokens).toBe(32_566);
+      // Drifted again from 32,566 in #208. Most of it is pre-flight-review.md
+      // at 11,687 bytes, which makes it the largest reference this skill
+      // carries — the stage has one contract per property it recovers, and each
+      // has to say which property and why, or a later reader reads the whole
+      // set as belt-and-braces and drops one. The rest is the amendments to the
+      // five existing files above.
+      expect.soft(totals.ceilingTokens).toBe(35_730);
     });
   });
 
