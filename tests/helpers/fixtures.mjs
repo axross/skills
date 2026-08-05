@@ -92,6 +92,29 @@ export async function writeSkill(root, dirName, options = {}) {
 }
 
 /**
+ * Write a product-specification corpus under `root`, from a map of corpus-
+ * relative paths to contents.
+ *
+ * `index.md` is supplied unless the map overrides it, because its absence is
+ * what tells every specification validator the project has no corpus — so a
+ * fixture exercising some other rule would otherwise silently test nothing.
+ * Pass `null` as a value to leave that file out.
+ *
+ * @param {string} root
+ * @param {Record<string, string | null>} [files]
+ * @returns {Promise<string>} absolute path of the corpus directory
+ */
+export async function writeCorpus(root, files = {}) {
+  const withIndex = { "index.md": "# Documentation\n", ...files };
+  for (const [relativePath, content] of Object.entries(withIndex)) {
+    if (content === null) continue;
+    await writeFileIn(root, join("docs", relativePath), content);
+  }
+  await mkdir(join(root, "docs"), { recursive: true });
+  return join(root, "docs");
+}
+
+/**
  * Write an arbitrary file, creating parent directories as needed.
  * @param {string} root
  * @param {string} relativePath
