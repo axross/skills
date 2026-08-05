@@ -36,6 +36,7 @@ The reference project squash-merges, so the pull request title becomes the squas
 - MUST write the pull request title in the header format the project's commit-message conventions define, so the squashed subject reads well in history; this loop defers that format rather than defining one.
 - MUST keep the pull request in **draft** until the ready gate, structured from any repository pull-request template — reproduce the template's sections when posting through the API rather than inventing a layout.
 - MUST summarize the change, the verification evidence, and the acceptance criteria with their status in the description, and seed the status block there as an HTML comment.
+- MUST record a decision the human settled at the plan-approval gate as settled in the description rather than re-offering it to the independent reviewer as an open question; the project's pull-request-description conventions own how such a decision is stated and take precedence where they exist.
 - SHOULD keep each commit a coherent, verifiable step rather than one opaque blob, so a reviewer can follow the change.
 
 ## Preserve Traceable History

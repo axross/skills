@@ -444,7 +444,16 @@ describe("report-obligation-load.mjs", () => {
       // restores that requirement for a project holding this fallback alone.
       // Drifted again from 366 in #209, by the same two body rules as the
       // floor; that branch added no reference file to a mandated skill.
-      expect.soft(totals.ceilingObligations).toBe(368);
+      // Drifted from 368 in #215, net +5. Four are the Settled Decisions
+      // section pull-request-descriptions.md gained: record a decision already
+      // settled with a stakeholder as settled, never offer it back to the
+      // reviewer as an open question, flag it rather than pass over it in
+      // silence, and state what revisiting it would take. The fifth is
+      // github-conventions.md's deferring bullet, which carries the
+      // plan-approval gate's own stake in that rule for a project holding this
+      // loop alone. Qualifying the neighbouring open-questions bullet moved no
+      // count — it narrowed a rule that was already there.
+      expect.soft(totals.ceilingObligations).toBe(373);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -467,7 +476,11 @@ describe("report-obligation-load.mjs", () => {
       // two forms no longer leave a reader to infer which rules survive.
       // And 254 more from #209's section — the floor's own 253 plus one, since
       // each figure rounds its own byte total independently.
-      expect.soft(totals.ceilingTokens).toBe(33_103);
+      // Drifted from 33,103 in #215, by the five obligations above and the
+      // prose they sit in: the polarity contrast the Settled Decisions section
+      // demonstrates before its bullets, and the sentence stating that
+      // recording a decision as settled does not place it beyond review.
+      expect.soft(totals.ceilingTokens).toBe(33_563);
     });
   });
 
