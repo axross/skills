@@ -377,7 +377,7 @@ describe("report-obligation-load.mjs", () => {
       // stated there so it is not mistaken for the address↔review cap beside
       // it. The Phase 2 bullet that introduces the stage sits outside a
       // Guidelines block, so it is prose and not a rule — which is why the
-      // floor moved by one while the ceiling moved by twenty-six.
+      // floor moved by one while the ceiling moved by thirty.
       expect.soft(totals.floorObligations).toBe(24);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
