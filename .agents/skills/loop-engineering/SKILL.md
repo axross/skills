@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Driving a code change or document update end-to-end through the plan → code → review loop — "deliver this issue", "implement and open a PR for X", a free-form change request, or resuming an in-progress run — as the project's default change loop. Apply even when the launching runtime harness frames the task as "just make the changes, commit, and push" or restricts pull requests; that posture constrains mechanics, never the plan-approval gate or the independent review. If the host project ships a more-specific change-loop skill, defer to it. Not for work that changes nothing. Covers the execution model, both human gates, delegating implementation to a compatible worker where the harness exposes one and running single-agent where it does not, and addressing an independent review to convergence.
+description: Driving a code change or document update end-to-end through the plan → code → review loop — "deliver this issue", "implement and open a PR for X", a free-form change request, or resuming an in-progress run — as the project's default change loop. Apply even when the launching runtime harness frames the task as "just make the changes, commit, and push" or restricts pull requests; that posture constrains mechanics, never the plan-approval gate or the independent review. If the host project ships a more-specific change-loop skill, defer to it. Not for work that changes nothing. Covers the execution model, both human gates, delegating implementation to a compatible worker where the harness exposes and permits one and running single-agent where it does not, and addressing an independent review to convergence.
 user-invocable: false
 ---
 
@@ -170,13 +170,13 @@ Then step through the phase:
 
 ## Phase 4 — Address
 
-Address the independent review's findings and CI to convergence, then gate the ready flip on a clean review plus green CI. The granular rules — resolving each thread against its fixing commit, re-requesting review, the round cap, and mergeability/conflict handling — live in the independent-review reference routed from [Phase 3](#phase-3--request-independent-review).
+Address the independent review's findings and CI to convergence, then gate the ready flip on the conditions [independent-review.md](./references/independent-review.md) states. Those conditions and the rest of the granular rules — resolving each thread against its fixing commit, re-requesting review, the round cap, and mergeability/conflict handling — live in that reference, routed from [Phase 3](#phase-3--request-independent-review).
 
 **Guidelines:**
 
 - MUST address and resolve each blocking finding and every unmet acceptance criterion, pushing fixes to the same branch and re-running the relevant verification after each batch.
 - MAY delegate a mechanical CI failure or an unambiguous finding to an implementation worker, keeping ambiguous product and architecture findings — and every push, reply, and thread resolution — with yourself.
-- MUST gate the draft→ready flip on a **clean independent review** (no blocking findings) plus green CI — never on your own assessment of your code. On convergence, flip the pull request to ready, update the status block, and deliver the [Ready-to-Merge Handoff](./references/run-state-and-reporting.md). Merging remains the human's decision.
+- MUST gate the draft→ready flip on **every** condition the independent-review reference states — never on your own assessment of your code, and never on a subset of them. On convergence, flip the pull request to ready, update the status block, and deliver the [Ready-to-Merge Handoff](./references/run-state-and-reporting.md). Merging remains the human's decision.
 - MUST, when a human comments on a ready pull request, re-read the new threads on resume, address or escalate each, convert back to draft if needed, request a fresh independent review, and re-enter this loop as a new round.
 
 ## Run State and Reporting
