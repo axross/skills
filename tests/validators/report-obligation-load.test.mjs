@@ -432,7 +432,12 @@ describe("report-obligation-load.mjs", () => {
       // at approval rather than kept as a progress tracker — and the fourth is
       // the conditional two-column Goals and Non-goals table. The single
       // goal-framing rule the merged section replaced left the count level.
-      expect.soft(totals.ceilingObligations).toBe(365);
+      // One more from #203's review: the merged Goals and Non-goals rule was
+      // carrying three obligations in one bullet — section shape, the flat
+      // list's opening verbs, and the concrete-outcome requirement the old
+      // goal-framing rule had owned and this branch had dropped. Splitting it
+      // restores that requirement for a project holding this fallback alone.
+      expect.soft(totals.ceilingObligations).toBe(366);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -450,7 +455,10 @@ describe("report-obligation-load.mjs", () => {
       // raised the ceiling obligation count above, plus the prose around them:
       // the reordered nine-section list, the Todo section's framing paragraph,
       // and the merged Goals and Non-goals rules.
-      expect.soft(totals.ceilingTokens).toBe(32_786);
+      // The last 63 are #203's review: the split above, plus the clause naming
+      // what a table's column headers do in place of the opening verbs, so the
+      // two forms no longer leave a reader to infer which rules survive.
+      expect.soft(totals.ceilingTokens).toBe(32_849);
     });
   });
 

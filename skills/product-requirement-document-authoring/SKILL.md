@@ -13,7 +13,7 @@ This skill owns one canonical document structure, in this order. **Required** se
 1. **Summary** _(required)_ — one standalone paragraph.
 2. **Todo** _(required)_ — a static, actionable list of the deliverables or change surfaces.
 3. **Background** _(required)_ — with an **Assumptions** subsection.
-4. **Goals and Non-goals** _(required)_ — one flat list whose opening verbs distinguish intended outcomes from deliberate exclusions.
+4. **Goals and Non-goals** _(required)_ — one section, standardly a flat list whose opening verbs distinguish intended outcomes from deliberate exclusions.
 5. **Functional requirements** _(conditional)_ — with **UI design** _(conditional)_ and **System design** _(conditional, carrying **Alternatives considered** when a plausible competing approach exists)_ nested under it.
 6. **Non-functional requirements** _(conditional)_.
 7. **Acceptance criteria** _(required)_.

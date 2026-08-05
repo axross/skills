@@ -1,6 +1,6 @@
 # Summary, Todo, and Background Framing
 
-Apply this reference when drafting or reviewing the document sections that state what is needed and why — **Summary**, **Todo**, **Background** with its **Assumptions** subsection, **Goals and Non-goals**, and the trailing **Open questions** section — before any UI, system-design, or implementation detail. Sourced from PRD-, RFC-, and requirements-writing practice: [Perforce's PRD guide](https://www.perforce.com/blog/alm/how-write-product-requirements-document-prd), [ProductPlan's problem-statement guide](https://www.productplan.com/learn/guide-to-writing-an-effective-problem-statement), [Intercom's "start with a problem statement"](https://www.intercom.com/blog/how-to-write-problem-statements/), [Product Talk on product outcomes](https://www.producttalk.org/product-outcomes/), [Google's design-docs practice](https://www.industrialempathy.com/posts/design-docs-at-google/), the [Rust RFC template](https://github.com/rust-lang/rfcs/blob/master/0000-template.md), the [RFC Style Guide (RFC 7322)](https://www.rfc-editor.org/rfc/rfc7322), and [GitHub's native mermaid rendering](https://github.blog/developer-skills/github/include-diagrams-markdown-files-mermaid/).
+Apply this reference when drafting or reviewing the document sections that state what is needed and why — **Summary**, **Todo**, **Background** with its **Assumptions** subsection, **Goals and Non-goals**, and the trailing **Open questions** section — before any UI, system-design, or implementation detail. **Todo** has no counterpart in the sources below and is this skill's own addition; every other section is sourced from PRD-, RFC-, and requirements-writing practice: [Perforce's PRD guide](https://www.perforce.com/blog/alm/how-write-product-requirements-document-prd), [ProductPlan's problem-statement guide](https://www.productplan.com/learn/guide-to-writing-an-effective-problem-statement), [Intercom's "start with a problem statement"](https://www.intercom.com/blog/how-to-write-problem-statements/), [Product Talk on product outcomes](https://www.producttalk.org/product-outcomes/), [Google's design-docs practice](https://www.industrialempathy.com/posts/design-docs-at-google/), the [Rust RFC template](https://github.com/rust-lang/rfcs/blob/master/0000-template.md), the [RFC Style Guide (RFC 7322)](https://www.rfc-editor.org/rfc/rfc7322), and [GitHub's native mermaid rendering](https://github.blog/developer-skills/github/include-diagrams-markdown-files-mermaid/).
 
 ## Summary
 
@@ -37,16 +37,18 @@ Background states the circumstances that make the work worth doing — neutrally
 
 ## Goals and Non-goals
 
-Goals make the work's purpose checkable: each names an achievable outcome the reader can hold the finished work against. Non-goals are deliberate exclusions of things that could reasonably have been included, not disclaimers or goals restated in the negative. Keeping both in one section puts the scope boundary in one place; starting each item with an affirmative or exclusionary verb makes its role evident without repetitive labels or nested sections.
+Goals make the work's purpose checkable: each names an achievable outcome the reader can hold the finished work against. Non-goals are deliberate exclusions of things that could reasonably have been included, not disclaimers or goals restated in the negative. Keeping both in one section puts the scope boundary in one place, without repetitive labels or nested sections.
+
+The section has two forms, and each marks an item's role differently. The standard one is a single flat list, where the opening verb does that marking. A two-column table is the alternative, available only where the items pair up: there the column headers mark the roles, so the opening verbs are free to vary.
 
 **Guidelines:**
 
-- MUST write Goals and Non-goals as one top-level section containing one flat list, with no Goals or Non-goals subheadings or grouped sublists.
+- MUST write Goals and Non-goals as one top-level section, with no Goals or Non-goals subheadings or grouped sublists.
+- MUST use one flat list as the section's standard form; the two-column table below is its only permitted alternative.
 - MUST NOT prefix items with fixed labels such as `Goal:` or `Non-goal:`.
-- MUST begin each goal with an affirmative imperative verb such as "Do", "Ensure", or "Build", and frame it as a change in behavior or capability rather than only an artifact.
-- MUST begin each non-goal with a negative or avoidance verb such as "Do not" or "Avoid", so its role is evident from the opening words.
-- MUST phrase each non-goal as a deliberate exclusion of something that could plausibly have been included, not as a goal merely negated.
-- MAY use a two-column Goals and Non-goals table instead of the flat list only when the items correspond directly and the table makes that comparison easier to read.
+- MUST begin each goal in the flat list with an affirmative imperative verb such as "Do", "Ensure", or "Build" — framing it as a change in behavior or capability rather than only an artifact — and each non-goal with a negative or avoidance verb such as "Do not" or "Avoid", so every item's role is evident from its opening words.
+- MUST phrase every non-goal, under either form, as a deliberate exclusion of something that could plausibly have been included, not as a goal merely negated.
+- MAY use a two-column Goals and Non-goals table in place of the flat list, only when the items correspond directly and the table makes that comparison easier to read; its column headers then carry the role marking the opening verbs carry in the list, so the verb rule above does not apply to its cells.
 - SHOULD route a later request that falls outside the stated non-goals through explicit scope evaluation rather than silently absorbing it into the current change.
 
 ## Assumptions vs. Open Questions

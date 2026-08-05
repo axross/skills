@@ -9,7 +9,7 @@ Every plan follows this order. **Required** sections are always present; **condi
 1. **Summary** _(required)_ — one standalone paragraph a reader can grasp without the rest.
 2. **Todo** _(required)_ — a static list of actionable deliverables or change surfaces, written as ordinary bullets.
 3. **Background** _(required)_ — with an **Assumptions** subsection.
-4. **Goals and Non-goals** _(required)_ — one flat list whose opening verbs distinguish intended outcomes from deliberate exclusions.
+4. **Goals and Non-goals** _(required)_ — one section, standardly a flat list whose opening verbs distinguish intended outcomes from deliberate exclusions.
 5. **Functional requirements** _(conditional)_ — with **UI design** and **System design** nested under it; the latter carries an **Alternatives considered** subsection when a plausible competing approach exists.
 6. **Non-functional requirements** _(conditional)_ — performance, security, accessibility, compatibility budgets that constrain the change.
 7. **Acceptance criteria** _(required)_ — the checkable list the reviewer verifies against the finished pull request.
@@ -21,8 +21,9 @@ Every plan follows this order. **Required** sections are always present; **condi
 - MUST include every required section and follow this order; omit a conditional section only with a one-line stated reason so a reader knows it was considered.
 - MUST right-size each section to the change — a one-file fix needs a paragraph per section, a cross-cutting feature needs the full treatment.
 - MUST separate stated **Assumptions** (decided, recorded) from **Open questions** (undecided, needing an answer); never leave a Must-ask decision buried as an assumption.
-- MUST write **Goals and Non-goals** as one flat list without fixed labels or nested Goals and Non-goals sections; begin goals with affirmative imperative verbs such as "Do", "Ensure", or "Build", and non-goals with negative or avoidance verbs such as "Do not" or "Avoid".
-- MAY replace that list with a two-column Goals and Non-goals table only when the items correspond directly and the table makes the comparison easier to read.
+- MUST write **Goals and Non-goals** as one top-level section without fixed labels or nested Goals and Non-goals sections, stating each item as a concrete, checkable outcome rather than a vague quality adjective.
+- MUST use one flat list as that section's standard form, beginning goals with affirmative imperative verbs such as "Do", "Ensure", or "Build", and non-goals with negative or avoidance verbs such as "Do not" or "Avoid".
+- MAY replace that list with a two-column Goals and Non-goals table only when the items correspond directly and the table makes the comparison easier to read; its column headers then carry the role marking the opening verbs carry, so that verb rule does not apply to its cells.
 - SHOULD add the **System design › Alternatives considered** subsection whenever a reviewer would reasonably ask "why not the other approach?".
 
 ## Todo
