@@ -13,6 +13,7 @@ After spawning, the main actor waits for completion, a decision escalation, a pe
 - MUST NOT, while the worker runs, edit project files, run competing mutating commands, run a verification that can itself alter artifacts, switch branches, create commits, or spawn a second implementation worker.
 - MAY, while the worker runs, process its status, permission requests, and decision escalations, and answer a pure status question from the human.
 - MUST NOT treat a completion indicator as sole evidence that no process remains; the receipt's background-process report is what settles it.
+- MUST NOT read the second-implementation-worker prohibition above as reaching a read-only reviewer — it does not, and the optional stage that spawns one runs only once this window has closed, never inside it (see [pre-flight-review.md](./pre-flight-review.md)).
 
 ## Permission Requests
 
@@ -39,6 +40,7 @@ When user input may change scope or requirements, the main actor interrupts the 
 
 - MUST NOT forward a scope-changing user message to a running worker without first evaluating its effect on the approved plan.
 - MAY answer a pure status question without changing writer ownership, provided the worker's task is neither interrupted nor redirected.
+- MUST, where the running worker is a read-only reviewer rather than an editor, take the plan-revision path directly instead of the interrupt sequence above: nothing is mid-edit, so there is no partial progress to collect and no lease to reclaim — discard the round's findings and re-review after the plan is re-approved.
 
 ## Phase 4 Delegation
 
