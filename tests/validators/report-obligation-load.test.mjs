@@ -410,10 +410,12 @@ describe("report-obligation-load.mjs", () => {
       // to the body: the Phase 2 bullet routing to it and stating the skip when
       // no compatible review worker resolves, and the Termination Guard cap
       // above.
-      // #203, #209, and #208 each moved this figure independently and landed in
-      // that order; the value here is the measured total after merging main,
-      // not any one branch's figure.
-      expect.soft(totals.floorTokens).toBe(8_180);
+      // And up again in #216, from the routing bullet SKILL.md gained for
+      // implementation-worker.md's new section on defining a worker.
+      // #203, #209, #208, and #216 each moved this figure independently and
+      // landed in that order; the value here is the measured total after
+      // merging main, not any one branch's figure.
+      expect.soft(totals.floorTokens).toBe(8_199);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -491,11 +493,21 @@ describe("report-obligation-load.mjs", () => {
       // resuming-and-handoff.md — and the sixth is the Termination Guard bullet
       // noted at the floor. As with the delegated path itself, the stage is
       // optional at runtime and its rules are not conditional in the corpus.
-      // Four branches moved this figure from 361 independently — #203's +5,
-      // #209's +2, #215/#221's +5, and #208's +30 — and they are additive:
-      // 361 + 42 = 403, measured after merging main rather than carried from
-      // any one of them. Only the last is this change's.
-      expect.soft(totals.ceilingObligations).toBe(403);
+      // And five more in #216, which gave this repository an implementation
+      // worker and documented what such a definition may carry — all about what
+      // a definition must leave to the package rather than restate: keep it to
+      // properties of the agent, do not preload the skill, do not give the
+      // worker its own checkout, and withdraw the GitHub channel where the host
+      // allows it. The fifth came from that branch's own review round: the
+      // worked example had been written around this loop's package, which made
+      // it unusable to any other caller and so worthless as the reference it was
+      // meant to be. The framing rule now says to write it without assuming the
+      // loop.
+      // Five branches moved this figure from 361 independently — #203's +5,
+      // #209's +2, #215/#221's +5, #208's +30, and #216's +5 — and they are
+      // additive: 361 + 47 = 408, measured after merging main rather than
+      // carried from any one of them. Only the last is this change's.
+      expect.soft(totals.ceilingObligations).toBe(408);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -528,9 +540,11 @@ describe("report-obligation-load.mjs", () => {
       // has to say which property and why, or a later reader reads the whole
       // set as belt-and-braces and drops one. The rest is the amendments to the
       // five existing files above.
+      // And up again in #216, from that branch's new section on defining a
+      // worker of your own.
       // Measured after the same merge, for the same reason as the figure
       // above.
-      expect.soft(totals.ceilingTokens).toBe(37_170);
+      expect.soft(totals.ceilingTokens).toBe(37_661);
     });
   });
 

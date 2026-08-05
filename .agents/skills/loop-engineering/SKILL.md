@@ -69,6 +69,7 @@ See [implementation-worker.md](./references/implementation-worker.md) for:
 - the four-step executor resolution order, and why capability rather than a declared responsibility decides
 - the compatibility preflight that runs before the writer lease is granted, including the visual-capability check
 - classifying model and effort as verified, declared, or unknown
+- what a project's own worker definition should carry, and what it must leave to the package
 
 See [implementation-package.md](./references/implementation-package.md) for:
 
