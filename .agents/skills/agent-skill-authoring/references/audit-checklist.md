@@ -61,7 +61,7 @@ The token estimate is a **proxy, not a token count**: the validator takes no tok
 
 ## External Link Freshness Audit
 
-A skill that pins a version or mirrors a vendor's option surface should cite the upstream page rather than reproduce it, because a reproduced table goes stale where a reader can see it. The link that replaces the table rots the other way — silently — and neither the skill-structure validators nor `check-links.mjs` can see it: both resolve relative `.md` targets on disk and ignore `http(s)://` entirely. This skill bundles `scripts/link-freshness/check.mjs` to close that gap, a dependency-light Node audit (standard library only) that probes every external URL the tree cites.
+A skill that pins a version or mirrors a vendor's option surface should cite the upstream page rather than reproduce it, because a reproduced table goes stale where a reader can see it. The link that replaces the table rots the other way — silently — and neither the skill-structure validators nor `check-links.mjs` can see it: each resolves relative `.md` targets on disk and ignores `http(s)://` entirely. This skill bundles `scripts/link-freshness/check.mjs` to close that gap, a dependency-light Node audit (standard library only) that probes every external URL the tree cites.
 
 **Example:**
 

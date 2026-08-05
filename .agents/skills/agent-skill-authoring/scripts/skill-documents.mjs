@@ -10,7 +10,7 @@
 // A rule belongs in the command that owns it, never here.
 
 import { readdir, readFile, stat } from "node:fs/promises";
-import { basename, join, relative, resolve, sep } from "node:path";
+import { basename, join, relative, sep } from "node:path";
 
 
 export function fail2(message) {

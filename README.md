@@ -485,8 +485,7 @@ node scripts/report-skill-duplication.mjs --help
 
 `report-skill-duplication.mjs` answers "which rule is stated in more than one
 skill?" — a question the skill-structure checks structurally cannot ask, because
-they
-validates one skill directory at a time and is host-agnostic. Two rules are
+they validate one skill directory at a time and are host-agnostic. Two rules are
 compared as sets of content words, cross-skill only, and every pair above the
 similarity floor is listed with both `file:line` sites and both rules in full.
 It reads the obligation definition from the same module `check-skill-body.mjs`

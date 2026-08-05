@@ -4,8 +4,8 @@
 //
 // Answers a question no per-skill check can: "which rule is stated in more than
 // one skill?" The skill-structure checks validate one skill directory at a time and are
-// host-agnostic — it has no view of a sibling skill, and should not grow one,
-// because it ships to projects whose skill trees are none of its business. So
+// host-agnostic — they have no view of a sibling skill, and should not grow one,
+// because they ship to projects whose skill trees are none of their business. So
 // the comparison lives here, beside report-obligation-load.mjs, for the same
 // reason that one does: it reports on a tree rather than validating one.
 //

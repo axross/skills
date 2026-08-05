@@ -187,10 +187,9 @@ for a broader prose rule does **not** silence the reviewer on that rule.
 - Relative-link integrity — a relative Markdown link whose target file does not
   resolve on disk.
 - A heading-anchor fragment that resolves to no heading in its target file,
-  **within a skill's `SKILL.md` or `references/*.md`** — the only files
-  the skill-structure checks scan. The scope qualifier is load-bearing: an anchor
-  in a
-  repository-root document such as this one is checked by nothing, so keep
+  **within a skill's `SKILL.md` or `references/*.md`** — the only files the
+  skill-structure checks scan. The scope qualifier is load-bearing: an anchor in
+  a repository-root document such as this one is checked by nothing, so keep
   reporting it. A fragment that resolves to the _wrong_ heading is a misroute
   no check can see, and stays in scope everywhere.
 - The structural checks `check-skill-frontmatter.mjs`, `check-skill-body.mjs`,

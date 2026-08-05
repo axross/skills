@@ -14,7 +14,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { FENCE_RE, scanLines } from "./commonmark.mjs";
-import { GUIDELINES_RE, RFC2119_RE, scanGuidelines } from "./guidelines.mjs";
+import { GUIDELINES_RE, scanGuidelines } from "./guidelines.mjs";
 import {
   runCli,
   siblingHelp,
