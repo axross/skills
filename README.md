@@ -306,7 +306,9 @@ merge.
 
 There is no dev server — authoring a skill means editing Markdown under
 [`skills/`](./skills) (or a skill root for a repository-local skill),
-reinstalling if it is distributable, and running `npm run check`. In a Claude
+reinstalling if it is distributable, and running `npm run check`. The terms this
+repository uses and the decisions that constrain it live in
+[`docs/`](./docs/index.md), which is checked by the same suite. In a Claude
 Code cloud session,
 [`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) installs
 dependencies (activating a Node version manager if one is present); the opt-in
@@ -316,23 +318,23 @@ A Codex session runs the same session-start and check scripts through
 [`.codex/hooks.json`](./.codex/hooks.json); format-on-edit is not wired there,
 because `format.sh` reads the edited path from a Claude Code payload field.
 
-| Area             | Tool                                                                                      |
-| ---------------- | ----------------------------------------------------------------------------------------- |
-| Language         | Markdown (with occasional JavaScript for scripting)                                       |
-| Runtimes         | Claude Code and Codex                                                                     |
-| Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file`     |
-| Package manager  | npm                                                                                       |
-| Formatting       | Prettier                                                                                  |
-| Linting          | markdownlint-cli2                                                                         |
-| Tests            | Vitest                                                                                    |
-| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                    |
-| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`      |
-| Installed copies | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                        |
-| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                               |
-| Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                                   |
-| Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                             |
-| Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)               |
-| Product spec     | `skills/living-product-specification/scripts/check-*.mjs` (five; for installing projects) |
+| Area             | Tool                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| Language         | Markdown (with occasional JavaScript for scripting)                                   |
+| Runtimes         | Claude Code and Codex                                                                 |
+| Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
+| Package manager  | npm                                                                                   |
+| Formatting       | Prettier                                                                              |
+| Linting          | markdownlint-cli2                                                                     |
+| Tests            | Vitest                                                                                |
+| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
+| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
+| Installed copies | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
+| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
+| Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
+| Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
+| Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
+| Product spec     | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
 
 ### Commands
 
@@ -344,14 +346,14 @@ wide one — the `npm test` row says what it carries.
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
-| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                              | When to run it                                                   |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                    | Once per checkout, and after `package.json` changes.             |
-| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                           | After every set of edits, before committing.                     |
-| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                             | In CI, or to check formatting without touching the working tree. |
-| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                          | After formatting, and fix every reported error before finishing. |
-| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, or a reference file.  |
-| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                              | Before opening or updating a pull request.                       |
+| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | When to run it                                                           |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                                                         | Once per checkout, and after `package.json` changes.                     |
+| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                                                                | After every set of edits, before committing.                             |
+| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                                                                  | In CI, or to check formatting without touching the working tree.         |
+| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                                                               | After formatting, and fix every reported error before finishing.         |
+| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the five corpus checks over `docs/`, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`. |
+| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                   | Before opening or updating a pull request.                               |
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
@@ -371,22 +373,23 @@ node skills/agent-skill-authoring/scripts/check-skill-body.mjs --help
 node skills/agent-skill-authoring/scripts/check-skill-references.mjs --help
 node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
 
+# Five more gate this repository's own docs/ corpus. They are one set,
+# deliberately not one command: each answers for one kind of change, so an
+# author who touched one document reads only its findings.
+node skills/living-product-specification/scripts/check-index.mjs docs
+node skills/living-product-specification/scripts/check-references.mjs docs
+node skills/living-product-specification/scripts/check-glossary.mjs docs
+node skills/living-product-specification/scripts/check-decision-naming.mjs docs
+node skills/living-product-specification/scripts/check-decision-supersede.mjs docs
+
 # One more ships in a skill and this repository runs it too, from a schedule
 # rather than a gate — see "Scheduled, and off the merge path" below:
 node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
 
-# Seven more ship inside a skill purely for the projects that install it — this
+# Two more ship inside a skill purely for the projects that install it — this
 # repository exercises them only against fixtures:
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/wireframe-design/scripts/check-wireframe.mjs --help
-
-# The last five are one set, deliberately not one command: each answers for one
-# kind of change, so an author who touched one document reads only its findings.
-node skills/living-product-specification/scripts/check-index.mjs --help
-node skills/living-product-specification/scripts/check-references.mjs --help
-node skills/living-product-specification/scripts/check-glossary.mjs --help
-node skills/living-product-specification/scripts/check-decision-naming.mjs --help
-node skills/living-product-specification/scripts/check-decision-supersede.mjs --help
 ```
 
 A validator earns its place when the defect it finds is **not visible in the text

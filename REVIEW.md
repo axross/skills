@@ -199,6 +199,18 @@ for a broader prose rule does **not** silence the reviewer on that rule.
   length exceeds <!-- count:skill-description-byte-cap -->1024<!-- /count -->
   **bytes**; a `references/*.md` file that no `SKILL.md` links; and a
   routing-section bullet opening with an RFC-2119 keyword.
+- The corpus checks `check-index.mjs`, `check-glossary.mjs`,
+  `check-decision-naming.mjs`, and `check-decision-supersede.mjs` enforce, over
+  `docs/`: a document `index.md` links from nowhere, and a decision record
+  indexed individually instead of through its directory; a spec with no matching
+  glossary heading, and a nested `specs/` path; a decision filename that is not
+  `YYYY-MM-DD-<decision-in-kebab-case>.md` or whose date is not real; and a
+  record whose `status` and `superseded_by` disagree, a `superseded_by` naming
+  no record, or a document still citing replaced rationale. `check-references.mjs`
+  is the fifth of that set and adds nothing here — relative-link integrity is
+  already excluded above. What none of them can see stays in scope: whether a
+  glossary entry is self-sufficient, whether a fact sits in the one document
+  that owns it, and whether a decision record was owed at all.
 - A content mismatch between a `skills/<name>/` source and its generated
   installed copy, or a `.claude/skills/<name>` symlink that does not resolve —
   the drift gate compares the source through the symlink tier, so one run
