@@ -505,18 +505,22 @@ describe("report-obligation-load.mjs", () => {
       // it unusable to any other caller and so worthless as the reference it was
       // meant to be. The framing rule now says to write it without assuming the
       // loop.
-      // And five more in #222, which gave the pre-flight review stage the
-      // reader counterpart of that section. Four are about the tool posture a
-      // reader definition takes — an allowlist rather than a denylist, the
-      // GitHub channel withdrawn for input independence as well as delivery,
-      // no self-loading of the project's skills over the merge-base copy, and
-      // no spawning further agents — and the fifth forbids calling a reader
-      // read-only while it still holds a shell.
+      // And four more in #222, which gave the pre-flight review stage the
+      // reader counterpart of that section: deny a reader mutation and
+      // spawning rather than enumerating what it may use, leave it able to
+      // reach the specification and the sources a factual claim rests on, do
+      // not withdraw a channel that carries what it must read, and do not call
+      // it read-only while it still holds a shell.
+      // Plan revision 1 of that branch had five here, not four. It withheld the
+      // GitHub channel and the project's skills from a reader, which a human
+      // caught: a reviewer needs the issue to confirm what was asked, and the
+      // skills exclusion was empty anyway because Read reaches them. The rule
+      // that replaced both is one, not two.
       // Six branches moved this figure from 361 independently — #203's +5,
-      // #209's +2, #215/#221's +5, #208's +30, #216's +5, and #222's +5 — and
-      // they are additive: 361 + 52 = 413, measured rather than carried from
+      // #209's +2, #215/#221's +5, #208's +30, #216's +5, and #222's +4 — and
+      // they are additive: 361 + 51 = 412, measured rather than carried from
       // any one of them. Only the last is this change's.
-      expect.soft(totals.ceilingObligations).toBe(413);
+      expect.soft(totals.ceilingObligations).toBe(412);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -551,13 +555,16 @@ describe("report-obligation-load.mjs", () => {
       // five existing files above.
       // And up again in #216, from that branch's new section on defining a
       // worker of your own.
-      // And 454 more in #222, from the reader counterpart of that section: the
-      // five obligations above plus the paragraph explaining why the same
-      // reasoning picks an allowlist here and a denylist there, which is the
-      // part a copier needs and the part analogy does not carry.
+      // And 557 more in #222, from the reader counterpart of that section: the
+      // four obligations above plus the paragraphs explaining why a reviewer's
+      // reach is wider than its job sounds and why enumerating that reach fails
+      // silently — the part a copier needs and the part analogy does not carry.
+      // Fewer obligations than plan revision 1 and more prose, which is the
+      // shape of the correction: one rule replaced two, and the reasoning that
+      // makes the rule follow-able had to be written out.
       // Measured after the same merge, for the same reason as the figure
       // above.
-      expect.soft(totals.ceilingTokens).toBe(38_115);
+      expect.soft(totals.ceilingTokens).toBe(38_218);
     });
   });
 

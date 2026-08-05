@@ -782,19 +782,23 @@ implementation-capable agent at the session's inherited model — rather than
 returning to single-agent execution, with no gate weakened. Single-agent
 execution is what a host exposing no capable agent at all produces.
 
-**The optional pre-flight review has its own worked example, and it is not a copy
-of the first.** [`.claude/agents/reviewer.md`](./.claude/agents/reviewer.md)
-constrains its tools with an allowlist where the implementer uses a denylist —
-the same reasoning reaching the opposite instrument, because a reader's tool
-surface is narrow and stable and is itself the thing being constrained, so an
-entry that stops resolving fails the spawn loudly rather than admitting a new
-writing tool in silence. Withholding the GitHub channel does double duty here:
-it keeps delivery with the main actor, and it keeps the reviewer away from the
-author's account of the change, which is the input dependence the stage exists to
-shed. Read-only-ness is enforced against the editing tools, the tool channels,
-and nested spawning — but not against the shell, which reading a diff needs.
-Delete this file and the stage is skipped rather than performed by the main
-actor, which is what keeps it from degrading into self-review.
+**The optional pre-flight review has its own worked example, and the interesting
+part is what it does _not_ take away.**
+[`.claude/agents/reviewer.md`](./.claude/agents/reviewer.md) denies two things —
+editing, and spawning another agent — and nothing else. The obvious move is to
+give a reviewer a short list of permitted tools, since its job sounds narrow. It
+is not: judging a change means confirming what was asked and not only what was
+written, which reaches the issue, any artifact the plan points at, and the
+documentation behind a factual claim. A reviewer missing one of those does not
+fail to start; it runs, cannot check what it cannot reach, and returns a report
+short by exactly those checks — and an under-equipped review reads exactly like a
+clean one. So the asymmetry between the two definitions is in _what_ each denies,
+not in how: the things a worker must never do are few and nameable, the things it
+needs are open-ended. Neither restriction is complete, and the file says so —
+`Bash` remains, so mutation is enforced against the editing tools and not against
+the shell, and reporting rather than publishing stays a rule it is asked to
+honor. Delete this file and the stage is skipped rather than performed by the
+main actor, which is what keeps it from degrading into self-review.
 
 `.claude/agents/` is the only home for either file — they are agent definitions,
 not skills, so `npx skills` does not carry them. Only Claude Code is configured
