@@ -2,147 +2,147 @@
   "version": 1,
   "skills": {
     "agent-skill-authoring": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "36f094508c8f6e830fff9daa57cfa08f6d667a9da17f7bd5ebd9ca9327667983"
     },
     "agent-skill-management": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "de51fb43c61cbdc6705d47bb14cfcca80fdc8045c24717b9bc424143c3ca0ca9"
     },
     "amplitude-instrumentation": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "ed8c6a03ff799d7790302de79d7853e484288631d2e72ed379724c29b2ce808d"
     },
     "application-security": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "6f08bd602a0999d516e6bdf4fced781cec799ee4e79f54ce965d23bd3f63958d"
     },
     "code-maintainability": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "fcb494029cc5fa1fcb64fd79c86c062a4b4008e46053068e090b9191d2b3337f"
     },
     "code-review": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "c30ef5b247584781ff1a32208dee056e756a38a9a623f6340084ced55992aecb"
     },
     "conventional-commits": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "4bda385eff6c7611f68eff516a2c981efa72cfec6c679c6c98c5e07d7c609847"
     },
     "end-to-end-testing": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "cc8db69e7e10b2155d3c44c057e0b15193d0a22f6cb1f11673092d1243a83238"
     },
     "expo-app-development": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "70f626360fd4a0c3d4e80e6c0b666e3b51c528c1c49dd064483e8c9f002397eb"
     },
     "github-operation": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
-      "computedHash": "f84784f9e293e897e68a884697fc1032f1289ca5174f2991a6c7a9684edd31a3"
+      "computedHash": "e11ed76440bc24025c214565b977ea56656975fc472f5041ec35c0e0f6eb1223"
     },
     "high-fidelity-ui-design": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "9f0c7150a09edec54a34b4172b5d989bd39ddd545e8c1b652435ac043bf2ae4d"
     },
     "jest-testing": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "1210ee0238b9d551fdac23da577f42139c8e45f8245df7908dad7f06d7b749d3"
     },
     "living-product-specification": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "81769727af36b8775a31c8699faa83a55c99f6bbf8599cace5906c6fc056a4c4"
     },
     "loop-engineering": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "6f6c68fcb73ebd3d81406a525baf33de3f9b24039ff5aa554b70896653285811"
     },
     "next-app-development": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "6f13ec4d2ac139c55556e3ffa8859b5c6d3a5d14ce46e9fd42244b583b73b2ae"
     },
     "product-requirement-document-authoring": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "814e68615653557ed4f1da893e29db398368aa41fe1a4103bbe0778f7e289d17"
     },
     "professional-behavior": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "0d9e1a53d6c371ebbb2e0dad14063187b9bb68ef47326d2ff558646d01d4c165"
     },
     "quality-assurance": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "4e69b2f6ca9a49d5c0adeb94752dd65fe3836a54f92726d59b06e850384c1921"
     },
     "react-component-development": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "0ef5cdc6172245abb3bf2839b44e7d40042cd0ad8fa3ae41484f49f8be41e7ca"
     },
     "react-component-styling": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "046f6905617aafe309105781ef5d1b64e8cc1e2a390bc68957d23b1fb4ee4fc4"
     },
     "sentry-instrumentation": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "13663bfcd7f416e876d7e9d2569c3b6bc9095ce0204320c464a041f20d50c65c"
     },
     "software-development": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "6de70f3f1d6dc1ca3d5b9bc14e19bf43c0dd9bdc1afdef4a14c6dcf0c9573d11"
     },
     "software-instrumentation": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "e81d884437eb1ab8584fc17f3b1bd922bdb4ba95201d7d3f9b16b2b0b12d429c"
     },
     "tanstack-query-development": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "5d65cc44f6441c82623c33c8bef19987b038c68b752c551e7e51d33e910ae0b3"
     },
     "technical-document-authoring": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "757d6b587f77e9a9055d9567a0a2d6b2b13978bb06b773271b8ae7666256ae8e"
     },
     "unit-testing": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "5487a4823d89e323f51045f77546a134855b4de69d230f0673307f526c36d46f"
     },
     "vitest-testing": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "6d3133b8bd756b28bd0f0b826b14e3828108b560bd0fc5d5bc1b979251054a2b"
     },
     "wireframe-design": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "40b7bea7cf734d605cf8803aa7e263266fbefa812b24720c0c394cabf50e75a3"
     },
     "zod-schema": {
-      "source": "/home/user/skills/skills",
+      "source": "./skills",
       "sourceType": "local",
       "computedHash": "4b84cdac79c5849706bf4c4c54b62ca3dc2b3619fb0ce0417b440911553b8113"
     }
