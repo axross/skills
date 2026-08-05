@@ -53,3 +53,20 @@ Classify model and effort independently as:
 - MUST classify model and effort with one of the three values above and MUST NOT report a declared value as verified.
 - MUST NOT require runtime-verified model and effort before delegating; that stricter policy belongs to a project or host that wants it, not to the portable loop.
 - SHOULD honor host or project configuration that selects an implementation model and reasoning effort, without hard-coding any model identifier into the loop's own rules.
+
+## Defining a Worker of Your Own
+
+A project does not have to define a worker at all — resolution accepts what a harness already exposes, and a generic implementation-capable agent qualifies. What a definition adds is narrower than it first appears, and worth being clear about before writing one:
+
+- It pins the model and effort the worker runs at. A harness that offers this commonly defaults to inheriting the session's, which means the worker runs at the main actor's cost and the saving that motivated delegating disappears without anything reporting it.
+- It places the worker at an explicit step in the resolution order rather than a discovered one.
+- It can withdraw tools, which is the one place a boundary the package states in prose becomes a boundary the host enforces.
+
+Everything else belongs in the package. A definition that also carried the decision boundary, the escalation list, the verification obligation, the commit rules, or the receipt shape would restate per agent what already arrives per run — and would drift from it the first time the package changed.
+
+**Guidelines:**
+
+- MUST keep a worker definition to properties of the agent — model, effort, tool limits, and a short framing — and MUST NOT restate anything the package supplies.
+- MUST NOT preload this skill into a worker where the host offers that, since the package is self-contained by contract and preloading spends the worker's context on rules it is handed anyway.
+- MUST NOT give a worker its own isolated checkout where the host offers that: the package names the branch and base revision the worker must verify, and an isolated copy will not match them.
+- SHOULD withdraw the harness's GitHub channel from a worker where the host supports it, so the delivery boundary is enforced rather than trusted — noting that operations reached through a shell stay available, so this closes part of that boundary and not all of it.

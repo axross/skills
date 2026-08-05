@@ -391,7 +391,9 @@ describe("report-obligation-load.mjs", () => {
       // old exclusion ("why a general-purpose or default agent does not
       // qualify") and had to name the new criterion instead ("why capability
       // rather than a declared responsibility decides").
-      expect.soft(totals.floorTokens).toBe(7_704);
+      // And 19 more in #216, from the routing bullet SKILL.md gained for
+      // implementation-worker.md's new section on defining a worker.
+      expect.soft(totals.floorTokens).toBe(7_723);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -423,7 +425,13 @@ describe("report-obligation-load.mjs", () => {
       // package already supplies, which excluded the generic implementation
       // workers a harness ships built in, so the exclusion rule split into an
       // exclusion and a tie-break.
-      expect.soft(totals.ceilingObligations).toBe(361);
+      // Drifted from 361 in #216, which gave this repository an implementation
+      // worker and documented what such a definition may carry. Four rules,
+      // all about what a definition must leave to the package rather than
+      // restate: keep it to properties of the agent, do not preload the skill,
+      // do not give the worker its own checkout, and withdraw the GitHub
+      // channel where the host allows it.
+      expect.soft(totals.ceilingObligations).toBe(365);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -437,7 +445,8 @@ describe("report-obligation-load.mjs", () => {
       // paragraph stating that resolution screens only for what the package
       // cannot supply, plus an exclusion rule and a tie-break in place of the
       // single ambiguity rule they replaced.
-      expect.soft(totals.ceilingTokens).toBe(32_566);
+      // And 424 more in #216, from the same new section.
+      expect.soft(totals.ceilingTokens).toBe(32_990);
     });
   });
 

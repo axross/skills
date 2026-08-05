@@ -750,6 +750,20 @@ free-form request (with no issue yet, it files a tracking issue first, then
 delivers it). To approve a paused plan or resume after a question, continue the
 session and tell it to continue.
 
+**Step 2 runs in a subagent here, and that subagent is also the worked example.**
+[`.claude/agents/implementer.md`](./.claude/agents/implementer.md) pins a
+lower-cost model and effort — a worker that inherits the session's runs at the
+main actor's cost, which defeats the point — and withdraws the GitHub channel so
+delivery stays with the main actor. It carries nothing else: the decision
+boundary, the verification obligation, the commit rules, and the receipt shape
+all arrive per run in the task package, so a definition restating them would only
+drift from it. What it leaves out, and why, is explained host-neutrally in
+[`implementation-worker.md`](./skills/loop-engineering/references/implementation-worker.md).
+Only Claude Code is configured today —
+[#218](https://github.com/axross/skills/issues/218) tracks the Codex side. Delete
+the file and the loop returns to running every phase in one actor, with no gate
+weakened.
+
 One check backs the loop from outside any session:
 [`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)
 sweeps hourly and flags any `claude/` branch pushed ahead of the default branch
