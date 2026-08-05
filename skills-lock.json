@@ -64,7 +64,7 @@
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "81fb2baead27f291b1e4f52122220d7bf3c4edfac55a7b6b95c8cc9777ccb630"
+      "computedHash": "a631ff7b1d27abd439ff728e74243b9bdce31d4f59c737a1e04894336131d891"
     },
     "next-app-development": {
       "source": "/home/user/skills/skills",
@@ -104,7 +104,7 @@
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "889c5979ca9ef6fec9292406917b9d30c2cce30fe35864adf1ac981840549273"
+      "computedHash": "72d8393408ef03bec64da7464c54fd5534ba0dc8c9b2c74f13bc70a2fcfe3547"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",

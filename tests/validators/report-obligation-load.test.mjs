@@ -437,7 +437,16 @@ describe("report-obligation-load.mjs", () => {
       // list's opening verbs, and the concrete-outcome requirement the old
       // goal-framing rule had owned and this branch had dropped. Splitting it
       // restores that requirement for a project holding this fallback alone.
-      expect.soft(totals.ceilingObligations).toBe(366);
+      // Drifted from 366 in #215, net +5. Four are the Settled Decisions
+      // section pull-request-descriptions.md gained: record a decision already
+      // settled with a stakeholder as settled, never offer it back to the
+      // reviewer as an open question, flag it rather than pass over it in
+      // silence, and state what revisiting it would take. The fifth is
+      // github-conventions.md's deferring bullet, which carries the
+      // plan-approval gate's own stake in that rule for a project holding this
+      // loop alone. Qualifying the neighbouring open-questions bullet moved no
+      // count — it narrowed a rule that was already there.
+      expect.soft(totals.ceilingObligations).toBe(371);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -458,7 +467,11 @@ describe("report-obligation-load.mjs", () => {
       // The last 63 are #203's review: the split above, plus the clause naming
       // what a table's column headers do in place of the opening verbs, so the
       // two forms no longer leave a reader to infer which rules survive.
-      expect.soft(totals.ceilingTokens).toBe(32_849);
+      // Drifted from 32,849 in #215, by the five obligations above and the
+      // prose they sit in: the polarity contrast the Settled Decisions section
+      // demonstrates before its bullets, and the sentence stating that
+      // recording a decision as settled does not place it beyond review.
+      expect.soft(totals.ceilingTokens).toBe(33_309);
     });
   });
 
