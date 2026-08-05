@@ -41,17 +41,17 @@ See [project-docs.md](./references/project-docs.md) for:
 
 A project may also keep a specification of the product **itself** — what it is,
 the language its domain speaks, how it currently behaves, and the decisions that
-constrain it — which is a different body of documentation from the contributor
-docs above and has a different audience. Where the project ships a
-product-specification capability, consult it whenever a change touches an area
-that specification describes: read its index before proposing a plan, and
-correct what the change invalidated in the same pull request. Where the project
-ships none, this section requires nothing.
+constrain it. That is a different body of documentation from the contributor
+docs above, with a different audience and its own owner: where a project ships a
+product-specification capability, that capability states when the specification
+is read, what a change obliges you to correct in it, and how. This section
+routes there and deliberately does not restate those rules. Where a project
+ships none, it requires nothing.
 
 **Guidelines:**
 
-- MUST consult the project's product-specification capability, where it ships one, before planning a change to behavior that specification describes — and update what the change invalidated in the same pull request, not as follow-up work.
-- MUST NOT treat that specification as interchangeable with the plan for a change: a plan describes the diff and is finished when it merges, while the specification describes the steady state and is never finished.
+- MUST consult the project's product-specification capability, where it ships one, whenever a change touches behavior that specification describes, and follow the obligations it states rather than any summary of them here.
+- MUST route by tense where both apply: a specification of what is about to be built belongs to the project's product-requirement practices, and the capability above covers only the description of what already exists. This one distinction is stated here rather than left to either owner, because the cost of getting it wrong is loading neither of them.
 
 ## Verification
 

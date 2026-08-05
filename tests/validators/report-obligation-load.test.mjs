@@ -395,8 +395,11 @@ describe("report-obligation-load.mjs", () => {
       // old exclusion ("why a general-purpose or default agent does not
       // qualify") and had to name the new criterion instead ("why capability
       // rather than a declared responsibility decides").
-      // And 228 more from #209's section, which is prose in the same body.
-      expect.soft(totals.floorTokens).toBe(7_932);
+      // And 253 more from #209's section, which is prose in the same body. Its
+      // review round 3 grew it: the section was restating rules the capability
+      // it routes to already owns, and replacing a restatement with a deferral
+      // costs words while removing a second source of truth.
+      expect.soft(totals.floorTokens).toBe(7_957);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -444,9 +447,9 @@ describe("report-obligation-load.mjs", () => {
       // paragraph stating that resolution screens only for what the package
       // cannot supply, plus an exclusion rule and a tie-break in place of the
       // single ambiguity rule they replaced.
-      // And 229 more from #209's section — the floor's own 228 plus one, since
-      // each figure rounds its own byte total independently.
-      expect.soft(totals.ceilingTokens).toBe(32_795);
+      // And the same 253 as the floor, from #209's section: it lives in a
+      // SKILL.md body, which the ceiling counts too.
+      expect.soft(totals.ceilingTokens).toBe(32_819);
     });
   });
 
