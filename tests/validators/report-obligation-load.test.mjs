@@ -364,14 +364,19 @@ describe("report-obligation-load.mjs", () => {
     it("reproduces the floor and ceiling the tracking issue records", async () => {
       const totals = totalsOf(report("--mandated").stdout);
 
-      expect.soft(totals.floorObligations).toBe(20);
+      // Drifted from 20 in #209, which gave software-development a Product
+      // Specification section routing to the capability that owns a project's
+      // own description of its product. Both new rules sit in the SKILL.md
+      // body, so the floor and the ceiling move by the same two.
+      expect.soft(totals.floorObligations).toBe(22);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. The fold lowered
       // this figure and the co-notation raised part of it back. Both are prose
       // edits, which is why the obligation counts beside these token figures
       // never moved at all.
-      expect.soft(totals.floorTokens).toBe(6_776);
+      // Drifted again from 6,776 in #209, by the section named above.
+      expect.soft(totals.floorTokens).toBe(7_004);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -383,12 +388,14 @@ describe("report-obligation-load.mjs", () => {
       // "use the tool whenever the session exposes one" from "fall back to the
       // turn output only where none exists". One rule carrying both read as
       // permission to skip the tool whenever you expected it to be missing.
-      expect.soft(totals.ceilingObligations).toBe(290);
+      // Drifted from 290 in #209, by the same two body rules as the floor.
+      expect.soft(totals.ceilingObligations).toBe(292);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      expect.soft(totals.ceilingTokens).toBe(25_250);
+      // Drifted again from 25,250 in #209, by that same section.
+      expect.soft(totals.ceilingTokens).toBe(25_479);
     });
   });
 

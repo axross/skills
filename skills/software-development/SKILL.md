@@ -37,6 +37,22 @@ See [project-docs.md](./references/project-docs.md) for:
 - asking the human rather than inferring a command when that documentation is silent
 - recording the answer, with approval, so the next task finds it documented
 
+## Product Specification
+
+A project may also keep a specification of the product **itself** — what it is,
+the language its domain speaks, how it currently behaves, and the decisions that
+constrain it — which is a different body of documentation from the contributor
+docs above and has a different audience. Where the project ships a
+product-specification capability, consult it whenever a change touches an area
+that specification describes: read its index before proposing a plan, and
+correct what the change invalidated in the same pull request. Where the project
+ships none, this section requires nothing.
+
+**Guidelines:**
+
+- MUST consult the project's product-specification capability, where it ships one, before planning a change to behavior that specification describes — and update what the change invalidated in the same pull request, not as follow-up work.
+- MUST NOT treat that specification as interchangeable with the plan for a change: a plan describes the diff and is finished when it merges, while the specification describes the steady state and is never finished.
+
 ## Verification
 
 See [verification.md](./references/verification.md) for:
