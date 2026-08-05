@@ -45,6 +45,21 @@ describe("check-index.mjs", () => {
     expect(checkIndex(docs)).toReportFailure(/decisions\/ is not linked from index\.md/);
   });
 
+  it("reports a decision record the index links individually", async () => {
+    // The log stays reachable through such a link, so a bare "can I get there?"
+    // test accepts it — and it is the one shape an append-only log must not
+    // take, since index.md is the file read unconditionally.
+    const docs = await writeCorpus(await tempDir(), {
+      "index.md": "# Docs\n\n- [Use a queue](./decisions/2026-07-02-use-a-queue.md) — scheduling\n",
+      "decisions/2026-07-02-use-a-queue.md": "---\nstatus: accepted\n---\n",
+      "decisions/2026-08-01-shard-the-queue.md": "---\nstatus: accepted\n---\n",
+    });
+
+    expect(checkIndex(docs)).toReportFailure(
+      /over-indexed: index\.md links decisions\/2026-07-02-use-a-queue\.md individually/,
+    );
+  });
+
   it("does not require an individual decision record to be indexed", async () => {
     const docs = await writeCorpus(await tempDir(), {
       "index.md": "# Docs\n\n- [Decisions](./decisions/) — the log\n",

@@ -9,13 +9,13 @@ Each command answers one question, tied to one kind of change the author just
 made. None is a general "check the docs" pass, because a general pass makes an
 author who touched one spec read findings about everything else.
 
-| Run it after                  | Command                        | Reports                                                                                                       |
-| ----------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| Adding or removing a document | `check-index.mjs`              | a document not listed in `index.md`                                                                           |
-| Editing any document          | `check-references.mjs`         | a relative link that does not resolve                                                                         |
-| Adding or renaming a spec     | `check-glossary.mjs`           | a spec with no matching glossary heading                                                                      |
-| Writing a decision            | `check-decision-naming.mjs`    | a filename that is not `YYYY-MM-DD-<kebab>.md`, or whose date is not real                                     |
-| Superseding a decision        | `check-decision-supersede.mjs` | inconsistent status metadata, a `superseded_by` naming nothing, or a document still citing replaced rationale |
+| Run it after                  | Command                        | Reports                                                                                                         |
+| ----------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Adding or removing a document | `check-index.mjs`              | a document not listed in `index.md`, and a decision record listed individually instead of through its directory |
+| Editing any document          | `check-references.mjs`         | a relative link that does not resolve                                                                           |
+| Adding or renaming a spec     | `check-glossary.mjs`           | a spec with no matching glossary heading                                                                        |
+| Writing a decision            | `check-decision-naming.mjs`    | a filename that is not `YYYY-MM-DD-<kebab>.md`, or whose date is not real                                       |
+| Superseding a decision        | `check-decision-supersede.mjs` | inconsistent status metadata, a `superseded_by` naming nothing, or a document still citing replaced rationale   |
 
 ```bash
 node <skill>/scripts/check-references.mjs           # defaults to ./docs

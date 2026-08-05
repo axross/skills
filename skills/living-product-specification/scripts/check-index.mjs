@@ -26,9 +26,10 @@ const USAGE = `Usage: ${selfName(import.meta.url)} [<corpus-dir>]
 Check that every document in a product-specification corpus is listed in
 index.md. Run it after adding or removing a document.
 
-An individual decision record is exempt — the index links decisions/ once, as a
-directory, because an append-only log would otherwise grow the index without
-bound. Defaults to ./docs.
+An individual decision record is not listed — the index links decisions/ once, as
+a directory, because an append-only log would otherwise grow the index without
+bound. Linking a record individually is reported, not exempted. Defaults to
+./docs.
 
 Exit codes: 0 every document is listed, or the project has no corpus.
             1 findings. 2 bad invocation.
@@ -54,13 +55,31 @@ function run(corpus) {
 
   if (corpus.hasDecisions) {
     const decisionsDir = join(corpus.root, "decisions");
-    const reachable = [...linked].some(
-      (target) => target === decisionsDir || relative(decisionsDir, target).split(sep)[0] !== "..",
-    );
-    if (!reachable) {
+    let linksDirectory = false;
+
+    for (const target of linked) {
+      if (target === decisionsDir) {
+        linksDirectory = true;
+        continue;
+      }
+      // A target under decisions/ is an individually indexed record. It leaves
+      // the log reachable, which is why an "is it reachable at all?" test would
+      // accept it — and it is the exact shape the log must never take, since the
+      // index is read unconditionally and an append-only log only ever grows.
+      if (relative(decisionsDir, target).split(sep)[0] !== "..") {
+        const record = relative(decisionsDir, target).split(sep).join("/");
+        findings.push({
+          category: "over-indexed",
+          message: `index.md links decisions/${record} individually; the log is linked once, as a directory`,
+        });
+      }
+    }
+
+    if (!linksDirectory) {
       findings.push({
         category: "unindexed",
-        message: "decisions/ is not linked from index.md, so the decision log is unreachable",
+        message:
+          "decisions/ is not linked from index.md as a directory, so the decision log is unreachable",
       });
     }
   }
@@ -73,5 +92,7 @@ process.exitCode = await main({
   argv: process.argv.slice(2),
   run,
   pass: (corpus) =>
-    `Every document is listed in index.md (${nonDecisionDocuments(corpus).length - 1} indexed).`,
+    `Every document is listed in index.md (${nonDecisionDocuments(corpus).length - 1} indexed${
+      corpus.hasDecisions ? ", plus the decision log as a directory" : ""
+    }).`,
 });
