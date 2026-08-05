@@ -45,7 +45,7 @@ A **failed invocation is neither of those.** An authentication failure, a timeou
 
 ### The Boundary Another Route Is Confined To
 
-A permitted route substitutes for the sanctioned channel's **high-level operations** — viewing, listing, creating, editing, and commenting on issues and pull requests, reading checks, marking a pull request ready — and for nothing else. It is a way to keep working when the sanctioned channel cannot, never a way to reach past what that channel exposes. Raw REST and GraphQL are what the boundary excludes, whatever issues them.
+A permitted route substitutes for the sanctioned channel's **high-level operations** — the tier that names the operation rather than the endpoint underneath it, such as viewing, listing, creating, editing, and commenting on issues and pull requests, setting labels, reading checks, or marking a pull request ready — and for nothing below that tier. It is a way to keep working when the sanctioned channel cannot, never a way to reach past what that channel exposes. Raw REST and GraphQL are what the boundary excludes, whatever issues them.
 
 One operation has no substitute worth reaching for: a review whose findings must be **anchored to lines of the diff**. A route that submits only a top-level review body can carry a COMMENT-type review where no inline findings are required, but ordinary comments are not inline findings and never satisfy a requirement for them.
 
