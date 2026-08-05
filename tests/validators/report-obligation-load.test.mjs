@@ -451,7 +451,10 @@ describe("report-obligation-load.mjs", () => {
       // rule and its intro prose were reworded to defer to the
       // independent-review reference rather than enumerate the flip's
       // conditions, so only bytes moved.
-      expect.soft(totals.floorTokens).toBe(8_229);
+      // And two more in #231, from the twelve bytes the description's
+      // `exposes and permits one` clause adds. A frontmatter-only edit, so no
+      // obligation moved — only the byte total this figure divides.
+      expect.soft(totals.floorTokens).toBe(8_231);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -614,7 +617,9 @@ describe("report-obligation-load.mjs", () => {
       // from permission, the one naming why neither neighbouring rule describes
       // a policy block, and the one on a conditional policy hiding the lever
       // that lifts it.
-      expect.soft(totals.ceilingTokens).toBe(39_195);
+      // And two more in #231, the same twelve description bytes reaching this
+      // figure through the same SKILL.md the floor above counts.
+      expect.soft(totals.ceilingTokens).toBe(39_197);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -669,10 +674,12 @@ describe("report-obligation-load.mjs", () => {
       // block into it — which is the warning above working as intended: the
       // branch had moved only the copy above, and taking this block from the
       // base is what surfaced the other half still to move.
+      // #231 moved both copies too, and moved neither obligation count: its
+      // twelve bytes are frontmatter, which the report weighs but no rule lives in.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_229);
+      expect.soft(tiers[2].floorTokens).toBe(8_231);
       expect.soft(tiers[2].ceilingObligations).toBe(419);
-      expect.soft(tiers[2].ceilingTokens).toBe(39_195);
+      expect.soft(tiers[2].ceilingTokens).toBe(39_197);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
