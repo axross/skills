@@ -783,12 +783,33 @@ works for a caller that has never heard of `loop-engineering` and is worth
 copying into a project that runs its subagents some other way. What it leaves
 out, and why, is explained host-neutrally in
 [`implementation-worker.md`](./skills/loop-engineering/references/implementation-worker.md).
-Only Claude Code is configured today —
-[#218](https://github.com/axross/skills/issues/218) tracks the Codex side. Delete
-the file and the loop keeps delegating — to a generic implementation-capable
-agent at the session's inherited model — rather than returning to single-agent
-execution, with no gate weakened. Single-agent execution is what a host
-exposing no capable agent at all produces.
+Delete the file and the loop keeps delegating — to a generic
+implementation-capable agent at the session's inherited model — rather than
+returning to single-agent execution, with no gate weakened. Single-agent
+execution is what a host exposing no capable agent at all produces.
+
+**The optional pre-flight review has its own worked example, and the interesting
+part is what it does _not_ take away.**
+[`.claude/agents/reviewer.md`](./.claude/agents/reviewer.md) denies two things —
+editing, and spawning another agent — and nothing else. The obvious move is to
+give a reviewer a short list of permitted tools, since its job sounds narrow. It
+is not: judging a change means confirming what was asked and not only what was
+written, which reaches the issue, any artifact the plan points at, and the
+documentation behind a factual claim. A reviewer missing one of those does not
+fail to start; it runs, cannot check what it cannot reach, and returns a report
+short by exactly those checks — and an under-equipped review reads exactly like a
+clean one. So the asymmetry between the two definitions is in _what_ each denies,
+not in how: the things a worker must never do are few and nameable, the things it
+needs are open-ended. Neither restriction is complete, and the file says so —
+`Bash` remains, so mutation is enforced against the editing tools and not against
+the shell, and reporting rather than publishing stays a rule it is asked to
+honor. Delete this file and the stage is skipped rather than performed by the
+main actor, which is what keeps it from degrading into self-review.
+
+`.claude/agents/` is the only home for either file — they are agent definitions,
+not skills, so `npx skills` does not carry them. Only Claude Code is configured
+today; [#218](https://github.com/axross/skills/issues/218) tracks the Codex side
+for both.
 
 One check backs the loop from outside any session:
 [`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)

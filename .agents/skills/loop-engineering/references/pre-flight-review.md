@@ -105,3 +105,20 @@ Each fix round is a new task phase, so it carries a fresh [Retry Budget](./write
 - MUST state, in that question, how many findings are still open and at what severities, naming each **Critical** or **Major** among them. Declining decides the disposition of those findings, not only whether to spend another round, and a human not told what remains open cannot make that decision. Without this the dismissal split above is bypassable: a Critical the main actor could not dismiss alone would instead be disposed of by an uninformed answer to a different question.
 - MUST, where the human declines another round, record every still-open finding as **deferred** and then open the draft pull request with those findings in its body. The decline is that decision — made by the human, over the whole remaining set at once, and informed by the disclosure the rule above requires — which is why it needs no further per-finding confirmation and why it is neither a fix nor a dismissal; recording it as either would misstate what happened. **The human's decision is the license and the only license** — citing the external review's existence as the reason it is acceptable is the rationalization the loop's own rules forbid; that the external review still gates the change states what declining does not weaken, never why it is allowed.
 - MUST keep this cap distinct from the address↔review cap in the Termination Guard, which governs the loop after the pull request exists.
+
+## Defining a Reader of Your Own
+
+A project does not have to define a review worker at all — resolution accepts one the harness already exposes, and an agent whose definition forbids editing qualifies here because it does. [implementation-worker.md](./implementation-worker.md)'s section on defining a worker owns what any such definition carries and what it must leave to the package, and that guidance applies here unchanged. This section states only where a reader departs from it.
+
+The departure is not the instrument. It is tempting to constrain a reader by enumerating what it may use — its job sounds narrow, and a list of permitted tools looks like the tighter grip. Both halves of that are wrong, and getting them wrong is expensive in a way nothing reports.
+
+A reviewer's reach is **wider** than its job sounds, because judging a change means confirming what was asked and not only what was written: the tracking issue and its acceptance criteria, any rendered artifact the plan points at, and the external source behind a claim about an API or a version. And a reader missing one of those does not fail to start. It runs, silently cannot check what it cannot reach, and returns findings short by exactly the checks it could not perform — so an under-equipped review and a clean one are the same text.
+
+The asymmetry is therefore in **what** is denied rather than in how: the set of things a worker must never do is small, stable, and nameable, while the set it legitimately needs is open-ended and unpredictable.
+
+**Guidelines:**
+
+- MUST deny a reader mutation and the ability to spawn further agents, and MUST NOT constrain it by enumerating what it may use instead — an enumeration is a guess at what reviewing will require, and a short guess yields a quiet reviewer rather than a failed one.
+- MUST leave a reader able to reach the specification it judges against, the artifacts that specification points at, and the external sources a factual claim in the change depends on.
+- MUST NOT withdraw a channel from a reader merely because it can write, where that same channel carries what the reader must read — the issue tracker being the case, since withdrawing it wholesale takes the specification with it, and denying only its write operations drifts with the channel's surface while still reading as enforcement. Name that boundary as prose instead.
+- MUST NOT describe a reader as read-only while a general-purpose shell remains, since reading a change requires one; state which part of the constraint the host enforces and which stays a rule the reader is asked to honor.
