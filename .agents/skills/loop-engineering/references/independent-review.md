@@ -6,11 +6,13 @@ Apply this reference for the machine-event tail after you push and request revie
 
 After you push and request review, machine events run on their own: the merge-checks CI and the independent review, plus a per-PR preview deploy where the project has one. Nothing wakes this session when they finish, so you must schedule your own poll.
 
+The flip out of draft turns on **three** conditions: green CI, a clean independent review with no blocking findings, and the approved plan revision still being the one the work implements. The third is the one a polling tail forgets, because it is not a machine event and nothing in the tail moves it. A plan revised mid-flight — [writer-ownership-and-recovery.md](./writer-ownership-and-recovery.md)'s Case B — returns the run to the plan gate to wait for fresh approval while CI stays green and the review stays clean, so a run checking only the two machine outcomes would flip work ready against a plan nobody approved. The condition holds when the canonical plan content has not moved since the approval the work was built against and no revision is awaiting approval; [plan-document.md](./plan-document.md)'s Plan Revision Identity owns how that revision is derived and compared.
+
 **Guidelines:**
 
 - MUST schedule a self-wake where the harness provides one (in Claude Code, `send_later`, which delivers a message back into this same session and survives container reclaim; in Codex, whatever equivalent its harness exposes); without one, end the turn and wait for the human to resume.
 - SHOULD poll at a **4-minute** cadence for the first ~15 minutes, then back off to a **10-minute** cadence while still pending. (The 4-minute figure suits a harness whose prompt cache has a ~5-minute TTL, so a wake under five minutes resumes cache-warm; adjust to the harness.)
-- MUST, on green CI plus a clean review, flip the pull request to ready, update the status block, deliver the Ready-to-Merge Handoff in the turn output, and end the turn.
+- MUST flip the pull request to ready once all three conditions above hold and not before, then update the status block, deliver the Ready-to-Merge Handoff in the turn output, and end the turn.
 - MUST, on review findings or red CI, enter the addressing mechanics below; on only some checks resolved, keep polling for the rest.
 - MUST stop autonomous polling at the dormancy cap in the skill's Termination Guard and go dormant with a status-block note rather than poll indefinitely.
 
@@ -24,7 +26,7 @@ When the independent review's comments land, read them (their author is the revi
 - MUST, for every review comment a commit resolves, reply on that comment's thread with a marked comment — the project's agent-comment marker line, then a line beginning **`Resolved in <short-hash>`** (the 7-character hash of the fixing commit) and a one-sentence summary — then resolve the thread. Reference the same hash on each comment one commit resolves.
 - MUST re-request review by posting the review trigger phrase again after a batch of fixes, and repeat up to the round cap in the skill's Termination Guard; on non-convergence, record what still fails and go dormant.
 - MUST escalate through the question UI when a finding or human comment is ambiguous or needs a product or architecture decision, rather than guessing.
-- MUST NOT gate the ready flip on your own assessment — only a clean independent review plus green CI flips draft→ready.
+- MUST NOT gate the ready flip on your own assessment — only the three conditions stated above flip draft→ready.
 
 ## Keeping the Branch Mergeable
 
