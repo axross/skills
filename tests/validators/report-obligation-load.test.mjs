@@ -458,6 +458,15 @@ describe("report-obligation-load.mjs", () => {
       // restores that requirement for a project holding this fallback alone.
       // Drifted again from 366 in #209, by the same two body rules as the
       // floor; that branch added no reference file to a mandated skill.
+      // Drifted from 368 in #215, net +5. Four are the Settled Decisions
+      // section pull-request-descriptions.md gained: record a decision already
+      // settled with a stakeholder as settled, never offer it back to the
+      // reviewer as an open question, flag it rather than pass over it in
+      // silence, and state what revisiting it would take. The fifth is
+      // github-conventions.md's deferring bullet, which carries the
+      // plan-approval gate's own stake in that rule for a project holding this
+      // loop alone. Qualifying the neighbouring open-questions bullet moved no
+      // count — it narrowed a rule that was already there.
       // And thirty more in #208, which added the optional pre-flight review
       // stage between the completion-evidence check and the pull request.
       // Twenty-four of the thirty are the new pre-flight-review.md: the advisory
@@ -482,10 +491,11 @@ describe("report-obligation-load.mjs", () => {
       // resuming-and-handoff.md — and the sixth is the Termination Guard bullet
       // noted at the floor. As with the delegated path itself, the stage is
       // optional at runtime and its rules are not conditional in the corpus.
-      // #203's +5, #209's +2, and #208's +30 are independent and additive;
-      // 361 + 37 = 398, measured after merging main rather than carried from
-      // any one branch. Only the third is this change's.
-      expect.soft(totals.ceilingObligations).toBe(398);
+      // Four branches moved this figure from 361 independently — #203's +5,
+      // #209's +2, #215/#221's +5, and #208's +30 — and they are additive:
+      // 361 + 42 = 403, measured after merging main rather than carried from
+      // any one of them. Only the last is this change's.
+      expect.soft(totals.ceilingObligations).toBe(403);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -508,15 +518,19 @@ describe("report-obligation-load.mjs", () => {
       // two forms no longer leave a reader to infer which rules survive.
       // And 254 more from #209's section — the floor's own 253 plus one, since
       // each figure rounds its own byte total independently.
+      // Drifted from 33,103 in #215, by the five obligations above and the
+      // prose they sit in: the polarity contrast the Settled Decisions section
+      // demonstrates before its bullets, and the sentence stating that
+      // recording a decision as settled does not place it beyond review.
       // Drifted again from 32,566 in #208. Most of it is pre-flight-review.md
       // at 13,798 bytes, which makes it the largest reference this skill
       // carries — the stage has one contract per property it recovers, and each
       // has to say which property and why, or a later reader reads the whole
       // set as belt-and-braces and drops one. The rest is the amendments to the
       // five existing files above.
-      // Measured after the same merge, for the same reason as the two figures
+      // Measured after the same merge, for the same reason as the figure
       // above.
-      expect.soft(totals.ceilingTokens).toBe(36_710);
+      expect.soft(totals.ceilingTokens).toBe(37_170);
     });
   });
 
