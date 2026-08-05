@@ -3,7 +3,7 @@
 // obligations.
 //
 // What counts as a rule in a skill document is one definition with several
-// readers. check-skill.mjs asks two questions of it — "is this in-block bullet
+// readers. check-skill-body.mjs asks two questions of it — "is this in-block bullet
 // missing a keyword?" (a failure) and "is this keyword bullet outside a block?"
 // (an advisory) — and those two used to walk the document separately, each with
 // its own copy of the boundary, under a comment reading "Change one and you must
@@ -105,7 +105,7 @@ export function* scanGuidelines(body) {
  *
  * This is the quantity a reader of the document is being asked to hold, so it
  * deliberately excludes a keyword bullet placed outside a block (which
- * check-skill.mjs reports as a `placement:` advisory rather than counting) and
+ * check-skill-body.mjs reports as a `placement:` advisory rather than counting) and
  * an in-block bullet with no keyword (which it reports as a `guidelines:`
  * failure). The three views partition the same bullets.
  *

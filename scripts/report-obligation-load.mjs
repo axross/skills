@@ -3,7 +3,7 @@
 // repository.
 //
 // Answers a question no per-skill check can: "how many rules is an agent holding
-// right now?" check-skill.mjs measures one skill at a time, and its advisory
+// right now?" check-skill-body.mjs measures one skill at a time, and its advisory
 // tier warns when a single SKILL.md crosses a byte budget. But the quantity that
 // governs whether an agent actually follows a rule is the CONCURRENT obligation
 // count across every skill a session has loaded — and that depends on which
@@ -27,7 +27,7 @@
 // something to calibrate it against.
 //
 // The obligation definition is NOT re-implemented here — it is imported from
-// guidelines.mjs, the same module check-skill.mjs reads for its `guidelines:`
+// guidelines.mjs, the same module check-skill-body.mjs reads for its `guidelines:`
 // failures and `placement:` advisories, so all three agree on what a rule is.
 // The three views partition the same bullets:
 //   obligations    in-block bullets WITH an RFC-2119 keyword  (counted here)
@@ -35,7 +35,7 @@
 //   placement:     out-of-block bullets WITH one              (an advisory there)
 //
 // Scanned per skill: SKILL.md and every references/*.md — the same file set
-// check-skill.mjs scans, and for the same reason. scripts/ and assets/ carry
+// check-skill-body.mjs scans, and for the same reason. scripts/ and assets/ carry
 // payload rather than rule-bearing text.
 //
 // It lives at the repository root rather than inside a skill because it reports
@@ -65,7 +65,7 @@
 //
 // Token figures are a byte proxy, not a tokenizer count — the divisor and its
 // uncertainty are imported from token-estimate.mjs, the same module
-// check-skill.mjs's size advisory divides by, so the two can never report a
+// check-skill-body.mjs's size advisory divides by, so the two can never report a
 // different estimate for the same file. The obligation counts are exact, and
 // they are the figure the instruction-following evidence actually concerns.
 

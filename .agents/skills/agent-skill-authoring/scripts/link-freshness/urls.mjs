@@ -6,7 +6,7 @@
 // extraction covered by `npm test` while the probing stays out of it.
 //
 // What counts as prose is NOT re-implemented: it comes from commonmark.mjs, the
-// same module check-links.mjs and check-skill.mjs read. A skill that documents a
+// same module check-links.mjs and the skill-structure validators read. A skill that documents a
 // URL inside a ```bash sample is showing it, not citing it, and probing an
 // illustrative `https://example.com` would report a finding nobody can fix. That
 // module also owns the ORDER the fenced blocks, code spans, and HTML comments

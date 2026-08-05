@@ -15,7 +15,7 @@ description: The review methodology for pull requests and local diffs...
 ---
 ```
 
-Every constraint on those two fields — that both are present, that `name` is kebab-case, within 64 characters, and matches its directory, and that `description` stays within its length cap — is decided mechanically by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run over any skill you change. This section therefore states the contract and carries no rules of its own.
+Every constraint on those two fields — that both are present, that `name` is kebab-case, within 64 characters, and matches its directory, and that `description` stays within its length cap — is decided mechanically by `scripts/check-skill-frontmatter.mjs`, which the parent `SKILL.md` requires you to run after editing frontmatter. This section therefore states the contract and carries no rules of its own.
 
 ## Frontmatter Is YAML, and a Description Is a YAML Scalar
 
@@ -41,7 +41,7 @@ Inside a double-quoted value only YAML's own escapes are legal: `\0`, `\a`, `\b`
 - MUST escape a literal `"` as `\"` inside a double-quoted value, and double a literal `'` to `''` inside a single-quoted one; an unpaired quote ends the scalar early and the rest of the line becomes a parse error.
 - MUST use single quotes, or a numeric escape, to carry a backslash sequence YAML does not define; a double-quoted value containing `\d` or `\s` is rejected outright rather than read as a literal backslash.
 - SHOULD leave a description unquoted when it carries no hazard, since quoting every value forces escape handling on the many descriptions that need none.
-- MUST NOT treat a passing `scripts/check-skill.mjs` run as proof that a host will load the skill unless that run includes this check; a validator reading frontmatter with a regex cannot see a construct that only a parser resolves.
+- MUST NOT treat a passing `scripts/check-skill-frontmatter.mjs` run as proof that a host will load the skill unless that run includes this check; a validator reading frontmatter with a regex cannot see a construct that only a parser resolves.
 
 ## Invocation-Control and Discovery Fields
 
@@ -102,7 +102,7 @@ user-invocable: false
 
 ## Naming Rules
 
-Kebab-case names are portable and predictable. The name should communicate the durable responsibility, not an incidental implementation detail. The kebab-case form itself — and the uppercase, underscore, dot, space, and stray-hyphen shapes it excludes — is decided by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run; what follows is the part a regex cannot judge.
+Kebab-case names are portable and predictable. The name should communicate the durable responsibility, not an incidental implementation detail. The kebab-case form itself — and the uppercase, underscore, dot, space, and stray-hyphen shapes it excludes — is decided by `scripts/check-skill-frontmatter.mjs`, which the parent `SKILL.md` requires you to run; what follows is the part a regex cannot judge.
 
 **Guidelines:**
 

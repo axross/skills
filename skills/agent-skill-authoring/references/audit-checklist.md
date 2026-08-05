@@ -23,14 +23,16 @@ A useful audit moves from inventory to mechanics to judgment. Mechanical checks 
 
 ## Runnable Structure Validator
 
-Mechanical structure checks should be automated so an audit spends its judgment on content, not on eyeballing frontmatter. This skill bundles `scripts/check-skill.mjs`, a dependency-light Node validator (standard library only) that checks each skill's frontmatter and structure in one command instead of by hand, and reports every failure.
+Mechanical structure checks should be automated so an audit spends its judgment on content, not on eyeballing frontmatter. This skill bundles three dependency-light Node validators (standard library only), each answering for one kind of edit: `scripts/check-skill-frontmatter.mjs` for the discovery contract, `scripts/check-skill-body.mjs` for the document-body rules, and `scripts/check-skill-references.mjs` for the wiring between a `SKILL.md` and its `references/`. There is deliberately no run-all command — an author who changed one reference file should not have to read findings about frontmatter — so an audit runs the ones its change touched, or all three.
 
 **Example:**
 
 ```sh
 # One skill, several skills, or a whole skill root (globs expand to skill dirs).
 # Substitute the skill root the host reads (.claude/skills, .agents/skills, …).
-node skills/agent-skill-authoring/scripts/check-skill.mjs .claude/skills
+node skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs .claude/skills
+node skills/agent-skill-authoring/scripts/check-skill-body.mjs .claude/skills
+node skills/agent-skill-authoring/scripts/check-skill-references.mjs .claude/skills
 ```
 
 It verifies, per skill's **frontmatter and layout**: the block parses; `name` is kebab-case, within 64 characters, and matches the directory; `description` is present and within 1,024 **bytes** — measured in bytes because that is the stricter reading and the one a host has been observed to apply, so a description of 1,024 characters carrying non-ASCII punctuation still fails to load; every `references/*.md` file is linked from `SKILL.md` (no orphan references); and no routing-section bullet begins with an RFC-2119 keyword.
@@ -59,7 +61,7 @@ The token estimate is a **proxy, not a token count**: the validator takes no tok
 
 ## External Link Freshness Audit
 
-A skill that pins a version or mirrors a vendor's option surface should cite the upstream page rather than reproduce it, because a reproduced table goes stale where a reader can see it. The link that replaces the table rots the other way — silently — and neither `check-skill.mjs` nor `check-links.mjs` can see it: both resolve relative `.md` targets on disk and ignore `http(s)://` entirely. This skill bundles `scripts/link-freshness/check.mjs` to close that gap, a dependency-light Node audit (standard library only) that probes every external URL the tree cites.
+A skill that pins a version or mirrors a vendor's option surface should cite the upstream page rather than reproduce it, because a reproduced table goes stale where a reader can see it. The link that replaces the table rots the other way — silently — and neither the skill-structure validators nor `check-links.mjs` can see it: both resolve relative `.md` targets on disk and ignore `http(s)://` entirely. This skill bundles `scripts/link-freshness/check.mjs` to close that gap, a dependency-light Node audit (standard library only) that probes every external URL the tree cites.
 
 **Example:**
 

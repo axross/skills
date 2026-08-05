@@ -10,7 +10,7 @@
 // ../references/cross-referencing.md) so link verification survives template
 // adaptation and stays runnable in any project that keeps the skill. It is
 // dependency-light (Node standard library only), and reads what counts as prose
-// from commonmark.mjs beside it — the same module check-skill.mjs reads, so the
+// from commonmark.mjs beside it — the same module check-skill-body.mjs reads, so the
 // two can never disagree about what is example text.
 //
 // Usage:

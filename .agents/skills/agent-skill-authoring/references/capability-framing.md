@@ -124,5 +124,5 @@ flowchart TD
 - MUST keep `description` within its byte cap after rewriting an opening clause, trimming duplicated synonyms rather than trigger text.
 - MUST update every reference to a renamed skill — cross-references, the host project's skill index if it keeps one, and any workflow that invokes it — in the same change.
 - MUST edit a distributable skill at its source and reinstall rather than hand-editing the installed copy, per your project's skill-management conventions.
-- SHOULD run the bundled `scripts/check-skill.mjs` after a recast; it reports document-voice names and descriptions as advisory warnings (see [audit-checklist.md](./audit-checklist.md)).
+- SHOULD run the bundled `scripts/check-skill-frontmatter.mjs` after a recast; it reports document-voice names and descriptions as advisory warnings (see [audit-checklist.md](./audit-checklist.md)).
 - SHOULD recast a skill when work already touches it, rather than opening a sweep across every skill at once.

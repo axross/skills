@@ -34,7 +34,7 @@ Agents match surface text as well as semantics, and only `description` carries i
 
 ## Length Discipline
 
-Discovery metadata competes for context across the entire skill set. One hard cap is compared exactly by `scripts/check-skill.mjs`, which the parent `SKILL.md` requires you to run over any skill you change: `description` measured in **bytes**, because a host that applies the spec's limit byte-wise refuses to load a skill that exceeds it. The target below is judgment the validator cannot make.
+Discovery metadata competes for context across the entire skill set. One hard cap is compared exactly by `scripts/check-skill-frontmatter.mjs`, which the parent `SKILL.md` requires you to run after editing frontmatter: `description` measured in **bytes**, because a host that applies the spec's limit byte-wise refuses to load a skill that exceeds it. The target below is judgment the validator cannot make.
 
 **Guidelines:**
 

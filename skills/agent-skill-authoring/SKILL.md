@@ -1,6 +1,6 @@
 ---
 name: agent-skill-authoring
-description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, or running the structure validator. Triggers on "add a skill", "split this skill", "audit skills", "recast this skill as a capability", and any change to a `SKILL.md` or its `references/`. The authoring rules for the agentskills.io format — capability framing, discovery metadata that survives a host's listing truncation, section anatomy, progressive disclosure, cross-references, and a bundled validator.
+description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, or running the structure validators. Triggers on "add a skill", "split this skill", "audit skills", "recast this skill as a capability", and any change to a `SKILL.md` or its `references/`. The authoring rules for the agentskills.io format — capability framing, discovery metadata that survives a host's listing truncation, section anatomy, progressive disclosure, cross-references, and three bundled validators, one per kind of edit.
 user-invocable: false
 ---
 
@@ -12,7 +12,7 @@ Skills authored here follow the agentskills.io format. For the host project's ac
 
 **Guidelines:**
 
-- MUST run the bundled `scripts/check-skill.mjs` validator over every skill a change touches; it is the enforcement path for the frontmatter, naming, discovery length-cap, and reference-linkage rules this skill states nowhere else (see [audit-checklist.md](./references/audit-checklist.md)).
+- MUST run the bundled validator that owns what a change touched — `scripts/check-skill-frontmatter.mjs` after editing frontmatter, `scripts/check-skill-body.mjs` after editing prose, `scripts/check-skill-references.mjs` after adding, moving, or renaming a reference file — and all three when unsure; together they are the enforcement path for the frontmatter, naming, discovery length-cap, and reference-linkage rules this skill states nowhere else (see [audit-checklist.md](./references/audit-checklist.md)).
 - SHOULD propose or implement a skill update when any task exposes a reusable convention, outdated guidance, a recurring review issue, or a missing project rule — skill maintenance happens when work reveals durable learning, not after every narrow fix.
 - SHOULD skip skill maintenance when the work produced no generalizable learning, and state that it was skipped.
 
@@ -93,7 +93,7 @@ See [project-skill-archetypes.md](./references/project-skill-archetypes.md) for:
 See [audit-checklist.md](./references/audit-checklist.md) for:
 
 - auditing multiple skills or reporting skill-tree quality
-- running the bundled structure validator (`scripts/check-skill.mjs`) to check frontmatter, naming, discovery length caps, reference linkage, and routing-section format mechanically
+- running the three bundled structure validators — `check-skill-frontmatter.mjs`, `check-skill-body.mjs`, and `check-skill-references.mjs` — and which kind of edit each one answers for
 - running the bundled link-freshness audit (`scripts/link-freshness/check.mjs`) on a schedule to catch a cited vendor URL that has gone 404, why only a confirmed-dead link fails it, and why a `pull_request` trigger on it is a request-forgery primitive
 - checking inventory, skill discovery, section anatomy, RFC-2119 bullets, topic-based cross-skill references, and relative links
 - identifying overlap, stale assumptions, orphan references, and missing source-of-truth links
