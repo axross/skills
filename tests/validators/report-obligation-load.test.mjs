@@ -589,18 +589,48 @@ describe("report-obligation-load.mjs", () => {
         "+ task changes something",
       ]);
 
-      // Cumulative, not disjoint — each row contains the ones above it. Pinned
-      // to the corpus like the totals above, and drifting for the same reasons:
-      // #204 and #206/#208 moved the third, #209 and #215/#221 the second.
+      // Cumulative, not disjoint — each row contains the ones above it. All four
+      // figures are pinned per tier, matching what the totals above already do,
+      // because the whole point of the block is to say WHICH tier moved: pinning
+      // only the ceiling obligations would report that a tier drifted without
+      // saying by how much or in which dimension.
+      //
+      // Tier 1 — `professional-behavior`, the only genuinely unconditional
+      // member. It has stated no OBLIGATION bullets in its own body since #195
+      // folded `when_to_use` into `description`, which is why its floor is zero
+      // while its ceiling is not.
+      expect.soft(tiers[0].floorObligations).toBe(0);
+      expect.soft(tiers[0].floorTokens).toBe(1_105);
       expect.soft(tiers[0].ceilingObligations).toBe(120);
+      expect.soft(tiers[0].ceilingTokens).toBe(8_665);
+
+      // Tier 2 — plus `software-development`. Drifted from 204 in #209, which
+      // gave it a Product Specification section, and again in #215/#221, which
+      // added Settled Decisions to pull-request-descriptions.md.
+      expect.soft(tiers[1].floorObligations).toBe(5);
+      expect.soft(tiers[1].floorTokens).toBe(2_264);
       expect.soft(tiers[1].ceilingObligations).toBe(210);
+      expect.soft(tiers[1].ceilingTokens).toBe(15_418);
+
+      // Tier 3 — plus `loop-engineering`, and the figure this report printed
+      // alone before #211. Drifted from 361 by #204's plan-structure rewrite,
+      // #206/#208's pre-flight review stage, and #215/#221's deferring bullet.
+      // #211's own acceptance criterion quotes 361 as a snapshot at filing; the
+      // criterion is measured against the base at merge time, as its own text
+      // now says, because `main` moves these independently of this branch.
+      expect.soft(tiers[2].floorObligations).toBe(26);
+      expect.soft(tiers[2].floorTokens).toBe(8_199);
       expect.soft(tiers[2].ceilingObligations).toBe(408);
+      expect.soft(tiers[2].ceilingTokens).toBe(37_661);
 
       // The last tier IS the total, by construction. Asserting it rather than
-      // trusting it is what would catch a tiering that silently dropped a skill.
+      // trusting it is what would catch a tiering that silently dropped a skill
+      // — and it is the one assertion here that survives any corpus drift.
       const totals = totalsOf(report("--mandated").stdout);
       expect(tiers[2].ceilingObligations).toBe(totals.ceilingObligations);
       expect(tiers[2].floorObligations).toBe(totals.floorObligations);
+      expect(tiers[2].ceilingTokens).toBe(totals.ceilingTokens);
+      expect(tiers[2].floorTokens).toBe(totals.floorTokens);
     });
 
     it("keeps the tiers to the mandated set when further skills are selected", async () => {

@@ -248,13 +248,6 @@ const tokens = estimateTokens;
 const group = (value) => value.toLocaleString("en-US");
 
 /**
- * Render the report.
- *
- * Per-skill rows plus a total, so a maintainer diffing two runs sees WHICH skill
- * moved rather than only that the total did. Nothing checkout-dependent appears
- * — no timestamps, no absolute paths — so successive runs diff cleanly.
- */
-/**
  * The cumulative-by-tier block, printed under the totals when `--mandated` ran.
  *
  * It exists because the single total above it answers "what does the whole
@@ -299,6 +292,16 @@ function tierBlock(tiers) {
   ];
 }
 
+/**
+ * Render the report.
+ *
+ * Per-skill rows plus a total, so a maintainer diffing two runs sees WHICH skill
+ * moved rather than only that the total did. Nothing checkout-dependent appears
+ * — no timestamps, no absolute paths — so successive runs diff cleanly.
+ *
+ * `tiers`, when given, appends the cumulative block above; without it the output
+ * is byte-identical to what this function produced before that block existed.
+ */
 function render(measurements, selectionLabel, tiers = null) {
   const total = measurements.reduce(
     (sum, { floor, ceiling }) => ({
@@ -414,7 +417,7 @@ async function main() {
       const resolved = await resolveArgument(name);
       if (resolved.length === 0) {
         fail2(
-          `The mandated skill "${name}" resolves to no skill under "${SOURCE_ROOT}" or "${INSTALLED_ROOT}". CLAUDE.md's Response Approach owns this set; update MANDATED_SKILLS to match it.`,
+          `The mandated skill "${name}" resolves to no skill under "${SOURCE_ROOT}" or "${INSTALLED_ROOT}". CLAUDE.md's Response Approach owns this set and its per-tier scoping; update MANDATED_TIERS to match it — MANDATED_SKILLS is derived from it, not edited directly.`,
         );
       }
       resolved.forEach(add);
