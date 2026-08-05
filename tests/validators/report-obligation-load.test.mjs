@@ -445,7 +445,11 @@ describe("report-obligation-load.mjs", () => {
       // properties of the agent, do not preload the skill, do not give the
       // worker its own checkout, and withdraw the GitHub channel where the
       // host allows it.
-      expect.soft(totals.ceilingObligations).toBe(370);
+      // One more in #216's review round: the worked example had been written
+      // around this loop's package, which made it unusable to any other caller
+      // and so worthless as the reference it was meant to be. The framing rule
+      // now says to write it without assuming the loop.
+      expect.soft(totals.ceilingObligations).toBe(371);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -468,7 +472,7 @@ describe("report-obligation-load.mjs", () => {
       // two forms no longer leave a reader to infer which rules survive.
       // And up again in #216, from that branch's new section on defining a
       // worker of your own.
-      expect.soft(totals.ceilingTokens).toBe(33_273);
+      expect.soft(totals.ceilingTokens).toBe(33_341);
     });
   });
 

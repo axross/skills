@@ -757,7 +757,11 @@ main actor's cost, which defeats the point — and withdraws the GitHub channel 
 delivery stays with the main actor. It carries nothing else: the decision
 boundary, the verification obligation, the commit rules, and the receipt shape
 all arrive per run in the task package, so a definition restating them would only
-drift from it. What it leaves out, and why, is explained host-neutrally in
+drift from it. It does not mention the loop at all, which is the point: it says
+what an implementation agent is and what it may not decide, so the same file
+works for a caller that has never heard of `loop-engineering` and is worth
+copying into a project that runs its subagents some other way. What it leaves
+out, and why, is explained host-neutrally in
 [`implementation-worker.md`](./skills/loop-engineering/references/implementation-worker.md).
 Only Claude Code is configured today —
 [#218](https://github.com/axross/skills/issues/218) tracks the Codex side. Delete

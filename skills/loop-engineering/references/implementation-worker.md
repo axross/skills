@@ -67,6 +67,7 @@ Everything else belongs in the package. A definition that also carried the decis
 **Guidelines:**
 
 - MUST keep a worker definition to properties of the agent — model, effort, tool limits, and a short framing — and MUST NOT restate anything the package supplies.
+- SHOULD write that framing without assuming this loop: state what an implementation agent is, that it works from the prompt it was given, and that a decision it was not given goes back to whoever asked. A definition written around this loop's package stops being usable by any other caller, and stops being worth copying.
 - MUST NOT preload this skill into a worker where the host offers that, since the package is self-contained by contract and preloading spends the worker's context on rules it is handed anyway.
 - MUST NOT give a worker its own isolated checkout where the host offers that: the package names the branch and base revision the worker must verify, and an isolated copy will not match them.
 - SHOULD withdraw the harness's GitHub channel from a worker where the host supports it, so the delivery boundary is enforced rather than trusted — noting that operations reached through a shell stay available, so this closes part of that boundary and not all of it.
