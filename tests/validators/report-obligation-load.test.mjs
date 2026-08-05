@@ -391,7 +391,10 @@ describe("report-obligation-load.mjs", () => {
       // old exclusion ("why a general-purpose or default agent does not
       // qualify") and had to name the new criterion instead ("why capability
       // rather than a declared responsibility decides").
-      expect.soft(totals.floorTokens).toBe(7_704);
+      // Drifted from 7,704 in #203, which dropped the fixed section count from
+      // loop-engineering's parent routing line so the canonical plan structure
+      // can gain or lose a section without that summary going stale.
+      expect.soft(totals.floorTokens).toBe(7_701);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -423,7 +426,18 @@ describe("report-obligation-load.mjs", () => {
       // package already supplies, which excluded the generic implementation
       // workers a harness ships built in, so the exclusion rule split into an
       // exclusion and a tie-break.
-      expect.soft(totals.ceilingObligations).toBe(361);
+      // Drifted from 361 in #203, net +4 in loop-engineering's fallback plan
+      // document. Three are the Todo section's own rules — where it sits and
+      // how its items are written, what detail stays out, and that it is fixed
+      // at approval rather than kept as a progress tracker — and the fourth is
+      // the conditional two-column Goals and Non-goals table. The single
+      // goal-framing rule the merged section replaced left the count level.
+      // One more from #203's review: the merged Goals and Non-goals rule was
+      // carrying three obligations in one bullet — section shape, the flat
+      // list's opening verbs, and the concrete-outcome requirement the old
+      // goal-framing rule had owned and this branch had dropped. Splitting it
+      // restores that requirement for a project holding this fallback alone.
+      expect.soft(totals.ceilingObligations).toBe(366);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -437,7 +451,14 @@ describe("report-obligation-load.mjs", () => {
       // paragraph stating that resolution screens only for what the package
       // cannot supply, plus an exclusion rule and a tie-break in place of the
       // single ambiguity rule they replaced.
-      expect.soft(totals.ceilingTokens).toBe(32_566);
+      // Drifted from 32,566 in #203, by the same fallback-plan additions that
+      // raised the ceiling obligation count above, plus the prose around them:
+      // the reordered nine-section list, the Todo section's framing paragraph,
+      // and the merged Goals and Non-goals rules.
+      // The last 63 are #203's review: the split above, plus the clause naming
+      // what a table's column headers do in place of the opening verbs, so the
+      // two forms no longer leave a reader to infer which rules survive.
+      expect.soft(totals.ceilingTokens).toBe(32_849);
     });
   });
 
