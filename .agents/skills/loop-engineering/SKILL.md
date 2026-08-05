@@ -119,7 +119,7 @@ Turn the target into a buildable specification recorded in the issue. Two gates 
 
 See [plan-document.md](./references/plan-document.md) for:
 
-- the canonical seven-section plan structure and each section's craft
+- the canonical plan structure and each section's craft
 - writing acceptance criteria as a plain, checkable bullet list
 - the canonical plan content's boundary, the revision identity approval binds to, and the one normalization applied before comparing
 - archiving the original description in a marked comment, and never composing a body from a sanitized read of one
