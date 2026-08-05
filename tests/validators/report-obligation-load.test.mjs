@@ -371,7 +371,11 @@ describe("report-obligation-load.mjs", () => {
       // mechanical fix, and the retry cap in the Termination Guard. The
       // contracts themselves went to references, which is why the floor moved
       // by three while the ceiling moved by seventy.
-      expect.soft(totals.floorObligations).toBe(23);
+      // Drifted again from 23 in #209, which gave software-development a
+      // Product Specification section routing to the capability that owns a
+      // project's own description of its product. Both rules sit in the
+      // SKILL.md body, so this and the ceiling below move by the same two.
+      expect.soft(totals.floorObligations).toBe(25);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. The fold lowered
@@ -394,7 +398,8 @@ describe("report-obligation-load.mjs", () => {
       // Drifted from 7,704 in #203, which dropped the fixed section count from
       // loop-engineering's parent routing line so the canonical plan structure
       // can gain or lose a section without that summary going stale.
-      expect.soft(totals.floorTokens).toBe(7_701);
+      // And 253 more from #209's section, prose in the same body.
+      expect.soft(totals.floorTokens).toBe(7_954);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -437,7 +442,9 @@ describe("report-obligation-load.mjs", () => {
       // list's opening verbs, and the concrete-outcome requirement the old
       // goal-framing rule had owned and this branch had dropped. Splitting it
       // restores that requirement for a project holding this fallback alone.
-      expect.soft(totals.ceilingObligations).toBe(366);
+      // Drifted again from 366 in #209, by the same two body rules as the
+      // floor; that branch added no reference file to a mandated skill.
+      expect.soft(totals.ceilingObligations).toBe(368);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -458,7 +465,9 @@ describe("report-obligation-load.mjs", () => {
       // The last 63 are #203's review: the split above, plus the clause naming
       // what a table's column headers do in place of the opening verbs, so the
       // two forms no longer leave a reader to infer which rules survive.
-      expect.soft(totals.ceilingTokens).toBe(32_849);
+      // And 254 more from #209's section — the floor's own 253 plus one, since
+      // each figure rounds its own byte total independently.
+      expect.soft(totals.ceilingTokens).toBe(33_103);
     });
   });
 

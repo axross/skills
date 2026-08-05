@@ -364,6 +364,23 @@ async function distributableSkillDirs() {
 }
 
 /**
+ * The entries under the Claude Code skill root that are symlinks.
+ *
+ * Counted as symlinks rather than as directories, because that is what the
+ * prose claims and it is the load-bearing half: a `--copy` install would land
+ * real directories there, still loading correctly while making the sentence
+ * false. `Dirent.isSymbolicLink()` is the one predicate that tells them apart —
+ * `isDirectory()` is false for a symlink to a directory, which is the trap the
+ * repository's own enumerations already stat through.
+ */
+async function claudeSkillSymlinks() {
+  const entries = await readdir(repoPath(".claude/skills"), {
+    withFileTypes: true,
+  });
+  return entries.filter((entry) => entry.isSymbolicLink()).map((entry) => entry.name);
+}
+
+/**
  * The standalone validator CLIs README.md enumerates: this repository's own
  * gates, plus the ones that ship inside a skill for the projects that install
  * it. A module imported by a validator is not one of them, which is what the
@@ -422,6 +439,12 @@ export const CLAIMS = {
     owner: "the directories under skills/ that hold a SKILL.md",
     note: "the skill catalog lists these one row at a time, so a new skill needs a row there too",
     derive: async () => (await distributableSkillDirs()).length,
+  },
+
+  "claude-skill-symlinks": {
+    owner: "the symlink entries under .claude/skills/",
+    note: "each installed skill needs one, so adding or removing a skill moves this with it",
+    derive: async () => (await claudeSkillSymlinks()).length,
   },
 
   "first-reporting-tool-ordinal": {
