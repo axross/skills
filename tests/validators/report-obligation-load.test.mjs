@@ -436,7 +436,7 @@ describe("report-obligation-load.mjs", () => {
       // exclusion and a tie-break.
       // Drifted from 361 in #208, which added the optional pre-flight review
       // stage between the completion-evidence check and the pull request.
-      // Twenty-one of the twenty-seven are the new pre-flight-review.md: the advisory
+      // Twenty-two of the twenty-eight are the new pre-flight-review.md: the advisory
       // framing with its skip-and-fall-back rule and read-only worker
       // resolution, the input contract that excludes the implementer's receipt,
       // the merge-base policy read, the reader's position in the writer lease,
@@ -458,7 +458,7 @@ describe("report-obligation-load.mjs", () => {
       // resuming-and-handoff.md — and the sixth is the Termination Guard bullet
       // noted at the floor. As with the delegated path itself, the stage is
       // optional at runtime and its rules are not conditional in the corpus.
-      expect.soft(totals.ceilingObligations).toBe(388);
+      expect.soft(totals.ceilingObligations).toBe(389);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -473,12 +473,12 @@ describe("report-obligation-load.mjs", () => {
       // cannot supply, plus an exclusion rule and a tie-break in place of the
       // single ambiguity rule they replaced.
       // Drifted again from 32,566 in #208. Most of it is pre-flight-review.md
-      // at 11,687 bytes, which makes it the largest reference this skill
+      // at 12,824 bytes, which makes it the largest reference this skill
       // carries — the stage has one contract per property it recovers, and each
       // has to say which property and why, or a later reader reads the whole
       // set as belt-and-braces and drops one. The rest is the amendments to the
       // five existing files above.
-      expect.soft(totals.ceilingTokens).toBe(35_730);
+      expect.soft(totals.ceilingTokens).toBe(35_968);
     });
   });
 

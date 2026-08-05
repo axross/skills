@@ -37,7 +37,7 @@ Execution detail belongs inside the existing report, not beside it. A separate a
 
 - MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; model and effort as verified, declared, or unknown; the fallback or recovery reason; whether the intended implementation-model saving was actually achieved; any skipped or unavailable verification; and residual worker or routing risk.
 - MUST NOT duplicate that information into a separate verbose activity log.
-- MUST report, where the pre-flight review ran, how many findings it raised and how many were fixed versus dismissed — and, once the independent review lands, how many of its findings pre-flight had not raised. The second figure is what answers whether the stage earns its cost: a pre-flight that consistently misses what the external review then finds is not working.
+- MUST report, where the pre-flight review ran, how many findings it raised and how many were fixed, dismissed, or deferred — and, once the independent review lands, how many of its findings pre-flight had not raised. The second figure is what answers whether the stage earns its cost: a pre-flight that consistently misses what the external review then finds is not working.
 
 ## Ready-to-Merge Handoff
 

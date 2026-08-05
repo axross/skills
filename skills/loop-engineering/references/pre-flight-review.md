@@ -26,7 +26,8 @@ Absence visibility is the one no arrangement here recovers, because the reviewed
 
 - MUST treat every pre-flight finding and verdict as advisory, and MUST NOT report this stage — under any name — as the independent review; the draft→ready flip stays gated on a clean external review plus green CI.
 - MUST skip the stage where no compatible review worker resolves, falling back to what the run already has: the implementation worker's own self-check reported in its receipt plus the completion-evidence check, or [Phase 2](../SKILL.md)'s reviewer-mode self-check in single-agent mode. No gate is weakened either way.
-- MUST resolve a review worker through the same four-step order and compatibility preflight [implementation-worker.md](./implementation-worker.md) defines, with the tool set narrowed to read-only.
+- MUST resolve a review worker by the four-step precedence [implementation-worker.md](./implementation-worker.md) defines — explicitly named, then a custom agent, then a harness built-in, then none — and MUST NOT reuse that reference's exclusion criterion or its compatibility preflight. Both are written around implementing: the exclusion rejects "a read-only, review-only, or explicitly non-editing agent" by name, and the preflight requires the candidate edit files and create commits. Applied here they would filter out precisely the agent this stage wants.
+- MUST qualify a review worker on reader capability instead — it can read the checkout and the diff, run read-only commands, and report findings back to the parent. An agent whose definition forbids editing qualifies here **because** it does; an implementation-capable agent also qualifies when its tools are narrowed to read-only for the spawn.
 
 ## Review Package — the Input Contract
 
@@ -69,7 +70,7 @@ Each finding carries a stable identifier, a severity, a `file:line` citation, th
 **Guidelines:**
 
 - MUST carry each finding's identifier, severity, and citation through the translation into an implementation instruction, and MUST NOT drop a finding by omission.
-- MUST NOT open the pull request while any finding lacks a terminal state: **fixed**, tied to the commit that fixed it, or **dismissed** with a recorded reason.
+- MUST NOT open the pull request while any finding lacks a terminal state. There are three: **fixed**, tied to the commit that fixed it; **dismissed** with a recorded reason, under the authority split below; and **deferred**, which only the declined-round path below produces and which no other route may reach.
 - MUST route a finding that would change the approved plan through the plan-revision flow — fresh approval, fresh worker — exactly as a Phase 4 finding of the same kind is routed.
 
 ## Ledger Durability
@@ -100,5 +101,5 @@ Each fix round is a new task phase, so it carries a fresh [Retry Budget](./write
 **Guidelines:**
 
 - MUST run at most one initial implementation plus **3** review→fix rounds autonomously, then ask the human — through the question tool — whether to run another; ask once per additional round, for as many as the human keeps approving, with no ceiling above their judgment.
-- MUST, where the human declines another round, proceed to open the draft pull request with the unresolved findings recorded in its body. **The human's decision is the license and the only license** — citing the external review's existence as the reason it is acceptable is the rationalization the loop's own rules forbid; that the external review still gates the change states what declining does not weaken, never why it is allowed.
+- MUST, where the human declines another round, record every still-open finding as **deferred** and then open the draft pull request with those findings in its body. The decline is that decision — made by the human, over the whole remaining set at once — which is why it needs no per-finding confirmation and why it is neither a fix nor a dismissal; recording it as either would misstate what happened. **The human's decision is the license and the only license** — citing the external review's existence as the reason it is acceptable is the rationalization the loop's own rules forbid; that the external review still gates the change states what declining does not weaken, never why it is allowed.
 - MUST keep this cap distinct from the address↔review cap in the Termination Guard, which governs the loop after the pull request exists.
