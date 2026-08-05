@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "589a8537e6165d350021a8c921f7fa7de03195f77a7bb01722141d52ff55950f"
+      "computedHash": "f84784f9e293e897e68a884697fc1032f1289ca5174f2991a6c7a9684edd31a3"
     },
     "high-fidelity-ui-design": {
       "source": "/home/user/skills/skills",
@@ -61,10 +61,15 @@
       "sourceType": "local",
       "computedHash": "1210ee0238b9d551fdac23da577f42139c8e45f8245df7908dad7f06d7b749d3"
     },
+    "living-product-specification": {
+      "source": "/home/user/skills/skills",
+      "sourceType": "local",
+      "computedHash": "81769727af36b8775a31c8699faa83a55c99f6bbf8599cace5906c6fc056a4c4"
+    },
     "loop-engineering": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "f433c4a5db2809f10d8fe9defc85da0110f7012b07534c8382745dfb68a3cbf2"
+      "computedHash": "24cffd4b0a74b0b34e309dea2650e98a503ca20442f6e0339fd0f96c7acfd480"
     },
     "next-app-development": {
       "source": "/home/user/skills/skills",
@@ -74,7 +79,7 @@
     "product-requirement-document-authoring": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "0e3661c292df89d58a20b49dc1838b4b64f6eb8cf4562ce4897ed20e135fe628"
+      "computedHash": "814e68615653557ed4f1da893e29db398368aa41fe1a4103bbe0778f7e289d17"
     },
     "professional-behavior": {
       "source": "/home/user/skills/skills",
@@ -104,7 +109,7 @@
     "software-development": {
       "source": "/home/user/skills/skills",
       "sourceType": "local",
-      "computedHash": "889c5979ca9ef6fec9292406917b9d30c2cce30fe35864adf1ac981840549273"
+      "computedHash": "6de70f3f1d6dc1ca3d5b9bc14e19bf43c0dd9bdc1afdef4a14c6dcf0c9573d11"
     },
     "software-instrumentation": {
       "source": "/home/user/skills/skills",

@@ -15,6 +15,18 @@ What the loop adds on top of those mechanics is the routing its phases imply: wh
 - MUST direct each of the loop's writes to the target it concerns — plan and clarification activity to the issue, review-thread replies and the review request to the pull request.
 - MUST anchor review-thread replies to the specific review comment's thread, not as a loose top-level pull-request comment.
 
+## Reading a Body That Carries State
+
+Whether a body read is byte-faithful, and why writing back an unfaithful one destroys what it carries, is **owned by a GitHub-operation capability**. What this loop adds is the consequence for its own artifacts: the issue and pull-request bodies are where the plan and the status block live, so for this loop a body read is not a convenience — it is a read of load-bearing state.
+
+A degraded read announces nothing. It returns prose that looks whole, which is why the channel has to be judged adequate before the read rather than after it.
+
+**Guidelines:**
+
+- MUST treat the status block and the canonical plan content as `verbatim` — read them through a channel established as byte-faithful, and record which one.
+- MUST NOT proceed on the assumption that a body carries no state because a read returned none; establish whether the channel could have shown it before concluding anything from its absence.
+- MUST degrade rather than fail where no byte-faithful channel exists — a byte-faithful channel is not portable across harnesses, so the loop reconstructs what surviving signals support and marks the rest unknown.
+
 ## Titles and Descriptions
 
 The reference project squash-merges, so the pull request title becomes the squash commit subject in the default branch history.
@@ -24,6 +36,7 @@ The reference project squash-merges, so the pull request title becomes the squas
 - MUST write the pull request title in the header format the project's commit-message conventions define, so the squashed subject reads well in history; this loop defers that format rather than defining one.
 - MUST keep the pull request in **draft** until the ready gate, structured from any repository pull-request template — reproduce the template's sections when posting through the API rather than inventing a layout.
 - MUST summarize the change, the verification evidence, and the acceptance criteria with their status in the description, and seed the status block there as an HTML comment.
+- MUST record a decision the human settled at the plan-approval gate as settled in the description rather than re-offering it to the independent reviewer as an open question; the project's pull-request-description conventions own how such a decision is stated and take precedence where they exist.
 - SHOULD keep each commit a coherent, verifiable step rather than one opaque blob, so a reviewer can follow the change.
 
 ## Preserve Traceable History

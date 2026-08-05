@@ -364,19 +364,58 @@ describe("report-obligation-load.mjs", () => {
     it("reproduces the floor and ceiling the tracking issue records", async () => {
       const totals = totalsOf(report("--mandated").stdout);
 
-      expect.soft(totals.floorObligations).toBe(20);
+      // Drifted from 20 in #201, which added the optional delegated
+      // implementation path. Three OBLIGATION bullets reached loop-engineering's
+      // own body: keeping judgment and delivery with the main actor whether or
+      // not implementation is delegated, the Phase 4 permission to delegate a
+      // mechanical fix, and the retry cap in the Termination Guard. The
+      // contracts themselves went to references, which is why the floor moved
+      // by three while the ceiling moved by seventy.
+      // Drifted again from 23 in #209, which gave software-development a
+      // Product Specification section routing to the capability that owns a
+      // project's own description of its product. Both rules sit in the
+      // SKILL.md body, so this and the ceiling below move by the same two.
+      // And one more in #208, which added the optional pre-flight review
+      // stage. Exactly one OBLIGATION bullet reached the body: the
+      // Termination Guard's cap on the pre-pull-request implement↔review loop,
+      // stated there so it is not mistaken for the address↔review cap beside
+      // it. The Phase 2 bullet that introduces the stage sits outside a
+      // Guidelines block, so it is prose and not a rule — which is why the
+      // floor moved by one while the ceiling moved by thirty.
+      expect.soft(totals.floorObligations).toBe(26);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. The fold lowered
       // this figure and the co-notation raised part of it back. Both are prose
       // edits, which is why the obligation counts beside these token figures
       // never moved at all.
-      // Drifted from 6,776 in #205, which made professional-behavior's
-      // `description` open "Apply this in every session" rather than "Every
-      // session". Three tokens, and the same three move the ceiling below,
-      // because a description is counted once into each. No obligation moved:
-      // discovery text is not a rule.
-      expect.soft(totals.floorTokens).toBe(6_779);
+      // Drifted again from 6,776 in #201, by the routing and state-machine
+      // prose the delegated path added to the body. The last 3 of it are not
+      // that branch's: #201 merged main and carried professional-behavior's
+      // `description` edit into the source it had been applied around, which
+      // lengthened the opening clause by eight bytes.
+      // And 42 more from the review's second nit: Phase 2's reviewer-mode
+      // self-check bullet had not been given the delegated carve-out its
+      // neighbour got, so a reader could take it to mean the main actor redoes
+      // the worker's full diff review after reclaiming the lease.
+      // The last 1 is plan revision 2's: SKILL.md's routing bullet named the
+      // old exclusion ("why a general-purpose or default agent does not
+      // qualify") and had to name the new criterion instead ("why capability
+      // rather than a declared responsibility decides").
+      // Drifted from 7,704 in #203, which dropped the fixed section count from
+      // loop-engineering's parent routing line so the canonical plan structure
+      // can gain or lose a section without that summary going stale.
+      // And 253 more from #209's section, prose in the same body.
+      // And 225 more in #208, from the two paragraphs the pre-flight stage adds
+      // to the body: the Phase 2 bullet routing to it and stating the skip when
+      // no compatible review worker resolves, and the Termination Guard cap
+      // above.
+      // And up again in #216, from the routing bullet SKILL.md gained for
+      // implementation-worker.md's new section on defining a worker.
+      // #203, #209, #208, and #216 each moved this figure independently and
+      // landed in that order; the value here is the measured total after
+      // merging main, not any one branch's figure.
+      expect.soft(totals.floorTokens).toBe(8_199);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -388,13 +427,124 @@ describe("report-obligation-load.mjs", () => {
       // "use the tool whenever the session exposes one" from "fall back to the
       // turn output only where none exists". One rule carrying both read as
       // permission to skip the tool whenever you expected it to be missing.
-      expect.soft(totals.ceilingObligations).toBe(290);
+      // Drifted from 290 in #201 — the largest single move this figure has
+      // taken. Four new loop-engineering references carry the delegated path's
+      // contracts (worker resolution and preflight, the implementation package
+      // and its artifact-fidelity rules, execution while a worker holds the
+      // writer lease, and writer ownership with retry and recovery), and four
+      // existing ones gained plan-revision identity, delegated run state,
+      // reconstructing a lost worker, and reading a body through a channel
+      // adequate to what it carries. The delegated path is optional at runtime
+      // but its rules are not conditional in the corpus: an agent holding this
+      // skill holds all of them, which is what this figure is for.
+      // Three later moves in #201, netting +1. Review round 1 added one: the
+      // agent catalog being unenumerable was governed only through general
+      // preflight language, so it gained a rule naming the scenario. Round 2
+      // removed one: the byte-faithful-channel rule was stated in both
+      // github-conventions.md and run-state-and-reporting.md, and the latter
+      // now points at the former. Plan revision 2 added one: executor
+      // resolution was screening for responsibilities the implementation
+      // package already supplies, which excluded the generic implementation
+      // workers a harness ships built in, so the exclusion rule split into an
+      // exclusion and a tie-break.
+      // Drifted from 361 in #203, net +4 in loop-engineering's fallback plan
+      // document. Three are the Todo section's own rules — where it sits and
+      // how its items are written, what detail stays out, and that it is fixed
+      // at approval rather than kept as a progress tracker — and the fourth is
+      // the conditional two-column Goals and Non-goals table. The single
+      // goal-framing rule the merged section replaced left the count level.
+      // One more from #203's review: the merged Goals and Non-goals rule was
+      // carrying three obligations in one bullet — section shape, the flat
+      // list's opening verbs, and the concrete-outcome requirement the old
+      // goal-framing rule had owned and this branch had dropped. Splitting it
+      // restores that requirement for a project holding this fallback alone.
+      // Drifted again from 366 in #209, by the same two body rules as the
+      // floor; that branch added no reference file to a mandated skill.
+      // Drifted from 368 in #215, net +5. Four are the Settled Decisions
+      // section pull-request-descriptions.md gained: record a decision already
+      // settled with a stakeholder as settled, never offer it back to the
+      // reviewer as an open question, flag it rather than pass over it in
+      // silence, and state what revisiting it would take. The fifth is
+      // github-conventions.md's deferring bullet, which carries the
+      // plan-approval gate's own stake in that rule for a project holding this
+      // loop alone. Qualifying the neighbouring open-questions bullet moved no
+      // count — it narrowed a rule that was already there.
+      // And thirty more in #208, which added the optional pre-flight review
+      // stage between the completion-evidence check and the pull request.
+      // Twenty-four of the thirty are the new pre-flight-review.md: the advisory
+      // framing with its skip-and-fall-back rule and read-only worker
+      // resolution, the input contract that excludes the implementer's receipt,
+      // the merge-base policy read, the reader's position in the writer lease,
+      // the fresh-reviewer-per-round rule that deliberately inverts the
+      // resume-preferred default around it, the finding ledger with its
+      // terminal states and its durability across a reclaimed session, the
+      // dismissal split by severity with the no-re-grading rule that is the
+      // only thing keeping the split from being evaded, and the round cap with
+      // its declined-round outcome, and — found by the plan's own desk-check
+      // rather than written first — an explicit prohibition on spawning the
+      // reviewer while an implementation worker still runs, which until then
+      // resolved only through a conditional MAY and the reference's opening
+      // sentence. Five of the remaining six land in existing
+      // references — two in delegated-execution.md (a reader is not the second
+      // implementation worker the Waiting rules forbid, and scope-changing
+      // input mid-review takes the plan-revision path rather than the interrupt
+      // sequence written for an editing worker), one each in
+      // writer-ownership-and-recovery.md, run-state-and-reporting.md, and
+      // resuming-and-handoff.md — and the sixth is the Termination Guard bullet
+      // noted at the floor. As with the delegated path itself, the stage is
+      // optional at runtime and its rules are not conditional in the corpus.
+      // And five more in #216, which gave this repository an implementation
+      // worker and documented what such a definition may carry — all about what
+      // a definition must leave to the package rather than restate: keep it to
+      // properties of the agent, do not preload the skill, do not give the
+      // worker its own checkout, and withdraw the GitHub channel where the host
+      // allows it. The fifth came from that branch's own review round: the
+      // worked example had been written around this loop's package, which made
+      // it unusable to any other caller and so worthless as the reference it was
+      // meant to be. The framing rule now says to write it without assuming the
+      // loop.
+      // Five branches moved this figure from 361 independently — #203's +5,
+      // #209's +2, #215/#221's +5, #208's +30, and #216's +5 — and they are
+      // additive: 361 + 47 = 408, measured after merging main rather than
+      // carried from any one of them. Only the last is this change's.
+      expect.soft(totals.ceilingObligations).toBe(408);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
       // independently.
-      // Drifted from 25,250 in #205, by the same three tokens as the floor.
-      expect.soft(totals.ceilingTokens).toBe(25_253);
+      // Drifted again from 25,250 in #201, by the eight reference files above,
+      // plus the same three-token professional-behavior edit noted at the floor,
+      // plus the two review nits that named their scenarios directly.
+      // The last 167 are plan revision 2's, and land almost entirely in
+      // implementation-worker.md: the resolution criterion inverted from what
+      // an agent's definition declares to what it can do, which took a new
+      // paragraph stating that resolution screens only for what the package
+      // cannot supply, plus an exclusion rule and a tie-break in place of the
+      // single ambiguity rule they replaced.
+      // Drifted from 32,566 in #203, by the same fallback-plan additions that
+      // raised the ceiling obligation count above, plus the prose around them:
+      // the reordered nine-section list, the Todo section's framing paragraph,
+      // and the merged Goals and Non-goals rules.
+      // The last 63 are #203's review: the split above, plus the clause naming
+      // what a table's column headers do in place of the opening verbs, so the
+      // two forms no longer leave a reader to infer which rules survive.
+      // And 254 more from #209's section — the floor's own 253 plus one, since
+      // each figure rounds its own byte total independently.
+      // Drifted from 33,103 in #215, by the five obligations above and the
+      // prose they sit in: the polarity contrast the Settled Decisions section
+      // demonstrates before its bullets, and the sentence stating that
+      // recording a decision as settled does not place it beyond review.
+      // Drifted again from 32,566 in #208. Most of it is pre-flight-review.md
+      // at 13,798 bytes, which makes it the largest reference this skill
+      // carries — the stage has one contract per property it recovers, and each
+      // has to say which property and why, or a later reader reads the whole
+      // set as belt-and-braces and drops one. The rest is the amendments to the
+      // five existing files above.
+      // And up again in #216, from that branch's new section on defining a
+      // worker of your own.
+      // Measured after the same merge, for the same reason as the figure
+      // above.
+      expect.soft(totals.ceilingTokens).toBe(37_661);
     });
   });
 

@@ -5,12 +5,12 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io/home)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done.
-The <!-- count:distributable-skills -->twenty-eight<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the
 whole arc: handling what the agent does not know, turning a request into a spec,
 driving that spec to a reviewed pull request, keeping the code maintainable and
 secure, testing it, designing and building its UI, standing up the application
-around it and the server state behind it, writing the documents that explain it,
-and authoring more skills. They install into any agent the
+around it and the server state behind it, writing the documents that explain it
+and keeping them true, and authoring more skills. They install into any agent the
 [`skills` CLI](https://github.com/vercel-labs/skills) supports.
 
 The library is Markdown-first — the skills _are_ the deliverable — with a little
@@ -83,16 +83,21 @@ question answered, a review given, a change delivered — not only to changes.
 | [`product-requirement-document-authoring`](./skills/product-requirement-document-authoring/SKILL.md) | Turns a vague ask into a spec someone can build from and check against, with acceptance criteria that are actually verifiable.                                                             |
 | [`software-development`](./skills/software-development/SKILL.md)                                     | The baseline every project-touching task runs on: keep the change scoped, format and lint it, find out how the project is really run, and describe the result so a reviewer can follow it. |
 | [`conventional-commits`](./skills/conventional-commits/SKILL.md)                                     | One header contract for commit messages and pull request titles, with a validator that catches a malformed header before it reaches your history.                                          |
-| [`github-operation`](./skills/github-operation/SKILL.md)                                             | Keeps an agent's GitHub writes safe when it shares your login — one sanctioned channel, comments marked as its own, and history it never rewrites.                                         |
+| [`github-operation`](./skills/github-operation/SKILL.md)                                             | Keeps an agent's GitHub writes safe when it shares your login — a default channel with a bounded fallback, comments marked as its own, and history it never rewrites.                      |
 
 ### Writing a document
 
-Sits beside `product-requirement-document-authoring` rather than overlapping it:
-that one owns a spec's sections and the phrasing of a requirement, this one owns
-the sentences inside whatever document you are writing.
+Three skills divide the same territory by tense and by grain, so none of them
+overlaps the others. `product-requirement-document-authoring` owns the **diff** —
+a spec's sections and the phrasing of a requirement about to be built.
+`living-product-specification` owns the **steady state** — the documents that say
+what the product is now, and the mechanism that corrects them when a change makes
+them wrong. `technical-document-authoring` owns the **sentences** inside whatever
+you are writing.
 
 | Skill                                                                            | What it gives your agent                                                                                                                                                                                                          |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`living-product-specification`](./skills/living-product-specification/SKILL.md) | Keeps the docs that describe your product true: read before planning, corrected in the change that made them wrong, with decisions superseded rather than edited — and five small validators for the rot a reader cannot see.     |
 | [`technical-document-authoring`](./skills/technical-document-authoring/SKILL.md) | Makes a design doc, RFC, ADR, runbook, or README worth reading: one document type instead of four blurred together, the answer at the top, sentences nobody has to reparse, and words a non-native reader gets on the first pass. |
 
 ### Reviewing a change
@@ -311,22 +316,23 @@ A Codex session runs the same session-start and check scripts through
 [`.codex/hooks.json`](./.codex/hooks.json); format-on-edit is not wired there,
 because `format.sh` reads the edited path from a Claude Code payload field.
 
-| Area             | Tool                                                                                  |
-| ---------------- | ------------------------------------------------------------------------------------- |
-| Language         | Markdown (with occasional JavaScript for scripting)                                   |
-| Runtimes         | Claude Code and Codex                                                                 |
-| Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
-| Package manager  | npm                                                                                   |
-| Formatting       | Prettier                                                                              |
-| Linting          | markdownlint-cli2                                                                     |
-| Tests            | Vitest                                                                                |
-| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
-| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill.mjs`                                |
-| Installed copies | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
-| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
-| Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
-| Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
-| Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
+| Area             | Tool                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| Language         | Markdown (with occasional JavaScript for scripting)                                       |
+| Runtimes         | Claude Code and Codex                                                                     |
+| Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file`     |
+| Package manager  | npm                                                                                       |
+| Formatting       | Prettier                                                                                  |
+| Linting          | markdownlint-cli2                                                                         |
+| Tests            | Vitest                                                                                    |
+| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                    |
+| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill.mjs`                                    |
+| Installed copies | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                        |
+| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                               |
+| Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                                   |
+| Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                             |
+| Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)               |
+| Product spec     | `skills/living-product-specification/scripts/check-*.mjs` (five; for installing projects) |
 
 ### Commands
 
@@ -367,10 +373,18 @@ node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .cl
 # rather than a gate — see "Scheduled, and off the merge path" below:
 node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
 
-# Two more ship inside a skill purely for the projects that install it — this
+# Seven more ship inside a skill purely for the projects that install it — this
 # repository exercises them only against fixtures:
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/wireframe-design/scripts/check-wireframe.mjs --help
+
+# The last five are one set, deliberately not one command: each answers for one
+# kind of change, so an author who touched one document reads only its findings.
+node skills/living-product-specification/scripts/check-index.mjs --help
+node skills/living-product-specification/scripts/check-references.mjs --help
+node skills/living-product-specification/scripts/check-glossary.mjs --help
+node skills/living-product-specification/scripts/check-decision-naming.mjs --help
+node skills/living-product-specification/scripts/check-decision-supersede.mjs --help
 ```
 
 A validator earns its place when the defect it finds is **not visible in the text
@@ -385,14 +399,14 @@ repository ships a runnable checker for it is gone.
 
 #### Reporting, not gating
 
-The <!-- count:first-reporting-tool-ordinal -->seventh<!-- /count -->,
-the <!-- count:second-reporting-tool-ordinal -->eighth<!-- /count -->, and
-the <!-- count:third-reporting-tool-ordinal -->ninth<!-- /count --> scripts
+The <!-- count:first-reporting-tool-ordinal -->twelfth<!-- /count -->,
+the <!-- count:second-reporting-tool-ordinal -->thirteenth<!-- /count -->, and
+the <!-- count:third-reporting-tool-ordinal -->fourteenth<!-- /count --> scripts
 report instead of judging. None belongs to a gate, an npm script, or a hook, and
 `tests/repository/reporting-tools.test.mjs` keeps all three out of the enforced
 set on purpose, so wiring any of them in has to be a deliberate act.
 
-The <!-- count:first-reporting-tool-ordinal -->seventh<!-- /count --> reports a
+The <!-- count:first-reporting-tool-ordinal -->twelfth<!-- /count --> reports a
 number:
 
 ```bash
@@ -413,7 +427,7 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The <!-- count:second-reporting-tool-ordinal -->eighth<!-- /count --> reports a
+The <!-- count:second-reporting-tool-ordinal -->thirteenth<!-- /count --> reports a
 routing outcome:
 
 ```bash
@@ -453,7 +467,7 @@ skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
 A fixture or baseline naming a renamed skill would otherwise rot in silence.
 
-The <!-- count:third-reporting-tool-ordinal -->ninth<!-- /count --> reports a
+The <!-- count:third-reporting-tool-ordinal -->fourteenth<!-- /count --> reports a
 ranking:
 
 ```bash
@@ -596,7 +610,7 @@ this page, the round cap it quotes from a skill, the empty tallies in the
 discovery baseline. The marker is invisible once rendered:
 
 ```markdown
-The <!-- count:distributable-skills -->twenty-eight<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the
 whole arc.
 ```
 
@@ -749,6 +763,26 @@ Kick it off by naming the work — "deliver issue #42", "pick up PR 57", or a
 free-form request (with no issue yet, it files a tracking issue first, then
 delivers it). To approve a paused plan or resume after a question, continue the
 session and tell it to continue.
+
+**Step 2 runs in a subagent here, and that subagent is also the worked example.**
+[`.claude/agents/implementer.md`](./.claude/agents/implementer.md) pins a
+lower-cost model and effort — a worker that inherits the session's runs at the
+main actor's cost, which defeats the point — and withdraws the GitHub channel so
+delivery stays with the main actor. It carries nothing else: the decision
+boundary, the verification obligation, the commit rules, and the receipt shape
+all arrive per run in the task package, so a definition restating them would only
+drift from it. It does not mention the loop at all, which is the point: it says
+what an implementation agent is and what it may not decide, so the same file
+works for a caller that has never heard of `loop-engineering` and is worth
+copying into a project that runs its subagents some other way. What it leaves
+out, and why, is explained host-neutrally in
+[`implementation-worker.md`](./skills/loop-engineering/references/implementation-worker.md).
+Only Claude Code is configured today —
+[#218](https://github.com/axross/skills/issues/218) tracks the Codex side. Delete
+the file and the loop keeps delegating — to a generic implementation-capable
+agent at the session's inherited model — rather than returning to single-agent
+execution, with no gate weakened. Single-agent execution is what a host
+exposing no capable agent at all produces.
 
 One check backs the loop from outside any session:
 [`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)

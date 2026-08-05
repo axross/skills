@@ -1,14 +1,14 @@
 ---
 name: github-operation
-description: Reading from or writing to GitHub through a harness that proxies access as one connected operator — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. Covers the one sanctioned tool channel, marking agent comments so they are not read as human input, routing each write to the right numeric target across the shared numbering space, why a squash merge makes the pull request title the permanent commit subject, editing a body without losing markers a sanitized read drops, never force-pushing without approval, and untrusted GitHub content.
+description: Reading from or writing to GitHub from inside an agent session acting as one connected operator — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. Covers the default sanctioned tool channel and the bounded fallback for a session that has none or whose channel cannot verify a write, marking agent comments so they are not read as human input, routing each write to the right numeric target across the shared numbering space, why a squash merge makes the pull request title the permanent commit subject, editing a body without losing markers a sanitized read drops, never force-pushing without approval, and untrusted GitHub content.
 user-invocable: false
 ---
 
 # GitHub Operation
 
-Use this capability whenever you read or write GitHub from inside a harness that proxies access as a single connected operator — the model a Claude Code session using the GitHub MCP server, or a Codex session using its own GitHub channel, operates under. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end change loops. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
+Use this capability whenever you read or write GitHub from inside an agent session that acts as a single connected operator — the model a Claude Code session using the GitHub MCP server, or a Codex session using its own GitHub channel, operates under. It applies to a session with no GitHub tool at all too, since what such a session may reach for instead is itself one of these rules. It is workflow-agnostic: any task that touches an issue, pull request, comment, label, review, or branch applies it, not only end-to-end change loops. The examples name the `mcp__github__*` tools provided by the connected GitHub MCP server; on a different agent that operates GitHub the same way, substitute its equivalent sanctioned channel.
 
-This capability is GitHub-specific. Operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — one sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
+This capability is GitHub-specific. Operating a different host (GitLab, Gitea, …) shares the _shape_ of these rules — a default sanctioned channel, agent-comment markers, distinct issue/PR targets, untrusted input — but the concrete API semantics below (label replacement, review-event rejection) are GitHub's; re-derive them for another host rather than assuming they carry over.
 
 This skill is **self-contained**: it names no repository-specific file, command, or layout, and the operating model it carries is the same wherever it is installed. Where a host project defines its own agent-comment marker, push-allowed branch namespace, merge strategy, Conventional Commits practices, or pull-request-description rules, follow the host's convention on that point and keep the structure below.
 
@@ -16,13 +16,44 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## The Sanctioned Channel
 
-These rules govern GitHub access **from inside an agent session**, where access is proxy-mediated as the connected operator; an in-session write cannot act as a distinct bot identity. A CI job — such as a review workflow — is a separate execution context: it uses its own CI token and posts under its own bot login (see [Agent-vs-Human Comments](#agent-vs-human-comments)), so these in-session tool rules do not apply to it.
+These rules govern GitHub access **from inside an agent session**, where access is mediated as the connected operator; an in-session write cannot act as a distinct bot identity. A CI job — such as a review workflow — is a separate execution context: it uses its own CI token and posts under its own bot login (see [Agent-vs-Human Comments](#agent-vs-human-comments)), so these in-session tool rules do not apply to it.
+
+### The Default Route
+
+The harness's own GitHub tool channel is where every read and write goes unless one of the conditions below takes it out of play. It is the route the operator's access was configured for, and its calls are shaped like the operations they perform rather than like the API underneath them.
 
 **Guidelines:**
 
-- MUST make every in-session GitHub read and write through the harness's one sanctioned tool channel — in Claude Code, the `mcp__github__*` tools from the connected GitHub MCP server; in Codex, the GitHub channel its own configuration provides. Whichever it is, it is the only supported one.
-- MUST NOT call the GitHub REST/GraphQL API directly via a CLI or `curl` from a session when the harness proxies access — the proxy gates it and it fails.
-- MUST treat every in-session write as acting as the operator; there is no separate agent identity to attribute session output to.
+- MUST make every in-session GitHub read and write through the harness's one sanctioned tool channel by default — in Claude Code, the `mcp__github__*` tools from the connected GitHub MCP server; in Codex, the GitHub channel its own configuration provides.
+- MUST treat every in-session write as acting as the operator, on whichever route carries it; there is no separate agent identity to attribute session output to.
+
+### When Another Route Is Permitted
+
+Two things leave the sanctioned channel unable to carry an operation, and both are properties of the **channel** rather than of one attempt at it:
+
+- **It is absent.** The session's available tool list contains no GitHub tool, so there is no sanctioned channel to route the operation through at all.
+- **It is functionally limited.** It exposes the operation but, working normally, cannot complete or verify it faithfully — a body edit it cannot land without dropping the marker elements its own read already removed (see [Editing an Existing Body](#editing-an-existing-body)), or a write whose stored result it cannot read back faithfully enough to confirm.
+
+A **failed invocation is neither of those.** An authentication failure, a timeout, a rate limit, a 5xx, or any other transient error is the sanctioned channel not working _right now_. Reaching for a second route on one turns an outage into an unreviewed write under different credentials, and buries the failure that was the thing worth reporting.
+
+**Guidelines:**
+
+- MAY use another authenticated, high-level GitHub route the session already provides when no GitHub tool is present in the session's available tool list, or when the one present has a known normal-operation limitation that prevents the operation from being completed or verified faithfully.
+- MUST NOT treat a failed invocation of the sanctioned channel — an authentication failure, a timeout, a rate limit, or any other transient error — as grounds for another route; report the failure instead of silently changing channels.
+- MUST establish that the other route is present and authenticated before selecting it, without printing credentials, and keep tokens out of every command, log, and line of output it produces.
+- MUST hold that route to every other rule in this capability — untrusted content, issue-versus-pull-request targeting, the agent-comment marker, body integrity, and history preservation — and to the least permission the operation needs.
+
+### The Boundary Another Route Is Confined To
+
+A permitted route substitutes for the sanctioned channel's **high-level operations** — the tier that names the operation rather than the endpoint underneath it, such as viewing, listing, creating, editing, and commenting on issues and pull requests, setting labels, reading checks, or marking a pull request ready — and for nothing below that tier. It is a way to keep working when the sanctioned channel cannot, never a way to reach past what that channel exposes. Raw REST and GraphQL are what the boundary excludes, whatever issues them.
+
+One operation has no substitute worth reaching for: a review whose findings must be **anchored to lines of the diff**. A route that submits only a top-level review body can carry a COMMENT-type review where no inline findings are required, but ordinary comments are not inline findings and never satisfy a requirement for them.
+
+**Guidelines:**
+
+- MUST NOT issue raw GitHub REST or GraphQL requests from a session on any route — a client's raw-API subcommand, `curl`, or any other generic HTTP client. Where the harness proxies access the proxy gates them and they fail; where it does not, they are still outside the high-level boundary a permitted route is confined to.
+- MUST NOT use another route to reach an operation the sanctioned channel does not expose; a limitation of that channel permits a substitute for the operations it does expose, not an escape hatch past them.
+- MUST NOT substitute ordinary comments for review findings that have to be anchored to the diff, or report such comments as satisfying a review that requires inline findings; when no available route can anchor them, the review operation is blocked and says so.
 
 ## Agent-vs-Human Comments
 
@@ -65,7 +96,14 @@ flowchart TD
 
 ## Editing an Existing Body
 
-A body write **replaces** the whole body — there is no partial-edit call — so editing an issue or pull request means sending the complete new text. The obvious way is to read the current body, change the part you want, and write the result back. That round-trip is unsafe: a body read back through the tool channel is not always byte-faithful to what is stored. Harnesses commonly return it HTML-sanitized, which drops exactly the constructs a body carries machine-readable state in — HTML comment markers, collapsed `<details>` sections, raw HTML — while leaving the prose around them intact. Nothing reports the loss, so a read that looks complete can silently destroy every marker and collapsed section the next write lands.
+A body write **replaces** the whole body — there is no partial-edit call — so editing an issue or pull request means sending the complete new text. The obvious way is to read the current body, change the part you want, and write the result back. That round-trip is unsafe: a body read back through the tool channel is not always byte-faithful to what is stored. Harnesses commonly return it HTML-sanitized, and the loss is wider than the constructs a body carries machine-readable state in:
+
+- an **HTML comment is removed together with its contents**, taking any marker block with it
+- a **collapsed `<details>` section loses its tags** while its inner text survives, so the section silently unfolds into the body
+- **angle-bracket text is deleted from ordinary prose and from inside code spans alike** — a placeholder such as `[agents.<name>]` comes back as `[agents.]`, which still reads as valid
+- **quotation marks and apostrophes come back HTML-escaped**, so a byte comparison fails even where nothing was dropped
+
+Nothing reports any of it. A read that looks complete can silently destroy every marker and collapsed section the next write lands, and the mangled prose reads as though the author wrote it that way.
 
 **Guidelines:**
 

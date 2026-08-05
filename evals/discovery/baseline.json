@@ -29,7 +29,11 @@
     "le-deliver-issue",
     "pb-verify-before-answering",
     "sd-how-to-run-tests",
-    "qa-was-this-verified"
+    "qa-was-this-verified",
+    "lps-behaviour-change-invalidates-docs",
+    "lps-decision-record",
+    "lps-spec-first-boundary",
+    "lps-runbook-boundary"
   ],
   "cases": {
     "wf-checkout-layout": {
