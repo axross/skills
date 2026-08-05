@@ -79,6 +79,33 @@ function totalsOf(stdout) {
 }
 
 /**
+ * The cumulative tier rows `--mandated` prints, keyed by their condition.
+ *
+ * Parsed from the block's own rows rather than recomputed from the per-skill
+ * table, so a case fails when the tiering breaks rather than when the corpus
+ * moves the figures it happens to sum to.
+ */
+function tiersOf(stdout) {
+  const lines = stdout.split("\n");
+  const start = lines.findIndex((line) => line.startsWith("Cumulative by session kind"));
+  if (start === -1) throw new Error(`No tier block in report:\n${stdout}`);
+  const rule = lines.findIndex((line, index) => index > start && /^-{3,}$/.test(line));
+  const rows = [];
+  for (let index = rule + 1; index < lines.length && lines[index].trim() !== ""; index += 1) {
+    const cells = lines[index].trim().split(/\s{2,}/);
+    const numbers = cells.slice(-4).map((cell) => Number(cell.replace(/,/g, "")));
+    rows.push({
+      condition: cells.slice(0, -4).join(" ").trim() || cells[0].trim(),
+      floorObligations: numbers[0],
+      floorTokens: numbers[1],
+      ceilingObligations: numbers[2],
+      ceilingTokens: numbers[3],
+    });
+  }
+  return rows;
+}
+
+/**
  * The skill directory names directly under a repository skill root, read from
  * disk.
  *
@@ -217,11 +244,14 @@ describe("report-obligation-load.mjs", () => {
   });
 
   describe("selection", () => {
-    it("selects the always-on set from --mandated with no skill named", async () => {
+    it("selects the mandated set from --mandated with no skill named", async () => {
       const result = report("--mandated");
 
       expect(result).toPassCleanly();
-      expect(result.stdout).toMatch(/the always-on set CLAUDE\.md mandates/);
+      // The label said "the always-on set" until #211. It was wrong about two
+      // of the three skills, so the assertion that pinned it moved with it.
+      expect(result.stdout).toMatch(/the set CLAUDE\.md mandates/);
+      expect(result.stdout).not.toMatch(/always-on/);
       for (const name of MANDATED_SKILLS) {
         expect(result.stdout).toMatch(new RegExp(`^${name}\\s`, "m"));
       }
@@ -545,6 +575,81 @@ describe("report-obligation-load.mjs", () => {
       // Measured after the same merge, for the same reason as the figure
       // above.
       expect.soft(totals.ceilingTokens).toBe(37_661);
+    });
+
+    it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
+      const tiers = tiersOf(report("--mandated").stdout);
+
+      // The point of the block, and the reason #211 exists: the figure this
+      // report printed as one total was the LAST of these, labelled "every
+      // session". An ordinary question-answering session carries the first.
+      expect(tiers.map((tier) => tier.condition)).toEqual([
+        "every session",
+        "+ task touches the project",
+        "+ task changes something",
+      ]);
+
+      // Cumulative, not disjoint — each row contains the ones above it. All four
+      // figures are pinned per tier, matching what the totals above already do,
+      // because the whole point of the block is to say WHICH tier moved: pinning
+      // only the ceiling obligations would report that a tier drifted without
+      // saying by how much or in which dimension.
+      //
+      // Tier 1 — `professional-behavior`, the only genuinely unconditional
+      // member. It has stated no OBLIGATION bullets in its own body since #195
+      // folded `when_to_use` into `description`, which is why its floor is zero
+      // while its ceiling is not.
+      expect.soft(tiers[0].floorObligations).toBe(0);
+      expect.soft(tiers[0].floorTokens).toBe(1_105);
+      expect.soft(tiers[0].ceilingObligations).toBe(120);
+      expect.soft(tiers[0].ceilingTokens).toBe(8_665);
+
+      // Tier 2 — plus `software-development`. Drifted from 204 in #209, which
+      // gave it a Product Specification section, and again in #215/#221, which
+      // added Settled Decisions to pull-request-descriptions.md.
+      expect.soft(tiers[1].floorObligations).toBe(5);
+      expect.soft(tiers[1].floorTokens).toBe(2_264);
+      expect.soft(tiers[1].ceilingObligations).toBe(210);
+      expect.soft(tiers[1].ceilingTokens).toBe(15_418);
+
+      // Tier 3 — plus `loop-engineering`, and the figure this report printed
+      // alone before #211. Drifted from 361 by #204's plan-structure rewrite,
+      // #206/#208's pre-flight review stage, and #215/#221's deferring bullet.
+      // #211's own acceptance criterion quotes 361 as a snapshot at filing; the
+      // criterion is measured against the base at merge time, as its own text
+      // now says, because `main` moves these independently of this branch.
+      expect.soft(tiers[2].floorObligations).toBe(26);
+      expect.soft(tiers[2].floorTokens).toBe(8_199);
+      expect.soft(tiers[2].ceilingObligations).toBe(408);
+      expect.soft(tiers[2].ceilingTokens).toBe(37_661);
+
+      // The last tier IS the total, by construction. Asserting it rather than
+      // trusting it is what would catch a tiering that silently dropped a skill
+      // — and it is the one assertion here that survives any corpus drift.
+      const totals = totalsOf(report("--mandated").stdout);
+      expect(tiers[2].ceilingObligations).toBe(totals.ceilingObligations);
+      expect(tiers[2].floorObligations).toBe(totals.floorObligations);
+      expect(tiers[2].ceilingTokens).toBe(totals.ceilingTokens);
+      expect(tiers[2].floorTokens).toBe(totals.floorTokens);
+    });
+
+    it("keeps the tiers to the mandated set when further skills are selected", async () => {
+      const stdout = report("--mandated", "code-review").stdout;
+
+      // `--mandated code-review` answers "what does a review round carry" in
+      // its total, and "what does the mandated set cost a session of each kind"
+      // in its tiers. Folding the extra selector into the tiers would destroy
+      // the second answer, which is the one the tiers exist for.
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(408);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(408);
+    });
+
+    it("prints no tier block without --mandated", async () => {
+      // The tiers describe the mandated set's own scoping, so they would be
+      // meaningless over an arbitrary selection — and their absence is what
+      // keeps every non-mandated invocation byte-identical to before #211.
+      expect(report("code-review").stdout).not.toContain("Cumulative by session kind");
+      expect(report().stdout).not.toContain("Cumulative by session kind");
     });
   });
 
