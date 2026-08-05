@@ -79,6 +79,33 @@ function totalsOf(stdout) {
 }
 
 /**
+ * The cumulative tier rows `--mandated` prints, keyed by their condition.
+ *
+ * Parsed from the block's own rows rather than recomputed from the per-skill
+ * table, so a case fails when the tiering breaks rather than when the corpus
+ * moves the figures it happens to sum to.
+ */
+function tiersOf(stdout) {
+  const lines = stdout.split("\n");
+  const start = lines.findIndex((line) => line.startsWith("Cumulative by session kind"));
+  if (start === -1) throw new Error(`No tier block in report:\n${stdout}`);
+  const rule = lines.findIndex((line, index) => index > start && /^-{3,}$/.test(line));
+  const rows = [];
+  for (let index = rule + 1; index < lines.length && lines[index].trim() !== ""; index += 1) {
+    const cells = lines[index].trim().split(/\s{2,}/);
+    const numbers = cells.slice(-4).map((cell) => Number(cell.replace(/,/g, "")));
+    rows.push({
+      condition: cells.slice(0, -4).join(" ").trim() || cells[0].trim(),
+      floorObligations: numbers[0],
+      floorTokens: numbers[1],
+      ceilingObligations: numbers[2],
+      ceilingTokens: numbers[3],
+    });
+  }
+  return rows;
+}
+
+/**
  * The skill directory names directly under a repository skill root, read from
  * disk.
  *
@@ -217,11 +244,14 @@ describe("report-obligation-load.mjs", () => {
   });
 
   describe("selection", () => {
-    it("selects the always-on set from --mandated with no skill named", async () => {
+    it("selects the mandated set from --mandated with no skill named", async () => {
       const result = report("--mandated");
 
       expect(result).toPassCleanly();
-      expect(result.stdout).toMatch(/the always-on set CLAUDE\.md mandates/);
+      // The label said "the always-on set" until #211. It was wrong about two
+      // of the three skills, so the assertion that pinned it moved with it.
+      expect(result.stdout).toMatch(/the set CLAUDE\.md mandates/);
+      expect(result.stdout).not.toMatch(/always-on/);
       for (const name of MANDATED_SKILLS) {
         expect(result.stdout).toMatch(new RegExp(`^${name}\\s`, "m"));
       }
@@ -545,6 +575,51 @@ describe("report-obligation-load.mjs", () => {
       // Measured after the same merge, for the same reason as the figure
       // above.
       expect.soft(totals.ceilingTokens).toBe(37_661);
+    });
+
+    it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
+      const tiers = tiersOf(report("--mandated").stdout);
+
+      // The point of the block, and the reason #211 exists: the figure this
+      // report printed as one total was the LAST of these, labelled "every
+      // session". An ordinary question-answering session carries the first.
+      expect(tiers.map((tier) => tier.condition)).toEqual([
+        "every session",
+        "+ task touches the project",
+        "+ task changes something",
+      ]);
+
+      // Cumulative, not disjoint — each row contains the ones above it. Pinned
+      // to the corpus like the totals above, and drifting for the same reasons:
+      // #204 and #206/#208 moved the third, #209 and #215/#221 the second.
+      expect.soft(tiers[0].ceilingObligations).toBe(120);
+      expect.soft(tiers[1].ceilingObligations).toBe(210);
+      expect.soft(tiers[2].ceilingObligations).toBe(408);
+
+      // The last tier IS the total, by construction. Asserting it rather than
+      // trusting it is what would catch a tiering that silently dropped a skill.
+      const totals = totalsOf(report("--mandated").stdout);
+      expect(tiers[2].ceilingObligations).toBe(totals.ceilingObligations);
+      expect(tiers[2].floorObligations).toBe(totals.floorObligations);
+    });
+
+    it("keeps the tiers to the mandated set when further skills are selected", async () => {
+      const stdout = report("--mandated", "code-review").stdout;
+
+      // `--mandated code-review` answers "what does a review round carry" in
+      // its total, and "what does the mandated set cost a session of each kind"
+      // in its tiers. Folding the extra selector into the tiers would destroy
+      // the second answer, which is the one the tiers exist for.
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(408);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(408);
+    });
+
+    it("prints no tier block without --mandated", async () => {
+      // The tiers describe the mandated set's own scoping, so they would be
+      // meaningless over an arbitrary selection — and their absence is what
+      // keeps every non-mandated invocation byte-identical to before #211.
+      expect(report("code-review").stdout).not.toContain("Cumulative by session kind");
+      expect(report().stdout).not.toContain("Cumulative by session kind");
     });
   });
 
