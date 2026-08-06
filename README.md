@@ -159,9 +159,7 @@ one you inherit.
 
 A skill only earns its place if an agent actually reaches for it at the right
 moment, and if holding it then changes what the agent does. Neither is visible
-in the file, and no amount of structural validation reaches either — a skill can
-be immaculately structured and never get picked up, or get picked up for the
-wrong prompt.
+in the file, and no amount of structural validation reaches either.
 
 **Evaluation in this space, where it exists at all, tends to stop at form** —
 that a skill is shaped correctly, not that it works. This library measures the
