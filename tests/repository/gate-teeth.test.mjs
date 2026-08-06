@@ -64,6 +64,23 @@ describe("repository gates have teeth", () => {
     expect(result).toPassCleanly();
   });
 
+  it("the links gate still reaches an ordinary top-level directory", async () => {
+    const { script, args } = gate("links");
+    const root = await tempDir();
+    // The two cases above prove the roster reaches the repository root and a
+    // dot-directory, and that it stops at examples/. Neither would notice the
+    // roster being over-pruned — linksGateRoots() builds it by SUBTRACTING an
+    // exclusion set from a live listing, so one careless addition to that set
+    // silently drops a whole tree while the gate keeps reporting "links OK"
+    // (its success pattern accepts a count of zero). An ordinary, non-dot,
+    // non-excluded directory is the case that fails when that happens.
+    await writeFileIn(root, "docs/guide.md", "See [gone](./missing.md).\n");
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(/missing\.md/);
+  });
+
   // The frontmatter gate is the one with teeth for a missing `description`.
   // Its two siblings read the body and the reference wiring, and a skill can be
   // malformed in the way below while both of those pass — which is the point of
