@@ -722,7 +722,7 @@ describe("report-obligation-load.mjs", () => {
       // pending checks' completion profiles with the reference project's own
       // runs as the worked example. The premise sentence those replaced had
       // asserted that nothing wakes the session at all.
-      expect.soft(totals.ceilingTokens).toBe(41_178);
+      expect.soft(totals.ceilingTokens).toBe(41_167);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -795,7 +795,7 @@ describe("report-obligation-load.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(26);
       expect.soft(tiers[2].floorTokens).toBe(8_412);
       expect.soft(tiers[2].ceilingObligations).toBe(427);
-      expect.soft(tiers[2].ceilingTokens).toBe(41_178);
+      expect.soft(tiers[2].ceilingTokens).toBe(41_167);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
