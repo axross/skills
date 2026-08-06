@@ -213,23 +213,23 @@ A Codex session runs the same session-start and check scripts through
 [`.codex/hooks.json`](./.codex/hooks.json); format-on-edit is not wired there,
 because `format.sh` reads the edited path from a Claude Code payload field.
 
-| Area             | Tool                                                                                  |
-| ---------------- | ------------------------------------------------------------------------------------- |
-| Language         | Markdown (with occasional JavaScript for scripting)                                   |
-| Runtimes         | Claude Code and Codex                                                                 |
-| Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
-| Package manager  | npm                                                                                   |
-| Formatting       | Prettier                                                                              |
-| Linting          | markdownlint-cli2                                                                     |
-| Tests            | Vitest                                                                                |
-| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
-| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
-| Installed copies | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
-| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
-| Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
-| Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
-| Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
-| Product spec     | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
+| Area              | Tool                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| Language          | Markdown (with occasional JavaScript for scripting)                                   |
+| Runtimes          | Claude Code and Codex                                                                 |
+| Node              | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
+| Package manager   | npm                                                                                   |
+| Formatting        | Prettier                                                                              |
+| Linting           | markdownlint-cli2                                                                     |
+| Tests             | Vitest                                                                                |
+| Link integrity    | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
+| Skill structure   | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
+| Installed copies  | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
+| Obligation burden | `scripts/report-obligation-burden.mjs` (reports; never gates)                         |
+| Skill discovery   | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
+| Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
+| Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
+| Product spec      | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
 
 ### Commands
 
@@ -311,11 +311,11 @@ The <!-- count:first-reporting-tool-ordinal -->fifteenth<!-- /count --> reports 
 number:
 
 ```bash
-node scripts/report-obligation-load.mjs --mandated
-node scripts/report-obligation-load.mjs --help
+node scripts/report-obligation-burden.mjs --mandated
+node scripts/report-obligation-burden.mjs --help
 ```
 
-`report-obligation-load.mjs` answers "how many rules is an agent holding right
+`report-obligation-burden.mjs` answers "how many rules is an agent holding right
 now?" — the concurrent RFC-2119 obligation count across a set of skills, as a
 **range**: the floor those skills cost with only their `SKILL.md` bodies read,
 and the ceiling once every `references/*.md` is read too. Pass skills by path,

@@ -24,7 +24,7 @@
 
 **Obligation** — one rule stated with an RFC 2119 keyword. It is the unit the structure check and the load report both count.
 
-**Obligation load** — how many **obligations** an agent holds at once across a set of **skills**, reported as a range: the floor when only the `SKILL.md` bodies are read, and the ceiling once every reference file is read too.
+**Obligation burden** — how many **obligations** an agent holds at once across a set of **skills**, reported as a range: the floor when only the `SKILL.md` bodies are read, and the ceiling once every reference file is read too.
 
 ## Verification
 

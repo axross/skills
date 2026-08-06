@@ -6,7 +6,7 @@
 // one skill?" The skill-structure checks validate one skill directory at a time and are
 // host-agnostic — they have no view of a sibling skill, and should not grow one,
 // because they ship to projects whose skill trees are none of their business. So
-// the comparison lives here, beside report-obligation-load.mjs, for the same
+// the comparison lives here, beside report-obligation-burden.mjs, for the same
 // reason that one does: it reports on a tree rather than validating one.
 //
 // THIS REPORTS AND NEVER JUDGES, and here the reason is stronger than a missing
@@ -26,7 +26,7 @@
 //
 // The obligation definition is NOT re-implemented here. It is imported from
 // guidelines.mjs, the same module check-skill-body.mjs reads for its `guidelines:`
-// failures and report-obligation-load.mjs counts through, so all three agree on
+// failures and report-obligation-burden.mjs counts through, so all three agree on
 // what a rule is and a boundary fix reaches every reader at once.
 //
 // SIMILARITY IS A PLACE TO LOOK, NOT A VERDICT. Two rules are compared as sets
@@ -122,7 +122,7 @@ const isSkillDir = (path) => isFile(join(path, "SKILL.md"));
 /**
  * Resolve one argument into skill directories: a path first, then a skill name
  * against the source root and the installed root. Mirrors
- * report-obligation-load.mjs, so the two accept the same selectors.
+ * report-obligation-burden.mjs, so the two accept the same selectors.
  *
  * @returns {Promise<string[]>} zero directories means the argument resolved to
  *   nothing, which the caller reports as a bad invocation

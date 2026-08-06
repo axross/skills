@@ -511,11 +511,11 @@ export const CLAIMS = {
   },
 
   "mandated-skills": {
-    owner: "MANDATED_TIERS in scripts/report-obligation-load.mjs",
+    owner: "MANDATED_TIERS in scripts/report-obligation-burden.mjs",
     note: "that constant tracks CLAUDE.md's Response Approach, which is where the set and its per-tier scoping are actually decided",
     derive: async () => {
       const source = await readFile(
-        repoPath("scripts/report-obligation-load.mjs"),
+        repoPath("scripts/report-obligation-burden.mjs"),
         "utf8",
       );
       // Counts skills across the tiers rather than in one flat array: #211
@@ -524,7 +524,7 @@ export const CLAIMS = {
       const literal = anchored(
         source,
         /const MANDATED_TIERS = \[([\s\S]*?)\n\];/,
-        "scripts/report-obligation-load.mjs",
+        "scripts/report-obligation-burden.mjs",
         "the MANDATED_TIERS array literal",
       );
       return [...literal.matchAll(/skills: \[([^\]]*)\]/g)].reduce(

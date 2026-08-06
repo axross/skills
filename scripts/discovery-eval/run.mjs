@@ -35,7 +35,7 @@
 // the enforced set on purpose, so wiring it in has to be a deliberate act.
 //
 // It lives at the repository root rather than inside a skill for the same reason
-// report-obligation-load.mjs does: it reports on a tree rather than validating
+// report-obligation-burden.mjs does: it reports on a tree rather than validating
 // one, and every script bundled in a skill is named in that skill's prose, so
 // adding one there would be an authoring change — which this is not.
 //
