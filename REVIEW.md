@@ -92,7 +92,7 @@ skill in the finding.
      though it were project-specific.
   4. **Routing concreteness** — a routing bullet that gestures at a fact
      instead of stating it.
-  5. **Obligation load** — the rule count the change adds, set against peer
+  5. **Obligation burden** — the rule count the change adds, set against peer
      skills of comparable scope.
 
   The list is a floor, not a closed set. A lens added later joins the

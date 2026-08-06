@@ -4,11 +4,11 @@
 // THE CONCURRENCY GROUP IS THE POINT OF THIS FILE. A determinism run is 30
 // sequential probes whose entire value rests on the corpus not changing
 // underneath them. Before this input existed, every dispatch that named no pull
-// request and emitted no selection snapshot shared `discovery-eval-manual` with
+// request and emitted no snapshot shared `discovery-eval-manual` with
 // `cancel-in-progress: true` — so an ordinary report dispatched mid-run would
 // have destroyed a measurement somebody paid for. That is not hypothetical
 // reasoning: it is the defect this workflow already records having fixed once,
-// for `emit_selection_snapshot`, and it would have arrived a second time by default.
+// for `emit_snapshot`, and it would have arrived a second time by default.
 //
 // THE BRANCH ORDER MATTERS AS MUCH AS THE BRANCH. `determinism` is evaluated
 // BEFORE `pull_request`. Ordered the other way, a determinism run that also
@@ -18,7 +18,7 @@
 // asserted the order explicitly.
 //
 // String assertions rather than a parsed document, matching
-// discovery-eval-emit-selection-snapshot.test.mjs: this repository ships no YAML parser,
+// discovery-eval-emit-snapshot.test.mjs: this repository ships no YAML parser,
 // and the coupling worth protecting is that these strings appear at all.
 
 import { readFile } from "node:fs/promises";
@@ -46,7 +46,7 @@ describe("the discovery evaluation's determinism dispatch", () => {
     const yaml = await readWorkflow();
     // Only the typed `inputs` context applies a declared default, so an input
     // WITHOUT one must be read the untyped way — as `pull_request` and
-    // `repeats` are, and unlike `emit_selection_snapshot`, which has a default and would
+    // `repeats` are, and unlike `emit_snapshot`, which has a default and would
     // read as empty through this context.
     expect(yaml).toContain("DETERMINISM: ${{ github.event.inputs.determinism }}");
     expect(yaml).not.toContain("DETERMINISM: ${{ inputs.determinism }}");
@@ -83,19 +83,19 @@ describe("the discovery evaluation's determinism dispatch", () => {
     // The expression's own semantics, evaluated the way Actions does: `&&`
     // yields its right side when the left is truthy, `||` falls through empties.
     expect(group).toContain("|| github.event.inputs.pull_request ||");
-    expect(group).toContain("|| (inputs.emit_selection_snapshot && 'emit-selection-snapshot') || 'manual'");
+    expect(group).toContain("|| (inputs.emit_snapshot && 'emit-snapshot') || 'manual'");
 
-    const resolve = (determinism, pullRequest, emitSelectionSnapshot) =>
+    const resolve = (determinism, pullRequest, emitSnapshot) =>
       `${DETERMINISM_GROUP.replace("determinism-", "")}${
         (determinism && `determinism-${determinism}`) ||
         pullRequest ||
-        (emitSelectionSnapshot && "emit-selection-snapshot") ||
+        (emitSnapshot && "emit-snapshot") ||
         "manual"
       }`;
 
     expect(resolve("", "", false)).toBe("discovery-eval-manual");
     expect(resolve("", "42", false)).toBe("discovery-eval-42");
-    expect(resolve("", "", true)).toBe("discovery-eval-emit-selection-snapshot");
+    expect(resolve("", "", true)).toBe("discovery-eval-emit-snapshot");
     expect(resolve("hf-touch-targets", "", false)).toBe(
       `${DETERMINISM_GROUP}hf-touch-targets`,
     );
@@ -114,26 +114,26 @@ describe("the discovery evaluation's determinism dispatch", () => {
     expect(yaml).toContain('args+=(--determinism --only "${DETERMINISM}")');
   });
 
-  it("refuses the emit_selection_snapshot combination from a step of its own", async () => {
+  it("refuses the emit_snapshot combination from a step of its own", async () => {
     const yaml = await readWorkflow();
-    expect(yaml).toMatch(/if: env\.EMIT_SELECTION_SNAPSHOT == 'true' && env\.DETERMINISM != ''/);
-    expect(yaml).toMatch(/::error::determinism cannot be combined with emit_selection_snapshot/);
+    expect(yaml).toMatch(/if: env\.EMIT_SNAPSHOT == 'true' && env\.DETERMINISM != ''/);
+    expect(yaml).toMatch(/::error::determinism cannot be combined with emit_snapshot/);
 
     // A SEPARATE STEP, not a widened `if:` on the existing one. That step is
     // named for head text and its message is entirely about pull request
     // numbers; firing it here would print a reason that has nothing to do with
     // what was dispatched.
-    const headText = yaml.indexOf("Refuse to emit a selection snapshot from head text");
-    const singleCase = yaml.indexOf("Refuse to emit a selection snapshot from a single-case probe");
+    const headText = yaml.indexOf("Refuse to emit a snapshot from head text");
+    const singleCase = yaml.indexOf("Refuse to emit a snapshot from a single-case probe");
     expect(headText).toBeGreaterThan(-1);
     expect(singleCase).toBeGreaterThan(-1);
     expect(singleCase).not.toBe(headText);
-    expect(yaml).not.toMatch(/if: env\.EMIT_SELECTION_SNAPSHOT == 'true' && \(env\.PR_NUMBER/);
+    expect(yaml).not.toMatch(/if: env\.EMIT_SNAPSHOT == 'true' && \(env\.PR_NUMBER/);
   });
 
   it("refuses before spending anything", async () => {
     const yaml = await readWorkflow();
-    const guard = yaml.indexOf("Refuse to emit a selection snapshot from a single-case probe");
+    const guard = yaml.indexOf("Refuse to emit a snapshot from a single-case probe");
     expect(guard).toBeLessThan(yaml.indexOf("Checkout default branch"));
     expect(guard).toBeLessThan(yaml.indexOf("Run the evaluation"));
   });

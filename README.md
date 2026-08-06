@@ -160,10 +160,10 @@ one you inherit.
 A skill's usefulness has to be checked rather than assumed, and the checking
 cannot be done by reading it.
 
-**Evaluation in this space, where it exists at all, tends to stop at form** —
-that a skill is shaped correctly, not that it works. This library measures the
+**Evaluation in this space, where it exists at all, tends to stop at the
+textual properties** — that a skill is shaped correctly, not that it works. This library measures the
 outcome as well, and commits the measurements: the recorded results live in
-[`evals/discovery/selection-snapshot.json`](./evals/discovery/selection-snapshot.json), so what the
+[`evals/discovery/snapshot.json`](./evals/discovery/snapshot.json), so what the
 measurement found is something you can read rather than take on trust. That is
 the axis worth comparing libraries on — whether the discovery text is _measured_
 or merely asserted. It has already produced negative results about this
@@ -172,10 +172,10 @@ is the entire point of running it.
 
 Two instruments do the measuring.
 [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) explains
-what skill evaluation is, why form checking cannot reach it, and what each
-instrument answers. [`evals/discovery/README.md`](./evals/discovery/README.md)
+what skill evaluation is, why checking textual properties cannot reach it, and
+what each instrument answers. [`evals/discovery/README.md`](./evals/discovery/README.md)
 carries the discovery instrument itself — the fixture format, how a verdict is
-reached, when to re-record the selection snapshot, and the limits of what a run can
+reached, when to re-record the snapshot, and the limits of what a run can
 conclude. [Reporting, not gating](#reporting-not-gating) has the commands for
 both.
 
@@ -213,23 +213,23 @@ A Codex session runs the same session-start and check scripts through
 [`.codex/hooks.json`](./.codex/hooks.json); format-on-edit is not wired there,
 because `format.sh` reads the edited path from a Claude Code payload field.
 
-| Area             | Tool                                                                                  |
-| ---------------- | ------------------------------------------------------------------------------------- |
-| Language         | Markdown (with occasional JavaScript for scripting)                                   |
-| Runtimes         | Claude Code and Codex                                                                 |
-| Node             | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
-| Package manager  | npm                                                                                   |
-| Formatting       | Prettier                                                                              |
-| Linting          | markdownlint-cli2                                                                     |
-| Tests            | Vitest                                                                                |
-| Link integrity   | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
-| Skill structure  | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
-| Installed copies | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
-| Obligation load  | `scripts/report-obligation-load.mjs` (reports; never gates)                           |
-| Skill discovery  | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
-| Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
-| Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
-| Product spec     | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
+| Area              | Tool                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| Language          | Markdown (with occasional JavaScript for scripting)                                   |
+| Runtimes          | Claude Code and Codex                                                                 |
+| Node              | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
+| Package manager   | npm                                                                                   |
+| Formatting        | Prettier                                                                              |
+| Linting           | markdownlint-cli2                                                                     |
+| Tests             | Vitest                                                                                |
+| Link integrity    | `skills/agent-skill-authoring/scripts/check-links.mjs`                                |
+| Skill structure   | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
+| Installed copies  | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
+| Obligation burden | `scripts/report-obligation-burden.mjs` (reports; never gates)                         |
+| Skill discovery   | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
+| Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
+| Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
+| Product spec      | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
 
 ### Commands
 
@@ -311,11 +311,11 @@ The <!-- count:first-reporting-tool-ordinal -->fifteenth<!-- /count --> reports 
 number:
 
 ```bash
-node scripts/report-obligation-load.mjs --mandated
-node scripts/report-obligation-load.mjs --help
+node scripts/report-obligation-burden.mjs --mandated
+node scripts/report-obligation-burden.mjs --help
 ```
 
-`report-obligation-load.mjs` answers "how many rules is an agent holding right
+`report-obligation-burden.mjs` answers "how many rules is an agent holding right
 now?" — the concurrent RFC-2119 obligation count across a set of skills, as a
 **range**: the floor those skills cost with only their `SKILL.md` bodies read,
 and the ceiling once every `references/*.md` is read too. Pass skills by path,
@@ -346,7 +346,7 @@ node scripts/discovery-eval/run.mjs --help
 right skills?" — the first check here that measures an **outcome** rather than
 form. It runs a labelled prompt fixture through the real Claude Code CLI in a
 scratch workspace and reports which expected skills were missed and which
-unexpected ones fired, as a delta against a recorded selection snapshot. It cannot gate
+unexpected ones fired, as a delta against a recorded snapshot. It cannot gate
 for three independent reasons: it is non-deterministic, it costs real money per
 run (`--dry-run` prints the current estimate), and it needs a secret that fork
 pull requests do not receive.
@@ -357,22 +357,22 @@ workflow allowed to invoke it, and **manual dispatch is its only trigger**, so
 nothing a pull request does can start it or spend money. Give the dispatch a
 pull request number to evaluate that branch's changed skills and have the report
 posted as a comment; leave it blank to evaluate the default branch and read the
-report in the job log. Check `emit_selection_snapshot` — which no dispatch naming a pull
-request may combine with — to have the run also produce a proposed selection snapshot as a
-downloadable artifact, which is how the selection snapshot gets re-recorded without a local
+report in the job log. Check `emit_snapshot` — which no dispatch naming a pull
+request may combine with — to have the run also produce a proposed snapshot as a
+downloadable artifact, which is how the snapshot gets re-recorded without a local
 CLI or local credentials. Give it a case id in `determinism` instead to repeat
 that one case against an unchanged corpus and measure whether its probes behave
 as independent draws; that combines with a pull request but not with
-`emit_selection_snapshot`, since one case cannot produce a fixture-wide document.
+`emit_snapshot`, since one case cannot produce a fixture-wide document.
 `--dry-run` validates the fixture with no model call and
 no secret. See
 [`evals/discovery/README.md`](./evals/discovery/README.md) for the fixture
-format, how a verdict is reached, and how to re-record the selection snapshot.
+format, how a verdict is reached, and how to re-record the snapshot.
 
 `npm test` reads the two JSON files under `evals/discovery/` to confirm every
 skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
-A fixture or selection snapshot naming a renamed skill would otherwise rot in silence.
+A fixture or snapshot naming a renamed skill would otherwise rot in silence.
 
 The <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> reports a
 ranking:
@@ -515,7 +515,7 @@ configuration at startup.
 **A number in prose can be a checked claim.** Wrap one in a `count:` marker and
 `npm test` holds it to the file it describes — the skill count at the top of
 this page, the round cap it quotes from a skill, the empty tallies in the
-discovery evaluation's selection snapshot. The marker is invisible once
+discovery evaluation's snapshot. The marker is invisible once
 rendered:
 
 ```markdown

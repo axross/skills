@@ -1,6 +1,6 @@
 // The corpus fingerprint: which discovery text a measurement ran against.
 //
-// selection-snapshot.json already refuses to compare across MODELS, because a result is
+// snapshot.json already refuses to compare across MODELS, because a result is
 // not durable when the model changes. It is not durable when the CORPUS changes
 // either, and that went unrecorded. Every installed skill goes into the
 // evaluation workspace — see run.mjs's buildWorkspace, where installing the
@@ -15,20 +15,20 @@
 // and DISCOVERY_KEYS below is the only place that claim is written down. It is
 // the same premise overlay.mjs records for letting SKILL.md — and never
 // references/*.md — cross the head-overlay boundary. Two consequences follow on
-// purpose: a skill's BODY can change without invalidating a selection snapshot, because
+// purpose: a skill's BODY can change without invalidating a snapshot, because
 // the body is what a selected skill costs rather than what selects it; and if a
 // future host ever reads a THIRD key for discovery, this digest silently stops
 // covering the whole surface until that constant is updated.
 //
 // A DIGEST, NOT THE TEXT. Storing the discovery text verbatim would give exact
-// diffs and make the selection snapshot unreviewable — the corpus runs to some 22,000
+// diffs and make the snapshot unreviewable — the corpus runs to some 22,000
 // characters, in a file a human is expected to read before committing it.
 //
 // PER SKILL, NOT ONE DIGEST OVER THE WHOLE CORPUS. A single digest can say
 // "something changed" and never which skill, so nothing selective could be
 // built on it. Naming the drifted skills is what lets the report MARK the
 // comparisons the drift could explain instead of discarding the whole delta,
-// which is the difference between a usable harness and one whose selection snapshot is
+// which is the difference between a usable harness and one whose snapshot is
 // stale almost continuously.
 
 import { createHash } from "node:crypto";
@@ -237,7 +237,7 @@ export async function corpusDigest(root) {
  * so the two can never disagree about which directories are skills. It stays a
  * SEPARATE function, and `user-invocable` stays out of `DISCOVERY_KEYS`:
  * discovery does not read this field, so folding it into the digest would
- * invalidate every recorded selection snapshot over a value no probe can see.
+ * invalidate every recorded snapshot over a value no probe can see.
  *
  * @param {string} root a directory of skill directories, e.g. `.agents/skills`
  * @returns {Promise<Record<string, string>>} skill name → one of the three states
@@ -253,11 +253,11 @@ export async function corpusInvocability(root) {
 /**
  * Compare a recorded corpus against the one a run measured.
  *
- * Either side absent means there is nothing to compare — a selection snapshot recorded
+ * Either side absent means there is nothing to compare — a snapshot recorded
  * before this field existed, or a caller that computed no corpus — and that is
  * reported as "not recorded", which is honestly weaker than "no drift".
  *
- * @param {Record<string, string>|null|undefined} recorded from the selection snapshot
+ * @param {Record<string, string>|null|undefined} recorded from the snapshot
  * @param {Record<string, string>|null|undefined} current  from this run
  * @returns {{ recorded: boolean, added: string[], removed: string[], changed: string[], drifted: boolean }}
  */

@@ -48,10 +48,10 @@ export const SCRIPTS = {
     "skills/agent-skill-management/scripts/check-installed-copies.mjs",
   linkFreshness:
     "skills/agent-skill-authoring/scripts/link-freshness/check.mjs",
-  reportObligationLoad: "scripts/report-obligation-load.mjs",
+  reportObligationLoad: "scripts/report-obligation-burden.mjs",
   reportSkillDuplication: "scripts/report-skill-duplication.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
-  extractSelectionSnapshot: "scripts/discovery-eval/extract-selection-snapshot.mjs",
+  extractSnapshot: "scripts/discovery-eval/extract-snapshot.mjs",
   materialize: "scripts/value-eval/materialize.mjs",
   probe: "scripts/value-eval/probe.mjs",
 };

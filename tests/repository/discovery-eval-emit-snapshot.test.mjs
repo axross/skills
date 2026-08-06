@@ -1,7 +1,7 @@
-// The selection-snapshot-emitting dispatch route must stay wired, and stay refused where
+// The snapshot-emitting dispatch route must stay wired, and stay refused where
 // it would produce a document that lies.
 //
-// Re-recording the discovery selection snapshot is the one maintenance task on this
+// Re-recording the discovery snapshot is the one maintenance task on this
 // evaluation that costs real money, and until this route existed the only way to
 // do it was a local run by someone holding the Claude Code CLI and working
 // authentication. The workflow is now the documented path, so the pieces it
@@ -11,7 +11,7 @@
 // The refusal matters more than the wiring. A dispatch that names a pull request
 // overlays that pull request's head SKILL.md files, so an emitted `corpus` would
 // fingerprint UN-MERGED text. The resulting document looks exactly like a
-// committable selection snapshot and is not one — committing it would record a
+// committable snapshot and is not one — committing it would record a
 // measurement against text that exists on no branch, which is the precise
 // staleness the corpus fingerprint was added to catch. That guard is cheap to
 // hold and expensive to lose.
@@ -28,29 +28,29 @@ import { repoPath } from "../helpers/run.mjs";
 const readWorkflow = () =>
   readFile(repoPath(".github/workflows/discovery-eval.yaml"), "utf8");
 
-describe("the discovery evaluation's selection-snapshot-emitting dispatch", () => {
-  it("offers emit_selection_snapshot as a boolean input that defaults to off", async () => {
+describe("the discovery evaluation's snapshot-emitting dispatch", () => {
+  it("offers emit_snapshot as a boolean input that defaults to off", async () => {
     const yaml = await readWorkflow();
-    expect(yaml).toMatch(/emit_selection_snapshot:\s*\n(\s+.*\n)*?\s+type: boolean/);
-    expect(yaml).toMatch(/emit_selection_snapshot:\s*\n(\s+.*\n)*?\s+default: false/);
+    expect(yaml).toMatch(/emit_snapshot:\s*\n(\s+.*\n)*?\s+type: boolean/);
+    expect(yaml).toMatch(/emit_snapshot:\s*\n(\s+.*\n)*?\s+default: false/);
   });
 
-  it("passes --emit-selection-snapshot only when that input is set", async () => {
+  it("passes --emit-snapshot only when that input is set", async () => {
     const yaml = await readWorkflow();
     // Guarded, not unconditional: an ordinary dispatch must behave exactly as it
     // did before this route existed, since every such run costs the same money
     // and most of them are not re-records.
-    expect(yaml).toContain('if [ "${EMIT_SELECTION_SNAPSHOT}" = "true" ]; then');
-    expect(yaml).toContain("args+=(--emit-selection-snapshot)");
+    expect(yaml).toContain('if [ "${EMIT_SNAPSHOT}" = "true" ]; then');
+    expect(yaml).toContain("args+=(--emit-snapshot)");
   });
 
-  it("refuses a dispatch that asks for a selection snapshot from a pull request", async () => {
+  it("refuses a dispatch that asks for a snapshot from a pull request", async () => {
     const yaml = await readWorkflow();
-    expect(yaml).toMatch(/if: env\.EMIT_SELECTION_SNAPSHOT == 'true' && env\.PR_NUMBER != ''/);
+    expect(yaml).toMatch(/if: env\.EMIT_SNAPSHOT == 'true' && env\.PR_NUMBER != ''/);
     // Fails rather than warns. A warning would sit above ~90 lines of
     // plausible-looking JSON, and the damage it prevents is invisible once
     // committed.
-    expect(yaml).toMatch(/::error::emit_selection_snapshot cannot be combined/);
+    expect(yaml).toMatch(/::error::emit_snapshot cannot be combined/);
     expect(yaml).toContain("exit 1");
   });
 
@@ -59,7 +59,7 @@ describe("the discovery evaluation's selection-snapshot-emitting dispatch", () =
     // The guard is worth nothing if it fires after 190 probes. Asserting it
     // precedes the checkout is a proxy for "before any money is spent" that does
     // not depend on how the run step is currently written.
-    const guard = yaml.indexOf("Refuse to emit a selection snapshot from head text");
+    const guard = yaml.indexOf("Refuse to emit a snapshot from head text");
     const checkout = yaml.indexOf("Checkout default branch");
     const evaluate = yaml.indexOf("Run the evaluation");
     expect(guard).toBeGreaterThan(-1);
@@ -73,7 +73,7 @@ describe("the discovery evaluation's selection-snapshot-emitting dispatch", () =
     // out of a log viewer is the one step of a re-record a human can silently
     // get wrong, and `npm run format:check` would only catch the damage after
     // the commit.
-    expect(yaml).toContain("scripts/discovery-eval/extract-selection-snapshot.mjs");
+    expect(yaml).toContain("scripts/discovery-eval/extract-snapshot.mjs");
     expect(yaml).toContain("uses: actions/upload-artifact@v4");
     expect(yaml).toContain("if-no-files-found: error");
   });
@@ -93,7 +93,7 @@ describe("the discovery evaluation's selection-snapshot-emitting dispatch", () =
     const yaml = await readWorkflow();
     // Artifact upload needs nothing beyond what was already declared. If this
     // ever fails, something asked for `contents: write` — which would let this
-    // workflow commit its own selection snapshot and delete the deliberate human step.
+    // workflow commit its own snapshot and delete the deliberate human step.
     expect(yaml).toMatch(/permissions:\n\s+contents: read\n\s+pull-requests: write\n/);
     expect(yaml).not.toContain("contents: write");
   });

@@ -11,7 +11,7 @@
 //
 //   * a FIXTURE label naming it stops asserting anything, silently — the case
 //     still runs, still reports, and has quietly stopped testing its boundary;
-//   * a SELECTION SNAPSHOT entry naming it is worse, because every subsequent delta is
+//   * a SNAPSHOT entry naming it is worse, because every subsequent delta is
 //     computed against a skill that can never appear again, so the report keeps
 //     claiming a regression that is really a rename.
 //
@@ -23,7 +23,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  parseSelectionSnapshot,
+  parseSnapshot,
   parseFixture,
 } from "../../scripts/discovery-eval/fixture.mjs";
 import { repoPath } from "../helpers/run.mjs";
@@ -59,12 +59,12 @@ describe("discovery evaluation data", () => {
     expect(fixture.cases.length).toBeGreaterThan(0);
   });
 
-  it("has a selection snapshot whose every entry names a real skill", async () => {
+  it("has a snapshot whose every entry names a real skill", async () => {
     const knownSkills = await installedSkills();
-    const raw = await readFile(repoPath("evals/discovery/selection-snapshot.json"), "utf8");
+    const raw = await readFile(repoPath("evals/discovery/snapshot.json"), "utf8");
 
-    const selectionSnapshot = parseSelectionSnapshot(raw, { knownSkills });
-    expect(selectionSnapshot.model).not.toBe("");
+    const snapshot = parseSnapshot(raw, { knownSkills });
+    expect(snapshot.model).not.toBe("");
   });
 
   it("accounts for every case the fixture defines", async () => {
@@ -73,8 +73,8 @@ describe("discovery evaluation data", () => {
       await readFile(repoPath("evals/discovery/fixture.json"), "utf8"),
       { knownSkills },
     );
-    const selectionSnapshot = parseSelectionSnapshot(
-      await readFile(repoPath("evals/discovery/selection-snapshot.json"), "utf8"),
+    const snapshot = parseSnapshot(
+      await readFile(repoPath("evals/discovery/snapshot.json"), "utf8"),
       { knownSkills },
     );
 
@@ -86,11 +86,11 @@ describe("discovery evaluation data", () => {
     // fails on a name the fixture no longer defines.
     const unaccounted = fixture.cases
       .map((entry) => entry.id)
-      .filter((id) => !(id in selectionSnapshot.cases))
-      .filter((id) => !selectionSnapshot.unmeasured.includes(id));
+      .filter((id) => !(id in snapshot.cases))
+      .filter((id) => !snapshot.unmeasured.includes(id));
     expect(
       unaccounted,
-      'a case with no selection-snapshot entry reports as new on every single run, which reads as churn rather than as the unmeasured case it is — record a tally, or declare it in "unmeasured"',
+      'a case with no snapshot entry reports as new on every single run, which reads as churn rather than as the unmeasured case it is — record a tally, or declare it in "unmeasured"',
     ).toEqual([]);
   });
 
@@ -100,8 +100,8 @@ describe("discovery evaluation data", () => {
       await readFile(repoPath("evals/discovery/fixture.json"), "utf8"),
       { knownSkills },
     );
-    const selectionSnapshot = parseSelectionSnapshot(
-      await readFile(repoPath("evals/discovery/selection-snapshot.json"), "utf8"),
+    const snapshot = parseSnapshot(
+      await readFile(repoPath("evals/discovery/snapshot.json"), "utf8"),
       { knownSkills },
     );
 
@@ -113,12 +113,12 @@ describe("discovery evaluation data", () => {
     const unjustified = [];
     for (const entry of fixture.cases) {
       if (entry.repeats === null) continue;
-      const tally = selectionSnapshot.cases[entry.id];
+      const tally = snapshot.cases[entry.id];
       if (!tally) {
         unjustified.push(`${entry.id} (declares ${entry.repeats}, never measured)`);
         continue;
       }
-      const recorded = selectionSnapshot.caseRepeats?.[entry.id] ?? selectionSnapshot.repeats;
+      const recorded = snapshot.caseRepeats?.[entry.id] ?? snapshot.repeats;
       const tracked = [...entry.mustInclude, ...entry.mustExclude];
       for (const skill of tracked) {
         const hits = tally[skill] ?? 0;
@@ -146,8 +146,8 @@ describe("discovery evaluation data", () => {
       await readFile(repoPath("evals/discovery/fixture.json"), "utf8"),
       { knownSkills },
     );
-    const selectionSnapshot = parseSelectionSnapshot(
-      await readFile(repoPath("evals/discovery/selection-snapshot.json"), "utf8"),
+    const snapshot = parseSnapshot(
+      await readFile(repoPath("evals/discovery/snapshot.json"), "utf8"),
       { knownSkills },
     );
 
@@ -156,7 +156,7 @@ describe("discovery evaluation data", () => {
     // that no longer exists, and it would silently widen what the check above
     // is willing to forgive.
     const ids = new Set(fixture.cases.map((entry) => entry.id));
-    const stale = selectionSnapshot.unmeasured.filter((id) => !ids.has(id));
+    const stale = snapshot.unmeasured.filter((id) => !ids.has(id));
     expect(
       stale,
       'a name in "unmeasured" that the fixture no longer defines is a declaration nothing can ever clear',

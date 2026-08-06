@@ -47,7 +47,7 @@ export const VERDICTS = {
  * The skills a run TRACKS for a case — the union of the tiers whose absence is
  * itself a measurement.
  *
- * This is the set that makes an inferred zero prior sound. A selection snapshot records a
+ * This is the set that makes an inferred zero prior sound. A snapshot records a
  * zero-hit skill by omitting it, so "absent from the tally" means "measured,
  * and zero" for a tracked skill and "nobody ever looked" for any other.
  *
@@ -209,9 +209,9 @@ export function tallyAll(fixture, runsByCase) {
 }
 
 /**
- * Compare tallies against a recorded selection snapshot.
+ * Compare tallies against a recorded snapshot.
  *
- * THREE RESPONSES TO A STALE SELECTION SNAPSHOT, AND CORPUS DRIFT GETS THE THIRD.
+ * THREE RESPONSES TO A STALE SNAPSHOT, AND CORPUS DRIFT GETS THE THIRD.
  * A different MODEL suppresses the delta entirely — that is this harness's most
  * likely rot, so it is refused rather than rendered with a caveat nobody reads.
  * A different REPEAT COUNT is normalised away, since deltas compare rates. A
@@ -219,33 +219,33 @@ export function tallyAll(fixture, runsByCase) {
  * and leaves them readable.
  *
  * The asymmetry is deliberate, not an inconsistency. This repository ships
- * skill edits weekly, so suppressing on corpus drift would make the selection snapshot
+ * skill edits weekly, so suppressing on corpus drift would make the snapshot
  * stale almost continuously — and a suppression that fires on nearly every run
  * is one that gets ignored or re-recorded away at real expense. A model change
  * is rare and total; a corpus change is frequent and partial.
  *
  * @param {object[]} tallies
- * @param {object|null} selection snapshot
+ * @param {object|null} snapshot
  * @param {string} model  the model identifier the current run observed
  * @param {Record<string, string>|null} [corpus]  digests of the corpus this run measured
  */
-export function deltaAgainst(tallies, selectionSnapshot, model, corpus = null) {
-  if (!selectionSnapshot) return { usable: false, reason: "no selection snapshot recorded" };
-  if (selectionSnapshot.model !== model) {
+export function deltaAgainst(tallies, snapshot, model, corpus = null) {
+  if (!snapshot) return { usable: false, reason: "no snapshot recorded" };
+  if (snapshot.model !== model) {
     return {
       usable: false,
-      reason: `selection snapshot was recorded on "${selectionSnapshot.model}", this run used "${model}"`,
+      reason: `snapshot was recorded on "${snapshot.model}", this run used "${model}"`,
     };
   }
 
-  const corpusComparison = compareCorpus(selectionSnapshot.corpus, corpus);
+  const corpusComparison = compareCorpus(snapshot.corpus, corpus);
 
   const cases = tallies.map((tally) => {
-    const before = selectionSnapshot.cases[tally.id];
+    const before = snapshot.cases[tally.id];
     if (!before) {
-      // A case with no selection-snapshot entry has no comparison to attribute — but
+      // A case with no snapshot entry has no comparison to attribute — but
       // there are two ways to get here and they are not the same event. A case
-      // the selection snapshot DECLARES unmeasured is waiting for the next re-record; one
+      // the snapshot DECLARES unmeasured is waiting for the next re-record; one
       // it does not is a case somebody added and never recorded. Reporting both
       // as "new" would bury the second in the first for as long as the first
       // lasts.
@@ -253,9 +253,9 @@ export function deltaAgainst(tallies, selectionSnapshot, model, corpus = null) {
         id: tally.id,
         repeats: tally.repeats,
         isNew: true,
-        isUnmeasured: selectionSnapshot.unmeasured?.includes(tally.id) ?? false,
+        isUnmeasured: snapshot.unmeasured?.includes(tally.id) ?? false,
         unattributable: false,
-        // Not an empty record: a case the selection snapshot never measured has no prior
+        // Not an empty record: a case the snapshot never measured has no prior
         // for ANY skill, which is a different claim from "every prior is zero".
         priors: null,
         changes: [],
@@ -266,7 +266,7 @@ export function deltaAgainst(tallies, selectionSnapshot, model, corpus = null) {
     // repeat count, the document-level `repeats` is a default rather than the
     // answer — and using it for a case recorded at two would report a settled
     // 2/2 against a 5/5 run as though the rate had fallen by half.
-    const wasRepeats = selectionSnapshot.caseRepeats?.[tally.id] ?? selectionSnapshot.repeats;
+    const wasRepeats = snapshot.caseRepeats?.[tally.id] ?? snapshot.repeats;
 
     const names = new Set([
       ...Object.keys(before),
@@ -300,7 +300,7 @@ export function deltaAgainst(tallies, selectionSnapshot, model, corpus = null) {
           prior,
         };
       })
-      // Rates, not raw hits: a selection snapshot recorded at 5 repeats compared against a
+      // Rates, not raw hits: a snapshot recorded at 5 repeats compared against a
       // 10-repeat run must not report every skill as doubled. A row with no
       // prior has no rate to compare, so it is included on the strength of the
       // run alone — explicitly, rather than by falling through arithmetic that
@@ -326,13 +326,13 @@ export function deltaAgainst(tallies, selectionSnapshot, model, corpus = null) {
     };
   });
 
-  const removed = Object.keys(selectionSnapshot.cases)
+  const removed = Object.keys(snapshot.cases)
     .filter((id) => !tallies.some((tally) => tally.id === id))
     .sort();
 
   return {
     usable: true,
-    selectionSnapshotRepeats: selectionSnapshot.repeats,
+    snapshotRepeats: snapshot.repeats,
     corpus: corpusComparison,
     cases,
     removed,

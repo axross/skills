@@ -7,7 +7,7 @@
 // The stream is `claude -p --output-format stream-json --verbose`. Four event
 // shapes matter:
 //   * `{"type":"system", ..., "model":"…"}`   the model actually used — the
-//     field every selection-snapshot delta hangs on, so it is read rather than assumed
+//     field every snapshot delta hangs on, so it is read rather than assumed
 //     from whatever `--model` was requested.
 //   * `{"type":"system","subtype":"init", ..., "skills":[…]}` the skills the CLI
 //     LOADED, which is not the same set as the workspace installed — see
