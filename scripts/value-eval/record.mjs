@@ -90,7 +90,7 @@ export function buildRunRecord({
   artifact,
   diff,
   // Truncated to whole seconds, matching discovery-eval/run.mjs's own
-  // baseline timestamp: a run takes minutes, so millisecond precision would
+  // selection-snapshot timestamp: a run takes minutes, so millisecond precision would
   // claim precision the measurement does not have.
   recordedAt = `${new Date().toISOString().slice(0, 19)}Z`,
 }) {

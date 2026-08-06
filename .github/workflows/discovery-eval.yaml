@@ -27,7 +27,7 @@ name: Discovery Evaluation
 #
 # ── LOAD-BEARING SAFETY PROPERTY 2 of 4 — default-branch checkout, as in
 # claude-review.yaml. Every line of EXECUTABLE code — the runner, the fixture,
-# the baseline, package.json — comes from the default branch. A pull request
+# the selection snapshot, package.json — comes from the default branch. A pull request
 # head is never checked out, and `npm ci` never installs from head content.
 #
 # ── LOAD-BEARING SAFETY PROPERTY 3 of 4 — head skill text crosses as DATA,
@@ -50,7 +50,7 @@ name: Discovery Evaluation
 # Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
 # claude-review.yaml already uses. No new secret, and no label, is required.
 #
-# `emit_baseline` affects NONE of the four properties above. It adds one flag
+# `emit_selection_snapshot` affects NONE of the four properties above. It adds one flag
 # that makes the runner print an extra block, and one step that lifts that block
 # into an artifact. It reads no head content, needs no permission beyond what is
 # declared below, and never writes the repository — a human still commits the
@@ -68,7 +68,7 @@ name: Discovery Evaluation
 # loaded that the evaluation workspace did not install — a user-level tier it
 # strips with `--setting-sources project`, and a managed-environment tier no flag
 # can remove without removing the workspace's own skills too. When any remain,
-# `--emit-baseline` prints its report and then exits 3 rather than emitting a
+# `--emit-selection-snapshot` prints its report and then exits 3 rather than emitting a
 # document recorded against a corpus that was never the one measured. `set -euo
 # pipefail` turns that into a failed job, and the extract and upload steps below
 # do not run, so no artifact is produced. The report still reaches the job log
@@ -89,18 +89,18 @@ on:
       pull_request:
         description: "Pull request number to evaluate head skills from (optional)"
         required: false
-      emit_baseline:
-        description: "Also emit a proposed baseline as a downloadable artifact (cannot be combined with a pull request)"
+      emit_selection_snapshot:
+        description: "Also emit a proposed selection snapshot as a downloadable artifact (cannot be combined with a pull request)"
         required: false
         type: boolean
         default: false
       determinism:
         # Untyped and undefaulted, like `pull_request` and `repeats` above and
-        # deliberately UNLIKE `emit_baseline`. Only the typed context applies a
+        # deliberately UNLIKE `emit_selection_snapshot`. Only the typed context applies a
         # declared default, so an input with no default must be read through
         # `github.event.inputs` — reading this one through `inputs` would work
         # by accident today and break the moment somebody gives it a type.
-        description: "Case id to repeat against an unchanged corpus, measuring probe independence instead of running the fixture (cannot be combined with emit_baseline)"
+        description: "Case id to repeat against an unchanged corpus, measuring probe independence instead of running the fixture (cannot be combined with emit_selection_snapshot)"
         required: false
 
 # Least privilege: read the base tree, write one comment. Nothing else. No
@@ -116,7 +116,7 @@ jobs:
     # is no other event shape to exclude — the gate is GitHub's own write-access
     # check on dispatching, not a condition evaluated here.
     concurrency:
-      # A baseline run gets its own group. `cancel-in-progress` is right for a
+      # A selection-snapshot run gets its own group. `cancel-in-progress` is right for a
       # report — the newer answer supersedes the older one — but an emitting run
       # produces a document that cost a full fixture's worth of probes, and
       # before this input existed every manual run shared one group. Somebody
@@ -135,7 +135,7 @@ jobs:
       # a group with an ordinary evaluation of that same pull request — which is
       # the half of the hazard the obvious fix misses. Two determinism runs on
       # one case still supersede each other, which is intended.
-      group: discovery-eval-${{ github.event.inputs.determinism && format('determinism-{0}', github.event.inputs.determinism) || github.event.inputs.pull_request || (inputs.emit_baseline && 'emit-baseline') || 'manual' }}
+      group: discovery-eval-${{ github.event.inputs.determinism && format('determinism-{0}', github.event.inputs.determinism) || github.event.inputs.pull_request || (inputs.emit_selection_snapshot && 'emit-selection-snapshot') || 'manual' }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -146,7 +146,7 @@ jobs:
       # neighbours: only the typed context applies a declared `default`, so a
       # dispatch that omits this input entirely still reads "false" here rather
       # than empty.
-      EMIT_BASELINE: ${{ inputs.emit_baseline }}
+      EMIT_SELECTION_SNAPSHOT: ${{ inputs.emit_selection_snapshot }}
       # `github.event.inputs` again, matching PR_NUMBER and REPEATS: this input
       # declares no default, so there is none for the typed context to apply.
       DETERMINISM: ${{ github.event.inputs.determinism }}
@@ -154,17 +154,17 @@ jobs:
       # MUTUALLY EXCLUSIVE, and refused rather than documented. When a dispatch
       # names a pull request the run overlays that pull request's head SKILL.md
       # files, so the emitted `corpus` would fingerprint UN-MERGED head text.
-      # That document looks exactly like a committable baseline and is not one:
+      # That document looks exactly like a committable selection snapshot and is not one:
       # committing it would record a measurement against text that does not
       # exist on the default branch, which is the precise class of silent
       # staleness the corpus fingerprint exists to prevent.
       #
       # First step on purpose. It runs before the checkout, so a dispatch that
       # asks for the impossible costs nothing and spawns no probe.
-      - name: Refuse to emit a baseline from head text
-        if: env.EMIT_BASELINE == 'true' && env.PR_NUMBER != ''
+      - name: Refuse to emit a selection snapshot from head text
+        if: env.EMIT_SELECTION_SNAPSHOT == 'true' && env.PR_NUMBER != ''
         run: |
-          echo "::error::emit_baseline cannot be combined with a pull request number. A run that overlays head SKILL.md files would fingerprint un-merged text, producing a document that looks committable and is not. Dispatch with emit_baseline and no pull request to re-record, or with a pull request and no emit_baseline to evaluate a branch."
+          echo "::error::emit_selection_snapshot cannot be combined with a pull request number. A run that overlays head SKILL.md files would fingerprint un-merged text, producing a document that looks committable and is not. Dispatch with emit_selection_snapshot and no pull request to re-record, or with a pull request and no emit_selection_snapshot to evaluate a branch."
           exit 1
 
       # A SECOND REFUSAL, AND A SEPARATE STEP RATHER THAN A WIDER `if:` ON THE
@@ -174,16 +174,16 @@ jobs:
       # that has nothing to do with what they dispatched.
       #
       # The reason here is different too: a determinism run measures ONE case,
-      # and a baseline is a fixture-wide document. There is no partial baseline
+      # and a selection snapshot is a fixture-wide document. There is no partial selection snapshot
       # to emit, so the combination cannot be honoured in any form.
       #
       # `determinism` WITH `pull_request` is deliberately allowed — measuring a
       # changed skill's stability against its own head text is a sensible thing
       # to ask for, and it produces a report rather than a document.
-      - name: Refuse to emit a baseline from a single-case probe
-        if: env.EMIT_BASELINE == 'true' && env.DETERMINISM != ''
+      - name: Refuse to emit a selection snapshot from a single-case probe
+        if: env.EMIT_SELECTION_SNAPSHOT == 'true' && env.DETERMINISM != ''
         run: |
-          echo "::error::determinism cannot be combined with emit_baseline. A determinism run repeats ONE case, and a baseline is a fixture-wide document, so the run could only ever produce a partial one that looks committable and is not. Dispatch with determinism and no emit_baseline to measure a case, or with emit_baseline and no determinism to re-record."
+          echo "::error::determinism cannot be combined with emit_selection_snapshot. A determinism run repeats ONE case, and a selection snapshot is a fixture-wide document, so the run could only ever produce a partial one that looks committable and is not. Dispatch with determinism and no emit_selection_snapshot to measure a case, or with emit_selection_snapshot and no determinism to re-record."
           exit 1
 
       # SAFETY PROPERTY 2 — no `ref:` input, so this is always the default
@@ -256,8 +256,8 @@ jobs:
             args+=(--head-skills "${{ steps.stage.outputs.staged_dir }}")
             args+=(--head-sha "${{ steps.stage.outputs.head_sha }}")
           fi
-          if [ "${EMIT_BASELINE}" = "true" ]; then
-            args+=(--emit-baseline)
+          if [ "${EMIT_SELECTION_SNAPSHOT}" = "true" ]; then
+            args+=(--emit-selection-snapshot)
           fi
           # Both flags or neither. The runner refuses --determinism without
           # exactly one --only, so passing them apart would turn a dispatch
@@ -270,22 +270,22 @@ jobs:
       # Uploaded as a file rather than left in the log. The document must land
       # byte-exact in a committed file, and transcribing ~90 lines of JSON out of
       # a log viewer is the one step of a re-record a human can silently get
-      # wrong. The extractor validates through the same parseBaseline that reads
+      # wrong. The extractor validates through the same parseSelectionSnapshot that reads
       # the committed file, so a bad slice fails the job instead of producing a
       # plausible artifact.
-      - name: Extract the proposed baseline
-        if: env.EMIT_BASELINE == 'true'
+      - name: Extract the proposed selection snapshot
+        if: env.EMIT_SELECTION_SNAPSHOT == 'true'
         run: |
           set -euo pipefail
-          node scripts/discovery-eval/extract-baseline.mjs \
-            "${RUNNER_TEMP}/report.txt" "${RUNNER_TEMP}/baseline.json"
+          node scripts/discovery-eval/extract-selection-snapshot.mjs \
+            "${RUNNER_TEMP}/report.txt" "${RUNNER_TEMP}/selection-snapshot.json"
 
-      - name: Upload the proposed baseline
-        if: env.EMIT_BASELINE == 'true'
+      - name: Upload the proposed selection snapshot
+        if: env.EMIT_SELECTION_SNAPSHOT == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: proposed-baseline
-          path: ${{ runner.temp }}/baseline.json
+          name: proposed-selection-snapshot
+          path: ${{ runner.temp }}/selection-snapshot.json
           if-no-files-found: error
 
       # The report body contains only base-tree prompts and allowlist-validated

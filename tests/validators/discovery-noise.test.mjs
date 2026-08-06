@@ -364,10 +364,10 @@ describe("the annotation both blocks render", () => {
 
   it("states the reason when no probability may be claimed", () => {
     expect(withPrior(T(1, 5), T(0, 5), { fingerprinted: false })).toBe(
-      "(prior 1/5 — no P: baseline records no corpus)",
+      "(prior 1/5 — no P: selection snapshot records no corpus)",
     );
-    expect(withPrior(null, T(1, 5), { noPriorReason: "no baseline recorded" })).toBe(
-      "(prior —, no prior: no baseline recorded)",
+    expect(withPrior(null, T(1, 5), { noPriorReason: "no selection snapshot recorded" })).toBe(
+      "(prior —, no prior: no selection snapshot recorded)",
     );
   });
 
@@ -407,7 +407,7 @@ describe("a finding annotated through the whole report", () => {
     ],
   };
   const tallies = [tallyCase(fixture.cases[0], [[], [], [], [], []])];
-  const baseline = (extra = {}) => ({
+  const selectionSnapshot = (extra = {}) => ({
     model: "m",
     repeats: 5,
     cases: { "a-case": { "wireframe-design": 5 } },
@@ -418,7 +418,7 @@ describe("a finding annotated through the whole report", () => {
     text.split("\n").find((line) => line.trim().startsWith("a-case: wireframe-design"));
 
   it("carries the prior, the probability and the reading", () => {
-    const delta = deltaAgainst(tallies, baseline({ corpus: { x: "aaaaaaaaaaaa" } }), "m", {
+    const delta = deltaAgainst(tallies, selectionSnapshot({ corpus: { x: "aaaaaaaaaaaa" } }), "m", {
       x: "aaaaaaaaaaaa",
     });
     expect(findingLine(report(delta))).toBe(
@@ -429,25 +429,25 @@ describe("a finding annotated through the whole report", () => {
   it("carries the drift mark when the corpus has moved", () => {
     // Where it matters most: a finding measured against a corpus that has
     // since changed cannot be attributed to anything in this repository.
-    const delta = deltaAgainst(tallies, baseline({ corpus: { x: "aaaaaaaaaaaa" } }), "m", {
+    const delta = deltaAgainst(tallies, selectionSnapshot({ corpus: { x: "aaaaaaaaaaaa" } }), "m", {
       x: "bbbbbbbbbbbb",
     });
     expect(findingLine(report(delta))).toContain("(unattributable)");
   });
 
   it("names each of the reasons no prior may be claimed", () => {
-    // No baseline at all.
+    // No selection snapshot at all.
     expect(findingLine(report(deltaAgainst(tallies, null, "m")))).toContain(
-      "no prior: no baseline recorded",
+      "no prior: no selection snapshot recorded",
     );
 
     // A model mismatch, which suppresses the delta wholesale.
-    const mismatch = deltaAgainst(tallies, { ...baseline(), model: "claude-sonnet-5" }, "claude-opus-5");
-    expect(findingLine(report(mismatch))).toMatch(/no prior: baseline was recorded on/);
+    const mismatch = deltaAgainst(tallies, { ...selectionSnapshot(), model: "claude-sonnet-5" }, "claude-opus-5");
+    expect(findingLine(report(mismatch))).toMatch(/no prior: selection snapshot was recorded on/);
 
-    // A case the baseline never measured.
+    // A case the selection snapshot never measured.
     const unrecorded = deltaAgainst(tallies, { model: "m", repeats: 5, cases: {} }, "m");
-    expect(findingLine(report(unrecorded))).toContain("no prior: case is not in the baseline");
+    expect(findingLine(report(unrecorded))).toContain("no prior: case is not in the selection snapshot");
 
     // ...told apart from one declared unmeasured on purpose.
     const declared = deltaAgainst(
@@ -458,16 +458,16 @@ describe("a finding annotated through the whole report", () => {
     expect(findingLine(report(declared))).toContain("declared unmeasured");
   });
 
-  it("renders counts and the reason, but no probability, against an unfingerprinted baseline", () => {
-    const delta = deltaAgainst(tallies, baseline(), "m", { x: "aaaaaaaaaaaa" });
+  it("renders counts and the reason, but no probability, against an unfingerprinted selection snapshot", () => {
+    const delta = deltaAgainst(tallies, selectionSnapshot(), "m", { x: "aaaaaaaaaaaa" });
     const line = findingLine(report(delta));
-    expect(line).toBe("  a-case: wireframe-design 0/5  (prior 5/5 — no P: baseline records no corpus)");
+    expect(line).toBe("  a-case: wireframe-design 0/5  (prior 5/5 — no P: selection snapshot records no corpus)");
     expect(line).not.toContain("P 0");
   });
 
   it("explains the annotation in the header, once", () => {
-    const text = report(deltaAgainst(tallies, baseline(), "m", null));
-    expect(text).toContain("Both findings carry the PRIOR the baseline recorded");
+    const text = report(deltaAgainst(tallies, selectionSnapshot(), "m", null));
+    expect(text).toContain("Both findings carry the PRIOR the selection snapshot recorded");
     expect(text).toContain("independence is");
     expect(text).toContain("one clean");
     expect(text).not.toContain("within noise");

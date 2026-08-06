@@ -14,7 +14,7 @@
 // that has drifted fails, and so does a denominator the fixture cannot produce.
 //
 // Deliberately NOT asserted: that a documented prior matches the committed
-// baseline. Most examples describe a re-recorded, fingerprinted baseline —
+// selection snapshot. Most examples describe a re-recorded, fingerprinted selection snapshot —
 // which is the state the annotation activates in and the one this tree is not
 // yet in — so pinning them to today's tallies would make the honest examples
 // unwritable.
@@ -97,7 +97,7 @@ export function reconstruct(markdown, repeatsByCase) {
       prior = stated[1] === undefined ? null : { hits: Number(stated[1]), repeats: Number(stated[2]) };
     }
 
-    // A line quoting a probability is claiming a fingerprinted baseline; one
+    // A line quoting a probability is claiming a fingerprinted selection snapshot; one
     // saying "no P" is claiming the opposite. Rebuild it under what it claims.
     const fingerprinted = !annotation.includes("no P:");
     const rebuilt = annotate(prior, run, {

@@ -407,7 +407,7 @@
       "id": "pb-verify-before-answering",
       "prompt": "Are you sure that's the current version? Don't guess — check before you answer.",
       "mustInclude": ["professional-behavior"],
-      "rationale": "\"are you sure\", \"don't guess\" and asserting a version are all literal triggers in professional-behavior's description. The skill is the fixture's sole expectAlways entry and was selected in zero of the baseline's 140 probes — a result recorded but not attributable, since those tallies accreted across commits and its discovery text has been rewritten since. A case that requires it directly is what separates \"cannot be selected at all\" from \"is not selected as a background skill\", a distinction the expectAlways tracking alone cannot draw. No exclusion is labelled: a prompt about verifying before answering has no neighbour whose selection would be wrong."
+      "rationale": "\"are you sure\", \"don't guess\" and asserting a version are all literal triggers in professional-behavior's description. The skill is the fixture's sole expectAlways entry and was selected in zero of the selection snapshot's 140 probes — a result recorded but not attributable, since those tallies accreted across commits and its discovery text has been rewritten since. A case that requires it directly is what separates \"cannot be selected at all\" from \"is not selected as a background skill\", a distinction the expectAlways tracking alone cannot draw. No exclusion is labelled: a prompt about verifying before answering has no neighbour whose selection would be wrong."
     },
     {
       "id": "sd-how-to-run-tests",

@@ -135,7 +135,7 @@ const three = (value) => value.toFixed(3);
  * Everything selected at least once, plus everything the case LABELS, plus
  * every `expectAlways` skill — the last of which is why a zero row is printed
  * at all. `professional-behavior` claims to apply in every session and the
- * committed baseline records it selected in none of its probes; a report that
+ * committed selection snapshot records it selected in none of its probes; a report that
  * silently omitted a zero row would be unable to say so.
  *
  * @param {string[][]} runs

@@ -51,7 +51,7 @@ export const SCRIPTS = {
   reportObligationLoad: "scripts/report-obligation-load.mjs",
   reportSkillDuplication: "scripts/report-skill-duplication.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
-  extractBaseline: "scripts/discovery-eval/extract-baseline.mjs",
+  extractSelectionSnapshot: "scripts/discovery-eval/extract-selection-snapshot.mjs",
   materialize: "scripts/value-eval/materialize.mjs",
   probe: "scripts/value-eval/probe.mjs",
 };

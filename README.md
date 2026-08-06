@@ -163,7 +163,7 @@ cannot be done by reading it.
 **Evaluation in this space, where it exists at all, tends to stop at form** —
 that a skill is shaped correctly, not that it works. This library measures the
 outcome as well, and commits the measurements: the recorded results live in
-[`evals/discovery/baseline.json`](./evals/discovery/baseline.json), so what the
+[`evals/discovery/selection-snapshot.json`](./evals/discovery/selection-snapshot.json), so what the
 measurement found is something you can read rather than take on trust. That is
 the axis worth comparing libraries on — whether the discovery text is _measured_
 or merely asserted. It has already produced negative results about this
@@ -175,7 +175,7 @@ Two instruments do the measuring.
 what skill evaluation is, why form checking cannot reach it, and what each
 instrument answers. [`evals/discovery/README.md`](./evals/discovery/README.md)
 carries the discovery instrument itself — the fixture format, how a verdict is
-reached, when to re-record the baseline, and the limits of what a run can
+reached, when to re-record the selection snapshot, and the limits of what a run can
 conclude. [Reporting, not gating](#reporting-not-gating) has the commands for
 both.
 
@@ -346,7 +346,7 @@ node scripts/discovery-eval/run.mjs --help
 right skills?" — the first check here that measures an **outcome** rather than
 form. It runs a labelled prompt fixture through the real Claude Code CLI in a
 scratch workspace and reports which expected skills were missed and which
-unexpected ones fired, as a delta against a recorded baseline. It cannot gate
+unexpected ones fired, as a delta against a recorded selection snapshot. It cannot gate
 for three independent reasons: it is non-deterministic, it costs real money per
 run (`--dry-run` prints the current estimate), and it needs a secret that fork
 pull requests do not receive.
@@ -357,22 +357,22 @@ workflow allowed to invoke it, and **manual dispatch is its only trigger**, so
 nothing a pull request does can start it or spend money. Give the dispatch a
 pull request number to evaluate that branch's changed skills and have the report
 posted as a comment; leave it blank to evaluate the default branch and read the
-report in the job log. Check `emit_baseline` — which no dispatch naming a pull
-request may combine with — to have the run also produce a proposed baseline as a
-downloadable artifact, which is how the baseline gets re-recorded without a local
+report in the job log. Check `emit_selection_snapshot` — which no dispatch naming a pull
+request may combine with — to have the run also produce a proposed selection snapshot as a
+downloadable artifact, which is how the selection snapshot gets re-recorded without a local
 CLI or local credentials. Give it a case id in `determinism` instead to repeat
 that one case against an unchanged corpus and measure whether its probes behave
 as independent draws; that combines with a pull request but not with
-`emit_baseline`, since one case cannot produce a fixture-wide document.
+`emit_selection_snapshot`, since one case cannot produce a fixture-wide document.
 `--dry-run` validates the fixture with no model call and
 no secret. See
 [`evals/discovery/README.md`](./evals/discovery/README.md) for the fixture
-format, how a verdict is reached, and how to re-record the baseline.
+format, how a verdict is reached, and how to re-record the selection snapshot.
 
 `npm test` reads the two JSON files under `evals/discovery/` to confirm every
 skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
-A fixture or baseline naming a renamed skill would otherwise rot in silence.
+A fixture or selection snapshot naming a renamed skill would otherwise rot in silence.
 
 The <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> reports a
 ranking:
@@ -515,7 +515,8 @@ configuration at startup.
 **A number in prose can be a checked claim.** Wrap one in a `count:` marker and
 `npm test` holds it to the file it describes — the skill count at the top of
 this page, the round cap it quotes from a skill, the empty tallies in the
-discovery baseline. The marker is invisible once rendered:
+discovery evaluation's selection snapshot. The marker is invisible once
+rendered:
 
 ```markdown
 The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the

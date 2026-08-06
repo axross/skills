@@ -45,10 +45,10 @@
 // Exit codes:
 //   0  a report was produced — ALWAYS, whatever it found
 //   2  bad invocation: an unknown flag, an unparseable fixture, a missing CLI
-//   3  --emit-baseline was asked for on a run whose isolation does not hold —
+//   3  --emit-selection-snapshot was asked for on a run whose isolation does not hold —
 //      either the CLI loaded skills the workspace did not install, or it
 //      reported no skill list at all so nothing could be checked. The report
-//      still printed; only the baseline document is withheld. Reachable from NO
+//      still printed; only the selection-snapshot document is withheld. Reachable from NO
 //      other flag, so the no-gate promise above is unaffected.
 
 import { spawnSync } from "node:child_process";
@@ -73,9 +73,9 @@ import {
   MIN_DETERMINISM_REPEATS,
   renderDeterminism,
 } from "./determinism.mjs";
-import { parseBaseline, parseFixture, ValidationError } from "./fixture.mjs";
+import { parseSelectionSnapshot, parseFixture, ValidationError } from "./fixture.mjs";
 import {
-  baselineRefusal,
+  selectionSnapshotRefusal,
   contamination,
   summariseIsolation,
   unrecognisedInvocability,
@@ -88,8 +88,8 @@ import {
   resolveInside,
 } from "./overlay.mjs";
 import {
-  BASELINE_MARKER,
-  renderBaseline,
+  SELECTION_SNAPSHOT_MARKER,
+  renderSelectionSnapshot,
   renderCorpusBuckets,
   renderProbeBudget,
   renderReport,
@@ -101,7 +101,7 @@ const INSTALLED_ROOT = join(REPO_ROOT, ".claude", "skills");
 /** The same path as the reader knows it — absolute paths never enter output. */
 const INSTALLED_DISPLAY = ".claude/skills";
 const DEFAULT_FIXTURE = join(REPO_ROOT, "evals", "discovery", "fixture.json");
-const DEFAULT_BASELINE = join(REPO_ROOT, "evals", "discovery", "baseline.json");
+const DEFAULT_SELECTION_SNAPSHOT = join(REPO_ROOT, "evals", "discovery", "selection-snapshot.json");
 
 /** Repeats per case. Enough to see a split distribution, cheap enough to run. */
 const DEFAULT_REPEATS = 5;
@@ -168,16 +168,16 @@ and report which expected skills were missed and which unexpected ones fired.
   --repeats <n>        runs per case (default ${DEFAULT_REPEATS})
   --only <case-id>     evaluate one case; repeatable
   --fixture <path>     fixture JSON (default evals/discovery/fixture.json)
-  --baseline <path>    baseline JSON (default evals/discovery/baseline.json)
+  --selection-snapshot <path>    selection snapshot JSON (default evals/discovery/selection-snapshot.json)
   --head-skills <dir>  overlay head SKILL.md files from this directory
   --head-sha <sha>     record the evaluated head commit in the report
   --dry-run            validate the fixture and print the plan; no model call
-  --emit-baseline      also print a baseline document for a human to commit
+  --emit-selection-snapshot      also print a selection-snapshot document for a human to commit
   --determinism        repeat ONE case (--only) and report its stability instead
                        of the usual report; ${DEFAULT_DETERMINISM_REPEATS} repeats by default, ${MIN_DETERMINISM_REPEATS} minimum
   --help               this text
 
-Exit codes: 0 a report was produced (always), 2 bad invocation, 3 --emit-baseline
+Exit codes: 0 a report was produced (always), 2 bad invocation, 3 --emit-selection-snapshot
 on a run whose isolation does not hold — foreign skills loaded, or no skill list
 reported at all (the report still printed).
 This reports; it never gates.`;
@@ -204,16 +204,16 @@ async function isDir(path) {
  * overlay is applied. The line says which root it read so that distinction is
  * never guessed at.
  */
-function dryRunCorpusLines(baseline, installedCorpus) {
-  const corpus = compareCorpus(baseline.corpus, installedCorpus);
+function dryRunCorpusLines(selectionSnapshot, installedCorpus) {
+  const corpus = compareCorpus(selectionSnapshot.corpus, installedCorpus);
   if (!corpus.recorded) {
     return [
-      "Corpus not recorded in the baseline, so drift cannot be ruled out.",
+      "Corpus not recorded in the selection snapshot, so drift cannot be ruled out.",
     ];
   }
   if (!corpus.drifted) return [];
   return [
-    `Corpus drift against the baseline, over ${INSTALLED_DISPLAY}:`,
+    `Corpus drift against the selection snapshot, over ${INSTALLED_DISPLAY}:`,
     ...renderCorpusBuckets(corpus),
   ];
 }
@@ -336,11 +336,11 @@ function parseArguments(argv) {
     repeatsExplicit: false,
     only: [],
     fixture: DEFAULT_FIXTURE,
-    baseline: DEFAULT_BASELINE,
+    selectionSnapshot: DEFAULT_SELECTION_SNAPSHOT,
     headSkills: null,
     headSha: null,
     dryRun: false,
-    emitBaseline: false,
+    emitSelectionSnapshot: false,
     determinism: false,
   };
 
@@ -374,8 +374,8 @@ function parseArguments(argv) {
       case "--fixture":
         options.fixture = resolve(next());
         break;
-      case "--baseline":
-        options.baseline = resolve(next());
+      case "--selection-snapshot":
+        options.selectionSnapshot = resolve(next());
         break;
       case "--head-skills":
         options.headSkills = resolve(next());
@@ -386,8 +386,8 @@ function parseArguments(argv) {
       case "--dry-run":
         options.dryRun = true;
         break;
-      case "--emit-baseline":
-        options.emitBaseline = true;
+      case "--emit-selection-snapshot":
+        options.emitSelectionSnapshot = true;
         break;
       case "--determinism":
         options.determinism = true;
@@ -418,9 +418,9 @@ function determinismRepeats(options) {
       }. Its whole subject is how a single case behaves under repetition, and a run spanning several cases would confound that with the difference between them.`,
     );
   }
-  if (options.emitBaseline) {
+  if (options.emitSelectionSnapshot) {
     fail2(
-      "--determinism cannot be combined with --emit-baseline. A baseline is a fixture-wide document, and a single case's probe run cannot produce one; emitting a partial document that looks committable is the failure this refuses.",
+      "--determinism cannot be combined with --emit-selection-snapshot. A selection snapshot is a fixture-wide document, and a single case's probe run cannot produce one; emitting a partial document that looks committable is the failure this refuses.",
     );
   }
 
@@ -446,7 +446,7 @@ async function main() {
   const options = parseArguments(argv);
   const determinismCount = options.determinism ? determinismRepeats(options) : null;
   // One enumeration of the installed root: its keys are the known skill names
-  // the fixture and baseline are validated against, and its values are the
+  // the fixture and selection snapshot are validated against, and its values are the
   // digests --dry-run compares.
   const installedCorpus = await corpusDigest(INSTALLED_ROOT);
   const knownSkills = Object.keys(installedCorpus);
@@ -461,14 +461,14 @@ async function main() {
     fail2(`Cannot read ${options.fixture}: ${error.message}`);
   }
 
-  let baseline = null;
+  let selectionSnapshot = null;
   try {
-    baseline = parseBaseline(await readFile(options.baseline, "utf8"), { knownSkills });
+    selectionSnapshot = parseSelectionSnapshot(await readFile(options.selectionSnapshot, "utf8"), { knownSkills });
   } catch (error) {
     if (error instanceof ValidationError) {
-      fail2(`${basename(options.baseline)} is not valid:\n  ${error.problems.join("\n  ")}`);
+      fail2(`${basename(options.selectionSnapshot)} is not valid:\n  ${error.problems.join("\n  ")}`);
     }
-    // A missing baseline is ordinary on a first run; the report says so.
+    // A missing selection snapshot is ordinary on a first run; the report says so.
   }
 
   if (options.only.length > 0) {
@@ -519,10 +519,10 @@ async function main() {
       [
         `Fixture OK: ${fixture.cases.length} case(s), ${options.repeats} repeat(s) each${repeatsNote ? ` except ${reduced.length} that declare their own` : ""}.`,
         `Corpus: ${knownSkills.length} skill(s) would be installed into the workspace.`,
-        baseline
-          ? `Baseline OK: recorded on "${baseline.model}" at ${baseline.repeats} repeat(s).`
-          : "No baseline recorded yet.",
-        ...(baseline ? dryRunCorpusLines(baseline, installedCorpus) : []),
+        selectionSnapshot
+          ? `Selection snapshot OK: recorded on "${selectionSnapshot.model}" at ${selectionSnapshot.repeats} repeat(s).`
+          : "No selection snapshot recorded yet.",
+        ...(selectionSnapshot ? dryRunCorpusLines(selectionSnapshot, installedCorpus) : []),
         renderProbeBudget(runs, PROBE_COST_USD),
         "No model call was made.",
         "",
@@ -575,7 +575,7 @@ async function main() {
 
   // A DISTINCT RENDER, not a variant of the report. It shares the workspace
   // builder, the probe function, the corpus digest and the cost accounting —
-  // but it answers a different question, has no verdicts and no baseline to
+  // but it answers a different question, has no verdicts and no selection snapshot to
   // compare against, so folding it into renderReport would mean threading a
   // mode flag through every block of a report that no longer applies.
   if (determinismCount) {
@@ -599,7 +599,7 @@ async function main() {
   }
 
   const tallies = tallyAll(fixture, runsByCase);
-  const delta = deltaAgainst(tallies, baseline, observedModel, corpus);
+  const delta = deltaAgainst(tallies, selectionSnapshot, observedModel, corpus);
 
   process.stdout.write(
     renderReport({
@@ -623,10 +623,10 @@ async function main() {
   );
   process.stderr.write(`Approximate cost of this run: $${cost.toFixed(2)}\n`);
 
-  if (options.emitBaseline) {
+  if (options.emitSelectionSnapshot) {
     // THE ONE PLACE THIS REFUSES. A report from a contaminated run is still
     // worth having — it is honest about what competed, and the probes are paid
-    // for either way. A BASELINE is different: its entire purpose is to be
+    // for either way. A SELECTION SNAPSHOT is different: its entire purpose is to be
     // compared against later, so recording one against a corpus that was never
     // the one measured is the precise staleness the `corpus` fingerprint exists
     // to prevent, arriving through a door that fingerprint cannot watch.
@@ -635,18 +635,18 @@ async function main() {
     // user-invocable appears in the loaded list by design, and refusing on it
     // would break recording for a corpus state this repository's own authoring
     // rules require.
-    const refusal = baselineRefusal(isolation);
+    const refusal = selectionSnapshotRefusal(isolation);
     if (refusal) {
       process.stderr.write(
         [
           "",
-          `Refusing to emit a baseline: ${refusal.reason}.`,
+          `Refusing to emit a selection snapshot: ${refusal.reason}.`,
           ...(refusal.names.length > 0 ? [`  ${refusal.names.join(", ")}`] : []),
           "",
           "The tallies above therefore do not describe the corpus a committed",
-          "baseline would name. Re-record where the CLI loads nothing extra and",
+          "selection snapshot would name. Re-record where the CLI loads nothing extra and",
           "reports what it loaded — dispatching discovery-eval.yaml with",
-          "emit_baseline is the route that needs no local CLI and no local",
+          "emit_selection_snapshot is the route that needs no local CLI and no local",
           "credentials.",
           "",
         ].join("\n"),
@@ -655,7 +655,7 @@ async function main() {
     }
 
     process.stdout.write(
-      `\n${BASELINE_MARKER}\n${renderBaseline(tallies, {
+      `\n${SELECTION_SNAPSHOT_MARKER}\n${renderSelectionSnapshot(tallies, {
         model: observedModel,
         repeats: options.repeats,
         corpus,

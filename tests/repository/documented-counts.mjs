@@ -2,7 +2,7 @@
 //
 // Prose here states numbers that are derivable from the files that own them —
 // how many skills the library ships, how many validators report rather than
-// judge, how many baseline cases recorded an empty tally. Nothing tied the two
+// judge, how many selection snapshot cases recorded an empty tally. Nothing tied the two
 // together, and the pair drifted: a `--dry-run` against cc0c9eb reported 24
 // installed skills and 22 fixture cases while three documents still claimed 20
 // cases and 100 probes. CI was green throughout, because no check could see a
@@ -498,13 +498,13 @@ export const CLAIMS = {
   },
 
   "empty-tally-cases": {
-    owner: "the cases in evals/discovery/baseline.json recorded with no hits",
-    note: "a re-recorded baseline can move this in either direction",
+    owner: "the cases in evals/discovery/selection-snapshot.json recorded with no hits",
+    note: "a re-recorded selection snapshot can move this in either direction",
     derive: async () => {
-      const baseline = JSON.parse(
-        await readFile(repoPath("evals/discovery/baseline.json"), "utf8"),
+      const selectionSnapshot = JSON.parse(
+        await readFile(repoPath("evals/discovery/selection-snapshot.json"), "utf8"),
       );
-      return Object.values(baseline.cases ?? {}).filter(
+      return Object.values(selectionSnapshot.cases ?? {}).filter(
         (tally) => Object.keys(tally).length === 0,
       ).length;
     },
