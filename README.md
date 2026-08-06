@@ -814,10 +814,11 @@ each denies and _how_: the things `implementer.md` must never do are few and
 nameable, and it asks them in prose rather than closing them with a withdrawn
 tool; the things a reader needs are open-ended, which is why `reviewer.md` still
 enforces its own short deny-list with tools instead. Neither restriction is
-complete, and the file says so — `Bash` remains, so mutation is enforced against the editing tools and not against
-the shell, and reporting rather than publishing stays a rule it is asked to
-honor. Delete this file and the stage is skipped rather than performed by the
-main actor, which is what keeps it from degrading into self-review.
+complete, and the file says so — `Bash` remains, so mutation is enforced
+against the editing tools and not against the shell, and reporting rather than
+publishing stays a rule it is asked to honor. Delete this file and the stage is
+skipped rather than performed by the main actor, which is what keeps it from
+degrading into self-review.
 
 `.claude/agents/` is the only home for either file — they are agent definitions,
 not skills, so `npx skills` does not carry them. Only Claude Code is configured
