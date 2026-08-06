@@ -930,8 +930,17 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
+      //
+      // The lower bound below MUST track the tier figure directly above it,
+      // not a copy of it: the two assertions only discriminate as a pair,
+      // proving `code-review` added something on top of the mandated set
+      // alone. A bound left behind after the tier figure moves — as #271
+      // left it at 435 when the tier above went to 441 — stops proving that:
+      // it would keep passing even if `code-review` contributed nothing at
+      // all, which is exactly the regression this pair exists to catch.
+      // #271 moved this to 441 to close that gap.
       expect(tiersOf(stdout)[2].ceilingObligations).toBe(441);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(435);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(441);
     });
 
     it("prints no tier block without --mandated", async () => {
