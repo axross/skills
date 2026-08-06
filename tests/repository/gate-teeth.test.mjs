@@ -17,10 +17,12 @@ describe("repository gates have teeth", () => {
   it("the links gate fails on a broken relative link", async () => {
     const { script, args } = gate("links");
     const root = await tempDir();
-    await writeFileIn(root, "doc.md", "See [gone](./missing.md).\n");
+    // The gate names its roots explicitly now (see gates.mjs's
+    // linksGateRoots) rather than sweeping the whole working directory, so
+    // the planted file has to sit at one of those names — "AGENTS.md" is a
+    // real top-level file of this repository, and always among them.
+    await writeFileIn(root, "AGENTS.md", "See [gone](./missing.md).\n");
 
-    // The gate takes no path arguments, so it checks the working directory —
-    // which makes `cwd` enough to point the real invocation at a planted tree.
     const result = runScript(script, args, { cwd: root });
 
     expect(result).toReportFailure(/BROKEN LINKS/);
@@ -37,6 +39,24 @@ describe("repository gates have teeth", () => {
       result,
       "a dot-directory is exactly where this repository's skills live",
     ).toReportFailure(/missing\.md/);
+  });
+
+  it("the links gate never walks into examples/", async () => {
+    const { script, args } = gate("links");
+    const root = await tempDir();
+    // Same broken-link shape as the first case above, planted under examples/
+    // instead — linksGateRoots() excludes it on purpose (the mock fixtures
+    // there carry their own toolchain), so this must NOT be reported.
+    await writeFileIn(
+      root,
+      "examples/content-site/doc.md",
+      "See [gone](./missing.md).\n",
+    );
+    await writeFileIn(root, "AGENTS.md", "No broken links here.\n");
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toPassCleanly();
   });
 
   // The frontmatter gate is the one with teeth for a missing `description`.

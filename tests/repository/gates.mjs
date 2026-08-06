@@ -12,7 +12,9 @@
 // installed-copy gate passes, so the choice only matters mid-edit — and there,
 // checking what was just edited is the useful answer.
 
-import { SCRIPTS } from "../helpers/run.mjs";
+import { readdirSync } from "node:fs";
+
+import { REPO_ROOT, SCRIPTS } from "../helpers/run.mjs";
 
 /**
  * @typedef {object} Gate
@@ -22,13 +24,36 @@ import { SCRIPTS } from "../helpers/run.mjs";
  * @property {RegExp} passes  a pattern the passing report must match
  */
 
+/**
+ * Every top-level entry of this repository the links gate should walk: the
+ * whole tree, dot-directories included, MINUS the mock fixtures under
+ * `examples/` (self-contained projects with their own toolchain, never
+ * covered by this repository's own gates — see .prettierignore) and the two
+ * entries a bare "." sweep would already prune internally as it descended
+ * into them.
+ *
+ * check-links.mjs has no ignore-file mechanism of its own — its only
+ * scoping lever is which roots it is handed — and a root named directly on
+ * its command line bypasses its internal pruning (that only filters a
+ * directory's CHILDREN as they're discovered mid-walk, not a root passed in
+ * outright), which is why `.git` and `node_modules` are excluded here rather
+ * than left for it to skip on its own. Computed from the real directory
+ * listing, not a literal list, so a new top-level entry is covered without
+ * anyone remembering to add it here.
+ */
+function linksGateRoots() {
+  const excluded = new Set(["examples", ".git", "node_modules"]);
+  return readdirSync(REPO_ROOT)
+    .filter((name) => !excluded.has(name))
+    .sort();
+}
+
 /** @type {Gate[]} */
 export const GATES = [
   {
     name: "links",
     script: SCRIPTS.checkLinks,
-    // No arguments: the whole tree, dot-directories included.
-    args: [],
+    args: linksGateRoots(),
     passes: /links OK \(\d+ links across \d+ Markdown files checked\)/,
   },
   // The skill-structure gate is three commands rather than one: each answers
