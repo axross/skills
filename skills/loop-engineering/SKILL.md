@@ -62,12 +62,13 @@ See [github-conventions.md](./references/github-conventions.md) for what the loo
 
 ## Delegated Implementation
 
-Delegation happens only where the harness already exposes a worker that qualifies; single-agent execution is a normal outcome, not a degraded one. No harness-specific agent definition, exact role name, or named model is required.
+Delegation happens only where the harness already exposes a worker that qualifies and where the harness permits the spawn — a determination the run makes on every run, landing on **permitted**, **barred**, or **undetermined** (see the policy-branch bullets below). Single-agent execution is a normal outcome, not a degraded one, whenever either does not hold. No harness-specific agent definition, exact role name, or named model is required.
 
 See [implementation-worker.md](./references/implementation-worker.md) for:
 
 - the four-step executor resolution order, and why capability rather than a declared responsibility decides
-- the branch where a harness policy blocks or conditions a qualifying candidate's spawn, and the permission question it puts to the human when the run cannot otherwise establish that the spawn is allowed
+- the branch where a harness policy bars a qualifying candidate's spawn outright, settling the determination with no question put
+- the branch where a harness policy conditions a qualifying candidate's spawn, the undetermined case where one question to the human is mandatory before the first project-file edit
 - the compatibility preflight that runs before the writer lease is granted, establishing a channel adequate to every required manifest entry's fidelity class, with the visual-capability check as the named case
 - classifying model and effort as verified, declared, or unknown
 - what a project's own worker definition should carry, what it must leave to the package, and the one channel it may never withdraw — the one carrying what the worker must read
@@ -152,6 +153,10 @@ Then step through the phase:
 - Run the verification the changed surface requires — the project's format, lint, type-check, and test commands — and record the evidence (commands run, results) in the pull request body. When a required check cannot run, say so and note the residual risk rather than claiming it passed.
 - **Reviewer-mode self-check.** Before opening the pull request, stop editing, reread the request, inspect `git status` and `git diff`, and review only the produced diff as if another author wrote it — fixing obvious Critical/Major issues. A delegated worker performs this on its own diff and reports it in the receipt; you then run the completion-evidence check against repository state rather than repeating the full review. Either way this is a self-check to avoid trivial hand-backs, NOT the authoritative review; that is the independent reviewer in Phase 3.
 - **Pre-flight review — optional, and advisory.** Where implementation was delegated and the harness exposes a second worker that qualifies as a reader, one review-only worker MAY judge the diff before the pull request opens, driving an implement→review loop until every finding it raises reaches a terminal state. It buys a reviewer that does not carry the implementer's reasoning state — as far as the reference's own write/clear pairing holds, never outright — and nothing else; it is not the independent review and never reported as one. See [pre-flight-review.md](./references/pre-flight-review.md) for the input contract that excludes the implementer's receipt, the boundary that keeps any run state a reader encounters out of what it judges, the reader's position in the writer lease, the finding ledger and its conditional durability, dismissal authority split by severity, the round cap, and what a project's own reader definition carries. With no compatible review worker the stage is skipped and the run continues from the self-check above.
+
+**Guidelines:**
+
+- MUST establish the harness-permission determination from [Delegated Implementation](#delegated-implementation) before the first project-file edit, on every run, regardless of whether a policy statement was noticed, landing on permitted, barred, or undetermined.
 
 ## Phase 3 — Request Independent Review
 
