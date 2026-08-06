@@ -110,7 +110,7 @@ The main actor wrote the plan and is accountable for the run converging. Letting
 
 **Guidelines:**
 
-- MAY dismiss a **Minor** or **Nit** finding on the main actor's own judgment, with the reason recorded in the ledger and folded into what the run reports — the status block never carries it, since Ledger Durability's ceiling above excludes dismissal reasons from what it writes.
+- MAY dismiss a **Minor** or **Nit** finding on the main actor's own judgment, with the reason recorded in the ledger — which is session state, since Ledger Durability's ceiling above keeps a dismissal reason out of the status block entirely.
 - MUST obtain the human's confirmation, through the question tool, before dismissing a **Critical** or **Major** finding — routed as the normal decision path already routes a decision belonging to the human.
 - MUST NOT re-grade a finding's severity; the grade is the review worker's. Without this the split is trivially evaded, because the party wanting the dismissal would otherwise set the grade that decides whether it needs confirmation.
 

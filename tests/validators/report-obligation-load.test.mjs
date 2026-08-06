@@ -752,7 +752,14 @@ describe("report-obligation-load.mjs", () => {
       // Finding Ledger and Dismissal Authority sentences settling "the ledger"
       // as session state rather than the status block, and the "human-invisible"
       // correction in run-state-and-reporting.md's opening.
-      expect.soft(totals.ceilingTokens).toBe(42_348);
+      // Then 5 back off in the same change, from its own pre-flight review's
+      // two Minor findings. Both were wording, not rules, which is why the
+      // obligation count above holds: resuming-and-handoff.md stopped calling
+      // the status block's durable subset "the finding ledger" — the name the
+      // same change had just reserved for the session-state object — and
+      // Dismissal Authority stopped claiming a dismissal reason is folded into
+      // what the run reports, which no reporting rule requires.
+      expect.soft(totals.ceilingTokens).toBe(42_343);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -829,7 +836,7 @@ describe("report-obligation-load.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(26);
       expect.soft(tiers[2].floorTokens).toBe(8_459);
       expect.soft(tiers[2].ceilingObligations).toBe(435);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_348);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_343);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
