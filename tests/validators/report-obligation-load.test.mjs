@@ -640,7 +640,7 @@ describe("report-obligation-load.mjs", () => {
       // that lifts it.
       // And two more in #231, the same twelve description bytes reaching this
       // figure through the same SKILL.md the floor above counts.
-      // And 354 more in #246 — the floor's own 38 plus roughly 315 from the
+      // And 350 more in #246 — the floor's own 38 plus roughly 312 from the
       // net reference-file bytes behind the obligation move above:
       // implementation-worker.md's two swapped bullets grew on net (the
       // compatibility-preflight rule generalizing past `visual`, and the
@@ -648,10 +648,15 @@ describe("report-obligation-load.mjs", () => {
       // the reasoning it takes to state one instead of the other),
       // implementation-package.md grew by two new obligations and the prose
       // introducing them, and pre-flight-review.md shrank by the one bullet
-      // it no longer states. Each figure rounds its own byte total
-      // independently, which is the whole of the difference between 38 + 315
-      // and 354.
-      expect.soft(totals.ceilingTokens).toBe(39_551);
+      // it no longer states. Two smaller edits are part of that figure too,
+      // and naming them is what makes it add up: implementation-worker.md's
+      // plain "It can withdraw tools" framing bullet grew to qualify itself
+      // against the new prohibition, and implementation-package.md's existing
+      // substitution-prohibition bullet grew to carve the new carriage route
+      // out of what still counts as a weaker channel. Each figure rounds its
+      // own byte total independently, which is the whole of the remaining
+      // difference between the parts and the sum.
+      expect.soft(totals.ceilingTokens).toBe(39_547);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -716,7 +721,7 @@ describe("report-obligation-load.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(26);
       expect.soft(tiers[2].floorTokens).toBe(8_269);
       expect.soft(tiers[2].ceilingObligations).toBe(420);
-      expect.soft(tiers[2].ceilingTokens).toBe(39_551);
+      expect.soft(tiers[2].ceilingTokens).toBe(39_547);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

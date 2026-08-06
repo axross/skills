@@ -805,13 +805,12 @@ written, which reaches the issue, any artifact the plan points at, and the
 documentation behind a factual claim. A reviewer missing one of those does not
 fail to start; it runs, cannot check what it cannot reach, and returns a report
 short by exactly those checks — and an under-equipped review reads exactly like a
-clean one. So the asymmetry between the two definitions is in _what_ each denies:
-the things a worker must never do are few and nameable, and — for
-`implementer.md` — asked in prose rather than closed by a withdrawn tool; the
-things a reader needs are open-ended, which is why its own restriction stays a
-short, tool-enforced list instead. Neither restriction is complete, and the file
-says so —
-`Bash` remains, so mutation is enforced against the editing tools and not against
+clean one. So the asymmetry between the two definitions is now in both _what_
+each denies and _how_: the things `implementer.md` must never do are few and
+nameable, and it asks them in prose rather than closing them with a withdrawn
+tool; the things a reader needs are open-ended, which is why `reviewer.md` still
+enforces its own short deny-list with tools instead. Neither restriction is
+complete, and the file says so — `Bash` remains, so mutation is enforced against the editing tools and not against
 the shell, and reporting rather than publishing stays a rule it is asked to
 honor. Delete this file and the stage is skipped rather than performed by the
 main actor, which is what keeps it from degrading into self-review.
