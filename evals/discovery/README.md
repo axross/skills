@@ -6,9 +6,9 @@ itself lives in [`scripts/discovery-eval/`](../../scripts/discovery-eval).
 Every other mechanical check in this repository measures a **textual
 property** — frontmatter shape, bullet syntax, link integrity, section anatomy.
 This one measures a **skill outcome**: given a prompt, does discovery surface
-the right skills? The unit under test is the always-resident
-`description`/`when_to_use` pair, the input is a prompt, and the assertion is
-set membership — so no model judges another model's prose.
+the right skills? The unit under test is the always-resident `description`, the
+input is a prompt, and the assertion is set membership — so no model judges
+another model's prose.
 
 ## Running it
 

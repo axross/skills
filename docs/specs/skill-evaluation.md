@@ -77,10 +77,9 @@ what is being measured.
 
 A gate has to be able to say a change is wrong. A skill-outcome measurement says
 that a result moved, and how surprised to be by the movement. Those are
-different
-kinds of claim: the first admits a yes or no, the second is a piece of evidence
-whose weight depends on how much was measured and against what. Handing the
-second to a merge queue would force it into a shape it does not have.
+different kinds of claim: the first admits a yes or no, the second is a piece of
+evidence whose weight depends on how much was measured and against what. Handing
+the second to a merge queue would force it into a shape it does not have.
 
 A measurement that cannot gate is not a weaker measurement. It is one whose
 output has a different reader — a person deciding what to change, rather than a

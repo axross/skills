@@ -73,10 +73,10 @@ import {
   MIN_DETERMINISM_REPEATS,
   renderDeterminism,
 } from "./determinism.mjs";
-import { parseSnapshot, parseFixture, ValidationError } from "./fixture.mjs";
+import { parseFixture, parseSnapshot, ValidationError } from "./fixture.mjs";
 import {
-  snapshotRefusal,
   contamination,
+  snapshotRefusal,
   summariseIsolation,
   unrecognisedInvocability,
 } from "./isolation.mjs";
@@ -88,11 +88,11 @@ import {
   resolveInside,
 } from "./overlay.mjs";
 import {
-  SNAPSHOT_MARKER,
-  renderSnapshot,
   renderCorpusBuckets,
   renderProbeBudget,
   renderReport,
+  renderSnapshot,
+  SNAPSHOT_MARKER,
 } from "./report.mjs";
 import { parseStream } from "./stream.mjs";
 

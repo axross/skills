@@ -2,7 +2,7 @@
 
 ## Skills
 
-**Agent skill** — a self-contained capability in the **skill format**: a `SKILL.md` whose frontmatter an **agent runtime** reads to decide whether to load it, together with whatever reference files and scripts sit beside it.
+**Agent skill** — a self-contained capability in the **skill format**: a `SKILL.md` whose frontmatter an **agent runtime** reads to decide whether to load it, together with whatever **reference files** and scripts sit beside it.
 
 **Skill format** — the agentskills.io format an **agent skill** conforms to: the frontmatter fields a `SKILL.md` declares, and the directory laid out beside it.
 
@@ -10,13 +10,13 @@
 
 **Repository-local skill** — an **agent skill** that encodes conventions specific to one repository, committed directly under a **skill root** and edited in place rather than installed.
 
-**Skill tier** — which storage model an **agent skill** uses, and so whether its source is installed into generated roots or committed and edited where it sits.
+**Skill tier** — which storage model an **agent skill** uses: **distributable**, whose source is installed into generated roots, or **repository-local**, committed and edited where it sits.
 
 **Source root** — the directory holding a **distributable skill**'s editable source, and the only copy an author edits.
 
 **Installed root** — a directory an **agent runtime** reads **agent skills** from, generated from a **source root**, whether it holds the files itself or reaches them through symlinks.
 
-**Skill root** — either kind of root, used where a statement is true of any directory an **agent runtime** enumerates **agent skills** from.
+**Skill root** — any root of the kinds above, used where a statement is true of any directory an **agent runtime** enumerates **agent skills** from.
 
 **Installed copy** — the generated copy of a **distributable skill** under an **installed root**, which an **agent runtime** reads and an author never edits.
 
@@ -102,6 +102,6 @@
 
 **Discovery snapshot** — a recorded set of **discovery counts** that a later run is compared against, so a result reads as a change rather than as a bare score.
 
-**Skill corpus fingerprint** — a digest of each **agent skill**'s **skill description**, stored alongside a **discovery snapshot**, so a comparison can say whether the text **skill discovery** reads has moved since that snapshot was recorded.
+**Skill corpus fingerprint** — a digest of the **skill descriptions** across one **skill corpus**, stored alongside a **discovery snapshot**, so a comparison can say whether the text **skill discovery** reads has moved since that snapshot was recorded.
 
 **Unmeasured declaration** — an **evaluation case** a **discovery snapshot** records as never measured, so a gap in coverage is stated rather than inferred from an absent number.
