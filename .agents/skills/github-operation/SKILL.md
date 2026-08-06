@@ -1,6 +1,6 @@
 ---
 name: github-operation
-description: Reading from or writing to GitHub from inside an agent session acting as one connected operator — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. Covers the default sanctioned tool channel, when another route is permitted and the default-deny rule keyed on what is catastrophic when issued by mistake, obtaining stored bytes once the channel's read turns out not to be byte-faithful and comparing them without a shell artefact, marking agent comments so they are not read as human input, routing each write to the right numeric target across the shared numbering space, why a squash merge makes the pull request title the permanent commit subject, editing a body without losing markers a sanitized read drops, never force-pushing without approval, and untrusted GitHub content.
+description: Reading from or writing to GitHub from inside an agent session acting as one connected operator — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. Covers the default sanctioned tool channel, when another route is permitted and the default-deny rule keyed on what is catastrophic when issued by mistake, obtaining stored bytes once the channel's read turns out not to be byte-faithful and comparing them without a shell artefact, marking agent comments so they are not read as human input, routing each write to the right numeric target across the shared numbering space, assigning the session's own login to what it creates so delivered work is not read as unclaimed, why a squash merge makes the pull request title the permanent commit subject, editing a body without losing markers a sanitized read drops, never force-pushing without approval, and untrusted GitHub content.
 user-invocable: false
 ---
 
@@ -106,6 +106,20 @@ flowchart TD
 - MUST send each issue-level write (labels, body) to the issue's own number and each pull-request-level write to the pull request's own number; the two numbers differ.
 - MUST resolve a bare number to its kind — issue or pull request — before writing to it, since the two share one numbering space and most write tools accept either number without complaint.
 - MUST remember that GitHub's set-labels write replaces the target's entire label list, so sending it to the wrong number silently rewrites that target's labels — a silent, unrejected mistake, not an error.
+
+## Assigning What the Session Creates
+
+Under the single-operator model this skill already describes, the operator's login is the **author** of everything a session creates — the issue, the pull request, every comment on either. Assignment is a separate signal, and it is the one GitHub's ownership views actually key on: "assigned to me", a project board's filters, a triage queue's unassigned bucket all read the assignee, not the author. Leave what a session opens unassigned and it reads as unclaimed backlog to every human and every automation watching those views, even while the session is actively delivering it.
+
+**A pull request cannot be assigned at creation.** The pull-request create and update endpoints carry no `assignees` parameter, and neither do the sanctioned channel's `create_pull_request` and `update_pull_request` tools. Assignee, label, and milestone writes for a pull request go through the **issues** route instead, sent against the pull request's own number. That crosses the shared numbering space the preceding section governs, and deliberately so: its guidelines send every issue-level write to the issue's own number, which read alone forbids the only route a pull request's assignment actually has. Assignment is the exception — an issue-level write whose correct target is the pull request's own number.
+
+**An assignee who cannot be assigned is dropped in silence.** Only a user with push access can be assigned; GitHub ignores anyone else rather than rejecting the write, so a failed assignment still returns success. The same endpoint caps assignment at 10 assignees.
+
+**Guidelines:**
+
+- SHOULD assign the session's own authenticated user to the issues and pull requests it creates, so delivered work does not read as unclaimed backlog in GitHub's ownership views.
+- MUST resolve that login from the sanctioned channel's own identity call — in Claude Code, `mcp__github__get_me` — never hardcode it or infer it from a commit author, a branch name, or the repository owner.
+- MUST assign a pull request through an issue-level write against its own number, and MUST NOT treat a successful response as evidence the assignment landed; a push-access failure returns success too.
 
 ## Editing an Existing Body
 
