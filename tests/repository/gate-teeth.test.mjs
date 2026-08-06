@@ -9,7 +9,12 @@
 
 import { describe, expect, it } from "vitest";
 
-import { tempDir, writeFileIn, writeSkill } from "../helpers/fixtures.mjs";
+import {
+  tempDir,
+  writeCorpus,
+  writeFileIn,
+  writeSkill,
+} from "../helpers/fixtures.mjs";
 import { runScript } from "../helpers/run.mjs";
 import { gate } from "./gates.mjs";
 
@@ -99,5 +104,76 @@ describe("repository gates have teeth", () => {
     const result = runScript(script, [source, installed]);
 
     expect(result).toReportFailure(/content differs: references\/detail\.md/);
+  });
+
+  // The five corpus gates need no argument override at all. Each names `docs`,
+  // which the validator resolves against the working directory, and
+  // `writeCorpus` plants exactly that layout — so every case below runs the
+  // real invocation with nothing changed but `cwd`.
+  //
+  // `corpus-glossary` matters most here. It reports "Nothing to check" over
+  // this repository, which no positive test can tell apart from a check that
+  // has stopped working; its case is the only evidence the gate has teeth.
+
+  it("the corpus-index gate fails on a document nothing links", async () => {
+    const { script, args } = gate("corpus-index");
+    const root = await tempDir();
+    await writeCorpus(root, { "glossary.md": "# Glossary\n" });
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(/glossary\.md is not linked from index\.md/);
+  });
+
+  it("the corpus-references gate fails on a link that does not resolve", async () => {
+    const { script, args } = gate("corpus-references");
+    const root = await tempDir();
+    await writeCorpus(root, {
+      "index.md": "# Documentation\n\n- [gone](./missing.md)\n",
+    });
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(/index\.md:3 → \.\/missing\.md does not resolve/);
+  });
+
+  it("the corpus-glossary gate fails on a spec with no glossary heading", async () => {
+    const { script, args } = gate("corpus-glossary");
+    const root = await tempDir();
+    await writeCorpus(root, {
+      "glossary.md": "# Glossary\n\n## Something Else\n",
+      "specs/billing.md": "# Billing\n",
+    });
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(
+      /specs\/billing\.md has no matching heading in glossary\.md/,
+    );
+  });
+
+  it("the decision-naming gate fails on a non-conforming record filename", async () => {
+    const { script, args } = gate("decision-naming");
+    const root = await tempDir();
+    await writeCorpus(root, {
+      "decisions/use_a_queue.md": "---\nstatus: accepted\n---\n\n# Use a queue\n",
+    });
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(/filename: decisions\/use_a_queue\.md/);
+  });
+
+  it("the decision-supersede gate fails on a record superseded by nothing", async () => {
+    const { script, args } = gate("decision-supersede");
+    const root = await tempDir();
+    await writeCorpus(root, {
+      "decisions/2026-07-02-use-a-queue.md":
+        "---\nstatus: superseded\n---\n\n# Use a queue\n",
+    });
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(/is superseded but names no superseded_by/);
   });
 });
