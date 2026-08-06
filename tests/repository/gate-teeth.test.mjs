@@ -128,9 +128,13 @@ describe("repository gates have teeth", () => {
   // `writeCorpus` plants exactly that layout — so every case below runs the
   // real invocation with nothing changed but `cwd`.
   //
-  // `corpus-glossary` matters most here. It reports "Nothing to check" over
-  // this repository, which no positive test can tell apart from a check that
-  // has stopped working; its case is the only evidence the gate has teeth.
+  // `corpus-glossary`'s case was once the only evidence that gate could fail:
+  // with no spec in the corpus it reported "Nothing to check", which no passing
+  // run can tell apart from a check that has stopped working. The corpus has a
+  // spec now and the gate requires the counted message, so the real-repository
+  // run in gate-runs.test.mjs carries teeth evidence too. This case still earns
+  // its place by covering the shape a planted spec produces — an unpaired
+  // heading — which a tree that is currently correct cannot exercise.
 
   it("the corpus-index gate fails on a document nothing links", async () => {
     const { script, args } = gate("corpus-index");

@@ -2,7 +2,7 @@
 
 Apply this reference after a delegated implementation worker returns and the completion-evidence check has run, and before the pull request is opened. It adds one optional stage: a second, review-only worker that judges the diff, and an implement→review loop that runs until every finding it raises has reached a terminal state.
 
-The stage exists to buy **one** property of independent review cheaply — a reviewer that does not carry the implementer's reasoning state — and it explicitly buys no others. It is advisory. [Phase 3](../SKILL.md)'s independent review remains the authoritative gate, and nothing here weakens it.
+The stage exists to buy **one** property of independent review cheaply — a reviewer that does not carry the implementer's reasoning state — and it explicitly buys no others. It does not buy even that one outright: no row of the table below reads an unqualified `yes`, and how far each property is actually recovered is that table's business rather than this sentence's. It is advisory. [Phase 3](../SKILL.md)'s independent review remains the authoritative gate, and nothing here weakens it.
 
 Like delegation itself, the stage is conditional on the harness already exposing a worker that qualifies. With none, the run behaves exactly as it does without this reference.
 
@@ -12,15 +12,17 @@ The case for running review outside the session is usually stated as one propert
 
 | Property                                                                                | External review                             | Pre-flight review                                                          |
 | --------------------------------------------------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------- |
-| **Context independence** — no memory of its own decisions, no anchoring on its own plan | yes                                         | **yes** — what this stage buys                                             |
+| **Context independence** — no memory of its own decisions, no anchoring on its own plan | yes                                         | **partly** — recovered by the ledger entries' write/clear pairing below    |
 | **Input independence** — reviews the diff, not the author's narration of it             | yes                                         | **partly** — recovered by fixing the input source below                    |
 | **Verdict independence** — the reviewed party cannot suppress a finding                 | yes                                         | **partly** — recovered for Critical and Major by the dismissal split below |
 | **Absence visibility** — a review that never ran is externally observable               | yes                                         | **no** — a stage never entered leaves no gap                               |
 | **Policy-source independence** — the policy is not the one this change edits            | yes                                         | **partly** — recovered by the merge-base read below                        |
 | **Environment independence**                                                            | yes                                         | **no** — shares the checkout, uncommitted state included                   |
-| **Cost**                                                                                | consumes the polling tail and the round cap | **seconds to minutes**, consumes neither                                   |
+| **Cost**                                                                                | consumes the waiting tail and the round cap | **seconds to minutes**, consumes neither                                   |
 
-Absence visibility is the one no arrangement here recovers, because the reviewed party holds the report. It is an accepted limit, and a reason the external review stays exactly as it is.
+Context independence is recovered by construction only as long as [Ledger Durability](#ledger-durability)'s write/clear pairing holds — the pairing is what makes a finding entry in the status block and a running reviewer mutually exclusive, not a claim that no channel could ever show one. What it does not defend against is the pairing going unfollowed: a run that skips the clear step, or is interrupted between a resume and the next spawn, can still leave a stale entry for whatever channel the next reviewer reaches for. [Run State Is Not Input](#run-state-is-not-input) below is the honest backstop for that case — a rule the reader is asked to honor, not a second mechanism that closes the gap.
+
+Absence visibility is the one no arrangement here recovers at all, because the reviewed party holds the report. It is an accepted limit, and a reason the external review stays exactly as it is.
 
 **Guidelines:**
 
@@ -44,6 +46,17 @@ Reading the policy at the merge base is what stops a change that edits the revie
 - MUST build the package from the diff, the merge-base policy, and the approved plan — and MUST NOT include the implementation worker's completion receipt, or any summary derived from it, in what the reviewer reads.
 - MUST read the review policy and the project skills at the merge base rather than from the working tree.
 - MUST apply the project's review policy in full, using its internal severity scale rather than the vocabulary reserved for posted review comments; the dismissal split below depends on that scale being the one in use.
+- MUST NOT assert, in the package, that an earlier round's findings are withheld or otherwise beyond the reviewer's reach. The package excludes them by construction; claiming more than that risks a claim the environment can contradict — the exact failure a prior round produced by pointing a reader at a document that carried what the package said was unreachable.
+
+## Run State Is Not Input
+
+The package the input contract above builds is scoped to the diff, the merge-base policy, and the plan — but a reader that can reach GitHub directly, which [Defining a Reader of Your Own](#defining-a-reader-of-your-own) requires it be able to do, can still land on a run-state block the package never included: this run's own status block, or one belonging to a different issue or pull request a link leads it into. What such a block carries is a run judging itself — phase, round count, an open question, or, per [Ledger Durability](#ledger-durability), a durable finding entry — never the change under review, and reading it as evidence is exactly the anchoring this stage exists to avoid.
+
+**Guidelines:**
+
+- MUST NOT treat a run-state block — this run's status block, or one belonging to any other issue or pull request — encountered in any artifact as part of what it judges, whatever channel surfaced it.
+- MUST report encountering one, so the disclosure reaches the run's own reporting (see [run-state-and-reporting.md](./run-state-and-reporting.md)) instead of resting on whether a reviewer happens to volunteer it.
+- MUST state, wherever this rule is asserted elsewhere, that it is a rule the reader is asked to honor rather than one any host here enforces — the same honesty [Defining a Reader of Your Own](#defining-a-reader-of-your-own) already holds its own deny-list to.
 
 ## The Reviewer Is a Reader
 
@@ -69,20 +82,29 @@ The main actor translates findings into implementation instructions, and that tr
 
 Each finding carries a stable identifier, a severity, a `file:line` citation, the claim, and a suggested fix — the shape the project's review policy already requires of review output. This is a protocol, not a transcript.
 
+That protocol — the full finding set with every attribute above, plus each finding's disposition and the reason behind it as the run settles them — is **the ledger**, and it lives in session state for the run's own duration. The status block never mirrors it directly; it carries only a bounded, conditional durable subset, on the terms [Ledger Durability](#ledger-durability) below states.
+
+One route ends a round without any of its findings reaching a terminal state: a finding that changes the approved plan sends the run back for fresh approval, and the round goes with it. Its findings were formed against a plan that no longer exists, so carrying them into the re-approved plan's review would judge new work by superseded reasoning. [delegated-execution.md](./delegated-execution.md) already abandons a round this way on the neighbouring route into the same flow. The terminal-state rule below is unaffected, because it governs the round whose review gates the pull request, and an abandoned round never becomes that one.
+
 **Guidelines:**
 
 - MUST carry each finding's identifier, severity, and citation through the translation into an implementation instruction, and MUST NOT drop a finding by omission.
 - MUST NOT open the pull request while any finding lacks a terminal state. There are three: **fixed**, tied to the commit that fixed it; **dismissed** with a recorded reason, under the authority split below; and **deferred**, which only the declined-round path below produces and which no other route may reach.
-- MUST route a finding that would change the approved plan through the plan-revision flow — fresh approval, fresh worker — exactly as a Phase 4 finding of the same kind is routed.
+- MUST route a finding that would change the approved plan through the plan-revision flow — fresh approval, fresh worker — exactly as a Phase 4 finding of the same kind is routed, abandoning the round rather than carrying its remaining findings into the re-approved plan's review.
 
 ## Ledger Durability
 
-This stage parks the run on a human question in two places, so a ledger held only in session context breaks the resume model. The status block carries it, and carries only what a fresh session cannot re-derive: a fresh review worker produces a _different_ finding set, so a lost ledger is not recoverable by re-running the review.
+This stage parks the run on a human question in exactly two places, both between rounds: confirming a **Critical** or **Major** dismissal, and asking whether to spend a round past the cap. No review worker runs at either park, whichever way the question reaches the human — inline through the question tool, or in the turn output where the session exposes no such tool; [asking-the-human.md](./asking-the-human.md) owns that routing in full. A finding that sends the run back to the plan-approval gate is not a third park: that route abandons the round (see [Finding Ledger](#finding-ledger) above), so no entry survives to be carried across the wait. The status block's finding entries — the only durable part carrying judgment a reviewer could anchor on — appear only across those parks, which is what keeps "a finding entry is readable in the issue" and "a review worker is running" from ever being true together; the round number and waiting state, which carry no judgment to anchor on, stay in the block throughout.
+
+What earns durability is what a fresh session cannot re-derive: a fresh review worker produces a _different_ finding set, so a ledger lost mid-park is not recoverable by re-running the review. A ledger lost between parks costs nothing, because nothing needs the entries there.
 
 **Guidelines:**
 
-- MUST record the pre-flight round number, the waiting state, and every **open** finding by identifier, severity, and citation in the status block; resolved findings are not written, since the commit that fixed each one is already in Git history.
-- MUST re-run the pre-flight review from scratch where the status block cannot be read back, and MUST NOT treat the stage as complete on a ledger it cannot show.
+- MUST keep the pre-flight round number and the waiting state current in the status block unconditionally, for as long as the stage is active, regardless of whether the run is parked — a resume can then tell the stage is in progress and which round it reached even when no finding entry is present.
+- MUST write every **open** finding's identifier, severity, and citation to the status block when the run parks on either question above.
+- MUST clear those finding entries from the status block on resume, before any further review worker is spawned. Pairing this clear rule with the write rule above is what makes the two states mutually exclusive; neither rule alone would.
+- MUST NOT write a finding's disposition, dismissal reason, claim text, or suggested-fix text to the status block, and MUST NOT write a resolved finding — identifier, severity, and citation are the entry's ceiling as well as its floor.
+- MUST re-run the pre-flight review from scratch wherever the status block shows no recoverable ledger entries, whether they were never written because the run had not yet parked or because the block cannot be read back, and MUST NOT treat the stage as complete on entries it cannot show.
 
 ## Dismissal Authority
 
@@ -90,7 +112,7 @@ The main actor wrote the plan and is accountable for the run converging. Letting
 
 **Guidelines:**
 
-- MAY dismiss a **Minor** or **Nit** finding on the main actor's own judgment, with the reason recorded in the ledger.
+- MAY dismiss a **Minor** or **Nit** finding on the main actor's own judgment, with the reason recorded in the ledger — which is session state, since Ledger Durability's ceiling above keeps a dismissal reason out of the status block entirely.
 - MUST obtain the human's confirmation, through the question tool, before dismissing a **Critical** or **Major** finding — routed as the normal decision path already routes a decision belonging to the human.
 - MUST NOT re-grade a finding's severity; the grade is the review worker's. Without this the split is trivially evaded, because the party wanting the dismissal would otherwise set the grade that decides whether it needs confirmation.
 

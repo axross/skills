@@ -157,132 +157,27 @@ one you inherit.
 
 ## How this library evaluates its skills
 
-A skill only earns its place if an agent actually reaches for it at the right
-moment. That is an **outcome**, and it is the part that is hard to check: it does
-not follow from a skill being well-formed, and no amount of structural validation
-will surface it. Nearly everything a tool can check cheaply is **form** —
-frontmatter shape, section anatomy, link integrity, whether an installed copy
-still matches its source. Every form check in this repository gates a merge, and
-not one of them can tell you whether a skill _works_. A skill can be immaculately
-structured and never get picked up, or get picked up for the wrong prompt.
+A skill's usefulness has to be checked rather than assumed, and the checking
+cannot be done by reading it.
 
-**Evaluation in this space, where it exists at all, tends to stop at form** — that
-a skill is shaped correctly, not that it works. This library measures the outcome
-as well, and commits the measurements: the recorded results live in
+**Evaluation in this space, where it exists at all, tends to stop at form** —
+that a skill is shaped correctly, not that it works. This library measures the
+outcome as well, and commits the measurements: the recorded results live in
 [`evals/discovery/baseline.json`](./evals/discovery/baseline.json), so what the
-measurement found is something you can read rather than take on trust. That is the
-axis worth comparing libraries on — whether the discovery text is _measured_ or
-merely asserted. It has already produced negative results about this library's own
-skills, and those are recorded rather than quietly dropped, which is the entire
-point of running it. Two tools do the measuring, and deliberately neither of them
-gates.
+measurement found is something you can read rather than take on trust. That is
+the axis worth comparing libraries on — whether the discovery text is _measured_
+or merely asserted. It has already produced negative results about this
+library's own skills, and those are recorded rather than quietly dropped, which
+is the entire point of running it.
 
-**Does discovery surface the right skill?** An installed skill is found by its
-`description` and nothing else, so that field is what is worth
-measuring. The discovery evaluation runs a fixture of labelled prompts through
-the real Claude Code CLI in a scratch workspace and records which skills got
-selected. Each prompt names the skills it should surface and the ones it should
-not, and repeated runs of the same prompt give a distribution rather than a
-single verdict, because selection is not deterministic. The assertion is plain
-set membership — was this skill selected or not — so no model is ever asked to
-grade another model's prose.
-
-**The two directions are judged differently, on purpose.** A skill that should
-surface has to appear **at least once** across the repeats: never appearing is a
-miss, while appearing in a minority of runs is weak rather than broken. A skill
-that should _not_ surface is only called spurious when it appears in **a
-majority** of runs. That asymmetry is there because this library deliberately
-labels skills that compete — `wireframe-design`, `high-fidelity-ui-design`, and
-`react-component-styling` each disclaim the others in their own discovery text. A
-prompt two of them could legitimately answer splits the distribution, so a
-symmetric majority rule would report correct behaviour as a failure, and would do
-it worst on exactly the cases that carry the most information. For a prompt
-naming more than one acceptable skill, the report also prints how many runs
-picked at least one of them — which is what tells healthy contention from a real
-gap.
-
-**A result is reported as a delta, not a score.** A bare number would say nothing
-you could act on, so a run is expressed as the change against a recorded
-baseline. That holds only while the baseline and the current run are comparable,
-and there are two ways they stop being:
-
-- **The model changed.** A result is not durable across models — it moves when a
-  new model ships, with no change to this repository at all. The report
-  suppresses the delta entirely and says why, rather than printing a comparison
-  that looks meaningful and is not.
-- **The corpus changed.** Every installed skill goes into the workspace, so a
-  skill added — or an existing skill's discovery text rewritten — competes for
-  the same selection whether or not the fixture names it. Here the report
-  **marks** the affected comparisons as unattributable and still renders them,
-  because a repository that ships skill edits weekly would otherwise have a
-  permanently unusable baseline.
-
-**The corpus fingerprint covers only what discovery reads.** The baseline records
-a short digest of each skill's `description` and nothing else,
-so editing a skill's body never invalidates a measurement, and a rename shows up
-as one removal plus one addition. When the corpus matches, the report says
-nothing at all — a notice that fires on every run is one that gets skipped on the
-run that matters.
-
-**A finding carries the prior it is measured against.** A verdict alone cannot
-tell a marginal result from a broken one: a miss fires at zero selections, so a
-skill that genuinely sits at one run in five draws zero about a third of the time
-and reports a finding that is noise. Every finding therefore states what the
-baseline recorded, and — where that baseline fingerprinted its corpus — the
-chance of a result at least this extreme had the rate not moved, integrating over
-the uncertainty in a rate measured from a handful of probes. Where the repeat
-counts make the question unanswerable in principle, the line says **that**
-instead of a verdict that was never in doubt; and where the baseline recorded
-nothing, no prior is invented.
-
-**Whether repeats are independent is now measurable.** Every such probability
-assumes a case's probes are independent draws from a fixed rate, and until now
-nothing had checked it — they run in sequence against a warm prompt cache, so
-they may cluster. A determinism mode repeats one case against an unchanged corpus
-and reports whether they do. It has not been run yet, so nothing here claims a
-measured noise floor.
-
-**The second tool measures cost instead of outcome.** It answers "how many rules
-is an agent holding right now?" — the concurrent RFC-2119 obligation count across
-a set of skills, as a **range**: the floor when only the `SKILL.md` bodies are
-read, and the ceiling once every reference file is read too. It defines **no
-threshold** and never fails. There is no evidence for a defensible limit in this
-corpus yet, and a threshold nobody can defend becomes either a rule people route
-around or a warning people stop reading.
-
-**Neither tool gates, and that is deliberate.** The discovery evaluation is
-non-deterministic, it costs real money every run, and it needs a secret that fork
-pull requests never receive — and a flaky merge gate gets bypassed or deleted
-rather than fixed. The obligation report has no threshold to gate on in the first
-place. Neither belongs to an npm script, a workflow gate, or a hook, and a test
-keeps both out of the enforced set, so wiring either one in has to be a
-deliberate act rather than an accident.
-
-**What the measurement cannot tell you** is worth knowing before you trust it:
-
-- **One turn per probe.** It captures what discovery selects immediately, so
-  repeats give a distribution rather than a set of skills used together.
-- **The fixture is a judgment product.** A wrong label produces a "finding" that
-  is really a labelling error — which is why every case carries a written
-  rationale a human can disagree with without reading code.
-- **The evaluation workspace carries no `CLAUDE.md`.** This repository's own
-  working agreement mandates skills in every session, so measuring inside this
-  checkout would measure that agreement instead of discovery, and would do it
-  silently.
-- **The workspace does not bound what the CLI loads.** A machine's own skills,
-  and whatever a managed environment injects, compete in every probe alongside
-  the installed corpus. A run strips the tier it can and **records** the rest, so
-  a recorded baseline says what it ran against — and a run that could not isolate
-  itself refuses to produce one at all.
-- **A universal-application claim is informational for now.** A skill can claim
-  in its own `description` that it applies to every session; whether that holds
-  under a one-turn measurement is an open question, so a shortfall is reported
-  rather than counted as a finding.
-
-[`evals/discovery/README.md`](./evals/discovery/README.md) carries the fixture
-format, the exact verdict table, the known limits in full, and when to re-record
-the baseline. [Reporting, not gating](#reporting-not-gating) has the commands for
-both tools.
+Two instruments do the measuring.
+[`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) explains
+what skill evaluation is, why form checking cannot reach it, and what each
+instrument answers. [`evals/discovery/README.md`](./evals/discovery/README.md)
+carries the discovery instrument itself — the fixture format, how a verdict is
+reached, when to re-record the baseline, and the limits of what a run can
+conclude. [Reporting, not gating](#reporting-not-gating) has the commands for
+both.
 
 ## Contributing
 
@@ -752,33 +647,18 @@ into your own project too.
 ### Delivering a unit of work end-to-end
 
 [Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
-repository's default change loop. It runs **model-invoked** — there is no
-slash command; describe the work (a GitHub issue, a pull request, or a free-form
-prompt) and the loop drives it from intake to a merge-ready pull request in a
-single continuing session:
+repository's default change loop, and this repository mandates it: every change
+here goes through it, whatever its size. It runs **model-invoked** — there is no
+slash command. Name the work and it drives that work to a merge-ready pull
+request in one continuing session, stopping for you wherever a decision is
+yours to make. The skill states its stages, where it stops, and what it caps.
 
-1. **Plan** — reads the issue and its thread, asks you the scope questions the
-   spec leaves open, and rewrites the issue body into a reviewable plan with
-   acceptance criteria. It then **always pauses for your approval**: nothing
-   gets built until you review the plan and tell it to continue.
-2. **Code + verify** — implements the approved plan on an agent-namespaced
-   `claude/` branch, runs the checks the change requires, and self-reviews the
-   diff.
-3. **Independent review** — opens a draft pull request and requests the CI
-   reviewer, a separate bot session, so the change's author never certifies its
-   own work.
-4. **Address** — fixes review findings and CI failures, tying each resolved
-   thread to the resolving commit, for up
-   to <!-- count:address-review-round-cap -->eight<!-- /count --> rounds.
-5. **Ready** — flips the pull request to ready once CI is green and the review
-   is clean. Merging always stays a human decision.
+Kick it off by naming what to deliver — "deliver issue #42", "pick up PR 57", or
+a description of the change with no issue behind it yet. To carry on after it
+stops, continue the session and tell it to.
 
-Kick it off by naming the work — "deliver issue #42", "pick up PR 57", or a
-free-form request (with no issue yet, it files a tracking issue first, then
-delivers it). To approve a paused plan or resume after a question, continue the
-session and tell it to continue.
-
-**Step 2 runs in a subagent here, and that subagent is also the worked example.**
+**Implementation runs in a subagent here, and that subagent is also the worked
+example.**
 [`.claude/agents/implementer.md`](./.claude/agents/implementer.md) pins a
 lower-cost model and effort — a worker that inherits the session's runs at the
 main actor's cost, which defeats the point — and states the delivery boundary in
@@ -830,8 +710,8 @@ One check backs the loop from outside any session:
 sweeps hourly and flags any `claude/` branch pushed ahead of the default branch
 with no open pull request — work delivered outside the loop, and so never
 independently reviewed. It is deliberately a scheduled sweep rather than a
-push-triggered gate, because step 2 legitimately pushes before step 3 opens the
-pull request; a grace window skips a branch whose latest commit is still fresh.
+push-triggered gate, because implementation legitimately pushes before the pull
+request opens; a grace window skips a branch whose latest commit is still fresh.
 
 ### `@claude review` — get findings on any PR
 
@@ -840,7 +720,7 @@ policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line
 evidence and concrete fixes, posted as inline comments by the CI reviewer
 ([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
 pre-merge check on a hand-written change or a second opinion before merging. It
-is the same reviewer the change loop relies on: step 3 above requests it by
+is the same reviewer the change loop relies on: the loop requests it by
 posting that comment itself, so no review starts without one.
 
 Two things make it stay silent. It answers **repository owners, members, and

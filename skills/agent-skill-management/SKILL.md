@@ -124,11 +124,15 @@ The upstream repository is the source of truth for a third-party skill, so chang
 
 `skills-lock.json` is the install lockfile — analogous to `package-lock.json`. It records each distributable skill's `source`, `sourceType`, and a `computedHash` of the installed content, and is committed so the installed state is reproducible and drift is detectable. Repository-local skills never appear in it.
 
+Since `skills@1.5.22`, the CLI writes a `local` `source` as a path relative to the lockfile's own directory — `/`-separated, so it stays portable across checkouts and platforms — rather than as an absolute path. It falls back to an absolute one only where no relative path exists, as when the source sits on a different filesystem root. Refreshing any single skill rewrites every `local` entry's `source` through that same normalization, not only the one refreshed, so a lockfile diff that touches entries for skills you did not edit is this normalization sweep, not drift. A CLI older than 1.5.22 still writes the absolute form, so a checkout's lockfile can carry either form depending on which version last ran the install.
+
+Verified against the [`v1.5.22` release notes](https://github.com/vercel-labs/skills/releases/tag/v1.5.22), published 2026-08-05.
+
 **Guidelines:**
 
 - MUST commit `skills-lock.json` and regenerate it by running the install command, never by hand-editing.
 - MUST treat a `computedHash` change with no corresponding source edit as install drift to investigate, not to blindly commit.
-- SHOULD be aware that a `local` `source` is an absolute path, so it can differ between machines; regenerate the lock with the install command in your own checkout rather than expecting a foreign checkout's lock to be byte-identical.
+- SHOULD treat a diff touching only `local` `source` fields, with no `computedHash` change, as the normalization sweep above rather than drift; confirm which CLI version last ran the install when a lockfile keeps alternating between the two forms.
 
 ## Installed-Copy Drift Check
 
@@ -141,7 +145,7 @@ The installed copies are tracked artifacts, not build output, so nothing stops a
 node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
 ```
 
-Both roots are **required**, and there is no default: a directory layout is a project's own choice, and a guessed root that matches nothing reports no drift — a pass indistinguishable from a real one. It reports four kinds of difference (a file missing from the installed copy, a file present only there, differing content, and a source skill with no installed copy at all), plus an installed skill that has neither a source nor repository-local status. Mark each repository-local skill with a repeatable `--local <name>`, or the check reads it as drift. It deliberately ignores `skills-lock.json`, whose entries record absolute `source` paths and so are not portable across checkouts; directory contents are the truth.
+Both roots are **required**, and there is no default: a directory layout is a project's own choice, and a guessed root that matches nothing reports no drift — a pass indistinguishable from a real one. It reports four kinds of difference (a file missing from the installed copy, a file present only there, differing content, and a source skill with no installed copy at all), plus an installed skill that has neither a source nor repository-local status. Mark each repository-local skill with a repeatable `--local <name>`, or the check reads it as drift. It deliberately ignores `skills-lock.json`: the lockfile is written only by an install, so it records what the last install did rather than what is on disk now, and cannot witness an edit made to an installed copy afterwards — precisely the drift this check exists to catch. Its `source` field also names where a skill came from rather than where its installed copy lives, so it identifies neither of the two roots the check compares. Directory contents are the truth.
 
 It exits 0 when every installed copy matches, 1 on drift, and 2 on a bad invocation or a root that is not a directory.
 

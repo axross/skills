@@ -119,14 +119,16 @@ export const GATES = [
     passes: /Every relative link resolves \(\d+ across \d+ documents\)\./,
   },
   {
-    // Vacuous today, and the pattern says so rather than pretending otherwise:
-    // the corpus has no `specs/` yet, so this reports "Nothing to check". The
-    // teeth case is what establishes it can fail meanwhile. Tighten the pattern
-    // to the spec-counting form once #247 adds the first spec.
+    // The pattern requires the spec-counting message, so a `specs/` directory
+    // that empties out reads as a failure rather than as a pass. It spent one
+    // pull request accepting "Nothing to check" as well, because the corpus had
+    // no spec yet; that alternation is gone now that it has one, and this is
+    // the only gate here whose passing message a later change could weaken
+    // without touching the check itself.
     name: "corpus-glossary",
     script: SCRIPTS.checkGlossary,
     args: ["docs"],
-    passes: /Every spec has a heading in glossary\.md \(\d+ checked\)\.|No specs\/ under docs\./,
+    passes: /Every spec has a heading in glossary\.md \(\d+ checked\)\./,
   },
   {
     name: "decision-naming",
