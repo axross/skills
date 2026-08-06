@@ -10,11 +10,11 @@
 
 **Repository-local skill** — an **agent skill** that encodes conventions specific to one repository, committed directly under a **skill root** and edited in place rather than installed.
 
-**Skill tier** — which of the two storage models an **agent skill** uses, and so whether its source is installed into generated roots or committed and edited where it sits.
+**Skill tier** — which storage model an **agent skill** uses, and so whether its source is installed into generated roots or committed and edited where it sits.
 
 **Source root** — the directory holding a **distributable skill**'s editable source, and the only copy an author edits.
 
-**Installed root** — a directory an **agent runtime** reads **agent skills** from, generated from a **source root**. One installed root holds the files and another reaches them through symlinks, so both serve the same bytes to whichever runtime looks there.
+**Installed root** — a directory an **agent runtime** reads **agent skills** from, generated from a **source root**, whether it holds the files itself or reaches them through symlinks.
 
 **Skill root** — either kind of root, used where a statement is true of any directory an **agent runtime** enumerates **agent skills** from.
 
@@ -26,13 +26,13 @@
 
 **Reference file** — a file beside a `SKILL.md` holding detail the body defers to, read only when a task needs it.
 
-**Skill corpus** — the body of skill text under one **skill root**, taken together: what a **skill corpus fingerprint** digests, an **obligation burden** report counts, and a **scheduled audit** dereferences the URLs of.
+**Skill corpus** — the body of skill text under one **skill root**, taken together: what an **obligation burden** report counts and a **scheduled audit** dereferences the URLs of, and whose **skill descriptions** a **skill corpus fingerprint** digests.
 
 ## Agent Runtimes
 
-**Agent runtime** — the agent that reads a **skill root** and decides which **agent skills** to load. Claude Code and Codex are the two here, and it is what this repository's own documents call "the host".
+**Agent runtime** — the agent that reads a **skill root** and decides which **agent skills** to load, and what this repository's own documents call "the host".
 
-**Runtime skill catalog** — what an **agent runtime** lists for itself before loading anything: each available **agent skill**'s name and **skill description**, and nothing else.
+**Runtime skill catalog** — what an **agent runtime** lists for itself before loading anything: each available **agent skill**'s name and **skill description**, and no part of its body.
 
 **Skill discovery** — an **agent runtime** choosing which **agent skills** to load for a task, from the **runtime skill catalog** alone and before any body is read.
 
@@ -50,7 +50,7 @@
 
 **Merge gate** — a check that blocks a merge. It runs inside the suite the merge workflow invokes, so a change that fails it does not land.
 
-**Enforced-gate set** — the **merge gates** taken together, whose membership is stated in four places that must agree.
+**Enforced-gate set** — the **merge gates** taken together, as against any one of them.
 
 **Reporting tool** — a check that produces a number, a ranking, or a routing outcome and never fails. It belongs to no **merge gate**, so running one is a deliberate act rather than a side effect of proposing a change.
 
@@ -70,7 +70,7 @@
 
 **Pre-flight review** — an optional advisory review by a second worker before the pull request opens. It buys a reader free of the implementer's reasoning state, and is never reported as the **independent review**.
 
-**Posted review** — a review published on a pull request rather than delivered in-session, whose severity vocabulary collapses to two levels.
+**Posted review** — a review published on a pull request rather than delivered in-session, and narrower in its severity vocabulary than one delivered in-session is.
 
 **Severity floor** — the lowest severity a given class of finding may be reported at, fixed so a reviewer cannot quietly downgrade it.
 
@@ -94,7 +94,7 @@
 
 **Skill outcome** — whether an **agent skill** does its job: whether **skill discovery** surfaces it for the right prompt, and whether holding it changes what the model does. It does not follow from any **textual property**.
 
-**Evaluation probe** — one run of one **evaluation case** against the real CLI. What a probe produces is the axis's to say, not this term's.
+**Evaluation probe** — one run of one **evaluation case** against the real CLI. A discovery probe produces the set of **agent skills** the run selected.
 
 **Evaluation case** — one labelled unit of an evaluation fixture, carrying a written rationale a human can disagree with without reading code. A discovery case carries the prompt to send, and names the **agent skills** it should surface and the ones it should not.
 
