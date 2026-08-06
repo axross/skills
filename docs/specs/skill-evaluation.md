@@ -46,50 +46,49 @@ is informative about the other.
 
 ### Does discovery surface the skill?
 
-An installed skill is selected on its `description` and nothing else, so that
-field is the unit under test. The instrument runs a fixture of labelled prompts
-through the real CLI and records which skills each prompt selected. Because
-selection is not deterministic, a prompt is repeated and the result read as a
-distribution rather than a single verdict.
+A skill nobody loads cannot change anything, so selection is the first thing
+worth knowing. It is also the half that is cheapest to be wrong about: an author
+reads their own `description` knowing what it is for, which is the one condition
+under which it always looks adequate.
 
-The assertion is set membership: was this skill selected or not. No model is
-ever asked to grade another model's prose, which is what keeps the measurement
-from inheriting the uncertainty it is supposed to be resolving.
-
-[`evals/discovery/README.md`](../../evals/discovery/README.md) owns this
-instrument — how a verdict is reached, what a finding is measured against, how a
-result is compared to a recorded baseline, and the limits of what a run can
-conclude.
+The instrument that answers this runs prompts through a real agent and records
+what it selected.
+[`evals/discovery/README.md`](../../evals/discovery/README.md) owns it — what it
+runs, how a verdict is reached, what a finding is measured against, and the
+limits of what a run can conclude.
 
 ### What does holding the skill cost?
 
-A skill occupies context whether or not it changes anything, and the cost is
-paid on every turn that loads it. The second instrument counts that cost as
-concurrent RFC 2119 obligations across a set of skills, reported as a range: the
-floor when only the `SKILL.md` bodies are read, and the ceiling once every
-reference file is read too.
+Selection is only half the bet, and the other half has a price attached. A skill
+occupies context whether or not it changes anything, and that cost is paid on
+every turn that loads it — which means "does this skill earn its place" is a
+ratio, and an instrument that measures only whether a skill is picked supplies
+one term of it.
 
-It is reported rather than judged. There is no threshold, because this corpus
-has produced no evidence for where a defensible one would sit, and a threshold
-nobody can defend becomes either a rule people route around or a warning people
-stop reading.
+The second instrument supplies the other. What it counts, and the policy that
+follows from the count, are stated with the tool in `README.md`'s validator
+listing.
 
 ## Neither axis gates a merge
 
-Both instruments report. Neither belongs to an npm script, a merge workflow, or
-a hook, and a test keeps them out of the enforced set so that wiring one in has
-to be a deliberate act rather than an accident.
+Both instruments report; neither blocks anything. That is not squeamishness
+about enforcement, and it is not a gap waiting to be closed — it follows from
+what is being measured.
 
-The reasons differ by instrument, and both are properties of the measurement
-rather than of the tooling around it. The discovery evaluation is
-non-deterministic, costs money on every run, and depends on a secret that fork
-pull requests never receive — and a merge gate that fails for reasons unrelated
-to the change gets bypassed or deleted rather than fixed. The obligation report
-has no threshold to gate on in the first place.
+A gate has to be able to say a change is wrong. An outcome measurement says that
+a result moved, and how surprised to be by the movement. Those are different
+kinds of claim: the first admits a yes or no, the second is a piece of evidence
+whose weight depends on how much was measured and against what. Handing the
+second to a merge queue would force it into a shape it does not have.
 
-A measurement that cannot gate is not a weaker measurement. It is a measurement
-whose output is addressed to a human deciding what to change, rather than to a
-merge queue deciding what to block.
+A measurement that cannot gate is not a weaker measurement. It is one whose
+output has a different reader — a person deciding what to change, rather than a
+queue deciding what to block.
+
+The concrete reasons each instrument cannot gate belong to the instrument, and
+are stated with it: [`evals/discovery/README.md`](../../evals/discovery/README.md)
+for the discovery evaluation, and `README.md`'s validator listing for the
+obligation report.
 
 ## What the practice does not establish
 
