@@ -417,7 +417,14 @@ describe("report-obligation-load.mjs", () => {
       // Delegated Implementation list and Phase 2 step as routing prose,
       // under an explicit budget that the promotion cost bytes rather than
       // rules — no MUST/SHOULD/MAY landed in SKILL.md itself.
-      expect.soft(totals.floorObligations).toBe(26);
+      // And one more in #271, which reverses that trade: two consecutive
+      // change-delivering runs read #244's routing prose without being bound
+      // by it — one skipped the determination outright, the other ran it and
+      // misread a request-conditioned policy as barred — so the
+      // determination now lands in Phase 2's first `**Guidelines:**` block
+      // instead of staying prose. Exactly one MUST bullet reached the body,
+      // which is why the floor moves by one.
+      expect.soft(totals.floorObligations).toBe(27);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. The fold lowered
@@ -495,7 +502,17 @@ describe("report-obligation-load.mjs", () => {
       // claim the change had just stopped the property table from making, left
       // standing in the routing prose beside it. Still prose, so the floor
       // obligation count holds.
-      expect.soft(totals.floorTokens).toBe(8_478);
+      // And 121 more in #271, entirely from SKILL.md's own body: the
+      // Delegated Implementation opening reordered so the permission
+      // determination is read before the sentence normalizing single-agent
+      // fallback, the routing bullet that flattened a policy's bars-or-
+      // conditions branches into one line split into two, and the new
+      // Guidelines bullet noted at the floor above. Partly offset by three
+      // stray "optional" mentions of the pre-flight stage trimmed once it
+      // stopped being discretionary — the Phase 2 bullet's own label, "MAY
+      // judge" becoming "judges", and the Termination Guard cap's lead-in —
+      // but the growth outweighs the trim.
+      expect.soft(totals.floorTokens).toBe(8_599);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -656,7 +673,21 @@ describe("report-obligation-load.mjs", () => {
       // Input section, the reader boundary for run state encountered outside
       // the package. And one is run-state-and-reporting.md's, requiring the
       // run to report a reviewer's disclosure that it read run state.
-      expect.soft(totals.ceilingObligations).toBe(435);
+      // And six more in #271. Three are implementation-worker.md's: an
+      // unreadable policy now defaults to undetermined rather than barred,
+      // with a policy naming the human's request as its condition the
+      // canonical undetermined case rather than barred; a SHOULD weighing
+      // configuration that governs how delegation behaves as evidence
+      // against a barred classification; and a requirement that every
+      // determination record the policy text it rests on, quoted, or the
+      // observation that none was found. One is run-state-and-reporting.md's:
+      // a status-block entry naming no determination is not a valid entry.
+      // One is pre-flight-review.md's: the stage now runs, rather than may
+      // run, whenever implementation was delegated and a compatible reader
+      // resolves. The sixth is the floor's own new Guidelines bullet, counted
+      // again here because the ceiling is SKILL.md plus every reference, not
+      // references alone.
+      expect.soft(totals.ceilingObligations).toBe(441);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -787,7 +818,18 @@ describe("report-obligation-load.mjs", () => {
       // conclusions beside a citation of it, so the restatement is gone and the
       // pointer stands alone. No obligation moved either way — one existing
       // bullet grew a clause, and the rest is prose.
-      expect.soft(totals.ceilingTokens).toBe(42_621);
+      // And 469 more in #271: the six obligations above plus the prose that
+      // makes them follow-able, split across five files — 1,045 bytes in
+      // implementation-worker.md (the new obligations plus the paragraph
+      // splitting the section, once they pushed it past the ten-bullet
+      // ceiling agent-skill-authoring sets, into the section itself and a new
+      // "Putting the Decision to the Human" subsection), 347 in
+      // run-state-and-reporting.md, 271 in pre-flight-review.md, the 578
+      // SKILL.md bytes the floor above already counts, and a net 7 bytes
+      // trimmed from delegated-execution.md and writer-ownership-and-
+      // recovery.md's own stray "optional" mentions of the pre-flight stage.
+      // Each figure rounds its own byte total independently.
+      expect.soft(totals.ceilingTokens).toBe(43_090);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -861,10 +903,15 @@ describe("report-obligation-load.mjs", () => {
       // totals above: the floor obligation count held steady on purpose, since
       // its SKILL.md edits stay prose, while floor tokens, ceiling obligations,
       // and ceiling tokens all moved by the figures given there.
-      expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_478);
-      expect.soft(tiers[2].ceilingObligations).toBe(435);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_621);
+      // #271 moved both copies too, for the same reasons as the mandated-set
+      // totals above: the floor obligation count by the new Phase 2
+      // Guidelines bullet, the floor tokens by SKILL.md's own prose changes,
+      // the ceiling obligation count by the six obligations detailed there,
+      // and the ceiling tokens by the bytes behind all of them.
+      expect.soft(tiers[2].floorObligations).toBe(27);
+      expect.soft(tiers[2].floorTokens).toBe(8_599);
+      expect.soft(tiers[2].ceilingObligations).toBe(441);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_090);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -883,7 +930,7 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(435);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(441);
       expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(435);
     });
 
