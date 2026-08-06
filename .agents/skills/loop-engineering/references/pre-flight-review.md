@@ -2,7 +2,7 @@
 
 Apply this reference after a delegated implementation worker returns and the completion-evidence check has run, and before the pull request is opened. It adds one optional stage: a second, review-only worker that judges the diff, and an implement→review loop that runs until every finding it raises has reached a terminal state.
 
-The stage exists to buy **one** property of independent review cheaply — a reviewer that does not carry the implementer's reasoning state — and it explicitly buys no others. It is advisory. [Phase 3](../SKILL.md)'s independent review remains the authoritative gate, and nothing here weakens it.
+The stage exists to buy **one** property of independent review cheaply — a reviewer that does not carry the implementer's reasoning state — and it explicitly buys no others. It does not buy even that one outright: no row of the table below reads an unqualified `yes`, and how far each property is actually recovered is that table's business rather than this sentence's. It is advisory. [Phase 3](../SKILL.md)'s independent review remains the authoritative gate, and nothing here weakens it.
 
 Like delegation itself, the stage is conditional on the harness already exposing a worker that qualifies. With none, the run behaves exactly as it does without this reference.
 
@@ -92,7 +92,7 @@ That protocol — the full finding set, with every attribute above — is **the 
 
 ## Ledger Durability
 
-This stage parks the run on a human question in exactly two places, both between rounds: confirming a **Critical** or **Major** dismissal, and asking whether to spend a round past the cap. No review worker runs at either park, whichever way the question reaches the human — inline through the question tool, or the turn-output-and-status-block fallback [asking-the-human.md](./asking-the-human.md) uses when that tool closes or errors. The status block's finding entries — the part of the ledger's durable subset a reviewer could anchor on — appear only across those parks, which is what keeps "a finding entry is readable in the issue" and "a review worker is running" from ever being true together; the round number and waiting state, which carry no judgment to anchor on, stay in the block throughout.
+This stage parks the run on a human question in exactly two places, both between rounds: confirming a **Critical** or **Major** dismissal, and asking whether to spend a round past the cap. No review worker runs at either park, whichever way the question reaches the human — inline through the question tool, or in the turn output where the session exposes no such tool. [asking-the-human.md](./asking-the-human.md) owns that routing, including why an errored tool is re-presented rather than routed around, and why the block records an open question without ever being the channel it is answered through. The status block's finding entries — the only durable part carrying judgment a reviewer could anchor on — appear only across those parks, which is what keeps "a finding entry is readable in the issue" and "a review worker is running" from ever being true together; the round number and waiting state, which carry no judgment to anchor on, stay in the block throughout.
 
 What earns durability is what a fresh session cannot re-derive: a fresh review worker produces a _different_ finding set, so a ledger lost mid-park is not recoverable by re-running the review. A ledger lost between parks costs nothing, because nothing needs the entries there.
 

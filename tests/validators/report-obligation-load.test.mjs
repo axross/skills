@@ -489,7 +489,13 @@ describe("report-obligation-load.mjs", () => {
       // "human-invisible" and said instead what an agent reading the raw body
       // sees. Neither adds an obligation, which is why the floor count above
       // does not move — only the bytes it divides.
-      expect.soft(totals.floorTokens).toBe(8_459);
+      // Then 19 more in the same change, from its own pre-flight round 2. The
+      // Phase 2 bullet had kept saying the stage buys a reviewer "free of the
+      // implementer's reasoning state, and nothing else" — the unqualified
+      // claim the change had just stopped the property table from making, left
+      // standing in the routing prose beside it. Still prose, so the floor
+      // obligation count holds.
+      expect.soft(totals.floorTokens).toBe(8_478);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -759,7 +765,13 @@ describe("report-obligation-load.mjs", () => {
       // same change had just reserved for the session-state object — and
       // Dismissal Authority stopped claiming a dismissal reason is folded into
       // what the run reports, which no reporting rule requires.
-      expect.soft(totals.ceilingTokens).toBe(42_343);
+      // And 96 more from that same round 2: the floor's own 19, plus
+      // pre-flight-review.md's opening sentence gaining the same qualification
+      // as the bullet above, and Ledger Durability's park paragraph handing the
+      // question-routing back to asking-the-human.md — it had described the
+      // status block as a fallback channel the human is asked through, which
+      // that file explicitly says it is not.
+      expect.soft(totals.ceilingTokens).toBe(42_439);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -834,9 +846,9 @@ describe("report-obligation-load.mjs", () => {
       // its SKILL.md edits stay prose, while floor tokens, ceiling obligations,
       // and ceiling tokens all moved by the figures given there.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_459);
+      expect.soft(tiers[2].floorTokens).toBe(8_478);
       expect.soft(tiers[2].ceilingObligations).toBe(435);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_343);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_439);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
