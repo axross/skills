@@ -95,9 +95,13 @@ obligation report.
 Three limits belong to skill evaluation as a practice, rather than to either
 instrument's implementation.
 
-**A measured result is not durable.** Both axes measure the behaviour of a model
-that is replaced periodically. A result describes a moment, and a new model
-moves it with no change to this repository at all.
+**The two axes do not age the same way.** Selection is a property of a model,
+and models are replaced. Cost is a property of the text, and text changes only
+when someone edits it. The two numbers therefore go stale on different clocks,
+and a reader comparing results across time has to know which kind they are
+holding. What that means for a recorded selection result is stated with the
+instrument in
+[`evals/discovery/README.md`](../../evals/discovery/README.md).
 
 **Coverage is not the same as correctness.** A fixture measures the prompts
 somebody thought to write down. A skill that is never surfaced by any labelled
