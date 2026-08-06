@@ -142,6 +142,8 @@ Which routes a session has is **not** a property of the host, the cloud environm
 | a pull request's diff and patch URLs     | the diff, and each commit's message, author, and date                                    | the pull request's own description                                         |
 | a rendered issue page's embedded payload | the issue body and its comments, verbatim                                                | an undocumented shape that can change without notice; treat as last resort |
 
+**What is known about these routes rests on a narrow base.** Each was established by an unauthenticated read of a public repository. Whether any of them behaves the same authenticated, against a private repository, or for a write is untested — a route that serves a public body anonymously may well refuse a private one, and none was exercised as a write at all. Read the table as evidence about that case and nothing wider, and establish the rest by trying, per the first guideline below.
+
 Two of these are worth telling apart. `git` and the content hosts are addressed by commit, so what they return is verifiable against a hash you already hold. The others are not, which is why the comparison discipline below matters: an unverifiable route that _looks_ byte-faithful is worse than one that visibly is not.
 
 **Guidelines:**
