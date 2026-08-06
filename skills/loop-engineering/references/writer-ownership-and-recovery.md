@@ -10,7 +10,7 @@ Before resolving or spawning a worker, the main actor selects the checkout or wo
 
 The run tracks exactly one writer at a time: no writer, the main actor, or one worker instance.
 
-A participant that writes nothing does not appear in that accounting at all. The optional pre-flight reviewer is the one such participant the loop defines (see [pre-flight-review.md](./pre-flight-review.md)): it reads the diff and returns findings, so the lease stays wherever it already was while it runs.
+A participant that writes nothing does not appear in that accounting at all. The pre-flight reviewer is the one such participant the loop defines (see [pre-flight-review.md](./pre-flight-review.md)): it reads the diff and returns findings, so the lease stays wherever it already was while it runs.
 
 **Guidelines:**
 
