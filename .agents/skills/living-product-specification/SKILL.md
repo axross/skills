@@ -70,7 +70,7 @@ See [corpus-structure.md](./references/corpus-structure.md) for:
 - the five-part shape — `index.md`, `overview.md`, `glossary.md`, `specs/<domain>.md`, `decisions/` — and what each one owns
 - the five invariants, including why only the index is read unconditionally and why an individual decision record is exempt from the index
 - why `specs/` is flat, and why `index.md` is the only file a corpus must have
-- what a glossary entry holds, the domain grouping that makes it navigable, and the two rules no validator can enforce — an entry that stands on its own, and a term whose own words cost the reader least to read correctly
+- what a glossary entry holds, the domain grouping that makes it navigable, and two rules no validator can enforce — an entry that stands on its own, and a term whose own words cost the reader least to read correctly
 - where a Mermaid diagram goes, and why there is no `diagrams/` directory
 
 ## Cross-References
