@@ -66,7 +66,7 @@ Before granting writer ownership, establish that the worker is resolvable under 
 
 - MUST establish every capability above before granting the writer lease, using trustworthy harness role and tool metadata where it exists instead of spending a model turn on preflight.
 - MUST begin the task with a no-edit workspace-and-artifact validation stage where runtime availability cannot be established without spawning, and fall back before any edit if that stage fails.
-- MUST establish, where the artifact manifest carries a `visual` entry, that a tool returns the artifact as an image the model itself views; a tool returning a textual description of a visual artifact does not satisfy this, and the run falls back before spawning rather than discovering the gap at read time.
+- MUST establish, for every entry the artifact manifest marks required, that the worker holds a channel adequate to its declared fidelity class before granting the writer lease — a `visual` entry specifically as a tool that returns it as an image the model itself views, since a tool returning only a textual description does not satisfy that case — and MUST resolve a gap to [implementation-package.md](./implementation-package.md#artifact-manifest-and-fidelity)'s in-package carriage where the main actor can reach the entry, or to fallback otherwise, before the spawn rather than discovering the gap at read time.
 
 ## Model and Effort Certainty
 
@@ -90,7 +90,7 @@ A project does not have to define a worker at all — resolution accepts what a 
 
 - It pins the model and effort the worker runs at. A harness that offers this commonly defaults to inheriting the session's, which means the worker runs at the main actor's cost and the saving that motivated delegating disappears without anything reporting it.
 - It places the worker at an explicit step in the resolution order rather than a discovered one.
-- It can withdraw tools, which is the one place a boundary the package states in prose becomes a boundary the host enforces.
+- It can withdraw tools, which is the one place a boundary the package states in prose becomes a boundary the host enforces — short of a channel carrying what the worker must read, which the rule below keeps open regardless of what else a definition withdraws.
 
 Everything else belongs in the package. A definition that also carried the decision boundary, the escalation list, the verification obligation, the commit rules, or the receipt shape would restate per agent what already arrives per run — and would drift from it the first time the package changed.
 
@@ -100,4 +100,4 @@ Everything else belongs in the package. A definition that also carried the decis
 - SHOULD write that framing without assuming this loop: state what an implementation agent is, that it works from the prompt it was given, and that a decision it was not given goes back to whoever asked. A definition written around this loop's package stops being usable by any other caller, and stops being worth copying.
 - MUST NOT preload this skill into a worker where the host offers that, since the package is self-contained by contract and preloading spends the worker's context on rules it is handed anyway.
 - MUST NOT give a worker its own isolated checkout where the host offers that: the package names the branch and base revision the worker must verify, and an isolated copy will not match them.
-- SHOULD withdraw the harness's GitHub channel from a worker where the host supports it, so the delivery boundary is enforced rather than trusted — noting that operations reached through a shell stay available, so this closes part of that boundary and not all of it.
+- MUST NOT withdraw a channel from a worker definition where that channel carries what the worker must read — the tracking issue being the case, since withdrawing it wholesale takes the specification with it — and MUST NOT partition such a channel by enumerating its write operations, since the enumeration drifts with the channel's surface while still reading as enforcement. Name the delivery boundary as prose instead, stating which part a withdrawn tool actually closes and which stays available through a shell as a rule the worker is asked to honor rather than one the host enforces.

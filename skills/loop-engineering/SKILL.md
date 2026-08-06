@@ -68,9 +68,9 @@ See [implementation-worker.md](./references/implementation-worker.md) for:
 
 - the four-step executor resolution order, and why capability rather than a declared responsibility decides
 - the branch where a harness policy blocks or conditions a qualifying candidate's spawn, and the permission question it puts to the human when the run cannot otherwise establish that the spawn is allowed
-- the compatibility preflight that runs before the writer lease is granted, including the visual-capability check
+- the compatibility preflight that runs before the writer lease is granted, establishing a channel adequate to every required manifest entry's fidelity class, with the visual-capability check as the named case
 - classifying model and effort as verified, declared, or unknown
-- what a project's own worker definition should carry, and what it must leave to the package
+- what a project's own worker definition should carry, what it must leave to the package, and the one channel it may never withdraw — the one carrying what the worker must read
 
 See [implementation-package.md](./references/implementation-package.md) for:
 

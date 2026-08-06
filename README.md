@@ -781,11 +781,14 @@ session and tell it to continue.
 **Step 2 runs in a subagent here, and that subagent is also the worked example.**
 [`.claude/agents/implementer.md`](./.claude/agents/implementer.md) pins a
 lower-cost model and effort — a worker that inherits the session's runs at the
-main actor's cost, which defeats the point — and withdraws the GitHub channel so
-delivery stays with the main actor. It carries nothing else: the decision
-boundary, the verification obligation, the commit rules, and the receipt shape
-all arrive per run in the task package, so a definition restating them would only
-drift from it. It does not mention the loop at all, which is the point: it says
+main actor's cost, which defeats the point — and states the delivery boundary in
+its own body rather than closing it by withdrawing a tool: commits stay local,
+and pushing, publishing, and anything else that speaks outward belongs to
+whoever asked, a rule the file asks the worker to honor rather than one the host
+enforces. It carries nothing else: the decision boundary, the verification
+obligation, the commit rules, and the receipt shape all arrive per run in the
+task package, so a definition restating them would only drift from it. It does
+not mention the loop at all, which is the point: it says
 what an implementation agent is and what it may not decide, so the same file
 works for a caller that has never heard of `loop-engineering` and is worth
 copying into a project that runs its subagents some other way. What it leaves
@@ -806,13 +809,16 @@ written, which reaches the issue, any artifact the plan points at, and the
 documentation behind a factual claim. A reviewer missing one of those does not
 fail to start; it runs, cannot check what it cannot reach, and returns a report
 short by exactly those checks — and an under-equipped review reads exactly like a
-clean one. So the asymmetry between the two definitions is in _what_ each denies,
-not in how: the things a worker must never do are few and nameable, the things it
-needs are open-ended. Neither restriction is complete, and the file says so —
-`Bash` remains, so mutation is enforced against the editing tools and not against
-the shell, and reporting rather than publishing stays a rule it is asked to
-honor. Delete this file and the stage is skipped rather than performed by the
-main actor, which is what keeps it from degrading into self-review.
+clean one. So the asymmetry between the two definitions is now in both _what_
+each denies and _how_: the things `implementer.md` must never do are few and
+nameable, and it asks them in prose rather than closing them with a withdrawn
+tool; the things a reader needs are open-ended, which is why `reviewer.md` still
+enforces its own short deny-list with tools instead. Neither restriction is
+complete, and the file says so — `Bash` remains, so mutation is enforced
+against the editing tools and not against the shell, and reporting rather than
+publishing stays a rule it is asked to honor. Delete this file and the stage is
+skipped rather than performed by the main actor, which is what keeps it from
+degrading into self-review.
 
 `.claude/agents/` is the only home for either file — they are agent definitions,
 not skills, so `npx skills` does not carry them. Only Claude Code is configured
