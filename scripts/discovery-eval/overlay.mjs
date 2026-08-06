@@ -8,8 +8,9 @@
 //   * EXECUTABLE code always comes from the base-ref checkout. The head is never
 //     checked out and `npm install` never runs against head content.
 //   * Head SKILL.md text is fetched as DATA and copied into a scratch workspace
-//     that the evaluation subprocess reads with no credentials in its
-//     environment and only the `Skill` tool enabled.
+//     that the evaluation subprocess reads with only the `Skill` tool enabled,
+//     and with no credential in its environment beyond the allowlisted few it
+//     cannot run without — see `PERMITTED_CREDENTIALS` below.
 //
 // Skills are prompt content, so allowlisted text does reach a model. The bound
 // is what that model can then do, which is nothing: a hostile skill can corrupt
@@ -47,16 +48,31 @@ import { readDiscoveryText } from "./corpus.mjs";
  * subprocess. A denylist by shape rather than an enumeration of known variables:
  * a runner adds secrets this repository has never heard of, and the safe default
  * for an unrecognised `*_TOKEN` is to drop it.
+ *
+ * `HEADERS?` and `AUTH` are here because a credential travels by that shape too
+ * — `OTEL_EXPORTER_OTLP_HEADERS` carries one in its VALUE while its name says
+ * nothing of the sort, and it reached the subprocess for exactly that reason
+ * before this rule covered it. A variable that must cross now says so in the
+ * allowlist below rather than passing because the denylist happened to miss it.
  */
-const CREDENTIAL_RE = /(TOKEN|SECRET|PASSWORD|CREDENTIAL|KEY)/i;
+const CREDENTIAL_RE = /(TOKEN|SECRET|PASSWORD|CREDENTIAL|KEY|HEADERS?|AUTH)/i;
 
 /**
- * The two variables that survive that rule, because the subprocess IS the Claude
- * CLI and cannot authenticate without one of them. Keeping them is safe for the
- * same reason the overlay is: the subprocess runs one turn with only the `Skill`
- * tool, so it has no Bash, no network fetch, and no way to read them back out.
+ * The three variables that survive that rule, each because the subprocess cannot
+ * do its job without it: two because it IS the Claude CLI and cannot
+ * authenticate otherwise, and one because it carries the OTLP ingestion
+ * credential that the CI workflow's telemetry ships through.
+ *
+ * Keeping them is safe for the same reason the overlay is, and the reason is the
+ * same for all three: the subprocess runs one turn with only the `Skill` tool, so
+ * it has no Bash, no network fetch, and no way to read them back out. Adding a
+ * fourth is a deliberate edit here, not a naming coincidence.
  */
-const CLAUDE_AUTH = ["CLAUDE_CODE_OAUTH_TOKEN", "ANTHROPIC_API_KEY"];
+const PERMITTED_CREDENTIALS = [
+  "CLAUDE_CODE_OAUTH_TOKEN",
+  "ANTHROPIC_API_KEY",
+  "OTEL_EXPORTER_OTLP_HEADERS",
+];
 
 /**
  * Build the environment the evaluation subprocess runs with.
@@ -68,7 +84,7 @@ export function evalEnvironment(source) {
   const env = {};
   for (const [name, value] of Object.entries(source)) {
     if (value === undefined) continue;
-    if (CLAUDE_AUTH.includes(name)) {
+    if (PERMITTED_CREDENTIALS.includes(name)) {
       env[name] = value;
       continue;
     }

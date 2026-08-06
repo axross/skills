@@ -610,7 +610,14 @@ OpenTelemetry metrics Claude Code exports, so this repository's usage separates
 from every other repository sharing an account or a cloud environment. It
 configures nothing else — no endpoint, no credential, no
 `CLAUDE_CODE_ENABLE_TELEMETRY` — so a contributor who has never set telemetry up
-sees no behavior change from it. Verifying a change to that block is the catch:
+sees no behavior change from it. The two CI workflows tag their own sessions
+instead, each in its own way: the reviewer through a settings file written
+outside the tree, and the discovery evaluation through the environment of the
+step that spawns the CLI. That second path has a filter in it — `overlay.mjs`
+withholds every credential-shaped variable name from the evaluation subprocess,
+so a telemetry variable reaches a probe only by being on its allowlist, and
+adding one means editing that list rather than hoping the filter misses it.
+Verifying a change to any of this is the catch:
 Claude Code does not pass `OTEL_*` variables to the subprocesses it spawns, so
 `echo $OTEL_RESOURCE_ATTRIBUTES` inside a session prints nothing even when the
 exporter holds the value. Confirm it in the metrics backend instead, against a
@@ -855,10 +862,13 @@ billing. See the header of
 
 A third pair of names is optional, and telemetry stays off until you add it.
 Set the repository variable `CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT` and the
-repository secret `CLAUDE_OTEL_EXPORTER_OTLP_HEADERS`, and every review session
-exports its Claude Code metrics and events to that OTLP collector; leave them
-unset and the workflow disables telemetry outright rather than starting an
-exporter that fails, so the reviewer behaves exactly as it does today. The
+repository secret `CLAUDE_OTEL_EXPORTER_OTLP_HEADERS`, and both workflows that
+run the CLI export their Claude Code metrics and events to that OTLP collector —
+every review session under `workflow=claude_review`, and every probe the
+[discovery evaluation](#reporting-not-gating) spawns under
+`workflow=discovery_eval` plus an `eval_mode` naming the dispatch mode; leave
+them unset and the workflows disable telemetry outright rather than starting an
+exporter that fails, so both behave exactly as they do today. The
 `CLAUDE_` prefix is deliberate: a project cloning this workflow may already keep
 `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` for its own
 application telemetry, and neither configuration should overwrite the other.

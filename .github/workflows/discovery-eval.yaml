@@ -40,15 +40,35 @@ name: Discovery Evaluation
 # `name:` field inside the head file. The `grep` filter below is convenience;
 # the allowlist is the security property, and it is unit-tested.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 4 of 4 — the evaluation subprocess is
-# credential-free. Skills are prompt content, so allowlisted head text does
-# reach a model. What that model can then do is nothing: one turn, only the
-# `Skill` tool, no Bash, no network fetch. GITHUB_TOKEN is not in the
-# evaluation step's environment, and overlay.mjs strips anything
-# credential-shaped from what it inherits regardless.
+# ── LOAD-BEARING SAFETY PROPERTY 4 of 4 — the evaluation subprocess carries
+# only the credentials it cannot work without. Skills are prompt content, so
+# allowlisted head text does reach a model. What that model can then do is
+# nothing: one turn, only the `Skill` tool, no Bash, no network fetch.
+# GITHUB_TOKEN is not in the evaluation step's environment, and overlay.mjs
+# withholds anything credential-shaped from what it inherits regardless.
+#
+# Exactly three names cross that filter, each by an explicit allowlist entry
+# rather than by the shape of its name: CLAUDE_CODE_OAUTH_TOKEN and
+# ANTHROPIC_API_KEY, without which the subprocess cannot authenticate at all,
+# and OTEL_EXPORTER_OTLP_HEADERS, whose VALUE is the telemetry credential
+# below. The bound above is what makes all three safe, and it is the same
+# bound in each case — a probe with no tools cannot read an environment back
+# out. Adding a fourth is a deliberate edit to that allowlist, with the unit
+# tests that go with it, and never a matter of picking a name the filter
+# happens to miss.
 #
 # Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
 # claude-review.yaml already uses. No new secret, and no label, is required.
+#
+# Optional, for telemetry: the same two names claude-review.yaml documents —
+# the repo variable CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT and the repo secret
+# CLAUDE_OTEL_EXPORTER_OTLP_HEADERS (#146). Unset, no exporter starts and a
+# run behaves exactly as it did before. Set, every probe reports as its own
+# session under `workflow=discovery_eval`. Grafana Cloud accepts ONLY
+# cumulative temporality, answering Claude Code's delta default with `400 otlp
+# parse error: invalid temporality and type combination` and discarding the
+# whole request silently (#151) — hence the temporality variable on the
+# evaluation step.
 #
 # `emit_baseline` affects NONE of the four properties above. It adds one flag
 # that makes the runner print an extra block, and one step that lifts that block
@@ -238,11 +258,57 @@ jobs:
 
           echo "staged_dir=${staged}" >> "$GITHUB_OUTPUT"
 
-      # SAFETY PROPERTY 4 — no GITHUB_TOKEN in this step's environment. The only
-      # secret present is the one the CLI needs to authenticate at all.
+      # SAFETY PROPERTY 4 — no GITHUB_TOKEN in this step's environment. The
+      # secrets present are the one the CLI needs to authenticate at all and
+      # the one the exporter needs to ship what it measures.
+      #
+      # STEP-LEVEL, deliberately unlike claude-review.yaml's job-level block.
+      # That workflow needs the job context because claude-code-action forwards
+      # from it; here run.mjs spawns the CLI itself, so this step's environment
+      # IS the wiring — and this workflow already scopes GITHUB_TOKEN to the
+      # steps that need it. A job-level block would hand the ingestion
+      # credential to the staging step, beside GITHUB_TOKEN, for no benefit.
+      #
+      # No settings file is written, and none is needed: the scratch workspace
+      # holds .claude/skills and nothing else, and the probe runs with
+      # `--setting-sources project`, so there is no settings `env` block to
+      # outrank the process environment the way #152 had to work around.
       - name: Run the evaluation
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Gating enablement on the endpoint variable keeps observability from
+          # becoming a dependency of the evaluation: unset, no exporter starts.
+          CLAUDE_CODE_ENABLE_TELEMETRY: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT != '' && '1' || '0' }}
+          OTEL_METRICS_EXPORTER: otlp
+          OTEL_LOGS_EXPORTER: otlp
+          # Claude Code has no default protocol; Grafana Cloud's gateway is HTTP.
+          OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.CLAUDE_OTEL_EXPORTER_OTLP_HEADERS }}
+          # Without this every metrics push is discarded; see the header.
+          OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: cumulative
+          # Shorter than the reviewer's 10s/5s because the unit of work is
+          # different: a review is one session of minutes, while this is one
+          # session per probe — a whole fixture's worth of them, each lasting
+          # seconds. A session is documented to flush at exit, but a probe exits
+          # through `--max-turns 1` — a deliberate non-zero termination — so
+          # these are the insurance that does not depend on that path flushing.
+          # Under cumulative temporality an extra push repeats a cumulative
+          # value rather than adding a count.
+          OTEL_METRIC_EXPORT_INTERVAL: "5000"
+          OTEL_LOGS_EXPORT_INTERVAL: "2000"
+          # `workflow` is what separates these probes from the reviewer's
+          # sessions, which carry workflow=claude_review. `eval_mode` separates
+          # the three dispatch modes from each other: a 30-probe determinism run
+          # and a full fixture run are otherwise indistinguishable.
+          #
+          # The mode expression mirrors the concurrency group above line for
+          # line, and for the same reasons: determinism is evaluated FIRST, so a
+          # determinism run that also names a pull request is still reported as
+          # one, and each input is read through the context its own comment
+          # requires — `inputs` for the typed, defaulted emit_baseline,
+          # `github.event.inputs` for the untyped determinism.
+          OTEL_RESOURCE_ATTRIBUTES: repository=skills,ci=github_actions,workflow=discovery_eval,eval_mode=${{ github.event.inputs.determinism && 'determinism' || (inputs.emit_baseline && 'baseline' || 'report') }}
         run: |
           set -euo pipefail
           # Passed ONLY when the dispatcher asked for a specific count. Left
