@@ -454,7 +454,13 @@ describe("report-obligation-load.mjs", () => {
       // And two more in #231, from the twelve bytes the description's
       // `exposes and permits one` clause adds. A frontmatter-only edit, so no
       // obligation moved — only the byte total this figure divides.
-      expect.soft(totals.floorTokens).toBe(8_231);
+      // And 87 more in #251, which rewrote the Execution Model's machine-event
+      // resume trigger around event delivery, split the routing bullet that
+      // named the tail's cadence in two, and re-derived the Termination Guard's
+      // dormancy cap from the awaited work's own declared timeout. SKILL.md
+      // body prose only — no obligation was added or removed there, which is
+      // why the floor count stands still while its byte total moves.
+      expect.soft(totals.floorTokens).toBe(8_318);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -564,7 +570,17 @@ describe("report-obligation-load.mjs", () => {
       // the human's request), plus one in pre-flight-review.md pointing the
       // reader's spawn at the same branch. All seven land in reference files,
       // which is why the floor above does not move with them.
-      expect.soft(totals.ceilingObligations).toBe(419);
+      // And two more in #251, both in independent-review.md's waiting tail:
+      // keep the fallback self-wake scheduled even while a subscription is
+      // active, because delivery is not documented to carry the success
+      // transitions the ready flip turns on; and do not tune a wake to the
+      // harness's prompt-cache TTL, which is a property of the session rather
+      // than of the awaited work. The two rules they joined were reworded
+      // rather than added to — the self-wake rule became a mechanism-resolution
+      // rule, and the fixed 4-then-10-minute cadence became a derivation from
+      // the pending checks' own completion profiles. Both land in a reference
+      // file, which is why the floor count above does not move with them.
+      expect.soft(totals.ceilingObligations).toBe(421);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -619,7 +635,14 @@ describe("report-obligation-load.mjs", () => {
       // that lifts it.
       // And two more in #231, the same twelve description bytes reaching this
       // figure through the same SKILL.md the floor above counts.
-      expect.soft(totals.ceilingTokens).toBe(39_197);
+      // And 654 more in #251: the two obligations above plus the prose that
+      // makes them follow-able — the two paragraphs separating event delivery
+      // from a scheduled self-wake and stating why delivery alone can leave a
+      // finished change waiting, and the paragraph deriving each wake from the
+      // pending checks' completion profiles with the reference project's own
+      // runs as the worked example. The premise sentence those replaced had
+      // asserted that nothing wakes the session at all.
+      expect.soft(totals.ceilingTokens).toBe(39_851);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -676,10 +699,13 @@ describe("report-obligation-load.mjs", () => {
       // base is what surfaced the other half still to move.
       // #231 moved both copies too, and moved neither obligation count: its
       // twelve bytes are frontmatter, which the report weighs but no rule lives in.
+      // #251 moved both copies as well — three of the four figures, leaving
+      // only the floor obligation count, since both rules it adds live in a
+      // reference file rather than in SKILL.md's body.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_231);
-      expect.soft(tiers[2].ceilingObligations).toBe(419);
-      expect.soft(tiers[2].ceilingTokens).toBe(39_197);
+      expect.soft(tiers[2].floorTokens).toBe(8_318);
+      expect.soft(tiers[2].ceilingObligations).toBe(421);
+      expect.soft(tiers[2].ceilingTokens).toBe(39_851);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -698,8 +724,8 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(419);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(419);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(421);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(421);
     });
 
     it("prints no tier block without --mandated", async () => {

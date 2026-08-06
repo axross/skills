@@ -18,7 +18,7 @@ The case for running review outside the session is usually stated as one propert
 | **Absence visibility** — a review that never ran is externally observable               | yes                                         | **no** — a stage never entered leaves no gap                               |
 | **Policy-source independence** — the policy is not the one this change edits            | yes                                         | **partly** — recovered by the merge-base read below                        |
 | **Environment independence**                                                            | yes                                         | **no** — shares the checkout, uncommitted state included                   |
-| **Cost**                                                                                | consumes the polling tail and the round cap | **seconds to minutes**, consumes neither                                   |
+| **Cost**                                                                                | consumes the waiting tail and the round cap | **seconds to minutes**, consumes neither                                   |
 
 Absence visibility is the one no arrangement here recovers, because the reviewed party holds the report. It is an accepted limit, and a reason the external review stays exactly as it is.
 
