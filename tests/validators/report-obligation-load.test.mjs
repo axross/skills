@@ -454,7 +454,16 @@ describe("report-obligation-load.mjs", () => {
       // And two more in #231, from the twelve bytes the description's
       // `exposes and permits one` clause adds. A frontmatter-only edit, so no
       // obligation moved — only the byte total this figure divides.
-      expect.soft(totals.floorTokens).toBe(8_231);
+      // And 38 more in #246, entirely from SKILL.md's own body: the Delegated
+      // Implementation routing line for implementation-worker.md grew to
+      // describe the preflight's reachability check for every required
+      // manifest entry rather than only the `visual` one, and the routing line
+      // for the worker-definition section grew to name the one channel a
+      // definition may never withdraw. Both are routing-bullet prose outside a
+      // Guidelines block, so no obligation moved with them — only the bytes
+      // this figure divides. The reference-file edits behind those two lines
+      // (below) moved the ceiling instead.
+      expect.soft(totals.floorTokens).toBe(8_269);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -564,7 +573,19 @@ describe("report-obligation-load.mjs", () => {
       // the human's request), plus one in pre-flight-review.md pointing the
       // reader's spawn at the same branch. All seven land in reference files,
       // which is why the floor above does not move with them.
-      expect.soft(totals.ceilingObligations).toBe(419);
+      // And one more in #246, net across three reference files. The channel
+      // rule that told a worker definition to withdraw the harness's GitHub
+      // channel had been stated twice — once for the worker in
+      // implementation-worker.md, once for the reader in
+      // pre-flight-review.md — and this change reverses and moves it: a
+      // single MUST NOT replaces the worker's old SHOULD in
+      // implementation-worker.md (net zero there), pre-flight-review.md's copy
+      // is deleted outright (-1), and implementation-package.md gains two new
+      // obligations of its own — the tracking issue's thread as a required
+      // manifest entry beside the plan, and the main actor's in-package
+      // carriage route for a required entry no worker channel reaches (+2).
+      // -1 + 2 nets +1.
+      expect.soft(totals.ceilingObligations).toBe(420);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -619,7 +640,18 @@ describe("report-obligation-load.mjs", () => {
       // that lifts it.
       // And two more in #231, the same twelve description bytes reaching this
       // figure through the same SKILL.md the floor above counts.
-      expect.soft(totals.ceilingTokens).toBe(39_197);
+      // And 354 more in #246 — the floor's own 38 plus roughly 315 from the
+      // net reference-file bytes behind the obligation move above:
+      // implementation-worker.md's two swapped bullets grew on net (the
+      // compatibility-preflight rule generalizing past `visual`, and the
+      // worker-definition rule replacing a withdrawal with a prohibition and
+      // the reasoning it takes to state one instead of the other),
+      // implementation-package.md grew by two new obligations and the prose
+      // introducing them, and pre-flight-review.md shrank by the one bullet
+      // it no longer states. Each figure rounds its own byte total
+      // independently, which is the whole of the difference between 38 + 315
+      // and 354.
+      expect.soft(totals.ceilingTokens).toBe(39_551);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -676,10 +708,15 @@ describe("report-obligation-load.mjs", () => {
       // base is what surfaced the other half still to move.
       // #231 moved both copies too, and moved neither obligation count: its
       // twelve bytes are frontmatter, which the report weighs but no rule lives in.
+      // #246 moved both copies too, by the same figures explained above: the
+      // floor by SKILL.md's own routing prose, the ceiling obligation count by
+      // the channel rule moving from a duplicated SHOULD to a single MUST NOT
+      // plus implementation-package.md's two new obligations, and the ceiling
+      // tokens by the net bytes behind both.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_231);
-      expect.soft(tiers[2].ceilingObligations).toBe(419);
-      expect.soft(tiers[2].ceilingTokens).toBe(39_197);
+      expect.soft(tiers[2].floorTokens).toBe(8_269);
+      expect.soft(tiers[2].ceilingObligations).toBe(420);
+      expect.soft(tiers[2].ceilingTokens).toBe(39_551);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -698,8 +735,8 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(419);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(419);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(420);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(420);
     });
 
     it("prints no tier block without --mandated", async () => {
