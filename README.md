@@ -647,33 +647,18 @@ into your own project too.
 ### Delivering a unit of work end-to-end
 
 [Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
-repository's default change loop. It runs **model-invoked** — there is no
-slash command; describe the work (a GitHub issue, a pull request, or a free-form
-prompt) and the loop drives it from intake to a merge-ready pull request in a
-single continuing session:
+repository's default change loop, and this repository mandates it: every change
+here goes through it, whatever its size. It runs **model-invoked** — there is no
+slash command. Name the work and it drives that work to a merge-ready pull
+request in one continuing session, stopping for you wherever a decision is
+yours to make. The skill states its stages, where it stops, and what it caps.
 
-1. **Plan** — reads the issue and its thread, asks you the scope questions the
-   spec leaves open, and rewrites the issue body into a reviewable plan with
-   acceptance criteria. It then **always pauses for your approval**: nothing
-   gets built until you review the plan and tell it to continue.
-2. **Code + verify** — implements the approved plan on an agent-namespaced
-   `claude/` branch, runs the checks the change requires, and self-reviews the
-   diff.
-3. **Independent review** — opens a draft pull request and requests the CI
-   reviewer, a separate bot session, so the change's author never certifies its
-   own work.
-4. **Address** — fixes review findings and CI failures, tying each resolved
-   thread to the resolving commit, for up
-   to <!-- count:address-review-round-cap -->eight<!-- /count --> rounds.
-5. **Ready** — flips the pull request to ready once CI is green and the review
-   is clean. Merging always stays a human decision.
+Kick it off by naming what to deliver — "deliver issue #42", "pick up PR 57", or
+a description of the change with no issue behind it yet. To carry on after it
+stops, continue the session and tell it to.
 
-Kick it off by naming the work — "deliver issue #42", "pick up PR 57", or a
-free-form request (with no issue yet, it files a tracking issue first, then
-delivers it). To approve a paused plan or resume after a question, continue the
-session and tell it to continue.
-
-**Step 2 runs in a subagent here, and that subagent is also the worked example.**
+**Implementation runs in a subagent here, and that subagent is also the worked
+example.**
 [`.claude/agents/implementer.md`](./.claude/agents/implementer.md) pins a
 lower-cost model and effort — a worker that inherits the session's runs at the
 main actor's cost, which defeats the point — and states the delivery boundary in
@@ -725,8 +710,8 @@ One check backs the loop from outside any session:
 sweeps hourly and flags any `claude/` branch pushed ahead of the default branch
 with no open pull request — work delivered outside the loop, and so never
 independently reviewed. It is deliberately a scheduled sweep rather than a
-push-triggered gate, because step 2 legitimately pushes before step 3 opens the
-pull request; a grace window skips a branch whose latest commit is still fresh.
+push-triggered gate, because implementation legitimately pushes before the pull
+request opens; a grace window skips a branch whose latest commit is still fresh.
 
 ### `@claude review` — get findings on any PR
 
@@ -735,7 +720,7 @@ policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line
 evidence and concrete fixes, posted as inline comments by the CI reviewer
 ([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
 pre-merge check on a hand-written change or a second opinion before merging. It
-is the same reviewer the change loop relies on: step 3 above requests it by
+is the same reviewer the change loop relies on: the loop requests it by
 posting that comment itself, so no review starts without one.
 
 Two things make it stay silent. It answers **repository owners, members, and
