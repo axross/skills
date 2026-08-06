@@ -101,8 +101,8 @@ matter beyond functional behavior; otherwise omit with a stated reason.)_
 - <One observable happy-path behavior a reviewer can verify from the diff or the
   running product without reading implementation code.>
 - <One relevant edge/disabled/empty/error-state behavior.>
-- <An explicit "X is unaffected" criterion, when this change sits next to something
-  that must stay untouched.>
+- <An explicit "X is unaffected" criterion stating the property that must survive,
+  when this change sits next to something that must stay untouched.>
   _(Plain bullets, not `- [ ]` checkboxes. Every criterion traces to the sections
   above. See acceptance-criteria.md.)_
 

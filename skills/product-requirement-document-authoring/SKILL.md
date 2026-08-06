@@ -79,6 +79,7 @@ See [acceptance-criteria.md](./references/acceptance-criteria.md) for:
 - writing criteria a reviewer can verify independently, without reading implementation code
 - preferring concrete, checkable phrasing over adjectives
 - covering the happy path, edge/error/empty states, and explicit non-effects
+- phrasing an unaffected criterion as the property that must survive, not a mechanical proxy standing in for it
 - right-sizing the checklist and tracing every criterion back to the rest of the spec
 
 ## Verification Strategy Craft
