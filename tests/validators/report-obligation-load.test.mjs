@@ -771,7 +771,13 @@ describe("report-obligation-load.mjs", () => {
       // question-routing back to asking-the-human.md — it had described the
       // status block as a fallback channel the human is asked through, which
       // that file explicitly says it is not.
-      expect.soft(totals.ceilingTokens).toBe(42_439);
+      // And 17 last from round 3, finishing the same job: three places still
+      // said "the ledger" where they meant the status block's durable entries,
+      // inside the very section named Ledger Durability. Two now say entries,
+      // and the definition itself grew to cover a finding's disposition and the
+      // reason behind it, which Dismissal Authority had been recording there
+      // all along without the definition admitting it.
+      expect.soft(totals.ceilingTokens).toBe(42_456);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -848,7 +854,7 @@ describe("report-obligation-load.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(26);
       expect.soft(tiers[2].floorTokens).toBe(8_478);
       expect.soft(tiers[2].ceilingObligations).toBe(435);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_439);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_456);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

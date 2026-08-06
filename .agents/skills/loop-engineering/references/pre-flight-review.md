@@ -12,7 +12,7 @@ The case for running review outside the session is usually stated as one propert
 
 | Property                                                                                | External review                             | Pre-flight review                                                          |
 | --------------------------------------------------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------- |
-| **Context independence** — no memory of its own decisions, no anchoring on its own plan | yes                                         | **partly** — recovered by the ledger's write/clear pairing below           |
+| **Context independence** — no memory of its own decisions, no anchoring on its own plan | yes                                         | **partly** — recovered by the ledger entries' write/clear pairing below    |
 | **Input independence** — reviews the diff, not the author's narration of it             | yes                                         | **partly** — recovered by fixing the input source below                    |
 | **Verdict independence** — the reviewed party cannot suppress a finding                 | yes                                         | **partly** — recovered for Critical and Major by the dismissal split below |
 | **Absence visibility** — a review that never ran is externally observable               | yes                                         | **no** — a stage never entered leaves no gap                               |
@@ -82,7 +82,7 @@ The main actor translates findings into implementation instructions, and that tr
 
 Each finding carries a stable identifier, a severity, a `file:line` citation, the claim, and a suggested fix — the shape the project's review policy already requires of review output. This is a protocol, not a transcript.
 
-That protocol — the full finding set, with every attribute above — is **the ledger**, and it lives in session state for the run's own duration. The status block never mirrors it directly; it carries only a bounded, conditional durable subset, on the terms [Ledger Durability](#ledger-durability) below states.
+That protocol — the full finding set with every attribute above, plus each finding's disposition and the reason behind it as the run settles them — is **the ledger**, and it lives in session state for the run's own duration. The status block never mirrors it directly; it carries only a bounded, conditional durable subset, on the terms [Ledger Durability](#ledger-durability) below states.
 
 **Guidelines:**
 
@@ -102,7 +102,7 @@ What earns durability is what a fresh session cannot re-derive: a fresh review w
 - MUST write every **open** finding's identifier, severity, and citation to the status block when the run parks on either question above.
 - MUST clear those finding entries from the status block on resume, before any further review worker is spawned. Pairing this clear rule with the write rule above is what makes the two states mutually exclusive; neither rule alone would.
 - MUST NOT write a finding's disposition, dismissal reason, claim text, or suggested-fix text to the status block, and MUST NOT write a resolved finding — identifier, severity, and citation are the entry's ceiling as well as its floor.
-- MUST re-run the pre-flight review from scratch wherever the status block shows no recoverable ledger, whether the entries were never written because the run had not yet parked or because the block cannot be read back, and MUST NOT treat the stage as complete on a ledger it cannot show.
+- MUST re-run the pre-flight review from scratch wherever the status block shows no recoverable ledger entries, whether they were never written because the run had not yet parked or because the block cannot be read back, and MUST NOT treat the stage as complete on entries it cannot show.
 
 ## Dismissal Authority
 
