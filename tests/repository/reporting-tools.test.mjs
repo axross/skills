@@ -74,6 +74,19 @@ const REPORTING_TOOLS = [
     // guarantee is asserted through --dry-run instead.
     runnable: false,
   },
+  {
+    script: SCRIPTS.probe,
+    // Matched by PATH for the same reason as its discovery-side sibling above:
+    // "probe.mjs" alone is too generic to assert anything.
+    needle: "scripts/value-eval/probe.mjs",
+    // No workflow may name it at all. The discovery evaluation earns one
+    // because a maintainer dispatches it; this has no such entry point yet,
+    // and until it does, any workflow naming it is a wiring mistake.
+    workflow: null,
+    // Same reason as above: it drives the real CLI, so a run here would be
+    // both chargeable and non-deterministic.
+    runnable: false,
+  },
 ];
 
 const label = (tool) => tool.script;

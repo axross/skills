@@ -335,6 +335,7 @@ because `format.sh` reads the edited path from a Claude Code payload field.
 | Rule duplication | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
 | Link freshness   | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
 | Product spec     | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
+| Skill value      | `scripts/value-eval/` (pilot; `probe.mjs` reports and never gates)                    |
 
 ### Commands
 
@@ -505,6 +506,38 @@ identical bullets may be one rule with two sources of truth (which
 [`REVIEW.md`](./REVIEW.md) rates Major) or a portable skill standing on its own
 (which is correct). Only intent separates them, and intent is not in the corpus.
 The ranking is a place to look; a human decides.
+
+#### The value-eval pilot's two scripts
+
+These belong to the pilot tracked in
+[#235](https://github.com/axross/skills/issues/235) and are deliberately left
+out of the numbering above: that ordinal counts the settled tooling, and these
+two are provisional until the pilot reports.
+
+```bash
+node scripts/value-eval/materialize.mjs --help
+node scripts/value-eval/probe.mjs --help
+node scripts/value-eval/probe.mjs --dry-run …
+```
+
+`materialize.mjs` expands a mock project from [`examples/`](./examples) into an
+isolated temporary directory as a real Git repository — replaying its
+`history.jsonc` with pinned identity and dates so two materializations produce
+identical commit hashes — and installs a chosen set of skills into it. It needs
+no network and no secret, and `npm test` exercises it.
+
+`probe.mjs` runs one task in such a workspace against the real CLI and records
+what the model did. **It costs real money per run and it never gates**, for the
+same three reasons `discovery-eval/run.mjs` does not, and it is held out of
+every gate, npm script, and hook by the same test. `--dry-run` validates
+without spawning anything.
+
+One rule is specific to it and is not a preference. The probe permits `Bash`
+and the editing tools, which its discovery-side sibling denies because that
+workspace may hold attacker-authored skill text from a pull request head. So
+this probe runs **only against merged text** and must never be given a
+pull-request head overlay — the same reasoning that keeps
+[`link-freshness.yaml`](./.github/workflows/link-freshness.yaml) on a schedule.
 
 #### Scheduled, and off the merge path
 
