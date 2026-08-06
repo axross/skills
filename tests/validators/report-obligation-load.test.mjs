@@ -645,17 +645,22 @@ describe("report-obligation-load.mjs", () => {
       // that lifts it.
       // And two more in #231, the same twelve description bytes reaching this
       // figure through the same SKILL.md the floor above counts.
-      // And 814 more in #244, split across three files: implementation-worker.md
+      // And 960 more in #244, split across three files: implementation-worker.md
       // for the rewritten policy branch and the five-outcome recording
       // requirement, run-state-and-reporting.md for the delegation-permission
       // determination the completion summary and status block now carry,
       // and the same 269 SKILL.md bytes the floor above already counts.
-      // Roughly 300 of the 814 are that change's own pre-flight review round:
-      // the third route by which permission counts as established (a harness
-      // that says nothing about delegation has not withheld it), and the
-      // outcome that covers an unasked run without calling it a decline.
-      // Both were regressions the review caught before the pull request opened.
-      expect.soft(totals.ceilingTokens).toBe(40_011);
+      // Roughly half of the 960 are that change's own two pre-flight review
+      // rounds, and both caught a rule that over-asked. The first added the
+      // route by which silence counts as permission — a harness that says
+      // nothing about delegation has not withheld it — and the outcome that
+      // covers an unasked run without calling it a decline. The second turned
+      // the determination into three results rather than two, because an
+      // outright bar had fallen into the same bucket as an unclassifiable
+      // policy: the run would have asked a question no answer could lift, and
+      // the absolute-policy outcome had become unreachable. Neither reached the
+      // pull request.
+      expect.soft(totals.ceilingTokens).toBe(40_157);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -718,7 +723,7 @@ describe("report-obligation-load.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(26);
       expect.soft(tiers[2].floorTokens).toBe(8_288);
       expect.soft(tiers[2].ceilingObligations).toBe(424);
-      expect.soft(tiers[2].ceilingTokens).toBe(40_011);
+      expect.soft(tiers[2].ceilingTokens).toBe(40_157);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
