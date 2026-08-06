@@ -91,16 +91,17 @@ read by someone meeting a term in a sentence who decides, in that moment,
 whether they already know it. Compare each candidate against what its own words
 ordinarily mean, and take the one composing closest to the definition — that
 reader pays nothing. A reader meeting `Template` knows the English word and
-moves on; **Job Template**, as the example above has it, is what makes them stop.
+moves on with the wrong meaning; one meeting **Job Template**, as the example
+above has it, already knows what it holds before reaching the entry.
 
 Where nothing composes exactly, the remaining candidates are not equally priced.
 One that visibly does not compose costs a lookup: paid once, and knowingly. One
 that composes to something _nearly_ right costs more, and invisibly, because the
 reader never stops, and every sentence built on the term inherits the meaning
 they brought to it. Naming the stretch between a **Job** stopping and its record
-being written, `Job quiet period` sends the reader to the entry because nothing
-about it is obvious; `Job end` sends them nowhere, because it composes to the
-moment the job stopped — where the stretch begins, not what it is. So prefer the
+being written, `Job window` sends the reader to the entry: they can see it names
+some span and not which one. `Job end` sends them nowhere, because it composes to
+the moment the job stopped — where the stretch begins, not what it is. So prefer the
 visibly incomplete term to the plausibly wrong one, and give a bare word a
 qualifier whenever its ordinary meaning is wider, narrower, or merely adjacent to
 what the entry says.
@@ -127,8 +128,7 @@ near-misses each miss along one axis.
   the entry says — so a bare word already meaning exactly that stays bare, and
   one meaning something wider, narrower, or adjacent takes the qualifier that
   closes the gap; where no candidate composes exactly, prefer the term a reader
-  can see they do not know to one they will mistake for a word they do. Whether
-  a word's ordinary meaning matches the definition given is a reading, so no
+  can see they do not know to one they will mistake for a word they do, and no
   check can see this either.
 - MUST mark a defined term where it appears in another entry — bold is enough —
   rather than linking to it. The file is small by construction, so an in-file
