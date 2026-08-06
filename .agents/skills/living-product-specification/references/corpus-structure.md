@@ -89,10 +89,11 @@ says which spec owns it.
 words it is made of set that cost.** A glossary is not read front to back; it is
 read by someone meeting a term in a sentence who decides, in that moment,
 whether they already know it. Compare each candidate against what its own words
-ordinarily mean, and take the one composing closest to the definition — that
-reader pays nothing. A reader meeting `Template` knows the English word and
-moves on with the wrong meaning; one meeting **Job Template**, as the example
-above has it, already knows what it holds before reaching the entry.
+ordinarily mean, and take the one composing closest to the definition. Where one
+composes exactly, that reader pays nothing: a reader meeting `Template` knows
+the English word and moves on with the wrong meaning, while one meeting **Job
+Template**, as the example above has it, already knows what it holds before
+reaching the entry.
 
 Where nothing composes exactly, the remaining candidates are not equally priced.
 One that visibly does not compose costs a lookup: paid once, and knowingly. One
@@ -101,14 +102,14 @@ reader never stops, and every sentence built on the term inherits the meaning
 they brought to it. Naming the stretch between a **Job** stopping and its record
 being written, `Job window` sends the reader to the entry: they can see it names
 some span and not which one. `Job end` sends them nowhere, because it composes to
-the moment the job stopped — where the stretch begins, not what it is. So prefer
-the visibly incomplete term to the plausibly wrong one, and give a bare word a
-qualifier whenever its ordinary meaning is wider, narrower, or merely adjacent to
-what the entry says.
+the moment the job stopped — where the stretch begins, not what it is. So the
+visibly incomplete term costs less than the plausibly wrong one, and a bare word
+whose ordinary meaning is wider, narrower, or merely adjacent to what the entry
+says costs most of all.
 
 A qualifier earns its place only when the compound composes to the thing itself.
-Say the corpus above needs a term for the record of what one **Job** produced,
-kept after the job is gone: **Job output** composes to exactly that, and three
+Say the corpus above needs a term for what one **Job** produced, kept after the
+job itself is gone: **Job output** composes to exactly that, and three
 near-misses each miss along one axis.
 
 | Candidate        | Composes to                  | Axis it misses                                                                |
@@ -117,10 +118,10 @@ near-misses each miss along one axis.
 | `Failure output` | what the failures produced   | **how much** — narrower than the thing, which records successful **Jobs** too |
 | `Completed job`  | the execution, once finished | **what kind** — the execution itself, where the thing is what it left behind  |
 
-One case sits outside all of this. Seeding a glossary collects vocabulary that
-already exists, so recording what a team actually says — imperfect words
-included — comes first there, and the rule below governs the rename that may
-follow rather than the capture.
+One case sits outside all of this: seeding a glossary from the code and from a
+team's own usage, which [bootstrapping.md](./bootstrapping.md)'s Seeding the
+Glossary section governs in full. The closest-composing guideline below governs
+the rename that may follow the capture, not the capture itself.
 
 **Guidelines:**
 
@@ -130,9 +131,9 @@ follow rather than the capture.
   the term means and where it sits without opening anything else. An entry that
   only redirects has stopped paying for itself, and no check can see that.
 - MUST choose the term whose words' ordinary meaning composes closest to what
-  the entry says, wherever a term is being chosen rather than seeded from a
-  team's existing usage — so a bare word already meaning exactly that stays
-  bare, and one meaning something wider, narrower, or adjacent takes the
+  the entry says, wherever a term is being chosen rather than seeded from the
+  code or the team's own usage — so a bare word already meaning exactly that
+  stays bare, and one meaning something wider, narrower, or adjacent takes the
   qualifier that closes the gap; where no candidate composes exactly, prefer the
   term a reader can see they do not know to one they will mistake for a word
   they do, and no check can see this either.
