@@ -450,21 +450,21 @@ export const CLAIMS = {
   "first-reporting-tool-ordinal": {
     owner:
       "one past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above splits the same total across four comments — "three gates", "Five more", "One more", and "Two more" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: 'the code fence above splits the same total across four comments — "three gates", "Five more", "One more", and "Three more" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 1,
   },
 
   "second-reporting-tool-ordinal": {
     owner:
       "two past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above splits the same total across four comments — "three gates", "Five more", "One more", and "Two more" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: 'the code fence above splits the same total across four comments — "three gates", "Five more", "One more", and "Three more" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 2,
   },
 
   "third-reporting-tool-ordinal": {
     owner:
       "three past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above splits the same total across four comments — "three gates", "Five more", "One more", and "Two more" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: 'the code fence above splits the same total across four comments — "three gates", "Five more", "One more", and "Three more" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 3,
   },
 

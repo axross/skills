@@ -97,7 +97,7 @@ export const GATES = [
     // Vacuous today, and the pattern says so rather than pretending otherwise:
     // the corpus has no `specs/` yet, so this reports "Nothing to check". The
     // teeth case is what establishes it can fail meanwhile. Tighten the pattern
-    // to the spec-counting form once #241 adds the first spec.
+    // to the spec-counting form once #247 adds the first spec.
     name: "corpus-glossary",
     script: SCRIPTS.checkGlossary,
     args: ["docs"],
