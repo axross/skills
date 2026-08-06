@@ -72,6 +72,49 @@ export const GATES = [
     args: ["skills", ".claude/skills"],
     passes: /All \d+ distributable skill\(s\) match their installed copies\./,
   },
+  // The five checks living-product-specification bundles, run over this
+  // repository's own corpus. They are deliberately five commands rather than
+  // one: each answers for one kind of edit, so an author who wrote a decision
+  // record is not made to read findings about the glossary.
+  //
+  // Each names `docs` rather than leaning on the same default, so the argument
+  // is visible here alongside every other gate's — and so a teeth case can
+  // plant a corpus under a throwaway root and run this exact invocation with
+  // nothing but `cwd` changed.
+  {
+    name: "corpus-index",
+    script: SCRIPTS.checkIndex,
+    args: ["docs"],
+    passes: /Every document is listed in index\.md \(\d+ indexed/,
+  },
+  {
+    name: "corpus-references",
+    script: SCRIPTS.checkReferences,
+    args: ["docs"],
+    passes: /Every relative link resolves \(\d+ across \d+ documents\)\./,
+  },
+  {
+    // Vacuous today, and the pattern says so rather than pretending otherwise:
+    // the corpus has no `specs/` yet, so this reports "Nothing to check". The
+    // teeth case is what establishes it can fail meanwhile. Tighten the pattern
+    // to the spec-counting form once #247 adds the first spec.
+    name: "corpus-glossary",
+    script: SCRIPTS.checkGlossary,
+    args: ["docs"],
+    passes: /Every spec has a heading in glossary\.md \(\d+ checked\)\.|No specs\/ under docs\./,
+  },
+  {
+    name: "decision-naming",
+    script: SCRIPTS.checkDecisionNaming,
+    args: ["docs"],
+    passes: /Every decision filename conforms \(\d+ checked\)\./,
+  },
+  {
+    name: "decision-supersede",
+    script: SCRIPTS.checkDecisionSupersede,
+    args: ["docs"],
+    passes: /The supersede chain is sound and nothing cites replaced rationale/,
+  },
 ];
 
 /** One gate by name. Throws rather than returning undefined, so a rename fails loudly. */
