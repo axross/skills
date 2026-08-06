@@ -28,6 +28,7 @@ Where the optional pre-flight review runs, its round number and waiting state jo
 
 - MUST NOT duplicate the commit list into the status block; Git history and the completion receipt stay authoritative for individual commits.
 - MUST keep opaque worker identifiers, transcript paths, and other ephemeral harness details in session state rather than writing them to GitHub.
+- MUST treat a status-block entry that names no determination as invalid; the delegation-permission field carries one of the three results — permitted, barred, or undetermined — together with the policy text quoted or the no-restricting-policy observation from [implementation-worker.md](./implementation-worker.md#a-spawn-the-harnesss-policy-blocks).
 
 ## Reporting a Delegated Run
 
