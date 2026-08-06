@@ -66,8 +66,8 @@
 
 **Tally** — the record of how many **probes** selected each **skill** for one **case**, which is what makes the result a distribution rather than a single verdict.
 
-**Baseline** — a recorded set of **tallies** that a later run is compared against, so a result reads as a change rather than as a bare score.
+**Snapshot** — a recorded set of **tallies** that a later run is compared against, so a result reads as a change rather than as a bare score.
 
-**Corpus fingerprint** — a digest of each **skill**'s **description**, stored alongside a **baseline**, so a comparison can say whether the text **discovery** reads has moved since the **baseline** was recorded.
+**Corpus fingerprint** — a digest of each **skill**'s **description**, stored alongside a **snapshot**, so a comparison can say whether the text **discovery** reads has moved since the **snapshot** was recorded.
 
-**Unmeasured declaration** — a **case** a **baseline** records as never measured, so a gap in coverage is stated rather than inferred from an absent number.
+**Unmeasured declaration** — a **case** a **snapshot** records as never measured, so a gap in coverage is stated rather than inferred from an absent number.

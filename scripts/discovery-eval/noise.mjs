@@ -2,7 +2,7 @@
 //
 // A finding line says a skill was selected in zero runs, or in a majority, and
 // nothing more — so the same line means "this discovery text is marginal" on a
-// case whose baseline rate is 1/5 and "something broke" on one recorded at 5/5.
+// case whose snapshot rate is 1/5 and "something broke" on one recorded at 5/5.
 // At 1/5 a five-repeat run draws zero about a third of the time, so the report
 // has been unable to tell a real regression from an unlucky sample.
 //
@@ -21,7 +21,7 @@
 // equalities over a whole grid, and an equality that holds only to 1e-15 is a
 // weaker claim that would quietly stop holding if the arithmetic changed.
 //
-// NO PRIOR IS EVER INVENTED. A baseline records a zero-hit skill by OMITTING
+// NO PRIOR IS EVER INVENTED. A snapshot records a zero-hit skill by OMITTING
 // it, so an absence means "measured, and zero" for a skill the run tracked and
 // "nobody ever looked" for one it did not. Conflating them would put a
 // probability against a measurement that was never taken; `priorFor` in
@@ -179,7 +179,7 @@ function posterior({ hits, repeats }, shape) {
 /**
  * `P(X = k)` for `X ~ BetaBinomial(n, alpha, beta)`.
  *
- * @param {Tally} prior     what the baseline recorded
+ * @param {Tally} prior     what the snapshot recorded
  * @param {number} n        runs in the new sample
  * @param {number} k        successes in that sample
  * @param {"uniform"|"jeffreys"} [shape]
@@ -284,7 +284,7 @@ export function directionOf(prior, run) {
  * @param {object} input
  * @param {Tally|null} input.prior          null when no prior may be claimed
  * @param {Tally} input.run                 what this run observed
- * @param {boolean} input.fingerprinted     whether the baseline records a corpus
+ * @param {boolean} input.fingerprinted     whether the snapshot records a corpus
  * @param {string} [input.noPriorReason]    why there is no prior, when there is none
  * @param {"regression"|"moved"} [input.movedWord]
  * @returns {{
@@ -318,7 +318,7 @@ export function readingFor({
   // 3. Counts without a fingerprint are still counts; a probability computed
   //    against tallies that may have accreted across commits is not.
   if (!fingerprinted) {
-    return { kind: "no-corpus", label: "no P: baseline records no corpus", ...none };
+    return { kind: "no-corpus", label: "no P: snapshot records no corpus", ...none };
   }
 
   const tail = predictiveTail(prior, run, directionOf(prior, run));
