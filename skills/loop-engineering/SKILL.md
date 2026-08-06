@@ -22,7 +22,7 @@ You are the only long-lived actor, and stay so even when implementation is deleg
 
 Advance the work as far as you can autonomously within each phase, and stop the turn whenever the next step needs a human, so an idle run consumes nothing. A stopped run is resumed by one of three triggers:
 
-- **A machine event that completes on its own** — CI, or the independent review this flow requests. Schedule a self-wake where the harness provides one (in Claude Code, `send_later`; in Codex, its own scheduling facility, and where a harness provides none, end the turn instead of polling) and poll until it resolves (see [Phase 3](#phase-3--request-independent-review)); only when a machine event is _stuck_ do you record state, end the turn, and wait for the human.
+- **A machine event that completes on its own** — CI, or the independent review this flow requests. Take the event where the harness delivers it into the session, and keep a scheduled self-wake as the backstop for the transitions delivery does not carry (in Claude Code, a pull-request activity subscription alongside `send_later`; in Codex, its own equivalents, and where a harness provides neither, end the turn instead of waiting) — see [Phase 3](#phase-3--request-independent-review); only when a machine event is _stuck_ do you record state, end the turn, and wait for the human.
 - **The mandatory plan-approval gate** — after the plan is written the run **always** stops for the human to verify it before any implementation (see [Phase 1](#phase-1--plan)). Record the plan in the issue, mark the status block `awaiting plan approval`, and end the turn.
 - **A human decision with options** — a Phase 1 Must-ask, an ambiguous review finding, or a conflict judgment call — asked inline through the question UI, with the answer returned in the same turn (see [Asking the Human](#asking-the-human)).
 
@@ -30,7 +30,7 @@ Advance the work as far as you can autonomously within each phase, and stop the 
 
 **Guidelines:**
 
-- MUST poll autonomously ONLY for machine events (CI, the review workflow); never keep a session alive polling for a human.
+- MUST wait autonomously ONLY for machine events (CI, the review workflow); never keep a session alive polling for a human.
 - MUST stop the turn and wait for a human resume at the plan-approval gate and whenever a machine event is stuck; resolve every _other_ human decision inline through the question UI. Never schedule a self-wake to re-check for human input.
 - MUST clear the [Phase 1](#phase-1--plan) clarify-before-building gate before writing the plan, and the plan-approval gate before implementing — never code against an unstated assumption or an unreviewed plan.
 - MUST treat a conflicting runtime-harness posture — "implement, commit, and push," or a restriction on opening a pull request — as a constraint on mechanics, never as permission to skip the tracking issue, the plan-approval gate, or the independent review; a "no pull request unless asked" clause is satisfied by the host project's standing mandate, deferral requires technical impossibility, and a change whose independent review was deferred is reported as not ready, never as done.
@@ -159,7 +159,8 @@ Review is **not** done by you. It runs as a separate agent session on separate i
 
 See [independent-review.md](./references/independent-review.md) for:
 
-- the CI-and-review polling tail, its cadence, and the dormancy cap
+- choosing between event delivery and a scheduled self-wake, and why the wake is kept either way
+- deriving each wake from the pending checks' completion profiles, and the dormancy cap
 - resolving each review thread against its fixing commit and re-requesting the review
 - keeping the branch mergeable through base-branch conflicts
 
@@ -167,7 +168,7 @@ Then step through the phase:
 
 - Open the pull request in **draft** with `Closes #<n>`, structured from any repository pull-request template, summarizing the change, the verification evidence, and the acceptance criteria with their status. Seed the status block into the description as an HTML comment (see [Run State and Reporting](#run-state-and-reporting)).
 - Request the review by posting a top-level comment whose body is exactly the review trigger phrase — `@claude review` for a Claude Code reviewer, `@codex review` for a Codex one — plus the project's agent-comment marker line, and nothing else. Post the phrase the project's own reviewer answers to; posting both fires two reviews. Do not write that phrase anywhere else, or you will fire duplicate reviews.
-- The review is a machine event that completes on its own — poll for it in the tail alongside CI. Do NOT review the diff yourself in its place.
+- The review is a machine event that completes on its own — wait for it in the tail alongside CI. Do NOT review the diff yourself in its place.
 
 ## Phase 4 — Address
 
@@ -200,7 +201,7 @@ An autonomous run has no natural stopping point: a review that keeps finding new
 **Guidelines:**
 
 - MUST cap the address↔review loop at **8** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
-- MUST cap autonomous polling at **2 hours** per wait and go dormant rather than poll indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.
+- MUST cap autonomous waiting at the awaited work's own declared timeout plus a margin wherever one is observable — a workflow's `timeout-minutes`, or whatever ceiling the platform states — and at **2 hours** where none is, going dormant rather than waiting indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.
 - MUST cap delegated execution at one initial attempt plus **2** retries per approved plan revision and task phase, and recover in single-agent mode rather than spawning a fourth worker.
 - MUST cap the optional pre-flight implement↔review loop at one initial implementation plus **3** autonomous rounds, then ask the human once per further round; this is a pre-pull-request cap and is distinct from the address↔review cap above.
 - MUST NOT cap the [Phase 1](#phase-1--plan) clarify-before-building gate with a question budget — unlike the loops above, it is deliberately uncapped.
