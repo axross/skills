@@ -482,7 +482,14 @@ describe("report-obligation-load.mjs", () => {
       // why the floor count stands still while its byte total moves. Measured
       // after merging main, which had moved this figure twice more in the
       // meantime; the value is the post-merge total, not this branch's delta.
-      expect.soft(totals.floorTokens).toBe(8_412);
+      // And 47 more in #256, from SKILL.md's own two prose changes: the Phase 2
+      // pre-flight bullet's enumeration gained the boundary that keeps run
+      // state out of what a reader judges, and the Run State and Reporting
+      // section's opening stopped calling the status block blanket
+      // "human-invisible" and said instead what an agent reading the raw body
+      // sees. Neither adds an obligation, which is why the floor count above
+      // does not move — only the bytes it divides.
+      expect.soft(totals.floorTokens).toBe(8_459);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -629,7 +636,21 @@ describe("report-obligation-load.mjs", () => {
       // rule, and the fixed 4-then-10-minute cadence became a derivation from
       // the pending checks' own completion profiles. Both land in a reference
       // file, which is why the floor count above does not move with them.
-      expect.soft(totals.ceilingObligations).toBe(427);
+      // And eight more in #256, which closed the pre-flight ledger's
+      // anchoring channel, all in reference files. Three are Ledger
+      // Durability's: the old single write-everything rule split into an
+      // unconditional round-number-and-waiting-state rule and a conditional
+      // write rule, paired with a new clear-on-resume rule, so the
+      // unconditional part, the write, and the clear each read as a separate
+      // obligation instead of one bundled rule. One is Review Package's,
+      // forbidding the package from asserting that an earlier round's
+      // findings are beyond the reviewer's reach — the exact claim a prior
+      // round's package had made while pointing the reader at a document that
+      // carried them. Three are pre-flight-review.md's new Run State Is Not
+      // Input section, the reader boundary for run state encountered outside
+      // the package. And one is run-state-and-reporting.md's, requiring the
+      // run to report a reviewer's disclosure that it read run state.
+      expect.soft(totals.ceilingObligations).toBe(435);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -722,7 +743,16 @@ describe("report-obligation-load.mjs", () => {
       // pending checks' completion profiles with the reference project's own
       // runs as the worked example. The premise sentence those replaced had
       // asserted that nothing wakes the session at all.
-      expect.soft(totals.ceilingTokens).toBe(41_167);
+      // And 1,181 more in #256: the eight obligations above, plus the prose
+      // that makes them follow-able and the corrections that ride with them —
+      // Ledger Durability's rewritten write/clear rationale, the new Run State
+      // Is Not Input section's demonstration paragraph, the property table's
+      // Context independence row qualified from an unqualified "yes" with its
+      // trailing note naming the residual alongside absence visibility, the
+      // Finding Ledger and Dismissal Authority sentences settling "the ledger"
+      // as session state rather than the status block, and the "human-invisible"
+      // correction in run-state-and-reporting.md's opening.
+      expect.soft(totals.ceilingTokens).toBe(42_348);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -792,10 +822,14 @@ describe("report-obligation-load.mjs", () => {
       // reference file rather than in SKILL.md's body. It also arrived after
       // main had moved these twice, and the merge is where the two sets of
       // figures were reconciled: the values here are measured post-merge.
+      // #256 moved both copies too, for the same reasons as the mandated-set
+      // totals above: the floor obligation count held steady on purpose, since
+      // its SKILL.md edits stay prose, while floor tokens, ceiling obligations,
+      // and ceiling tokens all moved by the figures given there.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_412);
-      expect.soft(tiers[2].ceilingObligations).toBe(427);
-      expect.soft(tiers[2].ceilingTokens).toBe(41_167);
+      expect.soft(tiers[2].floorTokens).toBe(8_459);
+      expect.soft(tiers[2].ceilingObligations).toBe(435);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_348);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -814,8 +848,8 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(427);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(427);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(435);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(435);
     });
 
     it("prints no tier block without --mandated", async () => {
