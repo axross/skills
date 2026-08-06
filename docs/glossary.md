@@ -54,6 +54,8 @@
 
 ## Evaluation
 
+**Skill evaluation** — measuring whether a **skill** earns its place rather than whether it is well made: whether **discovery** surfaces it when it should, and whether holding it changes what the model does. It is the **outcome** question, which no amount of **form** checking answers. The library is its own subject here — no skill defines this, because the instrument is this repository's rather than something it distributes.
+
 **Form** — whether a **skill** is shaped correctly: its frontmatter, its section anatomy, its link integrity, whether an installed copy still matches its source. Cheap to check mechanically.
 
 **Outcome** — whether a **skill** does its job: whether **discovery** surfaces it for the right prompt, and whether holding it changes what the model does. It does not follow from **form**.
