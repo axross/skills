@@ -330,6 +330,22 @@ async function main() {
 
   const options = validateOptions(parseArgv(argv));
 
+  /**
+   * POSIX single-quoting for one argv entry, for display only.
+   *
+   * Only the dry-run banner uses it. The real invocation is `spawnSync` with
+   * an argv array and no shell, so nothing here is ever parsed by one — the
+   * quoting is so a reader who pastes the printed line gets the command that
+   * was described rather than a prompt split across several arguments.
+   *
+   * @param {string} argument
+   * @returns {string}
+   */
+  const shellQuote = (argument) =>
+    /^[A-Za-z0-9_./:=-]+$/.test(argument)
+      ? argument
+      : `'${argument.replaceAll("'", `'\\''`)}'`;
+
   if (!(await isDirectory(options.workspace))) {
     fail2(`No workspace directory at ${options.workspace} — run materialize.mjs first.`);
   }
@@ -348,7 +364,11 @@ async function main() {
       `skills:         ${options.skills.length > 0 ? options.skills.join(", ") : "(none)"}`,
       `prompt:         ${options.prompt}`,
       `target module:  ${options.targetModule}`,
-      `command:        claude ${spawnArgs.join(" ")}`,
+      // Shell-quoted, because the prompt is an argument with spaces in it and
+      // a reader's first instinct with a printed command is to paste it. The
+      // real spawn never goes through a shell, so this quoting exists only so
+      // that what is printed means what it appears to mean.
+      `command:        claude ${spawnArgs.map(shellQuote).join(" ")}`,
       `records out:    ${options.records ?? "(stdout)"}`,
     ];
 
