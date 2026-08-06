@@ -777,7 +777,17 @@ describe("report-obligation-load.mjs", () => {
       // and the definition itself grew to cover a finding's disposition and the
       // reason behind it, which Dismissal Authority had been recording there
       // all along without the definition admitting it.
-      expect.soft(totals.ceilingTokens).toBe(42_456);
+      // And 165 more from the independent review's two Important findings. The
+      // park count said "exactly two" while a finding that changes the approved
+      // plan sends the run back to the plan-approval gate — a third wait the
+      // conditional write rule did not name. It is not one: that route abandons
+      // the round, which the neighbouring route in delegated-execution.md
+      // already did, and saying so is the paragraph the ledger's definition
+      // gained. The same sentence also restated two of asking-the-human.md's
+      // conclusions beside a citation of it, so the restatement is gone and the
+      // pointer stands alone. No obligation moved either way — one existing
+      // bullet grew a clause, and the rest is prose.
+      expect.soft(totals.ceilingTokens).toBe(42_621);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -854,7 +864,7 @@ describe("report-obligation-load.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(26);
       expect.soft(tiers[2].floorTokens).toBe(8_478);
       expect.soft(tiers[2].ceilingObligations).toBe(435);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_456);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_621);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
