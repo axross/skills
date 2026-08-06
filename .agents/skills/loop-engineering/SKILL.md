@@ -67,9 +67,10 @@ Delegation happens only where the harness already exposes a worker that qualifie
 See [implementation-worker.md](./references/implementation-worker.md) for:
 
 - the four-step executor resolution order, and why capability rather than a declared responsibility decides
-- the compatibility preflight that runs before the writer lease is granted, including the visual-capability check
+- the branch where a harness policy blocks or conditions a qualifying candidate's spawn, and the permission question it puts to the human when the run cannot otherwise establish that the spawn is allowed
+- the compatibility preflight that runs before the writer lease is granted, establishing a channel adequate to every required manifest entry's fidelity class, with the visual-capability check as the named case
 - classifying model and effort as verified, declared, or unknown
-- what a project's own worker definition should carry, and what it must leave to the package
+- what a project's own worker definition should carry, what it must leave to the package, and the one channel it may never withdraw — the one carrying what the worker must read
 
 See [implementation-package.md](./references/implementation-package.md) for:
 
@@ -146,7 +147,7 @@ Then step through the phase:
 ## Phase 2 — Code + Verify
 
 - **Choose the working location before touching files.** In a cloud environment the session already runs in an isolated, ephemeral checkout, so implement directly. In a local session sharing the human's working tree, implement on a **separate git worktree** so the run never blocks the human's own copy — unless the human explicitly asked to work in the current checkout. Either way, work on a branch under the harness's push-allowed prefix (an agent-namespaced branch such as `claude/issue-<n>` in Claude Code, or the prefix the running harness allows); never push to the default branch.
-- **Resolve who implements, before the first project-file edit.** With the branch selected and approval in hand, resolve the executor per [Delegated Implementation](#delegated-implementation) — a qualifying worker, or yourself in fallback. When delegating, package the task, grant the writer lease, wait, then reclaim the lease and check the receipt against repository state before any push.
+- **Resolve who implements, before the first project-file edit.** With the branch selected and approval in hand, first establish whether the harness permits a spawn at all, then resolve the executor per [Delegated Implementation](#delegated-implementation) — a qualifying worker, or yourself in fallback. When delegating, package the task, grant the writer lease, wait, then reclaim the lease and check the receipt against repository state before any push.
 - Implement strictly from the approved plan, keeping edits within the smallest surface that satisfies the acceptance criteria — yourself, or through the worker's package. Follow every project skill whose routing condition matches the changed files, and add or update the test coverage the plan named.
 - Run the verification the changed surface requires — the project's format, lint, type-check, and test commands — and record the evidence (commands run, results) in the pull request body. When a required check cannot run, say so and note the residual risk rather than claiming it passed.
 - **Reviewer-mode self-check.** Before opening the pull request, stop editing, reread the request, inspect `git status` and `git diff`, and review only the produced diff as if another author wrote it — fixing obvious Critical/Major issues. A delegated worker performs this on its own diff and reports it in the receipt; you then run the completion-evidence check against repository state rather than repeating the full review. Either way this is a self-check to avoid trivial hand-backs, NOT the authoritative review; that is the independent reviewer in Phase 3.

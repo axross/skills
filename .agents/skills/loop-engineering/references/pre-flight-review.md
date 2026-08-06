@@ -121,5 +121,4 @@ The asymmetry is therefore in **what** is denied rather than in how: the set of 
 
 - MUST deny a reader mutation and the ability to spawn further agents, and MUST NOT constrain it by enumerating what it may use instead — an enumeration is a guess at what reviewing will require, and a short guess yields a quiet reviewer rather than a failed one.
 - MUST leave a reader able to reach the specification it judges against, the artifacts that specification points at, and the external sources a factual claim in the change depends on.
-- MUST NOT withdraw a channel from a reader merely because it can write, where that same channel carries what the reader must read — the issue tracker being the case, since withdrawing it wholesale takes the specification with it, and denying only its write operations drifts with the channel's surface while still reading as enforcement. Name that boundary as prose instead.
 - MUST NOT describe a reader as read-only while a general-purpose shell remains, since reading a change requires one; state which part of the constraint the host enforces and which stays a rule the reader is asked to honor.
