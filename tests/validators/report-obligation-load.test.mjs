@@ -412,6 +412,11 @@ describe("report-obligation-load.mjs", () => {
       // it. The Phase 2 bullet that introduces the stage sits outside a
       // Guidelines block, so it is prose and not a rule — which is why the
       // floor moved by one while the ceiling moved by thirty.
+      // #244 left this figure unmoved on purpose: it promoted the
+      // harness-policy branch and its permission question into SKILL.md's
+      // Delegated Implementation list and Phase 2 step as routing prose,
+      // under an explicit budget that the promotion cost bytes rather than
+      // rules — no MUST/SHOULD/MAY landed in SKILL.md itself.
       expect.soft(totals.floorObligations).toBe(26);
       // Drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
@@ -454,7 +459,13 @@ describe("report-obligation-load.mjs", () => {
       // And two more in #231, from the twelve bytes the description's
       // `exposes and permits one` clause adds. A frontmatter-only edit, so no
       // obligation moved — only the byte total this figure divides.
-      expect.soft(totals.floorTokens).toBe(8_231);
+      // And 57 more in #244, from SKILL.md's own two prose additions: the
+      // Delegated Implementation routing bullet naming the harness-policy
+      // branch and its permission question, and the Phase 2 step's clause
+      // naming the permission determination as preceding the executor
+      // choice. Neither adds an obligation, which is why the floor above
+      // does not move — only its byte total does.
+      expect.soft(totals.floorTokens).toBe(8_288);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -564,7 +575,22 @@ describe("report-obligation-load.mjs", () => {
       // the human's request), plus one in pre-flight-review.md pointing the
       // reader's spawn at the same branch. All seven land in reference files,
       // which is why the floor above does not move with them.
-      expect.soft(totals.ceilingObligations).toBe(419);
+      // And five more in #244, which inverted the policy branch's trigger
+      // from noticing a conditional policy to establishing permission on
+      // every run, and gave executor resolution its named terminal
+      // outcomes. Two of the five replace the branch's old single ask-trigger
+      // bullet in implementation-worker.md: establishing permission before
+      // the first edit, and not asking once permission is already
+      // established. Two more are Executor Resolution's own new
+      // bullets: terminating in one of five named outcomes and
+      // recording which, and proceeding without stalling when a fallback
+      // cannot be classified. The fifth came out of that change's own
+      // pre-flight review, which caught the outcome vocabulary mislabelling
+      // an unasked run as a decline: it forbids recording a declined
+      // conditional policy where no question was put. All five land in that
+      // one reference file, which is why the floor above does not move with
+      // them.
+      expect.soft(totals.ceilingObligations).toBe(424);
       // Drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -619,7 +645,22 @@ describe("report-obligation-load.mjs", () => {
       // that lifts it.
       // And two more in #231, the same twelve description bytes reaching this
       // figure through the same SKILL.md the floor above counts.
-      expect.soft(totals.ceilingTokens).toBe(39_197);
+      // And 977 more in #244, split across three files: implementation-worker.md
+      // for the rewritten policy branch and the five-outcome recording
+      // requirement, run-state-and-reporting.md for the delegation-permission
+      // determination the completion summary and status block now carry,
+      // and the same 269 SKILL.md bytes the floor above already counts.
+      // Roughly half of the 960 are that change's own two pre-flight review
+      // rounds, and both caught a rule that over-asked. The first added the
+      // route by which silence counts as permission — a harness that says
+      // nothing about delegation has not withheld it — and the outcome that
+      // covers an unasked run without calling it a decline. The second turned
+      // the determination into three results rather than two, because an
+      // outright bar had fallen into the same bucket as an unclassifiable
+      // policy: the run would have asked a question no answer could lift, and
+      // the absolute-policy outcome had become unreachable. Neither reached the
+      // pull request.
+      expect.soft(totals.ceilingTokens).toBe(40_174);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -676,10 +717,13 @@ describe("report-obligation-load.mjs", () => {
       // base is what surfaced the other half still to move.
       // #231 moved both copies too, and moved neither obligation count: its
       // twelve bytes are frontmatter, which the report weighs but no rule lives in.
+      // #244 moved both copies too, for the same reasons as the mandated-set
+      // totals above: the floor obligation count held steady on purpose, and
+      // the other three moved by the same figures given there.
       expect.soft(tiers[2].floorObligations).toBe(26);
-      expect.soft(tiers[2].floorTokens).toBe(8_231);
-      expect.soft(tiers[2].ceilingObligations).toBe(419);
-      expect.soft(tiers[2].ceilingTokens).toBe(39_197);
+      expect.soft(tiers[2].floorTokens).toBe(8_288);
+      expect.soft(tiers[2].ceilingObligations).toBe(424);
+      expect.soft(tiers[2].ceilingTokens).toBe(40_174);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -698,8 +742,8 @@ describe("report-obligation-load.mjs", () => {
       // its total, and "what does the mandated set cost a session of each kind"
       // in its tiers. Folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(419);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(419);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(424);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(424);
     });
 
     it("prints no tier block without --mandated", async () => {

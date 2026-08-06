@@ -20,7 +20,7 @@ When the run delegates implementation, the state that matters on a resume grows:
 
 Session state should hold the execution mode (delegated, single-agent, or recovering), the worker-resolution source (explicit, custom, built-in, or none), implementation status, the current plan revision and task phase, the attempt number, the writer owner, any opaque continuation handle, model and effort certainty, and the reason for a fallback or recovery.
 
-The status block adds only durable recovery information: execution mode, implementation status, the approved plan revision, the latest coherent implementation HEAD where available, phase, review round, waiting state, and any open question.
+The status block adds only durable recovery information: execution mode, implementation status, the approved plan revision, the latest coherent implementation HEAD where available, phase, review round, waiting state, any open question, and the delegation-permission determination together with any answer the human gave it.
 
 Where the optional pre-flight review runs, its ledger joins that list — the round number and every still-open finding. It belongs there rather than in session state alone for the reason the principle above gives: a fresh review worker produces a _different_ finding set, so a lost ledger cannot be re-derived by re-running the review. [pre-flight-review.md](./pre-flight-review.md) owns what the ledger records and what a run does when it cannot read the block back.
 
@@ -35,7 +35,7 @@ Execution detail belongs inside the existing report, not beside it. A separate a
 
 **Guidelines:**
 
-- MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; model and effort as verified, declared, or unknown; the fallback or recovery reason; whether the intended implementation-model saving was actually achieved; any skipped or unavailable verification; and residual worker or routing risk.
+- MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; the delegation-permission determination and, where a question was put, the human's answer; model and effort as verified, declared, or unknown; the fallback or recovery reason; whether the intended implementation-model saving was actually achieved; any skipped or unavailable verification; and residual worker or routing risk.
 - MUST NOT duplicate that information into a separate verbose activity log.
 - MUST report, where the pre-flight review ran, how many findings it raised and how many were fixed, dismissed, or deferred — and, once the independent review lands, how many of its findings pre-flight had not raised. The second figure is what answers whether the stage earns its cost: a pre-flight that consistently misses what the external review then finds is not working.
 
