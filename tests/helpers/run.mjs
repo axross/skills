@@ -53,6 +53,7 @@ export const SCRIPTS = {
   discoveryEval: "scripts/discovery-eval/run.mjs",
   extractBaseline: "scripts/discovery-eval/extract-baseline.mjs",
   materialize: "scripts/value-eval/materialize.mjs",
+  probe: "scripts/value-eval/probe.mjs",
 };
 
 /**
