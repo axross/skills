@@ -113,13 +113,15 @@ Under the single-operator model this skill already describes, the operator's log
 
 **A pull request cannot be assigned at creation.** The pull-request create and update endpoints carry no `assignees` parameter, and neither do the sanctioned channel's `create_pull_request` and `update_pull_request` tools. Assignee, label, and milestone writes for a pull request go through the **issues** route instead, sent against the pull request's own number. That crosses the shared numbering space the preceding section governs, and deliberately so: its guidelines send every issue-level write to the issue's own number, which read alone forbids the only route a pull request's assignment actually has. Assignment is the exception — an issue-level write whose correct target is the pull request's own number.
 
-**An assignee who cannot be assigned is dropped in silence.** Only a user with push access can be assigned; GitHub ignores anyone else rather than rejecting the write, so a failed assignment still returns success. The same endpoint caps assignment at 10 assignees.
+**An assignment can be dropped without an error, and two independent things cause it.** GitHub's push-access requirement governs the **caller**, not the person being assigned: a session whose credentials lack push access has the assignees it passed discarded rather than rejected. Separately, the assignee has to be one of the repository's assignable users — the acting user, anyone who has commented on the target, anyone with write access, or, on an organization-owned repository, an organization member with read access — and naming anyone outside that set is ignored the same silent way. Either failure returns success, so the response is not evidence the assignment landed. The route also caps assignment at 10 assignees.
+
+Verified against [GitHub's REST API reference for issue assignees](https://docs.github.com/en/rest/issues/assignees), [GitHub's REST API reference for pull requests](https://docs.github.com/en/rest/pulls/pulls), and [GitHub's guide to assigning issues and pull requests to other GitHub users](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/assigning-issues-and-pull-requests-to-other-github-users) on **2026-08-06**.
 
 **Guidelines:**
 
 - SHOULD assign the session's own authenticated user to the issues and pull requests it creates, so delivered work does not read as unclaimed backlog in GitHub's ownership views.
 - MUST resolve that login from the sanctioned channel's own identity call — in Claude Code, `mcp__github__get_me` — never hardcode it or infer it from a commit author, a branch name, or the repository owner.
-- MUST assign a pull request through an issue-level write against its own number, and MUST NOT treat a successful response as evidence the assignment landed; a push-access failure returns success too.
+- MUST assign a pull request through an issue-level write against its own number, and MUST NOT treat a successful response as evidence the assignment landed — a silently discarded assignment returns success too.
 
 ## Editing an Existing Body
 
