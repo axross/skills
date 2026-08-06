@@ -168,10 +168,29 @@ function runGitCapture(args, cwd) {
  * @returns {{ diff: string, changedPaths: Array<{ status: string, path: string }> }}
  */
 function captureDiff(workspace) {
-  runGitCapture(["add", "-A"], workspace);
-  const diff = runGitCapture(["diff", "--cached", "--no-color"], workspace);
+  // `.claude` is excluded from every one of these, and the exclusion is a
+  // correctness requirement rather than tidiness. materialize.mjs installs the
+  // arm's skills there and does not commit them, so a bare `add -A` stages the
+  // whole installed skill and the captured diff then reports it as something
+  // the model produced. That lands on TREATMENT RUNS ONLY — a control installs
+  // no skill — which is a systematic difference between the arms that has
+  // nothing to do with model behaviour, in an instrument built to measure
+  // exactly such differences.
+  //
+  // The mock's own .gitignore also ignores `.claude`, so on a well-formed
+  // fixture nothing here has anything to exclude. This is the second layer:
+  // a future mock that forgets that line must not silently corrupt the
+  // measurement, so the instrument refuses to look there whatever the fixture
+  // says.
+  const outsideSkills = ["--", ".", ":(exclude).claude"];
+
+  runGitCapture(["add", "-A", ...outsideSkills], workspace);
+  const diff = runGitCapture(
+    ["diff", "--cached", "--no-color", ...outsideSkills],
+    workspace,
+  );
   const statusOutput = runGitCapture(
-    ["status", "--porcelain", "-z", "--no-renames"],
+    ["status", "--porcelain", "-z", "--no-renames", ...outsideSkills],
     workspace,
   );
   const changedPaths = statusOutput

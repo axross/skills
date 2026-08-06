@@ -158,6 +158,34 @@ describe("materialize.mjs", () => {
     });
   });
 
+  it("leaves the working tree clean even once a skill is installed", () => {
+    // Regression. The installed skill lands in .claude/ AFTER the history is
+    // replayed and is never committed, so for a while a materialized
+    // treatment workspace stood dirty at `?? .claude/`. That is not untidiness
+    // — probe.mjs captures the model's work with `git add -A` plus
+    // `git diff --cached`, so the whole installed skill was staged and
+    // reported as something the model produced: 8 files and 660 insertions
+    // before any model had run.
+    //
+    // It also landed on TREATMENT RUNS ONLY, because a control installs no
+    // skill. A systematic difference between the arms, caused by the
+    // instrument rather than by the thing it measures, is the one defect this
+    // whole apparatus exists to avoid — and the model saw it too, since only
+    // one arm's `git status` was dirty.
+    const { result, workspace } = materialize(["--skill", "unit-testing"]);
+    expect(result).toPassCleanly();
+
+    const status = spawnSync("git", ["status", "--porcelain"], {
+      cwd: workspace,
+      encoding: "utf8",
+    });
+
+    expect(
+      status.stdout.trim(),
+      "a materialized workspace must look identical to the model in both arms",
+    ).toBe("");
+  });
+
   it("installs a requested skill as real files, not a symlink", async () => {
     const { result, workspace } = materialize(["--skill", "unit-testing"]);
     expect(result).toPassCleanly();
