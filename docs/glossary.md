@@ -52,7 +52,7 @@
 
 **Agent-comment marker** — the fixed HTML comment opening every comment an agent authors, which is what distinguishes agent output from human input where the two share one login.
 
-## Evaluation
+## Skill Evaluation
 
 **Skill evaluation** — measuring a **skill**'s **outcome** rather than its **form**: whether it earns its place, not whether it is well made. The library is its own subject here, and no skill defines this, because the instrument is this repository's rather than something it distributes.
 
