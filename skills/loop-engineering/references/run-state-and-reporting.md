@@ -4,7 +4,7 @@ Apply this reference when recording the run's durable state, and when the run re
 
 ## GitHub as Lightweight State
 
-State lives in this running session; GitHub carries a thin, **human-invisible** breadcrumb so a resumed or reclaimed session can recover. The run posts no status or attention comments. It authors exactly three kinds: the dedicated review request (Phase 3), the marked review-thread replies that tie each resolved finding to its commit (Phase 4), and — only where the issue body cannot spare the room — the marked archival comment holding the original description (Phase 1, see [plan-document.md](./plan-document.md)).
+State lives in this running session; GitHub carries a thin breadcrumb — invisible to a human reading GitHub's rendered page, and fully visible to any agent, including this loop's own participants, that reads the raw body — so a resumed or reclaimed session can recover. The run posts no status or attention comments. It authors exactly three kinds: the dedicated review request (Phase 3), the marked review-thread replies that tie each resolved finding to its commit (Phase 4), and — only where the issue body cannot spare the room — the marked archival comment holding the original description (Phase 1, see [plan-document.md](./plan-document.md)).
 
 **Guidelines:**
 
@@ -22,7 +22,7 @@ Session state should hold the execution mode (delegated, single-agent, or recove
 
 The status block adds only durable recovery information: execution mode, implementation status, the approved plan revision, the latest coherent implementation HEAD where available, phase, review round, waiting state, any open question, and the delegation-permission determination together with any answer the human gave it.
 
-Where the optional pre-flight review runs, its ledger joins that list — the round number and every still-open finding. It belongs there rather than in session state alone for the reason the principle above gives: a fresh review worker produces a _different_ finding set, so a lost ledger cannot be re-derived by re-running the review. [pre-flight-review.md](./pre-flight-review.md) owns what the ledger records and what a run does when it cannot read the block back.
+Where the optional pre-flight review runs, its round number and waiting state join that list unconditionally. Its finding entries join it only while the run is parked on the human question that needs them there, and are cleared before the run resumes past it — durability is earned by the same reasoning the principle above gives: a fresh review worker produces a _different_ finding set, so a ledger lost mid-park cannot be re-derived by re-running the review, while one lost between parks costs nothing. [pre-flight-review.md](./pre-flight-review.md)'s Ledger Durability owns exactly when the entries are and are not written, their ceiling, and what a run does when it cannot read the block back.
 
 **Guidelines:**
 
@@ -38,6 +38,7 @@ Execution detail belongs inside the existing report, not beside it. A separate a
 - MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; the delegation-permission determination and, where a question was put, the human's answer; model and effort as verified, declared, or unknown; the fallback or recovery reason; whether the intended implementation-model saving was actually achieved; any skipped or unavailable verification; and residual worker or routing risk.
 - MUST NOT duplicate that information into a separate verbose activity log.
 - MUST report, where the pre-flight review ran, how many findings it raised and how many were fixed, dismissed, or deferred — and, once the independent review lands, how many of its findings pre-flight had not raised. The second figure is what answers whether the stage earns its cost: a pre-flight that consistently misses what the external review then finds is not working.
+- MUST report a review worker's disclosure that it read run state — its own status block or another run's — while judging the diff (see [pre-flight-review.md](./pre-flight-review.md)'s Run State Is Not Input), so an exposure the write/clear pairing failed to prevent does not go unrecorded.
 
 ## Ready-to-Merge Handoff
 
