@@ -375,10 +375,11 @@ node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .cl
 # rather than a gate — see "Scheduled, and off the merge path" below:
 node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
 
-# Seven more ship inside a skill purely for the projects that install it — this
+# Eight more ship inside a skill purely for the projects that install it — this
 # repository exercises them only against fixtures:
 node skills/conventional-commits/scripts/check-commit-message.mjs --help
 node skills/wireframe-design/scripts/check-wireframe.mjs --help
+node skills/github-operation/scripts/decode-sanitized-read.mjs --help
 
 # The last five are one set, deliberately not one command: each answers for one
 # kind of change, so an author who touched one document reads only its findings.
@@ -401,14 +402,14 @@ repository ships a runnable checker for it is gone.
 
 #### Reporting, not gating
 
-The <!-- count:first-reporting-tool-ordinal -->fourteenth<!-- /count -->,
-the <!-- count:second-reporting-tool-ordinal -->fifteenth<!-- /count -->, and
-the <!-- count:third-reporting-tool-ordinal -->sixteenth<!-- /count --> scripts
+The <!-- count:first-reporting-tool-ordinal -->fifteenth<!-- /count -->,
+the <!-- count:second-reporting-tool-ordinal -->sixteenth<!-- /count -->, and
+the <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> scripts
 report instead of judging. None belongs to a gate, an npm script, or a hook, and
 `tests/repository/reporting-tools.test.mjs` keeps all three out of the enforced
 set on purpose, so wiring any of them in has to be a deliberate act.
 
-The <!-- count:first-reporting-tool-ordinal -->fourteenth<!-- /count --> reports a
+The <!-- count:first-reporting-tool-ordinal -->fifteenth<!-- /count --> reports a
 number:
 
 ```bash
@@ -435,7 +436,7 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this corpus yet, and a threshold nobody can defend becomes either a
 rule people route around or a warning people stop reading.
 
-The <!-- count:second-reporting-tool-ordinal -->fifteenth<!-- /count --> reports a
+The <!-- count:second-reporting-tool-ordinal -->sixteenth<!-- /count --> reports a
 routing outcome:
 
 ```bash
@@ -475,7 +476,7 @@ skill they name still exists, and that every fixture case is either measured or
 declared unmeasured — a deterministic data check that never invokes the runner.
 A fixture or baseline naming a renamed skill would otherwise rot in silence.
 
-The <!-- count:third-reporting-tool-ordinal -->sixteenth<!-- /count --> reports a
+The <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> reports a
 ranking:
 
 ```bash
