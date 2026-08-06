@@ -205,8 +205,10 @@ for a broader prose rule does **not** silence the reviewer on that rule.
   indexed individually instead of through its directory; a spec with no matching
   glossary heading, and a nested `specs/` path; a decision filename that is not
   `YYYY-MM-DD-<decision-in-kebab-case>.md` or whose date is not real; and a
-  record whose `status` and `superseded_by` disagree, a `superseded_by` naming
-  no record, or a document still citing replaced rationale. `check-references.mjs`
+  record declaring no `status` or one whose `status` is neither `accepted` nor
+  `superseded`, a `status` and `superseded_by` that disagree in either
+  direction, a `superseded_by` naming no record, or a document still citing
+  replaced rationale. `check-references.mjs`
   is the fifth of that set and adds nothing here — relative-link integrity is
   already excluded above. What none of them can see stays in scope: whether a
   glossary entry is self-sufficient, whether a fact sits in the one document

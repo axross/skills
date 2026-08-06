@@ -20,12 +20,6 @@
 
 **Description** — the frontmatter field every host reads before loading a **skill**, and the only text **discovery** routes on.
 
-**Capability framing** — writing a **skill** as a capability the agent has rather than as a document about a topic, so each rule reads as something to do rather than something to know.
-
-**Progressive disclosure** — splitting a **skill** so `SKILL.md` carries what every use of it needs and each reference file carries what only some uses need, so a task pays for the detail it actually reads.
-
-**MECE** — the scoping discipline that gives each rule exactly one owning **skill**, so two skills neither state the same rule nor leave a gap between them.
-
 **Portable Source Exception** — the allowance that lets a **distributable skill** restate a rule another skill owns, because it has to stand alone in a project that installed no neighbour to defer to.
 
 **Obligation** — one rule stated with an RFC 2119 keyword. It is the unit the structure check and the load report both count.
@@ -46,7 +40,7 @@
 
 ## The Change Loop
 
-**Change loop** — the fixed sequence a change runs through here: plan, human approval, code, verify, **independent review**, address, ready.
+**Change loop** — the process every change to this repository runs through, ending in a pull request that has passed an **independent review**.
 
 **Plan-approval gate** — the stop in the **change loop** where a human reads the recorded plan, before any code is written against it.
 
