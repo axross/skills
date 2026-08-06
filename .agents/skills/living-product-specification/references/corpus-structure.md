@@ -85,6 +85,38 @@ heading pairs with `specs/job-templates.md`. That pairing is what makes the
 glossary navigable without a single link — the section a term sits in already
 says which spec owns it.
 
+**A term costs the reader whatever it takes to reach the right meaning, and the
+words it is made of set that cost.** A glossary is not read front to back; it is
+read by someone meeting a term in a sentence who decides, in that moment,
+whether they already know it. Compare each candidate against what its own words
+ordinarily mean, and take the one composing closest to the definition — that
+reader pays nothing.
+
+Where nothing composes exactly, the remaining candidates are not equally priced.
+One that visibly does not compose costs a lookup: paid once, and knowingly. One
+that composes to something _nearly_ right costs more, and invisibly, because the
+reader never stops — a reader meeting `Template` knows the English word and moves
+on, and every sentence built on the term inherits the meaning they brought to it.
+**Job Template**, as the example above has it, is what makes them stop. So prefer
+the visibly incomplete term to the plausibly wrong one, and give a bare word a
+qualifier whenever its ordinary meaning is wider, narrower, or merely adjacent to
+what the entry says.
+
+A qualifier earns its place only when the compound composes to the thing itself.
+Say the corpus above needs a term for the record of what one **Job** produced,
+kept after the job is gone: **Job output** composes to exactly that, and three
+near-misses each miss along one axis.
+
+| Candidate        | Composes to                  | Axis it misses                                                                |
+| ---------------- | ---------------------------- | ----------------------------------------------------------------------------- |
+| `Result`         | anything anyone produced     | **which** — it never says whose, leaving the reader where the bare word did   |
+| `Failure output` | what the failures produced   | **how much** — narrower than the thing, which records successful **Jobs** too |
+| `Completed job`  | the execution, once finished | **what kind** — an event, where the thing is the artefact it left behind      |
+
+No check can decide this. Whether a word's ordinary meaning matches the
+definition given is a reading rather than a property of the text, so the rule is
+held by whoever judges a new entry.
+
 **Guidelines:**
 
 - MUST group the glossary by domain, with each heading named for a spec — or,
@@ -92,6 +124,11 @@ says which spec owns it.
 - MUST keep an entry **self-sufficient**: after reading it, a reader knows what
   the term means and where it sits without opening anything else. An entry that
   only redirects has stopped paying for itself, and no check can see that.
+- MUST choose the term whose words' ordinary meaning composes closest to what
+  the entry says — so a bare word already meaning exactly that stays bare, and
+  one meaning something wider, narrower, or adjacent takes the qualifier that
+  closes the gap; where no candidate composes exactly, prefer the term a reader
+  can see they do not know to one they will mistake for a word they do.
 - MUST mark a defined term where it appears in another entry — bold is enough —
   rather than linking to it. The file is small by construction, so an in-file
   anchor buys navigation nobody needed.
