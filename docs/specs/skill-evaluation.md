@@ -21,14 +21,14 @@ look.
 
 ## Why form checking does not reach it
 
-Every mechanical check in this repository examines **form**: whether frontmatter
+Every mechanical check in this repository examines **skill form**: whether frontmatter
 parses, whether a section is where the structure says it should be, whether a
 link resolves, whether an installed copy still matches its source. Each one
 gates a merge, and not one of them can distinguish a skill that works from a
 skill that does not.
 
 The gap is not a matter of adding more checks. Form is a property of the text,
-and it can be read off the text; **outcome** is a property of what a model does
+and it can be read off the text; **skill outcome** is a property of what a model does
 when the text is present, and it can only be measured by running one. A skill
 can be immaculately structured and never selected. It can be selected reliably
 and change nothing about the answer. Neither failure leaves a mark a validator
