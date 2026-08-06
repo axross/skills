@@ -117,6 +117,11 @@ near-misses each miss along one axis.
 | `Failure output` | what the failures produced   | **how much** — narrower than the thing, which records successful **Jobs** too |
 | `Completed job`  | the execution, once finished | **what kind** — the execution itself, where the thing is what it left behind  |
 
+One case sits outside all of this. Seeding a glossary collects vocabulary that
+already exists, so recording what a team actually says — imperfect words
+included — comes first there, and the rule below governs the rename that may
+follow rather than the capture.
+
 **Guidelines:**
 
 - MUST group the glossary by domain, with each heading named for a spec — or,
@@ -125,11 +130,12 @@ near-misses each miss along one axis.
   the term means and where it sits without opening anything else. An entry that
   only redirects has stopped paying for itself, and no check can see that.
 - MUST choose the term whose words' ordinary meaning composes closest to what
-  the entry says — so a bare word already meaning exactly that stays bare, and
-  one meaning something wider, narrower, or adjacent takes the qualifier that
-  closes the gap; where no candidate composes exactly, prefer the term a reader
-  can see they do not know to one they will mistake for a word they do, and no
-  check can see this either.
+  the entry says, wherever a term is being chosen rather than seeded from a
+  team's existing usage — so a bare word already meaning exactly that stays
+  bare, and one meaning something wider, narrower, or adjacent takes the
+  qualifier that closes the gap; where no candidate composes exactly, prefer the
+  term a reader can see they do not know to one they will mistake for a word
+  they do, and no check can see this either.
 - MUST mark a defined term where it appears in another entry — bold is enough —
   rather than linking to it. The file is small by construction, so an in-file
   anchor buys navigation nobody needed.
