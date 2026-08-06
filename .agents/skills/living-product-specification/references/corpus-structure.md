@@ -88,12 +88,11 @@ says which spec owns it.
 **A term costs the reader whatever it takes to reach the right meaning, and the
 words it is made of set that cost.** A glossary is not read front to back; it is
 read by someone meeting a term in a sentence who decides, in that moment,
-whether they already know it. Compare each candidate against what its own words
-ordinarily mean, and take the one composing closest to the definition. Where one
-composes exactly, that reader pays nothing: a reader meeting `Template` knows
-the English word and moves on with the wrong meaning, while one meeting **Job
-Template**, as the example above has it, already knows what it holds before
-reaching the entry.
+whether they already know it. What that decision costs is set by how a
+candidate's own words read against the definition. Where they compose to it
+exactly, the reader pays nothing. A reader meeting `Template` knows the English
+word and moves on with the wrong meaning; one meeting **Job Template**, as the
+example above has it, already knows what it holds before reaching the entry.
 
 Where nothing composes exactly, the remaining candidates are not equally priced.
 One that visibly does not compose costs a lookup: paid once, and knowingly. One
@@ -105,21 +104,22 @@ some span and not which one. `Job end` sends them nowhere, because it composes t
 the moment the job stopped — where the stretch begins, not what it is. So the
 visibly incomplete term costs less than the plausibly wrong one, and a bare word
 whose ordinary meaning is wider, narrower, or merely adjacent to what the entry
-says costs most of all.
+says is the plausibly wrong one in its commonest form.
 
 A qualifier earns its place only when the compound composes to the thing itself.
 Say the corpus above needs a term for what one **Job** produced, kept after the
 job itself is gone: **Job output** composes to exactly that, and three
 near-misses each miss along one axis.
 
-| Candidate        | Composes to                  | Axis it misses                                                                |
-| ---------------- | ---------------------------- | ----------------------------------------------------------------------------- |
-| `Output record`  | a record of some output      | **which** — the qualifier says what kind of record, never whose output it is  |
-| `Failure output` | what the failures produced   | **how much** — narrower than the thing, which records successful **Jobs** too |
-| `Completed job`  | the execution, once finished | **what kind** — the execution itself, where the thing is what it left behind  |
+| Candidate        | Composes to                  | Axis it misses                                                               |
+| ---------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| `Output record`  | a record of some output      | **which** — the qualifier says what kind of record, never whose output it is |
+| `Failure output` | what the failures produced   | **how much** — narrower than the thing, which covers successful **Jobs** too |
+| `Completed job`  | the execution, once finished | **what kind** — the execution itself, where the thing is what it left behind |
 
 One case sits outside all of this: seeding a glossary from the code and from a
-team's own usage, which [bootstrapping.md](./bootstrapping.md)'s Seeding the
+team's own usage, which
+[bootstrapping.md](./bootstrapping.md#seeding-the-glossary)'s Seeding the
 Glossary section governs in full. The closest-composing guideline below governs
 the rename that may follow the capture, not the capture itself.
 
