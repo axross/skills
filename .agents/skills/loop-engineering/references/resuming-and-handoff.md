@@ -28,7 +28,7 @@ Spawning a replacement before establishing what the last one left is how two wri
 - MUST reconstruct the current branch, the commits, uncommitted changes, any still-active worker, write-capable background processes, and whatever partial receipt exists — all of it — before spawning another worker.
 - MUST treat a worker the status block names but the harness cannot produce as neither running nor cleanly finished: establish which from repository state, not from the block's claim.
 - MUST NOT destructively reset a checkout to recover from a lost worker; continue from the state that exists, correcting through append-only commits.
-- MUST, on a resume landing mid-pre-flight-review, either recover the finding ledger from the status block or re-run that review from scratch — and MUST NOT open the pull request believing findings were resolved when no ledger shows that they were (see [pre-flight-review.md](./pre-flight-review.md)). A review worker leaves no repository trace to reconstruct from, unlike an implementation worker's commits.
+- MUST, on a resume landing mid-pre-flight-review, recover the finding ledger from the status block where the run had parked and one is there, or re-run that review from scratch where none is — because the run had not yet parked or because the block cannot be read back — and MUST NOT open the pull request believing findings were resolved when no ledger shows that they were (see [pre-flight-review.md](./pre-flight-review.md), whose Ledger Durability owns when the entries are and are not written). A review worker leaves no repository trace to reconstruct from, unlike an implementation worker's commits.
 
 ## Take Over a Handoff
 
