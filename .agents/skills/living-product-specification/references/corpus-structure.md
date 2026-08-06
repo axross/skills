@@ -101,8 +101,8 @@ reader never stops, and every sentence built on the term inherits the meaning
 they brought to it. Naming the stretch between a **Job** stopping and its record
 being written, `Job window` sends the reader to the entry: they can see it names
 some span and not which one. `Job end` sends them nowhere, because it composes to
-the moment the job stopped — where the stretch begins, not what it is. So prefer the
-visibly incomplete term to the plausibly wrong one, and give a bare word a
+the moment the job stopped — where the stretch begins, not what it is. So prefer
+the visibly incomplete term to the plausibly wrong one, and give a bare word a
 qualifier whenever its ordinary meaning is wider, narrower, or merely adjacent to
 what the entry says.
 
