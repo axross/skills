@@ -160,9 +160,10 @@ one you inherit.
 A skill's usefulness has to be checked rather than assumed, and the checking
 cannot be done by reading it.
 
-**Evaluation in this space, where it exists at all, tends to stop at form** —
-that a skill is shaped correctly, not that it works. This library measures the
-outcome as well, and commits the measurements: the recorded results live in
+**Evaluation in this space, where it exists at all, tends to stop at a skill's
+textual properties** — that it is shaped correctly, not that it works. This
+library measures the skill outcome as well, and commits the measurements: the
+recorded results live in
 [`evals/discovery/snapshot.json`](./evals/discovery/snapshot.json), so what the
 measurement found is something you can read rather than take on trust. That is
 the axis worth comparing libraries on — whether the discovery text is _measured_
@@ -172,7 +173,7 @@ is the entire point of running it.
 
 Two instruments do the measuring.
 [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) explains
-what skill evaluation is, why form checking cannot reach it, and what each
+what skill evaluation is, why checking textual properties cannot reach it, and what each
 instrument answers. [`evals/discovery/README.md`](./evals/discovery/README.md)
 carries the discovery instrument itself — the fixture format, how a verdict is
 reached, when to re-record the snapshot, and the limits of what a run can
@@ -343,8 +344,8 @@ node scripts/discovery-eval/run.mjs --help
 ```
 
 `scripts/discovery-eval/run.mjs` answers "does a prompt actually surface the
-right skills?" — the first check here that measures an **outcome** rather than
-form. It runs a labelled prompt fixture through the real Claude Code CLI in a
+right skills?" — the first check here that measures a **skill outcome** rather
+than a **textual property**. It runs a labelled prompt fixture through the real Claude Code CLI in a
 scratch workspace and reports which expected skills were missed and which
 unexpected ones fired, as a delta against a recorded snapshot. It cannot gate
 for three independent reasons: it is non-deterministic, it costs real money per
