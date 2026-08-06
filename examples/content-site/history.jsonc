@@ -45,7 +45,7 @@
 		},
 		{
 			"message": "Add post detail page",
-			"files": ["app/(site)/posts/[slug]/page.tsx"]
+			"files": ["app/(site)/posts/[slug]/page.tsx", "types/framework.d.ts"]
 		},
 		{
 			"message": "WIP e2e",

@@ -17,6 +17,7 @@ npm install
 | `npm run format`        | Rewrites the project in place to its house style.          |
 | `npm run format:check`  | Reports formatting drift without rewriting anything.       |
 | `npm run lint`          | Lints the whole project; also checks formatting.           |
+| `npm run typecheck`     | Type-checks the project. The test runner strips types rather than checking them, so this is the only thing that does. |
 | `npm test`              | Runs the unit test suite.                                  |
 
 ## Layout

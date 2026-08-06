@@ -4,7 +4,7 @@ import { resolveTranslation } from "@/shared/resolve-translation";
 import { findPostBySlug } from "../../posts-data";
 
 interface PostPageProps {
-	params: { slug: string };
+	params: Promise<{ slug: string }>;
 }
 
 /**
@@ -28,7 +28,8 @@ function acceptedLocales(acceptLanguage: string | null): string[] {
  * renders.
  */
 export default async function PostPage({ params }: PostPageProps) {
-	const post = findPostBySlug(params.slug);
+	const { slug } = await params;
+	const post = findPostBySlug(slug);
 	if (!post) notFound();
 
 	const requestHeaders = await headers();
