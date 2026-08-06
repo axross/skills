@@ -497,25 +497,6 @@ export const CLAIMS = {
     },
   },
 
-  "address-review-round-cap": {
-    owner: "the round cap in skills/loop-engineering/SKILL.md",
-    note: "the cap is the skill's to set; this sentence only reports it",
-    derive: async () => {
-      const skill = await readFile(
-        repoPath("skills/loop-engineering/SKILL.md"),
-        "utf8",
-      );
-      return Number(
-        anchored(
-          skill,
-          /cap the address.{0,3}review loop at \*\*(\d+)\*\* rounds/,
-          "skills/loop-engineering/SKILL.md",
-          "the address↔review round cap",
-        ),
-      );
-    },
-  },
-
   "empty-tally-cases": {
     owner: "the cases in evals/discovery/baseline.json recorded with no hits",
     note: "a re-recorded baseline can move this in either direction",
