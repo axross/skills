@@ -157,9 +157,8 @@ one you inherit.
 
 ## How this library evaluates its skills
 
-A skill only earns its place if an agent actually reaches for it at the right
-moment, and if holding it then changes what the agent does. Neither is visible
-in the file, and no amount of structural validation reaches either.
+A skill's usefulness has to be checked rather than assumed, and the checking
+cannot be done by reading it.
 
 **Evaluation in this space, where it exists at all, tends to stop at form** —
 that a skill is shaped correctly, not that it works. This library measures the
