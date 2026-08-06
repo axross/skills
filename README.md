@@ -783,7 +783,8 @@ and pushing, publishing, and anything else that speaks outward belongs to
 whoever asked, a rule the file asks the worker to honor rather than one the host
 enforces. It carries nothing else: the decision boundary, the verification
 obligation, the commit rules, and the receipt shape all arrive per run in the
-task package, so a definition restating them would only drift from it. It does not mention the loop at all, which is the point: it says
+task package, so a definition restating them would only drift from it. It does
+not mention the loop at all, which is the point: it says
 what an implementation agent is and what it may not decide, so the same file
 works for a caller that has never heard of `loop-engineering` and is worth
 copying into a project that runs its subagents some other way. What it leaves
