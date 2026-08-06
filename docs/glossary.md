@@ -16,7 +16,7 @@
 
 **Installed root** — a directory an **agent runtime** reads **agent skills** from, generated from a **source root**, whether it holds the files itself or reaches them through symlinks.
 
-**Skill root** — any root of the kinds above, used where a statement is true of any directory an **agent runtime** enumerates **agent skills** from.
+**Skill root** — either a **source root** or an **installed root**, used where a statement is true of any directory an **agent runtime** enumerates **agent skills** from.
 
 **Installed copy** — the generated copy of a **distributable skill** under an **installed root**, which an **agent runtime** reads and an author never edits.
 
