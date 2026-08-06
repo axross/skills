@@ -16,9 +16,13 @@
 // root and no use for this check — which is the same thing as saying it is not
 // running the model.
 //
-// `skills-lock.json` is deliberately NOT consulted. Every entry records an
-// absolute `source` path, so the lockfile is not portable across checkouts and
-// is a poor authority for what should exist; directory contents are the truth.
+// `skills-lock.json` is deliberately NOT consulted. It is written only by an
+// install, so it records what the last install did rather than what is on
+// disk now, and cannot witness a later hand-edit to an installed copy —
+// precisely the drift this check exists to catch. Its `source` field also
+// names where a skill came from, not where its installed copy lives, so it
+// identifies neither of the two roots being compared. Directory contents are
+// the truth.
 //
 // Usage:
 //   node check-installed-copies.mjs [--local <name>]... <source-root> <installed-root>
