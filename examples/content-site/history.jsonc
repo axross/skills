@@ -1,0 +1,67 @@
+// history.jsonc — the commit history scripts/value-eval/materialize.mjs
+// replays into a real Git repository when it expands this mock.
+//
+// This file is fixture metadata, not part of the project: materialize.mjs
+// omits it from the materialized tree, and nothing under app/, shared/, or
+// elsewhere in this mock ever imports or reads it.
+//
+// Each entry becomes one commit, in array order (oldest first): its `files`
+// are staged from the already-copied working tree and committed with its
+// `message`, under a pinned author/committer identity and a pinned,
+// per-commit date — see materialize.mjs for why those are pinned. Every file
+// this mock ships appears in exactly one entry's `files`, so materializing
+// replays the whole tree and leaves nothing uncommitted.
+//
+// The messages are DELIBERATELY inconsistent in style — a real mix of
+// terse WIP notes, vague one-liners, and the occasional Conventional Commit —
+// rather than a clean, uniform log. A tidy history here would let a model
+// copy that convention from context; this project's history should not
+// hint at how the pilot expects generated commits to look.
+{
+	"commits": [
+		{
+			"message": "Initial commit",
+			"files": ["package.json", ".gitignore", "tsconfig.json", "biome.jsonc"]
+		},
+		{
+			"message": "WIP",
+			"files": ["babel.config.cjs", "jest.config.cjs"]
+		},
+		{
+			"message": "refactor(i18n): tighten locale matching",
+			"files": ["shared/resolve-translation.ts"]
+		},
+		{
+			"message": "add slug validation",
+			"files": ["shared/blog-post-slug.ts", "shared/blog-post-slug.spec.ts"]
+		},
+		{
+			"message": "fix layout bug",
+			"files": ["app/(site)/layout.tsx"]
+		},
+		{
+			"message": "home page",
+			"files": ["app/(site)/page.tsx", "app/(site)/posts-data.ts"]
+		},
+		{
+			"message": "Add post detail page",
+			"files": ["app/(site)/posts/[slug]/page.tsx", "types/framework.d.ts"]
+		},
+		{
+			"message": "WIP e2e",
+			"files": ["e2e/home.spec.ts", "playwright.config.ts"]
+		},
+		{
+			"message": "ci: add workflow",
+			"files": [".github/workflows/ci.yml"]
+		},
+		{
+			"message": "Update README",
+			"files": ["README.md"]
+		},
+		{
+			"message": "docs",
+			"files": ["docs/deployment.md", "AGENTS.md"]
+		}
+	]
+}

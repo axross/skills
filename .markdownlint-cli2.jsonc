@@ -19,5 +19,9 @@
     "MD031": false, // blanks around fences — Prettier governs fenced-block spacing
     "MD010": { "code_blocks": false } // hard tabs allowed inside code samples
   },
-  "ignores": ["node_modules"]
+  // The mock fixtures under examples/ are self-contained projects with their
+  // own linter (see e.g. examples/content-site/package.json) and their own
+  // conventions, so this repository's own gates never cover them; the mock's
+  // own toolchain is what keeps it honest instead.
+  "ignores": ["node_modules", "examples"]
 }

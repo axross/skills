@@ -1,1 +1,8 @@
 node_modules
+
+# The mock fixtures under examples/ are self-contained projects with their
+# own formatter (see e.g. examples/content-site/package.json) and their own
+# conventions — reformatting them to this repository's house style would
+# diverge them from what their own toolchain expects, so this repository's
+# gates never cover them; the mock's own toolchain is what keeps it honest.
+examples
