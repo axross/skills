@@ -497,7 +497,7 @@ export const CLAIMS = {
     },
   },
 
-  "empty-tally-cases": {
+  "empty-discovery-count-cases": {
     owner: "the cases in evals/discovery/snapshot.json recorded with no hits",
     note: "a re-recorded snapshot can move this in either direction",
     derive: async () => {

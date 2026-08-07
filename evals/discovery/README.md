@@ -207,23 +207,24 @@ benchmark, and [`--determinism`](#--determinism) is what will eventually measure
 the real thing. Under a Jeffreys `Beta(0.5, 0.5)` prior instead, no verdict in
 this fixture flips.
 
-**A tally entry is always a prior; an absence is one only for a skill the run
-tracked.** A snapshot records a zero-hit skill by omitting it, so an absence
-means _measured, and zero_ for a skill in `mustInclude`, `mustExclude` or
-`expectAlways` — and _nobody ever looked_ for anything else. `mayInclude` is
-deliberately outside that set: those skills are never a finding, so a run has no
-obligation to tally them, and reading their silence as a measured zero would
-manufacture priors. A line with no prior prints an em dash, never a `0`:
+**A recorded discovery count is always a prior; an absence is one only for a
+skill the run tracked.** A snapshot records a zero-hit skill by omitting it, so
+an absence means _measured, and zero_ for a skill in `mustInclude`,
+`mustExclude` or `expectAlways` — and _nobody ever looked_ for anything else.
+`mayInclude` is deliberately outside that set: those skills are never a
+finding, so a run has no obligation to count them, and reading their silence as
+a measured zero would manufacture priors. A line with no prior prints an em
+dash, never a `0`:
 
 ```text
   hf-touch-targets: react-component-styling —/5 -> 2/5  (no prior: not tracked, and nothing recorded)
 ```
 
-The inference stays sound only while, since the tally was recorded, **(a)** no
-measured case has gained a `mustInclude`/`mustExclude` label and **(b)**
-`expectAlways` has gained no skill. Both hold today. The second is the sharper
-edge: an `expectAlways` addition changes the tracked set for **every** case at
-once, where a per-case label changes one.
+The inference stays sound only while, since the discovery counts were recorded,
+**(a)** no measured case has gained a `mustInclude`/`mustExclude` label and
+**(b)** `expectAlways` has gained no skill. Both hold today. The second is the
+sharper edge: an `expectAlways` addition changes the tracked set for **every**
+case at once, where a per-case label changes one.
 
 **A zero prior against a zero run is `standing`, not a probability** — and it
 renders even with no corpus fingerprint, because it is a statement about counts:
@@ -332,7 +333,7 @@ snapshot recorded at 5 repeats stays comparable against a 10-repeat run.
 
 The most consequential result in this file is a negative one, and it is about a
 skill of this library's own. `professional-behavior` — the fixture's sole
-`expectAlways` entry, a skill whose `when_to_use` claims it applies to **every**
+`expectAlways` entry, a skill whose `description` claims it applies to **every**
 session — was selected in **none** of the recorded probes:
 
 ```bash
@@ -344,24 +345,24 @@ console.log("cases naming professional-behavior:", named);
 # cases naming professional-behavior: 0
 ```
 
-That command counts **tallies** rather than hits because a 0-hit skill is
-recorded by being absent from a tally, never by a `0`:
+That command counts **recorded discovery counts** rather than hits because a
+0-hit skill is recorded by being absent, never marked by a `0`:
 [`renderSnapshot`](../../scripts/discovery-eval/report.mjs) writes a skill only
 when `hits > 0`. The skill was tracked on every case regardless —
 [`tallyCase`](../../scripts/discovery-eval/compare.mjs) unions `expectAlways`
-into the names it tallies — so the absence is a measured zero rather than a
+into the names it counts — so the absence is a measured zero rather than a
 skill that was never tracked.
 
 **What produced it.** `claude-sonnet-5`, at 5 repeats on each of the 28 measured
 cases: 140 probes, and no selection in any of them.
 
 **Why it is not a statement about today.** Two reasons, and re-reading the file
-resolves neither. The tallies are not one run — they accreted across four
-commits as new skills landed, against an installed corpus that grew from 22
-skills to 25. And nothing records which version of `professional-behavior`'s own
-discovery text the probes read: #111 rewrote both its `description` and its
-`when_to_use` in the commit immediately before the first tallies landed, the
-probes themselves ran on a branch, and this snapshot predates the
+resolves neither. The discovery counts are not one run — they accreted across
+four commits as new skills landed, against an installed corpus that grew from
+22 skills to 25. And nothing records which version of `professional-behavior`'s
+own discovery text the probes read: #111 rewrote both its `description` and its
+`when_to_use` in the commit immediately before the first discovery counts
+landed, the probes themselves ran on a branch, and this snapshot predates the
 [`corpus`](#corpus--the-fingerprint-of-what-a-measurement-ran-against)
 fingerprint that would have settled which side of that rewrite they fell on.
 Only a re-record yields a live figure.
@@ -502,11 +503,12 @@ run":
 }
 ```
 
-What it must not do is borrow `{}`. An empty tally means _measured, and
-discovery selected nothing_ — a real finding
-on <!-- count:empty-tally-cases -->three<!-- /count --> cases in this file, one
-of them a standing `MISS`. Reusing that spelling for "never run" would make the
-two indistinguishable in the one file a human reads before committing.
+What it must not do is borrow `{}`. An empty discovery count means _measured,
+and discovery selected nothing_ — a real finding
+on <!-- count:empty-discovery-count-cases -->three<!-- /count --> cases in this
+file, one of them a standing `MISS`. Reusing that spelling for "never run"
+would make the two indistinguishable in the one file a human reads before
+committing.
 
 The declaration **clears itself**: a re-record measures every case in the
 fixture it ran, so `--emit-snapshot` emits a document with no `unmeasured` key
@@ -553,9 +555,10 @@ in this repository at all.
 Every case is marked, not a subset: the whole corpus is installed for every
 probe, so there is no case the drift provably could not have touched. A skill
 recorded in `corpus` that no longer exists is reported as a removal rather than
-failing the run — unlike the same name in a `cases` tally, which is a hard
-error. **When the corpus matches, the report says nothing at all**; a notice
-that fires on every run is one that gets skipped on the run that matters.
+failing the run — unlike the same name in a `cases` discovery count, which is a
+hard error. **When the corpus matches, the report says nothing at all**; a
+notice that fires on every run is one that gets skipped on the run that
+matters.
 
 The field is **optional**, because the snapshot in this tree predates it and
 re-recording costs a full run's worth of probes. A snapshot carrying no `corpus`
@@ -626,7 +629,7 @@ measured, and it would quietly widen what the first half forgives.
   contaminated run cannot emit a snapshot — but a foreign skill that is itself
   `user-invocable: false` stays invisible to that record.
 - **`expectAlways` is informational for now.** `professional-behavior` claims in
-  its own `when_to_use` that it applies to every session. Whether that holds
+  its own `description` that it applies to every session. Whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported
   but not counted as a finding. It has already fallen short once, and the
   recorded result is written up under [What this snapshot already
