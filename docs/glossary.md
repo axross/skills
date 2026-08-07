@@ -68,7 +68,7 @@
 
 **Independent review** — the review of a change performed by a separate session under a bot identity distinct from the operator, so a change's author never certifies it. It is the authoritative review of an agent's own work.
 
-**Pre-flight review** — an optional advisory review by a second worker before the pull request opens. It buys a reader free of the implementer's reasoning state, and is never reported as the **independent review**.
+**Pre-flight review** — an advisory review by a second worker before the pull request opens, run whenever implementation was delegated and a compatible reader resolves. It buys a reader free of the implementer's reasoning state, and is never reported as the **independent review**.
 
 **Posted review** — a review published on a pull request rather than delivered in-session, and narrower in its severity vocabulary than one delivered in-session is.
 
