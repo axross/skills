@@ -85,6 +85,44 @@ heading pairs with `specs/job-templates.md`. That pairing is what makes the
 glossary navigable without a single link — the section a term sits in already
 says which spec owns it.
 
+**A term costs the reader whatever it takes to reach the right meaning, and the
+words it is made of set that cost.** A glossary is not read front to back; it is
+read by someone meeting a term in a sentence who decides, in that moment,
+whether they already know it. Where a candidate's words compose to the
+definition exactly, that decision costs nothing. A reader meeting `Template`
+knows the English word and moves on with the wrong meaning; one meeting **Job
+Template**, as the example above has it, already knows what it holds before
+reaching the entry.
+
+Where nothing composes exactly, the remaining candidates are not equally priced.
+One that visibly does not compose costs a lookup: paid once, and knowingly. One
+that composes to something _nearly_ right costs more, and invisibly, because the
+reader never stops, and every sentence built on the term inherits the meaning
+they brought to it. Naming the stretch between a **Job** stopping and its record
+being written, `Job window` sends the reader to the entry: they can see it names
+some span and not which one. `Job end` sends them nowhere, because it composes to
+the moment the job stopped — where the stretch begins, not what it is. So the
+visibly incomplete term costs less than the plausibly wrong one, and a bare word
+whose ordinary meaning is wider, narrower, or merely adjacent to what the entry
+says is plausibly wrong by construction.
+
+A qualifier earns its place only when the compound composes to the thing itself.
+Say the corpus above needs a term for what one **Job** produced, kept after the
+job itself is gone: **Job output** composes to exactly that, and three
+near-misses each miss along one axis.
+
+| Candidate        | Composes to                  | Axis it misses                                                               |
+| ---------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| `Output record`  | a record of some output      | **which** — the qualifier says what kind of record, never whose output it is |
+| `Failure output` | what the failures produced   | **how much** — narrower than the thing, which covers successful **Jobs** too |
+| `Completed job`  | the execution, once finished | **what kind** — the execution itself, where the thing is what it left behind |
+
+One case sits outside all of this: seeding a glossary from the code and from a
+team's own usage, which the Seeding the Glossary section of
+[bootstrapping.md](./bootstrapping.md#seeding-the-glossary) governs in full. The
+closest-composing guideline below governs the rename that may follow the
+capture, not the capture itself.
+
 **Guidelines:**
 
 - MUST group the glossary by domain, with each heading named for a spec — or,
@@ -92,6 +130,13 @@ says which spec owns it.
 - MUST keep an entry **self-sufficient**: after reading it, a reader knows what
   the term means and where it sits without opening anything else. An entry that
   only redirects has stopped paying for itself, and no check can see that.
+- MUST choose the term whose words' ordinary meaning composes closest to what
+  the entry says, wherever a term is being chosen rather than seeded from the
+  code or the team's own usage — so a bare word already meaning exactly that
+  stays bare, and one meaning something wider, narrower, or adjacent takes the
+  qualifier that closes the gap; where no candidate composes exactly, prefer the
+  term a reader can see they do not know to one they will mistake for a word
+  they do, and no check can see this either.
 - MUST mark a defined term where it appears in another entry — bold is enough —
   rather than linking to it. The file is small by construction, so an in-file
   anchor buys navigation nobody needed.
