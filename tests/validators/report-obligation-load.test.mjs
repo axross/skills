@@ -512,7 +512,18 @@ describe("report-obligation-load.mjs", () => {
       // stopped being discretionary — the Phase 2 bullet's own label, "MAY
       // judge" becoming "judges", and the Termination Guard cap's lead-in —
       // but the growth outweighs the trim.
-      expect.soft(totals.floorTokens).toBe(8_599);
+      // And 27 more in the same change's own pre-flight review round 1. The
+      // normalizing sentence's "whenever either does not hold" read the
+      // permission determination as a binary that either holds or does not —
+      // which reads undetermined-and-not-yet-asked as already licensing
+      // fallback, the exact failure this change exists to remove, surviving
+      // inside the sentence meant to remove it. It now tracks the
+      // determination's actual outcomes instead: no qualifying worker, a
+      // barred policy, or an undetermined policy the human declined or that
+      // could not be asked. Framing prose only, consistent with the five
+      // terminal outcomes implementation-worker.md already names — no
+      // obligation moved, which is why the floor count above still holds.
+      expect.soft(totals.floorTokens).toBe(8_626);
       // Drifted from 299 in #174. All ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -829,7 +840,10 @@ describe("report-obligation-load.mjs", () => {
       // trimmed from delegated-execution.md and writer-ownership-and-
       // recovery.md's own stray "optional" mentions of the pre-flight stage.
       // Each figure rounds its own byte total independently.
-      expect.soft(totals.ceilingTokens).toBe(43_090);
+      // And 27 more from that change's own pre-flight review round 1, the
+      // same SKILL.md tightening noted at the floor above — still framing
+      // prose, so only the byte total this figure divides moves.
+      expect.soft(totals.ceilingTokens).toBe(43_117);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -907,11 +921,14 @@ describe("report-obligation-load.mjs", () => {
       // totals above: the floor obligation count by the new Phase 2
       // Guidelines bullet, the floor tokens by SKILL.md's own prose changes,
       // the ceiling obligation count by the six obligations detailed there,
-      // and the ceiling tokens by the bytes behind all of them.
+      // and the ceiling tokens by the bytes behind all of them. Its own
+      // pre-flight review round 1 moved both token figures again, by the
+      // same 27-byte SKILL.md tightening noted there, with neither
+      // obligation count moving.
       expect.soft(tiers[2].floorObligations).toBe(27);
-      expect.soft(tiers[2].floorTokens).toBe(8_599);
+      expect.soft(tiers[2].floorTokens).toBe(8_626);
       expect.soft(tiers[2].ceilingObligations).toBe(441);
-      expect.soft(tiers[2].ceilingTokens).toBe(43_090);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_117);
 
       // The last tier IS the total, by construction. Asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

@@ -62,7 +62,7 @@ See [github-conventions.md](./references/github-conventions.md) for what the loo
 
 ## Delegated Implementation
 
-Delegation happens only where the harness already exposes a worker that qualifies and where the harness permits the spawn — a determination the run makes on every run, landing on **permitted**, **barred**, or **undetermined** (see the policy-branch bullets below). Single-agent execution is a normal outcome, not a degraded one, whenever either does not hold. No harness-specific agent definition, exact role name, or named model is required.
+Delegation happens only where the harness already exposes a worker that qualifies and where the harness permits the spawn — a determination the run makes on every run, landing on **permitted**, **barred**, or **undetermined** (see the policy-branch bullets below). Single-agent execution is a normal outcome, not a degraded one, whenever the determination settles that way: no qualifying worker, a barred policy, or an undetermined policy the human declined or that could not be asked. No harness-specific agent definition, exact role name, or named model is required.
 
 See [implementation-worker.md](./references/implementation-worker.md) for:
 
