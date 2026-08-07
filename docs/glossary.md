@@ -120,7 +120,7 @@
 
 **Skill-absent condition** — the **evaluation condition** run without the skill under test installed.
 
-**Skill-present condition** — the **evaluation condition** run with it installed.
+**Skill-present condition** — the **evaluation condition** run with the skill under test installed.
 
 **Mock project** — a small self-contained project modelled on a real consumer, kept as a fixture so an evaluation can give an agent real work to do.
 
