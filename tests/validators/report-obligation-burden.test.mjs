@@ -25,7 +25,7 @@ import { estimateTokens } from "../../skills/agent-skill-authoring/scripts/token
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
 import { repoPath, SCRIPTS, validator } from "../helpers/run.mjs";
 
-const report = validator(SCRIPTS.reportObligationLoad);
+const report = validator(SCRIPTS.reportObligationBurden);
 const checkSkill = validator(SCRIPTS.checkSkillBody);
 
 /** The always-on set, mirroring the script's own MANDATED_SKILLS. */

@@ -49,7 +49,7 @@ import { GATES } from "./gates.mjs";
 /** @type {ReportingTool[]} */
 const REPORTING_TOOLS = [
   {
-    script: SCRIPTS.reportObligationLoad,
+    script: SCRIPTS.reportObligationBurden,
     // A distinctive basename, so this catches `node ./scripts/report-…` too.
     needle: "report-obligation-burden.mjs",
     workflow: null,

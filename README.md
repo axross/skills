@@ -160,9 +160,10 @@ one you inherit.
 A skill's usefulness has to be checked rather than assumed, and the checking
 cannot be done by reading it.
 
-**Evaluation in this space, where it exists at all, tends to stop at the
-textual properties** — that a skill is shaped correctly, not that it works. This library measures the
-outcome as well, and commits the measurements: the recorded results live in
+**Evaluation in this space, where it exists at all, tends to stop at a skill's
+textual properties** — that it is shaped correctly, not that it works. This
+library measures the skill outcome as well, and commits the measurements: the
+recorded results live in
 [`evals/discovery/snapshot.json`](./evals/discovery/snapshot.json), so what the
 measurement found is something you can read rather than take on trust. That is
 the axis worth comparing libraries on — whether the discovery text is _measured_
@@ -173,7 +174,8 @@ is the entire point of running it.
 Two instruments do the measuring.
 [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) explains
 what skill evaluation is, why checking textual properties cannot reach it, and
-what each instrument answers. [`evals/discovery/README.md`](./evals/discovery/README.md)
+what each instrument answers.
+[`evals/discovery/README.md`](./evals/discovery/README.md)
 carries the discovery instrument itself — the fixture format, how a verdict is
 reached, when to re-record the snapshot, and the limits of what a run can
 conclude. [Reporting, not gating](#reporting-not-gating) has the commands for
@@ -343,13 +345,13 @@ node scripts/discovery-eval/run.mjs --help
 ```
 
 `scripts/discovery-eval/run.mjs` answers "does a prompt actually surface the
-right skills?" — the first check here that measures an **outcome** rather than
-form. It runs a labelled prompt fixture through the real Claude Code CLI in a
-scratch workspace and reports which expected skills were missed and which
-unexpected ones fired, as a delta against a recorded snapshot. It cannot gate
-for three independent reasons: it is non-deterministic, it costs real money per
-run (`--dry-run` prints the current estimate), and it needs a secret that fork
-pull requests do not receive.
+right skills?" — the first check here that measures a **skill outcome** rather
+than a **textual property**. It runs a labelled prompt fixture through the real
+Claude Code CLI in a scratch workspace and reports which expected skills were
+missed and which unexpected ones fired, as a delta against a recorded snapshot.
+It cannot gate for three independent reasons: it is non-deterministic, it costs
+real money per run (`--dry-run` prints the current estimate), and it needs a
+secret that fork pull requests do not receive.
 
 Run it in CI from the Actions tab by dispatching
 [`discovery-eval.yaml`](./.github/workflows/discovery-eval.yaml) — the only
@@ -359,10 +361,10 @@ pull request number to evaluate that branch's changed skills and have the report
 posted as a comment; leave it blank to evaluate the default branch and read the
 report in the job log. Check `emit_snapshot` — which no dispatch naming a pull
 request may combine with — to have the run also produce a proposed snapshot as a
-downloadable artifact, which is how the snapshot gets re-recorded without a local
-CLI or local credentials. Give it a case id in `determinism` instead to repeat
-that one case against an unchanged corpus and measure whether its probes behave
-as independent draws; that combines with a pull request but not with
+downloadable artifact, which is how the snapshot gets re-recorded without a
+local CLI or local credentials. Give it a case id in `determinism` instead to
+repeat that one case against an unchanged corpus and measure whether its probes
+behave as independent draws; that combines with a pull request but not with
 `emit_snapshot`, since one case cannot produce a fixture-wide document.
 `--dry-run` validates the fixture with no model call and
 no secret. See
@@ -514,9 +516,8 @@ configuration at startup.
 
 **A number in prose can be a checked claim.** Wrap one in a `count:` marker and
 `npm test` holds it to the file it describes — the skill count at the top of
-this page, the round cap it quotes from a skill, the empty tallies in the
-discovery evaluation's snapshot. The marker is invisible once
-rendered:
+this page, the round cap it quotes from a skill, the empty discovery counts in
+the snapshot. The marker is invisible once rendered:
 
 ```markdown
 The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the
