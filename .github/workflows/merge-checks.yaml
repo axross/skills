@@ -20,7 +20,22 @@ name: Merge Checks
 
 on:
   pull_request:
+    # ── THE MEASUREMENT PULL REQUEST DOES NOT RUN THESE GATES.
+    #
+    # A pull request whose changed files are ALL under these paths carries
+    # measurement data and no code, so this workflow does not start for it. See
+    # the note below the concurrency block for why that division exists and what
+    # checks the data gets instead.
+    paths-ignore:
+      - "data/*/measurements/**"
+      - "data/*/summary.json"
   push:
+    # NO paths-ignore HERE, DELIBERATELY. Once a measurement merges, the gates
+    # run against the merged tree on the default branch — including the drift
+    # check, which re-derives every committed summary. So measurement data is
+    # not exempt from this repository's checks; it is exempt from being BLOCKED
+    # by them at pull-request time, having already been checked by the dispatch
+    # that produced it.
     branches: [main] # ← the project's default branch
 
 # Cancel superseded runs on PR refs only: on the default branch every push is a
@@ -33,47 +48,47 @@ concurrency:
 permissions:
   contents: read
 
-# ── THE MEASUREMENT PULL REQUEST IS EXCLUDED, EXPLICITLY.
+# ── WHY THE MEASUREMENT PULL REQUEST IS EXCLUDED, AND WHY BY PATH.
 #
 # effect-eval.yaml opens a pull request with GITHUB_TOKEN, and GitHub does not
-# fire workflows on those — so today these gates already do not run on it. That
-# exclusion is currently an accident of platform behaviour, and this guard turns
-# it into a declared one, so a future change in how GitHub treats
+# fire workflows on those — so these gates already did not run on it. That was
+# an accident of platform behaviour; the `paths-ignore` above makes it a
+# declared division, so a future change in how GitHub treats
 # GITHUB_TOKEN-authored pull requests cannot silently move which gate is
 # responsible for measurement data.
 #
-# The division it declares: measurement data is checked by the dispatch that
-# produced it, before the commit — the drift check, the comparability checks,
-# and this repository's own `npm run check` all run inside effect-eval.yaml's
-# landing job. Code is checked here. Nothing is checked by neither.
+# The division: measurement data is checked by the dispatch that produced it,
+# before the commit — the drift check, the comparability checks, and this
+# repository's own `npm run check` all run inside effect-eval.yaml's landing
+# job — and then again here on the push to the default branch once it merges.
+# Code is checked here. Nothing is checked by neither.
 #
-# THREE THINGS ABOUT THE SHAPE ARE DELIBERATE.
+# BY PATH RATHER THAN BY BRANCH NAME, for two reasons.
 #
-# It is a job-level `if:` and not a trigger-level `paths-ignore`. A workflow
-# skipped by a path or branch filter never reports at all, so a required status
-# check would stay pending forever; a job skipped by `if:` reports and satisfies
-# it.
+# The first is that GitHub cannot do it by branch name at all: `branches` and
+# `branches-ignore` on a `pull_request` trigger filter the BASE branch, not the
+# head, so there is no trigger-level expression of "skip a measurement branch".
 #
-# It keys on the AUTHOR as well as the branch prefix. A branch-name-only guard
-# would let any contributor skip all three gates by naming their branch
-# `measurement/…`. The author of a GITHUB_TOKEN-opened pull request is not
-# something a contributor can forge.
+# The second is that a path key is better anyway. A branch-name key is a public
+# string any contributor could adopt to skip all three gates; a path key says
+# the pull request changes nothing but measurement data, which is a fact about
+# its contents rather than about its name. A pull request that touches one line
+# of code runs every gate no matter what its branch is called.
 #
-# It is repeated on each job rather than factored into a shared gate job,
-# because that would need `needs:` — and the note above records that no job here
-# declares one, so that a failing gate still lets the others report.
+# WHAT THIS COSTS: a skipped workflow reports nothing, so if these three ever
+# become REQUIRED status checks on the default branch, a measurement pull
+# request would sit pending forever. If that day comes, the fix is to move the
+# exclusion back to a job-level `if:` keyed on both the branch prefix and the
+# `github-actions[bot]` author — a skipped JOB reports and satisfies a required
+# check, where a skipped workflow does not.
 #
-# tests/repository/reporting-tools.test.mjs asserts all three jobs carry it.
-# Note that it adds no `run:` line, so the gate-consistency coupling above is
-# unaffected.
+# tests/repository/reporting-tools.test.mjs asserts the exclusion is present and
+# scoped to those two paths. It adds no `run:` line, so the gate-consistency
+# coupling above is unaffected.
 
 jobs:
   format-validation:
     name: Format Validation
-    if: >-
-      ${{ !(github.event_name == 'pull_request'
-            && github.event.pull_request.user.login == 'github-actions[bot]'
-            && startsWith(github.head_ref, 'measurement/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -90,10 +105,6 @@ jobs:
 
   lint:
     name: Lint
-    if: >-
-      ${{ !(github.event_name == 'pull_request'
-            && github.event.pull_request.user.login == 'github-actions[bot]'
-            && startsWith(github.head_ref, 'measurement/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -110,10 +121,6 @@ jobs:
 
   tests:
     name: Tests
-    if: >-
-      ${{ !(github.event_name == 'pull_request'
-            && github.event.pull_request.user.login == 'github-actions[bot]'
-            && startsWith(github.head_ref, 'measurement/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

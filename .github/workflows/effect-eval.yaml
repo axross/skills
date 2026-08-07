@@ -62,9 +62,20 @@ name: Skill Effect Evaluation
 # check`. A failure there fails the dispatch and opens no pull request.
 #
 # That division is then declared rather than inherited — merge-checks.yaml
-# carries an explicit guard excluding this workflow's pull requests, so a future
-# change in how GitHub treats GITHUB_TOKEN-authored pull requests cannot
-# silently move which gate is responsible for measurement data.
+# excludes this pull request at its trigger, by PATH: a pull request whose
+# changed files are all under data/*/measurements/** or data/*/summary.json
+# carries measurement data and no code, so the gate workflow does not start. A
+# future change in how GitHub treats GITHUB_TOKEN-authored pull requests
+# therefore cannot silently move which gate is responsible for that data.
+#
+# By path rather than by branch name, and not only because GitHub cannot filter
+# a pull_request trigger by HEAD branch at all (its `branches` filter reads the
+# base). A branch-name key would be a public string any contributor could adopt
+# to skip every gate; a path key is a fact about what the pull request contains.
+#
+# The gates do still run on the push to the default branch once it merges — the
+# drift check included — so measurement data is exempt from BLOCKING a pull
+# request, not from being checked.
 #
 # Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
 # claude-review.yaml and discovery-eval.yaml already use. No new secret.
@@ -108,9 +119,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      matrix: ${{ steps.plan.outputs.matrix }}
-      cap-usd: ${{ steps.plan.outputs.cap-usd }}
-      projected-usd: ${{ steps.plan.outputs.projected-usd }}
+      conditions: ${{ steps.admit.outputs.conditions }}
+      repeats: ${{ steps.admit.outputs.repeats }}
+      cap-usd: ${{ steps.admit.outputs.cap-usd }}
+      projected-usd: ${{ steps.admit.outputs.projected-usd }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -121,8 +133,8 @@ jobs:
 
       # Exits 4 when the projection exceeds the cap, which fails this job and
       # skips everything downstream. Nothing is spawned and nothing is billed.
-      - name: Plan the matrix and admit the spend
-        id: plan
+      - name: Admit the spend and emit the matrix
+        id: admit
         env:
           CASE: ${{ github.event.inputs.case }}
           CAP_USD: ${{ github.event.inputs.cap_usd }}
@@ -132,7 +144,7 @@ jobs:
           if [ -n "${CAP_USD}" ]; then
             args+=(--cap-usd "${CAP_USD}")
           fi
-          node tools/effect-eval/src/plan.mjs "${args[@]}"
+          node .github/scripts/effect-eval-admit.mjs "${args[@]}"
 
   probe:
     name: Probe ${{ matrix.condition }} ${{ matrix.repeat }}
@@ -148,7 +160,14 @@ jobs:
       # repetition count and report the measurement as incomparable, which is
       # the right outcome: a partial case is a finding, not a silent success.
       fail-fast: false
-      matrix: ${{ fromJSON(needs.admit.outputs.matrix) }}
+      # GitHub cross-products these two itself — two conditions by three
+      # repeats is the six cells, with no list of pairs built anywhere. Both
+      # come from the admit job rather than being retyped here, so the
+      # conditions stay the instrument's CONDITIONS and the repeat count stays
+      # the fixture's.
+      matrix:
+        condition: ${{ fromJSON(needs.admit.outputs.conditions) }}
+        repeat: ${{ fromJSON(needs.admit.outputs.repeats) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -228,14 +247,14 @@ jobs:
           cache: npm
       - run: npm ci
 
-      - name: Collect every probe record
+      # The directory name comes from the admit job, which built it with the
+      # instrument's own `caseMeasurementName`. Reimplementing the `<case>-<id>`
+      # shape in shell here is what this replaced.
+      - name: Make room for the probe records
         id: collect
-        env:
-          CASE: ${{ github.event.inputs.case }}
         run: |
           set -euo pipefail
-          id="$(node -e 'process.stdout.write(require("node:crypto").randomBytes(4).toString("hex"))')"
-          dir="data/effect-eval/measurements/${CASE}-${id}"
+          dir="data/effect-eval/measurements/${{ needs.admit.outputs.measurement-dir }}"
           mkdir -p "${dir}"
           echo "dir=${dir}" >> "$GITHUB_OUTPUT"
 
@@ -272,7 +291,7 @@ jobs:
           COMPARABLE: ${{ steps.summarize.outcome }}
         run: |
           set -euo pipefail
-          branch="measurement/effect-eval/${{ github.run_id }}"
+          branch="effect-eval/measurement/${{ github.run_id }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "${branch}"
@@ -297,7 +316,7 @@ jobs:
             echo "\$${{ needs.admit.outputs.projected-usd }}."
             echo
             echo "\`merge-checks.yaml\` does not run on this pull request: it is opened with"
-            echo "\`GITHUB_TOKEN\`, and the gate carries an explicit guard for that. The checks"
+            echo "\`GITHUB_TOKEN\`, and the gate excludes this pull request by path. The checks"
             echo "it would have run — the drift check, the comparability checks, and"
             echo "\`npm run check\` — ran in the dispatch before this branch was committed."
             echo

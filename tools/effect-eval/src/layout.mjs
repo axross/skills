@@ -36,6 +36,9 @@ export const SUMMARY_FILE = "summary.json";
 export const FIXTURE_FILE = "fixture.json";
 export const MEASUREMENTS_DIR = "measurements";
 
+/** Where a measurement lives, relative to the repository root. */
+export const DATA_ROOT = "data/effect-eval";
+
 /** Eight random hex digits — see this module's header on why not an index. */
 export function newId() {
   return randomBytes(4).toString("hex");

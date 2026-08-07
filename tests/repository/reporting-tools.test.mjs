@@ -95,6 +95,21 @@ const REPORTING_TOOLS = [
 
 const label = (tool) => tool.script;
 
+/**
+ * YAML with its comment lines removed.
+ *
+ * Load-bearing, and learned three times over: a well-commented workflow SAYS
+ * what it does not do — "NO paths-ignore HERE", "GITHUB_TOKEN is deliberately
+ * absent", "do NOT add `pull_request`" — so an assertion that reads prose flags
+ * the sentence documenting a property as a breach of it. Assert against
+ * directives; read the comments with your eyes.
+ */
+const directivesOnly = (yaml) =>
+  yaml
+    .split("\n")
+    .filter((line) => !line.trim().startsWith("#"))
+    .join("\n");
+
 /** Every file under `dir`, as absolute paths. */
 async function filesUnder(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -199,50 +214,68 @@ describe("reporting tools are not gates", () => {
   });
 });
 
-describe("the merge gate's measurement-pull-request guard", () => {
+describe("the merge gate's measurement-pull-request exclusion", () => {
   // effect-eval.yaml opens its pull request with GITHUB_TOKEN, and GitHub does
-  // not fire workflows on those — so merge-checks.yaml already does not run on
-  // it. That is an accident of platform behaviour; the guard makes it a
-  // declared one, and this asserts the guard is actually there, on every gate,
-  // rather than on two of three.
+  // not fire workflows on those — so merge-checks.yaml already did not run on
+  // it. That is an accident of platform behaviour; the exclusion makes it a
+  // declared one, and this asserts it is actually there and correctly scoped.
   const readMergeChecks = () =>
     readFile(repoPath(".github/workflows/merge-checks.yaml"), "utf8");
 
-  const GATE_JOBS = ["format-validation", "lint", "tests"];
+  /** The two derived surfaces a measurement pull request consists of. */
+  const DERIVED_PATHS = ["data/*/measurements/**", "data/*/summary.json"];
 
-  it("carries the guard on every gate job, not merely somewhere in the file", async () => {
+
+  it("excludes the measurement pull request at the trigger, by path", async () => {
     const yaml = await readMergeChecks();
-    // Split on job headers so a guard present three times in one job cannot
-    // pass for a guard present once in each.
-    for (const job of GATE_JOBS) {
-      const start = yaml.indexOf(`\n  ${job}:\n`);
-      expect(start, `merge-checks.yaml has no ${job} job`).toBeGreaterThan(-1);
-      const rest = yaml.slice(start + 1);
-      const end = rest.search(/\n {2}[a-z-]+:\n/);
-      const block = end === -1 ? rest : rest.slice(0, end);
-
-      expect(block, `${job} does not skip the measurement pull request`).toContain(
-        "startsWith(github.head_ref, 'measurement/')",
-      );
-      // The author conjunct is the half that cannot be forged. Without it any
-      // contributor could skip all three gates by naming a branch
-      // `measurement/…`.
-      expect(
-        block,
-        `${job} keys its guard on the branch name alone, which any contributor can choose`,
-      ).toContain("github.event.pull_request.user.login == 'github-actions[bot]'");
+    for (const path of DERIVED_PATHS) {
+      expect(yaml, `merge-checks.yaml does not exclude ${path}`).toContain(`- "${path}"`);
     }
+    expect(yaml).toMatch(/^ {4}paths-ignore:$/m);
   });
 
-  it("guards at job level rather than filtering the trigger", async () => {
+  it("keys on paths rather than on a branch name", async () => {
+    // A branch-name key is a public string any contributor could adopt to skip
+    // every gate. A path key is a fact about the pull request's contents: one
+    // line of code in it and every gate runs, whatever the branch is called.
+    // (GitHub could not do it by head branch anyway — `branches` on a
+    // pull_request trigger filters the BASE branch.)
     const yaml = await readMergeChecks();
-    // A workflow skipped by a path or branch filter never reports, so a
-    // required status check would stay pending forever. A job skipped by `if:`
-    // reports and satisfies it.
-    expect(
-      yaml,
-      "a trigger-level filter would leave a required check pending rather than satisfied",
-    ).not.toMatch(/^\s*(paths-ignore|branches-ignore):/m);
+    expect(yaml, "the exclusion keys on a branch name, which a contributor chooses").not.toContain(
+      "github.head_ref",
+    );
+    expect(yaml, "a job-level guard remains alongside the trigger-level one").not.toMatch(
+      /^ {4}if:/m,
+    );
+  });
+
+  it("still runs every gate on the push to the default branch", async () => {
+    // Measurement data is exempt from BLOCKING a pull request, not from this
+    // repository's checks. Once it merges, the gates — the drift check included
+    // — run against the merged tree.
+    const yaml = await readMergeChecks();
+    const push = directivesOnly(
+      yaml.slice(yaml.indexOf("  push:"), yaml.indexOf("\nconcurrency:")),
+    );
+    expect(push, "the push trigger skips measurement data, so nothing ever checks it").not.toContain(
+      "paths-ignore",
+    );
+    expect(push).toContain("branches: [main]");
+  });
+
+  it("excludes exactly the surfaces .prettierignore exempts", async () => {
+    // The coupling that would otherwise drift: a derived surface added to one
+    // and missed in the other either starts failing the drift check against
+    // this repository's own formatter, or starts blocking measurement pull
+    // requests. Neither failure points at the file that caused it.
+    const ignored = await readFile(repoPath(".prettierignore"), "utf8");
+    for (const path of DERIVED_PATHS) {
+      const entry = path.replace("/**", "/");
+      expect(
+        ignored,
+        `.prettierignore does not exempt ${entry}, which merge-checks.yaml excludes`,
+      ).toContain(entry);
+    }
   });
 });
 
@@ -312,14 +345,9 @@ describe("the effect evaluation's own workflow", () => {
     );
     expect(probe, "the probe job grants itself a write scope").not.toMatch(/:\s*write$/m);
 
-    // Comments stripped first. The probe job's own header says "GITHUB_TOKEN is
-    // deliberately absent", and an assertion that read prose would flag the
-    // sentence documenting the property as a breach of it.
-    const directives = probe
-      .split("\n")
-      .filter((line) => !line.trim().startsWith("#"))
-      .join("\n");
-    expect(directives, "the probe job receives GITHUB_TOKEN").not.toContain("GITHUB_TOKEN");
+    expect(directivesOnly(probe), "the probe job receives GITHUB_TOKEN").not.toContain(
+      "GITHUB_TOKEN",
+    );
   });
 
   it("keeps the writing job free of any model spawn", async () => {

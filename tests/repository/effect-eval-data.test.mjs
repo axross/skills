@@ -146,3 +146,56 @@ describe("the instrument's entry points", () => {
     expect(result.stdout).toMatch(new RegExp(`Usage: ${name}\\.mjs`));
   });
 });
+
+describe("the dispatch's admit step", () => {
+  // .github/scripts/effect-eval-admit.mjs is the workflow's property rather
+  // than the instrument's — everything in it that is not a library call is
+  // shaped by GitHub. It is still tested, because the library call it makes
+  // decides whether money is spent.
+  const admit = (args) => runScript(SCRIPTS.effectEvalAdmit, args);
+
+  it("admits the declared case and emits the matrix's two dimensions", async () => {
+    const [declared] = (await readFixture()).cases;
+    const result = admit(["--case", declared.id]);
+    expect(result.code, result.output).toBe(0);
+
+    const outputs = JSON.parse(result.stdout);
+    expect(JSON.parse(outputs.conditions)).toEqual(["skill-absent", "skill-present"]);
+    // GitHub cross-products the two dimensions, so the repeats array alone
+    // carries the per-condition count the fixture declares.
+    expect(JSON.parse(outputs.repeats)).toHaveLength(declared.repetitionsPerCondition);
+  });
+
+  it("names the measurement directory with the instrument's own shape", async () => {
+    // Reimplementing `<case>-<id>` in the land job's shell is what this
+    // replaced; the name comes from layout.mjs's caseMeasurementName.
+    const [declared] = (await readFixture()).cases;
+    const outputs = JSON.parse(admit(["--case", declared.id]).stdout);
+    expect(outputs["measurement-dir"]).toMatch(
+      new RegExp(`^${declared.id}-[0-9a-f]{8}$`),
+    );
+  });
+
+  it("refuses, with exit 4, when a lowered cap cannot cover the projection", async () => {
+    const [declared] = (await readFixture()).cases;
+    const result = admit(["--case", declared.id, "--cap-usd", "1"]);
+    expect(result.code).toBe(4);
+    expect(result.output).toMatch(/REFUSED/);
+    // The refusal is a finding, not a prompt to raise the cap.
+    expect(result.output).toMatch(/not a threshold to adjust/);
+  });
+
+  it("ignores a dispatch trying to raise the declared cap", async () => {
+    const [declared] = (await readFixture()).cases;
+    const result = admit(["--case", declared.id, "--cap-usd", String(declared.capUsd * 100)]);
+    expect(result.code).toBe(0);
+    expect(result.output).toMatch(/may lower the declared cap and may not raise it/);
+    expect(JSON.parse(result.stdout)["cap-usd"]).toBe(declared.capUsd);
+  });
+
+  it("refuses an unknown case rather than admitting nothing", async () => {
+    const result = admit(["--case", "no-such-case"]);
+    expect(result.code).toBe(2);
+    expect(result.output).toMatch(/declares no case "no-such-case"/);
+  });
+});

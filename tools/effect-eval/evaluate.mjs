@@ -44,7 +44,15 @@ import { join, resolve } from "node:path";
 import { redactTranscript, stripCredentials } from "../lib/credentials.mjs";
 import { captureDiff, runGitCapture } from "./src/capture.mjs";
 import { skillDigests, treeDigest } from "./src/fingerprint.mjs";
-import { canonicalJson, CONDITIONS, newId, probeName, probePaths } from "./src/layout.mjs";
+import {
+  canonicalJson,
+  CONDITIONS,
+  DATA_ROOT,
+  FIXTURE_FILE,
+  newId,
+  probeName,
+  probePaths,
+} from "./src/layout.mjs";
 import { buildArgv, buildConfiguration, shellQuote } from "./src/spawn.mjs";
 
 // Larger than the discovery evaluation's: up to 100 turns of edits and diffs,
@@ -100,7 +108,7 @@ function parseArgv(argv) {
     caseId: null,
     condition: null,
     out: null,
-    fixture: "data/effect-eval/fixture.json",
+    fixture: join(DATA_ROOT, FIXTURE_FILE),
     probeId: null,
     runUrl: null,
     runtimeVersion: process.env.CLAUDE_CODE_VERSION ?? null,

@@ -35,10 +35,16 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { canonicalJson, SUMMARY_FILE } from "./src/layout.mjs";
+import {
+  canonicalJson,
+  DATA_ROOT,
+  FIXTURE_FILE,
+  MEASUREMENTS_DIR,
+  SUMMARY_FILE,
+} from "./src/layout.mjs";
 import { comparabilityOf, deriveCaseSummary } from "./src/summary.mjs";
 
-const DEFAULT_ROOT = "data/effect-eval";
+const DEFAULT_ROOT = DATA_ROOT;
 
 const USAGE = `Usage: summarize.mjs [options]
 
@@ -49,7 +55,7 @@ comparability checks.
   --root <dir>      the data root holding measurements/ and the top-level
                      summary.json (default: ${DEFAULT_ROOT})
   --fixture <path>  the case fixture, read for each case's declared repetition
-                     count (default: <root>/fixture.json)
+                     count (default: <root>/${FIXTURE_FILE})
   --check           write nothing; compare each regenerated summary against the
                      committed bytes and fail on any difference. This is the
                      drift check.
@@ -80,7 +86,7 @@ function parseArgv(argv) {
     else if (arg === "--quiet") options.quiet = true;
     else fail2(`Unknown option ${JSON.stringify(arg)}.\n${USAGE}`);
   }
-  options.fixture ??= join(options.root, "fixture.json");
+  options.fixture ??= join(options.root, FIXTURE_FILE);
   return options;
 }
 
@@ -116,7 +122,7 @@ async function main() {
   }
 
   const options = parseArgv(argv);
-  const measurementsDir = join(options.root, "measurements");
+  const measurementsDir = join(options.root, MEASUREMENTS_DIR);
   const declaredRepetitions = await readDeclaredRepetitions(options.fixture);
 
   let entries;

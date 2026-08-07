@@ -112,13 +112,23 @@ Rather than leave the measurement unchecked, the landing job runs those checks
 itself, before it commits: the drift check, the comparability checks, and
 `npm run check`. A failure there fails the dispatch and opens no pull request.
 
-That division is declared rather than inherited. `merge-checks.yaml` carries an
-explicit job-level guard excluding a `measurement/` branch authored by the
-Actions bot, so a future change in how GitHub treats `GITHUB_TOKEN`-authored
-pull requests cannot silently move which gate is responsible for measurement
-data. The accepted residual is that measurement data reaches the default branch
-without `npm test` having run on its pull request — which is exactly why the
-dispatch runs it first.
+That division is declared rather than inherited. `merge-checks.yaml` excludes
+this pull request at its trigger, by **path**: one whose changed files are all
+under `data/*/measurements/**` or `data/*/summary.json` carries measurement data
+and no code, so the gate workflow does not start.
+
+By path rather than by branch name for two reasons. GitHub cannot do it by
+branch name at all — `branches` on a `pull_request` trigger filters the _base_
+branch, not the head. And a path key is better regardless: a branch-name key is
+a public string any contributor could adopt to skip every gate, where a path key
+is a fact about what the pull request contains. One line of code in it and every
+gate runs, whatever the branch is called.
+
+The gates still run on the **push to the default branch** once the measurement
+merges — the drift check included. So measurement data is exempt from _blocking_
+a pull request, not from being checked. The residual is narrow: between the
+dispatch's own checks and the post-merge run, the only window is the pull
+request itself, and what sits in it has already been checked once.
 
 ## Credentials
 
