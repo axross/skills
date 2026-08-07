@@ -94,9 +94,17 @@
 
 **Skill outcome** — whether an **agent skill** does its job: whether **skill discovery** surfaces it for the right prompt, and whether holding it changes what the model does. It does not follow from any **textual property**.
 
-**Evaluation probe** — one run of one **evaluation case** against the real CLI. A discovery probe produces the set of **agent skills** the run selected.
+**Skill discovery evaluation** — the instrument measuring whether an **agent runtime** surfaces a given **agent skill** for a prompt, from its **skill description** alone.
 
-**Evaluation case** — one labelled unit of an evaluation fixture, carrying a written rationale a human can disagree with without reading code. A discovery case carries the prompt to send, and names the **agent skills** it should surface and the ones it should not.
+**Skill effect evaluation** — the instrument measuring whether holding an **agent skill** changes what an agent does and what it produces.
+
+**Evaluation fixture** — the set of **evaluation cases** an instrument runs, together with what each case is measured against.
+
+**Evaluation case** — one labelled unit of an **evaluation fixture**, carrying a written rationale a human can disagree with without reading code. A discovery case carries the prompt to send, and names the **agent skills** it should surface and the ones it should not; an effect case carries the task to perform and the **evaluation conditions** to perform it under.
+
+**Evaluation probe** — one run of one **evaluation case** against the real CLI. A discovery probe produces the set of **agent skills** the run selected; an effect probe produces a **probe artifact** and a **probe transcript**.
+
+## Skill Discovery Evaluation
 
 **Discovery count** — how many **evaluation probes** surfaced each **agent skill** for one **evaluation case**, which is what makes the result a distribution rather than a single verdict.
 
@@ -105,3 +113,51 @@
 **Skill corpus fingerprint** — a digest of the **skill descriptions** across one **skill corpus**, stored alongside a **discovery snapshot**, so a comparison can say whether the text **skill discovery** reads has moved since that snapshot was recorded.
 
 **Unmeasured declaration** — an **evaluation case** a **discovery snapshot** records as never measured, so a gap in coverage is stated rather than inferred from an absent number.
+
+## Skill Effect Evaluation
+
+**Evaluation condition** — one setup an **evaluation case** is run under, differing from the others in exactly what the case is testing.
+
+**Skill-absent condition** — the **evaluation condition** run without the skill under test installed.
+
+**Skill-present condition** — the **evaluation condition** run with it installed.
+
+**Mock project** — a small self-contained project modelled on a real consumer, kept as a fixture so an evaluation can give an agent real work to do.
+
+**Probe workspace** — the isolated temporary directory a **mock project** is expanded into, a real Git repository where the agent works.
+
+**Mock materialization** — expanding a **mock project** into a **probe workspace**, replaying its recorded commit history and installing the skills that run holds.
+
+**Probe artifact** — what one **evaluation probe** left in its **probe workspace**: the files the agent created or changed.
+
+**Probe transcript** — the captured record of what the agent did during one **evaluation probe**: every tool call in order, what it cost, how many turns it took, and which skills the **agent runtime** loaded.
+
+**Signal extractor** — a deterministic function that reads a **probe transcript** or a **probe artifact** and reports measured signals without judging them.
+
+**Probe record** — one **evaluation probe**'s measured data, carrying no verdict.
+
+**Superseded record** — a **probe record** taken under conditions a later change invalidated, so it is evidence of its own run and not comparable with later ones.
+
+**LLM judge** — a model asked to rank or score what a **signal extractor** cannot reach.
+
+**Cost ledger** — the accumulated per-run costs of one **evaluation case**.
+
+**Stop-loss guard** — the check standing between a projected total and the start of a run, so a **cost ledger**'s cap binds by refusal rather than by exhaustion.
+
+**Turn cap** — the ceiling on how many turns one **evaluation probe** may take, set as a runaway guard rather than a budget control.
+
+**Deliberate imperfection** — a flaw a **mock project** carries on purpose because it is part of the instrument, and which its own documentation declares.
+
+**Fixture confounder** — something in a **mock project** that already demonstrates the convention an evaluation is trying to detect, so a **skill-absent condition** can reach it from context.
+
+**Loaded skill set** — the skills an **agent runtime** reported loading for one **evaluation probe**.
+
+**Library skill** — a loaded skill belonging to this library's **skill corpus**.
+
+**Foreign skill** — a loaded skill the environment injected, which no available flag removes without also removing the workspace's own.
+
+**Colliding skill** — a **foreign skill** sharing a name with a **library skill**.
+
+**Mandated skill** — an **agent skill** a project's own instructions name and require, so **skill discovery** never has to surface it.
+
+**Discovered skill** — an **agent skill** no instruction names, left to **skill discovery** to surface.
