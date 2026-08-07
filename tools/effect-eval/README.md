@@ -6,6 +6,29 @@ by running the same task twice under two conditions — **skill-absent** and
 never judges. The measurements it writes live in
 [`data/effect-eval/`](../../data/effect-eval/README.md).
 
+## It never gates
+
+Not in `npm run check`, not in `merge-checks.yaml`, not a required check, not in
+any hook. It is non-deterministic, it costs real money per run, and it needs a
+secret that fork pull requests do not receive — and a flaky merge gate gets
+bypassed or deleted. Its output is a finding for a human.
+
+`tests/repository/reporting-tools.test.mjs` asserts the probe appears in exactly
+one workflow — its own — and that `effect-eval.yaml` declares `workflow_dispatch`
+as its only trigger and gives its probe job no write permission. Wiring any of
+that differently breaks a test first.
+
+What `npm test` _does_ run is the drift check over
+[`data/effect-eval/`](../../data/effect-eval/README.md) — a deterministic
+re-derivation from committed files, offline, with no model call. That is a check
+on the instrument's own bookkeeping, not on the measurement's verdict, and it is
+the one thing here that can legitimately fail a merge.
+
+One exception, and it is not an exception to the rule above: `merge-checks.yaml`
+does not run on the measurement pull request this workflow opens. That is a
+declared division, not a bypass — see [The measurement pull
+request](#the-measurement-pull-request-is-checked-by-the-dispatch) below.
+
 ## Three entry points, one verb each
 
 ```sh
@@ -79,6 +102,23 @@ The turn cap of 100 is a runaway guard, not a budget control. A cap that binds
 is a confounder rather than a limit — the skill-present condition may
 legitimately do more work, so a binding cap truncates it first and pushes the
 measured effect toward zero. Do not lower it to save money.
+
+## The measurement pull request is checked by the dispatch
+
+`effect-eval.yaml` opens its pull request with `GITHUB_TOKEN`, and GitHub does
+not fire workflows on those — so `merge-checks.yaml` does not run on it.
+
+Rather than leave the measurement unchecked, the landing job runs those checks
+itself, before it commits: the drift check, the comparability checks, and
+`npm run check`. A failure there fails the dispatch and opens no pull request.
+
+That division is declared rather than inherited. `merge-checks.yaml` carries an
+explicit job-level guard excluding a `measurement/` branch authored by the
+Actions bot, so a future change in how GitHub treats `GITHUB_TOKEN`-authored
+pull requests cannot silently move which gate is responsible for measurement
+data. The accepted residual is that measurement data reaches the default branch
+without `npm test` having run on its pull request — which is exactly why the
+dispatch runs it first.
 
 ## Credentials
 

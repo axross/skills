@@ -245,3 +245,92 @@ describe("the merge gate's measurement-pull-request guard", () => {
     ).not.toMatch(/^\s*(paths-ignore|branches-ignore):/m);
   });
 });
+
+describe("the effect evaluation's own workflow", () => {
+  // #278's acceptance criterion names THIS file as what asserts these, and the
+  // workflow's own header calls them "LOAD-BEARING SAFETY PROPERTY 1 of 3" and
+  // "2 of 3". Both were true when the workflow was written and neither was
+  // enforced, so a future edit could add `pull_request` or a write scope to the
+  // job that spawns a model with Bash without failing anything.
+  const WORKFLOW = ".github/workflows/effect-eval.yaml";
+
+  const readWorkflow = () => readFile(repoPath(WORKFLOW), "utf8");
+
+  /**
+   * The lines of one indented block, given the line that opens it.
+   *
+   * Line scanning rather than a parsed document: this repository has no YAML
+   * dependency, and adding one to assert three properties would widen the
+   * supply-chain surface further than the assertion is worth. Scoping to the
+   * block is what matters — `pull_request` appears in this workflow's header
+   * comment as "do NOT add", so an unscoped search would report the warning
+   * against adding it as the thing itself.
+   *
+   * @param {string} yaml
+   * @param {string} opener the exact opening line, e.g. "on:" or "  probe:"
+   * @returns {string|null} the block's body, opener excluded
+   */
+  function blockUnder(yaml, opener) {
+    const lines = yaml.split("\n");
+    const first = lines.indexOf(opener);
+    if (first === -1) return null;
+    const indent = opener.length - opener.trimStart().length;
+    const body = [];
+    for (const line of lines.slice(first + 1)) {
+      const blank = line.trim() === "";
+      const deeper = line.length - line.trimStart().length > indent;
+      if (!blank && !deeper) break;
+      body.push(line);
+    }
+    return body.join("\n");
+  }
+
+  it("declares workflow_dispatch as its only trigger", async () => {
+    // The primary bound on the whole workflow: only someone with write access
+    // can start it, and a dispatch always runs the file from the default
+    // branch. A contributor cannot cause a run, nor cause one by editing this
+    // file in a pull request.
+    const on = blockUnder(await readWorkflow(), "on:");
+    expect(on, `${WORKFLOW} has no top-level on: block`).not.toBeNull();
+    expect(on).toMatch(/^ {2}workflow_dispatch:$/m);
+    for (const forbidden of ["pull_request", "pull_request_target", "push", "schedule"]) {
+      expect(
+        on,
+        `${WORKFLOW} adds a ${forbidden} trigger, which a contributor could raise`,
+      ).not.toMatch(new RegExp(`^ {2}${forbidden}:`, "m"));
+    }
+  });
+
+  it("gives the probe job no write permission at all", async () => {
+    // That job spawns a model with Bash and the editing tools. Everything that
+    // writes the repository happens in `land`, which spawns nothing.
+    const probe = blockUnder(await readWorkflow(), "  probe:");
+    expect(probe, `${WORKFLOW} has no probe job`).not.toBeNull();
+
+    expect(probe, "the probe job does not declare an empty permissions map").toMatch(
+      /^ {4}permissions: \{\}$/m,
+    );
+    expect(probe, "the probe job grants itself a write scope").not.toMatch(/:\s*write$/m);
+
+    // Comments stripped first. The probe job's own header says "GITHUB_TOKEN is
+    // deliberately absent", and an assertion that read prose would flag the
+    // sentence documenting the property as a breach of it.
+    const directives = probe
+      .split("\n")
+      .filter((line) => !line.trim().startsWith("#"))
+      .join("\n");
+    expect(directives, "the probe job receives GITHUB_TOKEN").not.toContain("GITHUB_TOKEN");
+  });
+
+  it("keeps the writing job free of any model spawn", async () => {
+    // The other half of the same separation: `land` holds contents:write and
+    // pull-requests:write, so it must never be the job that runs a probe.
+    const land = blockUnder(await readWorkflow(), "  land:");
+    expect(land, `${WORKFLOW} has no land job`).not.toBeNull();
+    expect(land).toMatch(/^ {6}contents: write$/m);
+    expect(
+      land,
+      "the writing job invokes the probe, which would hand a model a write token",
+    ).not.toContain("tools/effect-eval/evaluate.mjs");
+  });
+});

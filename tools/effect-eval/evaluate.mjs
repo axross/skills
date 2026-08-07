@@ -42,7 +42,7 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 import { redactTranscript, stripCredentials } from "../lib/credentials.mjs";
-import { captureDiff } from "./src/capture.mjs";
+import { captureDiff, runGitCapture } from "./src/capture.mjs";
 import { skillDigests, treeDigest } from "./src/fingerprint.mjs";
 import { canonicalJson, CONDITIONS, newId, probeName, probePaths } from "./src/layout.mjs";
 import { buildArgv, buildConfiguration, shellQuote } from "./src/spawn.mjs";
@@ -203,6 +203,27 @@ async function main() {
   const projectTree = await treeDigest(workspace);
   const skills = await skillDigests(join(workspace, ".claude", "skills"));
 
+  // Taken before the spawn for the same reason as the digest above: the model
+  // could commit, and HEAD read afterwards would name its work rather than the
+  // workspace it was handed.
+  //
+  // DIAGNOSTIC ONLY, NEVER THE COMPARABILITY KEY. It says WHAT differed where
+  // `tree` says only THAT something did. It is not the key because a commit
+  // hash covers the tree AND the message, moves when a history.jsonc message is
+  // edited while the model sees identical bytes, excludes everything gitignored
+  // (the installed skill included), and is a function of Git's object format
+  // rather than of content alone. Failing the probe over a diagnostic field
+  // would be disproportionate, so a failure here costs the field and warns.
+  let projectCommit = null;
+  try {
+    projectCommit = runGitCapture(["rev-parse", "HEAD"], workspace).trim();
+  } catch (error) {
+    process.stderr.write(
+      `warning: could not read the workspace's HEAD (${error.message}); the probe is still ` +
+        "recorded, with project.commit absent\n",
+    );
+  }
+
   if (options.condition === "skill-absent" && Object.keys(skills).length > 0) {
     fail2(
       `The workspace at ${workspace} has ${Object.keys(skills).join(", ")} installed, but ` +
@@ -224,7 +245,7 @@ async function main() {
     runtimeVersion: options.runtimeVersion,
     projectName: declared.mock,
     projectTree,
-    projectCommit: null,
+    projectCommit,
     skills,
     prompt: declared.task.prompt,
     targetModule: declared.task.targetModule,
