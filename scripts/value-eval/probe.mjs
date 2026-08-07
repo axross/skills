@@ -20,7 +20,7 @@
 // about the process exit or the transcript's length.
 //
 // THE WORKSPACE IS ALWAYS TRUSTED CONTENT. materialize.mjs builds it only
-// from this repository's OWN examples/ fixture and OWN installed skills,
+// from this repository's OWN mocks/ fixture and OWN installed skills,
 // never from a pull request head, which is exactly why spawn.mjs's tool
 // posture can invert the discovery probe's and permit Bash and the editing
 // tools — see spawn.mjs's header for the full argument.
@@ -95,7 +95,7 @@ no verdict field, ever.
                            "skill-present" (required)
   --run-index <n>         which repeat this is within the condition, 0-based
                            (required)
-  --mock <name>           which examples/ fixture the workspace came from,
+  --mock <name>           which mocks/ fixture the workspace came from,
                            recorded only (default: ${DEFAULT_MOCK})
   --skill <name>          recorded only: a skill installed for this condition;
                            repeatable

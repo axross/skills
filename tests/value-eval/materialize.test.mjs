@@ -144,7 +144,7 @@ describe("materialize.mjs", () => {
       const workspace = await setup();
 
       const historyRaw = await readFile(
-        repoPath("examples/content-site/history.jsonc"),
+        repoPath("mocks/content-site/history.jsonc"),
         "utf8",
       );
       const commits = parseHistoryFixture(historyRaw);

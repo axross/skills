@@ -11,7 +11,7 @@ They carry their own formatter, linter, and test runner. That is not tidiness:
 a skill whose effect is running the project's checks cannot be measured at all
 where those commands do not exist. It is also what keeps a mock honest, since
 this repository's own format, lint, and link gates deliberately exclude
-`examples/`.
+`mocks/`.
 
 ## Why this file is here and not inside a mock
 

@@ -7,7 +7,7 @@
 // discovery probe workspace "may be holding attacker-authored skill text
 // from a pull request head" (see its DISALLOWED_TOOLS comment). This probe's
 // workspace never can: materialize.mjs builds it only from this
-// repository's OWN examples/ fixture and this repository's OWN installed
+// repository's OWN mocks/ fixture and this repository's OWN installed
 // skills, never from a pull request head — issue #235 states that as an
 // assumption and is why this axis never combines with the pull-request-head
 // overlay discovery-eval/overlay.mjs carries, the same rule that keeps

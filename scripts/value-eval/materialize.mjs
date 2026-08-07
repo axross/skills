@@ -2,7 +2,7 @@
 // materialize.mjs — expands a value-eval mock project into an isolated,
 // reproducible Git working copy, and prints its path.
 //
-// A mock lives under examples/<name>/ (e.g. examples/content-site/) as a
+// A mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
 // plain, uncommitted-history file tree, plus a history.jsonc that records the
 // commits to replay on top of it. This script does the replaying: it copies
 // the mock's files into a fresh temporary directory, turns that directory into
@@ -49,7 +49,7 @@ import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const EXAMPLES_ROOT = join(REPO_ROOT, "examples");
+const MOCKS_ROOT = join(REPO_ROOT, "mocks");
 const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 const HISTORY_FILE = "history.jsonc";
@@ -69,10 +69,10 @@ const SECONDS_PER_COMMIT = 24 * 60 * 60;
 
 const USAGE = `Usage: materialize.mjs [options]
 
-Expand a value-eval mock project (examples/<mock>) into an isolated,
+Expand a value-eval mock project (mocks/<mock>) into an isolated,
 git-backed temporary directory and print its path.
 
-  --mock <name>    which examples/ fixture to materialize (default: ${DEFAULT_MOCK})
+  --mock <name>    which mocks/ fixture to materialize (default: ${DEFAULT_MOCK})
   --skill <name>   a skill to install into the workspace's .claude/skills/<name>,
                     copied from this repository's OWN installed skills;
                     repeatable
@@ -296,7 +296,7 @@ function commitEnv(index) {
 }
 
 /**
- * Expands `examples/<mock>` into a fresh temporary directory: every file the
+ * Expands `mocks/<mock>` into a fresh temporary directory: every file the
  * mock ships except history.jsonc, replayed as a real Git history that
  * matches history.jsonc commit for commit, plus the requested skills copied
  * (as real files — see this file's header) into `.claude/skills/`.
@@ -305,7 +305,7 @@ function commitEnv(index) {
  * @returns {Promise<string>} the materialized workspace's absolute path
  */
 async function materialize({ mock = DEFAULT_MOCK, skills = [], install = false } = {}) {
-  const mockDir = join(EXAMPLES_ROOT, mock);
+  const mockDir = join(MOCKS_ROOT, mock);
   await assertDirectory(
     mockDir,
     `No mock named ${JSON.stringify(mock)} — expected a directory at ${mockDir}.`,

@@ -46,15 +46,15 @@ describe("repository gates have teeth", () => {
     ).toReportFailure(/missing\.md/);
   });
 
-  it("the links gate never walks into examples/", async () => {
+  it("the links gate never walks into mocks/", async () => {
     const { script, args } = gate("links");
     const root = await tempDir();
-    // Same broken-link shape as the first case above, planted under examples/
+    // Same broken-link shape as the first case above, planted under mocks/
     // instead — linksGateRoots() excludes it on purpose (the mock fixtures
     // there carry their own toolchain), so this must NOT be reported.
     await writeFileIn(
       root,
-      "examples/content-site/doc.md",
+      "mocks/content-site/doc.md",
       "See [gone](./missing.md).\n",
     );
     await writeFileIn(root, "AGENTS.md", "No broken links here.\n");
@@ -68,7 +68,7 @@ describe("repository gates have teeth", () => {
     const { script, args } = gate("links");
     const root = await tempDir();
     // The two cases above prove the roster reaches the repository root and a
-    // dot-directory, and that it stops at examples/. Neither would notice the
+    // dot-directory, and that it stops at mocks/. Neither would notice the
     // roster being over-pruned — linksGateRoots() builds it by SUBTRACTING an
     // exclusion set from a live listing, so one careless addition to that set
     // silently drops a whole tree while the gate keeps reporting "links OK"

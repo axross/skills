@@ -16,7 +16,7 @@ import { parseTranscript } from "../discovery-eval/stream.mjs";
 
 /**
  * Bash command shapes this repository's mock fixtures actually run (see
- * examples/content-site/package.json's `scripts`), plus the underlying
+ * mocks/content-site/package.json's `scripts`), plus the underlying
  * runners and formatters a caller might invoke directly rather than through
  * an npm script. Not exhaustive by design — a caller measuring a different
  * mock's toolchain overrides these via `extractTranscript`'s `options`.
