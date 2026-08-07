@@ -10,7 +10,7 @@
 // and only a heading or an unindented non-bullet line closes the block.
 //
 // The counterpart claim — that check-skill-body.mjs and the reporter each read this
-// module correctly — is tests/validators/report-obligation-load.test.mjs's
+// module correctly — is tests/validators/report-obligation-burden.test.mjs's
 // partition case, not this file's.
 
 import { describe, expect, it } from "vitest";
