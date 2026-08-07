@@ -74,12 +74,13 @@ preserve them:
 
 A check earns its place when the defect it finds is **not visible in the text
 its author just wrote** — because it spans files, because it counts, or because
-it compares bytes. Five things fail that test and are left to a reader:
+it compares bytes. Six things fail that test and are left to a reader:
 
 | Not checked                                   | Why                                                                                  |
 | --------------------------------------------- | ------------------------------------------------------------------------------------ |
 | Whether a document matches the implementation | Undecidable. A checker that guessed would be trusted and wrong                       |
 | Whether a glossary entry is self-sufficient   | A judgment about a reader, not a property of the text                                |
+| Whether a term's words compose to its entry   | A reading of ordinary English, not a property of the text                            |
 | Whether a decision deserved a record          | The existence condition needs to know what the code makes recoverable                |
 | A duplicated glossary heading                 | An ambiguity for a human; it corrupts no other check, since both headings still pair |
 | A decision no document links to               | A decision may legitimately constrain something outside the specs                    |
