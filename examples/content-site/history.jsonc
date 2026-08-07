@@ -24,7 +24,6 @@
 			"files": [
 				"package.json",
 				"package-lock.json",
-				".nvmrc",
 				".gitignore",
 				"tsconfig.json",
 				"biome.jsonc"
