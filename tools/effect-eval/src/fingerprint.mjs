@@ -99,7 +99,8 @@ export async function treeDigest(root) {
   for (const path of files) {
     const full = join(root, path);
     const [info, content] = await Promise.all([stat(full), readFile(full)]);
-    // eslint-disable-next-line no-bitwise -- the executable bit is the only mode Git preserves
+    // The executable bit is the only mode Git itself preserves, so it is the
+    // only one whose change makes this a different tree.
     const mode = info.mode & 0o111 ? "755" : "644";
     lines.push(`${path}\0${mode}\0${sha256(content)}`);
   }
