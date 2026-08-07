@@ -157,6 +157,16 @@ describe("the comparability checks", () => {
     );
   });
 
+  it("fails and names a runtime-version disagreement", async () => {
+    // The CLI version is part of the condition. Until it was actually recorded
+    // this check compared null with null and passed on every measurement.
+    await writeProbe("skill-absent-aaaaaaaa", { configuration: { runtimeVersion: "2.1.220" } });
+    await writeProbe("skill-present-bbbbbbbb", { configuration: { runtimeVersion: "9.9.9" } });
+    expect(failuresOf(await deriveCaseSummary(caseDir))).toMatch(
+      /one runtime version.*2\.1\.220.*9\.9\.9/s,
+    );
+  });
+
   it("fails when the loaded skill set differs between probes", async () => {
     // Identical, not empty: no flag can guarantee the CLI loads nothing, so
     // the achievable invariant is that contamination cancels between sides.

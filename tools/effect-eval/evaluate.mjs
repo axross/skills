@@ -68,6 +68,9 @@ record — metadata.json (declared), transcript.jsonl and changes.patch
                          (default: eight random hex digits)
   --run-url <url>       the dispatch that produced this probe, recorded as
                          provenance
+  --runtime-version <v> the CLI version this probe runs against, recorded in
+                         the fingerprint (default: $CLAUDE_CODE_VERSION, or the
+                         version the transcript reports, or null)
   --dry-run             fingerprint the workspace and write the record with a
                          synthetic transcript; spawn nothing. The record is
                          marked \`trigger.kind: "dry-run"\` so it cannot be
@@ -100,6 +103,7 @@ function parseArgv(argv) {
     fixture: "data/effect-eval/fixture.json",
     probeId: null,
     runUrl: null,
+    runtimeVersion: process.env.CLAUDE_CODE_VERSION ?? null,
     dryRun: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -117,6 +121,7 @@ function parseArgv(argv) {
     else if (arg === "--fixture") options.fixture = next();
     else if (arg === "--probe-id") options.probeId = next();
     else if (arg === "--run-url") options.runUrl = next();
+    else if (arg === "--runtime-version") options.runtimeVersion = next();
     else if (arg === "--dry-run") options.dryRun = true;
     else fail2(`Unknown option ${JSON.stringify(arg)}.\n${USAGE}`);
   }
@@ -152,6 +157,7 @@ function syntheticTranscript(configuration) {
         type: "system",
         subtype: "init",
         model: configuration.model.model,
+        version: configuration.runtime.version ?? undefined,
         skills: [],
       }),
       JSON.stringify({
@@ -211,6 +217,11 @@ async function main() {
   }
 
   const configuration = buildConfiguration({
+    // THE CLI VERSION IS PART OF THE CONDITION, so it is recorded rather than
+    // left to be inferred. The workflow pins it and passes it through
+    // CLAUDE_CODE_VERSION; a local run that names none records null, which the
+    // comparability check reads as "not stated" rather than as agreement.
+    runtimeVersion: options.runtimeVersion,
     projectName: declared.mock,
     projectTree,
     projectCommit: null,
