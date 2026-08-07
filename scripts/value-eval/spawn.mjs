@@ -29,8 +29,13 @@
 // #235's "A control arm is not bare" section: it strips the six user-level
 // skills for free; the seventeen a managed environment injects cannot be
 // stripped without also stripping the workspace's own, so this is the one
-// isolation lever available, and every run — control and treatment alike —
-// takes it.
+// isolation lever available, and every run takes it — both conditions alike.
+//
+// Both passages above quote issue #235 verbatim, and #235 was written before
+// the vocabulary settled: read its "treatment arm" as the SKILL-PRESENT
+// CONDITION and its "control arm" as the SKILL-ABSENT one. The quotes are left
+// as written rather than silently corrected, because a quotation that has been
+// edited to agree with later usage is no longer evidence of what was decided.
 
 /**
  * The model every probe runs against, pinned rather than left to the CLI.

@@ -77,7 +77,7 @@ const DEFAULT_PROMPT = "shared/resolve-translation.ts has no tests. Add unit tes
 const DEFAULT_TARGET_MODULE = "shared/resolve-translation.ts";
 const DEFAULT_HELPER_NAMES = ["normalizeLocale", "findExactMatch", "findLanguageMatch"];
 const DEFAULT_MOCK = "content-site";
-const DEFAULT_TOTAL_RUNS = 6; // issue #235: three control runs and three treatment runs
+const DEFAULT_TOTAL_RUNS = 6; // issue #235: three skill-absent runs and three skill-present runs
 
 const MAX_BUFFER_BYTES = 64 * 1024 * 1024; // larger than discovery-eval's: up to 100 turns of edits and diffs, not one
 
@@ -86,17 +86,18 @@ const USAGE = `Usage: probe.mjs [options]
 Spawn the claude CLI inside a value-eval workspace (one materialize.mjs
 already produced) and capture the whole run — every tool call in order, the
 produced diff, the turn count, the reported cost, the loaded-skill list, and
-whether the run ended on the turn cap. Writes one run record: arm, run
+whether the run ended on the turn cap. Writes one run record: condition, run
 index, extractor outputs, cost, turns, truncated or not, loaded skills — and
 no verdict field, ever.
 
   --workspace <dir>       a workspace materialize.mjs produced (required)
-  --arm <label>           experimental condition, e.g. "control" or
-                           "treatment" (required)
-  --run-index <n>         which repeat this is within the arm, 0-based (required)
+  --condition <label>     which condition this run is: "skill-absent" or
+                           "skill-present" (required)
+  --run-index <n>         which repeat this is within the condition, 0-based
+                           (required)
   --mock <name>           which examples/ fixture the workspace came from,
                            recorded only (default: ${DEFAULT_MOCK})
-  --skill <name>          recorded only: a skill installed for this arm;
+  --skill <name>          recorded only: a skill installed for this condition;
                            repeatable
   --prompt <text>         the task prompt
                            (default: ${JSON.stringify(DEFAULT_PROMPT)})
@@ -175,7 +176,7 @@ async function reportIsolation(loadedSkills) {
 function parseArgv(argv) {
   const options = {
     workspace: null,
-    arm: null,
+    condition: null,
     runIndex: null,
     mock: DEFAULT_MOCK,
     skills: [],
@@ -198,7 +199,7 @@ function parseArgv(argv) {
     };
 
     if (arg === "--workspace") options.workspace = next();
-    else if (arg === "--arm") options.arm = next();
+    else if (arg === "--condition") options.condition = next();
     else if (arg === "--run-index") options.runIndex = next();
     else if (arg === "--mock") options.mock = next();
     else if (arg === "--skill") options.skills.push(next());
@@ -218,7 +219,7 @@ function parseArgv(argv) {
 /** Validates and coerces the parsed options, failing loudly on the first problem. */
 function validateOptions(options) {
   if (!options.workspace) fail2(`--workspace is required.\n${USAGE}`);
-  if (!options.arm) fail2(`--arm is required.\n${USAGE}`);
+  if (!options.condition) fail2(`--condition is required.\n${USAGE}`);
   if (options.runIndex === null) fail2(`--run-index is required.\n${USAGE}`);
 
   const runIndex = Number(options.runIndex);
@@ -276,7 +277,7 @@ async function main() {
       "DRY RUN — no CLI would be spawned.",
       "",
       `workspace:      ${options.workspace}`,
-      `arm:            ${options.arm}`,
+      `condition:      ${options.condition}`,
       `run index:      ${options.runIndex}`,
       `mock:           ${options.mock}`,
       `skills:         ${options.skills.length > 0 ? options.skills.join(", ") : "(none)"}`,
@@ -417,7 +418,7 @@ async function main() {
   }
 
   const record = buildRunRecord({
-    arm: options.arm,
+    condition: options.condition,
     runIndex: options.runIndex,
     mock: options.mock,
     skills: options.skills,

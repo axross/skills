@@ -20,8 +20,8 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 const REQUIRED_ARGS = (workspace) => [
   "--workspace",
   workspace,
-  "--arm",
-  "control",
+  "--condition",
+  "skill-absent",
   "--run-index",
   "0",
 ];
@@ -42,21 +42,21 @@ describe("probe.mjs", () => {
   });
 
   it("requires --workspace", () => {
-    const result = runScript(SCRIPTS.probe, ["--arm", "control", "--run-index", "0"]);
+    const result = runScript(SCRIPTS.probe, ["--condition", "skill-absent", "--run-index", "0"]);
 
     expect(result).toExitWith(2);
     expect(result.output).toMatch(/--workspace is required/);
   });
 
-  it("requires --arm", () => {
+  it("requires --condition", () => {
     const result = runScript(SCRIPTS.probe, ["--workspace", "/tmp", "--run-index", "0"]);
 
     expect(result).toExitWith(2);
-    expect(result.output).toMatch(/--arm is required/);
+    expect(result.output).toMatch(/--condition is required/);
   });
 
   it("requires --run-index", () => {
-    const result = runScript(SCRIPTS.probe, ["--workspace", "/tmp", "--arm", "control"]);
+    const result = runScript(SCRIPTS.probe, ["--workspace", "/tmp", "--condition", "skill-absent"]);
 
     expect(result).toExitWith(2);
     expect(result.output).toMatch(/--run-index is required/);
@@ -66,8 +66,8 @@ describe("probe.mjs", () => {
     const result = runScript(SCRIPTS.probe, [
       "--workspace",
       "/tmp",
-      "--arm",
-      "control",
+      "--condition",
+      "skill-absent",
       "--run-index",
       "abc",
     ]);
@@ -108,13 +108,13 @@ describe("probe.mjs", () => {
       expect(result.stdout).toMatch(/--max-turns 100/);
     });
 
-    it("echoes the arm, run index, and prompt back in the plan", async () => {
+    it("echoes the condition, run index, and prompt back in the plan", async () => {
       const workspace = await tempDir();
       const result = runScript(SCRIPTS.probe, [
         "--workspace",
         workspace,
-        "--arm",
-        "treatment",
+        "--condition",
+        "skill-present",
         "--run-index",
         "2",
         "--prompt",
@@ -123,7 +123,7 @@ describe("probe.mjs", () => {
       ]);
 
       expect(result).toPassCleanly();
-      expect(result.stdout).toMatch(/arm:\s+treatment/);
+      expect(result.stdout).toMatch(/condition:\s+skill-present/);
       expect(result.stdout).toMatch(/run index:\s+2/);
       expect(result.stdout).toMatch(/a custom prompt/);
     });
