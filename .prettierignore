@@ -6,3 +6,16 @@ node_modules
 # diverge them from what their own toolchain expects, so this repository's
 # gates never cover them; the mock's own toolchain is what keeps it honest.
 mocks
+
+# An evaluation's derived layer is regenerated and then compared BYTE FOR BYTE
+# against what is committed, which is how a hand-edited summary is caught (see
+# tools/effect-eval/summarize.mjs --check). Those bytes come from exactly one
+# serializer — layout.mjs's `canonicalJson` — so a second formatter with an
+# opinion about them would make the drift check fail against a file the
+# instrument never wrote. The measured files under measurements/ are excluded
+# for the plainer reason that nothing here authored them.
+#
+# Deliberately NOT the whole of data/: README.md and fixture.json are ordinary
+# hand-written files and stay covered.
+data/*/measurements/
+data/*/summary.json

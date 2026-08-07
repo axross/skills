@@ -52,8 +52,9 @@ export const SCRIPTS = {
   reportSkillDuplication: "scripts/report-skill-duplication.mjs",
   discoveryEval: "scripts/discovery-eval/run.mjs",
   extractSnapshot: "scripts/discovery-eval/extract-snapshot.mjs",
-  materialize: "scripts/value-eval/materialize.mjs",
-  probe: "scripts/value-eval/probe.mjs",
+  setup: "tools/effect-eval/setup.mjs",
+  evaluate: "tools/effect-eval/evaluate.mjs",
+  summarize: "tools/effect-eval/summarize.mjs",
 };
 
 /**

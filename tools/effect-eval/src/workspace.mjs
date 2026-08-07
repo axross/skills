@@ -1,15 +1,15 @@
-#!/usr/bin/env node
-// materialize.mjs — expands a value-eval mock project into an isolated,
-// reproducible Git working copy, and prints its path.
+// workspace.mjs — expands a mock project into an isolated, reproducible Git
+// working copy for one probe to run inside. setup.mjs is the entry point that
+// drives it.
 //
 // A mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
 // plain, uncommitted-history file tree, plus a history.jsonc that records the
-// commits to replay on top of it. This script does the replaying: it copies
+// commits to replay on top of it. This module does the replaying: it copies
 // the mock's files into a fresh temporary directory, turns that directory into
 // a real Git repository whose commit-by-commit history matches history.jsonc,
-// and optionally installs a chosen subset of this repository's OWN skills into
-// the workspace's .claude/skills/ — the experimental condition a value-eval
-// probe (elsewhere) varies from run to run.
+// and installs a chosen subset of this repository's OWN skills into the
+// workspace's .claude/skills/ — which is the condition one probe runs under,
+// skill-absent when that subset is empty and skill-present when it is not.
 //
 // REPRODUCIBILITY IS THE POINT. Two materializations of the same mock and the
 // same skill set must produce byte-identical trees and byte-identical commit
@@ -34,13 +34,6 @@
 // .claude/skills/ — path containment alone cannot catch that, because
 // `resolve()` does not follow links. See scripts/discovery-eval/run.mjs's
 // buildWorkspace for the same hazard against the same fix.
-//
-// Usage:
-//   node scripts/value-eval/materialize.mjs [options]
-//
-// Exit codes:
-//   0  the workspace path was printed to stdout
-//   2  bad invocation, a malformed mock, or a git failure
 
 import { spawnSync } from "node:child_process";
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, stat } from "node:fs/promises";
@@ -48,7 +41,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const MOCKS_ROOT = join(REPO_ROOT, "mocks");
 const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 
@@ -57,39 +50,15 @@ const DEFAULT_MOCK = "content-site";
 
 // Pinned commit identity — see this file's header for why these are
 // constants rather than read from the environment.
-const AUTHOR_NAME = "Value Eval Fixture";
-const AUTHOR_EMAIL = "value-eval-fixture@example.invalid";
-const COMMITTER_NAME = "Value Eval Fixture";
-const COMMITTER_EMAIL = "value-eval-fixture@example.invalid";
+const AUTHOR_NAME = "Effect Eval Fixture";
+const AUTHOR_EMAIL = "effect-eval-fixture@example.invalid";
+const COMMITTER_NAME = "Effect Eval Fixture";
+const COMMITTER_EMAIL = "effect-eval-fixture@example.invalid";
 // One synthetic day per commit from a fixed epoch (2023-11-14T22:13:20Z), so
 // `git log` reads as an ordered history rather than one instant repeated, and
 // every run derives the same dates from nothing but the commit's own index.
 const BASE_DATE_EPOCH_SECONDS = 1_700_000_000;
 const SECONDS_PER_COMMIT = 24 * 60 * 60;
-
-const USAGE = `Usage: materialize.mjs [options]
-
-Expand a value-eval mock project (mocks/<mock>) into an isolated,
-git-backed temporary directory and print its path.
-
-  --mock <name>    which mocks/ fixture to materialize (default: ${DEFAULT_MOCK})
-  --skill <name>   a skill to install into the workspace's .claude/skills/<name>,
-                    copied from this repository's OWN installed skills;
-                    repeatable
-  --install        run \`npm ci\` in the workspace once it is materialized, so a
-                    probe starts from installed dependencies rather than
-                    spending its own turns on them. Off by default: the default
-                    path touches no network, which is what keeps this script's
-                    own tests hermetic. Needs npm on PATH and a network.
-  --help           this text
-
-Exit codes: 0 the workspace path was printed, 2 bad invocation or a fixture
-that failed to materialize.`;
-
-function fail2(message) {
-  process.stderr.write(`${message}\n`);
-  process.exit(2);
-}
 
 async function isDirectory(path) {
   try {
@@ -304,7 +273,7 @@ function commitEnv(index) {
  * @param {{ mock?: string, skills?: string[] }} [options]
  * @returns {Promise<string>} the materialized workspace's absolute path
  */
-async function materialize({ mock = DEFAULT_MOCK, skills = [], install = false } = {}) {
+export async function materialize({ mock = DEFAULT_MOCK, skills = [], install = false } = {}) {
   const mockDir = join(MOCKS_ROOT, mock);
   await assertDirectory(
     mockDir,
@@ -330,7 +299,7 @@ async function materialize({ mock = DEFAULT_MOCK, skills = [], install = false }
     );
   }
 
-  const workspace = await mkdtemp(join(tmpdir(), "value-eval-"));
+  const workspace = await mkdtemp(join(tmpdir(), "effect-eval-"));
   try {
     // Every file the mock ships, except its own fixture metadata
     // (history.jsonc) and a defensive exclusion of node_modules, in case the
@@ -398,44 +367,3 @@ async function materialize({ mock = DEFAULT_MOCK, skills = [], install = false }
     throw error;
   }
 }
-
-function parseArgv(argv) {
-  const options = { mock: DEFAULT_MOCK, skills: [], install: false };
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (arg === "--mock") {
-      const value = argv[i + 1];
-      if (value === undefined) fail2(`--mock needs a value.\n${USAGE}`);
-      options.mock = value;
-      i += 1;
-    } else if (arg === "--skill") {
-      const value = argv[i + 1];
-      if (value === undefined) fail2(`--skill needs a value.\n${USAGE}`);
-      options.skills.push(value);
-      i += 1;
-    } else if (arg === "--install") {
-      options.install = true;
-    } else {
-      fail2(`Unknown option ${JSON.stringify(arg)}.\n${USAGE}`);
-    }
-  }
-  return options;
-}
-
-async function main() {
-  const argv = process.argv.slice(2);
-  if (argv.includes("--help") || argv.includes("-h")) {
-    process.stdout.write(`${USAGE}\n`);
-    process.exit(0);
-  }
-
-  const options = parseArgv(argv);
-  try {
-    const workspace = await materialize(options);
-    process.stdout.write(`${workspace}\n`);
-  } catch (error) {
-    fail2(error instanceof Error ? error.message : String(error));
-  }
-}
-
-main();

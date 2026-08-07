@@ -1,11 +1,15 @@
 # Mock projects
 
-Fixtures for the skill-value evaluation tracked in
-[#235](https://github.com/axross/skills/issues/235). Each subdirectory is a
-small, self-contained project that
-[`scripts/value-eval/materialize.mjs`](../scripts/value-eval/materialize.mjs)
-expands into an isolated temporary directory as a real Git repository, with a
-chosen set of skills installed, so a probe can give a model a task inside one.
+Fixtures for the skill evaluations. Each subdirectory is a small,
+self-contained project that
+[`tools/effect-eval/setup.mjs`](../tools/effect-eval/setup.mjs) expands into an
+isolated temporary directory as a real Git repository, with a chosen set of
+skills installed, so a probe can give a model a task inside one.
+
+They live at the repository root rather than under either evaluation, because
+they belong to neither: the skill effect evaluation measures against them
+today, and [#238](https://github.com/axross/skills/issues/238) situates the
+discovery evaluation over the same fixtures.
 
 They carry their own formatter, linter, and test runner. That is not tidiness:
 a skill whose effect is running the project's checks cannot be measured at all

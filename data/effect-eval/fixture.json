@@ -1,0 +1,16 @@
+{
+  "cases": [
+    {
+      "id": "add-unit-tests-for-an-untested-module",
+      "mock": "content-site",
+      "skills": ["unit-testing"],
+      "repetitionsPerCondition": 3,
+      "capUsd": 40,
+      "estimatedCostUsdPerProbe": 6,
+      "task": {
+        "prompt": "shared/resolve-translation.ts has no tests. Add unit tests for it.",
+        "targetModule": "shared/resolve-translation.ts"
+      }
+    }
+  ]
+}

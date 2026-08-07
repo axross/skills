@@ -1,5 +1,5 @@
-// Offline tests for the value-evaluation's artifact-shaped extraction:
-// scripts/value-eval/artifact.mjs. Every fixture is a literal TypeScript
+// Offline tests for the effect evaluation's artifact-shaped extraction:
+// tools/effect-eval/src/artifact.mjs. Every fixture is a literal TypeScript
 // source string, modelled on mocks/content-site's own test file
 // (shared/blog-post-slug.spec.ts) so the extractor is proven against the
 // mock's real style, never a live CLI.
@@ -15,7 +15,7 @@ import {
   isTestFilePath,
   selectPrimaryTestFile,
   usesMocks,
-} from "../../scripts/value-eval/artifact.mjs";
+} from "../../tools/effect-eval/src/artifact.mjs";
 
 /** A representative generated test file: named imports, mixed case names, a mock. */
 const REPRESENTATIVE_TEST_FILE = `import { describe, expect, it, jest } from "@jest/globals";
