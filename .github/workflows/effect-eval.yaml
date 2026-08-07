@@ -1,0 +1,312 @@
+name: Skill Effect Evaluation
+
+# Runs one evaluation case as a two-dimensional matrix — every condition times
+# every repetition — and lands the result through a pull request.
+#
+# THIS IS NOT A GATE, AND MUST NOT BECOME ONE. It is non-deterministic, it costs
+# real money per run, and it needs a secret that fork pull requests do not
+# receive. It is never a required check, it is not in merge-checks.yaml, and
+# tests/repository/reporting-tools.test.mjs asserts that the probe appears in
+# THIS workflow and in no other — so wiring it into a gate has to be a
+# deliberate act that breaks a test first.
+#
+# ── WHY A MATRIX RATHER THAN A LOOP. The predecessor ran six probes serially
+# behind a cumulative cost ledger. Only one of the six stated reasons for that
+# survived examination, and it was answerable another way; the rest were false
+# or inverted. Alternating conditions to spread service drift APPROXIMATES
+# simultaneity, and a matrix simply is simultaneous. Separate runners share no
+# filesystem and no npm cache, so isolation improves rather than degrades. What
+# is lost is the ability to stop at probe three, and `max-parallel` bounds that
+# if it is ever wanted.
+#
+# ── THE BUDGET BINDS BEFORE THE FAN-OUT, IN THE `admit` JOB. Admission runs
+# once, projecting from committed measurements where they exist and the
+# fixture's declared estimate where they do not. A refusal exits 4 and nothing
+# downstream runs, so a case that does not fit its cap costs nothing at all. A
+# refusal is a finding; raising the cap is a spending decision that belongs to a
+# human editing the reviewed fixture, not to a dispatch input — which is why
+# `cap_usd` below can only ever lower it.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 1 of 3 — MANUAL DISPATCH IS THE ONLY TRIGGER.
+# `workflow_dispatch` requires write access and always runs the workflow file
+# from the default branch, so a contributor cannot cause a run, cannot cause one
+# by editing this file in a pull request, and cannot cause one with a label. Do
+# NOT add `pull_request`, and do NOT add `pull_request_target`.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 2 of 3 — THE PROBE JOB CANNOT WRITE. It
+# declares `permissions: {}`, so its token carries no scope at all, and no step
+# in it receives GITHUB_TOKEN in its environment. It holds one secret — the one
+# the CLI needs to authenticate — and produces one artifact. Everything that
+# writes the repository happens in `land`, which spawns no model.
+#
+# That separation matters more here than in the discovery evaluation, because
+# THIS probe has Bash and the editing tools. It has them deliberately: whether
+# an installed skill gets invoked during real work is what the instrument
+# measures, and a probe that cannot run the project's checks cannot exhibit the
+# behaviour being measured. Its workspace is built only from this repository's
+# own mock fixture and its own installed skills — never from a pull request
+# head — which is what makes that posture safe, and is why this axis never
+# combines with the head-overlay the discovery evaluation carries.
+#
+# ── LOAD-BEARING SAFETY PROPERTY 3 of 3 — NO CREDENTIAL REACHES A STORED
+# TRANSCRIPT. tools/lib/credentials.mjs strips the environment going into the
+# subprocess and redacts the transcript coming out, by value. A shape scan then
+# REFUSES rather than redacting what it only guessed at: evaluate.mjs exits 3
+# and writes nothing. Losing a paid probe is the cheaper failure.
+#
+# ── THE MEASUREMENT PULL REQUEST IS CHECKED HERE, NOT BY THE MERGE GATE. GitHub
+# does not fire workflows on a pull request opened with GITHUB_TOKEN, so
+# merge-checks.yaml does not run on what `land` opens. Rather than leave the
+# measurement unchecked, `land` runs the checks ITSELF before it commits: the
+# drift check, the comparability checks, and the repository's own `npm run
+# check`. A failure there fails the dispatch and opens no pull request.
+#
+# That division is then declared rather than inherited — merge-checks.yaml
+# carries an explicit guard excluding this workflow's pull requests, so a future
+# change in how GitHub treats GITHUB_TOKEN-authored pull requests cannot
+# silently move which gate is responsible for measurement data.
+#
+# Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
+# claude-review.yaml and discovery-eval.yaml already use. No new secret.
+
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: "Evaluation case id, as declared in data/effect-eval/fixture.json"
+        required: true
+      cap_usd:
+        # LOWER ONLY. A value above the case's declared cap is reported and
+        # ignored — see admission.mjs. The fixture is reviewed and committed;
+        # this is typed into a form.
+        description: "Lower this case's declared budget cap for this dispatch (cannot raise it)"
+        required: false
+
+# Least privilege at the top: read. The one job that writes raises its own.
+permissions:
+  contents: read
+
+concurrency:
+  # Per case, and NEVER cancelling. Every other workflow here cancels superseded
+  # runs because the newer answer supersedes the older one. That reasoning
+  # inverts the moment a run costs money: cancelling a matrix mid-flight
+  # destroys the probes already paid for and leaves a case measurement that can
+  # never be completed, because its remaining probes would run in a different
+  # wall-clock window against a possibly-drifted service.
+  group: effect-eval-${{ github.event.inputs.case }}
+  cancel-in-progress: false
+
+env:
+  # Pinned, and recorded in every probe's metadata.json. The CLI's own version
+  # is part of the condition a measurement was taken under, so it is held fixed
+  # for the same reason the model is.
+  CLAUDE_CODE_VERSION: 2.1.220
+
+jobs:
+  admit:
+    name: Admit the case
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      cap-usd: ${{ steps.plan.outputs.cap-usd }}
+      projected-usd: ${{ steps.plan.outputs.projected-usd }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+
+      # Exits 4 when the projection exceeds the cap, which fails this job and
+      # skips everything downstream. Nothing is spawned and nothing is billed.
+      - name: Plan the matrix and admit the spend
+        id: plan
+        env:
+          CASE: ${{ github.event.inputs.case }}
+          CAP_USD: ${{ github.event.inputs.cap_usd }}
+        run: |
+          set -euo pipefail
+          args=(--case "${CASE}")
+          if [ -n "${CAP_USD}" ]; then
+            args+=(--cap-usd "${CAP_USD}")
+          fi
+          node tools/effect-eval/src/plan.mjs "${args[@]}"
+
+  probe:
+    name: Probe ${{ matrix.condition }} ${{ matrix.repeat }}
+    needs: admit
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # SAFETY PROPERTY 2 — no scope at all. This job spawns a model with Bash;
+    # it must not be able to write anything back.
+    permissions: {}
+    strategy:
+      # One failed probe must not discard the paid work of the other five.
+      # summarize.mjs will notice the missing probe through the declared
+      # repetition count and report the measurement as incomparable, which is
+      # the right outcome: a partial case is a finding, not a silent success.
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.admit.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+
+      - name: Install the Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
+
+      # `--install` is what keeps the harness's own setup out of the
+      # measurement. Without it, every probe spent three to five of its twelve
+      # to fifteen turns discovering node_modules was absent and installing it —
+      # in both conditions, over the network, resolving its own versions.
+      - name: Prepare the workspace
+        id: workspace
+        env:
+          CASE: ${{ github.event.inputs.case }}
+          CONDITION: ${{ matrix.condition }}
+        run: |
+          set -euo pipefail
+          mock="$(node -e 'const f=require("./data/effect-eval/fixture.json");const c=f.cases.find(c=>c.id===process.env.CASE);process.stdout.write(c.mock)')"
+          args=(--mock "${mock}" --install)
+          if [ "${CONDITION}" = "skill-present" ]; then
+            while IFS= read -r skill; do
+              args+=(--skill "${skill}")
+            done < <(node -e 'const f=require("./data/effect-eval/fixture.json");const c=f.cases.find(c=>c.id===process.env.CASE);process.stdout.write(c.skills.join("\n"))')
+          fi
+          echo "path=$(node tools/effect-eval/setup.mjs "${args[@]}")" >> "$GITHUB_OUTPUT"
+
+      # SAFETY PROPERTY 2 — the only secret in this step is the one the CLI
+      # cannot authenticate without. GITHUB_TOKEN is deliberately absent.
+      - name: Run the probe
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/measurement"
+          node tools/effect-eval/evaluate.mjs \
+            --workspace "${{ steps.workspace.outputs.path }}" \
+            --case "${{ github.event.inputs.case }}" \
+            --condition "${{ matrix.condition }}" \
+            --out "${RUNNER_TEMP}/measurement" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Upload the probe record
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-${{ matrix.condition }}-${{ matrix.repeat }}
+          path: ${{ runner.temp }}/measurement/
+          if-no-files-found: error
+          retention-days: 7
+
+  land:
+    name: Land the measurement
+    needs: [admit, probe]
+    # `always()` so a partially-failed matrix still lands what it paid for. The
+    # probes that succeeded are measured data that cannot be re-acquired for
+    # free; discarding them because a sibling failed would be the expensive
+    # mistake. `fail-fast: false` above exists for the same reason, and the
+    # comparability checks are what stop a partial case being read as a whole
+    # one. Skipped only when admission itself refused, since then there is
+    # nothing to land.
+    if: always() && needs.admit.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+
+      - name: Collect every probe record
+        id: collect
+        env:
+          CASE: ${{ github.event.inputs.case }}
+        run: |
+          set -euo pipefail
+          id="$(node -e 'process.stdout.write(require("node:crypto").randomBytes(4).toString("hex"))')"
+          dir="data/effect-eval/measurements/${CASE}-${id}"
+          mkdir -p "${dir}"
+          echo "dir=${dir}" >> "$GITHUB_OUTPUT"
+
+      - name: Download the probe records
+        uses: actions/download-artifact@v4
+        with:
+          pattern: probe-*
+          merge-multiple: true
+          path: ${{ steps.collect.outputs.dir }}
+
+      # THE CHECKS RUN HERE, BEFORE THE COMMIT, because merge-checks.yaml will
+      # not run on the pull request this opens. summarize.mjs writes each
+      # summary and enforces the comparability checks; exit 4 means the
+      # measurement is not comparable.
+      #
+      # `continue-on-error` is deliberate and is NOT a way of ignoring the
+      # result: an incomparable measurement is a finding worth committing and
+      # reading, not data to throw away. The outcome is carried into the pull
+      # request body below, and the reviewer sees it before merging.
+      - name: Derive the summaries and check comparability
+        id: summarize
+        continue-on-error: true
+        run: node tools/effect-eval/summarize.mjs
+
+      # No `continue-on-error` here. A measurement that fails the repository's
+      # own gates is a defect in this instrument, not a finding about a skill.
+      - name: Run the repository's own checks
+        run: npm run check
+
+      - name: Open the measurement pull request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CASE: ${{ github.event.inputs.case }}
+          COMPARABLE: ${{ steps.summarize.outcome }}
+        run: |
+          set -euo pipefail
+          branch="measurement/effect-eval/${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${branch}"
+          git add data/effect-eval
+          git commit -m "data(effect-eval): record a case measurement of ${CASE}" \
+                     -m "Dispatched from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          git push -u origin "${branch}"
+
+          {
+            echo "Recorded one case measurement of \`${CASE}\`."
+            echo
+            if [ "${COMPARABLE}" = "success" ]; then
+              echo "Every comparability check passed."
+            else
+              echo "**At least one comparability check FAILED.** The measurement is committed"
+              echo "anyway — a case whose probes did not run under the same conditions is a"
+              echo "finding worth keeping, not data to discard — but the difference it reports"
+              echo "cannot be attributed to the skill. See the run log and each \`summary.json\`."
+            fi
+            echo
+            echo "Admitted at a \$${{ needs.admit.outputs.cap-usd }} cap against a projected"
+            echo "\$${{ needs.admit.outputs.projected-usd }}."
+            echo
+            echo "\`merge-checks.yaml\` does not run on this pull request: it is opened with"
+            echo "\`GITHUB_TOKEN\`, and the gate carries an explicit guard for that. The checks"
+            echo "it would have run — the drift check, the comparability checks, and"
+            echo "\`npm run check\` — ran in the dispatch before this branch was committed."
+            echo
+            echo "---"
+            echo "_Generated by [Claude Code](https://claude.ai/code)_"
+          } > "${RUNNER_TEMP}/body.md"
+
+          gh pr create \
+            --title "data(effect-eval): record a case measurement of ${CASE}" \
+            --body-file "${RUNNER_TEMP}/body.md" \
+            --base "${{ github.ref_name }}" \
+            --head "${branch}"

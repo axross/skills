@@ -75,16 +75,20 @@ const REPORTING_TOOLS = [
     runnable: false,
   },
   {
-    script: SCRIPTS.probe,
+    script: SCRIPTS.evaluate,
     // Matched by PATH for the same reason as its discovery-side sibling above:
-    // "probe.mjs" alone is too generic to assert anything.
-    needle: "scripts/value-eval/probe.mjs",
-    // No workflow may name it at all. The discovery evaluation earns one
-    // because a maintainer dispatches it; this has no such entry point yet,
-    // and until it does, any workflow naming it is a wiring mistake.
-    workflow: null,
-    // Same reason as above: it drives the real CLI, so a run here would be
-    // both chargeable and non-deterministic.
+    // "evaluate.mjs" alone is too generic to assert anything.
+    needle: "tools/effect-eval/evaluate.mjs",
+    // It has earned its own workflow, and exactly one. Until #278 this entry
+    // read `workflow: null` with the note "this has no such entry point yet,
+    // and until it does, any workflow naming it is a wiring mistake" — so
+    // adding the workflow had to break this test first, which is what the
+    // guard was for. The guard is not weakened by being satisfied: naming the
+    // probe in any SECOND workflow still fails.
+    workflow: "effect-eval.yaml",
+    // Driving the real CLI needs a network and a secret, so running it here
+    // would make the suite chargeable and non-deterministic. Its exit-0
+    // guarantee is asserted through --help and --dry-run instead.
     runnable: false,
   },
 ];
@@ -192,5 +196,52 @@ describe("reporting tools are not gates", () => {
     const result = runScript(SCRIPTS.discoveryEval, ["--dry-run"]);
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("No model call was made.");
+  });
+});
+
+describe("the merge gate's measurement-pull-request guard", () => {
+  // effect-eval.yaml opens its pull request with GITHUB_TOKEN, and GitHub does
+  // not fire workflows on those — so merge-checks.yaml already does not run on
+  // it. That is an accident of platform behaviour; the guard makes it a
+  // declared one, and this asserts the guard is actually there, on every gate,
+  // rather than on two of three.
+  const readMergeChecks = () =>
+    readFile(repoPath(".github/workflows/merge-checks.yaml"), "utf8");
+
+  const GATE_JOBS = ["format-validation", "lint", "tests"];
+
+  it("carries the guard on every gate job, not merely somewhere in the file", async () => {
+    const yaml = await readMergeChecks();
+    // Split on job headers so a guard present three times in one job cannot
+    // pass for a guard present once in each.
+    for (const job of GATE_JOBS) {
+      const start = yaml.indexOf(`\n  ${job}:\n`);
+      expect(start, `merge-checks.yaml has no ${job} job`).toBeGreaterThan(-1);
+      const rest = yaml.slice(start + 1);
+      const end = rest.search(/\n {2}[a-z-]+:\n/);
+      const block = end === -1 ? rest : rest.slice(0, end);
+
+      expect(block, `${job} does not skip the measurement pull request`).toContain(
+        "startsWith(github.head_ref, 'measurement/')",
+      );
+      // The author conjunct is the half that cannot be forged. Without it any
+      // contributor could skip all three gates by naming a branch
+      // `measurement/…`.
+      expect(
+        block,
+        `${job} keys its guard on the branch name alone, which any contributor can choose`,
+      ).toContain("github.event.pull_request.user.login == 'github-actions[bot]'");
+    }
+  });
+
+  it("guards at job level rather than filtering the trigger", async () => {
+    const yaml = await readMergeChecks();
+    // A workflow skipped by a path or branch filter never reports, so a
+    // required status check would stay pending forever. A job skipped by `if:`
+    // reports and satisfies it.
+    expect(
+      yaml,
+      "a trigger-level filter would leave a required check pending rather than satisfied",
+    ).not.toMatch(/^\s*(paths-ignore|branches-ignore):/m);
   });
 });

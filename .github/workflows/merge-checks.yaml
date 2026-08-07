@@ -33,9 +33,47 @@ concurrency:
 permissions:
   contents: read
 
+# ── THE MEASUREMENT PULL REQUEST IS EXCLUDED, EXPLICITLY.
+#
+# effect-eval.yaml opens a pull request with GITHUB_TOKEN, and GitHub does not
+# fire workflows on those — so today these gates already do not run on it. That
+# exclusion is currently an accident of platform behaviour, and this guard turns
+# it into a declared one, so a future change in how GitHub treats
+# GITHUB_TOKEN-authored pull requests cannot silently move which gate is
+# responsible for measurement data.
+#
+# The division it declares: measurement data is checked by the dispatch that
+# produced it, before the commit — the drift check, the comparability checks,
+# and this repository's own `npm run check` all run inside effect-eval.yaml's
+# landing job. Code is checked here. Nothing is checked by neither.
+#
+# THREE THINGS ABOUT THE SHAPE ARE DELIBERATE.
+#
+# It is a job-level `if:` and not a trigger-level `paths-ignore`. A workflow
+# skipped by a path or branch filter never reports at all, so a required status
+# check would stay pending forever; a job skipped by `if:` reports and satisfies
+# it.
+#
+# It keys on the AUTHOR as well as the branch prefix. A branch-name-only guard
+# would let any contributor skip all three gates by naming their branch
+# `measurement/…`. The author of a GITHUB_TOKEN-opened pull request is not
+# something a contributor can forge.
+#
+# It is repeated on each job rather than factored into a shared gate job,
+# because that would need `needs:` — and the note above records that no job here
+# declares one, so that a failing gate still lets the others report.
+#
+# tests/repository/reporting-tools.test.mjs asserts all three jobs carry it.
+# Note that it adds no `run:` line, so the gate-consistency coupling above is
+# unaffected.
+
 jobs:
   format-validation:
     name: Format Validation
+    if: >-
+      ${{ !(github.event_name == 'pull_request'
+            && github.event.pull_request.user.login == 'github-actions[bot]'
+            && startsWith(github.head_ref, 'measurement/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,6 +90,10 @@ jobs:
 
   lint:
     name: Lint
+    if: >-
+      ${{ !(github.event_name == 'pull_request'
+            && github.event.pull_request.user.login == 'github-actions[bot]'
+            && startsWith(github.head_ref, 'measurement/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -68,6 +110,10 @@ jobs:
 
   tests:
     name: Tests
+    if: >-
+      ${{ !(github.event_name == 'pull_request'
+            && github.event.pull_request.user.login == 'github-actions[bot]'
+            && startsWith(github.head_ref, 'measurement/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
