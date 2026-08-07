@@ -681,7 +681,7 @@ implementation-capable agent at the session's inherited model — rather than
 returning to single-agent execution, with no gate weakened. Single-agent
 execution is what a host exposing no capable agent at all produces.
 
-**The optional pre-flight review has its own worked example, and the interesting
+**The pre-flight review has its own worked example, and the interesting
 part is what it does _not_ take away.**
 [`.claude/agents/reviewer.md`](./.claude/agents/reviewer.md) denies two things —
 editing, and spawning another agent — and nothing else. The obvious move is to

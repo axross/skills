@@ -50,9 +50,19 @@ The determination lands on one of three results, and only the last of them asks 
 - MUST treat a policy that forbids, withholds, or conditions the spawn as a branch to single-agent fallback distinct from a candidate excluded on capability and from a catalog that cannot be enumerated; a policy block leaves a qualifying candidate qualified.
 - MUST record and report that branch as itself, and MUST NOT report it as no candidate qualifying or as a catalog that could not be enumerated; it lands in the fallback reason the run already carries (see [run-state-and-reporting.md](./run-state-and-reporting.md)).
 - MUST run the determination before the first project-file edit — on every run, regardless of whether a policy statement was noticed — and land it on permitted, barred, or undetermined.
+- MUST default to **undetermined** wherever the run cannot read the policy as unambiguously absolute; **barred** requires positive evidence that no request could lift the restriction, and a policy naming the human's request as its own condition — in any wording — is the canonical **undetermined** case, never **barred**.
+- SHOULD weigh host or harness configuration that governs _how_ delegation behaves — rather than _whether_ it is allowed at all — as evidence against a **barred** classification; a harness that configures the shape of a capability is not thereby shown to be withholding it outright.
+- MUST record, for every determination, the policy text it rests on, quoted, or — where no restricting policy exists — the observation that none was found; a determination recording neither is incomplete.
+
+#### Putting the Decision to the Human
+
+Only the undetermined result asks anything. The ask has its own small set of rules: when it fires, when it must not, and how a run without a question tool proceeds instead.
+
+**Guidelines:**
+
 - MUST, where that determination comes out **undetermined** and the session exposes a question tool, put the decision to the human through that tool before the first project-file edit; an affirmative answer **is** the request a conditional policy conditions on.
 - MUST NOT ask that question where the determination already settled, either way. Permitted settles it by an unconditional policy, by the absence of any policy restricting or conditioning the spawn, or by this run's own earlier affirmative answer — a harness that says nothing about delegation has not withheld it, and a decline is not an answer that settles it this way. Barred settles it too, and takes the absolute-policy outcome without a question, because no answer could lift it.
-- MUST ask that question once per run and let it cover delegation as a whole, this worker and the optional review reader together, so a later executor resolution in the same run does not re-ask; a decline falls back to single-agent and is not revisited.
+- MUST ask that question once per run and let it cover delegation as a whole, this worker and the review reader together, so a later executor resolution in the same run does not re-ask; a decline falls back to single-agent and is not revisited.
 - MUST fall back to single-agent without asking and without ending the turn where the session exposes no question tool. This departs deliberately from the default that sends a decision with nowhere to ask into the turn output and stops (see [asking-the-human.md](./asking-the-human.md)), and is not an oversight: delegation is an optimization rather than a gate, so a run that cannot ask has a supported outcome already available and stalling it trades that outcome for a stop. Such a run records the outcome matching the determination that produced it — the absolute-policy outcome where the spawn was barred, and the conditional-policy-not-lifted one where it was undetermined — with its permission determination showing that no question was put. Never a decline, which would claim an answer nobody gave.
 - MUST NOT re-present that question on a resume; the execution mode the status block already carries records which way the run went.
 

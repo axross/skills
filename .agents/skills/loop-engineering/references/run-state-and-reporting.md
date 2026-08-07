@@ -22,12 +22,13 @@ Session state should hold the execution mode (delegated, single-agent, or recove
 
 The status block adds only durable recovery information: execution mode, implementation status, the approved plan revision, the latest coherent implementation HEAD where available, phase, review round, waiting state, any open question, and the delegation-permission determination together with any answer the human gave it.
 
-Where the optional pre-flight review runs, its round number and waiting state join that list unconditionally. Its finding entries join it only while the run is parked on the human question that needs them there, and are cleared before the run resumes past it — durability is earned by the same reasoning the principle above gives: a fresh review worker produces a _different_ finding set, so a ledger lost mid-park cannot be re-derived by re-running the review, while one lost between parks costs nothing. [pre-flight-review.md](./pre-flight-review.md)'s Ledger Durability owns exactly when the entries are and are not written, their ceiling, and what a run does when it cannot read the block back.
+Where the pre-flight review runs, its round number and waiting state join that list unconditionally. Its finding entries join it only while the run is parked on the human question that needs them there, and are cleared before the run resumes past it — durability is earned by the same reasoning the principle above gives: a fresh review worker produces a _different_ finding set, so a ledger lost mid-park cannot be re-derived by re-running the review, while one lost between parks costs nothing. [pre-flight-review.md](./pre-flight-review.md)'s Ledger Durability owns exactly when the entries are and are not written, their ceiling, and what a run does when it cannot read the block back.
 
 **Guidelines:**
 
 - MUST NOT duplicate the commit list into the status block; Git history and the completion receipt stay authoritative for individual commits.
 - MUST keep opaque worker identifiers, transcript paths, and other ephemeral harness details in session state rather than writing them to GitHub.
+- MUST treat a status-block entry that names no determination as invalid; the delegation-permission field carries one of the three results — permitted, barred, or undetermined — together with the policy text quoted or the no-restricting-policy observation from [implementation-worker.md](./implementation-worker.md#a-spawn-the-harnesss-policy-blocks).
 
 ## Reporting a Delegated Run
 
