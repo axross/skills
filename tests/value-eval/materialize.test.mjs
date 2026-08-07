@@ -101,6 +101,22 @@ describe("materialize.mjs", () => {
 
     expect(result).toPassCleanly();
     expect(result.stdout).toMatch(/Usage: materialize\.mjs/);
+    expect(result.stdout).toMatch(/--install/);
+  });
+
+  // The install is opt-in precisely so this file stays hermetic: every case
+  // here materializes the mock, and a default that reached the network would
+  // make the whole suite slow and flaky. Asserting the absence is what keeps
+  // "off by default" a property rather than an intention — a future change
+  // that flipped the default would be caught here rather than in CI's timing.
+  it("installs nothing unless asked, so the default path needs no network", async () => {
+    const { result, workspace } = materialize();
+
+    expect(result.code).toBe(0);
+    await expect(stat(join(workspace, "node_modules"))).rejects.toThrow();
+    // The lockfile still ships, so the install the flag performs is pinned
+    // rather than resolved afresh — it is only deferred, not absent.
+    expect(await listFiles(workspace)).toContain("package-lock.json");
   });
 
   it("fails clearly for an unknown skill name", () => {

@@ -21,7 +21,14 @@
 	"commits": [
 		{
 			"message": "Initial commit",
-			"files": ["package.json", ".gitignore", "tsconfig.json", "biome.jsonc"]
+			"files": [
+				"package.json",
+				"package-lock.json",
+				".nvmrc",
+				".gitignore",
+				"tsconfig.json",
+				"biome.jsonc"
+			]
 		},
 		{
 			"message": "WIP",

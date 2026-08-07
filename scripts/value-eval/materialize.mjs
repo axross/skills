@@ -76,6 +76,11 @@ git-backed temporary directory and print its path.
   --skill <name>   a skill to install into the workspace's .claude/skills/<name>,
                     copied from this repository's OWN installed skills;
                     repeatable
+  --install        run \`npm ci\` in the workspace once it is materialized, so a
+                    probe starts from installed dependencies rather than
+                    spending its own turns on them. Off by default: the default
+                    path touches no network, which is what keeps this script's
+                    own tests hermetic. Needs npm on PATH and a network.
   --help           this text
 
 Exit codes: 0 the workspace path was printed, 2 bad invocation or a fixture
@@ -233,6 +238,50 @@ function runGit(args, cwd, extraEnv = {}) {
   return result.stdout;
 }
 
+/**
+ * Installs the mock's pinned dependencies into the materialized workspace.
+ *
+ * WHY THE HARNESS DOES THIS AND NOT THE MODEL. Every probe run before #264
+ * spent three to five of its twelve to fifteen turns discovering `node_modules`
+ * was absent, running `npm install`, and re-running the tests. That is the
+ * harness's own setup showing up inside the measurement: it costs turns and
+ * money in both conditions, it puts a network-dependent step in every probe,
+ * and it let each run resolve its own dependency versions. A real developer
+ * opens a repository whose dependencies are already installed.
+ *
+ * IT IS OPT-IN, AND THAT IS DELIBERATE. materialize.test.mjs materializes this
+ * mock repeatedly and must stay hermetic and fast, so the default path touches
+ * no network at all. The evaluation driver asks for the install explicitly.
+ *
+ * A FAILURE HERE IS A MATERIALIZATION FAILURE, NOT A WARNING. Handing back a
+ * half-prepared workspace would let a probe start against it and spend real
+ * money measuring the install rather than the skill, which is the whole defect
+ * this exists to remove.
+ *
+ * `npm ci` rather than `npm install`: it installs exactly what the lockfile
+ * pins and fails if the lockfile and `package.json` disagree, which is the
+ * property the pin is for. `node_modules` is in the mock's own `.gitignore`,
+ * so the workspace's Git tree stays clean and the capture never sees any of it.
+ */
+function installDependencies(workspace) {
+  const result = spawnSync("npm", ["ci", "--no-audit", "--no-fund"], {
+    cwd: workspace,
+    encoding: "utf8",
+  });
+  if (result.error) {
+    if (result.error.code === "ENOENT") {
+      throw new Error("npm is not on PATH, so --install cannot prepare the workspace.");
+    }
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    throw new Error(
+      `npm ci (in ${workspace}) exited ${result.status}; the workspace is not ` +
+        `usable for a probe:\n${result.stderr || result.stdout}`,
+    );
+  }
+}
+
 /** The pinned author/committer env for the commit at `index`. */
 function commitEnv(index) {
   const date = `@${BASE_DATE_EPOCH_SECONDS + index * SECONDS_PER_COMMIT} +0000`;
@@ -255,7 +304,7 @@ function commitEnv(index) {
  * @param {{ mock?: string, skills?: string[] }} [options]
  * @returns {Promise<string>} the materialized workspace's absolute path
  */
-async function materialize({ mock = DEFAULT_MOCK, skills = [] } = {}) {
+async function materialize({ mock = DEFAULT_MOCK, skills = [], install = false } = {}) {
   const mockDir = join(EXAMPLES_ROOT, mock);
   await assertDirectory(
     mockDir,
@@ -339,6 +388,10 @@ async function materialize({ mock = DEFAULT_MOCK, skills = [] } = {}) {
       await cp(skillSources[index], destination, { recursive: true, dereference: true });
     }
 
+    // Last, so the history replay above saw exactly the files the mock ships
+    // and the bijection check was unaffected by anything this writes.
+    if (install) installDependencies(workspace);
+
     return workspace;
   } catch (error) {
     await rm(workspace, { recursive: true, force: true });
@@ -347,7 +400,7 @@ async function materialize({ mock = DEFAULT_MOCK, skills = [] } = {}) {
 }
 
 function parseArgv(argv) {
-  const options = { mock: DEFAULT_MOCK, skills: [] };
+  const options = { mock: DEFAULT_MOCK, skills: [], install: false };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--mock") {
@@ -360,6 +413,8 @@ function parseArgv(argv) {
       if (value === undefined) fail2(`--skill needs a value.\n${USAGE}`);
       options.skills.push(value);
       i += 1;
+    } else if (arg === "--install") {
+      options.install = true;
     } else {
       fail2(`Unknown option ${JSON.stringify(arg)}.\n${USAGE}`);
     }
