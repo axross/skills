@@ -498,7 +498,7 @@ function renderDelta(delta, expectAlways = []) {
     (entry) => entry.isNew || entry.changes.length > 0,
   );
   if (changed.length === 0 && delta.removed.length === 0) {
-    lines.push("No change: every case matched the snapshot rate for rate.");
+    lines.push("No change: every case matched the snapshot, rate for rate.");
     return lines.join("\n");
   }
 
