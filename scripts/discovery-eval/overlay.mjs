@@ -184,7 +184,7 @@ export function resolveInside(root, relative) {
  * field. It is copied rather than imported: that constant is not exported, and
  * exporting it would mean editing a distributable skill's script, which is an
  * authoring change this is not. The coupling is therefore by convention — the
- * same trade `report-obligation-load.mjs` documents for `MANDATED_SKILLS` — and
+ * same trade `report-obligation-burden.mjs` documents for `MANDATED_SKILLS` — and
  * `tests/validators/discovery-eval.test.mjs` reads both sources so the two
  * cannot drift silently.
  *

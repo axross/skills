@@ -1,4 +1,4 @@
-// Contract for the obligation-load reporter.
+// Contract for the obligation-burden reporter.
 //
 // Unlike every other script in this suite, this one has no pass/fail semantics:
 // its documented contract is exit 0 on EVERY valid invocation regardless of the
@@ -25,7 +25,7 @@ import { estimateTokens } from "../../skills/agent-skill-authoring/scripts/token
 import { tempDir, writeSkill } from "../helpers/fixtures.mjs";
 import { repoPath, SCRIPTS, validator } from "../helpers/run.mjs";
 
-const report = validator(SCRIPTS.reportObligationLoad);
+const report = validator(SCRIPTS.reportObligationBurden);
 const checkSkill = validator(SCRIPTS.checkSkillBody);
 
 /** The always-on set, mirroring the script's own MANDATED_SKILLS. */
@@ -151,12 +151,12 @@ function rowNamesOf(stdout) {
 
 /** The skill count the report's headline states. */
 function headlineCountOf(stdout) {
-  const match = stdout.match(/^Obligation load for (\d+) skill\(s\)/m);
+  const match = stdout.match(/^Obligation burden for (\d+) skill\(s\)/m);
   if (!match) throw new Error(`No headline in report:\n${stdout}`);
   return Number(match[1]);
 }
 
-describe("report-obligation-load.mjs", () => {
+describe("report-obligation-burden.mjs", () => {
   describe("counting", () => {
     it("counts the obligations a single skill's SKILL.md states", async () => {
       const root = await tempDir();
@@ -289,7 +289,7 @@ describe("report-obligation-load.mjs", () => {
       const result = report("--mandated", "code-review", "quality-assurance");
 
       expect(result).toPassCleanly();
-      expect(result.stdout).toMatch(/Obligation load for 5 skill\(s\)/);
+      expect(result.stdout).toMatch(/Obligation burden for 5 skill\(s\)/);
     });
 
     it("counts a skill once when it is selected twice", async () => {
@@ -338,7 +338,7 @@ describe("report-obligation-load.mjs", () => {
       const result = report("--mandated");
 
       expect(result).toExitWith(0);
-      expect(result.stdout).toMatch(/Obligation load for 3 skill\(s\)/);
+      expect(result.stdout).toMatch(/Obligation burden for 3 skill\(s\)/);
     });
   });
 
@@ -991,7 +991,7 @@ describe("report-obligation-load.mjs", () => {
       const result = report("--help");
 
       expect(result).toExitWith(0);
-      expect(result.stdout).toMatch(/Usage: report-obligation-load\.mjs/);
+      expect(result.stdout).toMatch(/Usage: report-obligation-burden\.mjs/);
     });
 
     it.each([

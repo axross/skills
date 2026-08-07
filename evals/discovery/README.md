@@ -3,12 +3,12 @@
 This directory holds the data the skill-discovery evaluation runs on. The runner
 itself lives in [`scripts/discovery-eval/`](../../scripts/discovery-eval).
 
-Every other mechanical check in this repository measures **form** — frontmatter
-shape, bullet syntax, link integrity, section anatomy. This one measures an
-**outcome**: given a prompt, does discovery surface the right skills? The unit
-under test is the always-resident `description`/`when_to_use` pair, the input is
-a prompt, and the assertion is set membership — so no model judges another
-model's prose.
+Every other mechanical check in this repository measures a **textual
+property** — frontmatter shape, bullet syntax, link integrity, section anatomy.
+This one measures a **skill outcome**: given a prompt, does discovery surface
+the right skills? The unit under test is the always-resident `description`, the
+input is a prompt, and the assertion is set membership — so no model judges
+another model's prose.
 
 ## Running it
 
@@ -16,7 +16,7 @@ model's prose.
 node scripts/discovery-eval/run.mjs --help
 node scripts/discovery-eval/run.mjs --dry-run          # validate, no model call
 node scripts/discovery-eval/run.mjs --only wf-checkout-layout --repeats 3
-node scripts/discovery-eval/run.mjs --repeats 5 --emit-baseline
+node scripts/discovery-eval/run.mjs --repeats 5 --emit-snapshot
 node scripts/discovery-eval/run.mjs --determinism --only hf-touch-targets
 ```
 
@@ -32,7 +32,7 @@ so prompt caching only amortizes it once a run is long enough to reuse it. Use
 cents.
 
 `--dry-run` needs neither a network nor a secret: it validates the fixture and
-the baseline and prints what would run. That is the path `npm test` exercises.
+the snapshot and prints what would run. That is the path `npm test` exercises.
 
 ## Running it in CI
 
@@ -43,22 +43,22 @@ from the Actions tab. Four inputs, all optional:
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `repeats`       | Runs per case, **overriding whatever a case declares**. Leave blank — the normal case — to honour the fixture's own counts.                                                                                                                                      |
 | `pull_request`  | A pull request number. Its changed `SKILL.md` files are evaluated, and the report is posted there as a comment. Leave blank to evaluate the default branch and read the report in the job log.                                                                   |
-| `emit_baseline` | Also produce a proposed baseline, downloadable from the run as the `proposed-baseline` artifact. Off by default. See [Re-recording it](#re-recording-it).                                                                                                        |
+| `emit_snapshot` | Also produce a proposed snapshot, downloadable from the run as the `proposed-snapshot` artifact. Off by default. See [Re-recording it](#re-recording-it).                                                                                                        |
 | `determinism`   | A case id. Repeats **that one case** against an unchanged corpus and reports its stability instead of running the fixture. **30 repeats by default, overriding any per-case declaration**, and a `repeats` below 10 is refused. See [the probe](#--determinism). |
 
 Two combinations are refused, and one is explicitly allowed.
 
-**`emit_baseline` and `pull_request` cannot be combined**, and a dispatch
+**`emit_snapshot` and `pull_request` cannot be combined**, and a dispatch
 supplying both fails before it spawns a single probe. A run that names a pull
 request overlays that pull request's head `SKILL.md` files, so the emitted
 `corpus` would fingerprint text that exists on no branch — a document that looks
-exactly like a committable baseline and is not one. Refusing the combination is
+exactly like a committable snapshot and is not one. Refusing the combination is
 cheaper than documenting the trap.
 
-**`emit_baseline` and `determinism` cannot be combined either**, for a different
+**`emit_snapshot` and `determinism` cannot be combined either**, for a different
 reason and from a separate step with its own message: a determinism run measures
-one case, a baseline is a fixture-wide document, and there is no partial
-baseline worth emitting.
+one case, a snapshot is a fixture-wide document, and there is no partial
+snapshot worth emitting.
 
 **`determinism` and `pull_request` _can_ be combined.** Measuring how stably a
 changed skill is selected, against that pull request's own head text, is a
@@ -183,8 +183,8 @@ third of the time and reports a finding indistinguishable from a real
 regression. `SPURIOUS` has the sharper version of the same problem: it fires
 above half, so a skill genuinely sitting at half fires it half the time.
 
-So **both** findings carry the prior the baseline recorded, and — where that
-baseline fingerprinted its corpus — `P`, the chance of a result at least this
+So **both** findings carry the prior the snapshot recorded, and — where that
+snapshot fingerprinted its corpus — `P`, the chance of a result at least this
 extreme if the rate had not moved:
 
 ```text
@@ -208,7 +208,7 @@ the real thing. Under a Jeffreys `Beta(0.5, 0.5)` prior instead, no verdict in
 this fixture flips.
 
 **A tally entry is always a prior; an absence is one only for a skill the run
-tracked.** A baseline records a zero-hit skill by omitting it, so an absence
+tracked.** A snapshot records a zero-hit skill by omitting it, so an absence
 means _measured, and zero_ for a skill in `mustInclude`, `mustExclude` or
 `expectAlways` — and _nobody ever looked_ for anything else. `mayInclude` is
 deliberately outside that set: those skills are never a finding, so a run has no
@@ -247,11 +247,11 @@ made visible. It can only ever replace `consistent with no change`, never a
 finding: `floor ≤ P` holds by construction.
 
 **Without a `corpus` fingerprint there is no `P` at all** — counts, and the
-reason. That is the state this ships in, since the committed baseline predates
+reason. That is the state this ships in, since the committed snapshot predates
 fingerprinting:
 
 ```text
-  hf-touch-targets: high-fidelity-ui-design 0/5  (prior 1/5 — no P: baseline records no corpus)
+  hf-touch-targets: high-fidelity-ui-design 0/5  (prior 1/5 — no P: snapshot records no corpus)
 ```
 
 The delta block reads the same priors through the same helper, so the two blocks
@@ -281,7 +281,7 @@ It defaults to **30** repeats, overriding any per-case `repeats` declaration —
 a case that earns 2 repeats for a settled verdict is exactly the kind whose
 stability is worth measuring. An explicit `--repeats` still overrides both, and
 fewer than 10 is refused: below that the runs test has no power. It refuses
-`--emit-baseline`, it records nothing, and it exits 0 whatever it finds.
+`--emit-snapshot`, it records nothing, and it exits 0 whatever it finds.
 
 A row appears for every skill selected at least once, **plus** every skill the
 case labels and every `expectAlways` skill — so a skill selected in none of the
@@ -291,7 +291,7 @@ is **undefined** rather than extreme, and a non-constant one with fewer than ten
 of either outcome keeps its expected count but has `Z` **withheld**, because
 what fails there is the normal approximation rather than the statistic.
 
-## `baseline.json`
+## `snapshot.json`
 
 Recorded output the report is expressed as a delta against, so a reader sees
 what **moved** rather than a bare score:
@@ -311,7 +311,7 @@ and anything else is refused: a bare date, a local time with no zone, an offset
 such as `+09:00`, a millisecond fraction, or a well-shaped impossible instant
 like `2026-02-30T00:00:00Z`. Seconds rather than milliseconds because a run
 takes minutes. **The value in this file, `2026-07-29T00:00:00Z`, is a
-normalisation, not a measurement.** The baseline it belongs to was recorded when
+normalisation, not a measurement.** The snapshot it belongs to was recorded when
 the runner emitted a bare `2026-07-29`, so its true time of day is unrecoverable;
 midnight is a placeholder and nothing was measured at it.
 
@@ -323,12 +323,12 @@ reports no change.
 
 The `model` field is the one this whole comparison hangs on. **A result is not
 durable across models** — it moves when a new model ships, with no change to
-this repository at all. When the observed model differs from the baseline's, the
+this repository at all. When the observed model differs from the snapshot's, the
 report suppresses the delta entirely and says so, rather than printing a
 comparison that looks meaningful and is not. Deltas compare **rates**, so a
-baseline recorded at 5 repeats stays comparable against a 10-repeat run.
+snapshot recorded at 5 repeats stays comparable against a 10-repeat run.
 
-### What this baseline already records
+### What this snapshot already records
 
 The most consequential result in this file is a negative one, and it is about a
 skill of this library's own. `professional-behavior` — the fixture's sole
@@ -337,7 +337,7 @@ session — was selected in **none** of the recorded probes:
 
 ```bash
 node -e '
-const b = require("./evals/discovery/baseline.json");
+const b = require("./evals/discovery/snapshot.json");
 const named = Object.values(b.cases).filter((t) => "professional-behavior" in t).length;
 console.log("cases naming professional-behavior:", named);
 '
@@ -346,7 +346,7 @@ console.log("cases naming professional-behavior:", named);
 
 That command counts **tallies** rather than hits because a 0-hit skill is
 recorded by being absent from a tally, never by a `0`:
-[`renderBaseline`](../../scripts/discovery-eval/report.mjs) writes a skill only
+[`renderSnapshot`](../../scripts/discovery-eval/report.mjs) writes a skill only
 when `hits > 0`. The skill was tracked on every case regardless —
 [`tallyCase`](../../scripts/discovery-eval/compare.mjs) unions `expectAlways`
 into the names it tallies — so the absence is a measured zero rather than a
@@ -361,7 +361,7 @@ commits as new skills landed, against an installed corpus that grew from 22
 skills to 25. And nothing records which version of `professional-behavior`'s own
 discovery text the probes read: #111 rewrote both its `description` and its
 `when_to_use` in the commit immediately before the first tallies landed, the
-probes themselves ran on a branch, and this baseline predates the
+probes themselves ran on a branch, and this snapshot predates the
 [`corpus`](#corpus--the-fingerprint-of-what-a-measurement-ran-against)
 fingerprint that would have settled which side of that rewrite they fell on.
 Only a re-record yields a live figure.
@@ -413,13 +413,13 @@ can never appear in that array, so a loaded name matching it is something else
 wearing its name — `code-review` really does collide in the cloud container.
 `own` exists because this repository's authoring rules require
 `user-invocable: true` on every workflow entry-point skill, and reporting such a
-skill as foreign would refuse a baseline on a completely clean run.
+skill as foreign would refuse a snapshot on a completely clean run.
 
 **The field is written on every re-record, `[]` included** — deliberately unlike
 `corpus` and `caseRepeats`, which are omitted when empty. An empty corpus cannot
 occur, so for those two absence unambiguously means "not recorded". Here `[]` is
 a real state — _recorded, and nothing foreign loaded_ — that absence cannot
-express, since a baseline predating the field looks identical. Do not "fix" that
+express, since a snapshot predating the field looks identical. Do not "fix" that
 inconsistency; it is the distinction.
 
 That `[]` can only ever mean a clean run **measured across every probe**, because
@@ -443,7 +443,7 @@ silent clean bill of health.
 ### Re-recording it
 
 Two routes, and **neither is a plain dispatch** — an ordinary run produces a
-report and no baseline document at all.
+report and no snapshot document at all.
 
 **A run whose isolation does not hold refuses to emit one**, and there are three
 ways for it not to hold. The obvious one is that the CLI loaded skills the
@@ -461,29 +461,29 @@ All three refuse. When the CLI loaded skills the workspace did not install — s
 [`foreignSkills`](#foreignskills--the-skills-the-run-could-not-isolate) — the
 runner prints its report and then exits **3** without emitting a document. The
 report is still worth having, and the probes are paid for either way; a
-_baseline_ is different, because its whole purpose is to be compared against
+_snapshot_ is different, because its whole purpose is to be compared against
 later, so recording one against a corpus that was never the one measured is the
 precise staleness `corpus` exists to prevent, arriving through a door that
 fingerprint cannot watch. In CI the emitting job fails and uploads no artifact.
 There is no override flag: if the CI runner itself turns out to be contaminated,
 that is a finding to act on rather than a check to bypass.
 
-Dispatch `discovery-eval.yaml` with **`emit_baseline` checked and no pull
-request number**, then download the `proposed-baseline` artifact from the
+Dispatch `discovery-eval.yaml` with **`emit_snapshot` checked and no pull
+request number**, then download the `proposed-snapshot` artifact from the
 finished run and commit it. This is the route that needs no local CLI and no
 local credentials, and it is the one to reach for.
 
 Or run it locally, if you have the CLI and working authentication:
 
 ```bash
-node scripts/discovery-eval/run.mjs --repeats 5 --emit-baseline
+node scripts/discovery-eval/run.mjs --repeats 5 --emit-snapshot
 ```
 
-That prints the proposed baseline to **stdout**, after the report and after a
+That prints the proposed snapshot to **stdout**, after the report and after a
 fixed marker line. The runner never writes the working tree either way: CI lifts
 the document into an artifact with
-[`extract-baseline.mjs`](../../scripts/discovery-eval/extract-baseline.mjs),
-which validates it through the same `parseBaseline` that reads the committed
+[`extract-snapshot.mjs`](../../scripts/discovery-eval/extract-snapshot.mjs),
+which validates it through the same `parseSnapshot` that reads the committed
 file, so a bad slice fails the job instead of uploading something plausible.
 **A human commits it deliberately** — nothing here pushes.
 
@@ -509,7 +509,7 @@ of them a standing `MISS`. Reusing that spelling for "never run" would make the
 two indistinguishable in the one file a human reads before committing.
 
 The declaration **clears itself**: a re-record measures every case in the
-fixture it ran, so `--emit-baseline` emits a document with no `unmeasured` key
+fixture it ran, so `--emit-snapshot` emits a document with no `unmeasured` key
 at all. Nobody has to remember to delete it. Until then the report says
 `declared unmeasured, awaiting the next re-record`, which is deliberately not
 the wording an undeclared absence gets.
@@ -528,7 +528,7 @@ committing.
 The digest covers `description` and `when_to_use` and nothing else, which is the
 same premise that keeps `references/*.md` out of the head overlay: those two
 fields are all discovery reads. Editing a skill's **body** therefore does not
-invalidate a baseline. A rename shows up as one removal plus one addition.
+invalidate a snapshot. A rename shows up as one removal plus one addition.
 
 **Corpus drift marks; it does not suppress.** A model mismatch kills the whole
 delta because it is rare and total. A corpus change is frequent and partial —
@@ -537,7 +537,7 @@ drifted skills once, in three buckets, and tags each affected comparison
 `(unattributable)`:
 
 ```text
-Corpus drift — the baseline was recorded against a different skill corpus.
+Corpus drift — the snapshot was recorded against a different skill corpus.
   added         expo-app-development, next-app-development
   text-changed  professional-behavior
   note          professional-behavior is an expectAlways skill, tracked on every case,
@@ -557,8 +557,8 @@ failing the run — unlike the same name in a `cases` tally, which is a hard
 error. **When the corpus matches, the report says nothing at all**; a notice
 that fires on every run is one that gets skipped on the run that matters.
 
-The field is **optional**, because the baseline in this tree predates it and
-re-recording costs a full run's worth of probes. A baseline carrying no `corpus`
+The field is **optional**, because the snapshot in this tree predates it and
+re-recording costs a full run's worth of probes. A snapshot carrying no `corpus`
 reports as "corpus not recorded" — honestly weaker than "no drift" — and its
 delta still renders.
 `--dry-run` prints the same comparison, computed from `.claude/skills` with no
@@ -574,7 +574,7 @@ same class of deterministic check as the installed-copy gate.
 The rot it prevents has already happened twice here: `react-component-development`
 was added, and `loop-engineering`'s references were split and then removed. A
 **fixture** label naming a skill that no longer exists silently stops asserting
-anything — the case still runs and still reports. A **baseline** entry naming
+anything — the case still runs and still reports. A **snapshot** entry naming
 one is worse: every later delta is computed against a skill that can never
 appear, so the report keeps claiming a regression that is really a rename.
 
@@ -615,7 +615,7 @@ measured, and it would quietly widen what the first half forgives.
   drop to `2.857%`. This is accepted rather than bought back: restoring the
   probes would undo the saving [`repeats`](#repeats--spending-probes-where-the-answer-is-in-doubt)
   exists for.
-- **The band ships dormant.** No `P` renders against the baseline in this tree,
+- **The band ships dormant.** No `P` renders against the snapshot in this tree,
   because it records no `corpus`. It activates on the first re-record that
   fingerprints one.
 - **The workspace does not bound what the CLI loads.** A managed environment
@@ -623,11 +623,11 @@ measured, and it would quietly widen what the first half forgives.
   some runs measure a corpus wider than the one installed. What could not be
   isolated is recorded in
   [`foreignSkills`](#foreignskills--the-skills-the-run-could-not-isolate), and a
-  contaminated run cannot emit a baseline — but a foreign skill that is itself
+  contaminated run cannot emit a snapshot — but a foreign skill that is itself
   `user-invocable: false` stays invisible to that record.
 - **`expectAlways` is informational for now.** `professional-behavior` claims in
   its own `when_to_use` that it applies to every session. Whether that holds
   under a one-turn measurement is an open question, so a shortfall is reported
   but not counted as a finding. It has already fallen short once, and the
-  recorded result is written up under [What this baseline already
-  records](#what-this-baseline-already-records).
+  recorded result is written up under [What this snapshot already
+  records](#what-this-snapshot-already-records).

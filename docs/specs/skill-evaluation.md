@@ -19,16 +19,16 @@ skills ships text whose entire purpose is to influence a system it does not
 contain, so the only way to know whether the text works is to run the system and
 look.
 
-## Why form checking does not reach it
+## Why checking textual properties does not reach it
 
-Every mechanical check in this repository examines **form**: whether frontmatter
-parses, whether a section is where the structure says it should be, whether a
-link resolves, whether an installed copy still matches its source. Each one
-gates a merge, and not one of them can distinguish a skill that works from a
-skill that does not.
+Every mechanical check in this repository examines a **textual property**:
+whether frontmatter parses, whether a section is where the structure says it
+should be, whether a link resolves, whether an installed copy still matches its
+source. Each one gates a merge, and not one of them can distinguish a skill that
+works from a skill that does not.
 
-The gap is not a matter of adding more checks. Form is a property of the text,
-and it can be read off the text; **outcome** is a property of what a model does
+The gap is not a matter of adding more checks. A **textual property** can be
+read off the text; a **skill outcome** is a property of what a model does
 when the text is present, and it can only be measured by running one. A skill
 can be immaculately structured and never selected. It can be selected reliably
 and change nothing about the answer. Neither failure leaves a mark a validator
@@ -40,9 +40,9 @@ proxy.
 
 ## The two axes
 
-Outcome decomposes into two questions, measured by two separate instruments.
-They are independent — a skill can pass either and fail the other — and neither
-is informative about the other.
+Skill outcome decomposes into two questions, measured by two separate
+instruments. They are independent — a skill can pass either and fail the other
+— and neither is informative about the other.
 
 ### Does discovery surface the skill?
 
@@ -75,11 +75,11 @@ Both instruments report; neither blocks anything. That is not squeamishness
 about enforcement, and it is not a gap waiting to be closed — it follows from
 what is being measured.
 
-A gate has to be able to say a change is wrong. An outcome measurement says that
-a result moved, and how surprised to be by the movement. Those are different
-kinds of claim: the first admits a yes or no, the second is a piece of evidence
-whose weight depends on how much was measured and against what. Handing the
-second to a merge queue would force it into a shape it does not have.
+A gate has to be able to say a change is wrong. A skill-outcome measurement says
+that a result moved, and how surprised to be by the movement. Those are
+different kinds of claim: the first admits a yes or no, the second is a piece of
+evidence whose weight depends on how much was measured and against what. Handing
+the second to a merge queue would force it into a shape it does not have.
 
 A measurement that cannot gate is not a weaker measurement. It is one whose
 output has a different reader — a person deciding what to change, rather than a

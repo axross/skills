@@ -35,16 +35,16 @@ import {
   UNRECOGNISED,
 } from "../../scripts/discovery-eval/corpus.mjs";
 import {
-  baselineRefusal,
+  snapshotRefusal,
   classifyLoaded,
   contamination,
   summariseIsolation,
   unrecognisedInvocability,
 } from "../../scripts/discovery-eval/isolation.mjs";
-import { sliceBaseline } from "../../scripts/discovery-eval/extract-baseline.mjs";
+import { sliceSnapshot } from "../../scripts/discovery-eval/extract-snapshot.mjs";
 import {
   MIN_CASE_REPEATS,
-  parseBaseline,
+  parseSnapshot,
   parseFixture,
   ValidationError,
 } from "../../scripts/discovery-eval/fixture.mjs";
@@ -59,8 +59,8 @@ import {
   resolveInside,
 } from "../../scripts/discovery-eval/overlay.mjs";
 import {
-  BASELINE_MARKER,
-  renderBaseline,
+  SNAPSHOT_MARKER,
+  renderSnapshot,
   renderProbeBudget,
   renderReport,
 } from "../../scripts/discovery-eval/report.mjs";
@@ -184,8 +184,8 @@ describe("fixture parsing", () => {
   });
 });
 
-describe("baseline parsing", () => {
-  const baseline = (overrides = {}) =>
+describe("snapshot parsing", () => {
+  const snapshot = (overrides = {}) =>
     JSON.stringify({
       recordedAt: "2026-07-29T14:32:07Z",
       model: "claude-opus-5",
@@ -194,23 +194,23 @@ describe("baseline parsing", () => {
       ...overrides,
     });
 
-  it("accepts a well-formed baseline", () => {
-    expect(parseBaseline(baseline(), { knownSkills: KNOWN }).model).toBe("claude-opus-5");
+  it("accepts a well-formed snapshot", () => {
+    expect(parseSnapshot(snapshot(), { knownSkills: KNOWN }).model).toBe("claude-opus-5");
   });
 
   it("requires the model identifier the delta hangs on", () => {
-    expect(() => parseBaseline(baseline({ model: "" }))).toThrow(/"model"/);
+    expect(() => parseSnapshot(snapshot({ model: "" }))).toThrow(/"model"/);
   });
 
   it("treats an absent unmeasured list as none declared", () => {
-    // Every baseline recorded before this field existed must keep parsing, or
+    // Every snapshot recorded before this field existed must keep parsing, or
     // adding the field would invalidate the one document in the tree.
-    expect(parseBaseline(baseline(), { knownSkills: KNOWN }).unmeasured).toEqual([]);
+    expect(parseSnapshot(snapshot(), { knownSkills: KNOWN }).unmeasured).toEqual([]);
   });
 
   it("accepts a case declared unmeasured", () => {
-    const parsed = parseBaseline(
-      baseline({ unmeasured: ["later-case", "another-case"] }),
+    const parsed = parseSnapshot(
+      snapshot({ unmeasured: ["later-case", "another-case"] }),
       { knownSkills: KNOWN },
     );
     expect(parsed.unmeasured).toEqual(["later-case", "another-case"]);
@@ -221,40 +221,40 @@ describe("baseline parsing", () => {
     // sit beside the claim that no tally was taken, an absent case stops being
     // trustworthy evidence of anything.
     expect(() =>
-      parseBaseline(baseline({ unmeasured: ["a-case"] }), { knownSkills: KNOWN }),
+      parseSnapshot(snapshot({ unmeasured: ["a-case"] }), { knownSkills: KNOWN }),
     ).toThrow(/"a-case".+"unmeasured".+tally/s);
   });
 
   it("rejects an unmeasured list that is not a list of case ids", () => {
-    expect(() => parseBaseline(baseline({ unmeasured: "a-case" }))).toThrow(
+    expect(() => parseSnapshot(snapshot({ unmeasured: "a-case" }))).toThrow(
       /"unmeasured" must be an array/,
     );
-    expect(() => parseBaseline(baseline({ unmeasured: ["Not A Case"] }))).toThrow(
+    expect(() => parseSnapshot(snapshot({ unmeasured: ["Not A Case"] }))).toThrow(
       /not a kebab-case case id/,
     );
     expect(() =>
-      parseBaseline(baseline({ unmeasured: ["twice-case", "twice-case"] })),
+      parseSnapshot(snapshot({ unmeasured: ["twice-case", "twice-case"] })),
     ).toThrow(/lists "twice-case" twice/);
   });
 
   it("records per-case denominators, and defaults the rest", () => {
-    const parsed = parseBaseline(
-      baseline({
+    const parsed = parseSnapshot(
+      snapshot({
         caseRepeats: { "a-case": 2 },
         cases: { "a-case": { "wireframe-design": 2 } },
       }),
       { knownSkills: KNOWN },
     );
     expect(parsed.caseRepeats).toEqual({ "a-case": 2 });
-    expect(parseBaseline(baseline(), { knownSkills: KNOWN }).caseRepeats).toEqual({});
+    expect(parseSnapshot(snapshot(), { knownSkills: KNOWN }).caseRepeats).toEqual({});
   });
 
   it("counts hits against the case's own denominator, not the document's", () => {
     // 3 hits is fine at the document's 5 and impossible at the case's 2. Using
     // the document default here would let a mis-recorded tally through.
     expect(() =>
-      parseBaseline(
-        baseline({
+      parseSnapshot(
+        snapshot({
           caseRepeats: { "a-case": 2 },
           cases: { "a-case": { "wireframe-design": 3 } },
         }),
@@ -265,16 +265,16 @@ describe("baseline parsing", () => {
 
   it("rejects a denominator for a case it records no tally for", () => {
     expect(() =>
-      parseBaseline(baseline({ caseRepeats: { "ghost-case": 2 } })),
+      parseSnapshot(snapshot({ caseRepeats: { "ghost-case": 2 } })),
     ).toThrow(/records no tally/);
   });
 
-  it("rejects a baseline naming a skill that no longer exists", () => {
+  it("rejects a snapshot naming a skill that no longer exists", () => {
     // The failure this repository has already produced twice: a skill is
     // renamed or removed, and every later delta is silently computed against
     // something that can never appear.
     expect(() =>
-      parseBaseline(baseline({ cases: { "a-case": { "deleted-skill": 3 } } }), {
+      parseSnapshot(snapshot({ cases: { "a-case": { "deleted-skill": 3 } } }), {
         knownSkills: KNOWN,
       }),
     ).toThrow(/every delta against it would be computed against a skill that can never appear/);
@@ -282,12 +282,12 @@ describe("baseline parsing", () => {
 
   it("rejects more hits than repeats", () => {
     expect(() =>
-      parseBaseline(baseline({ cases: { "a-case": { "wireframe-design": 9 } } })),
+      parseSnapshot(snapshot({ cases: { "a-case": { "wireframe-design": 9 } } })),
     ).toThrow(/9 hits out of 5 repeats/);
   });
 
   it("accepts a UTC instant recorded to the second", () => {
-    expect(parseBaseline(baseline()).recordedAt).toBe("2026-07-29T14:32:07Z");
+    expect(parseSnapshot(snapshot()).recordedAt).toBe("2026-07-29T14:32:07Z");
   });
 
   it.each([
@@ -297,7 +297,7 @@ describe("baseline parsing", () => {
     ["2026-07-29T14:32:07+09:00", "an offset rather than UTC"],
     ["2026-07-29T14:32:07.678Z", "a millisecond fraction"],
   ])("rejects %s — %s", (recordedAt) => {
-    expect(() => parseBaseline(baseline({ recordedAt }))).toThrow(
+    expect(() => parseSnapshot(snapshot({ recordedAt }))).toThrow(
       /must be a UTC timestamp of the form YYYY-MM-DDTHH:MM:SSZ/,
     );
   });
@@ -310,20 +310,20 @@ describe("baseline parsing", () => {
     // instant with two spellings defeats diffing the file it lives in.
     "2026-07-29T24:00:00Z",
   ])("rejects %s, which has the right shape and is not a real instant", (recordedAt) => {
-    expect(() => parseBaseline(baseline({ recordedAt }))).toThrow(
+    expect(() => parseSnapshot(snapshot({ recordedAt }))).toThrow(
       /which is not a real UTC instant/,
     );
   });
 
-  it("accepts a baseline that records no corpus at all", () => {
-    // The baseline in this tree. Refusing it would leave the harness unusable
+  it("accepts a snapshot that records no corpus at all", () => {
+    // The snapshot in this tree. Refusing it would leave the harness unusable
     // until someone paid $2.57 for a fresh recording.
-    expect(parseBaseline(baseline()).corpus).toBeNull();
+    expect(parseSnapshot(snapshot()).corpus).toBeNull();
   });
 
   it("accepts a well-formed corpus record", () => {
     const corpus = { "wireframe-design": "b17c4e2a8d61" };
-    expect(parseBaseline(baseline({ corpus }), { knownSkills: KNOWN }).corpus).toEqual(
+    expect(parseSnapshot(snapshot({ corpus }), { knownSkills: KNOWN }).corpus).toEqual(
       corpus,
     );
   });
@@ -331,22 +331,22 @@ describe("baseline parsing", () => {
   it("accepts a corpus entry naming a skill that no longer exists", () => {
     // The deliberate asymmetry with a TALLY, which is a hard failure for the
     // same name: in the corpus record, a vanished skill is the signal itself.
-    const parsed = parseBaseline(
-      baseline({ corpus: { "deleted-skill": "b17c4e2a8d61" } }),
+    const parsed = parseSnapshot(
+      snapshot({ corpus: { "deleted-skill": "b17c4e2a8d61" } }),
       { knownSkills: KNOWN },
     );
     expect(parsed.corpus).toEqual({ "deleted-skill": "b17c4e2a8d61" });
   });
 
   it("rejects a corpus that is not an object", () => {
-    expect(() => parseBaseline(baseline({ corpus: ["wireframe-design"] }))).toThrow(
+    expect(() => parseSnapshot(snapshot({ corpus: ["wireframe-design"] }))).toThrow(
       /"corpus" must be an object mapping skill names to discovery-text digests/,
     );
   });
 
   it("rejects a corpus key that is not a kebab-case skill name", () => {
     expect(() =>
-      parseBaseline(baseline({ corpus: { "Not A Skill": "b17c4e2a8d61" } })),
+      parseSnapshot(snapshot({ corpus: { "Not A Skill": "b17c4e2a8d61" } })),
     ).toThrow(/"corpus" names "Not A Skill", which is not a kebab-case skill name/);
   });
 
@@ -358,7 +358,7 @@ describe("baseline parsing", () => {
     [42, "not a string"],
   ])("rejects the digest %s — %s, naming the entry", (digest) => {
     expect(() =>
-      parseBaseline(baseline({ corpus: { "wireframe-design": digest } })),
+      parseSnapshot(snapshot({ corpus: { "wireframe-design": digest } })),
     ).toThrow(/"corpus" entry for "wireframe-design"/);
   });
 });
@@ -367,53 +367,53 @@ describe("the extractor as a CLI", () => {
   it("answers --help with the usage text and exit 0", () => {
     // Asking for help is not a bad invocation. Exit 2 here would also contradict
     // run.mjs, which answers --help before looking at anything else.
-    const result = runScript(SCRIPTS.extractBaseline, ["--help"]);
+    const result = runScript(SCRIPTS.extractSnapshot, ["--help"]);
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain("Usage: extract-baseline.mjs");
+    expect(result.stdout).toContain("Usage: extract-snapshot.mjs");
   });
 
   it("still refuses an invocation missing its paths", () => {
-    const result = runScript(SCRIPTS.extractBaseline, []);
+    const result = runScript(SCRIPTS.extractSnapshot, []);
     expect(result.code).toBe(2);
     expect(result.output).toMatch(/report file and an output file are required/);
   });
 });
 
-describe("lifting an emitted baseline out of a report", () => {
+describe("lifting an emitted snapshot out of a report", () => {
   const document = '{\n  "model": "m"\n}\n';
-  const emitted = (body) => `${BASELINE_MARKER}\n${document}${body ?? ""}`;
+  const emitted = (body) => `${SNAPSHOT_MARKER}\n${document}${body ?? ""}`;
 
   it("returns everything after the marker line", () => {
-    expect(sliceBaseline(`a report\n\n${emitted()}`)).toBe(document);
+    expect(sliceSnapshot(`a report\n\n${emitted()}`)).toBe(document);
   });
 
   it("finds a marker that opens the text", () => {
     // Not the shape run.mjs produces, but the shape a piped or trimmed capture
     // can arrive in, and an off-by-one here silently drops the opening brace.
-    expect(sliceBaseline(emitted())).toBe(document);
+    expect(sliceSnapshot(emitted())).toBe(document);
   });
 
-  it("returns null when the run emitted no baseline", () => {
+  it("returns null when the run emitted no snapshot", () => {
     // The ordinary dispatch. It must be distinguishable from a slice that found
-    // nothing useful, because the remedy is different: pass --emit-baseline.
-    expect(sliceBaseline("a report with no proposed baseline\n")).toBeNull();
+    // nothing useful, because the remedy is different: pass --emit-snapshot.
+    expect(sliceSnapshot("a report with no proposed snapshot\n")).toBeNull();
   });
 
   it("ignores the marker quoted mid-line", () => {
     // A report that merely mentions the phrase — a future doc-comment, a copied
     // log — must not cut the document short at the mention.
-    const mentioned = `see "${BASELINE_MARKER}" below\n${emitted()}`;
-    expect(sliceBaseline(mentioned)).toBe(document);
+    const mentioned = `see "${SNAPSHOT_MARKER}" below\n${emitted()}`;
+    expect(sliceSnapshot(mentioned)).toBe(document);
   });
 
-  it("round-trips through parseBaseline, which is what the workflow relies on", () => {
-    const real = renderBaseline(
+  it("round-trips through parseSnapshot, which is what the workflow relies on", () => {
+    const real = renderSnapshot(
       [{ id: "a-case", skills: [{ name: "wireframe-design", hits: 3 }] }],
       { model: "claude-opus-5", repeats: 3, recordedAt: "2026-07-29T14:32:07Z" },
     );
-    const sliced = sliceBaseline(`report text\n\n${BASELINE_MARKER}\n${real}`);
+    const sliced = sliceSnapshot(`report text\n\n${SNAPSHOT_MARKER}\n${real}`);
     expect(sliced).toBe(real);
-    expect(parseBaseline(sliced, { knownSkills: KNOWN }).model).toBe("claude-opus-5");
+    expect(parseSnapshot(sliced, { knownSkills: KNOWN }).model).toBe("claude-opus-5");
   });
 });
 
@@ -546,7 +546,7 @@ describe("negative control — the harness can actually report a miss", () => {
   });
 });
 
-describe("baseline delta", () => {
+describe("snapshot delta", () => {
   const tallies = [{ id: "a-case", repeats: 5, skills: [{ name: "wireframe-design", hits: 5 }] }];
 
   it("refuses to compare across models", () => {
@@ -560,7 +560,7 @@ describe("baseline delta", () => {
   });
 
   it("compares rates, not raw hits, when repeat counts differ", () => {
-    // 5/5 against a baseline of 3/3 is the same rate and must not read as a change.
+    // 5/5 against a snapshot of 3/3 is the same rate and must not read as a change.
     const delta = deltaAgainst(
       tallies,
       { model: "m", repeats: 3, cases: { "a-case": { "wireframe-design": 3 } } },
@@ -592,7 +592,7 @@ describe("baseline delta", () => {
     expect(delta.removed).toEqual(["gone-case"]);
   });
 
-  it("is unusable when there is no baseline at all", () => {
+  it("is unusable when there is no snapshot at all", () => {
     expect(deltaAgainst(tallies, null, "m").usable).toBe(false);
   });
 
@@ -715,7 +715,7 @@ describe("corpus fingerprint", () => {
 
   it("does not move when only a skill's body changes", async () => {
     // The premise the whole field rests on: discovery never reads the body, so
-    // editing it must not invalidate a baseline.
+    // editing it must not invalidate a snapshot.
     const root = await tempDir();
     await writeSkill(root, "alpha-skill", { body: "# One\n\nFirst body.\n" });
     const before = await corpusDigest(root);
@@ -769,7 +769,7 @@ describe("corpus comparison", () => {
   });
 
   it.each([
-    ["the baseline recorded none", null, recorded],
+    ["the snapshot recorded none", null, recorded],
     ["the run computed none", recorded, null],
   ])("reports 'not recorded' when %s", (_case, before, now) => {
     expect(compareCorpus(before, now)).toEqual({
@@ -794,7 +794,7 @@ describe("corpus drift in the delta", () => {
   });
   const current = { "wireframe-design": "aaaaaaaaaaaa" };
 
-  it("renders the delta and says so when the baseline recorded no corpus", () => {
+  it("renders the delta and says so when the snapshot recorded no corpus", () => {
     const delta = deltaAgainst(tallies, withCorpus(null), "m", current);
     expect(delta.usable).toBe(true);
     expect(delta.corpus.recorded).toBe(false);
@@ -812,7 +812,7 @@ describe("corpus drift in the delta", () => {
     ["a skill was added", {}],
     ["a skill's text changed", { "wireframe-design": "bbbbbbbbbbbb" }],
     // Removal marks too. A skill absent from the corpus was still competing for
-    // selection while the baseline was being measured, so its disappearance can
+    // selection while the snapshot was being measured, so its disappearance can
     // move a result exactly as an addition can.
     ["a skill was removed", { ...current, gone: "cccccccccccc" }],
   ])("marks the comparison unattributable when %s", (_case, recorded) => {
@@ -832,7 +832,7 @@ describe("corpus drift in the delta", () => {
     ]);
   });
 
-  it("never marks a case the baseline never measured", () => {
+  it("never marks a case the snapshot never measured", () => {
     const delta = deltaAgainst(
       [{ id: "new-case", repeats: 5, skills: [] }],
       withCorpus({}),
@@ -1104,7 +1104,7 @@ describe("report rendering", () => {
     });
 
   it("states the repeat count, the rule, the model, and the evaluated head", () => {
-    const report = render({ usable: true, baselineRepeats: 3, cases: [], removed: [] });
+    const report = render({ usable: true, snapshotRepeats: 3, cases: [], removed: [] });
     expect(report).toContain("claude-opus-5");
     expect(report).toContain("3 per case");
     expect(report).toContain("abc1234");
@@ -1114,18 +1114,18 @@ describe("report rendering", () => {
   });
 
   it("carries a denominator on every count", () => {
-    const report = render({ usable: true, baselineRepeats: 3, cases: [], removed: [] });
+    const report = render({ usable: true, snapshotRepeats: 3, cases: [], removed: [] });
     expect(report).toContain("1/3");
   });
 
-  it("suppresses the delta loudly when the baseline is from another model", () => {
-    const report = render({ usable: false, reason: "baseline was recorded on \"x\"" });
+  it("suppresses the delta loudly when the snapshot is from another model", () => {
+    const report = render({ usable: false, reason: "snapshot was recorded on \"x\"" });
     expect(report).toContain("NO DELTA");
-    expect(report).toMatch(/Re-record it with --emit-baseline/);
+    expect(report).toMatch(/Re-record it with --emit-snapshot/);
   });
 
   it("contains nothing checkout-dependent, so two runs diff cleanly", () => {
-    const report = render({ usable: true, baselineRepeats: 3, cases: [], removed: [] });
+    const report = render({ usable: true, snapshotRepeats: 3, cases: [], removed: [] });
     expect(report).not.toMatch(/\/(home|Users|tmp)\//);
     expect(report).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
   });
@@ -1133,20 +1133,20 @@ describe("report rendering", () => {
   it("words a declared unmeasured case differently from an unrecorded one", () => {
     const declared = render({
       usable: true,
-      baselineRepeats: 3,
+      snapshotRepeats: 3,
       cases: [{ id: "a-case", repeats: 3, isNew: true, isUnmeasured: true, changes: [] }],
       removed: [],
     });
     expect(declared).toContain("awaiting the next re-record");
-    expect(declared).not.toContain("new case, not in the baseline");
+    expect(declared).not.toContain("new case, not in the snapshot");
 
     const unrecorded = render({
       usable: true,
-      baselineRepeats: 3,
+      snapshotRepeats: 3,
       cases: [{ id: "a-case", repeats: 3, isNew: true, isUnmeasured: false, changes: [] }],
       removed: [],
     });
-    expect(unrecorded).toContain("new case, not in the baseline");
+    expect(unrecorded).toContain("new case, not in the snapshot");
     expect(unrecorded).not.toContain("awaiting the next re-record");
   });
 
@@ -1159,7 +1159,7 @@ describe("report rendering", () => {
       { id: "b-case", repeats: 5, skills: [{ name: "wireframe-design", hits: 5 }] },
     ];
     const emitted = JSON.parse(
-      renderBaseline(mixed, {
+      renderSnapshot(mixed, {
         model: "claude-opus-5",
         repeats: 5,
         recordedAt: "2026-07-29T14:32:07Z",
@@ -1174,7 +1174,7 @@ describe("report rendering", () => {
 
   it("omits caseRepeats entirely when every case ran at the default", () => {
     const emitted = JSON.parse(
-      renderBaseline(tallies, {
+      renderSnapshot(tallies, {
         model: "claude-opus-5",
         repeats: 3,
         recordedAt: "2026-07-29T14:32:07Z",
@@ -1187,18 +1187,18 @@ describe("report rendering", () => {
     // The property that keeps the relaxation from becoming permanent: a
     // measurement covers every case it ran, so the emitted document has nothing
     // left to declare and nobody has to remember to delete the field.
-    const emitted = renderBaseline(tallies, {
+    const emitted = renderSnapshot(tallies, {
       model: "claude-opus-5",
       repeats: 3,
       recordedAt: "2026-07-29T14:32:07Z",
     });
     expect(JSON.parse(emitted)).not.toHaveProperty("unmeasured");
-    expect(parseBaseline(emitted, { knownSkills: KNOWN }).unmeasured).toEqual([]);
+    expect(parseSnapshot(emitted, { knownSkills: KNOWN }).unmeasured).toEqual([]);
   });
 
-  it("emits a baseline document keyed by case and skill", () => {
+  it("emits a snapshot document keyed by case and skill", () => {
     const emitted = JSON.parse(
-      renderBaseline(tallies, {
+      renderSnapshot(tallies, {
         model: "claude-opus-5",
         repeats: 3,
         recordedAt: "2026-07-29T14:32:07Z",
@@ -1210,7 +1210,7 @@ describe("report rendering", () => {
       repeats: 3,
       // Present even when empty, unlike `corpus` and `caseRepeats`. `[]` is a
       // real state — "recorded, and nothing foreign loaded" — that absence
-      // cannot express, since a baseline predating the field looks identical.
+      // cannot express, since a snapshot predating the field looks identical.
       foreignSkills: [],
       cases: { "a-case": { "wireframe-design": 1 } },
     });
@@ -1218,7 +1218,7 @@ describe("report rendering", () => {
 
   it("always writes foreignSkills, so absence can only mean 'not recorded'", () => {
     const clean = JSON.parse(
-      renderBaseline(tallies, {
+      renderSnapshot(tallies, {
         model: "claude-opus-5",
         repeats: 3,
         recordedAt: "2026-07-29T14:32:07Z",
@@ -1227,7 +1227,7 @@ describe("report rendering", () => {
     expect(clean.foreignSkills).toEqual([]);
 
     const contaminated = JSON.parse(
-      renderBaseline(tallies, {
+      renderSnapshot(tallies, {
         model: "claude-opus-5",
         repeats: 3,
         recordedAt: "2026-07-29T14:32:07Z",
@@ -1238,9 +1238,9 @@ describe("report rendering", () => {
   });
 
   it("emits the corpus record sorted, and parses it straight back", () => {
-    // The round trip that --dry-run cannot cover: it exits before any baseline
+    // The round trip that --dry-run cannot cover: it exits before any snapshot
     // is emitted, so asserting it end-to-end would mean paying for a real run.
-    const emitted = renderBaseline(tallies, {
+    const emitted = renderSnapshot(tallies, {
       model: "claude-opus-5",
       repeats: 3,
       recordedAt: "2026-07-29T14:32:07Z",
@@ -1254,7 +1254,7 @@ describe("report rendering", () => {
       "high-fidelity-ui-design",
       "wireframe-design",
     ]);
-    expect(parseBaseline(emitted, { knownSkills: KNOWN })).toMatchObject({
+    expect(parseSnapshot(emitted, { knownSkills: KNOWN })).toMatchObject({
       recordedAt: "2026-07-29T14:32:07Z",
       corpus: {
         "high-fidelity-ui-design": "3f2a1c9d0b47",
@@ -1265,7 +1265,7 @@ describe("report rendering", () => {
 
   it("omits the corpus entirely when the run recorded none", () => {
     const emitted = JSON.parse(
-      renderBaseline(tallies, {
+      renderSnapshot(tallies, {
         model: "claude-opus-5",
         repeats: 3,
         recordedAt: "2026-07-29T14:32:07Z",
@@ -1312,7 +1312,7 @@ describe("corpus notice rendering", () => {
     renderReport({
       fixture,
       tallies,
-      delta: { usable: true, baselineRepeats: 3, corpus, cases, removed: [] },
+      delta: { usable: true, snapshotRepeats: 3, corpus, cases, removed: [] },
       context: { model: "claude-opus-5", repeats: 3, corpusSize: 22 },
     });
 
@@ -1351,7 +1351,7 @@ describe("corpus notice rendering", () => {
     expect(report).toContain("a-case: wireframe-design 3/3 -> 1/3");
   });
 
-  it("states that an older baseline recorded no corpus, and still renders the delta", () => {
+  it("states that an older snapshot recorded no corpus, and still renders the delta", () => {
     const report = render({ recorded: false, drifted: false }, movedCase(false));
     expect(report).toContain("Corpus not recorded");
     expect(report).toContain("a-case: wireframe-design 3/3 -> 1/3");
@@ -1560,7 +1560,7 @@ describe("corpus invocability over a skill root", () => {
   it("leaves the discovery digest untouched", async () => {
     // `user-invocable` must never join DISCOVERY_KEYS: discovery does not read
     // it, so folding it into the digest would invalidate every recorded
-    // baseline over a value no probe can see.
+    // snapshot over a value no probe can see.
     const root = await tempDir();
     await writeSkill(root, "alpha-skill", {
       frontmatter: { "user-invocable": "false" },
@@ -1591,7 +1591,7 @@ describe("classifying what the CLI loaded", () => {
 
   it("calls one of ours that is legitimately invocable `own`", () => {
     // The state this repository's authoring rules REQUIRE for a workflow
-    // entry-point skill. Reporting it foreign would refuse a clean baseline.
+    // entry-point skill. Reporting it foreign would refuse a clean snapshot.
     expect(classifyLoaded(["entry-point-skill"], invocability).own).toEqual([
       "entry-point-skill",
     ]);
@@ -1687,7 +1687,7 @@ describe("isolation against the real installed corpus", () => {
   });
 });
 
-describe("deciding whether a run may record a baseline", () => {
+describe("deciding whether a run may record a snapshot", () => {
   it("refuses on foreign and colliding names alike", () => {
     expect(
       contamination({ colliding: ["code-review"], foreign: ["simplify"] }),
@@ -1717,17 +1717,17 @@ describe("deciding whether a run may record a baseline", () => {
     // empty here because nothing was ever observed, not because nothing was
     // there — so a check that only counts names emits a document whose
     // `foreignSkills: []` is byte-identical to a verified-clean run, and a
-    // reader of the committed baseline can no longer tell the two apart.
+    // reader of the committed snapshot can no longer tell the two apart.
     const isolation = summariseIsolation([null, null], {
       "code-review": NOT_INVOCABLE,
     });
     expect(contamination(isolation)).toEqual([]);
-    expect(baselineRefusal(isolation)).toMatchObject({ names: [] });
-    expect(baselineRefusal(isolation).reason).toMatch(/never checked/);
+    expect(snapshotRefusal(isolation)).toMatchObject({ names: [] });
+    expect(snapshotRefusal(isolation).reason).toMatch(/never checked/);
   });
 
   it("permits a measured, genuinely clean run", () => {
-    expect(baselineRefusal(summariseIsolation([[]], {}))).toBeNull();
+    expect(snapshotRefusal(summariseIsolation([[]], {}))).toBeNull();
   });
 
   it("refuses a PARTIAL run, however many probes did report", () => {
@@ -1739,14 +1739,14 @@ describe("deciding whether a run may record a baseline", () => {
     const nearlyAll = summariseIsolation([...Array(142).fill([]), null, null, null], {});
     expect(nearlyAll.recorded).toBe(true);
     expect(contamination(nearlyAll)).toEqual([]);
-    expect(baselineRefusal(nearlyAll).reason).toMatch(/142 of 145/);
+    expect(snapshotRefusal(nearlyAll).reason).toMatch(/142 of 145/);
 
     const barelyAny = summariseIsolation([[], ...Array(144).fill(null)], {});
-    expect(baselineRefusal(barelyAny).reason).toMatch(/1 of 145/);
+    expect(snapshotRefusal(barelyAny).reason).toMatch(/1 of 145/);
   });
 
   it("names the offenders when it refuses for contamination", () => {
-    const refusal = baselineRefusal(
+    const refusal = snapshotRefusal(
       summariseIsolation([["simplify", "code-review"]], {
         "code-review": NOT_INVOCABLE,
       }),
@@ -1762,11 +1762,11 @@ describe("the runner's published exit-code contract", () => {
     // text and the header comment have to say so.
     const result = runScript(SCRIPTS.discoveryEval, ["--help"]);
     expect(result.code).toBe(0);
-    expect(result.stdout).toMatch(/3 --emit-baseline/);
+    expect(result.stdout).toMatch(/3 --emit-snapshot/);
   });
 });
 
-describe("baseline parsing of the foreign-skill record", () => {
+describe("snapshot parsing of the foreign-skill record", () => {
   const withForeign = (value) =>
     JSON.stringify({
       recordedAt: "2026-07-29T14:32:07Z",
@@ -1780,20 +1780,20 @@ describe("baseline parsing of the foreign-skill record", () => {
     // THE POINT OF THE FIELD. A foreign skill is by definition not one of ours,
     // so the knownSkills strictness that makes a rotten tally a hard error would
     // reject exactly this field's legitimate contents.
-    const parsed = parseBaseline(withForeign(["simplify", "dataviz"]), {
+    const parsed = parseSnapshot(withForeign(["simplify", "dataviz"]), {
       knownSkills: KNOWN,
     });
     expect(parsed.foreignSkills).toEqual(["simplify", "dataviz"]);
   });
 
   it("accepts an empty list as a recorded clean run", () => {
-    expect(parseBaseline(withForeign([]), { knownSkills: KNOWN }).foreignSkills).toEqual(
+    expect(parseSnapshot(withForeign([]), { knownSkills: KNOWN }).foreignSkills).toEqual(
       [],
     );
   });
 
   it("reports absence as not recorded, distinct from clean", () => {
-    const parsed = parseBaseline(
+    const parsed = parseSnapshot(
       JSON.stringify({
         recordedAt: "2026-07-29T14:32:07Z",
         model: "claude-opus-5",
@@ -1805,19 +1805,19 @@ describe("baseline parsing of the foreign-skill record", () => {
   });
 
   it("rejects a malformed entry", () => {
-    expect(() => parseBaseline(withForeign(["Not A Skill"]))).toThrow(
+    expect(() => parseSnapshot(withForeign(["Not A Skill"]))).toThrow(
       /not a kebab-case skill name/,
     );
-    expect(() => parseBaseline(withForeign("simplify"))).toThrow(
+    expect(() => parseSnapshot(withForeign("simplify"))).toThrow(
       /must be an array of skill names/,
     );
-    expect(() => parseBaseline(withForeign(["simplify", "simplify"]))).toThrow(
+    expect(() => parseSnapshot(withForeign(["simplify", "simplify"]))).toThrow(
       /lists "simplify" twice/,
     );
   });
 
   it("round-trips through the emitted document", () => {
-    const emitted = renderBaseline(
+    const emitted = renderSnapshot(
       [{ id: "a-case", repeats: 5, skills: [{ name: "wireframe-design", hits: 4 }] }],
       {
         model: "claude-opus-5",
@@ -1826,7 +1826,7 @@ describe("baseline parsing of the foreign-skill record", () => {
         foreignSkills: ["simplify"],
       },
     );
-    expect(parseBaseline(emitted, { knownSkills: KNOWN }).foreignSkills).toEqual([
+    expect(parseSnapshot(emitted, { knownSkills: KNOWN }).foreignSkills).toEqual([
       "simplify",
     ]);
   });
@@ -1840,7 +1840,7 @@ describe("reporting what a run could not isolate", () => {
     renderReport({
       fixture,
       tallies,
-      delta: { usable: false, reason: "no baseline recorded" },
+      delta: { usable: false, reason: "no snapshot recorded" },
       context: {
         model: "claude-opus-5",
         repeats: 1,

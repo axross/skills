@@ -44,7 +44,7 @@ import { INVOCABLE, UNRECOGNISED } from "./corpus.mjs";
  *   * `foreign = loaded`, with no corpus lookup, misreports one of OUR skills as
  *     foreign the moment it is `user-invocable: true` — a state this
  *     repository's authoring rules REQUIRE for workflow entry-point skills. It
- *     would refuse a baseline on a completely clean run, naming a skill the
+ *     would refuse a snapshot on a completely clean run, naming a skill the
  *     reader knows is ours.
  *
  * `UNRECOGNISED` joins `NOT_INVOCABLE` on the colliding side deliberately: only
@@ -84,11 +84,11 @@ export function classifyLoaded(loaded, invocability) {
  * carry, so anything less than a union would under-report it.
  *
  * COVERAGE IS COUNTED, NOT ASSUMED, and this is the whole subtlety. Three states
- * have to stay distinct, because only one of them can back a committed baseline:
+ * have to stay distinct, because only one of them can back a committed snapshot:
  *
  *   * `reported === 0` — no probe reported a list. "Cannot tell", not "clean".
  *   * `0 < reported < total` — a PARTIAL run. The tempting reading is that some
- *     evidence beats none, and it does for a report; it does not for a baseline.
+ *     evidence beats none, and it does for a report; it does not for a snapshot.
  *     A single probe that saw nothing foreign, out of 145, would otherwise write
  *     the same `foreignSkills: []` as a run where all 145 agreed — and the
  *     contamination this looks for is present in every probe or none, so the
@@ -133,7 +133,7 @@ export function summariseIsolation(perProbeLoaded, invocability) {
 }
 
 /**
- * The names that make a run unfit to record a baseline from.
+ * The names that make a run unfit to record a snapshot from.
  *
  * Colliding and foreign, never `own`. A skill of ours that is legitimately
  * user-invocable appears in the loaded list BY DESIGN, so refusing on it would
@@ -145,14 +145,14 @@ export function summariseIsolation(perProbeLoaded, invocability) {
  * spawning a CLI and paying for a fixture's worth of probes.
  *
  * @param {{ colliding: string[], foreign: string[] }} isolation
- * @returns {string[]} sorted; empty means the run may emit a baseline
+ * @returns {string[]} sorted; empty means the run may emit a snapshot
  */
 export function contamination({ colliding, foreign }) {
   return [...colliding, ...foreign].sort();
 }
 
 /**
- * Whether a run may record a baseline at all, and why not when it may not.
+ * Whether a run may record a snapshot at all, and why not when it may not.
  *
  * THREE ways to be unfit, and only one of them has names to print. The two
  * quiet ones both look exactly like success, and each was written wrong first:
@@ -169,7 +169,7 @@ export function contamination({ colliding, foreign }) {
  *     clean one is precisely what the unreported probes were carrying.
  *
  * Together those destroy the distinction the field exists to carry: a reader of
- * the committed baseline could no longer tell "measured, and nothing foreign
+ * the committed snapshot could no longer tell "measured, and nothing foreign
  * loaded" from "never looked" or "looked at some of it".
  *
  * `report.mjs` keeps all three apart on screen; this is what keeps them apart in
@@ -178,7 +178,7 @@ export function contamination({ colliding, foreign }) {
  * @param {{ recorded: boolean, complete: boolean, reported: number, total: number, colliding: string[], foreign: string[] }} isolation
  * @returns {{ reason: string, names: string[] }|null} `null` when the run may record
  */
-export function baselineRefusal(isolation) {
+export function snapshotRefusal(isolation) {
   if (!isolation.recorded) {
     return {
       reason:

@@ -5,7 +5,7 @@
 // — which is worse than no gate at all: it occupies the slot, costs CI time, and
 // reads to everyone downstream as though something were being enforced.
 //
-// scripts/report-obligation-load.mjs reports a number with NO threshold: it
+// scripts/report-obligation-burden.mjs reports a number with NO threshold: it
 // exits 0 on every valid invocation however large the figures get. There is no
 // evidence for any particular limit in this corpus, and an indefensible
 // threshold becomes either a rule people route around or a warning people stop
@@ -49,9 +49,9 @@ import { GATES } from "./gates.mjs";
 /** @type {ReportingTool[]} */
 const REPORTING_TOOLS = [
   {
-    script: SCRIPTS.reportObligationLoad,
+    script: SCRIPTS.reportObligationBurden,
     // A distinctive basename, so this catches `node ./scripts/report-…` too.
-    needle: "report-obligation-load.mjs",
+    needle: "report-obligation-burden.mjs",
     workflow: null,
     runnable: true,
   },
