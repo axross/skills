@@ -1,4 +1,4 @@
-// Fixture and baseline parsing for the discovery evaluation.
+// Fixture and snapshot parsing for the discovery evaluation.
 //
 // Both files are hand-written JSON that a human is expected to disagree with —
 // that is the point of the fixture, since every label in it is a judgment about
@@ -10,13 +10,13 @@
 // that no longer exists is the failure mode this repository has already produced
 // twice — react-component-development was added, and loop-engineering's
 // references were split and then removed. In a fixture that rots silently: the
-// case simply stops asserting anything. In a BASELINE it is worse, because every
+// case simply stops asserting anything. In a SNAPSHOT it is worse, because every
 // subsequent delta is quietly computed against a skill that cannot appear.
 // Passing `knownSkills` turns both into a loud failure.
 //
-// The baseline's `corpus` record is the one deliberate exception to that
+// The snapshot's `corpus` record is the one deliberate exception to that
 // strictness — a name in it that no longer exists is the SIGNAL, not the rot.
-// See parseBaseline.
+// See parseSnapshot.
 
 import { DIGEST_LENGTH, isDigest } from "./corpus.mjs";
 
@@ -41,7 +41,7 @@ const ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
  */
 export const MIN_CASE_REPEATS = 2;
 
-/** Raised when a fixture or baseline is malformed. Carries every problem found. */
+/** Raised when a fixture or snapshot is malformed. Carries every problem found. */
 export class ValidationError extends Error {
   /** @param {string[]} problems */
   constructor(problems) {
@@ -273,39 +273,39 @@ export function parseFixture(text, { knownSkills } = {}) {
 }
 
 /**
- * Parse and validate a recorded baseline.
+ * Parse and validate a recorded snapshot.
  *
  * @param {string} text            raw file contents
  * @param {{ knownSkills?: Iterable<string> }} [options]
  * @returns {{ recordedAt: string, model: string, repeats: number, corpus: Record<string, string>|null, foreignSkills: string[]|null, unmeasured: string[], caseRepeats: Record<string, number>, cases: Record<string, Record<string, number>> }}
  * @throws {ValidationError} carrying every problem found
  */
-export function parseBaseline(text, { knownSkills } = {}) {
+export function parseSnapshot(text, { knownSkills } = {}) {
   const problems = [];
   const known = knownSkills ? new Set(knownSkills) : null;
-  const raw = parseJson(text, "The baseline", problems);
+  const raw = parseJson(text, "The snapshot", problems);
   if (raw === null) throw new ValidationError(problems);
 
   if (!isPlainObject(raw)) {
-    throw new ValidationError(["The baseline must be a JSON object."]);
+    throw new ValidationError(["The snapshot must be a JSON object."]);
   }
 
   const recordedAt = readTimestamp(
     raw.recordedAt,
-    'The baseline\'s "recordedAt"',
+    'The snapshot\'s "recordedAt"',
     problems,
   );
-  // The model identifier is the field the whole delta hangs on: a baseline
+  // The model identifier is the field the whole delta hangs on: a snapshot
   // recorded on another model makes every comparison meaningless, so it can
   // never be optional.
-  const model = readText(raw.model, 'The baseline\'s "model"', problems);
+  const model = readText(raw.model, 'The snapshot\'s "model"', problems);
 
   if (!Number.isInteger(raw.repeats) || raw.repeats < 1) {
-    problems.push('The baseline\'s "repeats" must be a positive integer.');
+    problems.push('The snapshot\'s "repeats" must be a positive integer.');
   }
 
-  // OPTIONAL, because the baseline in this tree predates it: refusing a
-  // corpus-less baseline would leave the harness unusable until someone paid
+  // OPTIONAL, because the snapshot in this tree predates it: refusing a
+  // corpus-less snapshot would leave the harness unusable until someone paid
   // for a fresh recording. Absent means "not recorded", which the report says
   // out loud rather than mistaking for "no drift".
   //
@@ -318,20 +318,20 @@ export function parseBaseline(text, { knownSkills } = {}) {
   if (raw.corpus !== undefined) {
     if (!isPlainObject(raw.corpus)) {
       problems.push(
-        'The baseline\'s "corpus" must be an object mapping skill names to discovery-text digests.',
+        'The snapshot\'s "corpus" must be an object mapping skill names to discovery-text digests.',
       );
     } else {
       corpus = {};
       for (const [skill, digest] of Object.entries(raw.corpus)) {
         if (!ID_RE.test(skill)) {
           problems.push(
-            `The baseline's "corpus" names "${skill}", which is not a kebab-case skill name.`,
+            `The snapshot's "corpus" names "${skill}", which is not a kebab-case skill name.`,
           );
           continue;
         }
         if (!isDigest(digest)) {
           problems.push(
-            `The baseline's "corpus" entry for "${skill}" is ${JSON.stringify(digest)}, not a ${DIGEST_LENGTH}-character lowercase hex digest.`,
+            `The snapshot's "corpus" entry for "${skill}" is ${JSON.stringify(digest)}, not a ${DIGEST_LENGTH}-character lowercase hex digest.`,
           );
           continue;
         }
@@ -347,7 +347,7 @@ export function parseBaseline(text, { knownSkills } = {}) {
   // workspace did not install, so a reader can tell whether a measurement ran
   // against the corpus the file names.
   //
-  // Written UNCONDITIONALLY by renderBaseline, including as `[]`, which breaks
+  // Written UNCONDITIONALLY by renderSnapshot, including as `[]`, which breaks
   // the pattern `corpus` and `caseRepeats` follow. See the note in
   // evals/discovery/README.md: an empty corpus cannot occur, so for `corpus`
   // absence unambiguously means "not recorded" — whereas `[]` here is a real,
@@ -356,19 +356,19 @@ export function parseBaseline(text, { knownSkills } = {}) {
   if (raw.foreignSkills !== undefined) {
     if (!Array.isArray(raw.foreignSkills)) {
       problems.push(
-        'The baseline\'s "foreignSkills" must be an array of skill names.',
+        'The snapshot\'s "foreignSkills" must be an array of skill names.',
       );
     } else {
       foreignSkills = [];
       for (const name of raw.foreignSkills) {
         if (typeof name !== "string" || !ID_RE.test(name)) {
           problems.push(
-            `The baseline's "foreignSkills" contains ${JSON.stringify(name)}, which is not a kebab-case skill name.`,
+            `The snapshot's "foreignSkills" contains ${JSON.stringify(name)}, which is not a kebab-case skill name.`,
           );
           continue;
         }
         if (foreignSkills.includes(name)) {
-          problems.push(`The baseline's "foreignSkills" lists "${name}" twice.`);
+          problems.push(`The snapshot's "foreignSkills" lists "${name}" twice.`);
           continue;
         }
         foreignSkills.push(name);
@@ -387,25 +387,25 @@ export function parseBaseline(text, { knownSkills } = {}) {
   // that spelling for "never run" would make the two indistinguishable in the
   // one file a human reads before committing.
   //
-  // Nothing has to remember to remove a name from here: `renderBaseline` writes
+  // Nothing has to remember to remove a name from here: `renderSnapshot` writes
   // only what it measured, so the first re-record after the case lands emits a
   // document with no "unmeasured" key at all.
   const unmeasured = [];
   if (raw.unmeasured !== undefined) {
     if (!Array.isArray(raw.unmeasured)) {
       problems.push(
-        'The baseline\'s "unmeasured" must be an array of fixture case ids.',
+        'The snapshot\'s "unmeasured" must be an array of fixture case ids.',
       );
     } else {
       for (const id of raw.unmeasured) {
         if (typeof id !== "string" || !ID_RE.test(id)) {
           problems.push(
-            `The baseline's "unmeasured" contains ${JSON.stringify(id)}, which is not a kebab-case case id.`,
+            `The snapshot's "unmeasured" contains ${JSON.stringify(id)}, which is not a kebab-case case id.`,
           );
           continue;
         }
         if (unmeasured.includes(id)) {
-          problems.push(`The baseline's "unmeasured" lists "${id}" twice.`);
+          problems.push(`The snapshot's "unmeasured" lists "${id}" twice.`);
           continue;
         }
         unmeasured.push(id);
@@ -416,25 +416,25 @@ export function parseBaseline(text, { knownSkills } = {}) {
   // OPTIONAL and SPARSE: only the cases whose repeat count differs from the
   // document-level `repeats` appear. A sibling map rather than a reshaped
   // `cases` entry, because reshaping would rewrite every line of the file,
-  // invalidate every baseline recorded so far, and bury the tallies a human
+  // invalidate every snapshot recorded so far, and bury the tallies a human
   // reads one level deeper for the sake of a value most cases do not carry.
   const caseRepeats = {};
   if (raw.caseRepeats !== undefined) {
     if (!isPlainObject(raw.caseRepeats)) {
       problems.push(
-        'The baseline\'s "caseRepeats" must be an object mapping case ids to repeat counts.',
+        'The snapshot\'s "caseRepeats" must be an object mapping case ids to repeat counts.',
       );
     } else {
       for (const [id, count] of Object.entries(raw.caseRepeats)) {
         if (!ID_RE.test(id)) {
           problems.push(
-            `The baseline's "caseRepeats" names "${id}", which is not a kebab-case case id.`,
+            `The snapshot's "caseRepeats" names "${id}", which is not a kebab-case case id.`,
           );
           continue;
         }
         if (!Number.isInteger(count) || count < 1) {
           problems.push(
-            `The baseline's "caseRepeats" gives "${id}" a count that is not a positive integer.`,
+            `The snapshot's "caseRepeats" gives "${id}" a count that is not a positive integer.`,
           );
           continue;
         }
@@ -448,34 +448,34 @@ export function parseBaseline(text, { knownSkills } = {}) {
 
   const cases = {};
   if (!isPlainObject(raw.cases)) {
-    problems.push('The baseline\'s "cases" must be an object keyed by case id.');
+    problems.push('The snapshot\'s "cases" must be an object keyed by case id.');
   } else {
     for (const [id, tallies] of Object.entries(raw.cases)) {
       if (!ID_RE.test(id)) {
-        problems.push(`Baseline case id "${id}" is not kebab-case.`);
+        problems.push(`Snapshot case id "${id}" is not kebab-case.`);
         continue;
       }
       if (!isPlainObject(tallies)) {
-        problems.push(`Baseline case "${id}" must map skill names to hit counts.`);
+        problems.push(`Snapshot case "${id}" must map skill names to hit counts.`);
         continue;
       }
       const entry = {};
       for (const [skill, hits] of Object.entries(tallies)) {
         if (!ID_RE.test(skill)) {
           problems.push(
-            `Baseline case "${id}" names "${skill}", which is not a kebab-case skill name.`,
+            `Snapshot case "${id}" names "${skill}", which is not a kebab-case skill name.`,
           );
           continue;
         }
         if (known && !known.has(skill)) {
           problems.push(
-            `Baseline case "${id}" names "${skill}", which is not a skill in this repository — every delta against it would be computed against a skill that can never appear.`,
+            `Snapshot case "${id}" names "${skill}", which is not a skill in this repository — every delta against it would be computed against a skill that can never appear.`,
           );
           continue;
         }
         if (!Number.isInteger(hits) || hits < 0) {
           problems.push(
-            `Baseline case "${id}" gives "${skill}" a hit count that is not a non-negative integer.`,
+            `Snapshot case "${id}" gives "${skill}" a hit count that is not a non-negative integer.`,
           );
           continue;
         }
@@ -484,7 +484,7 @@ export function parseBaseline(text, { knownSkills } = {}) {
         const over = repeatsOf(id);
         if (Number.isInteger(over) && hits > over) {
           problems.push(
-            `Baseline case "${id}" gives "${skill}" ${hits} hits out of ${over} repeats.`,
+            `Snapshot case "${id}" gives "${skill}" ${hits} hits out of ${over} repeats.`,
           );
           continue;
         }
@@ -501,7 +501,7 @@ export function parseBaseline(text, { knownSkills } = {}) {
   for (const id of unmeasured) {
     if (id in cases) {
       problems.push(
-        `The baseline lists "${id}" in "unmeasured" and also records a tally for it.`,
+        `The snapshot lists "${id}" in "unmeasured" and also records a tally for it.`,
       );
     }
   }
@@ -509,7 +509,7 @@ export function parseBaseline(text, { knownSkills } = {}) {
   for (const id of Object.keys(caseRepeats)) {
     if (!(id in cases)) {
       problems.push(
-        `The baseline's "caseRepeats" names "${id}", for which it records no tally.`,
+        `The snapshot's "caseRepeats" names "${id}", for which it records no tally.`,
       );
     }
   }

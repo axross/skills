@@ -86,7 +86,7 @@ function renderIsolationNotice(isolation, unrecognised = []) {
       `Only ${isolation.reported} of ${isolation.total} probes reported which skills the CLI`,
       "loaded. Nothing foreign was seen in those, but the probes that went",
       "unreported are exactly the ones that could have differed — so this run",
-      "cannot record a baseline (--emit-baseline exits 3).",
+      "cannot record a snapshot (--emit-snapshot exits 3).",
     ];
   }
 
@@ -185,8 +185,8 @@ function renderHeader({
     "time is 'weak', not a miss — two skills that legitimately compete split the",
     "distribution, and the per-case coverage line says whether anything was lost.",
     "",
-    "Both findings carry the PRIOR the baseline recorded for that skill. Where the",
-    "baseline carries a corpus fingerprint they also carry P — the chance of a result",
+    "Both findings carry the PRIOR the snapshot recorded for that skill. Where the",
+    "snapshot carries a corpus fingerprint they also carry P — the chance of a result",
     "at least this extreme if the rate had not moved, integrating over the",
     `uncertainty in a prior measured from few samples. Below ${Math.round(NOISE_ALPHA * 100)}% the result reads as a`,
     "regression — movement toward what the label calls failure, in either direction;",
@@ -200,7 +200,7 @@ function renderHeader({
     "    assumed rather than measured. `--determinism` is what measures it.",
     "  - The band is per line; among the lines that can fire it, roughly one clean",
     "    line in twenty reads 'regression' or 'moved' by chance alone.",
-    "  - A baseline with no corpus fingerprint gets counts and no P: its tallies may",
+    "  - A snapshot with no corpus fingerprint gets counts and no P: its tallies may",
     "    have accreted across commits, against a corpus that has since changed.",
   );
   return lines.join("\n");
@@ -333,18 +333,18 @@ function renderFindings(tallies, delta) {
 }
 
 /**
- * Whether the baseline fingerprinted the corpus it measured.
+ * Whether the snapshot fingerprinted the corpus it measured.
  *
  * Read from the corpus comparison rather than mirrored into a field of its own.
  * A second copy would be a second thing to keep in step, and two flags that can
- * disagree about one baseline is exactly the failure the annotation exists to
+ * disagree about one snapshot is exactly the failure the annotation exists to
  * prevent one level up — a line claiming "no corpus recorded" beside a drift
  * notice that names the drifted skills.
  */
 const isFingerprinted = (delta) => delta?.corpus?.recorded ?? false;
 
 /**
- * The prior the baseline recorded for one skill in one case, or `null`.
+ * The prior the snapshot recorded for one skill in one case, or `null`.
  *
  * Read out of the delta rather than recomputed: the two blocks must agree about
  * one event, and the only way to guarantee that is for both to read the same
@@ -364,7 +364,7 @@ function isUnattributable(delta, caseId) {
 
 /** Which of the four reasons a line has no prior to claim. */
 function noPriorReasonIn(delta, caseId) {
-  if (!delta) return "no baseline recorded";
+  if (!delta) return "no snapshot recorded";
   // A model mismatch and a missing file both arrive as an unusable delta, and
   // the delta already phrases each of them.
   if (!delta.usable) return delta.reason;
@@ -372,7 +372,7 @@ function noPriorReasonIn(delta, caseId) {
   if (entry?.isNew) {
     return entry.isUnmeasured
       ? "case declared unmeasured, awaiting the next re-record"
-      : "case is not in the baseline";
+      : "case is not in the snapshot";
   }
   return "not tracked, and nothing recorded";
 }
@@ -436,16 +436,16 @@ export function renderProbeBudget(runs, costPerProbe, subject = "this fixture") 
 function renderCorpusNotice(corpus, expectAlways) {
   if (!corpus?.recorded) {
     return [
-      "Corpus not recorded — this baseline predates corpus fingerprinting, so a",
+      "Corpus not recorded — this snapshot predates corpus fingerprinting, so a",
       "skill added, removed, or reworded since it was taken is invisible here.",
-      "Re-record with --emit-baseline to gain the check.",
+      "Re-record with --emit-snapshot to gain the check.",
       "",
     ];
   }
   if (!corpus.drifted) return [];
 
   const lines = [
-    "Corpus drift — the baseline was recorded against a different skill corpus.",
+    "Corpus drift — the snapshot was recorded against a different skill corpus.",
     ...renderCorpusBuckets(corpus),
   ];
 
@@ -479,15 +479,15 @@ function renderCorpusNotice(corpus, expectAlways) {
  * @param {string[]} [expectAlways]
  */
 function renderDelta(delta, expectAlways = []) {
-  const lines = ["", bar("="), "Change against the recorded baseline", bar("=")];
+  const lines = ["", bar("="), "Change against the recorded snapshot", bar("=")];
 
   if (!delta.usable) {
     lines.push(
       `NO DELTA — ${delta.reason}.`,
       "",
       "Absolute counts above stand on their own; the comparison does not.",
-      "A baseline recorded on a different model makes every delta meaningless,",
-      "so none is shown. Re-record it with --emit-baseline on this model.",
+      "A snapshot recorded on a different model makes every delta meaningless,",
+      "so none is shown. Re-record it with --emit-snapshot on this model.",
     );
     return lines.join("\n");
   }
@@ -498,7 +498,7 @@ function renderDelta(delta, expectAlways = []) {
     (entry) => entry.isNew || entry.changes.length > 0,
   );
   if (changed.length === 0 && delta.removed.length === 0) {
-    lines.push("No change: every case matched the baseline rate for rate.");
+    lines.push("No change: every case matched the snapshot rate for rate.");
     return lines.join("\n");
   }
 
@@ -510,7 +510,7 @@ function renderDelta(delta, expectAlways = []) {
       lines.push(
         entry.isUnmeasured
           ? `  ${entry.id}: declared unmeasured, awaiting the next re-record`
-          : `  ${entry.id}: new case, not in the baseline`,
+          : `  ${entry.id}: new case, not in the snapshot`,
       );
       continue;
     }
@@ -518,10 +518,10 @@ function renderDelta(delta, expectAlways = []) {
     // a reader needs beside a number is whether THIS number can be trusted.
     const mark = entry.unattributable ? "  (unattributable)" : "";
     for (const change of entry.changes) {
-      // Both denominators are printed because they can differ: a baseline
+      // Both denominators are printed because they can differ: a snapshot
       // recorded at 5 repeats compared against a 10-repeat run would otherwise
       // read as every skill doubling.
-      const wasRepeats = change.wasRepeats ?? delta.baselineRepeats;
+      const wasRepeats = change.wasRepeats ?? delta.snapshotRepeats;
       const was = change.was === null ? NO_COUNT : change.was;
       const reading = annotate(
         change.prior,
@@ -541,7 +541,7 @@ function renderDelta(delta, expectAlways = []) {
     }
   }
   for (const id of delta.removed) {
-    lines.push(`  ${id}: in the baseline, absent from the fixture`);
+    lines.push(`  ${id}: in the snapshot, absent from the fixture`);
   }
   return lines.join("\n");
 }
@@ -571,28 +571,28 @@ export function renderReport({ fixture, tallies, delta, context }) {
 }
 
 /**
- * The line that introduces an emitted baseline on stdout.
+ * The line that introduces an emitted snapshot on stdout.
  *
- * Exported because it is a boundary, not a caption. `extract-baseline.mjs`
+ * Exported because it is a boundary, not a caption. `extract-snapshot.mjs`
  * slices the proposed document out of a captured report at exactly this line, so
  * a maintainer dispatching the workflow can download the result as an artifact
  * instead of transcribing ~90 lines of JSON out of a log viewer. Both sides
  * import this constant rather than spelling it twice, so rewording the line
  * cannot leave the extractor cutting at text that no longer appears.
  */
-export const BASELINE_MARKER = "Proposed baseline — commit this deliberately:";
+export const SNAPSHOT_MARKER = "Proposed snapshot — commit this deliberately:";
 
 /**
- * Render a baseline document for a human to commit.
+ * Render a snapshot document for a human to commit.
  *
- * Printed to stdout rather than written to the tree: adopting a new baseline
+ * Printed to stdout rather than written to the tree: adopting a new snapshot
  * should be a deliberate reviewable act, not a side effect of running a report.
  *
  * @param {object[]} tallies
  * @param {{ model: string, repeats: number, recordedAt: string, corpus?: Record<string, string>|null, foreignSkills?: string[] }} context
  * @returns {string}
  */
-export function renderBaseline(
+export function renderSnapshot(
   tallies,
   { model, repeats, recordedAt, corpus = null, foreignSkills = [] },
 ) {
@@ -614,7 +614,7 @@ export function renderBaseline(
 
   const document = { recordedAt, model, repeats };
   if (corpus) {
-    // Sorted, so re-recording a baseline diffs line by line against the one it
+    // Sorted, so re-recording a snapshot diffs line by line against the one it
     // replaces instead of as a reshuffled block.
     document.corpus = Object.fromEntries(
       Object.keys(corpus)
@@ -626,7 +626,7 @@ export function renderBaseline(
   // `caseRepeats` above. Those two are omitted when empty because an empty value
   // cannot occur for them, so absence unambiguously means "not recorded". Here
   // `[]` is a REAL state — "recorded, and nothing foreign was loaded" — which
-  // absence cannot express: a baseline predating this field would look
+  // absence cannot express: a snapshot predating this field would look
   // identical. Do not "fix" this into an `if`; it would destroy the distinction.
   document.foreignSkills = [...foreignSkills].sort();
 

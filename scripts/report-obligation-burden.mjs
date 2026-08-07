@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// report-obligation-load.mjs — concurrent obligation load reporter for THIS
+// report-obligation-burden.mjs — concurrent obligation burden reporter for THIS
 // repository.
 //
 // Answers a question no per-skill check can: "how many rules is an agent holding
@@ -44,7 +44,7 @@
 // which this is not.
 //
 // Usage:
-//   node scripts/report-obligation-load.mjs [--mandated] [<path | name> ...]
+//   node scripts/report-obligation-burden.mjs [--mandated] [<path | name> ...]
 //
 //     <path>  a skill directory (one holding SKILL.md), OR a directory whose
 //             immediate subdirectories are skills (e.g. `skills`).
@@ -349,7 +349,7 @@ function render(measurements, selectionLabel, tiers = null) {
   const ceilingSpan = widths[4] + widths[5] + widths[6] + 6;
 
   const lines = [
-    `Obligation load for ${measurements.length} skill(s) — ${selectionLabel}.`,
+    `Obligation burden for ${measurements.length} skill(s) — ${selectionLabel}.`,
     "",
     "".padEnd(widths[0]) +
       "SKILL.md only".padStart(Math.floor((floorSpan + "SKILL.md only".length) / 2)).padEnd(floorSpan) +
@@ -372,9 +372,9 @@ function render(measurements, selectionLabel, tiers = null) {
   return lines.join("\n");
 }
 
-const USAGE = `Usage: report-obligation-load.mjs [--mandated] [<path | name> …]
+const USAGE = `Usage: report-obligation-burden.mjs [--mandated] [<path | name> …]
 
-Report the concurrent RFC-2119 obligation load a session carries when it loads
+Report the concurrent RFC-2119 obligation burden a session carries when it loads
 the given skills, as a floor (SKILL.md bodies alone) and a ceiling (every
 references/*.md read too). With no arguments, reports every skill.
 
