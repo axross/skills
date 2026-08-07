@@ -220,12 +220,11 @@ dash, never a `0`:
   hf-touch-targets: react-component-styling —/5 -> 2/5  (no prior: not tracked, and nothing recorded)
 ```
 
-The inference stays sound only while, since the discovery counts were
-recorded, **(a)** no measured case has gained a `mustInclude`/`mustExclude`
-label and **(b)** `expectAlways` has gained no skill. Both hold today. The
-second is the sharper
-edge: an `expectAlways` addition changes the tracked set for **every** case at
-once, where a per-case label changes one.
+The inference stays sound only while, since the discovery counts were recorded,
+**(a)** no measured case has gained a `mustInclude`/`mustExclude` label and
+**(b)** `expectAlways` has gained no skill. Both hold today. The second is the
+sharper edge: an `expectAlways` addition changes the tracked set for **every**
+case at once, where a per-case label changes one.
 
 **A zero prior against a zero run is `standing`, not a probability** — and it
 renders even with no corpus fingerprint, because it is a statement about counts:
