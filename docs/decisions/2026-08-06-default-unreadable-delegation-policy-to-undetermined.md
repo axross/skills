@@ -90,7 +90,7 @@ check without naming anything vendor-specific.
 with the new Phase 2 `**Guidelines:**` block, and the reference-file ceiling
 rises with the new barred/undetermined and citation obligations in
 `implementation-worker.md`. The exact delta is measured with
-`report-obligation-load.mjs` rather than predicted, and stated wherever this
+`report-obligation-burden.mjs` rather than predicted, and stated wherever this
 change is reported.
 
 Nothing here measures the outcome the change exists to produce — that a later
