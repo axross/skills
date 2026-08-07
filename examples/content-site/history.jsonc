@@ -68,7 +68,7 @@
 		},
 		{
 			"message": "docs",
-			"files": ["docs/deployment.md", "AGENTS.md"]
+			"files": ["docs/deployment.md", "AGENTS.md", "CLAUDE.md"]
 		}
 	]
 }

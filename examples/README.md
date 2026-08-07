@@ -47,6 +47,18 @@ review round.
   public surface" stops being a choice a model can get wrong, and the signal
   disappears.
 - **`shared/resolve-translation.ts` ships no test.** That is the task.
+- **`types/framework.d.ts` stands in for the framework**, which is not a
+  dependency at all. The mock's `app/` uses a routing and rendering surface it
+  never installs, so the types are hand-written to the shape the real one
+  exposes. Installing the framework would make the fixture large and slow to
+  materialize for a task that never renders a page; declaring the types keeps
+  `npm run typecheck` honest about everything else.
+- **`e2e/` and `playwright.config.ts` are structure only.** `@playwright/test`
+  is not installed and both are excluded from `tsconfig.json`, so nothing there
+  compiles or runs. A real project of this shape has an end-to-end directory,
+  and a mock that omitted one would tell a model that this project does not
+  test that way — which is a claim about conventions, in a fixture built to
+  measure whether a skill supplies them.
 
 Not on the list, and therefore bugs if you find them: unresolved imports,
 checks that do not pass, framework APIs used incorrectly, or anything the
