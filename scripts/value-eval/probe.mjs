@@ -46,13 +46,14 @@
 //      given, so a caller that never opts in never sees it.
 
 import { spawnSync } from "node:child_process";
-import { readFile, stat } from "node:fs/promises";
+import { stat } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { corpusInvocability } from "../discovery-eval/corpus.mjs";
 import { classifyLoaded } from "../discovery-eval/isolation.mjs";
-import { extractArtifact, isTestFilePath } from "./artifact.mjs";
+import { extractArtifact } from "./artifact.mjs";
+import { captureDiff, readChangedTestFiles } from "./capture.mjs";
 import { appendRunRecord, buildRunRecord, serializeRunRecord } from "./record.mjs";
 import {
   ALLOWED_TOOLS,
@@ -137,108 +138,6 @@ async function isDirectory(path) {
 /** The target module's basename with no extension, e.g. "resolve-translation". */
 function moduleBasename(targetModule) {
   return basename(targetModule).replace(/\.[^./]+$/, "");
-}
-
-/** Runs `git` in `cwd` and returns stdout, throwing on a non-zero exit. */
-function runGitCapture(args, cwd) {
-  const result = spawnSync("git", args, { cwd, encoding: "utf8" });
-  if (result.error) throw result.error;
-  if (result.status !== 0) {
-    throw new Error(
-      `git ${args.join(" ")} (in ${cwd}) exited ${result.status}:\n${result.stderr || result.stdout}`,
-    );
-  }
-  return result.stdout;
-}
-
-/**
- * Stages everything so a newly added file appears in the diff too, then
- * reads back the full diff and the list of changed paths. `--no-renames`
- * keeps every `git status --porcelain -z` entry to the single "XY<space>path"
- * shape this parses — a rename would otherwise emit an "old\0new\0" pair the
- * fixed 3-character prefix strip below does not expect.
- *
- * That flag is also why the status code is kept rather than stripped away:
- * `--no-renames` turns a rename into a delete plus an add, so a run that
- * renames a test file yields an entry whose path is no longer on disk.
- * Reading it back would throw, and the throw would land after the CLI had
- * already been paid for — see readChangedTestFiles.
- *
- * @param {string} workspace
- * @returns {{ diff: string, changedPaths: Array<{ status: string, path: string }> }}
- */
-function captureDiff(workspace) {
-  // `.claude` is excluded from every one of these, and the exclusion is a
-  // correctness requirement rather than tidiness. materialize.mjs installs the
-  // arm's skills there and does not commit them, so a bare `add -A` stages the
-  // whole installed skill and the captured diff then reports it as something
-  // the model produced. That lands on TREATMENT RUNS ONLY — a control installs
-  // no skill — which is a systematic difference between the arms that has
-  // nothing to do with model behaviour, in an instrument built to measure
-  // exactly such differences.
-  //
-  // The mock's own .gitignore also ignores `.claude`, so on a well-formed
-  // fixture nothing here has anything to exclude. This is the second layer:
-  // a future mock that forgets that line must not silently corrupt the
-  // measurement, so the instrument refuses to look there whatever the fixture
-  // says.
-  const outsideSkills = ["--", ".", ":(exclude).claude"];
-
-  runGitCapture(["add", "-A", ...outsideSkills], workspace);
-  const diff = runGitCapture(
-    ["diff", "--cached", "--no-color", ...outsideSkills],
-    workspace,
-  );
-  const statusOutput = runGitCapture(
-    ["status", "--porcelain", "-z", "--no-renames", ...outsideSkills],
-    workspace,
-  );
-  const changedPaths = statusOutput
-    .split("\0")
-    .filter((entry) => entry.length > 0)
-    .map((entry) => ({ status: entry.slice(0, 2), path: entry.slice(3) }));
-  return { diff, changedPaths };
-}
-
-/**
- * Reads every changed path that looks like a test file, straight off the
- * workspace's working tree rather than by reconstructing it from the diff —
- * simpler and exact, since the file already exists on disk after the run.
- *
- * Two things it must never do, both for the same reason: this runs AFTER the
- * CLI has been spawned and paid for, so anything that throws here destroys a
- * probe the budget has already been charged for AND the ledger entry that
- * would have recorded the charge. A stop-loss that can be defeated by a crash
- * instead of a refusal is not a cap.
- *
- * So a deleted path is skipped rather than read — `--no-renames` makes a
- * rename look like one, and a model asked to add tests may well tidy the
- * existing spec file while it is there — and a read that fails anyway is
- * dropped with a note rather than allowed to propagate.
- *
- * @param {string} workspace
- * @param {Array<{ status: string, path: string }>} changedPaths
- * @returns {Promise<Array<{ path: string, content: string }>>}
- */
-async function readChangedTestFiles(workspace, changedPaths) {
-  const testPaths = changedPaths
-    .filter(({ status }) => !status.includes("D"))
-    .map(({ path }) => path)
-    .filter((path) => isTestFilePath(path));
-  const read = await Promise.all(
-    testPaths.map(async (path) => {
-      try {
-        return { path, content: await readFile(join(workspace, path), "utf8") };
-      } catch (error) {
-        process.stderr.write(
-          `warning: changed test file ${path} could not be read (${error.code ?? error.message}); ` +
-            "it is dropped from the artifact extraction, and the run is still recorded\n",
-        );
-        return null;
-      }
-    }),
-  );
-  return read.filter((entry) => entry !== null);
 }
 
 /**
@@ -462,13 +361,47 @@ async function main() {
   // `result.subtype`, never from this exit code.
 
   const transcript = extractTranscript(result.stdout);
-  const { diff, changedPaths } = captureDiff(options.workspace);
 
-  // Artifact extraction is the one step here that reads model-produced text,
-  // so it is the one most likely to meet something unforeseen — and it sits
-  // after the spend. A failure costs the artifact half of one run's data; it
-  // must not also cost the ledger entry, because the stop-loss projects from
-  // that ledger and an under-count silently raises the real cap.
+  // THE LEDGER IS CHARGED HERE, BEFORE ANYTHING ELSE READS THE WORKSPACE.
+  // The cost is known the moment the stream is parsed, and every step after
+  // this one touches model-produced content — so every step after this one can
+  // meet something unforeseen. Recording the charge last, as this did until
+  // #264, meant a throw anywhere downstream destroyed the entry the stop-loss
+  // projects from; an under-counted ledger silently raises the real cap, which
+  // is the failure mode a cap exists to prevent. The window is now zero steps
+  // wide rather than four.
+  if (options.ledger) {
+    // `parseTranscript` initialises the cost to 0 and only replaces it from a
+    // `result` event's `total_cost_usd`, so 0 means "no cost was reported"
+    // rather than "this run was free". Treating a genuinely free run as
+    // unparsed is the safe direction: omitting the entry leaves the average
+    // intact and counts more runs as remaining, so the projection grows and
+    // the cap tightens. Appending the zero would do the opposite.
+    if (transcript.cost > 0) {
+      await appendLedgerCost(options.ledger, transcript.cost);
+    } else {
+      process.stderr.write(
+        "warning: the transcript reported no cost, so nothing was appended to the ledger. " +
+          "The run still happened and was still billed — the stop-loss will project from " +
+          "one fewer sample, which tightens the cap rather than loosening it\n",
+      );
+    }
+  }
+
+  // Both steps below sit after the spend and read model-produced content, so
+  // each is guarded: a failure costs the fields it would have produced and
+  // nothing more. Neither can cost the ledger entry any longer.
+  let diff = null;
+  let changedPaths = [];
+  try {
+    ({ diff, changedPaths } = captureDiff(options.workspace));
+  } catch (error) {
+    process.stderr.write(
+      `warning: capture failed (${error.message}); the run is still recorded, ` +
+        "with its diff absent\n",
+    );
+  }
+
   let artifact = null;
   try {
     const testFiles = await readChangedTestFiles(options.workspace, changedPaths);
@@ -500,10 +433,6 @@ async function main() {
     await appendRunRecord(options.records, record);
   } else {
     process.stdout.write(serializeRunRecord(record));
-  }
-
-  if (options.ledger) {
-    await appendLedgerCost(options.ledger, record.costUsd);
   }
 
   process.stderr.write(
