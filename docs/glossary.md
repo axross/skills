@@ -130,19 +130,23 @@
 
 **Probe artifact** — what one **evaluation probe** left in its **probe workspace**: the files the agent created or changed.
 
-**Probe transcript** — the captured record of what the agent did during one **evaluation probe**: every tool call in order, what it cost, how many turns it took, and which skills the **agent runtime** loaded.
+**Probe transcript** — the verbatim stream one **evaluation probe** produced, stored as the **agent runtime** emitted it rather than as an extraction over it, so a question a later reading asks is answered by re-reading rather than by re-running.
 
 **Signal extractor** — a deterministic function that reads a **probe transcript** or a **probe artifact** and reports measured signals without judging them.
 
-**Probe record** — one **evaluation probe**'s measured data, carrying no verdict.
+**Probe record** — everything one **evaluation probe** produced — its **probe transcript** and its **probe artifact** — together with the **condition fingerprint** it ran under, carrying no verdict.
+
+**Case measurement** — every **evaluation probe** of one **evaluation case**, run together as one unit and stored together, because no single probe supports a comparison on its own.
+
+**Condition fingerprint** — the digests of the **probe workspace** and of each installed skill, recorded with a **probe record** so two records are judged comparable by content rather than by the names of what produced them.
+
+**Comparability check** — a check that every **evaluation probe** of one **case measurement** ran under the same conditions, so a difference between them can be attributed to the skill at all.
 
 **Superseded record** — a **probe record** taken under conditions a later change invalidated, so it is evidence of its own run and not comparable with later ones.
 
 **LLM judge** — a model asked to rank or score what a **signal extractor** cannot reach.
 
-**Cost ledger** — the accumulated per-run costs of one **evaluation case**.
-
-**Stop-loss guard** — the check standing between a projected total and the start of a run, so a **cost ledger**'s cap binds by refusal rather than by exhaustion.
+**Stop-loss guard** — the check standing between a **case measurement**'s projected cost and the start of it, so a declared cap binds by refusal before the spend rather than by exhaustion during it.
 
 **Turn cap** — the ceiling on how many turns one **evaluation probe** may take, set as a runaway guard rather than a budget control.
 
