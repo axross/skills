@@ -1,5 +1,5 @@
 // stop-loss.mjs — the cumulative dollar guard for one value-eval CASE (a
-// fixed number of planned runs across arms).
+// fixed number of planned runs across both conditions).
 //
 // A MECHANISM, NOT A DECISION-MAKER. Issue #235's non-functional requirements
 // state the rule this implements: "accumulate each probe's reported

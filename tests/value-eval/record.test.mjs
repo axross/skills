@@ -41,7 +41,7 @@ const SAMPLE_ARTIFACT = Object.freeze({
 
 function sampleInput(overrides = {}) {
   return {
-    arm: "treatment",
+    condition: "skill-present",
     runIndex: 0,
     mock: "content-site",
     skills: ["unit-testing"],
@@ -57,10 +57,10 @@ function sampleInput(overrides = {}) {
 }
 
 describe("buildRunRecord", () => {
-  it("carries arm, run index, the extractor outputs, cost, turns, truncated, and loaded skills", () => {
+  it("carries the condition, run index, the extractor outputs, cost, turns, truncated, and loaded skills", () => {
     const record = buildRunRecord(sampleInput());
 
-    expect(record.arm).toBe("treatment");
+    expect(record.condition).toBe("skill-present");
     expect(record.runIndex).toBe(0);
     expect(record.turns).toBe(12);
     expect(record.costUsd).toBe(0.37);
@@ -75,7 +75,7 @@ describe("buildRunRecord", () => {
 
     expect(Object.keys(record).sort()).toEqual(
       [
-        "arm",
+        "condition",
         "artifact",
         "cliExitCode",
         "costUsd",
@@ -101,7 +101,7 @@ describe("buildRunRecord", () => {
   it("is frozen, so a caller cannot mutate a field after the fact", () => {
     const record = buildRunRecord(sampleInput());
     expect(() => {
-      record.arm = "control";
+      record.condition = "skill-absent";
     }).toThrow();
   });
 
@@ -132,8 +132,8 @@ describe("serializeRunRecord / appendRunRecord / readRunRecords", () => {
     const dir = await tempDir();
     const path = join(dir, "records.ndjson");
 
-    const first = buildRunRecord(sampleInput({ arm: "control", runIndex: 0 }));
-    const second = buildRunRecord(sampleInput({ arm: "treatment", runIndex: 0 }));
+    const first = buildRunRecord(sampleInput({ condition: "skill-absent", runIndex: 0 }));
+    const second = buildRunRecord(sampleInput({ condition: "skill-present", runIndex: 0 }));
 
     await appendRunRecord(path, first);
     await appendRunRecord(path, second);

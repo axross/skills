@@ -29,8 +29,37 @@
 // #235's "A control arm is not bare" section: it strips the six user-level
 // skills for free; the seventeen a managed environment injects cannot be
 // stripped without also stripping the workspace's own, so this is the one
-// isolation lever available, and every run — control and treatment alike —
-// takes it.
+// isolation lever available, and every run takes it — both conditions alike.
+//
+// Both passages above quote issue #235 verbatim, and #235 was written before
+// the vocabulary settled: read its "treatment arm" as the SKILL-PRESENT
+// CONDITION and its "control arm" as the SKILL-ABSENT one. The quotes are left
+// as written rather than silently corrected, because a quotation that has been
+// edited to agree with later usage is no longer evidence of what was decided.
+
+/**
+ * The model every probe runs against, pinned rather than left to the CLI.
+ *
+ * WHAT CHANGING THIS INVALIDATES: every record taken before the change. The
+ * effect axis attributes a difference between two conditions to the skill, and
+ * that attribution holds only while everything else is held constant — the
+ * model most of all. Records are comparable within one pinned model and across
+ * no boundary where it moved, so a change here supersedes the existing
+ * measurement rather than extending it, exactly as a fixture change does.
+ *
+ * WHY IT WAS NOT PINNED BEFORE, AND WHY THAT WAS NOT ENOUGH. The three runs
+ * recorded on 2026-08-06 all report `claude-sonnet-5`, because that is what
+ * the CLI defaulted to. The record makes drift detectable after the fact;
+ * nothing prevented it. When the default moves, every earlier record silently
+ * stops being comparable and the reader finds out by diffing two `model`
+ * fields, if they think to look.
+ *
+ * WHY THIS VALUE. It is the CLI's current default and what every recorded run
+ * used, so pinning it changes nothing about the measurement today and only
+ * fixes what tomorrow's default cannot silently change. It is also the
+ * condition most consumers of this library are actually in.
+ */
+export const MODEL = "claude-sonnet-5";
 
 /** Runaway guard, not a budget control — see this module's header. */
 export const TURN_CAP = 100;
@@ -57,6 +86,8 @@ export function buildSpawnArgs(prompt) {
     "--output-format",
     "stream-json",
     "--verbose",
+    "--model",
+    MODEL,
     "--max-turns",
     String(TURN_CAP),
     "--allowedTools",

@@ -40,9 +40,25 @@
 
 import { appendFile, readFile } from "node:fs/promises";
 
-/** The record's complete field set — see this module's header. */
+/**
+ * The record's complete field set — see this module's header.
+ *
+ * `condition` was `arm` until #264, and the values it carries were `control`
+ * and `treatment`. Both changed for the same reason: "arm" is a term of art
+ * borrowed from clinical trials whose ordinary meaning is a limb, and this
+ * repository's glossary rule is that a term whose words do not compose to its
+ * meaning gets a compound that does. `condition` composes — the circumstances
+ * something happens under — and `skill-absent` / `skill-present` state a fact
+ * about the setup rather than, as `treatment` does, implying one side is the
+ * thing being done to the other.
+ *
+ * The rename was free: no record or ledger file is committed anywhere in this
+ * repository, so there was no stored datum to migrate. That is worth stating
+ * because the first plan for this change justified the rename by a re-take
+ * making the migration empty, which was a weaker claim than the truth.
+ */
 const RECORD_FIELDS = [
-  "arm",
+  "condition",
   "runIndex",
   "mock",
   "skills",
@@ -64,7 +80,7 @@ const RECORD_FIELDS = [
  * nothing here interprets any of it.
  *
  * @param {{
- *   arm: string,
+ *   condition: string,
  *   runIndex: number,
  *   mock: string,
  *   skills: string[],
@@ -79,7 +95,7 @@ const RECORD_FIELDS = [
  * @returns {Readonly<Record<string, unknown>>} frozen; keys are exactly `RECORD_FIELDS`
  */
 export function buildRunRecord({
-  arm,
+  condition,
   runIndex,
   mock,
   skills,
@@ -95,7 +111,7 @@ export function buildRunRecord({
   recordedAt = `${new Date().toISOString().slice(0, 19)}Z`,
 }) {
   const record = {
-    arm,
+    condition,
     runIndex,
     mock,
     skills: [...skills],

@@ -21,7 +21,13 @@
 	"commits": [
 		{
 			"message": "Initial commit",
-			"files": ["package.json", ".gitignore", "tsconfig.json", "biome.jsonc"]
+			"files": [
+				"package.json",
+				"package-lock.json",
+				".gitignore",
+				"tsconfig.json",
+				"biome.jsonc"
+			]
 		},
 		{
 			"message": "WIP",
@@ -61,7 +67,7 @@
 		},
 		{
 			"message": "docs",
-			"files": ["docs/deployment.md", "AGENTS.md"]
+			"files": ["docs/deployment.md", "AGENTS.md", "CLAUDE.md"]
 		}
 	]
 }
