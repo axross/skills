@@ -10,6 +10,7 @@ import {
   buildProbeEnvironment,
   buildSpawnArgs,
   DISALLOWED_TOOLS,
+  MODEL,
   SETTING_SOURCES,
   TURN_CAP,
 } from "../../scripts/value-eval/spawn.mjs";
@@ -18,6 +19,19 @@ describe("buildSpawnArgs", () => {
   it("passes --setting-sources project on every invocation", () => {
     const args = buildSpawnArgs("prompt text");
     expect(args).toEqual(expect.arrayContaining(["--setting-sources", "project"]));
+  });
+
+  // Unlike the capture, the argv IS the whole claim here: there is no `git`
+  // behaviour to get wrong, only whether the flag is present and carries the
+  // pinned value. Dropping the pin would silently revert every future run to
+  // whatever the CLI defaults to, which is the drift the pin exists to stop —
+  // so this fails rather than letting it happen quietly.
+  it("pins the model on every invocation", () => {
+    expect(MODEL).toBe("claude-sonnet-5");
+    const args = buildSpawnArgs("prompt text");
+    const flagIndex = args.indexOf("--model");
+    expect(flagIndex).toBeGreaterThanOrEqual(0);
+    expect(args[flagIndex + 1]).toBe(MODEL);
   });
 
   it("passes a turn cap of 100", () => {
