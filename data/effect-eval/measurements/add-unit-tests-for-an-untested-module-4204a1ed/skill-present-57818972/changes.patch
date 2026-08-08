@@ -1,0 +1,148 @@
+diff --git a/shared/resolve-translation.spec.ts b/shared/resolve-translation.spec.ts
+new file mode 100644
+index 0000000..6b374e9
+--- /dev/null
++++ b/shared/resolve-translation.spec.ts
+@@ -0,0 +1,142 @@
++import { describe, expect, it } from "@jest/globals";
++import {
++	findExactMatch,
++	findLanguageMatch,
++	normalizeLocale,
++	type Post,
++	resolveTranslation,
++} from "./resolve-translation";
++
++function translation(locale: string): Post["translations"][number] {
++	return { locale, title: `title-${locale}`, body: `body-${locale}` };
++}
++
++describe("normalizeLocale()", () => {
++	it("lowercases a locale tag", () => {
++		expect(normalizeLocale("EN-US")).toBe("en-us");
++	});
++
++	it("trims surrounding whitespace", () => {
++		expect(normalizeLocale("  en-US  ")).toBe("en-us");
++	});
++});
++
++describe("findExactMatch()", () => {
++	it("returns the translation whose locale is identical once normalized", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("en-US"), translation("ja-JP")],
++		};
++
++		expect(findExactMatch(post, "EN-us")).toEqual(translation("en-US"));
++	});
++
++	it("does not match a translation that only shares the language subtag", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("en-GB")],
++		};
++
++		expect(findExactMatch(post, "en-US")).toBeNull();
++	});
++
++	it("returns null when the post has no translations", () => {
++		const post: Post = { slug: "hello", defaultLocale: "en", translations: [] };
++
++		expect(findExactMatch(post, "en")).toBeNull();
++	});
++});
++
++describe("findLanguageMatch()", () => {
++	it("matches a region-specific request against a bare-language translation", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("ja")],
++		};
++
++		expect(findLanguageMatch(post, "ja-JP")).toEqual(translation("ja"));
++	});
++
++	it("matches a bare-language request against a region-specific translation", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("ja-JP")],
++		};
++
++		expect(findLanguageMatch(post, "ja")).toEqual(translation("ja-JP"));
++	});
++
++	it("returns null when no translation shares the language subtag", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("ja-JP")],
++		};
++
++		expect(findLanguageMatch(post, "en")).toBeNull();
++	});
++});
++
++describe("resolveTranslation()", () => {
++	it("prefers an exact match over a language-only match for the same accepted locale", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("ja"), translation("ja-JP")],
++		};
++
++		expect(resolveTranslation(post, ["ja-JP"])).toEqual(translation("ja-JP"));
++	});
++
++	it("prefers an exact match on a later accepted locale over a language match on an earlier one", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("fr"), translation("ja-JP")],
++		};
++
++		expect(resolveTranslation(post, ["ja", "fr"])).toEqual(translation("fr"));
++	});
++
++	it("falls back to a language match when no accepted locale has an exact match", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("ja")],
++		};
++
++		expect(resolveTranslation(post, ["ja-JP", "fr"])).toEqual(
++			translation("ja"),
++		);
++	});
++
++	it("falls back to the post's default locale when no accepted locale matches at all", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("en"), translation("ja")],
++		};
++
++		expect(resolveTranslation(post, ["fr"])).toEqual(translation("en"));
++	});
++
++	it("returns null when the post has no translations at all", () => {
++		const post: Post = { slug: "hello", defaultLocale: "en", translations: [] };
++
++		expect(resolveTranslation(post, ["en", "fr"])).toBeNull();
++	});
++
++	it("returns null when nothing matches and the default locale has no translation", () => {
++		const post: Post = {
++			slug: "hello",
++			defaultLocale: "en",
++			translations: [translation("ja")],
++		};
++
++		expect(resolveTranslation(post, ["fr"])).toBeNull();
++	});
++});

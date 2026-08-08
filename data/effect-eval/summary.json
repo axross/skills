@@ -1,0 +1,50 @@
+{
+  "measurementCount": 1,
+  "comparableCount": 1,
+  "measurements": [
+    {
+      "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
+      "case": "add-unit-tests-for-an-untested-module",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 1.5232195,
+      "project": {
+        "name": "content-site",
+        "tree": "sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211",
+        "commit": "593904b722f5a71bc53c67f43e476f637fd8f315"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ]
+        }
+      }
+    }
+  ]
+}

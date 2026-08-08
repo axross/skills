@@ -1,0 +1,404 @@
+{
+  "case": {
+    "prompt": "shared/resolve-translation.ts has no tests. Add unit tests for it.",
+    "targetModule": "shared/resolve-translation.ts"
+  },
+  "project": {
+    "name": "content-site",
+    "tree": "sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211",
+    "commit": "593904b722f5a71bc53c67f43e476f637fd8f315"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ]
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"unit-testing\":\"sha256:540c54a2dad963ce3d2c171142b44762840428dea90af099bbcf33f1e2394fc9\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"shared/resolve-translation.ts has no tests. Add unit tests for it.\",\"targetModule\":\"shared/resolve-translation.ts\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 1.5232195,
+  "probes": [
+    {
+      "probe": "skill-absent-3743c019",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 8,
+      "truncated": false,
+      "costUsd": 0.20931539999999998,
+      "usage": {
+        "input": 26,
+        "output": 69,
+        "cacheCreation": 26013,
+        "cacheRead": 419718,
+        "messages": 13
+      },
+      "toolCalls": 7,
+      "filesRead": [
+        "/tmp/effect-eval-qPI7Vx/shared/blog-post-slug.spec.ts"
+      ],
+      "commandsRun": [
+        "cat /tmp/effect-eval-qPI7Vx/shared/resolve-translation.ts",
+        "cat README.md | head -100",
+        "ls shared/ && cat package.json && find . -name \"*.spec.ts\" -not -path \"*/node_modules/*\"",
+        "npm test -- resolve-translation 2>&1 | tail -60",
+        "npm run typecheck 2>&1 | tail -30; echo \"---LINT---\"; npm run lint 2>&1 | tail -40"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "shared/resolve-translation.spec.ts"
+      ]
+    },
+    {
+      "probe": "skill-absent-389a689f",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 9,
+      "truncated": false,
+      "costUsd": 0.2219278,
+      "usage": {
+        "input": 32,
+        "output": 89,
+        "cacheCreation": 28998,
+        "cacheRead": 521716,
+        "messages": 16
+      },
+      "toolCalls": 8,
+      "filesRead": [
+        "/tmp/effect-eval-rSjgjb/shared/resolve-translation.ts",
+        "/tmp/effect-eval-rSjgjb/shared/blog-post-slug.spec.ts"
+      ],
+      "commandsRun": [
+        "cat /tmp/effect-eval-rSjgjb/README.md",
+        "cat /tmp/effect-eval-rSjgjb/package.json",
+        "npm test -- resolve-translation 2>&1 | tail -60",
+        "npm run lint 2>&1 | tail -40 && echo \"---TYPECHECK---\" && npm run typecheck 2>&1 | tail -40"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "shared/resolve-translation.spec.ts"
+      ]
+    },
+    {
+      "probe": "skill-absent-d0308de2",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 11,
+      "truncated": false,
+      "costUsd": 0.2511564,
+      "usage": {
+        "input": 32,
+        "output": 126,
+        "cacheCreation": 42158,
+        "cacheRead": 526145,
+        "messages": 16
+      },
+      "toolCalls": 10,
+      "filesRead": [
+        "/tmp/effect-eval-h7yxRn/shared/resolve-translation.ts",
+        "/tmp/effect-eval-h7yxRn/shared/blog-post-slug.spec.ts"
+      ],
+      "commandsRun": [
+        "cat /tmp/effect-eval-h7yxRn/README.md",
+        "cat /tmp/effect-eval-h7yxRn/package.json",
+        "npm test -- resolve-translation 2>&1 | tail -60",
+        "npm run lint 2>&1 | tail -40 && npm run typecheck 2>&1 | tail -40",
+        "npx biome format --write shared/resolve-translation.spec.ts",
+        "npm run lint 2>&1 | tail -20 && npm run typecheck 2>&1 | tail -20 && npm test -- resolve-translation 2>&1 | tail -20"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": true,
+      "changedPaths": [
+        "shared/resolve-translation.spec.ts"
+      ]
+    },
+    {
+      "probe": "skill-present-0c75384f",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "unit-testing"
+      ],
+      "turns": 16,
+      "truncated": false,
+      "costUsd": 0.314858,
+      "usage": {
+        "input": 45,
+        "output": 141,
+        "cacheCreation": 56114,
+        "cacheRead": 854190,
+        "messages": 24
+      },
+      "toolCalls": 14,
+      "filesRead": [
+        "/tmp/effect-eval-0k7dL4/shared/resolve-translation.ts",
+        "/tmp/effect-eval-0k7dL4/README.md",
+        "/tmp/effect-eval-0k7dL4/package.json",
+        "/tmp/effect-eval-0k7dL4/shared/blog-post-slug.spec.ts",
+        "/tmp/effect-eval-0k7dL4/shared/blog-post-slug.ts"
+      ],
+      "commandsRun": [
+        "npx jest --config jest.config.cjs shared/resolve-translation.spec.ts 2>&1 | tail -60",
+        "npm run lint 2>&1 | tail -40 && echo \"---FORMAT---\" && npm run format:check 2>&1 | tail -40 && echo \"---TYPECHECK---\" && npm run typecheck 2>&1 | tail -40",
+        "npm run lint 2>&1 | tail -20",
+        "npm test 2>&1 | tail -20"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": true,
+      "changedPaths": [
+        "shared/resolve-translation.spec.ts"
+      ]
+    },
+    {
+      "probe": "skill-present-0deda571",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "unit-testing"
+      ],
+      "turns": 13,
+      "truncated": false,
+      "costUsd": 0.24245629999999999,
+      "usage": {
+        "input": 34,
+        "output": 119,
+        "cacheCreation": 42584,
+        "cacheRead": 576065,
+        "messages": 17
+      },
+      "toolCalls": 11,
+      "filesRead": [
+        "/tmp/effect-eval-1CWdVe/shared/resolve-translation.ts",
+        "/tmp/effect-eval-1CWdVe/README.md",
+        "/tmp/effect-eval-1CWdVe/package.json",
+        "/tmp/effect-eval-1CWdVe/shared/blog-post-slug.spec.ts"
+      ],
+      "commandsRun": [
+        "npm test -- resolve-translation 2>&1 | tail -60",
+        "npm run lint 2>&1 | tail -40 && npm run typecheck 2>&1 | tail -40"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "shared/resolve-translation.spec.ts"
+      ]
+    },
+    {
+      "probe": "skill-present-57818972",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "unit-testing"
+      ],
+      "turns": 14,
+      "truncated": false,
+      "costUsd": 0.2835056,
+      "usage": {
+        "input": 37,
+        "output": 116,
+        "cacheCreation": 48596,
+        "cacheRead": 710894,
+        "messages": 20
+      },
+      "toolCalls": 12,
+      "filesRead": [
+        "/tmp/effect-eval-8RChW6/shared/resolve-translation.ts",
+        "/tmp/effect-eval-8RChW6/README.md",
+        "/tmp/effect-eval-8RChW6/shared/blog-post-slug.spec.ts",
+        "/tmp/effect-eval-8RChW6/shared/blog-post-slug.ts",
+        "/tmp/effect-eval-8RChW6/.claude/skills/unit-testing/references/fixtures-fakes-and-aha.md",
+        "/tmp/effect-eval-8RChW6/.claude/skills/unit-testing/references/spec-structure-and-naming.md"
+      ],
+      "commandsRun": [
+        "cat /tmp/effect-eval-8RChW6/package.json",
+        "npm test -- shared/resolve-translation.spec.ts 2>&1 | tail -60",
+        "npm run lint 2>&1 | tail -40 && echo \"---FORMAT---\" && npm run format:check 2>&1 | tail -40 && echo \"---TYPECHECK---\" && npm run typecheck 2>&1 | tail -40"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": true,
+      "changedPaths": [
+        "shared/resolve-translation.spec.ts"
+      ]
+    }
+  ]
+}
