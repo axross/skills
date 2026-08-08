@@ -31,17 +31,12 @@ export function meanProbeCost(costs) {
 /**
  * decides whether one case measurement may start.
  *
- * where a case has no committed measurement the per-probe figure comes from the
- * fixture, and it is a CEILING rather than an estimate. admission admits when
- * the projection fits the cap, so a figure above the true cost refuses a cheap
- * case and spends nothing, while one below it admits an expensive case and
- * spends. only the second direction costs money, which is why the fixture is
- * asked for a bound rather than a best guess and why the field is named for
- * one.
+ * with no committed measurement for the case it falls back to the fixture's
+ * per-probe ceiling, and the first committed measurement supersedes that
+ * permanently — so the fixture's figure governs only a case's first run.
  *
- * that number does not need measurement comparability — the property that makes
- * measured data expensive — and it is superseded permanently by the first
- * committed measurement, so it governs only a case's first run.
+ * why that figure is a ceiling rather than an estimate, and which way to err
+ * when declaring one, is in data/effect-eval/README.md's `capUsd` section.
  *
  * @param {{
  *   caseId: string,
