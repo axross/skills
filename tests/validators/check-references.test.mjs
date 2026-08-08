@@ -1,9 +1,9 @@
-// Exit-code and reporting contract for check-references.mjs.
+// exit-code and reporting contract for check-references.mjs.
 //
-// Documented contract: 0 when every relative link resolves or the project has no
+// documented contract: 0 when every relative link resolves or the project has no
 // corpus, 1 on findings, 2 on a bad invocation.
 //
-// Two exclusions are asserted rather than assumed. An external URL is out of
+// two exclusions are asserted rather than assumed. an external URL is out of
 // scope because resolving one needs the network and fails for reasons that have
 // nothing to do with the corpus; a link inside a fenced block is an example, and
 // a checker that followed those would make it impossible to document a link at

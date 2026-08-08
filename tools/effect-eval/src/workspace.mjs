@@ -2,37 +2,38 @@
 // working copy for one probe to run inside. setup.mjs is the entry point that
 // drives it.
 //
-// A mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
+// a mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
 // plain, uncommitted-history file tree, plus a history.jsonc that records the
-// commits to replay on top of it. This module does the replaying: it copies
+// commits to replay on top of it. this module does the replaying: it copies
 // the mock's files into a fresh temporary directory, turns that directory into
 // a real Git repository whose commit-by-commit history matches history.jsonc,
-// and installs a chosen subset of this repository's OWN skills into the
+// and installs a chosen subset of this repository's own skills into the
 // workspace's .claude/skills/ — which is the condition one probe runs under,
 // skill-absent when that subset is empty and skill-present when it is not.
 //
-// REPRODUCIBILITY IS THE POINT. Two materializations of the same mock and the
-// same skill set must produce byte-identical trees and byte-identical commit
-// hashes, so a run can be diffed against a rerun rather than trusted on faith.
-// That is why the commit author/committer identity and both dates are PINNED
-// constants below rather than read from the ambient environment or the system
-// clock — a real name, a real clock, or a real git config would make every
-// materialization's hashes different from the last, and this script's own
-// tests would have nothing stable to assert against. GIT_CONFIG_GLOBAL and
-// GIT_CONFIG_SYSTEM are pointed at /dev/null for the same reason: an ambient
-// ~/.gitconfig (this repository's own included — some environments turn on
-// `commit.gpgsign` globally) must not leak into a commit this script makes.
+// reproducibility is the point, and everything below follows from it. two
+// materializations of the same mock and the same skill set must produce
+// byte-identical trees and byte-identical commit hashes, so a run can be
+// diffed against a rerun rather than trusted on faith. that is why the commit
+// author/committer identity and both dates are pinned constants below rather
+// than read from the ambient environment or the system clock — a real name, a
+// real clock, or a real git config would make every materialization's hashes
+// different from the last, and this script's own tests would have nothing
+// stable to assert against. GIT_CONFIG_GLOBAL and GIT_CONFIG_SYSTEM are
+// pointed at /dev/null for the same reason: an ambient ~/.gitconfig (this
+// repository's own included — some environments turn on `commit.gpgsign`
+// globally) must not leak into a commit this script makes.
 //
-// history.jsonc ITSELF IS FIXTURE METADATA, NOT PROJECT CONTENT. It is
+// history.jsonc is fixture metadata rather than project content. it is
 // excluded from the copy below, so a materialized workspace never contains it
 // and nothing in the mock ever needs to import or read it.
 //
-// Skills are installed with `dereference: true`, and that is load-bearing, not
-// a detail. The skills CLI installs either real directories or SYMLINKS back
+// skills are installed with `dereference: true`, and that is load-bearing, not
+// a detail. the skills CLI installs either real directories or symlinks back
 // into the source tree, and a symlinked skill directory in the workspace would
-// let a write inside it land straight through into THIS repository's own
+// let a write inside it land straight through into this repository's own
 // .claude/skills/ — path containment alone cannot catch that, because
-// `resolve()` does not follow links. See scripts/discovery-eval/run.mjs's
+// `resolve()` does not follow links. see scripts/discovery-eval/run.mjs's
 // buildWorkspace for the same hazard against the same fix.
 
 import { spawnSync } from "node:child_process";
@@ -49,13 +50,13 @@ const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 const HISTORY_FILE = "history.jsonc";
 const DEFAULT_MOCK = "content-site";
 
-// Pinned commit identity — see this file's header for why these are
+// pinned commit identity — see this file's header for why these are
 // constants rather than read from the environment.
 const AUTHOR_NAME = "Effect Eval Fixture";
 const AUTHOR_EMAIL = "effect-eval-fixture@example.invalid";
 const COMMITTER_NAME = "Effect Eval Fixture";
 const COMMITTER_EMAIL = "effect-eval-fixture@example.invalid";
-// One synthetic day per commit from a fixed epoch (2023-11-14T22:13:20Z), so
+// one synthetic day per commit from a fixed epoch (2023-11-14T22:13:20Z), so
 // `git log` reads as an ordered history rather than one instant repeated, and
 // every run derives the same dates from nothing but the commit's own index.
 const BASE_DATE_EPOCH_SECONDS = 1_700_000_000;
@@ -74,9 +75,9 @@ async function assertDirectory(path, message) {
 }
 
 /**
- * Strips `//` and `/* *‍/` comments from JSONC text, respecting string
+ * strips `//` and `/* *‍/` comments from JSONC text, respecting string
  * literals (including escaped quotes) so a `//` or `/*` inside a string is
- * left alone. This repository has no JSONC-parsing dependency to reach for —
+ * left alone. this repository has no JSONC-parsing dependency to reach for —
  * .markdownlint-cli2.jsonc is read only by tools that ship their own parser —
  * so history.jsonc's comments are stripped by hand rather than adding one.
  *
@@ -134,7 +135,7 @@ function stripJsonComments(text) {
 }
 
 /**
- * Parses and validates history.jsonc's `{ commits: [{ message, files }] }`
+ * parses and validates history.jsonc's `{ commits: [{ message, files }] }`
  * shape.
  *
  * @param {string} raw
@@ -169,7 +170,7 @@ function parseHistory(raw) {
   });
 }
 
-/** Every file under `root`, as POSIX-style paths relative to `root`. Skips `.git`. */
+/** every file under `root`, as POSIX-style paths relative to `root`. skips `.git`. */
 async function listFilesRecursively(root, base = root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];
@@ -185,14 +186,14 @@ async function listFilesRecursively(root, base = root) {
   return files;
 }
 
-/** Runs `git`, isolated from the ambient user/system config, and returns stdout. */
+/** runs `git`, isolated from the ambient user/system config, and returns stdout. */
 function runGit(args, cwd, extraEnv = {}) {
   const result = spawnSync("git", args, {
     cwd,
     encoding: "utf8",
     env: {
       ...process.env,
-      // Isolates this call from the calling machine's global/system git
+      // isolates this call from the calling machine's global/system git
       // config (this repository's own included) — see this file's header.
       GIT_CONFIG_GLOBAL: "/dev/null",
       GIT_CONFIG_SYSTEM: "/dev/null",
@@ -209,22 +210,22 @@ function runGit(args, cwd, extraEnv = {}) {
 }
 
 /**
- * Prepares the materialized workspace's dependencies: the mock's pinned npm
+ * prepares the materialized workspace's dependencies: the mock's pinned npm
  * tree, and — for a mock that drives one — the browser npm does not carry.
  *
- * WHY THE HARNESS DOES THIS AND NOT THE MODEL. Every probe run before #264
+ * the harness does this rather than the model. every probe run before #264
  * spent three to five of its twelve to fifteen turns discovering `node_modules`
- * was absent, running `npm install`, and re-running the tests. That is the
+ * was absent, running `npm install`, and re-running the tests. that is the
  * harness's own setup showing up inside the measurement: it costs turns and
  * money in both conditions, it puts a network-dependent step in every probe,
- * and it let each run resolve its own dependency versions. A real developer
+ * and it let each run resolve its own dependency versions. a real developer
  * opens a repository whose dependencies are already installed.
  *
- * IT IS OPT-IN, AND THAT IS DELIBERATE. materialize.test.mjs materializes this
+ * it is opt-in, and that is deliberate. materialize.test.mjs materializes this
  * mock repeatedly and must stay hermetic and fast, so the default path touches
- * no network at all. The evaluation driver asks for the install explicitly.
+ * no network at all. the evaluation driver asks for the install explicitly.
  *
- * A FAILURE HERE IS A MATERIALIZATION FAILURE, NOT A WARNING. Handing back a
+ * a failure here fails the materialization rather than warning. handing back a
  * half-prepared workspace would let a probe start against it and spend real
  * money measuring the install rather than the skill, which is the whole defect
  * this exists to remove.
@@ -334,7 +335,7 @@ function installBrowsersIfNeeded(workspace) {
   }
 }
 
-/** The pinned author/committer env for the commit at `index`. */
+/** the pinned author/committer env for the commit at `index`. */
 function commitEnv(index) {
   const date = `@${BASE_DATE_EPOCH_SECONDS + index * SECONDS_PER_COMMIT} +0000`;
   return {
@@ -348,7 +349,7 @@ function commitEnv(index) {
 }
 
 /**
- * Expands `mocks/<mock>` into a fresh temporary directory: every file the
+ * expands `mocks/<mock>` into a fresh temporary directory: every file the
  * mock ships except history.jsonc, replayed as a real Git history that
  * matches history.jsonc commit for commit, plus the requested skills copied
  * (as real files — see this file's header) into `.claude/skills/`.
@@ -372,7 +373,7 @@ export async function materialize({ mock = DEFAULT_MOCK, skills = [], install = 
   }
   const commits = parseHistory(historyRaw);
 
-  // Validated before anything is written to disk, so an unknown skill name
+  // validated before anything is written to disk, so an unknown skill name
   // fails fast rather than leaking a half-built temporary workspace.
   const skillSources = skills.map((name) => join(INSTALLED_SKILLS_ROOT, name));
   for (const [index, source] of skillSources.entries()) {
@@ -384,7 +385,7 @@ export async function materialize({ mock = DEFAULT_MOCK, skills = [], install = 
 
   const workspace = await mkdtemp(join(tmpdir(), "effect-eval-"));
   try {
-    // Every file the mock ships, except its own fixture metadata
+    // every file the mock ships, except its own fixture metadata
     // (history.jsonc) and a defensive exclusion of node_modules, in case the
     // mock was exercised locally (as this repository's own README's "own
     // toolchain" verification does) without cleaning up afterward.
@@ -440,7 +441,7 @@ export async function materialize({ mock = DEFAULT_MOCK, skills = [], install = 
       await cp(skillSources[index], destination, { recursive: true, dereference: true });
     }
 
-    // Last, so the history replay above saw exactly the files the mock ships
+    // last, so the history replay above saw exactly the files the mock ships
     // and the bijection check was unaffected by anything this writes.
     if (install) installDependencies(workspace);
 

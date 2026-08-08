@@ -1,50 +1,51 @@
 #!/usr/bin/env node
 // decode-sanitized-read.mjs — recover readable text from a sanitized GitHub read.
 //
-// A GitHub tool channel commonly returns issue and pull-request text through an
-// HTML sanitizer (see ../SKILL.md › Editing an Existing Body). That pipeline
+// a GitHub tool channel commonly returns issue and pull-request text through an
+// HTML sanitizer (see ../SKILL.md › Editing an Existing Body). that pipeline
 // runs in three stages: it deletes tags and HTML comments, decodes character
-// references, and then escapes the five characters an HTML escaper covers. This
+// references, and then escapes the five characters an HTML escaper covers. this
 // command inverts the third stage and nothing else.
 //
-// What it recovers:
+// what it recovers:
 //   the five character references the escape stage can emit, resolved so the
 //   text reads as prose again rather than as markup.
 //
-// What it CANNOT recover, ever:
+// what it can never recover:
 //   - deleted tags and HTML comments, which carry no residue to invert;
 //   - the difference between a stored character and a stored reference naming
-//     that character. The pipeline decodes before it escapes, so both arrive
+//     that character. the pipeline decodes before it escapes, so both arrive
 //     identical and the read is many-to-one.
 //
-// Decoded output is therefore a readable reconstruction, NOT the stored bytes.
-// Do not write it back over a body, and do not report it as what is stored. To
-// obtain stored bytes, read through a route that does not sanitize, and compare
-// against the response field parsed as structured data — an extractor's stdout
-// and a shell capture each move a trailing newline, in opposite directions.
+// decoded output is therefore a readable reconstruction rather than the stored
+// bytes. do not write it back over a body, and do not report it as what is
+// stored. to obtain stored bytes, read through a route that does not sanitize,
+// and compare against the response field parsed as structured data — an
+// extractor's stdout and a shell capture each move a trailing newline, in
+// opposite directions.
 //
-// The single pass is the correctness argument. Resolving the references one
+// the single pass is the correctness argument. resolving the references one
 // after another, with the ampersand entity first, decodes a stored reference
-// one level too many — and nothing reports it. One regex, one pass, no
+// one level too many — and nothing reports it. one regex, one pass, no
 // replacement output rescanned.
 //
-// It is dependency-light (Node standard library only) so it runs anywhere the
+// it is dependency-light (Node standard library only) so it runs anywhere the
 // skill is installed.
 //
-// Usage:
+// usage:
 //   node decode-sanitized-read.mjs <file>   # decode the contents of a file
 //   node decode-sanitized-read.mjs -        # decode stdin
 //   <producer> | node decode-sanitized-read.mjs   # decode stdin when no arg
 //
-// Exit codes:
+// exit codes:
 //   0  the input was decoded and written to stdout
 //   2  bad invocation — no input could be read
 
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
-// The five references an HTML escaper emits, and the characters they name.
-// Keyed by the exact reference text so the lookup cannot resolve a reference
+// the five references an HTML escaper emits, and the characters they name.
+// keyed by the exact reference text so the lookup cannot resolve a reference
 // this map does not list.
 export const ESCAPE_STAGE_REFERENCES = Object.freeze({
   "&amp;": "&",
@@ -54,14 +55,14 @@ export const ESCAPE_STAGE_REFERENCES = Object.freeze({
   "&#39;": "'",
 });
 
-// Matches exactly the five references above and nothing else. Alternation in a
+// matches exactly the five references above and nothing else. alternation in a
 // single pass is what makes this the inverse of one escape: `String.replace`
 // continues after each match rather than rescanning what it just wrote, so a
 // reference produced by the replacement is left alone.
 const ESCAPE_STAGE_PATTERN = /&(?:amp|lt|gt|#34|#39);/g;
 
 /**
- * Invert the escape stage of a sanitized read.
+ * invert the escape stage of a sanitized read.
  *
  * @param {string} text Text as the tool channel returned it.
  * @returns {string} The same text with the escape stage undone. Input carrying
@@ -132,7 +133,7 @@ async function main() {
   process.exit(0);
 }
 
-// Only run as a command. Imported as a module, this file exposes the decoder
+// only run as a command. imported as a module, this file exposes the decoder
 // and its reference map without touching argv, stdin, or the exit code.
 // `pathToFileURL` rather than string concatenation: it encodes a path that
 // needs it, so a checkout under a directory with a space still matches.

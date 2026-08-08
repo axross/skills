@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "36f094508c8f6e830fff9daa57cfa08f6d667a9da17f7bd5ebd9ca9327667983"
+      "computedHash": "844852232ffc26a56f6be673f39aaf50257ede7767f2e0e6e89a9187787930a2"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b449ef2564bcff61935bc0c98768a016db4abe8876487f63061e1fcdfc7ce570"
+      "computedHash": "8c6c6e20be5d3694530822db21708c0861e9725a22ac28f535d42e3d65f663fd"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -24,7 +24,7 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "990967072f606505d2d55f1a2807b82c1dadd83f0e759f69fc48a296d09cd769"
+      "computedHash": "c6cc7e9d96a38fdacedcf488bc281812aa41ff4ae7f59fff0fd32a107656b9ad"
     },
     "code-review": {
       "source": "./skills",
@@ -34,7 +34,7 @@
     "conventional-commits": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "4bda385eff6c7611f68eff516a2c981efa72cfec6c679c6c98c5e07d7c609847"
+      "computedHash": "6d2cbc6c2df94ee622ce5b347d9a9c40bd10742941e8e5543e7479f9dfa995d4"
     },
     "end-to-end-testing": {
       "source": "./skills",
@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0f97e2b7295e80337aca1ac000b12a8fe94d8d4b95a464ec995cbe1524d4beea"
+      "computedHash": "004c5431309cb9f6c238f7a78c577002a2c30952ec9cad5611e0d73969fbc3d9"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -64,7 +64,7 @@
     "living-product-specification": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "2e92d2f3ee386a449e7e43ab125f2df6d6e15f2a5233ba45208c4adb6a0a8f8c"
+      "computedHash": "8785ecb4a54c128f4a839666df9064eaee51c136bc2b9748bced0a42bb19d7f6"
     },
     "loop-engineering": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6de70f3f1d6dc1ca3d5b9bc14e19bf43c0dd9bdc1afdef4a14c6dcf0c9573d11"
+      "computedHash": "da4a8a228ad34c27b3eed54e17d6254f886b808a775f93d4858a78bf8092d957"
     },
     "software-instrumentation": {
       "source": "./skills",
@@ -139,7 +139,7 @@
     "wireframe-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "40b7bea7cf734d605cf8803aa7e263266fbefa812b24720c0c394cabf50e75a3"
+      "computedHash": "3d49b63957a3bf62d342c8dc52a20dbafc91db3f9d547f2e66073e600a581cd6"
     },
     "zod-schema": {
       "source": "./skills",

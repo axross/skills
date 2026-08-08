@@ -1,11 +1,11 @@
-// Negative controls: every folded gate must still be able to fail.
+// negative controls: every folded gate must still be able to fail.
 //
-// Folding the three checks into `npm test` is only worth anything if they still
-// gate. A test that runs a checker over a clean tree passes just as happily when
+// folding the three checks into `npm test` is only worth anything if they still
+// gate. a test that runs a checker over a clean tree passes just as happily when
 // the checker has been broken, silently converting a merge gate into decoration.
 //
-// Each case here plants the violation that gate exists to catch into a throwaway
-// tree and requires the SAME invocation from gates.mjs to report it.
+// each case here plants the violation that gate exists to catch into a throwaway
+// tree and requires that same invocation from gates.mjs to report it.
 
 import { describe, expect, it } from "vitest";
 
@@ -22,7 +22,7 @@ describe("repository gates have teeth", () => {
   it("the links gate fails on a broken relative link", async () => {
     const { script, args } = gate("links");
     const root = await tempDir();
-    // The gate names its roots explicitly now (see gates.mjs's
+    // the gate names its roots explicitly now (see gates.mjs's
     // linksGateRoots) rather than sweeping the whole working directory, so
     // the planted file has to sit at one of those names — "AGENTS.md" is a
     // real top-level file of this repository, and always among them.
@@ -49,9 +49,9 @@ describe("repository gates have teeth", () => {
   it("the links gate never walks into mocks/", async () => {
     const { script, args } = gate("links");
     const root = await tempDir();
-    // Same broken-link shape as the first case above, planted under mocks/
+    // same broken-link shape as the first case above, planted under mocks/
     // instead — linksGateRoots() excludes it on purpose (the mock fixtures
-    // there carry their own toolchain), so this must NOT be reported.
+    // there carry their own toolchain), so this must never be reported.
     await writeFileIn(
       root,
       "mocks/content-site/doc.md",
@@ -67,12 +67,12 @@ describe("repository gates have teeth", () => {
   it("the links gate still reaches an ordinary top-level directory", async () => {
     const { script, args } = gate("links");
     const root = await tempDir();
-    // The two cases above prove the roster reaches the repository root and a
-    // dot-directory, and that it stops at mocks/. Neither would notice the
-    // roster being over-pruned — linksGateRoots() builds it by SUBTRACTING an
+    // the two cases above prove the roster reaches the repository root and a
+    // dot-directory, and that it stops at mocks/. neither would notice the
+    // roster being over-pruned — linksGateRoots() builds it by subtracting an
     // exclusion set from a live listing, so one careless addition to that set
     // silently drops a whole tree while the gate keeps reporting "links OK"
-    // (its success pattern accepts a count of zero). An ordinary, non-dot,
+    // (its success pattern accepts a count of zero). an ordinary, non-dot,
     // non-excluded directory is the case that fails when that happens.
     await writeFileIn(root, "docs/guide.md", "See [gone](./missing.md).\n");
 
@@ -81,15 +81,15 @@ describe("repository gates have teeth", () => {
     expect(result).toReportFailure(/missing\.md/);
   });
 
-  // The frontmatter gate is the one with teeth for a missing `description`.
-  // Its two siblings read the body and the reference wiring, and a skill can be
+  // the frontmatter gate is the one with teeth for a missing `description`.
+  // its two siblings read the body and the reference wiring, and a skill can be
   // malformed in the way below while both of those pass — which is the point of
   // splitting them, and the reason this case names one gate rather than looping
   // over all three.
   it("the skill-frontmatter gate fails on a malformed skill", async () => {
     const { script, args } = gate("skill-frontmatter");
     const root = await tempDir();
-    // The gate names its roots relatively, so a tree of the same shape under a
+    // the gate names its roots relatively, so a tree of the same shape under a
     // different cwd exercises the real invocation.
     await writeSkill(`${root}/skills`, "broken-skill", {
       frontmatter: { description: null },
@@ -114,25 +114,25 @@ describe("repository gates have teeth", () => {
       references: { "detail.md": "# Hand-edited\n" },
     });
 
-    // Unlike the two gates above, this one resolves its default roots from the
+    // unlike the two gates above, this one resolves its default roots from the
     // script's own location rather than the working directory, so a planted
-    // tree has to be named explicitly. Everything downstream of that resolution
+    // tree has to be named explicitly. everything downstream of that resolution
     // is the same code path the no-argument gate runs.
     const result = runScript(script, [source, installed]);
 
     expect(result).toReportFailure(/content differs: references\/detail\.md/);
   });
 
-  // The five corpus gates need no argument override at all. Each names `docs`,
+  // the five corpus gates need no argument override at all. each names `docs`,
   // which the validator resolves against the working directory, and
   // `writeCorpus` plants exactly that layout — so every case below runs the
   // real invocation with nothing changed but `cwd`.
   //
   // `corpus-glossary`'s case was once the only evidence that gate could fail:
   // with no spec in the corpus it reported "Nothing to check", which no passing
-  // run can tell apart from a check that has stopped working. The corpus has a
+  // run can tell apart from a check that has stopped working. the corpus has a
   // spec now and the gate requires the counted message, so the real-repository
-  // run in gate-runs.test.mjs carries teeth evidence too. This case still earns
+  // run in gate-runs.test.mjs carries teeth evidence too. this case still earns
   // its place by covering the shape a planted spec produces — an unpaired
   // heading — which a tree that is currently correct cannot exercise.
 

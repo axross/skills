@@ -5,7 +5,7 @@
 // subject, the extra `gh pr create` flags, and the mode the records are checked
 // against — and emits them as JSON for the workflow to read with `jq`.
 //
-// ONE RESOLUTION, NOT TWO. `expect` is here because the land job used to derive
+// one resolution, not two. `expect` is here because the land job used to derive
 // it separately, as `${{ inputs.dry-run && 'dry-run' || 'measurement' }}`, from
 // the same input the branch and title came from. two derivations of one fact
 // can disagree, and the mode check exists precisely to catch the case where the
@@ -41,7 +41,7 @@ Output: {"branch": ..., "title": ..., "prFlags": [...], "expect": ...}
 Exit codes: 0 planned, 2 bad invocation or an input that does not resolve.`;
 
 /**
- * The mode-specific opening of the pull request's body. It lives here with the
+ * the mode-specific opening of the pull request's body. it lives here with the
  * rest of what the mode decides, so the workflow is left with no conditional
  * keyed on the dispatch's mode at all — the comparability and budget paragraphs
  * it appends turn on other things.

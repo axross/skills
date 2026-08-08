@@ -1,37 +1,38 @@
 // address-guard.mjs — refuse to probe an address that is not on the public
 // internet.
 //
-// WHY THIS EXISTS. check.mjs follows redirects BY HAND, because `fetch`'s own
-// following hides each hop's status and the audit needs to tell a permanent move
-// from a temporary one. Following by hand means re-issuing a request to whatever
-// host a `location` header names — and a `location` header is written by the
-// remote server, not by this repository.
+// why this exists. check.mjs follows each redirect itself, because `fetch`'s
+// own following hides each hop's status and the audit needs to tell a permanent
+// move from a temporary one. following by hand means re-issuing a request to
+// whatever host a `location` header names — and a `location` header is written
+// by the remote server, not by this repository.
 //
-// The threat is not theoretical and it survives review of the citation itself. A
+// the threat is not theoretical and it survives review of the citation itself. a
 // contributor lands an ordinary, reviewable doc citation to
-// `https://looks-legit.example/docs`. Weeks later that host starts answering
+// `https://looks-legit.example/docs`. weeks later that host starts answering
 // 301 with `Location: http://169.254.169.254/…`, and the next scheduled run
-// dutifully issues that request from a GitHub runner. Nothing at review time
+// dutifully issues that request from a GitHub runner. nothing at review time
 // could have shown it, because at review time the redirect did not exist.
 //
-// An application-security capability states the rule this closes: disable
+// an application-security capability states the rule this closes: disable
 // redirect following (`redirect: "manual"`) on an untrusted-URL fetch, or
 // re-resolve and re-validate the final host after each redirect to defeat DNS
-// rebinding. The audit does both — manual mode AND re-validation at every hop,
+// rebinding. the audit does both — manual mode together with re-validation at
+// every hop,
 // including the first.
 //
-// ── WHAT THIS DOES NOT CLOSE. Validation resolves the hostname and then hands
-// the NAME to `fetch`, which resolves it again. A name that answers with a
+// ── what this does not close. validation resolves the hostname and then hands
+// the name to `fetch`, which resolves it again. a name that answers with a
 // public address on the first lookup and a private one on the second slips
-// through that window — classic DNS rebinding. Closing it properly means
-// connecting to the validated ADDRESS with the hostname carried in a `Host`
+// through that window — classic DNS rebinding. closing it properly means
+// connecting to the validated address with the hostname carried in a `Host`
 // header, which global `fetch` gives no supported way to do without taking
 // undici as a direct dependency; this script is Node standard library only, by
 // design, because it ships in a repository that audits its own supply chain.
 //
-// The residual risk is bounded and worth stating rather than hiding: the job's
-// token is `contents: read`, no response BODY ever reaches the report, and only
-// a status code or a redirect target is printed. What remains is blind
+// the residual risk is bounded and worth stating rather than hiding: the job's
+// token is `contents: read`, no response body ever reaches the report, and only
+// a status code or a redirect target is printed. what remains is blind
 // reachability probing on a rebinding-capable host — recon, not exfiltration.
 
 import { lookup } from "node:dns/promises";
@@ -39,7 +40,7 @@ import { isIP, isIPv4 } from "node:net";
 
 /**
  * IPv4 ranges that are not the public internet, as [first octet-wise mask, value].
- * Each is a CIDR the audit must never probe.
+ * each is a CIDR the audit must never probe.
  */
 const RESERVED_IPV4 = [
   ["0.0.0.0", 8], // "this network"
@@ -55,7 +56,7 @@ const RESERVED_IPV4 = [
   ["240.0.0.0", 4], // reserved, including 255.255.255.255
 ];
 
-/** A dotted quad as a 32-bit integer, or null when it is not one. */
+/** a dotted quad as a 32-bit integer, or null when it is not one. */
 function ipv4ToInteger(address) {
   const parts = address.split(".");
   if (parts.length !== 4) return null;
@@ -71,7 +72,7 @@ function ipv4ToInteger(address) {
 }
 
 /**
- * Rewrite a trailing dotted quad into two hex groups, so an IPv4-mapped or
+ * rewrite a trailing dotted quad into two hex groups, so an IPv4-mapped or
  * IPv4-compatible IPv6 address parses as eight uniform groups.
  */
 function foldEmbeddedIPv4(address) {
@@ -86,7 +87,7 @@ function foldEmbeddedIPv4(address) {
   return `${address.slice(0, match.index)}${high}:${low}`;
 }
 
-/** An IPv6 address as eight 16-bit groups, or null when it does not parse. */
+/** an IPv6 address as eight 16-bit groups, or null when it does not parse. */
 function ipv6Groups(address) {
   const bare = foldEmbeddedIPv4(address.split("%")[0]);
 
@@ -107,9 +108,9 @@ function ipv6Groups(address) {
 }
 
 /**
- * Whether an IP literal names something other than the public internet.
+ * whether an IP literal names something other than the public internet.
  *
- * Pure and synchronous, so every range below is unit-tested without a socket or
+ * pure and synchronous, so every range below is unit-tested without a socket or
  * a resolver — which is what keeps this rule covered by an offline suite.
  *
  * @param {string} address an IPv4 or IPv6 literal
@@ -131,7 +132,7 @@ export function isReservedAddress(address) {
   const groups = ipv6Groups(address);
   if (groups === null) return true;
 
-  // An IPv4-mapped (::ffff:a.b.c.d) or IPv4-compatible address is judged by the
+  // an IPv4-mapped (::ffff:a.b.c.d) or IPv4-compatible address is judged by the
   // IPv4 it carries — otherwise ::ffff:169.254.169.254 walks straight past every
   // check below.
   const mappedPrefix = groups.slice(0, 5).every((group) => group === 0);
@@ -154,13 +155,13 @@ export function isReservedAddress(address) {
 }
 
 /**
- * Why a URL must not be probed, or null when it may be.
+ * why a URL must not be probed, or null when it may be.
  *
- * Called before EVERY request, the first one included: a citation merged into
+ * called before every request, the first one included: a citation merged into
  * this repository is more trustworthy than a redirect target, but it is still
  * text, and defending only the hops would leave the obvious case open.
  *
- * A hostname that fails to resolve returns null rather than a refusal. The
+ * a hostname that fails to resolve returns null rather than a refusal. the
  * request is then made and fails on its own, and `classifyOutcome` reports the
  * transport error — which is both the truthful verdict and one less place where
  * DNS behaviour is described twice.
@@ -176,14 +177,14 @@ export async function refusalReason(target) {
     return `refused: not a valid URL (${target})`;
   }
 
-  // A `location` header may name any scheme at all. Only these two are ever
+  // a `location` header may name any scheme at all. only these two are ever
   // probed, so `file:`, `gopher:`, and friends are refused rather than handed to
   // fetch to reject in its own way.
   if (url.protocol !== "http:" && url.protocol !== "https:") {
     return `refused: non-HTTP scheme (${url.protocol})`;
   }
 
-  // A bracketed IPv6 literal arrives as "[::1]".
+  // a bracketed IPv6 literal arrives as "[::1]".
   const hostname = url.hostname.replace(/^\[|\]$/g, "");
 
   if (isIP(hostname)) {
@@ -199,7 +200,7 @@ export async function refusalReason(target) {
     return null; // let the request fail, and report the transport error
   }
 
-  // EVERY resolved address must be public. A name answering with one public and
+  // every resolved address must be public. a name answering with one public and
   // one private address is a rebinding attempt, not a partial success.
   const reserved = addresses.find((entry) => isReservedAddress(entry.address));
   return reserved

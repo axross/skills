@@ -1,9 +1,9 @@
-// Exit-code and reporting contract for check-decision-naming.mjs.
+// exit-code and reporting contract for check-decision-naming.mjs.
 //
-// Documented contract: 0 when every filename conforms, or there is no corpus and
+// documented contract: 0 when every filename conforms, or there is no corpus and
 // no decisions/; 1 on findings; 2 on a bad invocation.
 //
-// The impossible-date case is the reason this check exists at all. A filename
+// the impossible-date case is the reason this check exists at all. a filename
 // matching the shape but naming a day that never happened sorts into the log
 // wherever the string puts it, and nothing else in the corpus contradicts it —
 // which is exactly the failure mode of a date recalled rather than read from the

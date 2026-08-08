@@ -3,7 +3,7 @@
 // tests/helpers/run.mjs's header): importing it would run its own `main()`
 // and call `process.exit`.
 //
-// What is asserted here is exactly the acceptance bar this script exists to
+// what is asserted here is exactly the acceptance bar this script exists to
 // meet: materializing the same mock twice produces identical trees and
 // identical commit histories (including messages and their order), the
 // requested skills arrive as real files rather than symlinks, and
@@ -20,8 +20,8 @@ import { declaresPlaywright } from "../../tools/effect-eval/src/workspace.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 /**
- * Strips the whole-line `//` comments history.jsonc uses and parses the
- * result. Deliberately simpler than workspace.mjs's own JSONC stripper: the
+ * strips the whole-line `//` comments history.jsonc uses and parses the
+ * result. deliberately simpler than workspace.mjs's own JSONC stripper: the
  * fixture this reads never puts a comment marker inside a string or a
  * trailing comment after real content, so a line-based strip is exact for it,
  * even though it would not be for JSONC in general.
@@ -53,7 +53,7 @@ function gitLog(workspace) {
     });
 }
 
-/** Every path under `root`, relative and POSIX-style, skipping `.git`. */
+/** every path under `root`, relative and POSIX-style, skipping `.git`. */
 async function listFiles(root, base = root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];
@@ -69,7 +69,7 @@ async function listFiles(root, base = root) {
   return files.sort();
 }
 
-/** Every symlink under `root`, relative and POSIX-style. */
+/** every symlink under `root`, relative and POSIX-style. */
 async function listSymlinks(root, base = root) {
   const entries = await readdir(root, { withFileTypes: true });
   const links = [];
@@ -86,7 +86,7 @@ async function listSymlinks(root, base = root) {
   return links;
 }
 
-/** Materializes content-site and registers cleanup; returns the workspace path. */
+/** materializes content-site and registers cleanup; returns the workspace path. */
 function materialize(args = []) {
   const result = runScript(SCRIPTS.setup, args);
   const workspace = result.stdout.trim();
@@ -105,9 +105,9 @@ describe("setup.mjs", () => {
     expect(result.stdout).toMatch(/--install/);
   });
 
-  // The install is opt-in precisely so this file stays hermetic: every case
+  // the install is opt-in precisely so this file stays hermetic: every case
   // here materializes the mock, and a default that reached the network would
-  // make the whole suite slow and flaky. Asserting the absence is what keeps
+  // make the whole suite slow and flaky. asserting the absence is what keeps
   // "off by default" a property rather than an intention — a future change
   // that flipped the default would be caught here rather than in CI's timing.
   it("installs nothing unless asked, so the default path needs no network", async () => {
@@ -115,7 +115,7 @@ describe("setup.mjs", () => {
 
     expect(result.code).toBe(0);
     await expect(stat(join(workspace, "node_modules"))).rejects.toThrow();
-    // The lockfile still ships, so the install the flag performs is pinned
+    // the lockfile still ships, so the install the flag performs is pinned
     // rather than resolved afresh — it is only deferred, not absent.
     expect(await listFiles(workspace)).toContain("package-lock.json");
   });
@@ -201,19 +201,19 @@ describe("setup.mjs", () => {
   });
 
   it("leaves the working tree clean even once a skill is installed", () => {
-    // Regression. The installed skill lands in .claude/ AFTER the history is
+    // regression. the installed skill lands in .claude/ after the history is
     // replayed and is never committed, so for a while a materialized
-    // skill-present workspace stood dirty at `?? .claude/`. That is not
+    // skill-present workspace stood dirty at `?? .claude/`. that is not
     // untidiness — probe.mjs captures the model's work with `git add -A` plus
     // `git diff --cached`, so the whole installed skill was staged and
     // reported as something the model produced: 8 files and 660 insertions
     // before any model had run.
     //
-    // It also landed on SKILL-PRESENT RUNS ONLY, because a skill-absent run
-    // installs none. A systematic difference between the conditions, caused by
-    // the instrument rather than by the thing it measures, is the one defect
-    // this whole apparatus exists to avoid — and the model saw it too, since
-    // only one condition's `git status` was dirty.
+    // it also landed on skill-present runs and no others, because a
+    // skill-absent run installs none. a systematic difference between the
+    // conditions, caused by the instrument rather than by the thing it
+    // measures, is the one defect this whole apparatus exists to avoid — and
+    // the model saw it too, since only one condition's `git status` was dirty.
     const { result, workspace } = materialize(["--skill", "unit-testing"]);
     expect(result).toPassCleanly();
 
@@ -239,7 +239,7 @@ describe("setup.mjs", () => {
     const symlinks = await listSymlinks(skillRoot);
     expect(symlinks).toEqual([]);
 
-    // A faithful copy, not merely "some directory": the installed SKILL.md
+    // a faithful copy, not merely "some directory": the installed SKILL.md
     // must match this repository's own installed copy byte for byte.
     const [installed, sourceOfTruth] = await Promise.all([
       readFile(join(skillRoot, "SKILL.md"), "utf8"),
@@ -279,7 +279,7 @@ describe("setup.mjs", () => {
     const logA = gitLog(first.workspace);
     const logB = gitLog(second.workspace);
     expect(logA).toEqual(logB);
-    // The hashes are identical, not merely the messages — proof the pinned
+    // the hashes are identical, not merely the messages — proof the pinned
     // identity, dates, and tree content produced byte-identical commits.
     expect(logA.map((entry) => entry.hash)).toEqual(logB.map((entry) => entry.hash));
   });

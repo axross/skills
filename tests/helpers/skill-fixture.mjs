@@ -1,15 +1,15 @@
-// A skill root that trips every rule the three structure validators implement.
+// a skill root that trips every rule the three structure validators implement.
 //
-// This is the input behind `skill-structure-findings.json`, the recorded set
-// that proves the split of `check-skill.mjs` dropped nothing. Every rule the old
+// this is the input behind `skill-structure-findings.json`, the recorded set
+// that proves the split of `check-skill.mjs` dropped nothing. every rule the old
 // command implemented fires against this root exactly once, so a rule that
 // stops firing shows up as a missing finding rather than as a green run.
 //
-// It is generated rather than committed, like every other fixture here: a
-// deliberately INVALID skill must never be discoverable as a real one, nor
+// it is generated rather than committed, like every other fixture here: a
+// deliberately invalid skill must never be discoverable as a real one, nor
 // reachable by the format, lint, and link checks the suite runs over the tree.
 //
-// Changing it means re-recording the JSON beside the test, and a change that
+// changing it means re-recording the JSON beside the test, and a change that
 // re-records without a matching rule change is the thing to look at twice.
 
 import { mkdir, rm, writeFile } from "node:fs/promises";
@@ -71,7 +71,7 @@ export async function buildFixture(root) {
     body: "# Fixture\n\nProse.\n",
   });
 
-  // Every branch of readScalar: the value YAML would not read as written.
+  // every branch of readScalar: the value YAML would not read as written.
   const scalarCases = {
     "hazard-colon": "Doing a thing: and then another.",
     "hazard-comment": "Doing a thing # and then another.",
@@ -224,7 +224,7 @@ export async function buildFixture(root) {
       "",
     ].join("\n"),
     references: {
-      // The same body and link rules, exercised against a reference document
+      // the same body and link rules, exercised against a reference document
       // rather than SKILL.md — a separate walk in the code being moved.
       "linked.md": [
         "# Linked",

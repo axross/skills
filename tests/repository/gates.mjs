@@ -1,14 +1,14 @@
-// The repository-wide gates, as data.
+// the repository-wide gates, as data.
 //
-// Each of these used to be its own npm run-script enumerated by hand in both
+// each of these used to be its own npm run-script enumerated by hand in both
 // package.json's `check` chain and merge-checks.yaml, with a consistency test
-// holding the two lists together. They now run inside `npm test`, and this
+// holding the two lists together. they now run inside `npm test`, and this
 // module is the one place their invocations live: the test that runs a gate and
 // the test that asserts something about how a gate is invoked read the same
 // record, so neither can describe a command the other does not run.
 //
-// Each gate targets the SOURCE tier under `skills/` rather than the installed
-// copies under `.claude/skills/`. The two are identical whenever the
+// each gate targets the source tier under `skills/` rather than the installed
+// copies under `.claude/skills/`. the two are identical whenever the
 // installed-copy gate passes, so the choice only matters mid-edit — and there,
 // checking what was just edited is the useful answer.
 
@@ -25,8 +25,8 @@ import { REPO_ROOT, SCRIPTS } from "../helpers/run.mjs";
  */
 
 /**
- * Every top-level entry of this repository the links gate should walk: the
- * whole tree, dot-directories included, MINUS the mock fixtures under
+ * every top-level entry of this repository the links gate should walk: the
+ * whole tree, dot-directories included, minus the mock fixtures under
  * `mocks/` (self-contained projects with their own toolchain, never
  * covered by this repository's own gates — see .prettierignore) and the two
  * entries a bare "." sweep would already prune internally as it descended
@@ -35,9 +35,9 @@ import { REPO_ROOT, SCRIPTS } from "../helpers/run.mjs";
  * check-links.mjs has no ignore-file mechanism of its own — its only
  * scoping lever is which roots it is handed — and a root named directly on
  * its command line bypasses its internal pruning (that only filters a
- * directory's CHILDREN as they're discovered mid-walk, not a root passed in
+ * directory's children as they're discovered mid-walk, not a root passed in
  * outright), which is why `.git` and `node_modules` are excluded here rather
- * than left for it to skip on its own. Computed from the real directory
+ * than left for it to skip on its own. computed from the real directory
  * listing, not a literal list, so a new top-level entry is covered without
  * anyone remembering to add it here.
  */
@@ -56,9 +56,9 @@ export const GATES = [
     args: linksGateRoots(),
     passes: /links OK \(\d+ links across \d+ Markdown files checked\)/,
   },
-  // The skill-structure gate is three commands rather than one: each answers
+  // the skill-structure gate is three commands rather than one: each answers
   // for one kind of edit, so an author who changed a reference file is not made
-  // to read findings about frontmatter. They share `skill-documents.mjs`, which
+  // to read findings about frontmatter. they share `skill-documents.mjs`, which
   // is what keeps them from disagreeing about what a skill is made of.
   //
   // `.agents/skills` is the tier holding real files; `.claude/skills` is
@@ -84,25 +84,25 @@ export const GATES = [
   {
     name: "installed-copies",
     script: SCRIPTS.checkInstalledCopies,
-    // Both roots are named rather than defaulted. The script ships inside
+    // both roots are named rather than defaulted. the script ships inside
     // agent-skill-management now, where "two levels up from the script" would
     // resolve to `.claude/` instead of a repository root — and a root that
     // matches nothing reports no drift, which reads exactly like a pass.
     //
-    // The INSTALLED root named here is `.claude/skills`, the symlink tier,
-    // rather than `.agents/skills` where the bytes actually live. Comparing
+    // the installed root named here is `.claude/skills`, the symlink tier,
+    // rather than `.agents/skills` where the bytes actually live. comparing
     // through the links checks both invariants at once: that the install still
-    // matches its source, AND that all 28 symlinks resolve. Pointed at
+    // matches its source, and also that all 28 symlinks resolve. pointed at
     // `.agents/skills` it would only ever check the first.
     args: ["skills", ".claude/skills"],
     passes: /All \d+ distributable skill\(s\) match their installed copies\./,
   },
-  // The five checks living-product-specification bundles, run over this
-  // repository's own corpus. They are deliberately five commands rather than
+  // the five checks living-product-specification bundles, run over this
+  // repository's own corpus. they are deliberately five commands rather than
   // one: each answers for one kind of edit, so an author who wrote a decision
   // record is not made to read findings about the glossary.
   //
-  // Each names `docs` rather than leaning on the same default, so the argument
+  // each names `docs` rather than leaning on the same default, so the argument
   // is visible here alongside every other gate's — and so a teeth case can
   // plant a corpus under a throwaway root and run this exact invocation with
   // nothing but `cwd` changed.
@@ -119,8 +119,8 @@ export const GATES = [
     passes: /Every relative link resolves \(\d+ across \d+ documents\)\./,
   },
   {
-    // The pattern requires the spec-counting message, so a `specs/` directory
-    // that empties out reads as a failure rather than as a pass. It spent one
+    // the pattern requires the spec-counting message, so a `specs/` directory
+    // that empties out reads as a failure rather than as a pass. it spent one
     // pull request accepting "Nothing to check" as well, because the corpus had
     // no spec yet; that alternation is gone now that it has one, and this is
     // the only gate here whose passing message a later change could weaken
@@ -144,7 +144,7 @@ export const GATES = [
   },
 ];
 
-/** One gate by name. Throws rather than returning undefined, so a rename fails loudly. */
+/** one gate by name. throws rather than returning undefined, so a rename fails loudly. */
 export function gate(name) {
   const found = GATES.find((candidate) => candidate.name === name);
   if (!found) {

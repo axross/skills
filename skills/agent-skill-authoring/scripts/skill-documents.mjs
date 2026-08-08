@@ -1,13 +1,13 @@
-// Shared machinery for the three skill-structure validators beside this file.
+// shared machinery for the three skill-structure validators beside this file.
 //
-// Deliberately carries no shebang: this is a module, not a command. A tool that
+// deliberately carries no shebang: this is a module, not a command. a tool that
 // identifies a CLI by its shebang would otherwise count it as a fourth
 // validator.
 //
-// What lives here is what all three need to agree on — how a path resolves to a
+// what lives here is what all three need to agree on — how a path resolves to a
 // skill directory, what documents a skill is made of, how two copies of one
 // skill collapse into a single verdict, and the report shape and exit contract.
-// A rule belongs in the command that owns it, never here.
+// a rule belongs in the command that owns it, never here.
 
 import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, join, relative, sep } from "node:path";
@@ -35,9 +35,9 @@ export async function isDir(path) {
 }
 
 /**
- * Expand each argument into skill directories. An argument that holds a
+ * expand each argument into skill directories. an argument that holds a
  * SKILL.md is a skill; otherwise its immediate subdirectories holding a
- * SKILL.md are the skills. Exits 2 on a path that yields neither.
+ * SKILL.md are the skills. exits 2 on a path that yields neither.
  */
 export async function resolveSkillDirs(paths) {
   const skills = [];
@@ -58,10 +58,10 @@ export async function resolveSkillDirs(paths) {
     const entries = await readdir(path, { withFileTypes: true });
     let found = 0;
     for (const entry of entries) {
-      // `isDirectory()` comes from lstat semantics and is FALSE for a symlink
+      // `isDirectory()` comes from lstat semantics and is false for a symlink
       // pointing at a directory, so testing it here would skip every entry of a
       // symlinked skill root and report "All 0 skill(s) passed" — a pass that
-      // checked nothing. `isDir` stats through the link instead. Installing one
+      // checked nothing. `isDir` stats through the link instead. installing one
       // source into two agents' roots by symlinking the second is a supported
       // layout (Claude Code documents following a symlinked `<skill-name>`
       // entry), so this is a real arrangement rather than a hypothetical one.
@@ -81,12 +81,12 @@ export async function resolveSkillDirs(paths) {
 }
 
 /**
- * Split a SKILL.md into its frontmatter fields and body. Returns
+ * split a SKILL.md into its frontmatter fields and body. returns
  * { fields: Record<string,string> | null, body: string, offset: number };
  * fields is null when the leading `---` block is missing or unterminated.
  *
  * `offset` is how many lines the frontmatter consumed, so a finding located at
- * body line N is reported at file line N + offset. Without it every SKILL.md
+ * body line N is reported at file line N + offset. without it every SKILL.md
  * finding would cite a line several short of the one a reader opens to.
  */
 export function splitFrontmatter(text) {
@@ -109,15 +109,15 @@ export function splitFrontmatter(text) {
   return { fields, body, offset };
 }
 
-/** A skill-relative path, always forward-slashed so a message reads the same on any platform. */
+/** a skill-relative path, always forward-slashed so a message reads the same on any platform. */
 export function skillRelative(skillRoot, path) {
   return relative(skillRoot, path).split(sep).join("/");
 }
 
 /**
- * The prose documents of a skill: SKILL.md plus every references/*.md, each
+ * the prose documents of a skill: SKILL.md plus every references/*.md, each
  * with the body to scan and the line offset its frontmatter consumed.
- * Reference files are scanned whole — only SKILL.md carries frontmatter, and a
+ * reference files are scanned whole — only SKILL.md carries frontmatter, and a
  * reference legitimately opening with a `---` thematic break must not have its
  * first section eaten by a frontmatter parse.
  */
@@ -140,7 +140,7 @@ export async function skillDocuments(dir, skillBody, skillOffset) {
           offset: 0,
         });
       } catch (error) {
-        // Listed by readdir but unreadable: report it like an unreadable
+        // listed by readdir but unreadable: report it like an unreadable
         // SKILL.md rather than rejecting and losing the exit-code contract.
         unreadable.push(`references: "references/${file}" is unreadable: ${error.message}`);
       }
@@ -150,13 +150,13 @@ export async function skillDocuments(dir, skillBody, skillOffset) {
 }
 
 /**
- * Collapse results that describe the same skill twice. Two entries merge only
- * when they share a skill name AND produce an identical verdict, so a project
- * that keeps generated copies of its skills (a source tree plus an installed
- * one) reports each skill once instead of once per copy. The path given
- * earliest on the command line is canonical, which is how the caller decides
- * which copy a fix belongs in. Differing verdicts never merge — that divergence
- * is exactly what the reader needs to see.
+ * collapse results that describe the same skill twice. two entries merge only
+ * when they share a skill name and also produce an identical verdict, so a
+ * project that keeps generated copies of its skills (a source tree plus an
+ * installed one) reports each skill once instead of once per copy. the path
+ * given earliest on the command line is canonical, which is how the caller
+ * decides which copy a fix belongs in. differing verdicts never merge — that
+ * divergence is exactly what the reader needs to see.
  */
 export function collapseDuplicates(results) {
   const collapsed = [];
@@ -176,7 +176,7 @@ export function collapseDuplicates(results) {
   return collapsed;
 }
 
-/** Every validator in this set, for the sibling list each one prints in --help. */
+/** every validator in this set, for the sibling list each one prints in --help. */
 export const VALIDATORS = [
   ["check-skill-frontmatter.mjs", "the discovery contract in frontmatter"],
   ["check-skill-body.mjs", "the document-body rules"],
@@ -184,7 +184,7 @@ export const VALIDATORS = [
 ];
 
 /**
- * The trailer every validator's --help ends with. There is no run-all command —
+ * the trailer every validator's --help ends with. there is no run-all command —
  * each of these answers for one kind of edit — so finding one has to lead to the
  * rest, and this is what does it.
  *
@@ -200,10 +200,10 @@ export function siblingHelp(self) {
 }
 
 /**
- * The argument handling, per-skill loop, duplicate collapsing, report, and exit
+ * the argument handling, per-skill loop, duplicate collapsing, report, and exit
  * contract every validator in this set shares.
  *
- * Shared rather than copied because the three are read as one family: a reader
+ * shared rather than copied because the three are read as one family: a reader
  * who learns the PASS/FAIL shape and the 0/1/2 contract from one has learned it
  * from all, and three copies could drift into three dialects of the same report.
  *
@@ -227,7 +227,7 @@ export async function runCli({ usage, check }) {
   }
   if (paths.length === 0) fail2(usage);
 
-  // Resolution order follows the command line, which decides which of two
+  // resolution order follows the command line, which decides which of two
   // identical copies is canonical; display is sorted afterwards for stability.
   const skills = await resolveSkillDirs(paths);
   if (skills.length === 0) fail2("No skills found to check.");

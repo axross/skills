@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Vocabulary correspondence: every behavioural domain has somewhere to define
+// vocabulary correspondence: every behavioural domain has somewhere to define
 // its words.
 //
-// The correspondence runs one way on purpose. A spec needs a heading, because a
+// the correspondence runs one way on purpose. a spec needs a heading, because a
 // domain whose terms are undefined is where a glossary silently stops being the
-// place vocabulary lives. A heading needs no spec: cross-cutting vocabulary
+// place vocabulary lives. a heading needs no spec: cross-cutting vocabulary
 // belongs to no single domain, and a domain can be named before its behaviour is
-// written down. Checking the other direction would need an exception list for
+// written down. checking the other direction would need an exception list for
 // both, and an exception list is where a rule goes to be ignored.
 
 import { extractHeadings, main, selfName, siblingHelp, slug } from "./corpus.mjs";

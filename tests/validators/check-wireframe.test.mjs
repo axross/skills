@@ -1,11 +1,11 @@
-// Exit-code smoke contract for check-wireframe.mjs.
+// exit-code smoke contract for check-wireframe.mjs.
 //
-// Documented contract: 0 when every checked file passes, 1 when one or more fail
+// documented contract: 0 when every checked file passes, 1 when one or more fail
 // (or cannot be read), 2 on a bad invocation.
 //
-// Every fixture here is generated. `assets/wireframe-kit.html` also exits 1 —
+// every fixture here is generated. `assets/wireframe-kit.html` also exits 1 —
 // its `FILL:` markers are deliberate, and the script's header says so — but the
-// assertion's subject is the validator's contract, not that asset. Binding this
+// assertion's subject is the validator's contract, not that asset. binding this
 // suite to a 748-line template would break it on an unrelated kit edit and would
 // record a shipped asset as failing its own validator.
 
@@ -19,7 +19,7 @@ const checkWireframe = validator(SCRIPTS.checkWireframe);
 const page = (body) =>
   `<!doctype html>\n<html lang="en">\n<head><title>Wireframe</title></head>\n<body>\n${body}\n</body>\n</html>\n`;
 
-/** Write a one-off wireframe page into a fresh temp directory. */
+/** write a one-off wireframe page into a fresh temp directory. */
 async function wireframe(body) {
   const root = await tempDir();
   return writeFileIn(root, "wireframe.html", page(body));

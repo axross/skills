@@ -1,52 +1,52 @@
 #!/usr/bin/env node
-// report-obligation-burden.mjs — concurrent obligation burden reporter for THIS
-// repository.
+// report-obligation-burden.mjs — concurrent obligation burden reporter for this
+// repository and no other.
 //
-// Answers a question no per-skill check can: "how many rules is an agent holding
-// right now?" check-skill-body.mjs measures one skill at a time, and its advisory
-// tier warns when a single SKILL.md crosses a byte budget. But the quantity that
-// governs whether an agent actually follows a rule is the CONCURRENT obligation
-// count across every skill a session has loaded — and that depends on which
-// reference files get read, a decision made at runtime that no per-skill check
-// can see.
+// answers a question no per-skill check can: "how many rules is an agent
+// holding right now?" check-skill-body.mjs measures one skill at a time, and
+// its advisory tier warns when a single SKILL.md crosses a byte budget. but the
+// quantity that governs whether an agent actually follows a rule is the
+// obligation count held concurrently across every skill a session has loaded —
+// and that depends on which reference files get read, a decision made at
+// runtime that no per-skill check can see.
 //
-// So this reports a RANGE, never a single number:
-//   * the FLOOR   — the SKILL.md bodies alone, what loading those skills costs
+// so this reports a range, never a single number:
+//   * the floor   — the SKILL.md bodies alone, what loading those skills costs
 //                   before any reference is opened
-//   * the CEILING — the same skills with every references/*.md read too
-// The spread between them is the finding. professional-behavior, for one,
+//   * the ceiling — the same skills with every references/*.md read too
+// the spread between them is the finding. professional-behavior, for one,
 // carries zero obligations in its SKILL.md and 110 across its references: a
 // single number would misrepresent that skill entirely.
 //
-// THERE IS NO THRESHOLD, AND THIS NEVER FAILS. It exits 0 on every valid
+// there is no threshold, and this never fails. it exits 0 on every valid
 // invocation no matter how large the numbers are, joins no npm script chain, no
-// CI job, and no hook. That is deliberate rather than unfinished: there is no
+// CI job, and no hook. that is deliberate rather than unfinished: there is no
 // evidence for any particular limit in this corpus, and an indefensible
 // threshold becomes either a rule people route around or a warning people stop
-// reading. Ship the number first; a threshold, if ever, comes after there is
+// reading. ship the number first; a threshold, if ever, comes after there is
 // something to calibrate it against.
 //
-// The obligation definition is NOT re-implemented here — it is imported from
+// the obligation definition is imported rather than re-implemented here, from
 // guidelines.mjs, the same module check-skill-body.mjs reads for its `guidelines:`
 // failures and `placement:` advisories, so all three agree on what a rule is.
-// The three views partition the same bullets:
-//   obligations    in-block bullets WITH an RFC-2119 keyword  (counted here)
-//   guidelines:    in-block bullets WITHOUT one               (a failure there)
-//   placement:     out-of-block bullets WITH one              (an advisory there)
+// the three views partition the same bullets:
+//   obligations    in-block bullets with an RFC-2119 keyword  (counted here)
+//   guidelines:    in-block bullets without one               (a failure there)
+//   placement:     out-of-block bullets with one              (an advisory there)
 //
-// Scanned per skill: SKILL.md and every references/*.md — the same file set
+// scanned per skill: SKILL.md and every references/*.md — the same file set
 // check-skill-body.mjs scans, and for the same reason. scripts/ and assets/ carry
 // payload rather than rule-bearing text.
 //
-// It lives at the repository root rather than inside a skill because it reports
+// it lives at the repository root rather than inside a skill because it reports
 // on a tree rather than validating one, and because every script bundled in a
 // skill is named in that skill's prose; adding one there is an authoring change,
 // which this is not.
 //
-// Usage:
+// usage:
 //   node scripts/report-obligation-burden.mjs [--mandated] [<path | name> ...]
 //
-//     <path>  a skill directory (one holding SKILL.md), OR a directory whose
+//     <path>  a skill directory (one holding SKILL.md), or a directory whose
 //             immediate subdirectories are skills (e.g. `skills`).
 //     <name>  a skill name resolved against this repository's `skills` root,
 //             then its `.claude/skills` root — so `code-review` works from
@@ -56,22 +56,22 @@
 //             actually scoped to — every session, tasks that touch the project,
 //             and tasks that change something — cumulatively, so the first row
 //             is what a question-answering session carries and the last is what
-//             a change-delivering one does. Combines with further paths or
+//             a change-delivering one does. combines with further paths or
 //             names, so `--mandated code-review` reports what a review round
 //             actually carries; extra selectors land in the total, not in the
 //             tiers, which describe the mandated set alone.
 //
-//   With no arguments it reports every skill in the repository.
+//   with no arguments it reports every skill in the repository.
 //
-// Exit codes:
-//   0  a report was produced — ALWAYS, whatever the numbers are
+// exit codes:
+//   0  a report was produced, whatever the numbers are — never a failure
 //   2  bad invocation: an unknown flag, a name or path that resolves to no
 //      skill, or a selection that ends up empty
 //
-// Token figures are a byte proxy, not a tokenizer count — the divisor and its
+// token figures are a byte proxy, not a tokenizer count — the divisor and its
 // uncertainty are imported from token-estimate.mjs, the same module
 // check-skill-body.mjs's size advisory divides by, so the two can never report a
-// different estimate for the same file. The obligation counts are exact, and
+// different estimate for the same file. the obligation counts are exact, and
 // they are the figure the instruction-following evidence actually concerns.
 
 import { readdir, readFile, stat } from "node:fs/promises";
@@ -90,18 +90,18 @@ const SOURCE_ROOT = join(REPO_ROOT, "skills");
 const INSTALLED_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 /**
- * The mandated set, in the three tiers CLAUDE.md's Response Approach actually
- * scopes it to — NOT one always-on set, which is what this constant used to
- * claim and what the report used to print.
+ * the mandated set, in the three tiers CLAUDE.md's Response Approach actually
+ * scopes it to, rather than one always-on set, which is what this constant used
+ * to claim and what the report used to print.
  *
- * Each tier states the condition under which a session carries it, and the
+ * each tier states the condition under which a session carries it, and the
  * tiers are cumulative: a session that changes something carries all three, a
  * session that only touches the project carries the first two, and a session
- * that does neither carries the first alone. Reporting the sum of all three as
+ * that does neither carries the first alone. reporting the sum of all three as
  * "every session" overstates what an ordinary question-answering session holds
  * by the whole of the last two tiers.
  *
- * The scoping is quoted rather than invented. `professional-behavior` is
+ * the scoping is quoted rather than invented. `professional-behavior` is
  * required "in every session, before anything else … they apply to a task that
  * changes nothing as fully as to a delivered change". `software-development` is
  * required "at the start of every task that touches the project", and its own
@@ -109,19 +109,19 @@ const INSTALLED_ROOT = join(REPO_ROOT, ".claude", "skills");
  * `loop-engineering` governs "any code change or document update", and the same
  * section says "Tasks that change nothing stay outside the loop".
  *
- * CLAUDE.md's Response Approach is the AUTHORITY for all of it; this constant is
+ * CLAUDE.md's Response Approach is the authority for all of it; this constant is
  * a convenience copy, and the coupling is by convention rather than by parse —
- * for the tier boundaries exactly as for the membership. That is a deliberate
+ * for the tier boundaries exactly as for the membership. that is a deliberate
  * limit, not an oversight: a prose parse cannot see all three skills.
  * `professional-behavior` appears in CLAUDE.md as a literal hyphenated name and
  * `loop-engineering` as a link path, but `software-development` is named only
  * descriptively — "the project's baseline development practices" — so a parser
- * would silently report two of three and look like it worked. A parse of the
+ * would silently report two of three and look like it worked. a parse of the
  * conditions would fail the same way, and less visibly.
  *
- * What IS pinned mechanically: a test asserts every name here resolves to a real
+ * what is pinned mechanically: a test asserts every name here resolves to a real
  * skill, so renaming or deleting one fails loudly rather than silently dropping
- * it from the floor. Claiming a stronger pin than that would be worse than
+ * it from the floor. claiming a stronger pin than that would be worse than
  * documenting this one.
  */
 const MANDATED_TIERS = [
@@ -130,7 +130,7 @@ const MANDATED_TIERS = [
   { condition: "+ task changes something", skills: ["loop-engineering"] },
 ];
 
-/** Flat membership in tier order, for resolution and for the resolves-to-a-real-skill test. */
+/** flat membership in tier order, for resolution and for the resolves-to-a-real-skill test. */
 const MANDATED_SKILLS = MANDATED_TIERS.flatMap((tier) => tier.skills);
 
 function fail2(message) {
@@ -154,11 +154,11 @@ async function isDir(path) {
   }
 }
 
-/** A directory is a skill when it holds a SKILL.md. */
+/** a directory is a skill when it holds a SKILL.md. */
 const isSkillDir = (path) => isFile(join(path, "SKILL.md"));
 
 /**
- * Resolve one argument into skill directories. An argument is tried as a path
+ * resolve one argument into skill directories. an argument is tried as a path
  * first, then as a skill name against the source root and the installed root, so
  * a name that happens to match a directory in the cwd still behaves predictably.
  *
@@ -168,12 +168,12 @@ const isSkillDir = (path) => isFile(join(path, "SKILL.md"));
 async function resolveArgument(argument) {
   if (await isDir(argument)) {
     if (await isSkillDir(argument)) return [resolve(argument)];
-    // A root whose immediate subdirectories are skills.
+    // a root whose immediate subdirectories are skills.
     const entries = await readdir(argument, { withFileTypes: true });
     const found = [];
     for (const entry of entries) {
-      // A symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
-      // by symlink, and `isDirectory()` is false for one. The SKILL.md
+      // a symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
+      // by symlink, and `isDirectory()` is false for one. the SKILL.md
       // test below stats through the link and does the real filtering.
       if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
       const child = join(argument, entry.name);
@@ -190,7 +190,7 @@ async function resolveArgument(argument) {
 }
 
 /**
- * Every skill in the repository, preferring the source tier. The installed
+ * every skill in the repository, preferring the source tier. the installed
  * copies are identical whenever the drift gate passes, so counting both would
  * double every figure; the source tier is the one an edit lands in.
  */
@@ -209,7 +209,7 @@ async function allSkills() {
   return dirs;
 }
 
-/** The obligation count and UTF-8 byte size of one Markdown file. */
+/** the obligation count and UTF-8 byte size of one Markdown file. */
 async function measureFile(path) {
   const raw = await readFile(path, "utf8");
   return {
@@ -219,7 +219,7 @@ async function measureFile(path) {
 }
 
 /**
- * Measure one skill at both depths.
+ * measure one skill at both depths.
  *
  * `floor` is SKILL.md alone; `ceiling` is SKILL.md plus every references/*.md,
  * so the ceiling always includes the floor rather than sitting beside it.
@@ -248,11 +248,11 @@ const tokens = estimateTokens;
 const group = (value) => value.toLocaleString("en-US");
 
 /**
- * The cumulative-by-tier block, printed under the totals when `--mandated` ran.
+ * the cumulative-by-tier block, printed under the totals when `--mandated` ran.
  *
- * It exists because the single total above it answers "what does the whole
+ * it exists because the single total above it answers "what does the whole
  * selection cost", and that is not the question a reader of a *mandated* report
- * has. Theirs is "what is a session of this kind holding", which only the
+ * has. theirs is "what is a session of this kind holding", which only the
  * cumulative tiers answer — the last row is the figure this report used to
  * print alone, and the first is what an ordinary question-answering session
  * actually carries.
@@ -293,10 +293,10 @@ function tierBlock(tiers) {
 }
 
 /**
- * Render the report.
+ * render the report.
  *
- * Per-skill rows plus a total, so a maintainer diffing two runs sees WHICH skill
- * moved rather than only that the total did. Nothing checkout-dependent appears
+ * per-skill rows plus a total, so a maintainer diffing two runs sees which skill
+ * moved rather than only that the total did. nothing checkout-dependent appears
  * — no timestamps, no absolute paths — so successive runs diff cleanly.
  *
  * `tiers`, when given, appends the cumulative block above; without it the output
@@ -449,9 +449,9 @@ async function main() {
           ? "every skill in the repository"
           : "the skills named";
 
-  // Cumulative tiers, computed only for --mandated: they describe the mandated
+  // cumulative tiers, computed only for --mandated: they describe the mandated
   // set's own scoping, so they would be meaningless over an arbitrary selection.
-  // Extra selectors are excluded here and remain in the total above, where a
+  // extra selectors are excluded here and remain in the total above, where a
   // reader of `--mandated code-review` wants them.
   let tiers = null;
   if (mandated) {
@@ -478,7 +478,7 @@ async function main() {
   }
 
   process.stdout.write(`${render(measurements, selectionLabel, tiers)}\n`);
-  // Always 0: this reports, it never judges. See the header's no-threshold note.
+  // always 0: this reports, it never judges. see the header's no-threshold note.
   process.exit(0);
 }
 

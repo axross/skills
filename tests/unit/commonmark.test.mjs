@@ -1,8 +1,8 @@
-// The shared rules for reading a Markdown document — which lines are inside a
+// the shared rules for reading a Markdown document — which lines are inside a
 // fence, and which text is prose rather than an example — tested directly.
 //
 // commonmark.mjs is the one place both rules live, so it is also the one place
-// worth testing exhaustively. Everything here used to be reachable only by
+// worth testing exhaustively. everything here used to be reachable only by
 // spawning a CLI and inferring the parse from whether a link resolved — which
 // made the cheap cases expensive and the awkward ones (an unterminated fence's
 // line number, a fence opener's own position) untestable without a validator
@@ -21,11 +21,11 @@ import {
   unterminatedFenceLine,
 } from "../../skills/agent-skill-authoring/scripts/commonmark.mjs";
 
-/** The text of every line the scanner reports as outside a fence. */
+/** the text of every line the scanner reports as outside a fence. */
 const proseOf = (body) =>
   [...scanLines(body)].filter((line) => !line.fence).map((line) => line.text);
 
-/** Just the text of `extractProse`'s lines, one entry per source line. */
+/** just the text of `extractProse`'s lines, one entry per source line. */
 const textOf = (body) => extractProse(body).lines.map((line) => line.text);
 
 describe("commonmark.mjs", () => {
@@ -189,12 +189,12 @@ describe("commonmark.mjs", () => {
       ]);
     });
 
-    // THE REGRESSION THIS EXPORT EXISTS FOR (#185). README.md documents the
+    // the regression this export exists for (#185). README.md documents the
     // `count:` marker rule with the sentence "a line beginning with `<!--` is an
     // HTML block in CommonMark" — a comment opener inside an inline code span.
-    // Stripping comments from the RAW source believes that opener and discards
+    // stripping comments from the raw source believes that opener and discards
     // everything up to the next `-->`, which in README.md was 90 lines of real
-    // prose and three unchecked relative links. Blanking code spans FIRST is
+    // prose and three unchecked relative links. blanking code spans first is
     // what makes an opener have to be real text to count.
     it("does not let a quoted comment opener swallow the prose after it", () => {
       const body = [
@@ -227,7 +227,7 @@ describe("commonmark.mjs", () => {
     });
 
     it("treats an unterminated comment opener as content rather than stopping", () => {
-      // A dangling `<!--` comments out the rest of a rendered document, but
+      // a dangling `<!--` comments out the rest of a rendered document, but
       // honouring it here would silently stop reading — the failure mode that
       // looks like a clean result.
       expect(textOf("<!-- dangling\nSee [x](./x.md).")).toEqual([

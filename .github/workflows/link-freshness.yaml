@@ -1,45 +1,47 @@
 name: Link Freshness Audit
 
-# Probes every external documentation URL this repository cites and fails only
-# on a link the host says is gone. It is the other half of the trade #179 makes:
+# probes every external documentation URL this repository cites and fails only
+# on a link the host says is gone. it is the other half of the trade #179 makes:
 # moving the vendor skills off reproduced option tables and onto a link plus the
-# non-obvious caveat swaps a table that goes stale VISIBLY for a link that rots
-# SILENTLY, and nothing here checked the second half until now — check-links.mjs
-# resolves relative `.md` targets on disk and ignores `http(s)://` entirely.
+# non-obvious caveat swaps a table that goes stale where a reader can see it for
+# a link that rots where nobody can, and nothing here checked the second half
+# until now — check-links.mjs resolves relative `.md` targets on disk and
+# ignores `http(s)://` entirely.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 1 of 3 — NO PULL-REQUEST TRIGGER, EVER.
-# Do NOT add `pull_request`, and do NOT add `pull_request_target`. #171 specifies
-# a scheduled default-branch-only job for a reason that is about capability, not
-# tidiness: claude-review.yaml denies `WebFetch,WebSearch,Task` against an
-# untrusted pull request head, and a fetching job triggered by a pull request
-# hands that capability straight back. A `SKILL.md` on a fork's branch is text an
-# outsider controls, and a job that dereferences every URL in it is a
-# server-side request forgery primitive pointed at this repository's egress —
-# reachable by anyone who can open a pull request. Scheduled, the only URLs ever
-# probed are ones already merged to the default branch.
+# ── load-bearing safety property 1 of 3, and the one with no exceptions: this
+# workflow has no pull-request trigger. never add `pull_request`, and never add
+# `pull_request_target`. #171 specifies a scheduled default-branch-only job for
+# a reason that is about capability, not tidiness: claude-review.yaml denies
+# `WebFetch,WebSearch,Task` against an untrusted pull request head, and a
+# fetching job triggered by a pull request hands that capability straight back.
+# a `SKILL.md` on a fork's branch is text an outsider controls, and a job that
+# dereferences every URL in it is a server-side request forgery primitive
+# pointed at this repository's egress — reachable by anyone who can open a pull
+# request. scheduled, the only URLs ever probed are ones already merged to the
+# default branch.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 2 of 3 — the audit reaches the network, so it
-# is NOT a merge gate and must not become one. `npm test` and `npm run check`
+# ── load-bearing safety property 2 of 3 — the audit reaches the network, so it
+# is not a merge gate and must not become one. `npm test` and `npm run check`
 # stay offline and deterministic; a gate that depends on a publisher's CDN being
 # up is a gate that gets bypassed rather than fixed.
 # tests/repository/scheduled-audit-tools.test.mjs asserts the script appears in
-# THIS workflow and no other, in no npm script, in no hook, and in no gate — so
+# this workflow and no other, in no npm script, in no hook, and in no gate — so
 # wiring it into merge-checks.yaml has to break a test first.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 3 of 3 — read-only token. It writes nothing:
-# no comment, no issue, no push. Its only output is the job's log, its step
+# ── load-bearing safety property 3 of 3 — read-only token. it writes nothing:
+# no comment, no issue, no push. its only output is the job's log, its step
 # summary, and its pass/fail status.
 #
-# NOTE: scheduled workflows run only from the version on the DEFAULT branch, so
+# note: scheduled workflows run only from the version on the default branch, so
 # this audit becomes active only once merged there — it does not run on the pull
-# request that introduces it. That is also why the default-branch-only property
+# request that introduces it. that is also why the default-branch-only property
 # needs no `if:` guard: GitHub supplies it, and property 1 is what keeps it.
 #
-# WHAT IT WILL NOT FAIL ON. A host that rate-limits, blocks, or times out is
-# reported as `unverifiable` and never affects the outcome. This corpus cites
+# what it will not fail on: a host that rate-limits, blocks, or times out is
+# reported as `unverifiable` and never affects the outcome. this corpus cites
 # ~80 hosts, several of which refuse datacentre egress by policy, and an audit
 # that went red every time a publisher throttled a runner would be red most
-# weeks. Only a 404 or 410 that survives a retry fails the run. The full
+# weeks. only a 404 or 410 that survives a retry fails the run. the full
 # reasoning lives in skills/agent-skill-authoring/scripts/link-freshness/classify.mjs.
 
 on:
@@ -47,13 +49,13 @@ on:
     - cron: "0 6 * * 1" # Mondays, 06:00 UTC — link rot is a weekly-scale problem
   workflow_dispatch:
 
-# Cancel a superseded run: a newer audit of the same branch is strictly better
+# cancel a superseded run: a newer audit of the same branch is strictly better
 # than an older one still in flight.
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
-# Least privilege: read the tree, nothing else. It never comments, never opens an
+# least privilege: read the tree, nothing else. it never comments, never opens an
 # issue, and never pushes — its token cannot.
 permissions:
   contents: read
@@ -62,7 +64,7 @@ jobs:
   audit:
     name: Audit external documentation links
     runs-on: ubuntu-latest
-    # Bounded so a pathological host cannot hold a runner indefinitely. The
+    # bounded so a pathological host cannot hold a runner indefinitely. the
     # script's own per-request timeout and retry budget are the inner bound; this
     # is the backstop.
     timeout-minutes: 20
@@ -75,7 +77,7 @@ jobs:
         with:
           node-version-file: package.json
 
-      # No `npm install`. The audit is Node standard library only — global fetch
+      # no `npm install`. the audit is Node standard library only — global fetch
       # on the version package.json pins — so installing the Markdown toolchain
       # here would add a minute and a supply-chain surface for nothing.
       - name: Audit external documentation links

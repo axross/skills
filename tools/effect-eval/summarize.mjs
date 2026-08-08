@@ -4,9 +4,9 @@
 //
 // its own entry point because the derivation has two callers that do not depend
 // on each other: the landing job, which derives after the matrix finishes and
-// before it commits, and the drift check, which re-derives a COMMITTED summary
-// and compares bytes so a hand-edited derived file fails a check rather than
-// quietly misleading a reader.
+// before it commits, and the drift check, which re-derives a summary already
+// committed and compares bytes, so a hand-edited derived file fails a check
+// rather than quietly misleading a reader.
 //
 // a flag on evaluate.mjs was the rejected alternative — it would give one
 // command two unrelated behaviours, and leave the drift check invoking a probe
