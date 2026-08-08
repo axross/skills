@@ -13,11 +13,17 @@
 // and each run resolving its own dependency versions. it is off by default so
 // this tool's own tests stay hermetic.
 //
+// `--patch` is how a case brings the broken starting state its own prompt
+// describes, without the mock shipping one. the mechanism lives in tools/lib
+// because a mock belongs to neither evaluation; this entry point only passes
+// the path through.
+//
 // exit codes:
 //   0  the workspace path was printed to stdout
-//   2  bad invocation, a malformed mock, or a failure preparing the workspace
+//   2  bad invocation, a malformed mock, a patch that does not apply, or a
+//      failure preparing the workspace
 
-import { materialize } from "./src/workspace.mjs";
+import { materialize } from "../lib/mock-workspace.mjs";
 
 const DEFAULT_MOCK = "content-site";
 
@@ -31,6 +37,11 @@ the workspace path.
   --skill <name>   a skill to install into the workspace's .claude/skills/<name>,
                     copied from this repository's OWN installed skills;
                     repeatable. Passing none is the skill-absent condition.
+  --patch <path>   a unified diff to apply after the copy and before the
+                    history is replayed, so a case can bring the broken starting
+                    state its prompt describes without the mock shipping one. It
+                    may touch history.jsonc, and must when it changes the file
+                    set.
   --install        run \`npm ci\` in the workspace, so a probe starts from
                     installed dependencies rather than spending its own turns on
                     them. Off by default: the default path touches no network,
@@ -47,7 +58,7 @@ function fail2(message) {
 }
 
 function parseArgv(argv) {
-  const options = { mock: DEFAULT_MOCK, skills: [], install: false };
+  const options = { mock: DEFAULT_MOCK, skills: [], install: false, patch: null };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => {
@@ -58,6 +69,7 @@ function parseArgv(argv) {
     };
     if (arg === "--mock") options.mock = next();
     else if (arg === "--skill") options.skills.push(next());
+    else if (arg === "--patch") options.patch = next();
     else if (arg === "--install") options.install = true;
     else fail2(`Unknown option ${JSON.stringify(arg)}.\n${USAGE}`);
   }

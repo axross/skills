@@ -11,7 +11,7 @@
 // so the skill cases below do not inspect a command line. they materialize a
 // real workspace through the real setup.mjs and look for the skill on disk.
 // `--install` is never passed, which is what keeps this hermetic — see
-// tests/effect-eval/workspace.test.mjs, which relies on and asserts the same
+// tests/effect-eval/setup.test.mjs, which relies on and asserts the same
 // property.
 
 import { readdir, readFile, rm, stat } from "node:fs/promises";
@@ -91,6 +91,27 @@ describe("the probe plan", () => {
     const { plan, workspace } = materializeFromPlan("skill-absent");
     expect(plan.skills).toEqual([]);
     expect(await installedSkills(workspace)).toEqual([]);
+  });
+
+  it("resolves a case's patch against the fixture that declares it", async () => {
+    // the declared path is relative to the fixture, and the workflow has no
+    // idea where that is — so the resolution belongs here, and is asserted
+    // here. no case declares a patch today, which is the second half of what
+    // this checks: the field is present and empty rather than absent, so the
+    // workflow's `jq -er` has something to read either way.
+    const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+    const declared = fixture.cases.find((entry) => entry.id === CASE);
+
+    for (const condition of ["skill-absent", "skill-present"]) {
+      const plan = JSON.parse(
+        probePlan(["--case", CASE, "--condition", condition, "--dry-run-input", "true"]).stdout,
+      );
+      expect(plan).toHaveProperty("patch");
+      expect(
+        plan.patch,
+        "a patch is per case, so both conditions of one case get the same one",
+      ).toBe(declared.patch ? repoPath("data/effect-eval", declared.patch) : "");
+    }
   });
 
   it("passes --dry-run only when the dispatch is a rehearsal", () => {

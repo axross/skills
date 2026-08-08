@@ -104,6 +104,14 @@
 
 **Evaluation probe** — one run of one **evaluation case** against the real CLI. A discovery probe produces the set of **agent skills** the run selected; an effect probe produces a **probe artifact** and a **probe transcript**.
 
+**Mock project** — a small self-contained project modelled on a real consumer, kept as a fixture so an evaluation can give an agent real work to do.
+
+**Probe workspace** — the isolated temporary directory a **mock project** is expanded into, a real Git repository where the agent works.
+
+**Mock materialization** — expanding a **mock project** into a **probe workspace**: copying its files, applying the **case patch** where the **evaluation case** declares one, replaying its recorded commit history, and installing the skills that run holds.
+
+**Case patch** — a unified diff one **evaluation case** declares, applied during **mock materialization** so the case starts from the broken state its own prompt describes. It belongs to the case rather than to the **mock project**, which ships sound: a defect built into the mock would be there for every other case too, and a project holding one of everything an evaluation measures reads as a fixture rather than as a project.
+
 ## Skill Discovery Evaluation
 
 **Discovery count** — how many **evaluation probes** surfaced each **agent skill** for one **evaluation case**, which is what makes the result a distribution rather than a single verdict.
@@ -121,12 +129,6 @@
 **Skill-absent condition** — the **evaluation condition** run without the skill under test installed.
 
 **Skill-present condition** — the **evaluation condition** run with the skill under test installed.
-
-**Mock project** — a small self-contained project modelled on a real consumer, kept as a fixture so an evaluation can give an agent real work to do.
-
-**Probe workspace** — the isolated temporary directory a **mock project** is expanded into, a real Git repository where the agent works.
-
-**Mock materialization** — expanding a **mock project** into a **probe workspace**, replaying its recorded commit history and installing the skills that run holds.
 
 **Probe artifact** — what one **evaluation probe** left in its **probe workspace**: the files the agent created or changed.
 

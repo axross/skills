@@ -37,11 +37,11 @@ node tools/effect-eval/evaluate.mjs  --workspace <dir> --case <id> --condition s
 node tools/effect-eval/summarize.mjs --check
 ```
 
-| Command         | Does                                                                                                        |
-| --------------- | ----------------------------------------------------------------------------------------------------------- |
-| `setup.mjs`     | Materializes a mock into a throwaway Git workspace, installs the condition's skills, installs dependencies. |
-| `evaluate.mjs`  | Fingerprints that workspace, runs **one** probe against it, writes the probe record.                        |
-| `summarize.mjs` | Derives the summary layer over a finished case measurement and enforces the comparability checks.           |
+| Command         | Does                                                                                                                                                  |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `setup.mjs`     | Materializes a mock into a throwaway Git workspace, applies the case's patch where it declares one, installs the condition's skills and dependencies. |
+| `evaluate.mjs`  | Fingerprints that workspace, runs **one** probe against it, writes the probe record.                                                                  |
+| `summarize.mjs` | Derives the summary layer over a finished case measurement and enforces the comparability checks.                                                     |
 
 The split follows the work, not taste: the probes of one case run as a matrix
 across separate runners, so preparing, probing, and summarising happen in
@@ -192,7 +192,27 @@ skill during real work is exactly what is being measured.
 
 That difference is also where the shared layer stops. `tools/lib` holds only
 what is shaped outside either evaluation's question — the CLI's `stream-json`
-format, and the requirement to keep a credential out of a subprocess and out of
-a stored file. Everything an evaluation decides for itself — its tool posture,
-its turn cap, what its fingerprint covers, what a measurement directory holds —
-stays with it.
+format, the requirement to keep a credential out of a subprocess and out of a
+stored file, and expanding a mock project into a Git workspace, which decides
+nothing either instrument owns and which both situate their probes in.
+Everything an evaluation decides for itself — its tool posture, its turn cap,
+what its fingerprint covers, what a measurement directory holds — stays with it.
+
+## A case brings its own defect
+
+A mock ships **sound**. Where a case's prompt is symptom-shaped — it describes a
+defect rather than a task — the defect arrives as a unified diff that case
+declares, applied while the workspace is materialized and before the recorded
+history is replayed over it. `mocks/README.md` states the principle and
+[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
+records what it beat.
+
+A case declares one as `patch` in
+[`data/effect-eval/fixture.json`](../../data/effect-eval/README.md), the probe
+plan resolves it, and `setup.mjs --patch` applies it. No case in that fixture
+declares one yet, and none is planned here: the first patches belong to
+discovery cases, on the mocks [#295](https://github.com/axross/skills/issues/295)
+and [#296](https://github.com/axross/skills/issues/296) are building. What holds
+the mechanism honest meanwhile is `npm test`: every declared patch is applied
+against its mock offline, so a patch that stopped fitting fails there rather
+than in a dispatch that has already spent money reaching it.

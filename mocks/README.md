@@ -23,14 +23,48 @@ Everything under a mock's own directory is copied into the workspace the model
 works in, so a model reads it. A note explaining that the project is an
 experiment would tell it so — and a model that knows it is being measured is
 not measuring what we wanted. This file sits one level up, where
-`materialize.mjs` never copies from.
+[`tools/lib/mock-workspace.mjs`](../tools/lib/mock-workspace.mjs) never copies
+from.
+
+## A mock is a genuine project
+
+> Nothing inside a mock is bent to fit a case. Its **stack and structure are
+> chosen** with skill and case coverage in mind — that is what makes it useful —
+> but anything a case needs that the project would not naturally have arrives as
+> **that case's patch**.
+
+The test for any candidate flaw is: _would a competent developer of this
+project have done it this way, for their own reasons?_ A realistic project has
+gaps, and **a case may use an existing gap** — that is not a distortion. What
+the principle forbids is inventing the gap.
+
+That distinction is what the two lists below are for. A **realistic choice made
+for coverage** is a decision this project's own developer could have made, kept
+because a case needs something to point at: `shared/resolve-translation.ts`
+shipping no test is one, and it belongs in the declared list. A **fixture
+artifact** is a flaw nobody would have written on purpose — a project with
+exactly one of everything the evaluation measures, each conveniently broken —
+and it belongs in a case's patch instead, or nowhere.
+
+**A case brings its own defect.** Some prompts are symptom-shaped ("our
+Amplitude device ID resets on every launch") and only make sense against a
+broken starting state. That state arrives as a unified diff the case declares,
+applied by
+[`tools/lib/mock-workspace.mjs`](../tools/lib/mock-workspace.mjs) after the mock
+is copied and **before** its history is replayed, so the workspace a model sees
+is clean and its history unremarkable. A patch that changes the file set
+maintains `history.jsonc` itself. The reasoning, and the alternatives it beat,
+are in
+[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
 
 ## Deliberate imperfections, declared
 
 A mock is a measurement instrument, and some of its flaws are the instrument.
 They are listed here so a reviewer can tell a designed flaw from a bug —
 **anything not on this list is a bug**, and the question has already cost one
-review round.
+review round. Every entry below is a realistic choice made for coverage in the
+sense above; a flaw that could only be a fixture artifact does not belong here
+at all.
 
 ### `content-site`
 
