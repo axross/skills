@@ -1,20 +1,20 @@
 name: Merge Checks
 
-# The project's own CI: the format, lint, and test checks that gate merges to
-# the default branch. Each gate is its own job, so the three run in parallel and
-# one failing gate still lets the others report; none declares `needs`. The
+# the project's own CI: the format, lint, and test checks that gate merges to
+# the default branch. each gate is its own job, so the three run in parallel and
+# one failing gate still lets the others report; none declares `needs`. the
 # Tests job is the wide one — besides the validator unit tests it runs the
 # relative-link, skill-structure, and installed-copy checks over this repository
-# (see tests/repository/), which were once separate gates of their own. This is
+# (see tests/repository/), which were once separate gates of their own. this is
 # the CI the loop-engineering change loop's tail polls after a push (see
-# .claude/skills/loop-engineering/SKILL.md). Keep REVIEW.md's do-not-report list
+# .claude/skills/loop-engineering/SKILL.md). keep REVIEW.md's do-not-report list
 # in sync with exactly what these jobs enforce.
 #
-# Every check step invokes an npm script, and
+# every check step invokes an npm script, and
 # tests/repository/gate-consistency.test.mjs asserts that the set of scripts run
 # here equals the set in package.json's `check` chain — so a gate added to one
 # and forgotten in the other fails rather than silently going unenforced in the
-# place it was missed. That comparison collects every `run:` line in this file
+# place it was missed. that comparison collects every `run:` line in this file
 # regardless of which job holds it, so splitting the gates across jobs does not
 # weaken it.
 
@@ -30,10 +30,10 @@ on:
   push:
     # deliberately no paths-ignore here. once a measurement merges the gates
     # run against the merged tree, drift check included, so measurement data is
-    # exempt from BLOCKING a pull request rather than from being checked.
+    # exempt from blocking a pull request rather than from being checked.
     branches: [main] # ← the project's default branch
 
-# Cancel superseded runs on PR refs only: on the default branch every push is a
+# cancel superseded runs on PR refs only: on the default branch every push is a
 # distinct merged commit whose checks must run to completion, or back-to-back
 # merges leave earlier commits with cancelled (never-completed) verification.
 concurrency:

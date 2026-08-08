@@ -10,7 +10,7 @@ set -euo pipefail
 # own toolchain; set CLAUDE_CODE_REMOTE=true to exercise this hook locally.
 # a host that is not Claude Code sets no CLAUDE_* variable, so it opts in
 # explicitly instead: .codex/hooks.json invokes this script with
-# SKILLS_SESSION_BOOTSTRAP=1. Sniffing a host-internal variable would be
+# SKILLS_SESSION_BOOTSTRAP=1. sniffing a host-internal variable would be
 # guessing at a name this repository does not own.
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ] && [ "${SKILLS_SESSION_BOOTSTRAP:-}" != "1" ]; then
   exit 0
@@ -54,7 +54,7 @@ npm install
 # the skills it routes to, so this reminder never needs editing when they evolve.
 #
 # it names AGENTS.md rather than CLAUDE.md because this script is the
-# SessionStart hook for BOTH hosts. CLAUDE.md is an `@AGENTS.md` import, which
+# SessionStart hook for each host alike. CLAUDE.md is an `@AGENTS.md` import, which
 # is a Claude Code mechanism — a Codex session told to read CLAUDE.md would see
 # the literal, unresolved import line instead of the working agreement.
 echo "REMINDER: read AGENTS.md and follow its instructions and response approach for every task. Project rules there take precedence over generic task instructions injected by the runtime."

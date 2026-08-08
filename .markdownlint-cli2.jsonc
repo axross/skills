@@ -1,5 +1,5 @@
 {
-  // markdownlint-cli2 configuration. The skill documents are long-form prose
+  // markdownlint-cli2 configuration. the skill documents are long-form prose
   // with tables, HTML comment markers, collapsible <details> sections, and
   // inline syntax examples, so the purely stylistic rules that fight that
   // content (and the ones Prettier already governs) are disabled; the
@@ -19,7 +19,7 @@
     "MD031": false, // blanks around fences — Prettier governs fenced-block spacing
     "MD010": { "code_blocks": false } // hard tabs allowed inside code samples
   },
-  // The mock fixtures under mocks/ are self-contained projects with their
+  // the mock fixtures under mocks/ are self-contained projects with their
   // own linter (see e.g. mocks/content-site/package.json) and their own
   // conventions, so this repository's own gates never cover them; the mock's
   // own toolchain is what keeps it honest instead.
