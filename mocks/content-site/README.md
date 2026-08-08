@@ -14,11 +14,15 @@ npm install
 
 | Command                | What it does                                              |
 | ----------------------- | ---------------------------------------------------------- |
+| `npm run dev`           | Serves the site locally with hot reload.                   |
+| `npm run build`         | Builds the production bundle.                              |
+| `npm run start`         | Serves a build produced by `npm run build`.                |
 | `npm run format`        | Rewrites the project in place to its house style.          |
 | `npm run format:check`  | Reports formatting drift without rewriting anything.       |
 | `npm run lint`          | Lints the whole project; also checks formatting.           |
-| `npm run typecheck`     | Type-checks the project. The test runner strips types rather than checking them, so this is the only thing that does. |
+| `npm run typecheck`     | Type-checks the project. The test runner compiles without checking types, so this is the only thing that does. |
 | `npm test`              | Runs the unit test suite.                                  |
+| `npm run test:e2e`      | Runs the end-to-end suite. Builds the app and serves it first, so it needs a browser — `npx playwright install chromium` once per machine. |
 
 ## Layout
 
