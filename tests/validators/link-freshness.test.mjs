@@ -1,13 +1,13 @@
-// Contract for the link-freshness audit.
+// contract for the link-freshness audit.
 //
-// The audit's whole job is to reach the network, and NOTHING here does. That is
+// the audit's whole job is to reach the network, and nothing here does. that is
 // the point rather than a limitation: `npm test` is a merge gate, and a gate
 // that probes ~80 external publishers fails for reasons no contributor can fix.
-// So the two halves that decide every verdict are pure and tested directly —
+// so the two halves that decide every verdict are pure and tested directly —
 // extraction (which URLs the tree claims) and classification (what an answer
 // means) — and the CLI is exercised only through `--dry-run` and its exit codes.
 //
-// The classification cases are the ones worth reading. Whether a 403 fails the
+// the classification cases are the ones worth reading. whether a 403 fails the
 // run is the design decision this audit turns on, and it is asserted here rather
 // than left to the prose in classify.mjs.
 
@@ -37,7 +37,7 @@ import { runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const audit = (...args) => runScript(SCRIPTS.linkFreshness, args);
 
-/** Just the URLs a document cites, in order. */
+/** just the URLs a document cites, in order. */
 const urlsIn = (source) => extractUrls(source).map((entry) => entry.url);
 
 describe("extractUrls", () => {
@@ -110,15 +110,15 @@ describe("extractUrls", () => {
     it("does not let an inline-code `<!--` swallow the prose after it", () => {
       // README.md documents the `count:` marker rule with the sentence "a line
       // beginning with `<!--` is an HTML block in CommonMark" — a comment opener
-      // inside an inline code span. Stripping comments from the RAW source
+      // inside an inline code span. stripping comments from the raw source
       // believes that opener and discards everything up to the next `-->`, which
       // in README.md was ~90 lines later: real prose, real links, silently
-      // unread. Blanking code spans FIRST is what makes an opener have to be
+      // unread. blanking code spans first is what makes an opener have to be
       // real text to count.
       //
-      // The ordering now lives in commonmark.mjs (#185), shared with
-      // check-links.mjs, which carried the same defect until then. This case
-      // stays here anyway: it asserts what THIS module's callers get, and would
+      // the ordering now lives in commonmark.mjs (#185), shared with
+      // check-links.mjs, which carried the same defect until then. this case
+      // stays here anyway: it asserts what this module's callers get, and would
       // catch a future extractUrls that stopped going through extractProse.
       const source = [
         "A line beginning with `<!--` is an HTML block in CommonMark.",
@@ -146,12 +146,12 @@ describe("extractUrls", () => {
         "",
       ].join("\n");
 
-      // The comment is removed, but its newlines are not: line 4 is still line 4.
+      // the comment is removed, but its newlines are not: line 4 is still line 4.
       expect(extractUrls(source)).toEqual([{ url: "https://example.com/x", line: 4 }]);
     });
 
     it("treats an unterminated comment opener as content rather than stopping", () => {
-      // A dangling `<!--` comments out the rest of a rendered document, but
+      // a dangling `<!--` comments out the rest of a rendered document, but
       // honouring it here would silently stop extracting — the failure mode that
       // looks like a clean result.
       const source = ["<!-- dangling", "See https://example.com/x.", ""].join("\n");
@@ -237,8 +237,8 @@ describe("classifyOutcome", () => {
   });
 
   describe("answers that are about the requester, not the resource", () => {
-    // The design decision the whole audit turns on. Each of these describes the
-    // REQUEST or the requester — a throttle, a paywall, a jurisdiction, a server
+    // the design decision the whole audit turns on. each of these describes the
+    // request or the requester — a throttle, a paywall, a jurisdiction, a server
     // fault — and a link a human reads fine is not rot in this repository.
     it.each([
       { code: 401, why: "a paywall or login wall" },
@@ -283,7 +283,7 @@ describe("retry and fallback policy", () => {
   );
 
   it("does not retry a 404 with GET as a fallback status", () => {
-    // A 404 IS re-checked, but by the dead-confirmation pass rather than this
+    // a 404 IS re-checked, but by the dead-confirmation pass rather than this
     // one — conflating the two would skip the confirming request.
     expect(GET_FALLBACK_STATUSES.has(404)).toBe(false);
   });
@@ -295,7 +295,7 @@ describe("failsRun", () => {
   });
 
   it("does not fail on unverifiable or moved links alone", () => {
-    // The claim the workflow's whole design rests on: a throttling publisher
+    // the claim the workflow's whole design rests on: a throttling publisher
     // cannot turn this audit red.
     expect(failsRun([ALIVE, MOVED, UNVERIFIABLE])).toBe(false);
   });
@@ -306,7 +306,7 @@ describe("failsRun", () => {
 });
 
 describe("isReservedAddress", () => {
-  // Pure and offline, which is the point: the redirect guard's whole rule is
+  // pure and offline, which is the point: the redirect guard's whole rule is
   // testable without a resolver or a socket.
   describe("IPv4", () => {
     it.each([
@@ -360,7 +360,7 @@ describe("isReservedAddress", () => {
     );
 
     it("judges an IPv4-mapped address by the IPv4 inside it", () => {
-      // The bypass this exists for: ::ffff:169.254.169.254 reaches exactly the
+      // the bypass this exists for: ::ffff:169.254.169.254 reaches exactly the
       // same endpoint as 169.254.169.254 and matches none of the IPv6 prefixes.
       expect(isReservedAddress("::ffff:169.254.169.254")).toBe(true);
       expect(isReservedAddress("::ffff:127.0.0.1")).toBe(true);
@@ -373,7 +373,7 @@ describe("isReservedAddress", () => {
   });
 
   it("refuses anything it cannot parse", () => {
-    // An address this cannot understand is one it cannot vouch for, so the
+    // an address this cannot understand is one it cannot vouch for, so the
     // failure direction is refusal rather than a probe.
     for (const address of ["not-an-address", "1.2.3", "::ffff::1", ""]) {
       expect(isReservedAddress(address)).toBe(true);
@@ -395,7 +395,7 @@ describe("refusalReason", () => {
   it.each(["file:///etc/passwd", "gopher://example.com/", "ftp://example.com/"])(
     "refuses the non-HTTP scheme in %s",
     async (target) => {
-      // A `location` header can name any scheme at all, so the audit picks the
+      // a `location` header can name any scheme at all, so the audit picks the
       // two it probes rather than letting fetch decide.
       expect(await refusalReason(target)).toMatch(/non-HTTP scheme/);
     },
@@ -410,7 +410,7 @@ describe("refusalReason", () => {
   });
 
   it("classifies a refusal as unverifiable, never as dead", () => {
-    // A refused hop must not fail the run: the citation is not proven gone, and
+    // a refused hop must not fail the run: the citation is not proven gone, and
     // a redirect the audit declined to follow is not this repository's defect.
     const result = classifyOutcome({
       kind: "error",
@@ -473,7 +473,7 @@ describe("the command-line contract", () => {
   });
 
   it("produces byte-identical --dry-run output across runs", async () => {
-    // Stable enough to diff between runs: nothing checkout-dependent may leak in.
+    // stable enough to diff between runs: nothing checkout-dependent may leak in.
     const root = await tempDir();
     await writeFileIn(root, "a.md", "https://example.com/b\nhttps://example.com/a\n");
 

@@ -1,15 +1,15 @@
-// A count stated in prose must agree with the file that owns it.
+// a count stated in prose must agree with the file that owns it.
 //
-// The drift this ends published wrong numbers in three documents at once, with
+// the drift this ends published wrong numbers in three documents at once, with
 // CI green the whole time: nothing in the repository could compare a sentence
 // against the data it described. documented-counts.mjs carries the marker
 // convention and the derivations; this file is the gate over the real tree.
 //
-// It comes in two halves, for the reason gate-teeth.test.mjs exists. The first
+// it comes in two halves, for the reason gate-teeth.test.mjs exists. the first
 // half asserts this repository is currently clean — which a broken checker
-// passes just as happily, silently converting a merge gate into decoration. The
+// passes just as happily, silently converting a merge gate into decoration. the
 // second half plants each failure the checker exists to catch, including one
-// planted into the REAL README so the derivation itself is exercised rather
+// planted into the real README so the derivation itself is exercised rather
 // than a synthetic string that happens to parse.
 
 import { readFile } from "node:fs/promises";
@@ -29,7 +29,7 @@ import {
   states,
 } from "./documented-counts.mjs";
 
-/** Every claim's derived value, computed once per test. */
+/** every claim's derived value, computed once per test. */
 async function derivedValues() {
   const derived = {};
   for (const [key, claim] of Object.entries(CLAIMS)) {
@@ -43,7 +43,7 @@ async function inScopeFiles() {
   return (await markdownFiles()).filter((file) => !shipsWithASkill(file));
 }
 
-/** Every marker in scope, tagged with the file it came from. */
+/** every marker in scope, tagged with the file it came from. */
 async function markersInScope() {
   const found = [];
   for (const file of await inScopeFiles()) {
@@ -55,7 +55,7 @@ async function markersInScope() {
   return found;
 }
 
-/** Compare one document's markers against the derived values. */
+/** compare one document's markers against the derived values. */
 function mismatchesIn(file, text, derived) {
   const { markers } = parseMarkers(text);
   return markers
@@ -116,7 +116,7 @@ describe("documented counts", () => {
         .map((entry) => entry.marker.key),
     );
 
-    // The other direction of the same rule. A derivation nothing marks is dead
+    // the other direction of the same rule. a derivation nothing marks is dead
     // machinery that reads as coverage — and it outlives the sentence it was
     // written for, which is the rot this whole file is against.
     expect(
@@ -133,9 +133,9 @@ describe("documented counts", () => {
       for (const problem of problems) offenders.push(`${file}:${problem.line}`);
     }
 
-    // A distributable skill is installed into other people's projects, where
+    // a distributable skill is installed into other people's projects, where
     // every derivation here names a file that does not exist and nothing can
-    // verify anything. A marker there is not a weaker claim; it is a broken one.
+    // verify anything. a marker there is not a weaker claim; it is a broken one.
     expect(
       offenders,
       "a marker in a distributable skill would be installed into projects that cannot check it",
@@ -148,7 +148,7 @@ describe("documented counts have teeth", () => {
     const derived = await derivedValues();
     const readme = await readFile(repoPath("README.md"), "utf8");
 
-    // Planted into the real file, against the real derivation: a synthetic
+    // planted into the real file, against the real derivation: a synthetic
     // string could pass this while the repository's own wiring was broken.
     const drifted = readme.replace(
       /(<!-- count:distributable-skills -->)[^<]*(<!-- \/count -->)/,
@@ -171,7 +171,7 @@ describe("documented counts have teeth", () => {
       derived: 25,
     });
 
-    // The criterion is legibility: a contributor fixes the sentence from this
+    // the criterion is legibility: a contributor fixes the sentence from this
     // message alone, without opening the checker to find out what is derived
     // from what.
     expect(message).toContain("README.md:8");
@@ -196,7 +196,7 @@ describe("documented counts have teeth", () => {
   });
 
   it("refuses a marker that begins its line", () => {
-    // Found by writing the first one: a line starting with `<!--` is an HTML
+    // found by writing the first one: a line starting with `<!--` is an HTML
     // block in CommonMark, so the marker ends the paragraph it was meant to sit
     // inside and the sentence renders in two halves. Prettier makes the split
     // visible by inserting the blank line the block implies.
@@ -209,7 +209,7 @@ describe("documented counts have teeth", () => {
   });
 
   it("refuses a marker split across two lines", () => {
-    // Same failure one token over: wrapping between the value and the closing
+    // same failure one token over: wrapping between the value and the closing
     // token puts `<!-- /count -->` at the start of a line.
     const { markers, problems } = parseMarkers(
       "The <!-- count:distributable-skills -->twenty-five\n<!-- /count --> skills here.\n",
@@ -273,8 +273,8 @@ describe("documented counts have teeth", () => {
   });
 
   it("checks a marker inside a fenced code block like any other", () => {
-    // Deliberate: nothing is exempt, so there is no "did this one count?"
-    // question to answer. A fence changes VISIBILITY, not applicability — which
+    // deliberate: nothing is exempt, so there is no "did this one count?"
+    // question to answer. a fence changes visibility, not applicability — which
     // is why a code sample a reader copies carries no marker, and the sample
     // demonstrating the syntax legitimately does.
     const { markers, problems } = parseMarkers(

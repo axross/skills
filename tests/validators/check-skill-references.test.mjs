@@ -1,16 +1,16 @@
-// Exit-code and failure-message contract for check-skill-references.mjs.
+// exit-code and failure-message contract for check-skill-references.mjs.
 //
 // `audit-checklist.md` makes confirming a bundled script's documented exit codes
 // a MUST, and this validator is one of the three the repository arms as a merge
-// gate. The documented contract is: 0 when every checked skill passes (warnings
+// gate. the documented contract is: 0 when every checked skill passes (warnings
 // alone do not fail a skill), 1 when any check fails, and 2 on a bad invocation
 // or a path that holds no skill.
 //
-// The anchor cases carry the most weight here: a fragment is resolved against
+// the anchor cases carry the most weight here: a fragment is resolved against
 // GitHub's slug rules, and a fragment on a target that does not resolve is
 // deliberately left to check-links.mjs rather than reported by both.
 //
-// Running the validator over THIS repository's own skill roots is a gate rather
+// running the validator over this repository's own skill roots is a gate rather
 // than a contract test, and lives in tests/repository/gate-runs.test.mjs.
 
 import { join } from "node:path";
@@ -25,9 +25,9 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 const checkSkill = validator(SCRIPTS.checkSkillReferences);
 
 /**
- * Assert that a fixture fails with exit 1 and reports `expected`.
+ * assert that a fixture fails with exit 1 and reports `expected`.
  *
- * The two framing assertions are soft: when a rule stops firing, the useful
+ * the two framing assertions are soft: when a rule stops firing, the useful
  * signal is which of the three claims broke, and a hard assert on the first
  * hides the rest.
  * @param {string} dir
@@ -42,7 +42,7 @@ function expectFailure(dir, expected) {
 }
 
 /**
- * Assert that a fixture raises `expected` as a WARN and still exits 0. Every
+ * assert that a fixture raises `expected` as a WARN and still exits 0. every
  * case using this asserts the exit code, because the whole point of the
  * advisory tier is that none of it can fail a build.
  * @param {string} dir
@@ -100,7 +100,7 @@ describe("check-skill-references.mjs", () => {
 
     it("resolves anchors in a CRLF-encoded document", async () => {
       const root = await tempDir();
-      // Written with Windows line endings: the anchor target is read straight
+      // written with Windows line endings: the anchor target is read straight
       // off disk, so without normalization every heading keeps a trailing \r,
       // matches no heading pattern, and every anchor into the file reads broken.
       const dir = await writeSkill(root, "crlf-skill", {
@@ -257,7 +257,7 @@ describe("check-skill-references.mjs", () => {
       expect(result).toReportFailure(
         /links: references\/detail\.md:7 relative link "\.\.\/\.\.\/other-skill\/SKILL\.md" resolves outside the skill directory/,
       );
-      // A reference reaching up to its own SKILL.md is the common legitimate
+      // a reference reaching up to its own SKILL.md is the common legitimate
       // shape; escaping is measured from the skill directory, not the file's.
       expect.soft(result.stdout).not.toMatch(/theming\.md" resolves outside/);
       expect.soft(result.stdout).not.toMatch(/"\.\.\/SKILL\.md" resolves outside/);
@@ -296,7 +296,7 @@ describe("check-skill-references.mjs", () => {
       const result = checkSkill(dir);
 
       expect(result).toExitWith(1);
-      // Same-file fragment inside a reference…
+      // same-file fragment inside a reference…
       expect
         .soft(result.stdout)
         .toMatch(
@@ -314,7 +314,7 @@ describe("check-skill-references.mjs", () => {
   });
 
     describe("routing — a bullet that gestures instead of naming", () => {
-      /** A skill whose single routing bullet is `bullet`. */
+      /** a skill whose single routing bullet is `bullet`. */
       const skillRouting = (root, name, bullet) =>
         writeSkill(root, name, {
           body: [
@@ -364,7 +364,7 @@ describe("check-skill-references.mjs", () => {
 
       it("stays silent on a bullet stating the rule about gesturing", async () => {
         const root = await tempDir();
-        // `agent-skill-authoring`'s own bullet for this rule. Every hand-run
+        // `agent-skill-authoring`'s own bullet for this rule. every hand-run
         // count of this defect has reported it as a violation of the rule it
         // states; a metric that reproduces that error replaces nothing.
         const dir = await skillRouting(
@@ -382,7 +382,7 @@ describe("check-skill-references.mjs", () => {
       it("still warns when the bullet merely contains \"rather than\"", async () => {
         const root = await tempDir();
         // "rather than" was once excluded alongside "by name" and silenced this
-        // very bullet. The phrase carries no connection to naming, so only the
+        // very bullet. the phrase carries no connection to naming, so only the
         // naming phrase may exempt one.
         const dir = await skillRouting(
           root,
@@ -411,9 +411,9 @@ describe("check-skill-references.mjs", () => {
 
       it("stays silent on `loop-engineering`'s named false positive", async () => {
         const root = await tempDir();
-        // Reproduced verbatim from loop-engineering/SKILL.md:56. TWO
+        // reproduced verbatim from loop-engineering/SKILL.md:56. two
         // independent mechanisms silence it: "channel" is outside
-        // GESTURE_NOUNS, and "MCP" makes namesSomething true. Either alone
+        // GESTURE_NOUNS, and "MCP" makes namesSomething true. either alone
         // would do, so this pins the real-world bullet end-to-end rather than
         // any one path through the check.
         const dir = await skillRouting(
@@ -430,7 +430,7 @@ describe("check-skill-references.mjs", () => {
 
       it("stays silent when a gerund governs the noun", async () => {
         const root = await tempDir();
-        // An activity performed on the thing, not its name withheld.
+        // an activity performed on the thing, not its name withheld.
         const dir = await skillRouting(
           root,
           "gerund-governed",

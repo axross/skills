@@ -1,6 +1,6 @@
-// Exit-code smoke contract for check-commit-message.mjs.
+// exit-code smoke contract for check-commit-message.mjs.
 //
-// Documented contract: 0 when the header conforms (warnings may still print), 1
+// documented contract: 0 when the header conforms (warnings may still print), 1
 // on one or more MUST violations, 2 when no message could be read.
 
 import { join } from "node:path";

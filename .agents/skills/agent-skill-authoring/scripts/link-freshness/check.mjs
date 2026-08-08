@@ -1,54 +1,57 @@
 #!/usr/bin/env node
 // check.mjs — external documentation-link freshness audit for a skill tree.
 //
-// Answers a question no offline check can: do the URLs this tree cites still
-// resolve? check-links.mjs beside it resolves RELATIVE `.md` links against the
+// answers a question no offline check can: do the URLs this tree cites still
+// resolve? check-links.mjs beside it resolves relative `.md` links against the
 // file system and ignores `http(s)://` targets entirely, so nothing else here
 // looks at an external link at all.
 //
-// WHY IT EXISTS. A skill that mirrors a vendor's API ages badly, so the better
+// why it exists. a skill that mirrors a vendor's API ages badly, so the better
 // shape is a link plus the non-obvious caveat rather than a reproduced option
-// table. That trades a table which goes stale VISIBLY — a wrong default a reader
-// can catch — for a link that rots SILENTLY. This audit is the other half of
+// table. that trades a table which goes stale where a reader can see it — a
+// wrong default a reader
+// can catch — for a link that rots where nobody can. this audit is the other
+// half of
 // that trade, and without it the trade is not safe to make.
 //
-// ── IT REACHES THE NETWORK, SO IT IS NOT A GATE AND NOT A TEST.
-// It belongs in a scheduled job on the default branch and nowhere else: not in a
-// merge gate, not in a package script, not in an editor or session hook. A test
+// ── it reaches the network, so it is neither a gate nor a test.
+// it belongs in a scheduled job on the default branch and nowhere else: not in a
+// merge gate, not in a package script, not in an editor or session hook. a test
 // suite must stay offline and deterministic, and a network call inside one makes
 // the merge gate depend on whether a publisher's CDN is up — a gate that fails
 // for reasons no contributor can fix is a gate that gets bypassed or deleted
 // rather than repaired.
 //
-// ── WHY IT MUST NOT BE PULL-REQUEST TRIGGERED. This is the load-bearing one,
-// and ../SKILL.md states it as a rule rather than leaving it here. A review
+// ── why it must never be pull-request triggered. this is the load-bearing one,
+// and ../SKILL.md states it as a rule rather than leaving it here. a review
 // harness that runs against an untrusted pull request head denies it any
 // fetching capability; a fetching job triggered by a pull request hands that
-// capability straight back on head-controlled content. A `SKILL.md` on a fork's
+// capability straight back on head-controlled content. a `SKILL.md` on a fork's
 // branch is text an outsider writes, and a job that dereferences every URL in it
 // is a request forgery primitive with the repository's egress, reachable by
-// anyone who can open a pull request. Scheduled, from the default branch, the
+// anyone who can open a pull request. scheduled, from the default branch, the
 // URLs probed are only ever ones already merged and reviewed.
 //
-// ── THE OTHER FORGERY VECTOR, WHICH THE TRIGGER DOES NOT CLOSE. Being merged
-// makes a URL reviewed; it does not make the HOST honest, and this script
+// ── the other forgery vector, the one the trigger does not close. being merged
+// makes a URL reviewed; it does not make the host honest, and this script
 // follows redirects by hand — re-requesting whatever a `location` header names.
-// A citation that was ordinary at review time can start redirecting to an
-// internal address weeks later. Every hop, the first included, is therefore
+// a citation that was ordinary at review time can start redirecting to an
+// internal address weeks later. every hop, the first included, is therefore
 // re-validated by address-guard.mjs, which is where that threat and its residual
 // rebinding window are set out in full.
 //
-// ── WHY IT CAN FAIL AT ALL, UNLIKE A REPORTING TOOL. A tool reports rather than
+// ── why it can fail at all, where a reporting tool cannot. a tool reports
+// rather than
 // judges when it has no defensible threshold, when the defect is undecidable
-// from the text, or when it is non-deterministic. A dead link has none of those
-// problems: it is a fact, it is decidable, and it is repairable. So this one
-// fails. What it will NOT fail on is a host that refused to answer — see
+// from the text, or when it is non-deterministic. a dead link has none of those
+// problems: it is a fact, it is decidable, and it is repairable. so this one
+// fails. what it will not fail on is a host that refused to answer — see
 // classify.mjs, where that decision lives.
 //
-// Usage:
+// usage:
 //   node check.mjs [options] [<path> ...]
 //
-// Exit codes:
+// exit codes:
 //   0  no link was confirmed dead (unverifiable and moved links are reported)
 //   1  at least one link is confirmed dead
 //   2  bad invocation
@@ -70,7 +73,7 @@ import {
 import { collectUrls } from "./urls.mjs";
 
 /**
- * Identifies the audit to the hosts it probes, with somewhere to complain. A
+ * identifies the audit to the hosts it probes, with somewhere to complain. a
  * default Node user-agent reads as an unattributed scraper, which is how a
  * repository earns a block that then shows up here as `unverifiable` forever.
  */
@@ -78,15 +81,15 @@ const USER_AGENT =
   "axross-skills-link-freshness/1 (+https://github.com/axross/skills)";
 
 const DEFAULTS = {
-  /** Concurrent probes. Low enough to stay polite across ~80 hosts. */
+  /** concurrent probes. low enough to stay polite across ~80 hosts. */
   concurrency: 8,
-  /** Per-request timeout, in milliseconds. */
+  /** per-request timeout, in milliseconds. */
   timeout: 15_000,
-  /** Extra attempts after the first, for a retryable status or a transport error. */
+  /** extra attempts after the first, for a retryable status or a transport error. */
   retries: 2,
-  /** Base backoff between attempts, doubled each retry. */
+  /** base backoff between attempts, doubled each retry. */
   retryDelay: 1_000,
-  /** Redirect hops followed before giving up, which also breaks a redirect loop. */
+  /** redirect hops followed before giving up, which also breaks a redirect loop. */
   maxHops: 10,
 };
 
@@ -118,7 +121,7 @@ function fail2(message) {
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * A transport failure, described in the terms a maintainer can act on: a DNS
+ * a transport failure, described in the terms a maintainer can act on: a DNS
  * miss, an expired certificate, and a timeout call for three different responses.
  */
 function errorReason(error) {
@@ -131,20 +134,20 @@ function errorReason(error) {
 }
 
 /**
- * One request, following redirects BY HAND.
+ * one request, following each redirect itself.
  *
  * `fetch`'s own redirect following reports `redirected` as a bare boolean and
  * hides the status of each hop — which loses the only thing worth knowing here.
- * A 302 is a temporary arrangement and says nothing about the link; a 301 or 308
- * says the citation is out of date even though it still works. Following
+ * a 302 is a temporary arrangement and says nothing about the link; a 301 or 308
+ * says the citation is out of date even though it still works. following
  * manually is what makes `moved` mean something.
  *
- * Manual following also means re-issuing a request to a host the REMOTE SERVER
+ * manual following also means re-issuing a request to a host the remote server
  * names, so every hop — the first included — is re-validated against
- * address-guard.mjs before it is made. Without that, a merged citation whose
+ * address-guard.mjs before it is made. without that, a merged citation whose
  * host later starts redirecting to `169.254.169.254` would have this runner
  * probe the cloud metadata endpoint on the next scheduled run, and nothing at
- * review time could have shown it. See address-guard.mjs for the threat and for
+ * review time could have shown it. see address-guard.mjs for the threat and for
  * the rebinding window it does not close.
  *
  * @returns {Promise<import("./classify.mjs").Outcome>}
@@ -155,7 +158,7 @@ async function requestOnce(url, { method, timeout, maxHops }) {
 
   for (let hop = 0; hop <= maxHops; hop += 1) {
     const refusal = await refusalReason(current);
-    // Deterministic, so it is marked non-retryable: re-resolving a name that
+    // deterministic, so it is marked non-retryable: re-resolving a name that
     // just answered with a private address three more times learns nothing and
     // triples the lookups.
     if (refusal) return { kind: "error", reason: refusal, retryable: false };
@@ -177,7 +180,7 @@ async function requestOnce(url, { method, timeout, maxHops }) {
     }
 
     const location = response.headers.get("location");
-    // A redirect with nowhere to go is the host's problem, not a hop. Reported
+    // a redirect with nowhere to go is the host's problem, not a hop. reported
     // as the status it actually sent rather than followed into nothing.
     if (!location) {
       return {
@@ -196,9 +199,9 @@ async function requestOnce(url, { method, timeout, maxHops }) {
 }
 
 /**
- * One request with retries, so a transient answer never reaches a verdict.
+ * one request with retries, so a transient answer never reaches a verdict.
  *
- * Returns as soon as a status is definitive. A retryable status or a transport
+ * returns as soon as a status is definitive. a retryable status or a transport
  * error is retried with doubling backoff, and whatever the last attempt produced
  * is what gets classified — a 429 that stays a 429 is still unverifiable, which
  * is the correct answer rather than a fallback.
@@ -218,20 +221,20 @@ async function attempt(url, method, options) {
     if (outcome.kind === "status" && !isRetryableStatus(outcome.status)) {
       return outcome;
     }
-    // A refused address is a decision, not a transport blip.
+    // a refused address is a decision, not a transport blip.
     if (outcome.kind === "error" && outcome.retryable === false) return outcome;
   }
   return outcome;
 }
 
 /**
- * Probe one URL to a verdict.
+ * probe one URL to a verdict.
  *
- * Three passes, each earning its place:
+ * three passes, each earning its place:
  *   1. `HEAD` — cheap, and enough for most hosts.
  *   2. `GET`, when `HEAD` came back 403/405/501 — "not like that", not "not here".
- *   3. `GET` again, only when the answer was DEAD — the "stable across retries"
- *      requirement. A 404 is the one verdict that fails the run, so it is the one
+ *   3. `GET` again, only when the answer was dead — the "stable across retries"
+ *      requirement. a 404 is the one verdict that fails the run, so it is the one
  *      verdict worth paying an extra request to be sure of, and a host that
  *      answers 404 once and 200 next is believed on the 200.
  */
@@ -250,9 +253,9 @@ async function probeUrl(url, options) {
 }
 
 /**
- * Run `worker` over `items` with at most `limit` in flight, preserving order.
+ * run `worker` over `items` with at most `limit` in flight, preserving order.
  *
- * A hand-rolled pool rather than chunked `Promise.all`: chunking idles the whole
+ * a hand-rolled pool rather than chunked `Promise.all`: chunking idles the whole
  * pool waiting on the slowest URL in each chunk, and one host that sits at the
  * timeout would then stall every batch it appears in.
  */
@@ -276,7 +279,7 @@ async function mapWithConcurrency(items, limit, worker) {
   return results;
 }
 
-/** Section headings, each stating what the verdict costs the run. */
+/** section headings, each stating what the verdict costs the run. */
 const SECTIONS = {
   [DEAD]: "DEAD — the host says it is gone. This is what fails the run.",
   [MOVED]:
@@ -286,10 +289,10 @@ const SECTIONS = {
 };
 
 /**
- * Render the report.
+ * render the report.
  *
- * Alive URLs are counted, not listed: 200-odd working links are noise around the
- * handful that need a decision. Everything printed is sorted upstream, and
+ * alive URLs are counted, not listed: 200-odd working links are noise around the
+ * handful that need a decision. everything printed is sorted upstream, and
  * nothing checkout-dependent appears, so two runs over an unchanged tree diff
  * cleanly.
  */
@@ -388,7 +391,7 @@ async function main() {
     process.exit(0);
   }
 
-  // The offline path. It exists so this script's extraction can be exercised by
+  // the offline path. it exists so this script's extraction can be exercised by
   // the test suite and by a maintainer without spending anyone's rate limit —
   // and so a run that is about to probe can be previewed first.
   if (options.dryRun) {
@@ -412,7 +415,7 @@ async function main() {
     async ({ url, sites }) => {
       const { verdict, detail } = await probeUrl(url, options);
       completed += 1;
-      // Progress goes to stderr so stdout stays the report and stays diffable.
+      // progress goes to stderr so stdout stays the report and stays diffable.
       if (completed % 25 === 0 || completed === urls.length) {
         process.stderr.write(`  probed ${completed}/${urls.length}\n`);
       }

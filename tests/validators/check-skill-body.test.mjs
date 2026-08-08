@@ -1,16 +1,16 @@
-// Exit-code and failure-message contract for check-skill-body.mjs.
+// exit-code and failure-message contract for check-skill-body.mjs.
 //
 // `audit-checklist.md` makes confirming a bundled script's documented exit codes
 // a MUST, and this validator is one of the three the repository arms as a merge
-// gate. The documented contract is: 0 when every checked skill passes (warnings
+// gate. the documented contract is: 0 when every checked skill passes (warnings
 // alone do not fail a skill), 1 when any check fails, and 2 on a bad invocation
 // or a path that holds no skill.
 //
-// Every rule here is checked against a reference file as well as against
+// every rule here is checked against a reference file as well as against
 // SKILL.md, because a skill's prose lives in both and a walk that covered only
 // the parent would leave the larger half unchecked.
 //
-// Running the validator over THIS repository's own skill roots is a gate rather
+// running the validator over this repository's own skill roots is a gate rather
 // than a contract test, and lives in tests/repository/gate-runs.test.mjs.
 
 import { join } from "node:path";
@@ -25,9 +25,9 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 const checkSkill = validator(SCRIPTS.checkSkillBody);
 
 /**
- * Assert that a fixture fails with exit 1 and reports `expected`.
+ * assert that a fixture fails with exit 1 and reports `expected`.
  *
- * The two framing assertions are soft: when a rule stops firing, the useful
+ * the two framing assertions are soft: when a rule stops firing, the useful
  * signal is which of the three claims broke, and a hard assert on the first
  * hides the rest.
  * @param {string} dir
@@ -42,7 +42,7 @@ function expectFailure(dir, expected) {
 }
 
 /**
- * Assert that a fixture raises `expected` as a WARN and still exits 0. Every
+ * assert that a fixture raises `expected` as a WARN and still exits 0. every
  * case using this asserts the exit code, because the whole point of the
  * advisory tier is that none of it can fail a build.
  * @param {string} dir
@@ -116,7 +116,7 @@ describe("check-skill-body.mjs", () => {
 
     it("reports a section heading that abuts its guidelines block", async () => {
       const root = await tempDir();
-      // Written raw so the reported line is unambiguous: the `##` heading sits at
+      // written raw so the reported line is unambiguous: the `##` heading sits at
       // file line 11, which only resolves if the frontmatter offset is applied.
       const dir = await writeSkill(root, "abutting-section", {
         raw: [
@@ -202,9 +202,9 @@ describe("check-skill-body.mjs", () => {
 
     it("partitions a post-fence bullet between the guidelines check and the placement warning", async () => {
       const root = await tempDir();
-      // The failure check and the `placement:` advisory share one block
+      // the failure check and the `placement:` advisory share one block
       // boundary, so a bullet after a fence must be claimed by exactly one of
-      // them — never both, and never neither. Here the keyword-bearing bullet
+      // them — never both, and never neither. here the keyword-bearing bullet
       // is inside the block and draws no warning, and the unmarked bullet in
       // the same position is inside the same block and fails.
       const dir = await writeSkill(root, "fence-partitioned-block", {
@@ -238,7 +238,7 @@ describe("check-skill-body.mjs", () => {
   });
 
   describe("advisory warnings — reported, never fatal", () => {
-    /** A SKILL.md of exactly `bytes` UTF-8 bytes, padded with single-byte prose. */
+    /** a SKILL.md of exactly `bytes` UTF-8 bytes, padded with single-byte prose. */
     const skillOfBytes = (dirName, bytes) => {
       const head = `---\nname: ${dirName}\ndescription: ${"A".repeat(160)}\n---\n\n# Padded\n\nPad:\n\n`;
       return head + "x".repeat(bytes - Buffer.byteLength(head, "utf8"));
@@ -268,9 +268,9 @@ describe("check-skill-body.mjs", () => {
 
       it("measures UTF-8 bytes, not UTF-16 string length", async () => {
         const root = await tempDir();
-        // One em dash is three bytes but one UTF-16 unit, so this file is 23,799
+        // one em dash is three bytes but one UTF-16 unit, so this file is 23,799
         // units — under the threshold by `String.length` — and 23,801 bytes,
-        // over it. The narrowest margin that can tell the two units apart.
+        // over it. the narrowest margin that can tell the two units apart.
         const raw = `${skillOfBytes("multi-byte-budget", 23798)}—`;
         expect(raw.length, "under the threshold by String.length").toBe(23799);
         expect(Buffer.byteLength(raw, "utf8"), "over it by byte length").toBe(23801);
@@ -281,7 +281,7 @@ describe("check-skill-body.mjs", () => {
     });
 
     describe("length — the section guideline-bullet ceiling", () => {
-      /** A skill body whose one section carries `count` guideline bullets. */
+      /** a skill body whose one section carries `count` guideline bullets. */
       const withBullets = (count) =>
         [
           "# Bulleted",
@@ -360,7 +360,7 @@ describe("check-skill-body.mjs", () => {
         const result = checkSkill(dir);
 
         expect(result).toPassCleanly();
-        // Twelve bullets in the section span, but six under each heading.
+        // twelve bullets in the section span, but six under each heading.
         expect(result.stdout).not.toMatch(/length:/);
       });
     });
@@ -393,7 +393,7 @@ describe("check-skill-body.mjs", () => {
         );
       });
 
-      // Three positions that must NOT warn, for three different reasons: the
+      // three positions that must never warn, for three different reasons: the
       // bullets are labelled; a fence does not end the block that contains
       // them; and an indented fence never ended a block at all.
       it.each([
@@ -538,7 +538,7 @@ describe("check-skill-body.mjs", () => {
     });
 
     describe("citation — a version claim with nothing to check it against", () => {
-      /** A skill whose SKILL.md is `lines`, with one linked reference file. */
+      /** a skill whose SKILL.md is `lines`, with one linked reference file. */
       const skillWith = (root, name, lines, reference = "# Topic\n\nProse.\n") =>
         writeSkill(root, name, {
           body: [
@@ -603,7 +603,7 @@ describe("check-skill-body.mjs", () => {
 
       it("does not count the RFC-2119 boilerplate as a citation", async () => {
         const root = await tempDir();
-        // Every skill carries this link. Counting it would silence the check on
+        // every skill carries this link. counting it would silence the check on
         // the whole corpus, which is why #171 measured "non-RFC URLs".
         const dir = await skillWith(root, "boilerplate-only", [
           "Everything here is written against SDK 57.",
@@ -617,7 +617,7 @@ describe("check-skill-body.mjs", () => {
 
       it("reports one citation warning per document, not two", async () => {
         const root = await tempDir();
-        // Both signals fire on this document; they share a remedy, so reporting
+        // both signals fire on this document; they share a remedy, so reporting
         // both would double the count that scopes the cleanup.
         const dir = await skillWith(root, "both-signals", [
           "Verified against SDK 57.",

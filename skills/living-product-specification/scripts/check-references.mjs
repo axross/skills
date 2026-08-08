@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Reference resolution: every relative link in the corpus addresses something
+// reference resolution: every relative link in the corpus addresses something
 // that exists.
 //
-// This is the corpus's most-run check, because every edit can break one. It
+// this is the corpus's most-run check, because every edit can break one. it
 // covers index.md's own entries too — whether a listed file is *missing* is a
 // broken link, while whether an existing file is *unlisted* belongs to
 // check-index.mjs.
 //
-// External URLs are out of scope. Whether a published address still resolves is
+// external URLs are out of scope. whether a published address still resolves is
 // a network question with its own failure modes, and an offline check that
 // guessed at it would be wrong in both directions.
 

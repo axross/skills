@@ -1,15 +1,15 @@
-// The shared guideline-structure rule, tested directly.
+// the shared guideline-structure rule, tested directly.
 //
 // guidelines.mjs is the one place the `**Guidelines:**` block boundary and the
 // RFC-2119 recognizer live, so it is the one place worth testing exhaustively.
-// The boundary used to exist twice inside check-skill.mjs — once for the
+// the boundary used to exist twice inside check-skill.mjs — once for the
 // guideline-voice failure and once for the placement/length/hedging advisories —
-// under a comment reading "Change one and you must change both". These cases
+// under a comment reading "Change one and you must change both". these cases
 // pin the single rule those two callers now share, including the edges that
-// comment was warning about: a blank line and a fenced block are CONTINUATION,
+// comment was warning about: a blank line and a fenced block are continuation,
 // and only a heading or an unindented non-bullet line closes the block.
 //
-// The counterpart claim — that check-skill-body.mjs and the reporter each read this
+// the counterpart claim — that check-skill-body.mjs and the reporter each read this
 // module correctly — is tests/validators/report-obligation-burden.test.mjs's
 // partition case, not this file's.
 
@@ -22,11 +22,11 @@ import {
   scanGuidelines,
 } from "../../skills/agent-skill-authoring/scripts/guidelines.mjs";
 
-/** Every bullet event, so a case can assert on the whole stream at once. */
+/** every bullet event, so a case can assert on the whole stream at once. */
 const bulletsOf = (body) =>
   [...scanGuidelines(body)].filter((event) => event.kind === "bullet");
 
-/** A minimal document: one heading, a Guidelines label, then the given lines. */
+/** a minimal document: one heading, a Guidelines label, then the given lines. */
 const underGuidelines = (...lines) =>
   ["## Topic", "", "Prose that demonstrates the topic.", "", "**Guidelines:**", "", ...lines].join(
     "\n",
@@ -106,7 +106,7 @@ describe("guidelines.mjs", () => {
     });
 
     it("keeps the block open across a blank line", () => {
-      // A loose list is still one list.
+      // a loose list is still one list.
       const bullets = bulletsOf(underGuidelines("- MUST hold the line.", "", "- MUST hold it too."));
 
       expect(bullets.every((bullet) => bullet.inBlock)).toBe(true);
@@ -122,7 +122,7 @@ describe("guidelines.mjs", () => {
     });
 
     it("ignores bullets inside a fenced block", () => {
-      // The authoring docs show `- MUST …` as an EXAMPLE; counting it would make
+      // the authoring docs show `- MUST …` as an example; counting it would make
       // documenting the rule inflate the very number the rule is measured by.
       const bullets = bulletsOf(
         underGuidelines("- MUST hold the line.", "", "```markdown", "- MUST be an example only.", "```"),
@@ -151,7 +151,7 @@ describe("guidelines.mjs", () => {
     });
 
     it("reports only top-level bullets, not nested ones", () => {
-      // Nested items carry continuation detail, not rules.
+      // nested items carry continuation detail, not rules.
       const bullets = bulletsOf(underGuidelines("- MUST hold the line.", "  - a nested elaboration."));
 
       expect(bullets).toHaveLength(1);

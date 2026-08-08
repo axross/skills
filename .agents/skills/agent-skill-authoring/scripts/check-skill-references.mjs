@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// The wiring between a SKILL.md and its references/ directory.
+// the wiring between a SKILL.md and its references/ directory.
 //
-// Run it after adding, moving, or renaming a reference file. Four things have
+// run it after adding, moving, or renaming a reference file. four things have
 // to hold for progressive disclosure to work at all: every reference is reached
 // from the parent, every relative link stays inside the skill, every heading
 // fragment resolves, and a routing bullet routes rather than states a rule.
 //
-// A link whose TARGET FILE does not resolve is deliberately not reported here —
+// a link whose target file does not resolve is deliberately not reported here —
 // that is check-links.mjs's finding, and reporting it in both would put one
 // defect behind two gates.
 
@@ -24,14 +24,14 @@ import {
   splitFrontmatter,
 } from "./skill-documents.mjs";
 
-// An absolute URI (http:, https:, mailto:, …) or a protocol-relative URL: not a
+// an absolute URI (http:, https:, mailto:, …) or a protocol-relative URL: not a
 // path this validator can resolve on disk.
 const EXTERNAL_TARGET_RE = /^([a-z][a-z0-9+.-]*:|\/\/)/i;
 
-// Routing-concreteness advisory (warnings only — see the header note).
+// routing-concreteness advisory (warnings only — see the header note).
 //
-// The abstract nouns a gestural routing bullet reaches for, held to the set the
-// rule and its examples actually enumerate. Wider sets were measured on this
+// the abstract nouns a gestural routing bullet reaches for, held to the set the
+// rule and its examples actually enumerate. wider sets were measured on this
 // corpus and cost more than they found: `function`, `property`, `value`,
 // `field`, and `parameter` all appear in bullets that name their subject
 // perfectly well ("separating the properties a component owns from the ones its
@@ -39,41 +39,41 @@ const EXTERNAL_TARGET_RE = /^([a-z][a-z0-9+.-]*:|\/\/)/i;
 const GESTURE_NOUNS =
   "flags?|limits?|files?|rules?|options?|settings?|approaches|details?|caveats?|conditions?|requirements?|thresholds?|caps?";
 
-// Three refinements, each measured against the corpus rather than assumed:
+// three refinements, each measured against the corpus rather than assumed:
 //   * emphasis markers are skipped, so a bolded gesture ("the **flag**") reads
 //     the same as a plain one — the defect is the word, not its weight;
 //   * `(?![\w-])` rather than `\b`, or "the file-notation set" matches on its
 //     "file" prefix and reports a bullet for a noun it never used;
 //   * a gerund immediately before it exempts the phrase, because "naming the
-//     file" and "separating the properties" describe an ACTIVITY performed on
+//     file" and "separating the properties" describe an activity performed on
 //     the thing rather than withholding its name.
 const ROUTING_GESTURE_RE = new RegExp(
   `(?<!ing\\s)\\bthe\\s+[*_]{0,2}(?:${GESTURE_NOUNS})(?![\\w-])`,
   "i",
 );
 
-// A bullet instructing the reader to NAME something is stating this rule, not
+// a bullet instructing the reader to name something is stating this rule, not
 // breaking it. `agent-skill-authoring`'s own A2 bullet — "the flag, limit, or
-// rule BY NAME" — is the case every hand-run count of this defect has
+// rule by name" — is the case every hand-run count of this defect has
 // mis-flagged, so the exclusion is deliberate rather than incidental.
 //
-// Held to that one phrase. "rather than" and "instead of" were tried alongside
+// held to that one phrase. "rather than" and "instead of" were tried alongside
 // it and silenced a real gesture — next-app-development's "the options that
-// change behaviour RATHER THAN tune it" — because those phrases carry no
-// connection to naming. An exclusion that hides the defect it was meant to
+// change behaviour rather than tune it" — because those phrases carry no
+// connection to naming. an exclusion that hides the defect it was meant to
 // measure around is worse than the false positive it was buying off.
 const ROUTING_META_RE = /\bby name\b/i;
 
 /**
- * A heading's GitHub anchor slug: lowercase, delete everything that is not a
+ * a heading's GitHub anchor slug: lowercase, delete everything that is not a
  * letter, number, mark, ASCII space, `-`, or `_`, then replace each remaining
  * space with a hyphen.
  *
- * Replacing spaces INDIVIDUALLY rather than collapsing runs is the load-bearing
+ * replacing spaces one at a time rather than collapsing runs is the load-bearing
  * detail. GitHub deletes an em dash and leaves both flanking spaces, so
  * `## Phase 1 — Plan` is `phase-1--plan`, not `phase-1-plan`; a collapsing
- * implementation reports every such link as broken. Link syntax is reduced to
- * its text first, since the slug comes from the rendered heading. Emphasis
+ * implementation reports every such link as broken. link syntax is reduced to
+ * its text first, since the slug comes from the rendered heading. emphasis
  * markers are not unwrapped — `_x_` would slug as `_x_` rather than `x` — which
  * is a known divergence with no instances in a heading to date.
  */
@@ -87,13 +87,13 @@ function slugify(heading) {
 }
 
 /**
- * Every anchor a document's headings define, including GitHub's `-1`, `-2`
- * suffixes for repeated headings. Headings inside fences are illustrative and
+ * every anchor a document's headings define, including GitHub's `-1`, `-2`
+ * suffixes for repeated headings. headings inside fences are illustrative and
  * define no anchor.
  *
- * Line endings are normalized here rather than by the caller: this reads an
- * anchor's TARGET file, which need not be one of the documents already
- * normalized on the way in. A CRLF-authored target would otherwise leave a
+ * line endings are normalized here rather than by the caller: this reads an
+ * anchor's target file, which need not be one of the documents already
+ * normalized on the way in. a CRLF-authored target would otherwise leave a
  * trailing `\r` on every heading — which `.` does not match — so the file would
  * report zero anchors and every link into it would read as broken.
  */
@@ -115,8 +115,8 @@ function headingAnchors(source) {
 }
 
 /**
- * Every on-disk link target in a document — relative paths and bare `#fragment`
- * references — outside fenced blocks and inline code spans. External schemes
+ * every on-disk link target in a document — relative paths and bare `#fragment`
+ * references — outside fenced blocks and inline code spans. external schemes
  * are dropped: this validator resolves files, not URLs.
  */
 function documentLinks(body) {
@@ -134,14 +134,14 @@ function documentLinks(body) {
 }
 
 /**
- * Every routing bullet in a SKILL.md, with the section heading above it.
+ * every routing bullet in a SKILL.md, with the section heading above it.
  *
- * Only the contiguous bullet list immediately following a
+ * only the contiguous bullet list immediately following a
  * `See […](./references/…) for:` line is a routing list; a later
  * `**Guidelines:**` block in the same section (as a self-contained workflow
  * skill may carry) is left alone.
  *
- * One walk with one boundary, for the same reason guidelines.mjs owns the
+ * one walk with one boundary, for the same reason guidelines.mjs owns the
  * `**Guidelines:**` boundary: two readers ask different questions of a routing
  * bullet — "does it open with an RFC-2119 keyword?" (a failure) and "does it
  * name what it points at?" (an advisory) — and a second copy of this boundary
@@ -178,14 +178,14 @@ function* routingBullets(body) {
       yield { line, section, rule: bullet[1].trim() };
       continue;
     }
-    // A blank line before the first bullet is the lead-in gap; any other line,
+    // a blank line before the first bullet is the lead-in gap; any other line,
     // or a blank line after the bullets, ends the routing list.
     if (text.trim() === "" && !seenBullet) continue;
     inRouting = false;
   }
 }
 
-/** Routing-section bullets must stay descriptive — no RFC-2119 keywords. */
+/** routing-section bullets must stay descriptive — no RFC-2119 keywords. */
 function routingKeywordFailures(body) {
   const failures = [];
 
@@ -199,11 +199,11 @@ function routingKeywordFailures(body) {
 }
 
 /**
- * Whether a routing bullet names anything a reader could look up: a code span,
+ * whether a routing bullet names anything a reader could look up: a code span,
  * a camelCased identifier, an acronym, or a proper noun past the first word.
  *
- * The first word is excluded from the proper-noun test because a leading
- * capital may only be opening the sentence. Every other form is positional
+ * the first word is excluded from the proper-noun test because a leading
+ * capital may only be opening the sentence. every other form is positional
  * evidence that a specific thing is being named rather than alluded to.
  */
 function namesSomething(rule) {
@@ -219,25 +219,25 @@ function namesSomething(rule) {
 }
 
 /**
- * Routing bullets that gesture at a fact instead of stating it.
+ * routing bullets that gesture at a fact instead of stating it.
  *
- * A bullet warns only when all three hold: it opens an abstract noun with a
+ * a bullet warns only when all three hold: it opens an abstract noun with a
  * bare `the`, it names nothing anywhere in the bullet, and it is not itself
- * describing the rule. All three conditions push toward silence, which is what
+ * describing the rule. all three conditions push toward silence, which is what
  * the advisory tier is for — the prose rule owns the judgment about whether a
  * particular bullet earns its reference, and a pattern cannot make it.
  *
- * The third condition is not a nicety. `agent-skill-authoring`'s own bullet for
- * this rule reads "the flag, limit, or rule BY NAME", and every hand-run count
- * of this defect has reported it as a violation of the rule it states. A metric
+ * the third condition is not a nicety. `agent-skill-authoring`'s own bullet for
+ * this rule reads "the flag, limit, or rule by name", and every hand-run count
+ * of this defect has reported it as a violation of the rule it states. a metric
  * that reproduces the error it was built to replace is worse than no metric.
  *
- * KNOWN FALSE POSITIVE, stated rather than papered over: a compound noun whose
+ * a known false positive, stated rather than papered over: a compound noun whose
  * modifier is a gesture noun — "the file system", "the rule set" — reads as a
- * gesture and is not one. It cannot be separated by pattern, because the shape
+ * gesture and is not one. it cannot be separated by pattern, because the shape
  * is identical to a real gesture that happens to be compound ("the option sets
- * that differ between them"), and silencing one silences the other. On this
- * corpus that is one hit in ten. An advisory surfaces candidates for a human to
+ * that differ between them"), and silencing one silences the other. on this
+ * corpus that is one hit in ten. an advisory surfaces candidates for a human to
  * weigh, so the miscount is visible where a suppression would not be.
  */
 function routingConcretenessWarnings(body, file, offset) {
@@ -253,7 +253,7 @@ function routingConcretenessWarnings(body, file, offset) {
   return warnings;
 }
 
-/** The reference-wiring findings for one skill directory. */
+/** the reference-wiring findings for one skill directory. */
 async function check(dir) {
   const failures = [];
   const warnings = [];
@@ -280,7 +280,7 @@ async function check(dir) {
   failures.push(...routingKeywordFailures(body));
   warnings.push(...routingConcretenessWarnings(body, "SKILL.md", offset));
 
-  // The unreadable-reference failure belongs here rather than in the body
+  // the unreadable-reference failure belongs here rather than in the body
   // command: it is a fact about the reference existing and being readable, and
   // reporting it from both would put one defect behind two commands.
   const { documents, unreadable } = await skillDocuments(dir, body, offset);
@@ -289,7 +289,7 @@ async function check(dir) {
   const skillRoot = resolve(dir);
   const anchorCache = new Map();
 
-  /** A document's anchor set, or null when it cannot be read. */
+  /** a document's anchor set, or null when it cannot be read. */
   const anchorsOf = async (path) => {
     if (!anchorCache.has(path)) {
       try {
@@ -321,7 +321,7 @@ async function check(dir) {
 
       if (fragment === "" || !resolved.endsWith(".md")) continue;
       const anchors = await anchorsOf(resolved);
-      // A target that does not resolve is check-links.mjs's finding, not this
+      // a target that does not resolve is check-links.mjs's finding, not this
       // one; reporting it here would put the same defect behind two gates.
       if (anchors === null) continue;
       if (!anchors.has(fragment)) {

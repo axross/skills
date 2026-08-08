@@ -1,18 +1,18 @@
-// Custom matchers for validator spawn results.
+// custom matchers for validator spawn results.
 //
-// Every bundled validator's contract is an exit code plus what it writes to
+// every bundled validator's contract is an exit code plus what it writes to
 // stdout/stderr, so nearly every assertion in this suite is "did it exit N, and
-// does its report mention X". Written with bare `expect(result.code).toBe(1)`
+// does its report mention X". written with bare `expect(result.code).toBe(1)`
 // that reads fine until it fails, at which point the diff says `1 !== 0` and
-// nothing about WHY the validator disagreed — the report it printed is the one
+// nothing about why the validator disagreed — the report it printed is the one
 // thing a reader needs and the one thing the message omits.
 //
-// These matchers put the validator's own output in the failure message, so a
+// these matchers put the validator's own output in the failure message, so a
 // red test explains itself without a rerun.
 
 import { expect } from "vitest";
 
-/** The validator's own report, indented so it reads as quoted output. */
+/** the validator's own report, indented so it reads as quoted output. */
 function quoteOutput(result) {
   const text = result.output.trimEnd();
   if (text === "") return "    (the script printed nothing)";
@@ -24,7 +24,7 @@ function quoteOutput(result) {
 
 expect.extend({
   /**
-   * The script exited with `expected`.
+   * the script exited with `expected`.
    *
    * @param {{ code: number, output: string }} result
    * @param {number} expected
@@ -43,8 +43,8 @@ expect.extend({
   },
 
   /**
-   * The script failed (exit 1) AND said why, matching `pattern` against stdout
-   * and stderr combined. Both halves matter: a validator that exits 1 for an
+   * the script failed (exit 1) and also said why, matching `pattern` against stdout
+   * and stderr combined. both halves matter: a validator that exits 1 for an
    * unrelated reason is not evidence that the rule under test fired.
    *
    * @param {{ code: number, output: string }} result
@@ -71,7 +71,7 @@ expect.extend({
   },
 
   /**
-   * The script passed (exit 0). A named matcher rather than `toExitWith(0)`
+   * the script passed (exit 0). a named matcher rather than `toExitWith(0)`
    * because "this input is clean" is the single most repeated assertion here,
    * and it reads as the claim it makes.
    *

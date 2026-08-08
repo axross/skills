@@ -1,19 +1,19 @@
-// Shared corpus reading for the specification validators beside this file.
+// shared corpus reading for the specification validators beside this file.
 //
-// Deliberately carries no shebang: this is a module, not a command. A tool that
+// deliberately carries no shebang: this is a module, not a command. a tool that
 // identifies a CLI by its shebang would otherwise count it as a sixth validator.
 //
-// Everything here is standard-library Node. The validators ship inside a skill
+// everything here is standard-library Node. the validators ship inside a skill
 // that installs into arbitrary projects, so they take no dependencies and assume
 // no build step.
 
 import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
-/** The conventional corpus root, used when a caller names none. */
+/** the conventional corpus root, used when a caller names none. */
 export const DEFAULT_CORPUS_DIR = "docs";
 
-/** Every validator in this set, for the sibling list each one prints in --help. */
+/** every validator in this set, for the sibling list each one prints in --help. */
 export const VALIDATORS = [
   ["check-index.mjs", "every document is listed in the index"],
   ["check-references.mjs", "every relative link resolves"],
@@ -23,7 +23,7 @@ export const VALIDATORS = [
 ];
 
 /**
- * Print the shared trailer every validator's --help ends with, so finding one
+ * print the shared trailer every validator's --help ends with, so finding one
  * command leads to the rest without a run-all script existing to bundle them.
  *
  * @param {string} self file name of the calling validator
@@ -39,7 +39,7 @@ export function siblingHelp(self) {
 }
 
 /**
- * Resolve the single optional positional argument shared by every validator.
+ * resolve the single optional positional argument shared by every validator.
  *
  * @param {string[]} argv raw arguments, excluding node and the script path
  * @param {string} usage full --help text
@@ -76,8 +76,8 @@ async function isFile(path) {
 }
 
 /**
- * Strip fenced code blocks and inline code spans, replacing each removed line
- * with an empty one so every surviving line keeps its original number. A link
+ * strip fenced code blocks and inline code spans, replacing each removed line
+ * with an empty one so every surviving line keeps its original number. a link
  * or heading inside a fence is an example, not a reference.
  *
  * @param {string} text
@@ -111,8 +111,8 @@ const LINK_RE = /\[[^\]]*\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g;
 const EXTERNAL_RE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
 /**
- * Every relative Markdown link in a document, with the fragment stripped and
- * the source line recorded. External schemes are skipped: whether a published
+ * every relative Markdown link in a document, with the fragment stripped and
+ * the source line recorded. external schemes are skipped: whether a published
  * URL still resolves is a different question, answered by a different tool.
  *
  * @param {string} text
@@ -133,7 +133,7 @@ export function extractLinks(text) {
 }
 
 /**
- * Every ATX heading at one level.
+ * every ATX heading at one level.
  *
  * @param {string} text
  * @param {number} level
@@ -150,7 +150,7 @@ export function extractHeadings(text, level) {
 }
 
 /**
- * Lowercase a heading or file stem to the shared comparison form, so a
+ * lowercase a heading or file stem to the shared comparison form, so a
  * `## Job Templates` heading and a `job-templates.md` file are recognised as
  * naming the same domain.
  *
@@ -165,7 +165,7 @@ export function slug(value) {
 }
 
 /**
- * Parse a leading YAML frontmatter block into flat string values. Only the flat
+ * parse a leading YAML frontmatter block into flat string values. only the flat
  * `key: value` shape is supported, which is all a decision record uses; a
  * document with no frontmatter yields an empty object.
  *
@@ -202,9 +202,9 @@ async function collectMarkdown(dir, root, out) {
 }
 
 /**
- * Read a corpus, or report that the project has none.
+ * read a corpus, or report that the project has none.
  *
- * `index.md` is the single adoption marker. Its absence means the project has
+ * `index.md` is the single adoption marker. its absence means the project has
  * not opted in — an unrelated `docs/` directory must never turn red just
  * because these validators are installed — so every caller treats a null return
  * as "nothing to check" and exits 0.
@@ -240,7 +240,7 @@ export async function loadCorpus(dir) {
 }
 
 /**
- * Every decision record in the corpus, sorted by filename — which, given the
+ * every decision record in the corpus, sorted by filename — which, given the
  * naming rule, is chronological.
  *
  * @param {{ documents: { relative: string }[] }} corpus
@@ -249,13 +249,13 @@ export function decisionRecords(corpus) {
   return corpus.documents.filter((doc) => doc.relative.startsWith("decisions/"));
 }
 
-/** Every document that is not a decision record. */
+/** every document that is not a decision record. */
 export function nonDecisionDocuments(corpus) {
   return corpus.documents.filter((doc) => !doc.relative.startsWith("decisions/"));
 }
 
 /**
- * Resolve a link target against the document that contains it.
+ * resolve a link target against the document that contains it.
  *
  * @param {string} documentPath absolute path of the linking document
  * @param {string} target relative link target
@@ -266,7 +266,7 @@ export function resolveLink(documentPath, target) {
 }
 
 /**
- * Print findings in the shared house format and return the process exit code.
+ * print findings in the shared house format and return the process exit code.
  *
  * @param {string} subject what was checked, for the PASS/FAIL line
  * @param {{ category: string, message: string }[]} findings
@@ -290,7 +290,7 @@ export function report(subject, findings, passSummary) {
 }
 
 /**
- * Run a validator's body with the shared argument handling, no-corpus exit, and
+ * run a validator's body with the shared argument handling, no-corpus exit, and
  * error reporting, so each command file states only what it checks.
  *
  * @param {{
@@ -333,7 +333,7 @@ export async function main({ usage, argv, needs, absent, run, pass }) {
   return report(parsed.dir, await run(corpus), pass(corpus));
 }
 
-/** The file name of the running script, for its sibling list. */
+/** the file name of the running script, for its sibling list. */
 export function selfName(url) {
   return basename(new URL(url).pathname);
 }

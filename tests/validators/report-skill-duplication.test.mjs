@@ -1,14 +1,14 @@
-// Exit-code and report contract for report-skill-duplication.mjs.
+// exit-code and report contract for report-skill-duplication.mjs.
 //
-// The documented contract is: 0 whenever a report was produced — always, however
-// many pairs it found — and 2 on a bad invocation. That "always 0" is the claim
+// the documented contract is: 0 whenever a report was produced — always, however
+// many pairs it found — and 2 on a bad invocation. that "always 0" is the claim
 // tests/repository/reporting-tools.test.mjs depends on when it keeps this script
 // out of every gate, so it is asserted here against real fixtures rather than
 // taken on trust.
 //
-// The behavioural cases below pin the three decisions that make the ranking
+// the behavioural cases below pin the three decisions that make the ranking
 // mean anything: comparison is cross-skill only, a restated rule is reported as
-// a CANDIDATE rather than a finding, and the RFC-2119 keyword itself does not
+// a candidate rather than a finding, and the RFC-2119 keyword itself does not
 // contribute to a score.
 
 import { describe, expect, it } from "vitest";
@@ -18,7 +18,7 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const report = validator(SCRIPTS.reportSkillDuplication);
 
-/** A skill body stating one rule, so a fixture's rule set is exactly known. */
+/** a skill body stating one rule, so a fixture's rule set is exactly known. */
 function withRules(...rules) {
   return `# Fixture Skill\n\nBody prose for the fixture.\n\n**Guidelines:**\n\n${rules
     .map((rule) => `- ${rule}`)
@@ -51,7 +51,7 @@ describe("report-skill-duplication.mjs", () => {
 
       const result = report(root);
 
-      // The caveat is the report's load-bearing sentence: without it a reader
+      // the caveat is the report's load-bearing sentence: without it a reader
       // treats a ranked list of legitimate restatements as a defect list.
       expect(result.stdout).toMatch(/CANDIDATES, not findings/);
       expect(result.stdout).toMatch(/Portable Source/);
@@ -60,7 +60,7 @@ describe("report-skill-duplication.mjs", () => {
 
     it("stays silent about a skill restating its own rule", async () => {
       const root = await tempDir();
-      // Same rule twice in ONE skill: a different defect with a different
+      // same rule twice in a single skill: a different defect with a different
       // remedy, and reporting it here would bury the cross-skill pairs.
       await writeSkill(root, "only-skill", {
         body: withRules(SHARED_RULE, SHARED_RULE),

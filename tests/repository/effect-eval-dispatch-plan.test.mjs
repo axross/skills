@@ -1,12 +1,12 @@
 // the two plan scripts .github/workflows/effect-eval.yaml reads before it acts.
 //
-// THESE EXECUTE THE DERIVATION. that is the whole point of the file, and of
+// these execute the derivation rather than reading it. that is the whole point of the file, and of
 // moving the derivation out of the workflow body. what used to sit in YAML was
 // a shell loop that read the fixture and built setup.mjs's arguments; it never
 // ran its body, so --skill never reached setup.mjs and the skill-present
 // condition installed nothing. it cleared an independent review and three
 // planted-violation checks, because every assertion available read the
-// workflow's TEXT and a loop that runs zero times passes all of them.
+// workflow's text and a loop that runs zero times passes all of them.
 //
 // so the skill cases below do not inspect a command line. they materialize a
 // real workspace through the real setup.mjs and look for the skill on disk.
@@ -26,14 +26,14 @@ const CASE = "add-unit-tests-for-an-untested-module";
 const probePlan = (args) => runScript(SCRIPTS.effectEvalProbePlan, args);
 const landingPlan = (args) => runScript(SCRIPTS.effectEvalLandingPlan, args);
 
-/** The declared skills of the fixture's case, so the assertions track the fixture. */
+/** the declared skills of the fixture's case, so the assertions track the fixture. */
 async function declaredSkills() {
   const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
   return fixture.cases.find((entry) => entry.id === CASE).skills;
 }
 
 /**
- * Runs the probe plan, feeds what it emitted to the real setup.mjs the way the
+ * runs the probe plan, feeds what it emitted to the real setup.mjs the way the
  * workflow does, and returns the workspace it produced.
  */
 function materializeFromPlan(condition) {
@@ -190,7 +190,7 @@ describe("the landing plan", () => {
 });
 
 describe("the dry-run input", () => {
-  // an inputs.<name> that does not resolve interpolates the EMPTY STRING rather
+  // an inputs.<name> that does not resolve interpolates the empty string rather
   // than erroring, and every looser reading of that selects the paid path. both
   // scripts take the two literals and nothing else, so an unresolved input is
   // an exit code before a probe spawns rather than a bill.

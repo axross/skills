@@ -1,46 +1,46 @@
-// Counts stated in this repository's prose, as data.
+// counts stated in this repository's prose, as data.
 //
-// Prose here states numbers that are derivable from the files that own them —
+// prose here states numbers that are derivable from the files that own them —
 // how many skills the library ships, how many validators report rather than
-// judge, how many snapshot cases recorded an empty tally. Nothing tied the two
+// judge, how many snapshot cases recorded an empty tally. nothing tied the two
 // together, and the pair drifted: a `--dry-run` against cc0c9eb reported 24
 // installed skills and 22 fixture cases while three documents still claimed 20
 // cases and 100 probes. CI was green throughout, because no check could see a
 // sentence.
 //
-// Grepping prose for digits cannot fix that. It misses a count spelled out as a
+// grepping prose for digits cannot fix that. it misses a count spelled out as a
 // word and fires on every unrelated number, so it would be both incomplete and
-// noisy in the one repository whose deliverable IS prose. A count is therefore
-// MARKED where it is written:
+// noisy in the one repository whose deliverable IS prose. a count is therefore
+// marked where it is written:
 //
-//   The <!-- count:distributable-skills -->twenty-five<!-- /count --> here …
+//   the <!-- count:distributable-skills -->twenty-five<!-- /count --> here …
 //
-// The number stays in exactly one place — the sentence — and this module holds
-// the derivation that proves it. Rewriting the sentence around the marker never
+// the number stays in exactly one place — the sentence — and this module holds
+// the derivation that proves it. rewriting the sentence around the marker never
 // breaks the check, and the marker is invisible once the Markdown is rendered.
 //
-// A marker sits INLINE, whole, on one line, and never at the start of one. That
+// a marker sits inline, whole, on one line, and never at the start of one. that
 // is CommonMark rather than taste: a line beginning with `<!--` is an HTML
 // block, so a marker placed there ends the paragraph it was meant to sit inside
-// and the sentence renders in two halves. Both halves of that rule are enforced
+// and the sentence renders in two halves. both halves of that rule are enforced
 // below, because the failure is invisible in the source and obvious only once
 // the page is rendered.
 //
-// WHAT THIS DELIBERATELY DOES NOT DO: find an unmarked count. Marking is opt-in,
+// what this deliberately does not do: find an unmarked count. marking is opt-in,
 // so a number nobody wrapped still drifts silently, exactly as it did before.
-// That is the accepted cost of not grepping for digits, and it is why a stale
+// that is the accepted cost of not grepping for digits, and it is why a stale
 // count remains a legitimate review finding rather than something REVIEW.md's
-// do-not-report list may claim CI covers — the check is coextensive with MARKED
+// do-not-report list may claim CI covers — the check is coextensive with marked
 // counts alone.
 //
-// A marker is checked wherever it appears in a scanned file, fenced code blocks
+// a marker is checked wherever it appears in a scanned file, fenced code blocks
 // included: nothing is exempt, so there is no "did this one count?" question to
-// answer. What a fence changes is VISIBILITY — an HTML comment inside one
+// answer. what a fence changes is visibility, not applicability — an HTML comment inside one
 // renders as literal text — so a code sample a reader copies should not carry a
-// marker, while a sample that DEMONSTRATES the syntax legitimately does. The one
+// marker, while a sample that demonstrates the syntax legitimately does. the one
 // in README.md's own gotcha entry is a real, checked claim for that reason.
 //
-// Scope is every Markdown file outside the two skill roots. A distributable
+// scope is every Markdown file outside the two skill roots. a distributable
 // skill installs into other people's projects, where these derivations name
 // files that do not exist and nothing can verify anything — so a marker under
 // `skills/` or `.claude/skills/` is itself a failure, not a claim.
@@ -52,25 +52,25 @@ import { REPO_ROOT, repoPath } from "../helpers/run.mjs";
 import { GATES } from "./gates.mjs";
 
 /**
- * Roots whose Markdown ships to other projects, so a marker may never appear.
+ * roots whose Markdown ships to other projects, so a marker may never appear.
  *
  * `.agents/skills` holds the installed files and `.claude/skills` symlinks into
- * it. Both are listed: the walk below records a symlinked file under whichever
+ * it. both are listed: the walk below records a symlinked file under whichever
  * root it reached first, and a marker must be a failure under either name.
  */
 const SKILL_ROOTS = ["skills", ".agents/skills", ".claude/skills"];
 
-/** Directories no scan descends into. */
+/** directories no scan descends into. */
 const SKIPPED_DIRS = new Set(["node_modules", ".git"]);
 
 /**
- * One marker token: an opening `<!-- count:key -->` or a closing
- * `<!-- /count -->`. Matched together rather than separately so the two are
+ * one marker token: an opening `<!-- count:key -->` or a closing
+ * `<!-- /count -->`. matched together rather than separately so the two are
  * seen in document order, which is what makes an unclosed marker detectable.
  */
 const MARKER_TOKEN = /<!--\s*(?:count:(\S+?)|(\/count))\s*-->/g;
 
-/** The shape a marker key must take, so a typo cannot pass as a new key. */
+/** the shape a marker key must take, so a typo cannot pass as a new key. */
 const KEY_SHAPE = /^[a-z0-9-]+$/;
 
 const CARDINALS = [
@@ -142,11 +142,11 @@ const TENS_ORDINALS = [
 ];
 
 /**
- * Every spelling of `value` a sentence may legitimately use.
+ * every spelling of `value` a sentence may legitimately use.
  *
- * Prose picks whichever reads best — "25", "twenty-five", or "twenty-fifth" —
+ * prose picks whichever reads best — "25", "twenty-five", or "twenty-fifth" —
  * so the check accepts all of them rather than forcing a house style onto a
- * sentence. Above 99 only the numeric forms are offered; no count here is that
+ * sentence. above 99 only the numeric forms are offered; no count here is that
  * large, and a word-spelling table for the general case would be dead weight.
  *
  * @param {number} value
@@ -167,7 +167,7 @@ export function renderings(value) {
   ];
 }
 
-/** The `st`/`nd`/`rd`/`th` an English numeric ordinal takes. */
+/** the `st`/`nd`/`rd`/`th` an English numeric ordinal takes. */
 function numericOrdinalSuffix(value) {
   const lastTwo = Math.abs(value) % 100;
   if (lastTwo >= 11 && lastTwo <= 13) return "th";
@@ -184,9 +184,9 @@ function numericOrdinalSuffix(value) {
 }
 
 /**
- * Whether the text a marker wraps states `value`.
+ * whether the text a marker wraps states `value`.
  *
- * Surrounding whitespace is normalized first, so `<!-- count:x --> 25 <!-- …`
+ * surrounding whitespace is normalized first, so `<!-- count:x --> 25 <!-- …`
  * reads the same as the tight form.
  *
  * @param {string} text
@@ -198,13 +198,13 @@ export function states(text, value) {
 }
 
 /**
- * Whether only whitespace precedes `index` on its line.
+ * whether only whitespace precedes `index` on its line.
  *
- * This is the constraint the convention discovered the hard way. A line
+ * this is the constraint the convention discovered the hard way. a line
  * beginning with `<!--` is an HTML block in CommonMark (up to three spaces of
  * indent still counts), so a marker placed there ends the paragraph it was
  * meant to sit inside — Prettier makes the split visible by inserting the blank
- * line the block implies, and the rendered sentence comes apart. Keeping a word
+ * line the block implies, and the rendered sentence comes apart. keeping a word
  * in front of the marker keeps it inline, where it is invisible.
  *
  * @param {string} markdown
@@ -227,9 +227,9 @@ function beginsItsLine(markdown, index) {
  */
 
 /**
- * Every marker in one Markdown document, plus every way one is malformed.
+ * every marker in one Markdown document, plus every way one is malformed.
  *
- * A malformed marker is REPORTED rather than skipped. Silently ignoring an
+ * a malformed marker is reported rather than skipped. silently ignoring an
  * unclosed marker would leave an author believing a number is checked when
  * nothing reads it — the precise failure this whole module exists to end.
  *
@@ -305,12 +305,12 @@ export function parseMarkers(markdown) {
 }
 
 /**
- * Pull one capture out of a file's text, or explain what stopped it.
+ * pull one capture out of a file's text, or explain what stopped it.
  *
- * A derivation that reads a number out of prose is a coupling to that prose,
+ * a derivation that reads a number out of prose is a coupling to that prose,
  * and this is the half that keeps the coupling honest: when the sentence it
- * anchors on is rewritten, the check FAILS LOUDLY instead of quietly deriving
- * something else. That is the intended behaviour — a rewrite of the owning rule
+ * anchors on is rewritten, the check fails loudly instead of quietly deriving
+ * something else. that is the intended behaviour — a rewrite of the owning rule
  * is exactly when the sentence quoting it needs a second look.
  *
  * @param {string} text
@@ -331,7 +331,7 @@ export function anchored(text, pattern, file, what) {
   return match[1];
 }
 
-/** The body of one Markdown section, from its heading to the next one. */
+/** the body of one Markdown section, from its heading to the next one. */
 export function sectionOf(markdown, heading) {
   const start = markdown.indexOf(`\n${heading}\n`);
   if (start === -1) {
@@ -352,7 +352,7 @@ async function isFile(path) {
   }
 }
 
-/** Directory names under `skills/` that hold a SKILL.md. */
+/** directory names under `skills/` that hold a SKILL.md. */
 async function distributableSkillDirs() {
   const root = repoPath("skills");
   const names = [];
@@ -364,9 +364,9 @@ async function distributableSkillDirs() {
 }
 
 /**
- * The entries under the Claude Code skill root that are symlinks.
+ * the entries under the Claude Code skill root that are symlinks.
  *
- * Counted as symlinks rather than as directories, because that is what the
+ * counted as symlinks rather than as directories, because that is what the
  * prose claims and it is the load-bearing half: a `--copy` install would land
  * real directories there, still loading correctly while making the sentence
  * false. `Dirent.isSymbolicLink()` is the one predicate that tells them apart —
@@ -381,16 +381,16 @@ async function claudeSkillSymlinks() {
 }
 
 /**
- * The standalone validator CLIs README.md enumerates: this repository's own
+ * the standalone validator CLIs README.md enumerates: this repository's own
  * gates, plus the ones that ship inside a skill for the projects that install
- * it. A module imported by a validator is not one of them, which is what the
+ * it. a module imported by a validator is not one of them, which is what the
  * shebang distinguishes — those files are executable entry points and say so.
  *
- * The walk is RECURSIVE. A multi-module tool groups its files in a subdirectory
+ * the walk is recursive. a multi-module tool groups its files in a subdirectory
  * of `scripts/` rather than flattening them among a skill's other scripts, and
  * an immediate-entries-only walk stops seeing that tool's CLI entirely — a
  * validator would silently drop out of the count while the prose kept claiming
- * it. Recursing costs nothing here and removes the layout dependency.
+ * it. recursing costs nothing here and removes the layout dependency.
  */
 async function countDocumentedValidators() {
   const gateScripts = new Set(GATES.map((entry) => entry.script));
@@ -406,7 +406,7 @@ async function countDocumentedValidators() {
     }
     for (const file of files.sort()) {
       if (!file.endsWith(".mjs")) continue;
-      // Not named `relative`: this module imports node:path's `relative`, and
+      // not named `relative`: this module imports node:path's `relative`, and
       // shadowing it here would be a trap for the next edit in this scope.
       const relativePath = file.split(sep).join("/");
       if (gateScripts.has(`skills/${name}/scripts/${relativePath}`)) continue;
@@ -426,9 +426,9 @@ async function countDocumentedValidators() {
  */
 
 /**
- * Every count this repository's prose may mark.
+ * every count this repository's prose may mark.
  *
- * A key is registered here and used at least once in prose; the test enforces
+ * a key is registered here and used at least once in prose; the test enforces
  * both directions, so neither a marker naming nothing nor a derivation nothing
  * uses can survive.
  *
@@ -518,7 +518,7 @@ export const CLAIMS = {
         repoPath("scripts/report-obligation-burden.mjs"),
         "utf8",
       );
-      // Counts skills across the tiers rather than in one flat array: #211
+      // counts skills across the tiers rather than in one flat array: #211
       // split the constant into tiers, so the membership is now the union of
       // their `skills` arrays and MANDATED_SKILLS is derived from them.
       const literal = anchored(
@@ -535,7 +535,7 @@ export const CLAIMS = {
   },
 };
 
-/** Every Markdown file in the repository, as repository-relative paths. */
+/** every Markdown file in the repository, as repository-relative paths. */
 export async function markdownFiles() {
   const found = [];
 
@@ -555,15 +555,15 @@ export async function markdownFiles() {
   return found.sort();
 }
 
-/** Whether a repository-relative path belongs to a skill root. */
+/** whether a repository-relative path belongs to a skill root. */
 export function shipsWithASkill(path) {
   return SKILL_ROOTS.some((root) => path.startsWith(`${root}/`));
 }
 
 /**
- * The failure a reader acts on.
+ * the failure a reader acts on.
  *
- * It names the site, what was claimed, what the owning file actually holds, a
+ * it names the site, what was claimed, what the owning file actually holds, a
  * spelling to write, and what else moves with the number — so the fix needs no
  * trip through this module.
  *

@@ -2,40 +2,40 @@
 // check-installed-copies.mjs — installed-skill drift check for a two-tier
 // skill tree.
 //
-// A distributable skill is authored under a SOURCE root (`skills/<name>/`) and
-// installed into a SKILL root (`.claude/skills/<name>/`) with the
-// vercel-labs/skills CLI. The installed copies are tracked artifacts rather than
+// a distributable skill is authored under a source root (`skills/<name>/`) and
+// installed into a skill root (`.claude/skills/<name>/`) with the
+// vercel-labs/skills CLI. the installed copies are tracked artifacts rather than
 // build output, and a hand-edit to one is silently discarded by the next
-// install. Nothing checks that on its own, so the two roots match by luck. This
+// install. nothing checks that on its own, so the two roots match by luck. this
 // makes the mismatch fail.
 //
-// It ships with the agent-skill-management skill (see ../SKILL.md) because the
+// it ships with the agent-skill-management skill (see ../SKILL.md) because the
 // invariant it enforces is exactly the one that skill teaches: any project
 // running the two-tier model has both roots, and therefore has this drift
-// problem. A project that only ever INSTALLS somebody else's skills has one
+// problem. a project that only ever installs somebody else's skills has one
 // root and no use for this check — which is the same thing as saying it is not
 // running the model.
 //
-// `skills-lock.json` is deliberately NOT consulted. It is written only by an
+// `skills-lock.json` is deliberately left unconsulted. it is written only by an
 // install, so it records what the last install did rather than what is on
 // disk now, and cannot witness a later hand-edit to an installed copy —
-// precisely the drift this check exists to catch. Its `source` field also
+// precisely the drift this check exists to catch. its `source` field also
 // names where a skill came from, not where its installed copy lives, so it
-// identifies neither of the two roots being compared. Directory contents are
+// identifies neither of the two roots being compared. directory contents are
 // the truth.
 //
-// Usage:
+// usage:
 //   node check-installed-copies.mjs [--local <name>]... <source-root> <installed-root>
 //
-//     Both roots are REQUIRED. There is no default: a directory layout is a
+//     both roots are required arguments. there is no default: a directory layout is a
 //     project's own choice, and a wrong guess reports "0 skills, no drift" —
 //     a pass that means nothing and looks exactly like a real one.
 //
 //     `--local <name>` marks one installed skill as repository-local: committed
 //     directly under the skill root and hand-edited in place, so it has no
-//     source. Repeatable. Without it, every sourceless installed skill is drift.
+//     source. repeatable. without it, every sourceless installed skill is drift.
 //
-// Exit codes:
+// exit codes:
 //   0  every distributable skill's installed copy matches its source
 //   1  drift — a content mismatch, a missing installed copy, or an installed
 //      skill with neither a source nor repository-local status
@@ -45,13 +45,13 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 
 /**
- * Skills committed directly under the skill root and hand-edited in place, so
- * they legitimately have no source. Kept explicit rather than inferred from
- * "installed with no source": inferring it would let a DELETED source pass
+ * skills committed directly under the skill root and hand-edited in place, so
+ * they legitimately have no source. kept explicit rather than inferred from
+ * "installed with no source": inferring it would let a deleted source pass
  * silently as repository-local, which is the failure this set exists to make
  * loud.
  *
- * Empty by default, so the decision is always the caller's: name each one with
+ * empty by default, so the decision is always the caller's: name each one with
  * `--local`, or hard-code them here in a project's own copy.
  */
 const REPOSITORY_LOCAL = new Set([]);
@@ -70,12 +70,12 @@ async function isDir(path) {
 }
 
 /**
- * Immediate subdirectory names of `root`, sorted.
+ * immediate subdirectory names of `root`, sorted.
  *
- * A symlinked entry counts. `withFileTypes` reports one as a symlink and NOT a
+ * a symlinked entry counts. `withFileTypes` reports one as a symlink rather than a
  * directory, so filtering on `isDirectory()` alone would see nothing in a root
  * whose skills are symlinks into another agent's root — and an empty root is
- * reported as "no drift", which reads exactly like a pass. That is the same
+ * reported as "no drift", which reads exactly like a pass. that is the same
  * silent-pass hazard the usage note gives as the reason both roots are
  * required rather than guessed.
  */
@@ -93,7 +93,7 @@ async function skillNames(root) {
 }
 
 /**
- * Every file under `dir`, as paths relative to it, sorted.
+ * every file under `dir`, as paths relative to it, sorted.
  * @param {string} dir
  * @param {string} [prefix]
  * @returns {Promise<string[]>}
@@ -113,7 +113,7 @@ async function listFiles(dir, prefix = "") {
 }
 
 /**
- * Compare one skill's source directory against its installed copy.
+ * compare one skill's source directory against its installed copy.
  * @returns {Promise<string[]>} one message per difference; empty when identical
  */
 async function compareSkill(sourceDir, installedDir) {

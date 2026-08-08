@@ -1,58 +1,58 @@
 // classify.mjs — the outcome-to-verdict rule for the link-freshness audit.
 //
-// Pure, and separated from the probing on purpose. Whether a 403 fails the run
+// pure, and separated from the probing on purpose. whether a 403 fails the run
 // is the decision this audit actually turns on, and a decision that important
 // should be readable and testable without a socket. check.mjs owns talking to
 // the network; this file owns what the answer means.
 //
-// FOUR VERDICTS, AND ONLY ONE OF THEM FAILS.
+// four verdicts, and exactly one of them fails.
 //
-//   alive         2xx. Nothing to say.
-//   moved         2xx reached through a PERMANENT redirect. Informational.
-//   dead          404 or 410, stable across retries. THE ONLY FAILING VERDICT.
+//   alive         2xx. nothing to say.
+//   moved         2xx reached through a permanent redirect. informational.
+//   dead          404 or 410, stable across retries. the one that fails a run.
 //   unverifiable  Everything else — 403, 429, 5xx, timeout, DNS, TLS.
 //
-// The split between `dead` and `unverifiable` is the whole design. A skill
+// the split between `dead` and `unverifiable` is the whole design. a skill
 // corpus of any size cites dozens of hosts, and several of the ones this kind of
 // documentation reaches for (nngroup.com, smashingmagazine.com,
 // developer.apple.com among them) rate-limit or outright block datacentre
-// egress. An audit that went red because a publisher throttled a CI runner would
+// egress. an audit that went red because a publisher throttled a CI runner would
 // be red most weeks, and a check which cries wolf gets bypassed or deleted
-// rather than fixed. So a host that REFUSES to answer and a host that ANSWERS
+// rather than fixed. so a host that refuses to answer and a host that answers
 // "gone" are different findings, and only the second is a defect in the audited
 // tree's text.
 //
-// `moved` is deliberately not a failure either. A permanent redirect still
+// `moved` is deliberately not a failure either. a permanent redirect still
 // serves the reader, so failing on one would punish a working link — but a deep
 // link that now lands on a generic documentation index is precisely the rot this
 // audit exists to surface, so it is reported rather than folded into `alive`.
-// Reported, a human decides; failed, they would only learn to ignore it.
+// reported, a human decides; failed, they would only learn to ignore it.
 
-/** A URL that resolves. */
+/** a URL that resolves. */
 export const ALIVE = "alive";
-/** A URL that resolves, but only after a permanent redirect. Informational. */
+/** a URL that resolves, but only after a permanent redirect. informational. */
 export const MOVED = "moved";
-/** A URL the host says is gone. The only verdict that fails a run. */
+/** a URL the host says is gone. the only verdict that fails a run. */
 export const DEAD = "dead";
-/** A URL this network could not get an answer about. Never fails a run. */
+/** a URL this network could not get an answer about. never fails a run. */
 export const UNVERIFIABLE = "unverifiable";
 
-/** Verdicts in report order: the actionable ones first. */
+/** verdicts in report order: the actionable ones first. */
 export const VERDICTS = [DEAD, MOVED, UNVERIFIABLE, ALIVE];
 
 /**
- * The statuses that mean "this resource is gone", and the only ones that fail a
+ * the statuses that mean "this resource is gone", and the only ones that fail a
  * run.
  *
- * 404 and 410 only. Deliberately NOT 400, 401, or 451: each of those describes
- * the REQUEST or the requester rather than the resource — a bad query string, a
+ * 404 and 410 only. deliberately not 400, 401, or 451: each of those describes
+ * the request or the requester rather than the resource — a bad query string, a
  * paywall, a legal block in the runner's jurisdiction — and a link a logged-in
  * human reads fine is not rot in this repository's text.
  */
 export const DEAD_STATUSES = new Set([404, 410]);
 
 /**
- * Statuses that mean "not like that" rather than "not here", so the probe should
+ * statuses that mean "not like that" rather than "not here", so the probe should
  * retry the same URL with `GET` before believing them.
  *
  * 405 and 501 are the honest answers to an unsupported `HEAD`. 403 is here for a
@@ -62,17 +62,17 @@ export const DEAD_STATUSES = new Set([404, 410]);
  */
 export const GET_FALLBACK_STATUSES = new Set([403, 405, 501]);
 
-/** Redirect statuses that mean the move is permanent. */
+/** redirect statuses that mean the move is permanent. */
 export const PERMANENT_REDIRECT_STATUSES = new Set([301, 308]);
 
-/** Every redirect status a probe follows. */
+/** every redirect status a probe follows. */
 export const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 /**
- * Whether a status is worth trying again.
+ * whether a status is worth trying again.
  *
  * 429 and 5xx describe a moment rather than a resource, and this audit's whole
- * premise is that a moment must never reach a verdict. A retried 429 that stays
+ * premise is that a moment must never reach a verdict. a retried 429 that stays
  * 429 still lands in `unverifiable`, so retrying costs a little time and buys
  * the difference between "throttled once" and "throttled consistently".
  *
@@ -93,10 +93,10 @@ export function isRetryableStatus(status) {
  */
 
 /**
- * Map one probe outcome onto a verdict.
+ * map one probe outcome onto a verdict.
  *
- * A transport-level failure — DNS, TLS, connection reset, timeout, a redirect
- * chain too long or looping — is ALWAYS unverifiable. It is genuinely unknown
+ * a transport-level failure — DNS, TLS, connection reset, timeout, a redirect
+ * chain too long or looping — is unverifiable without exception. it is genuinely unknown
  * whether the resource is there, and the audit reports what it knows rather than
  * guessing in the direction that produces a finding.
  *
@@ -127,9 +127,9 @@ export function classifyOutcome(outcome) {
 }
 
 /**
- * Whether a set of verdicts should fail the run.
+ * whether a set of verdicts should fail the run.
  *
- * One place rather than a comparison written at each call site, so "only `dead`
+ * one place rather than a comparison written at each call site, so "only `dead`
  * fails" cannot drift between the exit code, the summary line, and the tests
  * that pin both.
  *

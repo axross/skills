@@ -1,31 +1,31 @@
-// Spawn helpers for the validator tests.
+// spawn helpers for the validator tests.
 //
-// Every bundled validator is a standalone CLI whose contract is its exit code
-// plus what it writes to stdout/stderr. The tests therefore run each one as a
+// every bundled validator is a standalone CLI whose contract is its exit code
+// plus what it writes to stdout/stderr. the tests therefore run each one as a
 // real child process rather than importing it: importing would execute the
 // script's own `main()` and call `process.exit`, and it would test a different
 // surface from the one `audit-checklist.md` tells an auditor to confirm.
 //
-// The one exception is commonmark.mjs, which is a module rather than a CLI and
+// the one exception is commonmark.mjs, which is a module rather than a CLI and
 // is imported directly by tests/unit/commonmark.test.mjs.
 
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** Absolute path of the repository root, derived from this file's location. */
+/** absolute path of the repository root, derived from this file's location. */
 export const REPO_ROOT = resolve(
   dirname(fileURLToPath(import.meta.url)),
   "..",
   "..",
 );
 
-/** Resolve a repository-relative path to an absolute one. */
+/** resolve a repository-relative path to an absolute one. */
 export function repoPath(...segments) {
   return join(REPO_ROOT, ...segments);
 }
 
-/** Repository-relative paths of the bundled validators, from their source tier. */
+/** repository-relative paths of the bundled validators, from their source tier. */
 export const SCRIPTS = {
   checkSkillFrontmatter:
     "skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs",
@@ -62,7 +62,7 @@ export const SCRIPTS = {
 };
 
 /**
- * Run a validator and capture its outcome.
+ * run a validator and capture its outcome.
  *
  * @param {string} scriptPath repository-relative path to a `.mjs` validator
  * @param {string[]} [args]
@@ -85,7 +85,7 @@ export function runScript(scriptPath, args = [], { input, cwd } = {}) {
 }
 
 /**
- * Bind `runScript` to one validator, so a test file reads `checkSkill(dir)`
+ * bind `runScript` to one validator, so a test file reads `checkSkill(dir)`
  * rather than repeating the script key at every call.
  *
  * @param {string} scriptPath repository-relative path to a `.mjs` validator

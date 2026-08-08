@@ -1,10 +1,10 @@
-// Exit-code and reporting contract for check-decision-supersede.mjs.
+// exit-code and reporting contract for check-decision-supersede.mjs.
 //
-// Documented contract: 0 when the chain is sound, or there is no corpus and no
+// documented contract: 0 when the chain is sound, or there is no corpus and no
 // decisions/; 1 on findings; 2 on a bad invocation.
 //
-// The stale-reference case is what this command exists for, and its test asserts
-// something no link checker can: the link RESOLVES. A fixture whose target was
+// the stale-reference case is what this command exists for, and its test asserts
+// something no link checker can: the link resolves. a fixture whose target was
 // missing would pass this test for the wrong reason and would keep passing if
 // the status lookup were deleted, so the clean-resolution half is the assertion
 // that actually has teeth.
@@ -46,7 +46,7 @@ describe("check-decision-supersede.mjs", () => {
       "decisions/2026-07-02-use-a-queue.md": ACCEPTED,
     });
 
-    // The link is intact — this is precisely the defect no link checker sees.
+    // the link is intact — this is precisely the defect no link checker sees.
     expect(checkReferences(docs)).toPassCleanly();
     expect(checkSupersede(docs)).toReportFailure(
       /stale-reference: specs\/jobs\.md:3 → decisions\/2026-03-01-run-in-process\.md was superseded by 2026-07-02-use-a-queue\.md/,

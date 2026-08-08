@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "36f094508c8f6e830fff9daa57cfa08f6d667a9da17f7bd5ebd9ca9327667983"
+      "computedHash": "11a834a19df80bf315c3b07c7e6fbcc28da7370b7e7e89a0004abb0ad6df12cb"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b449ef2564bcff61935bc0c98768a016db4abe8876487f63061e1fcdfc7ce570"
+      "computedHash": "4d5661e6c2d0e9af3ff3f7821fc88d51247423a5a7d571adc8cc036d2d1f9741"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -34,7 +34,7 @@
     "conventional-commits": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "4bda385eff6c7611f68eff516a2c981efa72cfec6c679c6c98c5e07d7c609847"
+      "computedHash": "6d2cbc6c2df94ee622ce5b347d9a9c40bd10742941e8e5543e7479f9dfa995d4"
     },
     "end-to-end-testing": {
       "source": "./skills",
@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0f97e2b7295e80337aca1ac000b12a8fe94d8d4b95a464ec995cbe1524d4beea"
+      "computedHash": "8ee3a9dca57270542806cacd51306dd4600c4566889cbef323852407645536ba"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -64,7 +64,7 @@
     "living-product-specification": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "2e92d2f3ee386a449e7e43ab125f2df6d6e15f2a5233ba45208c4adb6a0a8f8c"
+      "computedHash": "8785ecb4a54c128f4a839666df9064eaee51c136bc2b9748bced0a42bb19d7f6"
     },
     "loop-engineering": {
       "source": "./skills",
@@ -139,7 +139,7 @@
     "wireframe-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "40b7bea7cf734d605cf8803aa7e263266fbefa812b24720c0c394cabf50e75a3"
+      "computedHash": "3d49b63957a3bf62d342c8dc52a20dbafc91db3f9d547f2e66073e600a581cd6"
     },
     "zod-schema": {
       "source": "./skills",

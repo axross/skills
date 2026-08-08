@@ -1,33 +1,33 @@
-// Reporting tools must stay out of the enforced-gate set.
+// reporting tools must stay out of the enforced-gate set.
 //
-// Three scripts here report instead of judging, for three different reasons,
+// three scripts here report instead of judging, for three different reasons,
 // and each is one careless wiring away from becoming a gate that can never fail
 // — which is worse than no gate at all: it occupies the slot, costs CI time, and
 // reads to everyone downstream as though something were being enforced.
 //
 // scripts/report-obligation-burden.mjs reports a number with NO threshold: it
-// exits 0 on every valid invocation however large the figures get. There is no
+// exits 0 on every valid invocation however large the figures get. there is no
 // evidence for any particular limit in this corpus, and an indefensible
 // threshold becomes either a rule people route around or a warning people stop
 // reading.
 //
 // scripts/report-skill-duplication.mjs ranks rules stated in more than one
-// skill. Its reason is the strongest of the three: the defect is not decidable
-// from the text at all. The Portable Source Exception lets a self-contained
+// skill. its reason is the strongest of the three: the defect is not decidable
+// from the text at all. the Portable Source Exception lets a self-contained
 // distributable skill restate a rule another skill owns, and every skill here is
-// distributable — so a gate on similarity would fail correct prose. Only intent
+// distributable — so a gate on similarity would fail correct prose. only intent
 // separates the cases, and intent is not in the corpus.
 //
-// scripts/discovery-eval/run.mjs reports which skills a prompt surfaced. It
+// scripts/discovery-eval/run.mjs reports which skills a prompt surfaced. it
 // cannot gate for three independent reasons: it is non-deterministic, it costs
 // money per run, and it needs a secret that fork pull requests do not receive.
-// A flaky merge gate gets bypassed or deleted.
+// a flaky merge gate gets bypassed or deleted.
 //
-// The tracking issues asked for a grep confirming nothing invokes either. A grep
+// the tracking issues asked for a grep confirming nothing invokes either. a grep
 // confirms today; this file confirms every day, which is what the claim actually
 // needs.
 //
-// If a threshold is ever justified, deleting the relevant entry is the
+// if a threshold is ever justified, deleting the relevant entry is the
 // deliberate act that admits it — and that is the point.
 
 import { readFile, readdir } from "node:fs/promises";
@@ -42,7 +42,7 @@ import { GATES } from "./gates.mjs";
  * @typedef {object} ReportingTool
  * @property {string} script    repository-relative path to the script
  * @property {string} needle    the string a wiring would contain
- * @property {string|null} workflow  the ONE workflow allowed to name it
+ * @property {string|null} workflow  the single workflow allowed to name it
  * @property {boolean} runnable whether it can be executed with no network or secret
  */
 
@@ -50,7 +50,7 @@ import { GATES } from "./gates.mjs";
 const REPORTING_TOOLS = [
   {
     script: SCRIPTS.reportObligationBurden,
-    // A distinctive basename, so this catches `node ./scripts/report-…` too.
+    // a distinctive basename, so this catches `node ./scripts/report-…` too.
     needle: "report-obligation-burden.mjs",
     workflow: null,
     runnable: true,
@@ -63,31 +63,31 @@ const REPORTING_TOOLS = [
   },
   {
     script: SCRIPTS.discoveryEval,
-    // Matched by PATH, not basename: "run.mjs" alone is generic enough to
+    // matched by PATH, not basename: "run.mjs" alone is generic enough to
     // collide with unrelated text and would make this assertion meaningless.
     needle: "scripts/discovery-eval/run.mjs",
-    // Its own workflow is the one place it may appear — maintainer-triggered,
+    // its own workflow is the one place it may appear — maintainer-triggered,
     // and not a required check.
     workflow: "discovery-eval.yaml",
-    // Driving the real CLI needs a network and a secret, so running it here
-    // would make the suite non-deterministic and chargeable. The exit-0
+    // driving the real CLI needs a network and a secret, so running it here
+    // would make the suite non-deterministic and chargeable. the exit-0
     // guarantee is asserted through --dry-run instead.
     runnable: false,
   },
   {
     script: SCRIPTS.evaluate,
-    // Matched by PATH for the same reason as its discovery-side sibling above:
+    // matched by PATH for the same reason as its discovery-side sibling above:
     // "evaluate.mjs" alone is too generic to assert anything.
     needle: "tools/effect-eval/evaluate.mjs",
-    // It has earned its own workflow, and exactly one. Until #278 this entry
+    // it has earned its own workflow, and exactly one. until #278 this entry
     // read `workflow: null` with the note "this has no such entry point yet,
     // and until it does, any workflow naming it is a wiring mistake" — so
     // adding the workflow had to break this test first, which is what the
-    // guard was for. The guard is not weakened by being satisfied: naming the
-    // probe in any SECOND workflow still fails.
+    // guard was for. the guard is not weakened by being satisfied: naming the
+    // probe in any further workflow still fails.
     workflow: "effect-eval.yaml",
-    // Driving the real CLI needs a network and a secret, so running it here
-    // would make the suite chargeable and non-deterministic. Its exit-0
+    // driving the real CLI needs a network and a secret, so running it here
+    // would make the suite chargeable and non-deterministic. its exit-0
     // guarantee is asserted through --help and --dry-run instead.
     runnable: false,
   },
@@ -107,7 +107,7 @@ const directivesOnly = (yaml) =>
     .filter((line) => !line.trim().startsWith("#"))
     .join("\n");
 
-/** Every file under `dir`, as absolute paths. */
+/** every file under `dir`, as absolute paths. */
 async function filesUnder(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
@@ -152,8 +152,8 @@ describe("reporting tools are not gates", () => {
         if (yaml.includes(tool.needle)) naming.push(path.slice(path.lastIndexOf("/") + 1));
       }
 
-      // Stronger than "appears nowhere": the tool with a workflow of its own
-      // must appear in EXACTLY that one, so neither wiring it into a gating
+      // stronger than "appears nowhere": the tool with a workflow of its own
+      // must appear in that one and nowhere else, so neither wiring it into a gating
       // workflow nor quietly losing its own trigger can pass unnoticed.
       expect(
         naming.sort(),
@@ -167,7 +167,7 @@ describe("reporting tools are not gates", () => {
   it.each(REPORTING_TOOLS)(
     "keeps $script out of the merge-gating workflow specifically",
     async (tool) => {
-      // Named separately from the sweep above because this is the assertion
+      // named separately from the sweep above because this is the assertion
       // that actually matters: merge-checks.yaml is what blocks a pull request.
       const yaml = await readFile(
         repoPath(".github/workflows/merge-checks.yaml"),
@@ -195,14 +195,14 @@ describe("reporting tools are not gates", () => {
   it.each(REPORTING_TOOLS.filter((tool) => tool.runnable))(
     "$script still exits 0 on the repository's own full tree",
     (tool) => {
-      // The claim this whole file protects: the tool genuinely cannot fail, so
+      // the claim this whole file protects: the tool genuinely cannot fail, so
       // keeping it out of the gates costs nothing and wiring it in gains nothing.
       expect(runScript(tool.script, []).code).toBe(0);
     },
   );
 
   it("exits 0 from the discovery evaluation's offline path", () => {
-    // The evaluation itself needs a network and a secret, so its no-fail
+    // the evaluation itself needs a network and a secret, so its no-fail
     // guarantee is asserted on the one path that needs neither. --dry-run
     // validates the fixture and prints the plan without any model call.
     const result = runScript(SCRIPTS.discoveryEval, ["--dry-run"]);
@@ -360,7 +360,7 @@ describe("the effect evaluation's own workflow", () => {
     // the class this workflow has now been bitten by once. the skill loop it
     // replaced parsed correctly and ran zero times, so every text assertion
     // passed while the treatment condition installed nothing; the plan scripts
-    // exist so a test can EXECUTE the derivation instead of reading it.
+    // exist so a test can execute the derivation instead of reading it.
     //
     // this asserts only that the decisions did not come back. what they resolve
     // to lives in effect-eval-dispatch-plan.test.mjs.
@@ -398,7 +398,7 @@ describe("the effect evaluation's own workflow", () => {
 
   it("lands under the branch, subject and draft flag the plan resolved", async () => {
     // which branch and which flag each mode gets is asserted in
-    // effect-eval-dispatch-plan.test.mjs, for BOTH modes — including the
+    // effect-eval-dispatch-plan.test.mjs, for each mode — including the
     // measurement half, which no rehearsal ever executes. what is left to check
     // here is that the workflow actually spends what the plan handed it.
     const land = directivesOnly(blockUnder(await readWorkflow(), "  land:"));
