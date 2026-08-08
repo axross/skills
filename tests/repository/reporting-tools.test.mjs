@@ -321,17 +321,25 @@ describe("the effect evaluation's own workflow", () => {
     }
   });
 
-  it("declares a dry_run input the probe step actually honours", async () => {
+  it("declares a dry-run input the probe step actually honours", async () => {
     // the rehearsal exists because everything between the matrix and the landed
     // pull request has no local analogue. an input nothing reads, or a flag
     // passed unconditionally, would each turn a $0 rehearsal into a $36 one or
     // a $36 measurement into a synthetic one.
     const yaml = await readWorkflow();
     const on = blockUnder(yaml, "on:");
-    expect(on, `${WORKFLOW} declares no dry_run input`).toMatch(/^ {6}dry_run:$/m);
-    expect(on, "dry_run is not a defaulted boolean, so `inputs` cannot apply its default").toMatch(
+    expect(on, `${WORKFLOW} declares no dry-run input`).toMatch(/^ {6}dry-run:$/m);
+    expect(on, "dry-run is not a defaulted boolean, so `inputs` cannot apply its default").toMatch(
       /type: boolean/,
     );
+    // the name is hyphenated to match --dry-run, trigger.kind, and the branch
+    // prefix. the underscore spelling reading nothing is the silent failure:
+    // `inputs.dry_run` on an input named dry-run interpolates empty, which is
+    // falsy, so every rehearsal would spawn models and be billed.
+    expect(
+      directivesOnly(yaml),
+      "an expression still reads inputs.dry_run, which is empty on an input named dry-run",
+    ).not.toMatch(/inputs\.dry_run/);
 
     const probe = directivesOnly(blockUnder(yaml, "  probe:"));
     expect(probe, "the probe step never passes --dry-run, so the input does nothing").toContain(

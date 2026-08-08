@@ -59,7 +59,7 @@ name: Skill Effect Evaluation
 # check included, so measurement data is exempt from BLOCKING a pull request
 # rather than from being checked.
 #
-# ── `dry_run` rehearses the whole dispatch for nothing. it runs every step —
+# ── `dry-run` rehearses the whole dispatch for nothing. it runs every step —
 # the fan-out, the artifacts, the derivation, the commit, the pull request — and
 # passes --dry-run to the probe, so no model is spawned and nothing is billed.
 # it exists because everything between the matrix and the landed pull request
@@ -81,10 +81,16 @@ on:
       case:
         description: "Evaluation case id, as declared in data/effect-eval/fixture.json"
         required: true
-      dry_run:
+      dry-run:
         # typed and defaulted, so it is read through `inputs` rather than
         # `github.event.inputs` — only the typed context applies a declared
         # default, the distinction discovery-eval.yaml already records.
+        #
+        # hyphenated to match every other spelling of the word in this change —
+        # the --dry-run flag, the trigger.kind stamp, the branch prefix. dot
+        # dereference permits `-` (a property name may hold alphanumerics, `-`
+        # and `_`), and expressions have no arithmetic operators for it to be
+        # mistaken for, so `inputs.dry-run` reads as one property.
         description: "Rehearse the whole dispatch with no model spawned and nothing billed"
         required: false
         type: boolean
@@ -207,7 +213,7 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           GITHUB_SHA: ${{ github.sha }}
-          DRY_RUN: ${{ inputs.dry_run }}
+          DRY_RUN: ${{ inputs.dry-run }}
         run: |
           set -euo pipefail
           mkdir -p "${RUNNER_TEMP}/measurement"
@@ -283,7 +289,7 @@ jobs:
         run: |
           node .github/scripts/effect-eval-check-mode.mjs \
             --dir "${{ steps.collect.outputs.dir }}" \
-            --expect "${{ inputs.dry_run && 'dry-run' || 'measurement' }}"
+            --expect "${{ inputs.dry-run && 'dry-run' || 'measurement' }}"
 
       - name: Derive the summaries and check comparability
         id: summarize
@@ -300,7 +306,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CASE: ${{ github.event.inputs.case }}
           COMPARABLE: ${{ steps.summarize.outcome }}
-          DRY_RUN: ${{ inputs.dry_run }}
+          DRY_RUN: ${{ inputs.dry-run }}
         run: |
           set -euo pipefail
 
@@ -329,7 +335,7 @@ jobs:
             if [ "${DRY_RUN}" = "true" ]; then
               echo "**This is a rehearsal. Close it; do not merge it.**"
               echo
-              echo "Every record here is synthetic: the dispatch ran with \`dry_run\`, so no model"
+              echo "Every record here is synthetic: the dispatch ran with \`dry-run\`, so no model"
               echo "was spawned and nothing was billed. Each \`metadata.json\` is stamped"
               echo "\`trigger.kind: \"dry-run\"\`, and the landing job refused to commit until every"
               echo "record agreed with that."

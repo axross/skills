@@ -153,7 +153,7 @@ spawns the CLI or reaches the network.
 
 ### Rehearsing the whole dispatch
 
-Dispatching `effect-eval.yaml` with **`dry_run`** runs every step of it — the
+Dispatching `effect-eval.yaml` with **`dry-run`** runs every step of it — the
 matrix fan-out, the artifacts, the derivation, this repository's own checks, the
 commit, and the pull request — passing `--dry-run` to each probe. Nothing is
 billed; it costs CI minutes.
