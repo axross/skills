@@ -1,9 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-// Not wired into `npm test` or CI here — see playwright.config.ts's header.
-// This fixture keeps the file to preserve the project's real shape: end-to-end
-// specs read like a reader driving the browser, one behavior per test, apart
-// from the unit specs colocated with the code they cover under shared/.
+// One behavior per test, read as a reader driving the browser — see
+// playwright.config.ts for the server these run against.
 
 test("home page lists every post as a link to its detail page", async ({
 	page,

@@ -1,5 +1,9 @@
 node_modules
 .next
+next-env.d.ts
+.swc
 coverage
+test-results
+playwright-report
 *.tsbuildinfo
 .claude

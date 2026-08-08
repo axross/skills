@@ -4,17 +4,26 @@
 		"lib": ["ES2022", "DOM"],
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
-		"jsx": "preserve",
+		"jsx": "react-jsx",
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"isolatedModules": true,
+		"allowJs": true,
+		"incremental": true,
+		"resolveJsonModule": true,
 		"noEmit": true,
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./*"]
-		}
+		},
+		"plugins": [{ "name": "next" }]
 	},
-	"include": ["**/*.ts", "**/*.tsx"],
-	"exclude": ["node_modules", "e2e", "playwright.config.ts"]
+	"include": [
+		"**/*.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		".next/dev/types/**/*.ts"
+	],
+	"exclude": ["node_modules"]
 }
