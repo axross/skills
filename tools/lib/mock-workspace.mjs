@@ -14,10 +14,10 @@
 // commits to replay on top of it. this module does the replaying: it copies
 // the mock's files into a fresh temporary directory, applies the case's patch
 // if it declares one, turns that directory into a real Git repository whose
-// commit-by-commit history matches history.jsonc,
-// and installs a chosen subset of this repository's own skills into the
-// workspace's .claude/skills/ — which is the condition one probe runs under,
-// skill-absent when that subset is empty and skill-present when it is not.
+// commit-by-commit history matches history.jsonc, and installs a chosen subset
+// of this repository's own skills into the workspace's .claude/skills/ — which
+// is the condition one probe runs under, skill-absent when that subset is empty
+// and skill-present when it is not.
 //
 // reproducibility is the point, and everything below follows from it. two
 // materializations of the same mock and the same skill set must produce
@@ -158,6 +158,8 @@ function stripJsonComments(text) {
  *
  * @param {string} raw
  * @returns {Array<{ message: string, files: string[] }>}
+ * @throws {Error} when the text does not parse once its comments are stripped,
+ *   or a commit declares no message or no `files` array
  */
 function parseHistory(raw) {
   let data;

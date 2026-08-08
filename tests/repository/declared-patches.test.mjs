@@ -33,6 +33,7 @@ const FIXTURES = [{ label: "the effect evaluation", root: repoPath("data/effect-
  *
  * @param {string} root a data root holding fixture.json
  * @returns {Promise<Array<{ id: string, output: string }>>}
+ * @throws {Error} when the root holds no fixture.json, or it does not parse
  */
 async function failuresIn(root) {
   const fixture = JSON.parse(await readFile(join(root, "fixture.json"), "utf8"));

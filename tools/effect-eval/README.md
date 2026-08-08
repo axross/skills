@@ -209,8 +209,10 @@ records what it beat.
 
 A case declares one as `patch` in
 [`data/effect-eval/fixture.json`](../../data/effect-eval/README.md), the probe
-plan resolves it, and `setup.mjs --patch` applies it. No case declares one yet;
-the first arrive with the mocks being built for the discovery side. What holds
+plan resolves it, and `setup.mjs --patch` applies it. No case in that fixture
+declares one yet, and none is planned here: the first patches belong to
+discovery cases, on the mocks [#295](https://github.com/axross/skills/issues/295)
+and [#296](https://github.com/axross/skills/issues/296) are building. What holds
 the mechanism honest meanwhile is `npm test`: every declared patch is applied
 against its mock offline, so a patch that stopped fitting fails there rather
 than in a dispatch that has already spent money reaching it.

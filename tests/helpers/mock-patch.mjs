@@ -34,6 +34,15 @@ const PINNED = [
   "commit.gpgsign=false",
 ];
 
+/**
+ * runs `git` in `cwd`, isolated from the ambient user/system config, and
+ * returns stdout.
+ *
+ * @param {string[]} args
+ * @param {string} cwd
+ * @returns {string} stdout
+ * @throws {Error} when `git` cannot be spawned, or exits non-zero
+ */
 function git(args, cwd) {
   const result = spawnSync("git", args, {
     cwd,
@@ -59,6 +68,7 @@ function git(args, cwd) {
  *
  * @param {string} raw
  * @returns {Array<{ message: string, files: string[] }>}
+ * @throws {Error} when the stripped text is not valid JSON
  */
 export function parseHistoryFixture(raw) {
   const stripped = raw
@@ -68,7 +78,13 @@ export function parseHistoryFixture(raw) {
   return JSON.parse(stripped).commits;
 }
 
-/** the commits a mock's committed history.jsonc declares. */
+/**
+ * the commits a mock's committed history.jsonc declares.
+ *
+ * @param {string} [mock]
+ * @returns {Promise<Array<{ message: string, files: string[] }>>}
+ * @throws {Error} when the mock ships no history.jsonc, or it does not parse
+ */
 export async function readMockHistory(mock = "content-site") {
   return parseHistoryFixture(await readFile(repoPath("mocks", mock, HISTORY_FILE), "utf8"));
 }
@@ -82,6 +98,7 @@ export async function readMockHistory(mock = "content-site") {
  *
  * @param {string} tree the scratch tree
  * @param {(commits: Array<{ message: string, files: string[] }>) => void} mutate
+ * @throws {Error} when the tree holds no history.jsonc, or it does not parse
  */
 export async function editHistory(tree, mutate) {
   const path = join(tree, HISTORY_FILE);
@@ -96,6 +113,9 @@ export async function editHistory(tree, mutate) {
  * @param {(tree: string) => Promise<void>} mutate edits the scratch copy in place
  * @param {{ mock?: string }} [options]
  * @returns {Promise<string>} absolute path of the written patch
+ * @throws {Error} when the mutation produces no diff against the baseline, so
+ *   the test that asked for a patch would otherwise exercise nothing, or when
+ *   a `git` invocation in the scratch repository fails
  */
 export async function patchFromMock(mutate, { mock = "content-site" } = {}) {
   const scratch = await mkdtemp(join(tmpdir(), "mock-patch-"));
