@@ -57,6 +57,8 @@ export const SCRIPTS = {
   summarize: "tools/effect-eval/summarize.mjs",
   effectEvalAdmit: ".github/scripts/effect-eval-admit.mjs",
   effectEvalCheckMode: ".github/scripts/effect-eval-check-mode.mjs",
+  effectEvalProbePlan: ".github/scripts/effect-eval-probe-plan.mjs",
+  effectEvalLandingPlan: ".github/scripts/effect-eval-landing-plan.mjs",
 };
 
 /**
