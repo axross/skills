@@ -1,10 +1,10 @@
-// Exit-code and reporting contract for check-index.mjs.
+// exit-code and reporting contract for check-index.mjs.
 //
-// Documented contract: 0 when every document is listed or the project has no
+// documented contract: 0 when every document is listed or the project has no
 // corpus, 1 on findings, 2 on a bad invocation.
 //
-// The no-corpus case gets its own test rather than riding along with the others.
-// It is the property that keeps installing this skill from turning red a `docs/`
+// the no-corpus case gets its own test rather than riding along with the others.
+// it is the property that keeps installing this skill from turning red a `docs/`
 // directory holding something else entirely, and it is the one a refactor of the
 // corpus loader would break without any other assertion noticing.
 
@@ -46,7 +46,7 @@ describe("check-index.mjs", () => {
   });
 
   it("reports a decision record the index links individually", async () => {
-    // The log stays reachable through such a link, so a bare "can I get there?"
+    // the log stays reachable through such a link, so a bare "can I get there?"
     // test accepts it — and it is the one shape an append-only log must not
     // take, since index.md is the file read unconditionally.
     const docs = await writeCorpus(await tempDir(), {

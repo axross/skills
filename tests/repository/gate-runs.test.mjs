@@ -1,12 +1,12 @@
-// The repository's own gates, run over the real tree.
+// the repository's own gates, run over the real tree.
 //
-// These three checks were `npm run links`, `npm run skill-structure`, and
-// `npm run installed-copies`. They are gates, not contract tests: each asserts
-// that THIS repository is currently clean, where the suites under
+// these three checks were `npm run links`, `npm run skill-structure`, and
+// `npm run installed-copies`. they are gates, not contract tests: each asserts
+// that this repository is currently clean, where the suites under
 // tests/validators assert what the validators do to fixture input.
 //
-// A gate that runs but cannot fail is worse than no gate, because it reads as
-// coverage. Each case below therefore has a companion in
+// a gate that runs but cannot fail is worse than no gate, because it reads as
+// coverage. each case below therefore has a companion in
 // tests/repository/gate-teeth.test.mjs that plants a violation in a temporary
 // copy and requires the same invocation to catch it.
 

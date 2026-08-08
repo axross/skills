@@ -1,8 +1,8 @@
-// Exit-code contract for check-links.mjs, plus the content-skipping rules its
+// exit-code contract for check-links.mjs, plus the content-skipping rules its
 // header documents: links inside fenced code blocks, inline code spans, and HTML
 // comments are illustrative and must never be resolved.
 //
-// Documented contract: 0 when every relative link resolves, 1 when one or more
+// documented contract: 0 when every relative link resolves, 1 when one or more
 // are broken, 2 on a bad invocation.
 
 import { mkdir, symlink } from "node:fs/promises";
@@ -44,7 +44,7 @@ describe("check-links.mjs", () => {
     expect(checkLinks(root)).toPassCleanly();
   });
 
-  // Each of these embeds a link to a file that does not exist. The link is
+  // each of these embeds a link to a file that does not exist. the link is
   // illustrative in every case, so resolving any of them would be the bug.
   it.each([
     {
@@ -68,7 +68,7 @@ describe("check-links.mjs", () => {
     expect(checkLinks(root)).toPassCleanly();
   });
 
-  // The mirror image of the three cases above: text that only LOOKS like it
+  // the mirror image of the three cases above: text that only looks like it
   // opens a comment must not hide the real links after it. commonmark.mjs's
   // extractProse owns the ordering that decides this; these two drive the CLI,
   // because a correct module and a caller reading it correctly are different
@@ -76,7 +76,7 @@ describe("check-links.mjs", () => {
   describe("a comment opener that never really opens a comment", () => {
     it("checks the links after a comment opener that is only being quoted", async () => {
       // README.md documents the `count:` marker rule with this exact sentence.
-      // Read raw, that opener swallowed everything up to the next `-->` — 90
+      // read raw, that opener swallowed everything up to the next `-->` — 90
       // lines of prose and three relative links the gate silently stopped
       // watching, while still reporting clean.
       const root = await tempDir();
@@ -97,7 +97,7 @@ describe("check-links.mjs", () => {
     });
 
     it("keeps checking after a dangling opener that closes nowhere", async () => {
-      // A dangling `<!--` comments out the rest of a rendered document, but
+      // a dangling `<!--` comments out the rest of a rendered document, but
       // honouring it here would silently stop checking — the failure mode that
       // looks like a clean result.
       const root = await tempDir();

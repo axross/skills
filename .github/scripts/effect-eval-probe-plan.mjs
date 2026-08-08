@@ -7,7 +7,7 @@
 // itself: the workflow stays visibly in charge of what it invokes, which is
 // also what keeps this script a pure function a test can call.
 //
-// THAT TESTABILITY IS THE WHOLE REASON IT EXISTS. this derivation used to be a
+// that testability is the whole reason it exists. this derivation used to be a
 // shell loop in the workflow body:
 //
 //   while IFS= read -r skill; do args+=(--skill "${skill}"); done \
@@ -18,8 +18,8 @@
 // and --skill never reached setup.mjs. the skill-present condition installed
 // nothing — the treatment group with no treatment — and it cleared an
 // independent review and three planted-violation checks, because the only
-// assertions available read the workflow's TEXT. a loop that parses correctly
-// and runs zero times passes every one of them.
+// assertions available read the workflow's text and never its behaviour. a
+// loop that parses correctly and runs zero times passes every one of them.
 //
 // size is not why this is a file. a three-line inline conditional has the same
 // defect.
@@ -108,9 +108,9 @@ async function main() {
 
   const plan = {
     mock: declared.mock,
-    // the condition IS the skill set: skill-present installs what the case
-    // declares, skill-absent installs nothing. that mapping used to be a YAML
-    // `if`, where nothing could execute it.
+    // the condition is itself the skill set: skill-present installs what the
+    // case declares, skill-absent installs nothing. that mapping used to be a
+    // YAML `if`, where nothing could execute it.
     skills: options.condition === "skill-present" ? (declared.skills ?? []) : [],
     evaluateFlags: dryRun ? ["--dry-run"] : [],
   };

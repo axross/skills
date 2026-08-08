@@ -1,17 +1,17 @@
-// The enforced-gate set must not drift between package.json and CI.
+// the enforced-gate set must not drift between package.json and CI.
 //
-// The set of enforced gates lives in four places: this repository's `check`
+// the set of enforced gates lives in four places: this repository's `check`
 // script, merge-checks.yaml's jobs, README.md's commands table, and REVIEW.md's
-// do-not-report enumeration. Update one and miss another and CI silently stops
+// do-not-report enumeration. update one and miss another and CI silently stops
 // enforcing something the documentation claims it does.
 //
-// Two of those four can be tied mechanically, which is what this asserts. The
+// two of those four can be tied mechanically, which is what this asserts. the
 // README and REVIEW.md couplings stay prose and remain a reviewer's job.
 //
-// Since the link, skill-structure, and installed-copy checks became Vitest tests
+// since the link, skill-structure, and installed-copy checks became Vitest tests
 // rather than npm run-scripts, the npm-script coupling covers three gates
-// instead of six — and the ARGUMENTS that used to live in package.json now live
-// in gates.mjs. The last case pins the one argument REVIEW.md's do-not-report
+// instead of six — and the arguments that used to live in package.json now live
+// in gates.mjs. the last case pins the one argument REVIEW.md's do-not-report
 // list depends on, in its new home.
 
 import { readFile } from "node:fs/promises";
@@ -22,7 +22,7 @@ import { repoPath } from "../helpers/run.mjs";
 import { gate, GATES } from "./gates.mjs";
 
 /**
- * The npm scripts a shell command invokes. `npm test` is npm's own shorthand
+ * the npm scripts a shell command invokes. `npm test` is npm's own shorthand
  * for `npm run test`, so it normalizes to the same name; `npm install` names no
  * script and is ignored.
  * @param {string} command
@@ -37,7 +37,7 @@ function npmScriptsIn(command) {
   return scripts;
 }
 
-/** The `run:` command of every step in a workflow file. */
+/** the `run:` command of every step in a workflow file. */
 function workflowRunCommands(yaml) {
   return [...yaml.matchAll(/^\s*run:\s*"?([^"\n]+?)"?\s*$/gm)].map(
     ([, command]) => command,

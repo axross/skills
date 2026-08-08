@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// The supersede chain, and whether anything still cites what it replaced.
+// the supersede chain, and whether anything still cites what it replaced.
 //
-// A decision is never rewritten; it is superseded by a new record. That makes
+// a decision is never rewritten; it is superseded by a new record. that makes
 // the last check here the valuable one: a spec's link to a superseded decision
 // still *resolves*, so no link checker will ever notice it, while the rationale
-// it points at has been replaced. Only status metadata makes that visible.
+// it points at has been replaced. only status metadata makes that visible.
 //
-// The frontmatter check exists to protect that one. A record superseded without
+// the frontmatter check exists to protect that one. a record superseded without
 // its status set reports nothing rather than reporting a problem, and a check
 // that fails silently is worse than one that is absent.
 

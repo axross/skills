@@ -1,20 +1,20 @@
 // tools/effect-eval/src/capture.mjs, driven against real temporary Git
 // repositories.
 //
-// WHY REAL GIT RATHER THAN AN ARGV ASSERTION. spawn.mjs is tested by checking
-// the argv it builds, because there the argv IS the whole claim. Here it is
+// why real Git rather than an argv assertion. spawn.mjs is tested by checking
+// the argv it builds, because there the argv is the whole claim. here it is
 // not: the defect this module was extracted to fix was `git add -A -- .
-// ':(exclude).claude'` exiting 1, and that argv looks entirely correct. An
+// ':(exclude).claude'` exiting 1, and that argv looks entirely correct. an
 // argv-equality test passes just as happily on the broken form, so these
 // cases plant a repository and run `git` against it.
 //
-// THE THREE SHAPES ARE THE THREE THE INSTRUMENT ACTUALLY MEETS. A skill-present
-// workspace on a well-formed mock, where the mock's own `.gitignore` keeps the
-// installed skill unstaged; the same workspace on a mock that has lost that
-// line, which is the case the second layer exists for; and a skill-absent
-// workspace with no `.claude` at all, which must take the identical code path.
-// The first and third are the two conditions of every real comparison, and the
-// original defect struck exactly one of them.
+// the three shapes here are the three the instrument actually meets. a
+// skill-present workspace on a well-formed mock, where the mock's own
+// `.gitignore` keeps the installed skill unstaged; the same workspace on a mock
+// that has lost that line, which is the case the second layer exists for; and a
+// skill-absent workspace with no `.claude` at all, which must take the
+// identical code path. the first and third are the two conditions of every real
+// comparison, and the original defect struck exactly one of them.
 
 import { spawnSync } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
@@ -39,7 +39,7 @@ async function write(root, relative, content) {
 }
 
 /**
- * Plants a workspace shaped like one materialize.mjs hands to a probe: a real
+ * plants a workspace shaped like one materialize.mjs hands to a probe: a real
  * repository with one commit, then the model's own uncommitted work on top.
  *
  * @param {{ gitignoresClaude: boolean, installsSkill: boolean }} shape
@@ -59,7 +59,7 @@ async function plantWorkspace({ gitignoresClaude, installsSkill }) {
   git(["add", "-A"], root);
   git(["commit", "-q", "-m", "Initial commit"], root);
 
-  // The model's work: one new test file outside the installed-skills directory.
+  // the model's work: one new test file outside the installed-skills directory.
   await write(root, "shared/resolve.test.ts", 'it("resolves", () => {});\n');
 
   // materialize.mjs installs the condition's skills here and never commits them.
@@ -71,7 +71,7 @@ async function plantWorkspace({ gitignoresClaude, installsSkill }) {
   return root;
 }
 
-/** Collects what the capture wrote to its warning sink. */
+/** collects what the capture wrote to its warning sink. */
 function sink() {
   const messages = [];
   return { warn: (message) => messages.push(message), text: () => messages.join("") };
@@ -104,7 +104,7 @@ describe("captureDiff", () => {
       ".claude/skills/unit-testing/SKILL.md",
       ".claude/skills/unit-testing/references/naming.md",
     ]);
-    // Every filtered path is named, not just counted: a reader has to be able
+    // every filtered path is named, not just counted: a reader has to be able
     // to tell which fixture forgot the line and what it let through.
     for (const path of filtered) expect(log.text()).toContain(path);
     expect(log.text()).toMatch(/warning:/);

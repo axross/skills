@@ -7,10 +7,10 @@
 // the workspace's HEAD commit looked like a ready-made content key and is not
 // one, for four reasons: it covers only committed files, so the installed skill
 // (gitignored) falls outside it; it moves without a content change, because a
-// commit hash is over the tree AND the message; it is a function of Git's object
-// format rather than of content alone; and its correctness would rest on the
-// mock's .gitignore continuing to say what it says today, which is a defect
-// this repository has already had and fixed.
+// commit hash is over the message as well as the tree; it is a function of
+// Git's object format rather than of content alone; and its correctness would
+// rest on the mock's .gitignore continuing to say what it says today, which is
+// a defect this repository has already had and fixed.
 //
 // so the exclusions below are named here rather than inherited from whatever
 // that .gitignore contains.
@@ -28,10 +28,10 @@ const EXCLUDED_DIRECTORIES = new Set([".git", "node_modules"]);
  *
  * load-bearing, and the one exclusion worth arguing about: a project
  * fingerprint that covered the installed skills would differ between the
- * skill-absent and skill-present conditions BY CONSTRUCTION, so the check that
- * proves two probes comparable would always fail. `skillDigests` covers them
- * separately, which is what lets them be compared within a condition and
- * required to be empty in the other.
+ * skill-absent and skill-present conditions by construction rather than by
+ * accident, so the check that proves two probes comparable would always fail.
+ * `skillDigests` covers them separately, which is what lets them be compared
+ * within a condition and required to be empty in the other.
  */
 const EXCLUDED_PATHS = new Set([".claude/skills"]);
 
@@ -67,11 +67,11 @@ export async function digestibleFiles(root) {
 /**
  * a content digest over a directory tree.
  *
- * three properties of the digested line are deliberate. the PATH is in it, so
+ * three properties of the digested line are deliberate. the path is in it, so
  * moving a file changes the digest even when every byte is still present
- * somewhere. the MODE is in it, reduced to the executable bit because that is
+ * somewhere. the mode is in it, reduced to the executable bit because that is
  * the only one Git preserves and so the only one whose change makes this a
- * different tree. and the CONTENT is hashed rather than concatenated, so the
+ * different tree. and the content is hashed rather than concatenated, so the
  * cost is one pass and constant memory per file however large the tree.
  *
  * @param {string} root
@@ -104,7 +104,7 @@ export async function skillDigests(skillsRoot) {
   try {
     entries = await readdir(skillsRoot, { withFileTypes: true });
   } catch (error) {
-    // no directory at all IS the skill-absent condition, not a failure to read.
+    // no directory at all is the skill-absent condition, not a failure to read.
     if (error.code === "ENOENT") return {};
     throw error;
   }

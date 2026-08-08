@@ -1,12 +1,12 @@
-// Exit-code and reporting contract for check-glossary.mjs.
+// exit-code and reporting contract for check-glossary.mjs.
 //
-// Documented contract: 0 when every spec has a matching heading, or there is no
+// documented contract: 0 when every spec has a matching heading, or there is no
 // corpus and no specs/; 1 on findings; 2 on a bad invocation.
 //
-// The one-way correspondence is asserted in both directions on purpose. A spec
+// the one-way correspondence is asserted in both directions on purpose. a spec
 // without a heading is a finding; a heading without a spec is not, because
 // cross-cutting vocabulary belongs to no single domain and a domain may be named
-// before its behaviour is written down. A future change that "tidied" this into
+// before its behaviour is written down. a future change that "tidied" this into
 // a symmetric check would need an exception list for both cases, and the test
 // that fails is the one saying why.
 

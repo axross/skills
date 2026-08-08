@@ -3,17 +3,18 @@
 // records the dispatch did not produce.
 //
 // it belongs to the workflow because it compares two things only the workflow
-// sees together: the MODE of the dispatch, which is an input, and the STAMP on
+// sees together: the mode of the dispatch, which is an input, and the stamp on
 // each record, which evaluate.mjs writes. summarize.mjs sees the records and
 // not the dispatch; the workflow saw the dispatch and, until this, not the
 // records.
 //
-// it checks BOTH directions, and that is the point. a dry run whose records are
-// not all stamped means the flag never reached evaluate.mjs and six probes were
-// paid for by a rehearsal; a paid run with any record stamped means a probe
-// wrote a synthetic transcript and the measurement is fiction. a check that
-// only looked for the first would leave the expensive half unguarded, and this
-// branch has already shipped two fields whose checks could not fail.
+// it checks each direction, not just the one that costs nothing to get wrong,
+// and that is the point. a dry run whose records are not all stamped means the
+// flag never reached evaluate.mjs and six probes were paid for by a rehearsal;
+// a paid run with any record stamped means a probe wrote a synthetic transcript
+// and the measurement is fiction. a check that only looked for the first would
+// leave the expensive half unguarded, and this branch has already shipped two
+// fields whose checks could not fail.
 //
 // exit codes:
 //   0  every record's stamp matches the dispatch's mode
