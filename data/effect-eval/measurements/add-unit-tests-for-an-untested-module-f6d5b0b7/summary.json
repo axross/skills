@@ -1,0 +1,228 @@
+{
+  "case": {
+    "prompt": "shared/resolve-translation.ts has no tests. Add unit tests for it.",
+    "targetModule": "shared/resolve-translation.ts"
+  },
+  "project": {
+    "name": "content-site",
+    "tree": "sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211",
+    "commit": "593904b722f5a71bc53c67f43e476f637fd8f315"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ]
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"unit-testing\":\"sha256:540c54a2dad963ce3d2c171142b44762840428dea90af099bbcf33f1e2394fc9\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"shared/resolve-translation.ts has no tests. Add unit tests for it.\",\"targetModule\":\"shared/resolve-translation.ts\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded []"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 0,
+  "probes": [
+    {
+      "probe": "skill-absent-700f5632",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-absent-8434fafa",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-absent-985bb717",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-6f2137e5",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-7b1c24c2",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-c36c41d2",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    }
+  ]
+}

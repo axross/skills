@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-08-08T09:38:16Z",
+  "trigger": {
+    "kind": "dry-run",
+    "url": null
+  },
+  "instrument": {
+    "commit": "8f63c89e866b64967b84716b99fc4ecf21961ca1",
+    "node": "v26.7.0",
+    "os": "Linux"
+  },
+  "cliExitCode": null,
+  "configuration": {
+    "runtime": {
+      "name": "claude-code",
+      "version": "2.1.220",
+      "options": {
+        "maxTurns": 100,
+        "settingSources": [
+          "project"
+        ],
+        "allowedTools": [
+          "Bash",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Read",
+          "Skill",
+          "TodoWrite",
+          "Write"
+        ],
+        "disallowedTools": [
+          "Agent",
+          "NotebookEdit",
+          "Task",
+          "WebFetch",
+          "WebSearch"
+        ]
+      }
+    },
+    "model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "options": {}
+    },
+    "project": {
+      "name": "content-site",
+      "tree": "sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211",
+      "commit": "593904b722f5a71bc53c67f43e476f637fd8f315"
+    },
+    "skills": {
+      "unit-testing": "sha256:540c54a2dad963ce3d2c171142b44762840428dea90af099bbcf33f1e2394fc9"
+    },
+    "task": {
+      "prompt": "shared/resolve-translation.ts has no tests. Add unit tests for it.",
+      "targetModule": "shared/resolve-translation.ts"
+    }
+  }
+}
