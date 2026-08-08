@@ -63,3 +63,23 @@ A symbol named or cased unlike its neighbors makes the reader stop to check whet
   - A data-access function that breaks the sibling naming pattern (`fetchRecord` when siblings are `getRecord`, `getRecords`, `getSettings`).
 - SHOULD prefer full words over opaque abbreviations in a new identifier (`record`/`user`, not `rec`/`usr`).
 - SHOULD keep a value on the project's established suffix/alias convention for its kind (e.g., an unresolved async value carrying the expected naming alias), per the project's own component convention, if it defines one.
+
+### Default Vocabulary
+
+A project with an established convention has already answered these questions, and its convention wins. Where a project has none, a stated vocabulary is what keeps two contributors from inventing two — and it makes a name carry its kind, so a reader learns what a value is without chasing its declaration.
+
+| Pattern              | Names                                                                       | Example                     |
+| -------------------- | --------------------------------------------------------------------------- | --------------------------- |
+| `is<Noun>`           | a boolean, or a function returning one, saying the subject is that noun     | `isUser`                    |
+| `is<Adjective>`      | a boolean, or a function returning one, saying the subject is in that state | `isEnabled`, `isApplicable` |
+| `<pastParticiple>At` | the instant an event happened, or will happen                               | `expiredAt`                 |
+| `<verb>In`           | the span remaining until an event happens                                   | `expiresIn`                 |
+| `<plural>`           | a list- or array-shaped value                                               | `users`                     |
+
+**Guidelines:**
+
+- MUST apply this vocabulary only where the project defines no convention of its own for the kind of value being named; where it does, its convention governs and a divergence from the table is not a finding.
+- MUST put a boolean value, or a function returning one, on the `is<Noun>` or `is<Adjective>` form wherever it asks whether the subject **is** that thing or is in that state; a boolean asking something else (possession, capability, obligation) is outside this table and takes the form its own question calls for.
+- MUST name an instant with the `At` suffix on a past participle, keeping the past participle when the instant lies in the future (`expiredAt` for an expiry not yet reached), so the suffix marks a timestamp rather than a tense.
+- MUST name a span remaining until an event with the `In` suffix on the plain verb (`expiresIn`), so it is never read as the instant the `At` form carries.
+- MUST reserve a plural noun for a value that is a list or an array, and MUST NOT pluralize the name of one that is not.
