@@ -14,12 +14,10 @@
 // tests/effect-eval/workspace.test.mjs, which relies on and asserts the same
 // property.
 
-import { readdir, rm, stat } from "node:fs/promises";
+import { readdir, readFile, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
-
-import { readFile } from "node:fs/promises";
 
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
