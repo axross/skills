@@ -188,21 +188,34 @@ jobs:
       # `--install` keeps the harness's own setup out of the measurement:
       # without it every probe spent three to five of its twelve to fifteen
       # turns installing dependencies, in both conditions, over the network.
+      # the plan script decides; this step only expands what it emitted. the
+      # derivation it replaced was a shell loop that read the fixture, and it
+      # installed no skill at all — see the script's header. `jq -r '.a[]'`
+      # newline-terminates every element, which is what makes `mapfile` correct
+      # here where `read` over a `join("\n")` was not.
+      #
+      # no `-e` on the array reads: jq exits 4 when a filter produces no output,
+      # and an empty `skills` is what skill-absent legitimately looks like.
       - name: Prepare the workspace
         id: workspace
         env:
           CASE: ${{ github.event.inputs.case }}
           CONDITION: ${{ matrix.condition }}
+          DRY_RUN: ${{ inputs.dry-run }}
         run: |
           set -euo pipefail
-          mock="$(node -e 'const f=require("./data/effect-eval/fixture.json");const c=f.cases.find(c=>c.id===process.env.CASE);process.stdout.write(c.mock)')"
-          args=(--mock "${mock}" --install)
-          if [ "${CONDITION}" = "skill-present" ]; then
-            while IFS= read -r skill; do
-              args+=(--skill "${skill}")
-            done < <(node -e 'const f=require("./data/effect-eval/fixture.json");const c=f.cases.find(c=>c.id===process.env.CASE);process.stdout.write(c.skills.join("\n"))')
-          fi
-          echo "path=$(node tools/effect-eval/setup.mjs "${args[@]}")" >> "$GITHUB_OUTPUT"
+          plan="$(node .github/scripts/effect-eval-probe-plan.mjs \
+            --case "${CASE}" --condition "${CONDITION}" --dry-run-input "${DRY_RUN}")"
+          mapfile -t skills < <(jq -r '.skills[]' <<<"${plan}")
+          args=(--mock "$(jq -er '.mock' <<<"${plan}")" --install)
+          for skill in "${skills[@]}"; do
+            args+=(--skill "${skill}")
+          done
+          # assigned before it is echoed, so `set -e` sees setup.mjs's exit
+          # code. inside `echo "path=$(...)"` it could not: echo succeeds on a
+          # failed substitution and the step would export an empty path.
+          workspace="$(node tools/effect-eval/setup.mjs "${args[@]}")"
+          echo "path=${workspace}" >> "$GITHUB_OUTPUT"
 
       # safety property 2 — the only secret here is the one the CLI cannot
       # authenticate without.
@@ -213,19 +226,19 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           GITHUB_SHA: ${{ github.sha }}
+          CASE: ${{ github.event.inputs.case }}
+          CONDITION: ${{ matrix.condition }}
           DRY_RUN: ${{ inputs.dry-run }}
         run: |
           set -euo pipefail
           mkdir -p "${RUNNER_TEMP}/measurement"
-          if [ "${DRY_RUN}" = "true" ]; then
-            set -- --dry-run
-          else
-            set --
-          fi
-          node tools/effect-eval/evaluate.mjs "$@" \
+          plan="$(node .github/scripts/effect-eval-probe-plan.mjs \
+            --case "${CASE}" --condition "${CONDITION}" --dry-run-input "${DRY_RUN}")"
+          mapfile -t flags < <(jq -r '.evaluateFlags[]' <<<"${plan}")
+          node tools/effect-eval/evaluate.mjs "${flags[@]}" \
             --workspace "${{ steps.workspace.outputs.path }}" \
-            --case "${{ github.event.inputs.case }}" \
-            --condition "${{ matrix.condition }}" \
+            --case "${CASE}" \
+            --condition "${CONDITION}" \
             --out "${RUNNER_TEMP}/measurement" \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
@@ -285,11 +298,21 @@ jobs:
       # hard-fails, unlike the derivation below: a stamp that disagrees with the
       # mode means either a rehearsal was billed or a measurement is fiction,
       # and neither is a finding worth committing.
+      #
+      # `--expect` comes from the landing plan rather than from a second reading
+      # of the dispatch's input. two derivations of one fact can disagree, and a
+      # check whose own argument is derived a second way is weaker than it looks.
       - name: Refuse records the dispatch did not produce
+        env:
+          CASE: ${{ github.event.inputs.case }}
+          DRY_RUN: ${{ inputs.dry-run }}
         run: |
+          set -euo pipefail
+          plan="$(node .github/scripts/effect-eval-landing-plan.mjs \
+            --case "${CASE}" --dry-run-input "${DRY_RUN}" --run-id "${GITHUB_RUN_ID}")"
           node .github/scripts/effect-eval-check-mode.mjs \
             --dir "${{ steps.collect.outputs.dir }}" \
-            --expect "${{ inputs.dry-run && 'dry-run' || 'measurement' }}"
+            --expect "$(jq -er '.expect' <<<"${plan}")"
 
       - name: Derive the summaries and check comparability
         id: summarize
@@ -310,18 +333,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          # the rehearsal's subject is deliberately not a Conventional Commit.
-          # it is never merged, so it never becomes a subject on the default
-          # branch, and a reader scanning branches should see what it is.
-          if [ "${DRY_RUN}" = "true" ]; then
-            branch="effect-eval/dry-run/${{ github.run_id }}"
-            title="DRY RUN — do not merge: effect-eval dispatch rehearsal for ${CASE}"
-            draft=(--draft)
-          else
-            branch="effect-eval/measurement/${{ github.run_id }}"
-            title="data(effect-eval): record a case measurement of ${CASE}"
-            draft=()
-          fi
+          # everything the mode decides — branch, subject, draft flag, and the
+          # body's opening — comes from one resolution. what is left here is the
+          # git and gh that a test has no need to execute, because they fail
+          # loudly on their own.
+          plan="$(node .github/scripts/effect-eval-landing-plan.mjs \
+            --case "${CASE}" --dry-run-input "${DRY_RUN}" --run-id "${GITHUB_RUN_ID}")"
+          branch="$(jq -er '.branch' <<<"${plan}")"
+          title="$(jq -er '.title' <<<"${plan}")"
+          mapfile -t draft < <(jq -r '.prFlags[]' <<<"${plan}")
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -332,24 +352,7 @@ jobs:
           git push -u origin "${branch}"
 
           {
-            if [ "${DRY_RUN}" = "true" ]; then
-              echo "**This is a rehearsal. Close it; do not merge it.**"
-              echo
-              echo "Every record here is synthetic: the dispatch ran with \`dry-run\`, so no model"
-              echo "was spawned and nothing was billed. Each \`metadata.json\` is stamped"
-              echo "\`trigger.kind: \"dry-run\"\`, and the landing job refused to commit until every"
-              echo "record agreed with that."
-              echo
-              echo "It exists to prove the dispatch's wiring end to end — the matrix fan-out, the"
-              echo "artifacts, the derivation, this commit, and this pull request — for the cost of"
-              echo "CI minutes rather than six probes."
-              echo
-              echo "It is opened as a draft so GitHub will not merge it. A test asserts no"
-              echo "committed measurement carries the dry-run stamp, so landing this anyway breaks"
-              echo "the default branch's checks."
-            else
-              echo "Recorded one case measurement of \`${CASE}\`."
-            fi
+            jq -er '.bodyPreamble' <<<"${plan}"
             echo
             if [ "${COMPARABLE}" = "success" ]; then
               echo "Every comparability check passed."

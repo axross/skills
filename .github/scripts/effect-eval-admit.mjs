@@ -27,12 +27,9 @@ import { admitCase } from "../../tools/effect-eval/src/admission.mjs";
 import {
   caseMeasurementName,
   CONDITIONS,
-  DATA_ROOT,
-  FIXTURE_FILE,
   SUMMARY_FILE,
 } from "../../tools/effect-eval/src/layout.mjs";
-
-const DEFAULT_ROOT = DATA_ROOT;
+import { DEFAULT_ROOT, readDeclaredCase } from "./lib/effect-eval-fixture.mjs";
 
 const USAGE = `Usage: effect-eval-admit.mjs --case <id> [options]
 
@@ -101,18 +98,11 @@ async function main() {
   const options = parseArgv(argv);
   if (!options.caseId) fail2(`--case is required.\n${USAGE}`);
 
-  const fixturePath = join(options.root, FIXTURE_FILE);
-  let fixture;
+  let declared;
   try {
-    fixture = JSON.parse(await readFile(fixturePath, "utf8"));
+    declared = await readDeclaredCase(options.root, options.caseId);
   } catch (error) {
-    fail2(`Could not read ${fixturePath}: ${error.message}`);
-  }
-
-  const declared = (fixture.cases ?? []).find((entry) => entry.id === options.caseId);
-  if (!declared) {
-    const known = (fixture.cases ?? []).map((entry) => entry.id).join(", ") || "(none)";
-    fail2(`${fixturePath} declares no case ${JSON.stringify(options.caseId)}. Known: ${known}`);
+    fail2(error.message);
   }
 
   const repetitions = declared.repetitionsPerCondition;

@@ -341,14 +341,46 @@ describe("the effect evaluation's own workflow", () => {
       "an expression still reads inputs.dry_run, which is empty on an input named dry-run",
     ).not.toMatch(/inputs\.dry_run/);
 
+    // the mode reaches evaluate.mjs through the plan script rather than a shell
+    // conditional. what --dry-run resolves to for a given input is asserted in
+    // effect-eval-dispatch-plan.test.mjs, which runs the resolution.
     const probe = directivesOnly(blockUnder(yaml, "  probe:"));
-    expect(probe, "the probe step never passes --dry-run, so the input does nothing").toContain(
-      "--dry-run",
+    expect(probe, "the probe job never resolves a plan, so the input does nothing").toContain(
+      "effect-eval-probe-plan.mjs",
     );
+    expect(probe, "the plan script is never told which mode the dispatch is in").toContain(
+      '--dry-run-input "${DRY_RUN}"',
+    );
+    expect(probe, "evaluate.mjs never receives the plan's flags").toMatch(
+      /evaluate\.mjs "\$\{flags\[@\]\}"/,
+    );
+  });
+
+  it("leaves neither job deciding anything about the mode in shell", async () => {
+    // the class this workflow has now been bitten by once. the skill loop it
+    // replaced parsed correctly and ran zero times, so every text assertion
+    // passed while the treatment condition installed nothing; the plan scripts
+    // exist so a test can EXECUTE the derivation instead of reading it.
+    //
+    // this asserts only that the decisions did not come back. what they resolve
+    // to lives in effect-eval-dispatch-plan.test.mjs.
+    const yaml = await readWorkflow();
+    for (const job of ["  probe:", "  land:"]) {
+      const block = directivesOnly(blockUnder(yaml, job));
+      expect(block, `${job} branches on the mode in shell again`).not.toMatch(/if \[ .*DRY_RUN/);
+      expect(block, `${job} reads the fixture with an inline node -e again`).not.toMatch(
+        /node -e/,
+      );
+      expect(block, `${job} assembles an argument list with a shell loop again`).not.toMatch(
+        /while .*read/,
+      );
+    }
+    // the idiom that derived the mode check's argument a second way, from the
+    // same input the branch and title came from.
     expect(
-      probe,
-      "the probe step passes --dry-run unconditionally, which would make every dispatch a rehearsal",
-    ).toMatch(/if \[ "\$\{DRY_RUN\}" = "true" \]/);
+      directivesOnly(yaml),
+      "the land job derives the mode a second time instead of reading the landing plan",
+    ).not.toMatch(/inputs\.dry-run &&/);
   });
 
   it("refuses records the dispatch did not produce, before committing", async () => {
@@ -364,15 +396,24 @@ describe("the effect evaluation's own workflow", () => {
     );
   });
 
-  it("opens a rehearsal as a draft, under its own branch prefix", async () => {
+  it("lands under the branch, subject and draft flag the plan resolved", async () => {
+    // which branch and which flag each mode gets is asserted in
+    // effect-eval-dispatch-plan.test.mjs, for BOTH modes — including the
+    // measurement half, which no rehearsal ever executes. what is left to check
+    // here is that the workflow actually spends what the plan handed it.
     const land = directivesOnly(blockUnder(await readWorkflow(), "  land:"));
-    expect(land).toContain("effect-eval/dry-run/");
-    expect(land).toContain("effect-eval/measurement/");
+    expect(land, "the land job never resolves a landing plan").toContain(
+      "effect-eval-landing-plan.mjs",
+    );
+    expect(land, "the branch is not the plan's").toMatch(/git checkout -b "\$\{branch\}"/);
+    expect(land, "the commit subject is not the plan's").toMatch(/git commit -m "\$\{title\}"/);
 
     // both halves, because either alone passes while the flag goes nowhere: the
-    // assignment can exist and never be passed, and the expansion can be passed
-    // while the assignment is empty in both branches.
-    expect(land, "the dry-run branch does not set --draft").toMatch(/draft=\(--draft\)/);
+    // array can be filled and never passed, and the expansion can be passed
+    // while nothing ever fills it.
+    expect(land, "the draft flags are never read out of the plan").toMatch(
+      /mapfile -t draft < <\(jq -r '\.prFlags\[\]'/,
+    );
     expect(land, "gh pr create never receives the draft flag").toMatch(
       /gh pr create(?:[^\n]*\\\n)*[^\n]*"\$\{draft\[@\]\}"/,
     );
