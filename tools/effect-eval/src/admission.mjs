@@ -43,14 +43,14 @@ export function meanProbeCost(costs) {
  *   declaredCapUsd: number,
  *   requestedCapUsd?: number|null,
  *   historicalCosts?: number[],
- *   estimatedCostUsdPerProbe: number,
+ *   unmeasuredProbeCostCeilingUsd: number,
  * }} input
  * @returns {{
  *   admitted: boolean,
  *   capUsd: number,
  *   perProbeUsd: number,
  *   projectedTotalUsd: number,
- *   basis: "committed measurements"|"the fixture's declared estimate",
+ *   basis: "committed measurements"|"the fixture's declared ceiling",
  *   reason: string,
  * }}
  */
@@ -60,7 +60,7 @@ export function admitCase({
   declaredCapUsd,
   requestedCapUsd = null,
   historicalCosts = [],
-  estimatedCostUsdPerProbe,
+  unmeasuredProbeCostCeilingUsd,
 }) {
   if (!Number.isInteger(probeCount) || probeCount < 1) {
     throw new Error(`${caseId}: probeCount must be a positive integer, got ${probeCount}.`);
@@ -89,13 +89,14 @@ export function admitCase({
   }
 
   const measured = meanProbeCost(historicalCosts);
-  const perProbeUsd = measured ?? estimatedCostUsdPerProbe;
-  const basis = measured === null ? "the fixture's declared estimate" : "committed measurements";
+  const perProbeUsd = measured ?? unmeasuredProbeCostCeilingUsd;
+  const basis =
+    measured === null ? "the fixture's declared ceiling" : "committed measurements";
 
   if (!(perProbeUsd > 0)) {
     throw new Error(
       `${caseId}: no usable per-probe cost — there is no committed measurement and the ` +
-        `fixture's estimatedCostUsdPerProbe is ${estimatedCostUsdPerProbe}.`,
+        `fixture's unmeasuredProbeCostCeilingUsd is ${unmeasuredProbeCostCeilingUsd}.`,
     );
   }
 

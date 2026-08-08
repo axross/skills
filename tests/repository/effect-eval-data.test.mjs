@@ -69,14 +69,29 @@ describe("the case fixture", () => {
     }
   });
 
-  it("declares a positive cap and estimate for every case", async () => {
+  it("declares a positive cap and pre-measurement ceiling for every case", async () => {
     for (const declared of (await readFixture()).cases) {
       expect(declared.capUsd, `${declared.id} has no positive capUsd`).toBeGreaterThan(0);
       expect(
-        declared.estimatedCostUsdPerProbe,
-        `${declared.id} has no positive estimatedCostUsdPerProbe to seed admission from`,
+        declared.unmeasuredProbeCostCeilingUsd,
+        `${declared.id} has no positive unmeasuredProbeCostCeilingUsd for admission to ` +
+          "project from before the case has been measured",
       ).toBeGreaterThan(0);
       expect(declared.repetitionsPerCondition).toBeGreaterThan(0);
+    }
+  });
+
+  it("no longer declares the key that field was renamed from", async () => {
+    // a half-applied rename is the failure worth catching: admitCase would
+    // read `undefined` for the ceiling, and on a case with no committed
+    // measurement that is the path where money is gated. it throws rather than
+    // admitting, so the dispatch is loud — but it is loud at the fixture's
+    // expense rather than the renamer's, and this says which.
+    for (const declared of (await readFixture()).cases) {
+      expect(
+        declared,
+        `${declared.id} still declares estimatedCostUsdPerProbe; the rename is half applied`,
+      ).not.toHaveProperty("estimatedCostUsdPerProbe");
     }
   });
 

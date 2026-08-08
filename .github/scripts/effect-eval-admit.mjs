@@ -122,7 +122,7 @@ async function main() {
     declaredCapUsd: declared.capUsd,
     requestedCapUsd: options.capUsd === null ? null : Number(options.capUsd),
     historicalCosts: await committedCosts(options.root, options.caseId),
-    estimatedCostUsdPerProbe: declared.estimatedCostUsdPerProbe,
+    unmeasuredProbeCostCeilingUsd: declared.unmeasuredProbeCostCeilingUsd,
   });
 
   process.stderr.write(`${decision.reason}\n`);
