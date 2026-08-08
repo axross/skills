@@ -54,6 +54,11 @@ export function meanProbeCost(costs) {
  *   basis: "committed measurements"|"the fixture's declared ceiling",
  *   reason: string,
  * }}
+ * @throws {Error} when `probeCount` is not a positive integer, when either cap
+ *   is not positive, or when no per-probe cost can be derived from either a
+ *   committed measurement or the fixture's ceiling. a case refused on budget is
+ *   not a throw — it returns `admitted: false`, so a caller can tell an input
+ *   it cannot act on from a case it may not start
  */
 export function admitCase({
   caseId,

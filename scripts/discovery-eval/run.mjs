@@ -291,7 +291,13 @@ async function buildWorkspace(headSkillsDir) {
   return { dir, corpusSize: Object.keys(corpus).length, overlaid, corpus };
 }
 
-/** One probe: spawn the CLI in the workspace and read back what it selected. */
+/**
+ * One probe: spawn the CLI in the workspace and read back what it selected.
+ *
+ * @throws {Error} when the CLI cannot be spawned for any reason but its
+ *   absence, which exits the process with a message instead. A non-zero exit
+ *   is not one of these — `--max-turns 1` ends in error_max_turns by design.
+ */
 function probe(prompt, workspace) {
   const result = spawnSync(
     "claude",
