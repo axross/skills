@@ -321,6 +321,63 @@ describe("the effect evaluation's own workflow", () => {
     }
   });
 
+  it("declares a dry-run input the probe step actually honours", async () => {
+    // the rehearsal exists because everything between the matrix and the landed
+    // pull request has no local analogue. an input nothing reads, or a flag
+    // passed unconditionally, would each turn a $0 rehearsal into a $36 one or
+    // a $36 measurement into a synthetic one.
+    const yaml = await readWorkflow();
+    const on = blockUnder(yaml, "on:");
+    expect(on, `${WORKFLOW} declares no dry-run input`).toMatch(/^ {6}dry-run:$/m);
+    expect(on, "dry-run is not a defaulted boolean, so `inputs` cannot apply its default").toMatch(
+      /type: boolean/,
+    );
+    // the name is hyphenated to match --dry-run, trigger.kind, and the branch
+    // prefix. the underscore spelling reading nothing is the silent failure:
+    // `inputs.dry_run` on an input named dry-run interpolates empty, which is
+    // falsy, so every rehearsal would spawn models and be billed.
+    expect(
+      directivesOnly(yaml),
+      "an expression still reads inputs.dry_run, which is empty on an input named dry-run",
+    ).not.toMatch(/inputs\.dry_run/);
+
+    const probe = directivesOnly(blockUnder(yaml, "  probe:"));
+    expect(probe, "the probe step never passes --dry-run, so the input does nothing").toContain(
+      "--dry-run",
+    );
+    expect(
+      probe,
+      "the probe step passes --dry-run unconditionally, which would make every dispatch a rehearsal",
+    ).toMatch(/if \[ "\$\{DRY_RUN\}" = "true" \]/);
+  });
+
+  it("refuses records the dispatch did not produce, before committing", async () => {
+    // both directions: a rehearsal that was billed, and a measurement that is
+    // fiction. see .github/scripts/effect-eval-check-mode.mjs.
+    const land = directivesOnly(blockUnder(await readWorkflow(), "  land:"));
+    const checkAt = land.indexOf("effect-eval-check-mode.mjs");
+    const commitAt = land.indexOf("git commit");
+    expect(checkAt, `${WORKFLOW}'s land job never runs the mode check`).toBeGreaterThan(-1);
+    expect(commitAt, `${WORKFLOW}'s land job never commits`).toBeGreaterThan(-1);
+    expect(checkAt, "the mode check runs after the commit, which is too late").toBeLessThan(
+      commitAt,
+    );
+  });
+
+  it("opens a rehearsal as a draft, under its own branch prefix", async () => {
+    const land = directivesOnly(blockUnder(await readWorkflow(), "  land:"));
+    expect(land).toContain("effect-eval/dry-run/");
+    expect(land).toContain("effect-eval/measurement/");
+
+    // both halves, because either alone passes while the flag goes nowhere: the
+    // assignment can exist and never be passed, and the expansion can be passed
+    // while the assignment is empty in both branches.
+    expect(land, "the dry-run branch does not set --draft").toMatch(/draft=\(--draft\)/);
+    expect(land, "gh pr create never receives the draft flag").toMatch(
+      /gh pr create(?:[^\n]*\\\n)*[^\n]*"\$\{draft\[@\]\}"/,
+    );
+  });
+
   it("gives the probe job no write permission at all", async () => {
     // that job spawns a model with Bash and the editing tools.
     const probe = blockUnder(await readWorkflow(), "  probe:");

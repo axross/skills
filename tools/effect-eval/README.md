@@ -151,6 +151,37 @@ The record is stamped `trigger.kind: "dry-run"` so it cannot be mistaken for a
 measurement. Every bundled test stays on that path: nothing in the test suite
 spawns the CLI or reaches the network.
 
+### Rehearsing the whole dispatch
+
+Dispatching `effect-eval.yaml` with **`dry-run`** runs every step of it — the
+matrix fan-out, the artifacts, the derivation, this repository's own checks, the
+commit, and the pull request — passing `--dry-run` to each probe. Nothing is
+billed; it costs CI minutes.
+
+It exists because everything between the matrix and the landed pull request has
+no local analogue. The offline tests cover `setup` → `evaluate` → `summarize`;
+they cannot cover `download-artifact`'s merge, the land job's `git` and `gh`, or
+whether the merge gate really skips the result. The last defect found in that
+seam was one line, and it was caught by reading rather than by running.
+
+**A rehearsal's pull request is closed, never merged.** Three things keep it
+from landing, and they are worth telling apart:
+
+- it opens as a **draft**, which GitHub will not merge;
+- its branch is `effect-eval/dry-run/<run_id>` and its title says so;
+- before committing, either mode refuses when the records' stamps and the
+  dispatch's mode disagree — a rehearsal whose records are not stamped means
+  `--dry-run` never reached the probe and models were billed, and a measurement
+  with a stamped record means a probe wrote a synthetic transcript.
+
+A test asserts no **committed** measurement carries the dry-run stamp, so
+merging one anyway breaks the default branch's checks. That test reads Git's
+tracked files rather than the working tree, which is both what "committed" means
+and what keeps it from firing during a rehearsal's own `npm run check`.
+
+The one thing a rehearsal cannot answer is how six concurrent CLI sessions on
+one credential behave, because it starts none.
+
 ## Why the tool posture is the opposite of the discovery evaluation's
 
 `scripts/discovery-eval/run.mjs` denies `Bash` and every editing tool because
