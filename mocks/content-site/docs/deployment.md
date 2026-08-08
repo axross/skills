@@ -1,8 +1,8 @@
 # Deployment
 
-Operational notes for running this site outside a local checkout. This
-fixture does not include a deployment target or a build script — read this as
-what a real deployment of the full site adds on top of what is here.
+Operational notes for running this site outside a local checkout. `npm run
+build` produces what is served and `npm run start` serves it; everything below
+is what a real deployment target adds around that pair.
 
 ## Environments
 

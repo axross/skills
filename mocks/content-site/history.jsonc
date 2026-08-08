@@ -31,7 +31,7 @@
 		},
 		{
 			"message": "WIP",
-			"files": ["babel.config.cjs", "jest.config.cjs"]
+			"files": ["jest.config.cjs"]
 		},
 		{
 			"message": "refactor(i18n): tighten locale matching",
@@ -51,7 +51,7 @@
 		},
 		{
 			"message": "Add post detail page",
-			"files": ["app/(site)/posts/[slug]/page.tsx", "types/framework.d.ts"]
+			"files": ["app/(site)/posts/[slug]/page.tsx"]
 		},
 		{
 			"message": "WIP e2e",

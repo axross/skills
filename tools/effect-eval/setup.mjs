@@ -11,7 +11,8 @@
 // discovering node_modules was absent, installing it, and re-running the tests:
 // turns and money in both conditions, a network-dependent step in every probe,
 // and each run resolving its own dependency versions. it is off by default so
-// this tool's own tests stay hermetic.
+// this tool's own tests stay hermetic. for a mock that drives a browser it also
+// downloads that browser, which npm does not carry — see workspace.mjs.
 //
 // `--patch` is how a case brings the broken starting state its own prompt
 // describes, without the mock shipping one. the mechanism lives in tools/lib
@@ -42,11 +43,13 @@ the workspace path.
                     state its prompt describes without the mock shipping one. It
                     may touch history.jsonc, and must when it changes the file
                     set.
-  --install        run \`npm ci\` in the workspace, so a probe starts from
-                    installed dependencies rather than spending its own turns on
-                    them. Off by default: the default path touches no network,
-                    which is what keeps this tool's own tests hermetic. Needs
-                    npm on PATH and a network.
+  --install        run \`npm ci\` in the workspace — and, for a mock that
+                    declares @playwright/test, download the browser its
+                    end-to-end command needs — so a probe starts from a prepared
+                    workspace rather than spending its own turns on it. Off by
+                    default: the default path touches no network, which is what
+                    keeps this tool's own tests hermetic. Needs npm on PATH and
+                    a network.
   --help           this text
 
 Exit codes: 0 the workspace path was printed, 2 bad invocation or a fixture

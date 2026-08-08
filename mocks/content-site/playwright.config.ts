@@ -1,15 +1,22 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
-// Config only — this thinned fixture does not install `@playwright/test` or
-// the app framework it would drive, so `test:e2e` is not wired into
-// package.json here. What matters for this fixture is the STRUCTURE: end-to-end
-// specs live under e2e/, apart from the unit specs colocated under shared/, so
-// a reader still has to notice the split rather than infer it from one folder.
+// End-to-end specs live under e2e/, apart from the unit specs colocated under
+// shared/, because they exercise the whole running app rather than one module.
+// The server below is the app as it is actually served — built, then started —
+// rather than the dev server, so a spec that passes here passed against what a
+// reader would get.
 export default defineConfig({
 	testDir: "./e2e",
 	fullyParallel: true,
 	retries: 1,
 	use: {
 		baseURL: "http://localhost:3000",
+	},
+	projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+	webServer: {
+		command: "npm run build && npm run start",
+		url: "http://localhost:3000",
+		reuseExistingServer: !process.env.CI,
+		timeout: 120_000,
 	},
 });

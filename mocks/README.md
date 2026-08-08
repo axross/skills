@@ -28,28 +28,10 @@ from.
 
 ## A mock is a genuine project
 
-> Nothing inside a mock is bent to fit a case. Its **stack and structure are
-> chosen** with skill and case coverage in mind — that is what makes it useful —
-> but anything a case needs that the project would not naturally have arrives as
-> **that case's patch**.
-
-The test for any candidate flaw is: _would a competent developer of this
-project have done it this way, for their own reasons?_ A realistic project has
-gaps, and **a case may use an existing gap** — that is not a distortion. What
-the principle forbids is inventing the gap.
-
-That distinction is what the two lists below are for. A **realistic choice made
-for coverage** is a decision this project's own developer could have made, kept
-because a case needs something to point at: `shared/resolve-translation.ts`
-shipping no test is one, and it belongs in the declared list. A **fixture
-artifact** is a flaw nobody would have written on purpose — a project with
-exactly one of everything the evaluation measures, each conveniently broken —
-and it belongs in a case's patch instead, or nowhere.
-
-**A case brings its own defect.** Some prompts are symptom-shaped ("our
-Amplitude device ID resets on every launch") and only make sense against a
-broken starting state. That state arrives as a unified diff the case declares,
-applied by
+Nothing inside a mock is bent to fit a case. Its **stack and structure are
+chosen** with skill and case coverage in mind — that is what makes it useful —
+but anything a case needs that the project would not naturally have arrives as
+**that case's patch**: a unified diff the case declares, applied by
 [`tools/lib/mock-workspace.mjs`](../tools/lib/mock-workspace.mjs) after the mock
 is copied and **before** its history is replayed, so the workspace a model sees
 is clean and its history unremarkable. A patch that changes the file set
@@ -57,16 +39,25 @@ maintains `history.jsonc` itself. The reasoning, and the alternatives it beat,
 are in
 [`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
 
-## Deliberate imperfections, declared
+The test for any candidate flaw is: _would a competent developer of this
+project have done it this way, for their own reasons?_ A realistic project has
+gaps, and **a case may use an existing gap** — that is not a distortion. What
+the principle forbids is inventing the gap.
 
-A mock is a measurement instrument, and some of its flaws are the instrument.
-They are listed here so a reviewer can tell a designed flaw from a bug —
-**anything not on this list is a bug**, and the question has already cost one
-review round. Every entry below is a realistic choice made for coverage in the
-sense above; a flaw that could only be a fixture artifact does not belong here
-at all.
+That splits what used to be one list of "deliberate imperfections" in two, and
+the two are not judged the same way:
 
-### `content-site`
+- **Choices made for coverage** are things a real project could have done, kept
+  because the evaluation needs them. They pass the test above and they stay.
+- **Fixture artifacts** are compromises with no case behind them — realism
+  traded for something else, usually speed. They fail the test above, and each
+  one is a debt with an owner.
+
+Both are declared below so a reviewer can tell either from a bug —
+**anything not on these lists is a bug**, and the question has already cost one
+review round.
+
+### `content-site` — choices made for coverage
 
 - **The commit history is inconsistent in style.** `history.jsonc` mixes
   `WIP`, `fix layout bug`, `docs`, and one clean Conventional Commit. The
@@ -84,20 +75,24 @@ at all.
   module might keep private. Private, "did the test go through the caller's
   public surface" stops being a choice a model can get wrong, and the signal
   disappears.
-- **`shared/resolve-translation.ts` ships no test.** That is the task.
-- **`types/framework.d.ts` stands in for the framework**, which is not a
-  dependency at all. The mock's `app/` uses a routing and rendering surface it
-  never installs, so the types are hand-written to the shape the real one
-  exposes. Installing the framework would make the fixture large and slow to
-  materialize for a task that never renders a page; declaring the types keeps
-  `npm run typecheck` honest about everything else.
-- **`e2e/` and `playwright.config.ts` are structure only.** `@playwright/test`
-  is not installed and both are excluded from `tsconfig.json`, so nothing there
-  compiles or runs. A real project of this shape has an end-to-end directory,
-  and a mock that omitted one would tell a model that this project does not
-  test that way — which is a claim about conventions, in a fixture built to
-  measure whether a skill supplies them.
+- **`shared/resolve-translation.ts` ships no test**, which is what the effect
+  evaluation's one case asks a model to fix. This is a gap the project has
+  rather than one planted in it: the history says how it happened without being
+  asked to, since the slug module was committed _with_ its spec and the locale
+  module alone during a refactor. An untested module beside a tested one is
+  what real repositories look like, so no patch creates it.
 
-Not on the list, and therefore bugs if you find them: unresolved imports,
+### `content-site` — fixture artifacts
+
+None. The two that were here —
+[#299](https://github.com/axross/skills/issues/299) removed both — were a
+hand-written stand-in for the framework's types, and an `e2e/` directory whose
+command did not exist. Neither had a case behind it: both traded realism for
+materialization speed, which left this mock held to a lower standard than the
+mocks being built beside it. The framework and `@playwright/test` are now real
+dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
+
+Not on either list, and therefore bugs if you find them: unresolved imports,
 checks that do not pass, framework APIs used incorrectly, or anything the
-mock's own `npm run lint`, `npm run typecheck`, and `npm test` would reject.
+mock's own `npm run lint`, `npm run typecheck`, `npm test`, and
+`npm run test:e2e` would reject.

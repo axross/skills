@@ -7,24 +7,28 @@
 		"node": "22"
 	},
 	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
 		"format": "biome format --write .",
 		"format:check": "biome format .",
 		"lint": "biome check .",
 		"test": "jest --config jest.config.cjs",
+		"test:e2e": "playwright test",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"next": "^16.3.0",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.28.5",
-		"@babel/preset-env": "^7.28.5",
-		"@babel/preset-typescript": "^7.28.5",
 		"@biomejs/biome": "^2.4.4",
 		"@jest/globals": "^30.4.1",
-		"babel-jest": "^30.4.1",
+		"@playwright/test": "^1.62.1",
+		"@types/react": "^19.2.2",
 		"jest": "^30.4.2",
-		"typescript": "^5.9.3",
-		"@types/react": "^19.2.2"
+		"typescript": "^5.9.3"
 	}
 }
