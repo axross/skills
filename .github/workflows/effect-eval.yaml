@@ -59,6 +59,19 @@ name: Skill Effect Evaluation
 # check included, so measurement data is exempt from BLOCKING a pull request
 # rather than from being checked.
 #
+# ── `dry_run` rehearses the whole dispatch for nothing. it runs every step —
+# the fan-out, the artifacts, the derivation, the commit, the pull request — and
+# passes --dry-run to the probe, so no model is spawned and nothing is billed.
+# it exists because everything between the matrix and the landed pull request
+# has no local analogue and could otherwise only be executed by paying for six
+# probes; the last defect found in that seam was caught by reading.
+#
+# a rehearsal's records are stamped `trigger.kind: "dry-run"`, its branch and
+# title say so, and its pull request opens as a DRAFT so GitHub will not merge
+# it. before committing, either mode refuses when the records' stamps and the
+# dispatch's mode disagree — see .github/scripts/effect-eval-check-mode.mjs for
+# why both directions matter.
+#
 # operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret claude-review.yaml
 # and discovery-eval.yaml already use. no new secret.
 
@@ -68,6 +81,14 @@ on:
       case:
         description: "Evaluation case id, as declared in data/effect-eval/fixture.json"
         required: true
+      dry_run:
+        # typed and defaulted, so it is read through `inputs` rather than
+        # `github.event.inputs` — only the typed context applies a declared
+        # default, the distinction discovery-eval.yaml already records.
+        description: "Rehearse the whole dispatch with no model spawned and nothing billed"
+        required: false
+        type: boolean
+        default: false
       cap_usd:
         # lower only. a value above the declared cap is reported and ignored:
         # the fixture is reviewed and committed, this is typed into a form.
@@ -179,14 +200,23 @@ jobs:
 
       # safety property 2 — the only secret here is the one the CLI cannot
       # authenticate without.
+      # the secret is passed on a rehearsal too. nothing spawns, so it is
+      # unused, and making the line conditional would put cleverness on a
+      # security-relevant expression to save nothing.
       - name: Run the probe
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           GITHUB_SHA: ${{ github.sha }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           mkdir -p "${RUNNER_TEMP}/measurement"
-          node tools/effect-eval/evaluate.mjs \
+          if [ "${DRY_RUN}" = "true" ]; then
+            set -- --dry-run
+          else
+            set --
+          fi
+          node tools/effect-eval/evaluate.mjs "$@" \
             --workspace "${{ steps.workspace.outputs.path }}" \
             --case "${{ github.event.inputs.case }}" \
             --condition "${{ matrix.condition }}" \
@@ -246,6 +276,15 @@ jobs:
       # `continue-on-error` is not a way of ignoring the result: an incomparable
       # measurement is a finding worth committing and reading, and the outcome
       # is carried into the pull request body below.
+      # hard-fails, unlike the derivation below: a stamp that disagrees with the
+      # mode means either a rehearsal was billed or a measurement is fiction,
+      # and neither is a finding worth committing.
+      - name: Refuse records the dispatch did not produce
+        run: |
+          node .github/scripts/effect-eval-check-mode.mjs \
+            --dir "${{ steps.collect.outputs.dir }}" \
+            --expect "${{ inputs.dry_run && 'dry-run' || 'measurement' }}"
+
       - name: Derive the summaries and check comparability
         id: summarize
         continue-on-error: true
@@ -256,48 +295,80 @@ jobs:
       - name: Run the repository's own checks
         run: npm run check
 
-      - name: Open the measurement pull request
+      - name: Open the pull request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CASE: ${{ github.event.inputs.case }}
           COMPARABLE: ${{ steps.summarize.outcome }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
-          branch="effect-eval/measurement/${{ github.run_id }}"
+
+          # the rehearsal's subject is deliberately not a Conventional Commit.
+          # it is never merged, so it never becomes a subject on the default
+          # branch, and a reader scanning branches should see what it is.
+          if [ "${DRY_RUN}" = "true" ]; then
+            branch="effect-eval/dry-run/${{ github.run_id }}"
+            title="DRY RUN — do not merge: effect-eval dispatch rehearsal for ${CASE}"
+            draft=(--draft)
+          else
+            branch="effect-eval/measurement/${{ github.run_id }}"
+            title="data(effect-eval): record a case measurement of ${CASE}"
+            draft=()
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "${branch}"
           git add data/effect-eval
-          git commit -m "data(effect-eval): record a case measurement of ${CASE}" \
+          git commit -m "${title}" \
                      -m "Dispatched from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
           git push -u origin "${branch}"
 
           {
-            echo "Recorded one case measurement of \`${CASE}\`."
+            if [ "${DRY_RUN}" = "true" ]; then
+              echo "**This is a rehearsal. Close it; do not merge it.**"
+              echo
+              echo "Every record here is synthetic: the dispatch ran with \`dry_run\`, so no model"
+              echo "was spawned and nothing was billed. Each \`metadata.json\` is stamped"
+              echo "\`trigger.kind: \"dry-run\"\`, and the landing job refused to commit until every"
+              echo "record agreed with that."
+              echo
+              echo "It exists to prove the dispatch's wiring end to end — the matrix fan-out, the"
+              echo "artifacts, the derivation, this commit, and this pull request — for the cost of"
+              echo "CI minutes rather than six probes."
+              echo
+              echo "It is opened as a draft so GitHub will not merge it. A test asserts no"
+              echo "committed measurement carries the dry-run stamp, so landing this anyway breaks"
+              echo "the default branch's checks."
+            else
+              echo "Recorded one case measurement of \`${CASE}\`."
+            fi
             echo
             if [ "${COMPARABLE}" = "success" ]; then
               echo "Every comparability check passed."
             else
-              echo "**At least one comparability check FAILED.** The measurement is committed"
-              echo "anyway — a case whose probes did not run under the same conditions is a"
-              echo "finding worth keeping, not data to discard — but the difference it reports"
-              echo "cannot be attributed to the skill. See the run log and each \`summary.json\`."
+              echo "**At least one comparability check FAILED.** The result is committed anyway —"
+              echo "a case whose probes did not run under the same conditions is a finding worth"
+              echo "keeping, not data to discard — but the difference it reports cannot be"
+              echo "attributed to the skill. See the run log and each \`summary.json\`."
             fi
             echo
             echo "Admitted at a \$${{ needs.admit.outputs.cap-usd }} cap against a projected"
             echo "\$${{ needs.admit.outputs.projected-usd }}."
             echo
             echo "\`merge-checks.yaml\` does not run on this pull request: it is opened with"
-            echo "\`GITHUB_TOKEN\`, and the gate excludes this pull request by path. The checks"
-            echo "it would have run — the drift check, the comparability checks, and"
-            echo "\`npm run check\` — ran in the dispatch before this branch was committed."
+            echo "\`GITHUB_TOKEN\`, and the gate excludes these paths. The checks it would have"
+            echo "run — the drift check, the comparability checks, and \`npm run check\` — ran in"
+            echo "the dispatch before this branch was committed."
             echo
             echo "---"
             echo "_Generated by [Claude Code](https://claude.ai/code)_"
           } > "${RUNNER_TEMP}/body.md"
 
           gh pr create \
-            --title "data(effect-eval): record a case measurement of ${CASE}" \
+            --title "${title}" \
             --body-file "${RUNNER_TEMP}/body.md" \
             --base "${{ github.ref_name }}" \
-            --head "${branch}"
+            --head "${branch}" \
+            "${draft[@]}"

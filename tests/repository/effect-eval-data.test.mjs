@@ -5,10 +5,12 @@
 // drifted into colliding with a skill name. no amount of testing against
 // synthetic trees would see either.
 
-import { readdir, readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { canonicalJson } from "../../tools/effect-eval/src/layout.mjs";
 import { deriveCaseSummary } from "../../tools/effect-eval/src/summary.mjs";
@@ -193,5 +195,103 @@ describe("the dispatch's admit step", () => {
     const result = admit(["--case", "no-such-case"]);
     expect(result.code).toBe(2);
     expect(result.output).toMatch(/declares no case "no-such-case"/);
+  });
+});
+
+describe("the dispatch's mode check", () => {
+  // it compares the dispatch's mode against each record's stamp. the two
+  // directions guard different accidents, so both are exercised here.
+  const checkMode = (args) => runScript(SCRIPTS.effectEvalCheckMode, args);
+
+  let dir;
+  beforeEach(async () => {
+    dir = await mkdtemp(join(tmpdir(), "mode-check-"));
+  });
+  afterEach(async () => {
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  const writeProbe = async (name, kind) => {
+    await mkdir(join(dir, name), { recursive: true });
+    await writeFile(
+      join(dir, name, "metadata.json"),
+      JSON.stringify({ trigger: { kind, url: null } }, null, 2),
+      "utf8",
+    );
+  };
+
+  it("passes a rehearsal whose records are all stamped", async () => {
+    await writeProbe("skill-absent-aaaaaaaa", "dry-run");
+    await writeProbe("skill-present-bbbbbbbb", "dry-run");
+    expect(checkMode(["--dir", dir, "--expect", "dry-run"]).code).toBe(0);
+  });
+
+  it("passes a measurement whose records are not stamped", async () => {
+    await writeProbe("skill-absent-aaaaaaaa", "github-actions");
+    await writeProbe("skill-present-bbbbbbbb", "github-actions");
+    expect(checkMode(["--dir", dir, "--expect", "measurement"]).code).toBe(0);
+  });
+
+  it("refuses a rehearsal whose records are not stamped", async () => {
+    // the flag never reached the probe, so a rehearsal spawned models and was
+    // billed. this is the expensive direction.
+    await writeProbe("skill-absent-aaaaaaaa", "dry-run");
+    await writeProbe("skill-present-bbbbbbbb", "github-actions");
+    const result = checkMode(["--dir", dir, "--expect", "dry-run"]);
+    expect(result.code).toBe(3);
+    expect(result.output).toMatch(/skill-present-bbbbbbbb/);
+    expect(result.output).toMatch(/spawned models and was billed/);
+  });
+
+  it("refuses a measurement carrying a stamped record", async () => {
+    // a probe wrote a synthetic transcript, so what the measurement reports is
+    // fiction.
+    await writeProbe("skill-absent-aaaaaaaa", "github-actions");
+    await writeProbe("skill-present-bbbbbbbb", "dry-run");
+    const result = checkMode(["--dir", dir, "--expect", "measurement"]);
+    expect(result.code).toBe(3);
+    expect(result.output).toMatch(/skill-present-bbbbbbbb/);
+    expect(result.output).toMatch(/fiction/);
+  });
+
+  it("refuses an empty directory rather than passing vacuously", async () => {
+    // every probe failing would otherwise reach the commit and be caught only
+    // by the repetition count, afterwards.
+    const result = checkMode(["--dir", dir, "--expect", "dry-run"]);
+    expect(result.code).toBe(3);
+    expect(result.output).toMatch(/no probe directories/);
+  });
+
+  it("rejects a mode it does not know", async () => {
+    expect(checkMode(["--dir", dir, "--expect", "sort-of"]).code).toBe(2);
+  });
+});
+
+describe("what is committed to the repository", () => {
+  it("carries no dry-run record", async () => {
+    // a rehearsal's pull request looks like a measurement's and lands in the one
+    // place merge-checks deliberately does not look. the draft status and the
+    // loud title are what stop it; this is what notices if they did not.
+    //
+    // it reads GIT'S TRACKED FILES rather than the working tree, which is both
+    // what "committed" means and what keeps it from firing during a rehearsal's
+    // own `npm run check` — at that point the tree is written and nothing is
+    // committed yet.
+    const tracked = execFileSync(
+      "git",
+      ["ls-files", "-z", "--", "data/*/measurements/*/*/metadata.json"],
+      { cwd: repoPath("."), encoding: "utf8" },
+    )
+      .split("\0")
+      .filter(Boolean);
+
+    for (const path of tracked) {
+      const metadata = JSON.parse(await readFile(repoPath(path), "utf8"));
+      expect(
+        metadata?.trigger?.kind,
+        `${path} is a dry-run record and must not be committed — a rehearsal's pull ` +
+          "request is closed, never merged",
+      ).not.toBe("dry-run");
+    }
   });
 });
