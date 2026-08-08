@@ -192,7 +192,9 @@ skill during real work is exactly what is being measured.
 
 That difference is also where the shared layer stops. `tools/lib` holds only
 what is shaped outside either evaluation's question — the CLI's `stream-json`
-format, and the requirement to keep a credential out of a subprocess and out of
-a stored file. Everything an evaluation decides for itself — its tool posture,
+format, the requirement to keep a credential out of a subprocess and out of a
+stored file, and expanding a mock project into a Git workspace, which decides
+nothing either instrument owns and which both situate their probes in.
+Everything an evaluation decides for itself — its tool posture,
 its turn cap, what its fingerprint covers, what a measurement directory holds —
 stays with it.

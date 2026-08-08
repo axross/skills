@@ -1,6 +1,13 @@
-// workspace.mjs — expands a mock project into an isolated, reproducible Git
-// working copy for one probe to run inside. setup.mjs is the entry point that
-// drives it.
+// mock-workspace.mjs — expands a mock project into an isolated, reproducible
+// Git working copy for one probe to run inside. tools/effect-eval/setup.mjs is
+// the entry point that drives it today.
+//
+// IT LIVES IN tools/lib BECAUSE A MOCK BELONGS TO NEITHER EVALUATION. What is
+// below decides nothing either instrument owns: it copies a tree, replays a
+// recorded history, and copies some skills in. The effect evaluation situates
+// its probes in a mock today and the discovery rebuild (#280) situates its own
+// in the same ones, so the alternative was one evaluation importing out of the
+// other's src/.
 //
 // A mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
 // plain, uncommitted-history file tree, plus a history.jsonc that records the
@@ -41,7 +48,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const MOCKS_ROOT = join(REPO_ROOT, "mocks");
 const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 
@@ -218,9 +225,10 @@ function runGit(args, cwd, extraEnv = {}) {
  * and it let each run resolve its own dependency versions. A real developer
  * opens a repository whose dependencies are already installed.
  *
- * IT IS OPT-IN, AND THAT IS DELIBERATE. materialize.test.mjs materializes this
- * mock repeatedly and must stay hermetic and fast, so the default path touches
- * no network at all. The evaluation driver asks for the install explicitly.
+ * IT IS OPT-IN, AND THAT IS DELIBERATE. tests/effect-eval/setup.test.mjs
+ * materializes this mock repeatedly and must stay hermetic and fast, so the
+ * default path touches no network at all. The evaluation driver asks for the
+ * install explicitly.
  *
  * A FAILURE HERE IS A MATERIALIZATION FAILURE, NOT A WARNING. Handing back a
  * half-prepared workspace would let a probe start against it and spend real

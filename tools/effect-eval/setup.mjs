@@ -17,7 +17,7 @@
 //   0  the workspace path was printed to stdout
 //   2  bad invocation, a malformed mock, or a failure preparing the workspace
 
-import { materialize } from "./src/workspace.mjs";
+import { materialize } from "../lib/mock-workspace.mjs";
 
 const DEFAULT_MOCK = "content-site";
 

@@ -11,7 +11,7 @@
 // so the skill cases below do not inspect a command line. they materialize a
 // real workspace through the real setup.mjs and look for the skill on disk.
 // `--install` is never passed, which is what keeps this hermetic — see
-// tests/effect-eval/workspace.test.mjs, which relies on and asserts the same
+// tests/effect-eval/setup.test.mjs, which relies on and asserts the same
 // property.
 
 import { readdir, readFile, rm, stat } from "node:fs/promises";
