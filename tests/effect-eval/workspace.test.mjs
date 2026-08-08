@@ -11,11 +11,12 @@
 // the result.
 
 import { spawnSync } from "node:child_process";
-import { readdir, readFile, rm, stat } from "node:fs/promises";
+import { readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
 
+import { declaresPlaywright } from "../../tools/effect-eval/src/workspace.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 /**
@@ -117,6 +118,31 @@ describe("setup.mjs", () => {
     // The lockfile still ships, so the install the flag performs is pinned
     // rather than resolved afresh — it is only deferred, not absent.
     expect(await listFiles(workspace)).toContain("package-lock.json");
+  });
+
+  // Playwright ships its browsers out of band, so `npm ci` alone leaves a
+  // workspace that has @playwright/test and nothing to launch. --install
+  // covers that gap, but only for a mock it recognizes as needing it — and
+  // both halves of that coupling are invisible from either file alone. Broken,
+  // it surfaces where nothing is watching: inside a paid probe, as the
+  // end-to-end command failing to launch a browser. So it is asserted here,
+  // against a materialized workspace and with no network touched.
+  it("recognizes a materialized mock whose end-to-end command needs a browser", async () => {
+    const { result, workspace } = materialize();
+
+    expect(result.code).toBe(0);
+    expect(declaresPlaywright(workspace)).toBe(true);
+    expect(await listFiles(workspace)).toContain("playwright.config.ts");
+  });
+
+  it("asks for no browser where the mock declares none", async () => {
+    const { workspace } = materialize();
+    const manifestPath = join(workspace, "package.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    delete manifest.devDependencies["@playwright/test"];
+    await writeFile(manifestPath, JSON.stringify(manifest));
+
+    expect(declaresPlaywright(workspace)).toBe(false);
   });
 
   it("fails clearly for an unknown skill name", () => {
