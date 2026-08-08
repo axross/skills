@@ -12,7 +12,7 @@
 // turns and money in both conditions, a network-dependent step in every probe,
 // and each run resolving its own dependency versions. it is off by default so
 // this tool's own tests stay hermetic. for a mock that drives a browser it also
-// downloads that browser, which npm does not carry — see workspace.mjs.
+// downloads that browser, which npm does not carry — see mock-workspace.mjs.
 //
 // `--patch` is how a case brings the broken starting state its own prompt
 // describes, without the mock shipping one. the mechanism lives in tools/lib
