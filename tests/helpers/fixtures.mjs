@@ -1,14 +1,14 @@
-// Fixture builders for the validator tests.
+// fixture builders for the validator tests.
 //
-// Fixtures are written into a per-test temporary directory and removed when the
-// test finishes. Nothing is committed: a fixture that intentionally represents
-// an INVALID skill must never be discoverable as a real skill, and must stay out
+// fixtures are written into a per-test temporary directory and removed when the
+// test finishes. nothing is committed: a fixture that intentionally represents
+// an invalid skill must never be discoverable as a real skill, and must stay out
 // of reach of `npm run format:check`, `npm run lint`, and the link check the
-// suite itself runs. A temp directory achieves that with no ignore-list entry
+// suite itself runs. a temp directory achieves that with no ignore-list entry
 // anywhere — which matters most for the link check, whose prune list lives
 // inside a distributable script that must not learn this repository's paths.
 //
-// Cleanup is registered with Vitest's `onTestFinished`, so a fixture is torn
+// cleanup is registered with Vitest's `onTestFinished`, so a fixture is torn
 // down even when the test that built it fails, and no test needs to thread a
 // context object through to get one.
 
@@ -19,7 +19,7 @@ import { join } from "node:path";
 import { onTestFinished } from "vitest";
 
 /**
- * Create a temporary directory removed when the current test finishes.
+ * create a temporary directory removed when the current test finishes.
  * @returns {Promise<string>} absolute path of the directory
  */
 export async function tempDir() {
@@ -28,7 +28,7 @@ export async function tempDir() {
   return dir;
 }
 
-/** A frontmatter value that renders a valid, passing skill. */
+/** a frontmatter value that renders a valid, passing skill. */
 const DEFAULT_DESCRIPTION =
   "The ability to exercise the structure validator from a test, standing in for a real capability so the frontmatter checks have something well-formed to accept.";
 const DEFAULT_WHEN_TO_USE =
@@ -44,7 +44,7 @@ Body prose for the fixture.
 `;
 
 /**
- * Render a SKILL.md. Fields default to a valid skill; pass `null` for a field to
+ * render a SKILL.md. fields default to a valid skill; pass `null` for a field to
  * omit it, or a string to override it.
  * @param {string} dirName
  * @param {{ frontmatter?: Record<string, string | null>, body?: string }} options
@@ -64,7 +64,7 @@ function renderSkill(dirName, { frontmatter = {}, body = DEFAULT_BODY } = {}) {
 }
 
 /**
- * Write a skill directory under `root`.
+ * write a skill directory under `root`.
  * @param {string} root directory that will hold the skill directory
  * @param {string} dirName the skill's directory name
  * @param {{
@@ -92,13 +92,13 @@ export async function writeSkill(root, dirName, options = {}) {
 }
 
 /**
- * Write a product-specification corpus under `root`, from a map of corpus-
+ * write a product-specification corpus under `root`, from a map of corpus-
  * relative paths to contents.
  *
  * `index.md` is supplied unless the map overrides it, because its absence is
  * what tells every specification validator the project has no corpus — so a
  * fixture exercising some other rule would otherwise silently test nothing.
- * Pass `null` as a value to leave that file out.
+ * pass `null` as a value to leave that file out.
  *
  * @param {string} root
  * @param {Record<string, string | null>} [files]
@@ -115,7 +115,7 @@ export async function writeCorpus(root, files = {}) {
 }
 
 /**
- * Write an arbitrary file, creating parent directories as needed.
+ * write an arbitrary file, creating parent directories as needed.
  * @param {string} root
  * @param {string} relativePath
  * @param {string} content

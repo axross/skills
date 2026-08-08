@@ -1,17 +1,17 @@
-// Exit-code contract for the installed-copy drift check agent-skill-management
+// exit-code contract for the installed-copy drift check agent-skill-management
 // bundles, exercised against fixture roots.
 //
-// Documented contract: 0 when every distributable skill matches its installed
+// documented contract: 0 when every distributable skill matches its installed
 // copy, 1 on drift, 2 on a bad invocation or a root that is not a directory.
 //
-// BOTH ROOTS ARE REQUIRED, and the two invocation cases at the bottom are what
-// hold that. The script used to default them from its own location, which
-// stopped being safe once it moved inside a skill: two levels up now lands in
-// `.claude/`, and a root that matches nothing reports "0 skills, no drift" —
-// a pass indistinguishable from a real one. Requiring the roots converts that
-// silent nothing into an exit 2.
+// both roots are required arguments, and the two invocation cases at the bottom
+// are what hold that. the script used to default them from its own location,
+// which stopped being safe once it moved inside a skill: two levels up now
+// lands in `.claude/`, and a root that matches nothing reports "0 skills, no
+// drift" — a pass indistinguishable from a real one. requiring the roots
+// converts that silent nothing into an exit 2.
 //
-// Running the check against THIS repository's own two roots is a gate rather
+// running the check against this repository's own two roots is a gate rather
 // than a contract test, and lives in tests/repository/gate-runs.test.mjs, which
 // takes its invocation from tests/repository/gates.mjs.
 
@@ -25,7 +25,7 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkCopies = validator(SCRIPTS.checkInstalledCopies);
 
-/** Build a source root and a matching installed root holding the same skills. */
+/** build a source root and a matching installed root holding the same skills. */
 async function twoRoots(names) {
   const source = await tempDir();
   const installed = await tempDir();
@@ -92,7 +92,7 @@ describe("check-installed-copies.mjs", () => {
     const result = checkCopies(source, installed);
 
     expect(result).toReportFailure(/DRIFT alpha-skill/);
-    // Soft: each line is an independent part of one report, and seeing every
+    // soft: each line is an independent part of one report, and seeing every
     // missing piece at once beats fixing them one rerun at a time.
     expect.soft(result.stdout).toMatch(/content differs: references\/detail\.md/);
     expect
@@ -131,8 +131,8 @@ describe("check-installed-copies.mjs", () => {
     );
   });
 
-  // This repository's own repository-local set is empty — every skill here is
-  // distributable — so `--local` is what keeps this code path exercised. The
+  // this repository's own repository-local set is empty — every skill here is
+  // distributable — so `--local` is what keeps this code path exercised. the
   // fixture is named neutrally on purpose: naming it after a real skill is what
   // made the previous version of this case read as a claim about the corpus.
   it("accepts a known repository-local skill that has no source", async () => {
@@ -192,7 +192,7 @@ describe("check-installed-copies.mjs", () => {
     expect(result.stderr).toMatch(/Usage: check-installed-copies\.mjs/);
   });
 
-  // The case the removed default made unreachable: with no roots the script
+  // the case the removed default made unreachable: with no roots the script
   // once inspected two guessed directories, and a wrong guess passed.
   it("exits 2 when both roots are omitted", () => {
     const result = checkCopies();

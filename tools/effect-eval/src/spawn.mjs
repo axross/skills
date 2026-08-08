@@ -7,7 +7,7 @@
 // invocation rather than a description of it that might have drifted.
 //
 // `--output-format stream-json --verbose` is a constant here rather than a
-// configuration field because it is how the harness READS the run, not a
+// configuration field because it is how the harness reads the run, not a
 // condition the run is under. it is still pinned: the instrument's own commit
 // is in the record, and between that and the configuration the argv is fully
 // determined.

@@ -1,15 +1,15 @@
 // every patch a case declares, applied against the mock as it ships today.
 //
-// THIS IS THE DRIFT CLASS THIS REPOSITORY ALREADY GUARDS, in a new place. A
+// this is the drift class this repository already guards, in a new place. a
 // case patch is written against one state of a mock and silently stops fitting
 // the moment that mock moves — and the moment it stops fitting, the case it
-// belongs to cannot be dispatched at all. Nothing else would notice: no case
+// belongs to cannot be dispatched at all. nothing else would notice: no case
 // declares a patch yet, the mocks are excluded from every other gate here, and
 // the failure would otherwise surface in a dispatch that has already spent
 // money reaching it.
 //
-// The walk is deliberately data-driven over the real fixture, which today
-// declares no patch at all. A check that can only pass is decoration, so the
+// the walk is deliberately data-driven over the real fixture, which today
+// declares no patch at all. a check that can only pass is decoration, so the
 // second describe below gives it teeth against a synthetic fixture: the same
 // walk, over a case whose patch no longer applies, must report that case by
 // name.
@@ -23,11 +23,11 @@ import { tempDir } from "../helpers/fixtures.mjs";
 import { patchFromMock } from "../helpers/mock-patch.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
-/** The fixtures whose cases may declare a patch. #280 adds the discovery side's. */
+/** the fixtures whose cases may declare a patch. #280 adds the discovery side's. */
 const FIXTURES = [{ label: "the effect evaluation", root: repoPath("data/effect-eval") }];
 
 /**
- * Materializes every case that declares a patch, and reports the ones that
+ * materializes every case that declares a patch, and reports the ones that
  * failed — by case, which is the identity a reader has and `materialize` does
  * not.
  *
@@ -66,7 +66,7 @@ describe("every declared case patch", () => {
 
 describe("the declared-patch walk", () => {
   it("reports the case when its patch no longer applies", async () => {
-    // The negative control. With no case declaring a patch, the walk above
+    // the negative control. with no case declaring a patch, the walk above
     // passes over an empty list, which is indistinguishable from a walk that
     // has stopped working — so the same function runs here against a fixture
     // built to fail.
@@ -113,7 +113,7 @@ describe("the declared-patch walk", () => {
   it("passes a patch that does fit, so the failure above is not the only outcome", async () => {
     const root = join(await tempDir(), "data-root");
     await mkdir(join(root, "patches"), { recursive: true });
-    // Generated against the real mock rather than hand-written, so what this
+    // generated against the real mock rather than hand-written, so what this
     // asserts is that the walk applies a fitting patch — not that one
     // particular diff was typed out correctly.
     const generated = await patchFromMock(async (tree) => {

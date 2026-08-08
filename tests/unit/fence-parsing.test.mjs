@@ -1,19 +1,19 @@
 // CommonMark fence parsing, as both CLIs apply it.
 //
-// A fenced block opens with three or more backticks or tildes and closes only on
-// a marker of the SAME character, at least as long, carrying no info string —
-// which is what lets a longer fence contain shorter ones. Both scripts used to
+// a fenced block opens with three or more backticks or tildes and closes only on
+// a marker of the same character, at least as long, carrying no info string —
+// which is what lets a longer fence contain shorter ones. both scripts used to
 // toggle on any fence-looking line, so an inner ```ts block inverted the state
 // and exposed the enclosing block's content as body text.
 //
-// The rule now has ONE implementation, in commonmark.mjs, which
-// tests/unit/commonmark.test.mjs covers directly. These cases stay because the
+// the rule now has a single implementation, in commonmark.mjs, which
+// tests/unit/commonmark.test.mjs covers directly. these cases stay because the
 // module being right is not the same claim as both CLIs reading it correctly:
 // each script still decides what to do with the lines it is handed.
 //
-// This repository relies on the CommonMark rule:
+// this repository relies on the CommonMark rule:
 // skills/code-review/references/evidence-and-reporting.md wraps a ```ts diff
-// inside a ````markdown block. Two of the cases below inject content into a copy
+// inside a ````markdown block. two of the cases below inject content into a copy
 // of that real file, so the regression is anchored to the shape that actually
 // occurs rather than only to a synthetic one.
 
@@ -32,9 +32,9 @@ const NESTED_FENCE_FILE = repoPath(
 );
 
 /**
- * Copy the real nested-fence reference, injecting `insertion` immediately after
+ * copy the real nested-fence reference, injecting `insertion` immediately after
  * the inner ```ts fence — i.e. inside both the outer ````markdown block and the
- * inner one. Under the correct rule neither script may see it.
+ * inner one. under the correct rule neither script may see it.
  * @param {string} root
  * @param {string} insertion
  * @returns {Promise<string>} path of the written copy

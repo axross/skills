@@ -11,7 +11,7 @@ name: Skill Effect Evaluation
 # ── why a matrix rather than a loop. the predecessor ran six probes serially
 # behind a cumulative cost ledger. only one of the six stated reasons for that
 # survived examination, and it was answerable another way; the rest were false
-# or inverted. alternating conditions to spread service drift APPROXIMATES
+# or inverted. alternating conditions to spread service drift only approximates
 # simultaneity, and a matrix simply is simultaneous. separate runners also share
 # no filesystem and no npm cache, so isolation improves rather than degrades.
 #
@@ -56,7 +56,7 @@ name: Skill Effect Evaluation
 # the pull request contains.
 #
 # the gates do still run on the push to the default branch once it merges, drift
-# check included, so measurement data is exempt from BLOCKING a pull request
+# check included, so measurement data is exempt from blocking a pull request
 # rather than from being checked.
 #
 # ── `dry-run` rehearses the whole dispatch for nothing. it runs every step —
@@ -67,7 +67,7 @@ name: Skill Effect Evaluation
 # probes; the last defect found in that seam was caught by reading.
 #
 # a rehearsal's records are stamped `trigger.kind: "dry-run"`, its branch and
-# title say so, and its pull request opens as a DRAFT so GitHub will not merge
+# title say so, and its pull request opens as a draft so GitHub will not merge
 # it. before committing, either mode refuses when the records' stamps and the
 # dispatch's mode disagree — see .github/scripts/effect-eval-check-mode.mjs for
 # why both directions matter.
@@ -167,10 +167,10 @@ jobs:
       # partial case is a finding, not a silent success.
       fail-fast: false
       # GitHub cross-products these two itself — two conditions by three
-      # repeats is the six cells, with no list of pairs built anywhere. Both
+      # repeats is the six cells, with no list of pairs built anywhere. both
       # come from the admit job rather than being retyped here, so the
-      # conditions stay the instrument's CONDITIONS and the repeat count stays
-      # the fixture's.
+      # conditions stay the instrument's and the repeat count stays the
+      # fixture's.
       matrix:
         condition: ${{ fromJSON(needs.admit.outputs.conditions) }}
         repeat: ${{ fromJSON(needs.admit.outputs.repeats) }}
@@ -213,9 +213,9 @@ jobs:
           done
           # the case's patch, when it declares one — the broken starting state a
           # symptom-shaped prompt needs, which the mock deliberately does not
-          # ship. `-er` rather than `-r`: an empty string means "no patch" and a
-          # MISSING field means the plan script and this step disagree, which is
-          # worth an exit code rather than a silently unpatched workspace.
+          # ship. `-er` rather than `-r`: an empty string means "no patch" and
+          # an absent field means the plan script and this step disagree, which
+          # is worth an exit code rather than a silently unpatched workspace.
           patch="$(jq -er '.patch' <<<"${plan}")"
           if [ -n "${patch}" ]; then
             args+=(--patch "${patch}")

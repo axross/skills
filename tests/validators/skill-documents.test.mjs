@@ -1,10 +1,10 @@
-// The behaviour every skill-structure validator shares, through
+// the behaviour every skill-structure validator shares, through
 // skill-documents.mjs: how a path resolves to a skill directory, how two copies
 // of one skill collapse into a single verdict, and the exit contract.
 //
-// Exercised through check-skill-frontmatter.mjs because a command has to be run
+// exercised through check-skill-frontmatter.mjs because a command has to be run
 // to observe any of it, and that one is the cheapest — it reads the leading
-// `---` block and nothing else. Nothing here is specific to the frontmatter
+// `---` block and nothing else. nothing here is specific to the frontmatter
 // rules; a reader checking a claim about the shared module should be able to
 // swap the binding above for either sibling and see the same results.
 
@@ -20,9 +20,9 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 const checkSkill = validator(SCRIPTS.checkSkillFrontmatter);
 
 /**
- * Assert that a fixture fails with exit 1 and reports `expected`.
+ * assert that a fixture fails with exit 1 and reports `expected`.
  *
- * The two framing assertions are soft: when a rule stops firing, the useful
+ * the two framing assertions are soft: when a rule stops firing, the useful
  * signal is which of the three claims broke, and a hard assert on the first
  * hides the rest.
  * @param {string} dir
@@ -37,7 +37,7 @@ function expectFailure(dir, expected) {
 }
 
 /**
- * Assert that a fixture raises `expected` as a WARN and still exits 0. Every
+ * assert that a fixture raises `expected` as a WARN and still exits 0. every
  * case using this asserts the exit code, because the whole point of the
  * advisory tier is that none of it can fail a build.
  * @param {string} dir

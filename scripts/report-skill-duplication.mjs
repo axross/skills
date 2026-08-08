@@ -1,62 +1,65 @@
 #!/usr/bin/env node
-// report-skill-duplication.mjs — cross-skill rule duplication reporter for THIS
-// repository.
+// report-skill-duplication.mjs — cross-skill rule duplication reporter for this
+// repository and no other.
 //
-// Answers a question no per-skill check can: "which rule is stated in more than
-// one skill?" The skill-structure checks validate one skill directory at a time and are
+// answers a question no per-skill check can: "which rule is stated in more than
+// one skill?" the skill-structure checks validate one skill directory at a time and are
 // host-agnostic — they have no view of a sibling skill, and should not grow one,
-// because they ship to projects whose skill trees are none of their business. So
+// because they ship to projects whose skill trees are none of their business. so
 // the comparison lives here, beside report-obligation-burden.mjs, for the same
 // reason that one does: it reports on a tree rather than validating one.
 //
-// THIS REPORTS AND NEVER JUDGES, and here the reason is stronger than a missing
+// this reports and never judges, and here the reason is stronger than a missing
 // threshold — it is that the defect is not decidable from the text at all.
 // scoping-and-mece.md's Portable Source Exception permits a self-contained
-// distributable skill to restate a rule another skill owns, and EVERY skill in
-// this repository is distributable. Two identical bullets may therefore be:
+// distributable skill to restate a rule another skill owns, and every skill in
+// this repository is distributable, without exception. two identical bullets
+// may therefore be:
 //
 //   * a defect     — one rule with two sources of truth, free to drift apart,
 //                    which REVIEW.md rates Major; or
 //   * correct      — a portable skill carrying what it needs to stand alone.
 //
-// Nothing in the two bullets distinguishes those. Only intent does, and intent
-// is not in the corpus. A gate here would fail correct text, so this ranks
+// nothing in the two bullets distinguishes those. only intent does, and intent
+// is not in the corpus. a gate here would fail correct text, so this ranks
 // candidates and a human adjudicates — which is what #174 is doing, by hand,
 // for the nine pairs a one-off scan already found.
 //
-// The obligation definition is NOT re-implemented here. It is imported from
-// guidelines.mjs, the same module check-skill-body.mjs reads for its `guidelines:`
-// failures and report-obligation-burden.mjs counts through, so all three agree on
-// what a rule is and a boundary fix reaches every reader at once.
+// the obligation definition is imported rather than re-implemented here. it
+// comes from guidelines.mjs, the same module check-skill-body.mjs reads for its
+// `guidelines:` failures and report-obligation-burden.mjs counts through, so
+// all three agree on what a rule is and a boundary fix reaches every reader at
+// once.
 //
-// SIMILARITY IS A PLACE TO LOOK, NOT A VERDICT. Two rules are compared as sets
-// of content words: shared-words ÷ total-distinct-words, after markdown, the
-// leading RFC-2119 keyword, and a closed stopword list are stripped. That is
-// deliberately crude. It cannot see that "MUST NOT log a secret" and "MUST
-// redact credentials before logging" are the same rule, and it will happily
-// rank two unrelated rules that share a vocabulary. Both directions are why the
-// output is a ranked list to read rather than a count to act on.
+// similarity is a place to look rather than a verdict. two rules are compared
+// as sets of content words: shared-words ÷ total-distinct-words, after
+// markdown, the leading RFC-2119 keyword, and a closed stopword list are
+// stripped. that is deliberately crude. it cannot see that "MUST NOT log a
+// secret" and "MUST redact credentials before logging" are the same rule, and
+// it will happily rank two unrelated rules that share a vocabulary. both
+// directions are why the output is a ranked list to read rather than a count to
+// act on.
 //
-// Comparison is CROSS-SKILL ONLY. A skill restating its own rule in two
-// sections is a different defect with a different remedy, and mixing the two
-// would bury the cross-skill pairs this exists to surface.
+// comparison is cross-skill and nothing else. a skill restating its own rule in
+// two sections is a different defect with a different remedy, and mixing the
+// two would bury the cross-skill pairs this exists to surface.
 //
-// Usage:
+// usage:
 //   node scripts/report-skill-duplication.mjs [--min <0-1>] [--top <n>]
 //                                             [<path | name> ...]
 //
-//     <path>  a skill directory (one holding SKILL.md), OR a directory whose
+//     <path>  a skill directory (one holding SKILL.md), or a directory whose
 //             immediate subdirectories are skills (e.g. `skills`).
 //     <name>  a skill name resolved against this repository's `skills` root,
 //             then its `.claude/skills` root.
-//     --min   similarity floor, 0 to 1 (default 0.6). Lower surfaces more
+//     --min   similarity floor, 0 to 1 (default 0.6). lower surfaces more
 //             candidates and more noise.
 //     --top   report at most this many pairs (default 40).
 //
-//   With no arguments it compares every skill in the repository.
+//   with no arguments it compares every skill in the repository.
 //
-// Exit codes:
-//   0  a report was produced — ALWAYS, whatever it found
+// exit codes:
+//   0  a report was produced, whatever it found — there is no other outcome
 //   2  bad invocation: an unknown flag, an out-of-range value, or a name or
 //      path that resolves to no skill
 
@@ -74,10 +77,10 @@ const DEFAULT_MIN_SIMILARITY = 0.6;
 const DEFAULT_TOP = 40;
 
 /**
- * Words carrying no topical signal, so two rules are not called similar for
- * agreeing about English. Closed and short on purpose: an aggressive list
+ * words carrying no topical signal, so two rules are not called similar for
+ * agreeing about English. closed and short on purpose: an aggressive list
  * starts deciding which words are topical, which is the judgment this script
- * exists NOT to make.
+ * exists to avoid making.
  */
 const STOPWORDS = new Set([
   "a", "an", "and", "any", "are", "as", "at", "be", "been", "but", "by",
@@ -89,7 +92,7 @@ const STOPWORDS = new Set([
 ]);
 
 /**
- * A token common enough that sharing it says nothing. Used only to skip
+ * a token common enough that sharing it says nothing. used only to skip
  * candidate generation — a pair that also shares a rarer token is still
  * compared on its full token set, so this changes speed and never a score.
  */
@@ -116,12 +119,12 @@ async function isDir(path) {
   }
 }
 
-/** A directory is a skill when it holds a SKILL.md. */
+/** a directory is a skill when it holds a SKILL.md. */
 const isSkillDir = (path) => isFile(join(path, "SKILL.md"));
 
 /**
- * Resolve one argument into skill directories: a path first, then a skill name
- * against the source root and the installed root. Mirrors
+ * resolve one argument into skill directories: a path first, then a skill name
+ * against the source root and the installed root. mirrors
  * report-obligation-burden.mjs, so the two accept the same selectors.
  *
  * @returns {Promise<string[]>} zero directories means the argument resolved to
@@ -133,8 +136,8 @@ async function resolveArgument(argument) {
     const entries = await readdir(argument, { withFileTypes: true });
     const found = [];
     for (const entry of entries) {
-      // A symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
-      // by symlink, and `isDirectory()` is false for one. The SKILL.md
+      // a symlinked entry counts: `.claude/skills` mirrors `.agents/skills`
+      // by symlink, and `isDirectory()` is false for one. the SKILL.md
       // test below stats through the link and does the real filtering.
       if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
       const child = join(argument, entry.name);
@@ -151,7 +154,7 @@ async function resolveArgument(argument) {
 }
 
 /**
- * Every skill in the repository, preferring the source tier. The installed
+ * every skill in the repository, preferring the source tier. the installed
  * copies are identical whenever the drift gate passes, so including both would
  * report every skill as a perfect duplicate of itself.
  */
@@ -171,11 +174,11 @@ async function allSkills() {
 }
 
 /**
- * A rule's comparable content words.
+ * a rule's comparable content words.
  *
- * Markdown is flattened rather than dropped — a link's label and a code span's
+ * markdown is flattened rather than dropped — a link's label and a code span's
  * contents are the most topical words a rule has, and stripping them would make
- * two rules about `cacheComponents` look unrelated. The leading RFC-2119
+ * two rules about `cacheComponents` look unrelated. the leading RFC-2119
  * keyword goes because every rule has one; keeping it would raise every score
  * by the same amount and compress the range the floor has to discriminate over.
  *
@@ -199,7 +202,7 @@ function contentTokens(rule, keyword) {
 }
 
 /**
- * Every RFC-2119 rule one skill states, across SKILL.md and every
+ * every RFC-2119 rule one skill states, across SKILL.md and every
  * references/*.md — the same file set check-skill-body.mjs scans, and for the same
  * reason: scripts/ and assets/ carry payload rather than rule-bearing text.
  *
@@ -232,7 +235,7 @@ async function skillRules(dir) {
   return rules;
 }
 
-/** Shared tokens ÷ distinct tokens across both rules. */
+/** shared tokens ÷ distinct tokens across both rules. */
 function similarity(left, right) {
   let shared = 0;
   for (const token of left) if (right.has(token)) shared += 1;
@@ -241,12 +244,12 @@ function similarity(left, right) {
 }
 
 /**
- * Rank every cross-skill pair scoring at or above `minSimilarity`.
+ * rank every cross-skill pair scoring at or above `minSimilarity`.
  *
- * Candidates come from an inverted index rather than from all-pairs: comparing
+ * candidates come from an inverted index rather than from all-pairs: comparing
  * every rule with every other is quadratic in a corpus with thousands of rules,
  * and two rules sharing no content word at all cannot clear any positive floor.
- * Tokens appearing in more than COMMON_TOKEN_POSTINGS rules are skipped as
+ * tokens appearing in more than COMMON_TOKEN_POSTINGS rules are skipped as
  * candidate generators only — a pair they would have produced is either
  * produced by a rarer shared token or scores too low to report.
  */
@@ -282,11 +285,11 @@ function rankPairs(rules, minSimilarity) {
 }
 
 /**
- * Render the report.
+ * render the report.
  *
- * Both sites are printed with `file:line` and the rule text in full, because
+ * both sites are printed with `file:line` and the rule text in full, because
  * the reader's next act is to open the two and decide which case they are —
- * and a truncated rule cannot be judged. Nothing checkout-dependent appears, so
+ * and a truncated rule cannot be judged. nothing checkout-dependent appears, so
  * successive runs diff cleanly.
  */
 function render(pairs, { rules, skills, minSimilarity, top, selectionLabel }) {
@@ -343,7 +346,7 @@ Exit codes: 0 a report was produced (always), 2 bad invocation.
 Candidates are for a human to adjudicate — the Portable Source Exception makes
 a restated rule legitimate, and no pattern can tell that from a duplication.`;
 
-/** Parse `--flag value` into a number, failing loudly on anything unusable. */
+/** parse `--flag value` into a number, failing loudly on anything unusable. */
 function numericOption(args, index, flag, { min, max, integer = false }) {
   const raw = args[index + 1];
   const value = Number(raw);
@@ -412,7 +415,7 @@ async function main() {
   });
 
   process.stdout.write(`${report}\n`);
-  // Always 0: this reports, it never judges. See the header's no-verdict note.
+  // always 0: this reports, it never judges. see the header's no-verdict note.
   process.exit(0);
 }
 

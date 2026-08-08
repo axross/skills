@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Orphan detection: a document nobody can reach.
+// orphan detection: a document nobody can reach.
 //
-// This command owns one direction only — is a file listed? Whether a listed
+// this command owns one direction only — is a file listed? whether a listed
 // link resolves is check-references.mjs's question, so no defect is reported
 // twice.
 //
-// Individual decision records are exempt. The log is append-only, so indexing
-// each record would grow the one file read unconditionally without bound. The
+// individual decision records are exempt. the log is append-only, so indexing
+// each record would grow the one file read unconditionally without bound. the
 // index carries a single line for the directory instead, and that line is
 // checked here.
 
@@ -62,7 +62,7 @@ function run(corpus) {
         linksDirectory = true;
         continue;
       }
-      // A target under decisions/ is an individually indexed record. It leaves
+      // a target under decisions/ is an individually indexed record. it leaves
       // the log reachable, which is why an "is it reachable at all?" test would
       // accept it — and it is the exact shape the log must never take, since the
       // index is read unconditionally and an append-only log only ever grows.

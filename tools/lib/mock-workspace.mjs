@@ -2,56 +2,57 @@
 // Git working copy for one probe to run inside. tools/effect-eval/setup.mjs is
 // the entry point that drives it today.
 //
-// A mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
-// plain, uncommitted-history file tree, plus a history.jsonc that records the
-// commits to replay on top of it. This module does the replaying: it copies
-// the mock's files into a fresh temporary directory, applies the case's patch
-// if it declares one, turns that directory into a real Git repository whose
-// commit-by-commit history matches history.jsonc, and installs a chosen subset
-// of this repository's OWN skills into the workspace's .claude/skills/ — which
-// is the condition one probe runs under, skill-absent when that subset is empty
-// and skill-present when it is not.
-//
-// IT LIVES IN tools/lib BECAUSE A MOCK BELONGS TO NEITHER EVALUATION. What is
+// it lives in tools/lib because a mock belongs to neither evaluation. what is
 // below decides nothing either instrument owns: it copies a tree, applies a
-// diff, replays a recorded history, and copies some skills in. The effect
+// diff, replays a recorded history, and copies some skills in. the effect
 // evaluation situates its probes in a mock today and the discovery rebuild
 // (#280) situates its own in the same ones, so the alternative was one
 // evaluation importing out of the other's src/.
 //
-// REPRODUCIBILITY IS THE POINT. Two materializations of the same mock and the
-// same skill set must produce byte-identical trees and byte-identical commit
-// hashes, so a run can be diffed against a rerun rather than trusted on faith.
-// That is why the commit author/committer identity and both dates are PINNED
-// constants below rather than read from the ambient environment or the system
-// clock — a real name, a real clock, or a real git config would make every
-// materialization's hashes different from the last, and this script's own
-// tests would have nothing stable to assert against. GIT_CONFIG_GLOBAL and
-// GIT_CONFIG_SYSTEM are pointed at /dev/null for the same reason: an ambient
-// ~/.gitconfig (this repository's own included — some environments turn on
-// `commit.gpgsign` globally) must not leak into a commit this script makes.
+// a mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
+// plain, uncommitted-history file tree, plus a history.jsonc that records the
+// commits to replay on top of it. this module does the replaying: it copies
+// the mock's files into a fresh temporary directory, applies the case's patch
+// if it declares one, turns that directory into a real Git repository whose
+// commit-by-commit history matches history.jsonc,
+// and installs a chosen subset of this repository's own skills into the
+// workspace's .claude/skills/ — which is the condition one probe runs under,
+// skill-absent when that subset is empty and skill-present when it is not.
 //
-// history.jsonc ITSELF IS FIXTURE METADATA, NOT PROJECT CONTENT. It is copied
-// in and then REMOVED before the replay, so a materialized workspace never
-// contains it and nothing in the mock ever needs to import or read it. It is
-// copied rather than filtered out only so a patch can maintain it — see the
-// patch step's own note below.
+// reproducibility is the point, and everything below follows from it. two
+// materializations of the same mock and the same skill set must produce
+// byte-identical trees and byte-identical commit hashes, so a run can be
+// diffed against a rerun rather than trusted on faith. that is why the commit
+// author/committer identity and both dates are pinned constants below rather
+// than read from the ambient environment or the system clock — a real name, a
+// real clock, or a real git config would make every materialization's hashes
+// different from the last, and this script's own tests would have nothing
+// stable to assert against. GIT_CONFIG_GLOBAL and GIT_CONFIG_SYSTEM are
+// pointed at /dev/null for the same reason: an ambient ~/.gitconfig (this
+// repository's own included — some environments turn on `commit.gpgsign`
+// globally) must not leak into a commit this script makes.
 //
-// A CASE BRINGS ITS OWN DEFECT, THE MOCK DOES NOT HOLD ONE. Some cases only
+// history.jsonc is fixture metadata rather than project content. it is copied
+// in and then removed before the replay, so a materialized workspace never
+// contains it and nothing in the mock ever needs to import or read it. it is
+// copied rather than filtered out at the copy only so a patch can maintain it
+// — see the patch step's own note below.
+//
+// a case brings its own defect, and the mock does not hold one. some cases only
 // make sense against a broken starting state, and shipping that state inside
 // the mock would make the mock a fixture rather than a project: the defects
 // accumulate, contradict each other, and demonstrate to the model the very
-// convention the case asks it to apply. So a mock ships sound and a case
+// convention the case asks it to apply. so a mock ships sound and a case
 // declares a patch, applied here. mocks/README.md states the principle and
 // docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md
 // records why the alternatives lost.
 //
-// Skills are installed with `dereference: true`, and that is load-bearing, not
-// a detail. The skills CLI installs either real directories or SYMLINKS back
+// skills are installed with `dereference: true`, and that is load-bearing, not
+// a detail. the skills CLI installs either real directories or symlinks back
 // into the source tree, and a symlinked skill directory in the workspace would
-// let a write inside it land straight through into THIS repository's own
+// let a write inside it land straight through into this repository's own
 // .claude/skills/ — path containment alone cannot catch that, because
-// `resolve()` does not follow links. See scripts/discovery-eval/run.mjs's
+// `resolve()` does not follow links. see scripts/discovery-eval/run.mjs's
 // buildWorkspace for the same hazard against the same fix.
 
 import { spawnSync } from "node:child_process";
@@ -67,13 +68,13 @@ const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 const HISTORY_FILE = "history.jsonc";
 const DEFAULT_MOCK = "content-site";
 
-// Pinned commit identity — see this file's header for why these are
+// pinned commit identity — see this file's header for why these are
 // constants rather than read from the environment.
 const AUTHOR_NAME = "Effect Eval Fixture";
 const AUTHOR_EMAIL = "effect-eval-fixture@example.invalid";
 const COMMITTER_NAME = "Effect Eval Fixture";
 const COMMITTER_EMAIL = "effect-eval-fixture@example.invalid";
-// One synthetic day per commit from a fixed epoch (2023-11-14T22:13:20Z), so
+// one synthetic day per commit from a fixed epoch (2023-11-14T22:13:20Z), so
 // `git log` reads as an ordered history rather than one instant repeated, and
 // every run derives the same dates from nothing but the commit's own index.
 const BASE_DATE_EPOCH_SECONDS = 1_700_000_000;
@@ -92,9 +93,9 @@ async function assertDirectory(path, message) {
 }
 
 /**
- * Strips `//` and `/* *‍/` comments from JSONC text, respecting string
+ * strips `//` and `/* *‍/` comments from JSONC text, respecting string
  * literals (including escaped quotes) so a `//` or `/*` inside a string is
- * left alone. This repository has no JSONC-parsing dependency to reach for —
+ * left alone. this repository has no JSONC-parsing dependency to reach for —
  * .markdownlint-cli2.jsonc is read only by tools that ship their own parser —
  * so history.jsonc's comments are stripped by hand rather than adding one.
  *
@@ -152,7 +153,7 @@ function stripJsonComments(text) {
 }
 
 /**
- * Parses and validates history.jsonc's `{ commits: [{ message, files }] }`
+ * parses and validates history.jsonc's `{ commits: [{ message, files }] }`
  * shape.
  *
  * @param {string} raw
@@ -174,13 +175,13 @@ function parseHistory(raw) {
     if (typeof commit?.message !== "string" || commit.message.length === 0) {
       throw new Error(`${HISTORY_FILE} commits[${index}] needs a non-empty "message".`);
     }
-    // An EMPTY `files` is accepted, where every other malformation is not,
+    // an empty `files` is accepted, where every other malformation is not,
     // because a patch that removed every file one commit introduced leaves
     // exactly that behind — and the patch maintaining history.jsonc is what
     // keeps the tree-versus-history invariant below an invariant rather than a
-    // rule with an exception. The replay skips such a commit; see replayHistory.
-    // The cost is that a HAND-AUTHORED empty commit is now skipped rather than
-    // refused, which is a mock nobody has a reason to write.
+    // rule with an exception. the replay loop in `materialize` skips such a
+    // commit. the cost is that a hand-authored empty commit is now skipped
+    // rather than refused, which is a mock nobody has a reason to write.
     if (
       !Array.isArray(commit.files) ||
       !commit.files.every((file) => typeof file === "string" && file.length > 0)
@@ -191,7 +192,7 @@ function parseHistory(raw) {
   });
 }
 
-/** Every file under `root`, as POSIX-style paths relative to `root`. Skips `.git`. */
+/** every file under `root`, as POSIX-style paths relative to `root`. skips `.git`. */
 async function listFilesRecursively(root, base = root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];
@@ -207,14 +208,14 @@ async function listFilesRecursively(root, base = root) {
   return files;
 }
 
-/** Runs `git`, isolated from the ambient user/system config, and returns stdout. */
+/** runs `git`, isolated from the ambient user/system config, and returns stdout. */
 function runGit(args, cwd, extraEnv = {}) {
   const result = spawnSync("git", args, {
     cwd,
     encoding: "utf8",
     env: {
       ...process.env,
-      // Isolates this call from the calling machine's global/system git
+      // isolates this call from the calling machine's global/system git
       // config (this repository's own included) — see this file's header.
       GIT_CONFIG_GLOBAL: "/dev/null",
       GIT_CONFIG_SYSTEM: "/dev/null",
@@ -231,21 +232,21 @@ function runGit(args, cwd, extraEnv = {}) {
 }
 
 /**
- * Applies one case's patch to the copied-but-not-yet-replayed workspace.
+ * applies one case's patch to the copied-but-not-yet-replayed workspace.
  *
- * ORDER IS THE WHOLE DESIGN. The patch lands between the copy and `git init`,
- * so the history is replayed over the ALREADY-PATCHED tree. Every other moment
- * was considered and is worse: after materialization it leaves an uncommitted
- * diff the model can see and poisons the effect side's `changes.patch`, which
- * is taken against `HEAD`; before the copy it mutates this repository; after
- * the replay, committed, it writes a history that announces the defect louder
- * than the defect itself.
+ * the order is the whole design. the patch lands between the copy and
+ * `git init`, so the history is replayed over the already-patched tree. every
+ * other moment was considered and is worse: after materialization it leaves an
+ * uncommitted diff the model can see and poisons the effect side's
+ * `changes.patch`, which is taken against `HEAD`; before the copy it mutates
+ * this repository; after the replay, committed, it writes a history that
+ * announces the defect louder than the defect itself.
  *
  * `git apply` rather than a hand-rolled applier, and three of its properties
- * are load-bearing rather than incidental. It runs OUTSIDE a Git repository,
- * which is what lets this step precede `git init`. It is ATOMIC — every hunk
+ * are load-bearing rather than incidental. it runs outside a Git repository,
+ * which is what lets this step precede `git init`. it is atomic — every hunk
  * applies or none does — so a rejected patch cannot leave a half-patched tree
- * for a probe to run against. And it refuses a path that escapes the tree
+ * for a probe to run against. and it refuses a path that escapes the tree
  * (`error: invalid path '../escaped.txt'`), so containment needs no second
  * implementation here.
  *
@@ -265,21 +266,22 @@ function applyPatch(workspace, patchPath) {
 }
 
 /**
- * Installs the mock's pinned dependencies into the materialized workspace.
+ * installs the mock's pinned dependencies into the materialized workspace.
  *
- * WHY THE HARNESS DOES THIS AND NOT THE MODEL. Every probe run before #264
+ * the harness does this rather than the model. every probe run before #264
  * spent three to five of its twelve to fifteen turns discovering `node_modules`
- * was absent, running `npm install`, and re-running the tests. That is the
+ * was absent, running `npm install`, and re-running the tests. that is the
  * harness's own setup showing up inside the measurement: it costs turns and
  * money in both conditions, it puts a network-dependent step in every probe,
- * and it let each run resolve its own dependency versions. A real developer
+ * and it let each run resolve its own dependency versions. a real developer
  * opens a repository whose dependencies are already installed.
  *
- * IT IS OPT-IN, AND THAT IS DELIBERATE. materialize.test.mjs materializes this
- * mock repeatedly and must stay hermetic and fast, so the default path touches
- * no network at all. The evaluation driver asks for the install explicitly.
+ * it is opt-in, and that is deliberate. tests/effect-eval/setup.test.mjs
+ * materializes this mock repeatedly and must stay hermetic and fast, so the
+ * default path touches no network at all. the evaluation driver asks for the
+ * install explicitly.
  *
- * A FAILURE HERE IS A MATERIALIZATION FAILURE, NOT A WARNING. Handing back a
+ * a failure here fails the materialization rather than warning. handing back a
  * half-prepared workspace would let a probe start against it and spend real
  * money measuring the install rather than the skill, which is the whole defect
  * this exists to remove.
@@ -308,7 +310,7 @@ function installDependencies(workspace) {
   }
 }
 
-/** The pinned author/committer env for the commit at `index`. */
+/** the pinned author/committer env for the commit at `index`. */
 function commitEnv(index) {
   const date = `@${BASE_DATE_EPOCH_SECONDS + index * SECONDS_PER_COMMIT} +0000`;
   return {
@@ -322,11 +324,11 @@ function commitEnv(index) {
 }
 
 /**
- * Expands `mocks/<mock>` into a fresh temporary directory: every file the
- * mock ships, with the case's patch applied if it declares one, replayed as a
- * real Git history that matches the (patched) history.jsonc commit for commit,
- * plus the requested skills copied (as real files — see this file's header)
- * into `.claude/skills/`.
+ * expands `mocks/<mock>` into a fresh temporary directory: every file the mock
+ * ships, with the case's patch applied if it declares one, replayed as a real
+ * Git history that matches the patched history.jsonc commit for commit, plus
+ * the requested skills copied (as real files — see this file's header) into
+ * `.claude/skills/`.
  *
  * @param {{ mock?: string, skills?: string[], install?: boolean, patch?: string|null }} [options]
  * @returns {Promise<string>} the materialized workspace's absolute path
@@ -343,7 +345,7 @@ export async function materialize({
     `No mock named ${JSON.stringify(mock)} — expected a directory at ${mockDir}.`,
   );
 
-  // Read before anything is written, for the same reason the skill names are
+  // read before anything is written, for the same reason the skill names are
   // validated below: a patch named but absent should fail before a half-built
   // temporary workspace exists.
   const patchPath = patch === null ? null : resolve(patch);
@@ -355,7 +357,7 @@ export async function materialize({
     }
   }
 
-  // Validated before anything is written to disk, so an unknown skill name
+  // validated before anything is written to disk, so an unknown skill name
   // fails fast rather than leaking a half-built temporary workspace.
   const skillSources = skills.map((name) => join(INSTALLED_SKILLS_ROOT, name));
   for (const [index, source] of skillSources.entries()) {
@@ -367,11 +369,11 @@ export async function materialize({
 
   const workspace = await mkdtemp(join(tmpdir(), "effect-eval-"));
   try {
-    // Every file the mock ships, including its own fixture metadata
-    // (history.jsonc, removed again below) so a patch can maintain it, and
-    // minus a defensive exclusion of node_modules, in case the mock was
-    // exercised locally (as this repository's own README's "own toolchain"
-    // verification does) without cleaning up afterward.
+    // every file the mock ships, its own fixture metadata included
+    // (history.jsonc, removed again below) so a patch can maintain it, minus a
+    // defensive exclusion of node_modules, in case the mock was exercised
+    // locally (as this repository's own README's "own toolchain" verification
+    // does) without cleaning up afterward.
     await cp(mockDir, workspace, {
       recursive: true,
       filter: (source) => basename(source) !== "node_modules",
@@ -379,7 +381,7 @@ export async function materialize({
 
     if (patchPath !== null) applyPatch(workspace, patchPath);
 
-    // Read from the WORKSPACE rather than from the mock, so what governs the
+    // read from the workspace rather than from the mock, so what governs the
     // replay is the history as the patch left it.
     const workspaceHistory = join(workspace, HISTORY_FILE);
     let historyRaw;
@@ -396,35 +398,35 @@ export async function materialize({
 
     // history.jsonc and the copied tree must name exactly the same files, or
     // either replaying it would leave files uncommitted, or it would try to
-    // `git add` something that was never copied. A patch that changed the file
+    // `git add` something that was never copied. a patch that changed the file
     // set without maintaining history.jsonc is what fails here, so the message
     // names it: otherwise a rotted patch reads as a broken mock.
-    const because = patchPath === null ? "" : ` (after applying ${patchPath})`;
+    const patchNote = patchPath === null ? "" : ` (after applying ${patchPath})`;
     const treeFiles = new Set(await listFilesRecursively(workspace));
     const historyFiles = new Set(commits.flatMap((commit) => commit.files));
 
     const namedButMissing = [...historyFiles].filter((file) => !treeFiles.has(file));
     if (namedButMissing.length > 0) {
       throw new Error(
-        `${HISTORY_FILE} names files ${mock} does not ship${because}: ${namedButMissing.join(", ")}`,
+        `${HISTORY_FILE} names files ${mock} does not ship${patchNote}: ${namedButMissing.join(", ")}`,
       );
     }
     const shippedButUnnamed = [...treeFiles].filter((file) => !historyFiles.has(file));
     if (shippedButUnnamed.length > 0) {
       throw new Error(
-        `${mock} ships files no commit in ${HISTORY_FILE} names${because}, so they would be ` +
+        `${mock} ships files no commit in ${HISTORY_FILE} names${patchNote}, so they would be ` +
           `left uncommitted: ${shippedButUnnamed.join(", ")}`,
       );
     }
 
     runGit(["init", "--quiet", "-b", "main"], workspace);
     commits.forEach((commit, index) => {
-      // A commit a patch emptied is SKIPPED, and the skip is reported. Leaving
+      // a commit a patch emptied is skipped, and the skip is reported. leaving
       // it to `git` is not an option — `git commit` exits non-zero on an empty
       // staged set, which would abort the materialization — and `--allow-empty`
       // was rejected at the plan gate: a commit touching no file is unusual
-      // enough in a real project to read as a fixture. The date still comes
-      // from the DECLARED index, so skipping one does not shift the others.
+      // enough in a real project to read as a fixture. the date still comes
+      // from the declared index, so skipping one does not shift the others.
       if (commit.files.length === 0) {
         process.stderr.write(
           `A patch emptied ${HISTORY_FILE} commits[${index}], so the replay skips it: ` +
@@ -454,7 +456,7 @@ export async function materialize({
       await cp(skillSources[index], destination, { recursive: true, dereference: true });
     }
 
-    // Last, so the history replay above saw exactly the files the mock ships
+    // last, so the history replay above saw exactly the files the mock ships
     // and the bijection check was unaffected by anything this writes.
     if (install) installDependencies(workspace);
 

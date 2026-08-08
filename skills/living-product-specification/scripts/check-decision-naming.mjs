@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Decision filenames: they sort chronologically and never move.
+// decision filenames: they sort chronologically and never move.
 //
-// This is the one command here that reads no document. It stats the adoption
+// this is the one command here that reads no document. it stats the adoption
 // marker and lists one directory, which keeps it fast enough for a pre-commit
 // hook — a property it would have lost bundled with the corpus-walking checks.
 //
-// It is also the one check decidable from a single name, which the standard
-// this set otherwise holds to would rule out. It is kept because these
+// it is also the one check decidable from a single name, which the standard
+// this set otherwise holds to would rule out. it is kept because these
 // validators install into projects whose agents may write a decision without
 // this skill loaded, and a filename is what the whole log's ordering and every
 // inbound link depend on.

@@ -1,16 +1,16 @@
 // tools/effect-eval/setup.mjs, exercised as a real child process —
 // same convention as every other bundled validator (see
 // tests/helpers/run.mjs's header): importing it would run its own `main()`
-// and call `process.exit`. It is the interface every real caller uses to reach
+// and call `process.exit`. it is the interface every real caller uses to reach
 // tools/lib/mock-workspace.mjs, the workflow included, so the patch cases at
 // the bottom of this file drive the mechanism through it rather than around it.
 //
-// What is asserted here is exactly the acceptance bar this script exists to
+// what is asserted here is exactly the acceptance bar this script exists to
 // meet: materializing the same mock twice produces identical trees and
 // identical commit histories (including messages and their order), the
 // requested skills arrive as real files rather than symlinks, history.jsonc —
 // fixture metadata, not project content — never appears in the result, and a
-// case's patch reaches the tree BEFORE the history is replayed over it.
+// case's patch reaches the tree before the history is replayed over it.
 
 import { spawnSync } from "node:child_process";
 import { mkdir, readdir, readFile, rm, stat, unlink, writeFile } from "node:fs/promises";
@@ -39,7 +39,7 @@ function gitLog(workspace) {
     });
 }
 
-/** Every path under `root`, relative and POSIX-style, skipping `.git`. */
+/** every path under `root`, relative and POSIX-style, skipping `.git`. */
 async function listFiles(root, base = root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];
@@ -55,7 +55,7 @@ async function listFiles(root, base = root) {
   return files.sort();
 }
 
-/** Every symlink under `root`, relative and POSIX-style. */
+/** every symlink under `root`, relative and POSIX-style. */
 async function listSymlinks(root, base = root) {
   const entries = await readdir(root, { withFileTypes: true });
   const links = [];
@@ -72,7 +72,7 @@ async function listSymlinks(root, base = root) {
   return links;
 }
 
-/** Materializes content-site and registers cleanup; returns the workspace path. */
+/** materializes content-site and registers cleanup; returns the workspace path. */
 function materialize(args = []) {
   const result = runScript(SCRIPTS.setup, args);
   const workspace = result.stdout.trim();
@@ -91,9 +91,9 @@ describe("setup.mjs", () => {
     expect(result.stdout).toMatch(/--install/);
   });
 
-  // The install is opt-in precisely so this file stays hermetic: every case
+  // the install is opt-in precisely so this file stays hermetic: every case
   // here materializes the mock, and a default that reached the network would
-  // make the whole suite slow and flaky. Asserting the absence is what keeps
+  // make the whole suite slow and flaky. asserting the absence is what keeps
   // "off by default" a property rather than an intention — a future change
   // that flipped the default would be caught here rather than in CI's timing.
   it("installs nothing unless asked, so the default path needs no network", async () => {
@@ -101,7 +101,7 @@ describe("setup.mjs", () => {
 
     expect(result.code).toBe(0);
     await expect(stat(join(workspace, "node_modules"))).rejects.toThrow();
-    // The lockfile still ships, so the install the flag performs is pinned
+    // the lockfile still ships, so the install the flag performs is pinned
     // rather than resolved afresh — it is only deferred, not absent.
     expect(await listFiles(workspace)).toContain("package-lock.json");
   });
@@ -158,19 +158,19 @@ describe("setup.mjs", () => {
   });
 
   it("leaves the working tree clean even once a skill is installed", () => {
-    // Regression. The installed skill lands in .claude/ AFTER the history is
+    // regression. the installed skill lands in .claude/ after the history is
     // replayed and is never committed, so for a while a materialized
-    // skill-present workspace stood dirty at `?? .claude/`. That is not
+    // skill-present workspace stood dirty at `?? .claude/`. that is not
     // untidiness — probe.mjs captures the model's work with `git add -A` plus
     // `git diff --cached`, so the whole installed skill was staged and
     // reported as something the model produced: 8 files and 660 insertions
     // before any model had run.
     //
-    // It also landed on SKILL-PRESENT RUNS ONLY, because a skill-absent run
-    // installs none. A systematic difference between the conditions, caused by
-    // the instrument rather than by the thing it measures, is the one defect
-    // this whole apparatus exists to avoid — and the model saw it too, since
-    // only one condition's `git status` was dirty.
+    // it also landed on skill-present runs and no others, because a
+    // skill-absent run installs none. a systematic difference between the
+    // conditions, caused by the instrument rather than by the thing it
+    // measures, is the one defect this whole apparatus exists to avoid — and
+    // the model saw it too, since only one condition's `git status` was dirty.
     const { result, workspace } = materialize(["--skill", "unit-testing"]);
     expect(result).toPassCleanly();
 
@@ -196,7 +196,7 @@ describe("setup.mjs", () => {
     const symlinks = await listSymlinks(skillRoot);
     expect(symlinks).toEqual([]);
 
-    // A faithful copy, not merely "some directory": the installed SKILL.md
+    // a faithful copy, not merely "some directory": the installed SKILL.md
     // must match this repository's own installed copy byte for byte.
     const [installed, sourceOfTruth] = await Promise.all([
       readFile(join(skillRoot, "SKILL.md"), "utf8"),
@@ -236,15 +236,15 @@ describe("setup.mjs", () => {
     const logA = gitLog(first.workspace);
     const logB = gitLog(second.workspace);
     expect(logA).toEqual(logB);
-    // The hashes are identical, not merely the messages — proof the pinned
+    // the hashes are identical, not merely the messages — proof the pinned
     // identity, dates, and tree content produced byte-identical commits.
     expect(logA.map((entry) => entry.hash)).toEqual(logB.map((entry) => entry.hash));
   });
 
   it("reproduces the mock byte for byte when no patch is declared", async () => {
-    // The no-patch path is what every committed measurement was taken against,
-    // so the patch step must not move it. history.jsonc is now COPIED IN and
-    // removed again rather than filtered out at the copy — this is what says
+    // the no-patch path is what every committed measurement was taken against,
+    // so the patch step must not move it. history.jsonc is now copied in and
+    // removed again rather than filtered out at the copy, and this is what says
     // the removal is complete and nothing else came with it.
     const { result, workspace } = materialize();
     expect(result).toPassCleanly();
@@ -269,13 +269,13 @@ describe("setup.mjs", () => {
   });
 });
 
-// A case whose prompt describes a defect needs that defect to be real, and the
+// a case whose prompt describes a defect needs that defect to be real, and the
 // mock must not be the thing that carries it — see mocks/README.md and
 // docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md.
-// Every patch below is generated from the real mock at test time rather than
+// every patch below is generated from the real mock at test time rather than
 // committed; tests/helpers/mock-patch.mjs says why.
 describe("setup.mjs --patch", () => {
-  /** Materializes with a generated patch, asserting the run succeeded. */
+  /** materializes with a generated patch, asserting the run succeeded. */
   function materializePatched(patchPath, args = []) {
     const outcome = materialize(["--patch", patchPath, ...args]);
     expect(outcome.result.code, outcome.result.output).toBe(0);
@@ -292,10 +292,10 @@ describe("setup.mjs --patch", () => {
   }
 
   /**
-   * The workspace is clean, and every file on disk is one the replay committed.
+   * the workspace is clean, and every file on disk is one the replay committed.
    *
    * `.claude/` is excluded because an installed skill is deliberately untracked
-   * — the mock's own .gitignore covers it. No case here installs one, but the
+   * — the mock's own .gitignore covers it. no case here installs one, but the
    * exclusion keeps this helper honest for one that does.
    */
   async function expectCleanAndConsistent(workspace) {
@@ -387,7 +387,7 @@ describe("setup.mjs --patch", () => {
 
     const { result, workspace } = materializePatched(patch);
 
-    // Reported rather than passed over: `git commit` would have aborted the
+    // reported rather than passed over: `git commit` would have aborted the
     // whole materialization, and a silent skip is a history quietly missing a
     // commit nobody asked it to drop.
     expect(result.stderr).toContain(`skips it: ${JSON.stringify(emptied.message)}`);
@@ -411,7 +411,7 @@ describe("setup.mjs --patch", () => {
       listFiles(second.workspace),
     ]);
     expect(filesA).toEqual(filesB);
-    // Hashes, not messages: a patched materialization has to be as reproducible
+    // hashes, not messages: a patched materialization has to be as reproducible
     // as an unpatched one, or two probes of one case are not comparable.
     expect(gitLog(first.workspace)).toEqual(gitLog(second.workspace));
   });
@@ -439,7 +439,7 @@ describe("setup.mjs --patch", () => {
     expect(result).toExitWith(2);
     expect(result.output).toMatch(/did not apply to the mock, so nothing was applied/);
     expect(result.output, "the failing patch has to be nameable").toContain(patch);
-    // No half-built workspace is left behind for a probe to find.
+    // no half-built workspace is left behind for a probe to find.
     expect(result.stdout.trim()).toBe("");
   });
 
@@ -455,7 +455,7 @@ describe("setup.mjs --patch", () => {
 
     expect(result).toExitWith(2);
     expect(result.output).toMatch(/names files content-site does not ship/);
-    // The message names the patch, so a rotted patch does not read as a mock
+    // the message names the patch, so a rotted patch does not read as a mock
     // somebody broke.
     expect(result.output).toContain(patch);
     expect(result.output).toContain(doomed);

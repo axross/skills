@@ -18,6 +18,7 @@ See [code-quality.md](./references/code-quality.md) for:
 
 - running the format → lint → fix → re-lint loop after any change
 - language compliance and import hygiene
+- the comment voice — lowercase prose, no all-caps emphasis, and what keeps its real casing
 - doc-comment and line-comment conventions in source files
 
 ## Change Management

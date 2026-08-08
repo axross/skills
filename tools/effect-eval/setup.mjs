@@ -37,10 +37,11 @@ the workspace path.
   --skill <name>   a skill to install into the workspace's .claude/skills/<name>,
                     copied from this repository's OWN installed skills;
                     repeatable. Passing none is the skill-absent condition.
-  --patch <path>   a unified diff to apply after the copy and BEFORE the history
-                    is replayed, so a case can bring the broken starting state
-                    its prompt describes without the mock shipping one. It may
-                    touch history.jsonc, and must when it changes the file set.
+  --patch <path>   a unified diff to apply after the copy and before the
+                    history is replayed, so a case can bring the broken starting
+                    state its prompt describes without the mock shipping one. It
+                    may touch history.jsonc, and must when it changes the file
+                    set.
   --install        run \`npm ci\` in the workspace, so a probe starts from
                     installed dependencies rather than spending its own turns on
                     them. Off by default: the default path touches no network,

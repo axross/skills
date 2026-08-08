@@ -1,17 +1,17 @@
-// Exit-code and failure-message contract for check-skill-frontmatter.mjs.
+// exit-code and failure-message contract for check-skill-frontmatter.mjs.
 //
 // `audit-checklist.md` makes confirming a bundled script's documented exit codes
 // a MUST, and this validator is one of the three the repository arms as a merge
-// gate. The documented contract is: 0 when every checked skill passes (warnings
+// gate. the documented contract is: 0 when every checked skill passes (warnings
 // alone do not fail a skill), 1 when any check fails, and 2 on a bad invocation
 // or a path that holds no skill.
 //
-// Most of this file is the `description` YAML block. That is proportionate: a
+// most of this file is the `description` YAML block. that is proportionate: a
 // value YAML reads as something other than the text that was typed is the
 // failure a host hits before it ever loads the skill, and every branch of it is
 // a distinct remedy for the author.
 //
-// Running the validator over THIS repository's own skill roots is a gate rather
+// running the validator over this repository's own skill roots is a gate rather
 // than a contract test, and lives in tests/repository/gate-runs.test.mjs.
 
 import { join } from "node:path";
@@ -26,9 +26,9 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 const checkSkill = validator(SCRIPTS.checkSkillFrontmatter);
 
 /**
- * Assert that a fixture fails with exit 1 and reports `expected`.
+ * assert that a fixture fails with exit 1 and reports `expected`.
  *
- * The two framing assertions are soft: when a rule stops firing, the useful
+ * the two framing assertions are soft: when a rule stops firing, the useful
  * signal is which of the three claims broke, and a hard assert on the first
  * hides the rest.
  * @param {string} dir
@@ -43,7 +43,7 @@ function expectFailure(dir, expected) {
 }
 
 /**
- * Assert that a fixture raises `expected` as a WARN and still exits 0. Every
+ * assert that a fixture raises `expected` as a WARN and still exits 0. every
  * case using this asserts the exit code, because the whole point of the
  * advisory tier is that none of it can fail a build.
  * @param {string} dir
@@ -146,11 +146,11 @@ describe("check-skill-frontmatter.mjs", () => {
         reported: /frontmatter: `description` is 1025 bytes \(max 1024 bytes\)/,
       },
       {
-        // Issue #194's verification strategy item 3. The all-ASCII case above
+        // issue #194's verification strategy item 3. the all-ASCII case above
         // cannot tell the new behaviour from the old one it replaced: its
         // character and byte counts are equal, so it fails identically under
-        // either reading. This one is under the cap in CHARACTERS and over it
-        // in BYTES, so only a byte-measuring check rejects it — and a refactor
+        // either reading. this one is under the cap in characters and over it
+        // in bytes, so only a byte-measuring check rejects it — and a refactor
         // back to `description.length` turns this red.
         what: "a description under 1024 characters but over 1024 bytes",
         dirName: "multibyte-description",
@@ -200,16 +200,16 @@ describe("check-skill-frontmatter.mjs", () => {
   });
 
   describe("a description YAML would read as something other than text", () => {
-    // The defect's symptom is a PASS: this validator reads frontmatter with a
+    // the defect's symptom is a PASS: this validator reads frontmatter with a
     // regex, so a construct YAML treats specially sails through and the skill
     // then fails to load on every host — with the merge gate green throughout.
-    // Every expectation below was checked against a real YAML parser, and the
+    // every expectation below was checked against a real YAML parser, and the
     // whole set was mutation-checked by disabling the hazard detection, which
     // turns the rejection cases red.
     //
-    // Two of these are worse than a parse error. `a #b` parses to `a` and
+    // two of these are worse than a parse error. `a #b` parses to `a` and
     // `&x text` parses to `text` — no error anywhere, just a description the
-    // author never wrote. Those are why this is a failure, not a warning.
+    // author never wrote. those are why this is a failure, not a warning.
 
     /** @param {string} description */
     const withDescription = (root, dirName, description) =>
@@ -284,7 +284,7 @@ describe("check-skill-frontmatter.mjs", () => {
         },
         {
           // `\` and `~` sit in the specification's indicator table but lead a
-          // plain scalar legally. Rejecting them would fail a correct skill,
+          // plain scalar legally. rejecting them would fail a correct skill,
           // which is why the hazard set was derived from a parser rather than
           // from that table.
           what: "a backslash leading the value",
@@ -345,7 +345,7 @@ describe("check-skill-frontmatter.mjs", () => {
       it("measures the byte cap against the unwrapped value, so quoting costs no budget", async () => {
         const root = await tempDir();
         // 1024 bytes of content inside quotes: 1026 bytes on the line, 1024
-        // once unwrapped. Counting the raw line would fail this.
+        // once unwrapped. counting the raw line would fail this.
         const inner = `The ability to ${"x".repeat(1009)}`;
         expect(Buffer.byteLength(inner, "utf8"), "fixture must sit exactly at the cap").toBe(1024);
         const dir = await withDescription(root, "quoted-at-cap", `"${inner}"`);
@@ -391,10 +391,10 @@ describe("check-skill-frontmatter.mjs", () => {
         });
       }
 
-      // YAML defines a CLOSED escape set inside double quotes. Accepting an
+      // YAML defines a closed escape set inside double quotes. accepting an
       // undefined sequence as a literal backslash would reintroduce this
       // check's own defect through the quoting path it adds: a value the
-      // validator passes and no host can load. Found by the independent
+      // validator passes and no host can load. found by the independent
       // review, on a fuzz wider than the differential this change shipped with.
       const undefinedEscapes = [
         { what: "\\d", dirName: "escape-d", description: '"Regex-flavored \\d+ matched inline in a description of some length."' },
@@ -414,7 +414,7 @@ describe("check-skill-frontmatter.mjs", () => {
 
       it("accepts every escape YAML does define", async () => {
         const root = await tempDir();
-        // The whole closed set in one value, so a shrunken map fails here.
+        // the whole closed set in one value, so a shrunken map fails here.
         const dir = await withDescription(
           root,
           "escapes-legal",

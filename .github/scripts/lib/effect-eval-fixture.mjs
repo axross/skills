@@ -16,9 +16,9 @@ import { DATA_ROOT, FIXTURE_FILE } from "../../../tools/effect-eval/src/layout.m
 export const DEFAULT_ROOT = DATA_ROOT;
 
 /**
- * The fixture's declaration for one case.
+ * the fixture's declaration for one case.
  *
- * Throws rather than exiting, so each caller renders the message through its
+ * throws rather than exiting, so each caller renders the message through its
  * own usage text and its own exit code.
  *
  * @param {string} root the data root holding fixture.json
@@ -43,13 +43,13 @@ export async function readDeclaredCase(root, caseId) {
 }
 
 /**
- * The dispatch's mode, from the raw text of its `dry-run` input.
+ * the dispatch's mode, from the raw text of its `dry-run` input.
  *
- * The two literals and nothing else, which is the point rather than pedantry.
- * An `inputs.<name>` that does not resolve interpolates the EMPTY STRING rather
+ * the two literals and nothing else, which is the point rather than pedantry.
+ * an `inputs.<name>` that does not resolve interpolates the empty string rather
  * than erroring, and every looser reading of that — truthiness, a shell
  * `[ "$X" = "true" ]`, a default applied at input-binding time — quietly
- * selects the paid path. Refusing anything but `true` and `false` turns an
+ * selects the paid path. refusing anything but `true` and `false` turns an
  * unresolved input into an exit code before a probe spawns.
  *
  * @param {string|undefined} value

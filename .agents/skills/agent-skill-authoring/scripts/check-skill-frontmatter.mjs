@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// The discovery contract: the frontmatter block a host reads before it loads a
+// the discovery contract: the frontmatter block a host reads before it loads a
 // skill at all.
 //
-// Run it after editing frontmatter. Everything here is decided from the leading
+// run it after editing frontmatter. everything here is decided from the leading
 // `---` block alone — nothing below it is read — which is what keeps this the
 // cheapest of the three and the one worth reaching for on its own.
 //
-// The bulk of the file is `readScalar`: whether a `description` YAML would read
-// as something other than the text that was typed. That check is here rather
+// the bulk of the file is `readScalar`: whether a `description` YAML would read
+// as something other than the text that was typed. that check is here rather
 // than beside the length cap because a value that cannot be read has no length
 // to measure, and reporting both would name two problems where there is one.
 
@@ -24,31 +24,31 @@ const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 const NAME_MAX = 64;
 
-// The spec states 1024 CHARACTERS. It is measured here in BYTES because that
-// is the stricter reading and the one a host has been observed to apply: Codex
-// rejects a skill outright with "invalid description: exceeds maximum length of
-// 1024 characters", and its limit is reported to be byte-measured, so a
-// description of 1024 characters carrying any non-ASCII punctuation fails to
-// load. UTF-8 never encodes a character in fewer than one byte, so a
-// byte-conformant description is character-conformant too and one check covers
-// both readings.
+// the spec states 1024 characters. it is measured here in bytes instead,
+// because that is the stricter reading and the one a host has been observed to
+// apply: Codex rejects a skill outright with "invalid description: exceeds
+// maximum length of 1024 characters", and its limit is reported to be
+// byte-measured, so a description of 1024 characters carrying any non-ASCII
+// punctuation fails to load. UTF-8 never encodes a character in fewer than one
+// byte, so a byte-conformant description is character-conformant too and one
+// check covers both readings.
 const DESCRIPTION_MAX_BYTES = 1024;
 
-// A plain (unquoted) YAML scalar is read specially when it carries one of the
+// a plain (unquoted) YAML scalar is read specially when it carries one of the
 // constructs below, so a `description` containing one either fails to parse or
-// — worse — parses to something other than what was written. Either way the
+// — worse — parses to something other than what was written. either way the
 // skill does not load with the text its author meant, while a regex-based
 // reader like this one sees nothing wrong.
 //
-// The set is EMPIRICAL, derived by running each construct through a real YAML
+// the set is empirical, derived by running each construct through a real YAML
 // parser rather than from the specification's indicator table, because the two
 // disagree in both directions. `\` and `~` lead a plain scalar perfectly
 // legally and rejecting them would fail correct skills; `#`, and `-`/`?`/`:`
 // before a space, are hazards the indicator table alone does not obviously
-// predict. A construct is listed here only if a parser was observed to reject
+// predict. a construct is listed here only if a parser was observed to reject
 // or silently transform it.
 //
-// Silent transformation is the reason this is a failure rather than a warning.
+// silent transformation is the reason this is a failure rather than a warning.
 // `a #b` parses to `a` and `&x text` parses to `text`: no error anywhere, and
 // the skill loads carrying a description its author never wrote.
 
@@ -58,20 +58,20 @@ const YAML_COLON_HAZARD_RE = /:(\s|$)/;
 // `#` at the start, or after whitespace — opens a comment and truncates.
 const YAML_COMMENT_HAZARD_RE = /(^|\s)#/;
 
-// Hazardous as the FIRST character whatever follows.
+// hazardous in first position whatever follows.
 const YAML_LEADING_ALWAYS = new Set(["[", "{", "]", "}", ",", "&", "*", "!", "|", ">", "%", "@", "`", '"', "'", "#"]);
 
-// Hazardous as the first character only when a space (or nothing) follows;
+// hazardous as the first character only when a space (or nothing) follows;
 // `- x` is a list item, `? x` a complex key, `: x` a value.
 const YAML_LEADING_BEFORE_SPACE = new Set(["-", "?", ":"]);
 
-// The escapes YAML defines inside a DOUBLE-quoted scalar, mapped to what they
-// produce. The set is closed: `\d`, `\s`, `\w` and every other undefined
-// sequence is a parse error, NOT a literal backslash. Accepting them would
-// reintroduce this check's own defect through the quoting path — a value the
-// validator passes and no host can load.
+// the escapes YAML defines inside a double-quoted scalar, mapped to what they
+// produce. the set is closed: `\d`, `\s`, `\w` and every other undefined
+// sequence is a parse error rather than a literal backslash. accepting them
+// would reintroduce this check's own defect through the quoting path — a value
+// the validator passes and no host can load.
 //
-// Verified against a real parser rather than transcribed, on the same reasoning
+// verified against a real parser rather than transcribed, on the same reasoning
 // as the hazard set above.
 const YAML_DQUOTE_ESCAPES = new Map([
   ["0", "\0"],
@@ -94,14 +94,14 @@ const YAML_DQUOTE_ESCAPES = new Map([
   ["P", "\u2029"],
 ]);
 
-// The numeric forms, each taking a fixed run of hex digits after the marker.
+// the numeric forms, each taking a fixed run of hex digits after the marker.
 const YAML_DQUOTE_HEX_ESCAPES = new Map([
   ["x", 2],
   ["u", 4],
   ["U", 8],
 ]);
 
-// Capability-framing advisories (warnings only — see the header note).
+// capability-framing advisories (warnings only — see the header note).
 const DOC_NAME_SUFFIX_RE =
   /-(guidelines|best-practices|principles|conventions|rules|requirements)$/;
 
@@ -109,30 +109,30 @@ const DOC_VOICE_DESC_RE =
   /^(This skill|This document|These guidelines|A collection of|Guidelines for|Rules for|Instructions for|Information about)\b/i;
 
 /**
- * Read a frontmatter scalar the way a YAML parser would, without being one.
- * Returns `{ value, error }`: `value` is the unwrapped string a parser would
+ * read a frontmatter scalar the way a YAML parser would, without being one.
+ * returns `{ value, error }`: `value` is the unwrapped string a parser would
  * produce, or null when `error` is set.
  *
- * Three forms are recognized. A double-quoted value unwraps and unescapes; a
+ * three forms are recognized. a double-quoted value unwraps and unescapes; a
  * single-quoted value unwraps and collapses `''` to `'`; anything else is a
  * plain scalar, which is returned as-is unless it carries a construct from the
  * hazard set above.
  *
- * Unwrapping has to happen BEFORE the byte cap and the framing check run.
- * Otherwise quotes and escapes count against the 1024-byte budget an author
- * did not spend, and the document-voice regex matches a leading `"` instead of
- * the first word.
+ * unwrapping has to happen before the byte cap and the framing check run, not
+ * after. otherwise quotes and escapes count against the 1024-byte budget an
+ * author did not spend, and the document-voice regex matches a leading `"`
+ * instead of the first word.
  *
- * This is deliberately not a YAML implementation. It covers the forms a
+ * this is deliberately not a YAML implementation. it covers the forms a
  * frontmatter scalar is written in, and its job is to refuse anything it
  * cannot read confidently rather than to guess.
  */
 function readScalar(raw) {
-  // Whitespace around a scalar is syntax, not value — a parser strips it on
-  // both sides. Trimming BOTH matters: with only the trailing side stripped,
-  // `description:  "x"` (a second space before the quote) would not be seen as
-  // quoted at all, and would be read as plain text that happens to start with
-  // a quote character.
+  // whitespace around a scalar is syntax, not value — a parser strips it on
+  // both sides. trimming each of them matters: with only the trailing side
+  // stripped, `description:  "x"` (a second space before the quote) would not
+  // be seen as quoted at all, and would be read as plain text that happens to
+  // start with a quote character.
   const text = raw.trim();
   if (text === "") return { value: "", error: null };
 
@@ -147,7 +147,7 @@ function readScalar(raw) {
     const inner = text.slice(1, -1);
 
     if (quote === "'") {
-      // Inside single quotes only `''` is special. An odd-length run of quotes
+      // inside single quotes only `''` is special. an odd-length run of quotes
       // means one of them terminates the scalar early.
       for (const run of inner.match(/'+/g) ?? []) {
         if (run.length % 2 !== 0) {
@@ -160,7 +160,7 @@ function readScalar(raw) {
       return { value: inner.replace(/''/g, "'"), error: null };
     }
 
-    // Inside double quotes a `"` must be backslash-escaped. Walk the string so
+    // inside double quotes a `"` must be backslash-escaped. walk the string so
     // an escaped backslash before a quote (`\\"`) is read as terminating.
     let out = "";
     for (let i = 0; i < inner.length; i++) {
@@ -232,7 +232,7 @@ function readScalar(raw) {
   return { value: text, error: null };
 }
 
-/** The frontmatter findings for one skill directory. */
+/** the frontmatter findings for one skill directory. */
 async function check(dir) {
   const failures = [];
   const warnings = [];
@@ -276,7 +276,7 @@ async function check(dir) {
   const scalar = rawDescription === undefined ? { value: null, error: null } : readScalar(rawDescription);
   const description = scalar.value;
   if (scalar.error) {
-    // Reported instead of the length and framing checks, not alongside them:
+    // reported instead of the length and framing checks, not alongside them:
     // until the value can be read, its length and opening words are unknown.
     failures.push(`frontmatter: \`description\` ${scalar.error}`);
   } else if (!description) {

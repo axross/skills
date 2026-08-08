@@ -21,7 +21,7 @@ const MEASUREMENTS = join(DATA_ROOT, "measurements");
 
 const readFixture = async () => JSON.parse(await readFile(join(DATA_ROOT, "fixture.json"), "utf8"));
 
-/** Directory names under measurements/, or [] when nothing has been measured yet. */
+/** directory names under measurements/, or [] when nothing has been measured yet. */
 async function measurementNames() {
   try {
     const entries = await readdir(MEASUREMENTS, { withFileTypes: true });
@@ -288,7 +288,7 @@ describe("what is committed to the repository", () => {
     // place merge-checks deliberately does not look. the draft status and the
     // loud title are what stop it; this is what notices if they did not.
     //
-    // it reads GIT'S TRACKED FILES rather than the working tree, which is both
+    // it reads the files Git tracks rather than the working tree, which is both
     // what "committed" means and what keeps it from firing during a rehearsal's
     // own `npm run check` — at that point the tree is written and nothing is
     // committed yet.

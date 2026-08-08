@@ -79,7 +79,7 @@ export function deriveProbeSummary(probe) {
   const transcript = parseTranscript(transcriptText);
   const behaviour = readBehaviour(transcript);
 
-  // a value the transcript CONTRADICTS fails the derivation; one it is silent
+  // a value the transcript contradicts fails the derivation; one it is silent
   // about does not. `null` means the stream did not say, and an older CLI
   // reporting nothing must not read as a probe that ran against the wrong model.
   const disagreements = [];

@@ -1,25 +1,25 @@
 // artifact.mjs — deterministic signals over the test file a behaviour probe
-// produced. See probe.mjs's header for how this fits into a run's record.
+// produced. see probe.mjs's header for how this fits into a run's record.
 //
-// MECHANICAL, NOT JUDGMENTAL, same as transcript.mjs: import specifiers, a
-// name check against three known exports, string literals, a count, a
-// pattern match. Nothing here decides whether the tests written are GOOD —
+// mechanical rather than judgmental, same as transcript.mjs: import specifiers,
+// a name check against three known exports, string literals, a count, a
+// pattern match. nothing here decides whether the tests written are any good —
 // that residue is issue #235's pilot's to read by hand.
 //
-// A regular-expression reader over TypeScript source, not a parser. That
+// a regular-expression reader over TypeScript source, not a parser. that
 // matches this repository's own precedent (materialize.mjs strips
 // history.jsonc's JSONC comments by hand rather than adding a dependency —
 // see this task's decision boundary on adding one) and is sized to what these
 // five signals need: import clauses, `it`/`test` call heads, and `expect(`
-// call sites. It is not a general TypeScript reader and does not try to be —
+// call sites. it is not a general TypeScript reader and does not try to be —
 // known gaps are called out at each function below.
 
-/** A path this repository's convention marks as a test file. */
+/** a path this repository's convention marks as a test file. */
 const TEST_FILE_RE = /(?:^|\/)(?:__tests__\/.*|.*\.(?:spec|test)\.[cm]?[jt]sx?)$/i;
 
 /**
  * `import … from "specifier"`, `import "specifier"` (side-effect), and
- * `require("specifier")`. The import-clause character class is deliberately
+ * `require("specifier")`. the import-clause character class is deliberately
  * narrow — word characters, `$`, braces, comma, `*`, and whitespace (which
  * matches a newline too, so a multi-line clause is still read) — because it
  * only has to survive an ordinary generated test file's import block, not
@@ -28,19 +28,19 @@ const TEST_FILE_RE = /(?:^|\/)(?:__tests__\/.*|.*\.(?:spec|test)\.[cm]?[jt]sx?)$
 const IMPORT_RE =
   /import\s+(?:type\s+)?(?:[\w$*,{}\s]+\s+from\s+)?["']([^"']+)["']|require\(\s*["']([^"']+)["']\s*\)/g;
 
-/** Only the `{ … }` named-import clause, to check WHICH names a specifier gave. */
+/** only the `{ … }` named-import clause, to check which names a specifier gave. */
 const NAMED_IMPORT_CLAUSE_RE = /import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+["']([^"']+)["']/g;
 
 /**
- * An `it(` or `test(` call head with a literal string/template name — not
- * `describe(`, so a suite's own title is never counted as a case name. Known
+ * an `it(` or `test(` call head with a literal string/template name — not
+ * `describe(`, so a suite's own title is never counted as a case name. known
  * gap: `it.each(table)("name", …)` and the `fit`/`xit` aliases are not
  * matched; both are uncommon enough in a freshly generated suite that missing
  * them costs no signal this pilot's fixture needs.
  */
 const TEST_CASE_RE = /\b(?:it|test)(?:\.\w+)?\s*\(\s*(['"`])((?:\\.|(?!\1).)*)\1/g;
 
-/** Every `expect(` call site — this project's own mock fixture's assertion shape. */
+/** every `expect(` call site — this project's own mock fixture's assertion shape. */
 const ASSERTION_RE = /\bexpect\s*\(/g;
 
 /** Jest's and Vitest's mocking entry points, covering either runner's convention. */
@@ -52,7 +52,7 @@ export function isTestFilePath(path) {
 }
 
 /**
- * Picks the file most likely to be THE test file a run produced: a
+ * picks the file most likely to be the one test file a run produced: a
  * test-shaped changed path naming the target module wins; failing that, the
  * first test-shaped changed path; failing that, `null` — itself a real
  * finding ("no test file"), not a gap in the extraction.
@@ -86,9 +86,9 @@ export function extractImportSpecifiers(source) {
 }
 
 /**
- * Which of the target module's named helpers a test file imports BY NAME
+ * which of the target module's named helpers a test file imports by name
  * from a specifier naming that module — not merely present anywhere in the
- * file's text. Known gap: a namespace import (`import * as RT from "…"`) or
+ * file's text. known gap: a namespace import (`import * as RT from "…"`) or
  * a destructured `require(...)` is not recognized as importing any helper,
  * since neither names the helper in an import clause this regex reads.
  *
@@ -126,9 +126,9 @@ export function usesMocks(source) {
 }
 
 /**
- * The full artifact extraction for one run: locates the primary test file
+ * the full artifact extraction for one run: locates the primary test file
  * among the files a probe changed and reports the mechanical signals over
- * it. Every field is `null`/empty/`false` when no test file was found — a
+ * it. every field is `null`/empty/`false` when no test file was found — a
  * real, mechanical finding, not a placeholder for a missing extraction.
  *
  * @param {Array<{ path: string, content: string }>} files every file the

@@ -40,9 +40,9 @@ A comment is the fallback, not the plan. What a reader needs first is an impleme
 **Guidelines:**
 
 - MUST write the implementation so it carries its own explanation, and reserve a comment for what the code cannot state; what such a comment then says, and in what voice, belongs to the project's development conventions, which the Comments and Doc-Comments section below routes to.
-- MUST name the intermediate steps of a procedure so the flow reads as an account of what happens rather than as a sequence to be decoded; the KISS rules in [scope-discipline.md](./scope-discipline.md) own the single unreadable line, while this rule owns the flow it sits in.
+- SHOULD name the intermediate steps of a procedure so the flow reads as an account of what happens rather than as a sequence to be decoded; the KISS rules in [scope-discipline.md](./scope-discipline.md) own the single unreadable line, while this rule owns the flow it sits in.
 - MUST let the types carry the shape of what a unit takes and returns, in a statically-typed language, rather than leaving a reader to infer it from the body or from a comment restating it.
-- MUST hold a doc-comment on a module or domain boundary to one criterion — a caller can use the function, class, or constant without reading its implementation — and treat a boundary unit that fails it as the finding; how much detail that takes, and in what format, stays with the project's development conventions rather than being decided here.
+- MUST hold a doc-comment on a module or domain boundary to one criterion — a caller can use the function, class, or constant without reading its implementation — and treat a boundary unit that fails it as the finding. This deliberately extends the project's development conventions, which require a doc-comment on an exported type and on a function past a length threshold, to every symbol sitting on a boundary, a constant included; how much detail that takes, and in what format, stays with those conventions rather than being decided here.
 - SHOULD treat a comment that exists to compensate for an unclear name or an unclear flow as a finding against that name or flow, not as a comment worth keeping.
 
 ## Comments and Doc-Comments

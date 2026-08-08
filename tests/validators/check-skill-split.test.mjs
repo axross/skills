@@ -1,19 +1,19 @@
-// The migration contract for splitting check-skill.mjs into three commands.
+// the migration contract for splitting check-skill.mjs into three commands.
 //
-// Splitting 1,224 lines across three files can drop a rule with nothing to
+// splitting 1,224 lines across three files can drop a rule with nothing to
 // notice: the gate set stays consistent, `npm test` still passes, and this
 // repository's own skills are clean — so a rule that stopped firing produces
-// exactly the same output as a rule that fires and finds nothing. No other
+// exactly the same output as a rule that fires and finds nothing. no other
 // check in this suite can tell those two apart.
 //
 // `skill-structure-findings.json` was captured from `check-skill.mjs` against
-// `buildSkillFixture`'s root before that command was deleted. Comparing against
+// `buildSkillFixture`'s root before that command was deleted. comparing against
 // recorded data rather than against the old script is what lets the assertion
 // outlive it.
 //
-// Three properties are asserted, and the third is the one people forget: the
-// union must not merely CONTAIN the old findings, it must equal them, and no
-// finding may be reported by two commands. A defect behind two gates is read as
+// three properties are asserted, and the third is the one people forget: the
+// union must not merely contain the old findings, it must equal them, and no
+// finding may be reported by two commands. a defect behind two gates is read as
 // two defects, and the split exists to stop exactly that.
 
 import { readFile } from "node:fs/promises";
@@ -31,12 +31,12 @@ const COMMANDS = [
 ];
 
 /**
- * A validator's report, reduced to the findings it made.
+ * a validator's report, reduced to the findings it made.
  *
- * Per-skill PASS/FAIL verdicts are deliberately dropped. After the split a
+ * per-skill PASS/FAIL verdicts are deliberately dropped. after the split a
  * skill that fails a frontmatter rule and passes the body rules is FAIL under
  * one command and PASS under another, so the verdict became a property of the
- * command rather than of the skill. What has to survive is the finding set.
+ * command rather than of the skill. what has to survive is the finding set.
  */
 function findingsOf(report) {
   const findings = [];
@@ -45,7 +45,7 @@ function findingsOf(report) {
   for (const line of report.split("\n")) {
     const verdict = line.match(/^(?:PASS|FAIL)\s{2}(\S+)/);
     if (verdict) {
-      // The directory name alone: the fixture lives in a fresh temp directory
+      // the directory name alone: the fixture lives in a fresh temp directory
       // each run, so anything above it differs between the recording and the
       // comparison without any rule having changed.
       skill = verdict[1].split("/").pop();
@@ -62,7 +62,7 @@ function findingsOf(report) {
   return findings;
 }
 
-/** A stable key, so the comparison is set-wise rather than order-dependent. */
+/** a stable key, so the comparison is set-wise rather than order-dependent. */
 const key = (finding) =>
   `${finding.skill} ${finding.severity} ${finding.message}`;
 

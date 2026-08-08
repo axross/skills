@@ -1,18 +1,18 @@
-// The sanitized-read decoder, tested against what the channel was measured to do.
+// the sanitized-read decoder, tested against what the channel was measured to do.
 //
-// THIS FILE IS THE NORMATIVE RECORD OF THAT MEASUREMENT. The tracking issue
+// this file is the normative record of that measurement. the tracking issue
 // deliberately does not reproduce it: an issue body stating "a stored X comes
 // back as Y" collapses into "a stored Y comes back as Y" when that body is read
 // back through the very channel it describes, and the collapsed sentence stays
-// grammatical, so it reads as though it were written that way. Here the rows
+// grammatical, so it reads as though it were written that way. here the rows
 // are read from disk and never pass through the channel.
 //
-// The measurement: a body carrying each character at issue was written to a
+// the measurement: a body carrying each character at issue was written to a
 // GitHub issue, its stored bytes were confirmed on the rendered page, and the
-// body was read back through the tool channel. The channel deletes tags and
+// body was read back through the tool channel. the channel deletes tags and
 // HTML comments, decodes character references, then escapes five characters.
 //
-// Two of the rows below are the whole reason this decoder cannot be sold as a
+// two of the rows below are the whole reason this decoder cannot be sold as a
 // byte-faithful read, and they are asserted as losses rather than omitted.
 
 import { execFile } from "node:child_process";
@@ -38,7 +38,7 @@ const SCRIPT = fileURLToPath(
   ),
 );
 
-// One row per observation. `recoverable` records whether decoding `returned`
+// one row per observation. `recoverable` records whether decoding `returned`
 // reproduces `stored`; where it does not, `decoded` states what comes out
 // instead, so the loss is written down rather than left to be rediscovered.
 const MEASURED = [
@@ -119,7 +119,7 @@ const MEASURED = [
 describe("decode-sanitized-read.mjs", () => {
   describe("the measured rows", () => {
     it("covers every observation the probe produced", () => {
-      // A guard against a row being dropped in an edit: the count is the
+      // a guard against a row being dropped in an edit: the count is the
       // measurement's, and moving it should be a deliberate act.
       expect(MEASURED).toHaveLength(10);
     });
@@ -139,7 +139,7 @@ describe("decode-sanitized-read.mjs", () => {
   });
 
   describe("the single pass", () => {
-    // The defect this decoder exists to prevent. Resolving the references one
+    // the defect this decoder exists to prevent. resolving the references one
     // after another with the ampersand entity first turns `&amp;lt;` into `<`:
     // one level too many, silently, in text nobody re-reads.
     it("decodes exactly one level, leaving a reference rather than the character", () => {
@@ -160,7 +160,7 @@ describe("decode-sanitized-read.mjs", () => {
     });
 
     it("leaves a reference the escape stage cannot emit untouched", () => {
-      // The escaper emits five references and no others, so resolving anything
+      // the escaper emits five references and no others, so resolving anything
       // else would be decoding something this pipeline never encoded.
       expect(decodeSanitizedRead("&nbsp; &copy; &#x27;")).toBe(
         "&nbsp; &copy; &#x27;",

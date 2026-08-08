@@ -1,14 +1,14 @@
-// Builds a case patch the way a case author would: by mutating a real copy of
+// builds a case patch the way a case author would: by mutating a real copy of
 // a mock and taking `git diff` over the result.
 //
-// WHY GENERATED RATHER THAN COMMITTED. A patch rots the moment the mock moves
-// under it — that is the drift the declared-patch check exists to catch. A
-// hand-written patch committed here as a test fixture would rot the same way,
+// generated rather than committed, because a patch rots the moment the mock
+// moves under it — that is the drift the declared-patch check exists to catch.
+// a hand-written patch committed here as a test fixture would rot the same way,
 // against the same mock, and would have to be regenerated every time
-// `content-site` changes. Deriving it at test time from whatever the mock ships
+// `content-site` changes. deriving it at test time from whatever the mock ships
 // today costs a scratch repository and removes that maintenance entirely.
 //
-// Nothing here reads a file name out of a mock. The mutations are expressed
+// nothing here reads a file name out of a mock. the mutations are expressed
 // against history.jsonc's own structure — "a commit with more than one file",
 // "the file that is alone in its commit" — so a mock that gains, loses, or
 // renames files does not silently stop exercising the shape a test asked for.
@@ -24,7 +24,7 @@ import { repoPath } from "./run.mjs";
 
 export const HISTORY_FILE = "history.jsonc";
 
-/** Pinned identity, so the scratch repository needs no ambient git config. */
+/** pinned identity, so the scratch repository needs no ambient git config. */
 const PINNED = [
   "-c",
   "user.name=Patch Fixture",
@@ -52,8 +52,8 @@ function git(args, cwd) {
 }
 
 /**
- * Strips the whole-line `//` comments a mock's history.jsonc uses and parses
- * the result. Deliberately simpler than the module's own JSONC stripper: the
+ * strips the whole-line `//` comments a mock's history.jsonc uses and parses
+ * the result. deliberately simpler than the module's own JSONC stripper: the
  * fixtures this reads never put a comment marker inside a string, so a
  * line-based strip is exact for them even though it would not be in general.
  *
@@ -68,15 +68,15 @@ export function parseHistoryFixture(raw) {
   return JSON.parse(stripped).commits;
 }
 
-/** The commits a mock's committed history.jsonc declares. */
+/** the commits a mock's committed history.jsonc declares. */
 export async function readMockHistory(mock = "content-site") {
   return parseHistoryFixture(await readFile(repoPath("mocks", mock, HISTORY_FILE), "utf8"));
 }
 
 /**
- * Rewrites a scratch tree's history.jsonc from its own parsed commits.
+ * rewrites a scratch tree's history.jsonc from its own parsed commits.
  *
- * The rewrite drops the file's comments, which is fine and is not what a real
+ * the rewrite drops the file's comments, which is fine and is not what a real
  * case patch would do: history.jsonc never reaches the workspace a probe runs
  * in, so what a patch leaves in it only has to parse and to name the tree.
  *
@@ -91,7 +91,7 @@ export async function editHistory(tree, mutate) {
 }
 
 /**
- * Produces a unified diff against `mocks/<mock>` and returns its path.
+ * produces a unified diff against `mocks/<mock>` and returns its path.
  *
  * @param {(tree: string) => Promise<void>} mutate edits the scratch copy in place
  * @param {{ mock?: string }} [options]

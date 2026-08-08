@@ -1,28 +1,28 @@
-// Network-reaching audits must stay out of the merge gates.
+// network-reaching audits must stay out of the merge gates.
 //
-// This is the sibling of reporting-tools.test.mjs, and it is a SEPARATE file
-// rather than a fourth entry there on purpose. That file's invariant is that its
+// this is the sibling of reporting-tools.test.mjs, and it is a separate file
+// rather than a fourth entry there on purpose. that file's invariant is that its
 // three tools cannot fail — no threshold, an undecidable defect, and
 // non-determinism — and it asserts exactly that by running each one and
-// requiring exit 0. The link-freshness audit can and should fail: a dead link is
-// a fact, it is decidable, and it is repairable. Folding a can-fail auditor into
+// requiring exit 0. the link-freshness audit can and should fail: a dead link is
+// a fact, it is decidable, and it is repairable. folding a can-fail auditor into
 // that list would either break its exit-0 assertion or quietly weaken the claim
 // it makes about the other three.
 //
-// What makes this one dangerous is different, so the guard is different. It
-// reaches the NETWORK. Wired into `npm test`, `npm run check`, or
+// what makes this one dangerous is different, so the guard is different. it
+// reaches the network. wired into `npm test`, `npm run check`, or
 // merge-checks.yaml, every merge in this repository would depend on ~80 external
 // publishers being reachable from a GitHub runner — a gate that fails for
 // reasons no contributor can fix, which this repository's own argument says gets
 // bypassed or deleted rather than repaired.
 //
-// The second hazard is the one .github/workflows/link-freshness.yaml documents
+// the second hazard is the one .github/workflows/link-freshness.yaml documents
 // at length: a pull-request trigger would point a URL-dereferencing job at text
 // an outside contributor controls, handing back exactly the capability
-// claude-review.yaml denies against an untrusted head. The trigger assertion
+// claude-review.yaml denies against an untrusted head. the trigger assertion
 // below is the mechanical half of that argument.
 //
-// A grep proves these today; this file proves them on every run.
+// a grep proves these today; this file proves them on every run.
 
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -36,30 +36,30 @@ import { GATES } from "./gates.mjs";
  * @typedef {object} ScheduledAudit
  * @property {string} script    repository-relative path to the script
  * @property {string} needle    the string any wiring of it would contain
- * @property {string} workflow  the ONE workflow allowed to name it
+ * @property {string} workflow  the single workflow allowed to name it
  */
 
 /** @type {ScheduledAudit[]} */
 const SCHEDULED_AUDITS = [
   {
     script: SCRIPTS.linkFreshness,
-    // Matched by PATH, not basename: "check.mjs" alone is generic enough to
+    // matched by PATH, not basename: "check.mjs" alone is generic enough to
     // collide with unrelated text and would make the assertions meaningless.
     //
-    // The audit now ships inside agent-skill-authoring, so this path also
-    // appears under `.claude/skills/` as an installed copy. That is harmless
+    // the audit now ships inside agent-skill-authoring, so this path also
+    // appears under `.claude/skills/` as an installed copy. that is harmless
     // here on purpose: every sweep below reads .github/workflows, package.json,
     // .claude/hooks, and the gate registry — never the installed skill tree — so
-    // a copy of the SCRIPT can never be mistaken for a WIRING of it.
+    // a copy of the script can never be mistaken for a wiring of it.
     needle: "skills/agent-skill-authoring/scripts/link-freshness/check.mjs",
     workflow: "link-freshness.yaml",
   },
 ];
 
-/** Triggers that expose a workflow to content an outside contributor controls. */
+/** triggers that expose a workflow to content an outside contributor controls. */
 const FORBIDDEN_TRIGGERS = ["pull_request", "pull_request_target"];
 
-/** Every file under `dir`, as absolute paths. */
+/** every file under `dir`, as absolute paths. */
 async function filesUnder(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
@@ -74,7 +74,7 @@ async function filesUnder(dir) {
   return files;
 }
 
-/** A workflow's `on:` block, as raw text — everything up to the next top-level key. */
+/** a workflow's `on:` block, as raw text — everything up to the next top-level key. */
 async function triggerBlockOf(workflow) {
   const yaml = await readFile(repoPath(".github/workflows", workflow), "utf8");
   const match = yaml.match(/^on:\n([\s\S]*?)(?=^\S)/m);
@@ -94,7 +94,7 @@ describe("network-reaching audits are not gates", () => {
         }
       }
 
-      // Stronger than "appears nowhere": it must appear in EXACTLY one, so
+      // stronger than "appears nowhere": it must appear in one and no more, so
       // neither wiring it into a gating workflow nor quietly losing its own
       // trigger can pass unnoticed.
       expect(
@@ -107,7 +107,7 @@ describe("network-reaching audits are not gates", () => {
   it.each(SCHEDULED_AUDITS)(
     "keeps $script out of the merge-gating workflow specifically",
     async (audit) => {
-      // Named separately from the sweep above because this is the assertion that
+      // named separately from the sweep above because this is the assertion that
       // actually matters: merge-checks.yaml is what blocks a pull request.
       const yaml = await readFile(
         repoPath(".github/workflows/merge-checks.yaml"),
@@ -158,10 +158,11 @@ describe("the link-freshness workflow's trigger", () => {
     async (audit) => {
       const triggers = await triggerBlockOf(audit.workflow);
 
-      // THE security property, not a style preference. A job that dereferences
-      // every URL in the tree, triggered by a pull request, dereferences URLs an
-      // outside contributor just wrote — server-side request forgery with this
-      // repository's egress, reachable by anyone who can open a pull request.
+      // the security property here, not a style preference. a job that
+      // dereferences every URL in the tree, triggered by a pull request,
+      // dereferences URLs an outside contributor just wrote — server-side
+      // request forgery with this repository's egress, reachable by anyone who
+      // can open a pull request.
       for (const trigger of FORBIDDEN_TRIGGERS) {
         expect(
           triggers,
@@ -186,7 +187,7 @@ describe("the link-freshness workflow's trigger", () => {
     const permissions = yaml.match(/^permissions:\n([\s\S]*?)(?=^\S)/m);
 
     expect(permissions, `${audit.workflow} must declare a permissions block`).not.toBeNull();
-    // It comments nothing, opens nothing, and pushes nothing. Anything beyond
+    // it comments nothing, opens nothing, and pushes nothing. anything beyond
     // `contents: read` is a capability it has no use for.
     expect(permissions[1].trim()).toBe("contents: read");
   });
@@ -194,8 +195,8 @@ describe("the link-freshness workflow's trigger", () => {
 
 describe("the link-freshness audit's offline path", () => {
   it("exits 0 from --dry-run without making a request", () => {
-    // The audit itself needs a network, so its contract is asserted on the one
-    // path that does not. This is also what keeps the suite offline: no test in
+    // the audit itself needs a network, so its contract is asserted on the one
+    // path that does not. this is also what keeps the suite offline: no test in
     // this repository probes a URL.
     const result = runScript(SCRIPTS.linkFreshness, ["--dry-run"]);
 

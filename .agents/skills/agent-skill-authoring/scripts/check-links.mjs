@@ -1,36 +1,36 @@
 #!/usr/bin/env node
 // check-links.mjs — relative-link integrity check for a skill tree's Markdown links.
 //
-// Walks every Markdown file under the given roots — including dot-directories
+// walks every Markdown file under the given roots — including dot-directories
 // such as `.claude/`, which a `glob('**/*.md')` sweep silently skips unless it
 // is asked for them — and reports relative links whose target file does not
 // exist.
 //
-// Ships with the agent-skill-authoring skill (see
+// ships with the agent-skill-authoring skill (see
 // ../references/cross-referencing.md) so link verification survives template
-// adaptation and stays runnable in any project that keeps the skill. It is
+// adaptation and stays runnable in any project that keeps the skill. it is
 // dependency-light (Node standard library only), and reads what counts as prose
 // from commonmark.mjs beside it — the same module check-skill-body.mjs reads, so the
 // two can never disagree about what is example text.
 //
-// Usage:
+// usage:
 //   node check-links.mjs           # check the whole tree
 //   node check-links.mjs PATH ...  # check specific roots
 //   node check-links.mjs --help
 //
-// Only links to `.md` targets are checked; `http(s)://`, `mailto:`, and pure
-// `#anchor` links are ignored. Illustrative example links inside fenced code
+// only links to `.md` targets are checked; `http(s)://`, `mailto:`, and pure
+// `#anchor` links are ignored. illustrative example links inside fenced code
 // blocks, inline code spans, and HTML comments are skipped so the
 // skill-authoring docs can show `[file.md](./references/file.md)` without
-// tripping the check. Which text that leaves — and the order the three are
-// removed in, which decides whether a QUOTED comment opener gets believed — is
-// commonmark.mjs's `extractProse`, not this file's own.
+// tripping the check. which text that leaves — and the order the three are
+// removed in, which decides whether a merely quoted comment opener gets
+// believed — is commonmark.mjs's `extractProse`, not this file's own.
 //
-// A path argument that does not exist is skipped rather than reported: the
+// a path argument that does not exist is skipped rather than reported: the
 // check answers "do the links under these roots resolve", and a root that is
 // not there contributes no links.
 //
-// Exit codes:
+// exit codes:
 //   0  all relative links resolve
 //   1  one or more broken links
 //   2  bad invocation
@@ -47,8 +47,8 @@ With no <path>, the whole tree below the working directory is checked.
 Exit codes: 0 all links resolve, 1 broken links found, 2 bad invocation.`;
 
 /**
- * Directory names never worth walking: version control, dependency trees, and
- * build output. A generated `.md` under one of these is not authored content,
+ * directory names never worth walking: version control, dependency trees, and
+ * build output. a generated `.md` under one of these is not authored content,
  * and node_modules alone would dominate the run.
  */
 const PRUNED_DIRS = new Set([
@@ -62,11 +62,11 @@ const PRUNED_DIRS = new Set([
   ".venv",
 ]);
 
-/** An absolute URI (http:, https:, mailto:, …), which resolves to no file. */
+/** an absolute URI (http:, https:, mailto:, …), which resolves to no file. */
 const EXTERNAL_TARGET_RE = /^(https?:\/\/|mailto:)/;
 
 /**
- * A Markdown inline link whose target names a `.md` file, optionally with an
+ * a Markdown inline link whose target names a `.md` file, optionally with an
  * `#anchor`. `[^)]*` cannot cross the closing paren, so the match ends at the
  * first `)` following the `.md`.
  */
@@ -78,9 +78,9 @@ function fail2(message) {
 }
 
 /**
- * Split `target#fragment` at the fragment: the target is the prefix up to the
- * first `.md` that is followed by `#` or ends the parenthesised text. Scanning
- * for the FIRST qualifying `.md` rather than the last is what keeps a path like
+ * split `target#fragment` at the fragment: the target is the prefix up to the
+ * first `.md` that is followed by `#` or ends the parenthesised text. scanning
+ * for the first qualifying `.md` rather than the last is what keeps a path like
  * `./a.md.backup.md` resolving against the name it actually links.
  *
  * @param {string} inside the text between `](` and `)`
@@ -100,10 +100,10 @@ function linkTarget(inside) {
 }
 
 /**
- * Every candidate `.md` link target in a document, plus whether a fence was
+ * every candidate `.md` link target in a document, plus whether a fence was
  * left open at end of file.
  *
- * Fenced code blocks, inline code spans, and HTML comments are blanked first —
+ * fenced code blocks, inline code spans, and HTML comments are blanked first —
  * all three carry illustrative links a reader is meant to see and a checker is
  * not meant to resolve. `extractProse` owns that pass and its ordering, and
  * returns the fence state from the same walk, so the warning below always
@@ -132,7 +132,7 @@ function extractLinkTargets(source) {
 
 /**
  * Markdown files under one root: a file argument is taken as-is when it is
- * Markdown, a directory argument is walked. Dot-directories are included —
+ * Markdown, a directory argument is walked. dot-directories are included —
  * `.claude/` is exactly where a skill tree lives — while PRUNED_DIRS are not.
  *
  * @param {string} root
@@ -150,10 +150,10 @@ async function listMarkdownFiles(root) {
 
   const found = [];
   const pending = [root.length > 1 ? root.replace(/\/+$/, "") : root];
-  // Real paths already descended into. `withFileTypes` reports a symlinked
+  // real paths already descended into. `withFileTypes` reports a symlinked
   // directory as neither a file nor a directory, so a tree that installs one
   // skill source into a second agent's root by symlinking it would be walked
-  // as if those skills held no Markdown at all. Following the link fixes that
+  // as if those skills held no Markdown at all. following the link fixes that
   // and introduces the risk it always carries — a link pointing at an ancestor
   // walks forever — so every descent is recorded by its resolved path.
   const descended = new Set();
@@ -196,7 +196,7 @@ async function listMarkdownFiles(root) {
   return found;
 }
 
-/** Byte-wise sorted, deduplicated Markdown files under every root. */
+/** byte-wise sorted, deduplicated Markdown files under every root. */
 async function collectMarkdownFiles(roots) {
   const files = new Set();
   for (const root of roots) {
@@ -205,7 +205,7 @@ async function collectMarkdownFiles(roots) {
   return [...files].sort((a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b)));
 }
 
-/** File content, or null when it cannot be read. */
+/** file content, or null when it cannot be read. */
 async function readFileText(path) {
   try {
     return await readFile(path, "utf8");
@@ -214,7 +214,7 @@ async function readFileText(path) {
   }
 }
 
-/** True when `path` names something that exists (a dangling symlink does not). */
+/** true when `path` names something that exists (a dangling symlink does not). */
 async function exists(path) {
   try {
     await stat(path);
