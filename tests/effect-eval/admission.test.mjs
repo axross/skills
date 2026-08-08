@@ -74,9 +74,11 @@ describe("reconcile", () => {
     expect(result.projectionErrorUsd).toBe(-6);
   });
 
-  it("names an overrun as evidence the estimate is too low", () => {
+  it("names an overrun as evidence the projection was too low", () => {
     // reported, never enforced: the money is already spent, so its job is to
-    // tell the next admission that its estimate is wrong.
+    // tell the next admission that its projection was wrong. "projection"
+    // rather than "estimate": what a case was admitted under may have come
+    // from committed measurements just as well as from the fixture.
     const result = reconcile({ capUsd: 40, projectedTotalUsd: 36, actualTotalUsd: 52 });
     expect(result.withinCap).toBe(false);
     expect(result.overrunUsd).toBe(12);

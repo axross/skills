@@ -31,11 +31,17 @@ export function meanProbeCost(costs) {
 /**
  * decides whether one case measurement may start.
  *
- * where a case has no committed measurement the estimate comes from the
- * fixture. that is a weaker number and does not need to be a stronger one: a
- * cost estimate does not require measurement comparability, which is the
- * property that makes measured data expensive. the first committed measurement
- * supersedes it.
+ * where a case has no committed measurement the per-probe figure comes from the
+ * fixture, and it is a CEILING rather than an estimate. admission admits when
+ * the projection fits the cap, so a figure above the true cost refuses a cheap
+ * case and spends nothing, while one below it admits an expensive case and
+ * spends. only the second direction costs money, which is why the fixture is
+ * asked for a bound rather than a best guess and why the field is named for
+ * one.
+ *
+ * that number does not need measurement comparability — the property that makes
+ * measured data expensive — and it is superseded permanently by the first
+ * committed measurement, so it governs only a case's first run.
  *
  * @param {{
  *   caseId: string,
@@ -120,7 +126,7 @@ export function admitCase({
  * compares what a finished case cost against what it was admitted under.
  *
  * reported, never enforced: the money is already spent by the time this runs,
- * so its job is to tell the next admission that its estimate is too low.
+ * so its job is to tell the next admission that its projection was too low.
  *
  * @param {{ capUsd: number, projectedTotalUsd: number, actualTotalUsd: number }} input
  * @returns {{ withinCap: boolean, overrunUsd: number, projectionErrorUsd: number, reason: string }}
@@ -139,6 +145,6 @@ export function reconcile({ capUsd, projectedTotalUsd, actualTotalUsd }) {
         `projection was off by $${projectionErrorUsd.toFixed(2)}`
       : `spent $${actualTotalUsd.toFixed(2)}, OVER the $${capUsd.toFixed(2)} cap by ` +
         `$${overrunUsd.toFixed(2)}; admission projected $${projectedTotalUsd.toFixed(2)}, so the ` +
-        "estimate this case was admitted under is too low",
+        "projection this case was admitted under is too low",
   };
 }
