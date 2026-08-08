@@ -1,0 +1,172 @@
+diff --git a/shared/resolve-translation.spec.ts b/shared/resolve-translation.spec.ts
+new file mode 100644
+index 0000000..8a93454
+--- /dev/null
++++ b/shared/resolve-translation.spec.ts
+@@ -0,0 +1,166 @@
++import { describe, expect, it } from "@jest/globals";
++import {
++	findExactMatch,
++	findLanguageMatch,
++	normalizeLocale,
++	type Post,
++	resolveTranslation,
++} from "./resolve-translation";
++
++function makePost(overrides: Partial<Post> = {}): Post {
++	return {
++		slug: "hello",
++		defaultLocale: "en",
++		translations: [],
++		...overrides,
++	};
++}
++
++describe("normalizeLocale", () => {
++	it("lowercases a locale tag", () => {
++		expect(normalizeLocale("EN-US")).toBe("en-us");
++	});
++
++	it("trims surrounding whitespace", () => {
++		expect(normalizeLocale("  en-US  ")).toBe("en-us");
++	});
++});
++
++describe("findExactMatch", () => {
++	it("finds a translation with an identical locale", () => {
++		const post = makePost({
++			translations: [{ locale: "en-US", title: "Hi", body: "..." }],
++		});
++
++		expect(findExactMatch(post, "en-US")).toEqual(post.translations[0]);
++	});
++
++	it("matches case-insensitively", () => {
++		const post = makePost({
++			translations: [{ locale: "en-US", title: "Hi", body: "..." }],
++		});
++
++		expect(findExactMatch(post, "EN-us")).toEqual(post.translations[0]);
++	});
++
++	it("does not match a translation with only the same language subtag", () => {
++		const post = makePost({
++			translations: [{ locale: "en-GB", title: "Hi", body: "..." }],
++		});
++
++		expect(findExactMatch(post, "en-US")).toBeNull();
++	});
++
++	it("returns null when there are no translations", () => {
++		expect(findExactMatch(makePost(), "en")).toBeNull();
++	});
++});
++
++describe("findLanguageMatch", () => {
++	it("matches a translation sharing the primary language subtag", () => {
++		const post = makePost({
++			translations: [{ locale: "ja", title: "こんにちは", body: "..." }],
++		});
++
++		expect(findLanguageMatch(post, "ja-JP")).toEqual(post.translations[0]);
++	});
++
++	it("matches the other direction: a bare request reaching a regioned translation", () => {
++		const post = makePost({
++			translations: [{ locale: "ja-JP", title: "こんにちは", body: "..." }],
++		});
++
++		expect(findLanguageMatch(post, "ja")).toEqual(post.translations[0]);
++	});
++
++	it("returns null when no translation shares the language", () => {
++		const post = makePost({
++			translations: [{ locale: "fr", title: "Bonjour", body: "..." }],
++		});
++
++		expect(findLanguageMatch(post, "en")).toBeNull();
++	});
++});
++
++describe("resolveTranslation", () => {
++	it("prefers an exact match over a language-only match", () => {
++		const exact = { locale: "en-US", title: "Exact", body: "..." };
++		const languageOnly = {
++			locale: "en-GB",
++			title: "Language only",
++			body: "...",
++		};
++		const post = makePost({ translations: [languageOnly, exact] });
++
++		expect(resolveTranslation(post, ["en-US"])).toEqual(exact);
++	});
++
++	it("falls back to a language-only match when no accepted locale is an exact match", () => {
++		const translation = { locale: "en-GB", title: "Hi", body: "..." };
++		const post = makePost({ translations: [translation] });
++
++		expect(resolveTranslation(post, ["en-US"])).toEqual(translation);
++	});
++
++	it("honors the accepted-locales preference order for exact matches", () => {
++		const first = { locale: "fr", title: "Bonjour", body: "..." };
++		const second = { locale: "en", title: "Hi", body: "..." };
++		const post = makePost({ translations: [second, first] });
++
++		expect(resolveTranslation(post, ["fr", "en"])).toEqual(first);
++	});
++
++	it("prefers any accepted locale's exact match over any accepted locale's language-only match", () => {
++		const languageOnlyForFirstPreference = {
++			locale: "fr-CA",
++			title: "Bonjour",
++			body: "...",
++		};
++		const exactForSecondPreference = {
++			locale: "en-US",
++			title: "Hi",
++			body: "...",
++		};
++		const post = makePost({
++			translations: [languageOnlyForFirstPreference, exactForSecondPreference],
++		});
++
++		expect(resolveTranslation(post, ["fr-FR", "en-US"])).toEqual(
++			exactForSecondPreference,
++		);
++	});
++
++	it("falls back to the post's default locale when no accepted locale matches", () => {
++		const fallback = { locale: "en", title: "Hi", body: "..." };
++		const post = makePost({
++			defaultLocale: "en",
++			translations: [fallback, { locale: "fr", title: "Bonjour", body: "..." }],
++		});
++
++		expect(resolveTranslation(post, ["ja"])).toEqual(fallback);
++	});
++
++	it("returns null when nothing matches and there is no default-locale translation", () => {
++		const post = makePost({
++			defaultLocale: "en",
++			translations: [{ locale: "fr", title: "Bonjour", body: "..." }],
++		});
++
++		expect(resolveTranslation(post, ["ja"])).toBeNull();
++	});
++
++	it("returns null for a post with no translations at all", () => {
++		const post = makePost({ translations: [] });
++
++		expect(resolveTranslation(post, ["en", "fr"])).toBeNull();
++	});
++
++	it("returns null when given no accepted locales and no default-locale translation exists", () => {
++		const post = makePost({
++			defaultLocale: "en",
++			translations: [{ locale: "fr", title: "Bonjour", body: "..." }],
++		});
++
++		expect(resolveTranslation(post, [])).toBeNull();
++	});
++});
