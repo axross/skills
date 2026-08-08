@@ -29,6 +29,8 @@
 //   2  bad invocation, an unknown case, an unknown condition, or a dry-run
 //      input that is neither "true" nor "false"
 
+import { join, resolve } from "node:path";
+
 import { CONDITIONS } from "../../tools/effect-eval/src/layout.mjs";
 import { DEFAULT_ROOT, parseDryRunInput, readDeclaredCase } from "./lib/effect-eval-fixture.mjs";
 
@@ -43,7 +45,10 @@ and the flags evaluate.mjs is to receive. Prints JSON; runs nothing.
   --root <dir>             the data root (default: ${DEFAULT_ROOT})
   --help                   this text
 
-Output: {"mock": ..., "skills": [...], "evaluateFlags": [...]}
+Output: {"mock": ..., "skills": [...], "patch": ..., "evaluateFlags": [...]}
+
+"patch" is the absolute path of the case's declared patch, resolved against the
+data root, or "" when the case declares none.
 
 Exit codes: 0 planned, 2 bad invocation or an input that does not resolve.`;
 
@@ -112,6 +117,13 @@ async function main() {
     // declares, skill-absent installs nothing. that mapping used to be a YAML
     // `if`, where nothing could execute it.
     skills: options.condition === "skill-present" ? (declared.skills ?? []) : [],
+    // a case's patch is PER CASE, not per condition: both conditions have to
+    // start from one project tree, or the comparability check the summary runs
+    // fails by construction. resolved here rather than in the workflow because
+    // the declared path is relative to the fixture that declares it, and the
+    // workflow has no idea where that is. "" rather than null so the workflow's
+    // `jq -r` yields an empty string to test rather than the text "null".
+    patch: declared.patch ? resolve(join(options.root, declared.patch)) : "",
     evaluateFlags: dryRun ? ["--dry-run"] : [],
   };
 

@@ -93,6 +93,27 @@ describe("the probe plan", () => {
     expect(await installedSkills(workspace)).toEqual([]);
   });
 
+  it("resolves a case's patch against the fixture that declares it", async () => {
+    // the declared path is relative to the fixture, and the workflow has no
+    // idea where that is — so the resolution belongs here, and is asserted
+    // here. no case declares a patch today, which is the second half of what
+    // this checks: the field is present and empty rather than absent, so the
+    // workflow's `jq -er` has something to read either way.
+    const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+    const declared = fixture.cases.find((entry) => entry.id === CASE);
+
+    for (const condition of ["skill-absent", "skill-present"]) {
+      const plan = JSON.parse(
+        probePlan(["--case", CASE, "--condition", condition, "--dry-run-input", "true"]).stdout,
+      );
+      expect(plan).toHaveProperty("patch");
+      expect(
+        plan.patch,
+        "a patch is per case, so both conditions of one case get the same one",
+      ).toBe(declared.patch ? repoPath("data/effect-eval", declared.patch) : "");
+    }
+  });
+
   it("passes --dry-run only when the dispatch is a rehearsal", () => {
     const flags = (input) =>
       JSON.parse(
