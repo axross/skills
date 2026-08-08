@@ -66,7 +66,7 @@ A symbol named or cased unlike its neighbors makes the reader stop to check whet
 
 ### Default Vocabulary
 
-A project with an established convention has already answered these questions, and its convention wins. Where a project has none, a stated vocabulary is what keeps two contributors from inventing two — and it makes a name carry its kind, so a reader learns what a value is without chasing its declaration.
+A project with an established convention has already answered these questions, and its convention wins. So does a capability that owns the kind of value being named, and so does a platform or host API the value crosses into: this table is the fallback for a name nothing else governs, never an override of something that already does. Where nothing governs it, a stated vocabulary keeps two contributors from inventing two — and it makes a name carry its kind, so a reader learns what a value is without chasing its declaration.
 
 | Pattern              | Names                                                                       | Example                     |
 | -------------------- | --------------------------------------------------------------------------- | --------------------------- |
@@ -78,8 +78,9 @@ A project with an established convention has already answered these questions, a
 
 **Guidelines:**
 
-- MUST apply this vocabulary only where the project defines no convention of its own for the kind of value being named; where it does, its convention governs and a divergence from the table is not a finding.
+- MUST apply this vocabulary only where nothing already governs the name — the project's own convention, a capability that owns that kind of value (a component capability owning prop names, for one), or the platform or host API the value crosses into. Where any of those governs, it wins, and a divergence from the table is not a finding.
 - MUST put a boolean value, or a function returning one, on the `is<Noun>` or `is<Adjective>` form wherever it asks whether the subject **is** that thing or is in that state; a boolean asking something else (possession, capability, obligation) is outside this table and takes the form its own question calls for.
+- MUST keep a boolean on the bare form a platform or host API already uses where the value crosses that boundary — a DOM-shaped prop mirroring an HTML boolean attribute (`disabled`, `checked`, `required`), a wire field, a configuration key — rather than prefixing it into a name that boundary does not use.
 - MUST name an instant with the `At` suffix on a past participle, keeping the past participle when the instant lies in the future (`expiredAt` for an expiry not yet reached), so the suffix marks a timestamp rather than a tense.
 - MUST name a span remaining until an event with the `In` suffix on the plain verb (`expiresIn`), so it is never read as the instant the `At` form carries.
 - MUST reserve a plural noun for a value that is a list or an array, and MUST NOT pluralize the name of one that is not.
