@@ -2,19 +2,19 @@
 // repositories.
 //
 // why real Git rather than an argv assertion. spawn.mjs is tested by checking
-// the argv it builds, because there the argv IS the whole claim. here it is
+// the argv it builds, because there the argv is the whole claim. here it is
 // not: the defect this module was extracted to fix was `git add -A -- .
 // ':(exclude).claude'` exiting 1, and that argv looks entirely correct. an
 // argv-equality test passes just as happily on the broken form, so these
 // cases plant a repository and run `git` against it.
 //
-// the three shapes here are the three the instrument actually meets. a skill-present
-// workspace on a well-formed mock, where the mock's own `.gitignore` keeps the
-// installed skill unstaged; the same workspace on a mock that has lost that
-// line, which is the case the second layer exists for; and a skill-absent
-// workspace with no `.claude` at all, which must take the identical code path.
-// the first and third are the two conditions of every real comparison, and the
-// original defect struck exactly one of them.
+// the three shapes here are the three the instrument actually meets. a
+// skill-present workspace on a well-formed mock, where the mock's own
+// `.gitignore` keeps the installed skill unstaged; the same workspace on a mock
+// that has lost that line, which is the case the second layer exists for; and a
+// skill-absent workspace with no `.claude` at all, which must take the
+// identical code path. the first and third are the two conditions of every real
+// comparison, and the original defect struck exactly one of them.
 
 import { spawnSync } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";

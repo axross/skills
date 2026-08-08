@@ -24,14 +24,14 @@ const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 const NAME_MAX = 64;
 
-// the spec states 1024 characters. it is measured here in bytes instead, because that
-// is the stricter reading and the one a host has been observed to apply: Codex
-// rejects a skill outright with "invalid description: exceeds maximum length of
-// 1024 characters", and its limit is reported to be byte-measured, so a
-// description of 1024 characters carrying any non-ASCII punctuation fails to
-// load. UTF-8 never encodes a character in fewer than one byte, so a
-// byte-conformant description is character-conformant too and one check covers
-// both readings.
+// the spec states 1024 characters. it is measured here in bytes instead,
+// because that is the stricter reading and the one a host has been observed to
+// apply: Codex rejects a skill outright with "invalid description: exceeds
+// maximum length of 1024 characters", and its limit is reported to be
+// byte-measured, so a description of 1024 characters carrying any non-ASCII
+// punctuation fails to load. UTF-8 never encodes a character in fewer than one
+// byte, so a byte-conformant description is character-conformant too and one
+// check covers both readings.
 const DESCRIPTION_MAX_BYTES = 1024;
 
 // a plain (unquoted) YAML scalar is read specially when it carries one of the
@@ -67,9 +67,9 @@ const YAML_LEADING_BEFORE_SPACE = new Set(["-", "?", ":"]);
 
 // the escapes YAML defines inside a double-quoted scalar, mapped to what they
 // produce. the set is closed: `\d`, `\s`, `\w` and every other undefined
-// sequence is a parse error rather than a literal backslash. accepting them would
-// reintroduce this check's own defect through the quoting path — a value the
-// validator passes and no host can load.
+// sequence is a parse error rather than a literal backslash. accepting them
+// would reintroduce this check's own defect through the quoting path — a value
+// the validator passes and no host can load.
 //
 // verified against a real parser rather than transcribed, on the same reasoning
 // as the hazard set above.
@@ -118,10 +118,10 @@ const DOC_VOICE_DESC_RE =
  * plain scalar, which is returned as-is unless it carries a construct from the
  * hazard set above.
  *
- * unwrapping has to happen before the byte cap and the framing check run, not after.
- * otherwise quotes and escapes count against the 1024-byte budget an author
- * did not spend, and the document-voice regex matches a leading `"` instead of
- * the first word.
+ * unwrapping has to happen before the byte cap and the framing check run, not
+ * after. otherwise quotes and escapes count against the 1024-byte budget an
+ * author did not spend, and the document-voice regex matches a leading `"`
+ * instead of the first word.
  *
  * this is deliberately not a YAML implementation. it covers the forms a
  * frontmatter scalar is written in, and its job is to refuse anything it
@@ -129,10 +129,10 @@ const DOC_VOICE_DESC_RE =
  */
 function readScalar(raw) {
   // whitespace around a scalar is syntax, not value — a parser strips it on
-  // both sides. trimming each of them matters: with only the trailing side stripped,
-  // `description:  "x"` (a second space before the quote) would not be seen as
-  // quoted at all, and would be read as plain text that happens to start with
-  // a quote character.
+  // both sides. trimming each of them matters: with only the trailing side
+  // stripped, `description:  "x"` (a second space before the quote) would not
+  // be seen as quoted at all, and would be read as plain text that happens to
+  // start with a quote character.
   const text = raw.trim();
   if (text === "") return { value: "", error: null };
 

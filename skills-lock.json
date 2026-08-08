@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "11a834a19df80bf315c3b07c7e6fbcc28da7370b7e7e89a0004abb0ad6df12cb"
+      "computedHash": "844852232ffc26a56f6be673f39aaf50257ede7767f2e0e6e89a9187787930a2"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "4d5661e6c2d0e9af3ff3f7821fc88d51247423a5a7d571adc8cc036d2d1f9741"
+      "computedHash": "8c6c6e20be5d3694530822db21708c0861e9725a22ac28f535d42e3d65f663fd"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8ee3a9dca57270542806cacd51306dd4600c4566889cbef323852407645536ba"
+      "computedHash": "004c5431309cb9f6c238f7a78c577002a2c30952ec9cad5611e0d73969fbc3d9"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",

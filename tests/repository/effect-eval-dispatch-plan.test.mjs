@@ -1,12 +1,12 @@
 // the two plan scripts .github/workflows/effect-eval.yaml reads before it acts.
 //
-// these execute the derivation rather than reading it. that is the whole point of the file, and of
-// moving the derivation out of the workflow body. what used to sit in YAML was
-// a shell loop that read the fixture and built setup.mjs's arguments; it never
-// ran its body, so --skill never reached setup.mjs and the skill-present
-// condition installed nothing. it cleared an independent review and three
-// planted-violation checks, because every assertion available read the
-// workflow's text and a loop that runs zero times passes all of them.
+// these execute the derivation rather than reading it. that is the whole point
+// of the file, and of moving the derivation out of the workflow body. what used
+// to sit in YAML was a shell loop that read the fixture and built setup.mjs's
+// arguments; it never ran its body, so --skill never reached setup.mjs and the
+// skill-present condition installed nothing. it cleared an independent review
+// and three planted-violation checks, because every assertion available read
+// the workflow's text and a loop that runs zero times passes all of them.
 //
 // so the skill cases below do not inspect a command line. they materialize a
 // real workspace through the real setup.mjs and look for the skill on disk.

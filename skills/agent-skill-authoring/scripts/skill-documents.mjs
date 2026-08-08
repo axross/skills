@@ -151,12 +151,12 @@ export async function skillDocuments(dir, skillBody, skillOffset) {
 
 /**
  * collapse results that describe the same skill twice. two entries merge only
- * when they share a skill name and also produce an identical verdict, so a project
- * that keeps generated copies of its skills (a source tree plus an installed
- * one) reports each skill once instead of once per copy. the path given
- * earliest on the command line is canonical, which is how the caller decides
- * which copy a fix belongs in. differing verdicts never merge — that divergence
- * is exactly what the reader needs to see.
+ * when they share a skill name and also produce an identical verdict, so a
+ * project that keeps generated copies of its skills (a source tree plus an
+ * installed one) reports each skill once instead of once per copy. the path
+ * given earliest on the command line is canonical, which is how the caller
+ * decides which copy a fix belongs in. differing verdicts never merge — that
+ * divergence is exactly what the reader needs to see.
  */
 export function collapseDuplicates(results) {
   const collapsed = [];

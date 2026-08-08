@@ -5,14 +5,14 @@
 // testable offline and deterministically — which is what keeps the audit's
 // extraction covered by `npm test` while the probing stays out of it.
 //
-// what counts as prose is not re-implemented here: it comes from commonmark.mjs,
-// the
-// same module check-links.mjs and the skill-structure validators read. a skill that documents a
-// URL inside a ```bash sample is showing it, not citing it, and probing an
-// illustrative `https://example.com` would report a finding nobody can fix. that
-// module also owns the order the fenced blocks, code spans, and HTML comments
-// come out in — see `extractProse`, and the 90 README lines that order cost when
-// this file and check-links.mjs each carried their own copy of it.
+// what counts as prose is not re-implemented here: it comes from
+// commonmark.mjs, the same module check-links.mjs and the skill-structure
+// validators read. a skill that documents a URL inside a ```bash sample is
+// showing it, not citing it, and probing an illustrative `https://example.com`
+// would report a finding nobody can fix. that module also owns the order the
+// fenced blocks, code spans, and HTML comments come out in — see
+// `extractProse`, and the 90 README lines that order cost when this file and
+// check-links.mjs each carried their own copy of it.
 //
 // why this is a separate concern from check-links.mjs. that script resolves
 // relative `.md` links against the file system and deliberately ignores

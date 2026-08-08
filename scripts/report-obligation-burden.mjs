@@ -2,13 +2,13 @@
 // report-obligation-burden.mjs — concurrent obligation burden reporter for this
 // repository and no other.
 //
-// answers a question no per-skill check can: "how many rules is an agent holding
-// right now?" check-skill-body.mjs measures one skill at a time, and its advisory
-// tier warns when a single SKILL.md crosses a byte budget. but the quantity that
-// governs whether an agent actually follows a rule is the obligation count held
-// concurrently across every skill a session has loaded — and that depends on which
-// reference files get read, a decision made at runtime that no per-skill check
-// can see.
+// answers a question no per-skill check can: "how many rules is an agent
+// holding right now?" check-skill-body.mjs measures one skill at a time, and
+// its advisory tier warns when a single SKILL.md crosses a byte budget. but the
+// quantity that governs whether an agent actually follows a rule is the
+// obligation count held concurrently across every skill a session has loaded —
+// and that depends on which reference files get read, a decision made at
+// runtime that no per-skill check can see.
 //
 // so this reports a range, never a single number:
 //   * the floor   — the SKILL.md bodies alone, what loading those skills costs
@@ -46,7 +46,7 @@
 // usage:
 //   node scripts/report-obligation-burden.mjs [--mandated] [<path | name> ...]
 //
-//     <path>  a skill directory (one holding SKILL.md), OR a directory whose
+//     <path>  a skill directory (one holding SKILL.md), or a directory whose
 //             immediate subdirectories are skills (e.g. `skills`).
 //     <name>  a skill name resolved against this repository's `skills` root,
 //             then its `.claude/skills` root — so `code-review` works from
@@ -119,7 +119,7 @@ const INSTALLED_ROOT = join(REPO_ROOT, ".claude", "skills");
  * would silently report two of three and look like it worked. a parse of the
  * conditions would fail the same way, and less visibly.
  *
- * what IS pinned mechanically: a test asserts every name here resolves to a real
+ * what is pinned mechanically: a test asserts every name here resolves to a real
  * skill, so renaming or deleting one fails loudly rather than silently dropping
  * it from the floor. claiming a stronger pin than that would be worse than
  * documenting this one.

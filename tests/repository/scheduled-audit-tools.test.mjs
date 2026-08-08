@@ -158,10 +158,11 @@ describe("the link-freshness workflow's trigger", () => {
     async (audit) => {
       const triggers = await triggerBlockOf(audit.workflow);
 
-      // the security property here, not a style preference. a job that dereferences
-      // every URL in the tree, triggered by a pull request, dereferences URLs an
-      // outside contributor just wrote — server-side request forgery with this
-      // repository's egress, reachable by anyone who can open a pull request.
+      // the security property here, not a style preference. a job that
+      // dereferences every URL in the tree, triggered by a pull request,
+      // dereferences URLs an outside contributor just wrote — server-side
+      // request forgery with this repository's egress, reachable by anyone who
+      // can open a pull request.
       for (const trigger of FORBIDDEN_TRIGGERS) {
         expect(
           triggers,

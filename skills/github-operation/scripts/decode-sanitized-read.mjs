@@ -17,11 +17,12 @@
 //     that character. the pipeline decodes before it escapes, so both arrive
 //     identical and the read is many-to-one.
 //
-// decoded output is therefore a readable reconstruction rather than the stored bytes.
-// do not write it back over a body, and do not report it as what is stored. to
-// obtain stored bytes, read through a route that does not sanitize, and compare
-// against the response field parsed as structured data — an extractor's stdout
-// and a shell capture each move a trailing newline, in opposite directions.
+// decoded output is therefore a readable reconstruction rather than the stored
+// bytes. do not write it back over a body, and do not report it as what is
+// stored. to obtain stored bytes, read through a route that does not sanitize,
+// and compare against the response field parsed as structured data — an
+// extractor's stdout and a shell capture each move a trailing newline, in
+// opposite directions.
 //
 // the single pass is the correctness argument. resolving the references one
 // after another, with the ampersand entity first, decodes a stored reference

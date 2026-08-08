@@ -283,7 +283,7 @@ describe("retry and fallback policy", () => {
   );
 
   it("does not retry a 404 with GET as a fallback status", () => {
-    // a 404 IS re-checked, but by the dead-confirmation pass rather than this
+    // a 404 is re-checked, but by the dead-confirmation pass rather than this
     // one — conflating the two would skip the confirming request.
     expect(GET_FALLBACK_STATUSES.has(404)).toBe(false);
   });

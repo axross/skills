@@ -61,7 +61,7 @@ const TEXT_FENCE_RE = /^text\b/i;
 // the SHOULD is checkable as written. the MUST is not: "mirrors a vendor's
 // option surface" is a judgment about content that no pattern decides, which is
 // exactly the exception clause the header says a threshold would misencode.
-// so the second signal proxies only the half that IS mechanical — a version
+// so the second signal proxies only the half that is mechanical — a version
 // pin — and only in its least ambiguous form, a document citing no URL at all.
 const VERIFIED_AGAINST_RE = /^\s*(?:[*_]{1,2})?Verified against\b/i;
 
@@ -121,8 +121,8 @@ function sectionIntroFailures(body, file, offset) {
  *
  * the block boundary — what opens it, and why neither a blank line nor a fence
  * closes it — belongs to guidelines.mjs, which this reads through
- * `scanGuidelines`. `guidelineStructureWarnings` reads that same walk, so the two
- * cannot disagree about whether a given bullet is inside a block.
+ * `scanGuidelines`. `guidelineStructureWarnings` reads that same walk, so the
+ * two cannot disagree about whether a given bullet is inside a block.
  */
 function guidelineKeywordFailures(body, file, offset) {
   const failures = [];
@@ -145,8 +145,9 @@ function guidelineKeywordFailures(body, file, offset) {
  * boundary is the point: two definitions would let the two checks disagree about
  * the same bullet, each silently believing the other covered it.
  *
- * a section is the span under one heading of any level whatever, so a nested subsection
- * is counted independently of its parent: the ceiling rule applies to each.
+ * a section is the span under one heading of any level whatever, so a nested
+ * subsection is counted independently of its parent: the ceiling rule applies
+ * to each.
  */
 function guidelineStructureWarnings(body, file, offset) {
   const warnings = [];
@@ -234,15 +235,16 @@ function staleStyleWarnings(body, file, offset) {
  *
  * two signals, in priority order:
  *
- *   1. a `Verified against …` line carrying no URL on the line itself. this one is
- *      exact, and needs no document-level context: the line asserts that
- *      something was checked at some point, the rule is that the URL rides the claim, and a
- *      citation three sections away does not discharge it.
+ *   1. a `Verified against …` line carrying no URL on the line itself. this
+ *      one is exact, and needs no document-level context: the line asserts
+ *      that something was checked at some point, the rule is that the URL
+ *      rides the claim, and a citation three sections away does not discharge
+ *      it.
  *   2. failing that, a document that pins a version anywhere in its prose while
  *      citing no documentation URL at all.
  *
  * the second is deliberately the weaker half of its rule. the MUST it proxies
- * turns on "pins a version OR mirrors a vendor's option surface", and only the
+ * turns on "pins a version or mirrors a vendor's option surface", and only the
  * first disjunct is mechanical — so a document that reproduces an option table
  * without naming a version stays silent here, and remains a reviewer's finding.
  * it is document-level rather than section-level because this corpus puts the
@@ -269,9 +271,10 @@ function citationWarnings(body, file, offset) {
     if (fence) continue;
 
     if (VERIFIED_AGAINST_RE.test(text)) {
-      // judged on the line itself, not on the document: the rule is that the URL
-      // rides the claim, so a citation three sections away does not discharge
-      // it. this is the exact half, and it needs no document-level context.
+      // judged on the line itself, not on the document: the rule is that the
+      // URL rides the claim, so a citation three sections away does not
+      // discharge it. this is the exact half, and it needs no document-level
+      // context.
       if (!HAS_URL_RE.test(text)) {
         warnings.push(
           `citation: ${file}:${line + offset} "${text.trim().slice(0, 60)}…" states a verification with no URL to check it against.`,

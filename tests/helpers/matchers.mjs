@@ -43,9 +43,9 @@ expect.extend({
   },
 
   /**
-   * the script failed (exit 1) and also said why, matching `pattern` against stdout
-   * and stderr combined. both halves matter: a validator that exits 1 for an
-   * unrelated reason is not evidence that the rule under test fired.
+   * the script failed (exit 1) and also said why, matching `pattern` against
+   * stdout and stderr combined. both halves matter: a validator that exits 1
+   * for an unrelated reason is not evidence that the rule under test fired.
    *
    * @param {{ code: number, output: string }} result
    * @param {RegExp | string} pattern

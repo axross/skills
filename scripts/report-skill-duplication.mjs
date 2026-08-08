@@ -27,26 +27,28 @@
 //
 // the obligation definition is imported rather than re-implemented here. it
 // comes from guidelines.mjs, the same module check-skill-body.mjs reads for its
-// `guidelines:` failures and report-obligation-burden.mjs counts through, so all
-// three agree on what a rule is and a boundary fix reaches every reader at once.
+// `guidelines:` failures and report-obligation-burden.mjs counts through, so
+// all three agree on what a rule is and a boundary fix reaches every reader at
+// once.
 //
-// similarity is a place to look rather than a verdict. two rules are compared as
-// sets of content words: shared-words ÷ total-distinct-words, after markdown,
-// the leading RFC-2119 keyword, and a closed stopword list are stripped. that is
-// deliberately crude. it cannot see that "MUST NOT log a secret" and "MUST
-// redact credentials before logging" are the same rule, and it will happily
-// rank two unrelated rules that share a vocabulary. both directions are why the
-// output is a ranked list to read rather than a count to act on.
+// similarity is a place to look rather than a verdict. two rules are compared
+// as sets of content words: shared-words ÷ total-distinct-words, after
+// markdown, the leading RFC-2119 keyword, and a closed stopword list are
+// stripped. that is deliberately crude. it cannot see that "MUST NOT log a
+// secret" and "MUST redact credentials before logging" are the same rule, and
+// it will happily rank two unrelated rules that share a vocabulary. both
+// directions are why the output is a ranked list to read rather than a count to
+// act on.
 //
 // comparison is cross-skill and nothing else. a skill restating its own rule in
-// two sections is a different defect with a different remedy, and mixing the two
-// would bury the cross-skill pairs this exists to surface.
+// two sections is a different defect with a different remedy, and mixing the
+// two would bury the cross-skill pairs this exists to surface.
 //
 // usage:
 //   node scripts/report-skill-duplication.mjs [--min <0-1>] [--top <n>]
 //                                             [<path | name> ...]
 //
-//     <path>  a skill directory (one holding SKILL.md), OR a directory whose
+//     <path>  a skill directory (one holding SKILL.md), or a directory whose
 //             immediate subdirectories are skills (e.g. `skills`).
 //     <name>  a skill name resolved against this repository's `skills` root,
 //             then its `.claude/skills` root.

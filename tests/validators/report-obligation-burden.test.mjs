@@ -6,7 +6,7 @@
 // the other validator tests never have to — that a large, alarming number still
 // exits 0, and that the report says out loud it defines no threshold.
 //
-// the counts are asserted against fixtures whose obligation count is known BY
+// the counts are asserted against fixtures whose obligation count is known by
 // construction, so a case fails when the tool miscounts rather than when the
 // corpus changes. the two figures that are pinned to the real corpus — the
 // mandated set's floor and ceiling — are pinned deliberately: they are the
@@ -310,7 +310,7 @@ describe("report-obligation-burden.mjs", () => {
       // installed root, `union.length > sourceTier.length` caught a root left
       // unscanned. no skill is repository-local any more — every skill is
       // authored under `skills/` and installed — so the two roots hold the same
-      // names and NO assertion over them can tell "scanned both" from "scanned
+      // names and no assertion over them can tell "scanned both" from "scanned
       // one". that tooth is therefore gone rather than weakened, and it returns
       // on its own the moment a repository-local skill is added back. the
       // previous assertion is deleted instead of relaxed to `>=`, which would
@@ -906,7 +906,7 @@ describe("report-obligation-burden.mjs", () => {
       // now says, because `main` moves these independently of this branch.
       //
       // these four figures are pinned twice. the mandated-set assertions above
-      // state the same numbers, because tier 3 IS the whole mandated set — the
+      // state the same numbers, because tier 3 is the whole mandated set — the
       // closing assertions of this case say so. a branch that moves one copy
       // and not the other merges without a textual conflict and reddens `main`
       // on arrival: #223 added this copy while #224 was moving the other, and
@@ -947,7 +947,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].ceilingObligations).toBe(444);
       expect.soft(tiers[2].ceilingTokens).toBe(43_404);
 
-      // the last tier IS the total, by construction. asserting it rather than
+      // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
       // — and it is the one assertion here that survives any corpus drift.
       const totals = totalsOf(report("--mandated").stdout);

@@ -69,13 +69,13 @@ const ROUTING_META_RE = /\bby name\b/i;
  * letter, number, mark, ASCII space, `-`, or `_`, then replace each remaining
  * space with a hyphen.
  *
- * replacing spaces one at a time rather than collapsing runs is the load-bearing
- * detail. GitHub deletes an em dash and leaves both flanking spaces, so
- * `## Phase 1 — Plan` is `phase-1--plan`, not `phase-1-plan`; a collapsing
- * implementation reports every such link as broken. link syntax is reduced to
- * its text first, since the slug comes from the rendered heading. emphasis
- * markers are not unwrapped — `_x_` would slug as `_x_` rather than `x` — which
- * is a known divergence with no instances in a heading to date.
+ * replacing spaces one at a time rather than collapsing runs is the
+ * load-bearing detail. GitHub deletes an em dash and leaves both flanking
+ * spaces, so `## Phase 1 — Plan` is `phase-1--plan`, not `phase-1-plan`; a
+ * collapsing implementation reports every such link as broken. link syntax is
+ * reduced to its text first, since the slug comes from the rendered heading.
+ * emphasis markers are not unwrapped — `_x_` would slug as `_x_` rather than
+ * `x` — which is a known divergence with no instances in a heading to date.
  */
 function slugify(heading) {
   return heading
@@ -232,13 +232,13 @@ function namesSomething(rule) {
  * of this defect has reported it as a violation of the rule it states. a metric
  * that reproduces the error it was built to replace is worse than no metric.
  *
- * a known false positive, stated rather than papered over: a compound noun whose
- * modifier is a gesture noun — "the file system", "the rule set" — reads as a
- * gesture and is not one. it cannot be separated by pattern, because the shape
- * is identical to a real gesture that happens to be compound ("the option sets
- * that differ between them"), and silencing one silences the other. on this
- * corpus that is one hit in ten. an advisory surfaces candidates for a human to
- * weigh, so the miscount is visible where a suppression would not be.
+ * a known false positive, stated rather than papered over: a compound noun
+ * whose modifier is a gesture noun — "the file system", "the rule set" — reads
+ * as a gesture and is not one. it cannot be separated by pattern, because the
+ * shape is identical to a real gesture that happens to be compound ("the option
+ * sets that differ between them"), and silencing one silences the other. on
+ * this corpus that is one hit in ten. an advisory surfaces candidates for a
+ * human to weigh, so the miscount is visible where a suppression would not be.
  */
 function routingConcretenessWarnings(body, file, offset) {
   const warnings = [];

@@ -29,9 +29,9 @@ const EXCLUDED_DIRECTORIES = new Set([".git", "node_modules"]);
  * load-bearing, and the one exclusion worth arguing about: a project
  * fingerprint that covered the installed skills would differ between the
  * skill-absent and skill-present conditions by construction rather than by
- * accident, so the check that proves two probes comparable would always fail. `skillDigests` covers them
- * separately, which is what lets them be compared within a condition and
- * required to be empty in the other.
+ * accident, so the check that proves two probes comparable would always fail.
+ * `skillDigests` covers them separately, which is what lets them be compared
+ * within a condition and required to be empty in the other.
  */
 const EXCLUDED_PATHS = new Set([".claude/skills"]);
 
@@ -104,7 +104,7 @@ export async function skillDigests(skillsRoot) {
   try {
     entries = await readdir(skillsRoot, { withFileTypes: true });
   } catch (error) {
-    // no directory at all IS the skill-absent condition, not a failure to read.
+    // no directory at all is the skill-absent condition, not a failure to read.
     if (error.code === "ENOENT") return {};
     throw error;
   }

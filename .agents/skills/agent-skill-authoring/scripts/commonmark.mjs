@@ -108,7 +108,7 @@ function scanDocument(body) {
  *
  * surfacing the opener is what lets a caller treat a fenced block as content
  * without seeing inside it. the section-intro check needs exactly that: a
- * section whose demonstration IS a code block must not read as a heading
+ * section whose demonstration is a code block must not read as a heading
  * abutting its `**Guidelines:**` label. callers that only care about prose skip
  * the marked lines.
  *
@@ -135,8 +135,8 @@ export function unterminatedFenceLine(body) {
 
 /**
  * an inline code span: a run of backticks, at least one character that is not a
- * backtick, then a closing run. text inside one is being shown, not used — a link or a
- * comment opener written there is an example, not the real thing.
+ * backtick, then a closing run. text inside one is being shown, not used — a
+ * link or a comment opener written there is an example, not the real thing.
  */
 const CODE_SPAN_RE = /`+[^`]+`+/g;
 
@@ -184,15 +184,15 @@ function stripHtmlComments(content) {
  * inline code spans, and HTML comments — every line left in place, so line N of
  * the result is line N of the source.
  *
- * the order is the point here, and getting it backwards fails silently rather than
- * loudly. comments are stripped last, from text whose fences and code spans are
- * already blank, so a `<!--` has to be real prose to open one. stripped first,
- * from the raw source, an opener that is only being quoted is believed and
- * everything up to the next `-->` disappears: this repository's own README
- * documents the `count:` marker rule with the sentence "a line beginning with
- * `<!--` is an HTML block in CommonMark", and reading that raw discarded the 90
- * lines after it, links and all, while every check over them still reported
- * clean.
+ * the order is the point here, and getting it backwards fails silently rather
+ * than loudly. comments are stripped last, from text whose fences and code
+ * spans are already blank, so a `<!--` has to be real prose to open one.
+ * stripped first, from the raw source, an opener that is only being quoted is
+ * believed and everything up to the next `-->` disappears: this repository's
+ * own README documents the `count:` marker rule with the sentence "a line
+ * beginning with `<!--` is an HTML block in CommonMark", and reading that raw
+ * discarded the 90 lines after it, links and all, while every check over them
+ * still reported clean.
  *
  * the limit that order accepts: a real comment whose closing `-->` sits inside a
  * fenced block loses that closer to the blanking pass, so the comment reads as

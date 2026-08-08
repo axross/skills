@@ -1,11 +1,11 @@
 // address-guard.mjs — refuse to probe an address that is not on the public
 // internet.
 //
-// why this exists. check.mjs follows each redirect itself, because `fetch`'s own
-// following hides each hop's status and the audit needs to tell a permanent move
-// from a temporary one. following by hand means re-issuing a request to whatever
-// host a `location` header names — and a `location` header is written by the
-// remote server, not by this repository.
+// why this exists. check.mjs follows each redirect itself, because `fetch`'s
+// own following hides each hop's status and the audit needs to tell a permanent
+// move from a temporary one. following by hand means re-issuing a request to
+// whatever host a `location` header names — and a `location` header is written
+// by the remote server, not by this repository.
 //
 // the threat is not theoretical and it survives review of the citation itself. a
 // contributor lands an ordinary, reviewable doc citation to

@@ -5,7 +5,7 @@
 // — which is worse than no gate at all: it occupies the slot, costs CI time, and
 // reads to everyone downstream as though something were being enforced.
 //
-// scripts/report-obligation-burden.mjs reports a number with NO threshold: it
+// scripts/report-obligation-burden.mjs reports a number with no threshold: it
 // exits 0 on every valid invocation however large the figures get. there is no
 // evidence for any particular limit in this corpus, and an indefensible
 // threshold becomes either a rule people route around or a warning people stop
@@ -153,8 +153,8 @@ describe("reporting tools are not gates", () => {
       }
 
       // stronger than "appears nowhere": the tool with a workflow of its own
-      // must appear in that one and nowhere else, so neither wiring it into a gating
-      // workflow nor quietly losing its own trigger can pass unnoticed.
+      // must appear in that one and nowhere else, so neither wiring it into a
+      // gating workflow nor quietly losing its own trigger can pass unnoticed.
       expect(
         naming.sort(),
         tool.workflow

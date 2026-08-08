@@ -72,11 +72,11 @@ async function isDir(path) {
 /**
  * immediate subdirectory names of `root`, sorted.
  *
- * a symlinked entry counts. `withFileTypes` reports one as a symlink rather than a
- * directory, so filtering on `isDirectory()` alone would see nothing in a root
- * whose skills are symlinks into another agent's root — and an empty root is
- * reported as "no drift", which reads exactly like a pass. that is the same
- * silent-pass hazard the usage note gives as the reason both roots are
+ * a symlinked entry counts. `withFileTypes` reports one as a symlink rather
+ * than a directory, so filtering on `isDirectory()` alone would see nothing in
+ * a root whose skills are symlinks into another agent's root — and an empty
+ * root is reported as "no drift", which reads exactly like a pass. that is the
+ * same silent-pass hazard the usage note gives as the reason both roots are
  * required rather than guessed.
  */
 async function skillNames(root) {

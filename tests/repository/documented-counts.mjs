@@ -10,7 +10,7 @@
 //
 // grepping prose for digits cannot fix that. it misses a count spelled out as a
 // word and fires on every unrelated number, so it would be both incomplete and
-// noisy in the one repository whose deliverable IS prose. a count is therefore
+// noisy in the one repository whose deliverable is prose. a count is therefore
 // marked where it is written:
 //
 //   the <!-- count:distributable-skills -->twenty-five<!-- /count --> here …
@@ -35,10 +35,11 @@
 //
 // a marker is checked wherever it appears in a scanned file, fenced code blocks
 // included: nothing is exempt, so there is no "did this one count?" question to
-// answer. what a fence changes is visibility, not applicability — an HTML comment inside one
-// renders as literal text — so a code sample a reader copies should not carry a
-// marker, while a sample that demonstrates the syntax legitimately does. the one
-// in README.md's own gotcha entry is a real, checked claim for that reason.
+// answer. what a fence changes is visibility, not applicability — an HTML
+// comment inside one renders as literal text — so a code sample a reader copies
+// should not carry a marker, while a sample that demonstrates the syntax
+// legitimately does. the one in README.md's own gotcha entry is a real, checked
+// claim for that reason.
 //
 // scope is every Markdown file outside the two skill roots. a distributable
 // skill installs into other people's projects, where these derivations name

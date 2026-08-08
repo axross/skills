@@ -96,9 +96,9 @@ export function isRetryableStatus(status) {
  * map one probe outcome onto a verdict.
  *
  * a transport-level failure — DNS, TLS, connection reset, timeout, a redirect
- * chain too long or looping — is unverifiable without exception. it is genuinely unknown
- * whether the resource is there, and the audit reports what it knows rather than
- * guessing in the direction that produces a finding.
+ * chain too long or looping — is unverifiable without exception. it is
+ * genuinely unknown whether the resource is there, and the audit reports what
+ * it knows rather than guessing in the direction that produces a finding.
  *
  * @param {Outcome} outcome
  * @returns {{ verdict: string, detail: string }} `detail` is the one-line

@@ -4,12 +4,12 @@
 // documented contract: 0 when every distributable skill matches its installed
 // copy, 1 on drift, 2 on a bad invocation or a root that is not a directory.
 //
-// both roots are required arguments, and the two invocation cases at the bottom are what
-// hold that. the script used to default them from its own location, which
-// stopped being safe once it moved inside a skill: two levels up now lands in
-// `.claude/`, and a root that matches nothing reports "0 skills, no drift" —
-// a pass indistinguishable from a real one. requiring the roots converts that
-// silent nothing into an exit 2.
+// both roots are required arguments, and the two invocation cases at the bottom
+// are what hold that. the script used to default them from its own location,
+// which stopped being safe once it moved inside a skill: two levels up now
+// lands in `.claude/`, and a root that matches nothing reports "0 skills, no
+// drift" — a pass indistinguishable from a real one. requiring the roots
+// converts that silent nothing into an exit 2.
 //
 // running the check against this repository's own two roots is a gate rather
 // than a contract test, and lives in tests/repository/gate-runs.test.mjs, which

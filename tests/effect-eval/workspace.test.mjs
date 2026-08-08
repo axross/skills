@@ -183,11 +183,11 @@ describe("setup.mjs", () => {
     // reported as something the model produced: 8 files and 660 insertions
     // before any model had run.
     //
-    // it also landed on skill-present runs and no others, because a skill-absent run
-    // installs none. a systematic difference between the conditions, caused by
-    // the instrument rather than by the thing it measures, is the one defect
-    // this whole apparatus exists to avoid — and the model saw it too, since
-    // only one condition's `git status` was dirty.
+    // it also landed on skill-present runs and no others, because a
+    // skill-absent run installs none. a systematic difference between the
+    // conditions, caused by the instrument rather than by the thing it
+    // measures, is the one defect this whole apparatus exists to avoid — and
+    // the model saw it too, since only one condition's `git status` was dirty.
     const { result, workspace } = materialize(["--skill", "unit-testing"]);
     expect(result).toPassCleanly();
 

@@ -23,8 +23,8 @@
 // blocks, inline code spans, and HTML comments are skipped so the
 // skill-authoring docs can show `[file.md](./references/file.md)` without
 // tripping the check. which text that leaves — and the order the three are
-// removed in, which decides whether a merely quoted comment opener gets believed — is
-// commonmark.mjs's `extractProse`, not this file's own.
+// removed in, which decides whether a merely quoted comment opener gets
+// believed — is commonmark.mjs's `extractProse`, not this file's own.
 //
 // a path argument that does not exist is skipped rather than reported: the
 // check answers "do the links under these roots resolve", and a root that is
