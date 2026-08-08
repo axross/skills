@@ -122,8 +122,9 @@ async function main() {
     // summary runs fails by construction. resolved here rather than in the
     // workflow because the declared path is relative to the fixture that
     // declares it, and the workflow has no idea where that is. "" rather than
-    // null, so the workflow's `jq -r` yields an empty string to test rather
-    // than the text "null".
+    // null, so the workflow's `jq -er` yields an empty string to test rather
+    // than the text "null" — and so a field that is missing rather than empty
+    // is the one case that exits non-zero there.
     patch: declared.patch ? resolve(join(options.root, declared.patch)) : "",
     evaluateFlags: dryRun ? ["--dry-run"] : [],
   };

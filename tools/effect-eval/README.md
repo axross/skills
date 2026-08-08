@@ -208,7 +208,7 @@ history is replayed over it. `mocks/README.md` states the principle and
 records what it beat.
 
 A case declares one as `patch` in
-[`data/effect-eval/fixture.json`](../../data/effect-eval/README.md), the probe
+[`data/effect-eval/fixture.json`](../../data/effect-eval/fixture.json), the probe
 plan resolves it, and `setup.mjs --patch` applies it. No case in that fixture
 declares one yet, and none is planned here: the first patches belong to
 discovery cases, on the mocks [#295](https://github.com/axross/skills/issues/295)

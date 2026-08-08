@@ -530,8 +530,25 @@ export async function materialize({
         return;
       }
       runGit(["add", "--", ...commit.files], workspace, commitEnv(index));
+      // `maintenance.auto=false` because every `git commit` otherwise invokes
+      // `git maintenance run --auto`, once per commit in this loop. that run
+      // may detach, and a caller that removes this workspace the moment
+      // materialization returns then races it into an intermittent
+      // `ENOTEMPTY: ... .git/objects/pack`. passed with `-c` rather than
+      // written into the workspace's config, for the same reason
+      // `commit.gpgsign` is: a line in .git/config is one the model working
+      // here can read, and this is a fixture that should look ordinary.
       runGit(
-        ["-c", "commit.gpgsign=false", "commit", "--quiet", "-m", commit.message],
+        [
+          "-c",
+          "commit.gpgsign=false",
+          "-c",
+          "maintenance.auto=false",
+          "commit",
+          "--quiet",
+          "-m",
+          commit.message,
+        ],
         workspace,
         commitEnv(index),
       );
