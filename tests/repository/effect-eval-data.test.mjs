@@ -1,9 +1,9 @@
-// The committed contents of data/effect-eval, judged against this repository.
+// the committed contents of data/effect-eval, judged against this repository.
 //
-// Unlike the unit tests beside the instrument, these read the REAL fixture and
-// the REAL committed measurements. They are what catches a hand-edited derived
-// file and a case identifier that has drifted into colliding with a skill name
-// — neither of which any amount of testing against synthetic trees would see.
+// these read the real fixture and the real committed measurements, which is
+// what catches a hand-edited derived file and a case identifier that has
+// drifted into colliding with a skill name. no amount of testing against
+// synthetic trees would see either.
 
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -39,9 +39,9 @@ describe("the case fixture", () => {
   });
 
   it("gives every case a verb-phrase identifier", async () => {
-    // An evaluation case names a TASK, and a skill names a capability. The two
-    // live in the same namespace in a reader's head, so the convention keeps
-    // them apart: a case starts with a bare verb, a skill does not.
+    // a case names a task and a skill names a capability. the two live in one
+    // namespace in a reader's head, so the convention keeps them apart: a case
+    // starts with a bare verb, a skill does not.
     const VERB_FIRST = /^[a-z]+(?:-[a-z0-9]+)*$/;
     for (const declared of (await readFixture()).cases) {
       expect(declared.id, `${declared.id} is not a kebab-case identifier`).toMatch(VERB_FIRST);
@@ -53,9 +53,8 @@ describe("the case fixture", () => {
   });
 
   it("collides with no installed skill name", async () => {
-    // Asserted rather than assumed. Every skill name is a noun phrase and every
-    // case id a verb phrase, so the two cannot collide — but that is a
-    // convention, and a convention nothing checks is one edit from being false.
+    // asserted rather than assumed: a convention nothing checks is one edit
+    // from being false.
     const installed = new Set(
       (await readdir(repoPath(".agents/skills"), { withFileTypes: true }))
         .filter((entry) => entry.isDirectory())
@@ -103,9 +102,9 @@ describe("the case fixture", () => {
 
 describe("the derived layer", () => {
   it("has not drifted from the measured files it derives from", async () => {
-    // THE DRIFT CHECK. It runs here, offline, over committed files, and again
-    // inside the measurement workflow before anything is committed — one
-    // derivation, two callers. A hand-edited summary.json fails here.
+    // the drift check: offline, over committed files, and again inside the
+    // measurement workflow before anything is committed. one derivation, two
+    // callers.
     const names = await measurementNames();
     const repetitions = new Map(
       (await readFixture()).cases.map((entry) => [entry.id, entry.repetitionsPerCondition ?? null]),
@@ -128,8 +127,8 @@ describe("the derived layer", () => {
   });
 
   it("passes summarize.mjs --check over whatever is committed", async () => {
-    // The same property through the real entry point, so the command a
-    // contributor is told to run is the command that is exercised.
+    // the same property through the real entry point, so the command a
+    // contributor is told to run is the one exercised.
     const result = runScript(SCRIPTS.summarize, ["--check", "--quiet"]);
     expect(result.code, result.output).toBe(0);
   });
@@ -148,10 +147,8 @@ describe("the instrument's entry points", () => {
 });
 
 describe("the dispatch's admit step", () => {
-  // .github/scripts/effect-eval-admit.mjs is the workflow's property rather
-  // than the instrument's — everything in it that is not a library call is
-  // shaped by GitHub. It is still tested, because the library call it makes
-  // decides whether money is spent.
+  // the workflow's property rather than the instrument's, and still tested,
+  // because the library call it makes decides whether money is spent.
   const admit = (args) => runScript(SCRIPTS.effectEvalAdmit, args);
 
   it("admits the declared case and emits the matrix's two dimensions", async () => {
@@ -167,8 +164,7 @@ describe("the dispatch's admit step", () => {
   });
 
   it("names the measurement directory with the instrument's own shape", async () => {
-    // Reimplementing `<case>-<id>` in the land job's shell is what this
-    // replaced; the name comes from layout.mjs's caseMeasurementName.
+    // this replaced a shell reimplementation of `<case>-<id>` in the land job.
     const [declared] = (await readFixture()).cases;
     const outputs = JSON.parse(admit(["--case", declared.id]).stdout);
     expect(outputs["measurement-dir"]).toMatch(
@@ -181,7 +177,7 @@ describe("the dispatch's admit step", () => {
     const result = admit(["--case", declared.id, "--cap-usd", "1"]);
     expect(result.code).toBe(4);
     expect(result.output).toMatch(/REFUSED/);
-    // The refusal is a finding, not a prompt to raise the cap.
+    // a finding, not a prompt to raise the cap.
     expect(result.output).toMatch(/not a threshold to adjust/);
   });
 

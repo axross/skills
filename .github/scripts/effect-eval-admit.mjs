@@ -1,29 +1,24 @@
 #!/usr/bin/env node
-// effect-eval-admit.mjs — the admit step of .github/workflows/effect-eval.yaml.
+// the admit step of .github/workflows/effect-eval.yaml.
 //
-// THIS BELONGS TO THE WORKFLOW, NOT TO THE INSTRUMENT, which is why it lives
-// here rather than beside the three commands under tools/effect-eval/. Sorting
-// it that way is not filing: everything it does that is not a library call is
-// shaped by GitHub — reading a named case out of a dispatch input, writing
-// `$GITHUB_OUTPUT`, and emitting the two arrays a `strategy.matrix` expands.
-// None of that is a question the evaluation asks.
+// it belongs to the workflow rather than to the instrument, which is why it is
+// here and not beside the three commands under tools/effect-eval/. everything
+// it does that is not a library call is shaped by GitHub — reading a dispatch
+// input, writing `$GITHUB_OUTPUT`, and emitting the arrays a `strategy.matrix`
+// expands. none of that is a question the evaluation asks.
 //
-// THE DECISION ITSELF IS NOT HERE. Whether the projected spend fits the cap is
-// tools/effect-eval/src/admission.mjs's job, where it is unit-tested and where
-// it stays reachable by anything that is not a workflow. This file reads two
-// committed JSON files, hands them over, and formats the answer.
+// the decision itself is not here. whether the projected spend fits the cap is
+// admission.mjs's, where it is unit-tested and reachable by anything that is
+// not a workflow.
 //
-// THE MATRIX IS TWO ARRAYS, NOT A LIST OF PAIRS. GitHub cross-products the
-// dimensions of a `strategy.matrix` itself, so emitting `conditions` and
-// `repeats` separately gets the same six cells with no pair-building here — and
-// the conditions come from the instrument's own CONDITIONS rather than being
-// retyped into the YAML.
+// the matrix is two arrays rather than a list of pairs because GitHub
+// cross-products a matrix's dimensions itself.
 //
-// Exit codes:
+// exit codes:
 //   0  admitted; the matrix dimensions are on stdout and in $GITHUB_OUTPUT
 //   2  bad invocation, or a case the fixture does not declare
-//   4  REFUSED — the projection exceeds the cap. Nothing downstream runs, so a
-//      case that does not fit its budget costs nothing at all.
+//   4  refused — nothing downstream runs, so a case that does not fit its
+//      budget costs nothing at all
 
 import { appendFile, readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -76,13 +71,12 @@ function parseArgv(argv) {
 }
 
 /**
- * Per-probe costs of every committed measurement of this case.
+ * read off the committed snapshot rather than by re-walking the measurement
+ * directories: the snapshot is derived, and the drift check keeps it honest.
  *
- * Read off the committed snapshot rather than by re-walking the measurement
- * directories: the snapshot is derived, and the drift check is what keeps it
- * honest. Only comparable measurements count — an incomparable one is still
- * evidence of what it cost, but it is stored as a finding, and projecting from
- * it would quietly treat a failed measurement as a normal one.
+ * only comparable measurements count. an incomparable one is still evidence of
+ * what it cost, but projecting from it would treat a failed measurement as a
+ * normal one.
  */
 async function committedCosts(root, caseId) {
   let snapshot;
@@ -126,10 +120,9 @@ async function main() {
     fail2(`${options.caseId} declares no positive repetitionsPerCondition.`);
   }
 
-  // Derived from the fixture rather than written into the YAML, so the declared
-  // repetition count and the number of probes that actually run cannot
-  // disagree. summarize.mjs checks the same number again afterwards, but that
-  // check runs once the money is spent; this one runs before.
+  // from the fixture rather than written into the YAML, so the declared
+  // repetition count and the number of probes that run cannot disagree.
+  // summarize.mjs checks the same number afterwards — once the money is spent.
   const repeats = Array.from({ length: repetitions }, (_, index) => index + 1);
   const probeCount = repeats.length * CONDITIONS.length;
 
@@ -154,10 +147,8 @@ async function main() {
   }
 
   const outputs = {
-    // Named here rather than in the land job, so the `<case>-<id>` shape comes
-    // from the instrument's own layout instead of being reimplemented in shell.
-    // Generating it before the fan-out also means the whole run knows which
-    // measurement it is building from its first step.
+    // named here rather than in the land job, so the shape comes from the
+    // instrument's own layout instead of being reimplemented in shell.
     "measurement-dir": caseMeasurementName(options.caseId),
     conditions: JSON.stringify(CONDITIONS),
     repeats: JSON.stringify(repeats),

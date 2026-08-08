@@ -1,5 +1,4 @@
-// tools/effect-eval/src/fingerprint.mjs — digesting what a probe ran against,
-// by content rather than by name.
+// digesting what a probe ran against, by content rather than by name.
 
 import { mkdtemp, mkdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -37,8 +36,8 @@ describe("digestibleFiles", () => {
     await write(".claude/skills/unit-testing/SKILL.md", "# skill\n");
     await write(".claude/settings.json", "{}\n");
 
-    // .claude/settings.json stays: only .claude/skills is excluded, and it is
-    // excluded by POSITION so a directory called `skills` elsewhere is kept.
+    // .claude/settings.json stays: only .claude/skills is excluded, and by
+    // position, so a directory called `skills` elsewhere is kept.
     expect(await digestibleFiles(root)).toEqual([".claude/settings.json", "src/index.ts"]);
   });
 
@@ -73,9 +72,9 @@ describe("treeDigest", () => {
   });
 
   it("does not move when a skill is installed under .claude/skills", async () => {
-    // LOAD-BEARING. A project digest covering the installed skills would differ
-    // between the skill-absent and skill-present conditions by construction,
-    // and the check that proves two probes comparable would always fail.
+    // load-bearing: a project digest covering the installed skills would
+    // differ between the two conditions by construction, and the check that
+    // proves two probes comparable would always fail.
     await write("a.ts", "one\n");
     const before = await treeDigest(root);
     await write(".claude/skills/unit-testing/SKILL.md", "# unit testing\n");
@@ -92,7 +91,7 @@ describe("skillDigests", () => {
   const skillsRoot = () => join(root, ".claude", "skills");
 
   it("returns an empty map for the skill-absent condition", async () => {
-    // No directory at all IS the condition, not a failure to read one.
+    // no directory at all is the condition, not a failure to read one.
     expect(await skillDigests(skillsRoot())).toEqual({});
   });
 
@@ -124,9 +123,8 @@ describe("skillDigests", () => {
   });
 
   it("digests a symlinked file rather than walking past it", async () => {
-    // setup.mjs installs skills with `dereference: true` so this should not
-    // arise, but a digest that silently skipped links would under-report the
-    // treatment if it ever did.
+    // setup.mjs dereferences on install so this should not arise, but a digest
+    // that skipped links would under-report the treatment if it ever did.
     await write(".claude/skills/alpha/SKILL.md", "a\n");
     await writeFile(join(root, "target.md"), "linked\n", "utf8");
     await symlink(join(root, "target.md"), join(skillsRoot(), "alpha", "linked.md"));

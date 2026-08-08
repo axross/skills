@@ -1,8 +1,7 @@
-// tools/lib/credentials.mjs — the environment going into a spawned CLI, and
-// the transcript coming out of one.
+// the environment going into a spawned CLI, and the transcript coming out.
 //
-// Every case here is offline and spawns nothing. The credentials planted below
-// are literals invented for these tests; none is real, and none has ever been.
+// the credentials planted below are literals invented for these tests. none is
+// real, and none has ever been.
 
 import { describe, expect, it } from "vitest";
 
@@ -28,8 +27,8 @@ describe("stripCredentials", () => {
   });
 
   it("keeps the two the CLI cannot authenticate without", () => {
-    // They match the denylist by name and are kept anyway — the subprocess IS
-    // the Claude CLI. That is exactly why redaction on the way out exists.
+    // they match the denylist by name and are kept anyway, which is exactly
+    // why redaction on the way out exists.
     const env = stripCredentials({
       CLAUDE_CODE_OAUTH_TOKEN: "kept",
       ANTHROPIC_API_KEY: "kept",
@@ -45,8 +44,7 @@ describe("stripCredentials", () => {
 
 describe("credentialValues", () => {
   it("ignores a value too short to redact safely", () => {
-    // Redacting `1` would turn every `1` in a transcript into a placeholder,
-    // destroying measured data to protect something that is not a secret.
+    // redacting `1` would turn every `1` in a transcript into a placeholder.
     expect(credentialValues({ SHORT_TOKEN: "1" })).toEqual([]);
   });
 
@@ -78,7 +76,7 @@ describe("redactCredentials", () => {
   });
 
   it("also covers the form a credential takes inside a JSON string", () => {
-    // A token holding a quote or a backslash reaches JSONL through
+    // a token holding a quote or a backslash reaches JSONL through
     // JSON.stringify, so its literal bytes are not what lands on disk.
     const value = 'we"ird\\token-value';
     const line = JSON.stringify({ note: value });
@@ -119,9 +117,9 @@ describe("redactTranscript", () => {
   });
 
   it("REFUSES when a credential shape survives redaction", () => {
-    // The backstop's whole point: a token this process never held reaches the
-    // transcript, so redaction by value cannot have removed it. Refusing costs
-    // a paid probe; writing it would cost the credential.
+    // a token this process never held reaches the transcript, so redaction by
+    // value cannot have removed it. refusing costs a paid probe; writing it
+    // would cost the credential.
     expect(() => redactTranscript("leaked ghp_BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", {})).toThrow(
       /still matches GitHub token/,
     );

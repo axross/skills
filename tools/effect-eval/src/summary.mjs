@@ -1,28 +1,19 @@
-// summary.mjs — the derived layer, and the comparability checks that decide
-// whether a case measurement is a measurement at all.
+// the derived layer, and the checks that decide whether a case measurement
+// measures anything.
 //
-// EVERYTHING HERE IS A PURE FUNCTION OF THE MEASURED AND DECLARED FILES. That
-// is what makes the drift check possible: re-deriving a committed summary and
-// comparing bytes is a real check only if the derivation cannot consult
-// anything else — not the clock, not the environment, not the network. Keep it
-// that way. A field that cannot be recomputed from `metadata.json`,
-// `transcript.jsonl`, and `changes.patch` does not belong in a summary; it
-// belongs in `metadata.json`, where it is declared rather than derived.
+// everything here must be a pure function of the measured and declared files.
+// that is what makes the drift check possible: re-deriving a committed summary
+// and comparing bytes is a real check only if the derivation cannot consult the
+// clock, the environment, or the network. a field that cannot be recomputed
+// from metadata.json, transcript.jsonl, and changes.patch belongs in
+// metadata.json, where it is declared rather than derived.
 //
-// THE CHECKS ARE THE PRODUCT, NOT A SIDE EFFECT. A case measurement whose
-// probes ran against different project trees, or against different skill sets
-// within one condition, or with different skills LOADED, is not a measurement
-// of anything — the difference it reports cannot be attributed. Recording that
-// fact in the summary and failing the measurement is the only honest outcome;
-// storing the numbers and leaving a reader to notice would be worse than not
-// measuring, because it looks like data.
-//
-// WHY "IDENTICAL", NOT "EMPTY", FOR THE LOADED SKILL SET. No available flag can
-// guarantee the CLI loads nothing: `--setting-sources project` strips the
-// user-level skills, but the ones a managed environment injects cannot be
-// stripped without also stripping the workspace's own — which are the
-// treatment. So the achievable invariant is that whatever contamination exists
-// is the SAME on both sides, where it cancels, rather than absent.
+// the checks are the product, not a side effect. a case whose probes ran
+// against different project trees, or different skill sets within one
+// condition, or with different skills loaded, is not a measurement of anything
+// — the difference it reports cannot be attributed. storing the numbers and
+// leaving a reader to notice would be worse than not measuring, because it
+// looks like data.
 
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -30,7 +21,7 @@ import { join } from "node:path";
 import { parseTranscript, readBehaviour } from "../../lib/transcript/index.mjs";
 import { conditionOf, METADATA_FILE, probePaths } from "./layout.mjs";
 
-/** Paths a unified diff touches, in first-appearance order. */
+/** @returns {string[]} in first-appearance order */
 export function changedPaths(patch) {
   const paths = [];
   const seen = new Set();
@@ -44,8 +35,6 @@ export function changedPaths(patch) {
 }
 
 /**
- * Reads one probe directory off disk.
- *
  * @param {string} probeDir
  * @param {string} name the directory's own name, which declares the condition
  */
@@ -76,8 +65,6 @@ export async function readProbe(probeDir, name) {
 }
 
 /**
- * The derived reading of one probe.
- *
  * @param {Awaited<ReturnType<typeof readProbe>>} probe
  * @returns {Record<string, unknown>}
  * @throws {Error} when the transcript contradicts what `metadata.json` declared
@@ -92,10 +79,9 @@ export function deriveProbeSummary(probe) {
   const transcript = parseTranscript(transcriptText);
   const behaviour = readBehaviour(transcript);
 
-  // A declared value the transcript CONTRADICTS fails the derivation; one the
-  // transcript is simply silent about does not. `null` from the parse means
-  // "the stream did not say" — an older CLI reporting nothing must not read as
-  // a probe that ran against the wrong model.
+  // a value the transcript CONTRADICTS fails the derivation; one it is silent
+  // about does not. `null` means the stream did not say, and an older CLI
+  // reporting nothing must not read as a probe that ran against the wrong model.
   const disagreements = [];
   if (transcript.model !== null && transcript.model !== configuration.model?.model) {
     disagreements.push(
@@ -120,9 +106,9 @@ export function deriveProbeSummary(probe) {
   return {
     probe: name,
     condition,
-    // Derived from the transcript's init event, deliberately NOT stored in
-    // metadata.json: what the CLI loaded is an outcome of the run, not a
-    // setting of it, and a declared value would be a claim nothing checks.
+    // from the transcript's init event, deliberately not from metadata.json:
+    // what the CLI loaded is an outcome of the run, not a setting of it, and a
+    // declared value would be a claim nothing checks.
     loadedSkills: transcript.loadedSkills,
     skillsInvoked: behaviour.skillsInvoked,
     turns: transcript.turns,
@@ -139,12 +125,7 @@ export function deriveProbeSummary(probe) {
   };
 }
 
-/** Deep equality over the JSON-shaped values this module compares. */
-const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-
 /**
- * Runs every comparability check over one case's probes.
- *
  * @param {Array<Awaited<ReturnType<typeof readProbe>>>} probes
  * @param {Array<Record<string, unknown>>} derived one per probe, same order
  * @param {number|null} declaredRepetitions repeats per condition the case declares
@@ -157,9 +138,6 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
   const configurationOf = (probe) => probe.metadata.configuration;
   const distinct = (values) => [...new Set(values.map((value) => JSON.stringify(value)))];
 
-  // 1. One project tree across every probe. This is the check that would be
-  //    impossible if the project digest covered .claude/skills/ — see
-  //    fingerprint.mjs.
   const trees = distinct(probes.map((probe) => configurationOf(probe).project?.tree));
   record(
     "one project tree",
@@ -169,7 +147,6 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
       : `probes disagree: ${trees.join(", ")}`,
   );
 
-  // 2. Skills: identical within skill-present, empty throughout skill-absent.
   const present = probes.filter((probe) => probe.condition === "skill-present");
   const absent = probes.filter((probe) => probe.condition === "skill-absent");
 
@@ -197,7 +174,6 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
           .join(", ")}`,
   );
 
-  // 3. One runtime version, model, and task.
   for (const [label, read] of [
     ["runtime version", (config) => config.runtime?.version],
     ["model", (config) => config.model?.model],
@@ -211,8 +187,12 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
     );
   }
 
-  // 4. The loaded skill set is IDENTICAL across every probe — see the header on
-  //    why identical rather than empty. Order is not signal, so compare sorted.
+  // identical, not empty. no available flag can guarantee the CLI loads
+  // nothing: `--setting-sources project` strips the user-level skills, but the
+  // ones a managed environment injects cannot be stripped without also
+  // stripping the workspace's own, which are the treatment. so the achievable
+  // invariant is that whatever contamination exists is the same on both sides,
+  // where it cancels. order is not signal, so compare sorted.
   const loaded = distinct(
     derived.map((summary) =>
       Array.isArray(summary.loadedSkills) ? [...summary.loadedSkills].sort() : summary.loadedSkills,
@@ -226,7 +206,6 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
       : `probes disagree, so contamination does not cancel between the conditions: ${loaded.join(" vs ")}`,
   );
 
-  // 5. The declared repetition count is what is actually on disk.
   if (declaredRepetitions !== null) {
     const expected = declaredRepetitions * 2;
     record(
@@ -243,9 +222,6 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
 }
 
 /**
- * Derives one case measurement's `summary.json` from the files under its
- * directory.
- *
  * @param {string} caseDir
  * @param {{ declaredRepetitions?: number|null }} [options]
  * @returns {Promise<Record<string, unknown>>}
@@ -275,8 +251,8 @@ export async function deriveCaseSummary(caseDir, { declaredRepetitions = null } 
   );
 
   return {
-    // The case identity and the conditions every probe shares, lifted out of
-    // the probes so a reader does not have to open one to know what this is.
+    // lifted out of the probes so a reader does not have to open one to know
+    // what this measurement is.
     case: configuration.task,
     project: configuration.project,
     runtime: configuration.runtime,
@@ -290,8 +266,6 @@ export async function deriveCaseSummary(caseDir, { declaredRepetitions = null } 
 }
 
 /**
- * Whether a case measurement passed every comparability check.
- *
  * @param {Record<string, unknown>} summary
  * @returns {{ comparable: boolean, failures: string[] }}
  */

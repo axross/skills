@@ -1,5 +1,4 @@
-// tools/effect-eval/src/admission.mjs — the budget guard, as one decision
-// before the spend.
+// the budget guard, as one decision before the spend.
 
 import { describe, expect, it } from "vitest";
 
@@ -50,9 +49,8 @@ describe("admitCase", () => {
   });
 
   it("ignores a dispatch trying to RAISE it, and says so", () => {
-    // The fixture is reviewed and committed; a dispatch input is typed into a
-    // form. Letting the second exceed the first makes the reviewed number
-    // advisory, which is the opposite of what committing it was for.
+    // the fixture is reviewed and committed; a dispatch input is typed into a
+    // form.
     const decision = admitCase({ ...base, requestedCapUsd: 999 });
     expect(decision.capUsd).toBe(40);
     expect(decision.reason).toMatch(/may lower the declared cap and may not raise it/);
@@ -77,8 +75,8 @@ describe("reconcile", () => {
   });
 
   it("names an overrun as evidence the estimate is too low", () => {
-    // Post-hoc and reported, never enforced: the money is already spent, so
-    // its job is to tell the next admission that its estimate is wrong.
+    // reported, never enforced: the money is already spent, so its job is to
+    // tell the next admission that its estimate is wrong.
     const result = reconcile({ capUsd: 40, projectedTotalUsd: 36, actualTotalUsd: 52 });
     expect(result.withinCap).toBe(false);
     expect(result.overrunUsd).toBe(12);

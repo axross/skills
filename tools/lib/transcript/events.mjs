@@ -1,21 +1,13 @@
-// events.mjs — turning the CLI's `--output-format stream-json` stdout into
-// events, and nothing beyond that.
+// framing the CLI's `--output-format stream-json` stdout into events.
 //
-// THE SHAPE HERE IS THE CLI'S, WHICH IS WHY IT IS SHARED. tools/lib holds only
-// what is decided outside either evaluator's question, and the framing of this
-// stream is decided by the tool that emits it. What a caller then READS out of
-// these events is its own business and lives with it.
+// shared because the framing is the CLI's decision, not either evaluation's.
+// what a caller then reads out of these events is its own business.
 //
-// PARSING IS DELIBERATELY FORGIVING. A truncated final line is ordinary rather
-// than corrupt: the CLI can be terminated by its own turn cap mid-write.
-// Discarding one unreadable line is better than discarding the paid run that
-// produced it — the same rule scripts/discovery-eval/stream.mjs states for the
-// same stream, and for the same reason.
+// the parse is forgiving because a truncated final line is ordinary rather than
+// corrupt: the CLI can be terminated by its own turn cap mid-write, and
+// discarding one unreadable line beats discarding the paid run that produced it.
 
 /**
- * Every event the stream carried, in order, skipping any line that will not
- * parse.
- *
  * @param {string} stdout raw JSONL from one probe
  * @returns {Record<string, unknown>[]}
  */
@@ -34,12 +26,10 @@ export function readEvents(stdout) {
 }
 
 /**
- * Every `tool_use` block across the stream's assistant messages, in the order
- * the stream reported them.
+ * every `tool_use` block across the stream's assistant messages.
  *
- * Repeats are kept. Order and multiplicity are signal for a probe that reads
- * what the model DID, so collapsing them here would discard data a caller
- * cannot get back.
+ * repeats and order are kept: both are signal for a probe that reads what the
+ * model did, and a caller cannot recover either once they are collapsed.
  *
  * @param {Record<string, unknown>[]} events
  * @returns {Array<{ name: string, input: Record<string, unknown> }>}

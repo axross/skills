@@ -1,84 +1,66 @@
 name: Skill Effect Evaluation
 
-# Runs one evaluation case as a two-dimensional matrix — every condition times
+# runs one evaluation case as a two-dimensional matrix — every condition times
 # every repetition — and lands the result through a pull request.
 #
-# THIS IS NOT A GATE, AND MUST NOT BECOME ONE. It is non-deterministic, it costs
-# real money per run, and it needs a secret that fork pull requests do not
-# receive. It is never a required check, it is not in merge-checks.yaml, and
-# tests/repository/reporting-tools.test.mjs asserts that the probe appears in
-# THIS workflow and in no other — so wiring it into a gate has to be a
-# deliberate act that breaks a test first.
+# it is not a gate and must not become one: non-deterministic, real money per
+# run, and it needs a secret fork pull requests do not receive.
+# tests/repository/reporting-tools.test.mjs asserts the probe appears in this
+# workflow and no other, so wiring it into a gate breaks a test first.
 #
-# ── WHY A MATRIX RATHER THAN A LOOP. The predecessor ran six probes serially
-# behind a cumulative cost ledger. Only one of the six stated reasons for that
+# ── why a matrix rather than a loop. the predecessor ran six probes serially
+# behind a cumulative cost ledger. only one of the six stated reasons for that
 # survived examination, and it was answerable another way; the rest were false
-# or inverted. Alternating conditions to spread service drift APPROXIMATES
-# simultaneity, and a matrix simply is simultaneous. Separate runners share no
-# filesystem and no npm cache, so isolation improves rather than degrades. What
-# is lost is the ability to stop at probe three, and `max-parallel` bounds that
-# if it is ever wanted.
+# or inverted. alternating conditions to spread service drift APPROXIMATES
+# simultaneity, and a matrix simply is simultaneous. separate runners also share
+# no filesystem and no npm cache, so isolation improves rather than degrades.
 #
-# ── THE BUDGET BINDS BEFORE THE FAN-OUT, IN THE `admit` JOB. Admission runs
-# once, projecting from committed measurements where they exist and the
-# fixture's declared estimate where they do not. A refusal exits 4 and nothing
-# downstream runs, so a case that does not fit its cap costs nothing at all. A
-# refusal is a finding; raising the cap is a spending decision that belongs to a
-# human editing the reviewed fixture, not to a dispatch input — which is why
-# `cap_usd` below can only ever lower it.
+# ── the budget binds before the fan-out, in `admit`. a refusal exits 4 and
+# nothing downstream runs, so a case that does not fit its cap costs nothing.
+# raising the cap is a spending decision belonging to a human editing the
+# reviewed fixture, which is why `cap_usd` below can only lower it.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 1 of 3 — MANUAL DISPATCH IS THE ONLY TRIGGER.
-# `workflow_dispatch` requires write access and always runs the workflow file
-# from the default branch, so a contributor cannot cause a run, cannot cause one
-# by editing this file in a pull request, and cannot cause one with a label. Do
-# NOT add `pull_request`, and do NOT add `pull_request_target`.
+# ── safety property 1 of 3: manual dispatch is the only trigger.
+# `workflow_dispatch` requires write access and always runs the file from the
+# default branch, so a contributor cannot cause a run, nor cause one by editing
+# this file in a pull request. do not add `pull_request` or
+# `pull_request_target`.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 2 of 3 — THE PROBE JOB CANNOT WRITE. It
-# declares `permissions: {}`, so its token carries no scope at all, and no step
-# in it receives GITHUB_TOKEN in its environment. It holds one secret — the one
-# the CLI needs to authenticate — and produces one artifact. Everything that
-# writes the repository happens in `land`, which spawns no model.
+# ── safety property 2 of 3: the probe job cannot write. it declares
+# `permissions: {}` and no step in it receives GITHUB_TOKEN. that matters more
+# here than in the discovery evaluation, because this probe has Bash and the
+# editing tools — deliberately, since whether an installed skill gets invoked
+# during real work is what is measured, and a probe that cannot run the
+# project's checks cannot exhibit the behaviour being measured. its workspace is
+# built only from this repository's own mock and its own installed skills, never
+# from a pull request head, which is what makes that posture safe.
 #
-# That separation matters more here than in the discovery evaluation, because
-# THIS probe has Bash and the editing tools. It has them deliberately: whether
-# an installed skill gets invoked during real work is what the instrument
-# measures, and a probe that cannot run the project's checks cannot exhibit the
-# behaviour being measured. Its workspace is built only from this repository's
-# own mock fixture and its own installed skills — never from a pull request
-# head — which is what makes that posture safe, and is why this axis never
-# combines with the head-overlay the discovery evaluation carries.
+# ── safety property 3 of 3: no credential reaches a stored transcript.
+# tools/lib/credentials.mjs redacts by value, and a shape scan then refuses
+# rather than redacting what it only guessed at. losing a paid probe is the
+# cheaper failure.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 3 of 3 — NO CREDENTIAL REACHES A STORED
-# TRANSCRIPT. tools/lib/credentials.mjs strips the environment going into the
-# subprocess and redacts the transcript coming out, by value. A shape scan then
-# REFUSES rather than redacting what it only guessed at: evaluate.mjs exits 3
-# and writes nothing. Losing a paid probe is the cheaper failure.
-#
-# ── THE MEASUREMENT PULL REQUEST IS CHECKED HERE, NOT BY THE MERGE GATE. GitHub
+# ── the measurement pull request is checked here, not by the merge gate. GitHub
 # does not fire workflows on a pull request opened with GITHUB_TOKEN, so
-# merge-checks.yaml does not run on what `land` opens. Rather than leave the
-# measurement unchecked, `land` runs the checks ITSELF before it commits: the
-# drift check, the comparability checks, and the repository's own `npm run
-# check`. A failure there fails the dispatch and opens no pull request.
+# merge-checks.yaml does not run on what `land` opens. rather than leave the
+# measurement unchecked, `land` runs those checks itself before it commits: the
+# drift check, the comparability checks, and `npm run check`.
 #
-# That division is then declared rather than inherited — merge-checks.yaml
-# excludes this pull request at its trigger, by PATH: a pull request whose
-# changed files are all under data/*/measurements/** or data/*/summary.json
-# carries measurement data and no code, so the gate workflow does not start. A
-# future change in how GitHub treats GITHUB_TOKEN-authored pull requests
-# therefore cannot silently move which gate is responsible for that data.
+# that division is declared rather than inherited — merge-checks.yaml excludes
+# this pull request at its trigger, by path, so a future change in how GitHub
+# treats GITHUB_TOKEN-authored pull requests cannot silently move which gate is
+# responsible for measurement data. by path rather than by branch name, and not
+# only because GitHub cannot filter a pull_request trigger by head branch at all
+# (its `branches` filter reads the base): a branch name is a public string any
+# contributor could adopt to skip every gate, where a path is a fact about what
+# the pull request contains.
 #
-# By path rather than by branch name, and not only because GitHub cannot filter
-# a pull_request trigger by HEAD branch at all (its `branches` filter reads the
-# base). A branch-name key would be a public string any contributor could adopt
-# to skip every gate; a path key is a fact about what the pull request contains.
+# the gates do still run on the push to the default branch once it merges, drift
+# check included, so measurement data is exempt from BLOCKING a pull request
+# rather than from being checked.
 #
-# The gates do still run on the push to the default branch once it merges — the
-# drift check included — so measurement data is exempt from BLOCKING a pull
-# request, not from being checked.
-#
-# Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
-# claude-review.yaml and discovery-eval.yaml already use. No new secret.
+# operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret claude-review.yaml
+# and discovery-eval.yaml already use. no new secret.
 
 on:
   workflow_dispatch:
@@ -87,30 +69,27 @@ on:
         description: "Evaluation case id, as declared in data/effect-eval/fixture.json"
         required: true
       cap_usd:
-        # LOWER ONLY. A value above the case's declared cap is reported and
-        # ignored — see admission.mjs. The fixture is reviewed and committed;
-        # this is typed into a form.
+        # lower only. a value above the declared cap is reported and ignored:
+        # the fixture is reviewed and committed, this is typed into a form.
         description: "Lower this case's declared budget cap for this dispatch (cannot raise it)"
         required: false
 
-# Least privilege at the top: read. The one job that writes raises its own.
+# least privilege at the top; the one job that writes raises its own.
 permissions:
   contents: read
 
 concurrency:
-  # Per case, and NEVER cancelling. Every other workflow here cancels superseded
-  # runs because the newer answer supersedes the older one. That reasoning
+  # per case, and never cancelling. every other workflow here cancels
+  # superseded runs, because the newer answer supersedes the older. that
   # inverts the moment a run costs money: cancelling a matrix mid-flight
-  # destroys the probes already paid for and leaves a case measurement that can
-  # never be completed, because its remaining probes would run in a different
-  # wall-clock window against a possibly-drifted service.
+  # destroys probes already paid for and leaves a case that can never be
+  # completed, its remainder having to run in a different wall-clock window.
   group: effect-eval-${{ github.event.inputs.case }}
   cancel-in-progress: false
 
 env:
-  # Pinned, and recorded in every probe's metadata.json. The CLI's own version
-  # is part of the condition a measurement was taken under, so it is held fixed
-  # for the same reason the model is.
+  # pinned, and recorded in every probe's metadata.json: the CLI's version is
+  # part of the condition, held fixed for the same reason the model is.
   CLAUDE_CODE_VERSION: 2.1.220
 
 jobs:
@@ -119,6 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
+      measurement-dir: ${{ steps.admit.outputs.measurement-dir }}
       conditions: ${{ steps.admit.outputs.conditions }}
       repeats: ${{ steps.admit.outputs.repeats }}
       cap-usd: ${{ steps.admit.outputs.cap-usd }}
@@ -131,8 +111,8 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # Exits 4 when the projection exceeds the cap, which fails this job and
-      # skips everything downstream. Nothing is spawned and nothing is billed.
+      # exits 4 when the projection exceeds the cap, which fails this job and
+      # skips everything downstream.
       - name: Admit the spend and emit the matrix
         id: admit
         env:
@@ -151,14 +131,13 @@ jobs:
     needs: admit
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # SAFETY PROPERTY 2 — no scope at all. This job spawns a model with Bash;
-    # it must not be able to write anything back.
+    # safety property 2 — this job spawns a model with Bash.
     permissions: {}
     strategy:
-      # One failed probe must not discard the paid work of the other five.
-      # summarize.mjs will notice the missing probe through the declared
-      # repetition count and report the measurement as incomparable, which is
-      # the right outcome: a partial case is a finding, not a silent success.
+      # one failed probe must not discard the paid work of the other five.
+      # summarize.mjs notices the gap through the declared repetition count and
+      # reports the measurement as incomparable, which is the right outcome: a
+      # partial case is a finding, not a silent success.
       fail-fast: false
       # GitHub cross-products these two itself — two conditions by three
       # repeats is the six cells, with no list of pairs built anywhere. Both
@@ -179,10 +158,9 @@ jobs:
       - name: Install the Claude Code CLI
         run: npm install --global @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
 
-      # `--install` is what keeps the harness's own setup out of the
-      # measurement. Without it, every probe spent three to five of its twelve
-      # to fifteen turns discovering node_modules was absent and installing it —
-      # in both conditions, over the network, resolving its own versions.
+      # `--install` keeps the harness's own setup out of the measurement:
+      # without it every probe spent three to five of its twelve to fifteen
+      # turns installing dependencies, in both conditions, over the network.
       - name: Prepare the workspace
         id: workspace
         env:
@@ -199,8 +177,8 @@ jobs:
           fi
           echo "path=$(node tools/effect-eval/setup.mjs "${args[@]}")" >> "$GITHUB_OUTPUT"
 
-      # SAFETY PROPERTY 2 — the only secret in this step is the one the CLI
-      # cannot authenticate without. GITHUB_TOKEN is deliberately absent.
+      # safety property 2 — the only secret here is the one the CLI cannot
+      # authenticate without.
       - name: Run the probe
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -226,13 +204,11 @@ jobs:
   land:
     name: Land the measurement
     needs: [admit, probe]
-    # `always()` so a partially-failed matrix still lands what it paid for. The
-    # probes that succeeded are measured data that cannot be re-acquired for
-    # free; discarding them because a sibling failed would be the expensive
-    # mistake. `fail-fast: false` above exists for the same reason, and the
-    # comparability checks are what stop a partial case being read as a whole
-    # one. Skipped only when admission itself refused, since then there is
-    # nothing to land.
+    # `always()` so a partially-failed matrix still lands what it paid for:
+    # the probes that succeeded are measured data that cannot be re-acquired
+    # for free, and the comparability checks are what stop a partial case being
+    # read as a whole one. skipped only when admission refused, since then
+    # there is nothing to land.
     if: always() && needs.admit.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -247,9 +223,8 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # The directory name comes from the admit job, which built it with the
-      # instrument's own `caseMeasurementName`. Reimplementing the `<case>-<id>`
-      # shape in shell here is what this replaced.
+      # the name comes from the admit job, built with the instrument's own
+      # `caseMeasurementName` rather than reimplemented in shell.
       - name: Make room for the probe records
         id: collect
         run: |
@@ -265,22 +240,19 @@ jobs:
           merge-multiple: true
           path: ${{ steps.collect.outputs.dir }}
 
-      # THE CHECKS RUN HERE, BEFORE THE COMMIT, because merge-checks.yaml will
-      # not run on the pull request this opens. summarize.mjs writes each
-      # summary and enforces the comparability checks; exit 4 means the
-      # measurement is not comparable.
+      # the checks run here, before the commit, because merge-checks.yaml will
+      # not run on the pull request this opens.
       #
-      # `continue-on-error` is deliberate and is NOT a way of ignoring the
-      # result: an incomparable measurement is a finding worth committing and
-      # reading, not data to throw away. The outcome is carried into the pull
-      # request body below, and the reviewer sees it before merging.
+      # `continue-on-error` is not a way of ignoring the result: an incomparable
+      # measurement is a finding worth committing and reading, and the outcome
+      # is carried into the pull request body below.
       - name: Derive the summaries and check comparability
         id: summarize
         continue-on-error: true
         run: node tools/effect-eval/summarize.mjs
 
-      # No `continue-on-error` here. A measurement that fails the repository's
-      # own gates is a defect in this instrument, not a finding about a skill.
+      # no `continue-on-error`: a measurement that fails the repository's own
+      # gates is a defect in this instrument, not a finding about a skill.
       - name: Run the repository's own checks
         run: npm run check
 

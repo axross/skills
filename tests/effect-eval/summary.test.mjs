@@ -1,10 +1,9 @@
-// tools/effect-eval/src/summary.mjs — the derived layer, and the checks that
-// decide whether a case measurement measures anything.
+// the derived layer, and the checks that decide whether a case measurement
+// measures anything.
 //
-// A measurement whose probes did not run under the same conditions reports a
-// difference that cannot be attributed to the skill. These cases assert that
-// each such disagreement FAILS and is NAMED, because a check that fails without
-// saying what disagreed leaves a reader to diff two JSON files by eye.
+// each case asserts that a disagreement both fails and is named. a check that
+// fails without saying what disagreed leaves a reader to diff two JSON files by
+// eye.
 
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -43,7 +42,7 @@ const TRANSCRIPT = [
   JSON.stringify({ type: "result", subtype: "success", num_turns: 3, total_cost_usd: 1.5 }),
 ].join("\n");
 
-/** Writes one probe directory, with everything overridable per case. */
+/** everything overridable per case. */
 async function writeProbe(name, { configuration = {}, transcript = TRANSCRIPT, patch = "" } = {}) {
   const directory = join(caseDir, name);
   await mkdir(directory, { recursive: true });
@@ -90,7 +89,7 @@ describe("deriveProbeSummary", () => {
     const summary = deriveProbeSummary(
       await readProbe(join(caseDir, "skill-present-bbbbbbbb"), "skill-present-bbbbbbbb"),
     );
-    // What the CLI loaded is an outcome of the run, not a setting of it.
+    // an outcome of the run, not a setting of it.
     expect(summary.loadedSkills).toEqual([]);
     expect(summary.turns).toBe(3);
     expect(summary.costUsd).toBe(1.5);
@@ -107,8 +106,7 @@ describe("deriveProbeSummary", () => {
   });
 
   it("does not fail when the transcript is merely silent about the model", async () => {
-    // `null` means "did not say" — an older CLI reporting nothing must not read
-    // as a probe that ran against the wrong model.
+    // `null` means "did not say", not "disagrees".
     await writeProbe("skill-absent-aaaaaaaa", {
       transcript: JSON.stringify({ type: "result", subtype: "success", num_turns: 1 }),
     });
@@ -124,8 +122,8 @@ describe("the comparability checks", () => {
     await aPair();
     const summary = await deriveCaseSummary(caseDir);
     expect(summary.comparable).toBe(true);
-    // The check that would be impossible if the project digest covered
-    // .claude/skills/ — the two conditions differ by exactly that directory.
+    // impossible if the project digest covered .claude/skills/ — the two
+    // conditions differ by exactly that directory.
     expect(summary.checks.find((check) => check.check === "one project tree").passed).toBe(true);
   });
 
@@ -158,8 +156,8 @@ describe("the comparability checks", () => {
   });
 
   it("fails and names a runtime-version disagreement", async () => {
-    // The CLI version is part of the condition. Until it was actually recorded
-    // this check compared null with null and passed on every measurement.
+    // until the version was actually recorded, this compared null with null
+    // and passed on every measurement.
     await writeProbe("skill-absent-aaaaaaaa", { configuration: { runtimeVersion: "2.1.220" } });
     await writeProbe("skill-present-bbbbbbbb", { configuration: { runtimeVersion: "9.9.9" } });
     expect(failuresOf(await deriveCaseSummary(caseDir))).toMatch(
@@ -168,7 +166,7 @@ describe("the comparability checks", () => {
   });
 
   it("fails when the loaded skill set differs between probes", async () => {
-    // Identical, not empty: no flag can guarantee the CLI loads nothing, so
+    // identical, not empty: no flag can guarantee the CLI loads nothing, so
     // the achievable invariant is that contamination cancels between sides.
     await writeProbe("skill-absent-aaaaaaaa");
     await writeProbe("skill-present-bbbbbbbb", {
@@ -217,7 +215,7 @@ describe("the comparability checks", () => {
 
 describe("deriveCaseSummary", () => {
   it("is a pure function of the files, so two derivations agree byte for byte", async () => {
-    // This is what makes the drift check meaningful.
+    // what makes the drift check meaningful.
     await aPair();
     expect(canonicalJson(await deriveCaseSummary(caseDir))).toBe(
       canonicalJson(await deriveCaseSummary(caseDir)),
@@ -236,7 +234,7 @@ describe("deriveCaseSummary", () => {
   it("refuses a probe directory that names no condition", async () => {
     await writeProbe("skill-absent-aaaaaaaa");
     await mkdir(join(caseDir, "not-a-condition-cccccccc"), { recursive: true });
-    // Ignored rather than misread: only directories naming a condition count.
+    // ignored rather than misread: only directories naming a condition count.
     expect((await deriveCaseSummary(caseDir)).probeCount).toBe(1);
   });
 });

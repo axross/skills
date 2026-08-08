@@ -1,38 +1,29 @@
 #!/usr/bin/env node
-// evaluate.mjs — run one probe against one prepared workspace, and write its
-// probe record.
+// run one probe against one prepared workspace, and write its probe record.
 //
-// ONE PROBE, NOT A CASE. The probes of one case measurement run as a matrix
-// across separate runners so that they share a wall-clock window and service
-// drift lands on both conditions alike. This command is what one cell of that
-// matrix invokes; nothing here knows about the other cells, and nothing here
-// aggregates. summarize.mjs does that, once, after they have all finished.
+// one probe, not a case. the probes of one case run as a matrix across separate
+// runners so they share a wall-clock window and service drift lands on both
+// conditions alike. this is what one cell of that matrix invokes; nothing here
+// knows about the other cells and nothing here aggregates.
 //
-// THE TRANSCRIPT IS STORED VERBATIM, AND THAT IS THE POINT OF THE REBUILD. The
+// the transcript is stored verbatim, which is the point of the rebuild. the
 // instrument this replaces stored extracted signals and discarded the raw
-// stream, on the reasoning that a later question would be a threshold over the
-// signal already extracted. It was not: reading six recovered session logs
-// answered three questions the stored records could not — which tools each run
-// used, the per-message token usage, and the model each message reported. Every
-// question today's reading does not answer used to cost a paid re-run. Now it
-// costs a new reading of a file already on disk.
+// stream, reasoning that a later question would be a threshold over the signal
+// already extracted. it was not: reading six recovered session logs answered
+// three questions the stored records could not — which tools each run used, the
+// per-message token usage, and the model each message reported.
 //
-// A NON-ZERO EXIT FROM THE CLI IS EXPECTED. With a turn cap of 100 a
-// legitimately long run can end in `result.subtype: error_max_turns` and a
-// non-zero process status. The STREAM is what matters and it is complete either
-// way, so this never treats the process's exit code as failure. Truncation is
-// read from the stream's own `result` event and never inferred.
+// a non-zero exit from the CLI is expected: with a turn cap of 100 a
+// legitimately long run ends in `error_max_turns` and a non-zero status. the
+// stream is complete either way, so the exit code is never read as failure.
 //
-// THE ORDER OF THE WRITES IS DELIBERATE. The transcript is redacted and written
-// FIRST, before anything reads the workspace. Everything after that point
-// touches model-produced content and can therefore meet something unforeseen; a
-// failure there costs the fields it would have produced and never the one file
+// the order of the writes is deliberate. the transcript is redacted and written
+// first, before anything reads the workspace, because everything after that
+// point touches model-produced content and can meet something unforeseen. a
+// failure there costs the fields it would have produced, never the one file
 // that cannot be re-acquired.
 //
-// Usage:
-//   node tools/effect-eval/evaluate.mjs [options]
-//
-// Exit codes:
+// exit codes:
 //   0  a probe record was written (or --dry-run wrote one with no spawn)
 //   2  bad invocation, a missing workspace, or the `claude` CLI not on PATH
 //   3  the transcript could not be vouched for and was not written
@@ -55,8 +46,8 @@ import {
 } from "./src/layout.mjs";
 import { buildArgv, buildConfiguration, shellQuote } from "./src/spawn.mjs";
 
-// Larger than the discovery evaluation's: up to 100 turns of edits and diffs,
-// not one turn of a single tool call.
+// up to 100 turns of edits and diffs, where the discovery probe is one turn of
+// a single tool call.
 const MAX_BUFFER_BYTES = 64 * 1024 * 1024;
 
 const USAGE = `Usage: evaluate.mjs [options]
@@ -136,7 +127,6 @@ function parseArgv(argv) {
   return options;
 }
 
-/** The declared case, read out of the fixture. */
 async function readCase(fixturePath, caseId) {
   let fixture;
   try {
@@ -153,10 +143,9 @@ async function readCase(fixturePath, caseId) {
 }
 
 /**
- * A stand-in stream for a dry run: shaped like the CLI's, carrying no
- * measurement. It exists so the dry run exercises the whole pipeline —
- * redaction, the write, and the derivation summarize.mjs runs over it — rather
- * than only the half of it that precedes the spawn.
+ * shaped like the CLI's, carrying no measurement — so a dry run exercises the
+ * whole pipeline, redaction and derivation included, rather than only the half
+ * that precedes the spawn.
  */
 function syntheticTranscript(configuration) {
   return (
@@ -204,24 +193,19 @@ async function main() {
   const declared = await readCase(options.fixture, options.caseId);
   const workspace = resolve(options.workspace);
 
-  // THE FINGERPRINT IS TAKEN BEFORE THE SPAWN, which is the only moment it
-  // means what it says: it digests the workspace as the model FIRST SEES IT.
-  // Taken afterwards it would digest the model's own edits and every probe
-  // would report a different tree by construction.
+  // before the spawn, which is the only moment it means what it says: the
+  // workspace as the model first sees it. taken afterwards it would digest the
+  // model's own edits and every probe would report a different tree.
   const projectTree = await treeDigest(workspace);
   const skills = await skillDigests(join(workspace, ".claude", "skills"));
 
-  // Taken before the spawn for the same reason as the digest above: the model
-  // could commit, and HEAD read afterwards would name its work rather than the
-  // workspace it was handed.
+  // before the spawn for the same reason as the digest: the model has Bash and
+  // could commit.
   //
-  // DIAGNOSTIC ONLY, NEVER THE COMPARABILITY KEY. It says WHAT differed where
-  // `tree` says only THAT something did. It is not the key because a commit
-  // hash covers the tree AND the message, moves when a history.jsonc message is
-  // edited while the model sees identical bytes, excludes everything gitignored
-  // (the installed skill included), and is a function of Git's object format
-  // rather than of content alone. Failing the probe over a diagnostic field
-  // would be disproportionate, so a failure here costs the field and warns.
+  // diagnostic only, never the comparability key — it says what differed where
+  // `tree` says only that something did. see fingerprint.mjs for why a commit
+  // hash cannot be the key. failing a paid probe over a diagnostic field would
+  // be disproportionate, so a failure here costs the field and warns.
   let projectCommit = null;
   try {
     projectCommit = runGitCapture(["rev-parse", "HEAD"], workspace).trim();
@@ -246,10 +230,9 @@ async function main() {
   }
 
   const configuration = buildConfiguration({
-    // THE CLI VERSION IS PART OF THE CONDITION, so it is recorded rather than
-    // left to be inferred. The workflow pins it and passes it through
-    // CLAUDE_CODE_VERSION; a local run that names none records null, which the
-    // comparability check reads as "not stated" rather than as agreement.
+    // part of the condition, so recorded rather than inferred. a local run that
+    // names none records null, which the check reads as "not stated" rather
+    // than as agreement.
     runtimeVersion: options.runtimeVersion,
     projectName: declared.mock,
     projectTree,
@@ -289,8 +272,8 @@ async function main() {
     cliExitCode = result.status;
   }
 
-  // Redact BEFORE the write, and refuse rather than write something this tool
-  // cannot vouch for — see tools/lib/credentials.mjs.
+  // refuse rather than write something this tool cannot vouch for — see
+  // tools/lib/credentials.mjs.
   let transcriptText;
   let redactedNames = [];
   try {
@@ -303,7 +286,7 @@ async function main() {
   await mkdir(directory, { recursive: true });
   const paths = probePaths(directory);
 
-  // The measured file that cannot be re-acquired goes down first.
+  // the one file that cannot be re-acquired goes down first.
   await writeFile(paths.transcript, transcriptText, "utf8");
 
   const metadata = {
@@ -321,8 +304,8 @@ async function main() {
   };
   await writeFile(paths.metadata, canonicalJson(metadata), "utf8");
 
-  // Guarded: a capture failure costs the diff and nothing else. It can no
-  // longer cost the transcript, which is already on disk.
+  // guarded: a capture failure costs the diff and nothing else, the transcript
+  // being already on disk.
   let diff = "";
   try {
     ({ diff } = captureDiff(workspace));

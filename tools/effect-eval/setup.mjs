@@ -1,26 +1,19 @@
 #!/usr/bin/env node
-// setup.mjs — prepare one workspace for one probe, and print its path.
+// prepare one workspace for one probe, and print its path.
 //
-// ONE OF THREE ENTRY POINTS, EACH ONE VERB. setup prepares a workspace,
-// evaluate runs one probe against a prepared workspace, summarize derives the
-// summary layer over a finished case measurement. The split is not cosmetic:
-// the probes of one case run as a matrix across separate runners, so preparing,
-// probing, and summarising happen in different processes on different machines
-// and cannot be one command.
+// one of three entry points, each one verb: setup prepares, evaluate probes,
+// summarize derives. the split follows the work rather than taste — the probes
+// of one case run as a matrix across separate runners, so the three happen in
+// different processes on different machines and cannot be one command.
 //
-// WHY THE HARNESS INSTALLS THE DEPENDENCIES AND NOT THE MODEL. Every probe run
-// before this instrument's predecessor was fixed spent three to five of its
-// twelve to fifteen turns discovering node_modules was absent, running npm
-// install, and re-running the tests. That is the harness's own setup showing up
-// inside the measurement: it costs turns and money in both conditions, it puts
-// a network-dependent step in every probe, and it lets each run resolve its own
-// dependency versions. A real developer opens a repository whose dependencies
-// are already installed.
+// `--install` is what keeps the harness's own setup out of the measurement.
+// without it every probe spent three to five of its twelve to fifteen turns
+// discovering node_modules was absent, installing it, and re-running the tests:
+// turns and money in both conditions, a network-dependent step in every probe,
+// and each run resolving its own dependency versions. it is off by default so
+// this tool's own tests stay hermetic.
 //
-// Usage:
-//   node tools/effect-eval/setup.mjs [options]
-//
-// Exit codes:
+// exit codes:
 //   0  the workspace path was printed to stdout
 //   2  bad invocation, a malformed mock, or a failure preparing the workspace
 

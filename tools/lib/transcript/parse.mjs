@@ -1,32 +1,20 @@
-// parse.mjs — the signals a stored probe transcript yields on re-reading.
+// one reading of a stored probe transcript.
 //
-// EVERY FIELD HERE IS RE-DERIVABLE, WHICH IS THE POINT. The transcript itself
-// is what gets stored; this module is one reading of it, and a later question
-// this reading does not answer is answered by writing another reading rather
-// than by paying for another probe. That inverts the rule the instrument used
-// to run under — "what is persisted is the extracted signal, not the raw
-// stream" — which assumed the next question would be a threshold over the
-// signal already extracted, and which failed the moment the question changed.
+// "one reading" is the whole design. the transcript is what gets stored; a
+// later question this reading does not answer is answered by writing another
+// reading, not by paying for another probe. that inverts the rule the
+// instrument used to run under — persist the extracted signal, discard the raw
+// stream — which assumed the next question would be a threshold over the signal
+// already extracted, and failed the moment the question changed.
 //
-// MECHANICAL, NOT JUDGMENTAL. Every field is read straight off the stream: a
-// name, a count, a boolean keyed to a fixed value the CLI emits. Nothing here
-// asks whether the run did the right thing.
-//
-// WHAT IS AND IS NOT REPORTED. `null` means the stream said nothing, and is
-// deliberately distinct from a zero or an empty list, which mean the stream
-// said so. A caller cross-checking a declared value against a reported one
-// must be able to tell "disagrees" from "did not say" — the first is a failed
-// measurement, the second is an older CLI.
+// `null` means the stream said nothing, and is deliberately distinct from a
+// zero or an empty list, which mean it said so. a caller cross-checking a
+// declared value against a reported one has to tell "disagrees" from "did not
+// say": the first is a failed measurement, the second is an older CLI.
 
 import { readEvents, toolUseBlocks } from "./events.mjs";
 
-/**
- * Sums the token counts an assistant message reports, tolerating the fields a
- * given CLI version happens not to emit.
- *
- * @param {Record<string, unknown>|undefined} usage
- * @returns {{ input: number, output: number, cacheCreation: number, cacheRead: number }}
- */
+/** tolerates the fields a given CLI version happens not to emit. */
 function readUsage(usage) {
   const number = (value) => (typeof value === "number" ? value : 0);
   return {
@@ -38,8 +26,6 @@ function readUsage(usage) {
 }
 
 /**
- * Reads one probe transcript.
- *
  * @param {string} stdout raw JSONL from one probe
  * @returns {{
  *   toolCalls: Array<{ name: string, input: Record<string, unknown> }>,
@@ -53,10 +39,7 @@ function readUsage(usage) {
  *     input: number, output: number, cacheCreation: number, cacheRead: number,
  *     messages: number,
  *   },
- * }} `truncated` is read from the `result` event's own
- *   `subtype: "error_max_turns"` and never inferred from the transcript's
- *   length or the process's exit code — a long run that ended cleanly and a
- *   run the cap cut short are not distinguishable any other way.
+ * }}
  */
 export function parseTranscript(stdout) {
   const events = readEvents(stdout);
@@ -72,21 +55,21 @@ export function parseTranscript(stdout) {
   for (const event of events) {
     if (event.type === "system") {
       if (typeof event.model === "string") model ??= event.model;
-      // Read from `skills`, never from `slash_commands`, which mixes skills
-      // with built-in commands (`/clear`, `/compact`) and would over-report a
-      // loaded set by roughly a factor of two.
+      // `skills`, never `slash_commands` — the latter mixes skills with
+      // built-in commands and would over-report a loaded set by roughly double.
       if (Array.isArray(event.skills)) {
         loadedSkills ??= event.skills.filter((name) => typeof name === "string");
       }
-      // Not every CLI version puts its own version on the init event. Absent
-      // stays `null` — "did not say", which a cross-check treats as unknown
-      // rather than as a disagreement.
+      // not every CLI version puts its version on the init event.
       if (typeof event.version === "string") runtimeVersion ??= event.version;
     }
 
     if (event.type === "result") {
       if (typeof event.total_cost_usd === "number") cost = event.total_cost_usd;
       if (typeof event.num_turns === "number") turns = event.num_turns;
+      // read from the stream's own subtype, never inferred from the
+      // transcript's length or the process's exit code — a long run that ended
+      // cleanly and one the cap cut short are not otherwise distinguishable.
       if (event.subtype === "error_max_turns") truncated = true;
     }
 
@@ -113,11 +96,10 @@ export function parseTranscript(stdout) {
 }
 
 /**
- * Bash command shapes this repository's mock fixtures actually run (see
- * mocks/content-site/package.json's `scripts`), plus the underlying runners and
- * formatters a caller might invoke directly rather than through an npm script.
- * Not exhaustive by design — a caller measuring a different mock's toolchain
- * overrides these.
+ * command shapes this repository's mocks actually run (see
+ * mocks/content-site/package.json), plus the runners a caller might invoke
+ * directly. not exhaustive by design — a different mock's toolchain overrides
+ * them.
  */
 export const DEFAULT_TEST_COMMAND_PATTERNS = [
   /\b(?:npm|yarn|pnpm)\s+(?:run\s+)?test\b/i,
@@ -136,12 +118,11 @@ export const DEFAULT_FORMAT_COMMAND_PATTERNS = [
 ];
 
 /**
- * What the model reached for, read off an already-parsed transcript.
+ * what the model reached for.
  *
- * Separate from `parseTranscript` because the command patterns are a property
- * of the MOCK's toolchain, not of the CLI's stream format — so a caller
- * measuring a different mock overrides them here without touching the parse
- * above.
+ * separate from `parseTranscript` because the command patterns are a property
+ * of the mock's toolchain, not of the CLI's stream format, so overriding them
+ * must not mean touching the parse.
  *
  * @param {ReturnType<typeof parseTranscript>} transcript
  * @param {{ testPatterns?: RegExp[], lintPatterns?: RegExp[], formatPatterns?: RegExp[] }} [options]
@@ -153,7 +134,7 @@ export const DEFAULT_FORMAT_COMMAND_PATTERNS = [
  *   ranLint: boolean,
  *   ranFormat: boolean,
  * }} `filesRead` is deduplicated in first-read order; `commandsRun` keeps every
- *   invocation, including repeats, in stream order.
+ *   invocation, including repeats, in stream order
  */
 export function readBehaviour(transcript, options = {}) {
   const {
@@ -182,8 +163,8 @@ export function readBehaviour(transcript, options = {}) {
     }
     if (call.name === "Skill" && typeof call.input?.skill === "string") {
       const selected = call.input.skill;
-      // A plugin-qualified name ("plugin:skill") reduces to the skill itself,
-      // so a case fixture never has to know how a skill was installed.
+      // a plugin-qualified name reduces to the skill itself, so a case fixture
+      // never has to know how a skill was installed.
       skillsInvoked.push(selected.includes(":") ? selected.split(":").pop() : selected);
       continue;
     }

@@ -1,15 +1,8 @@
-// tools/effect-eval/evaluate.mjs, driven as a real child process on its
-// dry-run path.
+// evaluate.mjs driven as a real child process on its dry-run path.
 //
-// OFFLINE, AND THAT IS THE WHOLE POINT OF THE DRY RUN. It materializes a real
-// workspace, takes a real fingerprint, builds the real argv, and writes a real
-// probe record — and spawns no model. Everything up to and after the spawn is
-// exercised; only the chargeable step is replaced. `npm ci` is never run here
-// either, so nothing reaches the network.
-//
-// This is the acceptance criterion "a dry-run evaluation writes a complete
-// case-measurement tree with no probe spawned", asserted rather than performed
-// by hand.
+// it materializes a real workspace, takes a real fingerprint, builds the real
+// argv, and writes a real probe record, spawning no model and running no
+// `npm ci`. only the chargeable step is replaced.
 
 import { readdir, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -22,7 +15,7 @@ import { runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const CASE = "add-unit-tests-for-an-untested-module";
 
-/** Where the probe records go, and the two workspaces they run against. */
+/** the probe records, and the two workspaces they run against. */
 let out;
 let workspaces = [];
 
@@ -42,8 +35,8 @@ beforeAll(async () => {
   const absent = setup(["--mock", "content-site"]);
   const present = setup(["--mock", "content-site", "--skill", "unit-testing"]);
 
-  // Three repeats per condition, matching what the fixture declares, so the
-  // repetition check has something real to agree with.
+  // matching what the fixture declares, so the repetition check has something
+  // real to agree with.
   for (const repeat of [1, 2, 3]) {
     for (const [condition, workspace] of [
       ["skill-absent", absent],
@@ -109,15 +102,14 @@ describe("a dry-run case measurement", () => {
   });
 
   it("records a real project commit, not a placeholder", async () => {
-    // Diagnostic only — it says WHAT differed where the tree digest says only
-    // THAT something did — but a field hardcoded to null can never do that job.
+    // diagnostic only, but a field hardcoded to null can never do that job.
     const { project } = (await metadataOf("skill-absent-a0000001")).configuration;
     expect(project.commit).toMatch(/^[0-9a-f]{40}$/);
   });
 
   it("gives both conditions the same project commit and the same tree", async () => {
-    // Both follow from the mock's history replaying reproducibly and the
-    // installed skill being gitignored and excluded from the digest.
+    // both follow from the history replaying reproducibly and the installed
+    // skill being gitignored and excluded from the digest.
     const absent = (await metadataOf("skill-absent-a0000001")).configuration.project;
     const present = (await metadataOf("skill-present-b0000001")).configuration.project;
     expect(present.tree).toBe(absent.tree);
@@ -132,17 +124,15 @@ describe("a dry-run case measurement", () => {
   });
 
   it("reproduces the argv from the stored configuration", async () => {
-    // The round trip against a record that actually went to disk, rather than
-    // against one built in memory.
+    // against a record that actually went to disk, not one built in memory.
     const { configuration } = await metadataOf("skill-present-b0000001");
     expect(buildArgv(configuration)).toContain(configuration.task.prompt);
     expect(buildArgv(configuration)).toEqual(buildArgv(JSON.parse(JSON.stringify(configuration))));
   });
 
   it("derives to a comparable measurement, repetition count included", async () => {
-    // Every comparability check, over a tree six real invocations produced —
-    // asserted through the library rather than the command, because the
-    // command takes a data ROOT and this tree is a bare case directory.
+    // through the library rather than the command, which takes a data root
+    // where this tree is a bare case directory.
     const summary = await deriveCaseSummary(out, { declaredRepetitions: 3 });
     const failed = summary.checks.filter((check) => !check.passed);
     expect(failed.map((check) => `${check.check}: ${check.detail}`)).toEqual([]);
@@ -153,9 +143,8 @@ describe("a dry-run case measurement", () => {
 
 describe("evaluate.mjs's refusals", () => {
   it("refuses when the condition and the workspace disagree", async () => {
-    // A skill-present run against a workspace with nothing installed would
-    // record a condition that never happened. Caught before the spawn, so it
-    // costs nothing.
+    // it would record a condition that never happened. caught before the
+    // spawn, so it costs nothing.
     const result = runScript(SCRIPTS.evaluate, [
       "--workspace",
       workspaces[0], // the skill-absent workspace

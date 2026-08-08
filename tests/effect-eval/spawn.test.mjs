@@ -1,11 +1,8 @@
-// tools/effect-eval/src/spawn.mjs — the declared configuration, and the argv
-// derived from it.
+// the declared configuration, and the argv derived from it.
 //
-// THE ROUND TRIP IS THE POINT OF THIS FILE. A stored metadata.json claims to
-// account for how its probe was invoked. That claim is only worth anything if
-// rebuilding the argv from the stored configuration reproduces the argv the
-// probe actually used — otherwise the record describes an invocation that may
-// have drifted from the real one.
+// the round trip is the point. a stored metadata.json claims to account for how
+// its probe was invoked, and that claim is worth something only if rebuilding
+// the argv from the stored configuration reproduces the argv the probe used.
 
 import { describe, expect, it } from "vitest";
 
@@ -30,8 +27,7 @@ const aConfiguration = (overrides = {}) =>
 
 describe("the configuration → argv round trip", () => {
   it("reproduces the argv from a configuration that has been through JSON", () => {
-    // Exactly what the stored record goes through: serialized to
-    // metadata.json, read back, rebuilt.
+    // what the stored record goes through: serialized, read back, rebuilt.
     const configuration = aConfiguration({ skills: { "unit-testing": "sha256:def" } });
     const used = buildArgv(configuration);
 
@@ -64,7 +60,7 @@ describe("the configuration → argv round trip", () => {
   });
 
   it("carries --setting-sources project on every invocation", () => {
-    // The one isolation lever available, and both conditions take it alike.
+    // the one isolation lever available, and both conditions take it alike.
     expect(buildArgv(aConfiguration())).toContain("--setting-sources");
     expect(buildArgv(aConfiguration({ skills: { "unit-testing": "sha256:d" } }))).toContain(
       "project",
@@ -72,8 +68,7 @@ describe("the configuration → argv round trip", () => {
   });
 
   it("refuses to guess at a missing field rather than silently defaulting it", () => {
-    // A silently-defaulted flag is exactly the drift the round trip exists to
-    // catch, so the failure has to be loud and name what is absent.
+    // a silently-defaulted flag is the drift the round trip exists to catch.
     const configuration = aConfiguration();
     delete configuration.runtime.options.maxTurns;
     expect(() => buildArgv(configuration)).toThrow(/runtime\.options\.maxTurns/);
@@ -97,7 +92,7 @@ describe("buildConfiguration", () => {
   });
 
   it("records the runtime version as null when nothing reported one", () => {
-    // Distinct from a disagreement: an older CLI that says nothing must not
+    // distinct from a disagreement: an older CLI that says nothing must not
     // read as a probe that ran against the wrong version.
     expect(aConfiguration().runtime.version).toBeNull();
   });

@@ -1,8 +1,6 @@
-// The transcript layer's public surface.
-//
-// Callers import from here rather than reaching into `events.mjs` or
-// `parse.mjs` directly, so the split between "frame the stream" and "read the
-// stream" stays an implementation detail this module is free to move.
+// callers import from here rather than reaching into `events.mjs` or
+// `parse.mjs`, so the split between framing the stream and reading it stays an
+// implementation detail this module is free to move.
 
 export { readEvents, toolUseBlocks } from "./events.mjs";
 export {

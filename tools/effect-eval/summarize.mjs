@@ -1,32 +1,18 @@
 #!/usr/bin/env node
-// summarize.mjs — derive the summary layer over finished case measurements,
-// and enforce the checks that decide whether they are measurements at all.
+// derive the summary layer over finished case measurements, and enforce the
+// checks that decide whether they are measurements at all.
 //
-// THIS EXISTS AS ITS OWN ENTRY POINT BECAUSE THE DERIVATION HAS TWO CALLERS,
-// not because the workflow has three jobs. They are independent of each other:
+// its own entry point because the derivation has two callers that do not depend
+// on each other: the landing job, which derives after the matrix finishes and
+// before it commits, and the drift check, which re-derives a COMMITTED summary
+// and compares bytes so a hand-edited derived file fails a check rather than
+// quietly misleading a reader.
 //
-//   * the landing job, which must derive the summary after the matrix has
-//     finished and before it commits anything;
-//   * the drift check, which re-derives a COMMITTED summary and compares it
-//     byte-for-byte against what is on disk, so a hand-edited derived file
-//     fails a check rather than quietly misleading a reader.
+// a flag on evaluate.mjs was the rejected alternative — it would give one
+// command two unrelated behaviours, and leave the drift check invoking a probe
+// runner in order to run no probe.
 //
-// Both are the same pure function over the measured files. Making it a flag on
-// evaluate.mjs was the rejected alternative: it would give one command two
-// unrelated behaviours — run a probe, and deliberately run no probe — and the
-// drift check would be invoking a probe runner in order to run no probe.
-//
-// THE DRIFT CHECK IS WHY THE BYTES ARE PRODUCED IN ONE PLACE. Comparing a
-// regeneration against a commit only means something if both went through the
-// same serializer, which is layout.mjs's `canonicalJson` and nothing else. It
-// is also why data/*/measurements/ is in .prettierignore: this repository's own
-// formatter covers **​/*.json, and a reformatted summary would fail this check
-// against bytes this instrument never wrote.
-//
-// Usage:
-//   node tools/effect-eval/summarize.mjs [options]
-//
-// Exit codes:
+// exit codes:
 //   0  every summary was written (or, with --check, matched what is committed)
 //   2  bad invocation, or a measurement that could not be read
 //   4  a comparability check failed — the measurement is not comparable
@@ -90,7 +76,7 @@ function parseArgv(argv) {
   return options;
 }
 
-/** Declared repetitions per condition, keyed by case id. */
+/** @returns {Promise<Map<string, number|null>>} declared repetitions, by case id */
 async function readDeclaredRepetitions(fixturePath) {
   try {
     const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
@@ -103,12 +89,7 @@ async function readDeclaredRepetitions(fixturePath) {
   }
 }
 
-/**
- * The case id a measurement directory name carries.
- *
- * Directories are `<case>-<id>` with an eight-hex-digit id, so the case is
- * everything before the final hyphen group.
- */
+/** directories are `<case>-<id>`, so the case is everything before the id. */
 function caseIdOf(directoryName) {
   const match = directoryName.match(/^(.*)-[0-9a-f]{8}$/);
   return match ? match[1] : null;
@@ -199,9 +180,8 @@ async function main() {
     }
   }
 
-  // The top-level snapshot is derived exactly as each case's is, and is
-  // deliberately the same word at a second scale: a summary of every
-  // measurement, where the other is a summary of every probe.
+  // the same word at a second scale: a summary of every measurement, where the
+  // other is a summary of every probe.
   const rootSummaryPath = join(options.root, SUMMARY_FILE);
   const rootBytes = canonicalJson({
     measurementCount: snapshot.length,

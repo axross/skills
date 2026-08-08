@@ -1,50 +1,41 @@
-// admission.mjs — the budget guard, as one decision before the spend rather
-// than a running total during it.
+// the budget guard, as one decision before the spend.
 //
-// WHAT THIS REPLACES, AND WHY THE OLD SHAPE HAD TO GO. The instrument this
-// supersedes kept a cumulative ledger: each probe appended its reported cost,
-// and before the next probe started it projected the remaining total and
-// refused if the projection exceeded the cap. That works only if the probes are
-// SERIAL — a read-modify-write on one file, one runner, one at a time. And
-// serial execution is worse for the measurement than a matrix, not merely
-// slower: probes strung out over an hour let service drift land unevenly across
-// the conditions, where probes in one window let it land on both alike. The
-// ledger existed only to support the thing that was hurting the measurement.
+// what it replaces: a cumulative ledger that charged after each probe and
+// projected the remainder before the next. that only works if the probes are
+// serial, and serial is worse for the measurement than a matrix — probes strung
+// out over an hour let service drift land unevenly across the conditions, where
+// probes in one window let it land on both alike. the ledger existed only to
+// support the thing that was hurting the measurement.
 //
-// SO THE CAP BINDS BY REFUSAL, NOT BY EXHAUSTION. Admission runs ONCE, before
-// the fan-out, and decides whether the whole case may proceed. What is lost is
-// the ability to stop at probe three; `max-parallel` bounds that blast radius
-// if it is ever wanted. What is gained is that the budget question is answered
-// while it is still a question — before any money is spent, rather than after
-// some of it is.
+// so the cap binds by refusal rather than by exhaustion. what is lost is the
+// ability to stop at probe three; `max-parallel` bounds that if it is ever
+// wanted. what is gained is that the budget question is answered while it is
+// still a question.
 //
-// A REFUSAL IS A FINDING, NOT A PROMPT TO RAISE THE CAP. This module reports
-// that the case as declared does not fit the budget. Whether to shrink the
-// case, raise the cap, or abandon it is a spending decision, and belongs to
-// whoever is spending. This module never sees that choice.
-//
-// THE PROJECTION'S SEED IS DECLARED, NOT MEASURED, AND THAT IS SOUND. The first
-// case to run has no committed measurement to project from, so its estimate
-// comes from the fixture's own `estimatedCostUsdPerProbe`. That is a weaker
-// number than a measurement and it does not need to be a stronger one: a COST
-// ESTIMATE does not require measurement comparability, which is the property
-// that makes measured data expensive to produce. Once a case has a committed
-// measurement, that measurement supersedes the declared estimate.
+// a refusal is a finding, not a prompt to raise the cap. whether to shrink the
+// case, raise the cap, or abandon it is a spending decision, and this module
+// never sees that choice.
 
 /**
- * Mean cost per probe across whatever history is available.
- *
- * @param {number[]} costs every committed probe's reported cost, any case
- * @returns {number|null} `null` when there is no history to average
+ * @param {number[]} costs every committed probe's reported cost
+ * @returns {number|null} `null` when there is no history, so a caller must fall
+ *   back deliberately rather than average an empty set to zero
  */
 export function meanProbeCost(costs) {
+  // a zero means "no cost was reported" rather than "this run was free".
   const usable = costs.filter((cost) => typeof cost === "number" && cost > 0);
   if (usable.length === 0) return null;
   return usable.reduce((sum, cost) => sum + cost, 0) / usable.length;
 }
 
 /**
- * Decides whether one case measurement may start.
+ * decides whether one case measurement may start.
+ *
+ * where a case has no committed measurement the estimate comes from the
+ * fixture. that is a weaker number and does not need to be a stronger one: a
+ * cost estimate does not require measurement comparability, which is the
+ * property that makes measured data expensive. the first committed measurement
+ * supersedes it.
  *
  * @param {{
  *   caseId: string,
@@ -78,10 +69,9 @@ export function admitCase({
     throw new Error(`${caseId}: the case declares no positive cap (got ${declaredCapUsd}).`);
   }
 
-  // A DISPATCH MAY LOWER THE CAP AND MAY NOT RAISE IT. The fixture is reviewed
-  // and committed; a dispatch input is typed into a form by whoever is running
-  // the workflow. Letting the second exceed the first would make the reviewed
-  // number advisory, which is the opposite of what committing it was for.
+  // a dispatch may lower the cap and may not raise it. the fixture is reviewed
+  // and committed; a dispatch input is typed into a form. letting the second
+  // exceed the first would make the reviewed number advisory.
   let capUsd = declaredCapUsd;
   let capNote = "";
   if (requestedCapUsd !== null) {
@@ -126,12 +116,10 @@ export function admitCase({
 }
 
 /**
- * Compares what a finished case actually cost against what it was admitted
- * under.
+ * compares what a finished case cost against what it was admitted under.
  *
- * Post-hoc and reported, never enforced: the money is already spent by the time
- * this runs, so its job is to say whether the projection was any good — an
- * overrun is what tells the next admission its estimate is too low.
+ * reported, never enforced: the money is already spent by the time this runs,
+ * so its job is to tell the next admission that its estimate is too low.
  *
  * @param {{ capUsd: number, projectedTotalUsd: number, actualTotalUsd: number }} input
  * @returns {{ withinCap: boolean, overrunUsd: number, projectionErrorUsd: number, reason: string }}
