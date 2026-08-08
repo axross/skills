@@ -31,11 +31,12 @@ export function meanProbeCost(costs) {
 /**
  * decides whether one case measurement may start.
  *
- * where a case has no committed measurement the estimate comes from the
- * fixture. that is a weaker number and does not need to be a stronger one: a
- * cost estimate does not require measurement comparability, which is the
- * property that makes measured data expensive. the first committed measurement
- * supersedes it.
+ * with no committed measurement for the case it falls back to the fixture's
+ * per-probe ceiling, and the first committed measurement supersedes that
+ * permanently — so the fixture's figure governs only a case's first run.
+ *
+ * why that figure is a ceiling rather than an estimate, and which way to err
+ * when declaring one, is in data/effect-eval/README.md's `capUsd` section.
  *
  * @param {{
  *   caseId: string,
@@ -43,14 +44,14 @@ export function meanProbeCost(costs) {
  *   declaredCapUsd: number,
  *   requestedCapUsd?: number|null,
  *   historicalCosts?: number[],
- *   estimatedCostUsdPerProbe: number,
+ *   unmeasuredProbeCostCeilingUsd: number,
  * }} input
  * @returns {{
  *   admitted: boolean,
  *   capUsd: number,
  *   perProbeUsd: number,
  *   projectedTotalUsd: number,
- *   basis: "committed measurements"|"the fixture's declared estimate",
+ *   basis: "committed measurements"|"the fixture's declared ceiling",
  *   reason: string,
  * }}
  */
@@ -60,7 +61,7 @@ export function admitCase({
   declaredCapUsd,
   requestedCapUsd = null,
   historicalCosts = [],
-  estimatedCostUsdPerProbe,
+  unmeasuredProbeCostCeilingUsd,
 }) {
   if (!Number.isInteger(probeCount) || probeCount < 1) {
     throw new Error(`${caseId}: probeCount must be a positive integer, got ${probeCount}.`);
@@ -89,13 +90,14 @@ export function admitCase({
   }
 
   const measured = meanProbeCost(historicalCosts);
-  const perProbeUsd = measured ?? estimatedCostUsdPerProbe;
-  const basis = measured === null ? "the fixture's declared estimate" : "committed measurements";
+  const perProbeUsd = measured ?? unmeasuredProbeCostCeilingUsd;
+  const basis =
+    measured === null ? "the fixture's declared ceiling" : "committed measurements";
 
   if (!(perProbeUsd > 0)) {
     throw new Error(
       `${caseId}: no usable per-probe cost — there is no committed measurement and the ` +
-        `fixture's estimatedCostUsdPerProbe is ${estimatedCostUsdPerProbe}.`,
+        `fixture's unmeasuredProbeCostCeilingUsd is ${unmeasuredProbeCostCeilingUsd}.`,
     );
   }
 
@@ -119,7 +121,7 @@ export function admitCase({
  * compares what a finished case cost against what it was admitted under.
  *
  * reported, never enforced: the money is already spent by the time this runs,
- * so its job is to tell the next admission that its estimate is too low.
+ * so its job is to tell the next admission that its projection was too low.
  *
  * @param {{ capUsd: number, projectedTotalUsd: number, actualTotalUsd: number }} input
  * @returns {{ withinCap: boolean, overrunUsd: number, projectionErrorUsd: number, reason: string }}
@@ -138,6 +140,6 @@ export function reconcile({ capUsd, projectedTotalUsd, actualTotalUsd }) {
         `projection was off by $${projectionErrorUsd.toFixed(2)}`
       : `spent $${actualTotalUsd.toFixed(2)}, OVER the $${capUsd.toFixed(2)} cap by ` +
         `$${overrunUsd.toFixed(2)}; admission projected $${projectedTotalUsd.toFixed(2)}, so the ` +
-        "estimate this case was admitted under is too low",
+        "projection this case was admitted under is too low",
   };
 }

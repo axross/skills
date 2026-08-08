@@ -88,7 +88,7 @@ on both sides, where it cancels.
 
 Admission runs once, before the fan-out, and decides whether the whole case may
 proceed — projecting from committed measurements where they exist and from the
-fixture's declared estimate where they do not. A refusal is a finding, not a
+fixture's declared ceiling where they do not. A refusal is a finding, not a
 prompt to raise the cap.
 
 This replaced a cumulative ledger that charged after each probe and projected

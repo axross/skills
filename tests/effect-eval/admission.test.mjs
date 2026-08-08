@@ -8,7 +8,7 @@ const base = {
   caseId: "add-unit-tests-for-an-untested-module",
   probeCount: 6,
   declaredCapUsd: 40,
-  estimatedCostUsdPerProbe: 6,
+  unmeasuredProbeCostCeilingUsd: 6,
 };
 
 describe("meanProbeCost", () => {
@@ -26,16 +26,16 @@ describe("admitCase", () => {
     const decision = admitCase(base);
     expect(decision.admitted).toBe(true);
     expect(decision.projectedTotalUsd).toBe(36);
-    expect(decision.basis).toBe("the fixture's declared estimate");
+    expect(decision.basis).toBe("the fixture's declared ceiling");
   });
 
   it("refuses when the projection exceeds the cap", () => {
-    const decision = admitCase({ ...base, estimatedCostUsdPerProbe: 8 });
+    const decision = admitCase({ ...base, unmeasuredProbeCostCeilingUsd: 8 });
     expect(decision.admitted).toBe(false);
     expect(decision.reason).toMatch(/REFUSED/);
   });
 
-  it("prefers committed measurements over the declared estimate", () => {
+  it("prefers committed measurements over the declared ceiling", () => {
     const decision = admitCase({ ...base, historicalCosts: [1, 1, 1] });
     expect(decision.basis).toBe("committed measurements");
     expect(decision.projectedTotalUsd).toBe(6);
@@ -57,7 +57,7 @@ describe("admitCase", () => {
   });
 
   it("refuses to run at all with no usable per-probe cost", () => {
-    expect(() => admitCase({ ...base, estimatedCostUsdPerProbe: 0 })).toThrow(
+    expect(() => admitCase({ ...base, unmeasuredProbeCostCeilingUsd: 0 })).toThrow(
       /no usable per-probe cost/,
     );
   });
@@ -74,9 +74,11 @@ describe("reconcile", () => {
     expect(result.projectionErrorUsd).toBe(-6);
   });
 
-  it("names an overrun as evidence the estimate is too low", () => {
+  it("names an overrun as evidence the projection was too low", () => {
     // reported, never enforced: the money is already spent, so its job is to
-    // tell the next admission that its estimate is wrong.
+    // tell the next admission that its projection was wrong. "projection"
+    // rather than "estimate": what a case was admitted under may have come
+    // from committed measurements just as well as from the fixture.
     const result = reconcile({ capUsd: 40, projectedTotalUsd: 36, actualTotalUsd: 52 });
     expect(result.withinCap).toBe(false);
     expect(result.overrunUsd).toBe(12);

@@ -71,24 +71,44 @@ Both derived surfaces are in `.prettierignore`. The bytes come from exactly one
 serializer, and a second formatter with an opinion about them would make the
 drift check fail against a file the instrument never wrote.
 
-## `capUsd` and `estimatedCostUsdPerProbe`
+## `capUsd` and `unmeasuredProbeCostCeilingUsd`
 
-Each case declares its own cap. A dispatch may lower it and may not raise it:
-the fixture is reviewed and committed, and a dispatch input is typed into a
-form.
+Both bound spending, and they bound different things. `capUsd` is the case's
+real budget: a dispatch may lower it and may not raise it, because the fixture
+is reviewed and committed where a dispatch input is typed into a form.
+`unmeasuredProbeCostCeilingUsd` is not a budget at all — it is the per-probe
+figure admission projects from **for a case nothing has measured yet**, and it
+is read on no other occasion.
 
-`estimatedCostUsdPerProbe` seeds the admission projection for a case that has
-no committed measurement yet. **It is a declared placeholder, not a
-measurement.** The current value is carried over from the previous instrument's
-$40 cap across its six planned probes; the recovered 2026-08-06 figures that
-would replace it were lost with the container that held them. That is sound
-rather than sloppy — a cost estimate does not require measurement
-comparability, which is the expensive property — and the first committed
-measurement supersedes it, because admission projects from measured costs
-wherever they exist.
+**Declare it above what the case is expected to cost, not at it.** Admission
+admits when the projection fits the cap, so the direction of a wrong figure
+decides which way it fails:
 
-## No measurement is committed yet
+| Declared            | Projection | If it is wrong                                         |
+| ------------------- | ---------- | ------------------------------------------------------ |
+| Above the true cost | inflated   | a cheap case is refused before spending. Costs nothing |
+| At the true cost    | accurate   | no spurious refusals, no margin either                 |
+| Below the true cost | deflated   | an expensive case is admitted. Money leaves            |
 
-The instrument is built and this directory holds only the declared cases. The
-pilot that fills `measurements/` is its own issue, and is the step that spends
-money.
+Only the last row spends money on a mistake, which is why the field is named
+for a ceiling rather than an estimate. It was called
+`estimatedCostUsdPerProbe` until the pilot measured $0.25 per probe against a
+declared 6 and made the mismatch plain; the value did not change, because 6 is
+wrong as an estimate and correct as a guard.
+
+Its provenance is worth keeping: 6 is the previous instrument's $40 cap divided
+across six planned probes, never a cost observation. The recovered 2026-08-06
+figures that might have informed it were lost with the container that held
+them.
+
+**The first comparable measurement supersedes it permanently.** Admission
+projects from measured costs wherever they exist, so once a case has landed one
+this field is never read for that case again — it governs only the first run.
+
+## What is committed here
+
+`measurements/` holds the case measurements taken so far, one directory per
+measurement, and `summary.json` is the snapshot derived across all of them. The
+pilot — `unit-testing` on `content-site`, six probes — landed in
+[#290](https://github.com/axross/skills/pull/290) at a total of $1.5232 against
+its $40 cap.
