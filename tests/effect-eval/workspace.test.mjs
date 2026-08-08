@@ -123,9 +123,9 @@ describe("setup.mjs", () => {
   // Playwright ships its browsers out of band, so `npm ci` alone leaves a
   // workspace that has @playwright/test and nothing to launch. --install
   // covers that gap, but only for a mock it recognizes as needing it — and
-  // both halves of that coupling are invisible from either file alone. Broken,
+  // both halves of that coupling are invisible from either file alone. broken,
   // it surfaces where nothing is watching: inside a paid probe, as the
-  // end-to-end command failing to launch a browser. So it is asserted here,
+  // end-to-end command failing to launch a browser. so it is asserted here,
   // against a materialized workspace and with no network touched.
   it("recognizes a materialized mock whose end-to-end command needs a browser", async () => {
     const { result, workspace } = materialize();

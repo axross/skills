@@ -256,16 +256,16 @@ function installDependencies(workspace) {
 }
 
 /**
- * Whether the materialized workspace drives a browser, read from the
+ * whether the materialized workspace drives a browser, read from the
  * package.json `npm ci` just installed from.
  *
- * By declaration rather than by mock name: a second mock that adds an
+ * by declaration rather than by mock name: a second mock that adds an
  * end-to-end suite gets the browser without this file learning its name, and a
  * mock that has none pays nothing.
  *
- * Exported so a test can hold the coupling this reads across: a mock whose
+ * exported so a test can hold the coupling this reads across: a mock whose
  * end-to-end command needs a browser, paired with a harness that provisions
- * one. Break either half and the command fails only where nothing is watching
+ * one. break either half and the command fails only where nothing is watching
  * — inside a paid probe — so the pairing is asserted offline instead.
  *
  * @param {string} workspace
@@ -276,7 +276,7 @@ export function declaresPlaywright(workspace) {
   try {
     manifest = JSON.parse(readFileSync(join(workspace, "package.json"), "utf8"));
   } catch {
-    // A mock with no readable package.json cannot have declared anything, and
+    // a mock with no readable package.json cannot have declared anything, and
     // `npm ci` above would already have failed on it.
     return false;
   }
@@ -287,32 +287,35 @@ export function declaresPlaywright(workspace) {
 }
 
 /**
- * Downloads the browser a workspace's end-to-end command needs.
+ * downloads the browser a workspace's end-to-end command needs.
  *
- * WHY THIS IS THE HARNESS'S JOB TOO. It is the same argument `npm ci` above
- * rests on, applied to the one dependency npm does not carry: Playwright ships
- * its browsers out of band, so a workspace prepared by `npm ci` alone has
- * `@playwright/test` and no browser to run it with, and the end-to-end command
- * fails with `browserType.launch: Executable doesn't exist`. Left to the probe,
- * that is a several-hundred-megabyte download inside the measured turns — the
- * defect `--install` exists to remove — and it is one a model would pay in both
- * conditions.
+ * this is the harness's job for the same reason `npm ci` above is, applied to
+ * the one dependency npm does not carry: Playwright ships its browsers out of
+ * band, so a workspace prepared by `npm ci` alone has `@playwright/test` and no
+ * browser to run it with, and the end-to-end command fails with
+ * `browserType.launch: Executable doesn't exist`. left to the probe, that is a
+ * several-hundred-megabyte download inside the measured turns — the defect
+ * `--install` exists to remove — and one a model would pay in both conditions.
  *
- * The download lands in Playwright's own shared cache rather than in the
- * workspace, so it is paid once per machine and not once per probe. That is
+ * the download lands in Playwright's own shared cache rather than in the
+ * workspace, so it is paid once per machine and not once per probe. that is
  * also why nothing here cleans it up: the next workspace wants it.
  *
- * ONLY CHROMIUM, DELIBERATELY. `playwright install` with no browser named
- * fetches the full set, which is several times the cost for browsers no mock
- * here drives. A mock whose config declares another browser needs this widened
- * along with it; that is a visible edit rather than a silent shortfall, because
- * the run then fails naming the browser it could not launch.
+ * only chromium is fetched, deliberately. `playwright install` with no browser
+ * named fetches the full set, which is several times the cost for browsers no
+ * mock here drives. a mock whose config declares another browser needs this
+ * widened along with it; that is a visible edit rather than a silent shortfall,
+ * because the run then fails naming the browser it could not launch.
  *
- * `--with-deps` is NOT passed: it shells out to the system package manager and
- * needs root, which a materialization has no business assuming. A host missing
+ * `--with-deps` is left off: it shells out to the system package manager and
+ * needs root, which a materialization has no business assuming. a host missing
  * the shared libraries reports that when a probe launches the browser.
  *
  * @param {string} workspace
+ * @throws {Error} when `npx` is absent from PATH, or when the download exits
+ *   non-zero — either way the workspace's end-to-end command cannot run, and a
+ *   half-prepared workspace would let a probe measure the setup rather than the
+ *   skill
  */
 function installBrowsersIfNeeded(workspace) {
   if (!declaresPlaywright(workspace)) return;
