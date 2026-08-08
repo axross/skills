@@ -27,7 +27,7 @@ import { REPO_ROOT, SCRIPTS } from "../helpers/run.mjs";
 /**
  * Every top-level entry of this repository the links gate should walk: the
  * whole tree, dot-directories included, MINUS the mock fixtures under
- * `examples/` (self-contained projects with their own toolchain, never
+ * `mocks/` (self-contained projects with their own toolchain, never
  * covered by this repository's own gates — see .prettierignore) and the two
  * entries a bare "." sweep would already prune internally as it descended
  * into them.
@@ -42,7 +42,7 @@ import { REPO_ROOT, SCRIPTS } from "../helpers/run.mjs";
  * anyone remembering to add it here.
  */
 function linksGateRoots() {
-  const excluded = new Set(["examples", ".git", "node_modules"]);
+  const excluded = new Set(["mocks", ".git", "node_modules"]);
   return readdirSync(REPO_ROOT)
     .filter((name) => !excluded.has(name))
     .sort();

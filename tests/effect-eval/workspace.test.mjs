@@ -1,4 +1,4 @@
-// scripts/value-eval/materialize.mjs, exercised as a real child process —
+// tools/effect-eval/setup.mjs, exercised as a real child process —
 // same convention as every other bundled validator (see
 // tests/helpers/run.mjs's header): importing it would run its own `main()`
 // and call `process.exit`.
@@ -20,7 +20,7 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 /**
  * Strips the whole-line `//` comments history.jsonc uses and parses the
- * result. Deliberately simpler than materialize.mjs's own JSONC stripper: the
+ * result. Deliberately simpler than workspace.mjs's own JSONC stripper: the
  * fixture this reads never puts a comment marker inside a string or a
  * trailing comment after real content, so a line-based strip is exact for it,
  * even though it would not be for JSONC in general.
@@ -87,7 +87,7 @@ async function listSymlinks(root, base = root) {
 
 /** Materializes content-site and registers cleanup; returns the workspace path. */
 function materialize(args = []) {
-  const result = runScript(SCRIPTS.materialize, args);
+  const result = runScript(SCRIPTS.setup, args);
   const workspace = result.stdout.trim();
   if (result.code === 0 && workspace) {
     onTestFinished(() => rm(workspace, { recursive: true, force: true }));
@@ -95,12 +95,12 @@ function materialize(args = []) {
   return { result, workspace };
 }
 
-describe("materialize.mjs", () => {
+describe("setup.mjs", () => {
   it("prints usage and exits 0 for --help", () => {
-    const result = runScript(SCRIPTS.materialize, ["--help"]);
+    const result = runScript(SCRIPTS.setup, ["--help"]);
 
     expect(result).toPassCleanly();
-    expect(result.stdout).toMatch(/Usage: materialize\.mjs/);
+    expect(result.stdout).toMatch(/Usage: setup\.mjs/);
     expect(result.stdout).toMatch(/--install/);
   });
 
@@ -120,14 +120,14 @@ describe("materialize.mjs", () => {
   });
 
   it("fails clearly for an unknown skill name", () => {
-    const result = runScript(SCRIPTS.materialize, ["--skill", "not-a-real-skill"]);
+    const result = runScript(SCRIPTS.setup, ["--skill", "not-a-real-skill"]);
 
     expect(result).toExitWith(2);
     expect(result.output).toMatch(/No installed skill named "not-a-real-skill"/);
   });
 
   it("fails clearly for an unknown mock name", () => {
-    const result = runScript(SCRIPTS.materialize, ["--mock", "not-a-real-mock"]);
+    const result = runScript(SCRIPTS.setup, ["--mock", "not-a-real-mock"]);
 
     expect(result).toExitWith(2);
     expect(result.output).toMatch(/No mock named "not-a-real-mock"/);
@@ -144,7 +144,7 @@ describe("materialize.mjs", () => {
       const workspace = await setup();
 
       const historyRaw = await readFile(
-        repoPath("examples/content-site/history.jsonc"),
+        repoPath("mocks/content-site/history.jsonc"),
         "utf8",
       );
       const commits = parseHistoryFixture(historyRaw);

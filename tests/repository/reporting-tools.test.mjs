@@ -75,21 +75,37 @@ const REPORTING_TOOLS = [
     runnable: false,
   },
   {
-    script: SCRIPTS.probe,
+    script: SCRIPTS.evaluate,
     // Matched by PATH for the same reason as its discovery-side sibling above:
-    // "probe.mjs" alone is too generic to assert anything.
-    needle: "scripts/value-eval/probe.mjs",
-    // No workflow may name it at all. The discovery evaluation earns one
-    // because a maintainer dispatches it; this has no such entry point yet,
-    // and until it does, any workflow naming it is a wiring mistake.
-    workflow: null,
-    // Same reason as above: it drives the real CLI, so a run here would be
-    // both chargeable and non-deterministic.
+    // "evaluate.mjs" alone is too generic to assert anything.
+    needle: "tools/effect-eval/evaluate.mjs",
+    // It has earned its own workflow, and exactly one. Until #278 this entry
+    // read `workflow: null` with the note "this has no such entry point yet,
+    // and until it does, any workflow naming it is a wiring mistake" — so
+    // adding the workflow had to break this test first, which is what the
+    // guard was for. The guard is not weakened by being satisfied: naming the
+    // probe in any SECOND workflow still fails.
+    workflow: "effect-eval.yaml",
+    // Driving the real CLI needs a network and a secret, so running it here
+    // would make the suite chargeable and non-deterministic. Its exit-0
+    // guarantee is asserted through --help and --dry-run instead.
     runnable: false,
   },
 ];
 
 const label = (tool) => tool.script;
+
+/**
+ * load-bearing, and learned three times over: a well-commented workflow says
+ * what it does not do — "no paths-ignore here", "GITHUB_TOKEN is deliberately
+ * absent", "do not add `pull_request`" — so an assertion that reads prose flags
+ * the sentence documenting a property as a breach of it.
+ */
+const directivesOnly = (yaml) =>
+  yaml
+    .split("\n")
+    .filter((line) => !line.trim().startsWith("#"))
+    .join("\n");
 
 /** Every file under `dir`, as absolute paths. */
 async function filesUnder(dir) {
@@ -192,5 +208,176 @@ describe("reporting tools are not gates", () => {
     const result = runScript(SCRIPTS.discoveryEval, ["--dry-run"]);
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("No model call was made.");
+  });
+});
+
+describe("the merge gate's measurement-pull-request exclusion", () => {
+  // GitHub does not fire workflows on a GITHUB_TOKEN-authored pull request, so
+  // merge-checks.yaml already did not run on the measurement one. that is an
+  // accident of platform behaviour; the exclusion makes it declared.
+  const readMergeChecks = () =>
+    readFile(repoPath(".github/workflows/merge-checks.yaml"), "utf8");
+
+  /** the two derived surfaces a measurement pull request consists of. */
+  const DERIVED_PATHS = ["data/*/measurements/**", "data/*/summary.json"];
+
+
+  it("excludes the measurement pull request at the trigger, by path", async () => {
+    const yaml = await readMergeChecks();
+    for (const path of DERIVED_PATHS) {
+      expect(yaml, `merge-checks.yaml does not exclude ${path}`).toContain(`- "${path}"`);
+    }
+    expect(yaml).toMatch(/^ {4}paths-ignore:$/m);
+  });
+
+  it("keys on paths rather than on a branch name", async () => {
+    // a branch name is a public string any contributor could adopt to skip
+    // every gate; a path is a fact about the pull request's contents. GitHub
+    // could not do it by head branch anyway — `branches` filters the base.
+    const yaml = await readMergeChecks();
+    expect(yaml, "the exclusion keys on a branch name, which a contributor chooses").not.toContain(
+      "github.head_ref",
+    );
+    expect(yaml, "a job-level guard remains alongside the trigger-level one").not.toMatch(
+      /^ {4}if:/m,
+    );
+  });
+
+  it("still runs every gate on the push to the default branch", async () => {
+    // measurement data is exempt from blocking a pull request, not from being
+    // checked: once it merges the gates run against the merged tree.
+    const yaml = await readMergeChecks();
+    const push = directivesOnly(
+      yaml.slice(yaml.indexOf("  push:"), yaml.indexOf("\nconcurrency:")),
+    );
+    expect(push, "the push trigger skips measurement data, so nothing ever checks it").not.toContain(
+      "paths-ignore",
+    );
+    expect(push).toContain("branches: [main]");
+  });
+
+  it("excludes exactly the surfaces .prettierignore exempts", async () => {
+    // a derived surface added to one and missed in the other either starts
+    // failing the drift check against this repository's own formatter, or
+    // starts blocking measurement pull requests. neither failure points at the
+    // file that caused it.
+    const ignored = await readFile(repoPath(".prettierignore"), "utf8");
+    for (const path of DERIVED_PATHS) {
+      const entry = path.replace("/**", "/");
+      expect(
+        ignored,
+        `.prettierignore does not exempt ${entry}, which merge-checks.yaml excludes`,
+      ).toContain(entry);
+    }
+  });
+});
+
+describe("the effect evaluation's own workflow", () => {
+  // #278 names this file as what asserts these, and the workflow's own header
+  // calls them safety properties 1 and 2. both were true when the workflow was
+  // written and neither was enforced, so a future edit could add
+  // `pull_request`, or a write scope to the job that spawns a model with Bash,
+  // without failing anything.
+  const WORKFLOW = ".github/workflows/effect-eval.yaml";
+
+  const readWorkflow = () => readFile(repoPath(WORKFLOW), "utf8");
+
+  /**
+   * line scanning rather than a parsed document: this repository has no YAML
+   * dependency, and adding one to assert three properties would widen the
+   * supply-chain surface more than the assertion is worth.
+   *
+   * @param {string} yaml
+   * @param {string} opener the exact opening line, e.g. "on:" or "  probe:"
+   * @returns {string|null} the block's body, opener excluded
+   */
+  function blockUnder(yaml, opener) {
+    const lines = yaml.split("\n");
+    const first = lines.indexOf(opener);
+    if (first === -1) return null;
+    const indent = opener.length - opener.trimStart().length;
+    const body = [];
+    for (const line of lines.slice(first + 1)) {
+      const blank = line.trim() === "";
+      const deeper = line.length - line.trimStart().length > indent;
+      if (!blank && !deeper) break;
+      body.push(line);
+    }
+    return body.join("\n");
+  }
+
+  it("declares workflow_dispatch as its only trigger", async () => {
+    // the primary bound on the whole workflow: only someone with write access
+    // can start it, and a dispatch always runs the file from the default
+    // branch.
+    const on = blockUnder(await readWorkflow(), "on:");
+    expect(on, `${WORKFLOW} has no top-level on: block`).not.toBeNull();
+    expect(on).toMatch(/^ {2}workflow_dispatch:$/m);
+    for (const forbidden of ["pull_request", "pull_request_target", "push", "schedule"]) {
+      expect(
+        on,
+        `${WORKFLOW} adds a ${forbidden} trigger, which a contributor could raise`,
+      ).not.toMatch(new RegExp(`^ {2}${forbidden}:`, "m"));
+    }
+  });
+
+  it("gives the probe job no write permission at all", async () => {
+    // that job spawns a model with Bash and the editing tools.
+    const probe = blockUnder(await readWorkflow(), "  probe:");
+    expect(probe, `${WORKFLOW} has no probe job`).not.toBeNull();
+
+    expect(probe, "the probe job does not declare an empty permissions map").toMatch(
+      /^ {4}permissions: \{\}$/m,
+    );
+    expect(probe, "the probe job grants itself a write scope").not.toMatch(/:\s*write$/m);
+
+    expect(directivesOnly(probe), "the probe job receives GITHUB_TOKEN").not.toContain(
+      "GITHUB_TOKEN",
+    );
+  });
+
+  it("keeps the writing job free of any model spawn", async () => {
+    // the other half of the separation: `land` holds the write scopes, so it
+    // must never be the job that runs a probe.
+    const land = blockUnder(await readWorkflow(), "  land:");
+    expect(land, `${WORKFLOW} has no land job`).not.toBeNull();
+    expect(land).toMatch(/^ {6}contents: write$/m);
+    expect(
+      land,
+      "the writing job invokes the probe, which would hand a model a write token",
+    ).not.toContain("tools/effect-eval/evaluate.mjs");
+  });
+});
+
+describe("the dispatch's job-to-job wiring", () => {
+  // a step can write an output the job never re-exposes, and the reader then
+  // interpolates an empty string rather than failing. that is how the land job
+  // came to build the measurements root itself instead of a per-case
+  // subdirectory: the admit script emitted `measurement-dir` and the admit job
+  // did not pass it on. the script's own tests read its stdout and stopped
+  // there, so nothing caught it.
+  const WORKFLOW = ".github/workflows/effect-eval.yaml";
+
+  it("re-exposes every output a later job reads", async () => {
+    const yaml = await readFile(repoPath(WORKFLOW), "utf8");
+    const directives = directivesOnly(yaml);
+
+    const read = new Set(
+      [...directives.matchAll(/needs\.(\w[\w-]*)\.outputs\.([\w-]+)/g)].map(
+        ([, job, output]) => `${job}.${output}`,
+      ),
+    );
+    expect(read.size, "no job reads another's output, so this asserts nothing").toBeGreaterThan(0);
+
+    for (const entry of read) {
+      const [job, output] = entry.split(".");
+      const block = directives.slice(directives.indexOf(`\n  ${job}:\n`));
+      const outputs = block.slice(block.indexOf("outputs:"), block.indexOf("steps:"));
+      expect(
+        outputs,
+        `${WORKFLOW}: the ${job} job never declares ${output}, so every reader of ` +
+          `needs.${job}.outputs.${output} interpolates an empty string`,
+      ).toMatch(new RegExp(`^ {6}${output}:`, "m"));
+    }
   });
 });

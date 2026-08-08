@@ -1,4 +1,4 @@
-// scripts/value-eval/capture.mjs, driven against real temporary Git
+// tools/effect-eval/src/capture.mjs, driven against real temporary Git
 // repositories.
 //
 // WHY REAL GIT RATHER THAN AN ARGV ASSERTION. spawn.mjs is tested by checking
@@ -23,7 +23,7 @@ import { dirname, join } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
 
-import { captureDiff, readChangedTestFiles } from "../../scripts/value-eval/capture.mjs";
+import { captureDiff, readChangedTestFiles } from "../../tools/effect-eval/src/capture.mjs";
 
 function git(args, cwd) {
   const result = spawnSync("git", args, { cwd, encoding: "utf8" });
