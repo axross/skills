@@ -252,6 +252,8 @@ function runGit(args, cwd, extraEnv = {}) {
  *
  * @param {string} workspace the materialized-but-unreplayed tree
  * @param {string} patchPath absolute path to a unified diff
+ * @throws {Error} when the patch does not apply cleanly, in which case nothing
+ *   was applied and the workspace is unchanged
  */
 function applyPatch(workspace, patchPath) {
   try {
@@ -332,6 +334,11 @@ function commitEnv(index) {
  *
  * @param {{ mock?: string, skills?: string[], install?: boolean, patch?: string|null }} [options]
  * @returns {Promise<string>} the materialized workspace's absolute path
+ * @throws {Error} when the mock, the patch, or a named skill does not resolve;
+ *   when the patch does not apply; when the patched tree and history.jsonc name
+ *   different files; or when the requested dependency install fails. the
+ *   temporary workspace is removed before it throws, so no half-built tree is
+ *   left for a probe to find
  */
 export async function materialize({
   mock = DEFAULT_MOCK,
