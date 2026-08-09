@@ -532,7 +532,14 @@ describe("report-obligation-burden.mjs", () => {
       // and the second its consequence, rather than both announcing that a
       // branch exists. still routing prose outside a Guidelines block, so no
       // obligation moved and only the bytes this figure divides grew.
-      expect.soft(totals.floorTokens).toBe(8_677);
+      // and 17 fewer in the same change's pre-flight fix round: the first
+      // bullet had named the criterion by reproducing
+      // implementation-worker.md's exact qualifying phrases rather than
+      // pointing at it — the detail leakage progressive-disclosure.md exists
+      // to prevent. rewording it to name the criterion as a handle instead
+      // shrank the bullet net of the growth above, still with no obligation
+      // moved.
+      expect.soft(totals.floorTokens).toBe(8_660);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -866,7 +873,9 @@ describe("report-obligation-burden.mjs", () => {
       // and 32 more in #304, the same SKILL.md routing-bullet rewrite noted at
       // the floor above — no reference file changed, so the ceiling moves by
       // exactly the floor's own delta.
-      expect.soft(totals.ceilingTokens).toBe(43_436);
+      // and 17 fewer in the same change's pre-flight fix round, again exactly
+      // the floor's own delta: no reference file changed there either.
+      expect.soft(totals.ceilingTokens).toBe(43_419);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -952,11 +961,12 @@ describe("report-obligation-burden.mjs", () => {
       // obligation count moving.
       // #304 moved only the token figures, by the same routing-bullet rewrite
       // noted at the mandated-set totals above: SKILL.md prose only, so
-      // neither obligation count moves.
+      // neither obligation count moves. its own pre-flight fix round moved
+      // both token figures again, by the same 17-token shrink noted there.
       expect.soft(tiers[2].floorObligations).toBe(27);
-      expect.soft(tiers[2].floorTokens).toBe(8_677);
+      expect.soft(tiers[2].floorTokens).toBe(8_660);
       expect.soft(tiers[2].ceilingObligations).toBe(444);
-      expect.soft(tiers[2].ceilingTokens).toBe(43_436);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_419);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

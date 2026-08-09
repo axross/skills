@@ -67,7 +67,7 @@ Delegation happens only where the harness already exposes a worker that qualifie
 See [implementation-worker.md](./references/implementation-worker.md) for:
 
 - the four-step executor resolution order, and why capability rather than a declared responsibility decides
-- the criterion separating the two policy branches: **barred** takes positive evidence that no request could lift the restriction, so anything short of unambiguously absolute — a policy naming the human's request as its own condition, in any wording — is **undetermined**
+- what separates the two policy branches — whether any request could lift the restriction — and why a policy conditioned on the human's own request therefore falls on the **undetermined** side
 - what follows from each: **barred** settles the determination with no question put, while **undetermined** makes one question to the human mandatory before the first project-file edit
 - the compatibility preflight that runs before the writer lease is granted, establishing a channel adequate to every required manifest entry's fidelity class, with the visual-capability check as the named case
 - classifying model and effort as verified, declared, or unknown
