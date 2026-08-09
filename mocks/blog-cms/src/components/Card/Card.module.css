@@ -1,0 +1,10 @@
+.card {
+  border: 1px solid #dfe3ea;
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 1rem 1.25rem;
+}
+
+.card:hover {
+  border-color: #b7bfce;
+}
