@@ -327,18 +327,29 @@ function installDependencies(workspace) {
   installBrowsersIfNeeded(workspace);
 }
 
+// the two package names that mean "this workspace drives a real browser".
+// they are one question rather than two: a Playwright-driven end-to-end suite
+// depends on `@playwright/test`, while a Vitest browser-mode suite depends on
+// `playwright` itself (through `@vitest/browser-playwright`) and never pulls
+// the test runner in. keying on the first name alone recognized the first
+// shape and silently missed the second, which is how `mocks/blog-cms` would
+// have reached a probe with a `npm test` that cannot launch a browser.
+const BROWSER_DRIVER_PACKAGES = ["@playwright/test", "playwright"];
+
 /**
  * whether the materialized workspace drives a browser, read from the
  * package.json `npm ci` just installed from.
  *
- * by declaration rather than by mock name: a second mock that adds an
- * end-to-end suite gets the browser without this file learning its name, and a
- * mock that has none pays nothing.
+ * by declaration rather than by mock name: a second mock that drives a browser
+ * gets one without this file learning its name, and a mock that drives none
+ * pays nothing. what it reads is the declaration of the *driver*, not of any
+ * one command — `@playwright/test` and `playwright` both mean a browser has to
+ * be there, and neither is carried by `npm ci`.
  *
  * exported so a test can hold the coupling this reads across: a mock whose
- * end-to-end command needs a browser, paired with a harness that provisions
- * one. break either half and the command fails only where nothing is watching
- * — inside a paid probe — so the pairing is asserted offline instead.
+ * command needs a browser, paired with a harness that provisions one. break
+ * either half and the command fails only where nothing is watching — inside a
+ * paid probe — so the pairing is asserted offline instead.
  *
  * @param {string} workspace
  * @returns {boolean}
@@ -352,19 +363,18 @@ export function declaresPlaywright(workspace) {
     // `npm ci` above would already have failed on it.
     return false;
   }
-  return Object.hasOwn(
-    { ...manifest.dependencies, ...manifest.devDependencies },
-    "@playwright/test",
-  );
+  const declared = { ...manifest.dependencies, ...manifest.devDependencies };
+  return BROWSER_DRIVER_PACKAGES.some((name) => Object.hasOwn(declared, name));
 }
 
 /**
- * downloads the browser a workspace's end-to-end command needs.
+ * downloads the browser a workspace's browser-driving command needs — an
+ * end-to-end suite in one mock, a Vitest browser-mode project in another.
  *
  * this is the harness's job for the same reason `npm ci` above is, applied to
  * the one dependency npm does not carry: Playwright ships its browsers out of
- * band, so a workspace prepared by `npm ci` alone has `@playwright/test` and no
- * browser to run it with, and the end-to-end command fails with
+ * band, so a workspace prepared by `npm ci` alone has the driver package and no
+ * browser to run it with, and the command fails with
  * `browserType.launch: Executable doesn't exist`. left to the probe, that is a
  * several-hundred-megabyte download inside the measured turns — the defect
  * `--install` exists to remove — and one a model would pay in both conditions.

@@ -73,7 +73,10 @@ async function listSymlinks(root, base = root) {
   return links;
 }
 
-/** materializes content-site and registers cleanup; returns the workspace path. */
+/**
+ * materializes a mock — content-site unless `args` names another — and
+ * registers cleanup; returns the workspace path.
+ */
 function materialize(args = []) {
   const result = runScript(SCRIPTS.setup, args);
   const workspace = result.stdout.trim();
@@ -108,18 +111,36 @@ describe("setup.mjs", () => {
   });
 
   // Playwright ships its browsers out of band, so `npm ci` alone leaves a
-  // workspace that has @playwright/test and nothing to launch. --install
+  // workspace that has the driver package and nothing to launch. --install
   // covers that gap, but only for a mock it recognizes as needing it — and
   // both halves of that coupling are invisible from either file alone. broken,
   // it surfaces where nothing is watching: inside a paid probe, as the
-  // end-to-end command failing to launch a browser. so it is asserted here,
-  // against a materialized workspace and with no network touched.
+  // browser-driving command failing to launch a browser. so it is asserted
+  // here, against a materialized workspace and with no network touched.
   it("recognizes a materialized mock whose end-to-end command needs a browser", async () => {
     const { result, workspace } = materialize();
 
     expect(result.code).toBe(0);
     expect(declaresPlaywright(workspace)).toBe(true);
     expect(await listFiles(workspace)).toContain("playwright.config.ts");
+  });
+
+  // the second shape of the same coupling, and the one the check originally
+  // missed. a Vitest browser-mode project reaches a browser through
+  // `playwright` and never depends on `@playwright/test`, so a check keyed on
+  // the test runner alone reported "no browser needed" for a mock whose own
+  // `npm test` cannot run without one. the two assertions below are what make
+  // this a regression test rather than a restatement: blog-cms is recognized,
+  // AND it is recognized without declaring the package content-site declares.
+  it("recognizes a mock that drives a browser through Vitest rather than @playwright/test", async () => {
+    const { result, workspace } = materialize(["--mock", "blog-cms"]);
+
+    expect(result.code).toBe(0);
+    const manifest = JSON.parse(await readFile(join(workspace, "package.json"), "utf8"));
+    const declared = { ...manifest.dependencies, ...manifest.devDependencies };
+    expect(Object.hasOwn(declared, "@playwright/test")).toBe(false);
+    expect(Object.hasOwn(declared, "playwright")).toBe(true);
+    expect(declaresPlaywright(workspace)).toBe(true);
   });
 
   it("asks for no browser where the mock declares none", async () => {

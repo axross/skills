@@ -1,0 +1,64 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease-out,
+    border-color 120ms ease-out,
+    opacity 120ms ease-out;
+}
+
+.primary {
+  background: #1f2a44;
+  color: #fff;
+  border-color: #1f2a44;
+}
+
+.primary:hover:not(:disabled) {
+  background: #16203a;
+}
+
+.secondary {
+  background: #fff;
+  color: #1f2a44;
+  border-color: #c9cfdb;
+}
+
+.secondary:hover:not(:disabled) {
+  background: #f2f4f8;
+}
+
+.danger {
+  background: #a4302f;
+  color: #fff;
+  border-color: #a4302f;
+}
+
+.danger:hover:not(:disabled) {
+  background: #872724;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Loading uses the same accessibility attribute as its styling hook, rather
+   than a parallel `.loading` class the two could drift out of sync. No
+   spinner keyframe here — the toast owns this app's one animation. */
+.button[aria-busy="true"] {
+  cursor: progress;
+}
+
+.error {
+  border-color: #a4302f;
+  box-shadow: 0 0 0 1px #a4302f inset;
+}

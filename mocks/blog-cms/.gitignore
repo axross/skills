@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+.vite
+*.tsbuildinfo
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.env
+.env.local
+playwright-report
+test-results
+.vitest-attachments
+__screenshots__
