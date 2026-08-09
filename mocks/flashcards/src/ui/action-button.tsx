@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, type StyleProp, type ViewStyle } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
-export type ActionButtonKind = "primary" | "secondary" | "destructive";
+export type ActionButtonKind =
+  "primary" | "secondary" | "destructive" | "positive";
 
 type ActionButtonProps = {
   label: string;
@@ -10,6 +11,7 @@ type ActionButtonProps = {
   kind?: ActionButtonKind;
   accessibilityLabel?: string;
   testID?: string;
+  style?: StyleProp<ViewStyle>;
 };
 
 /**
@@ -24,6 +26,7 @@ export function ActionButton({
   kind = "primary",
   accessibilityLabel,
   testID,
+  style,
 }: ActionButtonProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -37,7 +40,7 @@ export function ActionButton({
       onPress={onPress}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
-      style={[styles.button, isFocused && styles.buttonFocused]}
+      style={[styles.button, isFocused && styles.buttonFocused, style]}
     >
       <Text style={styles.label}>{label}</Text>
     </Pressable>
@@ -62,6 +65,7 @@ const styles = StyleSheet.create((theme) => ({
           borderColor: theme.colors.border,
         },
         destructive: { backgroundColor: theme.colors.negative },
+        positive: { backgroundColor: theme.colors.positive },
       },
     },
   },
@@ -75,6 +79,7 @@ const styles = StyleSheet.create((theme) => ({
         primary: { color: theme.colors.onAccent },
         secondary: { color: theme.colors.text },
         destructive: { color: theme.colors.onAccent },
+        positive: { color: theme.colors.onAccent },
       },
     },
   },
