@@ -189,8 +189,10 @@ prompt has been shown nothing; the absence of a finding is not evidence of a
 working `description`.
 
 **A measured difference is not a measured improvement.** The effect axis now
-has a comparable measurement behind it, and its signal extractors found a
-difference between the two conditions while everything else they measured
-agreed. Every deterministic signal available answers whether the output
-changed; none of them answers whether it got better, which is why the cost
-axis reports a number without claiming that number buys anything.
+has a comparable measurement behind it, and a deterministic reading of what the
+two conditions produced was enough to tell them apart. Telling them apart is
+the whole of what such a reading gives: a deterministic signal answers whether
+the output moved and never whether it moved for the better, which is why the
+cost axis reports a number without claiming that number buys anything. The
+records behind that measurement are committed under
+[`data/effect-eval/`](../../data/effect-eval/README.md).
