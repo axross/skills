@@ -55,10 +55,12 @@ describe("analytics", () => {
       process.env.EXPO_PUBLIC_AMPLITUDE_API_KEY = "test-key";
     });
 
-    it("initialises the SDK with the key", () => {
+    it("initialises the SDK with the key and a deliberate session-tracking choice", () => {
       loadAnalytics().initAnalytics();
 
-      expect(amplitude.init).toHaveBeenCalledWith("test-key");
+      expect(amplitude.init).toHaveBeenCalledWith("test-key", undefined, {
+        trackingSessionEvents: false,
+      });
     });
 
     it("identifies the signed-in learner by calling setUserId", () => {

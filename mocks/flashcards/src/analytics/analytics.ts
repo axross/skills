@@ -13,10 +13,16 @@ const amplitudeApiKey = process.env.EXPO_PUBLIC_AMPLITUDE_API_KEY;
  * app runs normally with no analytics credential present. Note what is
  * *not* passed: neither `storageProvider` nor `cookieStorage` is set here,
  * so the SDK's own AsyncStorage-backed identity storage is what runs.
+ *
+ * `trackingSessionEvents` is set explicitly, not left at the SDK default:
+ * nothing this app tracks — a screen view, a card graded — is a measure of
+ * session length or session count, and no screen in it charts either. Left
+ * unset, sessions would still be collected and would just sit unread, so
+ * the deliberate choice here is `false`.
  */
 export function initAnalytics(): void {
   if (!amplitudeApiKey) return;
-  amplitude.init(amplitudeApiKey);
+  amplitude.init(amplitudeApiKey, undefined, { trackingSessionEvents: false });
 }
 
 /** Identifies the signed-in learner. Called only from the sign-in path. */
