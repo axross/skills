@@ -105,12 +105,12 @@ dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
 - **CSS property order is not uniform across the stylesheets.** Nothing
   enforces an order and none is followed file to file. A mock that codified
   one would hand a control run the very convention a case asks about.
-- **The analytics event names are ordinary and mildly inconsistent** —
-  `"post published"` and `"draft saved"` fire from the editor, `"Site
-  switched"` from the sidebar's switcher, the last in a different case from
-  the other two. Two cases measure event naming, so a mock demonstrating a
-  scheme would flatter a control run. All three fire from a real call site:
-  a name that existed only in the event type would leave the *exercised*
+- **The analytics event names are ordinary and mildly inconsistent.**
+  `"post published"` and `"draft saved"` fire from the editor and
+  `"Site switched"` from the sidebar's switcher — the last in a different case
+  from the other two. Two cases measure event naming, so a mock demonstrating
+  a scheme would flatter a control run. All three fire from a real call site:
+  a name that existed only in the event type would leave the _exercised_
   convention perfectly consistent, which is the opposite of what is wanted
   here.
 - **`identifyAuthor` in `src/lib/analytics.ts` has no caller yet.** It is

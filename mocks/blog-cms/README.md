@@ -59,6 +59,12 @@ See `.env.example`. Every one of them is optional in local development — a
 missing Amplitude key or Sentry DSN just disables that feature rather than
 failing to start.
 
+Three are build-time only and belong to whatever runs `npm run build` for a
+real deploy rather than to a developer's machine: `SENTRY_AUTH_TOKEN`,
+`SENTRY_ORG` and `SENTRY_PROJECT`. Without them the build still succeeds and
+still emits source maps; it just doesn't upload them, which is why a
+production stack trace from a build that lacked the token stays minified.
+
 ## Contributing
 
 Changes go through a pull request rather than landing straight on `main`.

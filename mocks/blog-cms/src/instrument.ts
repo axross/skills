@@ -1,5 +1,7 @@
 // Imported first from main.tsx, before the application's own modules
-// evaluate — see AGENTS.md's note on why this file does nothing else.
+// evaluate, so an error thrown while one of them is initialising is still
+// reported. That ordering is the only reason this file exists separately, and
+// the reason it does nothing else: anything added here runs before the app.
 import * as Sentry from "@sentry/react";
 
 const dsn = import.meta.env.VITE_SENTRY_DSN;
