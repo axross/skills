@@ -15,15 +15,19 @@ export function SettingsScreen() {
   const { session, signOut } = useSession();
   const { rt } = useUnistyles();
   const [signingOut, setSigningOut] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     trackScreenView("Settings");
   }, []);
 
   async function handleSignOut() {
+    setError(null);
     setSigningOut(true);
     try {
       await signOut();
+    } catch {
+      setError("Couldn't sign out. Try again.");
     } finally {
       setSigningOut(false);
     }
@@ -46,6 +50,7 @@ export function SettingsScreen() {
           } theme.`}
         </Text>
       </View>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
       <ActionButton
         label={signingOut ? "Signing out…" : "Sign out"}
         kind="destructive"
@@ -70,6 +75,10 @@ const styles = StyleSheet.create((theme) => ({
   value: {
     ...theme.typography.body,
     color: theme.colors.text,
+  },
+  error: {
+    ...theme.typography.caption,
+    color: theme.colors.negative,
   },
   version: {
     ...theme.typography.caption,
