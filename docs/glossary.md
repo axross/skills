@@ -116,11 +116,15 @@
 
 **Discovery count** — how many **evaluation probes** surfaced each **agent skill** for one **evaluation case**, which is what makes the result a distribution rather than a single verdict.
 
-**Discovery snapshot** — a recorded set of **discovery counts** that a later run is compared against, so a result reads as a change rather than as a bare score.
+**Situated probe** — an **evaluation probe** that reads a **probe workspace** before it selects, which is the situation an **agent skill** is discovered in: real instructions, a real codebase, and every other skill competing.
 
-**Skill corpus fingerprint** — a digest of the **skill descriptions** across one **skill corpus**, stored alongside a **discovery snapshot**, so a comparison can say whether the text **skill discovery** reads has moved since that snapshot was recorded.
+**Bare probe** — an **evaluation probe** whose workspace holds the installed skills and no project, so the prompt is the only thing it can route on. What a **head overlay** requires, and where an **evaluation case** whose subject situating would remove still runs.
 
-**Unmeasured declaration** — an **evaluation case** a **discovery snapshot** records as never measured, so a gap in coverage is stated rather than inferred from an absent number.
+**Head overlay** — the **skill descriptions** of a pull request's own head, staged as data for a **bare probe**, so a changed one can be measured before it merges. Never combined with a **situated probe**, which holds capabilities text from outside the repository must not reach.
+
+**Skill corpus fingerprint** — a digest of the **skill descriptions** across one **skill corpus**, recorded with a **probe record**, so a later comparison can say whether the text **skill discovery** reads has moved since that probe ran.
+
+**Comparable predecessor** — the most recent earlier **case measurement** of one **evaluation case** whose conditions match a later one's, which is what that later one reads as a change against. There is no baseline to compare against instead: a result is a change because the previous measurement is still on disk.
 
 ## Skill Effect Evaluation
 
