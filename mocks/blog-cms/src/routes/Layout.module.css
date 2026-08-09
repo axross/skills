@@ -1,0 +1,13 @@
+.shell {
+  display: grid;
+  /* The sidebar column is fluid so it shrinks with the viewport — its own
+     container query in Sidebar.module.css is what decides when that
+     shrinking should also change its layout, not this rule. */
+  grid-template-columns: clamp(3.5rem, 16vw, 15rem) 1fr;
+  min-height: 100dvh;
+}
+
+.content {
+  min-width: 0;
+  padding: 2rem 2.5rem;
+}
