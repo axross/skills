@@ -13,7 +13,7 @@ import { SessionProvider, useSession } from "./session-context";
 // no-op) analytics module — this is an integration test of the provider,
 // not a unit test of either dependency.
 
-function Probe() {
+function SessionSnapshot() {
   const { session, status, signIn, signOut } = useSession();
 
   return (
@@ -41,7 +41,7 @@ describe("SessionProvider", () => {
   it("resolves to no session once loading finishes", async () => {
     await render(
       <SessionProvider>
-        <Probe />
+        <SessionSnapshot />
       </SessionProvider>,
     );
 
@@ -54,7 +54,7 @@ describe("SessionProvider", () => {
   it("signs in and makes the session available", async () => {
     await render(
       <SessionProvider>
-        <Probe />
+        <SessionSnapshot />
       </SessionProvider>,
     );
     await waitFor(() =>
@@ -73,7 +73,7 @@ describe("SessionProvider", () => {
   it("signs out and clears the session", async () => {
     await render(
       <SessionProvider>
-        <Probe />
+        <SessionSnapshot />
       </SessionProvider>,
     );
     await waitFor(() =>
@@ -103,7 +103,7 @@ describe("SessionProvider", () => {
 
     await render(
       <SessionProvider>
-        <Probe />
+        <SessionSnapshot />
       </SessionProvider>,
     );
 
