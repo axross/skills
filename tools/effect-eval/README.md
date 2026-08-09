@@ -32,7 +32,7 @@ request](#the-measurement-pull-request-is-checked-by-the-dispatch) below.
 ## Three entry points, one verb each
 
 ```sh
-node tools/effect-eval/setup.mjs     --mock content-site --skill unit-testing --install
+node tools/effect-eval/setup.mjs     --mock tsuzuri --skill unit-testing --install
 node tools/effect-eval/evaluate.mjs  --workspace <dir> --case <id> --condition skill-present --out <dir>
 node tools/effect-eval/summarize.mjs --check
 ```

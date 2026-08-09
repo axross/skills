@@ -74,7 +74,7 @@ async function listSymlinks(root, base = root) {
 }
 
 /**
- * materializes a mock — content-site unless `args` names another — and
+ * materializes a mock — tsuzuri unless `args` names another — and
  * registers cleanup; returns the workspace path.
  */
 function materialize(args = []) {
@@ -131,7 +131,7 @@ describe("setup.mjs", () => {
   // the test runner alone reported "no browser needed" for a mock whose own
   // `npm test` cannot run without one. the two assertions below are what make
   // this a regression test rather than a restatement: blog-cms is recognized,
-  // AND it is recognized without declaring the package content-site declares.
+  // AND it is recognized without declaring the package tsuzuri declares.
   it("recognizes a mock that drives a browser through Vitest rather than @playwright/test", async () => {
     const { result, workspace } = materialize(["--mock", "blog-cms"]);
 
@@ -297,7 +297,7 @@ describe("setup.mjs", () => {
     expect(result).toPassCleanly();
 
     const materialized = await listFiles(workspace);
-    const shipped = (await listFiles(repoPath("mocks/content-site"))).filter(
+    const shipped = (await listFiles(repoPath("mocks/tsuzuri"))).filter(
       (file) => file !== "history.jsonc" && !file.startsWith("node_modules/"),
     );
     expect(materialized).toEqual(shipped);
@@ -305,7 +305,7 @@ describe("setup.mjs", () => {
     for (const file of materialized) {
       const [got, want] = await Promise.all([
         readFile(join(workspace, file), "utf8"),
-        readFile(repoPath("mocks/content-site", file), "utf8"),
+        readFile(repoPath("mocks/tsuzuri", file), "utf8"),
       ]);
       expect(got, `${file} differs from what the mock ships`).toBe(want);
     }
@@ -501,7 +501,7 @@ describe("setup.mjs --patch", () => {
     const result = runScript(SCRIPTS.setup, ["--patch", patch]);
 
     expect(result).toExitWith(2);
-    expect(result.output).toMatch(/names files content-site does not ship/);
+    expect(result.output).toMatch(/names files tsuzuri does not ship/);
     // the message names the patch, so a rotted patch does not read as a mock
     // somebody broke.
     expect(result.output).toContain(patch);

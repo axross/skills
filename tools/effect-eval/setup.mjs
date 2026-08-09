@@ -26,7 +26,7 @@
 
 import { materialize } from "../lib/mock-workspace.mjs";
 
-const DEFAULT_MOCK = "content-site";
+const DEFAULT_MOCK = "tsuzuri";
 
 const USAGE = `Usage: setup.mjs [options]
 

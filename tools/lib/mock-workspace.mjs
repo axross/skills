@@ -9,7 +9,7 @@
 // (#280) situates its own in the same ones, so the alternative was one
 // evaluation importing out of the other's src/.
 //
-// a mock lives under mocks/<name>/ (e.g. mocks/content-site/) as a
+// a mock lives under mocks/<name>/ (e.g. mocks/tsuzuri/) as a
 // plain, uncommitted-history file tree, plus a history.jsonc that records the
 // commits to replay on top of it. this module does the replaying: it copies
 // the mock's files into a fresh temporary directory, applies the case's patch
@@ -67,7 +67,7 @@ const MOCKS_ROOT = join(REPO_ROOT, "mocks");
 const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 const HISTORY_FILE = "history.jsonc";
-const DEFAULT_MOCK = "content-site";
+const DEFAULT_MOCK = "tsuzuri";
 
 // pinned commit identity — see this file's header for why these are
 // constants rather than read from the environment.

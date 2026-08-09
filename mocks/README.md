@@ -57,7 +57,7 @@ Both are declared below so a reviewer can tell either from a bug —
 **anything not on these lists is a bug**, and the question has already cost one
 review round.
 
-### `content-site` — choices made for coverage
+### `tsuzuri` — choices made for coverage
 
 - **The commit history is inconsistent in style.** `history.jsonc` mixes
   `WIP`, `fix layout bug`, `docs`, and one clean Conventional Commit. The
@@ -82,7 +82,7 @@ review round.
   module alone during a refactor. An untested module beside a tested one is
   what real repositories look like, so no patch creates it.
 
-### `content-site` — fixture artifacts
+### `tsuzuri` — fixture artifacts
 
 None. The two that were here —
 [#299](https://github.com/axross/skills/issues/299) removed both — were a
@@ -95,7 +95,7 @@ dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
 ### `blog-cms` — choices made for coverage
 
 - **The commit history is inconsistent in style**, for the same reason
-  `content-site`'s is: a tidy log would let a control run copy the convention
+  `tsuzuri`'s is: a tidy log would let a control run copy the convention
   out of context and erase the effect of any skill that teaches it.
 - **The publish toast's animation carries no `prefers-reduced-motion` guard.**
   One case asks a model to add one. This is a gap the project has rather than
@@ -165,4 +165,4 @@ resolves, and its four checks pass in a materialized copy.
 Not on either list, and therefore bugs if you find them: unresolved imports,
 checks that do not pass, framework or library APIs used incorrectly, or
 anything a mock's own checks would reject — `npm run lint`,
-`npm run typecheck`, `npm test`, and, in `content-site`, `npm run test:e2e`.
+`npm run typecheck`, `npm test`, and, in `tsuzuri`, `npm run test:e2e`.

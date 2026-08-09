@@ -5,7 +5,7 @@
 // moves under it — that is the drift the declared-patch check exists to catch.
 // a hand-written patch committed here as a test fixture would rot the same way,
 // against the same mock, and would have to be regenerated every time
-// `content-site` changes. deriving it at test time from whatever the mock ships
+// `tsuzuri` changes. deriving it at test time from whatever the mock ships
 // today costs a scratch repository and removes that maintenance entirely.
 //
 // nothing here reads a file name out of a mock. the mutations are expressed
@@ -85,7 +85,7 @@ export function parseHistoryFixture(raw) {
  * @returns {Promise<Array<{ message: string, files: string[] }>>}
  * @throws {Error} when the mock ships no history.jsonc, or it does not parse
  */
-export async function readMockHistory(mock = "content-site") {
+export async function readMockHistory(mock = "tsuzuri") {
   return parseHistoryFixture(await readFile(repoPath("mocks", mock, HISTORY_FILE), "utf8"));
 }
 
@@ -117,7 +117,7 @@ export async function editHistory(tree, mutate) {
  *   the test that asked for a patch would otherwise exercise nothing, or when
  *   a `git` invocation in the scratch repository fails
  */
-export async function patchFromMock(mutate, { mock = "content-site" } = {}) {
+export async function patchFromMock(mutate, { mock = "tsuzuri" } = {}) {
   const scratch = await mkdtemp(join(tmpdir(), "mock-patch-"));
   onTestFinished(() => rm(scratch, { recursive: true, force: true }));
 

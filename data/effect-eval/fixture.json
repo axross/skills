@@ -2,7 +2,7 @@
   "cases": [
     {
       "id": "add-unit-tests-for-an-untested-module",
-      "mock": "content-site",
+      "mock": "tsuzuri",
       "skills": ["unit-testing"],
       "repetitionsPerCondition": 3,
       "capUsd": 40,

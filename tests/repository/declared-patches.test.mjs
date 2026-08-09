@@ -94,7 +94,7 @@ describe("the declared-patch walk", () => {
           cases: [
             {
               id: "add-a-thing",
-              mock: "content-site",
+              mock: "tsuzuri",
               patch: "patches/add-a-thing.patch",
             },
           ],
@@ -126,7 +126,7 @@ describe("the declared-patch walk", () => {
       join(root, "fixture.json"),
       `${JSON.stringify(
         {
-          cases: [{ id: "add-a-note", mock: "content-site", patch: "patches/add-a-note.patch" }],
+          cases: [{ id: "add-a-note", mock: "tsuzuri", patch: "patches/add-a-note.patch" }],
         },
         null,
         2,
