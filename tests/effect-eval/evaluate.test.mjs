@@ -32,8 +32,8 @@ beforeAll(async () => {
   const { tmpdir } = await import("node:os");
   out = await mkdtemp(join(tmpdir(), "case-dry-run-"));
 
-  const absent = setup(["--mock", "content-site"]);
-  const present = setup(["--mock", "content-site", "--skill", "unit-testing"]);
+  const absent = setup(["--mock", "tsuzuri"]);
+  const present = setup(["--mock", "tsuzuri", "--skill", "unit-testing"]);
 
   // matching what the fixture declares, so the repetition check has something
   // real to agree with.

@@ -86,7 +86,7 @@ records what it beat.
 ```json
 {
   "id": "fix-a-thing",
-  "mock": "content-site",
+  "mock": "tsuzuri",
   "patch": "patches/fix-a-thing.patch"
 }
 ```
@@ -141,6 +141,6 @@ this field is never read for that case again — it governs only the first run.
 
 `measurements/` holds the case measurements taken so far, one directory per
 measurement, and `summary.json` is the snapshot derived across all of them. The
-pilot — `unit-testing` on `content-site`, six probes — landed in
-[#290](https://github.com/axross/skills/pull/290) at a total of $1.5232 against
-its $40 cap.
+pilot — `unit-testing` on `content-site`, since renamed `tsuzuri`, six probes —
+landed in [#290](https://github.com/axross/skills/pull/290) at a total of
+$1.5232 against its $40 cap.

@@ -18,7 +18,7 @@ import {
 
 const aConfiguration = (overrides = {}) =>
   buildConfiguration({
-    projectName: "content-site",
+    projectName: "tsuzuri",
     projectTree: "sha256:abc",
     prompt: "shared/resolve-translation.ts has no tests. Add unit tests for it.",
     targetModule: "shared/resolve-translation.ts",

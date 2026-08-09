@@ -54,7 +54,7 @@ describe("repository gates have teeth", () => {
     // there carry their own toolchain), so this must never be reported.
     await writeFileIn(
       root,
-      "mocks/content-site/doc.md",
+      "mocks/tsuzuri/doc.md",
       "See [gone](./missing.md).\n",
     );
     await writeFileIn(root, "AGENTS.md", "No broken links here.\n");

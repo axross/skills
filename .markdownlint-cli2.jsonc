@@ -20,7 +20,7 @@
     "MD010": { "code_blocks": false } // hard tabs allowed inside code samples
   },
   // the mock fixtures under mocks/ are self-contained projects with their
-  // own linter (see e.g. mocks/content-site/package.json) and their own
+  // own linter (see e.g. mocks/tsuzuri/package.json) and their own
   // conventions, so this repository's own gates never cover them; the mock's
   // own toolchain is what keeps it honest instead.
   "ignores": ["node_modules", "mocks"]

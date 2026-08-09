@@ -5,7 +5,7 @@ export default function HomePage() {
 	return (
 		<>
 			<section aria-label="profile">
-				<h1>content-site</h1>
+				<h1>tsuzuri</h1>
 				<p>A personal blog.</p>
 			</section>
 			<ul aria-label="posts">

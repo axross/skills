@@ -1,7 +1,7 @@
 // digesting what a probe ran against, by content.
 //
 // by content because the instrument this replaced recorded names —
-// `mock: "content-site"`, `skills: ["unit-testing"]` — and a skill edited by one
+// `mock: "tsuzuri"`, `skills: ["unit-testing"]` — and a skill edited by one
 // line between two measurements produced two records nothing could tell apart.
 //
 // the workspace's HEAD commit looked like a ready-made content key and is not

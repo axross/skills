@@ -97,7 +97,7 @@ export function parseTranscript(stdout) {
 
 /**
  * command shapes this repository's mocks actually run (see
- * mocks/content-site/package.json), plus the runners a caller might invoke
+ * mocks/tsuzuri/package.json), plus the runners a caller might invoke
  * directly. not exhaustive by design — a different mock's toolchain overrides
  * them.
  */

@@ -14,7 +14,7 @@
 //
 // The messages are DELIBERATELY inconsistent in style — a real mix of
 // terse notes, vague one-liners, and the occasional well-formed one —
-// rather than a clean, uniform log, for the same reason `content-site`'s
+// rather than a clean, uniform log, for the same reason `tsuzuri`'s
 // own history.jsonc gives: a tidy history here would let a model copy that
 // convention from context, and this project's history should not hint at
 // how the pilot expects generated commits to look.

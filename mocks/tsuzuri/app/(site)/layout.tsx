@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
 	title: {
-		default: "content-site",
-		template: "%s · content-site",
+		default: "tsuzuri",
+		template: "%s · tsuzuri",
 	},
 	description: "A personal blog: portrait, bio, and posts.",
 };
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 		<html lang="ja">
 			<body>
 				<header>
-					<a href="/">content-site</a>
+					<a href="/">tsuzuri</a>
 				</header>
 				<main>{children}</main>
 			</body>

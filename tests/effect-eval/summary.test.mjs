@@ -47,7 +47,7 @@ async function writeProbe(name, { configuration = {}, transcript = TRANSCRIPT, p
   const directory = join(caseDir, name);
   await mkdir(directory, { recursive: true });
   const full = buildConfiguration({
-    projectName: "content-site",
+    projectName: "tsuzuri",
     projectTree: "sha256:tree",
     prompt: "add tests",
     targetModule: "shared/x.ts",
