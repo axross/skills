@@ -115,4 +115,27 @@ describe("PhotoCapture", () => {
 
     expect(onClear).toHaveBeenCalledTimes(1);
   });
+
+  it("shows an unavailable placeholder and a way to retake it if the photo fails to load", async () => {
+    const onClear = jest.fn();
+    await render(
+      <PhotoCapture
+        permission={GRANTED}
+        photoUri="file://reclaimed.jpg"
+        onRequestPermission={noop}
+        onOpenSettings={noop}
+        onCapture={noop}
+        onClear={onClear}
+      />,
+    );
+
+    await fireEvent(screen.getByTestId("photo-preview"), "error");
+
+    expect(screen.getByTestId("photo-unavailable")).toBeOnTheScreen();
+    expect(screen.queryByTestId("photo-preview")).toBeNull();
+
+    await fireEvent.press(screen.getByTestId("retake-photo"));
+
+    expect(onClear).toHaveBeenCalledTimes(1);
+  });
 });

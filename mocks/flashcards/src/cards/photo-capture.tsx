@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { CameraView, type PermissionResponse } from "expo-camera";
 import { Image, Text, View } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
@@ -30,12 +30,36 @@ export function PhotoCapture({
   onClear,
 }: PhotoCaptureProps) {
   const cameraRef = useRef<CameraView>(null);
+  // The uri of a photo whose `Image` reported it could not load — the OS can
+  // reclaim a cached capture between writing it and this screen reading it
+  // back. Tracked by value rather than a plain boolean so a freshly captured
+  // photo (a new, different uri) is never mistaken for the one that failed.
+  const [unavailableUri, setUnavailableUri] = useState<string | undefined>(
+    undefined,
+  );
+  const isUnavailable = photoUri !== undefined && photoUri === unavailableUri;
 
   async function capture() {
     const photo = await cameraRef.current?.takePictureAsync();
     if (photo?.uri) {
       onCapture(photo.uri);
     }
+  }
+
+  if (photoUri && isUnavailable) {
+    return (
+      <View style={styles.container} testID="photo-unavailable">
+        <Text style={styles.hint}>
+          This photo is no longer available. Take a new one.
+        </Text>
+        <ActionButton
+          label="Retake photo"
+          kind="secondary"
+          onPress={onClear}
+          testID="retake-photo"
+        />
+      </View>
+    );
   }
 
   if (photoUri) {
@@ -45,6 +69,7 @@ export function PhotoCapture({
           source={{ uri: photoUri }}
           style={styles.preview}
           testID="photo-preview"
+          onError={() => setUnavailableUri(photoUri)}
         />
         <ActionButton
           label="Remove photo"
