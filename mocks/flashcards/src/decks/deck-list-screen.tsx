@@ -87,7 +87,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing(1.5),
   },
   row: {
-    minHeight: 44,
+    minHeight: theme.sizing.minTouchTarget,
     justifyContent: "center",
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,

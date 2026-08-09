@@ -24,6 +24,12 @@ const sizing = {
    * future one has a value to match rather than a new number to invent.
    */
   mediaHeight: 220,
+  /**
+   * The platform's minimum tappable dimension: every pressable control's
+   * minimum width and/or height references this rather than a new literal,
+   * the same way `mediaHeight` above is shared rather than repeated.
+   */
+  minTouchTarget: 44,
 } as const;
 
 const shared = {

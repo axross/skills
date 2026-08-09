@@ -45,7 +45,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing(1),
   },
   side: {
-    minWidth: 44,
+    minWidth: theme.sizing.minTouchTarget,
   },
   rightSide: {
     alignItems: "flex-end",

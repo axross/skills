@@ -75,7 +75,7 @@ const styles = StyleSheet.create((theme) => ({
   input: {
     ...theme.typography.body,
     color: theme.colors.text,
-    minHeight: 44,
+    minHeight: theme.sizing.minTouchTarget,
     borderWidth: 2,
     borderRadius: theme.radius.sm,
     borderColor: theme.colors.border,

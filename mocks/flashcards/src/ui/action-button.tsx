@@ -49,8 +49,8 @@ export function ActionButton({
 
 const styles = StyleSheet.create((theme) => ({
   button: {
-    minWidth: 44,
-    minHeight: 44,
+    minWidth: theme.sizing.minTouchTarget,
+    minHeight: theme.sizing.minTouchTarget,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: theme.radius.md,
