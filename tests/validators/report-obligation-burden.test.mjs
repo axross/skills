@@ -533,12 +533,11 @@ describe("report-obligation-burden.mjs", () => {
       // branch exists. still routing prose outside a Guidelines block, so no
       // obligation moved and only the bytes this figure divides grew.
       // and 17 fewer in the same change's pre-flight fix round: the first
-      // bullet had named the criterion by reproducing
-      // implementation-worker.md's exact qualifying phrases rather than
-      // pointing at it — the detail leakage progressive-disclosure.md exists
-      // to prevent. rewording it to name the criterion as a handle instead
-      // shrank the bullet net of the growth above, still with no obligation
-      // moved.
+      // bullet had reproduced implementation-worker.md's exact qualifying
+      // phrases instead of naming the criterion as a handle — the detail
+      // leakage progressive-disclosure.md exists to prevent. pointing at the
+      // reference instead of restating it shrank the bullet net of the
+      // growth above, still with no obligation moved.
       expect.soft(totals.floorTokens).toBe(8_660);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
