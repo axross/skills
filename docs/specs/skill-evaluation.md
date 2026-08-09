@@ -188,8 +188,9 @@ somebody thought to write down. A skill that is never surfaced by any labelled
 prompt has been shown nothing; the absence of a finding is not evidence of a
 working `description`.
 
-**The second half of the bet is measured least.** The discovery axis answers
-whether a skill is selected. Whether holding it changes what the model produces
-is the harder question and the one this repository has the least evidence about,
-which is why the cost axis reports a number without claiming that number buys
-anything.
+**A measured difference is not a measured improvement.** The effect axis now
+has a comparable measurement behind it, and its signal extractors found a
+difference between the two conditions while everything else they measured
+agreed. Every deterministic signal available answers whether the output
+changed; none of them answers whether it got better, which is why the cost
+axis reports a number without claiming that number buys anything.
