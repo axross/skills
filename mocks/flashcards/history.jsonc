@@ -53,15 +53,15 @@
 		},
 		{
 			"message": "misc ui bits",
-			"files": [
-				"src/ui/screen.tsx",
-				"src/ui/screen-header.tsx",
-				"src/ui/loading-screen.tsx"
-			]
+			"files": ["src/ui/screen.tsx", "src/ui/loading-screen.tsx"]
 		},
 		{
-			"message": "feat(ui): add the shared action button",
-			"files": ["src/ui/action-button.tsx", "src/ui/action-button.spec.tsx"]
+			"message": "feat(ui): add the shared action button, and the header row that needed it",
+			"files": [
+				"src/ui/action-button.tsx",
+				"src/ui/action-button.spec.tsx",
+				"src/ui/screen-header.tsx"
+			]
 		},
 		{
 			"message": "text field",
