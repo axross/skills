@@ -41,7 +41,11 @@ const INSTALLED_SKILLS_DIR = ".claude";
 /** default sink for the summary and the warning — overridable so a test can read them. */
 const writeStderr = (message) => process.stderr.write(message);
 
-/** runs `git` in `cwd` and returns stdout, throwing on a non-zero exit. */
+/**
+ * runs `git` in `cwd` and returns stdout.
+ *
+ * @throws {Error} when `git` cannot be spawned, or when it exits non-zero
+ */
 export function runGitCapture(args, cwd) {
   const result = spawnSync("git", args, { cwd, encoding: "utf8" });
   if (result.error) throw result.error;

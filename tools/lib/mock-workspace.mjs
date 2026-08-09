@@ -159,8 +159,9 @@ function stripJsonComments(text) {
  *
  * @param {string} raw
  * @returns {Array<{ message: string, files: string[] }>}
- * @throws {Error} when the text does not parse once its comments are stripped,
- *   or a commit declares no message or no `files` array
+ * @throws {Error} when `raw` is not valid JSON once its comments are stripped,
+ *   when it is not an object with a `commits` array, or when any commit lacks a
+ *   non-empty message or a `files` array of non-empty paths
  */
 function parseHistory(raw) {
   let data;
@@ -211,7 +212,11 @@ async function listFilesRecursively(root, base = root) {
   return files;
 }
 
-/** runs `git`, isolated from the ambient user/system config, and returns stdout. */
+/**
+ * runs `git`, isolated from the ambient user/system config, and returns stdout.
+ *
+ * @throws {Error} when `git` cannot be spawned, or when it exits non-zero
+ */
 function runGit(args, cwd, extraEnv = {}) {
   const result = spawnSync("git", args, {
     cwd,
@@ -296,6 +301,11 @@ function applyPatch(workspace, patchPath) {
  * pins and fails if the lockfile and `package.json` disagree, which is the
  * property the pin is for. `node_modules` is in the mock's own `.gitignore`,
  * so the workspace's Git tree stays clean and the capture never sees any of it.
+ *
+ * @throws {Error} when `npm` is absent from PATH, or when `npm ci` exits
+ *   non-zero — either way the workspace's dependencies are not installed, and a
+ *   half-prepared workspace would let a probe measure the setup rather than the
+ *   skill
  */
 function installDependencies(workspace) {
   const result = spawnSync("npm", ["ci", "--no-audit", "--no-fund"], {
@@ -422,11 +432,13 @@ function commitEnv(index) {
  *
  * @param {{ mock?: string, skills?: string[], install?: boolean, patch?: string|null }} [options]
  * @returns {Promise<string>} the materialized workspace's absolute path
- * @throws {Error} when the mock, the patch, or a named skill does not resolve;
- *   when the patch does not apply; when the patched tree and history.jsonc name
- *   different files; or when the requested dependency install fails. the
- *   temporary workspace is removed before it throws, so no half-built tree is
- *   left for a probe to find
+ * @throws {Error} when the mock directory, its history.jsonc, a declared patch,
+ *   or a named installed skill is missing, when the patch does not apply, when
+ *   history.jsonc is invalid, when it and the patched tree do not name exactly
+ *   the same files, or when replaying it leaves the workspace dirty — and,
+ *   under `install`, whatever the dependency install throws. the temporary
+ *   workspace is removed before any of these propagate, so a failed call leaves
+ *   nothing behind to clean up
  */
 export async function materialize({
   mock = DEFAULT_MOCK,

@@ -76,6 +76,7 @@ function greatestCommonDivisor(a, b) {
  * @param {bigint} numerator
  * @param {bigint} [denominator]
  * @returns {Exact}
+ * @throws {RangeError} when `denominator` is zero
  */
 export function exact(numerator, denominator = 1n) {
   if (denominator === 0n) throw new RangeError("a rational needs a non-zero denominator");

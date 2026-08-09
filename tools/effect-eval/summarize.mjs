@@ -76,7 +76,12 @@ function parseArgv(argv) {
   return options;
 }
 
-/** @returns {Promise<Map<string, number|null>>} declared repetitions, by case id */
+/**
+ * @returns {Promise<Map<string, number|null>>} declared repetitions, by case id
+ * @throws {Error} when the fixture cannot be read for any reason but its
+ *   absence, or when it is not valid JSON. an absent fixture is not one of
+ *   these — it returns an empty map, leaving every case declaring nothing
+ */
 async function readDeclaredRepetitions(fixturePath) {
   try {
     const fixture = JSON.parse(await readFile(fixturePath, "utf8"));

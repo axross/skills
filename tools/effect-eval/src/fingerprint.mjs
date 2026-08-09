@@ -98,6 +98,9 @@ export async function treeDigest(root) {
  *
  * @param {string} skillsRoot the workspace's `.claude/skills` directory
  * @returns {Promise<Record<string, string>>} `{}` in the skill-absent condition
+ * @throws {Error} when `skillsRoot` cannot be read for any reason but its
+ *   absence, or when any skill under it cannot be digested. absence alone is
+ *   the skill-absent condition and returns `{}`
  */
 export async function skillDigests(skillsRoot) {
   let entries;
