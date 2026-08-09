@@ -57,10 +57,10 @@ export async function getSession(): Promise<Session | null> {
   try {
     return JSON.parse(raw) as Session;
   } catch {
-    // A value a previous version of the app wrote, or one that is simply
-    // corrupt, is untrusted the same way a credential is — see
-    // data-and-storage.md. Clear it and fall back to signed out rather than
-    // letting it fail the app's launch.
+    // A persisted value that cannot be parsed — whether written by an
+    // older version of the app or simply corrupt — is untrusted. Clear it
+    // and fall back to signed out rather than letting it fail the app's
+    // launch.
     await AsyncStorage.removeItem(STORAGE_KEY);
     return null;
   }
