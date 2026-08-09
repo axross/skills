@@ -527,7 +527,18 @@ describe("report-obligation-burden.mjs", () => {
       // routing bullet for the comment voice code-quality.md now states
       // outright. a routing bullet is not an obligation, so the floor count
       // above is unmoved and only the bytes this figure divides grew.
-      expect.soft(totals.floorTokens).toBe(8_645);
+      // and 32 more in #304, which rewrote the two Delegated Implementation
+      // routing bullets so the first names the barred/undetermined criterion
+      // and the second its consequence, rather than both announcing that a
+      // branch exists. still routing prose outside a Guidelines block, so no
+      // obligation moved and only the bytes this figure divides grew.
+      // and 17 fewer in the same change's pre-flight fix round: the first
+      // bullet had reproduced implementation-worker.md's exact qualifying
+      // phrases instead of naming the criterion as a handle — the detail
+      // leakage progressive-disclosure.md exists to prevent. pointing at the
+      // reference instead of restating it shrank the bullet net of the
+      // growth above, still with no obligation moved.
+      expect.soft(totals.floorTokens).toBe(8_660);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -858,7 +869,12 @@ describe("report-obligation-burden.mjs", () => {
       // and 287 more from #283's Comment Voice section — the five rules the
       // ceiling above counts, plus the two paragraphs that argue why the
       // voice is stated here rather than inferred from the surrounding files.
-      expect.soft(totals.ceilingTokens).toBe(43_404);
+      // and 32 more in #304, the same SKILL.md routing-bullet rewrite noted at
+      // the floor above — no reference file changed, so the ceiling moves by
+      // exactly the floor's own delta.
+      // and 17 fewer in the same change's pre-flight fix round, again exactly
+      // the floor's own delta: no reference file changed there either.
+      expect.soft(totals.ceilingTokens).toBe(43_419);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -942,10 +958,14 @@ describe("report-obligation-burden.mjs", () => {
       // pre-flight review round 1 moved both token figures again, by the
       // same 27-byte SKILL.md tightening noted there, with neither
       // obligation count moving.
+      // #304 moved only the token figures, by the same routing-bullet rewrite
+      // noted at the mandated-set totals above: SKILL.md prose only, so
+      // neither obligation count moves. its own pre-flight fix round moved
+      // both token figures again, by the same 17-token shrink noted there.
       expect.soft(tiers[2].floorObligations).toBe(27);
-      expect.soft(tiers[2].floorTokens).toBe(8_645);
+      expect.soft(tiers[2].floorTokens).toBe(8_660);
       expect.soft(tiers[2].ceilingObligations).toBe(444);
-      expect.soft(tiers[2].ceilingTokens).toBe(43_404);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_419);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
