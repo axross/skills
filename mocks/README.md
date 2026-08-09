@@ -106,9 +106,29 @@ dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
   enforces an order and none is followed file to file. A mock that codified
   one would hand a control run the very convention a case asks about.
 - **The analytics event names are ordinary and mildly inconsistent** —
-  `"post published"`, `"draft saved"`, and `"Site switched"`, the last in a
-  different case from the other two. Two cases measure event naming, so a
-  mock demonstrating a scheme would flatter a control run.
+  `"post published"` and `"draft saved"` fire from the editor, `"Site
+  switched"` from the sidebar's switcher, the last in a different case from
+  the other two. Two cases measure event naming, so a mock demonstrating a
+  scheme would flatter a control run. All three fire from a real call site:
+  a name that existed only in the event type would leave the *exercised*
+  convention perfectly consistent, which is the opposite of what is wanted
+  here.
+- **`identifyAuthor` in `src/lib/analytics.ts` has no caller yet.** It is
+  written, exported and tested, and nothing invokes it, because session
+  handling lives outside this cut of the product and nothing in the SPA knows
+  who the author is — `AGENTS.md` says so in the project's own voice. One case
+  asks which `Identify` operator a user property should use, and it needs a
+  concrete `.set()` call site to point at rather than a live one.
+- **`getPostSaveMutationOptions` writes the saved post into the detail cache
+  and never invalidates the site's post list**, so a draft save leaves the
+  title and timestamp on the list page stale until something else refetches
+  it. One case asks a model what a `useMutation` should invalidate when the
+  list goes stale after it succeeds, and this is that list. It is a gap the
+  project has rather than one planted in it: forgetting the list while
+  remembering the record you just wrote is among the most common real
+  mistakes in this library, and the publish mutation beside it invalidates
+  both — which is what a project looks like when one path was written
+  carefully and its neighbour was not.
 - **Log levels are applied plainly rather than exemplarily**, for the same
   reason: one case is about choosing between `warn` and `info`.
 - **The test suite is mixed in quality.** Coverage is real but not exhaustive

@@ -15,8 +15,9 @@ const SITES: readonly Site[] = [
 
 // The container query in Sidebar.module.css reacts to the sidebar's own box,
 // not the browser viewport, so the two cases below give it a fixed-width
-// wrapper directly rather than resizing the page — see rcs-container-query's
-// substrate note in AGENTS.md for why this behaviour has to stay correct.
+// wrapper directly rather than resizing the page. Resizing the viewport would
+// pass for the wrong reason here and fail the moment the sidebar is rendered
+// anywhere narrower than the window.
 function renderInside(widthPx: number) {
   return render(
     <div style={{ width: `${widthPx}px` }}>

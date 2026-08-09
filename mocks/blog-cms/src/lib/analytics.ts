@@ -42,6 +42,10 @@ export interface AuthorProfile {
   readonly siteCount: number;
 }
 
+// No caller yet: session handling lives outside this cut of the product, so
+// nothing in the SPA knows who the author is. This is where the sign-in flow
+// hands them over when it lands, which is why it is written and tested now
+// rather than left to be invented under time pressure later.
 export function identifyAuthor(author: AuthorProfile): void {
   if (!initialized) return;
   amplitude.setUserId(author.id);
