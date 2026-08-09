@@ -14,11 +14,13 @@ const amplitudeApiKey = process.env.EXPO_PUBLIC_AMPLITUDE_API_KEY;
  * *not* passed: neither `storageProvider` nor `cookieStorage` is set here,
  * so the SDK's own AsyncStorage-backed identity storage is what runs.
  *
- * `trackingSessionEvents` is set explicitly, not left at the SDK default:
- * nothing this app tracks — a screen view, a card graded — is a measure of
- * session length or session count, and no screen in it charts either. Left
- * unset, sessions would still be collected and would just sit unread, so
- * the deliberate choice here is `false`.
+ * `trackingSessionEvents` is set explicitly, not left unset: nothing this
+ * app tracks — a screen view, a card graded — is a measure of session
+ * length or session count, and no screen in it charts either, so a session
+ * event collected here would only ever sit unread. The installed SDK
+ * already defaults to `false` on this platform; writing it out here makes
+ * that a decision this app made on purpose, not an accident that would go
+ * unnoticed if the default ever changed.
  */
 export function initAnalytics(): void {
   if (!amplitudeApiKey) return;
