@@ -118,7 +118,7 @@
 			]
 		},
 		{
-			"message": "fix: show a real screen instead of crashing on a bad deckId",
+			"message": "deck-not-found screen",
 			"files": ["src/decks/deck-not-found.tsx"]
 		},
 		{
