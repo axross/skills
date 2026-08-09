@@ -8,7 +8,7 @@ const logger = rootLogger.child("server");
 
 async function main(): Promise<void> {
   const dbPath =
-    process.env.DATABASE_PATH ?? new URL("./db/data/blog-cms.db", import.meta.url).pathname;
+    process.env.DATABASE_PATH ?? new URL("./db/data/inkwell.db", import.meta.url).pathname;
   const db = createDb(dbPath);
   await seedIfEmpty(db);
 
@@ -16,7 +16,7 @@ async function main(): Promise<void> {
   const port = Number(process.env.PORT ?? 8787);
 
   serve({ fetch: app.fetch, port }, (info) => {
-    logger.info({ port: info.port }, "Started the blog-cms API.");
+    logger.info({ port: info.port }, "Started the inkwell API.");
   });
 }
 

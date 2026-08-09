@@ -8,8 +8,8 @@ import { defineConfig } from "vite";
 // docs/deploy-hooks.md for the pattern this mirrors on the API side.
 const sentryPlugin = process.env.SENTRY_AUTH_TOKEN
   ? sentryVitePlugin({
-      org: process.env.SENTRY_ORG ?? "blog-cms",
-      project: process.env.SENTRY_PROJECT ?? "blog-cms-web",
+      org: process.env.SENTRY_ORG ?? "inkwell",
+      project: process.env.SENTRY_PROJECT ?? "inkwell-web",
       authToken: process.env.SENTRY_AUTH_TOKEN,
       sourcemaps: {
         filesToDeleteAfterUpload: ["dist/**/*.map"],
