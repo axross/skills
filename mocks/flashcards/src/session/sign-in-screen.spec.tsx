@@ -9,6 +9,7 @@ import { InvalidEmailError } from "./session";
 import { SignInScreen } from "./sign-in-screen";
 
 const mockSignIn = jest.fn();
+const mockTrackScreenView = jest.fn();
 
 jest.mock("./session-context", () => ({
   useSession: () => ({
@@ -19,11 +20,22 @@ jest.mock("./session-context", () => ({
   }),
 }));
 
+jest.mock("@/analytics/analytics", () => ({
+  trackScreenView: (...args: unknown[]) => mockTrackScreenView(...args),
+}));
+
 beforeEach(() => {
   mockSignIn.mockReset();
+  mockTrackScreenView.mockReset();
 });
 
 describe("SignInScreen", () => {
+  it("tracks a screen view on mount", async () => {
+    await render(<SignInScreen />);
+
+    expect(mockTrackScreenView).toHaveBeenCalledWith("Sign In");
+  });
+
   it("shows a validation error for a malformed address", async () => {
     mockSignIn.mockRejectedValueOnce(new InvalidEmailError("not-an-email"));
     await render(<SignInScreen />);

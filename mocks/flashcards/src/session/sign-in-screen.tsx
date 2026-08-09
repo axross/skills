@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Redirect } from "expo-router";
 import { Text } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
+import { trackScreenView } from "@/analytics/analytics";
 import { ActionButton } from "@/ui/action-button";
 import { LoadingScreen } from "@/ui/loading-screen";
 import { Screen } from "@/ui/screen";
@@ -16,6 +17,10 @@ export function SignInScreen() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    trackScreenView("Sign In");
+  }, []);
 
   async function handleSubmit() {
     setError(null);
