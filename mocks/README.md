@@ -162,7 +162,7 @@ dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
 None. Every dependency is real and installed, every command in its `README.md`
 resolves, and its four checks pass in a materialized copy.
 
-### `flashcards` — choices made for coverage
+### `recall` — choices made for coverage
 
 - **The commit history is inconsistent in style**, for the same reason
   `content-site`'s is: a tidy log would let a control run copy the
@@ -177,7 +177,7 @@ resolves, and its four checks pass in a materialized copy.
   reason: a probe workspace has no network, and studying needs cards to
   work with from the first run.
 
-### `flashcards` — fixture artifacts
+### `recall` — fixture artifacts
 
 None.
 
