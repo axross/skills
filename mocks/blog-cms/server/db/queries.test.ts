@@ -70,4 +70,35 @@ describe("the sites/posts/revisions schema", () => {
     expect(savedRevisions).toHaveLength(1);
     expect(savedRevisions[0]?.title).toBe("Hello");
   });
+
+  // The publish route depends on this: it writes the snapshot and flips the
+  // post's status inside one transaction, and docs/deploy-hooks.md promises
+  // either both happen or neither does.
+  it("leaves no revision behind when the write it belongs to fails part-way", async () => {
+    const [site] = await db
+      .insert(sites)
+      .values({
+        name: "Acme Blog",
+        slug: "acme",
+        deployHookUrl: "https://hooks.example.invalid/acme",
+      })
+      .returning();
+    if (!site) throw new Error("expected a seeded site");
+    const [post] = await db
+      .insert(posts)
+      .values({ siteId: site.id, title: "Hello", slug: "hello", body: "First post." })
+      .returning();
+    if (!post) throw new Error("expected a seeded post");
+
+    expect(() =>
+      db.transaction((tx) => {
+        tx.insert(revisions).values({ postId: post.id, title: post.title, body: post.body }).run();
+        throw new Error("the status update failed");
+      }),
+    ).toThrow("the status update failed");
+
+    expect(await db.select().from(revisions)).toHaveLength(0);
+    const [unchanged] = await db.select().from(posts).where(eq(posts.id, post.id));
+    expect(unchanged?.status).toBe("draft");
+  });
 });

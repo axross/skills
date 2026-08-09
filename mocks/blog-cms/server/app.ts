@@ -83,12 +83,20 @@ export function createApp(db: Db) {
     const post = await findSitePost(db, site.id, c.req.param("postId"));
     if (!post) return c.json({ error: "Post not found." }, 404);
 
-    await db.insert(revisions).values({ postId: post.id, title: post.title, body: post.body });
-    const [updated] = await db
-      .update(posts)
-      .set({ status: "published", updatedAt: new Date().toISOString() })
-      .where(eq(posts.id, post.id))
-      .returning();
+    // One write, not two: a revision row for a post that never flipped to
+    // published is a snapshot of something the site never served. The
+    // callback is synchronous because this driver is — an async one would let
+    // the transaction commit before the work inside it had finished.
+    const updated = db.transaction((tx) => {
+      tx.insert(revisions).values({ postId: post.id, title: post.title, body: post.body }).run();
+      const [row] = tx
+        .update(posts)
+        .set({ status: "published", updatedAt: new Date().toISOString() })
+        .where(eq(posts.id, post.id))
+        .returning()
+        .all();
+      return row;
+    });
 
     logger.info({ siteSlug: site.slug, postId: post.id }, "Started publishing a post.");
     const deployResult = await triggerDeployHook(site.slug, site.deployHookUrl);

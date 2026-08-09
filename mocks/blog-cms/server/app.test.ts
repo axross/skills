@@ -1,8 +1,9 @@
+import { eq } from "drizzle-orm";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
 import { createDb, type Db } from "./db/client";
-import { posts, sites } from "./db/schema";
+import { posts, revisions, sites } from "./db/schema";
 
 let db: Db;
 let app: ReturnType<typeof createApp>;
@@ -95,5 +96,13 @@ describe("POST /sites/:siteSlug/posts/:postId/publish", () => {
     const body = (await response.json()) as { post: { status: string }; deployTriggered: boolean };
     expect(body.post.status).toBe("published");
     expect(typeof body.deployTriggered).toBe("boolean");
+  });
+
+  it("snapshots the post into a revision as part of the same write", async () => {
+    await app.request("/sites/acme/posts/1/publish", { method: "POST" });
+
+    const rows = await db.select().from(revisions).where(eq(revisions.postId, 1));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.title).toBe("Hello");
   });
 });
