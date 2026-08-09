@@ -1,4 +1,4 @@
-# content-site
+# tsuzuri
 
 A personal blog: a portrait and bio on the home page, and posts underneath.
 Each post can carry more than one translation, and a reader is served
