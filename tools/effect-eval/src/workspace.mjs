@@ -140,6 +140,9 @@ function stripJsonComments(text) {
  *
  * @param {string} raw
  * @returns {Array<{ message: string, files: string[] }>}
+ * @throws {Error} when `raw` is not valid JSON once its comments are stripped,
+ *   when it is not an object with a `commits` array, or when any commit lacks a
+ *   non-empty message or a non-empty `files` array of paths
  */
 function parseHistory(raw) {
   let data;
@@ -186,7 +189,11 @@ async function listFilesRecursively(root, base = root) {
   return files;
 }
 
-/** runs `git`, isolated from the ambient user/system config, and returns stdout. */
+/**
+ * runs `git`, isolated from the ambient user/system config, and returns stdout.
+ *
+ * @throws {Error} when `git` cannot be spawned, or when it exits non-zero
+ */
 function runGit(args, cwd, extraEnv = {}) {
   const result = spawnSync("git", args, {
     cwd,
@@ -234,6 +241,11 @@ function runGit(args, cwd, extraEnv = {}) {
  * pins and fails if the lockfile and `package.json` disagree, which is the
  * property the pin is for. `node_modules` is in the mock's own `.gitignore`,
  * so the workspace's Git tree stays clean and the capture never sees any of it.
+ *
+ * @throws {Error} when `npm` is absent from PATH, or when `npm ci` exits
+ *   non-zero — either way the workspace's dependencies are not installed, and a
+ *   half-prepared workspace would let a probe measure the setup rather than the
+ *   skill
  */
 function installDependencies(workspace) {
   const result = spawnSync("npm", ["ci", "--no-audit", "--no-fund"], {
@@ -359,6 +371,12 @@ function commitEnv(index) {
  *
  * @param {{ mock?: string, skills?: string[] }} [options]
  * @returns {Promise<string>} the materialized workspace's absolute path
+ * @throws {Error} when the mock directory, its history.jsonc, or a named
+ *   installed skill is missing, when history.jsonc is invalid, when it and the
+ *   copied tree do not name exactly the same files, or when replaying it leaves
+ *   the workspace dirty — and, under `install`, whatever the dependency install
+ *   throws. the temporary workspace is removed before any of these propagate,
+ *   so a failed call leaves nothing behind to clean up
  */
 export async function materialize({ mock = DEFAULT_MOCK, skills = [], install = false } = {}) {
   const mockDir = join(MOCKS_ROOT, mock);

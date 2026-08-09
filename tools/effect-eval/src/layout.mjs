@@ -42,6 +42,8 @@ export function caseMeasurementName(caseId, id = newId()) {
  * repetitions of one condition have no ordering — they are not a series — and
  * they are not paired across conditions, so `skill-absent-0` and
  * `skill-present-0` are not two halves of anything. an index would imply both.
+ *
+ * @throws {Error} when `condition` is not one of the known conditions
  */
 export function probeName(condition, id = newId()) {
   if (!CONDITIONS.includes(condition)) {

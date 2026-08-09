@@ -37,6 +37,8 @@ export function changedPaths(patch) {
 /**
  * @param {string} probeDir
  * @param {string} name the directory's own name, which declares the condition
+ * @throws {Error} when any of the probe's files cannot be read, when its
+ *   metadata is not valid JSON, or when `name` declares no condition
  */
 export async function readProbe(probeDir, name) {
   const paths = probePaths(probeDir);
@@ -225,6 +227,10 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
  * @param {string} caseDir
  * @param {{ declaredRepetitions?: number|null }} [options]
  * @returns {Promise<Record<string, unknown>>}
+ * @throws {Error} when `caseDir` cannot be read or holds no probe directories,
+ *   or when any probe in it fails to read or to summarize. a case that reads
+ *   but is not comparable does not throw — `comparable: false` and the failing
+ *   checks are part of the returned summary
  */
 export async function deriveCaseSummary(caseDir, { declaredRepetitions = null } = {}) {
   const entries = await readdir(caseDir, { withFileTypes: true });
