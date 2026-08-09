@@ -130,10 +130,10 @@ describe("setup.mjs", () => {
   // `playwright` and never depends on `@playwright/test`, so a check keyed on
   // the test runner alone reported "no browser needed" for a mock whose own
   // `npm test` cannot run without one. the two assertions below are what make
-  // this a regression test rather than a restatement: blog-cms is recognized,
+  // this a regression test rather than a restatement: inkwell is recognized,
   // AND it is recognized without declaring the package content-site declares.
   it("recognizes a mock that drives a browser through Vitest rather than @playwright/test", async () => {
-    const { result, workspace } = materialize(["--mock", "blog-cms"]);
+    const { result, workspace } = materialize(["--mock", "inkwell"]);
 
     expect(result.code).toBe(0);
     const manifest = JSON.parse(await readFile(join(workspace, "package.json"), "utf8"));

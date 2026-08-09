@@ -1,4 +1,4 @@
-# blog-cms
+# inkwell
 
 A small hosted CMS: an author manages one or more customer sites, works
 through a site's posts, and publishes one. Publishing writes a revision and
@@ -11,7 +11,7 @@ calls the site's deploy hook. See `AGENTS.md` for the shape of the product and
 npm install
 npx playwright install chromium # once per machine — the browser test project needs it
 npm run db:generate # only after changing server/db/schema.ts
-npm run db:migrate # creates/updates server/db/data/blog-cms.db
+npm run db:migrate # creates/updates server/db/data/inkwell.db
 npm run dev:api # in one terminal
 npm run dev # in another
 ```
@@ -34,7 +34,7 @@ against an empty database.
 | `npm run typecheck`    | Type-checks both the SPA and the API/server projects.                                                                                |
 | `npm test`             | Runs the Vitest suite: the Node project (SPA logic, the API, `shared/`) and the browser project (real-DOM component tests) together. |
 | `npm run db:generate`  | Generates a SQL migration from `server/db/schema.ts` into `server/db/migrations/`.                                                   |
-| `npm run db:migrate`   | Applies pending migrations to the SQLite file at `DATABASE_PATH` (default `server/db/data/blog-cms.db`).                             |
+| `npm run db:migrate`   | Applies pending migrations to the SQLite file at `DATABASE_PATH` (default `server/db/data/inkwell.db`).                              |
 
 ## Layout
 

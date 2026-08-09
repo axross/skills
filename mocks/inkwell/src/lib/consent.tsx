@@ -3,7 +3,7 @@ import { initAnalytics } from "./analytics";
 
 export type ConsentStatus = "unknown" | "granted" | "denied";
 
-const STORAGE_KEY = "blog-cms:consent";
+const STORAGE_KEY = "inkwell:consent";
 
 interface ConsentContextValue {
   readonly status: ConsentStatus;
