@@ -59,6 +59,8 @@ export const SCRIPTS = {
   effectEvalCheckMode: ".github/scripts/effect-eval-check-mode.mjs",
   effectEvalProbePlan: ".github/scripts/effect-eval-probe-plan.mjs",
   effectEvalLandingPlan: ".github/scripts/effect-eval-landing-plan.mjs",
+  discoveryEvalEvaluate: "tools/discovery-eval/evaluate.mjs",
+  discoveryEvalSummarize: "tools/discovery-eval/summarize.mjs",
 };
 
 /**
