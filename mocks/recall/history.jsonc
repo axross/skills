@@ -1,0 +1,188 @@
+// history.jsonc — the commit history tools/lib/mock-workspace.mjs replays
+// into a real Git repository when it expands this mock.
+//
+// This file is fixture metadata, not part of the project: mock-workspace.mjs
+// omits it from the materialized tree, and nothing under app/, src/, or
+// elsewhere in this mock ever imports or reads it.
+//
+// Each entry becomes one commit, in array order (oldest first): its `files`
+// are staged from the already-copied working tree and committed with its
+// `message`, under a pinned author/committer identity and a pinned,
+// per-commit date — see mock-workspace.mjs for why those are pinned. Every
+// file this mock ships appears in exactly one entry's `files`, so
+// materializing replays the whole tree and leaves nothing uncommitted.
+//
+// The messages are DELIBERATELY inconsistent in style — a real mix of
+// terse notes, vague one-liners, and the occasional well-formed one —
+// rather than a clean, uniform log, for the same reason `content-site`'s
+// own history.jsonc gives: a tidy history here would let a model copy that
+// convention from context, and this project's history should not hint at
+// how the pilot expects generated commits to look.
+//
+// Not formatted by Prettier — see .prettierignore's note by its own entry
+// for this file: Prettier's jsonc parser would add trailing commas this
+// file's own reader cannot parse.
+{
+	"commits": [
+		{
+			"message": "Initial commit",
+			"files": [
+				"package.json",
+				"package-lock.json",
+				".gitignore",
+				"tsconfig.json",
+				"babel.config.js",
+				"app.config.ts"
+			]
+		},
+		{
+			"message": "tooling",
+			"files": [".prettierrc.json", ".prettierignore", "eslint.config.js"]
+		},
+		{
+			"message": "wire up jest",
+			"files": ["jest.config.js", "jest.setup.js"]
+		},
+		{
+			"message": "theme",
+			"files": ["src/theme/theme.ts"]
+		},
+		{
+			"message": "scheduler",
+			"files": ["src/scheduler/scheduler.ts", "src/scheduler/scheduler.spec.ts"]
+		},
+		{
+			"message": "misc ui bits",
+			"files": ["src/ui/screen.tsx", "src/ui/loading-screen.tsx"]
+		},
+		{
+			"message": "feat(ui): add the shared action button, and the header row that needed it",
+			"files": [
+				"src/ui/action-button.tsx",
+				"src/ui/action-button.spec.tsx",
+				"src/ui/screen-header.tsx"
+			]
+		},
+		{
+			"message": "text field",
+			"files": ["src/ui/text-field.tsx", "src/ui/text-field.spec.tsx"]
+		},
+		{
+			"message": "WIP",
+			"files": ["src/analytics/analytics.ts", "src/analytics/analytics.spec.ts"]
+		},
+		{
+			"message": "local session store",
+			"files": ["src/session/session.ts", "src/session/session.spec.ts"]
+		},
+		{
+			"message": "session context",
+			"files": [
+				"src/session/session-context.tsx",
+				"src/session/session-context.spec.tsx"
+			]
+		},
+		{
+			"message": "sign-in screen",
+			"files": [
+				"src/session/sign-in-screen.tsx",
+				"src/session/sign-in-screen.spec.tsx",
+				"app/sign-in.tsx"
+			]
+		},
+		{
+			"message": "root layout + auth redirect",
+			"files": [
+				"src/session/authenticated-layout.tsx",
+				"app/(app)/_layout.tsx",
+				"app/_layout.tsx"
+			]
+		},
+		{
+			"message": "deck model",
+			"files": ["src/decks/deck.ts", "src/decks/deck.spec.ts"]
+		},
+		{
+			"message": "deckId parsing",
+			"files": ["src/decks/deck-id.ts", "src/decks/deck-id.spec.ts"]
+		},
+		{
+			"message": "seed data",
+			"files": ["src/decks/seed-decks.ts", "src/decks/seed-decks.spec.ts"]
+		},
+		{
+			"message": "deck repository",
+			"files": [
+				"src/decks/deck-repository.ts",
+				"src/decks/deck-repository.spec.ts"
+			]
+		},
+		{
+			"message": "deck-not-found screen",
+			"files": [
+				"src/decks/deck-not-found.tsx",
+				"src/decks/deck-load-error.tsx"
+			]
+		},
+		{
+			"message": "share deck loading between screens",
+			"files": [
+				"src/decks/use-deck-by-route-param.ts",
+				"src/decks/use-deck-by-route-param.spec.ts"
+			]
+		},
+		{
+			"message": "deck list",
+			"files": [
+				"src/decks/deck-list-screen.tsx",
+				"src/decks/deck-list-screen.spec.tsx",
+				"app/(app)/index.tsx"
+			]
+		},
+		{
+			"message": "deck detail screen",
+			"files": [
+				"src/decks/deck-detail-screen.tsx",
+				"app/(app)/decks/[deckId]/index.tsx"
+			]
+		},
+		{
+			"message": "study session",
+			"files": [
+				"src/study/swipe-card.tsx",
+				"src/study/swipe-card.spec.tsx",
+				"src/study/study-screen.tsx",
+				"src/study/study-screen.spec.tsx",
+				"app/(app)/decks/[deckId]/study.tsx"
+			]
+		},
+		{
+			"message": "camera capture",
+			"files": ["src/cards/photo-capture.tsx", "src/cards/photo-capture.spec.tsx"]
+		},
+		{
+			"message": "add card form",
+			"files": [
+				"src/cards/new-card-screen.tsx",
+				"src/cards/new-card-screen.spec.tsx",
+				"app/(app)/decks/[deckId]/new-card.tsx"
+			]
+		},
+		{
+			"message": "Settings screen",
+			"files": [
+				"src/settings/settings-screen.tsx",
+				"src/settings/settings-screen.spec.tsx",
+				"app/(app)/settings.tsx"
+			]
+		},
+		{
+			"message": "ci: add workflow",
+			"files": [".github/workflows/ci.yml"]
+		},
+		{
+			"message": "docs",
+			"files": ["AGENTS.md", "CLAUDE.md", "README.md", ".env.example"]
+		}
+	]
+}
