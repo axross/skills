@@ -1,0 +1,29 @@
+.banner {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border: 1px solid #dfe3ea;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(20, 24, 34, 0.12);
+  padding: 1rem 1.25rem;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.copy {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #3a4150;
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
