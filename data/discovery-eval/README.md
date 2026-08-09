@@ -1,0 +1,98 @@
+# Skill discovery evaluation — measurements
+
+What the skill discovery evaluation has measured, and the declared cases it
+measures. The instrument that writes all of this lives in
+[`tools/discovery-eval/`](../../tools/discovery-eval/README.md).
+
+## Three kinds of file, three rules
+
+Measured, declared, and derived data are kept in separate files, because they
+answer different questions when something goes wrong.
+
+| Kind         | Files                | Rule                                                                     |
+| ------------ | -------------------- | ------------------------------------------------------------------------ |
+| **measured** | `transcript.jsonl`   | Never regenerated. Re-acquiring it costs a paid probe.                   |
+| **declared** | `metadata.json`      | What was set. The CLI argv is derived from it, never recorded beside it. |
+| **derived**  | every `summary.json` | Regenerable. A drift check re-derives and fails on a mismatch.           |
+
+A file in the wrong category is the failure this split exists to prevent: a
+derived value stored as measured is a value nothing can check, and a measured
+value treated as derived is one something will cheerfully regenerate as
+empty.
+
+```text
+data/discovery-eval/
+  fixture.json                  declared — the cases
+  summary.json                  derived — one entry per measurement, across all of them
+  measurements/
+    <case-id>-<id>/
+      summary.json              derived
+      probe-<id>/
+        metadata.json           declared
+        transcript.jsonl        measured — verbatim, redacted
+```
+
+`<id>` is eight random hex digits. Repeats of one case have no ordering — they
+are not a series — so an index would imply one; a random id implies none.
+
+No `changes.patch` appears under a probe directory. A discovery probe's tools
+are always `Read`, `Glob`, `Grep` and `Skill` at most (`tools/discovery-eval`'s
+own README has the full posture), so a probe never edits the workspace and
+produces no artifact to capture.
+
+## There is no baseline
+
+[`tools/discovery-eval/summarize.mjs`](../../tools/discovery-eval/summarize.mjs)
+derives `summary.json` across every directory under `measurements/` and
+regenerates it from that directory alone — nothing here is a stored
+conclusion a later run is compared against. With no measurements present the
+derivation is the empty-but-valid document
+`{ "measurementCount": 0, "comparableCount": 0, "measurements": [] }`, which
+is exactly what is committed in this tree today. `measurements/.gitkeep`
+holds the directory until the first real measurement lands beside it and can
+be removed then.
+
+A measurement's delta — whether it agrees with its most recent comparable
+predecessor — is derived the same way, by looking at the case's other
+committed measurements. There is no re-record ritual and no `unmeasured`
+declaration to clear: a case with no measurement yet simply has no directory
+under `measurements/`, and a case with no comparable prior measurement yet
+reports the condition that made none comparable rather than a delta.
+
+## Regenerating, and the drift check
+
+```sh
+node tools/discovery-eval/summarize.mjs           # derive and write every summary
+node tools/discovery-eval/summarize.mjs --check   # derive and compare; write nothing
+```
+
+`--check` is the drift check. It runs in this repository's test suite over
+every committed measurement, re-deriving each `summary.json` (including the
+root one) from the measured and declared files beside it and failing on any
+byte difference.
+
+Both derived surfaces are covered by `.prettierignore`'s generic
+`data/*/summary.json` and `data/*/measurements/**` entries — the bytes come
+from exactly one serializer (`tools/discovery-eval/src/layout.mjs`'s
+`canonicalJson`), and a second formatter with an opinion about them would make
+the drift check fail against a file this instrument never wrote.
+
+## `capUsd` and `unmeasuredProbeCostCeilingUsd`
+
+Both bound spending, and they bound different things — the same split
+[`data/effect-eval/README.md`](../effect-eval/README.md) documents for its own
+instrument. `capUsd` is a case's real budget: a dispatch may lower it and may
+not raise it, because the fixture is reviewed and committed where a dispatch
+input is typed into a form. `unmeasuredProbeCostCeilingUsd` is not a budget at
+all — it is the per-probe figure admission projects from for a case nothing
+has measured yet, and it is read on no other occasion; the first comparable
+measurement supersedes it permanently for that case.
+
+## What is committed here
+
+Three cases seed `fixture.json` today, chosen to exercise every schema
+branch this instrument reads: a situated case hosted by `inkwell`, a bare case
+with no `mock`, and a situated wiring case measuring the mandated population.
+No measurement has been taken yet — `measurements/` holds only `.gitkeep` —
+so the first paid dispatch is a separate, later step, and the full 59-case
+fixture this instrument is built to carry is written in that same step.

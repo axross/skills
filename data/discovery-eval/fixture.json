@@ -1,0 +1,41 @@
+{
+  "capUsd": 40,
+  "unmeasuredProbeCostCeilingUsd": 0.35,
+  "cases": [
+    {
+      "id": "invalidate-a-stale-list-after-a-write",
+      "mock": "inkwell",
+      "population": "discovered",
+      "repeats": 2,
+      "prompt": "Saving a draft leaves the title and timestamp on the post list stale until something else refetches it.",
+      "mustInclude": ["tanstack-query-development"],
+      "mustExclude": ["next-app-development"],
+      "mayInclude": [],
+      "rationale": "The save path writes the record it just saved into the detail cache and never invalidates the site's post list, so the list page keeps showing the old title. That is a cache-invalidation question about the server-state library the project actually uses. A framework caching skill is the wrong reach here: this project has no such framework, so selecting one means the model routed on the symptom's shape rather than on what it read."
+    },
+    {
+      "id": "tighten-a-skill-description-without-losing-routing",
+      "population": "discovered",
+      "repeats": 2,
+      "prompt": "I want to cut this SKILL.md's body down. How do I keep its description routing to it afterwards?",
+      "mustInclude": ["agent-skill-authoring"],
+      "mustExclude": ["agent-skill-management"],
+      "mayInclude": [],
+      "rationale": "Bare, because situating removes the substrate: a mock project deliberately holds no SKILL.md files, so there is nothing to open. Being bare, the prompt states its subject rather than only a symptom. Authoring owns what a description has to say; management owns where a skill's source lives and how it is installed, which is a different question."
+    },
+    {
+      "id": "agree-a-plan-before-writing-code",
+      "mock": "tsuzuri",
+      "population": "mandated",
+      "repeats": 2,
+      "prompt": "I'm picking up a change in this project. What should I do before I start writing code?",
+      "mustInclude": ["loop-engineering"],
+      "mustExclude": [],
+      "mayInclude": [
+        "software-development",
+        "product-requirement-document-authoring"
+      ],
+      "rationale": "A wiring case rather than a discovery case. This project's own instructions describe a plan-first, reviewed-by-another process in its own words and name no skill, so the question is whether that generic language is enough for the change-loop skill to surface. The mandated population is reported separately for exactly this reason: a real consumer names this skill outright, so a shortfall here is a statement about wiring, not about the description."
+    }
+  ]
+}

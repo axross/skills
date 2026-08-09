@@ -1,0 +1,199 @@
+# Skill discovery evaluation — the instrument
+
+Measures whether a prompt actually surfaces the right skill, **in situ**: each
+case is asked inside a materialized mock project, with the whole skill corpus
+competing and the project's own `AGENTS.md` present. It measures; it never
+judges. The measurements it writes live in
+[`data/discovery-eval/`](../../data/discovery-eval/README.md).
+
+## It never gates
+
+Not in `npm run check`, not in `merge-checks.yaml`, not a required check, not
+in any hook. It is non-deterministic, it costs real money per run, and — for
+head evaluation — it needs a secret that fork pull requests do not receive.
+`tests/repository/reporting-tools.test.mjs` keeps it out of the enforced set
+on purpose, so wiring it in has to be a deliberate act.
+
+What `npm test` _does_ run is the drift check over
+[`data/discovery-eval/`](../../data/discovery-eval/README.md) — a
+deterministic re-derivation from committed files, offline, with no model
+call. That is a check on the instrument's own bookkeeping, not on a
+measurement's verdict, and it is the one thing here that can legitimately
+fail a merge.
+
+## Two entry points, one process each
+
+```sh
+node tools/discovery-eval/evaluate.mjs  --case <id> --out <dir> [--repeats <n>] [--dry-run]
+node tools/discovery-eval/evaluate.mjs  --case <id> --head-skills <dir> [--head-sha <sha>]
+node tools/discovery-eval/summarize.mjs [--check]
+```
+
+| Command         | Does                                                                                                                                                                   |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `evaluate.mjs`  | Resolves one case, prepares its probe workspace, runs its declared repeats serially, writes one probe record per repeat.                                               |
+| `summarize.mjs` | Derives the per-measurement and repository-wide summaries, the delta against each measurement's predecessor, and enforces the within-measurement comparability checks. |
+
+Two, not three. `tools/effect-eval` splits `setup.mjs` from `evaluate.mjs`
+because its probes fan out across separate runners under two conditions.
+Discovery has one condition, so preparing a case's workspace and probing it
+happen in one process — a case's repeats run serially against the one
+workspace they share, which is what keeps a warm cache from being paid for
+twice. `summarize.mjs` stays separate because its derivation has two
+independent callers: the landing job (a later part of this issue), which
+derives after a dispatch finishes and before it commits, and the drift check,
+which re-derives a _committed_ summary and compares bytes.
+
+## Two probe modes, and a single dispatch may not mix them
+
+|                    | situated                                                                        | bare                                                          |
+| ------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| workspace          | a materialized mock, the whole skill corpus installed                           | a scratch directory holding `.claude/skills` and nothing else |
+| turns              | a runaway guard (`src/plan.mjs`'s `PROVISIONAL_SITUATED_TURN_CAP`, provisional) | 1                                                             |
+| tools permitted    | `Read`, `Glob`, `Grep`, `Skill`                                                 | `Skill`                                                       |
+| may hold head text | no                                                                              | yes                                                           |
+| recorded           | yes                                                                             | yes, except under `--head-skills`                             |
+
+A case declaring a `mock` runs situated; a case declaring none runs bare,
+because situating would remove the very thing its prompt is about (a mock
+project deliberately holds no `SKILL.md` files, so a case about authoring one
+has nothing to read once situated). A situated workspace never runs
+`npm ci` — the editing and shell tools are always denied, so nothing a probe
+does can depend on a dependency being installed.
+
+**`--head-skills` forces bare mode and refuses to record.** Staging a pull
+request's head `SKILL.md` text as prompt content is safe only because the
+model that reads it can then do nothing filesystem-shaped — a bare workspace
+holds no project and permits only `Skill`. A situated workspace holds exactly
+the capability (`Read`/`Glob`/`Grep` over a real project) that bound removes,
+so the two may never meet in one dispatch: a case declaring a `mock` runs bare
+under `--head-skills` regardless, and combining `--head-skills` with `--out` —
+a request to persist the run as a case measurement — is refused with a
+non-zero exit rather than documented as a caution. It reports to a caller
+(stdout, and eventually a pull request comment); it records nothing.
+
+## The fingerprint covers `description` only
+
+Discovery reads one frontmatter field — `description` — so
+[`src/fingerprint.mjs`](./src/fingerprint.mjs) digests only that, per skill,
+rather than a skill's whole installed tree the way
+[`tools/effect-eval/src/fingerprint.mjs`](../effect-eval/src/fingerprint.mjs)
+does for its own question. A skill's body can change without invalidating a
+discovery measurement, because the body is not what selects it. The project
+tree digest _does_ follow the effect side's shape — `sha256` over sorted
+`path\0mode\0sha256(content)` lines, `.git/`, `node_modules/` and
+`.claude/skills/` excluded — because nothing about what makes two project
+trees comparable is specific to either evaluation.
+
+## The per-probe signal set
+
+[`src/signals.mjs`](./src/signals.mjs) reads a transcript deterministically —
+no model judges anything — and reports each probe's turn count, the CLI's
+terminal reason (`success` or `error_max_turns`), and the paths it read,
+globbed or grepped **before** its first `Skill` selection. That is what lets a
+reader tell a finding from a failed exploration: two probes that both miss a
+`mustInclude` skill read very differently if one read straight to the file
+that names the defect and the other read only `README.md`.
+
+A probe terminating on `error_max_turns` is marked **unreadable**, not counted
+as a selection of nothing — the runaway guard binding means the model was
+still working when the CLI cut it off, and `selectedSkills` is `null` on that
+probe rather than `[]`. `src/summary.mjs`'s verdict tally excludes an
+unreadable probe from both the numerator and the denominator of every rate it
+computes.
+
+## Comparability has two scopes
+
+**Within one measurement** — `src/summary.mjs`'s `runComparabilityChecks` —
+probes that ran under different conditions (a different project tree, a
+different installed corpus, a different loaded skill set) are not a
+measurement of anything. A failure here is a hard finding: `comparable` goes
+`false`, named with the disagreement, and a later landing job refuses to
+commit the measurement.
+
+**Across measurements of the same case** — `findComparablePredecessor` /
+`deriveDelta` — a new measurement looks back through that case's other
+committed measurements for the most recent one sharing the same prompt, the
+same model, the same project tree, and the same `description` digest **for
+the skills that case tracks** (its `mustInclude` and `mustExclude` union, not
+its whole corpus). Editing an unrelated skill's description no longer
+degrades a case that never tracked it. Where no comparable predecessor
+exists, the delta reports the condition that failed — the most recent prior's
+specific mismatch, or "no prior measurement of this case exists yet" — rather
+than suppressing the comparison or leaving it absent.
+
+## Verdicts, unchanged
+
+`MISS` at zero hits and `SPURIOUS` above half carry over unchanged from
+`scripts/discovery-eval/compare.mjs`'s asymmetric rule — a `mustInclude`
+skill selected even once is demonstrably reachable, so only zero hits is a
+miss; a `mustExclude` skill is a defect only once it clears half the readable
+repeats, so one stray selection is never reported as one. The coverage line
+for a case naming two or more `mustInclude` skills carries over with them.
+Both are derived at summarize time from stored counts, never stored
+themselves — revising either rule is a re-derivation over data already paid
+for.
+
+`expectAlways` does not return. The one skill it named is a mandated skill,
+and the fixture's `population: "mandated"` cases now ask that question on
+their own, reported separately from the `discovered` population so no
+headline number mixes wiring with routing.
+
+## What does not carry over from `scripts/discovery-eval/`
+
+The posterior-predictive band, the 5% benchmark, a `--determinism` mode, and
+snapshot emission. `compare.mjs` refused to choose those tuned constants
+"before the determinism probe has measured this corpus's noise floor" since
+it was written, and that probe never ran. Because every probe's transcript is
+stored verbatim, a determinism question is a derivation over committed
+records rather than a second dispatch mode — measure one case at high
+repeats, then compute the interval offline from data already paid for.
+
+## The path allowlist and the credential filter
+
+[`src/head-overlay.mjs`](./src/head-overlay.mjs) carries
+`scripts/discovery-eval/overlay.mjs`'s allowlist over whole: only
+`.agents/skills/<kebab-name>/SKILL.md` may be staged, traversal and absolute
+paths and backslashes are rejected, size is capped in bytes (matching
+`check-skill-frontmatter.mjs`'s own cap on `description`), and every
+destination is derived from the diff path rather than from any `name:` field
+inside the head file. Read that module closely — it is a security boundary
+and its reasoning is in its own comments.
+
+The credential filter travels with it through
+[`tools/lib/credentials.mjs`](../lib/credentials.mjs): `src/spawn.mjs`'s
+`runProbe` strips the subprocess environment for every probe, bare, situated
+and head alike, and `evaluate.mjs` redacts every transcript by value before
+writing it, refusing rather than writing anything a credential shape survives.
+
+## Running it without spending anything
+
+`evaluate.mjs --dry-run` materializes a real workspace (offline — no
+`npm ci`, no network), takes a real fingerprint, builds the real argv per
+repeat, and writes each probe record with a synthetic transcript, spawning
+nothing. Run with no `--case`, `--dry-run` instead previews every case in the
+fixture — mode, tools, turns and the projected admission decision — without
+materializing anything. Every bundled test stays on one of these two paths:
+nothing in `tests/discovery-eval/` spawns the CLI or reaches the network.
+
+## Admission binds by refusal, before the spend
+
+[`src/admission.mjs`](./src/admission.mjs) mirrors the effect side's:
+projecting from committed measurements where they exist and from the
+fixture's `unmeasuredProbeCostCeilingUsd` where they do not, and refusing a
+real run before any probe is spawned rather than after. A refusal is a
+finding, not a prompt to raise the cap. See
+[`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) for
+`capUsd` and `unmeasuredProbeCostCeilingUsd`'s full contract.
+
+## What `tools/lib` holds, and what stays here
+
+`tools/lib/credentials.mjs`, `tools/lib/mock-workspace.mjs` and
+`tools/lib/transcript/` are shared because they are shaped by the operating
+system, the CLI's `stream-json` format, and materializing a mock project —
+none of which either evaluation owns. The own/colliding/foreign loaded-skill
+classification (`src/isolation.mjs`) does **not** move there: the effect side
+reads `loadedSkills` only to assert set equality across probes and never
+asks whether a name is own, foreign or colliding, so a second consumer
+proved nothing about that classification being shared. Cross-measurement
+comparability likewise stays here — discovery is its first and only consumer.
