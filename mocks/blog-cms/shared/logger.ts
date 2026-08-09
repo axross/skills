@@ -3,10 +3,11 @@
 // enough that a transport-backed logger (pino, winston) would be more
 // configuration than payoff, and the SPA can't use one of those at all.
 //
-// `debug` and `info` stay quiet in production so they don't drown out the
-// lines that matter; `warn` and `error` always print. There is no dedicated
-// error tracker on the API side, so `logger.error()` is this module's
-// sanctioned channel for a failure nothing else reports — see deploy-hook.ts.
+// The threshold comes from LOG_LEVEL and falls back to "info", which drops
+// `debug` and nothing else — `info`, `warn` and `error` all print until
+// someone raises it. There is no dedicated error tracker on the API side, so
+// `logger.error()` is this module's sanctioned channel for a failure nothing
+// else reports — see deploy-hook.ts.
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
 
