@@ -110,12 +110,12 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing(1.5),
   },
   camera: {
-    height: 220,
+    height: theme.sizing.mediaHeight,
     borderRadius: theme.radius.md,
     overflow: "hidden",
   },
   preview: {
-    height: 220,
+    height: theme.sizing.mediaHeight,
     borderRadius: theme.radius.md,
   },
   hint: {

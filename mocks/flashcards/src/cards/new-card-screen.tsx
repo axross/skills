@@ -5,10 +5,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Text } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
-import type { Deck } from "@/decks/deck";
 import { normalizeDeckId } from "@/decks/deck-id";
 import { DeckNotFound } from "@/decks/deck-not-found";
-import { addCard, getDeck } from "@/decks/deck-repository";
+import { addCard } from "@/decks/deck-repository";
+import { useDeckByRouteParam } from "@/decks/use-deck-by-route-param";
 import { trackScreenView } from "@/analytics/analytics";
 import { ActionButton } from "@/ui/action-button";
 import { LoadingScreen } from "@/ui/loading-screen";
@@ -23,7 +23,7 @@ export function NewCardScreen() {
   const router = useRouter();
   const deckId = normalizeDeckId(params.deckId);
 
-  const [deck, setDeck] = useState<Deck | null | undefined>(undefined);
+  const { deck, status } = useDeckByRouteParam(deckId);
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
   const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
@@ -32,33 +32,15 @@ export function NewCardScreen() {
   const [permission, requestPermission] = useCameraPermissions();
 
   useEffect(() => {
-    if (deckId === null) {
-      return;
-    }
-
-    let cancelled = false;
-    getDeck(deckId).then((found) => {
-      if (!cancelled) setDeck(found ?? null);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [deckId]);
-
-  useEffect(() => {
     trackScreenView("Add Card");
   }, []);
 
-  if (deckId === null) {
+  if (deckId === null || status === "not-found") {
     return <DeckNotFound />;
   }
 
-  if (deck === undefined) {
+  if (!deck) {
     return <LoadingScreen />;
-  }
-
-  if (deck === null) {
-    return <DeckNotFound />;
   }
 
   const currentDeckId = deckId;

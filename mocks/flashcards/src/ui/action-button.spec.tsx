@@ -38,4 +38,23 @@ describe("ActionButton", () => {
       });
     },
   );
+
+  it("tracks focus so a focus-ring variant has something to key off", async () => {
+    await render(
+      <ActionButton
+        label="Recalled"
+        onPress={() => {}}
+        testID="grade-button"
+      />,
+    );
+    const button = screen.getByTestId("grade-button");
+
+    // The Unistyles Jest mock strips variant styles entirely (see
+    // react-native-unistyles/mocks), so the focus ring's colour is not
+    // observable here — only on a real render. What this pins is the
+    // component-side half: focus and blur fire without throwing, so
+    // neither handler is dropped in the style-array-to-variant merge.
+    await fireEvent(button, "focus");
+    await fireEvent(button, "blur");
+  });
 });

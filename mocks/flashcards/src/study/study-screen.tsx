@@ -4,11 +4,11 @@ import { Text, View } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
 import { trackCardGraded, trackScreenView } from "@/analytics/analytics";
-import type { Card, Deck } from "@/decks/deck";
 import { dueCards } from "@/decks/deck";
 import { normalizeDeckId } from "@/decks/deck-id";
 import { DeckNotFound } from "@/decks/deck-not-found";
-import { getDeck, gradeCard } from "@/decks/deck-repository";
+import { gradeCard } from "@/decks/deck-repository";
+import { useDeckByRouteParam } from "@/decks/use-deck-by-route-param";
 import type { Grade } from "@/scheduler/scheduler";
 import { ActionButton } from "@/ui/action-button";
 import { LoadingScreen } from "@/ui/loading-screen";
@@ -22,45 +22,35 @@ export function StudyScreen() {
   const router = useRouter();
   const deckId = normalizeDeckId(params.deckId);
 
-  const [deck, setDeck] = useState<Deck | null | undefined>(undefined);
-  const [queue, setQueue] = useState<Card[]>([]);
+  const { deck, status } = useDeckByRouteParam(deckId);
+  // Captured once at mount, same as the queue it seeds below, rather than
+  // re-read every render.
+  const [now] = useState(() => Date.now());
+  // Which due cards this session has already graded. The queue is filtered
+  // by this rather than held as its own separately-updated array, so it
+  // stays a value derived from `deck` during render instead of a second
+  // piece of state a render could see out of sync with the first.
+  const [gradedCardIds, setGradedCardIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    if (deckId === null) {
-      return;
-    }
-
-    let cancelled = false;
-    getDeck(deckId).then((found) => {
-      if (cancelled) return;
-      setDeck(found ?? null);
-      if (found) {
-        setQueue(dueCards(found, Date.now()));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [deckId]);
 
   useEffect(() => {
     trackScreenView("Study");
   }, []);
 
-  if (deckId === null) {
+  if (deckId === null || status === "not-found") {
     return <DeckNotFound />;
   }
 
-  if (deck === undefined) {
+  if (!deck) {
     return <LoadingScreen />;
   }
 
-  if (deck === null) {
-    return <DeckNotFound />;
-  }
-
   const currentDeckId = deckId;
+  const queue = dueCards(deck, now).filter(
+    (card) => !gradedCardIds.has(card.id),
+  );
 
   async function handleGrade(grade: Grade) {
     const current = queue[0];
@@ -68,7 +58,7 @@ export function StudyScreen() {
 
     await gradeCard(currentDeckId, current.id, grade, Date.now());
     trackCardGraded({ deckId: currentDeckId, grade });
-    setQueue((prev) => prev.slice(1));
+    setGradedCardIds((prev) => new Set(prev).add(current.id));
     setRevealed(false);
   }
 

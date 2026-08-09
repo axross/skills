@@ -9,49 +9,31 @@ import { LoadingScreen } from "@/ui/loading-screen";
 import { Screen } from "@/ui/screen";
 import { ScreenHeader } from "@/ui/screen-header";
 
-import { dueCount, type Deck } from "./deck";
+import { dueCount } from "./deck";
 import { normalizeDeckId } from "./deck-id";
 import { DeckNotFound } from "./deck-not-found";
-import { getDeck } from "./deck-repository";
+import { useDeckByRouteParam } from "./use-deck-by-route-param";
 
 export function DeckDetailScreen() {
   const params = useLocalSearchParams<{ deckId?: string }>();
   const router = useRouter();
   const deckId = normalizeDeckId(params.deckId);
 
-  const [deck, setDeck] = useState<Deck | null | undefined>(undefined);
-  const [now, setNow] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    if (deckId === null) {
-      return;
-    }
-
-    let cancelled = false;
-    getDeck(deckId).then((found) => {
-      if (cancelled) return;
-      setDeck(found ?? null);
-      setNow(Date.now());
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [deckId]);
+  const { deck, status } = useDeckByRouteParam(deckId);
+  // Captured once at mount rather than re-read every render, so the due
+  // count shown does not creep forward while this screen stays mounted.
+  const [now] = useState(() => Date.now());
 
   useEffect(() => {
     trackScreenView("Deck Detail");
   }, []);
 
-  if (deckId === null) {
+  if (status === "not-found") {
     return <DeckNotFound />;
   }
 
-  if (deck === undefined || now === undefined) {
+  if (!deck) {
     return <LoadingScreen />;
-  }
-
-  if (deck === null) {
-    return <DeckNotFound />;
   }
 
   const due = dueCount(deck, now);

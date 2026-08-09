@@ -17,10 +17,20 @@ const radius = {
 
 const spacing = (steps: number) => steps * 8;
 
+const sizing = {
+  /**
+   * The height of a full-bleed media surface: the study card's face and the
+   * add-card screen's camera preview and photo thumbnail all share it, so a
+   * future one has a value to match rather than a new number to invent.
+   */
+  mediaHeight: 220,
+} as const;
+
 const shared = {
   typography,
   radius,
   spacing,
+  sizing,
 } as const;
 
 const light = {

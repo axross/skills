@@ -88,7 +88,7 @@ const styles = StyleSheet.create((theme) => ({
     borderWidth: 1,
     borderColor: theme.colors.border,
     padding: theme.spacing(4),
-    minHeight: 220,
+    minHeight: theme.sizing.mediaHeight,
   },
   face: {
     flex: 1,

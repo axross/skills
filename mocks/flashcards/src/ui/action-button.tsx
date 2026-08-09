@@ -30,7 +30,7 @@ export function ActionButton({
 }: ActionButtonProps) {
   const [isFocused, setIsFocused] = useState(false);
 
-  styles.useVariants({ kind });
+  styles.useVariants({ kind, focused: isFocused });
 
   return (
     <Pressable
@@ -40,7 +40,7 @@ export function ActionButton({
       onPress={onPress}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
-      style={[styles.button, isFocused && styles.buttonFocused, style]}
+      style={[styles.button, style]}
     >
       <Text style={styles.label}>{label}</Text>
     </Pressable>
@@ -66,11 +66,16 @@ const styles = StyleSheet.create((theme) => ({
         },
         destructive: { backgroundColor: theme.colors.negative },
         positive: { backgroundColor: theme.colors.positive },
+        default: { backgroundColor: theme.colors.accent },
+      },
+      // Declared after `kind` so a focused button's border colour wins over
+      // `secondary`'s — variant groups apply in this object's key order.
+      focused: {
+        true: { borderColor: theme.colors.focusRing },
+        false: {},
+        default: {},
       },
     },
-  },
-  buttonFocused: {
-    borderColor: theme.colors.focusRing,
   },
   label: {
     ...theme.typography.label,
@@ -80,6 +85,7 @@ const styles = StyleSheet.create((theme) => ({
         secondary: { color: theme.colors.text },
         destructive: { color: theme.colors.onAccent },
         positive: { color: theme.colors.onAccent },
+        default: { color: theme.colors.onAccent },
       },
     },
   },
