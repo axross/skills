@@ -96,3 +96,27 @@ Not on either list, and therefore bugs if you find them: unresolved imports,
 checks that do not pass, framework APIs used incorrectly, or anything the
 mock's own `npm run lint`, `npm run typecheck`, `npm test`, and
 `npm run test:e2e` would reject.
+
+### `flashcards` — choices made for coverage
+
+- **The commit history is inconsistent in style**, for the same reason
+  `content-site`'s is: a tidy log would let a control run copy the
+  convention out of context.
+- **Sign-in is a local stub against no backend.** It accepts any
+  well-formed email address and issues a local account id, persisted on the
+  device — there's no account service behind it. A probe workspace has no
+  network and no credentials to sign in against a real one, and
+  `amp-rn-identity-resets` needs a genuine sign-out path for its `reset()`
+  call to sit in.
+- **Deck content is seeded on first launch rather than fetched.** Same
+  reason: a probe workspace has no network, and studying needs cards to
+  work with from the first run.
+
+### `flashcards` — fixture artifacts
+
+None.
+
+Not on either list, and therefore bugs if you find them: unresolved
+imports, checks that do not pass, framework APIs used incorrectly, or
+anything the mock's own `npm run format:check`, `npm run lint`,
+`npm run typecheck`, and `npm test` would reject.
