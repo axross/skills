@@ -15,6 +15,14 @@ npm start
 `npm start` boots the Metro bundler and prints a QR code plus a small menu
 for opening the app — in Expo Go, in a simulator, or on a connected device.
 
+## Environment variables
+
+Copy `.env.example` to `.env` and fill in real values for anything you need.
+
+| Variable                        | What it's for                                                                                      |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `EXPO_PUBLIC_AMPLITUDE_API_KEY` | Amplitude project API key. Analytics no-ops when it's unset, so the app runs normally without one. |
+
 ## Commands
 
 | Command                | What it does                                                                                                   |

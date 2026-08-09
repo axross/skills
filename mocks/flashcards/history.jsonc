@@ -182,7 +182,7 @@
 		},
 		{
 			"message": "docs",
-			"files": ["AGENTS.md", "CLAUDE.md", "README.md"]
+			"files": ["AGENTS.md", "CLAUDE.md", "README.md", ".env.example"]
 		}
 	]
 }
