@@ -162,7 +162,27 @@ dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
 None. Every dependency is real and installed, every command in its `README.md`
 resolves, and its four checks pass in a materialized copy.
 
+### `recall` — choices made for coverage
+
+- **The commit history is inconsistent in style**, for the same reason
+  `tsuzuri`'s is: a tidy log would let a control run copy the
+  convention out of context.
+- **Sign-in is a local stub against no backend.** It accepts any
+  well-formed email address and issues a local account id, persisted on the
+  device — there's no account service behind it. A probe workspace has no
+  network and no credentials to sign in against a real one, and
+  `amp-rn-identity-resets` needs a genuine sign-out path for its `reset()`
+  call to sit in.
+- **Deck content is seeded on first launch rather than fetched.** Same
+  reason: a probe workspace has no network, and studying needs cards to
+  work with from the first run.
+
+### `recall` — fixture artifacts
+
+None.
+
 Not on either list, and therefore bugs if you find them: unresolved imports,
 checks that do not pass, framework or library APIs used incorrectly, or
-anything a mock's own checks would reject — `npm run lint`,
-`npm run typecheck`, `npm test`, and, in `tsuzuri`, `npm run test:e2e`.
+anything a mock's own checks would reject — `npm run format:check`,
+`npm run lint`, `npm run typecheck`, `npm test`, and, in `tsuzuri`,
+`npm run test:e2e`.

@@ -1,0 +1,13 @@
+node_modules
+.expo
+android
+ios
+dist
+coverage
+package-lock.json
+# Prettier's jsonc parser adds trailing commas under this project's
+# trailingComma:"all" setting, but the fixture replayer that reads this file
+# parses it with plain JSON.parse (after stripping comments) and rejects
+# them — see history.jsonc's own header. Excluded here rather than by
+# changing the shared trailingComma setting.
+history.jsonc
