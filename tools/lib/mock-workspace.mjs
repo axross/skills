@@ -332,7 +332,7 @@ function installDependencies(workspace) {
 // depends on `@playwright/test`, while a Vitest browser-mode suite depends on
 // `playwright` itself (through `@vitest/browser-playwright`) and never pulls
 // the test runner in. keying on the first name alone recognized the first
-// shape and silently missed the second, which is how `mocks/blog-cms` would
+// shape and silently missed the second, which is how `mocks/inkwell` would
 // have reached a probe with a `npm test` that cannot launch a browser.
 const BROWSER_DRIVER_PACKAGES = ["@playwright/test", "playwright"];
 

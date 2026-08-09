@@ -92,7 +92,7 @@ materialization speed, which left this mock held to a lower standard than the
 mocks being built beside it. The framework and `@playwright/test` are now real
 dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
 
-### `blog-cms` — choices made for coverage
+### `inkwell` — choices made for coverage
 
 - **The commit history is inconsistent in style**, for the same reason
   `tsuzuri`'s is: a tidy log would let a control run copy the convention
@@ -157,7 +157,7 @@ dependencies, and `npm run test:e2e` builds the app, serves it, and drives it.
   whose check surface is immaculate is less like the projects this evaluation
   is about than one carrying the warning every codebase of this shape carries.
 
-### `blog-cms` — fixture artifacts
+### `inkwell` — fixture artifacts
 
 None. Every dependency is real and installed, every command in its `README.md`
 resolves, and its four checks pass in a materialized copy.

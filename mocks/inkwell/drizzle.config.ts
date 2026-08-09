@@ -5,6 +5,6 @@ export default defineConfig({
   schema: "./server/db/schema.ts",
   out: "./server/db/migrations",
   dbCredentials: {
-    url: process.env.DATABASE_PATH ?? "./server/db/data/blog-cms.db",
+    url: process.env.DATABASE_PATH ?? "./server/db/data/inkwell.db",
   },
 });

@@ -59,4 +59,4 @@ function resolveThreshold(): LogLevel {
   return raw === "debug" || raw === "info" || raw === "warn" || raw === "error" ? raw : "info";
 }
 
-export const rootLogger = createLogger("blog-cms", resolveThreshold());
+export const rootLogger = createLogger("inkwell", resolveThreshold());
