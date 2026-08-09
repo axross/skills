@@ -71,6 +71,38 @@ Both derived surfaces are in `.prettierignore`. The bytes come from exactly one
 serializer, and a second formatter with an opinion about them would make the
 drift check fail against a file the instrument never wrote.
 
+## `patch`, when a case needs a broken starting state
+
+Optional, and no case declares one yet. A case whose prompt is symptom-shaped —
+it describes a defect rather than naming a task — needs that defect to be real,
+or the model reads the project, finds nothing wrong, and the probe measures
+confusion. The mock does not carry it: a mock ships sound and the case brings
+its own defect as a unified diff, applied while the workspace is materialized
+and before the recorded history is replayed over it. `mocks/README.md` states
+the principle and
+[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
+records what it beat.
+
+```json
+{
+  "id": "fix-a-thing",
+  "mock": "content-site",
+  "patch": "patches/fix-a-thing.patch"
+}
+```
+
+The path is resolved against **this directory**, so a patch lives beside the
+fixture that declares it. Three rules govern one:
+
+- **It is per case, not per condition.** Both conditions of one case start from
+  one project tree, which is what the comparability check requires.
+- **It maintains `history.jsonc` itself** whenever it changes the file set —
+  dropping a name it deleted, adding a name it created. Modifying a file needs
+  no such edit, because the name is already there.
+- **It is checked offline.** `npm test` applies every declared patch against its
+  mock, so a patch that stopped fitting fails there rather than in a dispatch
+  that has already spent money reaching it.
+
 ## `capUsd` and `unmeasuredProbeCostCeilingUsd`
 
 Both bound spending, and they bound different things. `capUsd` is the case's

@@ -23,16 +23,21 @@ Everything under a mock's own directory is copied into the workspace the model
 works in, so a model reads it. A note explaining that the project is an
 experiment would tell it so — and a model that knows it is being measured is
 not measuring what we wanted. This file sits one level up, where
-`materialize.mjs` never copies from.
+[`tools/lib/mock-workspace.mjs`](../tools/lib/mock-workspace.mjs) never copies
+from.
 
 ## A mock is a genuine project
 
 Nothing inside a mock is bent to fit a case. Its **stack and structure are
 chosen** with skill and case coverage in mind — that is what makes it useful —
 but anything a case needs that the project would not naturally have arrives as
-**that case's patch**, applied during materialization.
-[#298](https://github.com/axross/skills/issues/298) owns that mechanism and
-states the principle in full.
+**that case's patch**: a unified diff the case declares, applied by
+[`tools/lib/mock-workspace.mjs`](../tools/lib/mock-workspace.mjs) after the mock
+is copied and **before** its history is replayed, so the workspace a model sees
+is clean and its history unremarkable. A patch that changes the file set
+maintains `history.jsonc` itself. The reasoning, and the alternatives it beat,
+are in
+[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
 
 The test for any candidate flaw is: _would a competent developer of this
 project have done it this way, for their own reasons?_ A realistic project has

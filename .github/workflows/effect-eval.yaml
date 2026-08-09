@@ -211,6 +211,15 @@ jobs:
           for skill in "${skills[@]}"; do
             args+=(--skill "${skill}")
           done
+          # the case's patch, when it declares one — the broken starting state a
+          # symptom-shaped prompt needs, which the mock deliberately does not
+          # ship. `-er` rather than `-r`: an empty string means "no patch" and
+          # an absent field means the plan script and this step disagree, which
+          # is worth an exit code rather than a silently unpatched workspace.
+          patch="$(jq -er '.patch' <<<"${plan}")"
+          if [ -n "${patch}" ]; then
+            args+=(--patch "${patch}")
+          fi
           # assigned before it is echoed, so `set -e` sees setup.mjs's exit
           # code. inside `echo "path=$(...)"` it could not: echo succeeds on a
           # failed substitution and the step would export an empty path.
