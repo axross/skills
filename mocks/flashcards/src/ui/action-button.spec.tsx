@@ -20,8 +20,9 @@ describe("ActionButton", () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it("meets the 44x44 minimum touch target for every kind", async () => {
-    for (const kind of ["primary", "secondary", "destructive"] as const) {
+  it.each(["primary", "secondary", "destructive", "positive"] as const)(
+    "meets the 44x44 minimum touch target for the %s kind",
+    async (kind) => {
       await render(
         <ActionButton
           label={kind}
@@ -35,6 +36,6 @@ describe("ActionButton", () => {
         minWidth: 44,
         minHeight: 44,
       });
-    }
-  });
+    },
+  );
 });
