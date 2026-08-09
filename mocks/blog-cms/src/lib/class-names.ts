@@ -1,7 +1,7 @@
 /**
- * Joins whichever class names are truthy. Small enough not to earn a
- * dependency on `clsx` for the two components that need it — `Card` and
- * `Button`, both of which accept and merge a caller's own `className`.
+ * Joins whichever class names are truthy. No call site here wants the object
+ * or array forms `clsx` adds, so it doesn't earn the dependency. `Card` and
+ * `Button` also merge a caller's own `className` through it.
  */
 export function cx(...classNames: ReadonlyArray<string | false | null | undefined>): string {
   return classNames.filter(Boolean).join(" ");

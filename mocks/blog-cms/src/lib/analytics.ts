@@ -1,9 +1,10 @@
 import * as amplitude from "@amplitude/analytics-browser";
 
-// The only module that imports the Amplitude SDK — everything else calls
-// through here, so consent gating, a missing key, and event naming are each
-// handled in exactly one place. See lib/consent.tsx for what actually calls
-// initAnalytics(): this module never checks consent itself.
+// The only module outside the tests that imports the Amplitude SDK —
+// everything else calls through here, so consent gating, a missing key, and
+// event naming are each handled in exactly one place. See lib/consent.tsx for
+// what actually calls initAnalytics(): this module never checks consent
+// itself.
 interface Events {
   "post published": { site_slug: string; post_id: number };
   "draft saved": { site_slug: string; post_id: number };
