@@ -3,18 +3,21 @@
 // this is the drift class this repository already guards, in a new place. a
 // case patch is written against one state of a mock and silently stops fitting
 // the moment that mock moves — and the moment it stops fitting, the case it
-// belongs to cannot be dispatched at all. nothing else would notice: no case
-// declares a patch yet, the mocks are excluded from every other gate here, and
-// the failure would otherwise surface in a dispatch that has already spent
-// money reaching it.
+// belongs to cannot be dispatched at all. nothing else would notice: the
+// mocks are excluded from every other gate here, and the failure would
+// otherwise surface in a dispatch that has already spent money reaching it.
 //
-// the walk is deliberately data-driven over the real fixture, which today
-// declares no patch at all. a check that can only pass is decoration, so the
-// second describe below gives it teeth against a synthetic fixture: the same
-// walk, over a case whose patch no longer applies, must report that case by
-// name.
+// the fixture list is discovered from data/*/fixture.json rather than
+// hard-coded, the same way mock-materialization.test.mjs discovers mocks/*
+// rather than naming them: a third instrument that declares a patch is
+// covered by this walk without an edit here.
+//
+// the walk is deliberately data-driven over the real fixtures. a check that
+// can only pass is decoration, so the second describe below gives it teeth
+// against a synthetic fixture: the same walk, over a case whose patch no
+// longer applies, must report that case by name.
 
-import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -23,8 +26,33 @@ import { tempDir } from "../helpers/fixtures.mjs";
 import { patchFromMock } from "../helpers/mock-patch.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
-/** the fixtures whose cases may declare a patch. #280 adds the discovery side's. */
-const FIXTURES = [{ label: "the effect evaluation", root: repoPath("data/effect-eval") }];
+const DATA_ROOT = repoPath("data");
+
+/**
+ * every `data/<name>/` directory that declares a `fixture.json`, sorted for a
+ * stable test order. discovered rather than named, so an instrument added
+ * beside `effect-eval` and `discovery-eval` is covered without an edit here.
+ *
+ * @returns {Promise<Array<{ label: string, root: string }>>}
+ */
+async function discoverFixtures() {
+  const names = (await readdir(DATA_ROOT, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+
+  const fixtures = [];
+  for (const name of names) {
+    const files = await readdir(join(DATA_ROOT, name));
+    if (files.includes("fixture.json")) {
+      fixtures.push({ label: name, root: join(DATA_ROOT, name) });
+    }
+  }
+  return fixtures;
+}
+
+/** the fixtures whose cases may declare a patch. */
+const FIXTURES = await discoverFixtures();
 
 /**
  * materializes every case that declares a patch, and reports the ones that
@@ -55,6 +83,13 @@ async function failuresIn(root) {
 }
 
 describe("every declared case patch", () => {
+  // guards the discovery walk itself: an empty FIXTURES would make every case
+  // below pass vacuously, which is indistinguishable from a walk that has
+  // stopped finding data/*/fixture.json at all.
+  it("finds at least one fixture, so the walk below is not vacuous", () => {
+    expect(FIXTURES.length).toBeGreaterThan(0);
+  });
+
   it.each(FIXTURES)("still applies to its mock in $label's fixture", async ({ root }) => {
     const failures = await failuresIn(root);
 
