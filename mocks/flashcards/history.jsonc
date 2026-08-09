@@ -119,7 +119,10 @@
 		},
 		{
 			"message": "deck-not-found screen",
-			"files": ["src/decks/deck-not-found.tsx"]
+			"files": [
+				"src/decks/deck-not-found.tsx",
+				"src/decks/deck-load-error.tsx"
+			]
 		},
 		{
 			"message": "share deck loading between screens",
@@ -130,7 +133,11 @@
 		},
 		{
 			"message": "deck list",
-			"files": ["src/decks/deck-list-screen.tsx", "app/(app)/index.tsx"]
+			"files": [
+				"src/decks/deck-list-screen.tsx",
+				"src/decks/deck-list-screen.spec.tsx",
+				"app/(app)/index.tsx"
+			]
 		},
 		{
 			"message": "deck detail screen",
@@ -157,6 +164,7 @@
 			"message": "add card form",
 			"files": [
 				"src/cards/new-card-screen.tsx",
+				"src/cards/new-card-screen.spec.tsx",
 				"app/(app)/decks/[deckId]/new-card.tsx"
 			]
 		},

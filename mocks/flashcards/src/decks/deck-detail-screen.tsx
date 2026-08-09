@@ -11,6 +11,7 @@ import { ScreenHeader } from "@/ui/screen-header";
 
 import { dueCount } from "./deck";
 import { normalizeDeckId } from "./deck-id";
+import { DeckLoadError } from "./deck-load-error";
 import { DeckNotFound } from "./deck-not-found";
 import { useDeckByRouteParam } from "./use-deck-by-route-param";
 
@@ -30,6 +31,10 @@ export function DeckDetailScreen() {
 
   if (status === "not-found") {
     return <DeckNotFound />;
+  }
+
+  if (status === "error") {
+    return <DeckLoadError />;
   }
 
   if (!deck) {

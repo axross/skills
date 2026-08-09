@@ -52,5 +52,16 @@ export async function signOut(): Promise<void> {
 
 export async function getSession(): Promise<Session | null> {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
-  return raw === null ? null : (JSON.parse(raw) as Session);
+  if (raw === null) return null;
+
+  try {
+    return JSON.parse(raw) as Session;
+  } catch {
+    // A value a previous version of the app wrote, or one that is simply
+    // corrupt, is untrusted the same way a credential is — see
+    // data-and-storage.md. Clear it and fall back to signed out rather than
+    // letting it fail the app's launch.
+    await AsyncStorage.removeItem(STORAGE_KEY);
+    return null;
+  }
 }

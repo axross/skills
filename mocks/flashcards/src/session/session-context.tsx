@@ -36,11 +36,21 @@ export function SessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let cancelled = false;
 
-    getSession().then((found) => {
-      if (cancelled) return;
-      setSession(found);
-      setStatus("ready");
-    });
+    getSession()
+      .then((found) => {
+        if (cancelled) return;
+        setSession(found);
+        setStatus("ready");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Nothing on this screen can retry a read this early, and the
+        // corrupt-value case is already handled inside `getSession` itself —
+        // so whatever is left is treated the same way: fall back to signed
+        // out rather than leaving `status` stuck on "loading" forever.
+        setSession(null);
+        setStatus("ready");
+      });
 
     return () => {
       cancelled = true;

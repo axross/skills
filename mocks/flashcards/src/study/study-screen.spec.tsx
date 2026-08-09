@@ -117,4 +117,25 @@ describe("StudyScreen", () => {
     expect(screen.getByTestId("study-done")).toBeOnTheScreen();
     expect(screen.queryByTestId("study-card")).toBeNull();
   });
+
+  it("shows a visible error and keeps the card queued when grading fails", async () => {
+    mockGradeCard.mockRejectedValueOnce(new Error("boom"));
+    await render(<StudyScreen />);
+
+    await waitFor(() => expect(screen.getByText("France")).toBeOnTheScreen());
+    await fireEvent.press(screen.getByText("France"));
+    await fireEvent.press(await screen.findByTestId("grade-recalled"));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("study-grade-error")).toHaveTextContent(
+        "Couldn't save that grade. Try again.",
+      ),
+    );
+    // Nothing was persisted, so the queue still holds both cards and the
+    // grading buttons stay on screen rather than silently advancing as if
+    // the grade had gone through.
+    expect(mockTrackCardGraded).not.toHaveBeenCalled();
+    expect(screen.getByText("2 cards left")).toBeOnTheScreen();
+    expect(screen.getByTestId("grade-recalled")).toBeOnTheScreen();
+  });
 });

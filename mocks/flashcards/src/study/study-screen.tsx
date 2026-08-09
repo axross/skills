@@ -6,6 +6,7 @@ import { StyleSheet } from "react-native-unistyles";
 import { trackCardGraded, trackScreenView } from "@/analytics/analytics";
 import { dueCards } from "@/decks/deck";
 import { normalizeDeckId } from "@/decks/deck-id";
+import { DeckLoadError } from "@/decks/deck-load-error";
 import { DeckNotFound } from "@/decks/deck-not-found";
 import { gradeCard } from "@/decks/deck-repository";
 import { useDeckByRouteParam } from "@/decks/use-deck-by-route-param";
@@ -34,6 +35,7 @@ export function StudyScreen() {
     () => new Set(),
   );
   const [revealed, setRevealed] = useState(false);
+  const [gradeError, setGradeError] = useState<string | null>(null);
 
   useEffect(() => {
     trackScreenView("Study");
@@ -41,6 +43,10 @@ export function StudyScreen() {
 
   if (deckId === null || status === "not-found") {
     return <DeckNotFound />;
+  }
+
+  if (status === "error") {
+    return <DeckLoadError />;
   }
 
   if (!deck) {
@@ -56,10 +62,15 @@ export function StudyScreen() {
     const current = queue[0];
     if (!current) return;
 
-    await gradeCard(currentDeckId, current.id, grade, Date.now());
-    trackCardGraded({ deckId: currentDeckId, grade });
-    setGradedCardIds((prev) => new Set(prev).add(current.id));
-    setRevealed(false);
+    try {
+      await gradeCard(currentDeckId, current.id, grade, Date.now());
+      trackCardGraded({ deckId: currentDeckId, grade });
+      setGradedCardIds((prev) => new Set(prev).add(current.id));
+      setRevealed(false);
+      setGradeError(null);
+    } catch {
+      setGradeError("Couldn't save that grade. Try again.");
+    }
   }
 
   return (
@@ -90,6 +101,11 @@ export function StudyScreen() {
             onReveal={() => setRevealed(true)}
             onGrade={handleGrade}
           />
+          {gradeError ? (
+            <Text style={styles.error} testID="study-grade-error">
+              {gradeError}
+            </Text>
+          ) : null}
           {revealed ? (
             <View style={styles.actions}>
               <ActionButton
@@ -135,6 +151,11 @@ const styles = StyleSheet.create((theme) => ({
   hint: {
     ...theme.typography.caption,
     color: theme.colors.textMuted,
+    textAlign: "center",
+  },
+  error: {
+    ...theme.typography.caption,
+    color: theme.colors.negative,
     textAlign: "center",
   },
   empty: {

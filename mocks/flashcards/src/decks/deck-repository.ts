@@ -11,15 +11,26 @@ function generateCardId(): string {
   return `card-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+async function seedAndPersist(): Promise<Deck[]> {
+  const seeded = createSeedDecks();
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+  return seeded;
+}
+
 async function readDecks(): Promise<Deck[]> {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   if (raw === null) {
-    const seeded = createSeedDecks();
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
-    return seeded;
+    return seedAndPersist();
   }
 
-  return JSON.parse(raw) as Deck[];
+  try {
+    return JSON.parse(raw) as Deck[];
+  } catch {
+    // A stored value that no longer parses — a previous version of the app,
+    // or corruption — is treated the same as no value at all: reseed rather
+    // than let every screen that reads a deck fail from here on.
+    return seedAndPersist();
+  }
 }
 
 async function writeDecks(decks: Deck[]): Promise<void> {

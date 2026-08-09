@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { Deck } from "./deck";
 import { getDeck } from "./deck-repository";
 
-export type DeckLoadStatus = "loading" | "not-found" | "ready";
+export type DeckLoadStatus = "loading" | "not-found" | "error" | "ready";
 
 export type UseDeckByRouteParamResult = {
   /** Defined only once `status` is `"ready"`. */
@@ -15,15 +15,16 @@ export type UseDeckByRouteParamResult = {
  * Loads the deck a route's `deckId` parameter names, already normalized by
  * `normalizeDeckId` at the call site. Every screen under `/decks/[deckId]`
  * needs the same lookup around it — a cancelled-fetch guard so a slow
- * response cannot land after the screen has moved on, and a `"not-found"`
- * status for both a malformed id and one that matches nothing in the store —
- * so this is where that lookup lives instead of being copied at each call
- * site.
+ * response cannot land after the screen has moved on, a `"not-found"` status
+ * for both a malformed id and one that matches nothing in the store, and an
+ * `"error"` status for a lookup that rejected outright — so this is where
+ * that lookup lives instead of being copied at each call site.
  */
 export function useDeckByRouteParam(
   deckId: string | null,
 ): UseDeckByRouteParamResult {
   const [deck, setDeck] = useState<Deck | null | undefined>(undefined);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (deckId === null) {
@@ -31,9 +32,13 @@ export function useDeckByRouteParam(
     }
 
     let cancelled = false;
-    getDeck(deckId).then((found) => {
-      if (!cancelled) setDeck(found ?? null);
-    });
+    getDeck(deckId)
+      .then((found) => {
+        if (!cancelled) setDeck(found ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -41,6 +46,9 @@ export function useDeckByRouteParam(
 
   if (deckId === null || deck === null) {
     return { deck: undefined, status: "not-found" };
+  }
+  if (failed) {
+    return { deck: undefined, status: "error" };
   }
   if (deck === undefined) {
     return { deck: undefined, status: "loading" };

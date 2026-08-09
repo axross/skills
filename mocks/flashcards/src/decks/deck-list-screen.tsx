@@ -16,22 +16,45 @@ export function DeckListScreen() {
   const router = useRouter();
   const [decks, setDecks] = useState<Deck[] | undefined>(undefined);
   const [now, setNow] = useState<number | undefined>(undefined);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    getDecks().then((found) => {
-      if (cancelled) return;
-      setDecks(found);
-      setNow(Date.now());
-    });
+    getDecks()
+      .then((found) => {
+        if (cancelled) return;
+        setDecks(found);
+        setNow(Date.now());
+        setFailed(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setFailed(true);
+      });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt]);
 
   useEffect(() => {
     trackScreenView("Deck List");
   }, []);
+
+  if (failed) {
+    return (
+      <Screen>
+        <Text style={styles.empty}>
+          Something went wrong loading your decks.
+        </Text>
+        <ActionButton
+          label="Try again"
+          onPress={() => setAttempt((value) => value + 1)}
+          testID="deck-list-retry"
+        />
+      </Screen>
+    );
+  }
 
   if (decks === undefined || now === undefined) {
     return <LoadingScreen />;

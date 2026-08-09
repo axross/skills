@@ -95,4 +95,11 @@ describe("getSession", () => {
   it("returns null when nothing is stored", async () => {
     expect(await getSession()).toBeNull();
   });
+
+  it("clears a corrupt stored value and returns null instead of throwing", async () => {
+    await AsyncStorage.setItem("recall.session.v1", "{not json");
+
+    await expect(getSession()).resolves.toBeNull();
+    expect(await AsyncStorage.getItem("recall.session.v1")).toBeNull();
+  });
 });

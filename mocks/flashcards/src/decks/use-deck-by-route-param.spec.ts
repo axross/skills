@@ -54,4 +54,15 @@ describe("useDeckByRouteParam", () => {
     await waitFor(() => expect(result.current.status).toBe("not-found"));
     expect(result.current.deck).toBeUndefined();
   });
+
+  it("is error once the repository lookup rejects", async () => {
+    mockGetDeck.mockRejectedValue(new Error("boom"));
+
+    const { result } = await renderHook(() =>
+      useDeckByRouteParam("world-capitals"),
+    );
+
+    await waitFor(() => expect(result.current.status).toBe("error"));
+    expect(result.current.deck).toBeUndefined();
+  });
 });

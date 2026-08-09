@@ -6,6 +6,7 @@ import { Text } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
 import { normalizeDeckId } from "@/decks/deck-id";
+import { DeckLoadError } from "@/decks/deck-load-error";
 import { DeckNotFound } from "@/decks/deck-not-found";
 import { addCard } from "@/decks/deck-repository";
 import { useDeckByRouteParam } from "@/decks/use-deck-by-route-param";
@@ -39,6 +40,10 @@ export function NewCardScreen() {
     return <DeckNotFound />;
   }
 
+  if (status === "error") {
+    return <DeckLoadError />;
+  }
+
   if (!deck) {
     return <LoadingScreen />;
   }
@@ -60,6 +65,8 @@ export function NewCardScreen() {
         photoUri,
       });
       router.back();
+    } catch {
+      setError("Couldn't save this card. Try again.");
     } finally {
       setSubmitting(false);
     }

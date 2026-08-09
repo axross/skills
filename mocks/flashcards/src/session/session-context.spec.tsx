@@ -33,6 +33,10 @@ beforeEach(async () => {
   await AsyncStorage.clear();
 });
 
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 describe("SessionProvider", () => {
   it("resolves to no session once loading finishes", async () => {
     await render(
@@ -87,5 +91,25 @@ describe("SessionProvider", () => {
     await waitFor(() =>
       expect(screen.getByTestId("email")).toHaveTextContent("none"),
     );
+  });
+
+  it("still reaches ready, falling back to signed out, if the session read itself rejects", async () => {
+    // Distinct from a corrupt stored value — session.ts already handles that
+    // one internally. This is the read rejecting outright, which is what
+    // used to leave `status` stuck on "loading" forever.
+    jest
+      .spyOn(AsyncStorage, "getItem")
+      .mockRejectedValueOnce(new Error("boom"));
+
+    await render(
+      <SessionProvider>
+        <Probe />
+      </SessionProvider>,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("ready"),
+    );
+    expect(screen.getByTestId("email")).toHaveTextContent("none");
   });
 });

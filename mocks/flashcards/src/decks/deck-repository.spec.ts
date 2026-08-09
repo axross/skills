@@ -25,6 +25,16 @@ describe("getDecks", () => {
 
     expect(second).toEqual(first);
   });
+
+  it("reseeds instead of throwing when the stored value is corrupt", async () => {
+    await AsyncStorage.setItem("recall.decks.v1", "{not json");
+
+    const decks = await getDecks();
+
+    expect(decks).toHaveLength(3);
+    const stored = await AsyncStorage.getItem("recall.decks.v1");
+    expect(JSON.parse(stored as string)).toEqual(decks);
+  });
 });
 
 describe("getDeck", () => {
