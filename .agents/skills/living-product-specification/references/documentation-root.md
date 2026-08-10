@@ -34,8 +34,8 @@ docs/
 
 `conventions/` and `operations/` are the two bodies
 [What This Does Not Cover](../SKILL.md#what-this-does-not-cover) already
-scopes out of the corpus — contributor documentation and repository-structure
-conventions, respectively. Adopting this shape gives each a named home instead
+scopes out of the corpus — repository-structure conventions and contributor
+documentation, respectively. Adopting this shape gives each a named home instead
 of leaving every project to invent one, without pulling either under this
 capability's own rules: neither earns a spec, a glossary heading, or a
 decision record merely by sitting under the same root.
