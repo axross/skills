@@ -12,13 +12,16 @@
 // is in the record, and between that and the configuration the argv is fully
 // determined.
 //
-// the tool posture is inverted from the discovery probe's, deliberately.
-// scripts/discovery-eval/run.mjs denies Bash and every editing tool because its
-// workspace may hold attacker-authored skill text from a pull request head.
-// this one's never can — it is built only from this repository's own mock and
-// its own installed skills — and the model has to read the project, write a
-// file, and run commands, which is the whole task. Skill stays permitted
-// because whether an installed skill gets invoked during real work is the thing
+// the tool posture differs from the discovery probe's, deliberately, and the
+// reasons do not line up. that probe denies Bash and the editing tools in
+// both its modes for two different reasons: reading a pull request's own
+// skill text means the workspace may hold prose from outside this
+// repository, and reading a mock means a probe that starts doing the work
+// has stopped measuring which skill a prompt reaches for. this one permits
+// them — its workspace is built only from this repository's own mock and its
+// own installed skills, and the model has to read the project, write a file,
+// and run commands, which is the whole task. Skill stays permitted because
+// whether an installed skill gets invoked during real work is the thing
 // being measured.
 
 /**

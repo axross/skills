@@ -162,24 +162,33 @@ cannot be done by reading it.
 
 **Evaluation in this space, where it exists at all, tends to stop at a skill's
 textual properties** — that it is shaped correctly, not that it works. This
-library measures the skill outcome as well, and commits the measurements: the
-recorded results live in
-[`evals/discovery/snapshot.json`](./evals/discovery/snapshot.json), so what the
-measurement found is something you can read rather than take on trust. That is
-the axis worth comparing libraries on — whether the discovery text is _measured_
-or merely asserted. It has already produced negative results about this
-library's own skills, and those are recorded rather than quietly dropped, which
-is the entire point of running it.
+library measures the skill outcome as well, and commits the measurements: every
+probe's verbatim transcript lives under
+[`data/discovery-eval/`](./data/discovery-eval/README.md) and
+[`data/effect-eval/`](./data/effect-eval/README.md), so what the measurement
+found is something you can read rather than take on trust. That is the axis
+worth comparing libraries on — whether the discovery text is _measured_ or
+merely asserted. It has already produced negative results about this library's
+own skills, and those are recorded rather than quietly dropped, which is the
+entire point of running it.
+
+**There is no baseline file to keep up to date.** Measurements accumulate, one
+directory per case per dispatch, and a result reads as a change because the
+previous measurement is sitting beside it rather than because someone
+re-recorded a snapshot. Storing what was measured rather than what was
+concluded is what lets a later question — a changed threshold, a statistic
+nobody thought to compute — be re-derived from files already paid for instead
+of re-bought with another run.
 
 Two instruments do the measuring.
 [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) explains
 what skill evaluation is, why checking textual properties cannot reach it, and
 what each instrument answers.
-[`evals/discovery/README.md`](./evals/discovery/README.md)
-carries the discovery instrument itself — the fixture format, how a verdict is
-reached, when to re-record the snapshot, and the limits of what a run can
-conclude. [Reporting, not gating](#reporting-not-gating) has the commands for
-both.
+[`tools/discovery-eval/README.md`](./tools/discovery-eval/README.md) carries the
+discovery instrument — its two probe modes, how a verdict is reached, and the
+limits of what a run can conclude — and
+[`tools/effect-eval/README.md`](./tools/effect-eval/README.md) the effect one.
+[Reporting, not gating](#reporting-not-gating) has the commands for both.
 
 ## Contributing
 
@@ -228,7 +237,7 @@ because `format.sh` reads the edited path from a Claude Code payload field.
 | Skill structure   | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
 | Installed copies  | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
 | Obligation burden | `scripts/report-obligation-burden.mjs` (reports; never gates)                         |
-| Skill discovery   | `scripts/discovery-eval/run.mjs` (reports; never gates)                               |
+| Skill discovery   | `tools/discovery-eval/evaluate.mjs` (reports; never gates)                            |
 | Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
 | Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
 | Product spec      | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
@@ -243,14 +252,14 @@ wide one — the `npm test` row says what it carries.
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
-| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | When to run it                                                           |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                                                         | Once per checkout, and after `package.json` changes.                     |
-| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                                                                | After every set of edits, before committing.                             |
-| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                                                                  | In CI, or to check formatting without touching the working tree.         |
-| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                                                               | After formatting, and fix every reported error before finishing.         |
-| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the five corpus checks over `docs/`, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`. |
-| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                   | Before opening or updating a pull request.                               |
+| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | When to run it                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Once per checkout, and after `package.json` changes.                     |
+| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | After every set of edits, before committing.                             |
+| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | In CI, or to check formatting without touching the working tree.         |
+| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | After formatting, and fix every reported error before finishing.         |
+| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the discovery-evaluation summary drift check and its declared-patch check, the five corpus checks over `docs/`, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`. |
+| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Before opening or updating a pull request.                               |
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
@@ -340,41 +349,65 @@ The <!-- count:second-reporting-tool-ordinal -->sixteenth<!-- /count --> reports
 routing outcome:
 
 ```bash
-node scripts/discovery-eval/run.mjs --dry-run
-node scripts/discovery-eval/run.mjs --help
+node tools/discovery-eval/evaluate.mjs --dry-run
+node tools/discovery-eval/evaluate.mjs --help
+node tools/discovery-eval/summarize.mjs --check
 ```
 
-`scripts/discovery-eval/run.mjs` answers "does a prompt actually surface the
-right skills?" — the first check here that measures a **skill outcome** rather
-than a **textual property**. It runs a labelled prompt fixture through the real
-Claude Code CLI in a scratch workspace and reports which expected skills were
-missed and which unexpected ones fired, as a delta against a recorded snapshot.
-It cannot gate for three independent reasons: it is non-deterministic, it costs
-real money per run (`--dry-run` prints the current estimate), and it needs a
-secret that fork pull requests do not receive.
+`tools/discovery-eval/` answers "does a prompt actually surface the right
+skills?" — the first check here that measured a **skill outcome** rather than a
+**textual property**. It asks each labelled prompt through the real Claude Code
+CLI **inside a materialized mock project**, with every installed skill
+competing, and records which skills the run selected. It cannot gate for three
+independent reasons: it is non-deterministic, it costs real money per probe
+(`--dry-run` prints the projection), and it needs a secret that fork pull
+requests do not receive.
+
+**A probe reads the project before it chooses, which is the whole point.** A
+prompt states the problem in the words of whoever has it — no path, no library,
+no vendor — so the model has to open the codebase to route, exactly as it would
+for a real request. `Read`, `Glob` and `Grep` are permitted for that;
+`Bash` and the editing tools are not, because a probe that starts doing the work
+is measuring the other axis at this one's prices.
+
+**One mode does not read a project, and it is the one that handles untrusted
+text.** Evaluating a pull request's changed `SKILL.md` files means a model reads
+prose written by someone outside the repository, so that runs in a bare
+workspace at one turn with only the `Skill` tool — no filesystem, no shell, no
+credentials. The two modes are mutually exclusive per dispatch and the
+instrument **refuses** the combination rather than documenting it.
 
 Run it in CI from the Actions tab by dispatching
 [`discovery-eval.yaml`](./.github/workflows/discovery-eval.yaml) — the only
 workflow allowed to invoke it, and **manual dispatch is its only trigger**, so
-nothing a pull request does can start it or spend money. Give the dispatch a
-pull request number to evaluate that branch's changed skills and have the report
-posted as a comment; leave it blank to evaluate the default branch and read the
-report in the job log. Check `emit_snapshot` — which no dispatch naming a pull
-request may combine with — to have the run also produce a proposed snapshot as a
-downloadable artifact, which is how the snapshot gets re-recorded without a
-local CLI or local credentials. Give it a case id in `determinism` instead to
-repeat that one case against an unchanged corpus and measure whether its probes
-behave as independent draws; that combines with a pull request but not with
-`emit_snapshot`, since one case cannot produce a fixture-wide document.
-`--dry-run` validates the fixture with no model call and
-no secret. See
-[`evals/discovery/README.md`](./evals/discovery/README.md) for the fixture
-format, how a verdict is reached, and how to re-record the snapshot.
+nothing a pull request does can start it or spend money. Four inputs, all
+optional: `case` runs one case rather than the fixture, `repeats` overrides what
+a case declares, `pull_request` evaluates that branch's changed skills in the
+bare mode above and posts the report there, and `dry_run` rehearses every step
+with no probe spawned. A run that names a pull request **records nothing** — it
+reports, because what it measured is routing on the prompt alone and that is not
+comparable with a situated measurement.
 
-`npm test` reads the two JSON files under `evals/discovery/` to confirm every
-skill they name still exists, and that every fixture case is either measured or
-declared unmeasured — a deterministic data check that never invokes the runner.
-A fixture or snapshot naming a renamed skill would otherwise rot in silence.
+**Spending is bound by refusal rather than by exhaustion.** Admission runs once,
+before any probe, and projects the dispatch's cost from committed measurements
+where they exist and from the fixture's declared per-probe ceiling where they do
+not — a ceiling per probe mode, since a situated probe and a bare one cost about
+an order of magnitude apart. A projection over the fixture's cap refuses the
+run, and a refusal is a finding rather than a prompt to raise the cap. Until a
+case has been measured its projection rests on the ceiling, which is
+deliberately above what a probe should cost, so an early dispatch is priced
+pessimistically on purpose. See
+[`tools/discovery-eval/README.md`](./tools/discovery-eval/README.md) for the
+probe modes and how a verdict is reached, and
+[`data/discovery-eval/README.md`](./data/discovery-eval/README.md) for what a
+measurement holds.
+
+`npm test` re-derives every committed summary under `data/discovery-eval/` and
+fails on a mismatch, confirms every skill the fixture names still exists, and
+applies every declared case patch against its mock offline — deterministic
+checks that never invoke the runner. A fixture naming a renamed skill, or a
+patch that stopped fitting its mock, would otherwise rot in silence until a
+dispatch had already spent money reaching it.
 
 The <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> reports a
 ranking:
@@ -516,8 +549,8 @@ configuration at startup.
 
 **A number in prose can be a checked claim.** Wrap one in a `count:` marker and
 `npm test` holds it to the file it describes — the skill count at the top of
-this page, the round cap it quotes from a skill, the empty discovery counts in
-the snapshot. The marker is invisible once rendered:
+this page and the round cap it quotes from a skill. The marker is invisible
+once rendered:
 
 ```markdown
 The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the

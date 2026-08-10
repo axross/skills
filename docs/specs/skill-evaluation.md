@@ -51,11 +51,16 @@ worth knowing. It is also the half that is cheapest to be wrong about: an author
 reads their own `description` knowing what it is for, which is the one condition
 under which it always looks adequate.
 
-The **skill discovery evaluation** answers this: it runs prompts through a real
-agent and records what it selected.
-[`evals/discovery/README.md`](../../evals/discovery/README.md) owns it — what it
-runs, how a verdict is reached, what a finding is measured against, and the
-limits of what a run can conclude.
+The **skill discovery evaluation** answers this: it asks prompts of a real agent
+**inside a mock project**, with the whole corpus competing, and records what the
+agent selected. Situating it is what makes the answer worth having — a skill is
+discovered while someone is working in a codebase, not in an empty room, and a
+prompt asked in an empty room can only be answered from the prompt.
+[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md) owns the
+instrument — its two probe modes, how a verdict is reached, and the limits of
+what a run can conclude — and
+[`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) what a
+measurement holds.
 
 ### Does holding the skill change what the agent does?
 
@@ -81,10 +86,10 @@ account of what was bought.
 This holds across both axes, and it is the reason a threshold can be argued
 about after the fact rather than re-bought.
 
-Neither instrument persists a verdict. The discovery snapshot holds per-skill
-counts; a probe record holds the verbatim transcript and the diff. Both are
-stored raw enough that changing the rule for what counts as a finding is a
-re-derivation over data already paid for.
+Neither instrument persists a verdict, and neither keeps a baseline. Each stores
+what one probe produced — its verbatim transcript, and on the effect axis the
+diff beside it — so changing the rule for what counts as a finding is a
+re-derivation over data already paid for rather than another run.
 
 **Raw enough is a stronger claim than it sounds, and the effect axis learned it
 the expensive way.** Its first instrument stored the extracted signals and threw
@@ -96,7 +101,17 @@ which tools each run used, the per-message token usage, and the model each
 message reported. Every question the extractor did not anticipate cost a paid
 re-run.
 
-So the effect axis now separates its files by what can be re-acquired:
+**A baseline is the same mistake one level up**, and the discovery axis carried
+one until it was rebuilt. A file recording "the current result" is a stored
+conclusion about which measurement counts as current, it has to be re-recorded
+by hand, and it overwrites the numbers it replaces. Measurements accumulate
+instead: a new one is compared against the most recent earlier one it is
+_comparable_ with — same prompt, same model, same project, same discovery text
+for the skills that case tracks — and where none is, the report names the
+condition that failed rather than suppressing the comparison. Nothing has to be
+re-recorded, because measuring again is the only act there is.
+
+So both axes separate their files by what can be re-acquired:
 
 | Kind         | Rule                                                                                            |
 | ------------ | ----------------------------------------------------------------------------------------------- |
@@ -163,7 +178,8 @@ output has a different reader — a person deciding what to change, rather than 
 queue deciding what to block.
 
 The concrete reasons each instrument cannot gate belong to the instrument, and
-are stated with it: [`evals/discovery/README.md`](../../evals/discovery/README.md)
+are stated with it:
+[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md)
 for the skill discovery evaluation,
 [`tools/effect-eval/README.md`](../../tools/effect-eval/README.md) for the skill
 effect evaluation, and `README.md`'s validator listing for the obligation report
@@ -181,7 +197,7 @@ when someone edits it. The two numbers therefore go stale on different clocks,
 and a reader comparing results across time has to know which kind they are
 holding. What that means for a recorded selection result is stated with the
 instrument in
-[`evals/discovery/README.md`](../../evals/discovery/README.md).
+[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md).
 
 **Coverage is not the same as correctness.** A fixture measures the prompts
 somebody thought to write down. A skill that is never surfaced by any labelled

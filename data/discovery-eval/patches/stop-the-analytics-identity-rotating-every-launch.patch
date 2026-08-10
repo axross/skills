@@ -1,0 +1,43 @@
+diff --git a/src/analytics/analytics.ts b/src/analytics/analytics.ts
+index 58135b6..8ac48eb 100644
+--- a/src/analytics/analytics.ts
++++ b/src/analytics/analytics.ts
+@@ -34,9 +34,8 @@ export function identifyUser(accountId: string): void {
+ }
+ 
+ /**
+- * Rotates Amplitude's device and user identity. Called only from the
+- * sign-out path — calling it anywhere else (say, on every app launch)
+- * would rotate the device id on every launch instead of on sign-out.
++ * Rotates Amplitude's device and user identity. Called from `getSession`,
++ * so every launch starts from a fresh identity.
+  */
+ export function forgetUser(): void {
+   if (!amplitudeApiKey) return;
+diff --git a/src/session/session.ts b/src/session/session.ts
+index 411dabf..e534d77 100644
+--- a/src/session/session.ts
++++ b/src/session/session.ts
+@@ -41,16 +41,17 @@ export async function signIn(email: string): Promise<Session> {
+   return session;
+ }
+ 
+-/**
+- * Clears the local session and forgets the analytics identity. This is the
+- * only place `forgetUser` (and so the underlying `reset()`) is called.
+- */
++/** Clears the local session. */
+ export async function signOut(): Promise<void> {
+   await AsyncStorage.removeItem(STORAGE_KEY);
+-  forgetUser();
+ }
+ 
++/**
++ * Reads the persisted session. Forgets the analytics identity first, so
++ * every launch starts from a clean slate.
++ */
+ export async function getSession(): Promise<Session | null> {
++  forgetUser();
+   const raw = await AsyncStorage.getItem(STORAGE_KEY);
+   if (raw === null) return null;
+ 
