@@ -22,7 +22,7 @@
 //     with the reason it is not attributable, never suppressed, and never
 //     thrown: a case with no comparable history yet is reported as such.
 //
-// VERDICTS CARRY OVER UNCHANGED from scripts/discovery-eval/compare.mjs's
+// VERDICTS CARRY OVER UNCHANGED from the replaced instrument's
 // asymmetric rule: `mustInclude` is a finding only at ZERO hits, because a
 // skill selected even once is demonstrably reachable and a stray selection of
 // a `mustExclude` skill is not itself a defect. `expectAlways` does not
@@ -226,7 +226,7 @@ function tierOf(testCase, skill) {
 
 /**
  * classify one skill's tally. unchanged from
- * scripts/discovery-eval/compare.mjs's `verdictFor`, minus the retired
+ * the replaced instrument's own verdict rule, minus the retired
  * `expectAlways` tier.
  *
  * @param {"mustInclude"|"mustExclude"|"mayInclude"|null} tier

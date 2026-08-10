@@ -2,7 +2,7 @@
 // classification that makes contamination reportable: own, colliding, or
 // foreign.
 //
-// rebuilt from scripts/discovery-eval/isolation.mjs's `classifyLoaded` rather
+// rebuilt from the replaced instrument's own classification rather
 // than moved into tools/lib — the plan's own accounting of what the second
 // consumer proves is that the loaded-skill classification does NOT belong
 // there: the effect side reads `loadedSkills` only to assert set equality

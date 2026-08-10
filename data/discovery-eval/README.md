@@ -90,9 +90,18 @@ measurement supersedes it permanently for that case.
 
 ## What is committed here
 
-Three cases seed `fixture.json` today, chosen to exercise every schema
-branch this instrument reads: a situated case hosted by `inkwell`, a bare case
-with no `mock`, and a situated wiring case measuring the mandated population.
-No measurement has been taken yet — `measurements/` holds only `.gitkeep` —
-so the first paid dispatch is a separate, later step, and the full 59-case
-fixture this instrument is built to carry is written in that same step.
+`fixture.json` holds all 59 cases: 56 situated across the three mocks —
+`tsuzuri` 22, `inkwell` 25, `recall` 9 — and 3 bare, whose subject situating
+would remove. Three of the situated ones carry `"population": "mandated"` and
+are reported apart, because a consumer's own instructions name those skills and
+discovery never has to surface them. Seven declare a **case patch**, under
+`patches/`.
+
+**No measurement has been taken yet**, so `measurements/` holds only
+`.gitkeep` and `summary.json` is the empty-but-valid derivation over nothing.
+The first dispatch is a single case, and that is not merely a recommendation:
+with nothing measured, admission projects from the fixture's declared per-probe
+ceiling, and 118 probes at that ceiling comes to more than `capUsd`. A
+whole-fixture dispatch is therefore **refused** until one comparable
+measurement exists to project from. That is the stop-loss working, not a
+misconfiguration.

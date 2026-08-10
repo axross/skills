@@ -311,7 +311,7 @@ describe("comparabilityOf", () => {
   });
 });
 
-describe("verdictFor — carried over unchanged from scripts/discovery-eval/compare.mjs", () => {
+describe("verdictFor — carried over unchanged from the replaced instrument", () => {
   it("MISS at zero hits for a mustInclude skill", () => {
     expect(verdictFor("mustInclude", 0, 2)).toBe("miss");
   });

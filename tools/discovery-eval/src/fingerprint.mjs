@@ -22,7 +22,7 @@
 // each digest is per skill, not one over the whole corpus, so editing one
 // skill's description by one byte moves that entry and names it — the same
 // reasoning tools/effect-eval/src/fingerprint.mjs gives for skillDigests, and
-// the same shape scripts/discovery-eval/corpus.mjs used before this rebuild.
+// the same shape the instrument this one replaces used.
 
 import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";
@@ -130,7 +130,7 @@ export function digestDescription(description) {
  * own README calls that out as a repository gotcha ("a symlinked skill root
  * is invisible to a naive directory walk"). the SKILL.md read below stats
  * through the link and does the real filtering, exactly as
- * scripts/discovery-eval/corpus.mjs's `skillFiles` did.
+ * the replaced instrument's own skill walk did.
  *
  * @param {string} root a directory of skill directories
  * @yields {{ name: string, text: string }} in name order; a directory
@@ -182,7 +182,7 @@ export async function descriptionDigests(skillsRoot) {
  *
  * a tri-state, not a boolean, because "unrecognised" must never be mistaken
  * for "invocable" — see readInvocable below, ported unchanged in behaviour
- * from scripts/discovery-eval/corpus.mjs.
+ * from the instrument this one replaces.
  */
 export const INVOCABLE = "invocable";
 export const NOT_INVOCABLE = "not-invocable";

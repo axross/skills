@@ -52,8 +52,7 @@
 // into the source tree, and a symlinked skill directory in the workspace would
 // let a write inside it land straight through into this repository's own
 // .claude/skills/ — path containment alone cannot catch that, because
-// `resolve()` does not follow links. see scripts/discovery-eval/run.mjs's
-// buildWorkspace for the same hazard against the same fix.
+// `resolve()` does not follow links.
 
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";

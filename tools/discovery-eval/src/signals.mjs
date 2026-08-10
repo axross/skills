@@ -5,9 +5,9 @@
 // situated probe that never found the subject and a situated probe that read
 // straight to it and still missed both end a run without a hit — nothing in
 // `selectedSkills` alone tells them apart. reading the paths a probe touched
-// BEFORE it made its first Skill selection is what does: see the
-// scripts/discovery-eval "Why situating changes the probe's shape" — a
-// situated probe that stops reading has read fewer files by construction.
+// BEFORE it made its first Skill selection is what does — a situated probe
+// that stopped reading has read fewer files by construction, and that is
+// visible where the outcome alone is not.
 //
 // built on tools/lib/transcript's shared stream reading rather than
 // reimplementing it — `readEvents`/`toolUseBlocks` frame the CLI's

@@ -1,7 +1,7 @@
 // the trust boundary between a pull request's head and a bare evaluation
 // workspace.
 //
-// carried over WHOLE from scripts/discovery-eval/overlay.mjs — this is a
+// carried over WHOLE from the instrument this one replaces — this is a
 // security boundary, and the reasoning below is preserved rather than
 // re-derived, per this instrument's own build plan.
 //

@@ -125,7 +125,7 @@ than suppressing the comparison or leaving it absent.
 ## Verdicts, unchanged
 
 `MISS` at zero hits and `SPURIOUS` above half carry over unchanged from
-`scripts/discovery-eval/compare.mjs`'s asymmetric rule — a `mustInclude`
+the instrument this one replaces, whose asymmetric rule holds: a `mustInclude`
 skill selected even once is demonstrably reachable, so only zero hits is a
 miss; a `mustExclude` skill is a defect only once it clears half the readable
 repeats, so one stray selection is never reported as one. The coverage line
@@ -139,10 +139,10 @@ and the fixture's `population: "mandated"` cases now ask that question on
 their own, reported separately from the `discovered` population so no
 headline number mixes wiring with routing.
 
-## What does not carry over from `scripts/discovery-eval/`
+## What does not carry over
 
 The posterior-predictive band, the 5% benchmark, a `--determinism` mode, and
-snapshot emission. `compare.mjs` refused to choose those tuned constants
+snapshot emission. The replaced instrument refused to choose those constants
 "before the determinism probe has measured this corpus's noise floor" since
 it was written, and that probe never ran. Because every probe's transcript is
 stored verbatim, a determinism question is a derivation over committed
@@ -152,7 +152,7 @@ repeats, then compute the interval offline from data already paid for.
 ## The path allowlist and the credential filter
 
 [`src/head-overlay.mjs`](./src/head-overlay.mjs) carries
-`scripts/discovery-eval/overlay.mjs`'s allowlist over whole: only
+the replaced instrument's allowlist over whole: only
 `.agents/skills/<kebab-name>/SKILL.md` may be staged, traversal and absolute
 paths and backslashes are rejected, size is capped in bytes (matching
 `check-skill-frontmatter.mjs`'s own cap on `description`), and every

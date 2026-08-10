@@ -182,13 +182,21 @@ and what keeps it from firing during a rehearsal's own `npm run check`.
 The one thing a rehearsal cannot answer is how six concurrent CLI sessions on
 one credential behave, because it starts none.
 
-## Why the tool posture is the opposite of the discovery evaluation's
+## Why the tool posture differs from the discovery evaluation's
 
-`scripts/discovery-eval/run.mjs` denies `Bash` and every editing tool because
-its workspace may hold attacker-authored skill text from a pull request head.
-This one permits them: its workspace is built only from this repository's own
+That instrument denies `Bash` and the editing tools in both of its modes, for
+two reasons that are worth telling apart. Reading a pull request's own skill
+text means the workspace may hold prose written by someone outside this
+repository, so that probe gets one turn and nothing but the tool that selects a
+skill. Reading a mock project is different — the text is this repository's own,
+and the denial is about what is being measured: a probe that starts doing the
+work has stopped measuring which skill a prompt reaches for, and has started
+measuring this axis at that axis's prices.
+
+This one permits them. Its workspace is built only from this repository's own
 mock fixture and its own installed skills, and whether the model _invokes_ a
-skill during real work is exactly what is being measured.
+skill during real work — reading the project, writing a file, running its
+commands — is exactly what is being measured.
 
 That difference is also where the shared layer stops. `tools/lib` holds only
 what is shaped outside either evaluation's question — the CLI's `stream-json`
