@@ -89,9 +89,12 @@ misplaced file is itself the evidence.
 
 ## The Format of a Document
 
-Four rules, stated as what serves both readers this documentation has — a
+Five rules, stated as what serves both readers this documentation has — a
 contributor citing a rule, and an agent following a procedure — rather than
-inherited unmodified from a `SKILL.md`'s own format.
+inherited unmodified from a `SKILL.md`'s own format. No document needs an
+opening "read this when" applicability line beyond these five: `index.md`'s
+one-line description of the document already carries that, so the line costs
+a sentence with nothing left for it to say.
 
 **Guidelines:**
 
@@ -123,8 +126,6 @@ inherited unmodified from a `SKILL.md`'s own format.
   divergent copy of a testing capability: it names the capability and states
   only what nothing outside this project could know — its own directory
   tiers, its own release order, its own on-call procedure.
-- MUST NOT open a document with a "read this when" applicability line;
-  `index.md`'s one-line description of the document already carries that.
 
 ## `decisions/` Beside All Four Bodies
 
