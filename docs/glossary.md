@@ -126,6 +126,8 @@
 
 **Comparable predecessor** — the most recent earlier **case measurement** of one **evaluation case** whose conditions match a later one's, which is what that later one reads as a change against. There is no baseline to compare against instead: a result is a change because the previous measurement is still on disk.
 
+**Measured population** — which of two groups an **evaluation case** is reported within, so a result about a **mandated skill** and a result about a **discovered skill** never reach one number. The two answer different questions: for a **discovered skill** the **skill description** is the whole of what surfaces it, and for a **mandated skill** it is barely involved, since the consumer's own instructions name that skill outright.
+
 ## Skill Effect Evaluation
 
 **Evaluation condition** — one setup an **evaluation case** is run under, differing from the others in exactly what the case is testing.

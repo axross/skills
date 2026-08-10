@@ -391,10 +391,12 @@ comparable with a situated measurement.
 **Spending is bound by refusal rather than by exhaustion.** Admission runs once,
 before any probe, and projects the dispatch's cost from committed measurements
 where they exist and from the fixture's declared per-probe ceiling where they do
-not. A projection over the fixture's cap refuses the run. That is why the first
-dispatch against a fresh fixture is a single case: with nothing measured yet the
-projection uses the ceiling, and the ceiling is deliberately above what a probe
-should cost. See
+not — a ceiling per probe mode, since a situated probe and a bare one cost about
+an order of magnitude apart. A projection over the fixture's cap refuses the
+run, and a refusal is a finding rather than a prompt to raise the cap. Until a
+case has been measured its projection rests on the ceiling, which is
+deliberately above what a probe should cost, so an early dispatch is priced
+pessimistically on purpose. See
 [`tools/discovery-eval/README.md`](./tools/discovery-eval/README.md) for the
 probe modes and how a verdict is reached, and
 [`data/discovery-eval/README.md`](./data/discovery-eval/README.md) for what a
