@@ -186,6 +186,23 @@ finding, not a prompt to raise the cap. See
 [`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) for
 `capUsd` and `unmeasuredProbeCostCeilingUsd`'s full contract.
 
+**The ceiling is per probe mode, not one figure** — `{ "situated": 0.35,
+"bare": 0.05 }` — because the two probe shapes cost roughly an order of
+magnitude apart: a situated probe explores a real project across a runaway
+turn guard, a bare probe is one turn with only `Skill` permitted. Both
+[`src/admission.mjs`](./src/admission.mjs)'s `ceilingFor` and `admitCase` and
+[`.github/scripts/discovery-eval-admit.mjs`](../../.github/scripts/discovery-eval-admit.mjs)'s
+fixture-wide check project each case at the ceiling for **the mode that
+dispatch will actually run it in** ([`src/plan.mjs`](./src/plan.mjs)'s
+`planFor`), never the mode the case merely declares — a case declaring a
+`mock` runs bare under `--head-skills` regardless, and is projected at the
+bare figure. Superseding a ceiling with a committed measurement is per mode
+too: a situated measurement never becomes the projection for a bare case, and
+a bare measurement never becomes the projection for a situated one — see
+`historicalCostsFor` in both `evaluate.mjs` and
+`discovery-eval-admit.mjs`, which filter a case's history to the mode being
+projected before it ever reaches `admitCase`.
+
 ## What `tools/lib` holds, and what stays here
 
 `tools/lib/credentials.mjs`, `tools/lib/mock-workspace.mjs` and

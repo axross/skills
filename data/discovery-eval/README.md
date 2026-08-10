@@ -85,8 +85,36 @@ instrument. `capUsd` is a case's real budget: a dispatch may lower it and may
 not raise it, because the fixture is reviewed and committed where a dispatch
 input is typed into a form. `unmeasuredProbeCostCeilingUsd` is not a budget at
 all — it is the per-probe figure admission projects from for a case nothing
-has measured yet, and it is read on no other occasion; the first comparable
-measurement supersedes it permanently for that case.
+has measured yet in that mode, and it is read on no other occasion; the first
+comparable measurement supersedes it permanently for that case, in that mode.
+
+**It is declared per probe mode, not as one figure**, because a situated probe
+and a bare probe cost roughly an order of magnitude apart:
+
+```json
+"unmeasuredProbeCostCeilingUsd": { "situated": 0.35, "bare": 0.05 }
+```
+
+| Mode         | Declared | Measured                                                                                                                                                                                                  |
+| ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **situated** | `0.35`   | Unmeasured for this instrument; a ceiling above the effect axis's own measured $0.209–$0.315, since a situated probe explores similarly                                                                   |
+| **bare**     | `0.05`   | Comfortably above the one dispatch this instrument's bare-only predecessor ever ran: 140 probes for $3.76, or $0.0269 each ([run 30519599805](https://github.com/axross/skills/actions/runs/30519599805)) |
+
+Admission projects each case at the ceiling for **the mode that dispatch will
+actually run it in** ([`tools/discovery-eval/src/plan.mjs`](../../tools/discovery-eval/src/plan.mjs)'s
+`planFor`), never the mode the case merely declares. A case declaring a `mock`
+runs bare under `--head-skills` regardless — a head dispatch forces every case
+bare — so it is projected at the bare figure, not the situated one. Projecting
+a bare run at the situated figure was exactly the defect that made pull
+request head evaluation unusable: it refused a ~$5.90 dispatch as if it were
+~$41.
+
+**Superseding is per mode too.** A case's first _situated_ measurement
+supersedes the situated ceiling for that case; it never supersedes the bare
+one, and a bare measurement never supersedes the situated one. A situated
+probe and a bare probe answer different questions at different prices, so one
+mode's measurement standing in for the other's projection would be the same
+category error committed in the other direction.
 
 ## What is committed here
 
@@ -99,9 +127,13 @@ discovery never has to surface them. Seven declare a **case patch**, under
 
 **No measurement has been taken yet**, so `measurements/` holds only
 `.gitkeep` and `summary.json` is the empty-but-valid derivation over nothing.
-The first dispatch is a single case, and that is not merely a recommendation:
-with nothing measured, admission projects from the fixture's declared per-probe
-ceiling, and 118 probes at that ceiling comes to more than `capUsd`. A
-whole-fixture dispatch is therefore **refused** until one comparable
-measurement exists to project from. That is the stop-loss working, not a
-misconfiguration.
+With nothing measured, admission projects every case from the fixture's
+declared ceiling for the mode that case actually runs in. A whole-fixture
+**measurement** dispatch (56 situated cases plus 3 that declare no `mock` and
+run bare regardless of dispatch type, 118 probes total) projects to **$39.50**
+against the $40 `capUsd` — admitted. A whole-fixture **head** dispatch
+(`--pull-request`, every case forced bare) projects to **$5.90** — also
+admitted, and the scenario this per-mode ceiling exists to make usable (see
+`tools/discovery-eval/src/admission.mjs`'s header). Either projection refuses
+outright, before any probe spawns, the moment it would exceed the cap — that
+stop-loss is unconditional and does not depend on which mode a dispatch runs.
