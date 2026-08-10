@@ -153,14 +153,14 @@
       "prediction": "Whether the sign-in screen's unconditional <Redirect href=\"/\" /> is replaced with something that reads and reuses the originally requested path is a direct diff comparison, and whether a redirect parameter is threaded from the auth gate through to the sign-in screen is a matter of grepping its name across the changed files. What is left over is whether the destination is actually preserved correctly across a cold start — the app was never running, and the deep link is what launches it — which needs the routing behavior traced rather than merely present in the source."
     },
     {
-      "id": "fix-a-deploy-hook-that-trusts-its-caller-url",
+      "id": "add-a-guard-before-the-deploy-hook-request",
       "mock": "inkwell",
       "skills": ["application-security"],
       "repetitionsPerCondition": 3,
       "capUsd": 40,
       "unmeasuredProbeCostCeilingUsd": 6,
       "task": {
-        "prompt": "Our deploy hook calls whatever URL arrives on the request that triggers it. I don't think we should be sending a request anywhere a caller names — close that off."
+        "prompt": "Each site's deploy hook address is a plain text field we fill in ourselves, and publishing fires a request at whatever it holds. Customers are going to be editing that field themselves shortly. Make it safe to send a request to a value we did not choose."
       },
       "prediction": "Whether the diff adds any check at all before the fetch — an allow-list, a scheme check, a private-address guard — is directly visible, and whether a validation function with a name like isAllowedDeployHookUrl now exists is a grep away. What a deterministic reading cannot settle is whether that check actually closes the SSRF hole rather than narrowing it — whether it blocks a redirect to an internal address or a DNS-rebound hostname, or only the most obvious loopback literal — which needs the guard's own logic read and reasoned about, not just its presence confirmed."
     },

@@ -106,7 +106,7 @@ describe("the probe plan", () => {
     // idea where that is — so the resolution belongs here, and is asserted
     // here. `CASE` itself declares no patch, which is the second half of what
     // this checks: the field is present and empty rather than absent, so the
-    // workflow's `jq -er` has something to read either way. Other cases in the
+    // workflow's `jq -er` has something to read either way. other cases in the
     // fixture do declare one, and the branch that resolves it is exercised
     // through them.
     const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
