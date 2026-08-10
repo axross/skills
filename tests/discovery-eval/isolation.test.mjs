@@ -8,8 +8,12 @@ import { classifyLoaded, contamination } from "../../tools/discovery-eval/src/is
 
 describe("classifyLoaded", () => {
   it("classifies a legitimately user-invocable skill of ours as own", () => {
-    const result = classifyLoaded(["loop-engineering"], { "loop-engineering": INVOCABLE });
-    expect(result).toEqual({ own: ["loop-engineering"], colliding: [], foreign: [] });
+    // named for the skill that actually carries `user-invocable: true` in this
+    // corpus, so the example does not quietly teach a wrong fact about it.
+    const result = classifyLoaded(["living-product-specification"], {
+      "living-product-specification": INVOCABLE,
+    });
+    expect(result).toEqual({ own: ["living-product-specification"], colliding: [], foreign: [] });
   });
 
   it("classifies a name matching one of ours that is NOT invocable as colliding", () => {

@@ -13,14 +13,14 @@
 // before it was rejected:
 //
 //   * `foreign = loaded − corpus` looks obviously right and is actively
-//     harmful. every skill in this corpus carries `user-invocable: false`, so
-//     none of them can ever appear in `loaded` on its own account — the
-//     subtraction only ever fires on a name COLLISION, which is the worst
-//     case, not an exemption.
+//     harmful. a skill carrying `user-invocable: false` can never appear in
+//     `loaded` on its own account, and nearly the whole corpus carries it, so
+//     for those the subtraction only ever fires on a name COLLISION — which
+//     is the worst case, not an exemption.
 //   * `foreign = loaded`, with no corpus lookup, misreports a legitimately
 //     `user-invocable: true` skill of ours as foreign — a state this
 //     repository's authoring rules require of every workflow entry-point
-//     skill.
+//     skill, and one the corpus is in today, so it is not hypothetical.
 //
 // `UNRECOGNISED` joins `NOT_INVOCABLE` on the colliding side deliberately:
 // only a positively-read `INVOCABLE` may excuse a loaded name.

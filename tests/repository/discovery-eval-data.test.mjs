@@ -27,13 +27,32 @@
 // with the capability it might be measuring.
 
 import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { repoPath } from "../helpers/run.mjs";
+import {
+  canonicalJson,
+  caseIdOf,
+  MEASUREMENTS_DIR,
+  SUMMARY_FILE,
+} from "../../tools/discovery-eval/src/layout.mjs";
+import { deriveCaseSummary, deriveDelta } from "../../tools/discovery-eval/src/summary.mjs";
+import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
+
+const DATA = repoPath("data/discovery-eval");
+const MEASUREMENTS = join(DATA, MEASUREMENTS_DIR);
 
 const readFixture = async () =>
   JSON.parse(await readFile(repoPath("data/discovery-eval/fixture.json"), "utf8"));
+
+/** every case measurement directory committed under `measurements/`, sorted. */
+async function measurementNames() {
+  return (await readdir(MEASUREMENTS, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+}
 
 /** every installed skill's directory name. */
 async function installedSkills() {
@@ -183,6 +202,76 @@ describe("the discovery-eval fixture", () => {
       [...onDisk].filter((path) => !declared.has(path)).sort(),
       "a patch file no case declares — dead weight that reads as instrument",
     ).toEqual([]);
+  });
+});
+
+describe("the derived layer", () => {
+  // README.md states that `npm test` re-derives every committed summary under
+  // data/discovery-eval/ and fails on a mismatch. Until this block existed it
+  // did not: the independent review on #318 found the claim standing on
+  // nothing, invisible only because measurements/ is still empty. The effect
+  // axis has carried the same property since #278 — offline over committed
+  // files, and again inside the measurement workflow before anything is
+  // committed. One derivation, two callers, now on both axes.
+
+  it("derives the top-level summary from exactly the measurements on disk", async () => {
+    // the guard against a walk that has quietly stopped reading. the two
+    // checks below iterate measurements/, which is empty today, so each would
+    // pass vacuously and go on passing if the directory stopped being found
+    // at all. this one is an equality rather than a loop, so it means the
+    // same thing at zero measurements as at fifty.
+    const names = await measurementNames();
+    const root = JSON.parse(await readFile(join(DATA, SUMMARY_FILE), "utf8"));
+    expect(root.measurementCount).toBe(names.length);
+    expect(root.measurements).toHaveLength(names.length);
+  });
+
+  it("has not drifted from the measured files it derives from", async () => {
+    // mirrors summarize.mjs's own two passes, because the delta is not a pure
+    // function of one measurement: it compares against that case's other
+    // measurements, so every summary has to exist before any delta does.
+    const declaredRepeats = new Map(
+      (await readFixture()).cases.map((entry) => [entry.id, entry.repeats ?? null]),
+    );
+    const names = await measurementNames();
+
+    const derivations = [];
+    for (const name of names) {
+      const caseId = caseIdOf(name);
+      derivations.push({
+        name,
+        caseId,
+        summary: await deriveCaseSummary(join(MEASUREMENTS, name), {
+          declaredRepeats: declaredRepeats.get(caseId) ?? null,
+          measurementName: name,
+        }),
+      });
+    }
+    for (const entry of derivations) {
+      entry.summary.delta = deriveDelta(
+        entry.summary,
+        derivations
+          .filter((other) => other.caseId === entry.caseId && other.name !== entry.name)
+          .map((other) => other.summary),
+      );
+    }
+
+    for (const { name, summary } of derivations) {
+      const committed = await readFile(join(MEASUREMENTS, name, SUMMARY_FILE), "utf8");
+      expect(
+        committed,
+        `${name}/${SUMMARY_FILE} is not what its measured files derive — regenerate with ` +
+          "`node tools/discovery-eval/summarize.mjs` and commit the result",
+      ).toBe(canonicalJson(summary));
+    }
+  });
+
+  it("passes summarize.mjs --check over whatever is committed", () => {
+    // the same property through the real entry point, so the command a
+    // contributor is told to run is the one exercised. this one also covers
+    // the top-level summary.json, which the loop above does not reach.
+    const result = runScript(SCRIPTS.discoveryEvalSummarize, ["--check", "--quiet"]);
+    expect(result.code, result.output).toBe(0);
   });
 });
 
