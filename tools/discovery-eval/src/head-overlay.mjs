@@ -50,9 +50,22 @@
 // nothing here re-implements it; this module's own job stays the one thing
 // specific to head evaluation: which paths and how much of them may cross
 // the boundary at all.
+//
+// THE FRONTMATTER READER TRAVELS WITH THIS BOUNDARY TOO, THROUGH
+// fingerprint.mjs — not by re-parsing. the predecessor's overlay.mjs imported
+// `readDiscoveryText` from corpus.mjs rather than keeping its own copy of the
+// frontmatter parsing, because corpus.mjs was "the single owner of 'what
+// discovery reads' — overlay.mjs caps the cost of exactly these two fields
+// and calls this rather than parsing them again". `allowOverlayContent`
+// below caps the size of the same `description` field the corpus fingerprint
+// reads, so it imports `readDescription` from ./fingerprint.mjs rather than
+// re-deriving it: a change to how the fingerprint reads that field must move
+// what this module caps, not silently stop being what it caps.
 
 import { lstat } from "node:fs/promises";
 import { resolve, sep } from "node:path";
+
+import { readDescription } from "./fingerprint.mjs";
 
 /** skill directory names, matching the shape the repository's own checks accept. */
 export const SKILL_NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -168,19 +181,6 @@ export function resolveInside(root, relative) {
 export const DESCRIPTION_MAX_BYTES = 1024;
 export const FILE_BYTES_MAX = 64 * 1024;
 
-/** the frontmatter block's body, or `null` when the file carries none. */
-function frontmatterBlock(text) {
-  return /^---\n([\s\S]*?)\n---/.exec(text)?.[1] ?? null;
-}
-
-/** the value of one frontmatter key, up to the next key or the block's end. */
-function frontmatterValue(block, key) {
-  const match = new RegExp(`^${key}:[ \\t]*([\\s\\S]*?)(?=\\n[A-Za-z_][A-Za-z0-9_-]*:|$)`, "m").exec(
-    block,
-  );
-  return match ? match[1].trim() : "";
-}
-
 /**
  * decide whether an overlaid file's CONTENT is within the cost bounds.
  *
@@ -188,6 +188,10 @@ function frontmatterValue(block, key) {
  * not treated as a fatal error: the head of an in-progress pull request has
  * not necessarily passed `check-skill-frontmatter.mjs` yet, and the useful
  * behaviour is to skip that file and say why, not to abort the whole run.
+ *
+ * reads `description` through fingerprint.mjs's `readDescription` — the same
+ * function the corpus fingerprint itself calls — rather than parsing
+ * frontmatter a second time here. see this file's header.
  *
  * @param {string} text the head file's contents
  * @returns {{ allowed: true } | { allowed: false, reason: string }}
@@ -198,12 +202,11 @@ export function allowOverlayContent(text) {
     return { allowed: false, reason: `file is ${bytes} bytes (max ${FILE_BYTES_MAX})` };
   }
 
-  const block = frontmatterBlock(text);
-  if (block === null) {
+  const description = readDescription(text);
+  if (description === null) {
     return { allowed: false, reason: "no frontmatter block" };
   }
 
-  const description = frontmatterValue(block, "description");
   const descriptionBytes = Buffer.byteLength(description, "utf8");
   if (descriptionBytes > DESCRIPTION_MAX_BYTES) {
     return {
