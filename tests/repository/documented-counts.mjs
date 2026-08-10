@@ -489,16 +489,6 @@ export const CLAIMS = {
     },
   },
 
-  "repository-gotchas": {
-    owner: 'the bold lead-in paragraphs of README.md\'s "Repository gotchas"',
-    note: "add or remove a gotcha and this sentence counts them",
-    derive: async () => {
-      const readme = await readFile(repoPath("README.md"), "utf8");
-      const section = sectionOf(readme, "### Repository gotchas");
-      return [...section.matchAll(/^\*\*/gm)].length;
-    },
-  },
-
   "effect-eval-case-count": {
     owner: "the cases array in data/effect-eval/fixture.json",
     note: "adding or removing a case moves this number, and effect-eval-out-of-range-skill-count moves opposite it as skills cross between the two lists",

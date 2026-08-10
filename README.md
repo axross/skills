@@ -63,8 +63,10 @@ rather than one option among several.
 
 Every skill in the library, grouped by what you would reach for it to do. They
 all install the same way, and every one of them has its source under
-[`skills/`](./skills) — see [Authoring a skill](#authoring-a-skill) if you
-contribute here.
+[`skills/`](./skills) — see
+[`docs/conventions/directory-structure.md`](./docs/conventions/directory-structure.md)
+and [`docs/operations/agent-skills.md`](./docs/operations/agent-skills.md) if
+you contribute here.
 
 ### Working with you
 
@@ -158,51 +160,31 @@ one you inherit.
 ## How this library evaluates its skills
 
 A skill's usefulness has to be checked rather than assumed, and the checking
-cannot be done by reading it.
-
-**Evaluation in this space, where it exists at all, tends to stop at a skill's
-textual properties** — that it is shaped correctly, not that it works. This
-library measures the skill outcome as well, and commits the measurements: every
-probe's verbatim transcript lives under
-[`data/discovery-eval/`](./data/discovery-eval/README.md) and
+cannot be done by reading it. Evaluation in this space, where it exists at
+all, tends to stop at a skill's textual properties — that it is shaped
+correctly, not that it works. This library measures the skill outcome as
+well, and commits the measurements: every probe's verbatim transcript lives
+under [`data/discovery-eval/`](./data/discovery-eval/README.md) and
 [`data/effect-eval/`](./data/effect-eval/README.md), so what the measurement
 found is something you can read rather than take on trust. That is the axis
 worth comparing libraries on — whether the discovery text is _measured_ or
-merely asserted. It has already produced negative results about this library's
-own skills, and those are recorded rather than quietly dropped, which is the
-entire point of running it.
+merely asserted. It has already produced negative results about this
+library's own skills, and those are recorded rather than quietly dropped,
+which is the entire point of running it.
 
-**There is no baseline file to keep up to date.** Measurements accumulate, one
-directory per case per dispatch, and a result reads as a change because the
-previous measurement is sitting beside it rather than because someone
-re-recorded a snapshot. Storing what was measured rather than what was
-concluded is what lets a later question — a changed threshold, a statistic
-nobody thought to compute — be re-derived from files already paid for instead
-of re-bought with another run.
-
-Two instruments do the measuring.
-[`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) explains
-what skill evaluation is, why checking textual properties cannot reach it, and
-what each instrument answers.
-[`tools/discovery-eval/README.md`](./tools/discovery-eval/README.md) carries the
-discovery instrument — its two probe modes, how a verdict is reached, and the
-limits of what a run can conclude — and
-[`tools/effect-eval/README.md`](./tools/effect-eval/README.md) the effect one.
-[Reporting, not gating](#reporting-not-gating) has the commands for both.
+See [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) for
+what skill evaluation is, why checking textual properties cannot reach it,
+and what each of the two instruments answers, and
+[`docs/operations/evaluation-dispatch.md`](./docs/operations/evaluation-dispatch.md)
+for how to run either one.
 
 ## Contributing
 
 Development here is agent-assisted via
-[Claude Code](https://claude.com/claude-code). The working agreement lives in
-[`CLAUDE.md`](./CLAUDE.md) and routes to the detailed skills under
-[`skills/`](./skills). Every change goes through the same loop —
-**plan → approve → code → verify → independent review → address → ready** —
-stepped through under
-[Delivering a unit of work end-to-end](#delivering-a-unit-of-work-end-to-end).
-Working without an agent does not lower the bar: branch, implement, run the
-[checks](#commands), open a pull request following
-[the template](./.github/pull_request_template.md), and get it reviewed before
-merge.
+[Claude Code](https://claude.com/claude-code), working through this
+repository's own change loop; see
+[`docs/operations/development-workflow.md`](./docs/operations/development-workflow.md)
+for the loop's stages and how it is wired here.
 
 ### Local setup
 
@@ -211,18 +193,14 @@ merge.
    one covers
 
 There is no dev server — authoring a skill means editing Markdown under
-[`skills/`](./skills) (or a skill root for a repository-local skill),
-reinstalling if it is distributable, and running `npm run check`. The terms this
-repository uses and the decisions that constrain it live in
-[`docs/`](./docs/index.md), which is checked by the same suite. In a Claude
-Code cloud session,
-[`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) installs
-dependencies (activating a Node version manager if one is present); the opt-in
-format-on-edit and check-before-stop hooks are materialized from
-[`.claude/settings.local-example.json`](./.claude/settings.local-example.json).
-A Codex session runs the same session-start and check scripts through
-[`.codex/hooks.json`](./.codex/hooks.json); format-on-edit is not wired there,
-because `format.sh` reads the edited path from a Claude Code payload field.
+[`skills/`](./skills) (or a skill root for a repository-local skill) and
+reinstalling if it is distributable; see
+[`docs/operations/agent-skills.md`](./docs/operations/agent-skills.md) for
+that procedure and
+[`docs/operations/agent-sessions.md`](./docs/operations/agent-sessions.md)
+for how a Claude Code or Codex session starts here. The terms this repository
+uses and the decisions that constrain it live in [`docs/`](./docs/index.md),
+which is checked by the same suite.
 
 | Area              | Tool                                                                                  |
 | ----------------- | ------------------------------------------------------------------------------------- |
@@ -252,24 +230,23 @@ wide one — the `npm test` row says what it carries.
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
-| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | When to run it                                                           |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Once per checkout, and after `package.json` changes.                     |
-| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | After every set of edits, before committing.                             |
-| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | In CI, or to check formatting without touching the working tree.         |
-| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | After formatting, and fix every reported error before finishing.         |
-| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the discovery-evaluation summary drift check and its declared-patch check, the five corpus checks over `docs/`, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`. |
-| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Before opening or updating a pull request.                               |
+| Command                | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | When to run it                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `npm install`          | Installs the toolchain (Prettier, markdownlint-cli2, Vitest) pinned in `package.json`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Once per checkout, and after `package.json` changes.                     |
+| `npm run format`       | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | After every set of edits, before committing.                             |
+| `npm run format:check` | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | In CI, or to check formatting without touching the working tree.         |
+| `npm run lint`         | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | After formatting, and fix every reported error before finishing.         |
+| `npm test`             | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the discovery-evaluation summary drift check and its declared-patch check, the five `docs/` checks, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`. |
+| `npm run check`        | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Before opening or updating a pull request.                               |
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
-**Every validator lives in the skill that owns it.** A validator here is an agent
-utility — the thing you run after doing the work its skill governs — so it ships
-with that skill rather than sitting beside the repository it happens to be
-written in. Each is also a standalone CLI with `--help`, so a single check can
-run without the suite. Run them from the source tier under [`skills/`](./skills)
-— what the suite itself invokes; the installed roots go stale mid-edit.
+Every command below runs from the source tier under [`skills/`](./skills) —
+what the suite itself invokes; the installed roots go stale mid-edit. See
+[`docs/conventions/directory-structure.md`](./docs/conventions/directory-structure.md)
+for why each validator ships with the skill that owns it rather than living
+here, and when a validator earns its place at all.
 
 ```bash
 # This repository's own three gates, run over the whole tree by `npm test`:
@@ -279,7 +256,7 @@ node skills/agent-skill-authoring/scripts/check-skill-body.mjs --help
 node skills/agent-skill-authoring/scripts/check-skill-references.mjs --help
 node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
 
-# Five more gate this repository's own docs/ corpus. They are one set,
+# Five more gate this repository's own docs/. They are one set,
 # deliberately not one command: each answers for one kind of change, so an
 # author who touched one document reads only its findings.
 node skills/living-product-specification/scripts/check-index.mjs docs
@@ -289,7 +266,7 @@ node skills/living-product-specification/scripts/check-decision-naming.mjs docs
 node skills/living-product-specification/scripts/check-decision-supersede.mjs docs
 
 # One more ships in a skill and this repository runs it too, from a schedule
-# rather than a gate — see "Scheduled, and off the merge path" below:
+# rather than a gate — see docs/conventions/verification-gates.md:
 node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
 
 # Three more ship inside a skill purely for the projects that install it — this
@@ -299,483 +276,16 @@ node skills/wireframe-design/scripts/check-wireframe.mjs --help
 node skills/github-operation/scripts/decode-sanitized-read.mjs --help
 ```
 
-A validator earns its place when the defect it finds is **not visible in the text
-its author just wrote** — because it spans files, because it counts, or because
-it compares bytes. Four scripts that failed that test were removed rather than
-rehomed: two mirrored a vendor's option surface in regular expressions, which is
-the same staleness [#179](https://github.com/axross/skills/issues/179) is moving
-the vendor skills away from and less visible, since a pattern never renders; and
-two re-checked rules an agent holding the skill can see in the file in front of
-it. What each of those skills teaches is unchanged — only the claim that this
-repository ships a runnable checker for it is gone.
-
-#### Reporting, not gating
-
-The <!-- count:first-reporting-tool-ordinal -->fifteenth<!-- /count -->,
-the <!-- count:second-reporting-tool-ordinal -->sixteenth<!-- /count -->, and
-the <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> scripts
-report instead of judging. None belongs to a gate, an npm script, or a hook, and
-`tests/repository/reporting-tools.test.mjs` keeps all three out of the enforced
-set on purpose, so wiring any of them in has to be a deliberate act.
-
-The <!-- count:first-reporting-tool-ordinal -->fifteenth<!-- /count --> reports a
-number:
-
-```bash
-node scripts/report-obligation-burden.mjs --mandated
-node scripts/report-obligation-burden.mjs --help
-```
-
-`report-obligation-burden.mjs` answers "how many rules is an agent holding right
-now?" — the concurrent RFC-2119 obligation count across a set of skills, as a
-**range**: the floor those skills cost with only their `SKILL.md` bodies read,
-and the ceiling once every `references/*.md` is read too. Pass skills by path,
-by name, or via `--mandated` for the set [`CLAUDE.md`](./CLAUDE.md) requires —
-reported in the **three cumulative tiers** its Response Approach actually scopes
-that set to, because only one of the three skills applies to every session:
-`professional-behavior` always, `software-development` once a task touches the
-project, and `loop-engineering` once it changes something. The first tier is
-what a question-answering session carries and the last is what a
-change-delivering one does; reading the last as the always-on cost overstates it
-several times over. It reads the obligation definition from the same module
-`check-skill-body.mjs` does, so the two never disagree about what a rule is.
-
-It defines **no threshold** and never fails: it exits 0 on every valid
-invocation however large the numbers. There is no evidence for a defensible
-limit in this corpus yet, and a threshold nobody can defend becomes either a
-rule people route around or a warning people stop reading.
-
-The <!-- count:second-reporting-tool-ordinal -->sixteenth<!-- /count --> reports a
-routing outcome:
-
-```bash
-node tools/discovery-eval/evaluate.mjs --dry-run
-node tools/discovery-eval/evaluate.mjs --help
-node tools/discovery-eval/summarize.mjs --check
-```
-
-`tools/discovery-eval/` answers "does a prompt actually surface the right
-skills?" — the first check here that measured a **skill outcome** rather than a
-**textual property**. It asks each labelled prompt through the real Claude Code
-CLI **inside a materialized mock project**, with every installed skill
-competing, and records which skills the run selected. It cannot gate for three
-independent reasons: it is non-deterministic, it costs real money per probe
-(`--dry-run` prints the projection), and it needs a secret that fork pull
-requests do not receive.
-
-**A probe reads the project before it chooses, which is the whole point.** A
-prompt states the problem in the words of whoever has it — no path, no library,
-no vendor — so the model has to open the codebase to route, exactly as it would
-for a real request. `Read`, `Glob` and `Grep` are permitted for that;
-`Bash` and the editing tools are not, because a probe that starts doing the work
-is measuring the other axis at this one's prices.
-
-**One mode does not read a project, and it is the one that handles untrusted
-text.** Evaluating a pull request's changed `SKILL.md` files means a model reads
-prose written by someone outside the repository, so that runs in a bare
-workspace at one turn with only the `Skill` tool — no filesystem, no shell, no
-credentials. The two modes are mutually exclusive per dispatch and the
-instrument **refuses** the combination rather than documenting it.
-
-Run it in CI from the Actions tab by dispatching
-[`discovery-eval.yaml`](./.github/workflows/discovery-eval.yaml) — the only
-workflow allowed to invoke it, and **manual dispatch is its only trigger**, so
-nothing a pull request does can start it or spend money. Four inputs, all
-optional: `case` runs one case rather than the fixture, `repeats` overrides what
-a case declares, `pull_request` evaluates that branch's changed skills in the
-bare mode above and posts the report there, and `dry_run` rehearses every step
-with no probe spawned. A run that names a pull request **records nothing** — it
-reports, because what it measured is routing on the prompt alone and that is not
-comparable with a situated measurement.
-
-**Spending is bound by refusal rather than by exhaustion.** Admission runs once,
-before any probe, and projects the dispatch's cost from committed measurements
-where they exist and from the fixture's declared per-probe ceiling where they do
-not — a ceiling per probe mode, since a situated probe and a bare one cost about
-an order of magnitude apart. A projection over the fixture's cap refuses the
-run, and a refusal is a finding rather than a prompt to raise the cap. Until a
-case has been measured its projection rests on the ceiling, which is
-deliberately above what a probe should cost, so an early dispatch is priced
-pessimistically on purpose. See
-[`tools/discovery-eval/README.md`](./tools/discovery-eval/README.md) for the
-probe modes and how a verdict is reached, and
-[`data/discovery-eval/README.md`](./data/discovery-eval/README.md) for what a
-measurement holds.
-
-`npm test` re-derives every committed summary under `data/discovery-eval/` and
-fails on a mismatch, confirms every skill the fixture names still exists, and
-applies every declared case patch against its mock offline — deterministic
-checks that never invoke the runner. A fixture naming a renamed skill, or a
-patch that stopped fitting its mock, would otherwise rot in silence until a
-dispatch had already spent money reaching it.
-
-The <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> reports a
-ranking:
-
-```bash
-node scripts/report-skill-duplication.mjs
-node scripts/report-skill-duplication.mjs --help
-```
-
-`report-skill-duplication.mjs` answers "which rule is stated in more than one
-skill?" — a question the skill-structure checks structurally cannot ask, because
-they validate one skill directory at a time and are host-agnostic. Two rules are
-compared as sets of content words, cross-skill only, and every pair above the
-similarity floor is listed with both `file:line` sites and both rules in full.
-It reads the obligation definition from the same module `check-skill-body.mjs`
-does,
-so the three tools never disagree about what a rule is.
-
-Its reason for never gating is the strongest of the three, and it is not a
-missing threshold: **the defect is not decidable from the text.**
-[`scoping-and-mece.md`](./skills/agent-skill-authoring/references/scoping-and-mece.md)'s
-Portable Source Exception lets a self-contained distributable skill restate a
-rule another skill owns, and every skill here is distributable — so two
-identical bullets may be one rule with two sources of truth (which
-[`REVIEW.md`](./REVIEW.md) rates Major) or a portable skill standing on its own
-(which is correct). Only intent separates them, and intent is not in the corpus.
-The ranking is a place to look; a human decides.
-
-#### Scheduled, and off the merge path
-
-One more script neither gates nor merely reports. It **can** fail, it runs on a
-schedule rather than on a pull request, and — unlike the three above — it ships
-inside a skill, because it is an agent utility like every other validator here:
-
-```bash
-node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
-node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --help
-```
-
-`link-freshness/check.mjs` answers "do the URLs this repository cites
-still resolve?" — a question nothing here asked before, because
-`check-links.mjs` resolves relative `.md` targets on disk and ignores
-`http(s)://` entirely. It exists because the vendor skills are moving off
-reproduced option tables and onto a link plus the non-obvious caveat, which
-trades a table that goes stale **visibly** for a link that rots **silently**.
-
-**Only a link confirmed dead fails it** — a 404 or 410 that survives a retry. A
-host that rate-limits, blocks datacentre egress, or times out is reported as
-`unverifiable` and never affects the outcome, and a permanent redirect is
-reported as `moved` without failing. That split is the design: this corpus cites
-~80 hosts, several of which refuse CI traffic by policy, and an audit that went
-red whenever a publisher throttled a runner would be red most weeks — the same
-argument that keeps the three tools above out of every gate.
-
-It lives in
-[`agent-skill-authoring`](./skills/agent-skill-authoring/SKILL.md) rather than at
-this repository's root: the rot it catches is a rot in _cited skill prose_, which
-is that skill's subject, and the same skill already warns when a version-pinning
-document cites nothing at all. What cannot travel with it is this repository's
-wiring, so the skill states the schedule-only, never-`pull_request` rule as a
-`MUST NOT` of its own — a consuming project inherits the argument, not just the
-code.
-
-It runs from
-[`link-freshness.yaml`](./.github/workflows/link-freshness.yaml) weekly, and
-that workflow **must never gain a pull-request trigger**. The reason is the
-mirror of [`@claude review`](#claude-review--get-findings-on-any-pr)'s
-`--disallowedTools "WebFetch,WebSearch,Task"` denial: a job that dereferences
-every URL in the tree, triggered by a pull request, dereferences URLs an outside
-contributor just wrote. Scheduled, it only ever probes text already merged.
-`tests/repository/scheduled-audit-tools.test.mjs` holds all of that
-mechanically — the trigger shape, the read-only token, and its absence from
-every gate, npm script, and hook.
-
-Being merged makes a URL reviewed; it does not make the **host** honest, and the
-audit follows redirects by hand so it can tell a permanent move from a temporary
-one. A citation that was ordinary at review time can start redirecting to an
-internal address weeks later, so every hop — the first included — is
-re-validated against its `address-guard.mjs`, which refuses
-loopback, RFC 1918, carrier-grade NAT, link-local (`169.254.169.254`), and their
-IPv6 and IPv4-mapped equivalents. A refused hop is reported as `unverifiable`
-and does not fail the run. That file also states the DNS-rebinding window the
-check does **not** close, and why the residual risk is bounded to blind
-reachability probing.
-
-Because scheduled workflows run only from the default branch, the audit does not
-run on the pull request that changes it. `--dry-run` is the offline preview, and
-it is what `npm test` exercises: no test in this repository probes a URL.
-
-### Repository gotchas
-
-There are <!-- count:repository-gotchas -->eight<!-- /count --> things about this
-repository worth knowing before changing it.
-
-**Some dependencies move fast enough that memory is unreliable.** Consult the
-current official docs before changing behavior these govern:
-
-| Dependency                   | Refresh docs before changing                                                                             |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Claude Code                  | Skill format and frontmatter, hook and settings configuration, slash-command behavior, MCP configuration |
-| markdownlint-cli2 / Prettier | Lint and format configuration, suppression syntax, rule names                                            |
-| Vitest                       | Suite configuration, runner and matcher APIs, CLI flags                                                  |
-
-**Some files fail globally rather than locally.** A small mismatch in one of
-these breaks skill discovery or the verification gate outright, not just one
-rendered page — so refresh the owning tool's docs before editing one:
-
-- **Claude Code** — any `SKILL.md` frontmatter, `.claude/settings*.json`, and
-  the hooks under `.claude/hooks/`.
-- **markdownlint-cli2 / Prettier** — `.markdownlint-cli2.jsonc`,
-  `.prettierrc.json`, and `.prettierignore`.
-- **Vitest** — `vitest.config.mjs`, which every gate inside `npm test` runs
-  through.
-- **The gate set itself** — `package.json`'s `check` chain and
-  [`merge-checks.yaml`](./.github/workflows/merge-checks.yaml)'s jobs.
-
-That last pair is only half the problem. The enforced-gate set lives in **four**
-places — those two, the commands table above, and [`REVIEW.md`](./REVIEW.md)'s
-do-not-report list — and all four must agree or CI quietly stops enforcing
-something the documentation still claims it does.
-`tests/repository/gate-consistency.test.mjs` ties the first two mechanically:
-add a gate to one, forget the other, and the suite fails. The two prose copies
-are tied to nothing, so changing the gate set means editing this file and
-`REVIEW.md` by hand — and a reviewer checking that you did.
-
-**Session telemetry is tagged here, and cannot be checked from inside a
-session.** [`.claude/settings.json`](./.claude/settings.json) carries an `env`
-block stamping `repository=skills` and the session's launch surface onto the
-OpenTelemetry metrics Claude Code exports, so this repository's usage separates
-from every other repository sharing an account or a cloud environment. It
-configures nothing else — no endpoint, no credential, no
-`CLAUDE_CODE_ENABLE_TELEMETRY` — so a contributor who has never set telemetry up
-sees no behavior change from it. Verifying a change to that block is the catch:
-Claude Code does not pass `OTEL_*` variables to the subprocesses it spawns, so
-`echo $OTEL_RESOURCE_ATTRIBUTES` inside a session prints nothing even when the
-exporter holds the value. Confirm it in the metrics backend instead, against a
-session started _after_ the change — an already-running session read its
-configuration at startup.
-
-**A number in prose can be a checked claim.** Wrap one in a `count:` marker and
-`npm test` holds it to the file it describes — the skill count at the top of
-this page and the round cap it quotes from a skill. The marker is invisible
-once rendered:
-
-```markdown
-The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the
-whole arc.
-```
-
-Each key is registered in
-[`tests/repository/documented-counts.mjs`](./tests/repository/documented-counts.mjs)
-alongside the derivation that proves it, and the failure names the file, the
-claim, the truth, and what else moves with the number. Three rules the check
-enforces:
-
-- **A marker sits inline, whole, on one line, and never at the start of one.** A
-  line beginning with `<!--` is an HTML block in CommonMark, so a marker placed
-  there splits the paragraph in two.
-- **A marker never appears in a distributable skill.** Those install into other
-  people's projects, where the derivation names files that do not exist.
-- **A registered key with no marker fails**, so a derivation cannot outlive the
-  sentence it was written for.
-
-Marking is opt-in, which is the deliberate limit: a number nobody wrapped still
-drifts silently, and stays a reviewer's job. Grepping prose for digits was the
-alternative, and it both misses a count spelled as a word and fires on every
-unrelated number. Note that a marker is only invisible in _prose_ — inside a
-fenced block it renders as text, so a code sample a reader copies carries none
-(the sample above is a real, checked claim, which is why it has one).
-
-**The installed skills live once and are read from two roots.** The
-distributable skills under [`skills/`](./skills) are the source of truth.
-`npx skills` installs them into `.agents/skills/`, where Codex reads them, and
-each `.claude/skills/<name>` is a **symlink** into that directory, which is the
-form Claude Code documents for a skill entry. Both roots are committed. Edit the
-source and reinstall — a hand-edit to an installed copy is silently discarded by
-the next install. The installed-copy check inside `npm test` compares the source
-against the symlink root, so one run catches both a forgotten reinstall and a
-symlink that stopped resolving. Every skill is in scope for it; the
-repository-local tier that the check exempts is currently empty.
-
-**A symlinked skill root is invisible to a naive directory walk.**
-`Dirent.isDirectory()` is false for a symlink pointing at a directory, so code
-that filters on it sees an empty root — and an empty root reports `All 0
-skill(s) passed` or `no drift`, which is indistinguishable from a real pass.
-Every enumeration here stats through the link instead. Anything new that walks a
-skill root has to do the same, or it will silently check nothing.
-
-**Codex reads less of a skill than Claude Code does.** It reads `name` and
-`description`; `when_to_use` is a Claude Code extension it ignores, and no skill
-here carries one. It refuses
-to load a skill whose `description` exceeds 1,024 bytes —
-`check-skill-frontmatter.mjs`
-enforces that in bytes rather than characters for the reason its comment gives —
-and it truncates per-skill descriptions to fit the whole listing into a context
-budget, so the front of a `description` is the part that reliably arrives. Its
-default sandbox also runs commands with **network disabled**, which of the
-bundled scripts affects only `link-freshness/check.mjs`; `--dry-run` needs no
-network.
-
-**`npx skills` can fail to resolve the CLI.** In some environments — a fresh
-container with no local install, or a stale npx cache — both `npx skills …` and
-`npx --yes skills …` abort with `npm error could not determine executable to
-run`, which reads like a broken command rather than a resolution failure. An
-explicit version specifier fixes it:
-
-```bash
-npx --yes skills@latest add ./skills --agent codex --skill '*' --yes
-```
-
-The plain `npx skills` form stays canonical — reach for the specifier only after
-seeing that error, since pinning `@latest` on every run fetches the newest CLI
-build each time.
-
-### Authoring a skill
-
-Skills live in two tiers. Every skill here is currently **distributable**: its
-source is [`skills/<name>/SKILL.md`](./skills) (with any `references/` and
-`scripts/` beside it), and the installed files under `.agents/skills/` are
-generated from it with the
-[vercel-labs/skills](https://github.com/vercel-labs/skills) CLI:
-
-```bash
-npx skills add ./skills --agent codex --skill '*' --yes
-```
-
-That writes `.agents/skills/<name>/`. The CLI copies rather than symlinks when
-the source is a local path — `--copy`'s "instead of symlinking" governs remote
-and `node_modules`-mediated installs — so the `.claude/skills/<name>` links are
-made once and simply kept:
-
-```bash
-for d in .agents/skills/*/; do
-  n=$(basename "$d")
-  ln -sfn "../../.agents/skills/$n" ".claude/skills/$n"
-done
-```
-
-Commit both roots and `skills-lock.json` alongside the source — they are tracked
-artifacts, not build output to ignore. A skill added or removed needs the
-corresponding link added or removed with it; the installed-copy check fails on
-either half being missed.
-
-**Confirm both hosts actually load them.** The suite checks that the files are
-well-formed and in the right place; it cannot check that a host read them, and
-each host is loaded at session start, so neither is observable from inside the
-session that changed the tree. Verify each once, in a fresh session:
-
-- **Codex** — run `/skills` and confirm the library is listed. Codex warns when
-  the listing exceeds its context budget and truncates descriptions to fit, so
-  read the warning rather than only the names.
-- **Claude Code** — run `/context` and confirm the skills appear, which is what
-  proves the `.claude/skills/<name>` symlinks resolved.
-
-The second tier is **repository-local**: a skill that encodes conventions
-specific to this repository would have its source committed directly under a
-skill root, hand-edited in place, and never touched by the CLI or listed in
-`skills-lock.json`. No skill is in that tier today —
-`github-operation` was the last one and is now distributable — so the tier is
-available rather than in use. Registering one means passing its name to the
-installed-copy check as `--local <name>` from
-[`tests/repository/gates.mjs`](./tests/repository/gates.mjs), which otherwise
-treats an installed skill with no source as drift.
-
-[Agent Skill Management](./skills/agent-skill-management/SKILL.md) covers which
-tier a new skill belongs to and the full install, lockfile, and
-refresh-and-verify workflow;
-[Agent Skill Authoring](./skills/agent-skill-authoring/SKILL.md) covers how to
-write the skill itself. Both are in the catalog above, so you can install them
-into your own project too.
-
-### Delivering a unit of work end-to-end
-
-[Loop Engineering](./.claude/skills/loop-engineering/SKILL.md) is the
-repository's default change loop, and this repository mandates it: every change
-here goes through it, whatever its size. It runs **model-invoked** — there is no
-slash command. Name the work and it drives that work to a merge-ready pull
-request in one continuing session, stopping for you wherever a decision is
-yours to make. The skill states its stages, where it stops, and what it caps.
-
-Kick it off by naming what to deliver — "deliver issue #42", "pick up PR 57", or
-a description of the change with no issue behind it yet. To carry on after it
-stops, continue the session and tell it to.
-
-**Implementation runs in a subagent here, and that subagent is also the worked
-example.**
-[`.claude/agents/implementer.md`](./.claude/agents/implementer.md) pins a
-lower-cost model and effort — a worker that inherits the session's runs at the
-main actor's cost, which defeats the point — and states the delivery boundary in
-its own body rather than closing it by withdrawing a tool: commits stay local,
-and pushing, publishing, and anything else that speaks outward belongs to
-whoever asked, a rule the file asks the worker to honor rather than one the host
-enforces. It carries nothing else: the decision boundary, the verification
-obligation, the commit rules, and the receipt shape all arrive per run in the
-task package, so a definition restating them would only drift from it. It does
-not mention the loop at all, which is the point: it says
-what an implementation agent is and what it may not decide, so the same file
-works for a caller that has never heard of `loop-engineering` and is worth
-copying into a project that runs its subagents some other way. What it leaves
-out, and why, is explained host-neutrally in
-[`implementation-worker.md`](./skills/loop-engineering/references/implementation-worker.md).
-Delete the file and the loop keeps delegating — to a generic
-implementation-capable agent at the session's inherited model — rather than
-returning to single-agent execution, with no gate weakened. Single-agent
-execution is what a host exposing no capable agent at all produces.
-
-**The pre-flight review has its own worked example, and the interesting
-part is what it does _not_ take away.**
-[`.claude/agents/reviewer.md`](./.claude/agents/reviewer.md) denies two things —
-editing, and spawning another agent — and nothing else. The obvious move is to
-give a reviewer a short list of permitted tools, since its job sounds narrow. It
-is not: judging a change means confirming what was asked and not only what was
-written, which reaches the issue, any artifact the plan points at, and the
-documentation behind a factual claim. A reviewer missing one of those does not
-fail to start; it runs, cannot check what it cannot reach, and returns a report
-short by exactly those checks — and an under-equipped review reads exactly like a
-clean one. So the asymmetry between the two definitions is now in both _what_
-each denies and _how_: the things `implementer.md` must never do are few and
-nameable, and it asks them in prose rather than closing them with a withdrawn
-tool; the things a reader needs are open-ended, which is why `reviewer.md` still
-enforces its own short deny-list with tools instead. Neither restriction is
-complete, and the file says so — `Bash` remains, so mutation is enforced
-against the editing tools and not against the shell, and reporting rather than
-publishing stays a rule it is asked to honor. Delete this file and the stage is
-skipped rather than performed by the main actor, which is what keeps it from
-degrading into self-review.
-
-`.claude/agents/` is the only home for either file — they are agent definitions,
-not skills, so `npx skills` does not carry them. Only Claude Code is configured
-today; [#218](https://github.com/axross/skills/issues/218) tracks the Codex side
-for both.
-
-One check backs the loop from outside any session:
-[`branch-governance-audit.yaml`](./.github/workflows/branch-governance-audit.yaml)
-sweeps hourly and flags any `claude/` branch pushed ahead of the default branch
-with no open pull request — work delivered outside the loop, and so never
-independently reviewed. It is deliberately a scheduled sweep rather than a
-push-triggered gate, because implementation legitimately pushes before the pull
-request opens; a grace window skips a branch whose latest commit is still fresh.
-
-### `@claude review` — get findings on any PR
-
-Comment **`@claude review`** on a pull request to run this repository's review
-policy ([`REVIEW.md`](./REVIEW.md)) — severity-tagged findings with `file:line`
-evidence and concrete fixes, posted as inline comments by the CI reviewer
-([`claude-review.yaml`](./.github/workflows/claude-review.yaml)). Use it for a
-pre-merge check on a hand-written change or a second opinion before merging. It
-is the same reviewer the change loop relies on: the loop requests it by
-posting that comment itself, so no review starts without one.
-
-Two things make it stay silent. It answers **repository owners, members, and
-collaborators only**, gating on the commenting author's association and skipping
-everyone else — so an outside contributor's request looks like nothing happened
-at all. And it is inert everywhere until a one-time operator setup is done:
-install the [Claude GitHub App](https://github.com/apps/claude) and add a
-`CLAUDE_CODE_OAUTH_TOKEN` repository secret (generate it with
-`claude setup-token`), or set an `ANTHROPIC_API_KEY` secret for pay-as-you-go
-billing. See the header of
-[`claude-review.yaml`](./.github/workflows/claude-review.yaml) for details.
-
-A third pair of names is optional, and telemetry stays off until you add it.
-Set the repository variable `CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT` and the
-repository secret `CLAUDE_OTEL_EXPORTER_OTLP_HEADERS`, and every review session
-exports its Claude Code metrics and events to that OTLP collector; leave them
-unset and the workflow disables telemetry outright rather than starting an
-exporter that fails, so the reviewer behaves exactly as it does today. The
-`CLAUDE_` prefix is deliberate: a project cloning this workflow may already keep
-`OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` for its own
-application telemetry, and neither configuration should overwrite the other.
-Scope the ingestion token to writing metrics and logs and nothing else — the
-reviewer is allowed broad `Bash`, so it can read any value the job holds.
+See [`docs/conventions/verification-gates.md`](./docs/conventions/verification-gates.md)
+for what makes a check a gate, a report, or a scheduled audit, and the traps
+each can fall into.
+
+## Documentation
+
+Everything else about this repository — its directory structure and skill
+tiers, its verification gates, its `count:` marker, what a distributable
+skill may not contain, how a change moves through the loop, installing and
+refreshing a skill, how an agent session starts here, running `@claude
+review`, dispatching an evaluation, its product specification, and its
+decision log — lives under [`docs/`](./docs/index.md). Start at
+[`docs/index.md`](./docs/index.md), which says which document holds what.
