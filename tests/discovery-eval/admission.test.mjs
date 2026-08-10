@@ -2,13 +2,21 @@
 
 import { describe, expect, it } from "vitest";
 
-import { admitCase, meanProbeCost, reconcile } from "../../tools/discovery-eval/src/admission.mjs";
+import {
+  admitCase,
+  ceilingFor,
+  meanProbeCost,
+  reconcile,
+} from "../../tools/discovery-eval/src/admission.mjs";
+
+const CEILINGS = { situated: 0.35, bare: 0.05 };
 
 const base = {
   caseId: "invalidate-a-stale-list-after-a-write",
   probeCount: 2,
   declaredCapUsd: 40,
-  unmeasuredProbeCostCeilingUsd: 0.35,
+  mode: "situated",
+  unmeasuredProbeCostCeilingUsd: CEILINGS,
 };
 
 describe("meanProbeCost", () => {
@@ -21,12 +29,47 @@ describe("meanProbeCost", () => {
   });
 });
 
+describe("ceilingFor", () => {
+  it("resolves the situated figure for situated mode", () => {
+    expect(ceilingFor(CEILINGS, "situated")).toBe(0.35);
+  });
+
+  it("resolves the bare figure for bare mode — roughly an order of magnitude below situated", () => {
+    expect(ceilingFor(CEILINGS, "bare")).toBe(0.05);
+  });
+
+  it("rejects a mode that names neither probe shape", () => {
+    expect(() => ceilingFor(CEILINGS, "head")).toThrow(/needs mode "situated" or "bare"/);
+  });
+
+  it("refuses a non-positive ceiling for the requested mode", () => {
+    expect(() => ceilingFor({ situated: 0.35, bare: 0 }, "bare")).toThrow(
+      /no positive unmeasuredProbeCostCeilingUsd\.bare/,
+    );
+  });
+
+  it("refuses a ceiling object missing the requested mode entirely", () => {
+    expect(() => ceilingFor({ situated: 0.35 }, "bare")).toThrow(
+      /no positive unmeasuredProbeCostCeilingUsd\.bare/,
+    );
+  });
+});
+
 describe("admitCase", () => {
-  it("admits when the projection fits, and says what it projected from", () => {
+  it("admits when the projection fits, and says what it projected from and which mode", () => {
     const decision = admitCase(base);
     expect(decision.admitted).toBe(true);
     expect(decision.projectedTotalUsd).toBeCloseTo(0.7);
-    expect(decision.basis).toBe("the fixture's declared ceiling");
+    expect(decision.basis).toBe("the fixture's declared situated ceiling");
+    expect(decision.reason).toMatch(/in situated mode/);
+  });
+
+  it("projects a bare case at the bare ceiling, not the situated one", () => {
+    const decision = admitCase({ ...base, mode: "bare" });
+    expect(decision.perProbeUsd).toBe(0.05);
+    expect(decision.projectedTotalUsd).toBeCloseTo(0.1);
+    expect(decision.basis).toBe("the fixture's declared bare ceiling");
+    expect(decision.reason).toMatch(/in bare mode/);
   });
 
   it("refuses when the projection exceeds the cap", () => {
@@ -37,9 +80,17 @@ describe("admitCase", () => {
 
   it("prefers committed measurements over the declared ceiling", () => {
     const decision = admitCase({ ...base, historicalCosts: [1, 1, 1] });
-    expect(decision.basis).toBe("committed measurements");
+    expect(decision.basis).toBe("committed situated measurements");
     expect(decision.projectedTotalUsd).toBe(2);
   });
+
+  // admitCase itself does not filter historicalCosts by mode — it trusts the
+  // caller to have done so (see evaluate.mjs's and discovery-eval-admit.mjs's
+  // own historicalCostsFor). The superseding-per-mode guarantee — a situated
+  // measurement never becomes a bare case's projection, or the reverse — is
+  // therefore tested end to end in
+  // tests/repository/discovery-eval-dispatch-plan.test.mjs, where that
+  // caller-side filter actually runs against a real summary.json.
 
   it("lets a dispatch LOWER the declared cap", () => {
     const decision = admitCase({ ...base, requestedCapUsd: 0.5 });
@@ -55,9 +106,13 @@ describe("admitCase", () => {
   });
 
   it("refuses to run at all with no usable per-probe cost", () => {
-    expect(() => admitCase({ ...base, unmeasuredProbeCostCeilingUsd: 0 })).toThrow(
+    expect(() => admitCase({ ...base, unmeasuredProbeCostCeilingUsd: { situated: 0, bare: 0.05 } })).toThrow(
       /no usable per-probe cost/,
     );
+  });
+
+  it("rejects a mode that names neither probe shape", () => {
+    expect(() => admitCase({ ...base, mode: "head" })).toThrow(/mode must be "situated" or "bare"/);
   });
 
   it("rejects a non-positive declared cap rather than admitting everything", () => {

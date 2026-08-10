@@ -70,7 +70,7 @@ describe("discovery-eval-admit.mjs", () => {
     const root = await tempDir();
     await writeScratchFixture(root, {
       capUsd: 1000,
-      unmeasuredProbeCostCeilingUsd: 0.01,
+      unmeasuredProbeCostCeilingUsd: { situated: 0.01, bare: 0.01 },
       cases: [
         { id: "case-a", repeats: 2 },
         { id: "case-b", repeats: 2 },
@@ -128,7 +128,10 @@ describe("discovery-eval-admit.mjs", () => {
     const root = await tempDir();
     await writeScratchFixture(root, {
       capUsd: 10,
-      unmeasuredProbeCostCeilingUsd: 0.35,
+      // a-case declares no mock, so planFor resolves it bare — the .situated
+      // figure below is deliberately a different, unreachable value, so a
+      // projection that used it by mistake would be caught here.
+      unmeasuredProbeCostCeilingUsd: { situated: 99, bare: 0.35 },
       cases: [{ id: "a-case", repeats: 2 }],
     });
     const result = admit(["--root", root, "--case", "a-case", "--dry-run-input", "false"]);
@@ -141,7 +144,7 @@ describe("discovery-eval-admit.mjs", () => {
     const root = await tempDir();
     await writeScratchFixture(root, {
       capUsd: 1,
-      unmeasuredProbeCostCeilingUsd: 0.35,
+      unmeasuredProbeCostCeilingUsd: { situated: 0.35, bare: 0.35 },
       cases: [
         { id: "case-a", repeats: 2 },
         { id: "case-b", repeats: 2 },
@@ -157,13 +160,115 @@ describe("discovery-eval-admit.mjs", () => {
     const root = await tempDir();
     await writeScratchFixture(root, {
       capUsd: 100,
-      unmeasuredProbeCostCeilingUsd: 1,
+      unmeasuredProbeCostCeilingUsd: { situated: 1, bare: 1 },
       cases: [{ id: "a-case", repeats: 2 }],
     });
     const result = admit(["--root", root, "--case", "a-case", "--repeats", "5", "--dry-run-input", "false"]);
     expect(result.code, result.output).toBe(0);
     const plan = JSON.parse(result.stdout);
     expect(plan["projected-usd"]).toBeCloseTo(5, 5);
+  });
+
+  describe("per-mode ceiling — the correction to #280's dry-run defect", () => {
+    it("projects a head dispatch over the whole real fixture near $5.90, not the $41.30 the situated ceiling gives — every case runs bare under --pull-request", () => {
+      const result = admit(["--pull-request", "134", "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("head");
+      expect(plan["projected-usd"]).toBeCloseTo(5.9, 1);
+      expect(plan["projected-usd"]).toBeLessThan(10);
+    });
+
+    // FLAGGED FOR THE PARENT/REVIEWER — see this attempt's receipt.
+    //
+    // issue #280's acceptance criteria ask for this exact command to remain
+    // REFUSED at ~$41.30. It cannot: $41.30 = 118 probes x $0.35 is the OLD
+    // bug's arithmetic, which priced every probe at the situated ceiling
+    // regardless of the mode it actually runs in. Of the fixture's 59 cases,
+    // 3 declare no `mock` (edit-an-issue-body-without-destroying-it,
+    // tighten-a-skill-description-without-losing-routing,
+    // reconcile-an-installed-copy-with-its-source) and run BARE in a plain
+    // measurement dispatch too — not only when `--head-skills` forces it.
+    // Pricing those 6 probes honestly at $0.05 instead of $0.35 recovers
+    // $1.80, moving the total from $41.30 to $39.50 — under the $40 cap, so
+    // this dispatch is now correctly ADMITTED rather than refused.
+    //
+    // Displaying the true mode per case (as the scope requires: "the refusal
+    // message should say which mode it projected and where the figure came
+    // from") makes any other total dishonest — pricing those 3 cases'
+    // printed "$0.05 each [bare]" line at $0.35 in the total would contradict
+    // its own line item. This is therefore not an implementation choice but
+    // an arithmetic consequence of the exact ceilings this issue specifies
+    // (situated $0.35, bare $0.05) applied honestly to the untouched fixture.
+    it("admits a whole-fixture measurement dispatch near $39.50 — the honest per-case-mode total, not the old bug's uniform $41.30", () => {
+      const result = admit(["--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("measurement");
+      expect(plan["projected-usd"]).toBeCloseTo(39.5, 1);
+    });
+
+    it("admits a single-case measurement dispatch, situated at its declared mode", () => {
+      const result = admit(["--case", CASE, "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("measurement");
+      // 2 repeats at the situated ceiling, $0.35 — not the bare one.
+      expect(plan["projected-usd"]).toBeCloseTo(0.7, 5);
+    });
+
+    it("does not let a committed measurement in one mode supersede the ceiling of the other", async () => {
+      const root = await tempDir();
+      await writeScratchFixture(root, {
+        capUsd: 1000,
+        unmeasuredProbeCostCeilingUsd: { situated: 2, bare: 0.05 },
+        // declares a mock, so a measurement dispatch would run it situated —
+        // but this test dispatches it under --pull-request, which forces bare.
+        cases: [{ id: "a-case", mock: "some-mock", repeats: 2 }],
+      });
+      await writeFile(
+        join(root, "summary.json"),
+        JSON.stringify({
+          measurements: [
+            // an expensive SITUATED measurement of this same case.
+            { case: "a-case", workspace: { mode: "situated" }, totalCostUsd: 20, probeCount: 2 },
+          ],
+        }),
+        "utf8",
+      );
+      const result = admit(["--root", root, "--case", "a-case", "--pull-request", "99", "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      // if the situated measurement ($10/probe) wrongly superseded the bare
+      // ceiling, this would project 2 * $10 = $20. It must instead fall back
+      // to the declared bare ceiling: 2 * $0.05 = $0.10.
+      expect(plan["projected-usd"]).toBeCloseTo(0.1, 5);
+    });
+
+    it("does let a committed measurement in the SAME mode supersede that mode's ceiling", async () => {
+      const root = await tempDir();
+      await writeScratchFixture(root, {
+        capUsd: 1000,
+        unmeasuredProbeCostCeilingUsd: { situated: 2, bare: 0.05 },
+        cases: [{ id: "a-case", mock: "some-mock", repeats: 2 }],
+      });
+      await writeFile(
+        join(root, "summary.json"),
+        JSON.stringify({
+          measurements: [
+            // a cheaper SITUATED measurement of this same case.
+            { case: "a-case", workspace: { mode: "situated" }, totalCostUsd: 0.2, probeCount: 2 },
+          ],
+        }),
+        "utf8",
+      );
+      // no --pull-request: a measurement dispatch runs a mock-declaring case situated.
+      const result = admit(["--root", root, "--case", "a-case", "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      // $0.10/probe measured supersedes the $2 situated ceiling: 2 * $0.10 = $0.20.
+      expect(plan["projected-usd"]).toBeCloseTo(0.2, 5);
+    });
   });
 });
 
