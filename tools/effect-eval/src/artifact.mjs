@@ -55,7 +55,7 @@ const NAMED_IMPORT_CLAUSE_RE = /import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+["']([
  * `describe(`, so a suite's own title is never counted as a case name. known
  * gap: `it.each(table)("name", …)` and the `fit`/`xit` aliases are not
  * matched; both are uncommon enough in a freshly generated suite that missing
- * them costs no signal this pilot's fixture needs.
+ * them costs no signal the one case declaring this reading needs.
  */
 const TEST_CASE_RE = /\b(?:it|test)(?:\.\w+)?\s*\(\s*(['"`])((?:\\.|(?!\1).)*)\1/g;
 
