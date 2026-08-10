@@ -86,6 +86,17 @@ refusal before a run rather than as a bill after one.
 measured and found absent — out of range, which is a different result and must
 not be reported as the first.
 
+**A case whose subject is work in flight runs bare, and it is not a judgement
+call.** **Mock materialization** refuses to leave anything uncommitted, so a
+**probe workspace** is always a clean tree at its replayed history's tip; the
+shell is denied above, so no probe can reach a diff by any route. A prompt
+saying "review what I've changed", "this is being called ready", or "I'm about
+to commit this" therefore has no referent no matter how much the model reads —
+and a case that cannot separate "the description failed to route" from "there
+was nothing there to route about" measures nothing. Six cases run bare for that
+reason rather than three, which is a correction to how the criterion was
+applied and not a loosening of it.
+
 **A finding cannot be read without knowing what the probe did first.** A model
 that fails to find the subject answers generically, and a generic answer records
 as a miss, or reaches for a neighbouring skill and records as a spurious

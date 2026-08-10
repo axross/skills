@@ -118,9 +118,12 @@ category error committed in the other direction.
 
 ## What is committed here
 
-`fixture.json` holds 40 cases: 37 situated across the three mocks —
-`tsuzuri` 18, `inkwell` 14, `recall` 5 — and 3 bare, whose subject situating
-would remove. 3 of the situated ones carry `"population": "mandated"` and
+`fixture.json` holds 40 cases: 34 situated across the three mocks —
+`tsuzuri` 15, `inkwell` 14, `recall` 5 — and 6 bare, whose subject situating
+would remove. Three of those six are there because materialization guarantees a
+clean tree and no probe holds a shell, so a prompt about a change in flight — a
+diff to review, a readiness to judge, a commit to write — has no referent a
+situated probe could ever reach. 3 of the situated ones carry `"population": "mandated"` and
 are reported apart, because a consumer's own instructions name those skills and
 discovery never has to surface them. Seven declare a **case patch**, under
 `patches/`, so the state their prompt describes is one the model can confirm
@@ -136,8 +139,8 @@ of the same competitor in the same shape, are one case now.
 `.gitkeep` and `summary.json` is the empty-but-valid derivation over nothing.
 With nothing measured, admission projects every case from the fixture's
 declared ceiling for the mode that case actually runs in. A whole-fixture
-**measurement** dispatch (37 situated cases plus 3 that declare no `mock` and
-run bare regardless of dispatch type, 80 probes total) projects to **$26.20**
+**measurement** dispatch (34 situated cases plus 6 that declare no `mock` and
+run bare regardless of dispatch type, 80 probes total) projects to **$24.40**
 against the $40 `capUsd` — admitted. A whole-fixture **head** dispatch
 (`--pull-request`, every case forced bare) projects to **$4.00** — also
 admitted, and the scenario this per-mode ceiling exists to make usable (see

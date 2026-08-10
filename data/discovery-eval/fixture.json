@@ -22,7 +22,6 @@
     },
     {
       "id": "write-the-commit-message-for-this-change",
-      "mock": "tsuzuri",
       "population": "discovered",
       "repeats": 2,
       "prompt": "I'm about to commit this. Our log is already a mess and I'd rather not add to it.",
@@ -33,7 +32,7 @@
         "react-component-styling"
       ],
       "mayInclude": ["software-development"],
-      "rationale": "The replayed history genuinely mixes 'WIP', 'fix layout bug', 'docs' and one clean conventional header, so 'already a mess' is something the model can confirm by reading rather than a premise it has to accept. The commit-message capability owns the header contract. The design trio is excluded for the same reason as the case above."
+      "rationale": "Bare, because the subject is a change in flight and a situated workspace structurally has none: materialization refuses to leave anything uncommitted, so every probe would open on a clean tree with nothing to write a message about. The commit-message capability owns the header contract, and the prompt carries the whole of what routes to it. The design trio is excluded because a message is not a surface."
     },
     {
       "id": "adopt-a-package-that-ships-only-modern-modules",
@@ -88,18 +87,17 @@
       "mustInclude": ["technical-document-authoring"],
       "mustExclude": ["living-product-specification"],
       "mayInclude": [],
-      "rationale": "A runbook is a procedure a reader follows, not a statement of what the product is, so it belongs to the document-authoring capability rather than to the corpus that records product behaviour. The two are adjacent enough that a model reading only the word 'documentation' will pick the wrong one, which is the boundary being measured."
+      "rationale": "The deployment notes already carry a two-line rollback paragraph that punts the harder case elsewhere, so the 'where does it belong' half opens on a real answer and the 'how much of it belongs there' half is the live question — which is the shape the prompt asks in. A runbook is a procedure a reader follows, not a statement of what the product is, so it belongs to the document-authoring capability rather than to the corpus that records product behaviour. The two are adjacent enough that a model reading only the word 'documentation' will pick the wrong one, which is the boundary being measured."
     },
     {
       "id": "review-what-changed-on-this-branch",
-      "mock": "tsuzuri",
       "population": "discovered",
       "repeats": 2,
       "prompt": "Before I ask anyone to look at this, go through what I've changed and tell me what you'd raise.",
       "mustInclude": ["code-review"],
       "mustExclude": ["loop-engineering"],
       "mayInclude": ["code-maintainability", "quality-assurance"],
-      "rationale": "The replayed history gives a real diff to read. Reviewing an existing change is the review capability's whole subject; the change-loop capability is excluded because it drives a change from plan to merge, and firing it here means the model heard 'branch' and reached for process rather than for judgement."
+      "rationale": "Bare, because the subject is a change in flight and a situated workspace structurally has none: materialization refuses to leave anything uncommitted, and no probe holds a shell, so there is no diff any amount of reading could reach. Reviewing an existing change is the review capability's whole subject; the change-loop capability is excluded because it drives a change from plan to merge, and firing it here means the model heard 'branch' and reached for process rather than for judgement."
     },
     {
       "id": "stop-a-submission-from-trusting-its-caller",
@@ -154,7 +152,7 @@
       "mustInclude": ["living-product-specification"],
       "mustExclude": [],
       "mayInclude": ["technical-document-authoring", "software-development"],
-      "rationale": "The fallback order is stated in three places — the module's own comments, the project's agent instructions, and the deployment notes — so the answer is genuinely 'more than the code'. Keeping the documents that describe the product true as it changes is the living-specification capability's subject."
+      "rationale": "The fallback order is stated twice — in the module's own comments and in the project's agent instructions — so the answer is genuinely 'more than the code'. The deployment notes are the near miss: they name the module and then point at it for the order rather than restating it, so a model that moves them has misread which documents actually carry the claim. Keeping the documents that describe the product true as it changes is the living-specification capability's subject."
     },
     {
       "id": "write-up-a-feature-before-anyone-builds-it",
@@ -183,14 +181,13 @@
     },
     {
       "id": "judge-whether-a-change-was-actually-checked",
-      "mock": "tsuzuri",
       "population": "discovered",
       "repeats": 2,
       "prompt": "This is being called ready. Was it actually checked, or does it just look finished?",
       "mustInclude": ["quality-assurance"],
       "mustExclude": [],
       "mayInclude": ["code-review", "software-development"],
-      "rationale": "Whether a change carries adequate verification evidence is its own question, distinct from whether the code is correct. Review may legitimately fire beside it — the two run together on a real pull request — so it is permitted rather than excluded."
+      "rationale": "Bare, for the same structural reason as the review case: the subject is a change being called ready, and a situated workspace is always a clean tree with nothing in flight to judge. Whether a change carries adequate verification evidence is its own question, distinct from whether the code is correct. Review may legitimately fire beside it — the two run together on a real pull request — so it is permitted rather than excluded."
     },
     {
       "id": "open-the-app-straight-onto-one-deck",
@@ -220,23 +217,23 @@
       "mock": "recall",
       "population": "discovered",
       "repeats": 2,
-      "prompt": "The arrangement of the settings screen is agreed. Now make it look like the rest of the app.",
+      "prompt": "We've settled what goes on the screen for changing a card that already exists, and in what order. Now I need it to actually look like the rest of the app.",
       "mustInclude": ["high-fidelity-ui-design"],
       "mustExclude": ["wireframe-design"],
       "mayInclude": ["react-component-styling"],
-      "rationale": "This is the hand-off point between the two design capabilities, stated from the side that has already passed it. The low-fidelity capability is excluded because its work is finished by the first sentence, and firing it means the model matched on 'layout' rather than reading the second."
+      "rationale": "Want-shaped, and the want is real: the app can add a card but has no screen for changing one, so there is nothing already carrying the treatment being asked for. Every screen that does exist draws from the theme, which is what 'the rest of the app' resolves to once the model looks. This is the hand-off point between the two design capabilities, stated from the side that has already passed it. The low-fidelity capability is excluded because its work is finished by the first sentence, and firing it means the model matched on 'what goes on the screen' rather than reading the second."
     },
     {
-      "id": "replace-a-boolean-style-prop-with-a-proper-variant",
+      "id": "replace-a-conditional-style-with-a-proper-variant",
       "mock": "recall",
       "population": "discovered",
       "repeats": 2,
       "patch": "patches/replace-a-boolean-style-prop-with-a-proper-variant.patch",
-      "prompt": "One of the small controls takes a true-or-false prop and picks its styles with a conditional. It's already awkward and we now need a third look for it.",
+      "prompt": "One of the small controls flips between two looks by tacking an extra style on when a flag is set. It's already awkward and we now need a third look for it.",
       "mustInclude": ["react-component-styling"],
       "mustExclude": ["wireframe-design", "high-fidelity-ui-design"],
       "mayInclude": ["react-component-development"],
-      "rationale": "The patch reverts one leaf control to the platform's own stylesheet with a boolean prop, so the awkwardness the prompt describes is real in the workspace and the project's own instructions already say why it is wrong here. Both design capabilities are excluded: nothing is being designed, an existing look is being expressed differently."
+      "rationale": "The patch reverts one leaf control to the platform's own stylesheet and a conditional style array, and removes its focused state, so both halves are real in the workspace: two looks today, and a third genuinely wanted. The flag is derived inside the component rather than taken as a prop, which is why the prompt describes the conditional rather than the signature. The project's own instructions already say why this shape is wrong here. Both design capabilities are excluded: nothing is being designed, an existing look is being expressed differently."
     },
     {
       "id": "stop-the-analytics-identity-rotating-every-launch",
@@ -395,11 +392,11 @@
       "mock": "inkwell",
       "population": "discovered",
       "repeats": 2,
-      "prompt": "Two screens have grown the same little bit of state handling between them. Where should that live?",
+      "prompt": "Several screens each pull the same thing out of the address bar the same way, and each spells out its own waiting and failure branches. Where should that live?",
       "mustInclude": ["react-component-development"],
       "mustExclude": ["react-component-styling"],
       "mayInclude": ["code-maintainability"],
-      "rationale": "Extracting shared logic out of components is the component capability's subject, and there are two real screens to compare. The styling capability is excluded because nothing about the appearance is in question."
+      "rationale": "Three route components read the same parameter with the same empty-string default, and four spell out their own pending and error branches, so the repetition is countable rather than asserted. Extracting shared logic out of components is the component capability's subject. The styling capability is excluded because nothing about the appearance is in question."
     },
     {
       "id": "edit-an-issue-body-without-destroying-it",

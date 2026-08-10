@@ -62,7 +62,9 @@ have described three skills in detail and twenty-six in outline.
 **Trimming by probe budget rather than by coverage.** Cutting until the
 projection fit a number would have removed whichever cases happened to sit at
 the end of the file. Coverage is the property worth holding; the cost falling
-from a projected $39.50 to $26.20 is a consequence, not the goal.
+from a projected $39.50 to $26.20 is a consequence, not the goal. (A later
+round moved three cases to the bare mode for a reason of its own, taking the
+projection to $24.40.)
 
 **Levelling to exactly one case per skill.** Cheaper still, and it would have
 discarded the boundary pressure that makes a competing pair informative at all.
