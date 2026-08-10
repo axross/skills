@@ -199,7 +199,7 @@ async function historicalCostsFor(caseId, rootSummaryPath) {
 /**
  * previews every declared case: what admission would decide and what the
  * whole fixture would project to cost, without spawning a probe or
- * materializing a workspace. Projects through the same `admitCase` call the
+ * materializing a workspace. projects through the same `admitCase` call the
  * real dispatch makes — from committed measurements where they exist, from
  * the case's own declared ceiling where they do not — so the number here is
  * the number a dispatch would actually be judged against, not a second

@@ -19,7 +19,7 @@
 // unwired from the derived layer (summary.mjs never imports this module) and
 // deliberately so: wiring it in would add fields to every committed probe
 // summary and move data/effect-eval/summary.json, and of the fixture's cases
-// only one is "add tests to a module" in the first place. See
+// only one is "add tests to a module" in the first place. see
 // data/effect-eval/README.md's "reading" section for what a case declaring no
 // `reading` is stating: that the deterministic layer sees only what every case
 // already shares (`changedPaths`, `ranTests`, and the rest `summary.mjs`
