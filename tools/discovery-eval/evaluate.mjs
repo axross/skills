@@ -55,7 +55,7 @@ import {
   probePaths,
   SUMMARY_FILE,
 } from "./src/layout.mjs";
-import { planFor, PROVISIONAL_SITUATED_TURN_CAP } from "./src/plan.mjs";
+import { MODES, planFor, PROVISIONAL_SITUATED_TURN_CAP } from "./src/plan.mjs";
 import { buildConfiguration, runProbe, shellQuote } from "./src/spawn.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -170,8 +170,10 @@ async function readFixture(fixturePath) {
     fail2(`${fixturePath} declares no "cases".`);
   }
   if (!(fixture.capUsd > 0)) fail2(`${fixturePath} declares no positive "capUsd".`);
-  if (!(fixture.unmeasuredProbeCostCeilingUsd > 0)) {
-    fail2(`${fixturePath} declares no positive "unmeasuredProbeCostCeilingUsd".`);
+  for (const mode of MODES) {
+    if (!(fixture.unmeasuredProbeCostCeilingUsd?.[mode] > 0)) {
+      fail2(`${fixturePath} declares no positive "unmeasuredProbeCostCeilingUsd.${mode}".`);
+    }
   }
   return fixture;
 }
@@ -185,8 +187,13 @@ function findCase(fixture, caseId, fixturePath) {
   return declared;
 }
 
-/** every past probe cost of `caseId`, one figure per committed measurement. */
-async function historicalCostsFor(caseId, rootSummaryPath) {
+/**
+ * every past probe cost of `caseId` measured IN `mode`, one figure per
+ * committed measurement. A measurement recorded in the other mode is not
+ * comparable and must not supersede this mode's ceiling — see
+ * src/admission.mjs's header.
+ */
+async function historicalCostsFor(caseId, mode, rootSummaryPath) {
   let raw;
   try {
     raw = await readFile(rootSummaryPath, "utf8");
@@ -203,6 +210,7 @@ async function historicalCostsFor(caseId, rootSummaryPath) {
     .filter(
       (entry) =>
         entry.case === caseId &&
+        entry.workspace?.mode === mode &&
         typeof entry.totalCostUsd === "number" &&
         Number.isInteger(entry.probeCount) &&
         entry.probeCount > 0,
@@ -279,12 +287,13 @@ async function wholeFixtureDryRun(fixture, fixturePath, options) {
   for (const testCase of fixture.cases) {
     const plan = planFor(testCase, { headSkills: false, turnCap: options.turnCap });
     const repeats = options.repeats ?? testCase.repeats ?? 1;
-    const historicalCosts = await historicalCostsFor(testCase.id, rootSummaryPath);
+    const historicalCosts = await historicalCostsFor(testCase.id, plan.mode, rootSummaryPath);
     const admission = admitCase({
       caseId: testCase.id,
       probeCount: repeats,
       declaredCapUsd: fixture.capUsd,
       historicalCosts,
+      mode: plan.mode,
       unmeasuredProbeCostCeilingUsd: fixture.unmeasuredProbeCostCeilingUsd,
     });
     totalProbes += repeats;
@@ -349,12 +358,13 @@ async function main() {
   const { skills: corpusSkills, invocability, names: skillNames } = await corpus();
 
   const rootSummaryPath = join(dirname(fixturePath), SUMMARY_FILE);
-  const historicalCosts = await historicalCostsFor(testCase.id, rootSummaryPath);
+  const historicalCosts = await historicalCostsFor(testCase.id, plan.mode, rootSummaryPath);
   const admission = admitCase({
     caseId: testCase.id,
     probeCount: repeats,
     declaredCapUsd: fixture.capUsd,
     historicalCosts,
+    mode: plan.mode,
     unmeasuredProbeCostCeilingUsd: fixture.unmeasuredProbeCostCeilingUsd,
   });
   process.stderr.write(`${admission.reason}\n`);

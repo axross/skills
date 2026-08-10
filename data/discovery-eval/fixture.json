@@ -1,6 +1,6 @@
 {
   "capUsd": 40,
-  "unmeasuredProbeCostCeilingUsd": 0.35,
+  "unmeasuredProbeCostCeilingUsd": { "situated": 0.35, "bare": 0.05 },
   "cases": [
     {
       "id": "broaden-a-suite-that-only-checks-one-page",

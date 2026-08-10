@@ -14,6 +14,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { DATA_ROOT, FIXTURE_FILE } from "../../../tools/discovery-eval/src/layout.mjs";
+import { MODES } from "../../../tools/discovery-eval/src/plan.mjs";
 
 export const DEFAULT_ROOT = DATA_ROOT;
 
@@ -25,7 +26,11 @@ export const DEFAULT_ROOT = DATA_ROOT;
  * own usage text and its own exit code.
  *
  * @param {string} root the data root holding fixture.json
- * @returns {Promise<{ cases: object[], capUsd: number, unmeasuredProbeCostCeilingUsd: number }>}
+ * @returns {Promise<{
+ *   cases: object[],
+ *   capUsd: number,
+ *   unmeasuredProbeCostCeilingUsd: { situated: number, bare: number },
+ * }>}
  */
 export async function readFixture(root) {
   const fixturePath = join(root, FIXTURE_FILE);
@@ -41,8 +46,13 @@ export async function readFixture(root) {
   if (!(fixture.capUsd > 0)) {
     throw new Error(`${fixturePath} declares no positive "capUsd".`);
   }
-  if (!(fixture.unmeasuredProbeCostCeilingUsd > 0)) {
-    throw new Error(`${fixturePath} declares no positive "unmeasuredProbeCostCeilingUsd".`);
+  // per mode, not one figure — a situated and a bare probe cost roughly an
+  // order of magnitude apart. see tools/discovery-eval/src/admission.mjs's
+  // header.
+  for (const mode of MODES) {
+    if (!(fixture.unmeasuredProbeCostCeilingUsd?.[mode] > 0)) {
+      throw new Error(`${fixturePath} declares no positive "unmeasuredProbeCostCeilingUsd.${mode}".`);
+    }
   }
   return fixture;
 }

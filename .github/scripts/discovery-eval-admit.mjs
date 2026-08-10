@@ -21,10 +21,31 @@
 // ADMISSION IS FIXTURE-WIDE HERE, unlike evaluate.mjs's own per-case call.
 // evaluate.mjs projects one case's repeats against the fixture's whole
 // `capUsd`, which is right for a single invocation but says nothing about a
-// dispatch matrixing over many cases at once — a fresh fixture's full 59
-// cases project to roughly $41 against a $40 cap, which is exactly the
-// scenario this script exists to catch before spawning 59 jobs that would
-// each individually look affordable.
+// dispatch matrixing over many cases at once — a large fan-out projecting
+// over the cap is exactly the scenario this script exists to catch before
+// spawning jobs that would each individually look affordable.
+//
+// EACH CASE IS PROJECTED AT THE MODE THAT DISPATCH WILL ACTUALLY RUN IT IN
+// (src/plan.mjs's `planFor`), never the mode the case merely declares. A head
+// dispatch (`--pull-request` set) forces every case bare, so it is projected
+// at `unmeasuredProbeCostCeilingUsd.bare` — roughly an order of magnitude
+// below the situated figure. Projecting a bare run at the situated figure was
+// the defect this file was rewritten to fix: a head dispatch over the whole
+// fixture is not ~$41, it is ~$5.90. See
+// tools/discovery-eval/src/admission.mjs's header for why superseding a
+// ceiling with a committed measurement is per mode too.
+//
+// A MEASUREMENT DISPATCH PROJECTS EACH CASE AT ITS OWN DECLARED MODE — a
+// mock-declaring case at `.situated`, and (independent of any `--pull-request`
+// forcing) the fixture's cases that declare no `mock` at `.bare`, because
+// they run bare in a plain measurement dispatch too. Honestly pricing those
+// bare-declared cases moves the whole fixture's projected total under the
+// $40 cap (~$39.50, admitted) where the pre-fix bug's uniform-situated
+// arithmetic (118 probes x $0.35 = $41.30) refused it. Whether the fixture-
+// wide check should keep refusing the full corpus regardless — e.g. by
+// treating a measurement dispatch as conservatively all-situated for this
+// sum only — is a stop-loss design decision beyond this correction's scope;
+// see #280's attempt-1 receipt.
 //
 // exit codes:
 //   0  admitted; mode, the case list, and the projection are on stdout and in
@@ -36,8 +57,9 @@
 import { appendFile, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { meanProbeCost } from "../../tools/discovery-eval/src/admission.mjs";
+import { ceilingFor, meanProbeCost } from "../../tools/discovery-eval/src/admission.mjs";
 import { SUMMARY_FILE } from "../../tools/discovery-eval/src/layout.mjs";
+import { planFor } from "../../tools/discovery-eval/src/plan.mjs";
 import {
   DEFAULT_ROOT,
   parseDryRunInput,
@@ -96,13 +118,17 @@ function parseArgv(argv) {
 }
 
 /**
- * every past probe cost of `caseId`, one figure per committed measurement.
+ * every past probe cost of `caseId` measured IN `mode`, one figure per
+ * committed measurement.
  *
  * mirrors evaluate.mjs's own `historicalCostsFor` exactly — no `comparable`
- * filter, unlike the effect side's admit script — so this projection agrees
- * with what evaluate.mjs will independently compute per case.
+ * filter, unlike the effect side's admit script, and the same mode filter —
+ * so this projection agrees with what evaluate.mjs will independently
+ * compute per case. A measurement recorded in the other mode must not
+ * supersede this mode's ceiling; see
+ * tools/discovery-eval/src/admission.mjs's header.
  */
-async function historicalCostsFor(root, caseId) {
+async function historicalCostsFor(root, caseId, mode) {
   let raw;
   try {
     raw = await readFile(join(root, SUMMARY_FILE), "utf8");
@@ -119,6 +145,7 @@ async function historicalCostsFor(root, caseId) {
     .filter(
       (entry) =>
         entry.case === caseId &&
+        entry.workspace?.mode === mode &&
         typeof entry.totalCostUsd === "number" &&
         Number.isInteger(entry.probeCount) &&
         entry.probeCount > 0,
@@ -180,11 +207,20 @@ async function main() {
   for (const caseId of caseIds) {
     const declared = fixture.cases.find((entry) => entry.id === caseId);
     const repeats = options.repeats ?? declared.repeats ?? 1;
-    const historicalCosts = await historicalCostsFor(options.root, caseId);
-    const perProbeUsd = meanProbeCost(historicalCosts) ?? fixture.unmeasuredProbeCostCeilingUsd;
+    // the mode THIS DISPATCH runs the case in, not the mode it declares — a
+    // head dispatch (mode === "head") forces every case bare regardless of
+    // any `mock` the case names. See this file's header.
+    const plan = planFor(declared, { headSkills: mode === "head" });
+    const historicalCosts = await historicalCostsFor(options.root, caseId, plan.mode);
+    const measured = meanProbeCost(historicalCosts);
+    const perProbeUsd = measured ?? ceilingFor(fixture.unmeasuredProbeCostCeilingUsd, plan.mode);
+    const basis = measured === null ? `the fixture's declared ${plan.mode} ceiling` : `committed ${plan.mode} measurements`;
     const caseCostUsd = perProbeUsd * repeats;
     projectedTotalUsd += caseCostUsd;
-    lines.push(`  ${caseId}: ${repeats} probe(s) at $${perProbeUsd.toFixed(2)} each = $${caseCostUsd.toFixed(2)}`);
+    lines.push(
+      `  ${caseId} (${plan.mode}): ${repeats} probe(s) at $${perProbeUsd.toFixed(2)} each [${basis}] = ` +
+        `$${caseCostUsd.toFixed(2)}`,
+    );
   }
 
   const admitted = projectedTotalUsd <= fixture.capUsd;
