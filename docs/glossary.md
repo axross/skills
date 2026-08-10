@@ -150,6 +150,10 @@
 
 **Comparability check** — a check that every **evaluation probe** of one **case measurement** ran under the same conditions, so a difference between them can be attributed to the skill at all.
 
+**Negative control** — an **evaluation case** drawn from a skill the effect axis cannot observe at all, so its **skill-absent condition** and **skill-present condition** are predicted to agree. It is the axis's only measurement of its own **noise floor**, and a result that diverges instead is a finding about the instrument rather than evidence the control was miscast.
+
+**Noise floor** — how large a difference between two **evaluation probes** has to be before it can be attributed to an **agent skill** at all, as against ordinary run-to-run variance the **evaluation condition** itself did not cause. Measured, on the effect axis, by a **negative control**.
+
 **Superseded record** — a **probe record** taken under conditions a later change invalidated, so it is evidence of its own run and not comparable with later ones.
 
 **LLM judge** — a model asked to rank or score what a **signal extractor** cannot reach.

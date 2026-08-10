@@ -73,15 +73,15 @@ drift check fail against a file the instrument never wrote.
 
 ## `patch`, when a case needs a broken starting state
 
-Optional, and no case declares one yet. A case whose prompt is symptom-shaped —
-it describes a defect rather than naming a task — needs that defect to be real,
-or the model reads the project, finds nothing wrong, and the probe measures
-confusion. The mock does not carry it: a mock ships sound and the case brings
-its own defect as a unified diff, applied while the workspace is materialized
-and before the recorded history is replayed over it. `mocks/README.md` states
-the principle and
+Optional. A case whose prompt is symptom-shaped — it describes a defect rather
+than naming a task — needs that defect to be real, or the model reads the
+project, finds nothing wrong, and the probe measures confusion. The mock does
+not carry it: a mock ships sound and the case brings its own defect as a
+unified diff, applied while the workspace is materialized and before the
+recorded history is replayed over it. `mocks/README.md` states the principle
+and
 [`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
-records what it beat.
+records what it beat. Today <!-- count:effect-eval-patched-case-count -->three<!-- /count --> cases in the current fixture declare one — see [`patches/`](./patches) — and every other case uses a gap the mock genuinely has instead.
 
 ```json
 {
@@ -102,6 +102,39 @@ fixture that declares it. Three rules govern one:
 - **It is checked offline.** `npm test` applies every declared patch against its
   mock, so a patch that stopped fitting fails there rather than in a dispatch
   that has already spent money reaching it.
+
+## `prediction`, `negativeControl`, and `reading`
+
+Three more fields a case declares, none of them read by `evaluate.mjs` or
+`summarize.mjs` — they are what a reviewer and a future reader hold the
+measurement to, not what the instrument runs on.
+
+**`prediction`** is required on every case: a prose statement of what a
+deterministic reading of the two conditions is expected to tell apart, and
+what it is expected to leave over for a person — or eventually a judge — to
+read by hand. It carries no machine-readable band, so nothing here checks
+that the fixture's predictions actually span from "reaches nearly all of the
+effect" to "reaches almost none of it" — see
+[`docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md`](../../docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md)
+for what that costs and why it was accepted anyway.
+
+**`negativeControl: true`** marks exactly one case as this axis's own
+noise-floor measurement: a task drawn from a skill
+[`coverage.md`](./coverage.md) places outside the effect axis's range, so the
+two conditions are predicted to agree. A field rather than a naming
+convention, so a reader — or a check — can find it without knowing which case
+id to look for.
+
+**`reading`** is optional, and its absence is itself a declaration. A case
+that omits it is stating that the deterministic layer sees only what every
+case already shares — `changedPaths`, `ranTests`, `ranLint`, `ranFormat`,
+`commandsRun`, and the rest `summarize.mjs` derives from every probe's
+transcript and diff alike. A case that declares one names a `kind` the
+extractor in `tools/effect-eval/src/artifact.mjs` knows (today, only
+`unit-test-artifact`) plus that reading's own inputs — for the existing case,
+`targetModule` and `helpers`. Declaring a `reading` does not connect it to
+anything: `extractArtifact` stays unwired from `summarize.mjs`'s derivation on
+purpose, so declaring one costs nothing against `summary.json`.
 
 ## `capUsd` and `unmeasuredProbeCostCeilingUsd`
 
@@ -140,7 +173,14 @@ this field is never read for that case again — it governs only the first run.
 ## What is committed here
 
 `measurements/` holds the case measurements taken so far, one directory per
-measurement, and `summary.json` is the snapshot derived across all of them. The
-pilot — `unit-testing` on `content-site`, since renamed `tsuzuri`, six probes —
-landed in [#290](https://github.com/axross/skills/pull/290) at a total of
-$1.5232 against its $40 cap.
+measurement, and `summary.json` is the snapshot derived across all of them.
+`fixture.json` declares every case this axis measures — one per skill
+[`coverage.md`](./coverage.md) does not place out of range, plus a negative
+control — and only one of them, `unit-testing` on `content-site` (since
+renamed `tsuzuri`), has actually been dispatched: six probes, landed in
+[#290](https://github.com/axross/skills/pull/290). Declaring a case is not
+measuring it; see
+[`docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md`](../../docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md)
+for the policy the rest of the fixture was declared under, and
+`node tools/effect-eval/evaluate.mjs --dry-run` for the current projected cost
+of measuring what is not yet landed.
