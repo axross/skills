@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout for the `(site)` route group — the reader-facing pages. The
- * admin/API surface this fixture drops lived in a sibling route group in the
- * project this is thinned from; here `(site)` is the only one.
+ * Root layout for the `(site)` route group — the reader-facing pages. It is
+ * the only route group so far: there is no admin console or API surface yet
+ * to warrant a second one.
  */
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
