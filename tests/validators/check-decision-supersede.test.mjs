@@ -98,7 +98,7 @@ describe("check-decision-supersede.mjs", () => {
   });
 
   it("exits 0 when the corpus has no decisions/", async () => {
-    const docs = await writeCorpus(await tempDir(), { "overview.md": "# Overview\n" });
+    const docs = await writeCorpus(await tempDir(), { "notes.md": "# Notes\n" });
 
     const result = checkSupersede(docs);
 

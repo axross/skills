@@ -40,10 +40,10 @@ describe("check-references.mjs", () => {
 
   it("reports an index entry whose file is missing", async () => {
     const docs = await writeCorpus(await tempDir(), {
-      "index.md": "# Docs\n\n- [Overview](./overview.md) — the product\n",
+      "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
     });
 
-    expect(checkReferences(docs)).toReportFailure(/index\.md:3 → \.\/overview\.md/);
+    expect(checkReferences(docs)).toReportFailure(/index\.md:3 → \.\/notes\.md/);
   });
 
   it("ignores external URLs", async () => {

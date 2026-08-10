@@ -70,7 +70,7 @@ describe("check-glossary.mjs", () => {
   });
 
   it("exits 0 when the corpus has no specs/", async () => {
-    const docs = await writeCorpus(await tempDir(), { "overview.md": "# Overview\n" });
+    const docs = await writeCorpus(await tempDir(), { "notes.md": "# Notes\n" });
 
     const result = checkGlossary(docs);
 

@@ -18,8 +18,8 @@ const checkIndex = validator(SCRIPTS.checkIndex);
 describe("check-index.mjs", () => {
   it("exits 0 when every document is listed", async () => {
     const docs = await writeCorpus(await tempDir(), {
-      "index.md": "# Docs\n\n- [Overview](./overview.md) — the product\n",
-      "overview.md": "# Overview\n",
+      "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
+      "notes.md": "# Notes\n",
     });
 
     expect(checkIndex(docs)).toPassCleanly();
@@ -27,8 +27,8 @@ describe("check-index.mjs", () => {
 
   it("reports a document the index does not list", async () => {
     const docs = await writeCorpus(await tempDir(), {
-      "index.md": "# Docs\n\n- [Overview](./overview.md) — the product\n",
-      "overview.md": "# Overview\n",
+      "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
+      "notes.md": "# Notes\n",
       "specs/billing.md": "# Billing\n",
     });
 
