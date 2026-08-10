@@ -50,7 +50,6 @@ async function writeProbe(name, { configuration = {}, transcript = TRANSCRIPT, p
     projectName: "tsuzuri",
     projectTree: "sha256:tree",
     prompt: "add tests",
-    targetModule: "shared/x.ts",
     skills: name.startsWith("skill-present") ? { "unit-testing": "sha256:skill" } : {},
     ...configuration,
   });

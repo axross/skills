@@ -2,9 +2,28 @@
 // produced. see probe.mjs's header for how this fits into a run's record.
 //
 // mechanical rather than judgmental, same as transcript.mjs: import specifiers,
-// a name check against three known exports, string literals, a count, a
-// pattern match. nothing here decides whether the tests written are any good —
-// that residue is issue #235's pilot's to read by hand.
+// a name check against a caller-supplied list of exports, string literals, a
+// count, a pattern match. nothing here decides whether the tests written are
+// any good — that residue is what data/effect-eval/coverage.md's judgeable-end
+// cases and their written predictions exist to size, once the fixture is
+// measured.
+//
+// this reads only what its caller declares: `targetModuleBasename` and
+// `helperNames` are required rather than defaulted, so a case with no
+// `reading` in the fixture and a case declaring one for a module this file has
+// never heard of both fail loudly instead of silently reading a case that is
+// not this one. `READING_KINDS` names the `reading.kind` values this module
+// knows how to serve; a case fixture check holds every declared `reading.kind`
+// to this list.
+//
+// unwired from the derived layer (summary.mjs never imports this module) and
+// deliberately so: wiring it in would add fields to every committed probe
+// summary and move data/effect-eval/summary.json, and of the fixture's cases
+// only one is "add tests to a module" in the first place. see
+// data/effect-eval/README.md's "reading" section for what a case declaring no
+// `reading` is stating: that the deterministic layer sees only what every case
+// already shares (`changedPaths`, `ranTests`, and the rest `summary.mjs`
+// derives from every transcript and diff).
 //
 // a regular-expression reader over TypeScript source, not a parser. that
 // matches this repository's own precedent (materialize.mjs strips
@@ -36,7 +55,7 @@ const NAMED_IMPORT_CLAUSE_RE = /import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+["']([
  * `describe(`, so a suite's own title is never counted as a case name. known
  * gap: `it.each(table)("name", …)` and the `fit`/`xit` aliases are not
  * matched; both are uncommon enough in a freshly generated suite that missing
- * them costs no signal this pilot's fixture needs.
+ * them costs no signal the one case declaring this reading needs.
  */
 const TEST_CASE_RE = /\b(?:it|test)(?:\.\w+)?\s*\(\s*(['"`])((?:\\.|(?!\1).)*)\1/g;
 
@@ -125,6 +144,26 @@ export function usesMocks(source) {
   return MOCK_RE.test(source);
 }
 
+/** the `reading.kind` values this module knows how to serve. */
+export const READING_KINDS = ["unit-test-artifact"];
+
+/**
+ * thrown by {@link extractArtifact} when its caller omits a required option,
+ * rather than silently reading a case that is not this one. named so a
+ * caller can distinguish "you forgot to pass this" from any other failure
+ * inside the extraction.
+ */
+export class MissingReadingOptionsError extends Error {
+  constructor(missing) {
+    super(
+      `extractArtifact needs ${missing.join(" and ")} — neither defaults, so a case with no ` +
+        "reading declared (or one this extractor was never told how to read) fails loudly " +
+        "instead of silently reading a different case's module and helpers.",
+    );
+    this.name = "MissingReadingOptionsError";
+  }
+}
+
 /**
  * the full artifact extraction for one run: locates the primary test file
  * among the files a probe changed and reports the mechanical signals over
@@ -133,7 +172,8 @@ export function usesMocks(source) {
  *
  * @param {Array<{ path: string, content: string }>} files every file the
  *   probe added or modified, `path` workspace-relative, `content` its final text
- * @param {{ targetModuleBasename?: string, helperNames?: string[] }} [options]
+ * @param {{ targetModuleBasename: string, helperNames: string[] }} options
+ *   both required — see {@link MissingReadingOptionsError}
  * @returns {{
  *   testFilePath: string|null,
  *   importSpecifiers: string[],
@@ -142,12 +182,16 @@ export function usesMocks(source) {
  *   assertionCount: number,
  *   usesMocks: boolean,
  * }}
+ * @throws {MissingReadingOptionsError} when `targetModuleBasename` or
+ *   `helperNames` is absent
  */
 export function extractArtifact(files, options = {}) {
-  const {
-    targetModuleBasename = "resolve-translation",
-    helperNames = ["normalizeLocale", "findExactMatch", "findLanguageMatch"],
-  } = options;
+  const { targetModuleBasename, helperNames } = options;
+
+  const missing = [];
+  if (typeof targetModuleBasename !== "string") missing.push("targetModuleBasename");
+  if (!Array.isArray(helperNames)) missing.push("helperNames");
+  if (missing.length > 0) throw new MissingReadingOptionsError(missing);
 
   const primary = selectPrimaryTestFile(files, targetModuleBasename);
   if (!primary) {

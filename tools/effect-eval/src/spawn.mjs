@@ -72,7 +72,7 @@ export const DISALLOWED_TOOLS = ["Agent", "NotebookEdit", "Task", "WebFetch", "W
  * @property {{ provider: string, model: string, options: Record<string, unknown> }} model
  * @property {{ name: string, tree: string, commit: string|null }} project
  * @property {Record<string, string>} skills name → content digest; `{}` when skill-absent
- * @property {{ prompt: string, targetModule: string }} task
+ * @property {{ prompt: string }} task
  */
 
 /**
@@ -83,7 +83,6 @@ export const DISALLOWED_TOOLS = ["Agent", "NotebookEdit", "Task", "WebFetch", "W
  *   projectCommit?: string|null,
  *   skills?: Record<string, string>,
  *   prompt: string,
- *   targetModule: string,
  * }} input
  * @returns {Configuration}
  */
@@ -94,7 +93,6 @@ export function buildConfiguration({
   projectCommit = null,
   skills = {},
   prompt,
-  targetModule,
 }) {
   return {
     runtime: {
@@ -110,7 +108,7 @@ export function buildConfiguration({
     model: { provider: "anthropic", model: MODEL, options: {} },
     project: { name: projectName, tree: projectTree, commit: projectCommit },
     skills: { ...skills },
-    task: { prompt, targetModule },
+    task: { prompt },
   };
 }
 

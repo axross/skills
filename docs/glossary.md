@@ -142,6 +142,8 @@
 
 **Signal extractor** — a deterministic function that reads a **probe transcript** or a **probe artifact** and reports measured signals without judging them.
 
+**Residue** — the part of an **agent skill**'s effect that no **signal extractor** reaches: what a **probe artifact** and a **probe transcript** cannot settle because the question is one of quality rather than of presence. Sizing it across an **evaluation fixture** is what decides whether an **LLM judge** is worth adopting.
+
 **Probe record** — everything one **evaluation probe** produced — its **probe transcript** and its **probe artifact** — together with the **condition fingerprint** it ran under, carrying no verdict.
 
 **Case measurement** — every **evaluation probe** of one **evaluation case**, run together as one unit and stored together, because no single probe supports a comparison on its own.
@@ -149,6 +151,10 @@
 **Condition fingerprint** — the digests of the **probe workspace** and of each installed skill, recorded with a **probe record** so two records are judged comparable by content rather than by the names of what produced them.
 
 **Comparability check** — a check that every **evaluation probe** of one **case measurement** ran under the same conditions, so a difference between them can be attributed to the skill at all.
+
+**Negative control** — an **evaluation case** drawn from a skill the effect axis cannot observe at all, so its **skill-absent condition** and **skill-present condition** are predicted to agree. It is the axis's only measurement of its own **noise floor**, and a result that diverges instead is a finding about the instrument rather than evidence the control was miscast.
+
+**Noise floor** — how large a difference between two **evaluation probes** has to be before it can be attributed to an **agent skill** at all, as against ordinary run-to-run variance the **evaluation condition** itself did not cause. Measured, on the effect axis, by a **negative control**.
 
 **Superseded record** — a **probe record** taken under conditions a later change invalidated, so it is evidence of its own run and not comparable with later ones.
 

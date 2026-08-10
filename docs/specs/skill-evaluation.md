@@ -160,6 +160,10 @@ This bound is worth stating because the instrument reports a number either way.
 A measurement of a skill in the first two groups would show the two conditions
 agreeing, which reads exactly like a skill that changed nothing — and the
 correct reading is that the question was never put.
+[`data/effect-eval/coverage.md`](../../data/effect-eval/coverage.md) is the
+enumeration: every installed skill sorted into one of the three groups above,
+or left off that file because it is in range and named by a case in
+[`data/effect-eval/fixture.json`](../../data/effect-eval/fixture.json) instead.
 
 ## Neither axis gates a merge
 
