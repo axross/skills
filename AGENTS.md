@@ -5,10 +5,31 @@
 - **skills** is an agent-skills library: an opinionated collection of agent skills — the working agreement plus guideline and workflow skills that a project loads through its own agent instructions.
 - Primary language: Markdown (with occasional JavaScript for scripting). Runtimes: Claude Code and Codex.
 - Tooling: npm for packages, markdownlint-cli2 for linting, Prettier for formatting. Relative-link integrity is checked by `skills/agent-skill-authoring/scripts/check-links.mjs`.
-- [README.md](./README.md) is the authoritative record of this repository's run-script commands and its development gotchas — the fast-moving dependencies that require a docs refresh, and the files whose mismatch breaks skill discovery or the verification gate rather than one rendered page. It is not a skill, so skill discovery never surfaces it on its own.
+- [README.md](./README.md) is the authoritative record of this repository's run-script commands. It is not a skill, so skill discovery never surfaces it on its own. This repository's own conventions and operational procedures live under [docs/](./docs/index.md) instead — see [Routing a Change](#routing-a-change) below.
 - For how skills are authored, structured, named, and cross-linked, consult the project's skill-authoring practices. Every skill here is distributable: its source lives under `skills/` and is installed with `npx skills`, so edit the source and reinstall rather than hand-editing an installed copy. The repository-local tier — a skill committed directly under a skill root and edited in place — remains available but is currently unpopulated; consult the project's skill-management practices for the two-tier model and which tier a skill belongs to.
 - **The installed skills live once and are reachable from two roots.** `.agents/skills/<name>/` holds the files, and `.claude/skills/<name>` is a symlink into it, so Codex and Claude Code each read the same bytes from the path they look in. Both roots are committed. Every skill's `description` is what a host reads to decide whether to load it; `when_to_use` is a Claude Code extension that other hosts ignore.
 - This repository's fixed agent-comment marker is `<!-- ai-agent -->`. `<!-- claude-code -->` is its retired predecessor: still read as agent output on issues and pull requests that predate the switch, never used for a new comment.
+
+## Routing a Change
+
+[docs/index.md](./docs/index.md) says which document holds what; this table
+names the specific document for a kind of change this repository already
+distinguishes, so a session does not have to open the index for one of these.
+
+| Kind of change                                                           | Document                                                                             |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Where a skill's files live, the two skill tiers, a validator's placement | [docs/conventions/directory-structure.md](./docs/conventions/directory-structure.md) |
+| A merge gate, a reporting tool, or a scheduled audit                     | [docs/conventions/verification-gates.md](./docs/conventions/verification-gates.md)   |
+| A number stated in prose                                                 | [docs/conventions/marked-counts.md](./docs/conventions/marked-counts.md)             |
+| What a distributable skill may contain, or a dependency-governed surface | [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md)     |
+| The change loop, the implementer or reviewer agent, branch governance    | [docs/operations/development-workflow.md](./docs/operations/development-workflow.md) |
+| Installing or refreshing a skill                                         | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
+| How an agent session starts, its hooks, or its telemetry                 | [docs/operations/agent-sessions.md](./docs/operations/agent-sessions.md)             |
+| Running `@claude review`                                                 | [docs/operations/code-review.md](./docs/operations/code-review.md)                   |
+| Dispatching a skill discovery or effect evaluation                       | [docs/operations/evaluation-dispatch.md](./docs/operations/evaluation-dispatch.md)   |
+| What skill evaluation measures and why                                   | [docs/specs/skill-evaluation.md](./docs/specs/skill-evaluation.md)                   |
+| Why a past decision still constrains current work                        | [docs/decisions/](./docs/decisions)                                                  |
+| A repository run-script command                                          | [README.md](./README.md)                                                             |
 
 ## Response Approach
 
@@ -23,7 +44,8 @@
 - MUST, when a task matches a skill — discovered by its `description` in the host's skill catalog — load that skill's body and execute its own steps (invoke it by name, or read its `SKILL.md`) rather than acting from a one-line summary of it. Loop Engineering takes precedence over native intent: for any code change or document update, enter [Loop Engineering](./skills/loop-engineering/SKILL.md) by loading it — before acting on whatever other skill discovery surfaces — not by working from this section's description of it.
 - MUST consult the project's professional-behavior practices in every session, before anything else: they govern how an uncertainty is resolved — looked up, researched, or put to the human — and how the result is reported back, and they apply to a task that changes nothing as fully as to a delivered change.
 - MUST consult the project's baseline development practices at the start of every task that touches the project; its own discovery trigger already surfaces it.
-- MUST read [README.md](./README.md) before running a repository command or changing a dependency-governed surface — it holds the commands and the development gotchas, and no skill trigger surfaces it. When it turns out to be silent on an operation, the project's development practices govern what to do: ask rather than infer a command, and get approval to record the answer there.
+- MUST read [README.md](./README.md) before running a repository command — it holds the commands table, and no skill trigger surfaces it. When it turns out to be silent on an operation, the project's development practices govern what to do: ask rather than infer a command, and get approval to record the answer there.
+- MUST read [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md) before changing a dependency-governed surface.
 - MUST read [docs/index.md](./docs/index.md) when a task turns on a term this repository uses, a concept behind how it works, or a decision already taken — the index is one screen and says which document holds what, so a task that needs none of them stops there. No skill trigger surfaces it either.
 - SHOULD give changes to the review/CI infrastructure, skill discovery and cross-skill routing, secret handling, dependency/supply-chain surface, and large cross-skill refactors extra scrutiny — a human reviewer in addition to the independent review, not a lighter path.
 - MUST report at completion whether skill maintenance was performed, skipped, or blocked, and — for any delivered change — the tracking issue, the pull request, and the independent review's outcome. What else a completion summary names, and the form progress updates take, is owned by the professional-behavior practices above.

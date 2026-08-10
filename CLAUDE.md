@@ -16,15 +16,7 @@ section carries only what is true of Claude Code and of no other host.
   and a trigger placed only there would be invisible on that host. Every skill's
   trigger is therefore front-loaded in `description`, which is the one field
   every host reads.
-- **The opt-in quality hooks live in
-  [`.claude/settings.local-example.json`](./.claude/settings.local-example.json)**
-  and are materialized by
-  [`.claude/hooks/session-start.sh`](./.claude/hooks/session-start.sh) in a
-  cloud session. The same two shell scripts are wired for Codex in
-  [`.codex/hooks.json`](./.codex/hooks.json); keep the pair in step when either
-  changes.
-- **[`.claude/settings.json`](./.claude/settings.json) stamps this repository
-  onto the OpenTelemetry resource attributes** Claude Code exports. It
-  configures nothing else — no endpoint, no credential — so a contributor who
-  has never set telemetry up sees no behavior change. Its Codex counterpart is
-  `[otel]` in [`.codex/config.toml`](./.codex/config.toml).
+- **How a Claude Code session starts here, its opt-in quality hooks, and its
+  telemetry tagging are stated once, for both hosts, in**
+  [`docs/operations/agent-sessions.md`](./docs/operations/agent-sessions.md)
+  **rather than here.**
