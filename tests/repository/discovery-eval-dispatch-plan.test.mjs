@@ -41,7 +41,7 @@ const probePlan = (args) => runScript(SCRIPTS.discoveryEvalProbePlan, args);
 const landingPlan = (args) => runScript(SCRIPTS.discoveryEvalLandingPlan, args);
 const checkMode = (args) => runScript(SCRIPTS.discoveryEvalCheckMode, args);
 
-/** a minimal scratch fixture, so the cap-refusal path does not depend on the real 59-case fixture. */
+/** a minimal scratch fixture, so the cap-refusal path does not depend on the committed fixture's own size or projection. */
 async function writeScratchFixture(root, { capUsd, unmeasuredProbeCostCeilingUsd, cases }) {
   await mkdir(root, { recursive: true });
   await writeFile(
@@ -71,11 +71,14 @@ describe("discovery-eval-admit.mjs", () => {
   });
 
   it("resolves the whole fixture's case ids when --case is omitted", async () => {
-    // a scratch fixture, not the real 59-case one: the real fixture's
-    // full-run projection legitimately REFUSES against its own cap (see the
-    // dedicated cap test below and this workflow's own header on why the
-    // first post-merge dispatch is a single case) — this test is about case
-    // *resolution*, not admission.
+    // a scratch fixture, not the committed one: this test is about case
+    // *resolution* when --case is omitted, not about admission, so a scratch
+    // fixture keeps it independent of whatever the committed fixture's own
+    // whole-run projection currently is. That projection is exercised
+    // against the real, committed fixture below, in "prices each case of a
+    // measurement dispatch at the ceiling for the mode it actually runs
+    // in" — recomputed from it on every run, so nothing here restates a
+    // number that would go stale the next time a case moves.
     const root = await tempDir();
     await writeScratchFixture(root, {
       capUsd: 1000,

@@ -24,12 +24,16 @@ name: Discovery Evaluation
 #
 # ── admission binds before the fan-out, in `admit`, and it is FIXTURE-WIDE
 # here — unlike the effect side's single-case admission. A dispatch naming no
-# `case` matrixes over the whole 59-case fixture, and a fresh fixture with
-# nothing measured yet projects that at roughly $41 against a $40 cap — over
-# budget by design, so the first dispatch after this workflow exists is a
-# single case, priced before the fixture runs whole. A refusal exits 4 and
-# nothing downstream runs, so a dispatch that does not fit its cap costs
-# nothing.
+# `case` matrixes over the whole fixture, pricing each selected case from its
+# committed measurements where they exist and from the fixture's declared
+# per-mode ceiling where they do not (see
+# tools/discovery-eval/src/admission.mjs). A refusal exits 4 and nothing
+# downstream runs, so a dispatch that does not fit its cap costs nothing. The
+# recommended first dispatch after this workflow exists is still a single
+# case — the fixture's current whole-run projection is recomputed from the
+# committed fixture on every dispatch, and is stated (not restated here,
+# where it would go stale the moment a case moves) in
+# data/discovery-eval/README.md, "What is committed here".
 #
 # ── LOAD-BEARING SAFETY PROPERTY 1 of 5 — MANUAL DISPATCH IS THE ONLY
 # TRIGGER. `workflow_dispatch` requires write access on the repository and

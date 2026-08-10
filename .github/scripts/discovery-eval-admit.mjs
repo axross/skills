@@ -30,8 +30,9 @@
 // dispatch (`--pull-request` set) forces every case bare, so it is projected
 // at `unmeasuredProbeCostCeilingUsd.bare` — roughly an order of magnitude
 // below the situated figure. Projecting a bare run at the situated figure was
-// the defect this file was rewritten to fix: a head dispatch over the whole
-// fixture is not ~$41, it is ~$5.90. See
+// the defect this file was rewritten to fix: pricing every case as situated
+// inflates a head dispatch's projection by that same order of magnitude, for
+// no reason its actual (bare-only) tool posture justifies. See
 // tools/discovery-eval/src/admission.mjs's header for why superseding a
 // ceiling with a committed measurement is per mode too.
 //
@@ -39,13 +40,18 @@
 // mock-declaring case at `.situated`, and (independent of any `--pull-request`
 // forcing) the fixture's cases that declare no `mock` at `.bare`, because
 // they run bare in a plain measurement dispatch too. Honestly pricing those
-// bare-declared cases moves the whole fixture's projected total under the
-// $40 cap (~$39.50, admitted) where the pre-fix bug's uniform-situated
-// arithmetic (118 probes x $0.35 = $41.30) refused it. Whether the fixture-
-// wide check should keep refusing the full corpus regardless — e.g. by
-// treating a measurement dispatch as conservatively all-situated for this
-// sum only — is a stop-loss design decision beyond this correction's scope;
-// see #280's attempt-1 receipt.
+// bare-declared cases lowers the whole fixture's projected total relative to
+// the pre-fix bug's uniform-situated arithmetic, which priced every case —
+// bare-declared ones included — at the situated ceiling. The fixture's
+// current whole-fixture projection, at whatever size the fixture is today,
+// is stated in data/discovery-eval/README.md ("What is committed here") and
+// nowhere else — recomputing it here from a case count or a probe count
+// would go stale the next time a case moves, which is what happened to this
+// very comment once already (see #280's pre-flight fix-round-1 receipt).
+// Whether the fixture-wide check should keep refusing the full corpus
+// regardless — e.g. by treating a measurement dispatch as conservatively
+// all-situated for this sum only — is a stop-loss design decision beyond
+// this correction's scope; see #280's attempt-1 receipt.
 //
 // exit codes:
 //   0  admitted; mode, the case list, and the projection are on stdout and in
