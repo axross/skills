@@ -106,8 +106,8 @@ actually run it in** ([`tools/discovery-eval/src/plan.mjs`](../../tools/discover
 runs bare under `--head-skills` regardless — a head dispatch forces every case
 bare — so it is projected at the bare figure, not the situated one. Projecting
 a bare run at the situated figure was exactly the defect that made pull
-request head evaluation unusable: it refused a ~$5.90 dispatch as if it were
-~$41.
+request head evaluation unusable, pricing a dispatch at roughly seven times
+what it costs.
 
 **Superseding is per mode too.** A case's first _situated_ measurement
 supersedes the situated ceiling for that case; it never supersedes the bare
@@ -118,21 +118,27 @@ category error committed in the other direction.
 
 ## What is committed here
 
-`fixture.json` holds all 59 cases: 56 situated across the three mocks —
-`tsuzuri` 22, `inkwell` 25, `recall` 9 — and 3 bare, whose subject situating
-would remove. Three of the situated ones carry `"population": "mandated"` and
+`fixture.json` holds 40 cases: 37 situated across the three mocks —
+`tsuzuri` 18, `inkwell` 14, `recall` 5 — and 3 bare, whose subject situating
+would remove. 3 of the situated ones carry `"population": "mandated"` and
 are reported apart, because a consumer's own instructions name those skills and
-discovery never has to surface them. Seven declare a **case patch**, under
+discovery never has to surface them. Six declare a **case patch**, under
 `patches/`.
+
+**Coverage is levelled rather than weighted.** Every skill in the corpus is
+named by at least one case's `mustInclude`, and none by more than two. A second
+case exists only where it measures a competitor boundary the first does not —
+so the cases that used to sit three-deep on one skill, asking the same question
+of the same competitor in the same shape, are one case now.
 
 **No measurement has been taken yet**, so `measurements/` holds only
 `.gitkeep` and `summary.json` is the empty-but-valid derivation over nothing.
 With nothing measured, admission projects every case from the fixture's
 declared ceiling for the mode that case actually runs in. A whole-fixture
-**measurement** dispatch (56 situated cases plus 3 that declare no `mock` and
-run bare regardless of dispatch type, 118 probes total) projects to **$39.50**
+**measurement** dispatch (37 situated cases plus 3 that declare no `mock` and
+run bare regardless of dispatch type, 80 probes total) projects to **$26.20**
 against the $40 `capUsd` — admitted. A whole-fixture **head** dispatch
-(`--pull-request`, every case forced bare) projects to **$5.90** — also
+(`--pull-request`, every case forced bare) projects to **$4.00** — also
 admitted, and the scenario this per-mode ceiling exists to make usable (see
 `tools/discovery-eval/src/admission.mjs`'s header). Either projection refuses
 outright, before any probe spawns, the moment it would exceed the cap — that

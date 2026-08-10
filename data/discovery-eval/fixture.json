@@ -1,6 +1,9 @@
 {
   "capUsd": 40,
-  "unmeasuredProbeCostCeilingUsd": { "situated": 0.35, "bare": 0.05 },
+  "unmeasuredProbeCostCeilingUsd": {
+    "situated": 0.35,
+    "bare": 0.05
+  },
   "cases": [
     {
       "id": "broaden-a-suite-that-only-checks-one-page",
@@ -44,17 +47,6 @@
       "rationale": "Want-shaped rather than symptom-shaped: nothing is broken, so a prompt claiming a failing suite would describe something the model cannot find. The runner is the subject — transform configuration is what decides the answer — and the runner this project uses is not the other one, which is what makes the exclusion a real boundary rather than a formality."
     },
     {
-      "id": "replace-a-module-inside-a-test",
-      "mock": "tsuzuri",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "In one of these tests I need to swap out a module the code under test imports. What's the way to do that here?",
-      "mustInclude": ["jest-testing"],
-      "mustExclude": ["vitest-testing"],
-      "mayInclude": ["unit-testing"],
-      "rationale": "The mocking API is runner-specific and the two runners disagree about it, so this measures whether the model reads which runner the project has before reaching for a mocking call. Unit-testing may legitimately fire alongside, since whether to substitute the module at all is its question."
-    },
-    {
       "id": "give-a-missing-field-a-value-when-it-is-parsed",
       "mock": "tsuzuri",
       "population": "discovered",
@@ -64,17 +56,6 @@
       "mustExclude": ["application-security"],
       "mayInclude": [],
       "rationale": "The project validates its content shapes with a schema library, so where a default belongs — and which of the two similarly-named ways to supply one — is a schema question. Security is excluded because a missing optional field is not an untrusted-input problem, and reaching for it means routing on the word 'parsed' rather than on the question."
-    },
-    {
-      "id": "stop-trusting-the-shape-of-fetched-content",
-      "mock": "tsuzuri",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "We read posts from a content store and hand them straight to the page. If it ever sends us something unexpected we'd render nonsense.",
-      "mustInclude": ["zod-schema"],
-      "mustExclude": [],
-      "mayInclude": ["application-security"],
-      "rationale": "The project already validates one thing this way and does not validate this one, so the gap is real and readable. Security may legitimately fire — where untrusted data enters is its question — which is why it is permitted rather than required or excluded."
     },
     {
       "id": "accept-a-page-number-from-a-url",
@@ -97,17 +78,6 @@
       "mustExclude": ["vitest-testing"],
       "mayInclude": ["jest-testing"],
       "rationale": "One shared module genuinely ships without a spec while its neighbour has one, so the gap is the project's rather than planted. The question is what to assert, not which runner API expresses it — but situated in a project that has a runner, reaching for that runner's capability is defensible, so it moved from excluded to permitted. The other runner is still excluded: it is not the one here."
-    },
-    {
-      "id": "make-an-operational-note-easier-to-follow",
-      "mock": "tsuzuri",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "Someone new tried to follow our deployment notes and got stuck halfway. Can you make them easier to follow?",
-      "mustInclude": ["technical-document-authoring"],
-      "mustExclude": ["product-requirement-document-authoring"],
-      "mayInclude": [],
-      "rationale": "There is a real operational document to open. This is prose craft on an existing document, which the technical-writing capability owns; the requirement-document capability owns the document that specifies a change not yet built, which this is not."
     },
     {
       "id": "decide-where-a-rollback-procedure-is-written-down",
@@ -223,18 +193,6 @@
       "rationale": "Whether a change carries adequate verification evidence is its own question, distinct from whether the code is correct. Review may legitimately fire beside it — the two run together on a real pull request — so it is permitted rather than excluded."
     },
     {
-      "id": "record-a-decision-so-it-is-not-relitigated",
-      "mock": "tsuzuri",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "We argued about this for a week and finally settled it. How do we stop it coming back up in six months?",
-      "mustInclude": ["living-product-specification"],
-      "mustExclude": [],
-      "mayInclude": ["technical-document-authoring"],
-      "rationale": "A decision record with a supersession rule is the living-specification capability's subject. The writing capability may fire because the record still has to read well, which is a legitimate second half rather than a misroute."
-    },
-
-    {
       "id": "open-the-app-straight-onto-one-deck",
       "mock": "recall",
       "population": "discovered",
@@ -255,50 +213,6 @@
       "mustExclude": ["react-component-development", "react-component-styling"],
       "mayInclude": [],
       "rationale": "The permission copy comes from a config plugin and reaches the native build through generation rather than through a hand-edited native file — which is the framework capability's subject and is exactly the thing a model that has not read the config gets wrong. The two component capabilities are excluded because nothing here is a component question."
-    },
-    {
-      "id": "make-controls-easier-to-hit-and-to-see",
-      "mock": "recall",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "People keep missing the two buttons you grade a card with, and someone testing with a keyboard said they can't tell which one they're on.",
-      "mustInclude": ["high-fidelity-ui-design"],
-      "mustExclude": [],
-      "mayInclude": ["react-component-styling", "react-component-development"],
-      "rationale": "Target size and a visible focus indicator are design decisions with published floors, which the high-fidelity capability owns. The styling capability may fire because the change lands in a stylesheet, and that is a legitimate second half rather than a misroute."
-    },
-    {
-      "id": "add-a-third-colour-scheme-without-inventing-names",
-      "mock": "recall",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "We want a high-contrast option alongside the two schemes we have, and I don't want to keep inventing colour names to do it.",
-      "mustInclude": ["high-fidelity-ui-design"],
-      "mustExclude": [],
-      "mayInclude": ["react-component-styling"],
-      "rationale": "The project already names its colours by role rather than by hue and registers a pair of schemes, so the question is how that scales rather than how to start it. Semantic tokens are the high-fidelity capability's subject; the styling capability may fire because the mechanism is the styling library's."
-    },
-    {
-      "id": "check-the-schemes-are-readable-enough",
-      "mock": "recall",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "Somebody said the greyed-out text is hard to read outdoors. Can you check the whole palette rather than just that one?",
-      "mustInclude": ["high-fidelity-ui-design"],
-      "mustExclude": ["wireframe-design"],
-      "mayInclude": [],
-      "rationale": "Contrast against a published floor, across every pairing in both schemes, is the high-fidelity capability's subject. The low-fidelity capability is excluded because it deliberately has no colour at all, so selecting it here is a routing failure on the word 'palette'."
-    },
-    {
-      "id": "fit-a-text-heavy-screen-into-the-existing-sizes",
-      "mock": "recall",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "We're adding a screen with a lot more reading on it than the others, and none of the sizes we already use fits it.",
-      "mustInclude": ["high-fidelity-ui-design"],
-      "mustExclude": ["wireframe-design"],
-      "mayInclude": ["react-component-styling"],
-      "rationale": "A type scale — what steps exist and what each is for — is the high-fidelity capability's subject, and this project carries a real one to extend. The low-fidelity capability is excluded because settling type is precisely what it defers."
     },
     {
       "id": "turn-a-settled-layout-into-a-real-screen",
@@ -335,18 +249,6 @@
       "mayInclude": [],
       "rationale": "The patch moves the identity-clearing call out of the sign-out path and into startup, which is exactly the symptom. The fix is a property of one vendor's SDK — where its reset belongs and how its identity is persisted — so the vendor-neutral capability is the wrong reach, and this is the sharpest of the pairs that measure that boundary."
     },
-
-    {
-      "id": "sketch-a-two-step-scheduling-screen",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "Authors want to line a post up to go out on Tuesday morning. It's two decisions rather than one — pick the moment, then confirm it — and nothing exists for it yet.",
-      "mustInclude": ["wireframe-design"],
-      "mustExclude": ["high-fidelity-ui-design"],
-      "mayInclude": [],
-      "rationale": "Nothing in the product schedules anything, so there is genuinely nothing to open and the work is to sketch regions and flow. The high-fidelity capability is excluded because colour, type and tokens are what this stage defers, and firing it means the model skipped to the wrong round."
-    },
     {
       "id": "map-the-path-a-new-author-takes",
       "mock": "inkwell",
@@ -359,17 +261,6 @@
       "rationale": "The product deliberately has no onboarding flow, so the request is to breadboard a path rather than to change one. The styling capability is excluded because there is nothing to style yet, and reaching for it means the model heard 'build' rather than 'before we build'."
     },
     {
-      "id": "compare-a-few-arrangements-before-committing",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "There are two or three ways the stats screen could be arranged and I'd rather compare them than argue about it once it's in code.",
-      "mustInclude": ["wireframe-design"],
-      "mustExclude": ["high-fidelity-ui-design"],
-      "mayInclude": [],
-      "rationale": "Comparing structural options cheaply is the low-fidelity capability's subject, and the screen it names does not exist so nothing can be read instead. The high-fidelity capability is excluded for the reason it is in every case at this stage."
-    },
-    {
       "id": "block-out-a-screen-before-arguing-about-colour",
       "mock": "inkwell",
       "population": "discovered",
@@ -379,73 +270,6 @@
       "mustExclude": ["high-fidelity-ui-design", "react-component-styling"],
       "mayInclude": [],
       "rationale": "The prompt states the boundary in the author's own words rather than in the capability's vocabulary, which is what changed from the version that said 'grey-box the regions'. Both excluded capabilities are the ones the second sentence rules out."
-    },
-    {
-      "id": "show-a-slow-action-as-it-runs",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "I'm adding a control that kicks off something slow. What should it look like while it's working, when it can't be used, and when it has just failed?",
-      "mustInclude": ["high-fidelity-ui-design"],
-      "mustExclude": [],
-      "mayInclude": ["react-component-styling", "react-component-development"],
-      "rationale": "Want-shaped: the existing shared control already carries these states correctly, so this asks the model to reach the same standard for something new rather than to fix something broken. Which states a control owes is the high-fidelity capability's subject; the two component capabilities may legitimately fire on the implementation half."
-    },
-    {
-      "id": "style-a-new-shared-piece-the-way-the-others-are-styled",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "I'm adding a small panel that'll turn up on more than one screen. How should its styles be set up so it matches how things are done here?",
-      "mustInclude": ["react-component-styling"],
-      "mustExclude": ["wireframe-design"],
-      "mayInclude": ["react-component-development"],
-      "rationale": "The project has one consistent way of scoping component styles, and the answer is to read it and follow it. The low-fidelity capability is excluded: the layout is not in question, the mechanism is."
-    },
-    {
-      "id": "fix-a-sidebar-that-breaks-when-the-window-narrows",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "patch": "patches/fix-a-sidebar-that-breaks-when-the-window-narrows.patch",
-      "prompt": "Once the window gets narrow, the labels down the left overlap the things they're labelling.",
-      "mustInclude": ["react-component-styling"],
-      "mustExclude": ["wireframe-design"],
-      "mayInclude": ["high-fidelity-ui-design"],
-      "rationale": "The patch breaks the shipped container-driven rule so the overlap is real at a narrow width. Responsive behaviour keyed to a component's own container rather than to the viewport is the styling capability's subject, and it is a distinction a model that has not read the stylesheet gets wrong."
-    },
-    {
-      "id": "let-one-caller-tighten-a-shared-components-spacing",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "One screen needs a shared piece to sit tighter than it does everywhere else. What's the right way to let the caller ask for that?",
-      "mustInclude": ["react-component-styling"],
-      "mustExclude": [],
-      "mayInclude": ["react-component-development"],
-      "rationale": "Which styles a component owns and which its caller may override is the styling capability's subject, and this project already has a settled answer to read. The component capability may fire because the same question has a props-contract half."
-    },
-    {
-      "id": "settle-an-order-for-style-properties",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "No two files here describe how something looks in the same order, and it makes the diffs noisier than the changes in them.",
-      "mustInclude": ["react-component-styling"],
-      "mustExclude": ["wireframe-design", "high-fidelity-ui-design"],
-      "mayInclude": ["code-maintainability"],
-      "rationale": "The inconsistency is real and declared: nothing enforces an order and none is followed file to file. Both design capabilities are excluded because no design decision is being asked for — this is a convention question about existing files."
-    },
-    {
-      "id": "respect-someone-who-turned-animation-off",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "Someone on the team says the confirmation that slides in after publishing makes them queasy.",
-      "mustInclude": ["react-component-styling"],
-      "mustExclude": [],
-      "mayInclude": ["high-fidelity-ui-design"],
-      "rationale": "The one keyframe animation in the project genuinely carries no motion-preference guard, so the complaint points at something real. Honouring a reduced-motion preference is a styling mechanism; the design capability may fire because whether motion is appropriate at all is its question."
     },
     {
       "id": "sort-out-a-screen-that-reads-as-cluttered",
@@ -485,28 +309,6 @@
       "rationale": "Session replay and its sampling are one vendor's product with its own cost model, and this project wires that vendor. The neutral capability is excluded because sampling replay is not a vendor-agnostic idea; the error-tracking vendor is excluded because it is the other SDK in the same project, which is what makes this the sharper exclusion of the two."
     },
     {
-      "id": "attach-a-lasting-attribute-to-the-person-using-the-app",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "We want to record which plan an author is on and have it stick to everything they do afterwards.",
-      "mustInclude": ["amplitude-instrumentation"],
-      "mustExclude": ["software-instrumentation"],
-      "mayInclude": [],
-      "rationale": "There is a written, tested wrapper with a real call site to point at, and the answer turns on which of that SDK's operators applies to a value that can change. The neutral capability owns whether to record a user property at all, not which operator writes it, which is the boundary being measured."
-    },
-    {
-      "id": "name-one-new-event-consistently-with-the-others",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "I'm adding one more thing worth recording, and the names we already send don't agree with each other.",
-      "mustInclude": ["amplitude-instrumentation"],
-      "mustExclude": [],
-      "mayInclude": ["software-instrumentation"],
-      "rationale": "The existing names really are inconsistent — two lower-case and one capitalised, all three fired from real call sites. This is the permissive half of the naming pair: adding a name inside a project whose one analytics vendor is right there makes the vendor capability the first reach, and the neutral one a legitimate second."
-    },
-    {
       "id": "agree-a-scheme-for-what-we-record",
       "mock": "inkwell",
       "population": "discovered",
@@ -516,17 +318,6 @@
       "mustExclude": ["amplitude-instrumentation"],
       "mayInclude": [],
       "rationale": "The strict half of the same pair. The last clause is what moves it: a scheme that outlives the tool is a vendor-neutral question, so firing the vendor capability means the model routed on the SDK it found in the project rather than on what was asked."
-    },
-    {
-      "id": "hold-back-a-second-tracker-until-someone-agrees",
-      "mock": "inkwell",
-      "population": "discovered",
-      "repeats": 2,
-      "prompt": "We're adding a second thing that reports back to somebody else's service. It mustn't start before the visitor has agreed, the way the first one waits.",
-      "mustInclude": ["software-instrumentation"],
-      "mustExclude": ["amplitude-instrumentation"],
-      "mayInclude": ["application-security"],
-      "rationale": "The project already gates one tracker on consent correctly, so the pattern to follow is readable. Whether a given signal may fire before consent is a vendor-neutral question about telemetry; the vendor capability is excluded because the answer does not depend on whose SDK it is."
     },
     {
       "id": "get-readable-names-back-in-a-production-error",
@@ -609,7 +400,6 @@
       "mayInclude": ["code-maintainability"],
       "rationale": "Extracting shared logic out of components is the component capability's subject, and there are two real screens to compare. The styling capability is excluded because nothing about the appearance is in question."
     },
-
     {
       "id": "edit-an-issue-body-without-destroying-it",
       "population": "discovered",
@@ -640,7 +430,6 @@
       "mayInclude": [],
       "rationale": "Bare for the same reason as the case above. This is the mirror of it: the two-tier storage model and the drift between a source and an installed copy belong to management, not to how the skill is written."
     },
-
     {
       "id": "agree-a-plan-before-writing-code",
       "mock": "tsuzuri",

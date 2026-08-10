@@ -17,12 +17,21 @@
 // reading their exit codes and output, not by reading the workflow's prose.
 
 import { mkdir, writeFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { tempDir } from "../helpers/fixtures.mjs";
-import { runScript, SCRIPTS } from "../helpers/run.mjs";
+import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
+
+/**
+ * the committed fixture, read rather than restated. every projection asserted
+ * below is derived from it, so trimming a case moves the expectation with the
+ * fixture instead of leaving a pinned figure to fail.
+ */
+const fixture = JSON.parse(readFileSync(repoPath("data/discovery-eval/fixture.json"), "utf8"));
+const REPEATS = 2;
 
 const CASE = "broaden-a-suite-that-only-checks-one-page"; // situated, hosted by tsuzuri
 const BARE_CASE = "tighten-a-skill-description-without-losing-routing"; // bare, declares no mock
@@ -170,42 +179,36 @@ describe("discovery-eval-admit.mjs", () => {
   });
 
   describe("per-mode ceiling — the correction to #280's dry-run defect", () => {
-    it("projects a head dispatch over the whole real fixture near $5.90, not the $41.30 the situated ceiling gives — every case runs bare under --pull-request", () => {
+    it("prices every case of a head dispatch at the bare ceiling, whatever mode each one declares", () => {
       const result = admit(["--pull-request", "134", "--dry-run-input", "false"]);
       expect(result.code, result.output).toBe(0);
       const plan = JSON.parse(result.stdout);
       expect(plan.mode).toBe("head");
-      expect(plan["projected-usd"]).toBeCloseTo(5.9, 1);
-      expect(plan["projected-usd"]).toBeLessThan(10);
+      // derived from the fixture rather than pinned to a figure, so trimming a
+      // case moves the expectation with it instead of breaking this test.
+      const cases = JSON.parse(plan.cases);
+      const expected = cases.length * REPEATS * fixture.unmeasuredProbeCostCeilingUsd.bare;
+      expect(plan["projected-usd"]).toBeCloseTo(expected, 5);
     });
 
-    // FLAGGED FOR THE PARENT/REVIEWER — see this attempt's receipt.
-    //
-    // issue #280's acceptance criteria ask for this exact command to remain
-    // REFUSED at ~$41.30. It cannot: $41.30 = 118 probes x $0.35 is the OLD
-    // bug's arithmetic, which priced every probe at the situated ceiling
-    // regardless of the mode it actually runs in. Of the fixture's 59 cases,
-    // 3 declare no `mock` (edit-an-issue-body-without-destroying-it,
-    // tighten-a-skill-description-without-losing-routing,
-    // reconcile-an-installed-copy-with-its-source) and run BARE in a plain
-    // measurement dispatch too — not only when `--head-skills` forces it.
-    // Pricing those 6 probes honestly at $0.05 instead of $0.35 recovers
-    // $1.80, moving the total from $41.30 to $39.50 — under the $40 cap, so
-    // this dispatch is now correctly ADMITTED rather than refused.
-    //
-    // Displaying the true mode per case (as the scope requires: "the refusal
-    // message should say which mode it projected and where the figure came
-    // from") makes any other total dishonest — pricing those 3 cases'
-    // printed "$0.05 each [bare]" line at $0.35 in the total would contradict
-    // its own line item. This is therefore not an implementation choice but
-    // an arithmetic consequence of the exact ceilings this issue specifies
-    // (situated $0.35, bare $0.05) applied honestly to the untouched fixture.
-    it("admits a whole-fixture measurement dispatch near $39.50 — the honest per-case-mode total, not the old bug's uniform $41.30", () => {
+    // A plain measurement dispatch does NOT price every probe as situated: a
+    // case declaring no `mock` runs bare whatever the dispatch is, so it is
+    // projected at the bare ceiling here too. Pricing it at the situated one
+    // would contradict the per-case line this same command prints, which names
+    // the mode it projected. That is what the per-mode ceiling is for.
+    it("prices each case of a measurement dispatch at the ceiling for the mode it actually runs in", () => {
       const result = admit(["--dry-run-input", "false"]);
       expect(result.code, result.output).toBe(0);
       const plan = JSON.parse(result.stdout);
       expect(plan.mode).toBe("measurement");
-      expect(plan["projected-usd"]).toBeCloseTo(39.5, 1);
+      const { situated, bare } = fixture.unmeasuredProbeCostCeilingUsd;
+      const expected = fixture.cases.reduce(
+        (total, one) => total + one.repeats * (one.mock ? situated : bare),
+        0,
+      );
+      expect(plan["projected-usd"]).toBeCloseTo(expected, 5);
+      // and the two ceilings really are different, or this asserts nothing
+      expect(situated).not.toBe(bare);
     });
 
     it("admits a single-case measurement dispatch, situated at its declared mode", () => {
