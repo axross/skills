@@ -47,11 +47,18 @@
 // is stated in data/discovery-eval/README.md ("What is committed here") and
 // nowhere else — recomputing it here from a case count or a probe count
 // would go stale the next time a case moves, which is what happened to this
-// very comment once already (see #280's pre-flight fix-round-1 receipt).
-// Whether the fixture-wide check should keep refusing the full corpus
-// regardless — e.g. by treating a measurement dispatch as conservatively
-// all-situated for this sum only — is a stop-loss design decision beyond
-// this correction's scope; see #280's attempt-1 receipt.
+// very comment once already, which is why it no longer carries one.
+//
+// PRICING A MEASUREMENT DISPATCH CONSERVATIVELY — as though every case ran
+// situated, so the whole corpus keeps refusing until something has been
+// measured — was considered and declined. It would contradict the per-case
+// line this same script prints, which names the mode it projected: a total
+// that prices a case at $0.35 above a line reading `$0.05 each [bare]` is
+// not a stop-loss, it is a wrong number, and a guard nobody can reconcile
+// with its own output is one nobody trusts. The stop-loss is unconditional
+// where it matters — any projection over the cap refuses, before any probe
+// spawns — and an unmeasured case is already priced pessimistically by the
+// ceiling it projects from.
 //
 // exit codes:
 //   0  admitted; mode, the case list, and the projection are on stdout and in
