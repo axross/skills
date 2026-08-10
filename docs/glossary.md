@@ -84,8 +84,6 @@
 
 **Working agreement** — the root instruction document every session reads, which routes a task to the **agent skills** that govern it.
 
-**Specification corpus** — the `docs/` tree itself, named apart from the **skill corpus** because both are called a corpus in different sentences.
-
 ## Skill Evaluation
 
 **Skill evaluation** — measuring an **agent skill**'s **skill outcome** rather than its **textual properties**: whether it earns its place, not whether it is well made. The library is its own subject here, and no skill defines this, because the instrument is this repository's rather than something it distributes.
