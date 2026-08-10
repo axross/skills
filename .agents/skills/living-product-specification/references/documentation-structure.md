@@ -28,8 +28,6 @@ docs/
 | `conventions/<surface>.md` | The rules and habits a change must satisfy — see [conventions-and-operations.md](./conventions-and-operations.md#what-each-body-holds)                                | —                                  |
 | `operations/<surface>.md`  | The procedures someone executes, and what to watch for while running them — see [conventions-and-operations.md](./conventions-and-operations.md#what-each-body-holds) | —                                  |
 
-`docs/` is the conventional location for this tree; a project that already
-keeps it somewhere else keeps it there — nothing below depends on the name.
 `conventions/` and `operations/` sit beside `specs/` and `decisions/` as
 siblings, never nested inside either, and — like every other document here —
 are written only when there is something to put in them: a `docs/` tree with
