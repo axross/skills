@@ -1,0 +1,119 @@
+diff --git a/package-lock.json b/package-lock.json
+index 64a9e73..dce1dc5 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -17,6 +17,7 @@
+         "expo-router": "~57.0.11",
+         "expo-status-bar": "~57.0.1",
+         "expo-system-ui": "~57.0.2",
++        "nanoid": "6.0.1",
+         "react": "19.2.3",
+         "react-dom": "19.2.3",
+         "react-native": "0.86.2",
+@@ -8210,6 +8211,24 @@
+         }
+       }
+     },
++    "node_modules/expo-router/node_modules/nanoid": {
++      "version": "3.3.18",
++      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.18.tgz",
++      "integrity": "sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "MIT",
++      "bin": {
++        "nanoid": "bin/nanoid.cjs"
++      },
++      "engines": {
++        "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
++      }
++    },
+     "node_modules/expo-server": {
+       "version": "57.0.1",
+       "resolved": "https://registry.npmjs.org/expo-server/-/expo-server-57.0.1.tgz",
+@@ -14463,9 +14482,9 @@
+       "license": "MIT"
+     },
+     "node_modules/nanoid": {
+-      "version": "3.3.18",
+-      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.18.tgz",
+-      "integrity": "sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==",
++      "version": "6.0.1",
++      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-6.0.1.tgz",
++      "integrity": "sha512-3wVS3i51pE2pi1k5FFL/95BGfVS0kSsvDVuGXHOtxox/TywUmtgq+3qiTOTbs9J7KfHaXPiN171k/A6dBnaXFw==",
+       "funding": [
+         {
+           "type": "github",
+@@ -14474,10 +14493,10 @@
+       ],
+       "license": "MIT",
+       "bin": {
+-        "nanoid": "bin/nanoid.cjs"
++        "nanoid": "bin/nanoid.js"
+       },
+       "engines": {
+-        "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
++        "node": "^22 || ^24 || >=26"
+       }
+     },
+     "node_modules/napi-postinstall": {
+@@ -15252,6 +15271,24 @@
+         "node": "^10 || ^12 || >=14"
+       }
+     },
++    "node_modules/postcss/node_modules/nanoid": {
++      "version": "3.3.18",
++      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.18.tgz",
++      "integrity": "sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==",
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "MIT",
++      "bin": {
++        "nanoid": "bin/nanoid.cjs"
++      },
++      "engines": {
++        "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
++      }
++    },
+     "node_modules/prelude-ls": {
+       "version": "1.2.1",
+       "resolved": "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz",
+diff --git a/package.json b/package.json
+index 26108ff..4ef378b 100644
+--- a/package.json
++++ b/package.json
+@@ -27,6 +27,7 @@
+     "expo-router": "~57.0.11",
+     "expo-status-bar": "~57.0.1",
+     "expo-system-ui": "~57.0.2",
++    "nanoid": "6.0.1",
+     "react": "19.2.3",
+     "react-dom": "19.2.3",
+     "react-native": "0.86.2",
+diff --git a/src/decks/deck-repository.ts b/src/decks/deck-repository.ts
+index 7610fe5..3577948 100644
+--- a/src/decks/deck-repository.ts
++++ b/src/decks/deck-repository.ts
+@@ -1,4 +1,5 @@
+ import AsyncStorage from "@react-native-async-storage/async-storage";
++import { nanoid } from "nanoid";
+
+ import { UNSTUDIED_STATE, schedule, type Grade } from "@/scheduler/scheduler";
+
+@@ -8,7 +9,7 @@ import { createSeedDecks } from "./seed-decks";
+ const STORAGE_KEY = "recall.decks.v1";
+
+ function generateCardId(): string {
+-  return `card-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
++  return `card-${nanoid()}`;
+ }
+
+ async function seedAndPersist(): Promise<Deck[]> {
