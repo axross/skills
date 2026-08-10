@@ -21,9 +21,9 @@ docs/
   overview.md       # the product and the repository, one cross-domain map
   glossary.md       # product vocabulary and development vocabulary, split at the top level
   specs/<domain>.md # the corpus: how the product behaves now
-  decisions/…        # the corpus: why a constraint exists
-  conventions/…       # how the code is written
-  operations/…        # how the project is built, deployed, and operated
+  decisions/…       # the corpus: why a constraint exists
+  conventions/…     # how the code is written
+  operations/…      # how the project is built, deployed, and operated
 ```
 
 | Body                   | Answers                                           | Owns                                                          |
