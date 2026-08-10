@@ -160,7 +160,7 @@
       "capUsd": 40,
       "unmeasuredProbeCostCeilingUsd": 6,
       "task": {
-        "prompt": "Our deploy hook takes whatever URL the request that triggers it supplies and calls it. Is that safe to just do?"
+        "prompt": "Our deploy hook calls whatever URL arrives on the request that triggers it. I don't think we should be sending a request anywhere a caller names — close that off."
       },
       "prediction": "Whether the diff adds any check at all before the fetch — an allow-list, a scheme check, a private-address guard — is directly visible, and whether a validation function with a name like isAllowedDeployHookUrl now exists is a grep away. What a deterministic reading cannot settle is whether that check actually closes the SSRF hole rather than narrowing it — whether it blocks a redirect to an internal address or a DNS-rebound hostname, or only the most obvious loopback literal — which needs the guard's own logic read and reasoned about, not just its presence confirmed."
     },

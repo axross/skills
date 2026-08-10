@@ -142,6 +142,8 @@
 
 **Signal extractor** — a deterministic function that reads a **probe transcript** or a **probe artifact** and reports measured signals without judging them.
 
+**Residue** — the part of an **agent skill**'s effect that no **signal extractor** reaches: what a **probe artifact** and a **probe transcript** cannot settle because the question is one of quality rather than of presence. Sizing it across an **evaluation fixture** is what decides whether an **LLM judge** is worth adopting.
+
 **Probe record** — everything one **evaluation probe** produced — its **probe transcript** and its **probe artifact** — together with the **condition fingerprint** it ran under, carrying no verdict.
 
 **Case measurement** — every **evaluation probe** of one **evaluation case**, run together as one unit and stored together, because no single probe supports a comparison on its own.

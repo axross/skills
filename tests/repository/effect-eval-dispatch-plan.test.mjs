@@ -104,9 +104,11 @@ describe("the probe plan", () => {
   it("resolves a case's patch against the fixture that declares it", async () => {
     // the declared path is relative to the fixture, and the workflow has no
     // idea where that is — so the resolution belongs here, and is asserted
-    // here. no case declares a patch today, which is the second half of what
+    // here. `CASE` itself declares no patch, which is the second half of what
     // this checks: the field is present and empty rather than absent, so the
-    // workflow's `jq -er` has something to read either way.
+    // workflow's `jq -er` has something to read either way. Other cases in the
+    // fixture do declare one, and the branch that resolves it is exercised
+    // through them.
     const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
     const declared = fixture.cases.find((entry) => entry.id === CASE);
 

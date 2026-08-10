@@ -231,6 +231,16 @@ async function wholeFixtureDryRun(fixturePath) {
 
   lines.push(
     `Projected: ${totalProbes} probe(s), $${totalProjectedUsd.toFixed(2)} total.`,
+    // the total is the sum of per-case projections, and a dispatch admits one
+    // case at a time — so this is what measuring the whole fixture would come
+    // to across as many dispatches, never what any one of them may spend. it
+    // is also dominated by the declared ceiling wherever a case has no
+    // committed measurement, which is deliberately above what a probe should
+    // cost. saying so here is cheaper than a reader inferring a budget from it.
+    "That total is the sum of per-case projections across separate dispatches, not what one",
+    "dispatch may spend: each case is admitted on its own, against its own cap. A case with no",
+    "committed measurement is priced from its declared ceiling, which is a guard rather than an",
+    "estimate — see data/effect-eval/README.md.",
     "No process was spawned; no network was reached.",
     "",
   );

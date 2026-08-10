@@ -150,6 +150,41 @@ describe("the case fixture", () => {
       }
     }
   });
+
+  it("pairs every declared case patch with a file under patches/, and every file with a case", async () => {
+    // both halves are silent failures of a different kind, and this axis has
+    // patch files for the first time with this fixture. a patch a case
+    // declares but which is not on disk fails at materialization — after a
+    // dispatch has been admitted and paid for, rather than here for nothing.
+    // a patch file no case declares is the reverse: dead weight that reads as
+    // instrument, which is what the discovery side nearly left behind when a
+    // case was trimmed and its patch was not. declared-patches.test.mjs walks
+    // the declared half only, so nothing else here would see an orphan.
+    const declared = new Set(
+      (await readFixture()).cases.filter((entry) => entry.patch).map((entry) => entry.patch),
+    );
+    let onDisk;
+    try {
+      onDisk = new Set(
+        (await readdir(join(DATA_ROOT, "patches")))
+          .filter((name) => name.endsWith(".patch"))
+          .map((name) => `patches/${name}`),
+      );
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      onDisk = new Set();
+    }
+
+    expect(
+      [...declared].filter((path) => !onDisk.has(path)).sort(),
+      "a case declares a patch that is not under data/effect-eval/patches/ — materialization " +
+        "would fail mid-dispatch instead of here",
+    ).toEqual([]);
+    expect(
+      [...onDisk].filter((path) => !declared.has(path)).sort(),
+      "a patch file no case declares — dead weight that reads as instrument",
+    ).toEqual([]);
+  });
 });
 
 describe("the coverage policy", () => {

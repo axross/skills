@@ -112,6 +112,16 @@ are now required rather than assumed, but connecting it to what
 `summarize.mjs` derives is the judge decision's business, once there is data
 saying a per-case extractor buys something a common reading does not.
 
+**Adding the cases without touching `extractArtifact`'s defaults**, letting
+every new case inherit the unit-testing reading. Rejected: it would report
+import specifiers and assertion counts for a case about naming or layout,
+which is a wrong signal rather than a weak one, and a wrong signal hides the
+residue where a missing one at least shows it.
+
+**Waiting for the judge decision, then building the cases it needs.**
+Rejected as circular: that decision's stated precondition is this
+measurement, so building the cases afterwards means deciding without them.
+
 **Measuring the noise floor by repeating the existing `unit-testing` case.**
 Rejected: running a skill against itself measures variance where a real
 effect is also present, and the two cannot be told apart.
