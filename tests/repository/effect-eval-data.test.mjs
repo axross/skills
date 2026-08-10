@@ -12,14 +12,49 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { READING_KINDS } from "../../tools/effect-eval/src/artifact.mjs";
 import { canonicalJson } from "../../tools/effect-eval/src/layout.mjs";
 import { deriveCaseSummary } from "../../tools/effect-eval/src/summary.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const DATA_ROOT = repoPath("data/effect-eval");
 const MEASUREMENTS = join(DATA_ROOT, "measurements");
+const COVERAGE_PATH = join(DATA_ROOT, "coverage.md");
+
+/** the three group headings coverage.md carries, verbatim — the spec's own names. */
+const COVERAGE_GROUPS = [
+  "Skills whose surface is not the working tree",
+  "Skills whose effect is a judgement rather than an artifact",
+  "Skills that need a stack the mock does not have",
+];
 
 const readFixture = async () => JSON.parse(await readFile(join(DATA_ROOT, "fixture.json"), "utf8"));
+
+/**
+ * parses coverage.md for the skills listed under its three fixed group
+ * headings. a line shaped `- \`skill-name\` — reason` under a "## <group>"
+ * heading names that skill as out of range for that group; anything outside
+ * the three known headings (this file's own opening prose, its "## " group
+ * headings themselves) contributes nothing.
+ *
+ * @returns {Promise<Map<string, string>>} skill name → the group heading it sits under
+ */
+async function parseCoverage() {
+  const text = await readFile(COVERAGE_PATH, "utf8");
+  const bySkill = new Map();
+  let currentGroup = null;
+  for (const line of text.split("\n")) {
+    const heading = line.match(/^## (.+)$/);
+    if (heading) {
+      currentGroup = COVERAGE_GROUPS.includes(heading[1]) ? heading[1] : null;
+      continue;
+    }
+    if (!currentGroup) continue;
+    const bullet = line.match(/^- `([a-z0-9-]+)`/);
+    if (bullet) bySkill.set(bullet[1], currentGroup);
+  }
+  return bySkill;
+}
 
 /** directory names under measurements/, or [] when nothing has been measured yet. */
 async function measurementNames() {
@@ -113,6 +148,93 @@ describe("the case fixture", () => {
           true,
         );
       }
+    }
+  });
+});
+
+describe("the coverage policy", () => {
+  it("gives every case a non-empty prediction", async () => {
+    // the prediction is prose no other check reads — this is the one
+    // assertion standing between "every case carries one" and a case that
+    // silently does not, which the rest of the fixture's structure would
+    // never catch.
+    for (const declared of (await readFixture()).cases) {
+      expect(
+        typeof declared.prediction === "string" && declared.prediction.trim().length > 0,
+        `${declared.id} has no non-empty prediction`,
+      ).toBe(true);
+    }
+  });
+
+  it("marks exactly one case as the negative control", async () => {
+    // two controls would mean the fixture no longer has one measurement of
+    // its own noise floor but two, silently averaged together by anyone who
+    // reads negativeControl as a single flag; zero would mean the axis has
+    // no measured floor at all and nothing would say so.
+    const controls = (await readFixture()).cases.filter((entry) => entry.negativeControl === true);
+    expect(
+      controls.map((entry) => entry.id),
+      "expected exactly one case with negativeControl: true",
+    ).toHaveLength(1);
+  });
+
+  it("draws the control's skill from the not-the-working-tree group, not from any other", async () => {
+    // the plan settles this deliberately: a control drawn from the
+    // judgement-rather-than-artifact group would assume the very answer an
+    // LLM judge exists to decide, and one from the contingent stack group
+    // could stop being a control the day somebody adds a matching mock.
+    const [control] = (await readFixture()).cases.filter((entry) => entry.negativeControl === true);
+    expect(control, "no case declares negativeControl: true").toBeDefined();
+    expect(control.skills).toEqual(["github-operation"]);
+
+    const coverage = await parseCoverage();
+    expect(coverage.get("github-operation")).toBe(COVERAGE_GROUPS[0]);
+  });
+
+  it("holds every installed skill to being named by a case or listed in coverage.md, and nothing else", async () => {
+    // the property coverage.md's own README section states: the in-range half
+    // is installed-minus-out-of-range, computed rather than restated, so
+    // there is one list to keep true rather than two that could drift apart.
+    // this is the check that makes that true — in both directions, since a
+    // coverage.md entry naming an uninstalled (renamed or removed) skill
+    // would silently under-count the in-range half the same way a case
+    // naming one would.
+    const installed = new Set(
+      (await readdir(repoPath(".agents/skills"), { withFileTypes: true }))
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name),
+    );
+    const namedByACase = new Set((await readFixture()).cases.flatMap((entry) => entry.skills));
+    const coverage = await parseCoverage();
+
+    const unaccountedFor = [...installed].filter(
+      (skill) => !namedByACase.has(skill) && !coverage.has(skill),
+    );
+    expect(
+      unaccountedFor,
+      "installed but named by no case and listed in no coverage.md group",
+    ).toEqual([]);
+
+    const coverageNamesAnUninstalledSkill = [...coverage.keys()].filter(
+      (skill) => !installed.has(skill),
+    );
+    expect(
+      coverageNamesAnUninstalledSkill,
+      "coverage.md lists a skill that is not installed",
+    ).toEqual([]);
+  });
+
+  it("names a reading.kind the extractor knows, for every case that declares one", async () => {
+    // extractArtifact's own READING_KINDS is the one list of kinds it can
+    // serve; a fixture case naming any other value would fail only once
+    // something tried to wire the reading in, which is exactly the silent
+    // failure this catches before that day.
+    for (const declared of (await readFixture()).cases) {
+      if (!declared.reading) continue;
+      expect(
+        READING_KINDS.includes(declared.reading.kind),
+        `${declared.id} declares reading.kind ${JSON.stringify(declared.reading.kind)}, which extractArtifact does not know (knows: ${READING_KINDS.join(", ")})`,
+      ).toBe(true);
     }
   });
 });

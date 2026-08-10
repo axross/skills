@@ -23,21 +23,29 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const CASE = "add-unit-tests-for-an-untested-module";
 
+// the negative control: its own skill-present materialization is what the
+// second describe block below asserts against, rather than trusting the
+// same plumbing that already covers CASE above to cover it too — a control
+// whose treatment silently installed nothing would produce the expected null
+// for the wrong reason, and nothing exercising this case specifically would
+// ever notice.
+const CONTROL_CASE = "write-a-custom-not-found-page";
+
 const probePlan = (args) => runScript(SCRIPTS.effectEvalProbePlan, args);
 const landingPlan = (args) => runScript(SCRIPTS.effectEvalLandingPlan, args);
 
-/** the declared skills of the fixture's case, so the assertions track the fixture. */
-async function declaredSkills() {
+/** the declared skills of one fixture case, so the assertions track the fixture. */
+async function declaredSkills(caseId = CASE) {
   const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
-  return fixture.cases.find((entry) => entry.id === CASE).skills;
+  return fixture.cases.find((entry) => entry.id === caseId).skills;
 }
 
 /**
  * runs the probe plan, feeds what it emitted to the real setup.mjs the way the
  * workflow does, and returns the workspace it produced.
  */
-function materializeFromPlan(condition) {
-  const planned = probePlan(["--case", CASE, "--condition", condition, "--dry-run-input", "true"]);
+function materializeFromPlan(condition, caseId = CASE) {
+  const planned = probePlan(["--case", caseId, "--condition", condition, "--dry-run-input", "true"]);
   expect(planned.code, planned.output).toBe(0);
   const plan = JSON.parse(planned.stdout);
 
@@ -147,6 +155,36 @@ describe("the probe plan", () => {
     ]);
     expect(result.code).toBe(2);
     expect(result.output).toMatch(/declares no case "no-such-case"/);
+  });
+});
+
+describe("the negative control's probe plan", () => {
+  // the control's own materialization, asserted directly rather than assumed
+  // to be covered by the case above: a control whose skill-present treatment
+  // silently installed nothing would produce the expected null result for
+  // the wrong reason, and every other test in this file exercises CASE, not
+  // this one.
+  it("installs github-operation for real under skill-present", async () => {
+    const { result, workspace } = materializeFromPlan("skill-present", CONTROL_CASE);
+    expect(result.code, result.output).toBe(0);
+    expect(await installedSkills(workspace)).toEqual([...(await declaredSkills(CONTROL_CASE))].sort());
+  });
+
+  it("materializes a real SKILL.md, not an empty directory", async () => {
+    // "the directory exists" would still pass if nothing were copied into it
+    // — the same distinction the case above draws, checked here against the
+    // control's own skill rather than assumed to transfer from that case.
+    const { workspace } = materializeFromPlan("skill-present", CONTROL_CASE);
+    for (const skill of await declaredSkills(CONTROL_CASE)) {
+      const entry = join(workspace, ".claude", "skills", skill, "SKILL.md");
+      expect((await stat(entry)).size, `${skill}/SKILL.md is empty`).toBeGreaterThan(0);
+    }
+  });
+
+  it("installs nothing under skill-absent", async () => {
+    const { plan, workspace } = materializeFromPlan("skill-absent", CONTROL_CASE);
+    expect(plan.skills).toEqual([]);
+    expect(await installedSkills(workspace)).toEqual([]);
   });
 });
 

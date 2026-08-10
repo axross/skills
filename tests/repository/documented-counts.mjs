@@ -499,6 +499,32 @@ export const CLAIMS = {
     },
   },
 
+  "effect-eval-case-count": {
+    owner: "the cases array in data/effect-eval/fixture.json",
+    note: "adding or removing a case moves this number, and effect-eval-out-of-range-skill-count moves opposite it as skills cross between the two lists",
+    derive: async () => {
+      const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+      return fixture.cases.length;
+    },
+  },
+
+  "effect-eval-out-of-range-skill-count": {
+    owner: "the skill bullets listed under data/effect-eval/coverage.md's three group headings",
+    note: "an offline check already holds every installed skill to being named by a case or listed here, so a skill moving between the two moves this number and effect-eval-case-count's implicit complement together",
+    derive: async () => {
+      const coverage = await readFile(repoPath("data/effect-eval/coverage.md"), "utf8");
+      return [...coverage.matchAll(/^- `[a-z0-9-]+`/gm)].length;
+    },
+  },
+
+  "effect-eval-patched-case-count": {
+    owner: 'the cases in data/effect-eval/fixture.json carrying a "patch" field',
+    note: "declared-patches.test.mjs applies every one of these against its mock, so a case gaining or losing a patch moves both that check's coverage and this number",
+    derive: async () => {
+      const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+      return fixture.cases.filter((entry) => Boolean(entry.patch)).length;
+    },
+  },
 };
 
 /** every Markdown file in the repository, as repository-relative paths. */
