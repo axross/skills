@@ -18,7 +18,7 @@
 // distributable — so a gate on similarity would fail correct prose. only intent
 // separates the cases, and intent is not in the corpus.
 //
-// scripts/discovery-eval/run.mjs reports which skills a prompt surfaced. it
+// tools/discovery-eval/evaluate.mjs reports which skills a prompt surfaced. it
 // cannot gate for three independent reasons: it is non-deterministic, it costs
 // money per run, and it needs a secret that fork pull requests do not receive.
 // a flaky merge gate gets bypassed or deleted.
@@ -62,10 +62,10 @@ const REPORTING_TOOLS = [
     runnable: true,
   },
   {
-    script: SCRIPTS.discoveryEval,
-    // matched by PATH, not basename: "run.mjs" alone is generic enough to
-    // collide with unrelated text and would make this assertion meaningless.
-    needle: "scripts/discovery-eval/run.mjs",
+    script: SCRIPTS.discoveryEvalEvaluate,
+    // matched by PATH for the same reason as its effect-side sibling below:
+    // "evaluate.mjs" alone is too generic to assert anything.
+    needle: "tools/discovery-eval/evaluate.mjs",
     // its own workflow is the one place it may appear — maintainer-triggered,
     // and not a required check.
     workflow: "discovery-eval.yaml",
@@ -203,11 +203,12 @@ describe("reporting tools are not gates", () => {
 
   it("exits 0 from the discovery evaluation's offline path", () => {
     // the evaluation itself needs a network and a secret, so its no-fail
-    // guarantee is asserted on the one path that needs neither. --dry-run
-    // validates the fixture and prints the plan without any model call.
-    const result = runScript(SCRIPTS.discoveryEval, ["--dry-run"]);
+    // guarantee is asserted on the one path that needs neither. --dry-run with
+    // no --case previews every case in the fixture and prints the projected
+    // plan without any model call.
+    const result = runScript(SCRIPTS.discoveryEvalEvaluate, ["--dry-run"]);
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain("No model call was made.");
+    expect(result.stdout).toContain("No process was spawned; no network was reached.");
   });
 });
 
@@ -477,5 +478,174 @@ describe("the dispatch's job-to-job wiring", () => {
           `needs.${job}.outputs.${output} interpolates an empty string`,
       ).toMatch(new RegExp(`^ {6}${output}:`, "m"));
     }
+  });
+});
+
+describe("the discovery evaluation's own workflow", () => {
+  // this file names this workflow as what asserts these, and the workflow's
+  // own header calls them safety properties 1 through 5. All were true when
+  // the workflow was written and none was enforced only by the header's
+  // prose, so a future edit could add `pull_request`, or a write scope to the
+  // job that spawns a model, without failing anything here first.
+  const WORKFLOW = ".github/workflows/discovery-eval.yaml";
+
+  const readWorkflow = () => readFile(repoPath(WORKFLOW), "utf8");
+
+  /**
+   * line scanning rather than a parsed document, matching the effect
+   * evaluation's own workflow tests above — this repository has no YAML
+   * dependency, and adding one to assert five properties would widen the
+   * supply-chain surface more than the assertion is worth.
+   *
+   * @param {string} yaml
+   * @param {string} opener the exact opening line, e.g. "on:" or "  probe:"
+   * @returns {string|null} the block's body, opener excluded
+   */
+  function blockUnder(yaml, opener) {
+    const lines = yaml.split("\n");
+    const first = lines.indexOf(opener);
+    if (first === -1) return null;
+    const indent = opener.length - opener.trimStart().length;
+    const body = [];
+    for (const line of lines.slice(first + 1)) {
+      const blank = line.trim() === "";
+      const deeper = line.length - line.trimStart().length > indent;
+      if (!blank && !deeper) break;
+      body.push(line);
+    }
+    return body.join("\n");
+  }
+
+  it("declares workflow_dispatch as its only trigger", async () => {
+    const on = blockUnder(await readWorkflow(), "on:");
+    expect(on, `${WORKFLOW} has no top-level on: block`).not.toBeNull();
+    expect(on).toMatch(/^ {2}workflow_dispatch:$/m);
+    for (const forbidden of ["pull_request", "pull_request_target", "push", "schedule"]) {
+      expect(
+        on,
+        `${WORKFLOW} adds a ${forbidden} trigger, which a contributor could raise`,
+      ).not.toMatch(new RegExp(`^ {2}${forbidden}:`, "m"));
+    }
+  });
+
+  it("declares exactly the four documented dispatch inputs, all optional", async () => {
+    const yaml = await readWorkflow();
+    const inputs = blockUnder(yaml, "    inputs:");
+    expect(inputs, `${WORKFLOW} declares no inputs: block under workflow_dispatch`).not.toBeNull();
+    const names = [...inputs.matchAll(/^ {6}([a-z_]+):$/gm)].map(([, name]) => name);
+    expect(names).toEqual(["case", "repeats", "pull_request", "dry_run"]);
+    // every one of the four is optional — none blocks an ordinary dispatch.
+    expect(inputs).not.toMatch(/required: true/);
+  });
+
+  it("declares a dry_run input the probe step actually honours", async () => {
+    const yaml = await readWorkflow();
+    const on = blockUnder(yaml, "on:");
+    expect(on, `${WORKFLOW} declares no dry_run input`).toMatch(/^ {6}dry_run:$/m);
+    expect(
+      on,
+      "dry_run is not a defaulted boolean, so `inputs` cannot apply its default",
+    ).toMatch(/type: boolean/);
+    // README.md's spec names this input dry_run (underscore); effect-eval.yaml's
+    // own is dry-run (hyphen) — the two workflows are not required to agree,
+    // and a stray hyphenated read here would interpolate empty.
+    expect(
+      directivesOnly(yaml),
+      "an expression reads inputs.dry-run, which is empty on an input named dry_run",
+    ).not.toMatch(/inputs\.dry-run/);
+
+    const probe = directivesOnly(blockUnder(yaml, "  probe:"));
+    expect(probe, "the probe job never resolves a plan, so the input does nothing").toContain(
+      "discovery-eval-probe-plan.mjs",
+    );
+    expect(probe, "the plan script is never told which mode the dispatch is in").toContain(
+      '--dry-run-input "${DRY_RUN}"',
+    );
+  });
+
+  it("matrixes the probe job by case, one job per case, and a failing case never cancels the rest", async () => {
+    const probe = blockUnder(await readWorkflow(), "  probe:");
+    expect(probe, `${WORKFLOW} has no probe job`).not.toBeNull();
+    expect(probe, "the matrix does not declare fail-fast: false").toMatch(/^ {6}fail-fast: false$/m);
+    expect(
+      probe,
+      "the matrix is not built from admit's own case list",
+    ).toMatch(/^ {8}case: \$\{\{ fromJSON\(needs\.admit\.outputs\.cases\) \}\}$/m);
+  });
+
+  it("gives the probe job no write permission at all", async () => {
+    const probe = blockUnder(await readWorkflow(), "  probe:");
+    expect(probe, `${WORKFLOW} has no probe job`).not.toBeNull();
+
+    expect(probe, "the probe job does not declare an empty permissions map").toMatch(
+      /^ {4}permissions: \{\}$/m,
+    );
+    expect(probe, "the probe job grants itself a write scope").not.toMatch(/:\s*write$/m);
+
+    expect(directivesOnly(probe), "the probe job receives GITHUB_TOKEN").not.toContain(
+      "GITHUB_TOKEN",
+    );
+  });
+
+  it("keeps the writing job free of any model spawn", async () => {
+    const land = blockUnder(await readWorkflow(), "  land:");
+    expect(land, `${WORKFLOW} has no land job`).not.toBeNull();
+    expect(land).toMatch(/^ {6}contents: write$/m);
+    expect(
+      land,
+      "the writing job invokes the probe, which would hand a model a write token",
+    ).not.toContain("tools/discovery-eval/evaluate.mjs");
+  });
+
+  describe("safety property 5 — a pull-request dispatch runs bare and records nothing", () => {
+    it("gates the land job on admit's own records output, never on a second reading of pull_request", async () => {
+      const land = blockUnder(await readWorkflow(), "  land:");
+      expect(
+        land,
+        "land's if: does not read admit's records output, so a head-mode dispatch could reach it",
+      ).toMatch(/needs\.admit\.outputs\.records == 'true'/);
+      expect(
+        directivesOnly(land),
+        "land re-derives the mode from pull_request instead of reading admit's one resolution",
+      ).not.toMatch(/inputs\.pull_request/);
+    });
+
+    it("routes a pull-request dispatch to report instead, which can never commit", async () => {
+      const yaml = await readWorkflow();
+      const report = blockUnder(yaml, "  report:");
+      expect(report, `${WORKFLOW} has no report job`).not.toBeNull();
+      expect(
+        report,
+        "report's if: does not read admit's mode output",
+      ).toMatch(/needs\.admit\.outputs\.mode == 'head'/);
+      expect(
+        directivesOnly(report),
+        "the report job holds a contents:write permission, so it could commit like land",
+      ).not.toMatch(/contents:\s*write/);
+    });
+
+    it("passes --head-skills, never --out, on the probe job's head-mode branch", async () => {
+      const probe = directivesOnly(blockUnder(await readWorkflow(), "  probe:"));
+      const headBranchStart = probe.indexOf('if [ "${mode}" = "head" ]; then');
+      const headBranchEnd = probe.indexOf("          else", headBranchStart);
+      expect(headBranchStart, "the probe step never branches on mode at all").toBeGreaterThan(-1);
+      expect(headBranchEnd, "the head-mode branch has no else — every case would run head").toBeGreaterThan(
+        headBranchStart,
+      );
+      const headBranch = probe.slice(headBranchStart, headBranchEnd);
+      expect(headBranch, "the head-mode branch never stages head skills").toContain("--head-skills");
+      expect(
+        headBranch,
+        "the head-mode branch passes --out, which would ask evaluate.mjs to record a measurement",
+      ).not.toContain("--out");
+    });
+
+    it("refuses a malformed pull_request reference through admit rather than reading it loosely", async () => {
+      const admitStep = directivesOnly(blockUnder(await readWorkflow(), "  admit:"));
+      expect(
+        admitStep,
+        "admit passes --pull-request straight through to the admit script, which parses and refuses it",
+      ).toContain('args+=(--pull-request "${PR_NUMBER}")');
+    });
   });
 });
