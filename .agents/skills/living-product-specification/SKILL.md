@@ -83,7 +83,7 @@ See [corpus-structure.md](./references/corpus-structure.md) for:
 See [documentation-root.md](./references/documentation-root.md) for:
 
 - the shape a root takes once it also holds `conventions/` and `operations/` beside the corpus, and what each sibling owns
-- the SHOULD that makes one root the bootstrap default for a project with no established documentation convention
+- the recommendation that makes one root the bootstrap default for a project with no established documentation convention
 - the `index.md` obligation to name every body before listing a document
 - the same-change upkeep obligation for a convention or a procedure a change alters
 - which of the five validators see a co-located body and which do not
