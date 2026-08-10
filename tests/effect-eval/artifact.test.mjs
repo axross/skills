@@ -201,11 +201,17 @@ describe("usesMocks", () => {
   });
 });
 
+/** what a caller declaring the resolve-translation reading passes in. */
+const RESOLVE_TRANSLATION_OPTIONS = {
+  targetModuleBasename: "resolve-translation",
+  helperNames: ["normalizeLocale", "findExactMatch", "findLanguageMatch"],
+};
+
 describe("extractArtifact", () => {
   it("extracts every field from a representative generated test file", () => {
     const files = [{ path: "shared/resolve-translation.spec.ts", content: REPRESENTATIVE_TEST_FILE }];
 
-    const result = extractArtifact(files);
+    const result = extractArtifact(files, RESOLVE_TRANSLATION_OPTIONS);
 
     expect(result.testFilePath).toBe("shared/resolve-translation.spec.ts");
     expect(result.importSpecifiers).toEqual(["@jest/globals", "./resolve-translation"]);
@@ -227,7 +233,7 @@ describe("extractArtifact", () => {
   it("returns the empty/false shape, not an error, when no test file was produced", () => {
     const files = [{ path: "shared/resolve-translation.ts", content: "export {};" }];
 
-    expect(extractArtifact(files)).toEqual({
+    expect(extractArtifact(files, RESOLVE_TRANSLATION_OPTIONS)).toEqual({
       testFilePath: null,
       importSpecifiers: [],
       importsHelper: {
@@ -255,5 +261,18 @@ describe("extractArtifact", () => {
     });
 
     expect(result.importsHelper).toEqual({ PostSlug: true });
+  });
+
+  it("refuses to guess at a missing targetModuleBasename or helperNames rather than defaulting", () => {
+    // neither option defaults any more: a case with no `reading` declared (or
+    // one this extractor was never told how to read) fails loudly instead of
+    // silently reading a different case's module and helpers.
+    const files = [{ path: "shared/resolve-translation.spec.ts", content: REPRESENTATIVE_TEST_FILE }];
+
+    expect(() => extractArtifact(files)).toThrow(/targetModuleBasename and helperNames/);
+    expect(() => extractArtifact(files, { targetModuleBasename: "resolve-translation" })).toThrow(
+      /helperNames/,
+    );
+    expect(() => extractArtifact(files, { helperNames: ["x"] })).toThrow(/targetModuleBasename/);
   });
 });

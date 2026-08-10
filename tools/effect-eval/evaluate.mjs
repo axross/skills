@@ -23,16 +23,27 @@
 // failure there costs the fields it would have produced, never the one file
 // that cannot be re-acquired.
 //
+// TWO MODES. Given --workspace and --case, this runs one probe the way the
+// header above describes. Given --dry-run alone — no --case, no --workspace —
+// it instead previews the whole fixture: what each case would cost to
+// measure and whether admission would refuse it, derived from the same
+// admitCase call the real dispatch makes. It spawns nothing and reads no
+// workspace, mirroring tools/discovery-eval/evaluate.mjs's own whole-fixture
+// preview rather than inventing a second idiom for the same idea.
+//
 // exit codes:
-//   0  a probe record was written (or --dry-run wrote one with no spawn)
+//   0  a probe record was written (or --dry-run wrote one with no spawn), or
+//      a whole-fixture --dry-run preview printed with no --case and no
+//      --workspace given
 //   2  bad invocation, a missing workspace, or the `claude` CLI not on PATH
 //   3  the transcript could not be vouched for and was not written
 
 import { spawnSync } from "node:child_process";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 import { redactTranscript, stripCredentials } from "../lib/credentials.mjs";
+import { admitCase } from "./src/admission.mjs";
 import { captureDiff, runGitCapture } from "./src/capture.mjs";
 import { skillDigests, treeDigest } from "./src/fingerprint.mjs";
 import {
@@ -43,6 +54,7 @@ import {
   newId,
   probeName,
   probePaths,
+  SUMMARY_FILE,
 } from "./src/layout.mjs";
 import { buildArgv, buildConfiguration, shellQuote } from "./src/spawn.mjs";
 
@@ -51,13 +63,17 @@ import { buildArgv, buildConfiguration, shellQuote } from "./src/spawn.mjs";
 const MAX_BUFFER_BYTES = 64 * 1024 * 1024;
 
 const USAGE = `Usage: evaluate.mjs [options]
+       evaluate.mjs --dry-run                (preview every case in the fixture)
 
 Run one probe against a workspace setup.mjs prepared, and write its probe
 record — metadata.json (declared), transcript.jsonl and changes.patch
 (measured) — into a probe directory under the case measurement.
 
-  --workspace <dir>     a workspace setup.mjs produced (required)
-  --case <id>           the evaluation case's identifier (required)
+  --workspace <dir>     a workspace setup.mjs produced (required, unless
+                         --dry-run is given with no --case, which previews
+                         every case instead)
+  --case <id>           the evaluation case's identifier (required, unless
+                         --dry-run is given with no --workspace)
   --condition <name>    ${CONDITIONS.join(" or ")} (required)
   --out <dir>           the case measurement directory to write the probe
                          directory into (required)
@@ -73,11 +89,14 @@ record — metadata.json (declared), transcript.jsonl and changes.patch
   --dry-run             fingerprint the workspace and write the record with a
                          synthetic transcript; spawn nothing. The record is
                          marked \`trigger.kind: "dry-run"\` so it cannot be
-                         mistaken for a measurement.
+                         mistaken for a measurement. Given with no --case and
+                         no --workspace, prints a per-case and whole-fixture
+                         cost projection instead and spawns nothing.
   --help                this text
 
-Exit codes: 0 a probe record was written, 2 bad invocation, 3 the transcript
-held a credential this tool could not account for and was not written.`;
+Exit codes: 0 a probe record was written (or a whole-fixture preview was
+printed), 2 bad invocation, 3 the transcript held a credential this tool
+could not account for and was not written.`;
 
 function fail(code, message) {
   process.stderr.write(`${message}\n`);
@@ -127,19 +146,95 @@ function parseArgv(argv) {
   return options;
 }
 
-async function readCase(fixturePath, caseId) {
-  let fixture;
+async function readFixture(fixturePath) {
   try {
-    fixture = JSON.parse(await readFile(fixturePath, "utf8"));
+    return JSON.parse(await readFile(fixturePath, "utf8"));
   } catch (error) {
     fail2(`Could not read the case fixture at ${fixturePath}: ${error.message}`);
   }
+}
+
+async function readCase(fixturePath, caseId) {
+  const fixture = await readFixture(fixturePath);
   const declared = (fixture.cases ?? []).find((entry) => entry.id === caseId);
   if (!declared) {
     const known = (fixture.cases ?? []).map((entry) => entry.id).join(", ") || "(none)";
     fail2(`${fixturePath} declares no case ${JSON.stringify(caseId)}. Known cases: ${known}`);
   }
   return declared;
+}
+
+/**
+ * every past probe cost of `caseId`, one figure per committed measurement —
+ * read from the root summary's own `case` field (the case id string
+ * summarize.mjs derives from the measurement directory name), not from
+ * `configuration.task` (whose shape a case may no longer share, now that a
+ * case with no `reading` declares `{ prompt }` alone).
+ */
+async function historicalCostsFor(caseId, rootSummaryPath) {
+  let raw;
+  try {
+    raw = await readFile(rootSummaryPath, "utf8");
+  } catch {
+    return [];
+  }
+  let doc;
+  try {
+    doc = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  return (Array.isArray(doc.measurements) ? doc.measurements : [])
+    .filter(
+      (entry) =>
+        entry.case === caseId &&
+        typeof entry.totalCostUsd === "number" &&
+        Number.isInteger(entry.probeCount) &&
+        entry.probeCount > 0,
+    )
+    .map((entry) => entry.totalCostUsd / entry.probeCount);
+}
+
+/**
+ * previews every declared case: what admission would decide and what the
+ * whole fixture would project to cost, without spawning a probe or
+ * materializing a workspace. Projects through the same `admitCase` call the
+ * real dispatch makes — from committed measurements where they exist, from
+ * the case's own declared ceiling where they do not — so the number here is
+ * the number a dispatch would actually be judged against, not a second
+ * calculation that could disagree with it.
+ */
+async function wholeFixtureDryRun(fixturePath) {
+  const fixture = await readFixture(fixturePath);
+  const cases = fixture.cases ?? [];
+  const rootSummaryPath = join(dirname(fixturePath), SUMMARY_FILE);
+
+  let totalProbes = 0;
+  let totalProjectedUsd = 0;
+  const lines = [`Fixture OK: ${cases.length} case(s).`];
+
+  for (const declared of cases) {
+    const probeCount = declared.repetitionsPerCondition * CONDITIONS.length;
+    const historicalCosts = await historicalCostsFor(declared.id, rootSummaryPath);
+    const admission = admitCase({
+      caseId: declared.id,
+      probeCount,
+      declaredCapUsd: declared.capUsd,
+      historicalCosts,
+      unmeasuredProbeCostCeilingUsd: declared.unmeasuredProbeCostCeilingUsd,
+    });
+    totalProbes += probeCount;
+    totalProjectedUsd += admission.projectedTotalUsd;
+    const label = declared.negativeControl ? `${declared.id} [control]` : declared.id;
+    lines.push(`  ${label}: ${probeCount} probe(s) — ${admission.reason}`);
+  }
+
+  lines.push(
+    `Projected: ${totalProbes} probe(s), $${totalProjectedUsd.toFixed(2)} total.`,
+    "No process was spawned; no network was reached.",
+    "",
+  );
+  process.stdout.write(lines.join("\n"));
 }
 
 /**
@@ -175,6 +270,13 @@ async function main() {
   }
 
   const options = parseArgv(argv);
+
+  const wholeFixturePreview = options.dryRun && !options.caseId && !options.workspace;
+  if (wholeFixturePreview) {
+    await wholeFixtureDryRun(resolve(options.fixture));
+    process.exit(0);
+  }
+
   for (const [flag, value] of [
     ["--workspace", options.workspace],
     ["--case", options.caseId],
@@ -239,7 +341,6 @@ async function main() {
     projectCommit,
     skills,
     prompt: declared.task.prompt,
-    targetModule: declared.task.targetModule,
   });
   const argvForCli = buildArgv(configuration);
 

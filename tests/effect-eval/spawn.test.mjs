@@ -21,7 +21,6 @@ const aConfiguration = (overrides = {}) =>
     projectName: "tsuzuri",
     projectTree: "sha256:abc",
     prompt: "shared/resolve-translation.ts has no tests. Add unit tests for it.",
-    targetModule: "shared/resolve-translation.ts",
     ...overrides,
   });
 
@@ -37,9 +36,7 @@ describe("the configuration → argv round trip", () => {
   });
 
   it("takes every variable flag from the configuration and nowhere else", () => {
-    const argv = buildArgv(
-      aConfiguration({ prompt: "a different task", targetModule: "shared/other.ts" }),
-    );
+    const argv = buildArgv(aConfiguration({ prompt: "a different task" }));
     expect(argv).toEqual([
       "-p",
       "a different task",
