@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8c6c6e20be5d3694530822db21708c0861e9725a22ac28f535d42e3d65f663fd"
+      "computedHash": "b77fa9c7dc7b97fc133bf68646e9eff486309b0ae703259d461b593945b8fb4b"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -64,7 +64,7 @@
     "living-product-specification": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8785ecb4a54c128f4a839666df9064eaee51c136bc2b9748bced0a42bb19d7f6"
+      "computedHash": "10e1fd616d76e6025d723af4acf436e2c302ee16c54885a64e7f251eb462bbaa"
     },
     "loop-engineering": {
       "source": "./skills",
