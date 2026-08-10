@@ -1,13 +1,16 @@
 // no file may carry the wreckage of a conflict resolution.
 //
-// this exists because it already happened. a merge left conflict markers in
-// `evals/discovery/README.md`, they were "removed" by a string replacement that
+// this exists because it already happened. a merge left conflict markers in a
+// document this repository has since deleted, along with the discovery
+// instrument it described — they were "removed" by a string replacement that
 // silently matched nothing, and a grep for `<<<<<<<` and `>>>>>>>` came back
 // clean — because Prettier had run in between and rewritten the markers into
 // valid Markdown. `>>>>>>> origin/main` became `> > > > > > > origin/main`, a
 // seven-deep nested blockquote; the `=======` divider became an indented
 // continuation line whose leading `-` Prettier escaped to `\-`, silently
-// demoting a top-level bullet into the previous one's body.
+// demoting a top-level bullet into the previous one's body. The document is
+// gone; the incident, and the shapes it taught this check to recognise, are
+// not.
 //
 // that is the whole difficulty. both artifacts are well-formed Markdown, so
 // `prettier --check` and `markdownlint` both pass on them, and the file renders

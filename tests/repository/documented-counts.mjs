@@ -2,11 +2,12 @@
 //
 // prose here states numbers that are derivable from the files that own them —
 // how many skills the library ships, how many validators report rather than
-// judge, how many snapshot cases recorded an empty tally. nothing tied the two
-// together, and the pair drifted: a `--dry-run` against cc0c9eb reported 24
+// judge, what a validator's own byte cap is. nothing tied the two together,
+// and a pair drifted once already: a `--dry-run` against cc0c9eb reported 24
 // installed skills and 22 fixture cases while three documents still claimed 20
-// cases and 100 probes. CI was green throughout, because no check could see a
-// sentence.
+// cases and 100 probes — a discovery-evaluation fixture and snapshot this
+// repository has since rebuilt and re-expressed. CI was green throughout,
+// because no check could see a sentence.
 //
 // grepping prose for digits cannot fix that. it misses a count spelled out as a
 // word and fires on every unrelated number, so it would be both incomplete and
@@ -498,42 +499,6 @@ export const CLAIMS = {
     },
   },
 
-  "empty-discovery-count-cases": {
-    owner: "the cases in evals/discovery/snapshot.json recorded with no hits",
-    note: "a re-recorded snapshot can move this in either direction",
-    derive: async () => {
-      const snapshot = JSON.parse(
-        await readFile(repoPath("evals/discovery/snapshot.json"), "utf8"),
-      );
-      return Object.values(snapshot.cases ?? {}).filter(
-        (tally) => Object.keys(tally).length === 0,
-      ).length;
-    },
-  },
-
-  "mandated-skills": {
-    owner: "MANDATED_TIERS in scripts/report-obligation-burden.mjs",
-    note: "that constant tracks CLAUDE.md's Response Approach, which is where the set and its per-tier scoping are actually decided",
-    derive: async () => {
-      const source = await readFile(
-        repoPath("scripts/report-obligation-burden.mjs"),
-        "utf8",
-      );
-      // counts skills across the tiers rather than in one flat array: #211
-      // split the constant into tiers, so the membership is now the union of
-      // their `skills` arrays and MANDATED_SKILLS is derived from them.
-      const literal = anchored(
-        source,
-        /const MANDATED_TIERS = \[([\s\S]*?)\n\];/,
-        "scripts/report-obligation-burden.mjs",
-        "the MANDATED_TIERS array literal",
-      );
-      return [...literal.matchAll(/skills: \[([^\]]*)\]/g)].reduce(
-        (count, tier) => count + [...tier[1].matchAll(/"[^"]+"/g)].length,
-        0,
-      );
-    },
-  },
 };
 
 /** every Markdown file in the repository, as repository-relative paths. */
