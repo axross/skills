@@ -1,9 +1,8 @@
 import type { Post } from "@/shared/resolve-translation";
 
 /**
- * The post catalog. A real deployment reads this from a content backend; this
- * thinned fixture inlines it instead, since the fixture's point is the code
- * that reads posts, not where they are stored.
+ * The post catalog. It is checked in and compiled into the build. Reading it
+ * from a content backend instead is a later change.
  */
 export const POSTS: readonly Post[] = [
 	{
