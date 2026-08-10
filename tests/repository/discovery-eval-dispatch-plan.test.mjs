@@ -33,8 +33,12 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 const fixture = JSON.parse(readFileSync(repoPath("data/discovery-eval/fixture.json"), "utf8"));
 const REPEATS = 2;
 
-const CASE = "broaden-a-suite-that-only-checks-one-page"; // situated, hosted by tsuzuri
-const BARE_CASE = "tighten-a-skill-description-without-losing-routing"; // bare, declares no mock
+// derived from the fixture for the same reason every projection below is: a
+// case id is prose that moves when the fixture is trimmed or a prompt is
+// reshaped, and a pinned literal turns that into an unrelated test failure.
+// what these two need is a case of each kind, not a particular one.
+const CASE = fixture.cases.find((entry) => entry.mock).id; // situated: declares a mock
+const BARE_CASE = fixture.cases.find((entry) => !entry.mock).id; // bare: declares none
 
 const admit = (args) => runScript(SCRIPTS.discoveryEvalAdmit, args);
 const probePlan = (args) => runScript(SCRIPTS.discoveryEvalProbePlan, args);

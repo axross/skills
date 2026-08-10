@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 import { redactTranscript } from "../lib/credentials.mjs";
 import { materialize } from "../lib/mock-workspace.mjs";
 import { admitCase } from "./src/admission.mjs";
-import { corpusInvocability, descriptionDigests, treeDigest } from "./src/fingerprint.mjs";
+import { UNRECOGNISED, corpusInvocability, descriptionDigests, treeDigest } from "./src/fingerprint.mjs";
 import {
   allowOverlayContent,
   assertRealDirectory,
@@ -218,10 +218,30 @@ async function historicalCostsFor(caseId, mode, rootSummaryPath) {
     .map((entry) => entry.totalCostUsd / entry.probeCount);
 }
 
-/** the whole library corpus: every skill this repository's own `.claude/skills` installs. */
+/**
+ * the whole library corpus: every skill this repository's own `.claude/skills`
+ * installs.
+ *
+ * a run reads every skill's frontmatter to build `invocability`, which makes it
+ * the one moment a malformed `user-invocable` is in hand, so it is named on
+ * stderr rather than left to be inferred from a downstream contamination
+ * classification. REVIEW.md keeps that field fully in a reviewer's scope
+ * precisely because nothing in CI checks it — this is a report, not a gate, and
+ * it does not refuse the run.
+ */
 async function corpus() {
   const skills = await descriptionDigests(INSTALLED_SKILLS_ROOT);
   const invocability = await corpusInvocability(INSTALLED_SKILLS_ROOT);
+  const unrecognised = Object.keys(invocability)
+    .filter((name) => invocability[name] === UNRECOGNISED)
+    .sort();
+  if (unrecognised.length > 0) {
+    process.stderr.write(
+      `Unreadable user-invocable in ${unrecognised.length} skill(s): ${unrecognised.join(", ")}. ` +
+        "isolation.mjs counts these as colliding rather than as ours, so a probe that loads one " +
+        "reports contamination.\n",
+    );
+  }
   return { skills, invocability, names: Object.keys(skills) };
 }
 

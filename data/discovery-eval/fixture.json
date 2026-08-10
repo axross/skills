@@ -6,11 +6,11 @@
   },
   "cases": [
     {
-      "id": "broaden-a-suite-that-only-checks-one-page",
+      "id": "broaden-a-suite-that-barely-touches-the-site",
       "mock": "tsuzuri",
       "population": "discovered",
       "repeats": 2,
-      "prompt": "We only find out something broke when a reader tells us. The one automated check that drives the real site opens the home page and looks at the title.",
+      "prompt": "We only find out something broke when a reader tells us. The only checks that drive the real site look at where the home page's links point, and at one address that shouldn't exist.",
       "mustInclude": ["end-to-end-testing"],
       "mustExclude": [
         "wireframe-design",
@@ -18,7 +18,7 @@
         "react-component-styling"
       ],
       "mayInclude": ["unit-testing"],
-      "rationale": "The project really does ship one thin browser-driven spec against the home page. The question is which journeys a suite that drives the whole system should cover, which is the end-to-end capability's subject. The three design skills are excluded because the prompt mentions a page and a title, and a skill that routes on those nouns rather than on what is being asked has misrouted."
+      "rationale": "The project really does ship one thin browser-driven spec, and its two tests are exactly the two the prompt describes — the home page's post links, and an unknown slug's status. The question is which journeys a suite that drives the whole system should cover, which is the end-to-end capability's subject. The three design skills are excluded because the prompt mentions a page and its links, and a skill that routes on those nouns rather than on what is being asked has misrouted."
     },
     {
       "id": "write-the-commit-message-for-this-change",
@@ -47,15 +47,15 @@
       "rationale": "Want-shaped rather than symptom-shaped: nothing is broken, so a prompt claiming a failing suite would describe something the model cannot find. The runner is the subject — transform configuration is what decides the answer — and the runner this project uses is not the other one, which is what makes the exclusion a real boundary rather than a formality."
     },
     {
-      "id": "give-a-missing-field-a-value-when-it-is-parsed",
+      "id": "pin-down-the-shape-of-a-language-tag",
       "mock": "tsuzuri",
       "population": "discovered",
       "repeats": 2,
-      "prompt": "Some posts arrive without a language set on them, and I want those to land on something sensible rather than being dropped.",
+      "prompt": "The language tags on our posts are written two different ways — some carry a region and some don't — and nothing stops the next one being written in a third shape.",
       "mustInclude": ["zod-schema"],
       "mustExclude": ["application-security"],
-      "mayInclude": [],
-      "rationale": "The project validates its content shapes with a schema library, so where a default belongs — and which of the two similarly-named ways to supply one — is a schema question. Security is excluded because a missing optional field is not an untrusted-input problem, and reaching for it means routing on the word 'parsed' rather than on the question."
+      "mayInclude": ["code-maintainability"],
+      "rationale": "The catalogue really does carry two spellings of one language — a tag with a region on every post, and one translation tagged with the bare subtag — while both fields are typed as plain strings, so the inconsistency is something the model can confirm by reading rather than a premise it has to accept. Constraining a string that must have a shape is the schema layer's subject, and the project already does exactly that for one other field. Security is excluded because authored content is not untrusted input: the schema capability hands that question to the security one by name, so reaching for it here means routing on the smell of validation rather than on whose data this is. The maintainability capability is permitted because two spellings of one value is legitimately its lens too."
     },
     {
       "id": "accept-a-page-number-from-a-url",
@@ -208,11 +208,12 @@
       "mock": "recall",
       "population": "discovered",
       "repeats": 2,
+      "patch": "patches/explain-why-we-are-asking-for-the-camera.patch",
       "prompt": "The prompt asking for the camera doesn't say why we want it, and we'd like it to, in our own words.",
       "mustInclude": ["expo-app-development"],
       "mustExclude": ["react-component-development", "react-component-styling"],
       "mayInclude": [],
-      "rationale": "The permission copy comes from a config plugin and reaches the native build through generation rather than through a hand-edited native file — which is the framework capability's subject and is exactly the thing a model that has not read the config gets wrong. The two component capabilities are excluded because nothing here is a component question."
+      "rationale": "The case patch replaces the app's own permission copy with the boilerplate line a project gets when it never wrote one, so the symptom is real: the string the model finds genuinely says nothing about why the camera is wanted. That copy comes from a config plugin and reaches the native build through generation rather than through a hand-edited native file — which is the framework capability's subject and is exactly the thing a model that has not read the config gets wrong. The two component capabilities are excluded because nothing here is a component question."
     },
     {
       "id": "turn-a-settled-layout-into-a-real-screen",
@@ -272,15 +273,15 @@
       "rationale": "The prompt states the boundary in the author's own words rather than in the capability's vocabulary, which is what changed from the version that said 'grey-box the regions'. Both excluded capabilities are the ones the second sentence rules out."
     },
     {
-      "id": "sort-out-a-screen-that-reads-as-cluttered",
+      "id": "stop-writing-the-same-colours-out-everywhere",
       "mock": "inkwell",
       "population": "discovered",
       "repeats": 2,
-      "prompt": "This screen feels cluttered — I can't tell what matters on it — and whatever drives how it looks is just as hard to follow.",
+      "prompt": "The same handful of colours is typed out again in every place we style something, and when we want to change how the product looks we have to go hunting for all of them.",
       "mustInclude": ["high-fidelity-ui-design", "react-component-styling"],
       "mustExclude": [],
       "mayInclude": ["code-maintainability"],
-      "rationale": "A deliberate two-answer case: visual hierarchy belongs to one capability and the organisation of the stylesheet to the other, and the prompt states both halves without naming either. Both firing is the healthy outcome and the coverage line is what distinguishes contention from a gap."
+      "rationale": "One colour is written out in five separate stylesheets and two more in three and two, with nothing naming any of them, so the symptom is countable rather than a matter of taste. A deliberate two-answer case: what the palette should be belongs to one capability and where a shared value lives belongs to the other, and both name design tokens in their own discovery text. Both firing is the healthy outcome and the coverage line is what distinguishes contention from a gap."
     },
     {
       "id": "keep-a-new-field-alongside-what-is-already-stored",

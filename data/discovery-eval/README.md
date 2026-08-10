@@ -122,8 +122,9 @@ category error committed in the other direction.
 `tsuzuri` 18, `inkwell` 14, `recall` 5 — and 3 bare, whose subject situating
 would remove. 3 of the situated ones carry `"population": "mandated"` and
 are reported apart, because a consumer's own instructions name those skills and
-discovery never has to surface them. Six declare a **case patch**, under
-`patches/`.
+discovery never has to surface them. Seven declare a **case patch**, under
+`patches/`, so the state their prompt describes is one the model can confirm
+by reading rather than a premise it has to accept.
 
 **Coverage is levelled rather than weighted.** Every skill in the corpus is
 named by at least one case's `mustInclude`, and none by more than two. A second

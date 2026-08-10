@@ -69,12 +69,12 @@ const KNOWN_VERBS = new Set([
   "explain",
   "find",
   "get",
-  "give",
   "invalidate",
   "judge",
   "keep",
   "map",
   "open",
+  "pin",
   "publish",
   "pull",
   "reconcile",
@@ -83,7 +83,6 @@ const KNOWN_VERBS = new Set([
   "replace",
   "review",
   "say",
-  "sort",
   "stop",
   "tighten",
   "turn",
@@ -155,6 +154,34 @@ describe("the discovery-eval fixture", () => {
       "mustInclude/mustExclude/mayInclude name a skill that is not installed — a case " +
         "labelled against a skill that no longer exists has quietly stopped testing its " +
         "boundary",
+    ).toEqual([]);
+  });
+
+  it("pairs every declared case patch with a file under patches/, and every file with a case", async () => {
+    // both halves are silent failures of a different kind. a patch a case
+    // declares but which is not on disk fails at materialization — after a
+    // dispatch has been admitted and paid for, rather than here for nothing.
+    // a patch file no case declares is the reverse: dead weight that reads
+    // as instrument, which is exactly what levelling the fixture nearly left
+    // behind (see
+    // docs/decisions/2026-08-10-cover-every-skill-with-at-most-two-discovery-cases.md,
+    // "One case patch was deleted with the case that declared it").
+    const declared = new Set(
+      (await readFixture()).cases.filter((entry) => entry.patch).map((entry) => entry.patch),
+    );
+    const onDisk = new Set(
+      (await readdir(repoPath("data/discovery-eval/patches")))
+        .filter((name) => name.endsWith(".patch"))
+        .map((name) => `patches/${name}`),
+    );
+    expect(
+      [...declared].filter((path) => !onDisk.has(path)).sort(),
+      "a case declares a patch that is not under data/discovery-eval/patches/ — materialization " +
+        "would fail mid-dispatch instead of here",
+    ).toEqual([]);
+    expect(
+      [...onDisk].filter((path) => !declared.has(path)).sort(),
+      "a patch file no case declares — dead weight that reads as instrument",
     ).toEqual([]);
   });
 });
