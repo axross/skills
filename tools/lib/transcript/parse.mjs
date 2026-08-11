@@ -35,6 +35,7 @@ function readUsage(usage) {
  *   loadedSkills: string[]|null,
  *   model: string|null,
  *   runtimeVersion: string|null,
+ *   finalAssistantText: string|null,
  *   usage: {
  *     input: number, output: number, cacheCreation: number, cacheRead: number,
  *     messages: number,
@@ -50,9 +51,24 @@ export function parseTranscript(stdout) {
   let loadedSkills = null;
   let model = null;
   let runtimeVersion = null;
+  // overwritten on every assistant event, never merged with an earlier one,
+  // so what survives the loop is whatever the *last* assistant message said —
+  // or, when that message carried no text block of its own (a turn that ended
+  // on a tool call), `null`. that is still "the stream did not say": a caller
+  // asking whether the run ended by soliciting a decision gets no signal
+  // either way, the same as if there had been no assistant message at all.
+  let finalAssistantText = null;
   const usage = { input: 0, output: 0, cacheCreation: 0, cacheRead: 0, messages: 0 };
 
   for (const event of events) {
+    if (event.type === "assistant") {
+      const content = event.message?.content;
+      const texts = Array.isArray(content)
+        ? content.filter((block) => block?.type === "text" && typeof block.text === "string")
+        : [];
+      finalAssistantText = texts.length > 0 ? texts.map((block) => block.text).join("\n\n") : null;
+    }
+
     if (event.type === "system") {
       if (typeof event.model === "string") model ??= event.model;
       // `skills`, never `slash_commands` — the latter mixes skills with
@@ -91,6 +107,7 @@ export function parseTranscript(stdout) {
     loadedSkills,
     model,
     runtimeVersion,
+    finalAssistantText,
     usage,
   };
 }
