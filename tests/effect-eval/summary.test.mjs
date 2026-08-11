@@ -178,6 +178,34 @@ describe("deriveProbeSummary", () => {
       const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
       expect(deriveProbeSummary(probe).endedAwaitingDecision).toBe(false);
     });
+
+    it("reads a final assistant message whose text is split across blocks", async () => {
+      // the two halves are chosen so that neither block alone satisfies the
+      // predicate: the first carries the permission-seeking phrase but does
+      // not end on a question mark, and the second ends on one but carries no
+      // phrase. only a reading that combines them in order comes out true, so
+      // this fails if the blocks are ever joined wrongly, or if the reading
+      // silently keeps just the first or just the last.
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: [
+          JSON.stringify({ type: "system", subtype: "init", model: "claude-sonnet-5", skills: [] }),
+          JSON.stringify({
+            type: "assistant",
+            message: {
+              usage: {},
+              content: [
+                { type: "text", text: "Found it: build.sourcemap is false. Want me to flip it" },
+                { type: "text", text: "or leave the config alone?" },
+              ],
+            },
+          }),
+          JSON.stringify({ type: "result", subtype: "success", num_turns: 1, total_cost_usd: 0.1 }),
+        ].join("\n"),
+        patch: "",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).endedAwaitingDecision).toBe(true);
+    });
   });
 });
 
