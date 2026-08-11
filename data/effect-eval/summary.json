@@ -1,6 +1,6 @@
 {
-  "measurementCount": 1,
-  "comparableCount": 1,
+  "measurementCount": 2,
+  "comparableCount": 2,
   "measurements": [
     {
       "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
@@ -12,6 +12,50 @@
         "name": "content-site",
         "tree": "sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211",
         "commit": "593904b722f5a71bc53c67f43e476f637fd8f315"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ]
+        }
+      }
+    },
+    {
+      "measurement": "migrate-a-card-id-helper-to-an-esm-only-package-0949a51d",
+      "case": "migrate-a-card-id-helper-to-an-esm-only-package",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 0,
+      "project": {
+        "name": "recall",
+        "tree": "sha256:5dbb715a68a64cd29043b58b6e356cb797830884680135c178220f8e98e3e581",
+        "commit": "901f33a23ca6a428e4e96f107cb163b933591d54"
       },
       "model": {
         "provider": "anthropic",

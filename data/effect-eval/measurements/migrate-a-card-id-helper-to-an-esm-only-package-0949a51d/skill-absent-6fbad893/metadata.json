@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-08-11T15:17:05Z",
+  "trigger": {
+    "kind": "dry-run",
+    "url": null
+  },
+  "instrument": {
+    "commit": "3058641849432e272369ddf551641e354324faf6",
+    "node": "v26.7.0",
+    "os": "Linux"
+  },
+  "cliExitCode": null,
+  "configuration": {
+    "runtime": {
+      "name": "claude-code",
+      "version": "2.1.220",
+      "options": {
+        "maxTurns": 100,
+        "settingSources": [
+          "project"
+        ],
+        "allowedTools": [
+          "Bash",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Read",
+          "Skill",
+          "TodoWrite",
+          "Write"
+        ],
+        "disallowedTools": [
+          "Agent",
+          "NotebookEdit",
+          "Task",
+          "WebFetch",
+          "WebSearch"
+        ]
+      }
+    },
+    "model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "options": {}
+    },
+    "project": {
+      "name": "recall",
+      "tree": "sha256:5dbb715a68a64cd29043b58b6e356cb797830884680135c178220f8e98e3e581",
+      "commit": "901f33a23ca6a428e4e96f107cb163b933591d54"
+    },
+    "skills": {},
+    "task": {
+      "prompt": "We'd rather pull in a well-maintained id-generation package for our card ids than keep the few lines we wrote ourselves — but the one we want only ships as an ES module. Make the switch."
+    }
+  }
+}

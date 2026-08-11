@@ -1,0 +1,227 @@
+{
+  "case": {
+    "prompt": "We'd rather pull in a well-maintained id-generation package for our card ids than keep the few lines we wrote ourselves — but the one we want only ships as an ES module. Make the switch."
+  },
+  "project": {
+    "name": "recall",
+    "tree": "sha256:5dbb715a68a64cd29043b58b6e356cb797830884680135c178220f8e98e3e581",
+    "commit": "901f33a23ca6a428e4e96f107cb163b933591d54"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ]
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:5dbb715a68a64cd29043b58b6e356cb797830884680135c178220f8e98e3e581"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"jest-testing\":\"sha256:11f96d47c8e1f428bd00850401c625c775fae60c1b4af259b57277eb2d67bc74\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"We'd rather pull in a well-maintained id-generation package for our card ids than keep the few lines we wrote ourselves — but the one we want only ships as an ES module. Make the switch.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded []"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 0,
+  "probes": [
+    {
+      "probe": "skill-absent-6fbad893",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-absent-7f97463d",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-absent-fbc84e39",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-2114fb61",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-4f0e30c7",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-65fe77af",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    }
+  ]
+}
