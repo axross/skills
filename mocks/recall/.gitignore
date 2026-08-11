@@ -37,3 +37,6 @@ yarn-error.*
 # generated native folders — Continuous Native Generation output, never committed
 /android
 /ios
+
+# agent workspace
+.claude/
