@@ -1,6 +1,6 @@
 {
-  "measurementCount": 1,
-  "comparableCount": 1,
+  "measurementCount": 2,
+  "comparableCount": 2,
   "measurements": [
     {
       "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
@@ -12,6 +12,50 @@
         "name": "content-site",
         "tree": "sha256:bc7fe11543b5e0b1a9eef801f958a7175ee84616c5fa01e56dc9461e370ee211",
         "commit": "593904b722f5a71bc53c67f43e476f637fd8f315"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ]
+        }
+      }
+    },
+    {
+      "measurement": "add-unit-tests-for-an-untested-module-fab6ddb7",
+      "case": "add-unit-tests-for-an-untested-module",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 0,
+      "project": {
+        "name": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
+        "commit": "64cec1276b77b99b05d490cafc3654bfcfe30133"
       },
       "model": {
         "provider": "anthropic",
