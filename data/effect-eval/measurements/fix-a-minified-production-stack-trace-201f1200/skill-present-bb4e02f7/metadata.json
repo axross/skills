@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-08-11T21:08:52Z",
+  "trigger": {
+    "kind": "github-actions",
+    "url": "https://github.com/axross/skills/actions/runs/31536341699"
+  },
+  "instrument": {
+    "commit": "a0ef46be7e809a6702f1c4fe2a7b8209ca17a82d",
+    "node": "v26.7.0",
+    "os": "Linux"
+  },
+  "cliExitCode": 0,
+  "configuration": {
+    "runtime": {
+      "name": "claude-code",
+      "version": "2.1.220",
+      "options": {
+        "maxTurns": 100,
+        "settingSources": [
+          "project"
+        ],
+        "allowedTools": [
+          "Bash",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Read",
+          "Skill",
+          "TodoWrite",
+          "Write"
+        ],
+        "disallowedTools": [
+          "Agent",
+          "NotebookEdit",
+          "Task",
+          "WebFetch",
+          "WebSearch"
+        ]
+      }
+    },
+    "model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "options": {}
+    },
+    "project": {
+      "name": "inkwell",
+      "tree": "sha256:6cbc68ad2db31ba22ef66456948dda9c99d37b0e1a229782674c93cd0d72b69b",
+      "commit": "d3bfff65c9533f49efd40de4f36b05aea9eb7047"
+    },
+    "skills": {
+      "sentry-instrumentation": "sha256:4c0c9ef3cc91d009a347a919027415048d4ddada0266512b78438bc2f50f9f06"
+    },
+    "task": {
+      "prompt": "The errors coming back from the live site are unreadable — single letters where the function names should be."
+    }
+  }
+}
