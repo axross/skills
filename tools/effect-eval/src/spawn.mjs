@@ -64,10 +64,30 @@ export const ALLOWED_TOOLS = ["Bash", "Edit", "Glob", "Grep", "Read", "Skill", "
 export const DISALLOWED_TOOLS = ["Agent", "NotebookEdit", "Task", "WebFetch", "WebSearch"];
 
 /**
+ * pinned rather than composed per case, and carried through the configuration
+ * into the argv identically for both conditions.
+ *
+ * changing it invalidates every measurement taken before the change, for the
+ * same reason changing {@link MODEL} does: the instrument attributes a
+ * difference between the two conditions to the skill, and that holds only
+ * while everything else — this brief included — is held constant across the
+ * measurements being compared.
+ *
+ * its wording states the situation the run is actually in and relocates the
+ * open question to the final message; it does not instruct the model to skip
+ * consulting anyone. several skills in this repository instruct exactly that,
+ * so a prohibition here would fight the treatment in the skill-present
+ * condition and bias the very arm this instrument exists to read.
+ */
+export const NONINTERACTIVE_BRIEF =
+  "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\n" +
+  "Take the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside.";
+
+/**
  * @typedef {object} Configuration
  * @property {{ name: string, version: string|null, options: {
  *   maxTurns: number, settingSources: string[],
- *   allowedTools: string[], disallowedTools: string[],
+ *   allowedTools: string[], disallowedTools: string[], appendSystemPrompt: string,
  * } }} runtime
  * @property {{ provider: string, model: string, options: Record<string, unknown> }} model
  * @property {{ name: string, tree: string, commit: string|null }} project
@@ -103,6 +123,7 @@ export function buildConfiguration({
         settingSources: [...SETTING_SOURCES],
         allowedTools: [...ALLOWED_TOOLS],
         disallowedTools: [...DISALLOWED_TOOLS],
+        appendSystemPrompt: NONINTERACTIVE_BRIEF,
       },
     },
     model: { provider: "anthropic", model: MODEL, options: {} },
@@ -129,6 +150,7 @@ export function buildArgv(configuration) {
   for (const key of ["settingSources", "allowedTools", "disallowedTools"]) {
     if (!Array.isArray(options?.[key])) missing.push(`runtime.options.${key}`);
   }
+  if (typeof options?.appendSystemPrompt !== "string") missing.push("runtime.options.appendSystemPrompt");
   if (missing.length > 0) {
     throw new Error(`Cannot build an argv: the configuration is missing ${missing.join(", ")}.`);
   }
@@ -149,6 +171,8 @@ export function buildArgv(configuration) {
     options.disallowedTools.join(","),
     "--setting-sources",
     options.settingSources.join(","),
+    "--append-system-prompt",
+    options.appendSystemPrompt,
   ];
 }
 
