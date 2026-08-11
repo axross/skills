@@ -60,9 +60,13 @@ function gitLog(workspace) {
   return proc.stdout.trim().split("\n").filter(Boolean);
 }
 
-/** materializes `mock`, registers cleanup, and returns the run and its workspace. */
-function materialize(mock) {
-  const result = runScript(SCRIPTS.setup, ["--mock", mock]);
+/**
+ * materializes `mock` with `skills` installed, registers cleanup, and returns
+ * the run and its workspace.
+ */
+function materialize(mock, skills = []) {
+  const args = ["--mock", mock, ...skills.flatMap((skill) => ["--skill", skill])];
+  const result = runScript(SCRIPTS.setup, args);
   const workspace = result.stdout.trim();
   if (result.code === 0 && workspace) {
     onTestFinished(() => rm(workspace, { recursive: true, force: true }));
@@ -110,4 +114,28 @@ describe("every mock under mocks/", () => {
     expect(spawnSync("git", ["status", "--porcelain"], { cwd: workspace, encoding: "utf8" }).stdout)
       .toBe("");
   });
+
+  // the first of the two layers tools/effect-eval/src/capture.mjs's header
+  // describes: a mock's own .gitignore should keep an installed skill out of
+  // Git entirely, so the capture's `.claude` filter — the second layer — never
+  // has anything to catch. behavioural rather than a grep of the .gitignore
+  // text, for the reason capture.mjs's own header gives for running real git
+  // rather than asserting on argv: a textual check passes just as happily on
+  // an entry that is present but ineffective, e.g. one placed under a `!`
+  // negation or in a file git does not read here.
+  it.each(mocks)(
+    "leaves nothing for git to report once a skill is installed: %s",
+    (mock) => {
+      const { result, workspace } = materialize(mock, ["unit-testing"]);
+
+      expect(
+        result,
+        `${mock} does not satisfy the materializer's contract with a skill installed`,
+      ).toPassCleanly();
+      expect(
+        spawnSync("git", ["status", "--porcelain"], { cwd: workspace, encoding: "utf8" }).stdout,
+        `${mock}'s .gitignore should keep an installed skill out of git entirely`,
+      ).toBe("");
+    },
+  );
 });
