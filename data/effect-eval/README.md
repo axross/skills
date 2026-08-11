@@ -151,11 +151,18 @@ Changing the brief supersedes the measurements taken under the old wording
 rather than extending them, for the same reason changing `MODEL` does: the
 instrument attributes a difference between the two conditions to the skill,
 which holds only while everything else — this brief included — is constant
-across the measurements being compared. The one measurement committed here as
-of this change, `measurements/add-unit-tests-for-an-untested-module-4204a1ed/`,
+across the measurements being compared.
+
+Two measurements are superseded here, not one, and only one of them is
+committed. `measurements/add-unit-tests-for-an-untested-module-4204a1ed/`
 predates the brief — its stored `metadata.json` carries no
 `appendSystemPrompt` — and every one of its six probes produced a diff, so its
-regenerated `endedAwaitingDecision` is `false` throughout.
+regenerated `endedAwaitingDecision` is `false` throughout. The
+`fix-a-minified-production-stack-trace` measurement recorded in #330 predates
+the brief on exactly the same terms; it is superseded too, and is absent from
+the regeneration above only because its pull request is still open. Neither
+measurement is comparable against one taken under the brief, whether or not
+this repository currently stores it.
 
 ## `prediction`, `negativeControl`, and `reading`
 
