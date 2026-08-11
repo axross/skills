@@ -77,7 +77,8 @@ files written and the record of what the agent did to write them.
 context whether or not it changes anything, and that is paid on every turn that
 loads it, so "does this skill earn its place" is a ratio: effect over cost. The
 obligation report supplies the denominator, and what it counts and the policy
-that follows are stated with the tool in `README.md`'s validator listing. Read
+that follows are stated with the tool in
+`docs/conventions/verification-gates.md`. Read
 alone it answers a narrower question than this axis asks — a price with no
 account of what was bought.
 
@@ -186,8 +187,9 @@ are stated with it:
 [`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md)
 for the skill discovery evaluation,
 [`tools/effect-eval/README.md`](../../tools/effect-eval/README.md) for the skill
-effect evaluation, and `README.md`'s validator listing for the obligation report
-that supplies the cost term. `tests/repository/reporting-tools.test.mjs` is what
+effect evaluation, and `docs/conventions/verification-gates.md` for the
+obligation report that supplies the cost term.
+`tests/repository/reporting-tools.test.mjs` is what
 actually keeps both out of every gate, npm script, and hook.
 
 ## What the practice does not establish

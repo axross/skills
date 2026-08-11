@@ -1,24 +1,24 @@
 // exit-code and reporting contract for check-references.mjs.
 //
 // documented contract: 0 when every relative link resolves or the project has no
-// corpus, 1 on findings, 2 on a bad invocation.
+// docs/ tree, 1 on findings, 2 on a bad invocation.
 //
 // two exclusions are asserted rather than assumed. an external URL is out of
 // scope because resolving one needs the network and fails for reasons that have
-// nothing to do with the corpus; a link inside a fenced block is an example, and
+// nothing to do with docs/; a link inside a fenced block is an example, and
 // a checker that followed those would make it impossible to document a link at
 // all.
 
 import { describe, expect, it } from "vitest";
 
-import { tempDir, writeCorpus } from "../helpers/fixtures.mjs";
+import { tempDir, writeDocs } from "../helpers/fixtures.mjs";
 import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkReferences = validator(SCRIPTS.checkReferences);
 
 describe("check-references.mjs", () => {
   it("exits 0 when every relative link resolves", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n- [Jobs](./specs/jobs.md) — scheduling\n",
       "specs/jobs.md": "# Jobs\n\nSee [the log](../decisions/).\n",
       "decisions/2026-07-02-use-a-queue.md": "---\nstatus: accepted\n---\n",
@@ -28,7 +28,7 @@ describe("check-references.mjs", () => {
   });
 
   it("reports a link that resolves to nothing, with its line", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n- [Jobs](./specs/jobs.md) — scheduling\n",
       "specs/jobs.md": "# Jobs\n\nSee [billing](./billing.md).\n",
     });
@@ -39,15 +39,15 @@ describe("check-references.mjs", () => {
   });
 
   it("reports an index entry whose file is missing", async () => {
-    const docs = await writeCorpus(await tempDir(), {
-      "index.md": "# Docs\n\n- [Overview](./overview.md) — the product\n",
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
     });
 
-    expect(checkReferences(docs)).toReportFailure(/index\.md:3 → \.\/overview\.md/);
+    expect(checkReferences(docs)).toReportFailure(/index\.md:3 → \.\/notes\.md/);
   });
 
   it("ignores external URLs", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\nSee [the spec](https://example.invalid/nope).\n",
     });
 
@@ -55,7 +55,7 @@ describe("check-references.mjs", () => {
   });
 
   it("ignores a link inside a fenced block", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n```markdown\n[Example](./not-real.md)\n```\n",
     });
 
@@ -63,7 +63,7 @@ describe("check-references.mjs", () => {
   });
 
   it("exits 0 on a directory that has no index.md", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "index.md": null,
       "specs/unrelated.md": "# Broken [link](./gone.md)\n",
     });

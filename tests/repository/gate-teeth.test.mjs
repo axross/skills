@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   tempDir,
-  writeCorpus,
+  writeDocs,
   writeFileIn,
   writeSkill,
 } from "../helpers/fixtures.mjs";
@@ -123,14 +123,14 @@ describe("repository gates have teeth", () => {
     expect(result).toReportFailure(/content differs: references\/detail\.md/);
   });
 
-  // the five corpus gates need no argument override at all. each names `docs`,
+  // the five docs/ gates need no argument override at all. each names `docs`,
   // which the validator resolves against the working directory, and
-  // `writeCorpus` plants exactly that layout — so every case below runs the
+  // `writeDocs` plants exactly that layout — so every case below runs the
   // real invocation with nothing changed but `cwd`.
   //
   // `corpus-glossary`'s case was once the only evidence that gate could fail:
-  // with no spec in the corpus it reported "Nothing to check", which no passing
-  // run can tell apart from a check that has stopped working. the corpus has a
+  // with no spec under docs/ it reported "Nothing to check", which no passing
+  // run can tell apart from a check that has stopped working. docs/ has a
   // spec now and the gate requires the counted message, so the real-repository
   // run in gate-runs.test.mjs carries teeth evidence too. this case still earns
   // its place by covering the shape a planted spec produces — an unpaired
@@ -139,7 +139,7 @@ describe("repository gates have teeth", () => {
   it("the corpus-index gate fails on a document nothing links", async () => {
     const { script, args } = gate("corpus-index");
     const root = await tempDir();
-    await writeCorpus(root, { "glossary.md": "# Glossary\n" });
+    await writeDocs(root, { "glossary.md": "# Glossary\n" });
 
     const result = runScript(script, args, { cwd: root });
 
@@ -149,7 +149,7 @@ describe("repository gates have teeth", () => {
   it("the corpus-references gate fails on a link that does not resolve", async () => {
     const { script, args } = gate("corpus-references");
     const root = await tempDir();
-    await writeCorpus(root, {
+    await writeDocs(root, {
       "index.md": "# Documentation\n\n- [gone](./missing.md)\n",
     });
 
@@ -161,7 +161,7 @@ describe("repository gates have teeth", () => {
   it("the corpus-glossary gate fails on a spec with no glossary heading", async () => {
     const { script, args } = gate("corpus-glossary");
     const root = await tempDir();
-    await writeCorpus(root, {
+    await writeDocs(root, {
       "glossary.md": "# Glossary\n\n## Something Else\n",
       "specs/billing.md": "# Billing\n",
     });
@@ -176,7 +176,7 @@ describe("repository gates have teeth", () => {
   it("the decision-naming gate fails on a non-conforming record filename", async () => {
     const { script, args } = gate("decision-naming");
     const root = await tempDir();
-    await writeCorpus(root, {
+    await writeDocs(root, {
       "decisions/use_a_queue.md": "---\nstatus: accepted\n---\n\n# Use a queue\n",
     });
 
@@ -188,7 +188,7 @@ describe("repository gates have teeth", () => {
   it("the decision-supersede gate fails on a record superseded by nothing", async () => {
     const { script, args } = gate("decision-supersede");
     const root = await tempDir();
-    await writeCorpus(root, {
+    await writeDocs(root, {
       "decisions/2026-07-02-use-a-queue.md":
         "---\nstatus: superseded\n---\n\n# Use a queue\n",
     });

@@ -1,7 +1,7 @@
 // exit-code and reporting contract for check-glossary.mjs.
 //
 // documented contract: 0 when every spec has a matching heading, or there is no
-// corpus and no specs/; 1 on findings; 2 on a bad invocation.
+// docs/ tree and no specs/; 1 on findings; 2 on a bad invocation.
 //
 // the one-way correspondence is asserted in both directions on purpose. a spec
 // without a heading is a finding; a heading without a spec is not, because
@@ -12,14 +12,14 @@
 
 import { describe, expect, it } from "vitest";
 
-import { tempDir, writeCorpus } from "../helpers/fixtures.mjs";
+import { tempDir, writeDocs } from "../helpers/fixtures.mjs";
 import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkGlossary = validator(SCRIPTS.checkGlossary);
 
 describe("check-glossary.mjs", () => {
   it("pairs a spec with its heading on a slug", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "glossary.md": "# Glossary\n\n## Job Templates\n\n**Job Template** — a definition.\n",
       "specs/job-templates.md": "# Job Templates\n",
     });
@@ -28,7 +28,7 @@ describe("check-glossary.mjs", () => {
   });
 
   it("reports a spec with no matching heading", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "glossary.md": "# Glossary\n\n## Jobs\n\n**Job** — one run.\n",
       "specs/jobs.md": "# Jobs\n",
       "specs/billing.md": "# Billing\n",
@@ -40,7 +40,7 @@ describe("check-glossary.mjs", () => {
   });
 
   it("allows a heading that no spec owns", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "glossary.md": "# Glossary\n\n## Jobs\n\n**Job** — one run.\n\n## Tenancy\n\n**Tenant** — an org.\n",
       "specs/jobs.md": "# Jobs\n",
     });
@@ -49,7 +49,7 @@ describe("check-glossary.mjs", () => {
   });
 
   it("reports a missing glossary once, not once per spec", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "specs/jobs.md": "# Jobs\n",
       "specs/billing.md": "# Billing\n",
     });
@@ -61,7 +61,7 @@ describe("check-glossary.mjs", () => {
   });
 
   it("reports a nested spec, which has no single heading to pair with", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "glossary.md": "# Glossary\n\n## Billing\n\n**Invoice** — a statement.\n",
       "specs/billing/invoices.md": "# Invoices\n",
     });
@@ -69,8 +69,8 @@ describe("check-glossary.mjs", () => {
     expect(checkGlossary(docs)).toReportFailure(/nested: specs\/billing\/invoices\.md is nested/);
   });
 
-  it("exits 0 when the corpus has no specs/", async () => {
-    const docs = await writeCorpus(await tempDir(), { "overview.md": "# Overview\n" });
+  it("exits 0 when docs/ has no specs/", async () => {
+    const docs = await writeDocs(await tempDir(), { "notes.md": "# Notes\n" });
 
     const result = checkGlossary(docs);
 
@@ -79,7 +79,7 @@ describe("check-glossary.mjs", () => {
   });
 
   it("exits 0 on a directory that has no index.md", async () => {
-    const docs = await writeCorpus(await tempDir(), {
+    const docs = await writeDocs(await tempDir(), {
       "index.md": null,
       "specs/unrelated.md": "# Something else entirely\n",
     });

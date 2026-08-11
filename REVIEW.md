@@ -199,7 +199,7 @@ for a broader prose rule does **not** silence the reviewer on that rule.
   length exceeds <!-- count:skill-description-byte-cap -->1024<!-- /count -->
   **bytes**; a `references/*.md` file that no `SKILL.md` links; and a
   routing-section bullet opening with an RFC-2119 keyword.
-- The corpus checks `check-index.mjs`, `check-glossary.mjs`,
+- The `docs/` checks `check-index.mjs`, `check-glossary.mjs`,
   `check-decision-naming.mjs`, and `check-decision-supersede.mjs` enforce, over
   `docs/`: a document `index.md` links from nowhere, and a decision record
   indexed individually instead of through its directory; a spec with no matching
