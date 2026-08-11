@@ -1,0 +1,227 @@
+{
+  "case": {
+    "prompt": "The errors coming back from the live site are unreadable — single letters where the function names should be."
+  },
+  "project": {
+    "name": "inkwell",
+    "tree": "sha256:d9ef88c79d2c01f71b7e9e91339474db03bdb0caee54b791b7d0df2988003569",
+    "commit": "4f04a205de4822d6b2dbe20cfad5b7685cbf9135"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ]
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:d9ef88c79d2c01f71b7e9e91339474db03bdb0caee54b791b7d0df2988003569"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"sentry-instrumentation\":\"sha256:4c0c9ef3cc91d009a347a919027415048d4ddada0266512b78438bc2f50f9f06\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"The errors coming back from the live site are unreadable — single letters where the function names should be.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded []"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 0,
+  "probes": [
+    {
+      "probe": "skill-absent-0ee10516",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-absent-22ad5e62",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-absent-46fae784",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-09a7f08a",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-819cff64",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    },
+    {
+      "probe": "skill-present-f23ae1a6",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": []
+    }
+  ]
+}

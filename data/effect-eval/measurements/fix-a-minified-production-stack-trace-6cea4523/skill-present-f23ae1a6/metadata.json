@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-08-11T15:17:21Z",
+  "trigger": {
+    "kind": "dry-run",
+    "url": null
+  },
+  "instrument": {
+    "commit": "3058641849432e272369ddf551641e354324faf6",
+    "node": "v26.7.0",
+    "os": "Linux"
+  },
+  "cliExitCode": null,
+  "configuration": {
+    "runtime": {
+      "name": "claude-code",
+      "version": "2.1.220",
+      "options": {
+        "maxTurns": 100,
+        "settingSources": [
+          "project"
+        ],
+        "allowedTools": [
+          "Bash",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Read",
+          "Skill",
+          "TodoWrite",
+          "Write"
+        ],
+        "disallowedTools": [
+          "Agent",
+          "NotebookEdit",
+          "Task",
+          "WebFetch",
+          "WebSearch"
+        ]
+      }
+    },
+    "model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "options": {}
+    },
+    "project": {
+      "name": "inkwell",
+      "tree": "sha256:d9ef88c79d2c01f71b7e9e91339474db03bdb0caee54b791b7d0df2988003569",
+      "commit": "4f04a205de4822d6b2dbe20cfad5b7685cbf9135"
+    },
+    "skills": {
+      "sentry-instrumentation": "sha256:4c0c9ef3cc91d009a347a919027415048d4ddada0266512b78438bc2f50f9f06"
+    },
+    "task": {
+      "prompt": "The errors coming back from the live site are unreadable — single letters where the function names should be."
+    }
+  }
+}
