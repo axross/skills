@@ -1,0 +1,408 @@
+{
+  "case": {
+    "prompt": "Every post's page shows the same title in the browser tab, whatever post you're actually on."
+  },
+  "project": {
+    "name": "tsuzuri",
+    "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
+    "commit": "64cec1276b77b99b05d490cafc3654bfcfe30133"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ],
+      "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"next-app-development\":\"sha256:a14ba71e8855fa9f0f333f068bac592a58c29dd9f50cbfd444794ed60bbe55d9\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"Every post's page shows the same title in the browser tab, whatever post you're actually on.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 1.4766937999999998,
+  "probes": [
+    {
+      "probe": "skill-absent-3feff1f0",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 14,
+      "truncated": false,
+      "costUsd": 0.2556681,
+      "usage": {
+        "input": 714,
+        "output": 145,
+        "cacheCreation": 30205,
+        "cacheRead": 742192,
+        "messages": 22
+      },
+      "toolCalls": 13,
+      "filesRead": [
+        "/tmp/effect-eval-Pr9Pgl/app/(site)/posts/[slug]/page.tsx",
+        "/tmp/effect-eval-Pr9Pgl/app/(site)/layout.tsx",
+        "/tmp/effect-eval-Pr9Pgl/shared/resolve-translation.ts",
+        "/tmp/effect-eval-Pr9Pgl/app/(site)/posts-data.ts"
+      ],
+      "commandsRun": [
+        "grep -rn \"title\" app --include=\"*.ts*\" -l",
+        "find \"/tmp/effect-eval-Pr9Pgl/app/(site)\" -maxdepth 2 -type f",
+        "find \"/tmp/effect-eval-Pr9Pgl/app/(site)/posts/[slug]\" -type f; echo ---; cat \"/tmp/effect-eval-Pr9Pgl/app/(site)/posts/[slug]\"/*.test.* 2>/dev/null",
+        "cat package.json | head -30",
+        "npm run typecheck 2>&1 | tail -40",
+        "npm run lint 2>&1 | tail -40"
+      ],
+      "ranTests": false,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "app/(site)/posts/[slug]/page.tsx"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-cbe9293c",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 10,
+      "truncated": false,
+      "costUsd": 0.1938209,
+      "usage": {
+        "input": 28,
+        "output": 135,
+        "cacheCreation": 28483,
+        "cacheRead": 451433,
+        "messages": 14
+      },
+      "toolCalls": 9,
+      "filesRead": [
+        "/tmp/effect-eval-eyPRnk/app/(site)/posts/[slug]/page.tsx",
+        "/tmp/effect-eval-eyPRnk/app/(site)/layout.tsx",
+        "/tmp/effect-eval-eyPRnk/app/(site)/posts-data.ts",
+        "/tmp/effect-eval-eyPRnk/shared/resolve-translation.ts"
+      ],
+      "commandsRun": [
+        "cat package.json | head -20",
+        "npm run typecheck"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "app/(site)/posts/[slug]/page.tsx"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-d421a0e4",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 11,
+      "truncated": false,
+      "costUsd": 0.2071548,
+      "usage": {
+        "input": 32,
+        "output": 124,
+        "cacheCreation": 29088,
+        "cacheRead": 524478,
+        "messages": 16
+      },
+      "toolCalls": 10,
+      "filesRead": [
+        "/tmp/effect-eval-VMyfBa/app/(site)/posts/[slug]/page.tsx",
+        "/tmp/effect-eval-VMyfBa/app/(site)/layout.tsx",
+        "/tmp/effect-eval-VMyfBa/app/(site)/posts-data.ts",
+        "/tmp/effect-eval-VMyfBa/shared/resolve-translation.ts"
+      ],
+      "commandsRun": [
+        "grep -rn \"title\" /tmp/effect-eval-VMyfBa/app --include=*.tsx --include=*.ts -l | head -50",
+        "cat package.json | grep -A5 '\"scripts\"'",
+        "npx tsc --noEmit -p . 2>&1 | head -60"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "app/(site)/posts/[slug]/page.tsx"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-82d58492",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 9,
+      "truncated": false,
+      "costUsd": 0.19506749999999998,
+      "usage": {
+        "input": 26,
+        "output": 102,
+        "cacheCreation": 30012,
+        "cacheRead": 417855,
+        "messages": 13
+      },
+      "toolCalls": 8,
+      "filesRead": [
+        "/tmp/effect-eval-vhYQEf/app/(site)/posts/[slug]/page.tsx",
+        "/tmp/effect-eval-vhYQEf/app/(site)/layout.tsx",
+        "/tmp/effect-eval-vhYQEf/shared/resolve-translation.ts",
+        "/tmp/effect-eval-vhYQEf/app/(site)/posts-data.ts"
+      ],
+      "commandsRun": [
+        "cat package.json | grep -A5 '\"scripts\"'",
+        "npx tsc --noEmit -p . 2>&1 | head -50"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "app/(site)/posts/[slug]/page.tsx"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-e0692527",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 13,
+      "truncated": false,
+      "costUsd": 0.38691439999999994,
+      "usage": {
+        "input": 40,
+        "output": 154,
+        "cacheCreation": 73665,
+        "cacheRead": 625407,
+        "messages": 20
+      },
+      "toolCalls": 12,
+      "filesRead": [
+        "/tmp/effect-eval-L8Ghbe/app/(site)/posts/[slug]/page.tsx",
+        "/tmp/effect-eval-L8Ghbe/app/(site)/layout.tsx",
+        "/tmp/effect-eval-L8Ghbe/shared/resolve-translation.ts"
+      ],
+      "commandsRun": [
+        "grep -rn \"title\" /tmp/effect-eval-L8Ghbe/app --include=\"*.tsx\" --include=\"*.ts\" -l | grep -i post",
+        "grep -rn \"metadata\\|title\" /tmp/effect-eval-L8Ghbe/app --include=\"*.tsx\" --include=\"*.ts\" | grep -v posts-data.ts",
+        "ls app/\\(site\\)/posts/\\[slug\\]/ && cat package.json | grep -A5 '\"scripts\"'",
+        "cat package.json | grep -A15 '\"scripts\"'",
+        "npm run typecheck 2>&1 | tail -30",
+        "npm run lint 2>&1 | tail -30 && echo \"---TESTS---\" && npm test 2>&1 | tail -60"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "app/(site)/posts/[slug]/page.tsx"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-eccf249b",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 12,
+      "truncated": false,
+      "costUsd": 0.2380681,
+      "usage": {
+        "input": 36,
+        "output": 155,
+        "cacheCreation": 31108,
+        "cacheRead": 597396,
+        "messages": 18
+      },
+      "toolCalls": 11,
+      "filesRead": [
+        "/tmp/effect-eval-qHb4vc/app/(site)/layout.tsx",
+        "/tmp/effect-eval-qHb4vc/app/(site)/posts/[slug]/page.tsx",
+        "/tmp/effect-eval-qHb4vc/shared/resolve-translation.ts",
+        "/tmp/effect-eval-qHb4vc/app/(site)/posts-data.ts"
+      ],
+      "commandsRun": [
+        "grep -rn \"generateMetadata\\|<title>\\|title:\" /tmp/effect-eval-qHb4vc/app --include=*.tsx --include=*.ts | grep -v test",
+        "find /tmp/effect-eval-qHb4vc/app -type d | sort",
+        "ls -la \"/tmp/effect-eval-qHb4vc/app/(site)/posts/[slug]\"",
+        "cat package.json | grep -A5 '\"scripts\"'",
+        "npx tsc --noEmit -p . 2>&1 | head -50",
+        "npm run build 2>&1 | tail -40"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "app/(site)/posts/[slug]/page.tsx"
+      ],
+      "endedAwaitingDecision": false
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+diff --git a/app/(site)/posts/[slug]/page.tsx b/app/(site)/posts/[slug]/page.tsx
+index f586b14..5d8cbfb 100644
+--- a/app/(site)/posts/[slug]/page.tsx
++++ b/app/(site)/posts/[slug]/page.tsx
+@@ -1,6 +1,10 @@
++import type { Metadata } from "next";
+ import { headers } from "next/headers";
+ import { notFound } from "next/navigation";
+-import { resolveTranslation } from "@/shared/resolve-translation";
++import {
++	type PostTranslation,
++	resolveTranslation,
++} from "@/shared/resolve-translation";
+ import { findPostBySlug } from "../../posts-data";
+ 
+ interface PostPageProps {
+@@ -23,20 +27,42 @@ function acceptedLocales(acceptLanguage: string | null): string[] {
+ }
+ 
+ /**
+- * Post detail page. {@link resolveTranslation} turns the reader's accepted
+- * locales plus the post's own translations into the one translation this page
+- * renders.
++ * The translation this request should see: the post looked up by slug,
++ * resolved against the reader's accepted locales. `null` when the slug
++ * doesn't exist or the post has no translation reachable from those locales
++ * — both cases the caller turns into a 404.
+  */
+-export default async function PostPage({ params }: PostPageProps) {
+-	const { slug } = await params;
++async function resolveRequestedTranslation(
++	slug: string,
++): Promise<PostTranslation | null> {
+ 	const post = findPostBySlug(slug);
+-	if (!post) notFound();
++	if (!post) return null;
+ 
+ 	const requestHeaders = await headers();
+-	const translation = resolveTranslation(
++	return resolveTranslation(
+ 		post,
+ 		acceptedLocales(requestHeaders.get("accept-language")),
+ 	);
++}
++
++export async function generateMetadata({
++	params,
++}: PostPageProps): Promise<Metadata> {
++	const { slug } = await params;
++	const translation = await resolveRequestedTranslation(slug);
++	if (!translation) return {};
++
++	return { title: translation.title };
++}
++
++/**
++ * Post detail page. {@link resolveTranslation} turns the reader's accepted
++ * locales plus the post's own translations into the one translation this page
++ * renders.
++ */
++export default async function PostPage({ params }: PostPageProps) {
++	const { slug } = await params;
++	const translation = await resolveRequestedTranslation(slug);
+ 	if (!translation) notFound();
+ 
+ 	return (
