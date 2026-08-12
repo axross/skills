@@ -66,7 +66,9 @@ const isInstalledSkillPath = (path) =>
 
 /**
  * stages everything so a newly added file appears in the diff too, unstages
- * the installed skills, then reads back the full diff and the changed paths.
+ * the installed skills, then reads back the full diff and the changed paths
+ * — both compared against `baseCommit` when the caller has one, and against
+ * HEAD (`git diff`'s own default) when it does not.
  *
  * the `add` names no ignored path, which is the whole correction: it stages
  * whatever the mock's own ignore rules permit, and the explicit `reset`
@@ -74,23 +76,41 @@ const isInstalledSkillPath = (path) =>
  * absent path is a no-op that exits 0, so the skill-absent condition needs no
  * separate branch and takes the identical code path.
  *
- * the diff and status reads keep their `:(exclude)` pathspec: unlike `add`,
- * neither consults the ignore rules that way, so neither fails on it, and
- * keeping it makes the exclusion true of the reads even if the `reset` above
- * were ever removed.
+ * `baseCommit` is the workspace's HEAD as read before the probe ran, threaded
+ * in by the caller — this module has no way to know when "before" was.
+ * comparing against it rather than against whatever HEAD happens to be now is
+ * what lets a probe that committed its own work, on the branch it started on
+ * or on a new one it created and stayed on, be captured the same as one that
+ * left the identical change uncommitted: committing moves HEAD, and a
+ * HEAD-relative diff then finds nothing between the index and the commit that
+ * already contains it. a missing basis is not a failure — this runs after the
+ * CLI has been paid for — so it falls back to comparing against HEAD exactly
+ * as this function always has, and warns rather than throwing.
  *
- * `--no-renames` keeps every status entry to the single "XY<space>path" shape
- * parsed below — a rename would otherwise emit an "old\0new\0" pair the fixed
- * 3-character prefix strip does not expect. that flag is also why the status
- * code is kept rather than stripped away: it turns a rename into a delete plus
- * an add, so a run that renames a test file yields an entry whose path is no
- * longer on disk, and readChangedTestFiles has to be able to see that.
+ * the diff and name-status reads keep their `:(exclude)` pathspec: unlike
+ * `add`, neither consults the ignore rules that way, so neither fails on it,
+ * and keeping it makes the exclusion true of the reads even if the `reset`
+ * above were ever removed.
+ *
+ * the changed-path list comes from `git diff --cached --name-status` against
+ * that same base-or-HEAD comparison, rather than from `git status
+ * --porcelain`: after `git add -A` everything is staged, so the two agree
+ * whenever nothing was committed, and reading both the patch and the changed
+ * paths from one comparison is what keeps them from being able to drift
+ * apart between the base and no-base cases. `-z` emits
+ * "status\0path\0status\0path\0…", parsed below as pairs rather than the
+ * two-character "XY<space>path" porcelain shape this used to parse.
+ * `--no-renames` still matters the same way it did there: it turns a rename
+ * into a delete plus an add, so a run that renames a test file yields an
+ * entry whose path is no longer on disk, and readChangedTestFiles has to be
+ * able to see that — `status.includes("D")` still holds for the
+ * single-letter `D` this now produces.
  *
  * @param {string} workspace
- * @param {{ warn?: (message: string) => void }} [options]
+ * @param {{ baseCommit?: string|null, warn?: (message: string) => void }} [options]
  * @returns {{ diff: string, changedPaths: Array<{ status: string, path: string }>, staged: number, filtered: string[] }}
  */
-export function captureDiff(workspace, { warn = writeStderr } = {}) {
+export function captureDiff(workspace, { baseCommit = null, warn = writeStderr } = {}) {
   runGitCapture(["add", "-A", "--", "."], workspace);
 
   // read the staged set before unstaging, because the point of the warning is
@@ -103,17 +123,25 @@ export function captureDiff(workspace, { warn = writeStderr } = {}) {
 
   runGitCapture(["reset", "-q", "--", INSTALLED_SKILLS_DIR], workspace);
 
+  // omitted entirely rather than passed as an empty string, so a missing
+  // baseCommit falls through to `git diff`'s own default comparison (the
+  // index against HEAD) instead of this module having to reimplement it.
+  const base = baseCommit ? [baseCommit] : [];
   const outsideSkills = ["--", ".", `:(exclude)${INSTALLED_SKILLS_DIR}`];
   const diff = runGitCapture(
-    ["diff", "--cached", "--no-color", ...outsideSkills],
+    ["diff", "--cached", "--no-color", ...base, ...outsideSkills],
     workspace,
   );
-  const changedPaths = splitNul(
+  const changedEntries = splitNul(
     runGitCapture(
-      ["status", "--porcelain", "-z", "--no-renames", ...outsideSkills],
+      ["diff", "--cached", "--name-status", "-z", "--no-renames", ...base, ...outsideSkills],
       workspace,
     ),
-  ).map((entry) => ({ status: entry.slice(0, 2), path: entry.slice(3) }));
+  );
+  const changedPaths = [];
+  for (let i = 0; i < changedEntries.length; i += 2) {
+    changedPaths.push({ status: changedEntries[i], path: changedEntries[i + 1] });
+  }
 
   const kept = stagedPaths.length - filtered.length;
   warn(`capture: ${kept} path(s) captured, ${filtered.length} filtered\n`);
@@ -125,6 +153,14 @@ export function captureDiff(workspace, { warn = writeStderr } = {}) {
         "unstaged; that it did not means the fixture is missing that line, and every condition " +
         "that installs a skill will look as though the model wrote it:\n" +
         filtered.map((path) => `  ${path}\n`).join(""),
+    );
+  }
+
+  if (!baseCommit) {
+    warn(
+      "warning: captureDiff has no pre-spawn commit to compare against, so this capture is " +
+        "relative to the workspace's current HEAD instead. A probe that committed its own work " +
+        "moved HEAD onto that commit, and will be captured here as having changed nothing.\n",
     );
   }
 

@@ -120,10 +120,10 @@ asking permission to apply the fix rather than applying it — and
 found nothing at all. `endedAwaitingDecision` splits the bucket: `true` means
 the probe found something and stopped to ask about it; `false` alongside an
 empty `changedPaths` means the probe produced nothing and its final message
-did not solicit a decision either. That measurement is not committed on
-`main` as of this change — its pull request is still open — so it is not
-among the summaries this repository regenerates today, but it is the
-measurement the field was added to make readable.
+did not solicit a decision either. That measurement is committed under
+`measurements/fix-a-minified-production-stack-trace-201f1200/`, and its two
+soliciting probes — `skill-absent-679a67c3` and `skill-present-a94cd726` —
+are the ones the field was added to make readable.
 
 It is derived, not declared. `tools/lib/transcript/parse.mjs` reads the
 transcript's last assistant message into `finalAssistantText` (`null` when the
@@ -133,6 +133,33 @@ follows). `tools/effect-eval/src/summary.mjs` exports the judgement itself,
 effect-eval reading rather than a fact about the stream. Both are pure
 functions of the stored files, so `endedAwaitingDecision` regenerates and
 drift-checks the same as every other derived value.
+
+## `skill-present-632e2800`'s empty patch is an instrument artefact
+
+`measurements/fix-a-minified-production-stack-trace-156f5602/skill-present-632e2800/changes.patch`
+is empty. That is not a report of an idle probe: its `transcript.jsonl` shows
+23 turns of correct work — the probe located the planted
+`build.sourcemap: false` defect, fixed it, verified with a local build that
+`.map` files were now produced, and ran typecheck and lint — before
+committing the result. It committed on a new branch, `fix/enable-sourcemaps`,
+rather than to `main` directly, because it had read the mock's own
+`AGENTS.md` and deferred to it, exactly as several skills in this library
+instruct.
+
+That commit is why the stored patch is empty. `captureDiff`
+(`tools/effect-eval/src/capture.mjs`) read a probe's work as `git diff
+--cached` against whatever HEAD happened to be when the probe finished, and
+committing moves HEAD onto the commit — so the diff came back empty and the
+probe was recorded as having changed nothing, even though the transcript
+shows the work landed. #335 fixed the capture to compare against the
+workspace's HEAD as read before the probe ran instead, which no longer loses
+a probe for following the project's own contributor documentation.
+
+`changes.patch` is a measured file, and this one record cannot be repaired:
+`skill-present-632e2800`'s workspace no longer exists, and reproducing it
+would mean paying for another probe, not rewriting a stored one. It stays
+empty, wrong, and committed exactly as measured — this note is the
+correction, not a rewrite.
 
 ## The non-interactive brief, and what it supersedes
 
@@ -153,16 +180,19 @@ instrument attributes a difference between the two conditions to the skill,
 which holds only while everything else — this brief included — is constant
 across the measurements being compared.
 
-Two measurements are superseded here, not one, and only one of them is
-committed. `measurements/add-unit-tests-for-an-untested-module-4204a1ed/`
-predates the brief — its stored `metadata.json` carries no
-`appendSystemPrompt` — and every one of its six probes produced a diff, so its
-regenerated `endedAwaitingDecision` is `false` throughout. The
-`fix-a-minified-production-stack-trace` measurement recorded in #330 predates
-the brief on exactly the same terms; it is superseded too, and is absent from
-the regeneration above only because its pull request is still open. Neither
-measurement is comparable against one taken under the brief, whether or not
-this repository currently stores it.
+Two committed measurements predate the brief and are superseded by it:
+`measurements/add-unit-tests-for-an-untested-module-4204a1ed/` and
+`measurements/fix-a-minified-production-stack-trace-201f1200/`. Both store a
+`metadata.json` with no `appendSystemPrompt`, and neither is comparable
+against a measurement taken under the brief.
+
+`measurements/fix-a-minified-production-stack-trace-156f5602/` is the first
+taken under it, and it re-measures the case `201f1200` already covers. Those
+two are the only before-and-after this repository holds: same runtime, same
+model, the brief their one declared difference — and `endedAwaitingDecision`
+falls from two of six probes to none. One measurement either side is not a
+rate, so read that as evidence the brief did something, not as a measure of
+how much.
 
 ## `prediction`, `negativeControl`, and `reading`
 
