@@ -92,14 +92,14 @@ question answered, a review given, a change delivered — not only to changes.
 Three skills divide the same territory by tense and by grain, so none of them
 overlaps the others. `product-requirement-document-authoring` owns the **diff** —
 a spec's sections and the phrasing of a requirement about to be built.
-`living-product-specification` owns the **steady state** — the documents that say
-what the product is now, and the mechanism that corrects them when a change makes
-them wrong. `technical-document-authoring` owns the **sentences** inside whatever
-you are writing.
+`living-project-documentation` owns the **steady state** — the documents that say
+what the project is and how it works now, and the mechanism that corrects them
+when a change makes them wrong. `technical-document-authoring` owns the
+**sentences** inside whatever you are writing.
 
 | Skill                                                                            | What it gives your agent                                                                                                                                                                                                          |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`living-product-specification`](./skills/living-product-specification/SKILL.md) | Keeps the docs that describe your product true: read before planning, corrected in the change that made them wrong, with decisions superseded rather than edited — and five small validators for the rot a reader cannot see.     |
+| [`living-project-documentation`](./skills/living-project-documentation/SKILL.md) | Keeps the docs that describe your project true: read before planning, corrected in the change that made them wrong, with decisions superseded rather than edited — and five small validators for the rot a reader cannot see.     |
 | [`technical-document-authoring`](./skills/technical-document-authoring/SKILL.md) | Makes a design doc, RFC, ADR, runbook, or README worth reading: one document type instead of four blurred together, the answer at the top, sentences nobody has to reparse, and words a non-native reader gets on the first pass. |
 
 ### Reviewing a change
@@ -218,7 +218,7 @@ which is checked by the same suite.
 | Skill discovery   | `tools/discovery-eval/evaluate.mjs` (reports; never gates)                            |
 | Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
 | Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
-| Product spec      | `skills/living-product-specification/scripts/check-*.mjs` (five, over `docs/`)        |
+| Project docs      | `skills/living-project-documentation/scripts/check-*.mjs` (five, over `docs/`)        |
 
 ### Commands
 
@@ -259,11 +259,11 @@ node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .cl
 # Five more gate this repository's own docs/. They are one set,
 # deliberately not one command: each answers for one kind of change, so an
 # author who touched one document reads only its findings.
-node skills/living-product-specification/scripts/check-index.mjs docs
-node skills/living-product-specification/scripts/check-references.mjs docs
-node skills/living-product-specification/scripts/check-glossary.mjs docs
-node skills/living-product-specification/scripts/check-decision-naming.mjs docs
-node skills/living-product-specification/scripts/check-decision-supersede.mjs docs
+node skills/living-project-documentation/scripts/check-index.mjs docs
+node skills/living-project-documentation/scripts/check-references.mjs docs
+node skills/living-project-documentation/scripts/check-glossary.mjs docs
+node skills/living-project-documentation/scripts/check-decision-naming.mjs docs
+node skills/living-project-documentation/scripts/check-decision-supersede.mjs docs
 
 # One more ships in a skill and this repository runs it too, from a schedule
 # rather than a gate — see docs/conventions/verification-gates.md:

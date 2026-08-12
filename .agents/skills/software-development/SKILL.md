@@ -38,20 +38,21 @@ See [project-docs.md](./references/project-docs.md) for:
 - asking the human rather than inferring a command when that documentation is silent
 - recording the answer, with approval, so the next task finds it documented
 
-## Product Specification
+## Living Documentation
 
-A project may also keep a specification of the product **itself** — what it is,
+A project may also keep documentation of the product **itself** — what it is,
 the language its domain speaks, how it currently behaves, and the decisions that
-constrain it. That is a different body of documentation from the contributor
-docs above, with a different audience and its own owner: where a project ships a
-product-specification capability, that capability states when the specification
+constrain it — and, where it keeps them in one tree, the shape the conventions
+and operational procedures beside them take. That serves a different audience
+from the contributor docs above and has its own owner: where a project ships a
+living-documentation capability, that capability states when that documentation
 is read, what a change obliges you to correct in it, and how. This section
 routes there and deliberately does not restate those rules. Where a project
 ships none, it requires nothing.
 
 **Guidelines:**
 
-- MUST consult the project's product-specification capability, where it ships one, whenever a change touches behavior that specification describes, and follow the obligations it states rather than any summary of them here.
+- MUST consult the project's living-documentation capability, where it ships one, whenever a change touches behavior that documentation describes, and follow the obligations it states rather than any summary of them here.
 - MUST route by tense where both apply: a specification of what is about to be built belongs to the project's product-requirement practices, and the capability above covers only the description of what already exists. This one distinction is stated here rather than left to either owner, because the cost of getting it wrong is loading neither of them.
 
 ## Verification

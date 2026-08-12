@@ -31,7 +31,6 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
  * fixture instead of leaving a pinned figure to fail.
  */
 const fixture = JSON.parse(readFileSync(repoPath("data/discovery-eval/fixture.json"), "utf8"));
-const REPEATS = 2;
 
 // derived from the fixture for the same reason every projection below is: a
 // case id is prose that moves when the fixture is trimmed or a prompt is
@@ -186,15 +185,40 @@ describe("discovery-eval-admit.mjs", () => {
   });
 
   describe("per-mode ceiling — the correction to #280's dry-run defect", () => {
-    it("prices every case of a head dispatch at the bare ceiling, whatever mode each one declares", () => {
-      const result = admit(["--pull-request", "134", "--dry-run-input", "false"]);
+    // all three tests below run against a SCRATCH fixture, matching their four
+    // siblings elsewhere in this file (writeScratchFixture + --root), rather
+    // than the real repository root. admission supersedes an unmeasured
+    // ceiling with a committed measurement per case per mode (see
+    // admission.mjs's header), so a test that computes its expectation from
+    // `fixture.unmeasuredProbeCostCeilingUsd` alone against the real root only
+    // holds while data/discovery-eval/measurements/ is empty — it breaks the
+    // moment a real measurement lands, and it breaks inside the job that just
+    // spent the money the broken assertion then refuses to land. A scratch
+    // fixture has no measurements/ to supersede anything, so these three keep
+    // testing the per-mode PROJECTION rule (the thing they are named for)
+    // rather than incidentally depending on the committed corpus staying
+    // unmeasured.
+    it("prices every case of a head dispatch at the bare ceiling, whatever mode each one declares", async () => {
+      const root = await tempDir();
+      await writeScratchFixture(root, {
+        capUsd: 1000,
+        // deliberately far apart, so a projection that used the wrong one is
+        // easy to tell from the right one.
+        unmeasuredProbeCostCeilingUsd: { situated: 99, bare: 0.05 },
+        cases: [
+          { id: "case-a", mock: "some-mock", repeats: 2 }, // declares situated
+          { id: "case-b", repeats: 2 }, // declares bare
+        ],
+      });
+      const result = admit(["--root", root, "--pull-request", "134", "--dry-run-input", "false"]);
       expect(result.code, result.output).toBe(0);
       const plan = JSON.parse(result.stdout);
       expect(plan.mode).toBe("head");
-      // derived from the fixture rather than pinned to a figure, so trimming a
-      // case moves the expectation with it instead of breaking this test.
+      // every case runs bare under --pull-request (safety property 5),
+      // whatever mode it declares — case-a declares a mock and still prices
+      // at the bare ceiling, not the (much larger) situated one.
       const cases = JSON.parse(plan.cases);
-      const expected = cases.length * REPEATS * fixture.unmeasuredProbeCostCeilingUsd.bare;
+      const expected = cases.length * 2 * 0.05;
       expect(plan["projected-usd"]).toBeCloseTo(expected, 5);
     });
 
@@ -203,27 +227,45 @@ describe("discovery-eval-admit.mjs", () => {
     // projected at the bare ceiling here too. Pricing it at the situated one
     // would contradict the per-case line this same command prints, which names
     // the mode it projected. That is what the per-mode ceiling is for.
-    it("prices each case of a measurement dispatch at the ceiling for the mode it actually runs in", () => {
-      const result = admit(["--dry-run-input", "false"]);
+    it("prices each case of a measurement dispatch at the ceiling for the mode it actually runs in", async () => {
+      const root = await tempDir();
+      const situated = 99;
+      const bare = 0.05;
+      // different repeat counts per case, so a projection that used one
+      // uniform repeat count (rather than each case's own declaration) would
+      // be caught here too.
+      const cases = [
+        { id: "case-a", mock: "some-mock", repeats: 2 },
+        { id: "case-b", repeats: 3 },
+      ];
+      await writeScratchFixture(root, {
+        capUsd: 1000,
+        unmeasuredProbeCostCeilingUsd: { situated, bare },
+        cases,
+      });
+      const result = admit(["--root", root, "--dry-run-input", "false"]);
       expect(result.code, result.output).toBe(0);
       const plan = JSON.parse(result.stdout);
       expect(plan.mode).toBe("measurement");
-      const { situated, bare } = fixture.unmeasuredProbeCostCeilingUsd;
-      const expected = fixture.cases.reduce(
-        (total, one) => total + one.repeats * (one.mock ? situated : bare),
-        0,
-      );
+      const expected = cases.reduce((total, one) => total + one.repeats * (one.mock ? situated : bare), 0);
       expect(plan["projected-usd"]).toBeCloseTo(expected, 5);
       // and the two ceilings really are different, or this asserts nothing
       expect(situated).not.toBe(bare);
     });
 
-    it("admits a single-case measurement dispatch, situated at its declared mode", () => {
-      const result = admit(["--case", CASE, "--dry-run-input", "false"]);
+    it("admits a single-case measurement dispatch, situated at its declared mode", async () => {
+      const root = await tempDir();
+      await writeScratchFixture(root, {
+        capUsd: 1000,
+        // deliberately far apart, so pricing at the wrong one is easy to spot.
+        unmeasuredProbeCostCeilingUsd: { situated: 0.35, bare: 99 },
+        cases: [{ id: "a-case", mock: "some-mock", repeats: 2 }],
+      });
+      const result = admit(["--root", root, "--case", "a-case", "--dry-run-input", "false"]);
       expect(result.code, result.output).toBe(0);
       const plan = JSON.parse(result.stdout);
       expect(plan.mode).toBe("measurement");
-      // 2 repeats at the situated ceiling, $0.35 — not the bare one.
+      // 2 repeats at the situated ceiling, $0.35 — not the (much larger) bare one.
       expect(plan["projected-usd"]).toBeCloseTo(0.7, 5);
     });
 

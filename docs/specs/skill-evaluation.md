@@ -117,10 +117,18 @@ one until it was rebuilt. A file recording "the current result" is a stored
 conclusion about which measurement counts as current, it has to be re-recorded
 by hand, and it overwrites the numbers it replaces. Measurements accumulate
 instead: a new one is compared against the most recent earlier one it is
-_comparable_ with — same prompt, same model, same project, same discovery text
-for the skills that case tracks — and where none is, the report names the
-condition that failed rather than suppressing the comparison. Nothing has to be
-re-recorded, because measuring again is the only act there is.
+_comparable_ with — same prompt, same model, same project, same runtime, and
+the same discovery text for the skills that case tracks — and where none is,
+the report names the condition that failed rather than suppressing the
+comparison. Nothing has to be re-recorded, because measuring again is the only
+act there is.
+
+**The runtime is one of those dimensions because the probe's own configuration
+is part of the condition.** The CLI's name and version, its turn cap, and the
+tools it permits and denies all shape what a probe can do before it answers, so
+two measurements taken under different ones are not measuring the same thing. A
+comparability key that omitted them would not report a broken comparison — it
+would report a confident one, and attribute the difference to a skill.
 
 So both axes separate their files by what can be re-acquired:
 

@@ -107,13 +107,17 @@ describe("a situated dry run", () => {
 }, 30_000);
 
 describe("a bare dry run", () => {
-  it("reports Skill only and one turn, with no project tree", async () => {
+  it("reports Skill only and the bare turn cap, with no project tree", async () => {
     const out = await freshOutDir();
     const result = evaluate(["--case", BARE_CASE, "--out", out, "--probe-id", "11111111", "--dry-run"]);
     expect(result.code, result.output).toBe(0);
     const metadata = await metadataOf(out, "probe-11111111");
     expect(metadata.configuration.runtime.options.allowedTools).toEqual(["Skill"]);
-    expect(metadata.configuration.runtime.options.maxTurns).toBe(1);
+    // 2, not 1: a bare probe that calls Skill spends its first turn doing so
+    // and reports num_turns: 2, so a 1-turn cap could only ever terminate a
+    // probe that selected nothing. See plan.mjs's BARE_TURN_CAP.
+    expect(metadata.configuration.runtime.options.maxTurns).toBe(2);
+    expect(metadata.configuration.runtime.options.disallowedTools).toContain("ToolSearch");
     expect(metadata.configuration.workspace).toEqual({ mode: "bare", mock: null, tree: null });
   });
 }, 15_000);

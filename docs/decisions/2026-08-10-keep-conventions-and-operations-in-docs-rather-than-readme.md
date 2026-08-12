@@ -12,14 +12,14 @@ the change loop, the `@claude review` setup. The second kind was organized as
 a run of bold lead-in paragraphs late in the file, each stating a rule and its
 reasoning together but with no format discipline holding one apart from the
 next, so a reader after one fact read past everything else to find it. This
-repository had also just adopted `living-product-specification`'s `docs/`
+repository had also just adopted `living-project-documentation`'s `docs/`
 tree, which defines `conventions/` and `operations/` as bodies for exactly
 this material, with a document format that states a rule once next to its
 reasoning and lets its own heading serve as the citable anchor.
 
 Moved this repository's contributor conventions and operational procedures out
 of `README.md` into `docs/conventions/` and `docs/operations/`, in the shape
-and document format `living-product-specification` already states, and left
+and document format `living-project-documentation` already states, and left
 `README.md` holding what a reader of the library needs on first contact:
 positioning, getting started, the skill catalog, local setup, and the commands
 table. `AGENTS.md` gained a routing table naming, for each kind of change, the
