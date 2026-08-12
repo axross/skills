@@ -1,0 +1,25 @@
+diff --git a/app/(site)/posts/[slug]/not-found.tsx b/app/(site)/posts/[slug]/not-found.tsx
+new file mode 100644
+index 0000000..9597f14
+--- /dev/null
++++ b/app/(site)/posts/[slug]/not-found.tsx
+@@ -0,0 +1,19 @@
++import type { Metadata } from "next";
++
++export const metadata: Metadata = {
++	title: "Not found",
++};
++
++/** Shown when a post's slug doesn't match anything in the catalog, or when it has no translation to fall back to. */
++export default function PostNotFound() {
++	return (
++		<section aria-label="not found">
++			<h1>No post here</h1>
++			<p>
++				That post doesn't exist — it may have been moved, renamed, or never
++				published.
++			</p>
++			<a href="/">Back to the posts</a>
++		</section>
++	);
++}

@@ -1,0 +1,379 @@
+{
+  "case": {
+    "prompt": "The language-matching logic has grown a handful of helpers and I can't hold the whole thing in my head any more."
+  },
+  "project": {
+    "name": "tsuzuri",
+    "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
+    "commit": "64cec1276b77b99b05d490cafc3654bfcfe30133"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ],
+      "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"code-maintainability\":\"sha256:e80521d50f3a117cb17278785a846700648f3fba116ba96383b0253f06242efb\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"The language-matching logic has grown a handful of helpers and I can't hold the whole thing in my head any more.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 1.1487425,
+  "probes": [
+    {
+      "probe": "skill-absent-2c72f103",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 7,
+      "truncated": false,
+      "costUsd": 0.1679761,
+      "usage": {
+        "input": 26,
+        "output": 59,
+        "cacheCreation": 23578,
+        "cacheRead": 413432,
+        "messages": 13
+      },
+      "toolCalls": 6,
+      "filesRead": [
+        "/tmp/effect-eval-pFWwEV/app/(site)/posts-data.ts"
+      ],
+      "commandsRun": [
+        "cat /tmp/effect-eval-pFWwEV/shared/resolve-translation.ts",
+        "cat \"/tmp/effect-eval-pFWwEV/app/(site)/posts/[slug]/page.tsx\"",
+        "find shared app -iname \"*translat*\" -o -iname \"*locale*\" | sort",
+        "find . -path ./node_modules -prune -o -iname \"*translat*\" -print -o -iname \"*locale*\" -print"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-860f4abe",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 5,
+      "truncated": false,
+      "costUsd": 0.143337,
+      "usage": {
+        "input": 18,
+        "output": 33,
+        "cacheCreation": 22744,
+        "cacheRead": 276261,
+        "messages": 9
+      },
+      "toolCalls": 4,
+      "filesRead": [],
+      "commandsRun": [
+        "cat /tmp/effect-eval-K5Kbhv/shared/resolve-translation.ts",
+        "grep -rl \"acceptedLocales\\|Accept-Language\\|accept-language\\|resolveTranslation\\|findExactMatch\\|findLanguageMatch\\|languageSubtag\\|normalizeLocale\" --include=\"*.ts\" --include=\"*.tsx\" . | grep -v node_modules",
+        "cat \"/tmp/effect-eval-K5Kbhv/app/(site)/posts/[slug]/page.tsx\"",
+        "find \"/tmp/effect-eval-K5Kbhv/app/(site)/posts/[slug]\" \"/tmp/effect-eval-K5Kbhv/shared\" -type f | grep -v node_modules"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-8cce68bb",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 8,
+      "truncated": false,
+      "costUsd": 0.2356057,
+      "usage": {
+        "input": 30,
+        "output": 60,
+        "cacheCreation": 31335,
+        "cacheRead": 490052,
+        "messages": 15
+      },
+      "toolCalls": 7,
+      "filesRead": [
+        "/tmp/effect-eval-YFbsLt/shared/resolve-translation.ts",
+        "/tmp/effect-eval-YFbsLt/app/(site)/posts/[slug]/page.tsx"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-YFbsLt/shared -type f | head -50",
+        "grep -rn \"resolveTranslation\\|findExactMatch\\|findLanguageMatch\\|normalizeLocale\\|languageSubtag\\|acceptedLocales\\|Accept-Language\\|accept-language\" --include=\"*.ts\" --include=\"*.tsx\" app/ shared/ 2>/dev/null",
+        "find /tmp/effect-eval-YFbsLt -iname \"*resolve-translation*\" -o -iname \"*locale*\" 2>/dev/null | grep -v node_modules",
+        "git log --oneline -- shared/resolve-translation.ts \"app/(site)/posts/[slug]/page.tsx\" | cat",
+        "git show 8a2cb1c --stat | cat; echo ---; git show 8a2cb1c | cat"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": true
+    },
+    {
+      "probe": "skill-present-139a7175",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 5,
+      "truncated": false,
+      "costUsd": 0.1520378,
+      "usage": {
+        "input": 20,
+        "output": 28,
+        "cacheCreation": 23610,
+        "cacheRead": 314412,
+        "messages": 10
+      },
+      "toolCalls": 4,
+      "filesRead": [],
+      "commandsRun": [
+        "cat /tmp/effect-eval-Hgtolq/shared/resolve-translation.ts",
+        "grep -rn \"resolve-translation\\|resolveTranslation\\|findExactMatch\\|findLanguageMatch\\|languageSubtag\\|normalizeLocale\" --include=\"*.ts\" --include=\"*.tsx\" app/ shared/ 2>/dev/null",
+        "find /tmp/effect-eval-Hgtolq/shared -iname \"*resolve-translation*\"; echo \"---\"; find /tmp/effect-eval-Hgtolq -iname \"*.test.ts\" | xargs grep -l \"resolveTranslation\\|findExactMatch\\|findLanguageMatch\\|normalizeLocale\" 2>/dev/null",
+        "find /tmp/effect-eval-Hgtolq -iname \"*.test.*\" -not -path \"*/node_modules/*\""
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": true
+    },
+    {
+      "probe": "skill-present-2fe3e9a4",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "code-maintainability"
+      ],
+      "turns": 12,
+      "truncated": false,
+      "costUsd": 0.3090688,
+      "usage": {
+        "input": 38,
+        "output": 118,
+        "cacheCreation": 36548,
+        "cacheRead": 680237,
+        "messages": 19
+      },
+      "toolCalls": 10,
+      "filesRead": [
+        "/tmp/effect-eval-loV3G0/shared/resolve-translation.ts",
+        "/tmp/effect-eval-loV3G0/app/(site)/posts/[slug]/page.tsx",
+        "/tmp/effect-eval-loV3G0/.claude/skills/code-maintainability/references/abstraction-boundaries.md",
+        "/tmp/effect-eval-loV3G0/shared/resolve-translation.spec.ts",
+        "/tmp/effect-eval-loV3G0/app/(site)/posts-data.ts"
+      ],
+      "commandsRun": [
+        "ls shared/ && echo --- && cat README.md | head -80",
+        "find app -type f | xargs grep -liE \"locale|accept-language|translation\" 2>/dev/null",
+        "find . -iname \"*resolve-translation*\" -not -path \"*/node_modules/*\"; echo ---; find . -iname \"*.spec.ts\" -not -path \"*/node_modules/*\"",
+        "grep -rliE \"locale|accept-language\" --include=\"*.ts\" --include=\"*.tsx\" . 2>/dev/null | grep -v node_modules"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-7819d2c8",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 5,
+      "truncated": false,
+      "costUsd": 0.1407171,
+      "usage": {
+        "input": 18,
+        "output": 46,
+        "cacheCreation": 22679,
+        "cacheRead": 278715,
+        "messages": 9
+      },
+      "toolCalls": 4,
+      "filesRead": [],
+      "commandsRun": [
+        "cat /tmp/effect-eval-fHUJU7/shared/resolve-translation.ts",
+        "grep -rl \"resolveTranslation\\|findExactMatch\\|findLanguageMatch\\|acceptedLocales\\|Accept-Language\\|accept-language\" --include=\"*.ts\" --include=\"*.tsx\" -i . | grep -v node_modules",
+        "cat \"/tmp/effect-eval-fHUJU7/app/(site)/posts/[slug]/page.tsx\""
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": true
+    }
+  ]
+}
