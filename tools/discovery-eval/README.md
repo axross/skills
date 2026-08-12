@@ -49,10 +49,30 @@ which re-derives a _committed_ summary and compares bytes.
 |                    | situated                                                                        | bare                                                          |
 | ------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | workspace          | a materialized mock, the whole skill corpus installed                           | a scratch directory holding `.claude/skills` and nothing else |
-| turns              | a runaway guard (`src/plan.mjs`'s `PROVISIONAL_SITUATED_TURN_CAP`, provisional) | 1                                                             |
-| tools permitted    | `Read`, `Glob`, `Grep`, `Skill`                                                 | `Skill`                                                       |
+| turns              | a runaway guard (`src/plan.mjs`'s `PROVISIONAL_SITUATED_TURN_CAP`, provisional) | 2 (`src/plan.mjs`'s `BARE_TURN_CAP`)                          |
+| tools permitted    | `Read`, `Glob`, `Grep`, `Skill`                                                 | `Skill` (`ToolSearch` denied — see below)                     |
 | may hold head text | no                                                                              | yes                                                           |
 | recorded           | yes                                                                             | yes, except under `--head-skills`                             |
+
+**Why bare's cap is 2, not 1.** Measured turn accounting from a real dispatch:
+a probe that calls any tool — `Skill` included — reports `num_turns: 2` and
+terminates `error_max_turns`; a probe that calls nothing reports `num_turns: 1`
+and terminates `success`. Under a 1-turn cap, the only bare outcome that could
+ever read as `success` was one where the model selected nothing — a bare probe
+that _did_ select a skill was truncated by construction, before it could ever
+report cleanly. Raising the cap by exactly one turn lets a single `Skill` call
+finish; it is not a budget for a second, unrelated tool call.
+
+**Why `ToolSearch` is denied.** `allowedTools: ["Skill"]` alone did not keep it
+out: measured records show bare probes spending their entire turn cap on a
+`ToolSearch` call instead of `Skill`, burning the cap on a tool this evaluation
+was never meant to expose. `src/spawn.mjs`'s `BARE_DISALLOWED_TOOLS` now names
+it explicitly. Whether the CLI's `disallowedTools` actually withholds it has
+not been confirmed against a live, paid probe — that would spend money outside
+this change's scope — but the installed CLI's own tool-search gate reads a
+tool named `ToolSearch` off the set it was actually given and logs "may have
+been disallowed via disallowedTools" as the reason once that name is absent
+from it, which is the mechanism this denial relies on.
 
 A case declaring a `mock` runs situated; a case declaring none runs bare,
 because situating would remove the very thing its prompt is about (a mock
@@ -95,12 +115,19 @@ reader tell a finding from a failed exploration: two probes that both miss a
 `mustInclude` skill read very differently if one read straight to the file
 that names the defect and the other read only `README.md`.
 
-A probe terminating on `error_max_turns` is marked **unreadable**, not counted
-as a selection of nothing — the runaway guard binding means the model was
-still working when the CLI cut it off, and `selectedSkills` is `null` on that
-probe rather than `[]`. `src/summary.mjs`'s verdict tally excludes an
-unreadable probe from both the numerator and the denominator of every rate it
-computes.
+A probe terminating on `error_max_turns` **with no `Skill` call recorded** is
+marked **unreadable**, not counted as a selection of nothing — the runaway
+guard binding means the model was still working when the CLI cut it off, and
+`selectedSkills` is `null` on that probe rather than `[]`. A probe terminating
+on `error_max_turns` **having already selected a skill** is instead marked
+**readable**, carrying the selection(s) it made: the decision was already on
+the tape before the cap fired, so discarding it would be data loss, not
+caution — this is what makes a bare probe's raised turn cap (above) legible at
+all, since under the old 1-turn cap a bare selection could never be anything
+but truncated. `src/summary.mjs`'s verdict tally excludes an unreadable probe
+from both the numerator and the denominator of every rate it computes; a
+readable `error_max_turns` probe's selection counts exactly as a `success`
+probe's would.
 
 ## Comparability has two scopes
 
@@ -114,13 +141,19 @@ commit the measurement.
 **Across measurements of the same case** — `findComparablePredecessor` /
 `deriveDelta` — a new measurement looks back through that case's other
 committed measurements for the most recent one sharing the same prompt, the
-same model, the same project tree, and the same `description` digest **for
-the skills that case tracks** (its `mustInclude` and `mustExclude` union, not
-its whole corpus). Editing an unrelated skill's description no longer
-degrades a case that never tracked it. Where no comparable predecessor
-exists, the delta reports the condition that failed — the most recent prior's
-specific mismatch, or "no prior measurement of this case exists yet" — rather
-than suppressing the comparison or leaving it absent.
+same model, the same project tree, the same `runtime` (the CLI's name and
+version, and the `maxTurns`/`allowedTools`/`disallowedTools` a probe actually
+ran under), and the same `description` digest **for the skills that case
+tracks** (its `mustInclude` and `mustExclude` union, not its whole corpus).
+Editing an unrelated skill's description no longer degrades a case that never
+tracked it. The `runtime` comparison matters most whenever this instrument's
+own probe configuration changes — raising bare's turn cap is the case in
+point: a bare measurement taken before that change and one taken after it must
+never be judged comparable, or the cap's own effect would be silently
+attributed to a skill. Where no comparable predecessor exists, the delta
+reports the condition that failed — the most recent prior's specific
+mismatch, or "no prior measurement of this case exists yet" — rather than
+suppressing the comparison or leaving it absent.
 
 ## Verdicts, unchanged
 
@@ -133,6 +166,16 @@ for a case naming two or more `mustInclude` skills carries over with them.
 Both are derived at summarize time from stored counts, never stored
 themselves — revising either rule is a re-derivation over data already paid
 for.
+
+**Zero hits is not the same condition as zero readable probes.** A case whose
+every probe was unreadable has produced no evidence about any tracked skill,
+so `src/summary.mjs`'s `verdictFor` answers `repeats === 0` before it ever
+reaches the `mustInclude`/`mustExclude` rule above, returning a distinct
+`unevidenced` verdict rather than `miss`. `unevidenced` is deliberately not a
+finding — it is a claim about the probes, not the skill — so it never appears
+in a case's `findings`; a reader looking for it instead checks the
+measurement's `readableCount` (or the tally's own `repeats`), which is never
+absent, so the condition surfaces rather than reading as a silent "fine".
 
 `expectAlways` does not return. The one skill it named is a mandated skill,
 and the fixture's `population: "mandated"` cases now ask that question on
