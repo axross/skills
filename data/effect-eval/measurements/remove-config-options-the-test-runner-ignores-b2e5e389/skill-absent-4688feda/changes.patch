@@ -1,0 +1,22 @@
+diff --git a/vitest.config.ts b/vitest.config.ts
+index ae1f92f..d570f7c 100644
+--- a/vitest.config.ts
++++ b/vitest.config.ts
+@@ -24,17 +24,6 @@ export default defineConfig({
+           clearMocks: true,
+           include: ["src/**/*.browser.test.tsx"],
+           setupFiles: ["src/test/browser-setup.ts"],
+-          // Some of our dependencies (Sentry in particular) trip up Vite's
+-          // dependency pre-bundling inside the browser project, so it's
+-          // force-enabled here with the offender excluded.
+-          deps: {
+-            optimizer: {
+-              web: {
+-                enabled: true,
+-                exclude: ["@sentry/react"],
+-              },
+-            },
+-          },
+           browser: {
+             enabled: true,
+             provider: playwright(),
