@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-08-12T06:22:56Z",
+  "trigger": {
+    "kind": "github-actions",
+    "url": "https://github.com/axross/skills/actions/runs/31569683136"
+  },
+  "instrument": {
+    "commit": "8a8615ce7b85b4e50eb5126d6ede01efb4bd86f1",
+    "node": "v26.7.0",
+    "os": "Linux"
+  },
+  "cliExitCode": 0,
+  "configuration": {
+    "runtime": {
+      "name": "claude-code",
+      "version": "2.1.220",
+      "options": {
+        "maxTurns": 100,
+        "settingSources": [
+          "project"
+        ],
+        "allowedTools": [
+          "Bash",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Read",
+          "Skill",
+          "TodoWrite",
+          "Write"
+        ],
+        "disallowedTools": [
+          "Agent",
+          "NotebookEdit",
+          "Task",
+          "WebFetch",
+          "WebSearch"
+        ],
+        "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+      }
+    },
+    "model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "options": {}
+    },
+    "project": {
+      "name": "inkwell",
+      "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+      "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+    },
+    "skills": {
+      "amplitude-instrumentation": "sha256:83078cc4f38fedf180b4cd0e77aa4c660e5b147744ff098ff3d232c7c0c23498"
+    },
+    "task": {
+      "prompt": "Once sign-in lands, this will run for every returning author. Alongside what it already records, we'd like it to also keep a running count of how many times we've seen them — one that keeps climbing on every call rather than only ever showing today's number."
+    }
+  }
+}

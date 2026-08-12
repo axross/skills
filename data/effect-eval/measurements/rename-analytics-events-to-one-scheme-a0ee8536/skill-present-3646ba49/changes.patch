@@ -1,0 +1,26 @@
+diff --git a/src/lib/analytics.ts b/src/lib/analytics.ts
+index ae8cf3a..d3b7876 100644
+--- a/src/lib/analytics.ts
++++ b/src/lib/analytics.ts
+@@ -8,7 +8,7 @@ import * as amplitude from "@amplitude/analytics-browser";
+ interface Events {
+   "post published": { site_slug: string; post_id: number };
+   "draft saved": { site_slug: string; post_id: number };
+-  "Site switched": { from_site: string; to_site: string };
++  "site switched": { from_site: string; to_site: string };
+ }
+ 
+ let initialized = false;
+diff --git a/src/routes/Layout.tsx b/src/routes/Layout.tsx
+index 0b0c43e..96a436a 100644
+--- a/src/routes/Layout.tsx
++++ b/src/routes/Layout.tsx
+@@ -12,7 +12,7 @@ export function Layout() {
+   const sitesQuery = useQuery(getSitesQueryOptions());
+ 
+   function switchSite(slug: string) {
+-    trackEvent("Site switched", { from_site: siteSlug, to_site: slug });
++    trackEvent("site switched", { from_site: siteSlug, to_site: slug });
+     navigate(`/sites/${slug}/posts`);
+   }
+ 
