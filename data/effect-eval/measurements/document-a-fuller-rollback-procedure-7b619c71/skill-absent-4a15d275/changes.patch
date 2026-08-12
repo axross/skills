@@ -1,0 +1,44 @@
+diff --git a/docs/deployment.md b/docs/deployment.md
+index ea17006..9e9f33f 100644
+--- a/docs/deployment.md
++++ b/docs/deployment.md
+@@ -24,3 +24,39 @@ changes which posts and translations the deployed build carries.
+ Redeploy the previous commit's build. There is no database to migrate back —
+ the post catalog and everything else the app reads live in the build itself —
+ so a rollback here is just a redeploy.
++
++1. Find the last commit on `main` you know was good — the one before the
++   change you're rolling back — and redeploy that commit's build through
++   `<TODO: hosting platform's redeploy mechanism — e.g. its dashboard or CLI>`.
++2. Wait for that redeploy to finish before judging anything below; a build
++   that's still in progress will look broken regardless of which commit it's
++   building.
++
++### How to tell it worked
++
++- The commit hash the deploy platform reports as live matches the commit you
++  redeployed, not the one you rolled back from.
++  `<TODO: where that hash shows up — e.g. a field on the platform's dashboard>`.
++- The home page loads and shows the portrait, bio, and post list.
++- A post page loads. For a post with more than one translation, check that it
++  renders the translation matching the request's `Accept-Language` rather than
++  falling through to the post's default locale — see the fallback order in
++  `shared/resolve-translation.ts`. This is the part most likely to look "up"
++  but wrong if the rollback served a different build than intended.
++- No error-rate spike on `<TODO: monitoring/dashboard link>` in the minutes
++  after the redeploy.
++
++### What to check afterward
++
++- Whether the bad change is still the tip of `main`. Rolling back the deploy
++  does not roll back the branch — if nothing else changes, the next push to
++  `main` redeploys the bad build right back over your rollback. Either revert
++  the commit on `main` or hold the next deploy until it's fixed.
++- That CI (`.github/workflows/ci.yml`) is green on whatever commit `main` ends
++  up pointing at.
++
++### Who to notify
++
++`<TODO: this repo has no on-call rotation, owner, or notification channel on
++record yet — name one here (and in a CODEOWNERS file, if this grows past a
++single maintainer) so this isn't a dead end at 2am.>`

@@ -1,0 +1,409 @@
+{
+  "case": {
+    "prompt": "Our rollback note just says to redeploy the previous build. It doesn't say how to tell it worked, what to check afterward, or who needs to know it happened. I want it to actually be useful at 2am."
+  },
+  "project": {
+    "name": "tsuzuri",
+    "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
+    "commit": "64cec1276b77b99b05d490cafc3654bfcfe30133"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ],
+      "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"technical-document-authoring\":\"sha256:645b371bbabbe4ab71d28c0a7333629579c3b1cba86ddcd987a1c7e90415b09e\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"Our rollback note just says to redeploy the previous build. It doesn't say how to tell it worked, what to check afterward, or who needs to know it happened. I want it to actually be useful at 2am.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 1.8253154999999999,
+  "probes": [
+    {
+      "probe": "skill-absent-4a15d275",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 8,
+      "truncated": false,
+      "costUsd": 0.23992579999999997,
+      "usage": {
+        "input": 28,
+        "output": 84,
+        "cacheCreation": 29437,
+        "cacheRead": 449218,
+        "messages": 14
+      },
+      "toolCalls": 7,
+      "filesRead": [
+        "/tmp/effect-eval-dvevRV/docs/deployment.md"
+      ],
+      "commandsRun": [
+        "grep -ril \"rollback\" /tmp/effect-eval-dvevRV --include=\"*.md\" 2>/dev/null; echo \"---\"; find /tmp/effect-eval-dvevRV -iname \"*rollback*\" -not -path \"*/node_modules/*\"",
+        "find /tmp/effect-eval-dvevRV -not -path \"*/node_modules/*\" -not -path \"*/.git/*\" -maxdepth 3 -type d | sort; echo \"---workflows---\"; find /tmp/effect-eval-dvevRV/.github -type f 2>/dev/null",
+        "cat /tmp/effect-eval-dvevRV/.github/workflows/ci.yml",
+        "cat /tmp/effect-eval-dvevRV/README.md 2>/dev/null; echo \"---package.json---\"; cat /tmp/effect-eval-dvevRV/package.json 2>/dev/null; echo \"---find config files---\"; find /tmp/effect-eval-dvevRV -maxdepth 1 -type f | sort",
+        "find /tmp/effect-eval-dvevRV -iname \"CODEOWNERS\" -o -iname \"*.env*\" -not -path \"*/node_modules/*\" 2>/dev/null | grep -v node_modules; echo \"---\"; grep -ril \"vercel\\|netlify\\|fly\\.io\\|deploy\" /tmp/effect-eval-dvevRV --include=\"*.md\" --include=\"*.json\" --include=\"*.yml\" --include=\"*.yaml\" -l 2>/dev/null | grep -v node_modules"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "docs/deployment.md"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-5d7c7437",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 10,
+      "truncated": false,
+      "costUsd": 0.2667383,
+      "usage": {
+        "input": 34,
+        "output": 48,
+        "cacheCreation": 44670,
+        "cacheRead": 557095,
+        "messages": 17
+      },
+      "toolCalls": 9,
+      "filesRead": [
+        "/tmp/effect-eval-rWvVXB/docs/deployment.md"
+      ],
+      "commandsRun": [
+        "grep -ril \"rollback\" /tmp/effect-eval-rWvVXB --include=\"*.md\" 2>/dev/null; echo \"---\"; find /tmp/effect-eval-rWvVXB -iname \"*rollback*\" -not -path \"*/node_modules/*\" -not -path \"*/.git/*\"",
+        "cat /tmp/effect-eval-rWvVXB/README.md 2>/dev/null | head -100",
+        "find /tmp/effect-eval-rWvVXB/.github -type f | xargs -I{} sh -c 'echo ==={}===; cat {}'",
+        "git log --oneline -20 -- docs/deployment.md .github/",
+        "ls -la; echo \"---\"; find . -maxdepth 1 -iname \"*.toml\" -o -maxdepth 1 -iname \"vercel.json\" -o -maxdepth 1 -iname \"*.yaml\" 2>/dev/null; echo \"---package.json---\"; cat package.json",
+        "grep -rn \"translations\\|slug\" /tmp/effect-eval-rWvVXB/app -l 2>/dev/null | grep -v spec; echo \"---\"; sed -n '1,40p' /tmp/effect-eval-rWvVXB/shared/resolve-translation.ts"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "docs/deployment.md"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-94794255",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 10,
+      "truncated": false,
+      "costUsd": 0.29868799999999995,
+      "usage": {
+        "input": 36,
+        "output": 91,
+        "cacheCreation": 34742,
+        "cacheRead": 604724,
+        "messages": 18
+      },
+      "toolCalls": 9,
+      "filesRead": [
+        "/tmp/effect-eval-1K4KIX/docs/deployment.md"
+      ],
+      "commandsRun": [
+        "grep -ril \"rollback\" /tmp/effect-eval-1K4KIX --include=\"*.md\" 2>/dev/null; echo \"---\"; find /tmp/effect-eval-1K4KIX -iname \"*rollback*\" -not -path \"*/node_modules/*\"",
+        "cat /tmp/effect-eval-1K4KIX/README.md 2>/dev/null; echo \"---WORKFLOWS---\"; find /tmp/effect-eval-1K4KIX/.github -type f 2>/dev/null | xargs -I{} echo {} ",
+        "cat /tmp/effect-eval-1K4KIX/.github/workflows/ci.yml",
+        "cat package.json; echo \"---\"; ls -la; echo \"---vercel/netlify/fly---\"; find . -maxdepth 2 -iname \"*vercel*\" -o -iname \"*netlify*\" -o -iname \"*fly.toml*\" -o -iname \"*Dockerfile*\" 2>/dev/null | grep -v node_modules",
+        "git log --all --oneline | head -30; echo \"---\"; git remote -v; echo \"---branches---\"; git branch -a",
+        "find /tmp/effect-eval-1K4KIX/app -type f | grep -v node_modules"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "docs/deployment.md"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-22365c14",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "technical-document-authoring"
+      ],
+      "turns": 13,
+      "truncated": false,
+      "costUsd": 0.36214,
+      "usage": {
+        "input": 3697,
+        "output": 105,
+        "cacheCreation": 65625,
+        "cacheRead": 666439,
+        "messages": 20
+      },
+      "toolCalls": 11,
+      "filesRead": [
+        "/tmp/effect-eval-aNE3DS/docs/deployment.md",
+        "/tmp/effect-eval-aNE3DS/README.md",
+        "/tmp/effect-eval-aNE3DS/.github/workflows/ci.yml"
+      ],
+      "commandsRun": [
+        "grep -ril \"rollback\" /tmp/effect-eval-aNE3DS --include=\"*.md\" 2>/dev/null",
+        "find /tmp/effect-eval-aNE3DS -maxdepth 2 -not -path '*/node_modules*' -not -path '*/.git*' | sort",
+        "find /tmp/effect-eval-aNE3DS/.github -type f 2>/dev/null",
+        "cat /tmp/effect-eval-aNE3DS/package.json; echo \"---\"; find /tmp/effect-eval-aNE3DS -maxdepth 1 -iname \"*vercel*\" -o -maxdepth 1 -iname \"*netlify*\" -o -maxdepth 1 -iname \"*.toml\" 2>/dev/null; find /tmp/effect-eval-aNE3DS -maxdepth 1 -name \".env*\"",
+        "git log --format='%an <%ae>' | sort -u; echo \"---remotes---\"; git remote -v"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "docs/deployment.md"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-6f0f18b2",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 10,
+      "truncated": false,
+      "costUsd": 0.29636709999999994,
+      "usage": {
+        "input": 34,
+        "output": 91,
+        "cacheCreation": 31923,
+        "cacheRead": 564315,
+        "messages": 17
+      },
+      "toolCalls": 9,
+      "filesRead": [
+        "/tmp/effect-eval-8sM8Ij/docs/deployment.md",
+        "/tmp/effect-eval-8sM8Ij/.github/workflows/ci.yml",
+        "/tmp/effect-eval-8sM8Ij/README.md",
+        "/tmp/effect-eval-8sM8Ij/e2e/home.spec.ts"
+      ],
+      "commandsRun": [
+        "grep -ril \"rollback\" /tmp/effect-eval-8sM8Ij --include=\"*.md\" 2>/dev/null; echo \"---\"; find /tmp/effect-eval-8sM8Ij -iname \"*rollback*\" -not -path \"*/node_modules/*\" -not -path \"*/.git/*\"",
+        "find /tmp/effect-eval-8sM8Ij -iname \"*.yml\" -o -iname \"*.yaml\" | grep -v node_modules; echo \"---README---\"; find /tmp/effect-eval-8sM8Ij -maxdepth 1 -iname \"README*\"",
+        "ls -la; find . -maxdepth 1 -iname \"vercel.json\" -o -maxdepth 1 -iname \"netlify.toml\" -o -maxdepth 1 -iname \"Dockerfile\" -o -maxdepth 1 -iname \"fly.toml\"; cat package.json | head -40",
+        "find /tmp/effect-eval-8sM8Ij/app /tmp/effect-eval-8sM8Ij/e2e -type f | grep -v node_modules"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "docs/deployment.md"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-96ffcc04",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "technical-document-authoring"
+      ],
+      "turns": 14,
+      "truncated": false,
+      "costUsd": 0.36145629999999995,
+      "usage": {
+        "input": 44,
+        "output": 102,
+        "cacheCreation": 59892,
+        "cacheRead": 791623,
+        "messages": 22
+      },
+      "toolCalls": 12,
+      "filesRead": [
+        "/tmp/effect-eval-a76DAC/docs/deployment.md",
+        "/tmp/effect-eval-a76DAC/.claude/skills/technical-document-authoring/references/lists-tables-and-code.md"
+      ],
+      "commandsRun": [
+        "grep -ril \"rollback\" /tmp/effect-eval-a76DAC --include=\"*.md\" 2>/dev/null; echo \"---\"; find /tmp/effect-eval-a76DAC -iname \"*rollback*\"",
+        "cat /tmp/effect-eval-a76DAC/README.md",
+        "find /tmp/effect-eval-a76DAC/.github -type f | xargs -I{} echo {}; echo \"---\"; cat /tmp/effect-eval-a76DAC/.github/workflows/*.yml 2>/dev/null",
+        "cat package.json | head -40",
+        "ls -la; find . -maxdepth 1 -iname \"*vercel*\" -o -iname \"*netlify*\" -o -iname \"*fly*\" -o -iname \"Dockerfile\" 2>/dev/null | grep -v node_modules",
+        "cat /tmp/effect-eval-a76DAC/.gitignore; echo \"---\"; git -C /tmp/effect-eval-a76DAC log --all --oneline -- docs/ | head -20; echo \"---\"; git -C /tmp/effect-eval-a76DAC log -p --follow -- docs/deployment.md | head -100",
+        "npx biome check docs/deployment.md 2>&1 | head -30"
+      ],
+      "ranTests": false,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "docs/deployment.md"
+      ],
+      "endedAwaitingDecision": false
+    }
+  ]
+}

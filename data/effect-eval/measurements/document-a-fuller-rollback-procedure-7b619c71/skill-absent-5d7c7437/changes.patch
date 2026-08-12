@@ -1,0 +1,42 @@
+diff --git a/docs/deployment.md b/docs/deployment.md
+index ea17006..cf3e454 100644
+--- a/docs/deployment.md
++++ b/docs/deployment.md
+@@ -21,6 +21,34 @@ changes which posts and translations the deployed build carries.
+ 
+ ## Rolling back
+ 
+-Redeploy the previous commit's build. There is no database to migrate back —
+-the post catalog and everything else the app reads live in the build itself —
+-so a rollback here is just a redeploy.
++There is no database to migrate back — the post catalog and everything else
++the app reads live in the build itself — so a rollback is just getting
++Production to build and serve an older commit again. There is no separate
++rollback pipeline: Production redeploys on every push to `main` (see the
++table above), so rolling back means putting `main` back at the last-known-good
++commit and pushing.
++
++1. **Revert.** `git revert` the commit(s) that shipped the bad change and push
++   to `main`. If the revert doesn't apply cleanly, reset `main` to the
++   last-known-good commit and force-push instead — but say so out loud first
++   (force-pushing `main` rewrites history for everyone else who has it
++   checked out).
++2. **Confirm the new build is actually live.** A push starts a new deploy; it
++   doesn't finish one instantly. Check whatever tells you the Production
++   deploy for that push has completed, then load the production URL and look
++   for the specific thing the bad change touched (a post's title or body, the
++   bio copy, whatever it was) and confirm it's back to the old version. If it
++   still shows the bad version, the deploy hasn't finished yet or didn't pick
++   up the revert — don't move on to step 3 until it has.
++3. **Check the things a bad build tends to break.** The home page loads with
++   the portrait and post list, an individual post page loads, and — since
++   this is the part most likely to be silently wrong — a post with more than
++   one translation still resolves through `shared/resolve-translation.ts` to
++   the right locale. Spot-check a post that has multiple translations and one
++   that has none, not just the one that prompted the rollback.
++4. **Say what happened, in writing, on the revert itself.** Whoever reviews
++   the revert PR is the one person guaranteed to see it, so that review is
++   where the record goes: which commit broke, what it looked like broken, and
++   what "confirmed working again" meant in step 2 and 3. That's what turns
++   this into something the next person can act on without reconstructing it
++   from scratch — including you, at 2am, half-remembering this by morning.
