@@ -71,8 +71,11 @@ name: Discovery Evaluation
 # pull-request dispatch) uses the Actions runtime's own token, not
 # `GITHUB_TOKEN`, so it needs no permission at all. Skills are prompt
 # content, so allowlisted head text does reach a model in bare mode; what
-# that model can then do is nothing — one turn, only the `Skill` tool, no
-# Bash, no network fetch, no filesystem (see tools/discovery-eval/src/plan.mjs).
+# that model can then do is nothing — only the `Skill` tool, no Bash, no
+# network fetch, no filesystem (see tools/discovery-eval/src/plan.mjs). The
+# tool set is what bounds this, not the turn cap: that cap is 2, enough for one
+# `Skill` call to finish, and raising it from 1 changed how much the model may
+# say, never what it may reach.
 #
 # ── LOAD-BEARING SAFETY PROPERTY 5 of 5 — a dispatch naming a pull request
 # runs every case bare and records nothing. `admit` resolves `mode` as a pure
