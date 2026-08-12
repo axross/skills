@@ -46,11 +46,12 @@ produces no artifact to capture.
 derives `summary.json` across every directory under `measurements/` and
 regenerates it from that directory alone — nothing here is a stored
 conclusion a later run is compared against. With no measurements present the
-derivation is the empty-but-valid document
-`{ "measurementCount": 0, "comparableCount": 0, "measurements": [] }`, which
-is exactly what is committed in this tree today. `measurements/.gitkeep`
-holds the directory until the first real measurement lands beside it and can
-be removed then.
+derivation would be the empty-but-valid document
+`{ "measurementCount": 0, "comparableCount": 0, "measurements": [] }`;
+`measurements/.gitkeep` held the directory in that state until the first real
+measurement landed beside it, and was removed then. What is committed today
+is the derivation over the 40 case measurements described under "What is
+committed here" below.
 
 A measurement's delta — whether it agrees with its most recent comparable
 predecessor — is derived the same way, by looking at the case's other
@@ -95,10 +96,20 @@ and a bare probe cost roughly an order of magnitude apart:
 "unmeasuredProbeCostCeilingUsd": { "situated": 0.35, "bare": 0.05 }
 ```
 
-| Mode         | Declared | Measured                                                                                                                                                                                                  |
-| ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **situated** | `0.35`   | Unmeasured for this instrument; a ceiling above the effect axis's own measured $0.209–$0.315, since a situated probe explores similarly                                                                   |
-| **bare**     | `0.05`   | Comfortably above the one dispatch this instrument's bare-only predecessor ever ran: 140 probes for $3.76, or $0.0269 each ([run 30519599805](https://github.com/axross/skills/actions/runs/30519599805)) |
+| Mode         | Declared | Measured                                                                                                                                                                                                                                   |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **situated** | `0.35`   | $0.2541/probe (34 cases, 68 probes, $17.276125 total — [run 31564332460](https://github.com/axross/skills/actions/runs/31564332460)). The declared ceiling sat **above** the measured figure, the direction the surrounding prose intends. |
+| **bare**     | `0.05`   | $0.0770/probe (6 cases, 12 probes, $0.9239418 total — the same run). The declared ceiling sat **below** the measured figure — optimistic, not pessimistic, the one direction that lets an expensive case slip through admitted.            |
+
+Both are now permanently superseded for these 40 cases by their own committed
+measurements, per mode, per "Superseding is per mode too" below. The bare
+figure's shortfall did not cost anything here — the whole fixture still
+admitted comfortably under its cap either way — but it is a defect in the
+declared number's direction, not a rounding difference: a ceiling that sits
+below the true cost is the "Money leaves" row `data/effect-eval/README.md`'s
+own ceiling table names, and the discovery fixture's declared `0.05` was in
+that row for the entire run that measured it. The situated figure had no such
+problem.
 
 Admission projects each case at the ceiling for **the mode that dispatch will
 actually run it in** ([`tools/discovery-eval/src/plan.mjs`](../../tools/discovery-eval/src/plan.mjs)'s
@@ -135,15 +146,62 @@ case exists only where it measures a competitor boundary the first does not —
 so the cases that used to sit three-deep on one skill, asking the same question
 of the same competitor in the same shape, are one case now.
 
-**No measurement has been taken yet**, so `measurements/` holds only
-`.gitkeep` and `summary.json` is the empty-but-valid derivation over nothing.
-With nothing measured, admission projects every case from the fixture's
-declared ceiling for the mode that case actually runs in. A whole-fixture
-**measurement** dispatch (34 situated cases plus 6 that declare no `mock` and
-run bare regardless of dispatch type, 80 probes total) projects to **$24.40**
-against the $40 `capUsd` — admitted. A whole-fixture **head** dispatch
-(`--pull-request`, every case forced bare) projects to **$4.00** — also
-admitted, and the scenario this per-mode ceiling exists to make usable (see
-`tools/discovery-eval/src/admission.mjs`'s header). Either projection refuses
-outright, before any probe spawns, the moment it would exceed the cap — that
-stop-loss is unconditional and does not depend on which mode a dispatch runs.
+**The whole fixture has been measured once**, in
+[run 31564332460](https://github.com/axross/skills/actions/runs/31564332460)
+(`main` @ `d8e1748`, model `claude-sonnet-5`, claude-code `2.1.220`): 40
+measurements, all 40 comparable, 80 probes, $18.20 total. The 34 situated
+cases ran 68 probes for $17.276125 ($0.2541/probe); the 6 bare cases ran 12
+probes for $0.9239418 ($0.0770/probe). 77 of the 80 probes are readable; the
+3 that are not are all bare, all terminated `error_max_turns`, and all spent
+their single permitted turn on `ToolSearch` rather than `Skill` — no
+selection exists on the tape to recover for any of them. One case,
+`write-the-commit-message-for-this-change`, has zero readable probes: every
+tracked skill there reports `unevidenced` rather than `miss`, because
+`verdictFor` answers "no evidence" before it ever reaches the
+`mustInclude`/`mustExclude` rule — see
+[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md)'s
+"Verdicts, unchanged". Of the 77 readable probes, 42 selected no skill at
+all; the other 35 did. Across all 40 measurements the findings are 22
+`MISS` and 2 `SPURIOUS` (`living-product-specification`,
+`sentry-instrumentation`); 18 of the 40 cases carry no finding at all. 37
+measurements report the `discovered` population and 3 the `mandated` one.
+Every one of the 40 is a case's first measurement, so every delta reports
+"no prior measurement of this case exists yet" rather than a comparison — 0
+of 40 deltas are usable yet.
+
+**`living-product-specification` no longer names a skill in this corpus.**
+[#344](https://github.com/axross/skills/pull/344) renamed it to
+`living-project-documentation` after this measurement was taken, so the
+`MISS` above for `keep-the-docs-true-after-changing-behaviour` and one of
+the two `SPURIOUS` findings both name a skill a reader will not find under
+`skills/` today. That is not an error in the record: a measurement stores
+the case as it stood the moment it ran and derives from that stored
+`mustInclude`/`mustExclude` and stored `description` digests rather than
+from today's fixture — the rename touches neither, so all 40 measurements
+still derive `comparable: true` (the within-measurement check, unaffected
+either way). It does mean a future measurement of
+`keep-the-docs-true-after-changing-behaviour` — which now tracks
+`living-project-documentation`, per the current `fixture.json` — will find
+no comparable predecessor in this one: `predecessorMismatches` will report a
+description-digest disagreement for the tracked skill, because this
+measurement's stored skill map has no entry for a name that did not exist
+when it ran. That is `predecessorMismatches` working as designed, not a
+defect to fix — the two measurements really did run against different text
+under that case's tracked skill, and reporting them non-comparable is the
+correct answer.
+
+With every case now measured once, a fresh dispatch prices from those
+committed measurements rather than from the declared ceiling —
+`node .github/scripts/discovery-eval-admit.mjs --dry-run-input false` prints
+the current projection. A whole-fixture **measurement** dispatch now
+projects to **$18.20** against the $40 `capUsd` — admitted, and equal to
+what run 31564332460 actually spent, since every case's own measurement now
+supersedes its ceiling. A whole-fixture **head** dispatch (`--pull-request`,
+every case forced bare — `node .github/scripts/discovery-eval-admit.mjs
+--dry-run-input false --pull-request <n>`) now projects to **$4.32**: the 6
+cases with a committed _bare_ measurement price from it, and the 34
+situated-declared cases — which have no committed measurement in bare mode,
+superseding being per mode — still price from the declared bare ceiling.
+Either projection refuses outright, before any probe spawns, the moment it
+would exceed the cap — that stop-loss is unconditional and does not depend
+on which mode a dispatch runs.
