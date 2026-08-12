@@ -1,6 +1,6 @@
 {
-  "measurementCount": 21,
-  "comparableCount": 21,
+  "measurementCount": 22,
+  "comparableCount": 22,
   "measurements": [
     {
       "measurement": "add-a-guard-before-the-deploy-hook-request-6a98a7b0",
