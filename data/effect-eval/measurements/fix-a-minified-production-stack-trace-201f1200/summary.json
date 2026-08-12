@@ -132,7 +132,8 @@
       "ranFormat": false,
       "changedPaths": [
         "vite.config.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-absent-679a67c3",
@@ -176,7 +177,8 @@
       "ranTests": false,
       "ranLint": false,
       "ranFormat": false,
-      "changedPaths": []
+      "changedPaths": [],
+      "endedAwaitingDecision": true
     },
     {
       "probe": "skill-absent-dc80b73c",
@@ -227,7 +229,8 @@
       "ranFormat": false,
       "changedPaths": [
         "vite.config.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-present-77c7b176",
@@ -280,7 +283,8 @@
       "ranFormat": false,
       "changedPaths": [
         "vite.config.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-present-a94cd726",
@@ -329,7 +333,8 @@
       "ranTests": false,
       "ranLint": false,
       "ranFormat": false,
-      "changedPaths": []
+      "changedPaths": [],
+      "endedAwaitingDecision": true
     },
     {
       "probe": "skill-present-bb4e02f7",
@@ -383,7 +388,8 @@
       "ranFormat": false,
       "changedPaths": [
         "vite.config.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     }
   ]
 }
