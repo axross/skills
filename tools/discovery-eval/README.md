@@ -232,7 +232,7 @@ finding, not a prompt to raise the cap. See
 **The ceiling is per probe mode, not one figure** — `{ "situated": 0.35,
 "bare": 0.05 }` — because the two probe shapes cost roughly an order of
 magnitude apart: a situated probe explores a real project across a runaway
-turn guard, a bare probe is one turn with only `Skill` permitted. Both
+turn guard, a bare probe is two turns with only `Skill` permitted. Both
 [`src/admission.mjs`](./src/admission.mjs)'s `ceilingFor` and `admitCase` and
 [`.github/scripts/discovery-eval-admit.mjs`](../../.github/scripts/discovery-eval-admit.mjs)'s
 fixture-wide check project each case at the ceiling for **the mode that
