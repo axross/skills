@@ -47,6 +47,19 @@ describe("buildConfiguration", () => {
     expect(configuration.workspace).toEqual({ mode: "bare", mock: null, tree: null });
   });
 
+  it("denies ToolSearch in a bare probe — allowedTools: [\"Skill\"] alone did not keep it out", () => {
+    // measured records from a real dispatch: 3 of 12 bare probes spent their
+    // whole turn cap on a ToolSearch call, under a configuration whose
+    // allowedTools was exactly ["Skill"]. Declaring it denied is this
+    // instrument's fix; see spawn.mjs's BARE_DISALLOWED_TOOLS for what is and
+    // is not established about the CLI actually honouring it.
+    const bareCase = { id: "x", prompt: "p", population: "discovered", mustInclude: ["a"], mustExclude: [], mayInclude: [], rationale: "r" };
+    const plan = planFor(bareCase);
+    const configuration = buildConfiguration({ plan, testCase: bareCase });
+    expect(configuration.runtime.options.disallowedTools).toContain("ToolSearch");
+    expect(BARE_DISALLOWED_TOOLS).toContain("ToolSearch");
+  });
+
   it("carries --setting-sources project on every invocation", () => {
     const plan = planFor(testCase);
     const configuration = buildConfiguration({ plan, testCase });

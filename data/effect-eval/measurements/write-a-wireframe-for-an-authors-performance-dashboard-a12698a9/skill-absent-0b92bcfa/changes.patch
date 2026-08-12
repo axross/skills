@@ -1,0 +1,166 @@
+diff --git a/src/components/PostStats/PostStats.browser.test.tsx b/src/components/PostStats/PostStats.browser.test.tsx
+new file mode 100644
+index 0000000..7e39fa2
+--- /dev/null
++++ b/src/components/PostStats/PostStats.browser.test.tsx
+@@ -0,0 +1,34 @@
++import { render } from "@testing-library/react";
++import { describe, expect, it } from "vitest";
++import type { Post } from "../../types";
++import { PostStats } from "./PostStats";
++
++function post(status: Post["status"]): Post {
++  return {
++    id: Math.random(),
++    siteId: 1,
++    title: "A post",
++    slug: "a-post",
++    body: "Body",
++    status,
++    createdAt: "2026-01-01T00:00:00.000Z",
++    updatedAt: "2026-01-01T00:00:00.000Z",
++  };
++}
++
++describe("PostStats", () => {
++  it("counts published and draft posts separately", () => {
++    const { getByText } = render(
++      <PostStats posts={[post("published"), post("published"), post("draft")]} />,
++    );
++
++    expect(getByText("Published").nextElementSibling).toHaveTextContent("2");
++    expect(getByText("Drafts").nextElementSibling).toHaveTextContent("1");
++  });
++
++  it("reports zero for a status with no posts", () => {
++    const { getByText } = render(<PostStats posts={[post("published")]} />);
++
++    expect(getByText("Drafts").nextElementSibling).toHaveTextContent("0");
++  });
++});
+diff --git a/src/components/PostStats/PostStats.module.css b/src/components/PostStats/PostStats.module.css
+new file mode 100644
+index 0000000..af6e3d9
+--- /dev/null
++++ b/src/components/PostStats/PostStats.module.css
+@@ -0,0 +1,23 @@
++.stats {
++  display: flex;
++  gap: 1.5rem;
++  margin: 0 0 1.5rem;
++}
++
++.stat {
++  display: flex;
++  flex-direction: column;
++  gap: 0.125rem;
++}
++
++.label {
++  font-size: 0.75rem;
++  color: #5b6472;
++}
++
++.value {
++  margin: 0;
++  font-size: 1.25rem;
++  font-weight: 700;
++  color: #1f2a44;
++}
+diff --git a/src/components/PostStats/PostStats.tsx b/src/components/PostStats/PostStats.tsx
+new file mode 100644
+index 0000000..0e8846d
+--- /dev/null
++++ b/src/components/PostStats/PostStats.tsx
+@@ -0,0 +1,25 @@
++import type { Post } from "../../types";
++import css from "./PostStats.module.css";
++
++interface PostStatsProps {
++  readonly posts: readonly Post[];
++}
++
++/** A per-site "how are my posts doing" summary: published vs. draft counts. */
++export function PostStats({ posts }: PostStatsProps) {
++  const published = posts.filter((post) => post.status === "published").length;
++  const draft = posts.length - published;
++
++  return (
++    <dl className={css.stats} aria-label="Post stats">
++      <div className={css.stat}>
++        <dt className={css.label}>Published</dt>
++        <dd className={css.value}>{published}</dd>
++      </div>
++      <div className={css.stat}>
++        <dt className={css.label}>Drafts</dt>
++        <dd className={css.value}>{draft}</dd>
++      </div>
++    </dl>
++  );
++}
+diff --git a/src/routes/PostListPage.tsx b/src/routes/PostListPage.tsx
+index 25fcd08..5f9e333 100644
+--- a/src/routes/PostListPage.tsx
++++ b/src/routes/PostListPage.tsx
+@@ -1,6 +1,7 @@
+ import { useQuery } from "@tanstack/react-query";
+ import { Link, useParams } from "react-router";
+ import { Card } from "../components/Card/Card";
++import { PostStats } from "../components/PostStats/PostStats";
+ import { cx } from "../lib/class-names";
+ import { getPostListQueryOptions } from "../queries/posts/post-list-query";
+ import css from "./PostListPage.module.css";
+@@ -24,28 +25,31 @@ export function PostListPage() {
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length > 0 && (
+-        <ul className={css.list} aria-label="Posts">
+-          {postsQuery.data.map((post) => (
+-            <li key={post.id}>
+-              <Link to={`/sites/${siteSlug}/posts/${post.id}`} className={css.cardLink}>
+-                <Card>
+-                  <p className={css.title}>{post.title}</p>
+-                  <div className={css.meta}>
+-                    <span
+-                      className={cx(
+-                        css.status,
+-                        post.status === "published" ? css.statusPublished : css.statusDraft,
+-                      )}
+-                    >
+-                      {post.status}
+-                    </span>
+-                    <span>Updated {new Date(post.updatedAt).toLocaleDateString()}</span>
+-                  </div>
+-                </Card>
+-              </Link>
+-            </li>
+-          ))}
+-        </ul>
++        <>
++          <PostStats posts={postsQuery.data} />
++          <ul className={css.list} aria-label="Posts">
++            {postsQuery.data.map((post) => (
++              <li key={post.id}>
++                <Link to={`/sites/${siteSlug}/posts/${post.id}`} className={css.cardLink}>
++                  <Card>
++                    <p className={css.title}>{post.title}</p>
++                    <div className={css.meta}>
++                      <span
++                        className={cx(
++                          css.status,
++                          post.status === "published" ? css.statusPublished : css.statusDraft,
++                        )}
++                      >
++                        {post.status}
++                      </span>
++                      <span>Updated {new Date(post.updatedAt).toLocaleDateString()}</span>
++                    </div>
++                  </Card>
++                </Link>
++              </li>
++            ))}
++          </ul>
++        </>
+       )}
+     </section>
+   );

@@ -1,0 +1,86 @@
+diff --git a/src/queries/posts/post-save-mutation.test.ts b/src/queries/posts/post-save-mutation.test.ts
+new file mode 100644
+index 0000000..f13c6af
+--- /dev/null
++++ b/src/queries/posts/post-save-mutation.test.ts
+@@ -0,0 +1,55 @@
++import { QueryClient } from "@tanstack/react-query";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { api } from "../../lib/api";
++import type { Post } from "../../types";
++import { getPostListQueryOptions } from "./post-list-query";
++import { getPostQueryOptions } from "./post-query";
++import { getPostSaveMutationOptions } from "./post-save-mutation";
++
++function createTestQueryClient(): QueryClient {
++  return new QueryClient({
++    defaultOptions: {
++      queries: { retry: false },
++      mutations: { retry: false },
++    },
++  });
++}
++
++const staleListEntry: Post = {
++  id: 1,
++  siteId: 1,
++  title: "Old title",
++  slug: "old-title",
++  body: "Old body",
++  status: "draft",
++  createdAt: "2026-08-01T00:00:00.000Z",
++  updatedAt: "2026-08-01T00:00:00.000Z",
++};
++
++const savedPost: Post = {
++  ...staleListEntry,
++  title: "New title",
++  updatedAt: "2026-08-12T00:00:00.000Z",
++};
++
++describe("getPostSaveMutationOptions", () => {
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it("writes the saved post into the post cache and invalidates the site's post list", async () => {
++    vi.spyOn(api, "savePost").mockResolvedValue(savedPost);
++    const client = createTestQueryClient();
++    client.setQueryData(getPostListQueryOptions("acme").queryKey, [staleListEntry]);
++
++    await client
++      .getMutationCache()
++      .build(client, getPostSaveMutationOptions("acme", 1))
++      .execute({ title: "New title", body: "Old body" });
++
++    expect(client.getQueryData(getPostQueryOptions("acme", 1).queryKey)).toEqual(savedPost);
++    expect(client.getQueryState(getPostListQueryOptions("acme").queryKey)?.isInvalidated).toBe(
++      true,
++    );
++  });
++});
+diff --git a/src/queries/posts/post-save-mutation.ts b/src/queries/posts/post-save-mutation.ts
+index 34ee71a..584944e 100644
+--- a/src/queries/posts/post-save-mutation.ts
++++ b/src/queries/posts/post-save-mutation.ts
+@@ -1,13 +1,18 @@
+ import { mutationOptions } from "@tanstack/react-query";
+ import { api } from "../../lib/api";
+ import type { SavePostInput } from "../../types";
++import { getPostListQueryOptions } from "./post-list-query";
+ import { getPostQueryOptions } from "./post-query";
+ 
+ export function getPostSaveMutationOptions(siteSlug: string, postId: number) {
+   return mutationOptions({
+     mutationKey: ["sites", siteSlug, "posts", postId, "save"] as const,
+     mutationFn: (input: SavePostInput) => api.savePost(siteSlug, postId, input),
+-    onSuccess: (data, _variables, _onMutateResult, context) =>
+-      context.client.setQueryData(getPostQueryOptions(siteSlug, postId).queryKey, data),
++    onSuccess: (data, _variables, _onMutateResult, context) => {
++      context.client.setQueryData(getPostQueryOptions(siteSlug, postId).queryKey, data);
++      return context.client.invalidateQueries({
++        queryKey: getPostListQueryOptions(siteSlug).queryKey,
++      });
++    },
+   });
+ }

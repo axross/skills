@@ -50,6 +50,22 @@ const RUNS_OUT_OF_TURNS = [
   line({ type: "result", subtype: "error_max_turns", num_turns: 40, total_cost_usd: 1.2 }),
 ].join("\n");
 
+/**
+ * a bare probe that DID select a skill before the cap fired — matching
+ * measured records from a real dispatch: under BARE_TURN_CAP, a probe that
+ * calls Skill reports num_turns: 2 and terminates error_max_turns even though
+ * the selection is already made. `probe-8c7b8c5b`/`edit-an-issue-body...` from
+ * that dispatch is this shape.
+ */
+const SELECTS_THEN_HITS_THE_CAP = [
+  line({ type: "system", subtype: "init", model: "claude-sonnet-5", version: "2.1.220", skills: [] }),
+  line({
+    type: "assistant",
+    message: { content: [{ type: "tool_use", name: "Skill", input: { skill: "github-operation" } }] },
+  }),
+  line({ type: "result", subtype: "error_max_turns", num_turns: 2, total_cost_usd: 0.08 }),
+].join("\n");
+
 describe("pathsBeforeFirstSelection", () => {
   const calls = [
     { name: "Read", input: { file_path: "a.ts" } },
@@ -132,7 +148,7 @@ describe("extractSignals", () => {
     expect(signals.costUsd).toBe(0.31);
   });
 
-  it("marks a probe that terminates on error_max_turns unreadable, not a selection of nothing", () => {
+  it("marks a probe that terminates on error_max_turns with no selection unreadable, not a selection of nothing", () => {
     const signals = extractSignals(RUNS_OUT_OF_TURNS);
     expect(signals.terminalReason).toBe("error_max_turns");
     expect(signals.readable).toBe(false);
@@ -144,6 +160,17 @@ describe("extractSignals", () => {
   it("still reports what it read before truncating, even though the probe is unreadable", () => {
     const signals = extractSignals(RUNS_OUT_OF_TURNS);
     expect(signals.pathsBeforeSelection).toEqual([{ tool: "Read", target: "README.md" }]);
+  });
+
+  it("marks a probe readable when it selected a skill before error_max_turns fired, carrying the selection", () => {
+    const signals = extractSignals(SELECTS_THEN_HITS_THE_CAP);
+    expect(signals.terminalReason).toBe("error_max_turns");
+    // this is the defect issue #343 names: a probe that plainly selected
+    // github-operation must not be discarded just because the cap fired on
+    // the very next turn.
+    expect(signals.readable).toBe(true);
+    expect(signals.selectedSkills).toEqual(["github-operation"]);
+    expect(signals.turns).toBe(2);
   });
 
   it("reports 'unknown' and unreadable for a stream with no result event at all", () => {

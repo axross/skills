@@ -1,0 +1,139 @@
+diff --git a/src/routes/PostListPage.module.css b/src/routes/PostListPage.module.css
+index 2017685..74d0199 100644
+--- a/src/routes/PostListPage.module.css
++++ b/src/routes/PostListPage.module.css
+@@ -5,6 +5,12 @@
+   margin: 0 0 1.5rem;
+ }
+ 
++.stats {
++  font-size: 0.8125rem;
++  color: #5b6472;
++  margin: -0.75rem 0 1rem;
++}
++
+ .list {
+   list-style: none;
+   margin: 0;
+diff --git a/src/routes/PostListPage.test.ts b/src/routes/PostListPage.test.ts
+new file mode 100644
+index 0000000..726c980
+--- /dev/null
++++ b/src/routes/PostListPage.test.ts
+@@ -0,0 +1,28 @@
++import { describe, expect, it } from "vitest";
++import type { Post } from "../types";
++import { summarizePostCounts } from "./PostListPage";
++
++function post(status: Post["status"]): Post {
++  return {
++    id: 1,
++    siteId: 1,
++    title: "Untitled",
++    slug: "untitled",
++    body: "",
++    status,
++    createdAt: "2026-01-01T00:00:00.000Z",
++    updatedAt: "2026-01-01T00:00:00.000Z",
++  };
++}
++
++describe("summarizePostCounts", () => {
++  it("counts an empty list as zero of everything", () => {
++    expect(summarizePostCounts([])).toEqual({ total: 0, published: 0, draft: 0 });
++  });
++
++  it("splits posts into published and draft", () => {
++    const posts = [post("published"), post("draft"), post("published"), post("draft")];
++
++    expect(summarizePostCounts(posts)).toEqual({ total: 4, published: 2, draft: 2 });
++  });
++});
+diff --git a/src/routes/PostListPage.tsx b/src/routes/PostListPage.tsx
+index 25fcd08..806446b 100644
+--- a/src/routes/PostListPage.tsx
++++ b/src/routes/PostListPage.tsx
+@@ -3,11 +3,25 @@ import { Link, useParams } from "react-router";
+ import { Card } from "../components/Card/Card";
+ import { cx } from "../lib/class-names";
+ import { getPostListQueryOptions } from "../queries/posts/post-list-query";
++import type { Post } from "../types";
+ import css from "./PostListPage.module.css";
+ 
++interface PostCounts {
++  readonly total: number;
++  readonly published: number;
++  readonly draft: number;
++}
++
++/** Counts a site's posts by status — the post list already carries everything this needs. */
++export function summarizePostCounts(posts: readonly Post[]): PostCounts {
++  const published = posts.filter((post) => post.status === "published").length;
++  return { total: posts.length, published, draft: posts.length - published };
++}
++
+ export function PostListPage() {
+   const { siteSlug = "" } = useParams();
+   const postsQuery = useQuery(getPostListQueryOptions(siteSlug));
++  const counts = postsQuery.isSuccess ? summarizePostCounts(postsQuery.data) : undefined;
+ 
+   return (
+     <section>
+@@ -23,29 +37,34 @@ export function PostListPage() {
+         <p>This site doesn't have any posts yet.</p>
+       )}
+ 
+-      {postsQuery.isSuccess && postsQuery.data.length > 0 && (
+-        <ul className={css.list} aria-label="Posts">
+-          {postsQuery.data.map((post) => (
+-            <li key={post.id}>
+-              <Link to={`/sites/${siteSlug}/posts/${post.id}`} className={css.cardLink}>
+-                <Card>
+-                  <p className={css.title}>{post.title}</p>
+-                  <div className={css.meta}>
+-                    <span
+-                      className={cx(
+-                        css.status,
+-                        post.status === "published" ? css.statusPublished : css.statusDraft,
+-                      )}
+-                    >
+-                      {post.status}
+-                    </span>
+-                    <span>Updated {new Date(post.updatedAt).toLocaleDateString()}</span>
+-                  </div>
+-                </Card>
+-              </Link>
+-            </li>
+-          ))}
+-        </ul>
++      {counts && postsQuery.isSuccess && postsQuery.data.length > 0 && (
++        <>
++          <p className={css.stats}>
++            {counts.published} published · {counts.draft} {counts.draft === 1 ? "draft" : "drafts"}
++          </p>
++          <ul className={css.list} aria-label="Posts">
++            {postsQuery.data.map((post) => (
++              <li key={post.id}>
++                <Link to={`/sites/${siteSlug}/posts/${post.id}`} className={css.cardLink}>
++                  <Card>
++                    <p className={css.title}>{post.title}</p>
++                    <div className={css.meta}>
++                      <span
++                        className={cx(
++                          css.status,
++                          post.status === "published" ? css.statusPublished : css.statusDraft,
++                        )}
++                      >
++                        {post.status}
++                      </span>
++                      <span>Updated {new Date(post.updatedAt).toLocaleDateString()}</span>
++                    </div>
++                  </Card>
++                </Link>
++              </li>
++            ))}
++          </ul>
++        </>
+       )}
+     </section>
+   );

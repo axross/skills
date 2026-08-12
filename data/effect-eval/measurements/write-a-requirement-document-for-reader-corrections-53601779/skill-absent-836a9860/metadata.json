@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-08-12T06:33:04Z",
+  "trigger": {
+    "kind": "github-actions",
+    "url": "https://github.com/axross/skills/actions/runs/31569705054"
+  },
+  "instrument": {
+    "commit": "8a8615ce7b85b4e50eb5126d6ede01efb4bd86f1",
+    "node": "v26.7.0",
+    "os": "Linux"
+  },
+  "cliExitCode": 0,
+  "configuration": {
+    "runtime": {
+      "name": "claude-code",
+      "version": "2.1.220",
+      "options": {
+        "maxTurns": 100,
+        "settingSources": [
+          "project"
+        ],
+        "allowedTools": [
+          "Bash",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Read",
+          "Skill",
+          "TodoWrite",
+          "Write"
+        ],
+        "disallowedTools": [
+          "Agent",
+          "NotebookEdit",
+          "Task",
+          "WebFetch",
+          "WebSearch"
+        ],
+        "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+      }
+    },
+    "model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "options": {}
+    },
+    "project": {
+      "name": "tsuzuri",
+      "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
+      "commit": "64cec1276b77b99b05d490cafc3654bfcfe30133"
+    },
+    "skills": {},
+    "task": {
+      "prompt": "I want to let readers leave a short correction on a post — a typo, a broken link, that kind of thing. Write up what we'd be building before anyone starts on it."
+    }
+  }
+}

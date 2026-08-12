@@ -59,7 +59,17 @@ export const SITUATED_DISALLOWED_TOOLS = [
 /**
  * denied in every bare probe: everything situated denies, plus Read/Glob/Grep
  * — a bare workspace holds no project worth reading, and denying them again
- * here is defence in depth rather than reliance on there being nothing to find.
+ * here is defence in depth rather than reliance on there being nothing to
+ * find — and ToolSearch, which `allowedTools: ["Skill"]` alone did not keep
+ * out of a bare probe: measured records from a real dispatch show three of
+ * twelve bare probes spending their one turn on a `ToolSearch` call instead
+ * of `Skill`, burning the turn cap on a tool this evaluation was never meant
+ * to expose. Declaring it here has not been re-measured against a live probe
+ * — that would spend money this change does not authorize — but the
+ * installed CLI's own tool-search gate reads a tool named `ToolSearch` off
+ * the set it was actually given and logs "may have been disallowed via
+ * disallowedTools" as the reason once that name is absent from it, which is
+ * exactly the mechanism this declaration relies on.
  */
 export const BARE_DISALLOWED_TOOLS = [
   "Agent",
@@ -71,6 +81,7 @@ export const BARE_DISALLOWED_TOOLS = [
   "Read",
   "Task",
   "TodoWrite",
+  "ToolSearch",
   "WebFetch",
   "WebSearch",
   "Write",
@@ -262,7 +273,8 @@ export function runProbe(configuration, { workspace, dryRun = false }) {
   }
   // a non-zero exit is expected here exactly as on the effect side: a
   // legitimately long situated run can end in error_max_turns, and a bare
-  // probe's single turn is not guaranteed to end in a tool call. the stream
-  // is complete either way, so the exit code is diagnostic, never failure.
+  // probe is not guaranteed to spend its turn cap on a tool call at all. the
+  // stream is complete either way, so the exit code is diagnostic, never
+  // failure.
   return { rawStdout: result.stdout, cliExitCode: result.status, argv };
 }
