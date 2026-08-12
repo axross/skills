@@ -7,7 +7,7 @@
 // ONE ADDITION THIS INSTRUMENT'S TWO PROBE SHAPES FORCE: the fixture's
 // unmeasuredProbeCostCeilingUsd is PER MODE (src/plan.mjs's MODES), not one
 // figure. A situated probe (a runaway turn guard, Read/Glob/Grep permitted)
-// and a bare probe (one turn, Skill only) cost roughly an order of magnitude
+// and a bare probe (two turns, Skill only) cost roughly an order of magnitude
 // apart, so projecting either at the other's figure is a category error —
 // see data/discovery-eval/README.md's "capUsd and
 // unmeasuredProbeCostCeilingUsd". `ceilingFor` resolves the fixture's

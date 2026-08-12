@@ -9,7 +9,8 @@
 //              ci` — the editing and shell tools are denied, so nothing a
 //              probe does can depend on a dependency being installed.
 //   bare       a scratch workspace holding `.claude/skills` and nothing
-//              else — no project, no AGENTS.md — one turn, Skill only.
+//              else — no project, no AGENTS.md — Skill only, capped at
+//              BARE_TURN_CAP turns (2: one to select, one the cap absorbs).
 //
 // a case declaring no `mock` is bare by construction: situating removes the
 // very thing its prompt is about (see data/discovery-eval/fixture.json's
@@ -27,8 +28,19 @@ export const SITUATED_ALLOWED_TOOLS = ["Read", "Glob", "Grep", "Skill"];
 /** bare tools: the prompt is all the information there is. */
 export const BARE_ALLOWED_TOOLS = ["Skill"];
 
-/** bare mode's terminal state is always a completed single turn. */
-export const BARE_TURN_CAP = 1;
+/**
+ * bare mode's turn cap. 2, not 1: measured turn accounting shows a probe that
+ * calls any tool reports `num_turns: 2` (the call itself is one turn, the
+ * model's follow-up is the next), so a 1-turn cap could only ever end a
+ * transcript that called nothing — a bare probe that selected a skill was
+ * cut off by construction before it could report success. Raising the cap to
+ * 2 lets a bare probe that calls `Skill` once terminate `success` instead of
+ * `error_max_turns`, without opening room for a second, unrelated tool call —
+ * see signals.mjs's header for how a probe that still lands on
+ * `error_max_turns` (say, from a tool call the cap does not expect) is read
+ * once it has already selected something.
+ */
+export const BARE_TURN_CAP = 2;
 
 /**
  * PROVISIONAL. the plan this instrument was built from says so explicitly:

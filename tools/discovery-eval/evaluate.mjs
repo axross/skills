@@ -12,7 +12,7 @@
 // situated: a materialized mock, the whole skill corpus installed, Read,
 // Glob, Grep and Skill permitted, a runaway turn guard. A case declaring
 // none runs bare: a scratch workspace holding `.claude/skills` and nothing
-// else, Skill only, one turn. `--head-skills` forces bare regardless of what
+// else, Skill only, two turns. `--head-skills` forces bare regardless of what
 // the case declares — see src/plan.mjs and src/head-overlay.mjs.
 //
 // `--head-skills` NEVER RECORDS. Staging a pull request's head SKILL.md text

@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b77fa9c7dc7b97fc133bf68646e9eff486309b0ae703259d461b593945b8fb4b"
+      "computedHash": "fe5f84d80d1837ed50e207bbb2969744e9ca27a803f04a0492ffdf7edc96c98b"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -61,10 +61,10 @@
       "sourceType": "local",
       "computedHash": "1210ee0238b9d551fdac23da577f42139c8e45f8245df7908dad7f06d7b749d3"
     },
-    "living-product-specification": {
+    "living-project-documentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "64e960e24220224b3f66d41967dfc9e6586993e4495b9bd5103110d779e77dec"
+      "computedHash": "d7d110990a78e60bc5880c15f8c71768a5d383523522237406e93561eb78e6b9"
     },
     "loop-engineering": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "da4a8a228ad34c27b3eed54e17d6254f886b808a775f93d4858a78bf8092d957"
+      "computedHash": "96bcc17a2ddafaff8f75cdd2cdc3993d347b39a4d447798a448e61b9e4dc03f4"
     },
     "software-instrumentation": {
       "source": "./skills",
