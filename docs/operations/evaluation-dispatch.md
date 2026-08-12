@@ -64,9 +64,19 @@ per-probe ceiling where they do not — a ceiling per probe mode on the
 discovery side, since a situated probe and a bare one cost about an order of
 magnitude apart. A projection over the cap refuses the run and nothing
 downstream runs, so a dispatch that does not fit its cap costs nothing. Until
-a case has been measured its projection rests on the ceiling, which is
-deliberately above what a probe should cost, so an early dispatch is priced
+a case has been measured its projection rests on the ceiling, which is meant
+to be declared above what a probe should cost, so an early dispatch is priced
 pessimistically on purpose.
+
+**That is the direction a ceiling is declared in, not a property admission can
+enforce.** Nothing checks a declared ceiling against reality until a
+measurement arrives to supersede it, so a ceiling set too low prices an early
+dispatch optimistically and admits a run that should have been refused. The
+discovery fixture's bare ceiling was in exactly that state for the whole run
+that first measured it — `0.05` declared against $0.0770 measured, recorded
+in [`data/discovery-eval/README.md`](../../data/discovery-eval/README.md).
+Read a ceiling as an unverified declaration by whoever wrote it, and check it
+against the first measurement that supersedes it.
 
 ## The Measurement Pull Request Is Checked by the Dispatch, Not by `merge-checks.yaml`
 

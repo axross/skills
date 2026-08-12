@@ -1,5 +1,2212 @@
 {
-  "measurementCount": 0,
-  "comparableCount": 0,
-  "measurements": []
+  "measurementCount": 40,
+  "comparableCount": 40,
+  "measurements": [
+    {
+      "measurement": "accept-a-page-number-from-a-url-70e19ac8",
+      "case": "accept-a-page-number-from-a-url",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.4574835,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "adopt-a-package-that-ships-only-modern-modules-5ba81083",
+      "case": "adopt-a-package-that-ships-only-modern-modules",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.43946260000000004,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "agree-a-plan-before-writing-code-91256a8c",
+      "case": "agree-a-plan-before-writing-code",
+      "population": "mandated",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.2097847,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "loop-engineering",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "agree-a-scheme-for-what-we-record-d36f8b2f",
+      "case": "agree-a-scheme-for-what-we-record",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.5029622,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "block-out-a-screen-before-arguing-about-colour-32860c3a",
+      "case": "block-out-a-screen-before-arguing-about-colour",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.3421067,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "wireframe-design",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "break-up-logic-that-has-grown-hard-to-follow-869d126a",
+      "case": "break-up-logic-that-has-grown-hard-to-follow",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.340952,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "code-maintainability",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "broaden-a-suite-that-barely-touches-the-site-4fd84bf0",
+      "case": "broaden-a-suite-that-barely-touches-the-site",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.4993192,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "end-to-end-testing",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "choose-the-level-a-retry-is-logged-at-1e59ffd9",
+      "case": "choose-the-level-a-retry-is-logged-at",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.2422208,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "software-instrumentation",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "clean-out-config-options-the-runner-ignores-fd799421",
+      "case": "clean-out-config-options-the-runner-ignores",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.8015213,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:6dc60ad562d25a8ce09f496cf8e292c4c22a8bf59aa76ca44034f8770b7cac95"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "decide-what-tests-for-an-untested-module-should-check-4036f446",
+      "case": "decide-what-tests-for-an-untested-module-should-check",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.3217483,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "unit-testing",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "decide-where-a-requirement-is-recorded-2cd10875",
+      "case": "decide-where-a-requirement-is-recorded",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.2182574,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "product-requirement-document-authoring",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "decide-where-a-rollback-procedure-is-written-down-e55c38da",
+      "case": "decide-where-a-rollback-procedure-is-written-down",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.4279114999999999,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "spurious",
+          "skill": "living-product-specification",
+          "hits": 2,
+          "repeats": 2
+        },
+        {
+          "kind": "miss",
+          "skill": "technical-document-authoring",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "edit-an-issue-body-without-destroying-it-59369ca0",
+      "case": "edit-an-issue-body-without-destroying-it",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.155683,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 1,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "explain-why-we-are-asking-for-the-camera-341b4490",
+      "case": "explain-why-we-are-asking-for-the-camera",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.6294992000000001,
+      "workspace": {
+        "mode": "situated",
+        "mock": "recall",
+        "tree": "sha256:7c6adf9f48e131555e429034a1f4e7ad6910faa1409ca344ee774d30d0b1d4c9"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "find-out-how-to-run-this-projects-checks-dd294c28",
+      "case": "find-out-how-to-run-this-projects-checks",
+      "population": "mandated",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.2731888,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "software-development",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "get-readable-names-back-in-a-production-error-1538bca6",
+      "case": "get-readable-names-back-in-a-production-error",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.6599624,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:6cbc68ad2db31ba22ef66456948dda9c99d37b0e1a229782674c93cd0d72b69b"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "invalidate-a-stale-list-after-a-write-2aa792e3",
+      "case": "invalidate-a-stale-list-after-a-write",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.9290488999999998,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "judge-whether-a-change-was-actually-checked-820959ad",
+      "case": "judge-whether-a-change-was-actually-checked",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 1,
+      "totalCostUsd": 0.1552999,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 1,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "quality-assurance",
+          "hits": 0,
+          "repeats": 1
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "keep-a-new-field-alongside-what-is-already-stored-d05742c6",
+      "case": "keep-a-new-field-alongside-what-is-already-stored",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.6157984999999999,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "keep-the-docs-true-after-changing-behaviour-47fe4d9f",
+      "case": "keep-the-docs-true-after-changing-behaviour",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.415271,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "living-product-specification",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "map-the-path-a-new-author-takes-c5153f5a",
+      "case": "map-the-path-a-new-author-takes",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 1.3462689000000003,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "open-the-app-straight-onto-one-deck-c7f6d21c",
+      "case": "open-the-app-straight-onto-one-deck",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.8450248999999999,
+      "workspace": {
+        "mode": "situated",
+        "mock": "recall",
+        "tree": "sha256:074b9b863102a92d0fa88d1d84a9c82bee95e0daf167765b4c77c3e527331bc8"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "pin-down-the-shape-of-a-language-tag-17e34343",
+      "case": "pin-down-the-shape-of-a-language-tag",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.5102556,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "publish-an-edit-without-a-redeploy-8fff932a",
+      "case": "publish-an-edit-without-a-redeploy",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.4604356,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "pull-repeated-screen-logic-into-one-place-bd3776b9",
+      "case": "pull-repeated-screen-logic-into-one-place",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.3038036,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "react-component-development",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "reconcile-an-installed-copy-with-its-source-4a144eff",
+      "case": "reconcile-an-installed-copy-with-its-source",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.15176,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 1,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "record-part-of-what-people-do-without-recording-everyone-9fb6e9b3",
+      "case": "record-part-of-what-people-do-without-recording-everyone",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.5270357,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "spurious",
+          "skill": "sentry-instrumentation",
+          "hits": 2,
+          "repeats": 2
+        },
+        {
+          "kind": "miss",
+          "skill": "amplitude-instrumentation",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "render-reader-supplied-text-safely-79cdd3c8",
+      "case": "render-reader-supplied-text-safely",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.43490249999999997,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "application-security",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "replace-a-conditional-style-with-a-proper-variant-52ef5f80",
+      "case": "replace-a-conditional-style-with-a-proper-variant",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.4019342,
+      "workspace": {
+        "mode": "situated",
+        "mock": "recall",
+        "tree": "sha256:7a98ffd417bfcb64da122534a6988bdf0b33a03153c0fad0ac21363b467caa8d"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "review-what-changed-on-this-branch-7d99d730",
+      "case": "review-what-changed-on-this-branch",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.151751,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 1,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "say-what-you-do-not-know-before-answering-bdf422f3",
+      "case": "say-what-you-do-not-know-before-answering",
+      "population": "mandated",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.35597059999999997,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "professional-behavior",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "stop-a-real-browser-test-failing-at-random-ca073d8e",
+      "case": "stop-a-real-browser-test-failing-at-random",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.8017835000000001,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:fcb2898a635cd7aad8db4c0253a2cbae3128c7cb5a21dd92f0347dbe077ce841"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "vitest-testing",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "stop-a-submission-from-trusting-its-caller-42a2be20",
+      "case": "stop-a-submission-from-trusting-its-caller",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.2816355,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "next-app-development",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "stop-the-analytics-identity-rotating-every-launch-6139e010",
+      "case": "stop-the-analytics-identity-rotating-every-launch",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.8106088,
+      "workspace": {
+        "mode": "situated",
+        "mock": "recall",
+        "tree": "sha256:b6dc2971620d987df8f5a258e35b15980a1f93ced8a7e01f9e1cef3cd731f4b8"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "amplitude-instrumentation",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "stop-two-sites-sharing-one-cached-list-cf650337",
+      "case": "stop-two-sites-sharing-one-cached-list",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.6928125,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:674fdb248474a0226457443503d6a8265b12056108db174909f0a05f6f5dc3b0"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "tanstack-query-development",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "stop-writing-the-same-colours-out-everywhere-915b876a",
+      "case": "stop-writing-the-same-colours-out-everywhere",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.4462387,
+      "workspace": {
+        "mode": "situated",
+        "mock": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "high-fidelity-ui-design",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "tighten-a-skill-description-without-losing-routing-dfcf2192",
+      "case": "tighten-a-skill-description-without-losing-routing",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.1505949,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 1,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "turn-a-settled-layout-into-a-real-screen-7b82d44b",
+      "case": "turn-a-settled-layout-into-a-real-screen",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.4629594,
+      "workspace": {
+        "mode": "situated",
+        "mock": "recall",
+        "tree": "sha256:074b9b863102a92d0fa88d1d84a9c82bee95e0daf167765b4c77c3e527331bc8"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "high-fidelity-ui-design",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "write-the-commit-message-for-this-change-0156d2f9",
+      "case": "write-the-commit-message-for-this-change",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 0,
+      "totalCostUsd": 0.15885300000000002,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 1,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    },
+    {
+      "measurement": "write-up-a-feature-before-anyone-builds-it-eb8a9808",
+      "case": "write-up-a-feature-before-anyone-builds-it",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.26795599999999997,
+      "workspace": {
+        "mode": "situated",
+        "mock": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 40,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "NotebookEdit",
+            "Task",
+            "TodoWrite",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "technical-document-authoring",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "no prior measurement of this case exists yet"
+      }
+    }
+  ]
 }
