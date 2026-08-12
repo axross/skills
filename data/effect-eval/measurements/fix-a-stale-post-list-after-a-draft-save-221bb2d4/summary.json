@@ -1,0 +1,469 @@
+{
+  "case": {
+    "prompt": "Saving a draft leaves the title and timestamp on the site's post list stale until something else happens to refetch it."
+  },
+  "project": {
+    "name": "inkwell",
+    "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+    "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ],
+      "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"tanstack-query-development\":\"sha256:4daf1ab2960d8d28e5c78088afed6f9e2c060e8eddfe5c917929ea980d26c773\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"Saving a draft leaves the title and timestamp on the site's post list stale until something else happens to refetch it.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 2.342827,
+  "probes": [
+    {
+      "probe": "skill-absent-12daaf4e",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 13,
+      "truncated": false,
+      "costUsd": 0.2015927,
+      "usage": {
+        "input": 34,
+        "output": 182,
+        "cacheCreation": 39253,
+        "cacheRead": 560354,
+        "messages": 17
+      },
+      "toolCalls": 12,
+      "filesRead": [
+        "/tmp/effect-eval-8klEuD/src/queries/posts/post-save-mutation.ts",
+        "/tmp/effect-eval-8klEuD/src/queries/posts/post-publish-mutation.ts",
+        "/tmp/effect-eval-8klEuD/src/queries/posts/post-list-query.ts",
+        "/tmp/effect-eval-8klEuD/src/queries/posts/post-query.ts",
+        "/tmp/effect-eval-8klEuD/src/queries/posts/post-query-keys.test.ts",
+        "/tmp/effect-eval-8klEuD/src/types.ts",
+        "/tmp/effect-eval-8klEuD/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-8klEuD/src/lib/api.ts"
+      ],
+      "commandsRun": [
+        "find . -path ./node_modules -prune -o -type f -print | grep -v -E 'node_modules|\\.git/' | sort",
+        "npx tsc --noEmit -p tsconfig.app.json 2>&1 | head -50",
+        "npx vitest run src/queries 2>&1 | tail -60"
+      ],
+      "ranTests": true,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "src/queries/posts/post-save-mutation.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-2b8116d9",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 27,
+      "truncated": false,
+      "costUsd": 0.5239214,
+      "usage": {
+        "input": 84,
+        "output": 256,
+        "cacheCreation": 59861,
+        "cacheRead": 1673739,
+        "messages": 42
+      },
+      "toolCalls": 26,
+      "filesRead": [
+        "/tmp/effect-eval-qHD1TP/src/queries/posts/post-save-mutation.ts",
+        "/tmp/effect-eval-qHD1TP/src/queries/posts/post-publish-mutation.ts",
+        "/tmp/effect-eval-qHD1TP/src/queries/posts/post-list-query.ts",
+        "/tmp/effect-eval-qHD1TP/src/queries/posts/post-query.ts",
+        "/tmp/effect-eval-qHD1TP/src/queries/posts/post-query-keys.test.ts",
+        "/tmp/effect-eval-qHD1TP/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-qHD1TP/src/routes/PostEditorPage.tsx",
+        "/tmp/effect-eval-qHD1TP/src/types.ts",
+        "/tmp/effect-eval-qHD1TP/src/lib/api.ts",
+        "/tmp/effect-eval-qHD1TP/src/lib/api.test.ts"
+      ],
+      "commandsRun": [
+        "find . -path ./node_modules -prune -o -type f -print | grep -v node_modules | grep -v '.git/' | sort",
+        "cat package.json | grep -A20 '\"scripts\"'",
+        "npm run typecheck 2>&1 | tail -40",
+        "npm test 2>&1 | tail -60",
+        "grep -rl \"mutationOptions\\|queryClient\" src/queries src/lib --include=\"*.test.ts\" 2>/dev/null; echo \"---\"; cat src/lib/queryClient.ts",
+        "grep -rn \"mutationOptions\" node_modules/@tanstack/query-core/build/legacy/*.d.ts node_modules/@tanstack/react-query/build/legacy/*.d.ts 2>/dev/null | head -20",
+        "grep -E \"testing-library|jsdom|happy-dom\" package.json; echo ---; cat vitest.config.ts",
+        "npx vitest run --project unit src/queries/posts/post-save-mutation.test.ts 2>&1 | tail -60",
+        "npm test 2>&1 | tail -20 && npm run typecheck 2>&1 | tail -20 && npm run lint 2>&1 | tail -40",
+        "npm run format:check 2>&1 | tail -30",
+        "npx prettier --write src/queries/posts/post-save-mutation.test.ts && npm run format:check 2>&1 | tail -10"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": true,
+      "changedPaths": [
+        "src/queries/posts/post-save-mutation.test.ts",
+        "src/queries/posts/post-save-mutation.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-d6878dd8",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 15,
+      "truncated": false,
+      "costUsd": 0.2524438,
+      "usage": {
+        "input": 42,
+        "output": 170,
+        "cacheCreation": 43874,
+        "cacheRead": 728150,
+        "messages": 21
+      },
+      "toolCalls": 14,
+      "filesRead": [
+        "/tmp/effect-eval-LheRF3/src/queries/posts/post-save-mutation.ts",
+        "/tmp/effect-eval-LheRF3/src/queries/posts/post-publish-mutation.ts",
+        "/tmp/effect-eval-LheRF3/src/queries/posts/post-list-query.ts",
+        "/tmp/effect-eval-LheRF3/src/queries/posts/post-query.ts",
+        "/tmp/effect-eval-LheRF3/src/queries/posts/post-query-keys.test.ts",
+        "/tmp/effect-eval-LheRF3/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-LheRF3/src/types.ts",
+        "/tmp/effect-eval-LheRF3/src/routes/PostEditorPage.tsx"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-LheRF3/src -type f -name \"*.ts*\" | xargs -I{} echo {} | sort",
+        "grep -n \"savePost\\|listPosts\\|getPost\\b\" -A 5 /tmp/effect-eval-LheRF3/src/lib/api.ts",
+        "cat package.json | grep -A 15 '\"scripts\"'",
+        "npm run typecheck 2>&1 | tail -40",
+        "npx vitest run src/queries 2>&1 | tail -40"
+      ],
+      "ranTests": true,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "src/queries/posts/post-save-mutation.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-3080ce34",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "tanstack-query-development"
+      ],
+      "turns": 20,
+      "truncated": false,
+      "costUsd": 0.392179,
+      "usage": {
+        "input": 55,
+        "output": 182,
+        "cacheCreation": 91560,
+        "cacheRead": 1136861,
+        "messages": 29
+      },
+      "toolCalls": 18,
+      "filesRead": [
+        "/tmp/effect-eval-5rX8ip/src/queries/posts/post-save-mutation.ts",
+        "/tmp/effect-eval-5rX8ip/src/queries/posts/post-publish-mutation.ts",
+        "/tmp/effect-eval-5rX8ip/src/queries/posts/post-list-query.ts",
+        "/tmp/effect-eval-5rX8ip/src/queries/posts/post-query.ts",
+        "/tmp/effect-eval-5rX8ip/src/types.ts",
+        "/tmp/effect-eval-5rX8ip/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-5rX8ip/src/routes/PostEditorPage.tsx",
+        "/tmp/effect-eval-5rX8ip/src/queries/posts/post-query-keys.test.ts",
+        "/tmp/effect-eval-5rX8ip/src/lib/api.ts"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-5rX8ip/src -type f | sort",
+        "cat /tmp/effect-eval-5rX8ip/.claude/skills/tanstack-query-development/references/cache-invalidation.md",
+        "cat /tmp/effect-eval-5rX8ip/.claude/skills/tanstack-query-development/references/seeding-the-cache.md",
+        "find . -iname \"*post-save*\" -o -iname \"*post-publish*\" | grep -v node_modules",
+        "cat package.json | grep -A 20 '\"scripts\"'",
+        "npm run typecheck 2>&1 | tail -40 && echo \"---LINT---\" && npm run lint 2>&1 | tail -40 && echo \"---TEST---\" && npm test 2>&1 | tail -60",
+        "git diff --stat && echo \"---\" && git diff"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "src/queries/posts/post-save-mutation.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-bee07478",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "tanstack-query-development"
+      ],
+      "turns": 29,
+      "truncated": false,
+      "costUsd": 0.5842937,
+      "usage": {
+        "input": 84,
+        "output": 224,
+        "cacheCreation": 80358,
+        "cacheRead": 1874442,
+        "messages": 43
+      },
+      "toolCalls": 27,
+      "filesRead": [
+        "/tmp/effect-eval-7ff0RP/src/queries/posts/post-save-mutation.ts",
+        "/tmp/effect-eval-7ff0RP/src/queries/posts/post-publish-mutation.ts",
+        "/tmp/effect-eval-7ff0RP/src/queries/posts/post-list-query.ts",
+        "/tmp/effect-eval-7ff0RP/src/queries/posts/post-query.ts",
+        "/tmp/effect-eval-7ff0RP/src/types.ts",
+        "/tmp/effect-eval-7ff0RP/src/lib/api.ts",
+        "/tmp/effect-eval-7ff0RP/src/queries/posts/post-query-keys.test.ts",
+        "/tmp/effect-eval-7ff0RP/src/queries/sites/sites-query.ts",
+        "/tmp/effect-eval-7ff0RP/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-7ff0RP/src/routes/PostEditorPage.tsx",
+        "/tmp/effect-eval-7ff0RP/src/lib/queryClient.ts",
+        "/tmp/effect-eval-7ff0RP/.claude/skills/tanstack-query-development/references/cache-invalidation.md",
+        "/tmp/effect-eval-7ff0RP/src/lib/api.test.ts",
+        "/tmp/effect-eval-7ff0RP/.claude/skills/tanstack-query-development/references/testing.md"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-7ff0RP/src -type f -name \"*.ts*\" | xargs ls",
+        "find /tmp/effect-eval-7ff0RP/src/queries -iname \"*save*\"",
+        "find /tmp/effect-eval-7ff0RP/src/queries -iname \"*publish*\" -o -iname \"*.test.*\" | sort",
+        "cat /tmp/effect-eval-7ff0RP/package.json",
+        "npx vitest run src/queries/posts/post-save-mutation.test.ts src/queries/posts/post-query-keys.test.ts 2>&1 | tail -60",
+        "npm run typecheck 2>&1 | tail -40",
+        "npm run lint 2>&1 | tail -60",
+        "npm test 2>&1 | tail -80",
+        "npm run format:check 2>&1 | tail -40",
+        "npx prettier --write src/queries/posts/post-save-mutation.test.ts src/queries/posts/post-save-mutation.ts && npm run format:check 2>&1 | tail -20"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": true,
+      "changedPaths": [
+        "src/queries/posts/post-save-mutation.test.ts",
+        "src/queries/posts/post-save-mutation.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-c98e0ff9",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "tanstack-query-development"
+      ],
+      "turns": 20,
+      "truncated": false,
+      "costUsd": 0.3883964000000001,
+      "usage": {
+        "input": 52,
+        "output": 217,
+        "cacheCreation": 60193,
+        "cacheRead": 1095900,
+        "messages": 27
+      },
+      "toolCalls": 18,
+      "filesRead": [
+        "/tmp/effect-eval-QwbURg/src/queries/posts/post-save-mutation.ts",
+        "/tmp/effect-eval-QwbURg/src/queries/posts/post-publish-mutation.ts",
+        "/tmp/effect-eval-QwbURg/src/queries/posts/post-list-query.ts",
+        "/tmp/effect-eval-QwbURg/src/queries/posts/post-query.ts",
+        "/tmp/effect-eval-QwbURg/src/types.ts",
+        "/tmp/effect-eval-QwbURg/src/lib/api.ts",
+        "/tmp/effect-eval-QwbURg/src/routes/PostEditorPage.tsx",
+        "/tmp/effect-eval-QwbURg/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-QwbURg/.claude/skills/tanstack-query-development/references/cache-invalidation.md"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-QwbURg/src -type f | sort",
+        "find /tmp/effect-eval-QwbURg/.claude/skills/tanstack-query-development/references -iname \"*invalidation*\" -o -iname \"*seeding*\"",
+        "cat package.json | grep -A5 '\"scripts\"'",
+        "cat package.json | grep -A15 '\"scripts\"'",
+        "npm run typecheck 2>&1 | tail -50",
+        "npm run lint 2>&1 | tail -60",
+        "npm run test 2>&1 | tail -80"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": false,
+      "changedPaths": [
+        "src/queries/posts/post-save-mutation.ts"
+      ],
+      "endedAwaitingDecision": false
+    }
+  ]
+}

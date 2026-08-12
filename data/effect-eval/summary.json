@@ -1,7 +1,97 @@
 {
-  "measurementCount": 4,
-  "comparableCount": 4,
+  "measurementCount": 13,
+  "comparableCount": 13,
   "measurements": [
+    {
+      "measurement": "add-a-reduced-motion-guard-to-the-publish-toast-86fa4309",
+      "case": "add-a-reduced-motion-guard-to-the-publish-toast",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 1.2101283999999999,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+        "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "add-a-running-count-to-the-author-identify-call-3eda85c0",
+      "case": "add-a-running-count-to-the-author-identify-call",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 1.8286504,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+        "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
     {
       "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
       "case": "add-unit-tests-for-an-untested-module",
@@ -43,6 +133,96 @@
             "WebFetch",
             "WebSearch"
           ]
+        }
+      }
+    },
+    {
+      "measurement": "add-validation-for-a-posts-language-tag-a0ed343d",
+      "case": "add-validation-for-a-posts-language-tag",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 4.329742800000001,
+      "project": {
+        "name": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
+        "commit": "64cec1276b77b99b05d490cafc3654bfcfe30133"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "extract-shared-loading-and-error-handling-across-screens-b89d904a",
+      "case": "extract-shared-loading-and-error-handling-across-screens",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 0.9279569,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+        "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
         }
       }
     },
@@ -136,11 +316,236 @@
       }
     },
     {
-      "measurement": "write-end-to-end-coverage-for-a-post-page-41cd63af",
-      "case": "write-end-to-end-coverage-for-a-post-page",
+      "measurement": "fix-a-stale-post-list-after-a-draft-save-221bb2d4",
+      "case": "fix-a-stale-post-list-after-a-draft-save",
       "comparable": true,
       "probeCount": 6,
-      "totalCostUsd": 7.792755199999999,
+      "totalCostUsd": 2.342827,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+        "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "fix-drafts-that-save-without-any-confirmation-414cbde6",
+      "case": "fix-drafts-that-save-without-any-confirmation",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 2.1999495,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+        "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "migrate-a-card-id-helper-to-an-esm-only-package-ce13501f",
+      "case": "migrate-a-card-id-helper-to-an-esm-only-package",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 2.9297805000000006,
+      "project": {
+        "name": "recall",
+        "tree": "sha256:126e25d578011bf07aa36de1500d0d060fc4e1833e726f0019b05704b6070fd1",
+        "commit": "abd99018d0e3a94ccb102d7231ad38ea37fdfc01"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "remove-config-options-the-test-runner-ignores-b2e5e389",
+      "case": "remove-config-options-the-test-runner-ignores",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 4.1247967,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:6dc60ad562d25a8ce09f496cf8e292c4c22a8bf59aa76ca44034f8770b7cac95",
+        "commit": "e4e128e42c80d775b760aadf5af412be2aa6ddf8"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "rename-analytics-events-to-one-scheme-a0ee8536",
+      "case": "rename-analytics-events-to-one-scheme",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 1.5141609000000003,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+        "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "write-a-custom-not-found-page-42087250",
+      "case": "write-a-custom-not-found-page",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 2.6920205999999998,
       "project": {
         "name": "tsuzuri",
         "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",

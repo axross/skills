@@ -18,14 +18,29 @@
 // appear in an effect-eval workspace's tool posture at all, so that reading
 // lives here rather than widening a module the other evaluation depends on.
 //
-// A PROBE THAT TERMINATES ON `error_max_turns` IS MARKED UNREADABLE, NOT
-// COUNTED AS SELECTING NOTHING. the runaway guard binding means the model was
-// still working when the CLI cut it off — a zero-hit reading of that probe
-// would misreport "found nothing" as an outcome the probe never reached.
-// `selectedSkills` is `null` in that case, matching this codebase's existing
-// idiom for "the stream did not say" (tools/lib/transcript/parse.mjs's
-// `loadedSkills`): a caller that tallies hits must never fold `null` into a
-// count of zero.
+// A PROBE THAT TERMINATES ON `error_max_turns` HAVING SELECTED NOTHING IS
+// MARKED UNREADABLE, NOT COUNTED AS SELECTING NOTHING. the runaway guard
+// binding means the model was still working when the CLI cut it off — a
+// zero-hit reading of that probe would misreport "found nothing" as an
+// outcome the probe never reached. `selectedSkills` is `null` in that case,
+// matching this codebase's existing idiom for "the stream did not say"
+// (tools/lib/transcript/parse.mjs's `loadedSkills`): a caller that tallies
+// hits must never fold `null` into a count of zero.
+//
+// A PROBE THAT TERMINATES ON `error_max_turns` HAVING ALREADY SELECTED A
+// SKILL IS READABLE, carrying the selection(s) it made. The reasoning above
+// holds for a guard that fires while the model is still exploring — a
+// situated probe cut off mid-search has not yet answered, so a zero-hit
+// reading would misreport work in progress as a conclusion. It stops holding
+// once a `Skill` call is already on the tape: the selection happened, and the
+// cap firing on a later turn does not undo it. Discarding a decision the
+// transcript plainly recorded would not be caution, it would be data loss —
+// and it is exactly what plan.mjs's `BARE_TURN_CAP` raise from 1 to 2 exists
+// to stop being structural: a bare probe that calls `Skill` spends its first
+// turn doing so and is cut off on the very next one regardless, so under the
+// old 1-turn cap every bare selection was unreadable not because the model
+// failed to decide, but because the instrument never gave a completed
+// decision anywhere to land.
 
 import { readEvents, toolUseBlocks } from "../../lib/transcript/index.mjs";
 
@@ -149,22 +164,27 @@ export function extractSignals(transcriptText) {
   }
 
   const terminalReason = !sawResult ? "unknown" : truncated ? "error_max_turns" : "success";
-  // only a clean "success" is readable. "error_max_turns" is the runaway
-  // guard binding — see this module's header. "unknown" means the stream
-  // carried no result event at all (a crashed or truncated spawn), which is
-  // weaker evidence still, so it gets the same unreadable treatment rather
-  // than a third meaning a caller would have to special-case.
-  const readable = terminalReason === "success";
+  const selections = skillsSelected(toolCalls);
+  // a clean "success" is always readable. "error_max_turns" is readable too,
+  // but only when a `Skill` call already appears in the transcript — see this
+  // module's header for why that is not the same guard the situated runaway
+  // cap protects. "unknown" means the stream carried no result event at all
+  // (a crashed or truncated spawn): with no confirmed terminal state, even a
+  // recorded `Skill` call cannot be trusted as the probe's finished answer,
+  // so it stays unreadable regardless of what tool calls appear in it.
+  const readable = terminalReason === "success" || (terminalReason === "error_max_turns" && selections.length > 0);
 
   return {
     turns,
     terminalReason,
     readable,
     pathsBeforeSelection: pathsBeforeFirstSelection(toolCalls),
-    // null rather than [] when unreadable: a truncated run's selections are
-    // not evidence the model concluded nothing, only that it had not
-    // finished — see this module's header.
-    selectedSkills: readable ? skillsSelected(toolCalls) : null,
+    // null rather than [] when unreadable: a run with no confirmed selection
+    // and no confirmed terminal state is not evidence the model concluded
+    // nothing, only that it had not finished — see this module's header. A
+    // readable error_max_turns probe carries the selection it actually made,
+    // the same as a readable success does.
+    selectedSkills: readable ? selections : null,
     loadedSkills,
     model,
     runtimeVersion,

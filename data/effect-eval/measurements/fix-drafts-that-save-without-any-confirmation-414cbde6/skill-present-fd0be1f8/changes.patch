@@ -1,0 +1,25 @@
+diff --git a/src/routes/PostEditorPage.tsx b/src/routes/PostEditorPage.tsx
+index 8548d60..4731766 100644
+--- a/src/routes/PostEditorPage.tsx
++++ b/src/routes/PostEditorPage.tsx
+@@ -60,7 +60,19 @@ function PostEditorForm({
+   function handleSaveDraft() {
+     saveMutation.mutate(
+       { title, body },
+-      { onSuccess: () => trackEvent("draft saved", { site_slug: siteSlug, post_id: postId }) },
++      {
++        onSuccess: () => {
++          trackEvent("draft saved", { site_slug: siteSlug, post_id: postId });
++          setToast({ tone: "success", message: "Draft saved." });
++        },
++        onError: () => {
++          logger.warn(
++            { siteSlug, postId },
++            "A draft save request failed; the editor will let the author retry.",
++          );
++          setToast({ tone: "error", message: "Saving the draft failed. Try again." });
++        },
++      },
+     );
+   }
+ 

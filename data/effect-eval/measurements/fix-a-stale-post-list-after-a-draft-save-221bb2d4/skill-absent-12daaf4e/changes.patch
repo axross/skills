@@ -1,0 +1,26 @@
+diff --git a/src/queries/posts/post-save-mutation.ts b/src/queries/posts/post-save-mutation.ts
+index 34ee71a..04614d8 100644
+--- a/src/queries/posts/post-save-mutation.ts
++++ b/src/queries/posts/post-save-mutation.ts
+@@ -1,13 +1,18 @@
+ import { mutationOptions } from "@tanstack/react-query";
+ import { api } from "../../lib/api";
+-import type { SavePostInput } from "../../types";
++import type { Post, SavePostInput } from "../../types";
++import { getPostListQueryOptions } from "./post-list-query";
+ import { getPostQueryOptions } from "./post-query";
+ 
+ export function getPostSaveMutationOptions(siteSlug: string, postId: number) {
+   return mutationOptions({
+     mutationKey: ["sites", siteSlug, "posts", postId, "save"] as const,
+     mutationFn: (input: SavePostInput) => api.savePost(siteSlug, postId, input),
+-    onSuccess: (data, _variables, _onMutateResult, context) =>
+-      context.client.setQueryData(getPostQueryOptions(siteSlug, postId).queryKey, data),
++    onSuccess: (data, _variables, _onMutateResult, context) => {
++      context.client.setQueryData(getPostQueryOptions(siteSlug, postId).queryKey, data);
++      context.client.setQueryData(getPostListQueryOptions(siteSlug).queryKey, (posts?: Post[]) =>
++        posts?.map((post) => (post.id === postId ? data : post)),
++      );
++    },
+   });
+ }
