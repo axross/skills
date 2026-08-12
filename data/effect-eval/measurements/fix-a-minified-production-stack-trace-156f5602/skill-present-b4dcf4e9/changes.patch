@@ -1,0 +1,16 @@
+diff --git a/vite.config.ts b/vite.config.ts
+index f261aac..b32e945 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -24,7 +24,10 @@ export default defineConfig({
+   build: {
+     // Required for the Sentry plugin above to have anything to upload, and
+     // for a production stack trace to resolve back to real source at all.
+-    sourcemap: false,
++    // "hidden" (rather than true) omits the sourceMappingURL comment from
++    // the shipped JS, so the maps stay unreachable even if the plugin's
++    // delete-after-upload step is ever skipped.
++    sourcemap: "hidden",
+   },
+   server: {
+     proxy: {
