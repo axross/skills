@@ -229,15 +229,18 @@ describe("captureDiff", () => {
     expect(committedResult.changedPaths).toEqual(uncommittedResult.changedPaths);
   });
 
-  it("captures a probe's work identically whether it left it uncommitted or committed it on a new branch it stayed on", async () => {
-    const uncommitted = await plantRepo({ gitignoresClaude: true, installsSkill: false });
+  // skill-present on both sides, because the probe this reproduces —
+  // skill-present-632e2800 — ran in that condition. running it skill-absent
+  // would leave the exclusion untested in exactly the case that produced it.
+  it("captures a skill-present probe's work identically whether it left it uncommitted or committed it on a new branch it stayed on", async () => {
+    const uncommitted = await plantRepo({ gitignoresClaude: true, installsSkill: true });
     await writeModelWork(uncommitted.root);
     const uncommittedResult = captureDiff(uncommitted.root, {
       baseCommit: uncommitted.baseCommit,
       warn: () => {},
     });
 
-    const branched = await plantRepo({ gitignoresClaude: true, installsSkill: false });
+    const branched = await plantRepo({ gitignoresClaude: true, installsSkill: true });
     await writeModelWork(branched.root, { commit: "fix/enable-sourcemaps" });
     const branchedResult = captureDiff(branched.root, {
       baseCommit: branched.baseCommit,
@@ -249,6 +252,38 @@ describe("captureDiff", () => {
     );
     expect(branchedResult.diff).toBe(uncommittedResult.diff);
     expect(branchedResult.changedPaths).toEqual(uncommittedResult.changedPaths);
+    expect(branchedResult.changedPaths.map(({ path }) => path)).toEqual([
+      "shared/resolve.test.ts",
+    ]);
+    expect(branchedResult.diff).not.toContain(".claude");
+  });
+
+  it("keeps .claude out of both readings when the probe committed it along with its own work", async () => {
+    // the hardest case for the exclusion, and the one no other test reaches.
+    // the mock has lost its .gitignore line AND the probe committed
+    // everything, the installed skill included. `git add -A` then stages
+    // nothing — the skill is already in HEAD — so the staged-path read sees
+    // it too late to name and `filtered` comes back empty. the
+    // `:(exclude).claude` pathspec on the diff and name-status reads is the
+    // only thing still holding the line here, and this pins that it holds.
+    const { root, baseCommit } = await plantRepo({
+      gitignoresClaude: false,
+      installsSkill: true,
+    });
+    await write(root, "shared/resolve.test.ts", 'it("resolves", () => {});\n');
+    git(["checkout", "-q", "-b", "fix/enable-sourcemaps"], root);
+    git(["add", "-A"], root);
+    git(["commit", "-q", "-m", "Commit the work, the installed skill with it"], root);
+    const log = sink();
+
+    const { diff, changedPaths, filtered } = captureDiff(root, { baseCommit, warn: log.warn });
+
+    expect(changedPaths.map(({ path }) => path)).toEqual(["shared/resolve.test.ts"]);
+    expect(diff).toContain("shared/resolve.test.ts");
+    expect(diff).not.toContain(".claude");
+    // empty because the skill reached HEAD before the capture ran, not
+    // because nothing needed excluding — the distinction this case exists for.
+    expect(filtered).toEqual([]);
   });
 
   it("captures a mix of committed and uncommitted work in one probe", async () => {
