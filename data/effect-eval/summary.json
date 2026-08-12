@@ -1,7 +1,52 @@
 {
-  "measurementCount": 3,
-  "comparableCount": 3,
+  "measurementCount": 4,
+  "comparableCount": 4,
   "measurements": [
+    {
+      "measurement": "add-a-themed-screen-for-editing-an-existing-card-870aa3a6",
+      "case": "add-a-themed-screen-for-editing-an-existing-card",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 9.1552791,
+      "project": {
+        "name": "recall",
+        "tree": "sha256:074b9b863102a92d0fa88d1d84a9c82bee95e0daf167765b4c77c3e527331bc8",
+        "commit": "2226d8e4aeaf8770e4593ebf4d8a2c86009871b5"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
     {
       "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
       "case": "add-unit-tests-for-an-untested-module",

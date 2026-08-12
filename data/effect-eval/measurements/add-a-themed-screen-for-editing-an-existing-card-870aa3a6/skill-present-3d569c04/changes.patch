@@ -1,0 +1,645 @@
+diff --git a/app/(app)/decks/[deckId]/cards/[cardId]/edit.tsx b/app/(app)/decks/[deckId]/cards/[cardId]/edit.tsx
+new file mode 100644
+index 0000000..27844bb
+--- /dev/null
++++ b/app/(app)/decks/[deckId]/cards/[cardId]/edit.tsx
+@@ -0,0 +1,5 @@
++import { EditCardScreen } from "@/cards/edit-card-screen";
++
++export default function EditCardRoute() {
++  return <EditCardScreen />;
++}
+diff --git a/src/cards/card-id.spec.ts b/src/cards/card-id.spec.ts
+new file mode 100644
+index 0000000..80e4cb7
+--- /dev/null
++++ b/src/cards/card-id.spec.ts
+@@ -0,0 +1,20 @@
++import { normalizeCardId } from "./card-id";
++
++describe("normalizeCardId", () => {
++  it("accepts a well-formed id", () => {
++    expect(normalizeCardId("card-abc123")).toBe("card-abc123");
++  });
++
++  it("trims surrounding whitespace", () => {
++    expect(normalizeCardId("  card-abc123  ")).toBe("card-abc123");
++  });
++
++  it.each([
++    ["undefined", undefined],
++    ["an empty string", ""],
++    ["only whitespace", "   "],
++    ["a repeated-segment array", ["card-abc123", "extra"]],
++  ])("rejects %s", (_label, raw) => {
++    expect(normalizeCardId(raw)).toBeNull();
++  });
++});
+diff --git a/src/cards/card-id.ts b/src/cards/card-id.ts
+new file mode 100644
+index 0000000..051b1d9
+--- /dev/null
++++ b/src/cards/card-id.ts
+@@ -0,0 +1,15 @@
++/**
++ * A route's `cardId` parameter is untrusted input the same way `deckId` is —
++ * see `normalizeDeckId` for why this trims and rejects an array before any
++ * lookup trusts it.
++ */
++export function normalizeCardId(
++  raw: string | string[] | undefined,
++): string | null {
++  if (typeof raw !== "string") {
++    return null;
++  }
++
++  const trimmed = raw.trim();
++  return trimmed.length > 0 ? trimmed : null;
++}
+diff --git a/src/cards/card-not-found.tsx b/src/cards/card-not-found.tsx
+new file mode 100644
+index 0000000..17a2dcb
+--- /dev/null
++++ b/src/cards/card-not-found.tsx
+@@ -0,0 +1,40 @@
++import { useRouter } from "expo-router";
++import { Text } from "react-native";
++import { StyleSheet } from "react-native-unistyles";
++
++import { ActionButton } from "@/ui/action-button";
++import { Screen } from "@/ui/screen";
++
++type CardNotFoundProps = {
++  deckId: string;
++};
++
++/** Rendered for a `cardId` route parameter that matches no card in the deck. */
++export function CardNotFound({ deckId }: CardNotFoundProps) {
++  const router = useRouter();
++
++  return (
++    <Screen>
++      <Text style={styles.title}>Card not found</Text>
++      <Text style={styles.body}>
++        This card doesn&apos;t exist or was removed.
++      </Text>
++      <ActionButton
++        label="Back to deck"
++        onPress={() => router.replace(`/decks/${deckId}`)}
++        testID="card-not-found-deck"
++      />
++    </Screen>
++  );
++}
++
++const styles = StyleSheet.create((theme) => ({
++  title: {
++    ...theme.typography.title,
++    color: theme.colors.text,
++  },
++  body: {
++    ...theme.typography.body,
++    color: theme.colors.textMuted,
++  },
++}));
+diff --git a/src/cards/edit-card-screen.spec.tsx b/src/cards/edit-card-screen.spec.tsx
+new file mode 100644
+index 0000000..cc7d402
+--- /dev/null
++++ b/src/cards/edit-card-screen.spec.tsx
+@@ -0,0 +1,139 @@
++import {
++  fireEvent,
++  render,
++  screen,
++  waitFor,
++} from "@testing-library/react-native";
++import type { PermissionResponse } from "expo-camera";
++
++import type { Deck } from "@/decks/deck";
++
++import { EditCardScreen } from "./edit-card-screen";
++
++const mockGetDeck = jest.fn();
++const mockUpdateCard = jest.fn();
++const mockBack = jest.fn();
++const mockReplace = jest.fn();
++
++jest.mock("expo-router", () => ({
++  useLocalSearchParams: () => ({
++    deckId: "world-capitals",
++    cardId: "card-1",
++  }),
++  useRouter: () => ({
++    back: mockBack,
++    push: jest.fn(),
++    replace: mockReplace,
++  }),
++}));
++
++// The guidance is explicit: never render a real CameraView in a test.
++jest.mock("expo-camera", () => ({
++  CameraView: () => null,
++  useCameraPermissions: () => [
++    {
++      status: "granted",
++      granted: true,
++      canAskAgain: true,
++      expires: "never",
++    } as PermissionResponse,
++    jest.fn(),
++  ],
++}));
++
++jest.mock("expo-linking", () => ({
++  openSettings: jest.fn(),
++}));
++
++jest.mock("@/decks/deck-repository", () => ({
++  getDeck: (...args: unknown[]) => mockGetDeck(...args),
++  updateCard: (...args: unknown[]) => mockUpdateCard(...args),
++}));
++
++jest.mock("@/analytics/analytics", () => ({
++  trackScreenView: jest.fn(),
++}));
++
++const DECK: Deck = {
++  id: "world-capitals",
++  name: "World Capitals",
++  cards: [
++    {
++      id: "card-1",
++      front: "Peru",
++      back: "Lima",
++      scheduling: {
++        dueAt: 0,
++        intervalDays: 1,
++        easeFactor: 2.5,
++        repetitions: 0,
++      },
++    },
++  ],
++};
++
++beforeEach(() => {
++  mockGetDeck.mockReset().mockResolvedValue(DECK);
++  mockUpdateCard.mockReset().mockResolvedValue(undefined);
++  mockBack.mockReset();
++  mockReplace.mockReset();
++});
++
++describe("EditCardScreen", () => {
++  it("prefills the card's current front and back", async () => {
++    await render(<EditCardScreen />);
++
++    await waitFor(() =>
++      expect(screen.getByTestId("edit-card-front")).toBeOnTheScreen(),
++    );
++    expect(screen.getByTestId("edit-card-front").props.value).toBe("Peru");
++    expect(screen.getByTestId("edit-card-back").props.value).toBe("Lima");
++  });
++
++  it("shows a visible error and does not navigate back when saving fails", async () => {
++    mockUpdateCard.mockRejectedValueOnce(new Error("boom"));
++    await render(<EditCardScreen />);
++
++    await waitFor(() =>
++      expect(screen.getByTestId("edit-card-front")).toBeOnTheScreen(),
++    );
++    await fireEvent.press(screen.getByTestId("submit-edit-card"));
++
++    await waitFor(() =>
++      expect(
++        screen.getByText("Couldn't save this card. Try again."),
++      ).toBeOnTheScreen(),
++    );
++    expect(mockBack).not.toHaveBeenCalled();
++  });
++
++  it("saves the edited fields and navigates back", async () => {
++    await render(<EditCardScreen />);
++
++    await waitFor(() =>
++      expect(screen.getByTestId("edit-card-front")).toBeOnTheScreen(),
++    );
++    await fireEvent.changeText(
++      screen.getByTestId("edit-card-front"),
++      "Ecuador",
++    );
++    await fireEvent.changeText(screen.getByTestId("edit-card-back"), "Quito");
++    await fireEvent.press(screen.getByTestId("submit-edit-card"));
++
++    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
++    expect(mockUpdateCard).toHaveBeenCalledWith("world-capitals", "card-1", {
++      front: "Ecuador",
++      back: "Quito",
++      photoUri: undefined,
++    });
++  });
++
++  it("shows a not-found state for a card id that isn't in the deck", async () => {
++    mockGetDeck.mockResolvedValue({ ...DECK, cards: [] });
++    await render(<EditCardScreen />);
++
++    await waitFor(() =>
++      expect(screen.getByText("Card not found")).toBeOnTheScreen(),
++    );
++  });
++});
+diff --git a/src/cards/edit-card-screen.tsx b/src/cards/edit-card-screen.tsx
+new file mode 100644
+index 0000000..13420b0
+--- /dev/null
++++ b/src/cards/edit-card-screen.tsx
+@@ -0,0 +1,146 @@
++import { useEffect, useState } from "react";
++import { useCameraPermissions } from "expo-camera";
++import * as Linking from "expo-linking";
++import { useLocalSearchParams, useRouter } from "expo-router";
++import { Text } from "react-native";
++import { StyleSheet } from "react-native-unistyles";
++
++import type { Card } from "@/decks/deck";
++import { normalizeDeckId } from "@/decks/deck-id";
++import { DeckLoadError } from "@/decks/deck-load-error";
++import { DeckNotFound } from "@/decks/deck-not-found";
++import { updateCard } from "@/decks/deck-repository";
++import { useDeckByRouteParam } from "@/decks/use-deck-by-route-param";
++import { trackScreenView } from "@/analytics/analytics";
++import { ActionButton } from "@/ui/action-button";
++import { LoadingScreen } from "@/ui/loading-screen";
++import { Screen } from "@/ui/screen";
++import { ScreenHeader } from "@/ui/screen-header";
++import { TextField } from "@/ui/text-field";
++
++import { normalizeCardId } from "./card-id";
++import { CardNotFound } from "./card-not-found";
++import { PhotoCapture } from "./photo-capture";
++
++export function EditCardScreen() {
++  const params = useLocalSearchParams<{ deckId?: string; cardId?: string }>();
++  const router = useRouter();
++  const deckId = normalizeDeckId(params.deckId);
++  const cardId = normalizeCardId(params.cardId);
++
++  const { deck, status } = useDeckByRouteParam(deckId);
++
++  useEffect(() => {
++    trackScreenView("Edit Card");
++  }, []);
++
++  if (deckId === null || status === "not-found") {
++    return <DeckNotFound />;
++  }
++
++  if (status === "error") {
++    return <DeckLoadError />;
++  }
++
++  if (!deck) {
++    return <LoadingScreen />;
++  }
++
++  const card = cardId
++    ? deck.cards.find((candidate) => candidate.id === cardId)
++    : undefined;
++
++  if (!card) {
++    return <CardNotFound deckId={deck.id} />;
++  }
++
++  return (
++    <EditCardForm
++      key={card.id}
++      deckId={deck.id}
++      card={card}
++      onDone={() => router.back()}
++    />
++  );
++}
++
++type EditCardFormProps = {
++  deckId: string;
++  card: Card;
++  onDone: () => void;
++};
++
++/**
++ * Only ever mounted once its card has loaded, so each field's `useState` can
++ * seed itself straight from `card` — the same reason `PhotoCapture` above is
++ * handed an already-resolved permission rather than resolving one itself.
++ */
++function EditCardForm({ deckId, card, onDone }: EditCardFormProps) {
++  const [front, setFront] = useState(card.front);
++  const [back, setBack] = useState(card.back);
++  const [photoUri, setPhotoUri] = useState<string | undefined>(card.photoUri);
++  const [error, setError] = useState<string | null>(null);
++  const [submitting, setSubmitting] = useState(false);
++  const [permission, requestPermission] = useCameraPermissions();
++
++  async function handleSubmit() {
++    if (!front.trim() || !back.trim()) {
++      setError("Enter both the front and the back of the card.");
++      return;
++    }
++
++    setError(null);
++    setSubmitting(true);
++    try {
++      await updateCard(deckId, card.id, {
++        front: front.trim(),
++        back: back.trim(),
++        photoUri,
++      });
++      onDone();
++    } catch {
++      setError("Couldn't save this card. Try again.");
++    } finally {
++      setSubmitting(false);
++    }
++  }
++
++  return (
++    <Screen scrollable>
++      <ScreenHeader title="Edit card" onBack={onDone} />
++      <TextField
++        label="Front"
++        value={front}
++        onChangeText={setFront}
++        testID="edit-card-front"
++      />
++      <TextField
++        label="Back"
++        value={back}
++        onChangeText={setBack}
++        testID="edit-card-back"
++      />
++      <PhotoCapture
++        permission={permission}
++        photoUri={photoUri}
++        onRequestPermission={() => void requestPermission()}
++        onOpenSettings={() => void Linking.openSettings()}
++        onCapture={setPhotoUri}
++        onClear={() => setPhotoUri(undefined)}
++      />
++      {error ? <Text style={styles.error}>{error}</Text> : null}
++      <ActionButton
++        label={submitting ? "Saving…" : "Save changes"}
++        onPress={handleSubmit}
++        testID="submit-edit-card"
++      />
++    </Screen>
++  );
++}
++
++const styles = StyleSheet.create((theme) => ({
++  error: {
++    ...theme.typography.caption,
++    color: theme.colors.negative,
++  },
++}));
+diff --git a/src/decks/deck-detail-screen.spec.tsx b/src/decks/deck-detail-screen.spec.tsx
+new file mode 100644
+index 0000000..48d4df8
+--- /dev/null
++++ b/src/decks/deck-detail-screen.spec.tsx
+@@ -0,0 +1,69 @@
++import {
++  fireEvent,
++  render,
++  screen,
++  waitFor,
++} from "@testing-library/react-native";
++
++import type { Deck } from "./deck";
++import { DeckDetailScreen } from "./deck-detail-screen";
++
++const mockGetDeck = jest.fn();
++const mockPush = jest.fn();
++
++jest.mock("expo-router", () => ({
++  useLocalSearchParams: () => ({ deckId: "world-capitals" }),
++  useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn() }),
++}));
++
++jest.mock("./deck-repository", () => ({
++  getDeck: (...args: unknown[]) => mockGetDeck(...args),
++}));
++
++jest.mock("@/analytics/analytics", () => ({
++  trackScreenView: jest.fn(),
++}));
++
++const DECK: Deck = {
++  id: "world-capitals",
++  name: "World Capitals",
++  cards: [
++    {
++      id: "card-1",
++      front: "Peru",
++      back: "Lima",
++      scheduling: {
++        dueAt: 0,
++        intervalDays: 1,
++        easeFactor: 2.5,
++        repetitions: 0,
++      },
++    },
++  ],
++};
++
++beforeEach(() => {
++  mockGetDeck.mockReset().mockResolvedValue(DECK);
++  mockPush.mockReset();
++});
++
++describe("DeckDetailScreen", () => {
++  it("lists the deck's cards once loaded", async () => {
++    await render(<DeckDetailScreen />);
++
++    await waitFor(() => expect(screen.getByText("Peru")).toBeOnTheScreen());
++  });
++
++  it("navigates to a card's edit screen when its row is pressed", async () => {
++    await render(<DeckDetailScreen />);
++
++    await waitFor(() =>
++      expect(screen.getByTestId("card-row-card-1")).toBeOnTheScreen(),
++    );
++    await fireEvent.press(screen.getByTestId("card-row-card-1"));
++
++    expect(mockPush).toHaveBeenCalledWith(
++      "/decks/world-capitals/cards/card-1/edit",
++    );
++  });
++});
+diff --git a/src/decks/deck-detail-screen.tsx b/src/decks/deck-detail-screen.tsx
+index b5c5caf..5c5d7b9 100644
+--- a/src/decks/deck-detail-screen.tsx
++++ b/src/decks/deck-detail-screen.tsx
+@@ -1,6 +1,6 @@
+ import { useEffect, useState } from "react";
+ import { useLocalSearchParams, useRouter } from "expo-router";
+-import { Text, View } from "react-native";
++import { FlatList, Pressable, Text, View } from "react-native";
+ import { StyleSheet } from "react-native-unistyles";
+ 
+ import { trackScreenView } from "@/analytics/analytics";
+@@ -62,6 +62,31 @@ export function DeckDetailScreen() {
+           testID="add-card"
+         />
+       </View>
++      {deck.cards.length === 0 ? null : (
++        <FlatList
++          data={deck.cards}
++          keyExtractor={(card) => card.id}
++          contentContainerStyle={styles.list}
++          renderItem={({ item }) => (
++            <Pressable
++              accessibilityRole="button"
++              accessibilityLabel={`Edit card: ${item.front}`}
++              onPress={() =>
++                router.push(`/decks/${deck.id}/cards/${item.id}/edit`)
++              }
++              style={styles.row}
++              testID={`card-row-${item.id}`}
++            >
++              <Text style={styles.cardFront} numberOfLines={1}>
++                {item.front}
++              </Text>
++              <Text style={styles.cardBack} numberOfLines={1}>
++                {item.back}
++              </Text>
++            </Pressable>
++          )}
++        />
++      )}
+     </Screen>
+   );
+ }
+@@ -74,4 +99,25 @@ const styles = StyleSheet.create((theme) => ({
+   actions: {
+     gap: theme.spacing(1.5),
+   },
++  list: {
++    gap: theme.spacing(1.5),
++  },
++  row: {
++    minHeight: theme.sizing.minTouchTarget,
++    justifyContent: "center",
++    backgroundColor: theme.colors.surface,
++    borderRadius: theme.radius.md,
++    borderWidth: 1,
++    borderColor: theme.colors.border,
++    padding: theme.spacing(2),
++    gap: theme.spacing(0.5),
++  },
++  cardFront: {
++    ...theme.typography.heading,
++    color: theme.colors.text,
++  },
++  cardBack: {
++    ...theme.typography.caption,
++    color: theme.colors.textMuted,
++  },
+ }));
+diff --git a/src/decks/deck-repository.spec.ts b/src/decks/deck-repository.spec.ts
+index 074af28..5538d4d 100644
+--- a/src/decks/deck-repository.spec.ts
++++ b/src/decks/deck-repository.spec.ts
+@@ -2,7 +2,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
+ 
+ import { schedule } from "@/scheduler/scheduler";
+ 
+-import { addCard, getDeck, getDecks, gradeCard } from "./deck-repository";
++import {
++  addCard,
++  getDeck,
++  getDecks,
++  gradeCard,
++  updateCard,
++} from "./deck-repository";
+ 
+ beforeEach(async () => {
+   await AsyncStorage.clear();
+@@ -79,6 +85,44 @@ describe("addCard", () => {
+   });
+ });
+ 
++describe("updateCard", () => {
++  it("replaces a card's front, back, and photo, keeping its scheduling state", async () => {
++    const deck = await getDeck("world-capitals");
++    const card = deck!.cards[0];
++
++    const updated = await updateCard("world-capitals", card.id, {
++      front: "Peru",
++      back: "Lima",
++      photoUri: "file:///peru.jpg",
++    });
++
++    expect(updated.front).toBe("Peru");
++    expect(updated.back).toBe("Lima");
++    expect(updated.photoUri).toBe("file:///peru.jpg");
++    expect(updated.scheduling).toEqual(card.scheduling);
++
++    const reread = await getDeck("world-capitals");
++    expect(reread?.cards.find((candidate) => candidate.id === card.id)).toEqual(
++      updated,
++    );
++  });
++
++  it("rejects an unknown deck id", async () => {
++    await expect(
++      updateCard("does-not-exist", "some-card", { front: "A", back: "B" }),
++    ).rejects.toThrow(/No deck with id/);
++  });
++
++  it("rejects an unknown card id", async () => {
++    await expect(
++      updateCard("world-capitals", "does-not-exist", {
++        front: "A",
++        back: "B",
++      }),
++    ).rejects.toThrow(/No card with id/);
++  });
++});
++
+ describe("gradeCard", () => {
+   it("advances and persists a card's scheduling state", async () => {
+     const deck = await getDeck("world-capitals");
+diff --git a/src/decks/deck-repository.ts b/src/decks/deck-repository.ts
+index 7610fe5..e0f57b9 100644
+--- a/src/decks/deck-repository.ts
++++ b/src/decks/deck-repository.ts
+@@ -70,6 +70,30 @@ export async function addCard(
+   return card;
+ }
+ 
++/** Replaces a card's front, back, and photo, and persists the result. */
++export async function updateCard(
++  deckId: string,
++  cardId: string,
++  input: { front: string; back: string; photoUri?: string },
++): Promise<Card> {
++  const decks = await readDecks();
++  const deck = decks.find((candidate) => candidate.id === deckId);
++  if (!deck) {
++    throw new Error(`No deck with id "${deckId}".`);
++  }
++
++  const card = deck.cards.find((candidate) => candidate.id === cardId);
++  if (!card) {
++    throw new Error(`No card with id "${cardId}" in deck "${deckId}".`);
++  }
++
++  card.front = input.front;
++  card.back = input.back;
++  card.photoUri = input.photoUri;
++  await writeDecks(decks);
++  return card;
++}
++
+ /** Grades a card, advancing its scheduling state, and persists the result. */
+ export async function gradeCard(
+   deckId: string,
