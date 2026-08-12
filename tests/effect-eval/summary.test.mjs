@@ -19,6 +19,7 @@ import {
   deriveCaseSummary,
   deriveProbeSummary,
   readProbe,
+  solicitsDecision,
 } from "../../tools/effect-eval/src/summary.mjs";
 
 let caseDir;
@@ -40,6 +41,28 @@ const TRANSCRIPT = [
     },
   }),
   JSON.stringify({ type: "result", subtype: "success", num_turns: 3, total_cost_usd: 1.5 }),
+].join("\n");
+
+/** a transcript whose only assistant turn ends on the given text. */
+function transcriptEndingWith(text) {
+  return [
+    JSON.stringify({ type: "system", subtype: "init", model: "claude-sonnet-5", skills: [] }),
+    JSON.stringify({
+      type: "assistant",
+      message: { usage: {}, content: [{ type: "text", text }] },
+    }),
+    JSON.stringify({ type: "result", subtype: "success", num_turns: 1, total_cost_usd: 0.1 }),
+  ].join("\n");
+}
+
+/** a transcript whose only assistant turn is a tool call, with no text block. */
+const TRANSCRIPT_NO_ASSISTANT_TEXT = [
+  JSON.stringify({ type: "system", subtype: "init", model: "claude-sonnet-5", skills: [] }),
+  JSON.stringify({
+    type: "assistant",
+    message: { usage: {}, content: [{ type: "tool_use", name: "Bash", input: { command: "echo hi" } }] },
+  }),
+  JSON.stringify({ type: "result", subtype: "error_max_turns", num_turns: 1 }),
 ].join("\n");
 
 /** everything overridable per case. */
@@ -111,6 +134,96 @@ describe("deriveProbeSummary", () => {
     });
     const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
     expect(() => deriveProbeSummary(probe)).not.toThrow();
+  });
+
+  describe("endedAwaitingDecision", () => {
+    it("is true for an empty diff whose final message solicits a decision", async () => {
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: transcriptEndingWith("Found the bug. Want me to apply the fix?"),
+        patch: "",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).endedAwaitingDecision).toBe(true);
+    });
+
+    it("is false for an empty diff whose final message does not solicit anything", async () => {
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: transcriptEndingWith("Found nothing wrong with the file."),
+        patch: "",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).endedAwaitingDecision).toBe(false);
+    });
+
+    it("is false when the probe changed files, even though the final message ends on a question", async () => {
+      // gated on an empty diff deliberately: a probe that did the work and
+      // then asked a follow-up is not the failure mode being tracked.
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: transcriptEndingWith(
+          "Fixed it. Want the same treatment applied to the other module too?",
+        ),
+        patch: "diff --git a/shared/a.ts b/shared/a.ts\n",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      const summary = deriveProbeSummary(probe);
+      expect(summary.changedPaths).toEqual(["shared/a.ts"]);
+      expect(summary.endedAwaitingDecision).toBe(false);
+    });
+
+    it("is false when the transcript carries no assistant text at all", async () => {
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: TRANSCRIPT_NO_ASSISTANT_TEXT,
+        patch: "",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).endedAwaitingDecision).toBe(false);
+    });
+
+    it("reads a final assistant message whose text is split across blocks", async () => {
+      // the two halves are chosen so that neither block alone satisfies the
+      // predicate: the first carries the permission-seeking phrase but does
+      // not end on a question mark, and the second ends on one but carries no
+      // phrase. only a reading that combines them in order comes out true, so
+      // this fails if the blocks are ever joined wrongly, or if the reading
+      // silently keeps just the first or just the last.
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: [
+          JSON.stringify({ type: "system", subtype: "init", model: "claude-sonnet-5", skills: [] }),
+          JSON.stringify({
+            type: "assistant",
+            message: {
+              usage: {},
+              content: [
+                { type: "text", text: "Found it: build.sourcemap is false. Want me to flip it" },
+                { type: "text", text: "or leave the config alone?" },
+              ],
+            },
+          }),
+          JSON.stringify({ type: "result", subtype: "success", num_turns: 1, total_cost_usd: 0.1 }),
+        ].join("\n"),
+        patch: "",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).endedAwaitingDecision).toBe(true);
+    });
+  });
+});
+
+describe("solicitsDecision", () => {
+  it("is true for a final message ending on a permission-seeking question", () => {
+    expect(solicitsDecision("Found the bug. Want me to apply the fix?")).toBe(true);
+  });
+
+  it("is false when the message does not end on a question mark", () => {
+    expect(solicitsDecision("Applied the fix. Want me to also add a test next time.")).toBe(false);
+  });
+
+  it("is false for an ordinary question that is not soliciting a go-ahead", () => {
+    expect(solicitsDecision("What does resolveTranslation return for an unknown locale?")).toBe(false);
+  });
+
+  it("is false when the stream said nothing", () => {
+    expect(solicitsDecision(null)).toBe(false);
   });
 });
 
