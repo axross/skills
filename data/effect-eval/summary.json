@@ -1,6 +1,6 @@
 {
-  "measurementCount": 3,
-  "comparableCount": 3,
+  "measurementCount": 4,
+  "comparableCount": 4,
   "measurements": [
     {
       "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
@@ -43,6 +43,51 @@
             "WebFetch",
             "WebSearch"
           ]
+        }
+      }
+    },
+    {
+      "measurement": "extract-shared-loading-and-error-handling-across-screens-b89d904a",
+      "case": "extract-shared-loading-and-error-handling-across-screens",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 0.9279569,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+        "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
         }
       }
     },
