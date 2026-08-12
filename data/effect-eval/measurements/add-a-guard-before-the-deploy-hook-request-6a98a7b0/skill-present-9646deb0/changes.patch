@@ -1,0 +1,353 @@
+diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
+index 0f02d24..eab33f4 100644
+--- a/docs/deploy-hooks.md
++++ b/docs/deploy-hooks.md
+@@ -40,6 +40,28 @@ error tracker on the API side to hand it to instead — see `shared/logger.ts`)
+ and returns `{ ok: false }` rather than throwing, so the route above always
+ gets a definite answer either way.
+ 
++## `deployHookUrl` is untrusted input
++
++`deployHookUrl` is a plain text field on a site, and customers are expected
++to edit it themselves — nothing about the value is ours to trust. Without a
++check, publishing would fire a POST at whatever the field holds, including a
++loopback address, an RFC 1918 address, a cloud metadata endpoint
++(`169.254.169.254`), or a non-`http(s)` scheme, from a server that has no
++authentication in front of it for those internal targets.
++
++Before every attempt — including retries, since DNS can change between them
++— `triggerDeployHook` resolves the URL's host and rejects it unless every
++resolved address is public: no loopback, RFC 1918, link-local/metadata,
++multicast, or IPv6-equivalent range, and no `localhost` / `*.internal` /
++`metadata.google.internal` hostname. It also fetches with `redirect:
++"manual"`, so a hook that responds with a redirect to an internal address
++never gets followed. This is a denylist, not an allowlist, because the
++feature is inherently "fetch whatever public webhook URL the customer's
++static host gave them" — there's no fixed set of trusted hosts to allowlist
++against, unlike a feature with a known small set of destinations. A rejected
++URL is treated the same as an exhausted retry: `deployTriggered: false`, no
++exception raised to the publish route.
++
+ ## Rolling back a bad publish
+ 
+ There's no unpublish button in this cut of the product. The revision a
+diff --git a/server/deploy-hook.test.ts b/server/deploy-hook.test.ts
+index c745b5b..7342388 100644
+--- a/server/deploy-hook.test.ts
++++ b/server/deploy-hook.test.ts
+@@ -1,9 +1,32 @@
+ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+ import { triggerDeployHook } from "./deploy-hook";
+ 
++vi.mock("node:dns/promises", () => ({
++  default: { lookup: vi.fn() },
++}));
++
++const dns = await import("node:dns/promises");
++
++// `dns.lookup`'s real type is overloaded on its options argument, which
++// defeats plain `mockResolvedValue` inference here — the mock only ever
++// needs the `{ all: true }` shape this module calls it with.
++const lookupMock = dns.default.lookup as unknown as (
++  hostname: string,
++  options: unknown,
++) => Promise<Array<{ address: string; family: number }>>;
++
++function mockDnsResult(addresses: Array<{ address: string; family: number }>) {
++  vi.mocked(lookupMock).mockResolvedValue(addresses);
++}
++
++function mockPublicDns() {
++  mockDnsResult([{ address: "203.0.113.10", family: 4 }]);
++}
++
+ describe("triggerDeployHook", () => {
+   beforeEach(() => {
+     vi.stubGlobal("fetch", vi.fn());
++    mockPublicDns();
+   });
+ 
+   afterEach(() => {
+@@ -18,6 +41,10 @@ describe("triggerDeployHook", () => {
+ 
+     expect(result).toEqual({ ok: true, attempts: 1 });
+     expect(fetch).toHaveBeenCalledTimes(1);
++    expect(fetch).toHaveBeenCalledWith(
++      expect.anything(),
++      expect.objectContaining({ redirect: "manual" }),
++    );
+   });
+ 
+   it("retries once after a network failure and then succeeds", async () => {
+@@ -50,4 +77,96 @@ describe("triggerDeployHook", () => {
+     expect(result.attempts).toBe(3);
+     expect(fetch).toHaveBeenCalledTimes(3);
+   });
++
++  describe("SSRF protections", () => {
++    it("rejects a non-http(s) scheme without ever calling fetch", async () => {
++      const result = await triggerDeployHook("acme", "file:///etc/passwd");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("rejects a malformed URL without ever calling fetch", async () => {
++      const result = await triggerDeployHook("acme", "not a url");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("rejects known-internal hostnames without a DNS lookup", async () => {
++      const result = await triggerDeployHook("acme", "http://metadata.google.internal/deploy");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++      expect(dns.default.lookup).not.toHaveBeenCalled();
++    });
++
++    it("rejects localhost without a DNS lookup", async () => {
++      const result = await triggerDeployHook("acme", "http://localhost:4000/deploy");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("rejects a loopback IP literal", async () => {
++      const result = await triggerDeployHook("acme", "http://127.0.0.1/deploy");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("rejects the cloud metadata address as an IP literal", async () => {
++      const result = await triggerDeployHook("acme", "http://169.254.169.254/latest/meta-data");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("rejects a hostname that resolves to a private address", async () => {
++      mockDnsResult([{ address: "10.0.0.5", family: 4 }]);
++
++      const result = await triggerDeployHook("acme", "https://internal.example.invalid/deploy");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("rejects a hostname with mixed public and reserved resolved addresses", async () => {
++      mockDnsResult([
++        { address: "203.0.113.10", family: 4 },
++        { address: "169.254.169.254", family: 4 },
++      ]);
++
++      const result = await triggerDeployHook("acme", "https://rebinding.example.invalid/deploy");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("rejects a reserved IPv6 literal", async () => {
++      const result = await triggerDeployHook("acme", "http://[fd00:ec2::254]/deploy");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).not.toHaveBeenCalled();
++    });
++
++    it("does not follow a redirect response", async () => {
++      vi.mocked(fetch).mockResolvedValue(
++        new Response(null, { status: 302, headers: { location: "http://169.254.169.254/" } }),
++      );
++
++      const result = await triggerDeployHook("acme", "https://hooks.example.invalid/deploy/acme");
++
++      expect(result).toEqual({ ok: false, attempts: 1 });
++      expect(fetch).toHaveBeenCalledTimes(1);
++    });
++
++    it("re-validates the URL on every retry", async () => {
++      vi.mocked(fetch).mockRejectedValue(new Error("network down"));
++
++      await triggerDeployHook("acme", "https://hooks.example.invalid/deploy/acme");
++
++      expect(dns.default.lookup).toHaveBeenCalledTimes(3);
++    });
++  });
+ });
+diff --git a/server/deploy-hook.ts b/server/deploy-hook.ts
+index 6493419..6668e15 100644
+--- a/server/deploy-hook.ts
++++ b/server/deploy-hook.ts
+@@ -1,9 +1,12 @@
++import dns from "node:dns/promises";
++import { isIP } from "node:net";
+ import { rootLogger } from "../shared/logger";
+ 
+ const logger = rootLogger.child("deploy-hook");
+ 
+ const MAX_ATTEMPTS = 3;
+ const RETRY_DELAY_MS = 250;
++const REQUEST_TIMEOUT_MS = 5_000;
+ 
+ export interface DeployHookResult {
+   readonly ok: boolean;
+@@ -14,6 +17,125 @@ function sleep(ms: number): Promise<void> {
+   return new Promise((resolve) => setTimeout(resolve, ms));
+ }
+ 
++// `deployHookUrl` is a plain text field a customer fills in themselves, so
++// every call here is an outbound request to a URL this server did not
++// choose. The checks below turn that into a request to a host confirmed
++// public at request time, not just a URL that merely parses — see
++// docs/deploy-hooks.md for the reasoning and the list of what's blocked.
++
++const RESERVED_IPV4_CIDRS = [
++  "0.0.0.0/8", // "this network"
++  "10.0.0.0/8", // RFC 1918
++  "100.64.0.0/10", // carrier-grade NAT
++  "127.0.0.0/8", // loopback
++  "169.254.0.0/16", // link-local, incl. cloud metadata (169.254.169.254)
++  "172.16.0.0/12", // RFC 1918
++  "192.0.0.0/24", // IETF protocol assignments
++  "192.168.0.0/16", // RFC 1918
++  "198.18.0.0/15", // benchmarking
++  "224.0.0.0/4", // multicast
++  "240.0.0.0/4", // reserved
++];
++
++const INTERNAL_HOSTNAME_SUFFIXES = [".internal", ".localhost"];
++const INTERNAL_HOSTNAMES = new Set(["localhost", "metadata.google.internal"]);
++
++function ipv4ToInt(ip: string): number {
++  const octets = ip.split(".").map(Number);
++  return octets.reduce((acc, octet) => (acc << 8) + octet, 0) >>> 0;
++}
++
++function isReservedIpv4(ip: string): boolean {
++  const target = ipv4ToInt(ip);
++  return RESERVED_IPV4_CIDRS.some((cidr) => {
++    const [range, bitsStr] = cidr.split("/");
++    const bits = Number(bitsStr);
++    const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
++    return (target & mask) === (ipv4ToInt(range) & mask);
++  });
++}
++
++function isReservedIpv6(ip: string): boolean {
++  const normalized = ip.toLowerCase();
++
++  // An IPv4-mapped or IPv4-compatible IPv6 address carries the real address
++  // it represents in its final segment (e.g. "::ffff:169.254.169.254") —
++  // check that embedded address rather than the wrapper.
++  const mappedIpv4 = normalized.match(/(?:^|:)(\d+\.\d+\.\d+\.\d+)$/)?.[1];
++  if (mappedIpv4) return isReservedIpv4(mappedIpv4);
++
++  if (normalized === "::" || normalized === "::1") return true; // unspecified / loopback
++
++  const firstHextet = normalized.startsWith("::")
++    ? 0
++    : parseInt(normalized.split(":")[0] || "0", 16);
++
++  if (firstHextet >= 0xfe80 && firstHextet <= 0xfebf) return true; // link-local, fe80::/10
++  if (firstHextet >= 0xfc00 && firstHextet <= 0xfdff) return true; // unique local, fc00::/7 (incl. Azure/AWS metadata)
++  if (firstHextet >= 0xff00 && firstHextet <= 0xffff) return true; // multicast, ff00::/8
++
++  return false;
++}
++
++function isReservedIp(ip: string): boolean {
++  const family = isIP(ip);
++  if (family === 4) return isReservedIpv4(ip);
++  if (family === 6) return isReservedIpv6(ip);
++  return true; // not a recognizable IP literal — fail closed
++}
++
++// Thrown for anything that makes this call unsafe rather than merely
++// unreliable — an unresolvable/reserved host, a disallowed scheme, or a
++// redirect we won't follow blind. None of these are worth retrying: the
++// retry loop treats this class as a reason to give up immediately instead
++// of spending its remaining attempts.
++class DeployHookSecurityError extends Error {}
++
++/**
++ * Confirms `url` is an `http(s)` URL whose host resolves only to public,
++ * routable addresses. Throws `DeployHookSecurityError` otherwise. Resolves
++ * fresh on every call (each retry calls this again) rather than caching,
++ * since the whole point is to catch a host whose DNS answer has changed
++ * since the last look.
++ */
++async function assertSafeDeployHookUrl(url: string): Promise<URL> {
++  let parsed: URL;
++  try {
++    parsed = new URL(url);
++  } catch {
++    throw new DeployHookSecurityError(`"${url}" is not a valid URL.`);
++  }
++
++  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
++    throw new DeployHookSecurityError(`"${parsed.protocol}" is not an allowed scheme.`);
++  }
++
++  // The WHATWG URL parser keeps the brackets around an IPv6 literal in
++  // `.hostname` (e.g. "[::1]") — strip them so IP checks below see the bare
++  // address `net.isIP` and `dns.lookup` expect.
++  const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
++  if (
++    INTERNAL_HOSTNAMES.has(hostname) ||
++    INTERNAL_HOSTNAME_SUFFIXES.some((suffix) => hostname.endsWith(suffix))
++  ) {
++    throw new DeployHookSecurityError(`"${hostname}" is not an allowed host.`);
++  }
++
++  const literalIpFamily = isIP(hostname);
++  const addresses =
++    literalIpFamily !== 0
++      ? [hostname]
++      : await dns
++          .lookup(hostname, { all: true, verbatim: true })
++          .then((records) => records.map((record) => record.address));
++
++  if (addresses.length === 0 || addresses.some(isReservedIp)) {
++    throw new DeployHookSecurityError(`"${hostname}" does not resolve to a public address.`);
++  }
++
++  return parsed;
++}
++
+ /**
+  * Calls a site's deploy hook after a publish. Most static-hosting deploy
+  * hooks are a bare POST with no body, and most are flaky enough on a cold
+@@ -29,8 +151,16 @@ export async function triggerDeployHook(siteSlug: string, url: string): Promise<
+ 
+   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+     try {
++      const safeUrl = await assertSafeDeployHookUrl(url);
+       logger.debug({ siteSlug, attempt }, "Started calling the deploy hook.");
+-      const response = await fetch(url, { method: "POST" });
++      const response = await fetch(safeUrl, {
++        method: "POST",
++        redirect: "manual", // a redirect could point anywhere; never follow one blind
++        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
++      });
++      if (response.type === "opaqueredirect" || (response.status >= 300 && response.status < 400)) {
++        throw new DeployHookSecurityError("Deploy hook responded with a redirect.");
++      }
+       if (!response.ok) {
+         throw new Error(`Deploy hook responded with status ${response.status}.`);
+       }
+@@ -39,6 +169,13 @@ export async function triggerDeployHook(siteSlug: string, url: string): Promise<
+     } catch (error) {
+       lastError = error;
+       const reason = error instanceof Error ? error.message : String(error);
++      if (error instanceof DeployHookSecurityError) {
++        logger.error(
++          { siteSlug, attempt, reason },
++          "Deploy hook URL is not safe to call; giving up.",
++        );
++        return { ok: false, attempts: attempt };
++      }
+       logger.warn({ siteSlug, attempt, reason }, "Deploy hook call failed; retrying.");
+       if (attempt < MAX_ATTEMPTS) await sleep(RETRY_DELAY_MS * attempt);
+     }

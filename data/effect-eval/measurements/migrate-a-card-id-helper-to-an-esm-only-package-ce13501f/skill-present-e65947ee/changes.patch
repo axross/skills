@@ -1,0 +1,19 @@
+diff --git a/jest.config.js b/jest.config.js
+index 5aba31c..99e56d3 100644
+--- a/jest.config.js
++++ b/jest.config.js
+@@ -19,4 +19,14 @@ module.exports = {
+   moduleNameMapper: {
+     "^@/(.*)$": "<rootDir>/src/$1",
+   },
++  // jest-expo's own transformIgnorePatterns doesn't cover nanoid, which
++  // ships ESM-only with no CJS entry. A config-level transformIgnorePatterns
++  // replaces the preset's rather than merging with it, so the preset's own
++  // pattern (jest-expo/jest-preset.js) is repeated here with nanoid added
++  // rather than assumed inherited.
++  transformIgnorePatterns: [
++    "/node_modules/(?!(.pnpm|react-native|@react-native|@react-native-community|expo|@expo|@expo-google-fonts|react-navigation|@react-navigation|@sentry/react-native|native-base|standard-navigation|nanoid))",
++    "/node_modules/react-native-reanimated/plugin/",
++    "/node_modules/@react-native/babel-preset/",
++  ],
+ };

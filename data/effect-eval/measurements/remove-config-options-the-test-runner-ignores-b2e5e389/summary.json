@@ -1,0 +1,517 @@
+{
+  "case": {
+    "prompt": "There are settings in our test configuration that don't seem to do anything any more."
+  },
+  "project": {
+    "name": "inkwell",
+    "tree": "sha256:6dc60ad562d25a8ce09f496cf8e292c4c22a8bf59aa76ca44034f8770b7cac95",
+    "commit": "e4e128e42c80d775b760aadf5af412be2aa6ddf8"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ],
+      "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:6dc60ad562d25a8ce09f496cf8e292c4c22a8bf59aa76ca44034f8770b7cac95"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"vitest-testing\":\"sha256:f476054b9f1ccbb08f2519d04bcf773e8ae9d7a32dd268208900cb47de9a194f\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"There are settings in our test configuration that don't seem to do anything any more.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 4.1247967,
+  "probes": [
+    {
+      "probe": "skill-absent-3b585f0f",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 28,
+      "truncated": false,
+      "costUsd": 0.6030694,
+      "usage": {
+        "input": 2352,
+        "output": 239,
+        "cacheCreation": 94049,
+        "cacheRead": 1871895,
+        "messages": 46
+      },
+      "toolCalls": 27,
+      "filesRead": [
+        "/tmp/effect-eval-s3wwoP/README.md",
+        "/tmp/effect-eval-s3wwoP/vitest.config.ts",
+        "/tmp/effect-eval-s3wwoP/src/test/browser-setup.ts",
+        "/tmp/effect-eval-s3wwoP/node_modules/@vitest/browser-playwright/dist/index.d.ts",
+        "/tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/coverage.DM_a_rWm.js"
+      ],
+      "commandsRun": [
+        "ls && echo --- && find . -maxdepth 2 -iname \"*vitest*\" -o -iname \"*jest*\" -o -iname \"*.config.*\" | grep -v node_modules",
+        "cat package.json | grep -i sentry; echo ---; find /tmp/effect-eval-s3wwoP/src /tmp/effect-eval-s3wwoP/server /tmp/effect-eval-s3wwoP/shared -iname \"*sentry*\"; echo ---; grep -rn \"sentry\" /tmp/effect-eval-s3wwoP/src /tmp/effect-eval-s3wwoP/server /tmp/effect-eval-s3wwoP/shared -i 2>/dev/null",
+        "git -C /tmp/effect-eval-s3wwoP log --oneline -- vitest.config.ts",
+        "grep -rln \"vi\\.\\(fn\\|spyOn\\|mock\\)\" /tmp/effect-eval-s3wwoP/src /tmp/effect-eval-s3wwoP/server /tmp/effect-eval-s3wwoP/shared 2>/dev/null",
+        "cat /tmp/effect-eval-s3wwoP/.env.example 2>/dev/null; echo ---package.json---; cat /tmp/effect-eval-s3wwoP/package.json",
+        "cat /tmp/effect-eval-s3wwoP/node_modules/vitest/package.json | grep '\"version\"'; echo ---; grep -rn \"optimizer\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/*.js 2>/dev/null | grep -i \"web\\|enabled\" | head -30",
+        "grep -rn \"deps\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/config.cjs 2>/dev/null | head -40; echo ---; find /tmp/effect-eval-s3wwoP/node_modules/vitest/dist -iname \"*.d.ts\" | xargs grep -ln \"optimizer\" 2>/dev/null",
+        "grep -n -B5 -A15 \"web?:\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts | head -80",
+        "grep -n -B3 -A20 \"optimizer\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts | head -100",
+        "grep -rn \"deps.optimizer\\|optimizer.web\\|DepOptimizationConfig\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/*.d.ts /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/*.d.ts 2>/dev/null | head -20",
+        "grep -rn \"\\\"@vitest/browser-playwright\\\"\\|browser-playwright\" /tmp/effect-eval-s3wwoP/node_modules/@vitest/browser-playwright/package.json 2>/dev/null; cat /tmp/effect-eval-s3wwoP/node_modules/@vitest/browser-playwright/package.json 2>/dev/null | grep version",
+        "cat /tmp/effect-eval-s3wwoP/vite.config.ts",
+        "ls /tmp/effect-eval-s3wwoP/.github/workflows/ 2>/dev/null; echo ---; cat /tmp/effect-eval-s3wwoP/.github/workflows/*.yml 2>/dev/null",
+        "find /tmp/effect-eval-s3wwoP/node_modules/vitest /tmp/effect-eval-s3wwoP/node_modules/@vitest -maxdepth 1 -iname \"CHANGELOG*\"",
+        "npx vitest run 2>&1 | head -100",
+        "find /tmp/effect-eval-s3wwoP/node_modules/@vitest/browser-playwright -iname \"*.d.ts\" | xargs grep -ln \"headless\" 2>/dev/null",
+        "grep -n -B3 -A5 \"headless\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/*.d.ts /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/*.d.ts 2>/dev/null",
+        "grep -n -B10 \"enabled?: boolean\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/reporters.d.DtoKVV2s.d.ts | grep -B10 \"DepsOptimizationOptions\\|optimizer\" ",
+        "grep -n -A15 \"type DepsOptimizationOptions\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/reporters.d.DtoKVV2s.d.ts",
+        "grep -n \"optimizer\\|\\\"web\\\"\\|'web'\\|client\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/reporters.d.DtoKVV2s.d.ts | head -40",
+        "grep -rn \"optimizer\\.\\(client\\|web\\)\\|optimizer\\[.client.\\]\\|optimizer\\[.web.\\]\" /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/*.js /tmp/effect-eval-s3wwoP/node_modules/vitest/dist/chunks/*.js 2>/dev/null",
+        "grep -rln \"instrument\\|@sentry\" /tmp/effect-eval-s3wwoP/src --include=\"*.tsx\" --include=\"*.ts\" | grep -v test"
+      ],
+      "ranTests": true,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": true
+    },
+    {
+      "probe": "skill-absent-4688feda",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 40,
+      "truncated": false,
+      "costUsd": 0.9036960000000003,
+      "usage": {
+        "input": 144,
+        "output": 372,
+        "cacheCreation": 61322,
+        "cacheRead": 3187016,
+        "messages": 72
+      },
+      "toolCalls": 39,
+      "filesRead": [
+        "/tmp/effect-eval-ceWP3V/vitest.config.ts"
+      ],
+      "commandsRun": [
+        "ls && echo --- && cat README.md 2>/dev/null | head -100",
+        "find . -iname \"*.config.*\" -not -path \"./node_modules/*\" && echo --- && find . -iname \"playwright*\" -not -path \"./node_modules/*\" && echo --- && cat package.json | head -60",
+        "cat src/test/browser-setup.ts 2>/dev/null; echo ---; grep -rn \"vi.mock\\|vi\\.fn\\|clearMocks\\|vi\\.spyOn\" src server shared --include=\"*.test.*\" | head -50",
+        "grep -rln \"@sentry/react\" src server shared --include=\"*.ts*\" | grep -v test; echo ---; cat vite.config.ts",
+        "grep -rln \"instrument\" src --include=\"*.ts*\"; echo ---; ls src; echo ---; find src -iname \"*.browser.test.tsx\"",
+        "grep -rn \"@sentry\" src --include=\"*.ts*\"; echo ---; cat src/components/ConsentBanner/ConsentBanner.browser.test.tsx | head -20",
+        "git log --oneline -p -- vitest.config.ts | head -150",
+        "grep -rn \"headless\" node_modules/vitest/dist/*.d.ts 2>/dev/null | head -20; echo ---; grep -rn \"headless\" node_modules/@vitest/browser/dist/*.d.ts 2>/dev/null | head -20",
+        "grep -rln \"headless\" node_modules/vitest node_modules/@vitest 2>/dev/null | head -20",
+        "grep -n \"headless\" node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts",
+        "grep -n \"headless\" -B3 -A3 node_modules/@vitest/browser-playwright/dist/index.js",
+        "grep -rn \"headless\" node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js | head -20",
+        "grep -rn \"headless\" node_modules/vitest/dist/*.js 2>/dev/null | head -30; echo ---; grep -rln \"headless\" node_modules/vite-node node_modules/vitest 2>/dev/null",
+        "grep -rn \"headless\" node_modules/vitest/dist/chunks/cac.DdICfEr1.js | head -20",
+        "grep -n \"environment\" node_modules/vitest/dist/chunks/cac.DdICfEr1.js | head -10",
+        "cat .env.example 2>/dev/null; echo ---; cat .github/workflows/*.yml 2>/dev/null",
+        "npm test 2>&1 | tail -60",
+        "rm -rf node_modules/.vite node_modules/.cache 2>/dev/null; npm test 2>&1 | tail -60",
+        "git diff vitest.config.ts",
+        "git log --oneline --all -- src/instrument.ts src/main.tsx src/components/PublishToast 2>/dev/null; echo ---; find src/components -iname \"*PublishToast*\"; echo ---; git log --oneline | wc -l",
+        "git show a3077a0 --stat; echo ---; git show 7793271 --stat",
+        "git log --oneline --all -- src/components/*.browser.test.tsx src/components/**/*.browser.test.tsx 2>/dev/null; echo ---; git log --oneline --follow -p -- src/components/ConsentBanner/ConsentBanner.browser.test.tsx | grep -n \"^commit\\|sentry\\|Sentry\" ",
+        "git stash",
+        "git stash list; git diff vitest.config.ts; sed -n '1,48p' vitest.config.ts",
+        "git stash pop; git diff vitest.config.ts",
+        "git checkout -- vitest.config.ts && git diff --stat",
+        "rm -rf node_modules/.vite node_modules/.cache 2>/dev/null; npm test 2>&1 | tail -60",
+        "rm -rf node_modules/.vite node_modules/.cache 2>/dev/null; npx vitest run --project browser 2>&1 | tail -40",
+        "git checkout -- vitest.config.ts",
+        "git log --oneline --all",
+        "git log --oneline --diff-filter=A --all -- '*.browser.test.tsx'; echo ---; git log --oneline --diff-filter=D --all -- '*.browser.test.tsx' '*.browser.test.ts'",
+        "cat tsconfig.json tsconfig.app.json tsconfig.node.json 2>/dev/null",
+        "rm -rf node_modules/.vite node_modules/.cache 2>/dev/null; npm test 2>&1 | tail -20 && npm run lint 2>&1 | tail -20 && npm run typecheck 2>&1 | tail -20 && npm run format:check 2>&1 | tail -20",
+        "git diff"
+      ],
+      "ranTests": true,
+      "ranLint": true,
+      "ranFormat": true,
+      "changedPaths": [
+        "vitest.config.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-a624520d",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 28,
+      "truncated": false,
+      "costUsd": 0.6870553,
+      "usage": {
+        "input": 98,
+        "output": 240,
+        "cacheCreation": 56110,
+        "cacheRead": 2011930,
+        "messages": 49
+      },
+      "toolCalls": 27,
+      "filesRead": [
+        "/tmp/effect-eval-ymBRtU/vitest.config.ts",
+        "/tmp/effect-eval-ymBRtU/package.json"
+      ],
+      "commandsRun": [
+        "ls -la && find . -maxdepth 2 -iname \"*.config.*\" -not -path \"*/node_modules/*\"",
+        "cat node_modules/vitest/package.json | grep '\"version\"'; cat node_modules/@vitest/browser-playwright/package.json | grep '\"version\"'; cat node_modules/@vitest/browser/package.json | grep '\"version\"'",
+        "grep -rn \"clearMocks\\|deps.optimizer\\|optimizer\" node_modules/vitest/dist/*.d.ts 2>/dev/null | head -50",
+        "grep -n \"optimizer\\|deps\" node_modules/vitest/dist/config.d.ts | head -80",
+        "grep -rln \"optimizer\" node_modules/vitest/dist/ node_modules/@vitest/browser/dist/ node_modules/vite/dist/node/*.d.ts 2>/dev/null | head -20",
+        "grep -n \"optimizer\" -A 15 -B 15 node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts | head -150",
+        "grep -n \"optimizer\\|interface.*Config\\|type.*Config\" node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts | head -60",
+        "find node_modules/vitest -iname \"CHANGELOG*\" -o -iname \"*.md\" | head; grep -n \"optimizer\" node_modules/vitest/CHANGELOG.md 2>/dev/null | head -30",
+        "grep -rn \"optimizer\\.web\\|optimizer\\[.ssr.\\]\\|optimizer\\[.web.\\]\\|optimizer\\.ssr\" node_modules/vitest/dist/chunks/*.js 2>/dev/null | head -30",
+        "grep -rln \"optimizer\" node_modules/vitest/dist/**/*.js 2>/dev/null; echo ---; grep -rn \"deps\\.optimizer\\|optimizer\\.web\\|browserOptimizer\\|\\.optimizer\\b\" node_modules/@vitest/browser/dist/*.js 2>/dev/null | head -30",
+        "grep -n \"optimizer\" node_modules/vitest/dist/chunks/creator.DgVhQm5q.js | head -40",
+        "grep -n \"optimizer\" node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js | head -60",
+        "sed -n '9130,9230p' node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js",
+        "sed -n '9990,10200p' node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js",
+        "grep -n -i \"test\\|vitest\\|browser\" /tmp/effect-eval-ymBRtU/README.md | head -50",
+        "grep -rn \"optimizer\\.web\\|optimizer\\[.web.\\]\\|'web'\\]\" node_modules/vitest/dist/ node_modules/vite/dist/node/*.js 2>/dev/null | grep -i optimizer | head -20",
+        "grep -n \"\\\"client\\\"\\|environment.*client\\|browser.*environment\" node_modules/@vitest/browser/dist/*.js 2>/dev/null | head -20\necho ---\ngit log --oneline -- vitest.config.ts package.json | head -20",
+        "npx vitest run --project browser 2>&1 | tail -60",
+        "grep -n \"instances\\|headless\\b\" node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts | head -20",
+        "cat /tmp/effect-eval-ymBRtU/src/test/browser-setup.ts 2>/dev/null; echo ---workflows---; find /tmp/effect-eval-ymBRtU/.github -type f | xargs -I{} sh -c 'echo == {} ==; cat {}'",
+        "git remote -v && git status",
+        "git checkout -b fix/vitest-optimizer-client-key",
+        "npx vitest run 2>&1 | tail -30",
+        "git diff"
+      ],
+      "ranTests": true,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "vitest.config.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-41d210e1",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "vitest-testing"
+      ],
+      "turns": 40,
+      "truncated": false,
+      "costUsd": 0.9253513000000001,
+      "usage": {
+        "input": 206,
+        "output": 303,
+        "cacheCreation": 89796,
+        "cacheRead": 3324510,
+        "messages": 68
+      },
+      "toolCalls": 38,
+      "filesRead": [
+        "/tmp/effect-eval-6CSBO7/vitest.config.ts",
+        "/tmp/effect-eval-6CSBO7/package.json",
+        "/tmp/effect-eval-6CSBO7/.github/workflows/ci.yml",
+        "/tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts",
+        "/tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js",
+        "/tmp/effect-eval-6CSBO7/src/test/browser-setup.ts"
+      ],
+      "commandsRun": [
+        "ls && find . -iname \"vitest.config*\" -not -path \"*/node_modules/*\"",
+        "cat package.json | grep -i vitest; find . -maxdepth 3 -iname \"vitest*\" -path \"*node_modules*\" -name \"package.json\" | xargs -I{} sh -c 'echo {}; grep -m1 version {}'",
+        "grep -n -i \"coverage\\|threshold\" -r --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.json\" --include=\"*.yml\" --include=\"*.yaml\" /tmp/effect-eval-6CSBO7 --exclude-dir=node_modules --exclude-dir=.git",
+        "find /tmp/effect-eval-6CSBO7 -path \"*/.github/workflows/*\" -not -path \"*/node_modules/*\"",
+        "find . -not -path \"*/node_modules/*\" -not -path \"*/.git/*\" -iname \"*.test.*\" -o -iname \"*setup*\" -not -path \"*/node_modules/*\" | grep -v node_modules | head -50",
+        "cat tsconfig.json tsconfig.app.json tsconfig.node.json 2>/dev/null",
+        "cat /tmp/effect-eval-6CSBO7/node_modules/vitest/package.json | grep '\"version\"'; find /tmp/effect-eval-6CSBO7/node_modules/vitest/dist -iname \"*.d.ts\" | xargs grep -l \"optimizer\" 2>/dev/null | head",
+        "grep -n -B5 -A20 \"interface DepsOptimizationOptions\\|deps?:\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts | head -100",
+        "grep -n \"optimizer\\|deps\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/config.d.A1h_Y6Jt.d.ts | head -60",
+        "grep -rn \"optimizer\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/*.d.ts /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/*.d.ts 2>/dev/null | head -40",
+        "grep -n \"DepsOptimizationOptions\" -A 15 /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/reporters.d.DtoKVV2s.d.ts | head -40",
+        "grep -rn \"optimizer\\[\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/*.js 2>/dev/null | head -20\ngrep -rln \"optimizer\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/*.js 2>/dev/null",
+        "grep -rln \"optimizer\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/ 2>/dev/null",
+        "grep -n \"optimizer\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/creator.DgVhQm5q.js",
+        "grep -n \"optimizer\" /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js",
+        "grep -n '\"client\"\\|\"ssr\"\\|\"web\"\\|environments\\[' /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js | head -40",
+        "find /tmp/effect-eval-6CSBO7/node_modules/vitest -maxdepth 1 -iname \"CHANGELOG*\"\nfind /tmp/effect-eval-6CSBO7/node_modules -maxdepth 2 -iname \"*.md\" -path \"*vitest*\" | head",
+        "sed -n '2655,2680p' /tmp/effect-eval-6CSBO7/node_modules/vitest/dist/chunks/reporters.d.DtoKVV2s.d.ts",
+        "git log -p --follow -- vitest.config.ts | head -150",
+        "npx playwright --version 2>&1; ls ~/.cache/ms-playwright 2>&1 | head",
+        "npx vitest run --project browser 2>&1 | tail -60",
+        "DEBUG=vite:deps npx vitest run --project browser 2>&1 | grep -i sentry\necho \"---full tail---\"\nDEBUG=vite:deps npx vitest run --project browser 2>&1 | tail -80",
+        "rm -rf node_modules/.vite* 2>/dev/null; DEBUG=vite:deps npx vitest run --project browser 2>&1 | tail -100",
+        "rm -rf node_modules/.vite* 2>/dev/null; DEBUG=vite:deps npx vitest run --project browser 2>&1 | tail -30",
+        "npm test 2>&1 | tail -30 && npm run typecheck 2>&1 | tail -20",
+        "git diff"
+      ],
+      "ranTests": true,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "vitest.config.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-5be231cb",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "vitest-testing"
+      ],
+      "turns": 17,
+      "truncated": false,
+      "costUsd": 0.4015653,
+      "usage": {
+        "input": 59,
+        "output": 132,
+        "cacheCreation": 55991,
+        "cacheRead": 1259461,
+        "messages": 31
+      },
+      "toolCalls": 15,
+      "filesRead": [
+        "/tmp/effect-eval-Nltbfl/vitest.config.ts",
+        "/tmp/effect-eval-Nltbfl/.claude/skills/vitest-testing/references/version-discipline.md"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-Nltbfl -maxdepth 3 -iname \"*vitest*\" -o -iname \"*test.config*\" | grep -v node_modules",
+        "cat /tmp/effect-eval-Nltbfl/package.json | grep -i vitest",
+        "grep -n -i \"deps\\|optimizer\" /tmp/effect-eval-Nltbfl/.claude/skills/vitest-testing/references/*.md",
+        "grep -rn \"poolOptions\\|maxThreads\\|maxForks\\|singleThread\\|singleFork\\|workspace\\|poolMatchGlobs\\|environmentMatchGlobs\\|minWorkers\\|deps.optimizer\\|deps\\.external\\|deps\\.inline\" /tmp/effect-eval-Nltbfl --include=\"*.ts\" --include=\"*.json\" --include=\"*.yml\" -l 2>/dev/null | grep -v node_modules",
+        "npx vitest run --project unit 2>&1 | tail -30",
+        "npx vitest run --project browser 2>&1 | tail -40",
+        "git diff",
+        "git remote -v; git status",
+        "git checkout -b fix/vitest-deps-optimizer-client",
+        "git add vitest.config.ts && git commit -m \"$(cat <<'EOF'\nfix: rename deps.optimizer.web to deps.optimizer.client for Vitest 4\n\nThe browser project's dependency pre-bundling override for Sentry was\nwritten under the v3 key name. Vitest 4 renamed it to\ndeps.optimizer.client and silently ignores unrecognized test keys, so\nthe override had been a no-op since the upgrade.\nEOF\n)\"",
+        "git status; git diff --cached"
+      ],
+      "ranTests": true,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "vitest.config.ts"
+      ],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-ab5615e0",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [
+        "vitest-testing"
+      ],
+      "turns": 24,
+      "truncated": false,
+      "costUsd": 0.6040593999999999,
+      "usage": {
+        "input": 1901,
+        "output": 242,
+        "cacheCreation": 67124,
+        "cacheRead": 1850350,
+        "messages": 41
+      },
+      "toolCalls": 22,
+      "filesRead": [
+        "/tmp/effect-eval-h7bI4J/vitest.config.ts"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-h7bI4J -iname \"vitest.config*\" -not -path \"*/node_modules/*\"",
+        "cat /tmp/effect-eval-h7bI4J/package.json | head -60",
+        "git log --oneline --all -- vitest.config.ts; echo ---; git log -p --follow -- vitest.config.ts | head -300",
+        "find . -iname \"*vitest*\" -not -path \"*/node_modules/*\"; echo ---; find . -iname \"*.test.*\" -not -path \"*/node_modules/*\" | head -50; echo ---; cat src/test/browser-setup.ts 2>/dev/null",
+        "cat README.md 2>/dev/null; echo \"---CI---\"; find .github -type f 2>/dev/null | xargs -I{} sh -c 'echo ==={}===; cat {}'",
+        "find node_modules/vitest -iname \"*.d.ts\" | xargs grep -l \"interface.*ProjectConfig\\|interface.*InlineConfig\" 2>/dev/null | head -5",
+        "grep -n \"deps\\b\" node_modules/vitest/dist/chunks/reporters.d.DtoKVV2s.d.ts | head -30",
+        "grep -n \"DepsOptions\\|optimizer\" node_modules/vitest/dist/chunks/reporters.d.DtoKVV2s.d.ts | head -30",
+        "grep -rn \"optimizer\\|deps\\.optimizer\\|\\\"web\\\"\\|'web'\\|client\" /tmp/effect-eval-h7bI4J/.claude/skills/vitest-testing/references/*.md",
+        "sed -n '1,60p' /tmp/effect-eval-h7bI4J/.claude/skills/vitest-testing/references/version-discipline.md",
+        "grep -rn \"sentry\\|Sentry\" /tmp/effect-eval-h7bI4J/src/lib/*.ts 2>/dev/null | head -20",
+        "grep -rln \"sentry\" /tmp/effect-eval-h7bI4J/src --include=\"*.ts*\" -i",
+        "timeout 90 npm test 2>&1 | tail -60",
+        "timeout 90 npm test 2>&1 | tail -60",
+        "git status && git diff",
+        "git checkout -b fix/vitest-deps-optimizer-key",
+        "git add vitest.config.ts && git commit -m \"$(cat <<'EOF'\nfix: rename deps.optimizer.web to client in vitest config\n\nVitest 4 renamed the pre-bundling optimizer key from `web` to `client`;\nthe old name is silently ignored rather than erroring, so the browser\nproject's Sentry exclude stopped taking effect without failing anything.\nEOF\n)\"",
+        "git -c user.name=\"Claude Sonnet 5\" -c user.email=\"noreply@anthropic.com\" commit -m \"$(cat <<'EOF'\nfix: rename deps.optimizer.web to client in vitest config\n\nVitest 4 renamed the pre-bundling optimizer key from `web` to `client`;\nthe old name is silently ignored rather than erroring, so the browser\nproject's Sentry exclude stopped taking effect without failing anything.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\nEOF\n)\"",
+        "git remote -v"
+      ],
+      "ranTests": true,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [
+        "vitest.config.ts"
+      ],
+      "endedAwaitingDecision": false
+    }
+  ]
+}

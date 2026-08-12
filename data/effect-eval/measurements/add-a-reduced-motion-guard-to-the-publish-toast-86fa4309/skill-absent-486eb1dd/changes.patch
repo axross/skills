@@ -1,0 +1,14 @@
+diff --git a/src/components/PublishToast/PublishToast.module.css b/src/components/PublishToast/PublishToast.module.css
+index 788319e..b599ea6 100644
+--- a/src/components/PublishToast/PublishToast.module.css
++++ b/src/components/PublishToast/PublishToast.module.css
+@@ -27,3 +27,9 @@
+     transform: translateY(0);
+   }
+ }
++
++@media (prefers-reduced-motion: reduce) {
++  .toast {
++    animation: none;
++  }
++}
