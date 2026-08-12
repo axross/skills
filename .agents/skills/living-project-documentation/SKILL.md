@@ -8,8 +8,8 @@ user-invocable: true
 
 Use this capability to keep a project's own documentation — what the product is,
 the language its domain speaks, how it currently behaves, the decisions that
-constrain it, and the conventions and operational procedures the project works
-by — true as the code changes, and to read it before planning a change rather
+constrain it, and the conventions and operational procedures it keeps alongside
+them — true as the code changes, and to read it before planning a change rather
 than discovering it afterwards.
 
 The weight is on **upkeep**. Documentation that is only ever created is a
