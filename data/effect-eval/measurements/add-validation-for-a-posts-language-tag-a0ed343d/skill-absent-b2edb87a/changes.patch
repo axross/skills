@@ -1,0 +1,97 @@
+diff --git a/README.md b/README.md
+index 1b8b505..ee4ffb8 100644
+--- a/README.md
++++ b/README.md
+@@ -31,7 +31,9 @@ npm install
+ - `shared/` — code shared by more than one part of the app, independent of any
+   one route. `shared/resolve-translation.ts` is the locale-fallback logic a
+   post detail page calls into; `shared/blog-post-slug.ts` is the slug shape
+-  every post's `slug` is validated against.
++  every post's `slug` is validated against; `shared/post-locale.ts` is the
++  locale tag shape every post's `defaultLocale` and translation `locale` is
++  validated against.
+ - `shared/*.spec.ts` — unit tests, colocated with the code they cover.
+ - `e2e/` — end-to-end specs, kept apart from the unit tests above because they
+   exercise the whole running app rather than one module in isolation.
+diff --git a/app/(site)/posts-data.spec.ts b/app/(site)/posts-data.spec.ts
+new file mode 100644
+index 0000000..8268f91
+--- /dev/null
++++ b/app/(site)/posts-data.spec.ts
+@@ -0,0 +1,17 @@
++import { describe, expect, it } from "@jest/globals";
++import { PostLocale } from "@/shared/post-locale";
++import { POSTS } from "./posts-data";
++
++describe("POSTS locale tags", () => {
++	for (const post of POSTS) {
++		it(`${post.slug}: defaultLocale is a valid locale tag`, () => {
++			expect(PostLocale.safeParse(post.defaultLocale).success).toBe(true);
++		});
++
++		for (const translation of post.translations) {
++			it(`${post.slug}: translation locale "${translation.locale}" is a valid locale tag`, () => {
++				expect(PostLocale.safeParse(translation.locale).success).toBe(true);
++			});
++		}
++	}
++});
+diff --git a/shared/post-locale.spec.ts b/shared/post-locale.spec.ts
+new file mode 100644
+index 0000000..776f2ed
+--- /dev/null
++++ b/shared/post-locale.spec.ts
+@@ -0,0 +1,30 @@
++import { describe, expect, it } from "@jest/globals";
++import { PostLocale } from "./post-locale";
++
++describe("PostLocale", () => {
++	it("safeParse returns success", () => {
++		expect(PostLocale.safeParse("ja").success).toBe(true);
++		expect(PostLocale.safeParse("en-US").success).toBe(true);
++		expect(PostLocale.safeParse("ja-JP").success).toBe(true);
++	});
++
++	it("rejects a lowercase region", () => {
++		expect(PostLocale.safeParse("en-us").success).toBe(false);
++	});
++
++	it("rejects an underscore separator", () => {
++		expect(PostLocale.safeParse("en_US").success).toBe(false);
++	});
++
++	it("rejects an uppercase language subtag", () => {
++		expect(PostLocale.safeParse("EN-US").success).toBe(false);
++	});
++
++	it("rejects a three-letter region", () => {
++		expect(PostLocale.safeParse("en-USA").success).toBe(false);
++	});
++
++	it("rejects an empty locale", () => {
++		expect(PostLocale.safeParse("").success).toBe(false);
++	});
++});
+diff --git a/shared/post-locale.ts b/shared/post-locale.ts
+new file mode 100644
+index 0000000..e61ce4b
+--- /dev/null
++++ b/shared/post-locale.ts
+@@ -0,0 +1,17 @@
++import { z } from "zod";
++
++/**
++ * Shape of a post's locale tag: a lowercase 2-3 letter language subtag,
++ * optionally followed by a hyphen and an uppercase 2-letter region subtag —
++ * e.g. `"ja"`, `"en-US"`, `"ja-JP"`. This is the subset of BCP 47 this
++ * project actually uses (see `shared/resolve-translation.ts`); it exists so
++ * every locale tag is written the same way rather than each post inventing
++ * its own casing or separator.
++ */
++export const PostLocale = z.string().regex(/^[a-z]{2,3}(-[A-Z]{2})?$/);
++
++export type PostLocale = z.infer<typeof PostLocale>;
++
++/** Message shown next to a locale field that failed {@link PostLocale}. */
++export const LOCALE_VALIDATION_MESSAGE =
++	'Use a language subtag, optionally with a region (e.g. "ja" or "en-US").';

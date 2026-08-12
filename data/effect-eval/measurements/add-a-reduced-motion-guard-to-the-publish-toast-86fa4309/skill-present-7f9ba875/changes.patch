@@ -1,0 +1,17 @@
+diff --git a/src/components/PublishToast/PublishToast.module.css b/src/components/PublishToast/PublishToast.module.css
+index 788319e..70c35f7 100644
+--- a/src/components/PublishToast/PublishToast.module.css
++++ b/src/components/PublishToast/PublishToast.module.css
+@@ -12,6 +12,12 @@
+   font-weight: 600;
+ }
+ 
++@media (prefers-reduced-motion: reduce) {
++  .toast {
++    animation: none;
++  }
++}
++
+ .error {
+   background: #a4302f;
+ }

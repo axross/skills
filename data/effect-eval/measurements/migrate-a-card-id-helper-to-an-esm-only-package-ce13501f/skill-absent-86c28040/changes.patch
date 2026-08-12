@@ -1,0 +1,18 @@
+diff --git a/jest.config.js b/jest.config.js
+index 5aba31c..4761706 100644
+--- a/jest.config.js
++++ b/jest.config.js
+@@ -19,4 +19,13 @@ module.exports = {
+   moduleNameMapper: {
+     "^@/(.*)$": "<rootDir>/src/$1",
+   },
++  // jest-expo's default transformIgnorePatterns leaves everything under
++  // node_modules untransformed except a handful of known RN/Expo packages.
++  // `nanoid` ships ESM-only (no CJS build), so it needs to be transformed
++  // like those packages rather than required as-is.
++  transformIgnorePatterns: [
++    "/node_modules/(?!(.pnpm|react-native|@react-native|@react-native-community|expo|@expo|@expo-google-fonts|react-navigation|@react-navigation|@sentry/react-native|native-base|standard-navigation|nanoid))",
++    "/node_modules/react-native-reanimated/plugin/",
++    "/node_modules/@react-native/babel-preset/",
++  ],
+ };

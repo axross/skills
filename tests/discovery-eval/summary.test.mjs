@@ -351,6 +351,20 @@ describe("verdictFor — carried over unchanged from the replaced instrument", (
   });
 });
 
+describe("verdictFor — zero readable repeats reports no evidence, never a MISS", () => {
+  it("is 'unevidenced', not 'miss', for a mustInclude skill with zero readable repeats", () => {
+    expect(verdictFor("mustInclude", 0, 0)).toBe("unevidenced");
+    expect(verdictFor("mustInclude", 0, 0)).not.toBe("miss");
+  });
+
+  it("is 'unevidenced' for every tier at zero readable repeats, not the tier's own zero-hit answer", () => {
+    expect(verdictFor("mustExclude", 0, 0)).toBe("unevidenced");
+    expect(verdictFor("mustExclude", 0, 0)).not.toBe("clear");
+    expect(verdictFor("mayInclude", 0, 0)).toBe("unevidenced");
+    expect(verdictFor(null, 0, 0)).toBe("unevidenced");
+  });
+});
+
 describe("trackedSkillsOf", () => {
   it("is the union of mustInclude and mustExclude, never mayInclude", () => {
     expect(
@@ -388,6 +402,17 @@ describe("tallyVerdicts", () => {
     const tally = tallyVerdicts(twoWay, [["a"], ["b"], []]);
     expect(tally.coverage).toEqual({ covered: 2, repeats: 3, skills: ["a", "b"] });
   });
+
+  it("verdicts every tracked skill 'unevidenced' and reports no finding when no probe was readable", () => {
+    // this is defect issue #343 names as "a verdict on no evidence": a case
+    // whose every probe was unreadable used to report hits === 0 as a MISS,
+    // backed by zero readable repeats.
+    const tally = tallyVerdicts(testCase, []);
+    expect(tally.repeats).toBe(0);
+    const must = tally.skills.find((skill) => skill.name === "tanstack-query-development");
+    expect(must.verdict).toBe("unevidenced");
+    expect(tally.findings).toEqual([]);
+  });
 });
 
 describe("deriveCaseSummary — end to end over real files", () => {
@@ -403,6 +428,21 @@ describe("deriveCaseSummary — end to end over real files", () => {
     const must = summary.verdict.skills.find((skill) => skill.name === "tanstack-query-development");
     expect(must.hits).toBe(1);
     expect(summary.verdict.repeats).toBe(1);
+  });
+
+  it("reports no MISS finding and readableCount 0 when every probe is unreadable", async () => {
+    await writeProbe("probe-aaaaaaaa", { transcript: transcriptTruncated() });
+    await writeProbe("probe-bbbbbbbb", { transcript: transcriptTruncated() });
+
+    const summary = await deriveCaseSummary(caseDir, { measurementName: "x-aaaaaaaa" });
+    expect(summary.probeCount).toBe(2);
+    expect(summary.readableCount).toBe(0);
+    expect(summary.verdict.repeats).toBe(0);
+    // absence surfaces via readableCount/verdict.repeats above, never as a
+    // MISS finding backed by no evidence.
+    expect(summary.verdict.findings).toEqual([]);
+    const must = summary.verdict.skills.find((skill) => skill.name === "tanstack-query-development");
+    expect(must.verdict).toBe("unevidenced");
   });
 
   it("is a pure function of the files, so two derivations agree byte for byte", async () => {
@@ -519,6 +559,48 @@ describe("findComparablePredecessor — comparability's second scope", () => {
     const result = findComparablePredecessor(current, [prior], trackedSkillsOf(testCase));
     expect(result.usable).toBe(false);
     expect(result.reason).toMatch(/description digest differs for tracked skill\(s\): tanstack-query-development/);
+  });
+
+  describe("runtime — issue #343's fourth defect: comparability ignored the runtime", () => {
+    const bareRuntimeV1 = {
+      name: "claude-code",
+      version: "2.1.220",
+      options: { maxTurns: 1, settingSources: ["project"], allowedTools: ["Skill"], disallowedTools: ["Agent", "Bash"] },
+    };
+    const bareRuntimeV2 = {
+      name: "claude-code",
+      version: "2.1.220",
+      options: { maxTurns: 2, settingSources: ["project"], allowedTools: ["Skill"], disallowedTools: ["Agent", "Bash", "ToolSearch"] },
+    };
+
+    it("is comparable when the runtime is identical", () => {
+      const prior = summaryAt("2026-08-01", { runtime: bareRuntimeV1 });
+      const current = summaryAt("2026-08-09", { runtime: bareRuntimeV1 });
+      const result = findComparablePredecessor(current, [prior], trackedSkillsOf(testCase));
+      expect(result.usable).toBe(true);
+    });
+
+    it("is not comparable, and names maxTurns and disallowedTools, when the runtime's options differ", () => {
+      // this is exactly what issue #343 warns a fix to defect 3 makes
+      // dangerous without this check: a bare measurement taken under the old
+      // 1-turn cap and one taken under the new 2-turn cap must not be judged
+      // comparable, or a turn-cap effect would be silently attributed to a
+      // skill.
+      const prior = summaryAt("2026-08-01", { runtime: bareRuntimeV1 });
+      const current = summaryAt("2026-08-09", { runtime: bareRuntimeV2 });
+      const result = findComparablePredecessor(current, [prior], trackedSkillsOf(testCase));
+      expect(result.usable).toBe(false);
+      expect(result.reason).toMatch(/runtime maxTurns differs: now 2, then 1/);
+      expect(result.reason).toMatch(/runtime disallowedTools differs/);
+    });
+
+    it("is not comparable, and names it, when only the runtime version differs", () => {
+      const prior = summaryAt("2026-08-01", { runtime: { ...bareRuntimeV1, version: "2.1.100" } });
+      const current = summaryAt("2026-08-09", { runtime: bareRuntimeV1 });
+      const result = findComparablePredecessor(current, [prior], trackedSkillsOf(testCase));
+      expect(result.usable).toBe(false);
+      expect(result.reason).toMatch(/runtime version differs: now "2\.1\.220", then "2\.1\.100"/);
+    });
   });
 });
 
