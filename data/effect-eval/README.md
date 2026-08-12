@@ -120,10 +120,10 @@ asking permission to apply the fix rather than applying it — and
 found nothing at all. `endedAwaitingDecision` splits the bucket: `true` means
 the probe found something and stopped to ask about it; `false` alongside an
 empty `changedPaths` means the probe produced nothing and its final message
-did not solicit a decision either. That measurement is not committed on
-`main` as of this change — its pull request is still open — so it is not
-among the summaries this repository regenerates today, but it is the
-measurement the field was added to make readable.
+did not solicit a decision either. That measurement is committed under
+`measurements/fix-a-minified-production-stack-trace-201f1200/`, and its two
+soliciting probes — `skill-absent-679a67c3` and `skill-present-a94cd726` —
+are the ones the field was added to make readable.
 
 It is derived, not declared. `tools/lib/transcript/parse.mjs` reads the
 transcript's last assistant message into `finalAssistantText` (`null` when the
