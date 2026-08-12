@@ -134,6 +134,33 @@ effect-eval reading rather than a fact about the stream. Both are pure
 functions of the stored files, so `endedAwaitingDecision` regenerates and
 drift-checks the same as every other derived value.
 
+## `skill-present-632e2800`'s empty patch is an instrument artefact
+
+`measurements/fix-a-minified-production-stack-trace-156f5602/skill-present-632e2800/changes.patch`
+is empty. That is not a report of an idle probe: its `transcript.jsonl` shows
+23 turns of correct work — the probe located the planted
+`build.sourcemap: false` defect, fixed it, verified with a local build that
+`.map` files were now produced, and ran typecheck and lint — before
+committing the result. It committed on a new branch, `fix/enable-sourcemaps`,
+rather than to `main` directly, because it had read the mock's own
+`AGENTS.md` and deferred to it, exactly as several skills in this library
+instruct.
+
+That commit is why the stored patch is empty. `captureDiff`
+(`tools/effect-eval/src/capture.mjs`) read a probe's work as `git diff
+--cached` against whatever HEAD happened to be when the probe finished, and
+committing moves HEAD onto the commit — so the diff came back empty and the
+probe was recorded as having changed nothing, even though the transcript
+shows the work landed. #335 fixed the capture to compare against the
+workspace's HEAD as read before the probe ran instead, which no longer loses
+a probe for following the project's own contributor documentation.
+
+`changes.patch` is a measured file, and this one record cannot be repaired:
+`skill-present-632e2800`'s workspace no longer exists, and reproducing it
+would mean paying for another probe, not rewriting a stored one. It stays
+empty, wrong, and committed exactly as measured — this note is the
+correction, not a rewrite.
+
 ## The non-interactive brief, and what it supersedes
 
 Every dispatch now carries a pinned brief, `NONINTERACTIVE_BRIEF` in
