@@ -1,6 +1,6 @@
 {
-  "measurementCount": 5,
-  "comparableCount": 5,
+  "measurementCount": 6,
+  "comparableCount": 6,
   "measurements": [
     {
       "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
@@ -177,6 +177,51 @@
             "WebFetch",
             "WebSearch"
           ]
+        }
+      }
+    },
+    {
+      "measurement": "remove-config-options-the-test-runner-ignores-b2e5e389",
+      "case": "remove-config-options-the-test-runner-ignores",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 4.1247967,
+      "project": {
+        "name": "inkwell",
+        "tree": "sha256:6dc60ad562d25a8ce09f496cf8e292c4c22a8bf59aa76ca44034f8770b7cac95",
+        "commit": "e4e128e42c80d775b760aadf5af412be2aa6ddf8"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
         }
       }
     },
