@@ -1,0 +1,369 @@
+{
+  "case": {
+    "prompt": "Several screens each pull the same thing out of the address bar the same way, and each spells out its own loading and error branches. Where should that live?"
+  },
+  "project": {
+    "name": "inkwell",
+    "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+    "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ],
+      "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"react-component-development\":\"sha256:5191cd0f4f4d1ad8c761be1d2f0e89dc8b797364d0d29d7f03bd55735a090531\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"Several screens each pull the same thing out of the address bar the same way, and each spells out its own loading and error branches. Where should that live?\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 0.9279569,
+  "probes": [
+    {
+      "probe": "skill-absent-993b77dd",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 6,
+      "truncated": false,
+      "costUsd": 0.12828069999999997,
+      "usage": {
+        "input": 16,
+        "output": 88,
+        "cacheCreation": 28772,
+        "cacheRead": 238968,
+        "messages": 8
+      },
+      "toolCalls": 5,
+      "filesRead": [
+        "/tmp/effect-eval-Cga4M1/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-Cga4M1/src/routes/PostEditorPage.tsx",
+        "/tmp/effect-eval-Cga4M1/src/routes/Layout.tsx",
+        "/tmp/effect-eval-Cga4M1/src/routes/RootRedirect.tsx"
+      ],
+      "commandsRun": [
+        "find src -type f | sort"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": true
+    },
+    {
+      "probe": "skill-absent-f431ce69",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 5,
+      "truncated": false,
+      "costUsd": 0.1552778,
+      "usage": {
+        "input": 16,
+        "output": 66,
+        "cacheCreation": 24573,
+        "cacheRead": 242783,
+        "messages": 8
+      },
+      "toolCalls": 4,
+      "filesRead": [],
+      "commandsRun": [
+        "find /tmp/effect-eval-5OWY9v/src -type d | sort",
+        "find /tmp/effect-eval-5OWY9v/src/routes -type f | sort; echo ---; find /tmp/effect-eval-5OWY9v/src/lib -type f | sort",
+        "cat -n /tmp/effect-eval-5OWY9v/src/routes/PostListPage.tsx",
+        "cat -n /tmp/effect-eval-5OWY9v/src/routes/PostEditorPage.tsx"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-fb357a1c",
+      "condition": "skill-absent",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 5,
+      "truncated": false,
+      "costUsd": 0.1311485,
+      "usage": {
+        "input": 14,
+        "output": 71,
+        "cacheCreation": 27052,
+        "cacheRead": 206534,
+        "messages": 7
+      },
+      "toolCalls": 4,
+      "filesRead": [
+        "/tmp/effect-eval-Kq2g5A/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-Kq2g5A/src/routes/PostEditorPage.tsx",
+        "/tmp/effect-eval-Kq2g5A/src/routes/RootRedirect.tsx"
+      ],
+      "commandsRun": [
+        "find src -type f | sort"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": true
+    },
+    {
+      "probe": "skill-present-01aed0a3",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 4,
+      "truncated": false,
+      "costUsd": 0.11971269999999999,
+      "usage": {
+        "input": 12,
+        "output": 36,
+        "cacheCreation": 25706,
+        "cacheRead": 176018,
+        "messages": 6
+      },
+      "toolCalls": 3,
+      "filesRead": [
+        "/tmp/effect-eval-WKECv1/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-WKECv1/src/routes/PostEditorPage.tsx"
+      ],
+      "commandsRun": [
+        "find src -type f | head -100"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-10e1b713",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 3,
+      "truncated": false,
+      "costUsd": 0.1274649,
+      "usage": {
+        "input": 10,
+        "output": 28,
+        "cacheCreation": 24890,
+        "cacheRead": 145770,
+        "messages": 5
+      },
+      "toolCalls": 2,
+      "filesRead": [],
+      "commandsRun": [
+        "find /tmp/effect-eval-Uj1ydW/src -type f | sort",
+        "cat /tmp/effect-eval-Uj1ydW/src/routes/PostListPage.tsx /tmp/effect-eval-Uj1ydW/src/routes/PostEditorPage.tsx"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-ff53d27b",
+      "condition": "skill-present",
+      "loadedSkills": [
+        "deep-research",
+        "design-sync",
+        "dataviz",
+        "update-config",
+        "verify",
+        "debug",
+        "code-review",
+        "simplify",
+        "batch",
+        "fewer-permission-prompts",
+        "doctor",
+        "loop",
+        "schedule",
+        "claude-api",
+        "run",
+        "run-skill-generator"
+      ],
+      "skillsInvoked": [],
+      "turns": 6,
+      "truncated": false,
+      "costUsd": 0.26607230000000004,
+      "usage": {
+        "input": 16,
+        "output": 88,
+        "cacheCreation": 78284,
+        "cacheRead": 195826,
+        "messages": 8
+      },
+      "toolCalls": 5,
+      "filesRead": [
+        "/tmp/effect-eval-6USMJ0/src/routes/PostListPage.tsx",
+        "/tmp/effect-eval-6USMJ0/src/routes/PostEditorPage.tsx",
+        "/tmp/effect-eval-6USMJ0/src/routes/Layout.tsx",
+        "/tmp/effect-eval-6USMJ0/src/routes/RootRedirect.tsx"
+      ],
+      "commandsRun": [
+        "find /tmp/effect-eval-6USMJ0/src -type f | sort"
+      ],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    }
+  ]
+}
