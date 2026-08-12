@@ -12,6 +12,7 @@ import {
   buildConfiguration,
   DISALLOWED_TOOLS,
   MODEL,
+  NONINTERACTIVE_BRIEF,
   shellQuote,
   TURN_CAP,
 } from "../../tools/effect-eval/src/spawn.mjs";
@@ -53,6 +54,8 @@ describe("the configuration → argv round trip", () => {
       DISALLOWED_TOOLS.join(","),
       "--setting-sources",
       "project",
+      "--append-system-prompt",
+      NONINTERACTIVE_BRIEF,
     ]);
   });
 
@@ -74,6 +77,29 @@ describe("the configuration → argv round trip", () => {
   it("names every missing field at once, not only the first", () => {
     expect(() => buildArgv({})).toThrow(/task\.prompt.*model\.model/s);
   });
+
+  it("carries the non-interactive brief from the configuration into the argv", () => {
+    const argv = buildArgv(aConfiguration());
+    const flagIndex = argv.indexOf("--append-system-prompt");
+    expect(flagIndex).toBeGreaterThan(-1);
+    expect(argv[flagIndex + 1]).toBe(NONINTERACTIVE_BRIEF);
+  });
+
+  it("refuses to build an argv missing the non-interactive brief", () => {
+    // an absent flag must fail loudly rather than silently omit
+    // --append-system-prompt from the command line.
+    const configuration = aConfiguration();
+    delete configuration.runtime.options.appendSystemPrompt;
+    expect(() => buildArgv(configuration)).toThrow(/runtime\.options\.appendSystemPrompt/);
+  });
+
+  it("gives both conditions of a case a byte-identical brief", () => {
+    const absent = aConfiguration({ skills: {} });
+    const present = aConfiguration({ skills: { "unit-testing": "sha256:def" } });
+    expect(absent.runtime.options.appendSystemPrompt).toBe(present.runtime.options.appendSystemPrompt);
+    expect(buildArgv(absent)).toContain(NONINTERACTIVE_BRIEF);
+    expect(buildArgv(present)).toContain(NONINTERACTIVE_BRIEF);
+  });
 });
 
 describe("buildConfiguration", () => {
@@ -92,6 +118,10 @@ describe("buildConfiguration", () => {
     // distinct from a disagreement: an older CLI that says nothing must not
     // read as a probe that ran against the wrong version.
     expect(aConfiguration().runtime.version).toBeNull();
+  });
+
+  it("records the pinned non-interactive brief in runtime.options.appendSystemPrompt", () => {
+    expect(aConfiguration().runtime.options.appendSystemPrompt).toBe(NONINTERACTIVE_BRIEF);
   });
 });
 

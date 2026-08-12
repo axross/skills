@@ -102,6 +102,16 @@ which tools each run used, the per-message token usage, and the model each
 message reported. Every question the extractor did not anticipate cost a paid
 re-run.
 
+A second instance of the same lesson arrived with #331: `changedPaths` alone
+recorded a probe that found the planted defect and then asked whether to
+apply it, and a probe that found nothing at all, identically — both `[]`. The
+stream already held the difference; a new reading, `endedAwaitingDecision`,
+tells the two apart without spending another probe. The same change pinned a
+non-interactive brief into every dispatch's argv, which supersedes any
+measurement taken before it existed — today, the one committed under
+`add-unit-tests-for-an-untested-module-4204a1ed`. Both are stated in full in
+[`data/effect-eval/README.md`](../../data/effect-eval/README.md).
+
 **A baseline is the same mistake one level up**, and the discovery axis carried
 one until it was rebuilt. A file recording "the current result" is a stored
 conclusion about which measurement counts as current, it has to be re-recorded

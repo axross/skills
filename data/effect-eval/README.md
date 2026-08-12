@@ -103,6 +103,67 @@ fixture that declares it. Three rules govern one:
   mock, so a patch that stopped fitting fails there rather than in a dispatch
   that has already spent money reaching it.
 
+## `endedAwaitingDecision`
+
+A derived boolean on every probe's summary, alongside `changedPaths` and the
+rest of what `summarize.mjs` derives from a probe's own transcript and diff.
+It is `true` only when both hold: `changedPaths` is empty, and the
+transcript's last assistant message reads as putting a decision to a person
+rather than finishing the task — ending on a question like "want me to apply
+the fix?" rather than reporting that the fix was applied.
+
+The signal exists because those two outcomes used to be recorded identically.
+The first paid measurement of `fix-a-minified-production-stack-trace` (#330)
+found the planted defect in all six of its probes, but two of the six ended by
+asking permission to apply the fix rather than applying it — and
+`changedPaths: []` alone could not tell that outcome apart from a probe that
+found nothing at all. `endedAwaitingDecision` splits the bucket: `true` means
+the probe found something and stopped to ask about it; `false` alongside an
+empty `changedPaths` means the probe produced nothing and its final message
+did not solicit a decision either. That measurement is not committed on
+`main` as of this change — its pull request is still open — so it is not
+among the summaries this repository regenerates today, but it is the
+measurement the field was added to make readable.
+
+It is derived, not declared. `tools/lib/transcript/parse.mjs` reads the
+transcript's last assistant message into `finalAssistantText` (`null` when the
+stream carried none, the same convention every other field in that module
+follows). `tools/effect-eval/src/summary.mjs` exports the judgement itself,
+`solicitsDecision`, kept out of the shared transcript library because it is an
+effect-eval reading rather than a fact about the stream. Both are pure
+functions of the stored files, so `endedAwaitingDecision` regenerates and
+drift-checks the same as every other derived value.
+
+## The non-interactive brief, and what it supersedes
+
+Every dispatch now carries a pinned brief, `NONINTERACTIVE_BRIEF` in
+`tools/effect-eval/src/spawn.mjs`, into both conditions' argv via
+`--append-system-prompt`. It states that the session is non-interactive — no
+one will read a question the model asks, and no answer will come back — and
+that where it would otherwise put a decision to a person, it should choose
+the option it judges best, act on it, and say so in its final message. It
+states the situation and relocates the open question; it does not instruct
+the model to skip consulting anyone. Several skills in this repository
+instruct exactly that, so a prohibition here would fight the treatment in the
+skill-present condition and bias the arm this instrument exists to read.
+
+Changing the brief supersedes the measurements taken under the old wording
+rather than extending them, for the same reason changing `MODEL` does: the
+instrument attributes a difference between the two conditions to the skill,
+which holds only while everything else — this brief included — is constant
+across the measurements being compared.
+
+Two measurements are superseded here, not one, and only one of them is
+committed. `measurements/add-unit-tests-for-an-untested-module-4204a1ed/`
+predates the brief — its stored `metadata.json` carries no
+`appendSystemPrompt` — and every one of its six probes produced a diff, so its
+regenerated `endedAwaitingDecision` is `false` throughout. The
+`fix-a-minified-production-stack-trace` measurement recorded in #330 predates
+the brief on exactly the same terms; it is superseded too, and is absent from
+the regeneration above only because its pull request is still open. Neither
+measurement is comparable against one taken under the brief, whether or not
+this repository currently stores it.
+
 ## `prediction`, `negativeControl`, and `reading`
 
 Three more fields a case declares, none of them read by `evaluate.mjs` or

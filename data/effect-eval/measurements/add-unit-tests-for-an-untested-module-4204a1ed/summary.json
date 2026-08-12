@@ -134,7 +134,8 @@
       "ranFormat": false,
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-absent-389a689f",
@@ -184,7 +185,8 @@
       "ranFormat": false,
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-absent-d0308de2",
@@ -236,7 +238,8 @@
       "ranFormat": true,
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-present-0c75384f",
@@ -291,7 +294,8 @@
       "ranFormat": true,
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-present-0deda571",
@@ -343,7 +347,8 @@
       "ranFormat": false,
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     },
     {
       "probe": "skill-present-57818972",
@@ -398,7 +403,8 @@
       "ranFormat": true,
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
-      ]
+      ],
+      "endedAwaitingDecision": false
     }
   ]
 }

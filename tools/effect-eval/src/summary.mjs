@@ -35,6 +35,32 @@ export function changedPaths(patch) {
 }
 
 /**
+ * whether a probe's final assistant message reads as putting a decision to a
+ * person instead of finishing the work.
+ *
+ * the heuristic stays narrow on purpose. the message must end on a question
+ * mark — the run's very last word is a question, not a report followed by an
+ * aside — and that question must use the wording an agent reaches for when it
+ * is asking permission to proceed: "want me to", "should I", "do you want",
+ * and the like. a looser match would start catching an ordinary clarifying
+ * question asked in the middle of otherwise-finished work, which is a
+ * different thing from a run that stopped instead of finishing.
+ *
+ * @param {string|null} text `transcript.finalAssistantText`; `null` reads as
+ *   "solicited nothing", the same as everywhere else `null` appears in this
+ *   derivation — the stream did not say, not that it disagrees
+ * @returns {boolean}
+ */
+export function solicitsDecision(text) {
+  if (typeof text !== "string") return false;
+  const trimmed = text.trim();
+  if (!trimmed.endsWith("?")) return false;
+  return /\b(?:want me to|would you like|do you want|should i|shall i|ok(?:ay)?\s+(?:for me\s+)?to|let me know if|confirm)\b/i.test(
+    trimmed,
+  );
+}
+
+/**
  * @param {string} probeDir
  * @param {string} name the directory's own name, which declares the condition
  * @throws {Error} when any of the probe's files cannot be read, when its
@@ -80,6 +106,7 @@ export function deriveProbeSummary(probe) {
 
   const transcript = parseTranscript(transcriptText);
   const behaviour = readBehaviour(transcript);
+  const changed = changedPaths(changesText);
 
   // a value the transcript contradicts fails the derivation; one it is silent
   // about does not. `null` means the stream did not say, and an older CLI
@@ -123,7 +150,15 @@ export function deriveProbeSummary(probe) {
     ranTests: behaviour.ranTests,
     ranLint: behaviour.ranLint,
     ranFormat: behaviour.ranFormat,
-    changedPaths: changedPaths(changesText),
+    changedPaths: changed,
+    // gated on an empty diff, deliberately: this field exists to split that
+    // bucket into "asked a person and stopped" and "produced nothing and did
+    // not say why" — not to flag every probe whose last word is a question. a
+    // probe that did the work and then asked a follow-up ("want the same
+    // change applied to the other module too?") is not the failure mode being
+    // tracked here, and folding it in would blur two different outcomes into
+    // one boolean.
+    endedAwaitingDecision: changed.length === 0 && solicitsDecision(transcript.finalAssistantText),
   };
 }
 
