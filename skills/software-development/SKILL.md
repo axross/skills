@@ -42,8 +42,9 @@ See [project-docs.md](./references/project-docs.md) for:
 
 A project may also keep documentation of the product **itself** — what it is,
 the language its domain speaks, how it currently behaves, and the decisions that
-constrain it. That is a different body of documentation from the contributor
-docs above, with a different audience and its own owner: where a project ships a
+constrain it — and, where it keeps them in one tree, the shape the conventions
+and operational procedures beside them take. That serves a different audience
+from the contributor docs above and has its own owner: where a project ships a
 living-documentation capability, that capability states when that documentation
 is read, what a change obliges you to correct in it, and how. This section
 routes there and deliberately does not restate those rules. Where a project

@@ -25,7 +25,7 @@ Before asking which tier a skill belongs in, ask whether the material should be 
 | The material is…                                               | Route it to                                                     |
 | -------------------------------------------------------------- | --------------------------------------------------------------- |
 | A rule that has to fire while a surface is being edited        | A skill — continue to [Choosing a Tier](#choosing-a-tier) below |
-| What the product is, means, does, and is constrained by        | The project's own living documentation                          |
+| What the product is, means, does, and is constrained by        | The project's own living documentation of the product           |
 | How the project is laid out, written, built, operated, and run | The project's contributor documentation                         |
 
 The portability question below cannot make this call. A repository-layout _document_ is exactly as unportable as a repository-layout _skill_, so portability returns "no" for both — asking it first leaves a reader concluding the material must be a repository-local skill, having never asked whether it should be a skill in the first place.

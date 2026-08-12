@@ -545,7 +545,10 @@ describe("report-obligation-burden.mjs", () => {
       // owns it. wording only — the bullet stays one obligation saying the
       // same thing — so the floor count above is unmoved and only the bytes
       // this figure divides shrank.
-      expect.soft(totals.floorTokens).toBe(8_659);
+      // and 17 more in that change's pre-flight fix round, which qualified the
+      // section's scope sentence so it stops claiming the capability covers
+      // nothing but the product. still wording only, still one obligation.
+      expect.soft(totals.floorTokens).toBe(8_676);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -883,7 +886,9 @@ describe("report-obligation-burden.mjs", () => {
       // the floor's own delta: no reference file changed there either.
       // and 1 fewer in #341, once more exactly the floor's own delta — the
       // section rename noted there touched SKILL.md alone.
-      expect.soft(totals.ceilingTokens).toBe(43_418);
+      // and 17 more in that change's pre-flight fix round, again the floor's
+      // own delta and again SKILL.md alone.
+      expect.soft(totals.ceilingTokens).toBe(43_435);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -920,12 +925,16 @@ describe("report-obligation-burden.mjs", () => {
       // bytes, and the Comment Voice section grows both reference figures.
       // #341 renames that Product Specification section to Living
       // Documentation and rewords its prose off the retired kind, moving the
-      // floor tokens alone: no obligation moved, and no reference file
-      // changed, so the ceiling figures beside it hold.
+      // floor tokens alone: no obligation moved, and the ceiling held only
+      // because that four-byte shrink did not cross a rounding boundary at
+      // this tier's base, though it did at tier 3's below. a SKILL.md-only
+      // edit can move a ceiling — the ceiling counts those bytes too — which
+      // that change's own pre-flight fix round then demonstrated: qualifying
+      // the section's scope sentence grew it enough to move both figures here.
       expect.soft(tiers[1].floorObligations).toBe(5);
-      expect.soft(tiers[1].floorTokens).toBe(2_283);
+      expect.soft(tiers[1].floorTokens).toBe(2_300);
       expect.soft(tiers[1].ceilingObligations).toBe(213);
-      expect.soft(tiers[1].ceilingTokens).toBe(15_705);
+      expect.soft(tiers[1].ceilingTokens).toBe(15_721);
 
       // tier 3 — plus `loop-engineering`, and the figure this report printed
       // alone before #211. drifted from 361 by #204's plan-structure rewrite,
@@ -977,11 +986,12 @@ describe("report-obligation-burden.mjs", () => {
       // both token figures again, by the same 17-token shrink noted there.
       // #341 moved only the token figures too, by the same section rename
       // noted at the mandated-set totals above: SKILL.md prose only, so
-      // neither obligation count moves.
+      // neither obligation count moves. its pre-flight fix round moved both
+      // again, by the same scope-sentence qualification noted there.
       expect.soft(tiers[2].floorObligations).toBe(27);
-      expect.soft(tiers[2].floorTokens).toBe(8_659);
+      expect.soft(tiers[2].floorTokens).toBe(8_676);
       expect.soft(tiers[2].ceilingObligations).toBe(444);
-      expect.soft(tiers[2].ceilingTokens).toBe(43_418);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_435);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
