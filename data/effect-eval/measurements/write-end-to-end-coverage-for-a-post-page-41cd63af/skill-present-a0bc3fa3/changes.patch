@@ -1,0 +1,71 @@
+diff --git a/e2e/post-detail.spec.ts b/e2e/post-detail.spec.ts
+new file mode 100644
+index 0000000..673d797
+--- /dev/null
++++ b/e2e/post-detail.spec.ts
+@@ -0,0 +1,65 @@
++import type { Page } from "@playwright/test";
++import { expect, test } from "@playwright/test";
++
++// One behavior per test, read as a reader driving the browser — see
++// playwright.config.ts for the server these run against. These exercise the
++// locale fallback order documented in shared/resolve-translation.ts by
++// actually opening a post page, not just resolving translations in memory.
++
++/**
++ * Pins the `Accept-Language` request header to `locale` for this page.
++ * `page.setExtraHTTPHeaders` can't be trusted for this one: Chromium's own
++ * navigation request supplies its own `Accept-Language` and wins over it, so
++ * the header has to be rewritten at the network layer instead.
++ */
++async function useAcceptLanguage(page: Page, locale: string): Promise<void> {
++	await page.route("**/*", async (route) => {
++		await route.continue({
++			headers: { ...route.request().headers(), "accept-language": locale },
++		});
++	});
++}
++
++test("renders the exact-locale translation when the browser accepts it", async ({
++	page,
++}) => {
++	await useAcceptLanguage(page, "en-US");
++	await page.goto("/posts/hello-world");
++
++	await expect(page.getByRole("heading", { level: 1 })).toHaveText(
++		"Hello, world",
++	);
++});
++
++test("falls back to a language-only match when no accepted locale matches exactly", async ({
++	page,
++}) => {
++	// "on-writing-in-two-languages" only carries a bare "ja" translation, so a
++	// request for "ja-JP" can't hit an exact match and must fall through to the
++	// language-subtag match.
++	await useAcceptLanguage(page, "ja-JP");
++	await page.goto("/posts/on-writing-in-two-languages");
++
++	await expect(page.getByRole("heading", { level: 1 })).toHaveText(
++		"二言語で書くということ",
++	);
++});
++
++test("falls back to the post's default locale when nothing accepted matches", async ({
++	page,
++}) => {
++	await useAcceptLanguage(page, "fr-FR");
++	await page.goto("/posts/hello-world");
++
++	await expect(page.getByRole("heading", { level: 1 })).toHaveText(
++		"はじめまして",
++	);
++});
++
++test("renders the not-found page for a post with no translations at all", async ({
++	page,
++}) => {
++	const response = await page.goto("/posts/draft-notes");
++
++	expect(response?.status()).toBe(404);
++});
