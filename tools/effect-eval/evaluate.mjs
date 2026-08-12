@@ -315,10 +315,13 @@ async function main() {
   // before the spawn for the same reason as the digest: the model has Bash and
   // could commit.
   //
-  // diagnostic only, never the comparability key — it says what differed where
-  // `tree` says only that something did. see fingerprint.mjs for why a commit
-  // hash cannot be the key. failing a paid probe over a diagnostic field would
-  // be disproportionate, so a failure here costs the field and warns.
+  // no longer diagnostic only: captureDiff below compares against this commit
+  // rather than against HEAD, which is what lets a probe that committed its
+  // own work still be captured. it stays never the comparability key though —
+  // see fingerprint.mjs for why a commit hash cannot be one. failing a paid
+  // probe over this field would still be disproportionate, so a failure here
+  // costs the field and warns; captureDiff's own fallback then reads relative
+  // to HEAD instead, and warns again there.
   let projectCommit = null;
   try {
     projectCommit = runGitCapture(["rev-parse", "HEAD"], workspace).trim();
@@ -420,7 +423,7 @@ async function main() {
   // being already on disk.
   let diff = "";
   try {
-    ({ diff } = captureDiff(workspace));
+    ({ diff } = captureDiff(workspace, { baseCommit: projectCommit }));
   } catch (error) {
     process.stderr.write(
       `warning: capture failed (${error.message}); the probe is still recorded, with an ` +
