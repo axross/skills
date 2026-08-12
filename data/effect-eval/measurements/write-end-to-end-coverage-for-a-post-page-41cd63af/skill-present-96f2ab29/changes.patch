@@ -1,0 +1,65 @@
+diff --git a/e2e/post.spec.ts b/e2e/post.spec.ts
+new file mode 100644
+index 0000000..863e84d
+--- /dev/null
++++ b/e2e/post.spec.ts
+@@ -0,0 +1,59 @@
++import { expect, test } from "@playwright/test";
++
++// One behavior per test, read as a reader driving the browser — see
++// playwright.config.ts for the server these run against. Each locale
++// scenario below opens a real post and exercises a distinct branch of
++// shared/resolve-translation.ts's fallback order; fixture posts come from
++// app/(site)/posts-data.ts. The reader's locale is set through the `locale`
++// context option, which drives the real `Accept-Language` header Chromium
++// sends — setting the header directly is silently overridden by Chromium.
++
++test.describe("reader's locale matches a translation exactly", () => {
++	test.use({ locale: "en-US" });
++
++	test("renders that exact-locale translation", async ({ page }) => {
++		await page.goto("/posts/hello-world");
++
++		const article = page.getByRole("article");
++		await expect(
++			article.getByRole("heading", { name: "Hello, world" }),
++		).toBeVisible();
++		await expect(
++			article.getByText("A short note about this blog."),
++		).toBeVisible();
++	});
++});
++
++test.describe("reader's locale shares a language but not a region with a translation", () => {
++	test.use({ locale: "ja-JP" });
++
++	test("falls back to the language-only match", async ({ page }) => {
++		await page.goto("/posts/on-writing-in-two-languages");
++
++		const article = page.getByRole("article");
++		await expect(
++			article.getByRole("heading", { name: "二言語で書くということ" }),
++		).toBeVisible();
++	});
++});
++
++test.describe("reader's locale matches no translation at all", () => {
++	test.use({ locale: "fr-FR" });
++
++	test("falls back to the post's default locale", async ({ page }) => {
++		await page.goto("/posts/hello-world");
++
++		const article = page.getByRole("article");
++		await expect(
++			article.getByRole("heading", { name: "はじめまして" }),
++		).toBeVisible();
++	});
++});
++
++test("renders the not-found page for a post that has no translations at all", async ({
++	page,
++}) => {
++	const response = await page.goto("/posts/draft-notes");
++
++	expect(response?.status()).toBe(404);
++});

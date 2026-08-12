@@ -1,0 +1,92 @@
+diff --git a/shared/post-locale.spec.ts b/shared/post-locale.spec.ts
+new file mode 100644
+index 0000000..9ecee4c
+--- /dev/null
++++ b/shared/post-locale.spec.ts
+@@ -0,0 +1,33 @@
++import { describe, expect, it } from "@jest/globals";
++import { PostLocale } from "./post-locale";
++
++describe("PostLocale", () => {
++	it("accepts a bare language subtag", () => {
++		expect(PostLocale.safeParse("ja").success).toBe(true);
++		expect(PostLocale.safeParse("en").success).toBe(true);
++	});
++
++	it("accepts a language subtag paired with a region", () => {
++		expect(PostLocale.safeParse("ja-JP").success).toBe(true);
++		expect(PostLocale.safeParse("en-US").success).toBe(true);
++	});
++
++	it("rejects a region-only or wrong-cased tag", () => {
++		expect(PostLocale.safeParse("JP").success).toBe(false);
++		expect(PostLocale.safeParse("JA-JP").success).toBe(false);
++		expect(PostLocale.safeParse("ja-jp").success).toBe(false);
++		expect(PostLocale.safeParse("Ja-JP").success).toBe(false);
++	});
++
++	it("rejects an underscore-separated tag", () => {
++		expect(PostLocale.safeParse("ja_JP").success).toBe(false);
++	});
++
++	it("rejects a three-letter language code", () => {
++		expect(PostLocale.safeParse("jpn").success).toBe(false);
++	});
++
++	it("rejects an empty tag", () => {
++		expect(PostLocale.safeParse("").success).toBe(false);
++	});
++});
+diff --git a/shared/post-locale.ts b/shared/post-locale.ts
+new file mode 100644
+index 0000000..4e6cf7b
+--- /dev/null
++++ b/shared/post-locale.ts
+@@ -0,0 +1,18 @@
++import { z } from "zod";
++
++/**
++ * Shape of a post's locale tag: a lowercase ISO 639-1 language subtag, alone
++ * or paired with a hyphen and an uppercase ISO 3166-1 region subtag —
++ * `"ja"`, `"ja-JP"`, `"en-US"`. This is the subset of BCP 47 this project's
++ * translations use ({@link PostTranslation.locale} and
++ * {@link Post.defaultLocale} in `resolve-translation.ts`), named here so a
++ * new locale tag is checked against one shape instead of being free-form
++ * text that merely resembles the others already in the catalog.
++ */
++export const PostLocale = z.string().regex(/^[a-z]{2}(-[A-Z]{2})?$/);
++
++export type PostLocale = z.infer<typeof PostLocale>;
++
++/** Message shown next to a locale field that failed {@link PostLocale}. */
++export const LOCALE_VALIDATION_MESSAGE =
++	'Use a language code, optionally with a region, e.g. "ja" or "ja-JP".';
+diff --git a/shared/resolve-translation.ts b/shared/resolve-translation.ts
+index 054b0e0..b807901 100644
+--- a/shared/resolve-translation.ts
++++ b/shared/resolve-translation.ts
+@@ -1,9 +1,11 @@
++import type { PostLocale } from "./post-locale";
++
+ /**
+  * A single localized rendering of a post: the language it is written in, plus
+  * the fields a reader sees.
+  */
+ export interface PostTranslation {
+-	/** BCP-47-shaped locale tag, e.g. "ja-JP", "en-US", or a bare language subtag like "ja". */
++	/** A locale tag shaped like {@link PostLocale}, e.g. "ja-JP" or "ja". */
+ 	locale: string;
+ 	title: string;
+ 	body: string;
+@@ -15,7 +17,10 @@ export interface PostTranslation {
+  */
+ export interface Post {
+ 	slug: string;
+-	/** The locale a reader is shown when none of their accepted locales match. */
++	/**
++	 * The locale a reader is shown when none of their accepted locales match,
++	 * shaped like {@link PostLocale}.
++	 */
+ 	defaultLocale: string;
+ 	translations: PostTranslation[];
+ }
