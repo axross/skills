@@ -97,7 +97,7 @@ export const GATES = [
     args: ["skills", ".claude/skills"],
     passes: /All \d+ distributable skill\(s\) match their installed copies\./,
   },
-  // the five checks living-product-specification bundles, run over this
+  // the five checks living-project-documentation bundles, run over this
   // repository's own corpus. they are deliberately five commands rather than
   // one: each answers for one kind of edit, so an author who wrote a decision
   // record is not made to read findings about the glossary.
