@@ -21,19 +21,37 @@
 //     `deriveDelta` — a predecessor that differs is ordinary. It is recorded
 //     with the reason it is not attributable, never suppressed, and never
 //     thrown: a case with no comparable history yet is reported as such.
+//     `predecessorMismatches` compares the prompt, the model, the project
+//     tree, the tracked skills' `description` digests, AND THE PROBE'S
+//     RUNTIME — name, version, and the `maxTurns`/`allowedTools`/
+//     `disallowedTools` options a probe actually ran under. A runtime change
+//     is exactly the kind of thing that must never be read as a change in a
+//     skill: raising `plan.mjs`'s `BARE_TURN_CAP` is the case in point — a
+//     bare measurement taken after that raise is not comparable with one
+//     taken before it, and without this check it would be judged comparable
+//     anyway, silently attributing a wider turn cap's effect to a skill.
 //
 // VERDICTS CARRY OVER UNCHANGED from the replaced instrument's
 // asymmetric rule: `mustInclude` is a finding only at ZERO hits, because a
 // skill selected even once is demonstrably reachable and a stray selection of
 // a `mustExclude` skill is not itself a defect. `expectAlways` does not
 // return — the mandated population it served is now measured and reported as
-// its own question, per this instrument's fixture schema.
+// its own question, per this instrument's fixture schema. ONE ADDITION: a
+// case whose every probe was unreadable (`repeats === 0`) verdicts as
+// `UNEVIDENCED_VERDICT`, never `miss` — `hits === 0` used to mean both "asked
+// and never selected" and "never readably asked at all", and only the first
+// of those is actually a finding. See `verdictFor` and
+// `UNEVIDENCED_VERDICT`'s own comment.
 //
 // AN UNREADABLE PROBE NEVER ENTERS THE TALLY'S DENOMINATOR. A probe whose
-// transcript ended in `error_max_turns` (signals.mjs) is excluded from both
-// the hit count and the repeat count a rate is computed over — counting it as
-// a zero-hit repeat would be exactly the "selection of nothing" the signal
-// extractor's own contract refuses to claim.
+// transcript ended in `error_max_turns` with no `Skill` call recorded before
+// the cap fired (signals.mjs) is excluded from both the hit count and the
+// repeat count a rate is computed over — counting it as a zero-hit repeat
+// would be exactly the "selection of nothing" the signal extractor's own
+// contract refuses to claim. A probe that ended in `error_max_turns` HAVING
+// already selected something is readable and counted exactly as a `success`
+// probe's selection would be — see signals.mjs's header for why those two
+// truncated cases are not the same evidence.
 
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -216,6 +234,21 @@ export function comparabilityOf(summary) {
 /** a skill counts once per repeat above this rate to be `SPURIOUS`. */
 export const SELECTION_RATE = 0.5;
 
+/**
+ * the verdict for a skill this case tracks when every probe of the case was
+ * unreadable — `repeats === 0`. Deliberately not one of the tier verdicts
+ * below and, just as deliberately, not in `FINDING_VERDICTS`: a case with no
+ * readable probe has produced no evidence about the skill one way or the
+ * other, and reporting `miss` (the old behaviour at `hits === 0`, which never
+ * distinguished "zero readable hits" from "zero readable probes") would
+ * assert a conclusion the case never reached. It must still surface
+ * somewhere a reader looks, or the absence reads as "fine" — which is worse
+ * than the wrong MISS it replaces — so callers that render a report must
+ * check `repeats`/`readableCount` rather than trust `findings` to say
+ * everything.
+ */
+export const UNEVIDENCED_VERDICT = "unevidenced";
+
 /** @returns {"mustInclude"|"mustExclude"|"mayInclude"|null} */
 function tierOf(testCase, skill) {
   if (testCase.mustInclude?.includes(skill)) return "mustInclude";
@@ -225,17 +258,23 @@ function tierOf(testCase, skill) {
 }
 
 /**
- * classify one skill's tally. unchanged from
- * the replaced instrument's own verdict rule, minus the retired
- * `expectAlways` tier.
+ * classify one skill's tally. carried over from the replaced instrument's own
+ * verdict rule, minus the retired `expectAlways` tier, plus one addition this
+ * instrument's own defect required: `repeats === 0` is answered before the
+ * tier switch, for every tier, because a case with no readable probe has not
+ * demonstrated a miss (or a clear, or anything else) — it has demonstrated
+ * nothing. See `UNEVIDENCED_VERDICT`'s own comment for why that must be a
+ * distinct outcome rather than falling through to whatever `hits === 0`
+ * already returned for the tier.
  *
  * @param {"mustInclude"|"mustExclude"|"mayInclude"|null} tier
  * @param {number} hits readable repeats in which the skill was selected
  * @param {number} repeats readable repeats total
- * @returns {"miss"|"clear"|"weak"|"spurious"|"occasional"|"optional"|"unlabelled"}
+ * @returns {"miss"|"clear"|"weak"|"spurious"|"occasional"|"optional"|"unlabelled"|"unevidenced"}
  */
 export function verdictFor(tier, hits, repeats) {
-  const rate = repeats === 0 ? 0 : hits / repeats;
+  if (repeats === 0) return UNEVIDENCED_VERDICT;
+  const rate = hits / repeats;
   switch (tier) {
     case "mustInclude":
       // zero, not a majority: a skill selected even once is demonstrably
@@ -252,7 +291,15 @@ export function verdictFor(tier, hits, repeats) {
   }
 }
 
-/** verdicts that are themselves a finding worth surfacing. */
+/**
+ * verdicts that are themselves a finding worth surfacing.
+ *
+ * `UNEVIDENCED_VERDICT` is deliberately excluded: it is a claim about the
+ * probes, not the skill, so folding it into `findings` would report "this
+ * case has a problem" for a case that may be fine and simply went unread.
+ * `deriveCaseSummary`'s `readableCount` (and this tally's own `repeats`) is
+ * where a reader finds that condition instead.
+ */
 const FINDING_VERDICTS = new Set(["miss", "spurious"]);
 
 /** the skills a case tracks: the union of its mustInclude and mustExclude tiers. */
@@ -388,6 +435,39 @@ export async function deriveCaseSummary(
 }
 
 /**
+ * every `runtime` field a predecessor comparison must agree on: the CLI name
+ * and version, plus the three options a probe's tool posture and turn budget
+ * come from. Compared field by field, named individually, for the same
+ * reason the tracked-skill digests below are — a reader should not have to
+ * diff two whole `runtime` objects by hand to learn what actually moved.
+ *
+ * @param {Record<string, unknown>|undefined} current a summary's `runtime`
+ * @param {Record<string, unknown>|undefined} prior the predecessor's `runtime`
+ * @returns {string[]}
+ */
+function runtimeMismatches(current, prior) {
+  const mismatches = [];
+  const fields = [
+    ["name", (r) => r?.name ?? null],
+    ["version", (r) => r?.version ?? null],
+    ["maxTurns", (r) => r?.options?.maxTurns ?? null],
+    ["allowedTools", (r) => r?.options?.allowedTools ?? null],
+    ["disallowedTools", (r) => r?.options?.disallowedTools ?? null],
+  ];
+  for (const [label, read] of fields) {
+    const now = read(current);
+    const then = read(prior);
+    // arrays (allowedTools/disallowedTools) compare by value, not identity —
+    // JSON.stringify is enough here because plan.mjs/spawn.mjs always build
+    // these in a fixed order, never assembled from a Set or object keys.
+    if (JSON.stringify(now) !== JSON.stringify(then)) {
+      mismatches.push(`runtime ${label} differs: now ${JSON.stringify(now)}, then ${JSON.stringify(then)}`);
+    }
+  }
+  return mismatches;
+}
+
+/**
  * why `prior` cannot serve as `current`'s comparable predecessor — empty
  * means it can.
  *
@@ -409,6 +489,10 @@ function predecessorMismatches(current, prior, tracked) {
   if (current.workspace?.tree !== prior.workspace?.tree) {
     mismatches.push("project tree differs");
   }
+  // name, version, and the tool/turn options a probe actually ran under — a
+  // change here (raising BARE_TURN_CAP, denying a new tool) must never be
+  // read as a change in a skill. see this module's header.
+  mismatches.push(...runtimeMismatches(current.runtime, prior.runtime));
   // named individually rather than as "the tracked set differs", so the
   // reason points at the skill that actually moved rather than making a
   // reader diff the two measurements by hand to find it.
@@ -424,7 +508,8 @@ function predecessorMismatches(current, prior, tracked) {
 /**
  * look back through a case's other measurements for the most recent
  * comparable one — same prompt, same model, same project tree, same
- * `description` digest for the skills this case tracks.
+ * `runtime` (name, version, `maxTurns`, `allowedTools`, `disallowedTools`),
+ * and the same `description` digest for the skills this case tracks.
  *
  * "look back" is literal: a candidate is considered only when it is
  * timestamped strictly before `current`. Without that filter a case's
