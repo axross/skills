@@ -1,0 +1,234 @@
+{
+  "case": {
+    "prompt": "The errors coming back from the live site are unreadable — single letters where the function names should be."
+  },
+  "project": {
+    "name": "inkwell",
+    "tree": "sha256:6cbc68ad2db31ba22ef66456948dda9c99d37b0e1a229782674c93cd0d72b69b",
+    "commit": "d3bfff65c9533f49efd40de4f36b05aea9eb7047"
+  },
+  "runtime": {
+    "name": "claude-code",
+    "version": "2.1.220",
+    "options": {
+      "maxTurns": 100,
+      "settingSources": [
+        "project"
+      ],
+      "allowedTools": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "TodoWrite",
+        "Write"
+      ],
+      "disallowedTools": [
+        "Agent",
+        "NotebookEdit",
+        "Task",
+        "WebFetch",
+        "WebSearch"
+      ],
+      "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+    }
+  },
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "options": {}
+  },
+  "comparable": true,
+  "checks": [
+    {
+      "check": "one project tree",
+      "passed": true,
+      "detail": "every probe ran against sha256:6cbc68ad2db31ba22ef66456948dda9c99d37b0e1a229782674c93cd0d72b69b"
+    },
+    {
+      "check": "one skill set in the skill-present condition",
+      "passed": true,
+      "detail": "every skill-present probe installed {\"sentry-instrumentation\":\"sha256:4c0c9ef3cc91d009a347a919027415048d4ddada0266512b78438bc2f50f9f06\"}"
+    },
+    {
+      "check": "no skill in the skill-absent condition",
+      "passed": true,
+      "detail": "every skill-absent probe installed nothing"
+    },
+    {
+      "check": "one runtime version",
+      "passed": true,
+      "detail": "every probe shares \"2.1.220\""
+    },
+    {
+      "check": "one model",
+      "passed": true,
+      "detail": "every probe shares \"claude-sonnet-5\""
+    },
+    {
+      "check": "one task",
+      "passed": true,
+      "detail": "every probe shares {\"prompt\":\"The errors coming back from the live site are unreadable — single letters where the function names should be.\"}"
+    },
+    {
+      "check": "one loaded skill set",
+      "passed": true,
+      "detail": "every probe loaded []"
+    },
+    {
+      "check": "declared repetition count",
+      "passed": true,
+      "detail": "3 repeat(s) per condition, 6 probe directories"
+    }
+  ],
+  "probeCount": 6,
+  "totalCostUsd": 0,
+  "probes": [
+    {
+      "probe": "skill-absent-377e9ffe",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-576ab72c",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-absent-cdec28b5",
+      "condition": "skill-absent",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-4dd2122f",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-7928c48d",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    },
+    {
+      "probe": "skill-present-8b30044a",
+      "condition": "skill-present",
+      "loadedSkills": [],
+      "skillsInvoked": [],
+      "turns": 0,
+      "truncated": false,
+      "costUsd": 0,
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheCreation": 0,
+        "cacheRead": 0,
+        "messages": 0
+      },
+      "toolCalls": 0,
+      "filesRead": [],
+      "commandsRun": [],
+      "ranTests": false,
+      "ranLint": false,
+      "ranFormat": false,
+      "changedPaths": [],
+      "endedAwaitingDecision": false
+    }
+  ]
+}
