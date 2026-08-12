@@ -85,9 +85,9 @@
       "repeats": 2,
       "prompt": "I want to write down how we roll back a bad release. Where does that belong, and how much of it belongs there?",
       "mustInclude": ["technical-document-authoring"],
-      "mustExclude": ["living-product-specification"],
-      "mayInclude": [],
-      "rationale": "The deployment notes already carry a two-line rollback paragraph that punts the harder case elsewhere, so the 'where does it belong' half opens on a real answer and the 'how much of it belongs there' half is the live question — which is the shape the prompt asks in. A runbook is a procedure a reader follows, not a statement of what the product is, so it belongs to the document-authoring capability rather than to the corpus that records product behaviour. The two are adjacent enough that a model reading only the word 'documentation' will pick the wrong one, which is the boundary being measured."
+      "mustExclude": [],
+      "mayInclude": ["living-project-documentation"],
+      "rationale": "The deployment notes already carry a two-line rollback paragraph that punts the harder case elsewhere, so the 'where does it belong' half opens on a real answer and the 'how much of it belongs there' half is the live question — which is the shape the prompt asks in. A runbook is an operational procedure, and once a project keeps one docs/ tree the documentation capability owns the shape such a document takes and where it sits — so it is permitted here rather than excluded, as it was while that capability covered only what the product is. The document-authoring capability still owns the sentences inside the runbook, which is why it is the one required. The two are adjacent enough that a model reading only the word 'documentation' will reach for whichever it saw first, which is the boundary being measured."
     },
     {
       "id": "review-what-changed-on-this-branch",
@@ -149,7 +149,7 @@
       "population": "discovered",
       "repeats": 2,
       "prompt": "I'm about to change the order we fall back through when a reader's language doesn't match. What else has to move with it?",
-      "mustInclude": ["living-product-specification"],
+      "mustInclude": ["living-project-documentation"],
       "mustExclude": [],
       "mayInclude": ["technical-document-authoring", "software-development"],
       "rationale": "The fallback order is stated twice — in the module's own comments and in the project's agent instructions — so the answer is genuinely 'more than the code'. The deployment notes are the near miss: they name the module and then point at it for the order rather than restating it, so a model that moves them has misread which documents actually carry the claim. Keeping the documents that describe the product true as it changes is the living-specification capability's subject."
@@ -175,7 +175,7 @@
       "repeats": 2,
       "prompt": "Where should the requirements for something we haven't built yet live, as opposed to the description of how the thing already works?",
       "mustInclude": ["product-requirement-document-authoring"],
-      "mustExclude": ["living-product-specification"],
+      "mustExclude": ["living-project-documentation"],
       "mayInclude": [],
       "rationale": "The two capabilities divide the same territory by tense: one owns the change about to be made, the other the steady state. The prompt names both halves without naming either capability, so a model that reads only 'documentation' will pick whichever it saw first."
     },

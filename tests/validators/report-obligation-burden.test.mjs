@@ -538,7 +538,14 @@ describe("report-obligation-burden.mjs", () => {
       // leakage progressive-disclosure.md exists to prevent. pointing at the
       // reference instead of restating it shrank the bullet net of the
       // growth above, still with no obligation moved.
-      expect.soft(totals.floorTokens).toBe(8_660);
+      // and 1 fewer in #341, which renamed software-development's Product
+      // Specification section to Living Documentation and rephrased its
+      // prose and first routing bullet away from the retired
+      // product-specification kind, following the rename of the skill that
+      // owns it. wording only — the bullet stays one obligation saying the
+      // same thing — so the floor count above is unmoved and only the bytes
+      // this figure divides shrank.
+      expect.soft(totals.floorTokens).toBe(8_659);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -874,7 +881,9 @@ describe("report-obligation-burden.mjs", () => {
       // exactly the floor's own delta.
       // and 17 fewer in the same change's pre-flight fix round, again exactly
       // the floor's own delta: no reference file changed there either.
-      expect.soft(totals.ceilingTokens).toBe(43_419);
+      // and 1 fewer in #341, once more exactly the floor's own delta — the
+      // section rename noted there touched SKILL.md alone.
+      expect.soft(totals.ceilingTokens).toBe(43_418);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -909,8 +918,12 @@ describe("report-obligation-burden.mjs", () => {
       // added Settled Decisions to pull-request-descriptions.md.
       // #283 moves all but the first: the routing bullet grows the SKILL.md
       // bytes, and the Comment Voice section grows both reference figures.
+      // #341 renames that Product Specification section to Living
+      // Documentation and rewords its prose off the retired kind, moving the
+      // floor tokens alone: no obligation moved, and no reference file
+      // changed, so the ceiling figures beside it hold.
       expect.soft(tiers[1].floorObligations).toBe(5);
-      expect.soft(tiers[1].floorTokens).toBe(2_284);
+      expect.soft(tiers[1].floorTokens).toBe(2_283);
       expect.soft(tiers[1].ceilingObligations).toBe(213);
       expect.soft(tiers[1].ceilingTokens).toBe(15_705);
 
@@ -962,10 +975,13 @@ describe("report-obligation-burden.mjs", () => {
       // noted at the mandated-set totals above: SKILL.md prose only, so
       // neither obligation count moves. its own pre-flight fix round moved
       // both token figures again, by the same 17-token shrink noted there.
+      // #341 moved only the token figures too, by the same section rename
+      // noted at the mandated-set totals above: SKILL.md prose only, so
+      // neither obligation count moves.
       expect.soft(tiers[2].floorObligations).toBe(27);
-      expect.soft(tiers[2].floorTokens).toBe(8_660);
+      expect.soft(tiers[2].floorTokens).toBe(8_659);
       expect.soft(tiers[2].ceilingObligations).toBe(444);
-      expect.soft(tiers[2].ceilingTokens).toBe(43_419);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_418);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
