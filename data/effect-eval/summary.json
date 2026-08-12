@@ -1,6 +1,6 @@
 {
-  "measurementCount": 15,
-  "comparableCount": 15,
+  "measurementCount": 16,
+  "comparableCount": 16,
   "measurements": [
     {
       "measurement": "add-a-guard-before-the-deploy-hook-request-6a98a7b0",
@@ -591,6 +591,51 @@
       "comparable": true,
       "probeCount": 6,
       "totalCostUsd": 2.6920205999999998,
+      "project": {
+        "name": "tsuzuri",
+        "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
+        "commit": "64cec1276b77b99b05d490cafc3654bfcfe30133"
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 100,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Skill",
+            "TodoWrite",
+            "Write"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "NotebookEdit",
+            "Task",
+            "WebFetch",
+            "WebSearch"
+          ],
+          "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+        }
+      }
+    },
+    {
+      "measurement": "write-a-requirement-document-for-reader-corrections-53601779",
+      "case": "write-a-requirement-document-for-reader-corrections",
+      "comparable": true,
+      "probeCount": 6,
+      "totalCostUsd": 2.4117858,
       "project": {
         "name": "tsuzuri",
         "tree": "sha256:fb322f99480aee32cdbdc1ce4b5ee22ed9aa0fe416ced96f1194afdc96fd3967",
