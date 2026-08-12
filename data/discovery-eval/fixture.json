@@ -152,7 +152,7 @@
       "mustInclude": ["living-project-documentation"],
       "mustExclude": [],
       "mayInclude": ["technical-document-authoring", "software-development"],
-      "rationale": "The fallback order is stated twice — in the module's own comments and in the project's agent instructions — so the answer is genuinely 'more than the code'. The deployment notes are the near miss: they name the module and then point at it for the order rather than restating it, so a model that moves them has misread which documents actually carry the claim. Keeping the documents that describe the product true as it changes is the living-specification capability's subject."
+      "rationale": "The fallback order is stated twice — in the module's own comments and in the project's agent instructions — so the answer is genuinely 'more than the code'. The deployment notes are the near miss: they name the module and then point at it for the order rather than restating it, so a model that moves them has misread which documents actually carry the claim. Keeping the documents that describe the product true as it changes is the living-documentation capability's subject."
     },
     {
       "id": "write-up-a-feature-before-anyone-builds-it",
