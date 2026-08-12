@@ -180,16 +180,19 @@ instrument attributes a difference between the two conditions to the skill,
 which holds only while everything else — this brief included — is constant
 across the measurements being compared.
 
-Two measurements are superseded here, not one, and only one of them is
-committed. `measurements/add-unit-tests-for-an-untested-module-4204a1ed/`
-predates the brief — its stored `metadata.json` carries no
-`appendSystemPrompt` — and every one of its six probes produced a diff, so its
-regenerated `endedAwaitingDecision` is `false` throughout. The
-`fix-a-minified-production-stack-trace` measurement recorded in #330 predates
-the brief on exactly the same terms; it is superseded too, and is absent from
-the regeneration above only because its pull request is still open. Neither
-measurement is comparable against one taken under the brief, whether or not
-this repository currently stores it.
+Two committed measurements predate the brief and are superseded by it:
+`measurements/add-unit-tests-for-an-untested-module-4204a1ed/` and
+`measurements/fix-a-minified-production-stack-trace-201f1200/`. Both store a
+`metadata.json` with no `appendSystemPrompt`, and neither is comparable
+against a measurement taken under the brief.
+
+`measurements/fix-a-minified-production-stack-trace-156f5602/` is the first
+taken under it, and it re-measures the case `201f1200` already covers. Those
+two are the only before-and-after this repository holds: same runtime, same
+model, the brief their one declared difference — and `endedAwaitingDecision`
+falls from two of six probes to none. One measurement either side is not a
+rate, so read that as evidence the brief did something, not as a measure of
+how much.
 
 ## `prediction`, `negativeControl`, and `reading`
 
