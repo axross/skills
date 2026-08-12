@@ -62,6 +62,6 @@ change to the method that measures them.
 - `agent-skill-management` — the same absence from the other side: no
   two-tier skill root, no lockfile, no installed copy to reconcile against a
   source.
-- `living-product-specification` — each mock carries at most one loose
+- `living-project-documentation` — each mock carries at most one loose
   operational document under `docs/`, not a documentation root with an index,
   a glossary, and decision records for this skill's checks to run over.

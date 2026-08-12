@@ -10,10 +10,10 @@ describe("classifyLoaded", () => {
   it("classifies a legitimately user-invocable skill of ours as own", () => {
     // named for the skill that actually carries `user-invocable: true` in this
     // corpus, so the example does not quietly teach a wrong fact about it.
-    const result = classifyLoaded(["living-product-specification"], {
-      "living-product-specification": INVOCABLE,
+    const result = classifyLoaded(["living-project-documentation"], {
+      "living-project-documentation": INVOCABLE,
     });
-    expect(result).toEqual({ own: ["living-product-specification"], colliding: [], foreign: [] });
+    expect(result).toEqual({ own: ["living-project-documentation"], colliding: [], foreign: [] });
   });
 
   it("classifies a name matching one of ours that is NOT invocable as colliding", () => {
