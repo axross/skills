@@ -88,9 +88,12 @@ and asks that prompt with every installed skill competing, with `Read`,
 probe that starts doing the work would be measuring the other axis at this
 one's prices. **One mode does not read a
 project, and it is the one that handles untrusted text**: evaluating a pull
-request's changed `SKILL.md` files runs in a bare workspace at one turn with
-only the `Skill` tool, no filesystem, no shell, no credentials, because that
-mode reads prose written by someone outside the repository. The two modes are
+request's changed `SKILL.md` files runs in a bare workspace with only the
+`Skill` tool, no filesystem, no shell, no credentials, because that mode reads
+prose written by someone outside the repository. What bounds it is that tool
+set rather than its turn cap — the cap is 2, enough for one `Skill` call to
+finish and not a budget for a second, unrelated one, and raising it from 1
+changed how much the model may say, never what it may reach. The two modes are
 mutually exclusive per dispatch, and the instrument refuses the combination
 rather than documenting it.
 
