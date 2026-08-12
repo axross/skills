@@ -1,0 +1,46 @@
+diff --git a/app/(site)/not-found.tsx b/app/(site)/not-found.tsx
+new file mode 100644
+index 0000000..30501a9
+--- /dev/null
++++ b/app/(site)/not-found.tsx
+@@ -0,0 +1,20 @@
++export const metadata = {
++	title: "Not found",
++};
++
++/**
++ * Rendered whenever a route doesn't match anything, or a page calls Next's
++ * `notFound()` explicitly — the post detail page does this both for a
++ * slug with no post and for a post with no translation to show.
++ */
++export default function NotFound() {
++	return (
++		<section aria-label="not found">
++			<h1>Not found</h1>
++			<p>There's no post at that address, or it hasn't been written yet.</p>
++			<p>
++				<a href="/">Back to the posts</a>
++			</p>
++		</section>
++	);
++}
+diff --git a/e2e/home.spec.ts b/e2e/home.spec.ts
+index 201d4a5..1d3f9cb 100644
+--- a/e2e/home.spec.ts
++++ b/e2e/home.spec.ts
+@@ -16,10 +16,14 @@ test("home page lists every post as a link to its detail page", async ({
+ 	}
+ });
+ 
+-test("visiting an unknown post slug renders the not-found page", async ({
++test("visiting an unknown post slug renders the site's own not-found page", async ({
+ 	page,
+ }) => {
+ 	const response = await page.goto("/posts/does-not-exist");
+ 
+ 	expect(response?.status()).toBe(404);
++	await expect(page.getByRole("heading", { name: "Not found" })).toBeVisible();
++	await expect(
++		page.getByRole("link", { name: "Back to the posts" }),
++	).toHaveAttribute("href", "/");
+ });

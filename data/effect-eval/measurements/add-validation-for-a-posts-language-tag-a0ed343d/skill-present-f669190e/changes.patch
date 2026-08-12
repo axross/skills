@@ -1,0 +1,137 @@
+diff --git a/README.md b/README.md
+index 1b8b505..195d03e 100644
+--- a/README.md
++++ b/README.md
+@@ -31,7 +31,9 @@ npm install
+ - `shared/` — code shared by more than one part of the app, independent of any
+   one route. `shared/resolve-translation.ts` is the locale-fallback logic a
+   post detail page calls into; `shared/blog-post-slug.ts` is the slug shape
+-  every post's `slug` is validated against.
++  every post's `slug` is validated against, and `shared/locale-tag.ts` is the
++  locale tag shape every post's `defaultLocale` and translation `locale` is
++  validated against.
+ - `shared/*.spec.ts` — unit tests, colocated with the code they cover.
+ - `e2e/` — end-to-end specs, kept apart from the unit tests above because they
+   exercise the whole running app rather than one module in isolation.
+diff --git a/app/(site)/posts-data.spec.ts b/app/(site)/posts-data.spec.ts
+new file mode 100644
+index 0000000..1deb8c6
+--- /dev/null
++++ b/app/(site)/posts-data.spec.ts
+@@ -0,0 +1,19 @@
++import { describe, expect, it } from "@jest/globals";
++import { LocaleTag } from "@/shared/locale-tag";
++import { POSTS } from "./posts-data";
++
++describe("POSTS", () => {
++	it("every defaultLocale matches LocaleTag", () => {
++		for (const post of POSTS) {
++			expect(LocaleTag.safeParse(post.defaultLocale).success).toBe(true);
++		}
++	});
++
++	it("every translation's locale matches LocaleTag", () => {
++		for (const post of POSTS) {
++			for (const translation of post.translations) {
++				expect(LocaleTag.safeParse(translation.locale).success).toBe(true);
++			}
++		}
++	});
++});
+diff --git a/shared/locale-tag.spec.ts b/shared/locale-tag.spec.ts
+new file mode 100644
+index 0000000..1f6c4f8
+--- /dev/null
++++ b/shared/locale-tag.spec.ts
+@@ -0,0 +1,39 @@
++import { describe, expect, it } from "@jest/globals";
++import { LocaleTag } from "./locale-tag";
++
++describe("LocaleTag", () => {
++	it("accepts a bare language subtag", () => {
++		expect(LocaleTag.safeParse("en").success).toBe(true);
++		expect(LocaleTag.safeParse("ja").success).toBe(true);
++	});
++
++	it("accepts a language plus region subtag", () => {
++		expect(LocaleTag.safeParse("en-US").success).toBe(true);
++		expect(LocaleTag.safeParse("ja-JP").success).toBe(true);
++	});
++
++	it("accepts a 3-letter language subtag", () => {
++		expect(LocaleTag.safeParse("haw").success).toBe(true);
++	});
++
++	it("rejects a region written in the wrong case", () => {
++		expect(LocaleTag.safeParse("en-us").success).toBe(false);
++		expect(LocaleTag.safeParse("EN-US").success).toBe(false);
++	});
++
++	it("rejects an underscore separator", () => {
++		expect(LocaleTag.safeParse("en_US").success).toBe(false);
++	});
++
++	it("rejects a script subtag", () => {
++		expect(LocaleTag.safeParse("zh-Hans-CN").success).toBe(false);
++	});
++
++	it("rejects a 3-digit UN M49 region", () => {
++		expect(LocaleTag.safeParse("es-419").success).toBe(false);
++	});
++
++	it("rejects an empty string", () => {
++		expect(LocaleTag.safeParse("").success).toBe(false);
++	});
++});
+diff --git a/shared/locale-tag.ts b/shared/locale-tag.ts
+new file mode 100644
+index 0000000..5a80b4e
+--- /dev/null
++++ b/shared/locale-tag.ts
+@@ -0,0 +1,18 @@
++import { z } from "zod";
++
++/**
++ * Shape of a locale tag as this project writes them: a 2–3 letter lowercase
++ * language subtag, optionally followed by a hyphen and a 2-letter uppercase
++ * region subtag — `"ja"`, `"ja-JP"`, `"en-US"`. This does not cover the full
++ * range BCP 47 allows (script subtags, numeric UN M49 regions, variants); it
++ * covers the shapes a post's `translations` and `defaultLocale` actually use,
++ * the same way {@link import("./blog-post-slug").PostSlug} covers the shapes
++ * a slug actually uses rather than every string BCP 47 or a URL permits.
++ */
++export const LocaleTag = z.string().regex(/^[a-z]{2,3}(?:-[A-Z]{2})?$/);
++
++export type LocaleTag = z.infer<typeof LocaleTag>;
++
++/** Message shown next to a locale field that failed {@link LocaleTag}. */
++export const LOCALE_TAG_VALIDATION_MESSAGE =
++	"Use a language subtag, optionally followed by a hyphen and an uppercase region (e.g. en, en-US, ja-JP).";
+diff --git a/shared/resolve-translation.ts b/shared/resolve-translation.ts
+index 054b0e0..b2b9668 100644
+--- a/shared/resolve-translation.ts
++++ b/shared/resolve-translation.ts
+@@ -1,10 +1,12 @@
++import type { LocaleTag } from "./locale-tag";
++
+ /**
+  * A single localized rendering of a post: the language it is written in, plus
+  * the fields a reader sees.
+  */
+ export interface PostTranslation {
+-	/** BCP-47-shaped locale tag, e.g. "ja-JP", "en-US", or a bare language subtag like "ja". */
+-	locale: string;
++	/** See {@link LocaleTag} for the shape this is validated against. */
++	locale: LocaleTag;
+ 	title: string;
+ 	body: string;
+ }
+@@ -16,7 +18,7 @@ export interface PostTranslation {
+ export interface Post {
+ 	slug: string;
+ 	/** The locale a reader is shown when none of their accepted locales match. */
+-	defaultLocale: string;
++	defaultLocale: LocaleTag;
+ 	translations: PostTranslation[];
+ }
+ 

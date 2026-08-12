@@ -21,7 +21,7 @@ describe("planFor", () => {
     expect(plan.forcedBare).toBe(false);
   });
 
-  it("runs a case declaring no mock bare: Skill only, one turn", () => {
+  it("runs a case declaring no mock bare: Skill only, the bare turn cap", () => {
     const plan = planFor({ id: "x" });
     expect(plan.mode).toBe("bare");
     expect(plan.tools).toEqual(["Skill"]);
@@ -29,6 +29,14 @@ describe("planFor", () => {
     expect(plan.turns).toBe(BARE_TURN_CAP);
     expect(plan.workspace).toEqual({ kind: "scratch" });
     expect(plan.forcedBare).toBe(false);
+  });
+
+  it("caps bare mode at 2 turns, not 1 — a probe that calls Skill can still terminate success", () => {
+    // pinned literally, not just against the constant it defines: a probe
+    // that calls Skill reports num_turns: 2 (measured from a real dispatch),
+    // so a 1-turn cap could only ever end a transcript that selected
+    // nothing — see plan.mjs's BARE_TURN_CAP and signals.mjs's header.
+    expect(BARE_TURN_CAP).toBe(2);
   });
 
   it("--head-skills forces a mock-declaring case bare", () => {

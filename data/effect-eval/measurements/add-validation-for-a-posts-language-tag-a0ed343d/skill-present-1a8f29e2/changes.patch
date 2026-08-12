@@ -1,0 +1,139 @@
+diff --git a/app/(site)/posts-data.spec.ts b/app/(site)/posts-data.spec.ts
+new file mode 100644
+index 0000000..63ede00
+--- /dev/null
++++ b/app/(site)/posts-data.spec.ts
+@@ -0,0 +1,21 @@
++import { describe, expect, it } from "@jest/globals";
++import { LocaleTag } from "@/shared/locale-tag";
++import { POSTS } from "./posts-data";
++
++// Every locale tag in the checked-in catalog is authored by hand, with
++// nothing else parsing it before it reaches a page. This is what actually
++// stops a future post's tag from drifting into a third shape, rather than
++// just documenting the one two of the existing posts happen to follow.
++describe("POSTS locale tags", () => {
++	for (const post of POSTS) {
++		it(`${post.slug}: defaultLocale "${post.defaultLocale}" is LocaleTag-shaped`, () => {
++			expect(LocaleTag.safeParse(post.defaultLocale).success).toBe(true);
++		});
++
++		for (const translation of post.translations) {
++			it(`${post.slug}: translation locale "${translation.locale}" is LocaleTag-shaped`, () => {
++				expect(LocaleTag.safeParse(translation.locale).success).toBe(true);
++			});
++		}
++	}
++});
+diff --git a/shared/locale-tag.spec.ts b/shared/locale-tag.spec.ts
+new file mode 100644
+index 0000000..7362867
+--- /dev/null
++++ b/shared/locale-tag.spec.ts
+@@ -0,0 +1,45 @@
++import { describe, expect, it } from "@jest/globals";
++import { LocaleTag, MAX_LOCALE_TAG_LENGTH } from "./locale-tag";
++
++describe("LocaleTag", () => {
++	it("MAX_LOCALE_TAG_LENGTH is 8", () => {
++		expect(MAX_LOCALE_TAG_LENGTH).toBe(8);
++	});
++
++	it("safeParse returns success", () => {
++		expect(LocaleTag.safeParse("ja").success).toBe(true);
++		expect(LocaleTag.safeParse("en").success).toBe(true);
++		expect(LocaleTag.safeParse("ja-JP").success).toBe(true);
++		expect(LocaleTag.safeParse("en-US").success).toBe(true);
++		expect(LocaleTag.safeParse("fil-PH").success).toBe(true);
++		expect(LocaleTag.safeParse("es-419").success).toBe(true);
++	});
++
++	it("rejects a region written in the wrong case", () => {
++		expect(LocaleTag.safeParse("en-us").success).toBe(false);
++		expect(LocaleTag.safeParse("EN-US").success).toBe(false);
++	});
++
++	it("rejects an underscore-separated tag", () => {
++		expect(LocaleTag.safeParse("en_US").success).toBe(false);
++	});
++
++	it("rejects a region of the wrong length", () => {
++		expect(LocaleTag.safeParse("en-USA").success).toBe(false);
++		expect(LocaleTag.safeParse("en-U").success).toBe(false);
++	});
++
++	it("rejects trailing garbage after a valid tag", () => {
++		expect(LocaleTag.safeParse("ja-JP-x").success).toBe(false);
++	});
++
++	it("rejects an empty tag", () => {
++		expect(LocaleTag.safeParse("").success).toBe(false);
++	});
++
++	it("max", () => {
++		const tooLong = "a".repeat(MAX_LOCALE_TAG_LENGTH + 1);
++
++		expect(LocaleTag.safeParse(tooLong).success).toBe(false);
++	});
++});
+diff --git a/shared/locale-tag.ts b/shared/locale-tag.ts
+new file mode 100644
+index 0000000..095e208
+--- /dev/null
++++ b/shared/locale-tag.ts
+@@ -0,0 +1,27 @@
++import { z } from "zod";
++
++/** Upper bound on a locale tag's length, enforced by the schema below. */
++export const MAX_LOCALE_TAG_LENGTH = 8;
++
++/**
++ * Shape of a locale tag as this project authors it: a lowercase primary
++ * language subtag (2-3 letters, e.g. "ja", "en", "fil"), optionally followed
++ * by a hyphen and a region subtag — either two uppercase letters (e.g. "US",
++ * "JP") or a three-digit area code (e.g. "419"). Matches "ja", "en-US", and
++ * "es-419", but not "en_US", "EN-US", or "en-us" — a tag on a post is checked
++ * in by hand, so its casing is held to the canonical form rather than
++ * normalized. `normalizeLocale` in `resolve-translation.ts` handles the
++ * separate case of a tag arriving from a reader's browser, which is not
++ * guaranteed to be canonical.
++ */
++export const LocaleTag = z
++	.string()
++	.min(2)
++	.max(MAX_LOCALE_TAG_LENGTH)
++	.regex(/^[a-z]{2,3}(-[A-Z]{2}|-[0-9]{3})?$/);
++
++export type LocaleTag = z.infer<typeof LocaleTag>;
++
++/** Message shown next to a locale field that failed {@link LocaleTag}. */
++export const LOCALE_TAG_VALIDATION_MESSAGE =
++	'Use a language subtag, optionally with a region (e.g. "ja", "en-US", "es-419").';
+diff --git a/shared/resolve-translation.ts b/shared/resolve-translation.ts
+index 054b0e0..6049867 100644
+--- a/shared/resolve-translation.ts
++++ b/shared/resolve-translation.ts
+@@ -1,10 +1,12 @@
++import type { LocaleTag } from "./locale-tag";
++
+ /**
+  * A single localized rendering of a post: the language it is written in, plus
+  * the fields a reader sees.
+  */
+ export interface PostTranslation {
+-	/** BCP-47-shaped locale tag, e.g. "ja-JP", "en-US", or a bare language subtag like "ja". */
+-	locale: string;
++	/** The tag's shape is defined by {@link LocaleTag}. */
++	locale: LocaleTag;
+ 	title: string;
+ 	body: string;
+ }
+@@ -16,7 +18,7 @@ export interface PostTranslation {
+ export interface Post {
+ 	slug: string;
+ 	/** The locale a reader is shown when none of their accepted locales match. */
+-	defaultLocale: string;
++	defaultLocale: LocaleTag;
+ 	translations: PostTranslation[];
+ }
+ 

@@ -1,0 +1,23 @@
+diff --git a/src/components/PublishToast/PublishToast.module.css b/src/components/PublishToast/PublishToast.module.css
+index 788319e..8b92d18 100644
+--- a/src/components/PublishToast/PublishToast.module.css
++++ b/src/components/PublishToast/PublishToast.module.css
+@@ -1,5 +1,4 @@
+ .toast {
+-  animation: slide-in 220ms ease-out;
+   position: fixed;
+   right: 1.5rem;
+   bottom: 1.5rem;
+@@ -12,6 +11,12 @@
+   font-weight: 600;
+ }
+ 
++@media (prefers-reduced-motion: no-preference) {
++  .toast {
++    animation: slide-in 220ms ease-out;
++  }
++}
++
+ .error {
+   background: #a4302f;
+ }
