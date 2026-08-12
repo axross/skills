@@ -96,10 +96,10 @@ and a bare probe cost roughly an order of magnitude apart:
 "unmeasuredProbeCostCeilingUsd": { "situated": 0.35, "bare": 0.05 }
 ```
 
-| Mode         | Declared | Measured                                                                                                                                                                                                                                   |
-| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **situated** | `0.35`   | $0.2541/probe (34 cases, 68 probes, $17.276125 total — [run 31564332460](https://github.com/axross/skills/actions/runs/31564332460)). The declared ceiling sat **above** the measured figure, the direction the surrounding prose intends. |
-| **bare**     | `0.05`   | $0.0770/probe (6 cases, 12 probes, $0.9239418 total — the same run). The declared ceiling sat **below** the measured figure — optimistic, not pessimistic, the one direction that lets an expensive case slip through admitted.            |
+| Mode         | Declared | Measured                                                                                                                                                                                                                                                |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **situated** | `0.35`   | $0.2541/probe (34 cases, 68 probes, $17.276125 total — [run 31564332460](https://github.com/axross/skills/actions/runs/31564332460)). The declared ceiling sat **above** the measured figure, the direction the surrounding prose intends.              |
+| **bare**     | `0.05`   | $0.0770/probe (6 cases, 12 probes, $0.9239418 total — the same run). The declared ceiling sat **below** the measured figure — optimistic, not pessimistic, the one direction that lets an expensive case get admitted when it should have been refused. |
 
 Both are now permanently superseded for these 40 cases by their own committed
 measurements, per mode, per "Superseding is per mode too" below. The bare
