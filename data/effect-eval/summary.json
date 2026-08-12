@@ -1,6 +1,6 @@
 {
-  "measurementCount": 4,
-  "comparableCount": 4,
+  "measurementCount": 5,
+  "comparableCount": 5,
   "measurements": [
     {
       "measurement": "add-unit-tests-for-an-untested-module-4204a1ed",
