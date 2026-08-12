@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-08-12T01:54:18Z",
+  "trigger": {
+    "kind": "github-actions",
+    "url": "https://github.com/axross/skills/actions/runs/31555059949"
+  },
+  "instrument": {
+    "commit": "4f53989105ed42bd9a3e054ef5df7c9a7c08c19d",
+    "node": "v26.7.0",
+    "os": "Linux"
+  },
+  "cliExitCode": 0,
+  "configuration": {
+    "runtime": {
+      "name": "claude-code",
+      "version": "2.1.220",
+      "options": {
+        "maxTurns": 100,
+        "settingSources": [
+          "project"
+        ],
+        "allowedTools": [
+          "Bash",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Read",
+          "Skill",
+          "TodoWrite",
+          "Write"
+        ],
+        "disallowedTools": [
+          "Agent",
+          "NotebookEdit",
+          "Task",
+          "WebFetch",
+          "WebSearch"
+        ],
+        "appendSystemPrompt": "This session runs non-interactively. No one will read a question you ask, and no answer will come back, so a run that stops to ask a question has ended without finishing the work.\n\nTake the task as far as the workspace allows. Where you would otherwise put a decision to a person, choose the option you judge best, act on it, and say so in your final message — name the decision you made, what you assumed, and the alternatives you set aside."
+      }
+    },
+    "model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "options": {}
+    },
+    "project": {
+      "name": "inkwell",
+      "tree": "sha256:6cbc68ad2db31ba22ef66456948dda9c99d37b0e1a229782674c93cd0d72b69b",
+      "commit": "d3bfff65c9533f49efd40de4f36b05aea9eb7047"
+    },
+    "skills": {},
+    "task": {
+      "prompt": "The errors coming back from the live site are unreadable — single letters where the function names should be."
+    }
+  }
+}
