@@ -1,0 +1,40 @@
+diff --git a/docs/deployment.md b/docs/deployment.md
+index ea17006..6ad8264 100644
+--- a/docs/deployment.md
++++ b/docs/deployment.md
+@@ -24,3 +24,35 @@ changes which posts and translations the deployed build carries.
+ Redeploy the previous commit's build. There is no database to migrate back —
+ the post catalog and everything else the app reads live in the build itself —
+ so a rollback here is just a redeploy.
++
++### Confirming it worked
++
++- Your deploy platform's dashboard shows the redeployed build as live for
++  Production, not just queued or building.
++- The home page loads and its post list matches what the previous commit
++  shipped — if the build you're rolling back away from added, edited, or
++  removed a post, that change should now be reversed, since post content is
++  baked into the build rather than read from a database.
++- Open a post that has more than one translation and confirm it renders the
++  locale you expect (see [Locale fallback](#locale-fallback) above), not a
++  blank page. A rollback that only reverts code but serves a stale or
++  half-built bundle tends to show up here first.
++- The specific symptom that made you roll back is actually gone, not just
++  quieter.
++
++### After it's confirmed
++
++This project has no error monitoring or alerting wired up, so there's no
++dashboard to watch — recheck the page(s) that showed the original symptom a
++few minutes later and once more after about an hour, since some failure
++modes (bad caching, a translation that only fails for one locale) don't show
++up on the first load. Leave a short note — a GitHub issue is fine — recording
++what broke, when you rolled back, and the commit you rolled back to; that
++note is what the eventual fix-forward pull request should link back to.
++
++### Who needs to know
++
++Tell whoever else has deploy access or reviews pull requests on this project
++that a rollback happened, why, and which commit is now live — before they
++push their next change on top of what they'd otherwise assume was the
++current `main`.
