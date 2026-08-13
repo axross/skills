@@ -162,7 +162,10 @@ $0.9239418 ($0.0770/probe). 37 of the 40 report the `discovered` population
 and 3 the `mandated` one. Of its 77 readable probes, 42 selected no skill at
 all and 35 did. Its 3 unreadable probes are all bare: each spent its single
 permitted turn on `ToolSearch` rather than `Skill`, so no selection exists on
-the tape to recover.
+the tape to recover. What that 42, and the 22 `MISS` verdicts alongside it,
+does and does not mean is
+[`docs/specs/skill-evaluation.md`](../../docs/specs/skill-evaluation.md)'s to
+say; this file only reports what ran.
 
 **Round two re-measured the 6 bare cases** under the runtime
 [#345](https://github.com/axross/skills/pull/345) introduced — a 2-turn cap

@@ -62,6 +62,126 @@ what a run can conclude — and
 [`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) what a
 measurement holds.
 
+### The discovery axis's low selection rate is largely a decision's price
+
+**The discovery axis's low selection rate is substantially the measured cost
+of a deliberate decision, not a verdict on the descriptions.** Round one of
+the discovery evaluation found 42 of its 77 readable probes selecting no
+skill at all, and 22 of its cases report a `MISS`
+([`data/discovery-eval/README.md`](../../data/discovery-eval/README.md)).
+
+**Those two numbers are not the same failure, and the `MISS` count is not
+homogeneous.** Of the 21 situated cases carrying one, 14 selected nothing at
+all; 4 routed to a skill the case does not require —
+`say-what-you-do-not-know-before-answering` reached for
+`next-app-development` over `professional-behavior`, and
+`decide-where-a-rollback-procedure-is-written-down` for the very skill its
+case excludes; and 3 found one of two required skills and missed the other.
+What follows is about the first and largest kind. Whether a routing that went
+somewhere else has the same cause as one that never happened is a separate
+question, and this measurement does not answer it.
+
+The obvious reading of that number is that the descriptions need better
+keywords. The evidence refutes it directly: `high-fidelity-ui-design`'s
+`description` already contains the phrase "real colors, type, spacing, and
+states". The prompt that scored 0/6 against it was "make it look like the
+rest of the app". Nothing was missing from the description — the prompt was
+asking in a different vocabulary.
+
+That gap sits there on purpose.
+[`docs/decisions/2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md`](../decisions/2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md)
+rewrote the fixture's prompts to stop them carrying their own answer, naming
+as its own example a prompt that "used the low-fidelity design capability's
+own vocabulary to ask for low-fidelity design" and calling that circular:
+"the model never has to read the project, so the measurement records routing
+on vocabulary rather than routing on a situation." What follows confirms that
+decision; it does not revisit it.
+
+A controlled experiment (#377) reconstructed that same circularity on
+purpose, on two cases, and measured its size. It ran four override
+dispatches — one per wording per case — six repeats each, 24 probes in
+total, for $6.60, with mock, patch, tiers, repeat count and corpus held fixed
+by the prompt-override mechanism
+([`docs/operations/evaluation-dispatch.md`](../operations/evaluation-dispatch.md))
+so the prompt was the only variable. Being an override run, it recorded none
+of it as a case measurement; what it produced landed only in an uploaded
+artifact.
+
+`turn-a-settled-layout-into-a-real-screen`, which tracks
+`high-fidelity-ui-design`: the declared wording — "We've settled what goes on
+the screen for changing a card that already exists, and in what order. Now I
+need it to actually look like the rest of the app." — scored 0/6. The
+vocabulary-matched wording — "We've settled what goes on the screen for
+changing a card that already exists, and in what order. Now I need the real
+colours, type and spacing on it, and the states it can be in." — scored 6/6.
+Two-sided Fisher exact: p = 0.0022. Worth stating plainly: round one never
+selected `high-fidelity-ui-design` at all, in either of the two cases that
+track it, so those six are the first selections of that skill any measurement
+here has recorded — and a wording change is the whole of what produced them.
+
+`stop-two-sites-sharing-one-cached-list`, which tracks
+`tanstack-query-development`: the declared wording — "Switching from one
+customer's site to another shows the wrong site's posts for a moment before
+it corrects itself." — scored 0/6. The vocabulary-matched wording —
+"Switching from one customer's site to another shows the wrong site's posts
+for a moment — the two sites look like they are sharing one cached list
+until it refetches." — scored 2/6. Two-sided Fisher exact: p = 0.455 — off
+zero, but indistinguishable from chance at this sample size. This pair did
+not replicate the first; it is the pair that failed to reproduce the effect,
+not weak evidence for it. The two pairs disagreeing is exactly why this
+section draws no corpus-wide conclusion from either.
+
+Where the vocabulary-matched arm applies, it is the circularity the
+2026-08-09 decision removed, rebuilt on purpose and measured, and it changed
+the outcome by a wide margin in one case and, at this sample size, not
+detectably in the other. So a substantial share of the 22 `MISS` verdicts is
+not a verdict on the descriptions at all — it is what routing on a
+**situation** costs against routing on **vocabulary**, and that cost is
+largely what the 2026-08-09 decision buys.
+
+**What the experiment does not license.** Both declared arms scored 0/6,
+which is enough repeats to say the n=2 `MISS` was not a sampling artefact —
+but only for those two cases. It licenses nothing about the other 20 `MISS`
+verdicts in round one, which nobody has re-read this way.
+
+**Three mechanisms, one of them measured.** A transcript investigation
+separated three distinct reasons a probe fails to select a tracked skill.
+This experiment tested only the first.
+
+1. **Prompt shape** — measured, above: seven skills split between a hit and
+   a `MISS` across their two cases, same skill and the same `description`,
+   with only the prompt differing.
+2. **The situated condition itself.** 41 of 68 situated readable probes
+   selected nothing, against 3 of 21 across both bare rounds; not one of
+   those 41 mentions "skill" anywhere in its own prose, so the skill layer
+   appears never to enter the model's reasoning rather than being weighed
+   and declined. Selection, when it happens, happens early — a median of 3
+   paths read before selecting, against a median of 7 read in total by a
+   probe that never selects. **Unmeasured**: no experiment has isolated this
+   from the other two.
+3. **The mock already answers the prompt.**
+   `choose-the-level-a-retry-is-logged-at` missed `software-instrumentation`
+   because the probe read `server/deploy-hook.ts` and reported the log
+   levels already there; `agree-a-plan-before-writing-code` missed
+   `loop-engineering` because the probe read the mock's own README and
+   correctly stated the project's plan-first rule. **Unmeasured**.
+
+**The evidence expires.** A prompt override records nothing by design — the
+run reports to an uploaded artifact rather than to a case measurement — and
+that artifact is retained 30 days from 2026-08-13. Once it is gone, this
+document is the only durable record of the four scores and the two Fisher
+values above.
+
+**What this rules out.** Adding problem vocabulary to a `description` would
+raise the discovery number, but only by re-creating the circularity the
+2026-08-09 decision removed, one level down: the fixture's prompt would stop
+carrying the answer, and the corpus's description would carry it instead —
+for every prompt near that vocabulary, not only the one this measurement
+happened to sample. A proposal that closes this gap has to be argued on
+whether it helps a real project's reader act on the description, never on
+whether it moves this measurement — the same move the 2026-08-09 decision
+already forecloses for the fixture side.
+
 ### Does holding the skill change what the agent does?
 
 Selection is only half the bet. The other half is the one the practice exists
