@@ -30,14 +30,8 @@ is provable on its own before anything about the pipeline changes.
 path-reference-only update to every importer, test, workflow, and piece of
 prose that named the old locations.**
 
-```text
-tools/evaluation/
-├── lib/          credentials, mock-workspace, transcript/
-├── discovery/    the skill discovery evaluation
-├── effect/       the skill effect evaluation
-├── mocks/        the mock fixtures both evaluations situate probes in
-└── data/         discovery/ and effect/ measurement data, one per instrument
-```
+The resulting tree is in
+[`docs/conventions/directory-structure.md`](../conventions/directory-structure.md).
 
 This supersedes `tools/evaluation/mocks/README.md`'s own stated rationale for
 where the mocks lived: that file used to say they sat "at the repository
@@ -54,10 +48,10 @@ measurement exclusions, and `.markdownlint-cli2.jsonc`'s mock exclusion, are
 re-pointed at their new locations rather than left matching a path that no
 longer exists. The links gate — `tests/repository/gates.mjs`'s
 `linksGateRoots()` — could no longer exclude the mocks by naming a top-level
-directory, since they are three levels deep now; it was rewritten to descend
-past an excluded path's own ancestors instead of pruning a whole top-level
-entry, so a future sibling landing beside the mocks under `tools/evaluation/`
-stays covered without anyone remembering to add it.
+directory, since they are three levels deep now; the gate itself was
+rescoped to reach past the new depth rather than widening
+`check-links.mjs` with an ignore mechanism of its own (see that file's own
+docblock for how).
 
 ## What was rejected
 
