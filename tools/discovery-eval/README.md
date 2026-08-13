@@ -67,12 +67,14 @@ finish; it is not a budget for a second, unrelated tool call.
 out: measured records show bare probes spending their entire turn cap on a
 `ToolSearch` call instead of `Skill`, burning the cap on a tool this evaluation
 was never meant to expose. `src/spawn.mjs`'s `BARE_DISALLOWED_TOOLS` now names
-it explicitly. Whether the CLI's `disallowedTools` actually withholds it has
-not been confirmed against a live, paid probe — that would spend money outside
-this change's scope — but the installed CLI's own tool-search gate reads a
-tool named `ToolSearch` off the set it was actually given and logs "may have
-been disallowed via disallowedTools" as the reason once that name is absent
-from it, which is the mechanism this denial relies on.
+it explicitly. **That the CLI honours it is measured, not assumed**: the six
+bare cases were re-run under this denial and not one probe called `ToolSearch`,
+against three of twelve in the round before it — and the case whose two probes
+had both spent their only turn on it selected a skill instead. The mechanism is
+the installed CLI's own tool-search gate, which reads a tool named `ToolSearch`
+off the set it was actually given and logs "may have been disallowed via
+disallowedTools" once that name is absent. Both rounds are recorded in
+[`data/discovery-eval/README.md`](../../data/discovery-eval/README.md).
 
 A case declaring a `mock` runs situated; a case declaring none runs bare,
 because situating would remove the very thing its prompt is about (a mock
