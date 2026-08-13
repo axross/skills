@@ -264,6 +264,46 @@ skill at all, that subtraction is a no-op and the check's result is unchanged
 — see the check's own detail text (`every probe's contamination is …`) for
 what it compares now.
 
+## Whether a probe produced a diff does not discriminate between the conditions
+
+`changedPaths` is the most prominent field on a probe's summary and the first
+thing a reader reaches for when comparing the two conditions. Across every
+measurement committed here, whether it is empty or not agrees between
+skill-present and skill-absent in 20 of 22 measurements. The two exceptions
+run in opposite directions:
+[`remove-config-options-the-test-runner-ignores`](./measurements/remove-config-options-the-test-runner-ignores-b2e5e389)
+produced a diff in 3 of 3 skill-present probes against 2 of 3 skill-absent,
+and
+[`fix-a-minified-production-stack-trace`](./measurements/fix-a-minified-production-stack-trace-156f5602)
+the reverse — 2 of 3 skill-present against 3 of 3 skill-absent.
+
+**Equal counts are not evidence that the skill has no effect.** They are
+evidence that this one reading — did a probe touch the filesystem at all —
+cannot see whichever effect the skill has. Every case's own `prediction`
+already disclaims exactly this: it states up front what a deterministic
+reading is expected to tell apart and what it leaves for a person to read by
+hand. The saturation confirms the shallow half of that disclaimer over the
+whole committed set; it is not a new finding, only the suspicion the fixture
+was already written under, now measured rather than assumed.
+
+The counterpart is
+[`write-a-requirement-document-for-reader-corrections`](./measurements/write-a-requirement-document-for-reader-corrections-53601779)
+(above): `changedPaths` is empty in all six of its probes, the emptiest
+possible reading, and yet `finalMessageHeadings` — a different reading over
+those same stored bytes — separated the two conditions cleanly, with no
+probe spent to get there.
+
+One more measurement carries a lead, not a result.
+[`fix-a-deep-link-that-loses-its-destination-at-sign-in`](./measurements/fix-a-deep-link-that-loses-its-destination-at-sign-in-71b61b73)
+produced a diff in 3 of 3 probes on both sides — invisible to the count above
+— but skill-present extracted a named helper module in all three
+(`redirect-path.ts` twice, `redirect-target.ts` once), where skill-absent did
+in only one (`post-sign-in-redirect.ts`). That cannot be attributed to the
+skill: `skillsInvoked` is empty in all three skill-present probes of this
+measurement (see `loadedSkills`, above), so nothing in the record says the
+treatment ever reached the model. Read it as a structural difference this
+reading happened to notice, not as a measured effect.
+
 ## `skill-present-632e2800`'s empty patch is an instrument artefact
 
 `measurements/fix-a-minified-production-stack-trace-156f5602/skill-present-632e2800/changes.patch`
@@ -436,14 +476,15 @@ this field is never read for that case again — it governs only the first run.
 
 ## What is committed here
 
-`measurements/` holds the case measurements taken so far, one directory per
-measurement, and `summary.json` is the snapshot derived across all of them.
-`fixture.json` declares every case this axis measures — one per skill
-[`coverage.md`](./coverage.md) does not place out of range, plus a negative
-control — and only one of them, `unit-testing` on `content-site` (since
-renamed `tsuzuri`), has actually been dispatched: six probes, landed in
-[#290](https://github.com/axross/skills/pull/290). Declaring a case is not
-measuring it; see
+`measurements/` holds every case measurement taken so far, one directory per
+measurement, and `summary.json` is the snapshot derived across all of them —
+that file, not this paragraph, is the live record. It currently holds <!-- count:effect-eval-measurement-count -->22<!-- /count --> measurements across 21 distinct cases, together costing `$75.3194`:
+`fix-a-minified-production-stack-trace` is measured twice — `201f1200`,
+superseded, and `156f5602`, its replacement under the non-interactive brief
+(see above) — and every other measured case once. `fixture.json` declares
+every case this axis measures — one per skill [`coverage.md`](./coverage.md)
+does not place out of range, plus a negative control — and declaring a case
+is not the same as measuring it; see
 [`docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md`](../../docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md)
 for the policy the rest of the fixture was declared under, and
 `node tools/effect-eval/evaluate.mjs --dry-run` for the current projected cost
