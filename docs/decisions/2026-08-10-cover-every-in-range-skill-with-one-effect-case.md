@@ -17,7 +17,7 @@ effect looks complete for exactly the wrong reason.
 
 The discovery axis solved the identical problem the same way, and the
 reasoning transfers directly.
-[`2026-08-10-cover-every-skill-with-at-most-two-discovery-cases.md`](./2026-08-10-cover-every-skill-with-at-most-two-discovery-cases.md)
+`2026-08-10-cover-every-skill-with-at-most-two-discovery-cases.md`
 records that its own fixture started as a pilot concentrated on three
 competing skills, that rebuilding it re-expressed every case without
 re-asking the coverage question, and that the imbalance was only visible once
@@ -25,19 +25,19 @@ cases were counted per skill. The effect fixture was in that same pre-rebuild
 state, at n=1.
 
 The effect axis carries a bound the discovery axis does not.
-[`docs/specs/skill-evaluation.md`](../specs/skill-evaluation.md)'s "The effect
-axis cannot observe every skill" names three groups a mock-and-task probe has
-nothing to measure: a skill whose surface is not the working tree, a skill
-whose effect is a judgement rather than an artifact, and a skill needing a
-stack no mock installs. "Cover every skill" is therefore the wrong target
-here — an out-of-range skill's two conditions agree by construction, which
-reads exactly like a skill that changed nothing, and the correct reading is
-that the question was never put rather than settled.
+`docs/specs/skill-evaluation.md`'s "The effect axis cannot observe every skill"
+names three groups a mock-and-task probe has nothing to measure: a skill whose
+surface is not the working tree, a skill whose effect is a judgement rather
+than an artifact, and a skill needing a stack no mock installs. "Cover every
+skill" is therefore the wrong target here — an out-of-range skill's two
+conditions agree by construction, which reads exactly like a skill that changed
+nothing, and the correct reading is that the question was never put rather than
+settled.
 
 ## The decision
 
 **One case per in-range skill, and one negative control.**
-[`data/effect-eval/coverage.md`](../../data/effect-eval/coverage.md) enumerates the out-of-range skills under the spec's three groups; every other installed skill gets exactly one case in [`data/effect-eval/fixture.json`](../../data/effect-eval/fixture.json), and one more case beyond that is a declared negative control — bringing the fixture to <!-- count:effect-eval-case-count -->twenty-one<!-- /count --> cases in total.
+`tools/evaluation/data/effect/coverage.md` enumerates the out-of-range skills under the spec's three groups; every other installed skill gets exactly one case in `tools/evaluation/data/effect/fixture.json`, and one more case beyond that is a declared negative control — bringing the fixture to <!-- count:effect-eval-case-count -->twenty-one<!-- /count --> cases in total.
 
 The case set is written to span the spectrum a residue-sizing measurement
 needs, not just to name every skill once. The mechanical end — `unit-testing`,
@@ -66,21 +66,20 @@ want of a mock stops being out of range the moment somebody adds one, which
 would make the control's own premise expire out from under it.
 
 **A case whose prompt is symptom-shaped and whose mock ships that part sound
-declares a patch.** Three do:
-[`fix-a-minified-production-stack-trace`](../../data/effect-eval/patches/fix-a-minified-production-stack-trace.patch)
-flips a `sourcemap` option the same way the discovery fixture's own patch of
-the same shape does;
-[`remove-config-options-the-test-runner-ignores`](../../data/effect-eval/patches/remove-config-options-the-test-runner-ignores.patch)
-adds a `deps.optimizer` block Vitest 4 no longer reads; and
-[`migrate-a-card-id-helper-to-an-esm-only-package`](../../data/effect-eval/patches/migrate-a-card-id-helper-to-an-esm-only-package.patch)
+declares a patch.** Three do, as `.patch` files under
+`tools/evaluation/data/effect/patches/`:
+`fix-a-minified-production-stack-trace` flips a `sourcemap` option the same way
+the discovery fixture's own patch of the same shape does;
+`remove-config-options-the-test-runner-ignores` adds a `deps.optimizer` block
+Vitest 4 no longer reads; and `migrate-a-card-id-helper-to-an-esm-only-package`
 switches `recall`'s hand-rolled card-id generator for an ESM-only package,
 which is the one patch here that also touches `package.json` and
 `package-lock.json` rather than only source and config — the honest cost of
-reproducing "a dependency that breaks the suite's transform" without
-inventing a defect the project would not otherwise have. Every other case uses
-a gap the mock genuinely has, several of them already named in
-[`mocks/README.md`](../../mocks/README.md)'s own "choices made for coverage"
-lists; no mock is modified by this change.
+reproducing "a dependency that breaks the suite's transform" without inventing
+a defect the project would not otherwise have. Every other case uses a gap the
+mock genuinely has, several of them already named in
+`tools/evaluation/mocks/README.md`'s own "choices made for coverage" lists; no
+mock is modified by this change.
 
 ## What was rejected
 
@@ -105,7 +104,7 @@ completeness check still has teeth, because it parses the Markdown rather than
 trusting it.
 
 **Wiring `extractArtifact` into the derived layer as part of this change.**
-Rejected: it would move `data/effect-eval/summary.json`, and there is no case
+Rejected: it would move `tools/evaluation/data/effect/summary.json`, and there is no case
 yet whose reading it would improve — of the whole fixture, only one case is
 "add tests to a module". `extractArtifact`'s two defaults are gone and both inputs
 are now required rather than assumed, but connecting it to what
@@ -132,7 +131,7 @@ costs nothing to write and leaves the axis with no measured floor at all.
 
 ## What it costs
 
-No dollar total is stated here on purpose — `node tools/effect-eval/evaluate.mjs
+No dollar total is stated here on purpose — `node tools/evaluation/effect/evaluate.mjs
 --dry-run` prints the current per-case and whole-fixture projection over the
 committed fixture, and that command is the number to trust rather than a
 figure that could go stale beside it. Every case's `capUsd` and

@@ -490,37 +490,37 @@ export const CLAIMS = {
   },
 
   "effect-eval-case-count": {
-    owner: "the cases array in data/effect-eval/fixture.json",
+    owner: "the cases array in tools/evaluation/data/effect/fixture.json",
     note: "adding or removing a case moves this number, and effect-eval-out-of-range-skill-count moves opposite it as skills cross between the two lists",
     derive: async () => {
-      const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+      const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
       return fixture.cases.length;
     },
   },
 
   "effect-eval-out-of-range-skill-count": {
-    owner: "the skill bullets listed under data/effect-eval/coverage.md's three group headings",
+    owner: "the skill bullets listed under tools/evaluation/data/effect/coverage.md's three group headings",
     note: "an offline check already holds every installed skill to being named by a case or listed here, so a skill moving between the two moves this number and effect-eval-case-count's implicit complement together",
     derive: async () => {
-      const coverage = await readFile(repoPath("data/effect-eval/coverage.md"), "utf8");
+      const coverage = await readFile(repoPath("tools/evaluation/data/effect/coverage.md"), "utf8");
       return [...coverage.matchAll(/^- `[a-z0-9-]+`/gm)].length;
     },
   },
 
   "effect-eval-patched-case-count": {
-    owner: 'the cases in data/effect-eval/fixture.json carrying a "patch" field',
+    owner: 'the cases in tools/evaluation/data/effect/fixture.json carrying a "patch" field',
     note: "declared-patches.test.mjs applies every one of these against its mock, so a case gaining or losing a patch moves both that check's coverage and this number",
     derive: async () => {
-      const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+      const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
       return fixture.cases.filter((entry) => Boolean(entry.patch)).length;
     },
   },
 
   "effect-eval-measurement-count": {
-    owner: "the directories under data/effect-eval/measurements/",
+    owner: "the directories under tools/evaluation/data/effect/measurements/",
     note: "one directory per dispatched measurement — a case measured more than once (a re-measurement superseding an earlier one, say) adds a directory without adding a case, so this number and a stated distinct-case count can legitimately differ",
     derive: async () => {
-      const entries = await readdir(repoPath("data/effect-eval/measurements"), {
+      const entries = await readdir(repoPath("tools/evaluation/data/effect/measurements"), {
         withFileTypes: true,
       });
       return entries.filter((entry) => entry.isDirectory()).length;

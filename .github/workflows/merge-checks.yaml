@@ -25,8 +25,8 @@ on:
     # the note below the concurrency block for why, and for what checks that
     # data gets instead.
     paths-ignore:
-      - "data/*/measurements/**"
-      - "data/*/summary.json"
+      - "tools/evaluation/data/*/measurements/**"
+      - "tools/evaluation/data/*/summary.json"
   push:
     # deliberately no paths-ignore here. once a measurement merges the gates
     # run against the merged tree, drift check included, so measurement data is

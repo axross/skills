@@ -36,7 +36,7 @@ name: Skill Effect Evaluation
 # from a pull request head, which is what makes that posture safe.
 #
 # ── safety property 3 of 3: no credential reaches a stored transcript.
-# tools/lib/credentials.mjs redacts by value, and a shape scan then refuses
+# tools/evaluation/lib/credentials.mjs redacts by value, and a shape scan then refuses
 # rather than redacting what it only guessed at. losing a paid probe is the
 # cheaper failure.
 #
@@ -79,7 +79,7 @@ on:
   workflow_dispatch:
     inputs:
       case:
-        description: "Evaluation case id, as declared in data/effect-eval/fixture.json"
+        description: "Evaluation case id, as declared in tools/evaluation/data/effect/fixture.json"
         required: true
       dry-run:
         # typed and defaulted, so it is read through `inputs` rather than
@@ -223,7 +223,7 @@ jobs:
           # assigned before it is echoed, so `set -e` sees setup.mjs's exit
           # code. inside `echo "path=$(...)"` it could not: echo succeeds on a
           # failed substitution and the step would export an empty path.
-          workspace="$(node tools/effect-eval/setup.mjs "${args[@]}")"
+          workspace="$(node tools/evaluation/effect/setup.mjs "${args[@]}")"
           echo "path=${workspace}" >> "$GITHUB_OUTPUT"
 
       # safety property 2 — the only secret here is the one the CLI cannot
@@ -244,7 +244,7 @@ jobs:
           plan="$(node .github/scripts/effect-eval-probe-plan.mjs \
             --case "${CASE}" --condition "${CONDITION}" --dry-run-input "${DRY_RUN}")"
           mapfile -t flags < <(jq -r '.evaluateFlags[]' <<<"${plan}")
-          node tools/effect-eval/evaluate.mjs "${flags[@]}" \
+          node tools/evaluation/effect/evaluate.mjs "${flags[@]}" \
             --workspace "${{ steps.workspace.outputs.path }}" \
             --case "${CASE}" \
             --condition "${CONDITION}" \
@@ -287,7 +287,7 @@ jobs:
         id: collect
         run: |
           set -euo pipefail
-          dir="data/effect-eval/measurements/${{ needs.admit.outputs.measurement-dir }}"
+          dir="tools/evaluation/data/effect/measurements/${{ needs.admit.outputs.measurement-dir }}"
           mkdir -p "${dir}"
           echo "dir=${dir}" >> "$GITHUB_OUTPUT"
 
@@ -326,7 +326,7 @@ jobs:
       - name: Derive the summaries and check comparability
         id: summarize
         continue-on-error: true
-        run: node tools/effect-eval/summarize.mjs
+        run: node tools/evaluation/effect/summarize.mjs
 
       # no `continue-on-error`: a measurement that fails the repository's own
       # gates is a defect in this instrument, not a finding about a skill.
@@ -355,7 +355,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "${branch}"
-          git add data/effect-eval
+          git add tools/evaluation/data/effect
           git commit -m "${title}" \
                      -m "Dispatched from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
           git push -u origin "${branch}"

@@ -7,10 +7,11 @@
 // mocks are excluded from every other gate here, and the failure would
 // otherwise surface in a dispatch that has already spent money reaching it.
 //
-// the fixture list is discovered from data/*/fixture.json rather than
-// hard-coded, the same way mock-materialization.test.mjs discovers mocks/*
-// rather than naming them: a third instrument that declares a patch is
-// covered by this walk without an edit here.
+// the fixture list is discovered from tools/evaluation/data/*/fixture.json
+// rather than hard-coded, the same way mock-materialization.test.mjs
+// discovers tools/evaluation/mocks/* rather than naming them: a third
+// instrument that declares a patch is covered by this walk without an edit
+// here.
 //
 // the walk is deliberately data-driven over the real fixtures. a check that
 // can only pass is decoration, so the second describe below gives it teeth
@@ -26,12 +27,13 @@ import { tempDir } from "../helpers/fixtures.mjs";
 import { patchFromMock } from "../helpers/mock-patch.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
-const DATA_ROOT = repoPath("data");
+const DATA_ROOT = repoPath("tools/evaluation/data");
 
 /**
- * every `data/<name>/` directory that declares a `fixture.json`, sorted for a
- * stable test order. discovered rather than named, so an instrument added
- * beside `effect-eval` and `discovery-eval` is covered without an edit here.
+ * every `tools/evaluation/data/<name>/` directory that declares a
+ * `fixture.json`, sorted for a stable test order. discovered rather than
+ * named, so an instrument added beside `effect` and `discovery` is covered
+ * without an edit here.
  *
  * @returns {Promise<Array<{ label: string, root: string }>>}
  */
@@ -85,7 +87,7 @@ async function failuresIn(root) {
 describe("every declared case patch", () => {
   // guards the discovery walk itself: an empty FIXTURES would make every case
   // below pass vacuously, which is indistinguishable from a walk that has
-  // stopped finding data/*/fixture.json at all.
+  // stopped finding tools/evaluation/data/*/fixture.json at all.
   it("finds at least one fixture, so the walk below is not vacuous", () => {
     expect(FIXTURES.length).toBeGreaterThan(0);
   });

@@ -22,8 +22,9 @@ uses none of them.
 ## Conventions
 
 - [conventions/directory-structure.md](./conventions/directory-structure.md)
-  — where a skill's files live, the two skill tiers, and where a validator or
-  an agent definition belongs.
+  — where a skill's files live, the two skill tiers, where a validator or an
+  agent definition belongs, and the layout of the evaluation subsystem under
+  `tools/evaluation/`.
 - [conventions/verification-gates.md](./conventions/verification-gates.md) —
   what makes a check a gate, a report, or a scheduled audit, and the traps
   each can fall into.

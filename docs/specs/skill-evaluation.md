@@ -56,10 +56,10 @@ The **skill discovery evaluation** answers this: it asks prompts of a real agent
 agent selected. Situating it is what makes the answer worth having — a skill is
 discovered while someone is working in a codebase, not in an empty room, and a
 prompt asked in an empty room can only be answered from the prompt.
-[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md) owns the
+[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md) owns the
 instrument — its two probe modes, how a verdict is reached, and the limits of
 what a run can conclude — and
-[`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) what a
+[`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md) what a
 measurement holds.
 
 ### The discovery axis's low selection rate is largely a decision's price
@@ -68,7 +68,7 @@ measurement holds.
 of a deliberate decision, not a verdict on the descriptions.** Round one of
 the discovery evaluation found 42 of its 77 readable probes selecting no
 skill at all, and 22 of its cases report a `MISS`
-([`data/discovery-eval/README.md`](../../data/discovery-eval/README.md)).
+([`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md)).
 
 **Those two numbers are not the same failure, and the `MISS` count is not
 homogeneous.** Of the 21 situated cases carrying one, 14 selected nothing at
@@ -234,7 +234,7 @@ under `add-unit-tests-for-an-untested-module-4204a1ed` and
 a second time: `finalMessageHeadings` reads those same stored transcripts for
 a different question and recovers a result from bytes already paid for,
 rather than costing another probe. All of this is stated in full in
-[`data/effect-eval/README.md`](../../data/effect-eval/README.md).
+[`tools/evaluation/data/effect/README.md`](../../tools/evaluation/data/effect/README.md).
 
 **A baseline is the same mistake one level up**, and the discovery axis carried
 one until it was rebuilt. A file recording "the current result" is a stored
@@ -303,10 +303,10 @@ This bound is worth stating because the instrument reports a number either way.
 A measurement of a skill in the first two groups would show the two conditions
 agreeing, which reads exactly like a skill that changed nothing — and the
 correct reading is that the question was never put.
-[`data/effect-eval/coverage.md`](../../data/effect-eval/coverage.md) is the
+[`tools/evaluation/data/effect/coverage.md`](../../tools/evaluation/data/effect/coverage.md) is the
 enumeration: every installed skill sorted into one of the three groups above,
 or left off that file because it is in range and named by a case in
-[`data/effect-eval/fixture.json`](../../data/effect-eval/fixture.json) instead.
+[`tools/evaluation/data/effect/fixture.json`](../../tools/evaluation/data/effect/fixture.json) instead.
 
 ## Neither axis gates a merge
 
@@ -326,9 +326,9 @@ queue deciding what to block.
 
 The concrete reasons each instrument cannot gate belong to the instrument, and
 are stated with it:
-[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md)
+[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md)
 for the skill discovery evaluation,
-[`tools/effect-eval/README.md`](../../tools/effect-eval/README.md) for the skill
+[`tools/evaluation/effect/README.md`](../../tools/evaluation/effect/README.md) for the skill
 effect evaluation, and `docs/conventions/verification-gates.md` for the
 obligation report that supplies the cost term.
 `tests/repository/reporting-tools.test.mjs` is what
@@ -345,7 +345,7 @@ when someone edits it. The two numbers therefore go stale on different clocks,
 and a reader comparing results across time has to know which kind they are
 holding. What that means for a recorded selection result is stated with the
 instrument in
-[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md).
+[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md).
 
 **Coverage is not the same as correctness.** A fixture measures the prompts
 somebody thought to write down. A skill that is never surfaced by any labelled
@@ -359,4 +359,4 @@ the whole of what such a reading gives: a deterministic signal answers whether
 the output moved and never whether it moved for the better, which is why the
 cost axis reports a number without claiming that number buys anything. The
 records behind that measurement are committed under
-[`data/effect-eval/`](../../data/effect-eval/README.md).
+[`tools/evaluation/data/effect/`](../../tools/evaluation/data/effect/README.md).

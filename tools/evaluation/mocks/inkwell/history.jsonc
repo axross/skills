@@ -1,0 +1,163 @@
+// history.jsonc — the commit history tools/evaluation/lib/mock-workspace.mjs
+// replays into a real Git repository when it expands this mock.
+//
+// This file is fixture metadata, not part of the project: mock-workspace.mjs
+// omits it from the materialized tree, and nothing under src/, server/, or
+// shared/ ever imports or reads it.
+//
+// Each entry becomes one commit, in array order (oldest first): its `files`
+// are staged from the already-copied working tree and committed with its
+// `message`, under a pinned author/committer identity and a pinned,
+// per-commit date — see mock-workspace.mjs for why those are pinned. Every
+// file this mock ships appears in exactly one entry's `files`, so
+// materializing replays the whole tree and leaves nothing uncommitted.
+//
+// The messages are DELIBERATELY inconsistent in style — a mix of terse WIP
+// notes, vague one-liners, a docs commit, and one clean Conventional Commit —
+// rather than a uniform log. A tidy history here would let a model copy that
+// convention out of context, which would erase the effect of any skill that
+// teaches it — see mocks/README.md.
+{
+  "commits": [
+    {
+      "message": "Initial commit",
+      "files": [
+        "package.json",
+        "package-lock.json",
+        ".gitignore",
+        "tsconfig.json",
+        "tsconfig.app.json",
+        "tsconfig.node.json",
+        ".prettierrc.json",
+        ".prettierignore"
+      ]
+    },
+    {
+      "message": "WIP",
+      "files": [
+        "vite.config.ts",
+        "vitest.config.ts",
+        "index.html",
+        "src/vite-env.d.ts",
+        "eslint.config.js"
+      ]
+    },
+    {
+      "message": "add the shared logger",
+      "files": ["shared/logger.ts", "shared/logger.test.ts"]
+    },
+    {
+      "message": "drizzle schema + migrations",
+      "files": [
+        "drizzle.config.ts",
+        "server/db/schema.ts",
+        "server/db/client.ts",
+        "server/db/data/.gitkeep",
+        "server/db/migrations/0000_sturdy_plazm.sql",
+        "server/db/migrations/meta/0000_snapshot.json",
+        "server/db/migrations/meta/_journal.json",
+        "server/db/queries.test.ts"
+      ]
+    },
+    {
+      "message": "seed some demo sites and posts",
+      "files": ["server/db/seed.ts"]
+    },
+    {
+      "message": "WIP deploy hook",
+      "files": ["server/deploy-hook.ts", "server/deploy-hook.test.ts"]
+    },
+    {
+      "message": "feat(api): add the hono app and its routes",
+      "files": ["server/app.ts", "server/app.test.ts", "server/index.ts"]
+    },
+    {
+      "message": "explain the deploy hook retry policy",
+      "files": ["docs/deploy-hooks.md"]
+    },
+    {
+      "message": "global css reset",
+      "files": ["src/styles/global.css"]
+    },
+    {
+      "message": "Card and Button",
+      "files": [
+        "src/lib/class-names.ts",
+        "src/components/Card/Card.tsx",
+        "src/components/Card/Card.module.css",
+        "src/components/Card/Card.browser.test.tsx",
+        "src/components/Button/Button.tsx",
+        "src/components/Button/Button.module.css",
+        "src/components/Button/Button.browser.test.tsx"
+      ]
+    },
+    {
+      "message": "fix sidebar not collapsing right",
+      "files": [
+        "src/components/Sidebar/Sidebar.tsx",
+        "src/components/Sidebar/Sidebar.module.css",
+        "src/components/Sidebar/Sidebar.browser.test.tsx"
+      ]
+    },
+    {
+      "message": "publish toast",
+      "files": [
+        "src/components/PublishToast/PublishToast.tsx",
+        "src/components/PublishToast/PublishToast.module.css"
+      ]
+    },
+    {
+      "message": "analytics behind a consent gate",
+      "files": [
+        "src/lib/analytics.ts",
+        "src/lib/analytics.test.ts",
+        "src/lib/consent.tsx",
+        "src/components/ConsentBanner/ConsentBanner.tsx",
+        "src/components/ConsentBanner/ConsentBanner.module.css",
+        "src/components/ConsentBanner/ConsentBanner.browser.test.tsx",
+        "src/test/browser-setup.ts"
+      ]
+    },
+    {
+      "message": "WIP sentry",
+      "files": ["src/instrument.ts"]
+    },
+    {
+      "message": "api client + types",
+      "files": ["src/types.ts", "src/lib/api.ts", "src/lib/api.test.ts", "src/lib/queryClient.ts"]
+    },
+    {
+      "message": "query options factories",
+      "files": [
+        "src/queries/sites/sites-query.ts",
+        "src/queries/posts/post-list-query.ts",
+        "src/queries/posts/post-query.ts",
+        "src/queries/posts/post-query-keys.test.ts",
+        "src/queries/posts/post-save-mutation.ts",
+        "src/queries/posts/post-publish-mutation.ts"
+      ]
+    },
+    {
+      "message": "routes + shell",
+      "files": [
+        "src/App.tsx",
+        "src/main.tsx",
+        "src/routes/Layout.tsx",
+        "src/routes/Layout.module.css",
+        "src/routes/RootRedirect.tsx",
+        "src/routes/PostListPage.tsx",
+        "src/routes/PostListPage.module.css",
+        "src/routes/PostEditorPage.tsx",
+        "src/routes/PostEditorPage.module.css"
+      ]
+    },
+    {
+      "message": "ci: add workflow",
+      "files": [".github/workflows/ci.yml"]
+    },
+    {
+      "message": "docs",
+      "files": ["README.md", "AGENTS.md", "CLAUDE.md", ".env.example"]
+    }
+  ]
+}

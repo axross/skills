@@ -11,7 +11,7 @@ import {
   redactCredentials,
   redactTranscript,
   stripCredentials,
-} from "../../tools/lib/credentials.mjs";
+} from "../../tools/evaluation/lib/credentials.mjs";
 
 describe("stripCredentials", () => {
   it("withholds anything whose name looks like a credential", () => {

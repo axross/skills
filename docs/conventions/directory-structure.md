@@ -1,7 +1,8 @@
 # Directory Structure
 
-Where a skill's files live, the two tiers a skill can be written in, and where
-a validator or an agent definition belongs.
+Where a skill's files live, the two tiers a skill can be written in, where a
+validator or an agent definition belongs, and how the evaluation subsystem
+under `tools/evaluation/` is laid out.
 
 ## The Tree
 
@@ -14,6 +15,12 @@ a validator or an agent definition belongs.
 ├── .claude/skills/<name>        # installed: a symlink into .agents/skills/<name>/
 ├── .claude/agents/              # agent definitions — never a skill
 ├── docs/                        # this tree
+├── tools/evaluation/            # the skill discovery and effect evaluations
+│   ├── lib/                     # shared by both: credentials, mock-workspace, transcript/
+│   ├── discovery/               # the skill discovery evaluation
+│   ├── effect/                  # the skill effect evaluation
+│   ├── mocks/                   # the mock fixtures both evaluations situate probes in
+│   └── data/                    # discovery/ and effect/ measurement data, one per instrument
 └── tests/                       # the suite that gates all of the above
 ```
 

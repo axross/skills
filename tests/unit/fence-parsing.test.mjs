@@ -16,6 +16,12 @@
 // inside a ````markdown block. two of the cases below inject content into a copy
 // of that real file, so the regression is anchored to the shape that actually
 // occurs rather than only to a synthetic one.
+//
+// this file and check-links.test.mjs both now take the links gate's own
+// roster (gates.mjs's EXCLUDED_PATHS) for their corpus-wide case, instead of a
+// bare no-argument sweep — the mocks moved three levels deep and forced the
+// switch off one, so neither file demonstrates the validator passing over an
+// unscoped tree any more.
 
 import { readFile } from "node:fs/promises";
 
@@ -23,6 +29,7 @@ import { describe, expect, it } from "vitest";
 
 import { tempDir, writeFileIn, writeSkill } from "../helpers/fixtures.mjs";
 import { SCRIPTS, repoPath, validator } from "../helpers/run.mjs";
+import { gate } from "../repository/gates.mjs";
 
 const checkLinks = validator(SCRIPTS.checkLinks);
 const checkSkill = validator(SCRIPTS.checkSkillReferences);
@@ -175,7 +182,9 @@ describe("CommonMark fence parsing", () => {
     });
 
     it("emits no unterminated-fence warning over the repository's corpus", () => {
-      const result = checkLinks();
+      // the links gate's own roster, not a bare no-argument sweep; this
+      // file's header carries why.
+      const result = checkLinks(...gate("links").args);
 
       expect(result).toPassCleanly();
       expect(result.stderr).not.toMatch(/unterminated fence/);

@@ -43,7 +43,7 @@
 // the defect this file was rewritten to fix: pricing every case as situated
 // inflates a head dispatch's projection by that same order of magnitude, for
 // no reason its actual (bare-only) tool posture justifies. See
-// tools/discovery-eval/src/admission.mjs's header for why superseding a
+// tools/evaluation/discovery/src/admission.mjs's header for why superseding a
 // ceiling with a committed measurement is per mode too.
 //
 // AN OVERRIDE DISPATCH (`--prompt` set) PRICES EXACTLY LIKE A MEASUREMENT ONE
@@ -54,7 +54,7 @@
 // committed measurements where they exist and from the declared ceiling
 // where they do not, exactly as any first run of a case is priced — there is
 // no separate rule for "a case with no committed measurement yet" here or in
-// tools/discovery-eval/src/admission.mjs.
+// tools/evaluation/discovery/src/admission.mjs.
 //
 // A MEASUREMENT DISPATCH PROJECTS EACH CASE AT ITS OWN DECLARED MODE — a
 // mock-declaring case at `.situated`, and (independent of any `--pull-request`
@@ -64,10 +64,11 @@
 // the pre-fix bug's uniform-situated arithmetic, which priced every case —
 // bare-declared ones included — at the situated ceiling. The fixture's
 // current whole-fixture projection, at whatever size the fixture is today,
-// is stated in data/discovery-eval/README.md ("What is committed here") and
-// nowhere else — recomputing it here from a case count or a probe count
-// would go stale the next time a case moves, which is what happened to this
-// very comment once already, which is why it no longer carries one.
+// is stated in tools/evaluation/data/discovery/README.md ("What is
+// committed here") and nowhere else — recomputing it here from a case
+// count or a probe count would go stale the next time a case moves, which
+// is what happened to this very comment once already, which is why it no
+// longer carries one.
 //
 // PRICING A MEASUREMENT DISPATCH CONSERVATIVELY — as though every case ran
 // situated, so the whole corpus keeps refusing until something has been
@@ -90,9 +91,9 @@
 import { appendFile, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { ceilingFor, meanProbeCost } from "../../tools/discovery-eval/src/admission.mjs";
-import { SUMMARY_FILE } from "../../tools/discovery-eval/src/layout.mjs";
-import { planFor } from "../../tools/discovery-eval/src/plan.mjs";
+import { ceilingFor, meanProbeCost } from "../../tools/evaluation/discovery/src/admission.mjs";
+import { SUMMARY_FILE } from "../../tools/evaluation/discovery/src/layout.mjs";
+import { planFor } from "../../tools/evaluation/discovery/src/plan.mjs";
 import {
   DEFAULT_ROOT,
   parseDryRunInput,
@@ -167,7 +168,7 @@ function parseArgv(argv) {
  * so this projection agrees with what evaluate.mjs will independently
  * compute per case. A measurement recorded in the other mode must not
  * supersede this mode's ceiling; see
- * tools/discovery-eval/src/admission.mjs's header.
+ * tools/evaluation/discovery/src/admission.mjs's header.
  */
 async function historicalCostsFor(root, caseId, mode) {
   let raw;
@@ -217,8 +218,8 @@ async function main() {
 
   // refused here, before any probe spawns: a pull request's head text and a
   // maintainer's own override text are two different threat models and two
-  // different workspaces, and must not meet in one dispatch — see this
-  // file's header and tools/discovery-eval/evaluate.mjs's own refusal of the
+  // different workspaces, and must not meet in one dispatch — see this file's
+  // header and tools/evaluation/discovery/evaluate.mjs's own refusal of the
   // same combination.
   if (pullRequest !== null && prompt !== null) {
     fail2(

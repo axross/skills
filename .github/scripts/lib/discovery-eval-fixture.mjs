@@ -3,18 +3,19 @@
 // one case's declaration inside it, and the two raw dispatch inputs that only
 // resolve to one of two literal strings.
 //
-// it lives beside them rather than under tools/discovery-eval/src/ for the same
-// reason .github/scripts/lib/effect-eval-fixture.mjs does: the fixture and the
-// dispatch's mode are the dispatch's data, not the instrument's. the instrument
-// has no notion of a "pull request" or a "dry-run input string" — those are
-// workflow_dispatch concepts, and teaching the instrument about them would stop
-// evaluate.mjs being usable against an arbitrary case with no workflow at all.
+// it lives beside them rather than under tools/evaluation/discovery/src/ for
+// the same reason .github/scripts/lib/effect-eval-fixture.mjs does: the fixture
+// and the dispatch's mode are the dispatch's data, not the instrument's. the
+// instrument has no notion of a "pull request" or a "dry-run input string" —
+// those are workflow_dispatch concepts, and teaching the instrument about them
+// would stop evaluate.mjs being usable against an arbitrary case with no
+// workflow at all.
 
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { DATA_ROOT, FIXTURE_FILE } from "../../../tools/discovery-eval/src/layout.mjs";
-import { MODES } from "../../../tools/discovery-eval/src/plan.mjs";
+import { DATA_ROOT, FIXTURE_FILE } from "../../../tools/evaluation/discovery/src/layout.mjs";
+import { MODES } from "../../../tools/evaluation/discovery/src/plan.mjs";
 
 export const DEFAULT_ROOT = DATA_ROOT;
 
@@ -47,8 +48,8 @@ export async function readFixture(root) {
     throw new Error(`${fixturePath} declares no positive "capUsd".`);
   }
   // per mode, not one figure — a situated and a bare probe cost roughly an
-  // order of magnitude apart. see tools/discovery-eval/src/admission.mjs's
-  // header.
+  // order of magnitude apart. see
+  // tools/evaluation/discovery/src/admission.mjs's header.
   for (const mode of MODES) {
     if (!(fixture.unmeasuredProbeCostCeilingUsd?.[mode] > 0)) {
       throw new Error(`${fixturePath} declares no positive "unmeasuredProbeCostCeilingUsd.${mode}".`);

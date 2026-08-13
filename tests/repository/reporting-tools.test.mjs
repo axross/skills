@@ -18,10 +18,10 @@
 // distributable — so a gate on similarity would fail correct prose. only intent
 // separates the cases, and intent is not in the corpus.
 //
-// tools/discovery-eval/evaluate.mjs reports which skills a prompt surfaced. it
-// cannot gate for three independent reasons: it is non-deterministic, it costs
-// money per run, and it needs a secret that fork pull requests do not receive.
-// a flaky merge gate gets bypassed or deleted.
+// tools/evaluation/discovery/evaluate.mjs reports which skills a prompt
+// surfaced. it cannot gate for three independent reasons: it is
+// non-deterministic, it costs money per run, and it needs a secret that fork
+// pull requests do not receive. a flaky merge gate gets bypassed or deleted.
 //
 // the tracking issues asked for a grep confirming nothing invokes either. a grep
 // confirms today; this file confirms every day, which is what the claim actually
@@ -65,7 +65,7 @@ const REPORTING_TOOLS = [
     script: SCRIPTS.discoveryEvalEvaluate,
     // matched by PATH for the same reason as its effect-side sibling below:
     // "evaluate.mjs" alone is too generic to assert anything.
-    needle: "tools/discovery-eval/evaluate.mjs",
+    needle: "tools/evaluation/discovery/evaluate.mjs",
     // its own workflow is the one place it may appear — maintainer-triggered,
     // and not a required check.
     workflow: "discovery-eval.yaml",
@@ -78,7 +78,7 @@ const REPORTING_TOOLS = [
     script: SCRIPTS.evaluate,
     // matched by PATH for the same reason as its discovery-side sibling above:
     // "evaluate.mjs" alone is too generic to assert anything.
-    needle: "tools/effect-eval/evaluate.mjs",
+    needle: "tools/evaluation/effect/evaluate.mjs",
     // it has earned its own workflow, and exactly one. until #278 this entry
     // read `workflow: null` with the note "this has no such entry point yet,
     // and until it does, any workflow naming it is a wiring mistake" — so
@@ -220,8 +220,10 @@ describe("the merge gate's measurement-pull-request exclusion", () => {
     readFile(repoPath(".github/workflows/merge-checks.yaml"), "utf8");
 
   /** the two derived surfaces a measurement pull request consists of. */
-  const DERIVED_PATHS = ["data/*/measurements/**", "data/*/summary.json"];
-
+  const DERIVED_PATHS = [
+    "tools/evaluation/data/*/measurements/**",
+    "tools/evaluation/data/*/summary.json",
+  ];
 
   it("excludes the measurement pull request at the trigger, by path", async () => {
     const yaml = await readMergeChecks();
@@ -444,7 +446,7 @@ describe("the effect evaluation's own workflow", () => {
     expect(
       land,
       "the writing job invokes the probe, which would hand a model a write token",
-    ).not.toContain("tools/effect-eval/evaluate.mjs");
+    ).not.toContain("tools/evaluation/effect/evaluate.mjs");
   });
 });
 
@@ -594,7 +596,7 @@ describe("the discovery evaluation's own workflow", () => {
     expect(
       land,
       "the writing job invokes the probe, which would hand a model a write token",
-    ).not.toContain("tools/discovery-eval/evaluate.mjs");
+    ).not.toContain("tools/evaluation/discovery/evaluate.mjs");
   });
 
   describe("safety property 5 — a pull-request dispatch runs bare and records nothing", () => {

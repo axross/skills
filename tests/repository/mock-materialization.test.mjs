@@ -1,7 +1,7 @@
-// every mock under mocks/, materialized twice, held to the contract
-// tools/lib/mock-workspace.mjs enforces.
+// every mock under tools/evaluation/mocks/, materialized twice, held to the
+// contract tools/evaluation/lib/mock-workspace.mjs enforces.
 //
-// this is mock-agnostic on purpose. tests/effect-eval/setup.test.mjs proves
+// this is mock-agnostic on purpose. tests/effect/setup.test.mjs proves
 // the materializer works, and proves it against one mock — so a second mock
 // whose history.jsonc and tree disagree is caught by nothing here. the
 // bijection is not a formality at that size: a mock ships dozens of files,
@@ -74,15 +74,16 @@ function materialize(mock, skills = []) {
   return { result, workspace };
 }
 
-const mocks = (await readdir(repoPath("mocks"), { withFileTypes: true }))
+const mocks = (await readdir(repoPath("tools/evaluation/mocks"), { withFileTypes: true }))
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
   .sort();
 
-describe("every mock under mocks/", () => {
-  // guards the walk itself: an empty mocks/ would make every case below pass
-  // vacuously, which is indistinguishable from a walk that has stopped
-  // working. this repository has had at least one mock since #281.
+describe("every mock under tools/evaluation/mocks/", () => {
+  // guards the walk itself: an empty tools/evaluation/mocks/ would make every
+  // case below pass vacuously, which is indistinguishable from a walk that
+  // has stopped working. this repository has had at least one mock since
+  // #281.
   it("is a non-empty set, so the cases below are not vacuous", () => {
     expect(mocks.length).toBeGreaterThan(0);
   });
@@ -115,14 +116,14 @@ describe("every mock under mocks/", () => {
       .toBe("");
   });
 
-  // the first of the two layers tools/effect-eval/src/capture.mjs's header
-  // describes: a mock's own .gitignore should keep an installed skill out of
-  // Git entirely, so the capture's `.claude` filter — the second layer — never
-  // has anything to catch. behavioural rather than a grep of the .gitignore
-  // text, for the reason capture.mjs's own header gives for running real git
-  // rather than asserting on argv: a textual check passes just as happily on
-  // an entry that is present but ineffective, e.g. one placed under a `!`
-  // negation or in a file git does not read here.
+  // the first of the two layers tools/evaluation/effect/src/capture.mjs's
+  // header describes: a mock's own .gitignore should keep an installed skill
+  // out of Git entirely, so the capture's `.claude` filter — the second layer
+  // — never has anything to catch. behavioural rather than a grep of the
+  // .gitignore text, for the reason capture.mjs's own header gives for
+  // running real git rather than asserting on argv: a textual check passes
+  // just as happily on an entry that is present but ineffective, e.g. one
+  // placed under a `!` negation or in a file git does not read here.
   it.each(mocks)(
     "leaves nothing for git to report once a skill is installed: %s",
     (mock) => {

@@ -11,7 +11,7 @@
 // so the skill cases below do not inspect a command line. they materialize a
 // real workspace through the real setup.mjs and look for the skill on disk.
 // `--install` is never passed, which is what keeps this hermetic — see
-// tests/effect-eval/setup.test.mjs, which relies on and asserts the same
+// tests/effect/setup.test.mjs, which relies on and asserts the same
 // property.
 
 import { readdir, readFile, rm, stat } from "node:fs/promises";
@@ -36,7 +36,7 @@ const landingPlan = (args) => runScript(SCRIPTS.effectEvalLandingPlan, args);
 
 /** the declared skills of one fixture case, so the assertions track the fixture. */
 async function declaredSkills(caseId = CASE) {
-  const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+  const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
   return fixture.cases.find((entry) => entry.id === caseId).skills;
 }
 
@@ -109,7 +109,7 @@ describe("the probe plan", () => {
     // workflow's `jq -er` has something to read either way. other cases in the
     // fixture do declare one, and the branch that resolves it is exercised
     // through them.
-    const fixture = JSON.parse(await readFile(repoPath("data/effect-eval/fixture.json"), "utf8"));
+    const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
     const declared = fixture.cases.find((entry) => entry.id === CASE);
 
     for (const condition of ["skill-absent", "skill-present"]) {
@@ -120,7 +120,7 @@ describe("the probe plan", () => {
       expect(
         plan.patch,
         "a patch is per case, so both conditions of one case get the same one",
-      ).toBe(declared.patch ? repoPath("data/effect-eval", declared.patch) : "");
+      ).toBe(declared.patch ? repoPath("tools/evaluation/data/effect", declared.patch) : "");
     }
   });
 
