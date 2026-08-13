@@ -93,6 +93,27 @@ export async function readProbe(probeDir, name) {
 }
 
 /**
+ * a probe's own declared skills that its own loaded set actually contains.
+ *
+ * pure function of one probe's own files, on purpose: this is the local
+ * reading `deriveProbeSummary` is limited to. the case-level judgement of
+ * what that local fact means — confirmed, contradicted, or unavailable —
+ * belongs to `runComparabilityChecks`, which is the only place that sees
+ * every probe in the measurement at once.
+ *
+ * @param {Record<string, unknown>} configuration this probe's own declared configuration
+ * @param {string[]|null} loadedSkills this probe's own loaded set
+ * @returns {string[]|null} sorted; `null` when `loadedSkills` is `null` — the
+ *   stream did not say, not that it disagrees; `[]` when the probe declares
+ *   no skills, or none of what it declares shows up loaded
+ */
+function declaredSkillsLoadedOf(configuration, loadedSkills) {
+  if (loadedSkills === null) return null;
+  const declared = new Set(Object.keys(configuration?.skills ?? {}));
+  return loadedSkills.filter((name) => declared.has(name)).sort();
+}
+
+/**
  * @param {Awaited<ReturnType<typeof readProbe>>} probe
  * @returns {Record<string, unknown>}
  * @throws {Error} when the transcript contradicts what `metadata.json` declared
@@ -139,6 +160,11 @@ export function deriveProbeSummary(probe) {
     // what the CLI loaded is an outcome of the run, not a setting of it, and a
     // declared value would be a claim nothing checks.
     loadedSkills: transcript.loadedSkills,
+    // the local half of the outcome-based confirmation that the treatment
+    // arrived: which of *this* probe's own declared skills its own loaded set
+    // actually contains. `runComparabilityChecks` turns this into a
+    // case-level judgement across every probe.
+    declaredSkillsLoaded: declaredSkillsLoadedOf(configuration, transcript.loadedSkills),
     skillsInvoked: behaviour.skillsInvoked,
     turns: transcript.turns,
     truncated: transcript.truncated,
@@ -224,24 +250,78 @@ export function runComparabilityChecks(probes, derived, declaredRepetitions) {
     );
   }
 
-  // identical, not empty. no available flag can guarantee the CLI loads
-  // nothing: `--setting-sources project` strips the user-level skills, but the
-  // ones a managed environment injects cannot be stripped without also
-  // stripping the workspace's own, which are the treatment. so the achievable
-  // invariant is that whatever contamination exists is the same on both sides,
-  // where it cancels. order is not signal, so compare sorted.
-  const loaded = distinct(
-    derived.map((summary) =>
-      Array.isArray(summary.loadedSkills) ? [...summary.loadedSkills].sort() : summary.loadedSkills,
-    ),
-  );
+  // contamination, not the raw loaded set. no available flag can guarantee
+  // the CLI loads nothing: `--setting-sources project` strips the user-level
+  // skills, but the ones a managed environment injects cannot be stripped
+  // without also stripping the workspace's own, which are the treatment. so
+  // the achievable invariant is that whatever contamination exists is the
+  // same on both sides, where it cancels — and the treatment itself must not
+  // be part of what gets subtracted out, or this check would fail the one
+  // measurement it exists to allow. each probe's own declared skills (the
+  // keys of its own `configuration.skills`) are subtracted from its own
+  // loaded set before comparing; on every record where the runtime reports no
+  // workspace skill at all, that subtraction is a no-op and this check reads
+  // exactly as it did before. order is not signal, so compare sorted. `null`
+  // passes through unchanged — the stream did not say, and subtracting from
+  // "did not say" cannot turn it into "said empty".
+  const contaminationOf = (probe, summary) => {
+    if (summary.loadedSkills === null) return null;
+    const declared = new Set(Object.keys(configurationOf(probe).skills ?? {}));
+    return [...summary.loadedSkills].filter((name) => !declared.has(name)).sort();
+  };
+  const loaded = distinct(probes.map((probe, index) => contaminationOf(probe, derived[index])));
   record(
     "one loaded skill set",
     loaded.length === 1,
     loaded.length === 1
-      ? `every probe loaded ${loaded[0]}`
+      ? `every probe's contamination is ${loaded[0]}`
       : `probes disagree, so contamination does not cancel between the conditions: ${loaded.join(" vs ")}`,
   );
+
+  // the outcome-based confirmation that the treatment actually reached the
+  // skill-present condition — resolved here, not in `deriveProbeSummary`,
+  // because it is a judgement across every probe in the measurement, not a
+  // fact about any one of them.
+  const declaredLoadedByProbe = probes.map((probe, index) => ({
+    probe,
+    declaredSkills: Object.keys(configurationOf(probe).skills ?? {}),
+    declaredSkillsLoaded: derived[index].declaredSkillsLoaded,
+  }));
+  const anyDeclaredSkillReported = declaredLoadedByProbe.some(
+    (entry) => Array.isArray(entry.declaredSkillsLoaded) && entry.declaredSkillsLoaded.length > 0,
+  );
+  if (!anyDeclaredSkillReported) {
+    // unavailable, and that passes, deliberately. failing here would mark
+    // every measurement this runtime ever produces incomparable for missing
+    // information the runtime never offered — a finding about the runtime,
+    // not about the measurement. the gap still belongs in the record, so it
+    // is named in the detail rather than swallowed by a passing check with
+    // nothing to say.
+    record(
+      "the treatment reached the skill-present condition",
+      true,
+      "no probe reported a declared skill in its loaded set, so this runtime does not announce " +
+        "workspace skills and this measurement cannot confirm the treatment arrived",
+    );
+  } else {
+    const missingInPresent = declaredLoadedByProbe.filter(
+      (entry) =>
+        entry.probe.condition === "skill-present" &&
+        entry.declaredSkills.some((name) => !(entry.declaredSkillsLoaded ?? []).includes(name)),
+    );
+    const leakedInAbsent = declaredLoadedByProbe.filter(
+      (entry) => entry.probe.condition === "skill-absent" && (entry.declaredSkillsLoaded ?? []).length > 0,
+    );
+    const offending = [...missingInPresent, ...leakedInAbsent].map((entry) => entry.probe.name);
+    record(
+      "the treatment reached the skill-present condition",
+      offending.length === 0,
+      offending.length === 0
+        ? "every skill-present probe's loaded set carries every declared skill, and no " +
+          "skill-absent probe's carries one"
+        : `the runtime reports declared skills, but not where expected: ${offending.join(", ")}`,
+    );
+  }
 
   if (declaredRepetitions !== null) {
     const expected = declaredRepetitions * 2;

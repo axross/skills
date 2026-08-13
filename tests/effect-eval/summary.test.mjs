@@ -43,6 +43,14 @@ const TRANSCRIPT = [
   JSON.stringify({ type: "result", subtype: "success", num_turns: 3, total_cost_usd: 1.5 }),
 ].join("\n");
 
+/** a one-turn transcript whose init event reports the given loaded skills. */
+function loadedTranscript(skills) {
+  return [
+    JSON.stringify({ type: "system", subtype: "init", model: "claude-sonnet-5", skills }),
+    JSON.stringify({ type: "result", subtype: "success", num_turns: 1, total_cost_usd: 1 }),
+  ].join("\n");
+}
+
 /** a transcript whose only assistant turn ends on the given text. */
 function transcriptEndingWith(text) {
   return [
@@ -125,6 +133,44 @@ describe("deriveProbeSummary", () => {
     });
     const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
     expect(() => deriveProbeSummary(probe)).toThrow(/declared model .* but the transcript reports/);
+  });
+
+  describe("declaredSkillsLoaded", () => {
+    it("is the sorted intersection of a probe's own declared skills and its own loaded set", async () => {
+      await writeProbe("skill-present-bbbbbbbb", {
+        configuration: { skills: { "unit-testing": "sha256:skill", "vitest-testing": "sha256:other" } },
+        transcript: [
+          JSON.stringify({
+            type: "system",
+            subtype: "init",
+            model: "claude-sonnet-5",
+            skills: ["vitest-testing", "some-injected-skill"],
+          }),
+          JSON.stringify({ type: "result", subtype: "success", num_turns: 1, total_cost_usd: 1 }),
+        ].join("\n"),
+      });
+      const probe = await readProbe(join(caseDir, "skill-present-bbbbbbbb"), "skill-present-bbbbbbbb");
+      // "unit-testing" is declared but never shows up loaded; the injected
+      // skill shows up loaded but was never declared. only the overlap
+      // survives, and it is a fact about this probe alone — nothing here
+      // looks at a sibling probe.
+      expect(deriveProbeSummary(probe).declaredSkillsLoaded).toEqual(["vitest-testing"]);
+    });
+
+    it("is empty when the probe declares no skills", async () => {
+      await writeProbe("skill-absent-aaaaaaaa");
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).declaredSkillsLoaded).toEqual([]);
+    });
+
+    it("is null, not empty, when the transcript never said what loaded", async () => {
+      // `null` means the stream did not say, distinct from "said none".
+      await writeProbe("skill-present-bbbbbbbb", {
+        transcript: JSON.stringify({ type: "result", subtype: "success", num_turns: 1 }),
+      });
+      const probe = await readProbe(join(caseDir, "skill-present-bbbbbbbb"), "skill-present-bbbbbbbb");
+      expect(deriveProbeSummary(probe).declaredSkillsLoaded).toBeNull();
+    });
   });
 
   it("does not fail when the transcript is merely silent about the model", async () => {
@@ -311,6 +357,74 @@ describe("the comparability checks", () => {
     await writeProbe("skill-present-bbbbbbbb", { transcript: contaminated });
     expect((await deriveCaseSummary(caseDir)).comparable).toBe(true);
   });
+
+  // pins the regression #364 exists to fix: the raw-set check saw the
+  // treatment itself as contamination, so the one measurement this instrument
+  // is supposed to make possible — the skill-present side loading the skill
+  // that the skill-absent side never installed — failed "one loaded skill
+  // set" for doing exactly what it was supposed to do. subtracting each
+  // probe's own declared skills before comparing is what keeps this passing.
+  it("stays comparable when skill-present loads the treatment and skill-absent does not", async () => {
+    await writeProbe("skill-absent-aaaaaaaa", { transcript: loadedTranscript([]) });
+    await writeProbe("skill-present-bbbbbbbb", { transcript: loadedTranscript(["unit-testing"]) });
+    const summary = await deriveCaseSummary(caseDir);
+    const contaminationCheck = summary.checks.find((check) => check.check === "one loaded skill set");
+    expect(contaminationCheck.passed).toBe(true);
+    expect(summary.comparable).toBe(true);
+  });
+});
+
+describe("the treatment reached the skill-present condition", () => {
+  const treatmentCheckOf = (summary) =>
+    summary.checks.find((check) => check.check === "the treatment reached the skill-present condition");
+
+  it("confirms when every skill-present probe loaded its declared skill and no skill-absent probe did", async () => {
+    await writeProbe("skill-absent-aaaaaaaa", { transcript: loadedTranscript([]) });
+    await writeProbe("skill-present-bbbbbbbb", { transcript: loadedTranscript(["unit-testing"]) });
+    const check = treatmentCheckOf(await deriveCaseSummary(caseDir));
+    expect(check.passed).toBe(true);
+    expect(check.detail).toMatch(/every skill-present probe/);
+  });
+
+  it("is contradicted, and names the probe, when a skill-absent probe's loaded set carries a declared skill", async () => {
+    // synthetic and deliberately abnormal: a probe whose own configuration
+    // declares a skill despite running in the skill-absent condition. this
+    // also trips "no skill in the skill-absent condition" — the two checks
+    // read the same anomaly from two different angles, one from what was
+    // declared and one from what the runtime reports having loaded.
+    await writeProbe("skill-absent-aaaaaaaa", {
+      configuration: { skills: { "unit-testing": "sha256:leaked" } },
+      transcript: loadedTranscript(["unit-testing"]),
+    });
+    await writeProbe("skill-present-bbbbbbbb", { transcript: loadedTranscript(["unit-testing"]) });
+    const check = treatmentCheckOf(await deriveCaseSummary(caseDir));
+    expect(check.passed).toBe(false);
+    expect(check.detail).toMatch(/skill-absent-aaaaaaaa/);
+  });
+
+  it("is contradicted, and names the probe, when one skill-present probe's loaded set is missing a declared skill another reports", async () => {
+    await writeProbe("skill-absent-aaaaaaaa", { transcript: loadedTranscript([]) });
+    await writeProbe("skill-present-bbbbbbbb", { transcript: loadedTranscript(["unit-testing"]) });
+    await writeProbe("skill-present-cccccccc", { transcript: loadedTranscript([]) });
+    const check = treatmentCheckOf(await deriveCaseSummary(caseDir));
+    expect(check.passed).toBe(false);
+    expect(check.detail).toMatch(/skill-present-cccccccc/);
+    expect(check.detail).not.toMatch(/skill-present-bbbbbbbb/);
+  });
+
+  it("passes as unavailable when no probe reports any declared skill", async () => {
+    // the pinned runtime's actual state on all 22 committed measurements: the
+    // check must not fail a measurement for missing information the runtime
+    // never offered.
+    await aPair();
+    const check = treatmentCheckOf(await deriveCaseSummary(caseDir));
+    expect(check.passed).toBe(true);
+    expect(check.detail).toMatch(/cannot confirm the treatment arrived/);
+  });
+});
+
+describe("declared repetition count", () => {
+  const failuresOf = (summary) => comparabilityOf(summary).failures.join("\n");
 
   it("fails when the probe count does not match the declared repetitions", async () => {
     await aPair();
