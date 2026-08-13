@@ -286,6 +286,6 @@
   ],
   "delta": {
     "usable": false,
-    "reason": "no prior measurement of this case exists yet"
+    "reason": "no measurement of this case is timestamped earlier than this one"
   }
 }
