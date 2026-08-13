@@ -16,20 +16,20 @@
 names the specific document for a kind of change this repository already
 distinguishes, so a session does not have to open the index for one of these.
 
-| Kind of change                                                                                                                           | Document                                                                             |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Where a skill's files live, the two skill tiers, a validator's placement, or the evaluation subsystem's layout under `tools/evaluation/` | [docs/conventions/directory-structure.md](./docs/conventions/directory-structure.md) |
-| A merge gate, a reporting tool, or a scheduled audit                                                                                     | [docs/conventions/verification-gates.md](./docs/conventions/verification-gates.md)   |
-| A number stated in prose                                                                                                                 | [docs/conventions/marked-counts.md](./docs/conventions/marked-counts.md)             |
-| What a distributable skill may contain, or a dependency-governed surface                                                                 | [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md)     |
-| The change loop, the implementer or reviewer agent, branch governance                                                                    | [docs/operations/development-workflow.md](./docs/operations/development-workflow.md) |
-| Installing or refreshing a skill                                                                                                         | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
-| How an agent session starts, its hooks, or its telemetry                                                                                 | [docs/operations/agent-sessions.md](./docs/operations/agent-sessions.md)             |
-| Running `@claude review`                                                                                                                 | [docs/operations/code-review.md](./docs/operations/code-review.md)                   |
-| Dispatching a skill discovery or effect evaluation                                                                                       | [docs/operations/evaluation-dispatch.md](./docs/operations/evaluation-dispatch.md)   |
-| What skill evaluation measures and why                                                                                                   | [docs/specs/skill-evaluation.md](./docs/specs/skill-evaluation.md)                   |
-| Why a past decision still constrains current work                                                                                        | [docs/decisions/](./docs/decisions)                                                  |
-| A repository run-script command                                                                                                          | [README.md](./README.md)                                                             |
+| Kind of change                                                                              | Document                                                                             |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Where a skill's files live, the skill tiers, a validator's placement, the evaluation layout | [docs/conventions/directory-structure.md](./docs/conventions/directory-structure.md) |
+| A merge gate, a reporting tool, or a scheduled audit                                        | [docs/conventions/verification-gates.md](./docs/conventions/verification-gates.md)   |
+| A number stated in prose                                                                    | [docs/conventions/marked-counts.md](./docs/conventions/marked-counts.md)             |
+| What a distributable skill may contain, or a dependency-governed surface                    | [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md)     |
+| The change loop, the implementer or reviewer agent, branch governance                       | [docs/operations/development-workflow.md](./docs/operations/development-workflow.md) |
+| Installing or refreshing a skill                                                            | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
+| How an agent session starts, its hooks, or its telemetry                                    | [docs/operations/agent-sessions.md](./docs/operations/agent-sessions.md)             |
+| Running `@claude review`                                                                    | [docs/operations/code-review.md](./docs/operations/code-review.md)                   |
+| Dispatching a skill discovery or effect evaluation                                          | [docs/operations/evaluation-dispatch.md](./docs/operations/evaluation-dispatch.md)   |
+| What skill evaluation measures and why                                                      | [docs/specs/skill-evaluation.md](./docs/specs/skill-evaluation.md)                   |
+| Why a past decision still constrains current work                                           | [docs/decisions/](./docs/decisions)                                                  |
+| A repository run-script command                                                             | [README.md](./README.md)                                                             |
 
 ## Response Approach
 
