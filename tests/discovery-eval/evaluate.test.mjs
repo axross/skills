@@ -140,6 +140,57 @@ describe("--head-skills's mode refusals", () => {
   });
 }, 15_000);
 
+describe("--prompt overrides the resolved case's prompt and never records", () => {
+  const OVERRIDDEN = "This is a deliberately reworded prompt for the override run.";
+
+  it("runs a situated case situated — --prompt never forces bare the way --head-skills does", async () => {
+    const result = evaluate(["--case", SITUATED_CASE, "--prompt", OVERRIDDEN, "--dry-run"]);
+    expect(result.code, result.output).toBe(0);
+    const records = result.stdout
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    expect(records).toHaveLength(2); // SITUATED_CASE's fixture-declared repeat count
+    for (const record of records) {
+      expect(record.metadata.configuration.workspace.mode).toBe("situated");
+      // the prompt is the only variable: every probe's own metadata.json
+      // carries the overridden prompt, never the fixture's declared one.
+      expect(record.metadata.configuration.case.prompt).toBe(OVERRIDDEN);
+      expect(record.metadata.configuration.case.id).toBe(SITUATED_CASE);
+      expect(typeof record.terminalReason).toBe("string");
+    }
+  });
+
+  it("runs a bare case bare, unchanged", async () => {
+    const result = evaluate(["--case", BARE_CASE, "--prompt", OVERRIDDEN, "--dry-run"]);
+    expect(result.code, result.output).toBe(0);
+    const record = JSON.parse(result.stdout.trim().split("\n")[0]);
+    expect(record.metadata.configuration.workspace.mode).toBe("bare");
+    expect(record.metadata.configuration.case.prompt).toBe(OVERRIDDEN);
+  });
+
+  it("reaches the probe's argv — the dry-run command line carries the overridden text", () => {
+    const result = evaluate(["--case", SITUATED_CASE, "--prompt", OVERRIDDEN, "--dry-run"]);
+    expect(result.code, result.output).toBe(0);
+    expect(result.stderr).toContain(OVERRIDDEN);
+  });
+
+  it("writes no measurement: --prompt with --out exits non-zero", async () => {
+    const out = await freshOutDir();
+    const result = evaluate(["--case", SITUATED_CASE, "--out", out, "--prompt", OVERRIDDEN, "--dry-run"]);
+    expect(result.code).not.toBe(0);
+    expect(result.output).toMatch(/--prompt overrides a case's prompt.*comparability key/s);
+    expect(await readdir(out)).toEqual([]);
+  });
+
+  it("refuses --head-skills together with --prompt — two different threat models must not meet", async () => {
+    const headSkills = await freshOutDir();
+    const result = evaluate(["--case", SITUATED_CASE, "--prompt", OVERRIDDEN, "--head-skills", headSkills, "--dry-run"]);
+    expect(result.code).not.toBe(0);
+    expect(result.output).toMatch(/two different threat models and two different\s+workspaces must not meet/i);
+  });
+}, 15_000);
+
 describe("other refusals", () => {
   it("refuses an unknown case rather than inventing a task", () => {
     const result = evaluate(["--case", "no-such-case", "--out", "/tmp/wont-be-used", "--dry-run"]);
