@@ -26,6 +26,7 @@ fail a merge.
 ```sh
 node tools/discovery-eval/evaluate.mjs  --case <id> --out <dir> [--repeats <n>] [--dry-run]
 node tools/discovery-eval/evaluate.mjs  --case <id> --head-skills <dir> [--head-sha <sha>]
+node tools/discovery-eval/evaluate.mjs  --case <id> --prompt <text> [--dry-run]
 node tools/discovery-eval/summarize.mjs [--check]
 ```
 
@@ -52,7 +53,7 @@ which re-derives a _committed_ summary and compares bytes.
 | turns              | a runaway guard (`src/plan.mjs`'s `PROVISIONAL_SITUATED_TURN_CAP`, provisional) | 2 (`src/plan.mjs`'s `BARE_TURN_CAP`)                          |
 | tools permitted    | `Read`, `Glob`, `Grep`, `Skill`                                                 | `Skill` (`ToolSearch` denied — see below)                     |
 | may hold head text | no                                                                              | yes                                                           |
-| recorded           | yes                                                                             | yes, except under `--head-skills`                             |
+| recorded           | yes, except under `--prompt`                                                    | yes, except under `--head-skills` or `--prompt`               |
 
 **Why bare's cap is 2, not 1.** Measured turn accounting from a real dispatch:
 a probe that calls any tool — `Skill` included — reports `num_turns: 2` and
@@ -93,6 +94,25 @@ under `--head-skills` regardless, and combining `--head-skills` with `--out` —
 a request to persist the run as a case measurement — is refused with a
 non-zero exit rather than documented as a caution. It reports to a caller
 (stdout, and eventually a pull request comment); it records nothing.
+
+**`--prompt` overrides a case's prompt and refuses to record too, but stays
+situated.** It replaces only the resolved case's prompt — mock, patch, tiers,
+repeats and corpus stay the case's own — so a case declaring a `mock` still
+runs situated, unlike under `--head-skills`: forcing bare would move two
+variables (the prompt and the workspace) when the whole point is to hold the
+workspace fixed and vary only the prompt. It refuses `--out` for the same
+shape of reason `--head-skills` does — a run whose prompt is not the one the
+fixture declares would put a false prompt into the comparability key of every
+future comparison if persisted as that case's measurement — and it refuses
+`--head-skills` outright: a maintainer's own text evaluated situated and a
+pull request's head text evaluated bare are two different threat models and
+two different workspaces that must not meet in one run. Its own report prints
+the case, the overridden prompt, its declared tiers, and each probe's
+terminal reason and selection, so a reader can tell hit from miss without
+re-deriving it — see
+[`docs/operations/evaluation-dispatch.md`](../../docs/operations/evaluation-dispatch.md)
+for the use rule a prompt override is bound by and the comparability cost
+that makes revising a committed prompt rare.
 
 ## The fingerprint covers `description` only
 

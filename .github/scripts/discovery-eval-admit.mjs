@@ -2,21 +2,31 @@
 // the admit job of .github/workflows/discovery-eval.yaml.
 //
 // it resolves the whole dispatch before any probe spawns: which mode this run
-// is (a pull request's head skills, evaluated bare and reported; or a
-// measurement, evaluated per the fixture and landed), which cases the matrix
-// covers, and — for the money at stake — whether the projected total fits the
-// fixture's cap.
+// is (a pull request's head skills, evaluated bare and reported; a prompt
+// override, evaluated situated-or-bare exactly as the case declares and
+// reported; or a measurement, evaluated per the fixture and landed), which
+// cases the matrix covers, and — for the money at stake — whether the
+// projected total fits the fixture's cap.
 //
-// SAFETY PROPERTY 5 LIVES HERE. mode is a pure function of `--pull-request`:
-// non-empty and it parses to a positive integer, or the dispatch refuses
-// outright (see lib/discovery-eval-fixture.mjs's parsePullRequestInput) rather
-// than silently falling through to a measurement dispatch. `records` is
+// THREE MODES, ONE PURE FUNCTION. mode is `"head"` when `--pull-request` is
+// non-empty (and it must then parse to a positive integer, or the dispatch
+// refuses outright — see lib/discovery-eval-fixture.mjs's
+// parsePullRequestInput — rather than silently falling through to a
+// measurement dispatch), `"override"` when `--prompt` is non-empty, and
+// `"measurement"` otherwise. `--pull-request` and `--prompt` together are
+// refused here, before any probe spawns: a pull request's head text and a
+// maintainer's own override text are two different threat models and two
+// different workspaces, and this is the one place a dispatch naming both
+// gets caught before the fan-out.
+//
+// SAFETY PROPERTY 5 LIVES HERE, for both non-recording modes. `records` is
 // `mode === "measurement"` and nothing else decides it — the land job's `if:`
 // reads this output rather than re-deriving the mode a second way, which is
 // the same "one resolution, not two" discipline effect-eval-landing-plan.mjs
-// documents. A head-mode dispatch's per-case plan (discovery-eval-probe-plan.mjs)
-// never receives `--out`, so it structurally cannot materialize a case
-// measurement — see that script's header for the other half of this property.
+// documents. A head-mode or override-mode dispatch's per-case plan
+// (discovery-eval-probe-plan.mjs) never receives `--out`, so it structurally
+// cannot materialize a case measurement — see that script's header for the
+// other half of this property.
 //
 // ADMISSION IS FIXTURE-WIDE HERE, unlike evaluate.mjs's own per-case call.
 // evaluate.mjs projects one case's repeats against the fixture's whole
@@ -35,6 +45,16 @@
 // no reason its actual (bare-only) tool posture justifies. See
 // tools/discovery-eval/src/admission.mjs's header for why superseding a
 // ceiling with a committed measurement is per mode too.
+//
+// AN OVERRIDE DISPATCH (`--prompt` set) PRICES EXACTLY LIKE A MEASUREMENT ONE
+// — each case at its own declared mode, never forced bare — because it stays
+// situated: forcing bare would move two variables at once (the prompt and
+// the workspace) when the whole point is to hold the workspace fixed and vary
+// only the prompt. Admission still binds it, projecting from the case's
+// committed measurements where they exist and from the declared ceiling
+// where they do not, exactly as any first run of a case is priced — there is
+// no separate rule for "a case with no committed measurement yet" here or in
+// tools/discovery-eval/src/admission.mjs.
 //
 // A MEASUREMENT DISPATCH PROJECTS EACH CASE AT ITS OWN DECLARED MODE — a
 // mock-declaring case at `.situated`, and (independent of any `--pull-request`
@@ -76,6 +96,7 @@ import { planFor } from "../../tools/discovery-eval/src/plan.mjs";
 import {
   DEFAULT_ROOT,
   parseDryRunInput,
+  parsePromptInput,
   parsePullRequestInput,
   readFixture,
 } from "./lib/discovery-eval-fixture.mjs";
@@ -89,7 +110,12 @@ fixture's cap.
   --case <id>          run one case rather than the whole fixture (optional)
   --pull-request <n>    a pull request number: this dispatch evaluates that
                          pull request's changed skills, bare, and records
-                         nothing (optional; empty means a measurement dispatch)
+                         nothing (optional; empty means not a head dispatch)
+  --prompt <text>       override the selected case's prompt: this dispatch
+                         evaluates it exactly as declared (situated or bare)
+                         and records nothing (optional; empty means not an
+                         override dispatch). Refused together with
+                         --pull-request
   --repeats <n>         override every selected case's declared repeat count
                          (optional; blank honours each case's own declaration)
   --dry-run-input <b>   the dispatch's raw dry_run input, "true" or "false"
@@ -108,6 +134,7 @@ function parseArgv(argv) {
   const options = {
     caseId: null,
     pullRequest: null,
+    prompt: null,
     repeats: null,
     dryRunInput: null,
     root: DEFAULT_ROOT,
@@ -122,6 +149,7 @@ function parseArgv(argv) {
     };
     if (arg === "--case") options.caseId = next();
     else if (arg === "--pull-request") options.pullRequest = next();
+    else if (arg === "--prompt") options.prompt = next();
     else if (arg === "--repeats") options.repeats = next();
     else if (arg === "--dry-run-input") options.dryRunInput = next();
     else if (arg === "--root") options.root = next();
@@ -178,11 +206,44 @@ async function main() {
 
   let dryRun;
   let pullRequest;
+  let prompt;
   try {
     dryRun = parseDryRunInput(options.dryRunInput);
     pullRequest = parsePullRequestInput(options.pullRequest ?? undefined);
+    prompt = parsePromptInput(options.prompt ?? undefined);
   } catch (error) {
     fail2(error.message);
+  }
+
+  // refused here, before any probe spawns: a pull request's head text and a
+  // maintainer's own override text are two different threat models and two
+  // different workspaces, and must not meet in one dispatch — see this
+  // file's header and tools/discovery-eval/evaluate.mjs's own refusal of the
+  // same combination.
+  if (pullRequest !== null && prompt !== null) {
+    fail2(
+      "--pull-request and --prompt cannot both be given: a pull-request dispatch evaluates " +
+        "untrusted head text, forced bare; a prompt override evaluates a maintainer's own text, " +
+        `staying situated. Drop one of them.\n${USAGE}`,
+    );
+  }
+
+  // --prompt REQUIRES --case, and this is the only place that can enforce it.
+  // An override replaces ONE case's declared prompt; substituting the same
+  // text into every other case's is meaningless, because each case's
+  // mustInclude/mustExclude tiers belong to a different skill. Without this,
+  // a blank `case` falls through to the whole-fixture selection below and a
+  // dispatch that reads like one reworded case fans out across the corpus —
+  // 40 probes' worth of spend producing artifacts comparable with nothing.
+  // discovery-eval-probe-plan.mjs already requires --case unconditionally at
+  // its own CLI level, so only admission can widen the matrix, and only
+  // admission can refuse before it does.
+  if (prompt !== null && !options.caseId) {
+    fail2(
+      "--prompt overrides one case's declared prompt, so it needs --case naming which one. " +
+        "Without it this would run the whole fixture with the same text substituted into every " +
+        `case, which is comparable with nothing. Drop --prompt to admit an ordinary measurement dispatch instead.\n${USAGE}`,
+    );
   }
 
   if (options.repeats !== null) {
@@ -209,10 +270,11 @@ async function main() {
     caseIds = fixture.cases.map((entry) => entry.id);
   }
 
-  // safety property 5's positive half: mode is this ternary and nothing else
-  // decides it. every downstream reader — the probe plan, the land job's
-  // `if:` — reads `records` from this job's output rather than re-deriving it.
-  const mode = pullRequest !== null ? "head" : "measurement";
+  // safety property 5's positive half, generalised to three modes: mode is
+  // this expression and nothing else decides it. every downstream reader —
+  // the probe plan, the land job's `if:` — reads `records` from this job's
+  // output rather than re-deriving it.
+  const mode = pullRequest !== null ? "head" : prompt !== null ? "override" : "measurement";
   const records = mode === "measurement";
 
   let projectedTotalUsd = 0;
@@ -222,7 +284,9 @@ async function main() {
     const repeats = options.repeats ?? declared.repeats ?? 1;
     // the mode THIS DISPATCH runs the case in, not the mode it declares — a
     // head dispatch (mode === "head") forces every case bare regardless of
-    // any `mock` the case names. See this file's header.
+    // any `mock` the case names. An override dispatch (mode === "override")
+    // forces nothing, so it prices exactly like a measurement one. See this
+    // file's header.
     const plan = planFor(declared, { headSkills: mode === "head" });
     const historicalCosts = await historicalCostsFor(options.root, caseId, plan.mode);
     const measured = meanProbeCost(historicalCosts);

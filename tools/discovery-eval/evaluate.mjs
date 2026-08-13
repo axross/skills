@@ -22,6 +22,22 @@
 // which is a different claim than "route on this text once and report it",
 // so evaluate.mjs refuses the combination outright rather than writing one.
 //
+// `--prompt` NEVER RECORDS EITHER, for a related but distinct reason. It
+// replaces the resolved case's prompt and nothing else — mock, patch, tiers,
+// repeats and corpus stay the case's own, so the prompt is the only variable
+// — and a run whose prompt is not the one the fixture declares would, if
+// `--out` were honoured, put a false prompt into the comparability key of
+// every future comparison (`predecessorMismatches` in src/summary.mjs
+// compares `case.prompt`). So `--prompt` refuses `--out` outright, the same
+// way and for the same shape of reason `--head-skills` does. It also refuses
+// `--head-skills`: a prompt override stays situated and takes text from a
+// maintainer (`workflow_dispatch` requires repository write access), while
+// `--head-skills` forces bare and takes text from a pull request's head —
+// two different threat models and two different workspaces that must not
+// meet in one run. See docs/operations/evaluation-dispatch.md for the use
+// rule a prompt override is bound by and the comparability cost that makes
+// it rare.
+//
 // exit codes:
 //   0  a probe record was written (or --dry-run wrote one with no spawn), or
 //      a whole-fixture --dry-run preview printed with no --case given
@@ -56,6 +72,7 @@ import {
   SUMMARY_FILE,
 } from "./src/layout.mjs";
 import { MODES, planFor, PROVISIONAL_SITUATED_TURN_CAP } from "./src/plan.mjs";
+import { extractSignals } from "./src/signals.mjs";
 import { buildConfiguration, runProbe, shellQuote } from "./src/spawn.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -94,6 +111,14 @@ probe-<id> directory inside --out.
                          mode. Refuses --out: a head run reports, it never
                          records
   --head-sha <sha>       record the evaluated head commit in a head run's report
+  --prompt <text>        replace the resolved case's prompt with this text;
+                         everything else — mock, patch, tiers, repeats,
+                         corpus — stays the case's own, so the prompt is the
+                         only variable. Stays situated or bare exactly as the
+                         case declares. Refuses --out and --head-skills: a
+                         prompt override reports, it never records. See this
+                         file's header and docs/operations/evaluation-dispatch.md
+                         for the use rule
   --dry-run              fingerprint the workspace and write each probe record
                          with a synthetic transcript; spawn nothing. Marked
                          \`trigger.kind: "dry-run"\` so it cannot be mistaken
@@ -121,6 +146,7 @@ function parseArgv(argv) {
     runtimeVersion: process.env.CLAUDE_CODE_VERSION ?? null,
     headSkills: null,
     headSha: null,
+    prompt: null,
     dryRun: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -147,6 +173,7 @@ function parseArgv(argv) {
     else if (arg === "--runtime-version") options.runtimeVersion = next();
     else if (arg === "--head-skills") options.headSkills = resolve(next());
     else if (arg === "--head-sha") options.headSha = next();
+    else if (arg === "--prompt") options.prompt = next();
     else if (arg === "--dry-run") options.dryRun = true;
     else fail2(`Unknown option ${JSON.stringify(arg)}.\n${USAGE}`);
   }
@@ -352,15 +379,40 @@ async function main() {
     );
   }
 
-  const wholeFixturePreview = options.dryRun && !options.caseId && !options.headSkills;
+  // --prompt never records either, and for a related reason — see this
+  // file's header. Refusing the combination outright, rather than
+  // documenting it as a caution, is what makes "an override run cannot reach
+  // land" structural rather than conventional.
+  if (options.prompt !== null && options.out) {
+    fail2(
+      "--prompt overrides a case's prompt, so the run's prompt is not the one the fixture " +
+        "declares; persisting it as that case's measurement would put a false prompt into the " +
+        "comparability key of every future comparison. Drop --out to run it, or drop --prompt " +
+        `to record an ordinary measurement.\n${USAGE}`,
+    );
+  }
+
+  // --prompt and --head-skills are two different threat models — a
+  // maintainer's own text evaluated situated, and a pull request's head text
+  // evaluated bare — and two different workspaces. They must not meet in one
+  // run.
+  if (options.prompt !== null && options.headSkills) {
+    fail2(
+      "--prompt takes text from a maintainer and stays situated; --head-skills takes text from a " +
+        "pull request's head and forces bare. Two different threat models and two different " +
+        `workspaces must not meet in one run. Drop one of them.\n${USAGE}`,
+    );
+  }
+
+  const wholeFixturePreview = options.dryRun && !options.caseId && !options.headSkills && !options.prompt;
   if (!options.caseId && !wholeFixturePreview) {
     fail2(`--case is required, unless --dry-run is given with no --case.\n${USAGE}`);
   }
   if (wholeFixturePreview && options.out) {
     fail2(`--out names one case's directory; it needs --case.\n${USAGE}`);
   }
-  if (options.caseId && !options.out && !options.headSkills) {
-    fail2(`--out is required, unless --head-skills is given.\n${USAGE}`);
+  if (options.caseId && !options.out && !options.headSkills && !options.prompt) {
+    fail2(`--out is required, unless --head-skills or --prompt is given.\n${USAGE}`);
   }
 
   const fixturePath = resolve(options.fixture);
@@ -371,7 +423,15 @@ async function main() {
     process.exit(0);
   }
 
-  const testCase = findCase(fixture, options.caseId, fixturePath);
+  const declaredCase = findCase(fixture, options.caseId, fixturePath);
+  // --prompt replaces the prompt and nothing else — mock, patch, tiers,
+  // repeats and corpus all come from `declaredCase` untouched, because every
+  // read below goes through this one `testCase`, never `declaredCase`
+  // directly, so the prompt is the only variable that can differ from the
+  // fixture's own declaration. planFor never sees headSkills for this mode
+  // (only --head-skills sets that), so an overridden case stays situated or
+  // bare exactly as declared — see this file's header.
+  const testCase = options.prompt !== null ? { ...declaredCase, prompt: options.prompt } : declaredCase;
   const plan = planFor(testCase, { headSkills: Boolean(options.headSkills), turnCap: options.turnCap });
   const repeats = options.repeats ?? testCase.repeats ?? 1;
 
@@ -430,6 +490,20 @@ async function main() {
       testCase,
     });
 
+    if (options.prompt !== null) {
+      // the case, the overridden prompt, and its declared tiers, named once
+      // — every probe's own metadata.json.configuration.case carries the
+      // same fields (below), but a reader watching the run live should not
+      // have to wait for the first probe to see what this dispatch is
+      // actually asking.
+      process.stderr.write(
+        `${testCase.id}: prompt overridden to ${JSON.stringify(options.prompt)}\n` +
+          `  mustInclude=[${(testCase.mustInclude ?? []).join(", ")}] ` +
+          `mustExclude=[${(testCase.mustExclude ?? []).join(", ")}] ` +
+          `mayInclude=[${(testCase.mayInclude ?? []).join(", ")}]\n`,
+      );
+    }
+
     for (let repeat = 0; repeat < repeats; repeat += 1) {
       let rawStdout;
       let cliExitCode;
@@ -465,14 +539,10 @@ async function main() {
         process.stderr.write(`redacted from the transcript: ${redactedNames.join(", ")}\n`);
       }
 
-      if (!options.out) {
-        // a head run with no --out: report, never record.
-        process.stdout.write(
-          `${testCase.id} repeat ${repeat + 1}/${repeats}: ${plan.mode}, cliExitCode=${cliExitCode}\n`,
-        );
-        continue;
-      }
-
+      // built regardless of --out: an override run's report (below) embeds
+      // this exact object, so a caller reconstructing metadata.json from that
+      // report gets the same shape a measurement would have written to disk.
+      const probeId = options.probeIds[repeat] ?? newId();
       const metadata = {
         timestamp: `${new Date().toISOString().slice(0, 19)}Z`,
         trigger: options.dryRun
@@ -487,7 +557,37 @@ async function main() {
         configuration,
       };
 
-      const probeId = options.probeIds[repeat] ?? newId();
+      if (options.prompt !== null) {
+        // an override run never records — --out is refused outright (see
+        // this file's header) — so stdout is the only channel left for the
+        // metadata and transcript a caller needs to hold onto: this is the
+        // only copy either will ever have. One JSON line per probe, deriving
+        // the terminal reason and what it selected the same deterministic
+        // way summarize.mjs eventually would, so a reader can tell hit from
+        // miss without re-deriving it themselves.
+        const signals = extractSignals(transcriptText);
+        process.stdout.write(
+          `${JSON.stringify({
+            probeId,
+            repeat: repeat + 1,
+            of: repeats,
+            terminalReason: signals.terminalReason,
+            selectedSkills: signals.selectedSkills,
+            metadata,
+            transcript: transcriptText,
+          })}\n`,
+        );
+        continue;
+      }
+
+      if (!options.out) {
+        // a head run with no --out: report, never record.
+        process.stdout.write(
+          `${testCase.id} repeat ${repeat + 1}/${repeats}: ${plan.mode}, cliExitCode=${cliExitCode}\n`,
+        );
+        continue;
+      }
+
       const directory = join(options.out, probeName(probeId));
       await mkdir(directory, { recursive: true });
       const paths = probePaths(directory);

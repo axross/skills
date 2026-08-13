@@ -4,7 +4,10 @@ name: Discovery Evaluation
 # discovery, as a per-case matrix, and lands the result through a pull
 # request — the dispatch shape effect-eval.yaml established: admit -> probe
 # (matrix) -> land. A pull-request dispatch takes a fourth job instead of
-# landing: report, which posts a comment and commits nothing.
+# landing: report, which posts a comment and commits nothing. A dispatch
+# naming a `prompt` takes no fourth job at all — `probe` uploads its own
+# probe records as an artifact and the run stops there, reaching neither
+# `land` nor `report`.
 #
 # THIS IS NOT A GATE, AND MUST NOT BECOME ONE. It is non-deterministic, it
 # costs money per probe, and it needs a secret that fork pull requests do not
@@ -35,14 +38,16 @@ name: Discovery Evaluation
 # where it would go stale the moment a case moves) in
 # data/discovery-eval/README.md, "What is committed here".
 #
-# ── LOAD-BEARING SAFETY PROPERTY 1 of 5 — MANUAL DISPATCH IS THE ONLY
+# ── LOAD-BEARING SAFETY PROPERTY 1 of 6 — MANUAL DISPATCH IS THE ONLY
 # TRIGGER. `workflow_dispatch` requires write access on the repository and
 # always runs the workflow file from the DEFAULT BRANCH, so a contributor
 # cannot cause a run, cannot cause one by editing this file in a pull
 # request, and cannot cause one by having a label applied. Do NOT add
-# `pull_request`, and do NOT add back `pull_request_target`.
+# `pull_request`, and do NOT add back `pull_request_target`. This is also
+# what lets `prompt` need no allowlist the way a pull request's head text
+# does (property 3 below): only someone with write access can supply it.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 2 of 5 — default-branch checkout. Every
+# ── LOAD-BEARING SAFETY PROPERTY 2 of 6 — default-branch checkout. Every
 # job that checks out this repository (`admit`, `probe`, `land`) does so with
 # no `ref:`, so it is always the default branch — the runner, the fixture,
 # `package.json`, everything executable. A pull request head is never
@@ -51,7 +56,7 @@ name: Discovery Evaluation
 # this repository at all — it only downloads artifacts and posts a comment,
 # so there is no executable surface for this property to bind on there.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 3 of 5 — head skill text crosses as DATA,
+# ── LOAD-BEARING SAFETY PROPERTY 3 of 6 — head skill text crosses as DATA,
 # through an allowlist. When a run names a pull request, `admit` fetches that
 # pull request's changed `.agents/skills/<name>/SKILL.md` files through the
 # API and stages them under `$RUNNER_TEMP`, uploaded as an artifact the probe
@@ -63,7 +68,7 @@ name: Discovery Evaluation
 # the allowlist is the security property, and it is unit-tested (see
 # tests/discovery-eval/head-overlay.test.mjs).
 #
-# ── LOAD-BEARING SAFETY PROPERTY 4 of 5 — the probe job cannot write and
+# ── LOAD-BEARING SAFETY PROPERTY 4 of 6 — the probe job cannot write and
 # never receives a credential beyond the one the CLI needs. It declares
 # `permissions: {}`, and the "Run the probe" step's environment holds only
 # `CLAUDE_CODE_OAUTH_TOKEN` — no `GITHUB_TOKEN`, whether the case is
@@ -77,7 +82,7 @@ name: Discovery Evaluation
 # `Skill` call to finish, and raising it from 1 changed how much the model may
 # say, never what it may reach.
 #
-# ── LOAD-BEARING SAFETY PROPERTY 5 of 5 — a dispatch naming a pull request
+# ── LOAD-BEARING SAFETY PROPERTY 5 of 6 — a dispatch naming a pull request
 # runs every case bare and records nothing. `admit` resolves `mode` as a pure
 # function of `pull_request`: non-empty and it parses as a positive integer,
 # or the whole dispatch REFUSES before any probe spawns (a malformed
@@ -97,6 +102,29 @@ name: Discovery Evaluation
 # halves are asserted by tests/repository/discovery-eval-dispatch-plan.test.mjs
 # rather than only documented here.
 #
+# ── LOAD-BEARING SAFETY PROPERTY 6 of 6 — a dispatch naming a `prompt`
+# records nothing either, on the same structural shape as property 5 above.
+# `admit` resolves `mode: "override"` as a pure function of `prompt` (empty
+# means not an override dispatch — see
+# .github/scripts/lib/discovery-eval-fixture.mjs's parsePromptInput), sets
+# `records` to `"false"` for it exactly as it does for `"head"`, and REFUSES
+# the whole dispatch before any probe spawns when `prompt` and `pull_request`
+# are both non-empty — two different threat models and two different
+# workspaces that must not meet in one run (a prompt override stays situated
+# and takes text from a maintainer; a head evaluation forces bare and takes
+# text from a pull request). `mode: "override"` structurally cannot
+# materialize a mock either, for the same reason property 5 gives:
+# discovery-eval-probe-plan.mjs emits `measurementDir: null` on every
+# override-mode plan, and every probe argv it builds passes `--prompt`, never
+# `--out` — the combination tools/discovery-eval/evaluate.mjs itself refuses
+# outright. Unlike a head dispatch, an override dispatch does NOT force every
+# case bare: it stays situated or bare exactly as the case declares, because
+# forcing bare would move two variables — the prompt and the workspace — when
+# the point is to hold the workspace fixed and vary only the prompt. Both
+# halves, and the refusal, are asserted by
+# tests/repository/discovery-eval-dispatch-plan.test.mjs rather than only
+# documented here.
+#
 # Operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret that
 # claude-review.yaml and effect-eval.yaml already use. No new secret, and no
 # label, is required.
@@ -105,7 +133,12 @@ on:
   workflow_dispatch:
     inputs:
       case:
-        description: "Case id, as declared in data/discovery-eval/fixture.json (blank runs the whole fixture)"
+        # blank is a whole-fixture MEASUREMENT dispatch, and only that. A
+        # blank `case` alongside a `prompt` is refused in `admit`: an override
+        # replaces one case's declared prompt, and substituting the same text
+        # into every other case's would fan a single reworded question across
+        # the corpus at full price, comparable with nothing.
+        description: "Case id, as declared in data/discovery-eval/fixture.json (blank runs the whole fixture; required when prompt is given)"
         required: false
       repeats:
         # NO DEFAULT, and that is load-bearing rather than tidy — see
@@ -120,13 +153,20 @@ on:
       pull_request:
         description: "Pull request number to evaluate changed skills from, bare, reporting only (optional)"
         required: false
+      prompt:
+        # requires repository write access to set at all — see SAFETY
+        # PROPERTY 1 above — which is what lets this need no allowlist the
+        # way pull_request's head text does. Refused together with
+        # pull_request, in admit, before any probe spawns.
+        description: "Override --case's declared prompt, reporting only, evaluated exactly as declared (optional; refused together with pull_request)"
+        required: false
       dry_run:
         # typed and defaulted, so it is read through `inputs` rather than
         # `github.event.inputs` — only the typed context applies a declared
-        # default. `case`, `repeats` and `pull_request` above declare none, so
-        # they are read through `github.event.inputs` throughout this file, the
-        # same distinction effect-eval.yaml and the workflow this one replaces
-        # both record.
+        # default. `case`, `repeats`, `pull_request` and `prompt` above
+        # declare none, so they are read through `github.event.inputs`
+        # throughout this file, the same distinction effect-eval.yaml and the
+        # workflow this one replaces both record.
         description: "Rehearse every step with --dry-run passed to each probe; spend nothing"
         required: false
         type: boolean
@@ -137,12 +177,17 @@ permissions:
   contents: read
 
 concurrency:
-  # grouped so two dispatches against the same pull request (or the same case,
-  # or both against the whole fixture) share a group, and never cancelled:
-  # cancelling a matrix mid-flight destroys probes already paid for and leaves
-  # a case that can never be completed in one wall-clock window — the same
-  # reasoning effect-eval.yaml's own concurrency block gives.
-  group: discovery-eval-${{ github.event.inputs.pull_request && format('pr-{0}', github.event.inputs.pull_request) || format('measurement-{0}', github.event.inputs.case || 'fixture') }}
+  # grouped so two dispatches against the same pull request (or the same
+  # case's measurement, or the same case's prompt override, or both against
+  # the whole fixture) share a group, and never cancelled: cancelling a
+  # matrix mid-flight destroys probes already paid for and leaves a case that
+  # can never be completed in one wall-clock window — the same reasoning
+  # effect-eval.yaml's own concurrency block gives. An override run gets its
+  # own group, distinct from a measurement dispatch of the same case, so the
+  # two neither cancel nor queue behind each other — they evaluate different
+  # things (a rewritten prompt vs. the declared one) and spend from the same
+  # cap independently.
+  group: discovery-eval-${{ github.event.inputs.pull_request && format('pr-{0}', github.event.inputs.pull_request) || github.event.inputs.prompt && format('override-{0}', github.event.inputs.case || 'fixture') || format('measurement-{0}', github.event.inputs.case || 'fixture') }}
   cancel-in-progress: false
 
 env:
@@ -190,6 +235,9 @@ jobs:
           CASE: ${{ github.event.inputs.case }}
           REPEATS: ${{ github.event.inputs.repeats }}
           PR_NUMBER: ${{ github.event.inputs.pull_request }}
+          # crosses as an environment variable into argv below, never
+          # interpolated into this shell line — see SAFETY PROPERTY 6 above.
+          PROMPT: ${{ github.event.inputs.prompt }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
@@ -197,6 +245,7 @@ jobs:
           if [ -n "${CASE}" ]; then args+=(--case "${CASE}"); fi
           if [ -n "${REPEATS}" ]; then args+=(--repeats "${REPEATS}"); fi
           if [ -n "${PR_NUMBER}" ]; then args+=(--pull-request "${PR_NUMBER}"); fi
+          if [ -n "${PROMPT}" ]; then args+=(--prompt "${PROMPT}"); fi
           node .github/scripts/discovery-eval-admit.mjs "${args[@]}"
 
       # SAFETY PROPERTY 3 — head SKILL.md files staged as data, at
@@ -317,6 +366,9 @@ jobs:
           CASE: ${{ matrix.case }}
           REPEATS: ${{ github.event.inputs.repeats }}
           PR_NUMBER: ${{ github.event.inputs.pull_request }}
+          # crosses as an environment variable into argv below, never
+          # interpolated into a shell line — see SAFETY PROPERTY 6 above.
+          PROMPT: ${{ github.event.inputs.prompt }}
           DRY_RUN: ${{ inputs.dry_run }}
           HEAD_SHA: ${{ needs.admit.outputs.head-sha }}
         run: |
@@ -324,8 +376,14 @@ jobs:
           plan_args=(--case "${CASE}" --dry-run-input "${DRY_RUN}")
           if [ -n "${REPEATS}" ]; then plan_args+=(--repeats "${REPEATS}"); fi
           if [ -n "${PR_NUMBER}" ]; then plan_args+=(--pull-request "${PR_NUMBER}"); fi
+          if [ -n "${PROMPT}" ]; then plan_args+=(--prompt "${PROMPT}"); fi
           plan="$(node .github/scripts/discovery-eval-probe-plan.mjs "${plan_args[@]}")"
 
+          # never .args[] — see discovery-eval-probe-plan.mjs's header: the
+          # prompt is free text that can hold a newline, and re-serializing it
+          # through jq/mapfile would silently split it into broken argv
+          # entries. It is appended below, directly from this step's own
+          # PROMPT variable, the same way --head-skills and --head-sha are.
           mapfile -t args < <(jq -r '.args[]' <<<"${plan}")
           mode="$(jq -er '.mode' <<<"${plan}")"
           echo "mode=${mode}" >> "$GITHUB_OUTPUT"
@@ -340,6 +398,27 @@ jobs:
             # another's.
             node tools/discovery-eval/evaluate.mjs "${args[@]}" \
               | tee "${RUNNER_TEMP}/report-${CASE}.txt"
+          elif [ "${mode}" = "override" ]; then
+            args+=(--prompt "${PROMPT}")
+            # evaluate.mjs refuses --out together with --prompt (it never
+            # records — see that file's header), so stdout is the only
+            # channel it has left for the metadata and transcript this run
+            # produces: one JSON line per probe, holding the exact
+            # metadata.json/transcript.jsonl shape a measurement would have
+            # written to disk. This step explodes each line back into real
+            # files, which is what makes the uploaded artifact hold real
+            # probe records rather than only a summary.
+            node tools/discovery-eval/evaluate.mjs "${args[@]}" \
+              > "${RUNNER_TEMP}/override-report-${CASE}.jsonl"
+            mkdir -p "${RUNNER_TEMP}/override/${CASE}"
+            while IFS= read -r line; do
+              [ -z "${line}" ] && continue
+              probe_id="$(jq -r '.probeId' <<<"${line}")"
+              dir="${RUNNER_TEMP}/override/${CASE}/probe-${probe_id}"
+              mkdir -p "${dir}"
+              jq '.metadata' <<<"${line}" > "${dir}/metadata.json"
+              jq -r '.transcript' <<<"${line}" > "${dir}/transcript.jsonl"
+            done < "${RUNNER_TEMP}/override-report-${CASE}.jsonl"
           else
             mkdir -p "${RUNNER_TEMP}/measurement"
             args+=(--out "${RUNNER_TEMP}/measurement")
@@ -366,6 +445,18 @@ jobs:
           path: ${{ runner.temp }}/report-${{ matrix.case }}.txt
           if-no-files-found: error
           retention-days: 1
+
+      # 30 days, not the head report's 1: this is the only copy either the
+      # metadata or the transcript will ever have — a prompt override never
+      # records, so there is no measurement to re-derive it from later.
+      - name: Upload this case's override records
+        if: steps.run.outputs.mode == 'override'
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-eval-override-${{ matrix.case }}
+          path: ${{ runner.temp }}/override/${{ matrix.case }}
+          if-no-files-found: error
+          retention-days: 30
 
   land:
     name: Land the measurement
