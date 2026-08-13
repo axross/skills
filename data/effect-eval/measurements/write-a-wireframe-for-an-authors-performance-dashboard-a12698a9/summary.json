@@ -189,7 +189,8 @@
         "src/components/PostStats/PostStats.tsx",
         "src/routes/PostListPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-7fefff53",
@@ -246,7 +247,11 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": true
+      "endedAwaitingDecision": true,
+      "finalMessageHeadings": [
+        "What I found",
+        "Proposed plan"
+      ]
     },
     {
       "probe": "skill-absent-d5d024e4",
@@ -315,7 +320,8 @@
         "src/routes/PostListPage.module.css",
         "src/routes/PostListPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-b51afdaf",
@@ -363,7 +369,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": true
+      "endedAwaitingDecision": true,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-c572eed5",
@@ -464,7 +471,8 @@
         "src/routes/PostListPage.module.css",
         "src/routes/PostListPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-f1ac0abb",
@@ -566,7 +574,10 @@
         "src/routes/PostListPage.test.ts",
         "src/routes/PostListPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     }
   ]
 }

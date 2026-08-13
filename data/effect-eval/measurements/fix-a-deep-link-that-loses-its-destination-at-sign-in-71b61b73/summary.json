@@ -173,7 +173,10 @@
         "src/session/sign-in-screen.spec.tsx",
         "src/session/sign-in-screen.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-absent-b6dcfe02",
@@ -268,7 +271,10 @@
         "src/session/sign-in-screen.spec.tsx",
         "src/session/sign-in-screen.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-absent-bbdda807",
@@ -357,7 +363,8 @@
         "src/session/sign-in-screen.spec.tsx",
         "src/session/sign-in-screen.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-18f02493",
@@ -456,7 +463,8 @@
         "src/session/sign-in-screen.spec.tsx",
         "src/session/sign-in-screen.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-45d7537e",
@@ -541,7 +549,8 @@
         "src/session/sign-in-screen.spec.tsx",
         "src/session/sign-in-screen.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-afdd5a40",
@@ -632,7 +641,8 @@
         "src/session/sign-in-screen.spec.tsx",
         "src/session/sign-in-screen.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

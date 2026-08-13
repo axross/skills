@@ -138,7 +138,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": true
+      "endedAwaitingDecision": true,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-f431ce69",
@@ -185,7 +186,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-fb357a1c",
@@ -233,7 +235,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": true
+      "endedAwaitingDecision": true,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-01aed0a3",
@@ -280,7 +283,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-10e1b713",
@@ -325,7 +329,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-ff53d27b",
@@ -374,7 +379,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

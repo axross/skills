@@ -145,7 +145,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/page.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-cbe9293c",
@@ -197,7 +198,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/page.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-d421a0e4",
@@ -250,7 +252,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/page.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-82d58492",
@@ -302,7 +305,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/page.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-e0692527",
@@ -357,7 +361,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/page.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-eccf249b",
@@ -413,7 +418,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/page.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

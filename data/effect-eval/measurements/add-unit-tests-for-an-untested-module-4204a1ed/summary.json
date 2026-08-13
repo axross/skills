@@ -141,7 +141,8 @@
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-389a689f",
@@ -193,7 +194,8 @@
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-d0308de2",
@@ -247,7 +249,8 @@
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-0c75384f",
@@ -304,7 +307,8 @@
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-0deda571",
@@ -358,7 +362,8 @@
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-57818972",
@@ -415,7 +420,8 @@
       "changedPaths": [
         "shared/resolve-translation.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

@@ -61,6 +61,76 @@ export function solicitsDecision(text) {
 }
 
 /**
+ * an ATX heading marker: 1–6 "#" characters, then required whitespace.
+ *
+ * the trailing group is CommonMark's optional *closing sequence*, and the two
+ * branches are what make it one rather than "strip any trailing hashes". A
+ * closing run only closes when whitespace precedes it, so `## C#` is a heading
+ * whose text ends in a hash rather than an empty one — `\s+#+` covers the
+ * ordinary `## Heading ##`, and the lookbehind branch covers `## ###`, where
+ * the single space after the opening run is also the one preceding the closing
+ * run and there is no second space for `\s+` to take.
+ */
+const ATX_HEADING_RE = /^(#{1,6})\s+(.*?)(?:\s+#+|(?<=\s)#+)?\s*$/;
+
+/** the opening (or matching closing) delimiter of a fenced code block. */
+const FENCE_RE = /^(`{3,}|~{3,})/;
+
+/**
+ * the Markdown ATX headings of a probe's final assistant message, as plain
+ * text — the leading "#" markers, any closing "#" sequence, and surrounding
+ * whitespace all stripped — in document order.
+ *
+ * heading level is deliberately not recorded. this field exists to answer
+ * "which sections did the document carry", not how they nest — a reader
+ * checking that a generated PRD carries a Background and an Acceptance
+ * criteria section has no use for whether one is "##" and the other "###",
+ * and a caller who does can still re-derive it from `finalAssistantText`
+ * itself.
+ *
+ * ATX headings only ("# Heading"). setext headings (a line of prose followed
+ * by a line of "===" or "---") are not recognized — a known gap, in the same
+ * register `artifact.mjs`'s header states its own regex reader's gaps in,
+ * and one the PRD-shaped answers this field exists to read do not lean on:
+ * every case measured so far writes ATX-style.
+ *
+ * a line inside a fenced code block is never read as a heading, even when it
+ * starts with "#" — a shell comment or a Python comment in a fenced snippet
+ * is not a section of the document, and the PRD-shaped final messages this
+ * field exists to read do contain fenced blocks (a system-design diagram, a
+ * sample command). fence state is tracked line by line: a line whose trimmed
+ * text starts with three or more backticks or tildes opens a fence (using
+ * that character) or, when already inside one opened with the same
+ * character, closes it — mirroring how a Markdown renderer reads it. an
+ * unclosed fence is read as running to the end of the message, so nothing
+ * after it is read as a heading either.
+ *
+ * @param {string|null} text `transcript.finalAssistantText`
+ * @returns {string[]|null} in document order; `[]` when there is text but no
+ *   heading; `null` when `text` is `null` — the stream did not say, the same
+ *   convention every other field in this module follows
+ */
+export function finalMessageHeadings(text) {
+  if (typeof text !== "string") return null;
+  const headings = [];
+  let fence = null; // the fence character currently open, or null outside one
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    const fenceMatch = FENCE_RE.exec(trimmed);
+    if (fenceMatch) {
+      const marker = fenceMatch[1][0];
+      if (fence === null) fence = marker;
+      else if (fence === marker) fence = null;
+      continue;
+    }
+    if (fence !== null) continue;
+    const headingMatch = ATX_HEADING_RE.exec(trimmed);
+    if (headingMatch) headings.push(headingMatch[2]);
+  }
+  return headings;
+}
+
+/**
  * @param {string} probeDir
  * @param {string} name the directory's own name, which declares the condition
  * @throws {Error} when any of the probe's files cannot be read, when its
@@ -185,6 +255,10 @@ export function deriveProbeSummary(probe) {
     // tracked here, and folding it in would blur two different outcomes into
     // one boolean.
     endedAwaitingDecision: changed.length === 0 && solicitsDecision(transcript.finalAssistantText),
+    // which sections a document delivered in the final message carries, not
+    // how good it is. see `finalMessageHeadings`'s own doc comment for what
+    // this does and does not read.
+    finalMessageHeadings: finalMessageHeadings(transcript.finalAssistantText),
   };
 }
 

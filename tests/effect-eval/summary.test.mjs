@@ -18,6 +18,7 @@ import {
   comparabilityOf,
   deriveCaseSummary,
   deriveProbeSummary,
+  finalMessageHeadings,
   readProbe,
   solicitsDecision,
 } from "../../tools/effect-eval/src/summary.mjs";
@@ -253,6 +254,26 @@ describe("deriveProbeSummary", () => {
       expect(deriveProbeSummary(probe).endedAwaitingDecision).toBe(true);
     });
   });
+
+  describe("finalMessageHeadings", () => {
+    it("is the final assistant message's own headings, wired through from the transcript", async () => {
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: transcriptEndingWith("## Summary\n\nDone.\n\n## Open questions\n\nNone."),
+        patch: "",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).finalMessageHeadings).toEqual(["Summary", "Open questions"]);
+    });
+
+    it("is null when the transcript carries no assistant text at all", async () => {
+      await writeProbe("skill-absent-aaaaaaaa", {
+        transcript: TRANSCRIPT_NO_ASSISTANT_TEXT,
+        patch: "",
+      });
+      const probe = await readProbe(join(caseDir, "skill-absent-aaaaaaaa"), "skill-absent-aaaaaaaa");
+      expect(deriveProbeSummary(probe).finalMessageHeadings).toBeNull();
+    });
+  });
 });
 
 describe("solicitsDecision", () => {
@@ -270,6 +291,86 @@ describe("solicitsDecision", () => {
 
   it("is false when the stream said nothing", () => {
     expect(solicitsDecision(null)).toBe(false);
+  });
+});
+
+describe("finalMessageHeadings", () => {
+  it("reads several ATX headings in document order", () => {
+    const text = [
+      "## Summary",
+      "",
+      "One paragraph.",
+      "",
+      "## Background",
+      "",
+      "Another paragraph.",
+      "",
+      "## Acceptance criteria",
+      "",
+      "- one",
+      "- two",
+    ].join("\n");
+    expect(finalMessageHeadings(text)).toEqual(["Summary", "Background", "Acceptance criteria"]);
+  });
+
+  it("is an empty array when the message carries text but no heading", () => {
+    expect(finalMessageHeadings("Just a paragraph of prose.\nAnd a second line, still no heading.")).toEqual(
+      [],
+    );
+  });
+
+  it("is null when there is no assistant text at all", () => {
+    expect(finalMessageHeadings(null)).toBeNull();
+  });
+
+  it("reports headings at more than one level, all as plain strings with no level attached", () => {
+    const text = ["# Plan: reader corrections", "## Summary", "### Alternatives considered"].join("\n");
+    expect(finalMessageHeadings(text)).toEqual(["Plan: reader corrections", "Summary", "Alternatives considered"]);
+  });
+
+  // the field's main correctness risk: a fenced code block in a PRD-shaped
+  // final message routinely carries a "#"-prefixed line — a shell comment in
+  // a sample command, or a Python comment — that is not a section of the
+  // document.
+  it("does not read a '#'-prefixed line inside a fenced code block as a heading", () => {
+    const text = [
+      "## Verification strategy",
+      "",
+      "Run the suite:",
+      "",
+      "```bash",
+      "# clean the cache first",
+      "npm test",
+      "```",
+      "",
+      "## Open questions",
+    ].join("\n");
+    expect(finalMessageHeadings(text)).toEqual(["Verification strategy", "Open questions"]);
+  });
+
+  it("does not read a '#'-prefixed line inside a tilde-fenced code block as a heading", () => {
+    const text = ["## Before", "~~~", "# not a heading", "~~~", "## After"].join("\n");
+    expect(finalMessageHeadings(text)).toEqual(["Before", "After"]);
+  });
+
+  it("treats an unclosed fence as running to the end of the message", () => {
+    const text = ["## Before", "```", "# inside the fence", "## also inside the fence"].join("\n");
+    expect(finalMessageHeadings(text)).toEqual(["Before"]);
+  });
+
+  it("keeps a hash the heading's own text ends in, and drops one that closes the heading", () => {
+    // CommonMark's closing sequence only closes when whitespace precedes it.
+    // Stripping every trailing hash instead would quietly rename a heading
+    // about a language whose name ends in one.
+    const text = ["## What's new in C#", "## Heading ##", "#### Deep ####"].join("\n");
+    expect(finalMessageHeadings(text)).toEqual(["What's new in C#", "Heading", "Deep"]);
+  });
+
+  it("reads a heading whose only content is a closing sequence as empty", () => {
+    // `## ###` is the case the lookbehind branch exists for: one space serves
+    // as both the opening run's required whitespace and the closing run's.
+    expect(finalMessageHeadings("## ###")).toEqual([""]);
+    expect(finalMessageHeadings("## #")).toEqual([""]);
   });
 });
 
