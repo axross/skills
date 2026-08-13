@@ -1,6 +1,6 @@
 {
-  "measurementCount": 40,
-  "comparableCount": 40,
+  "measurementCount": 41,
+  "comparableCount": 41,
   "measurements": [
     {
       "measurement": "accept-a-page-number-from-a-url-70e19ac8",
@@ -677,6 +677,58 @@
       }
     },
     {
+      "measurement": "edit-an-issue-body-without-destroying-it-2f3fcb8a",
+      "case": "edit-an-issue-body-without-destroying-it",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.3133451,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (edit-an-issue-body-without-destroying-it-59369ca0) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
+      }
+    },
+    {
       "measurement": "edit-an-issue-body-without-destroying-it-59369ca0",
       "case": "edit-an-issue-body-without-destroying-it",
       "population": "discovered",
@@ -724,7 +776,7 @@
       "findings": [],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
       }
     },
     {
