@@ -29,8 +29,8 @@
   // globs, not gitignore patterns, and a slash-free name matches only that
   // literal top-level entry rather than at any depth.
   //
-  // verified against markdownlint-cli2 0.15.0, pinned "^0.15.0" in
-  // package.json — a future minor could resolve "ignores" through a
-  // different matcher.
+  // verified empirically against markdownlint-cli2 0.15.0; a future minor
+  // could resolve "ignores" through a different matcher, so re-run the
+  // fixture check when the pin moves.
   "ignores": ["node_modules", "tools/evaluation/mocks"]
 }
