@@ -134,6 +134,66 @@ effect-eval reading rather than a fact about the stream. Both are pure
 functions of the stored files, so `endedAwaitingDecision` regenerates and
 drift-checks the same as every other derived value.
 
+## `finalMessageHeadings`
+
+A derived field on every probe summary, alongside `endedAwaitingDecision` and
+the rest of what `summarize.mjs` derives from a probe's own transcript and
+diff. It reports the Markdown headings of `transcript.finalAssistantText`, as
+an array of heading text strings in document order — the leading `#`
+markers, any closing `#` sequence, and surrounding whitespace all stripped.
+`null` when `finalAssistantText` is `null`, the same "the stream did not say"
+convention every other field in this module follows; `[]` when the final
+message carries text but no heading.
+
+Heading level is deliberately not recorded. The field exists to answer
+"which sections did this document carry", not how they nest — a level-3
+"Alternatives considered" and a level-2 one read the same to that question,
+and a caller who does want the nesting still has `finalAssistantText` itself
+to re-derive it from.
+
+Two known gaps, stated here rather than left for a reader to discover:
+
+- **ATX headings only** (`# Heading`). Setext headings — a line of prose
+  followed by a line of `===` or `---` — are not recognized. This is the same
+  kind of known gap `artifact.mjs`'s header states for its own regular
+  expressions, and it costs nothing against the transcripts this field was
+  built to read: every one of them writes ATX-style.
+- **A line inside a fenced code block is never read as a heading**, even when
+  it starts with `#`. A shell comment in a sample command, or a Python
+  comment in a snippet, is not a section of the document, and the PRD-shaped
+  final messages this field exists to read do contain fenced blocks — an
+  ASCII sketch of a request flow, a Mermaid diagram. Fence state is tracked
+  line by line, the same way a Markdown renderer reads it.
+
+**What it settles, and what it does not.** A heading list makes "a document
+was produced, with these sections" visible where `changedPaths: []` said only
+"nothing happened" — exactly the gap
+`write-a-requirement-document-for-reader-corrections`'s measurement exposed
+(#374): the case's own `prediction` says a deterministic reading can enumerate
+a PRD's sections "off its headings alone", but until this field existed
+nothing in `summary.json` did that enumerating. It says nothing about whether
+the document is any good: whether a "Goals and Non-goals" heading sits over
+goals that are actually well-chosen, or an "Acceptance criteria" heading sits
+over criteria someone could actually check, is exactly the residue that
+case's `prediction` already disclaims to a person reading the transcript
+rather than claiming a heading list could settle.
+
+Regenerating is what grounds the field, not just what tests it. All three
+skill-present probes of
+[`write-a-requirement-document-for-reader-corrections-53601779`](./measurements/write-a-requirement-document-for-reader-corrections-53601779)
+invoked `product-requirement-document-authoring`, and each carries the same
+thirteen-heading structure the skill's own PRD template teaches — `Summary`,
+`Todo`, `Background`, `Assumptions`, `Goals and Non-goals`,
+`Functional requirements`, `UI design`, `System design`,
+`Alternatives considered`, `Non-functional requirements`,
+`Acceptance criteria`, `Verification strategy`, `Open questions` — two of the
+three under one additional title heading naming the plan itself. The three
+skill-absent probes each read differently, and none follows that template,
+because none had it loaded: one carries nine headings of its own devising,
+one a single top-level heading over an otherwise unheaded proposal, one
+eight. The case's paid measurement is readable this way with no probe
+spawned to get it.
+
 ## `loadedSkills`, and the ambiguous skill-present null
 
 `loadedSkills` (on every probe's summary) is not a setting anyone requested —
@@ -263,6 +323,49 @@ model, the brief their one declared difference — and `endedAwaitingDecision`
 falls from two of six probes to none. One measurement either side is not a
 rate, so read that as evidence the brief did something, not as a measure of
 how much.
+
+## The two prompt edits, and what they supersede
+
+[#374](https://github.com/axross/skills/issues/374) edited two cases'
+prompts, each keeping its existing sentence and adding a short imperative:
+`extract-shared-loading-and-error-handling-across-screens` now ends "Pull
+that into one place." in place of "Where should that live?", and
+`refactor-the-language-matching-helpers-into-one-place` gains "Tidy it up."
+appended to its existing sentence. Both respond to the same finding: reading
+each case's transcripts, none of the probes had failed — each did something
+responsive to the sentence actually in front of it — but the sentence, as
+originally written, was not asking for what the case's own `prediction` reads
+for (a new hook/component and changed imports; the exported-function count
+changing). The prompt and the prediction had drifted apart.
+
+`task.prompt` is part of the comparability key: it is one of the values
+`runComparabilityChecks` requires every probe in a measurement to agree on
+(`one task`, above), and it is what a re-measurement would have to match to
+be compared against a measurement already committed. Editing it means a
+measurement taken under the old wording measured a different task from the
+one the fixture now declares — the same reasoning that supersedes the two
+measurements taken before the non-interactive brief. So:
+
+- [`extract-shared-loading-and-error-handling-across-screens-b89d904a`](./measurements/extract-shared-loading-and-error-handling-across-screens-b89d904a)
+  is **superseded** by this prompt edit.
+- [`refactor-the-language-matching-helpers-into-one-place-18e7634f`](./measurements/refactor-the-language-matching-helpers-into-one-place-18e7634f)
+  is **superseded** by this prompt edit.
+
+Both stay committed, recorded rather than deleted, the same as the two
+measurements the non-interactive brief superseded. Nothing about either
+stored measurement is wrong — `summary.json` still regenerates and
+drift-checks clean against it — but a reader comparing either against a
+future measurement of the same case id is comparing across a prompt change,
+not two runs of the same task. Their combined cost was $2.08.
+
+`write-a-requirement-document-for-reader-corrections` is **not** superseded.
+Its prompt did not change in #374, so the bytes already on disk still measure
+the task the fixture declares; `finalMessageHeadings` (above) is a new
+reading over those same stored transcripts, not a new task.
+
+Whether to spend the roughly $2 combined cost of re-measuring the two
+superseded cases is an open spending decision, deliberately not taken here —
+see #374's own open questions.
 
 ## `prediction`, `negativeControl`, and `reading`
 
