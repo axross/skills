@@ -150,7 +150,8 @@
         "shared/locale-tag.ts",
         "shared/resolve-translation.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-b2edb87a",
@@ -216,7 +217,8 @@
         "shared/post-locale.spec.ts",
         "shared/post-locale.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-d8b8ef68",
@@ -280,7 +282,8 @@
         "shared/post-locale.ts",
         "shared/resolve-translation.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-1a8f29e2",
@@ -354,7 +357,8 @@
         "shared/locale-tag.ts",
         "shared/resolve-translation.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-37212b78",
@@ -435,7 +439,8 @@
         "shared/blog-post-locale.ts",
         "shared/resolve-translation.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-f669190e",
@@ -505,7 +510,8 @@
         "shared/locale-tag.ts",
         "shared/resolve-translation.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

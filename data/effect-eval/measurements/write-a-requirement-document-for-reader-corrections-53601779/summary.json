@@ -142,7 +142,18 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Reader corrections — plan",
+        "What a reader sees",
+        "Submission flow",
+        "Where corrections go",
+        "Abuse prevention",
+        "Where the code lives",
+        "Testing",
+        "Non-goals for v1",
+        "Open item before implementation starts"
+      ]
     },
     {
       "probe": "skill-absent-48ea3ecb",
@@ -194,7 +205,10 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Proposal: reader corrections on a post"
+      ]
     },
     {
       "probe": "skill-absent-836a9860",
@@ -248,7 +262,17 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Proposal: reader corrections on a post",
+        "What a reader sees",
+        "What we capture",
+        "Where a submission goes",
+        "Abuse handling",
+        "Testing",
+        "Out of scope for this change",
+        "Suggested PR split"
+      ]
     },
     {
       "probe": "skill-present-22f356a7",
@@ -313,7 +337,22 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary",
+        "Todo",
+        "Background",
+        "Assumptions",
+        "Goals and Non-goals",
+        "Functional requirements",
+        "UI design",
+        "System design",
+        "Alternatives considered",
+        "Non-functional requirements",
+        "Acceptance criteria",
+        "Verification strategy",
+        "Open questions"
+      ]
     },
     {
       "probe": "skill-present-543fab6f",
@@ -379,7 +418,23 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Correction submissions on a post page — plan",
+        "Summary",
+        "Todo",
+        "Background",
+        "Assumptions",
+        "Goals and Non-goals",
+        "Functional requirements",
+        "UI design",
+        "System design",
+        "Alternatives considered",
+        "Non-functional requirements",
+        "Acceptance criteria",
+        "Verification strategy",
+        "Open questions"
+      ]
     },
     {
       "probe": "skill-present-c8a510fc",
@@ -446,7 +501,23 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Plan: reader corrections on a post",
+        "Summary",
+        "Todo",
+        "Background",
+        "Assumptions",
+        "Goals and Non-goals",
+        "Functional requirements",
+        "UI design",
+        "System design",
+        "Alternatives considered",
+        "Non-functional requirements",
+        "Acceptance criteria",
+        "Verification strategy",
+        "Open questions"
+      ]
     }
   ]
 }

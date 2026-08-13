@@ -160,7 +160,8 @@
       "ranLint": false,
       "ranFormat": false,
       "changedPaths": [],
-      "endedAwaitingDecision": true
+      "endedAwaitingDecision": true,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-4688feda",
@@ -241,7 +242,8 @@
       "changedPaths": [
         "vitest.config.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-a624520d",
@@ -313,7 +315,8 @@
       "changedPaths": [
         "vitest.config.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-41d210e1",
@@ -393,7 +396,8 @@
       "changedPaths": [
         "vitest.config.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-5be231cb",
@@ -454,7 +458,10 @@
       "changedPaths": [
         "vitest.config.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Found it"
+      ]
     },
     {
       "probe": "skill-present-ab5615e0",
@@ -522,7 +529,8 @@
       "changedPaths": [
         "vitest.config.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

@@ -182,7 +182,10 @@
         "shared/resolve-translation.spec.ts",
         "shared/resolve-translation.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-absent-4532643f",
@@ -257,7 +260,8 @@
       "changedPaths": [
         "e2e/post.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-ba6b492c",
@@ -341,7 +345,10 @@
         "shared/resolve-translation.spec.ts",
         "shared/resolve-translation.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-present-96f2ab29",
@@ -418,7 +425,10 @@
       "changedPaths": [
         "e2e/post.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "What was missing and what I added"
+      ]
     },
     {
       "probe": "skill-present-a0bc3fa3",
@@ -515,7 +525,8 @@
       "changedPaths": [
         "e2e/post-detail.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-db454cf9",
@@ -614,7 +625,10 @@
       "changedPaths": [
         "e2e/post-detail.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     }
   ]
 }

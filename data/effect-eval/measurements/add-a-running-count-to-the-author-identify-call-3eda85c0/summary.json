@@ -144,7 +144,8 @@
         "src/lib/analytics.test.ts",
         "src/lib/analytics.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-1bad0011",
@@ -197,7 +198,8 @@
         "src/lib/analytics.test.ts",
         "src/lib/analytics.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-2a29066d",
@@ -249,7 +251,8 @@
         "src/lib/analytics.test.ts",
         "src/lib/analytics.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-1d2fd88d",
@@ -306,7 +309,8 @@
         "src/lib/analytics.test.ts",
         "src/lib/analytics.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-a674ce0d",
@@ -364,7 +368,8 @@
         "src/lib/analytics.test.ts",
         "src/lib/analytics.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-cd46a4fd",
@@ -420,7 +425,8 @@
         "src/lib/analytics.test.ts",
         "src/lib/analytics.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

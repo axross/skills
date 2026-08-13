@@ -152,7 +152,8 @@
         "app/(site)/posts/[slug]/not-found.tsx",
         "e2e/home.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-4a0b0d3f",
@@ -211,7 +212,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/not-found.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-e7f4cf10",
@@ -284,7 +286,8 @@
         "app/(site)/not-found.tsx",
         "e2e/home.spec.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-75a178b4",
@@ -357,7 +360,8 @@
       "changedPaths": [
         "app/(site)/posts/[slug]/not-found.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-a779ba22",
@@ -424,7 +428,10 @@
       "changedPaths": [
         "app/(site)/not-found.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-present-e039ba81",
@@ -482,7 +489,8 @@
       "changedPaths": [
         "app/(site)/not-found.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

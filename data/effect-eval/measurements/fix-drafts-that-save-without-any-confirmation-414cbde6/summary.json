@@ -145,7 +145,8 @@
       "changedPaths": [
         "src/routes/PostEditorPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-a4cd387e",
@@ -201,7 +202,10 @@
       "changedPaths": [
         "src/routes/PostEditorPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-absent-a7748fd5",
@@ -253,7 +257,8 @@
       "changedPaths": [
         "src/routes/PostEditorPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-364f1935",
@@ -342,7 +347,10 @@
       "changedPaths": [
         "src/routes/PostEditorPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-present-5719df06",
@@ -405,7 +413,8 @@
       "changedPaths": [
         "src/routes/PostEditorPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-fd0be1f8",
@@ -460,7 +469,8 @@
       "changedPaths": [
         "src/routes/PostEditorPage.tsx"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

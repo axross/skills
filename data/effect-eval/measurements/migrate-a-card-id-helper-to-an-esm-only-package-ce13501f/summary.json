@@ -152,7 +152,8 @@
       "changedPaths": [
         "jest.config.js"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-c5227ad3",
@@ -219,7 +220,8 @@
       "changedPaths": [
         "jest.config.js"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-d403d7c3",
@@ -276,7 +278,8 @@
       "changedPaths": [
         "jest.config.js"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-2f86a4e6",
@@ -337,7 +340,8 @@
       "changedPaths": [
         "jest.config.js"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-685a0719",
@@ -399,7 +403,10 @@
       "changedPaths": [
         "jest.config.js"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": [
+        "Summary"
+      ]
     },
     {
       "probe": "skill-present-e65947ee",
@@ -467,7 +474,8 @@
       "changedPaths": [
         "jest.config.js"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }

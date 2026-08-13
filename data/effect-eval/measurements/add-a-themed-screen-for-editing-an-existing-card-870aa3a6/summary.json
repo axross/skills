@@ -183,7 +183,8 @@
         "src/decks/deck-repository.spec.ts",
         "src/decks/deck-repository.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-bce86e11",
@@ -272,7 +273,8 @@
         "src/decks/deck-repository.spec.ts",
         "src/decks/deck-repository.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-absent-fd56eb72",
@@ -365,7 +367,8 @@
         "src/decks/deck-repository.spec.ts",
         "src/decks/deck-repository.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-3d569c04",
@@ -457,7 +460,8 @@
         "src/decks/deck-repository.spec.ts",
         "src/decks/deck-repository.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-755858fa",
@@ -544,7 +548,8 @@
         "src/decks/deck-repository.spec.ts",
         "src/decks/deck-repository.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     },
     {
       "probe": "skill-present-af1ebe33",
@@ -643,7 +648,8 @@
         "src/decks/deck-repository.spec.ts",
         "src/decks/deck-repository.ts"
       ],
-      "endedAwaitingDecision": false
+      "endedAwaitingDecision": false,
+      "finalMessageHeadings": []
     }
   ]
 }
