@@ -1,7 +1,8 @@
 # Directory Structure
 
-Where a skill's files live, the two tiers a skill can be written in, and where
-a validator or an agent definition belongs.
+Where a skill's files live, the two tiers a skill can be written in, where a
+validator or an agent definition belongs, and how the evaluation subsystem
+under `tools/evaluation/` is laid out.
 
 ## The Tree
 
