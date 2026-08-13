@@ -2,11 +2,12 @@
 // each need before they can decide anything: the case the fixture declares, and
 // the mode the dispatch was started in.
 //
-// it lives beside them rather than under tools/evaluation/effect/src/ because both
-// are shaped by the dispatch. the fixture is the dispatch's data — which cases
-// exist, what each may spend — and the mode is a workflow_dispatch input. the
-// instrument has no notion of either, and teaching it one would stop setup.mjs
-// and evaluate.mjs being usable against an arbitrary mock and skill set.
+// it lives beside them rather than under tools/evaluation/effect/src/ because
+// both are shaped by the dispatch. the fixture is the dispatch's data — which
+// cases exist, what each may spend — and the mode is a workflow_dispatch input.
+// the instrument has no notion of either, and teaching it one would stop
+// setup.mjs and evaluate.mjs being usable against an arbitrary mock and skill
+// set.
 
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";

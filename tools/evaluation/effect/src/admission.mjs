@@ -36,7 +36,8 @@ export function meanProbeCost(costs) {
  * permanently — so the fixture's figure governs only a case's first run.
  *
  * why that figure is a ceiling rather than an estimate, and which way to err
- * when declaring one, is in tools/evaluation/data/effect/README.md's `capUsd` section.
+ * when declaring one, is in tools/evaluation/data/effect/README.md's `capUsd`
+ * section.
  *
  * @param {{
  *   caseId: string,

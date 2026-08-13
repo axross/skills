@@ -2,11 +2,12 @@
 // resolve one case, prepare its probe workspace, run its declared repeats
 // serially against it, and write one probe record per repeat.
 //
-// ONE PROCESS, NOT TWO. tools/evaluation/effect splits setup.mjs from evaluate.mjs
-// because its probes fan out across separate runners under two conditions.
-// Discovery has one condition — see tools/evaluation/discovery/README.md — so
-// preparing a case's workspace and probing it happen together here, and a
-// case's repeats run serially against the one workspace they share.
+// ONE PROCESS, NOT TWO. tools/evaluation/effect splits setup.mjs from
+// evaluate.mjs because its probes fan out across separate runners under two
+// conditions. Discovery has one condition — see
+// tools/evaluation/discovery/README.md — so preparing a case's workspace and
+// probing it happen together here, and a case's repeats run serially against
+// the one workspace they share.
 //
 // TWO MODES, NEVER MIXED IN ONE DISPATCH. A case declaring a `mock` runs
 // situated: a materialized mock, the whole skill corpus installed, Read,
@@ -278,11 +279,12 @@ async function buildBareWorkspace(skillNames) {
   const skillsRoot = join(dir, ".claude", "skills");
   await mkdir(skillsRoot, { recursive: true });
   for (const name of skillNames) {
-    // dereference: true is load-bearing — .claude/skills is a tree of
-    // symlinks, and copying targets means the workspace holds only real
-    // files, so a later write (a head overlay) can never land through a link
-    // back into this repository's own installed skill. see
-    // tools/evaluation/lib/mock-workspace.mjs's header for the same hazard and fix.
+    // dereference: true is load-bearing — .claude/skills is a tree of symlinks,
+    // and copying targets means the workspace holds only real files, so a later
+    // write (a head overlay) can never land through a link back into this
+    // repository's own installed skill. see
+    // tools/evaluation/lib/mock-workspace.mjs's header for the same hazard and
+    // fix.
     await cp(join(INSTALLED_SKILLS_ROOT, name), join(skillsRoot, name), {
       recursive: true,
       dereference: true,

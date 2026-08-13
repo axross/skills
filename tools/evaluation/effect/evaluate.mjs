@@ -25,12 +25,12 @@
 //
 // two modes, and the flags alone decide which. given --workspace and --case,
 // this runs one probe the way the header above describes. given --dry-run on
-// its own — no --case, no --workspace — it instead previews the whole
-// fixture: what each case would cost to measure and whether admission would
-// refuse it, derived from the same admitCase call the real dispatch makes. it
-// spawns nothing and reads no workspace, mirroring
-// tools/evaluation/discovery/evaluate.mjs's own whole-fixture preview rather than
-// inventing a second idiom for the same idea.
+// its own — no --case, no --workspace — it instead previews the whole fixture:
+// what each case would cost to measure and whether admission would refuse it,
+// derived from the same admitCase call the real dispatch makes. it spawns
+// nothing and reads no workspace, mirroring
+// tools/evaluation/discovery/evaluate.mjs's own whole-fixture preview rather
+// than inventing a second idiom for the same idea.
 //
 // exit codes:
 //   0  a probe record was written (or --dry-run wrote one with no spawn), or

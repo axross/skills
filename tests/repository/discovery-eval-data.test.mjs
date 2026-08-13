@@ -207,9 +207,9 @@ describe("the discovery-eval fixture", () => {
 
 describe("the derived layer", () => {
   // README.md states that `npm test` re-derives every committed summary under
-  // tools/evaluation/data/discovery/ and fails on a mismatch. Until this block existed it
-  // did not: the independent review on #318 found the claim standing on
-  // nothing, invisible only because measurements/ is still empty. The effect
+  // tools/evaluation/data/discovery/ and fails on a mismatch. Until this block
+  // existed it did not: the independent review on #318 found the claim standing
+  // on nothing, invisible only because measurements/ is still empty. The effect
   // axis has carried the same property since #278 — offline over committed
   // files, and again inside the measurement workflow before anything is
   // committed. One derivation, two callers, now on both axes.
@@ -277,9 +277,9 @@ describe("the derived layer", () => {
 
 describe("the fixture check's own teeth", () => {
   // a negative control, exercised against synthetic fixtures rather than the
-  // committed one: tools/evaluation/data/discovery/fixture.json's content is settled
-  // (#280's non-goals), so the demonstration that this check can fail lives
-  // here instead of by editing and reverting the real file.
+  // committed one: tools/evaluation/data/discovery/fixture.json's content is
+  // settled (#280's non-goals), so the demonstration that this check can fail
+  // lives here instead of by editing and reverting the real file.
   const installed = new Set(["real-skill", "open-the-door"]);
 
   it("catches a case id that is not a verb phrase", () => {

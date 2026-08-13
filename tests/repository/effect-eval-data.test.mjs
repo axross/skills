@@ -1,4 +1,5 @@
-// the committed contents of tools/evaluation/data/effect, judged against this repository.
+// the committed contents of tools/evaluation/data/effect, judged against this
+// repository.
 //
 // these read the real fixture and the real committed measurements, which is
 // what catches a hand-edited derived file and a case identifier that has

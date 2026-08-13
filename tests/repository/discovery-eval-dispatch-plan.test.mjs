@@ -271,16 +271,16 @@ describe("discovery-eval-admit.mjs", () => {
   describe("per-mode ceiling — the correction to #280's dry-run defect", () => {
     // all three tests below run against a SCRATCH fixture, matching their four
     // siblings elsewhere in this file (writeScratchFixture + --root), rather
-    // than the real repository root. admission supersedes an unmeasured
-    // ceiling with a committed measurement per case per mode (see
-    // admission.mjs's header), so a test that computes its expectation from
+    // than the real repository root. admission supersedes an unmeasured ceiling
+    // with a committed measurement per case per mode (see admission.mjs's
+    // header), so a test that computes its expectation from
     // `fixture.unmeasuredProbeCostCeilingUsd` alone against the real root only
-    // holds while tools/evaluation/data/discovery/measurements/ is empty — it breaks the
-    // moment a real measurement lands, and it breaks inside the job that just
-    // spent the money the broken assertion then refuses to land. A scratch
-    // fixture has no measurements/ to supersede anything, so these three keep
-    // testing the per-mode PROJECTION rule (the thing they are named for)
-    // rather than incidentally depending on the committed corpus staying
+    // holds while tools/evaluation/data/discovery/measurements/ is empty — it
+    // breaks the moment a real measurement lands, and it breaks inside the job
+    // that just spent the money the broken assertion then refuses to land. A
+    // scratch fixture has no measurements/ to supersede anything, so these
+    // three keep testing the per-mode PROJECTION rule (the thing they are named
+    // for) rather than incidentally depending on the committed corpus staying
     // unmeasured.
     it("prices every case of a head dispatch at the bare ceiling, whatever mode each one declares", async () => {
       const root = await tempDir();

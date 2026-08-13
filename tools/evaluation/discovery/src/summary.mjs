@@ -103,9 +103,9 @@ export function deriveProbeSummary(probe) {
 
   const signals = extractSignals(transcriptText);
 
-  // a value the transcript contradicts fails the derivation; one it is
-  // silent about does not — see tools/evaluation/lib/transcript's null-means-did-not-say
-  // convention, which signals.mjs follows.
+  // a value the transcript contradicts fails the derivation; one it is silent
+  // about does not — see tools/evaluation/lib/transcript's
+  // null-means-did-not-say convention, which signals.mjs follows.
   const disagreements = [];
   if (signals.model !== null && signals.model !== configuration.model?.model) {
     disagreements.push(
@@ -188,11 +188,11 @@ export function runComparabilityChecks(probes, derived, declaredRepeats) {
       : "probes disagree on which description digests they installed",
   );
 
-  // identical, not empty — no available flag guarantees the CLI loads
-  // nothing (see spawn.mjs's SETTING_SOURCES), so the achievable invariant is
-  // that whatever loaded outside the workspace's own install is the same
-  // across every probe of this measurement. order is not signal, so compare
-  // sorted, mirroring tools/evaluation/effect/src/summary.mjs's identical check.
+  // identical, not empty — no available flag guarantees the CLI loads nothing
+  // (see spawn.mjs's SETTING_SOURCES), so the achievable invariant is that
+  // whatever loaded outside the workspace's own install is the same across
+  // every probe of this measurement. order is not signal, so compare sorted,
+  // mirroring tools/evaluation/effect/src/summary.mjs's identical check.
   const loaded = distinct(
     derived.map((summary) =>
       Array.isArray(summary.loadedSkills) ? [...summary.loadedSkills].sort() : summary.loadedSkills,

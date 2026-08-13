@@ -116,14 +116,14 @@ describe("every mock under tools/evaluation/mocks/", () => {
       .toBe("");
   });
 
-  // the first of the two layers tools/evaluation/effect/src/capture.mjs's header
-  // describes: a mock's own .gitignore should keep an installed skill out of
-  // Git entirely, so the capture's `.claude` filter — the second layer — never
-  // has anything to catch. behavioural rather than a grep of the .gitignore
-  // text, for the reason capture.mjs's own header gives for running real git
-  // rather than asserting on argv: a textual check passes just as happily on
-  // an entry that is present but ineffective, e.g. one placed under a `!`
-  // negation or in a file git does not read here.
+  // the first of the two layers tools/evaluation/effect/src/capture.mjs's
+  // header describes: a mock's own .gitignore should keep an installed skill
+  // out of Git entirely, so the capture's `.claude` filter — the second layer
+  // — never has anything to catch. behavioural rather than a grep of the
+  // .gitignore text, for the reason capture.mjs's own header gives for
+  // running real git rather than asserting on argv: a textual check passes
+  // just as happily on an entry that is present but ineffective, e.g. one
+  // placed under a `!` negation or in a file git does not read here.
   it.each(mocks)(
     "leaves nothing for git to report once a skill is installed: %s",
     (mock) => {

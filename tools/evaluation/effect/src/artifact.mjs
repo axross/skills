@@ -4,9 +4,9 @@
 // mechanical rather than judgmental, same as transcript.mjs: import specifiers,
 // a name check against a caller-supplied list of exports, string literals, a
 // count, a pattern match. nothing here decides whether the tests written are
-// any good — that residue is what tools/evaluation/data/effect/coverage.md's judgeable-end
-// cases and their written predictions exist to size, once the fixture is
-// measured.
+// any good — that residue is what tools/evaluation/data/effect/coverage.md's
+// judgeable-end cases and their written predictions exist to size, once the
+// fixture is measured.
 //
 // this reads only what its caller declares: `targetModuleBasename` and
 // `helperNames` are required rather than defaulted, so a case with no
@@ -18,12 +18,12 @@
 //
 // unwired from the derived layer (summary.mjs never imports this module) and
 // deliberately so: wiring it in would add fields to every committed probe
-// summary and move tools/evaluation/data/effect/summary.json, and of the fixture's cases
-// only one is "add tests to a module" in the first place. see
-// tools/evaluation/data/effect/README.md's "reading" section for what a case declaring no
-// `reading` is stating: that the deterministic layer sees only what every case
-// already shares (`changedPaths`, `ranTests`, and the rest `summary.mjs`
-// derives from every transcript and diff).
+// summary and move tools/evaluation/data/effect/summary.json, and of the
+// fixture's cases only one is "add tests to a module" in the first place. see
+// tools/evaluation/data/effect/README.md's "reading" section for what a case
+// declaring no `reading` is stating: that the deterministic layer sees only
+// what every case already shares (`changedPaths`, `ranTests`, and the rest
+// `summary.mjs` derives from every transcript and diff).
 //
 // a regular-expression reader over TypeScript source, not a parser. that
 // matches this repository's own precedent (materialize.mjs strips

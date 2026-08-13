@@ -1,9 +1,10 @@
-// tools/evaluation/effect/setup.mjs, exercised as a real child process —
-// same convention as every other bundled validator (see
-// tests/helpers/run.mjs's header): importing it would run its own `main()`
-// and call `process.exit`. it is the interface every real caller uses to reach
-// tools/evaluation/lib/mock-workspace.mjs, the workflow included, so the patch cases at
-// the bottom of this file drive the mechanism through it rather than around it.
+// tools/evaluation/effect/setup.mjs, exercised as a real child process — same
+// convention as every other bundled validator (see tests/helpers/run.mjs's
+// header): importing it would run its own `main()` and call `process.exit`. it
+// is the interface every real caller uses to reach
+// tools/evaluation/lib/mock-workspace.mjs, the workflow included, so the patch
+// cases at the bottom of this file drive the mechanism through it rather than
+// around it.
 //
 // what is asserted here is exactly the acceptance bar this script exists to
 // meet: materializing the same mock twice produces identical trees and

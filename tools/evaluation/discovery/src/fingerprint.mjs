@@ -21,8 +21,8 @@
 //
 // each digest is per skill, not one over the whole corpus, so editing one
 // skill's description by one byte moves that entry and names it — the same
-// reasoning tools/evaluation/effect/src/fingerprint.mjs gives for skillDigests, and
-// the same shape the instrument this one replaces used.
+// reasoning tools/evaluation/effect/src/fingerprint.mjs gives for skillDigests,
+// and the same shape the instrument this one replaces used.
 
 import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";

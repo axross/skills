@@ -39,17 +39,17 @@
 // staged skills while reporting a clean run. on a green pull request the two
 // agree, since the installed-copy drift check gates exactly that.
 //
-// THE CREDENTIAL FILTER TRAVELS WITH THIS BOUNDARY, THROUGH tools/evaluation/lib. the
-// predecessor this module replaces carried its own `evalEnvironment` —
-// stripping anything credential-shaped from the subprocess environment by
-// name, with the two Claude auth variables surviving because the subprocess
-// IS the Claude CLI. that requirement is the operating system's and the
-// CLI's, not either evaluation's, so it now lives once, in
+// THE CREDENTIAL FILTER TRAVELS WITH THIS BOUNDARY, THROUGH
+// tools/evaluation/lib. the predecessor this module replaces carried its own
+// `evalEnvironment` — stripping anything credential-shaped from the subprocess
+// environment by name, with the two Claude auth variables surviving because the
+// subprocess IS the Claude CLI. that requirement is the operating system's and
+// the CLI's, not either evaluation's, so it now lives once, in
 // tools/evaluation/lib/credentials.mjs, and spawn.mjs's `runProbe` calls
 // `stripCredentials` there for every probe — bare, situated, and head alike.
 // nothing here re-implements it; this module's own job stays the one thing
-// specific to head evaluation: which paths and how much of them may cross
-// the boundary at all.
+// specific to head evaluation: which paths and how much of them may cross the
+// boundary at all.
 //
 // THE FRONTMATTER READER TRAVELS WITH THIS BOUNDARY TOO, THROUGH
 // fingerprint.mjs — not by re-parsing. the predecessor's overlay.mjs imported
@@ -225,9 +225,10 @@ export function allowOverlayContent(text) {
  * would satisfy it while pointing anywhere on disk, and the overlay would
  * write straight through it. the workspace this instrument builds is
  * populated with `dereference: true` (see spawn.mjs and
- * tools/evaluation/lib/mock-workspace.mjs's header for why that is load-bearing rather
- * than a detail), which should mean no symlink ever reaches this point —
- * this is the check that proves it rather than assuming it.
+ * tools/evaluation/lib/mock-workspace.mjs's header for why that is
+ * load-bearing rather than a detail), which should mean no symlink ever
+ * reaches this point — this is the check that proves it rather than assuming
+ * it.
  *
  * @param {string} path
  * @throws {Error} when `path` is a symlink, a file, or anything but a directory

@@ -21,11 +21,11 @@
 // A PROBE THAT TERMINATES ON `error_max_turns` HAVING SELECTED NOTHING IS
 // MARKED UNREADABLE, NOT COUNTED AS SELECTING NOTHING. the runaway guard
 // binding means the model was still working when the CLI cut it off — a
-// zero-hit reading of that probe would misreport "found nothing" as an
-// outcome the probe never reached. `selectedSkills` is `null` in that case,
-// matching this codebase's existing idiom for "the stream did not say"
-// (tools/evaluation/lib/transcript/parse.mjs's `loadedSkills`): a caller that tallies
-// hits must never fold `null` into a count of zero.
+// zero-hit reading of that probe would misreport "found nothing" as an outcome
+// the probe never reached. `selectedSkills` is `null` in that case, matching
+// this codebase's existing idiom for "the stream did not say"
+// (tools/evaluation/lib/transcript/parse.mjs's `loadedSkills`): a caller that
+// tallies hits must never fold `null` into a count of zero.
 //
 // A PROBE THAT TERMINATES ON `error_max_turns` HAVING ALREADY SELECTED A
 // SKILL IS READABLE, carrying the selection(s) it made. The reasoning above
@@ -108,8 +108,8 @@ export function skillsSelected(toolCalls) {
   for (const call of toolCalls) {
     if (call.name !== "Skill" || typeof call.input?.skill !== "string") continue;
     // a plugin-qualified name reduces to the skill itself, matching
-    // tools/evaluation/lib/transcript/parse.mjs's readBehaviour — a fixture label never
-    // has to know how a skill was installed.
+    // tools/evaluation/lib/transcript/parse.mjs's readBehaviour — a fixture
+    // label never has to know how a skill was installed.
     const selected = call.input.skill;
     const name = selected.includes(":") ? selected.split(":").pop() : selected;
     if (name === "" || seen.has(name)) continue;

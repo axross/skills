@@ -1,8 +1,8 @@
 // offline tests for the effect evaluation's artifact-shaped extraction:
-// tools/evaluation/effect/src/artifact.mjs. every fixture is a literal TypeScript
-// source string, modelled on tools/evaluation/mocks/tsuzuri's own test file
-// (shared/blog-post-slug.spec.ts) so the extractor is proven against the
-// mock's real style, never a live CLI.
+// tools/evaluation/effect/src/artifact.mjs. every fixture is a literal
+// TypeScript source string, modelled on tools/evaluation/mocks/tsuzuri's own
+// test file (shared/blog-post-slug.spec.ts) so the extractor is proven against
+// the mock's real style, never a live CLI.
 
 import { describe, expect, it } from "vitest";
 

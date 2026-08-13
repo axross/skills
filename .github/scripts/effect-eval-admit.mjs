@@ -2,10 +2,10 @@
 // the admit step of .github/workflows/effect-eval.yaml.
 //
 // it belongs to the workflow rather than to the instrument, which is why it is
-// here and not beside the three commands under tools/evaluation/effect/. everything
-// it does that is not a library call is shaped by GitHub — reading a dispatch
-// input, writing `$GITHUB_OUTPUT`, and emitting the arrays a `strategy.matrix`
-// expands. none of that is a question the evaluation asks.
+// here and not beside the three commands under tools/evaluation/effect/.
+// everything it does that is not a library call is shaped by GitHub — reading a
+// dispatch input, writing `$GITHUB_OUTPUT`, and emitting the arrays a
+// `strategy.matrix` expands. none of that is a question the evaluation asks.
 //
 // the decision itself is not here. whether the projected spend fits the cap is
 // admission.mjs's, where it is unit-tested and reachable by anything that is

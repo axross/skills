@@ -1,8 +1,8 @@
 // where a discovery case measurement's files live, and what they are called.
 //
-// mirrors tools/evaluation/effect/src/layout.mjs's three-kinds-of-file split, with
-// one probe directory per repeat rather than per condition — discovery has no
-// second condition to pair against, so `probe-<id>` replaces
+// mirrors tools/evaluation/effect/src/layout.mjs's three-kinds-of-file split,
+// with one probe directory per repeat rather than per condition — discovery has
+// no second condition to pair against, so `probe-<id>` replaces
 // `<condition>-<id>`:
 //
 //   measured   transcript.jsonl        never regenerated; re-acquiring it
@@ -74,11 +74,11 @@ export function probePaths(probeDir) {
  *
  * one, for the same reason as the effect side's: the drift check compares a
  * regeneration against a commit, and that means something only if both went
- * through the same function. `tools/evaluation/data/discovery/`'s derived surfaces are
- * excluded from this repository's Prettier config for the same reason — the
- * generic summary.json and measurements-directory globs in .prettierignore
- * already cover this instrument's data root, so nothing here needs to widen
- * it.
+ * through the same function. `tools/evaluation/data/discovery/`'s derived
+ * surfaces are excluded from this repository's Prettier config for the same
+ * reason — the generic summary.json and measurements-directory globs in
+ * .prettierignore already cover this instrument's data root, so nothing here
+ * needs to widen it.
  *
  * @param {unknown} value
  * @returns {string}

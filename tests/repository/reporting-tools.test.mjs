@@ -18,10 +18,10 @@
 // distributable — so a gate on similarity would fail correct prose. only intent
 // separates the cases, and intent is not in the corpus.
 //
-// tools/evaluation/discovery/evaluate.mjs reports which skills a prompt surfaced. it
-// cannot gate for three independent reasons: it is non-deterministic, it costs
-// money per run, and it needs a secret that fork pull requests do not receive.
-// a flaky merge gate gets bypassed or deleted.
+// tools/evaluation/discovery/evaluate.mjs reports which skills a prompt
+// surfaced. it cannot gate for three independent reasons: it is
+// non-deterministic, it costs money per run, and it needs a secret that fork
+// pull requests do not receive. a flaky merge gate gets bypassed or deleted.
 //
 // the tracking issues asked for a grep confirming nothing invokes either. a grep
 // confirms today; this file confirms every day, which is what the claim actually

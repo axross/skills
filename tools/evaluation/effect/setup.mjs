@@ -15,9 +15,9 @@
 // downloads that browser, which npm does not carry — see mock-workspace.mjs.
 //
 // `--patch` is how a case brings the broken starting state its own prompt
-// describes, without the mock shipping one. the mechanism lives in tools/evaluation/lib
-// because a mock belongs to neither evaluation; this entry point only passes
-// the path through.
+// describes, without the mock shipping one. the mechanism lives in
+// tools/evaluation/lib because a mock belongs to neither evaluation; this entry
+// point only passes the path through.
 //
 // exit codes:
 //   0  the workspace path was printed to stdout
