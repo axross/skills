@@ -133,7 +133,12 @@ on:
   workflow_dispatch:
     inputs:
       case:
-        description: "Case id, as declared in data/discovery-eval/fixture.json (blank runs the whole fixture)"
+        # blank is a whole-fixture MEASUREMENT dispatch, and only that. A
+        # blank `case` alongside a `prompt` is refused in `admit`: an override
+        # replaces one case's declared prompt, and substituting the same text
+        # into every other case's would fan a single reworded question across
+        # the corpus at full price, comparable with nothing.
+        description: "Case id, as declared in data/discovery-eval/fixture.json (blank runs the whole fixture; required when prompt is given)"
         required: false
       repeats:
         # NO DEFAULT, and that is load-bearing rather than tidy — see

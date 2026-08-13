@@ -14,13 +14,13 @@ only workflow allowed to invoke it, and manual dispatch is its only trigger,
 so nothing a pull request does can start it or spend money. Five inputs, all
 optional:
 
-| Input          | Does                                                                                      |
-| -------------- | ----------------------------------------------------------------------------------------- |
-| `case`         | Runs one case rather than the whole fixture                                               |
-| `repeats`      | Overrides what a case declares                                                            |
-| `pull_request` | Evaluates that pull request's changed skills in the bare probe mode, posts a report there |
-| `prompt`       | Overrides `case`'s declared prompt, evaluated exactly as declared, uploads an artifact    |
-| `dry_run`      | Rehearses every step with no probe spawned                                                |
+| Input          | Does                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------- |
+| `case`         | Runs one case rather than the whole fixture                                                          |
+| `repeats`      | Overrides what a case declares                                                                       |
+| `pull_request` | Evaluates that pull request's changed skills in the bare probe mode, posts a report there            |
+| `prompt`       | Overrides `case`'s declared prompt, evaluated exactly as declared, uploads an artifact. Needs `case` |
+| `dry_run`      | Rehearses every step with no probe spawned                                                           |
 
 A dispatch that names a pull request **records nothing** — it reports, because
 what it measured is routing on the prompt alone, and that is not comparable
@@ -42,6 +42,13 @@ with the coverage invariant in
 [`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) — no
 skill named by more than two cases — and a twin case is exactly the
 near-duplicate shape that invariant removes.
+
+**It overrides one case, and a dispatch that names no `case` is refused.**
+Every case's tiers belong to a different skill, so substituting one wording
+into all of them measures nothing — it would just fan a single reworded
+question across the whole corpus at full price. Admission is the only place
+that can catch this, because it is the only place the matrix widens, and it
+refuses before any probe spawns.
 
 It never records. `evaluate.mjs --prompt` refuses `--out` outright, the same
 way `--head-skills` does (see

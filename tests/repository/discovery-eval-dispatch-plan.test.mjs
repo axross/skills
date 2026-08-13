@@ -169,6 +169,28 @@ describe("discovery-eval-admit.mjs", () => {
       expect(result.output).toMatch(/--pull-request and --prompt cannot both be given/);
     });
 
+    // the matrix widens HERE and nowhere else: probe-plan requires --case at
+    // its own CLI level, so a blank `case` can only fan out through
+    // admission. Left unrefused, a dispatch that reads like one reworded case
+    // runs the whole fixture with that text substituted into every case's
+    // prompt — real spend, and comparable with nothing.
+    it("refuses a prompt with no case, rather than overriding every case in the fixture", () => {
+      const result = admit(["--prompt", "a maintainer's reworded prompt", "--dry-run-input", "false"]);
+      expect(result.code).toBe(2);
+      expect(result.output).toMatch(/--prompt overrides one case's declared prompt/);
+    });
+
+    // the same dispatch without --prompt is an ordinary whole-fixture
+    // measurement and must stay admitted, or the refusal above has caught
+    // more than it was aimed at.
+    it("still admits a whole-fixture dispatch that names no prompt", () => {
+      const result = admit(["--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("measurement");
+      expect(JSON.parse(plan.cases).length).toBeGreaterThan(1);
+    });
+
     it("admits an override run against a case with no committed measurement, pricing it from the declared ceiling", async () => {
       const root = await tempDir();
       await writeScratchFixture(root, {

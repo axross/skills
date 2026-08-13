@@ -228,6 +228,24 @@ async function main() {
     );
   }
 
+  // --prompt REQUIRES --case, and this is the only place that can enforce it.
+  // An override replaces ONE case's declared prompt; substituting the same
+  // text into every other case's is meaningless, because each case's
+  // mustInclude/mustExclude tiers belong to a different skill. Without this,
+  // a blank `case` falls through to the whole-fixture selection below and a
+  // dispatch that reads like one reworded case fans out across the corpus —
+  // 40 probes' worth of spend producing artifacts comparable with nothing.
+  // discovery-eval-probe-plan.mjs already requires --case unconditionally at
+  // its own CLI level, so only admission can widen the matrix, and only
+  // admission can refuse before it does.
+  if (prompt !== null && !options.caseId) {
+    fail2(
+      "--prompt overrides one case's declared prompt, so it needs --case naming which one. " +
+        "Without it this would run the whole fixture with the same text substituted into every " +
+        `case, which is comparable with nothing. Drop --prompt to admit an ordinary measurement dispatch instead.\n${USAGE}`,
+    );
+  }
+
   if (options.repeats !== null) {
     const value = Number(options.repeats);
     if (!Number.isInteger(value) || value < 1) fail2("--repeats needs a positive integer.");
