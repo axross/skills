@@ -108,8 +108,12 @@ apply it, and a probe that found nothing at all, identically — both `[]`. The
 stream already held the difference; a new reading, `endedAwaitingDecision`,
 tells the two apart without spending another probe. The same change pinned a
 non-interactive brief into every dispatch's argv, which supersedes any
-measurement taken before it existed — today, the one committed under
-`add-unit-tests-for-an-untested-module-4204a1ed`. Both are stated in full in
+measurement taken before it existed — two measurements predate it, committed
+under `add-unit-tests-for-an-untested-module-4204a1ed` and
+`fix-a-minified-production-stack-trace-201f1200`. The same principle paid off
+a second time: `finalMessageHeadings` reads those same stored transcripts for
+a different question and recovers a result from bytes already paid for,
+rather than costing another probe. All of this is stated in full in
 [`data/effect-eval/README.md`](../../data/effect-eval/README.md).
 
 **A baseline is the same mistake one level up**, and the discovery axis carried
