@@ -6,11 +6,7 @@ node_modules
 # style would diverge them from what their own toolchain expects, so this
 # repository's gates never cover them; the mock's own toolchain is what keeps
 # it honest.
-#
-# bare and slash-free on purpose: Prettier reads this file with gitignore
-# semantics, where a slash-free pattern matches at any depth, so this excludes
-# tools/evaluation/mocks/ without naming the full path.
-mocks
+tools/evaluation/mocks/
 
 # An evaluation's derived layer is regenerated and then compared BYTE FOR BYTE
 # against what is committed, which is how a hand-edited summary is caught (see
