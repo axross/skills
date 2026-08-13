@@ -16,7 +16,7 @@ import {
   writeSkill,
 } from "../helpers/fixtures.mjs";
 import { runScript } from "../helpers/run.mjs";
-import { gate } from "./gates.mjs";
+import { collectRoots, gate } from "./gates.mjs";
 
 describe("repository gates have teeth", () => {
   it("the links gate fails on a broken relative link", async () => {
@@ -58,15 +58,50 @@ describe("repository gates have teeth", () => {
       "tools/evaluation/mocks/tsuzuri/doc.md",
       "See [gone](./missing.md).\n",
     );
-    // a sibling under the same excluded path's ancestor, so this case also
-    // proves collectRoots() descends past tools/ and tools/evaluation/
-    // rather than pruning either wholesale.
-    await writeFileIn(root, "tools/evaluation/discovery/doc.md", "No broken links here.\n");
     await writeFileIn(root, "AGENTS.md", "No broken links here.\n");
 
     const result = runScript(script, args, { cwd: root });
 
     expect(result).toPassCleanly();
+  });
+
+  it("the links gate reaches a sibling of the excluded path", async () => {
+    const { script, args } = gate("links");
+    const root = await tempDir();
+    // tools/evaluation/discovery/ is reachable only if collectRoots()
+    // descends past tools/ and tools/evaluation/ instead of pruning either
+    // wholesale — the case the mocks-exclusion test above cannot cover,
+    // since a clean file there passes whether the roster reached it or
+    // never saw it.
+    await writeFileIn(
+      root,
+      "tools/evaluation/discovery/doc.md",
+      "See [gone](./missing.md).\n",
+    );
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(/missing\.md/);
+  });
+
+  it("collectRoots() never turns a nested node_modules into a root", async () => {
+    const root = await tempDir();
+    // EXCLUDED_PATHS only names tools/evaluation/mocks by path now — .git and
+    // node_modules are matched by name instead, at any depth, because
+    // collectRoots() descends into tools/evaluation/ and an `npm install` run
+    // there would otherwise hand the links gate a whole dependency tree that
+    // `git status` never shows (node_modules/ is gitignored at any depth).
+    await writeFileIn(
+      root,
+      "tools/evaluation/node_modules/somepkg/index.js",
+      "",
+    );
+    await writeFileIn(root, "tools/evaluation/discovery/doc.md", "");
+
+    const roots = collectRoots(root, "");
+
+    expect(roots).not.toContain("tools/evaluation/node_modules");
+    expect(roots).toContain("tools/evaluation/discovery");
   });
 
   it("the links gate still reaches an ordinary top-level directory", async () => {
