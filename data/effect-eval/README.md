@@ -476,14 +476,15 @@ this field is never read for that case again — it governs only the first run.
 
 ## What is committed here
 
-`measurements/` holds the case measurements taken so far, one directory per
-measurement, and `summary.json` is the snapshot derived across all of them.
-`fixture.json` declares every case this axis measures — one per skill
-[`coverage.md`](./coverage.md) does not place out of range, plus a negative
-control — and only one of them, `unit-testing` on `content-site` (since
-renamed `tsuzuri`), has actually been dispatched: six probes, landed in
-[#290](https://github.com/axross/skills/pull/290). Declaring a case is not
-measuring it; see
+`measurements/` holds every case measurement taken so far, one directory per
+measurement, and `summary.json` is the snapshot derived across all of them —
+that file, not this paragraph, is the live record. It currently holds <!-- count:effect-eval-measurement-count -->22<!-- /count --> measurements across 21 distinct cases, together costing `$75.3194`:
+`fix-a-minified-production-stack-trace` is measured twice — `201f1200`,
+superseded, and `156f5602`, its replacement under the non-interactive brief
+(see above) — and every other measured case once. `fixture.json` declares
+every case this axis measures — one per skill [`coverage.md`](./coverage.md)
+does not place out of range, plus a negative control — and declaring a case
+is not the same as measuring it; see
 [`docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md`](../../docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md)
 for the policy the rest of the fixture was declared under, and
 `node tools/effect-eval/evaluate.mjs --dry-run` for the current projected cost

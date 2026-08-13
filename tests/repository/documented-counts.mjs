@@ -515,6 +515,17 @@ export const CLAIMS = {
       return fixture.cases.filter((entry) => Boolean(entry.patch)).length;
     },
   },
+
+  "effect-eval-measurement-count": {
+    owner: "the directories under data/effect-eval/measurements/",
+    note: "one directory per dispatched measurement — a case measured more than once (a re-measurement superseding an earlier one, say) adds a directory without adding a case, so this number and a stated distinct-case count can legitimately differ",
+    derive: async () => {
+      const entries = await readdir(repoPath("data/effect-eval/measurements"), {
+        withFileTypes: true,
+      });
+      return entries.filter((entry) => entry.isDirectory()).length;
+    },
+  },
 };
 
 /** every Markdown file in the repository, as repository-relative paths. */
