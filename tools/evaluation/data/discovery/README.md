@@ -72,9 +72,9 @@ every committed measurement, re-deriving each `summary.json` (including the
 root one) from the measured and declared files beside it and failing on any
 byte difference.
 
-Both derived surfaces are covered by `.prettierignore`'s generic
+Both derived surfaces are covered by `.prettierignore`'s
 `tools/evaluation/data/*/summary.json` and
-`tools/evaluation/data/*/measurements/**` entries — the bytes come from
+`tools/evaluation/data/*/measurements/` entries — the bytes come from
 exactly one serializer (`tools/evaluation/discovery/src/layout.mjs`'s
 `canonicalJson`), and a second formatter with an opinion about them would make
 the drift check fail against a file this instrument never wrote.
