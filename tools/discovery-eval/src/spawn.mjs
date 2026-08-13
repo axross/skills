@@ -64,12 +64,13 @@ export const SITUATED_DISALLOWED_TOOLS = [
  * out of a bare probe: measured records from a real dispatch show three of
  * twelve bare probes spending their one turn on a `ToolSearch` call instead
  * of `Skill`, burning the turn cap on a tool this evaluation was never meant
- * to expose. Declaring it here has not been re-measured against a live probe
- * — that would spend money this change does not authorize — but the
- * installed CLI's own tool-search gate reads a tool named `ToolSearch` off
- * the set it was actually given and logs "may have been disallowed via
- * disallowedTools" as the reason once that name is absent from it, which is
- * exactly the mechanism this declaration relies on.
+ * to expose. THAT THE CLI HONOURS THIS DECLARATION IS MEASURED, NOT ASSUMED:
+ * re-running all six bare cases under it produced twelve probes and not one
+ * `ToolSearch` call, and the case whose two probes had both spent their only
+ * turn on it selected a skill instead. The mechanism is the installed CLI's
+ * own tool-search gate, which reads a tool named `ToolSearch` off the set it
+ * was actually given and logs "may have been disallowed via disallowedTools"
+ * once that name is absent from it.
  */
 export const BARE_DISALLOWED_TOOLS = [
   "Agent",
