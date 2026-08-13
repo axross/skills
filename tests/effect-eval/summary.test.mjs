@@ -357,6 +357,21 @@ describe("finalMessageHeadings", () => {
     const text = ["## Before", "```", "# inside the fence", "## also inside the fence"].join("\n");
     expect(finalMessageHeadings(text)).toEqual(["Before"]);
   });
+
+  it("keeps a hash the heading's own text ends in, and drops one that closes the heading", () => {
+    // CommonMark's closing sequence only closes when whitespace precedes it.
+    // Stripping every trailing hash instead would quietly rename a heading
+    // about a language whose name ends in one.
+    const text = ["## What's new in C#", "## Heading ##", "#### Deep ####"].join("\n");
+    expect(finalMessageHeadings(text)).toEqual(["What's new in C#", "Heading", "Deep"]);
+  });
+
+  it("reads a heading whose only content is a closing sequence as empty", () => {
+    // `## ###` is the case the lookbehind branch exists for: one space serves
+    // as both the opening run's required whitespace and the closing run's.
+    expect(finalMessageHeadings("## ###")).toEqual([""]);
+    expect(finalMessageHeadings("## #")).toEqual([""]);
+  });
 });
 
 describe("the comparability checks", () => {

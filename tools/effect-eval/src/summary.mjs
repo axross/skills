@@ -60,8 +60,18 @@ export function solicitsDecision(text) {
   );
 }
 
-/** an ATX heading marker: 1–6 "#" characters, then required whitespace. */
-const ATX_HEADING_RE = /^(#{1,6})\s+(.*?)\s*#*\s*$/;
+/**
+ * an ATX heading marker: 1–6 "#" characters, then required whitespace.
+ *
+ * the trailing group is CommonMark's optional *closing sequence*, and the two
+ * branches are what make it one rather than "strip any trailing hashes". A
+ * closing run only closes when whitespace precedes it, so `## C#` is a heading
+ * whose text ends in a hash rather than an empty one — `\s+#+` covers the
+ * ordinary `## Heading ##`, and the lookbehind branch covers `## ###`, where
+ * the single space after the opening run is also the one preceding the closing
+ * run and there is no second space for `\s+` to take.
+ */
+const ATX_HEADING_RE = /^(#{1,6})\s+(.*?)(?:\s+#+|(?<=\s)#+)?\s*$/;
 
 /** the opening (or matching closing) delimiter of a fenced code block. */
 const FENCE_RE = /^(`{3,}|~{3,})/;
