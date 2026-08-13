@@ -75,7 +75,12 @@
     {
       "check": "one loaded skill set",
       "passed": true,
-      "detail": "every probe loaded [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+      "detail": "every probe's contamination is [\"batch\",\"claude-api\",\"code-review\",\"dataviz\",\"debug\",\"deep-research\",\"design-sync\",\"doctor\",\"fewer-permission-prompts\",\"loop\",\"run\",\"run-skill-generator\",\"schedule\",\"simplify\",\"update-config\",\"verify\"]"
+    },
+    {
+      "check": "the treatment reached the skill-present condition",
+      "passed": true,
+      "detail": "no probe reported a declared skill in its loaded set, so this runtime does not announce workspace skills and this measurement cannot confirm the treatment arrived"
     },
     {
       "check": "declared repetition count",
@@ -107,6 +112,7 @@
         "run",
         "run-skill-generator"
       ],
+      "declaredSkillsLoaded": [],
       "skillsInvoked": [],
       "turns": 65,
       "truncated": false,
@@ -206,6 +212,7 @@
         "run",
         "run-skill-generator"
       ],
+      "declaredSkillsLoaded": [],
       "skillsInvoked": [],
       "turns": 14,
       "truncated": false,
@@ -262,6 +269,7 @@
         "run",
         "run-skill-generator"
       ],
+      "declaredSkillsLoaded": [],
       "skillsInvoked": [],
       "turns": 25,
       "truncated": false,
@@ -330,6 +338,7 @@
         "run",
         "run-skill-generator"
       ],
+      "declaredSkillsLoaded": [],
       "skillsInvoked": [],
       "turns": 5,
       "truncated": false,
@@ -377,6 +386,7 @@
         "run",
         "run-skill-generator"
       ],
+      "declaredSkillsLoaded": [],
       "skillsInvoked": [
         "run"
       ],
@@ -477,6 +487,7 @@
         "run",
         "run-skill-generator"
       ],
+      "declaredSkillsLoaded": [],
       "skillsInvoked": [
         "run"
       ],
