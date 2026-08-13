@@ -23,6 +23,7 @@ import { describe, expect, it } from "vitest";
 
 import { tempDir, writeFileIn, writeSkill } from "../helpers/fixtures.mjs";
 import { SCRIPTS, repoPath, validator } from "../helpers/run.mjs";
+import { gate } from "../repository/gates.mjs";
 
 const checkLinks = validator(SCRIPTS.checkLinks);
 const checkSkill = validator(SCRIPTS.checkSkillReferences);
@@ -175,7 +176,9 @@ describe("CommonMark fence parsing", () => {
     });
 
     it("emits no unterminated-fence warning over the repository's corpus", () => {
-      const result = checkLinks();
+      // the links gate's own roster, not a bare no-argument sweep — see
+      // check-links.test.mjs's equivalent case for why.
+      const result = checkLinks(...gate("links").args);
 
       expect(result).toPassCleanly();
       expect(result.stderr).not.toMatch(/unterminated fence/);

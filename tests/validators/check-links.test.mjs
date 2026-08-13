@@ -11,6 +11,7 @@ import { describe, expect, it } from "vitest";
 
 import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
 import { SCRIPTS, validator } from "../helpers/run.mjs";
+import { gate } from "../repository/gates.mjs";
 
 const checkLinks = validator(SCRIPTS.checkLinks);
 
@@ -195,7 +196,11 @@ describe("check-links.mjs", () => {
   });
 
   it("passes over the repository's own corpus", () => {
-    const result = checkLinks();
+    // the roster the links gate itself uses, not a bare no-argument sweep:
+    // check-links.mjs has no exclusion mechanism of its own, so a sweep with
+    // no roots would walk straight into tools/evaluation/mocks/, whose mock
+    // fixtures carry broken links on purpose (see gates.mjs's EXCLUDED_PATHS).
+    const result = checkLinks(...gate("links").args);
 
     expect(result).toPassCleanly();
     expect(result.stdout).toMatch(/links OK/);
