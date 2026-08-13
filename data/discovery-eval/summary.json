@@ -1,6 +1,6 @@
 {
-  "measurementCount": 40,
-  "comparableCount": 40,
+  "measurementCount": 46,
+  "comparableCount": 46,
   "measurements": [
     {
       "measurement": "accept-a-page-number-from-a-url-70e19ac8",
@@ -677,6 +677,58 @@
       }
     },
     {
+      "measurement": "edit-an-issue-body-without-destroying-it-2f3fcb8a",
+      "case": "edit-an-issue-body-without-destroying-it",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.3133451,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (edit-an-issue-body-without-destroying-it-59369ca0) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
+      }
+    },
+    {
       "measurement": "edit-an-issue-body-without-destroying-it-59369ca0",
       "case": "edit-an-issue-body-without-destroying-it",
       "population": "discovered",
@@ -724,7 +776,7 @@
       "findings": [],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
       }
     },
     {
@@ -939,6 +991,65 @@
       }
     },
     {
+      "measurement": "judge-whether-a-change-was-actually-checked-2de92ff4",
+      "case": "judge-whether-a-change-was-actually-checked",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.1634308,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "quality-assurance",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (judge-whether-a-change-was-actually-checked-820959ad) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
+      }
+    },
+    {
       "measurement": "judge-whether-a-change-was-actually-checked-820959ad",
       "case": "judge-whether-a-change-was-actually-checked",
       "population": "discovered",
@@ -993,7 +1104,7 @@
       ],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
       }
     },
     {
@@ -1415,7 +1526,59 @@
       "findings": [],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
+      }
+    },
+    {
+      "measurement": "reconcile-an-installed-copy-with-its-source-fc1267c8",
+      "case": "reconcile-an-installed-copy-with-its-source",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.27277209999999996,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (reconcile-an-installed-copy-with-its-source-4a144eff) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
       }
     },
     {
@@ -1592,6 +1755,58 @@
       }
     },
     {
+      "measurement": "review-what-changed-on-this-branch-44d929f1",
+      "case": "review-what-changed-on-this-branch",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.23990029999999996,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (review-what-changed-on-this-branch-7d99d730) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
+      }
+    },
+    {
       "measurement": "review-what-changed-on-this-branch-7d99d730",
       "case": "review-what-changed-on-this-branch",
       "population": "discovered",
@@ -1639,7 +1854,7 @@
       "findings": [],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
       }
     },
     {
@@ -1991,6 +2206,58 @@
       }
     },
     {
+      "measurement": "tighten-a-skill-description-without-losing-routing-3c7ab72a",
+      "case": "tighten-a-skill-description-without-losing-routing",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.2197787,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (tighten-a-skill-description-without-losing-routing-dfcf2192) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
+      }
+    },
+    {
       "measurement": "tighten-a-skill-description-without-losing-routing-dfcf2192",
       "case": "tighten-a-skill-description-without-losing-routing",
       "population": "discovered",
@@ -2038,7 +2305,7 @@
       "findings": [],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
       }
     },
     {
@@ -2147,7 +2414,66 @@
       "findings": [],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
+      }
+    },
+    {
+      "measurement": "write-the-commit-message-for-this-change-c5d12618",
+      "case": "write-the-commit-message-for-this-change",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.3927788,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "conventional-commits",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (write-the-commit-message-for-this-change-0156d2f9) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
       }
     },
     {
