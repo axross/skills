@@ -16,6 +16,12 @@
 // inside a ````markdown block. two of the cases below inject content into a copy
 // of that real file, so the regression is anchored to the shape that actually
 // occurs rather than only to a synthetic one.
+//
+// this file and check-links.test.mjs both now take the links gate's own
+// roster (gates.mjs's EXCLUDED_PATHS) for their corpus-wide case, instead of a
+// bare no-argument sweep — the mocks moved three levels deep and forced the
+// switch off one, so neither file demonstrates the validator passing over an
+// unscoped tree any more.
 
 import { readFile } from "node:fs/promises";
 

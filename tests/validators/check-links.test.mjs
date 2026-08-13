@@ -4,6 +4,12 @@
 //
 // documented contract: 0 when every relative link resolves, 1 when one or more
 // are broken, 2 on a bad invocation.
+//
+// this file and fence-parsing.test.mjs both now take the links gate's own
+// roster (gates.mjs's EXCLUDED_PATHS) for their corpus-wide case, instead of a
+// bare no-argument sweep — the mocks moved three levels deep and forced the
+// switch off one, so neither file demonstrates the validator passing over an
+// unscoped tree any more.
 
 import { mkdir, symlink } from "node:fs/promises";
 
@@ -199,14 +205,11 @@ describe("check-links.mjs", () => {
     // the links gate's own roster (gates.mjs's EXCLUDED_PATHS), not a bare
     // no-argument sweep: check-links.mjs has no exclusion mechanism of its
     // own, so a sweep with no roots would walk straight into
-    // tools/evaluation/mocks/. Excluding it is policy, not a claim that the
-    // mocks carry broken links — they don't. The mocks sit outside this
+    // tools/evaluation/mocks/. excluding it is policy, not a claim that the
+    // mocks carry broken links — they don't. the mocks sit outside this
     // repository's own gates by decision, so a future mock file with an
     // unresolvable link must stay its own toolchain's business rather than
-    // fail npm test here. Both this file and fence-parsing.test.mjs now
-    // import gates.mjs for the roster, so this case no longer demonstrates
-    // the validator passing over an unscoped tree the way it did before the
-    // mocks moved three levels deep and forced the switch off a bare sweep.
+    // fail npm test here.
     const result = checkLinks(...gate("links").args);
 
     expect(result).toPassCleanly();
