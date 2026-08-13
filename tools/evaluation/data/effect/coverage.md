@@ -1,6 +1,6 @@
 # What the effect axis cannot observe
 
-[`docs/specs/skill-evaluation.md`](../../docs/specs/skill-evaluation.md) states
+[`docs/specs/skill-evaluation.md`](../../../../docs/specs/skill-evaluation.md) states
 the bound this file exists to enumerate against:
 
 > A measurement of a skill in the first two groups would show the two

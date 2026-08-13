@@ -164,8 +164,8 @@ cannot be done by reading it. Evaluation in this space, where it exists at
 all, tends to stop at a skill's textual properties — that it is shaped
 correctly, not that it works. This library measures the skill outcome as
 well, and commits the measurements: every probe's verbatim transcript lives
-under [`data/discovery-eval/`](./data/discovery-eval/README.md) and
-[`data/effect-eval/`](./data/effect-eval/README.md), so what the measurement
+under [`tools/evaluation/data/discovery/`](./tools/evaluation/data/discovery/README.md) and
+[`tools/evaluation/data/effect/`](./tools/evaluation/data/effect/README.md), so what the measurement
 found is something you can read rather than take on trust. That is the axis
 worth comparing libraries on — whether the discovery text is _measured_ or
 merely asserted. It has already produced negative results about this
@@ -215,7 +215,7 @@ which is checked by the same suite.
 | Skill structure   | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
 | Installed copies  | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
 | Obligation burden | `scripts/report-obligation-burden.mjs` (reports; never gates)                         |
-| Skill discovery   | `tools/discovery-eval/evaluate.mjs` (reports; never gates)                            |
+| Skill discovery   | `tools/evaluation/discovery/evaluate.mjs` (reports; never gates)                      |
 | Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
 | Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
 | Project docs      | `skills/living-project-documentation/scripts/check-*.mjs` (five, over `docs/`)        |

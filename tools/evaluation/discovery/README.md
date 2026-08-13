@@ -4,7 +4,7 @@ Measures whether a prompt actually surfaces the right skill, **in situ**: each
 case is asked inside a materialized mock project, with the whole skill corpus
 competing and the project's own `AGENTS.md` present. It measures; it never
 judges. The measurements it writes live in
-[`data/discovery-eval/`](../../data/discovery-eval/README.md).
+[`tools/evaluation/data/discovery/`](../data/discovery/README.md).
 
 ## It never gates
 
@@ -15,7 +15,7 @@ head evaluation — it needs a secret that fork pull requests do not receive.
 on purpose, so wiring it in has to be a deliberate act.
 
 What `npm test` _does_ run is the drift check over
-[`data/discovery-eval/`](../../data/discovery-eval/README.md) — a
+[`tools/evaluation/data/discovery/`](../data/discovery/README.md) — a
 deterministic re-derivation from committed files, offline, with no model
 call. That is a check on the instrument's own bookkeeping, not on a
 measurement's verdict, and it is the one thing here that can legitimately
@@ -24,10 +24,10 @@ fail a merge.
 ## Two entry points, one process each
 
 ```sh
-node tools/discovery-eval/evaluate.mjs  --case <id> --out <dir> [--repeats <n>] [--dry-run]
-node tools/discovery-eval/evaluate.mjs  --case <id> --head-skills <dir> [--head-sha <sha>]
-node tools/discovery-eval/evaluate.mjs  --case <id> --prompt <text> [--dry-run]
-node tools/discovery-eval/summarize.mjs [--check]
+node tools/evaluation/discovery/evaluate.mjs  --case <id> --out <dir> [--repeats <n>] [--dry-run]
+node tools/evaluation/discovery/evaluate.mjs  --case <id> --head-skills <dir> [--head-sha <sha>]
+node tools/evaluation/discovery/evaluate.mjs  --case <id> --prompt <text> [--dry-run]
+node tools/evaluation/discovery/summarize.mjs [--check]
 ```
 
 | Command         | Does                                                                                                                                                                   |
@@ -35,7 +35,7 @@ node tools/discovery-eval/summarize.mjs [--check]
 | `evaluate.mjs`  | Resolves one case, prepares its probe workspace, runs its declared repeats serially, writes one probe record per repeat.                                               |
 | `summarize.mjs` | Derives the per-measurement and repository-wide summaries, the delta against each measurement's predecessor, and enforces the within-measurement comparability checks. |
 
-Two, not three. `tools/effect-eval` splits `setup.mjs` from `evaluate.mjs`
+Two, not three. `tools/evaluation/effect` splits `setup.mjs` from `evaluate.mjs`
 because its probes fan out across separate runners under two conditions.
 Discovery has one condition, so preparing a case's workspace and probing it
 happen in one process — a case's repeats run serially against the one
@@ -75,7 +75,7 @@ had both spent their only turn on it selected a skill instead. The mechanism is
 the installed CLI's own tool-search gate, which reads a tool named `ToolSearch`
 off the set it was actually given and logs "may have been disallowed via
 disallowedTools" once that name is absent. Both rounds are recorded in
-[`data/discovery-eval/README.md`](../../data/discovery-eval/README.md).
+[`tools/evaluation/data/discovery/README.md`](../data/discovery/README.md).
 
 A case declaring a `mock` runs situated; a case declaring none runs bare,
 because situating would remove the very thing its prompt is about (a mock
@@ -110,7 +110,7 @@ two different workspaces that must not meet in one run. Its own report prints
 the case, the overridden prompt, its declared tiers, and each probe's
 terminal reason and selection, so a reader can tell hit from miss without
 re-deriving it — see
-[`docs/operations/evaluation-dispatch.md`](../../docs/operations/evaluation-dispatch.md)
+[`docs/operations/evaluation-dispatch.md`](../../../docs/operations/evaluation-dispatch.md)
 for the use rule a prompt override is bound by and the comparability cost
 that makes revising a committed prompt rare.
 
@@ -119,7 +119,7 @@ that makes revising a committed prompt rare.
 Discovery reads one frontmatter field — `description` — so
 [`src/fingerprint.mjs`](./src/fingerprint.mjs) digests only that, per skill,
 rather than a skill's whole installed tree the way
-[`tools/effect-eval/src/fingerprint.mjs`](../effect-eval/src/fingerprint.mjs)
+[`tools/evaluation/effect/src/fingerprint.mjs`](../effect/src/fingerprint.mjs)
 does for its own question. A skill's body can change without invalidating a
 discovery measurement, because the body is not what selects it. The project
 tree digest _does_ follow the effect side's shape — `sha256` over sorted
@@ -226,7 +226,7 @@ inside the head file. Read that module closely — it is a security boundary
 and its reasoning is in its own comments.
 
 The credential filter travels with it through
-[`tools/lib/credentials.mjs`](../lib/credentials.mjs): `src/spawn.mjs`'s
+[`tools/evaluation/lib/credentials.mjs`](../lib/credentials.mjs): `src/spawn.mjs`'s
 `runProbe` strips the subprocess environment for every probe, bare, situated
 and head alike, and `evaluate.mjs` redacts every transcript by value before
 writing it, refusing rather than writing anything a credential shape survives.
@@ -239,7 +239,7 @@ repeat, and writes each probe record with a synthetic transcript, spawning
 nothing. Run with no `--case`, `--dry-run` instead previews every case in the
 fixture — mode, tools, turns and the projected admission decision — without
 materializing anything. Every bundled test stays on one of these two paths:
-nothing in `tests/discovery-eval/` spawns the CLI or reaches the network.
+nothing in `tests/discovery/` spawns the CLI or reaches the network.
 
 ## Admission binds by refusal, before the spend
 
@@ -248,7 +248,7 @@ projecting from committed measurements where they exist and from the
 fixture's `unmeasuredProbeCostCeilingUsd` where they do not, and refusing a
 real run before any probe is spawned rather than after. A refusal is a
 finding, not a prompt to raise the cap. See
-[`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) for
+[`tools/evaluation/data/discovery/README.md`](../data/discovery/README.md) for
 `capUsd` and `unmeasuredProbeCostCeilingUsd`'s full contract.
 
 **The ceiling is per probe mode, not one figure** — `{ "situated": 0.35,
@@ -256,7 +256,7 @@ finding, not a prompt to raise the cap. See
 magnitude apart: a situated probe explores a real project across a runaway
 turn guard, a bare probe is two turns with only `Skill` permitted. Both
 [`src/admission.mjs`](./src/admission.mjs)'s `ceilingFor` and `admitCase` and
-[`.github/scripts/discovery-eval-admit.mjs`](../../.github/scripts/discovery-eval-admit.mjs)'s
+[`.github/scripts/discovery-eval-admit.mjs`](../../../.github/scripts/discovery-eval-admit.mjs)'s
 fixture-wide check project each case at the ceiling for **the mode that
 dispatch will actually run it in** ([`src/plan.mjs`](./src/plan.mjs)'s
 `planFor`), never the mode the case merely declares — a case declaring a
@@ -268,10 +268,10 @@ a bare measurement never becomes the projection for a situated one — see
 `discovery-eval-admit.mjs`, which filter a case's history to the mode being
 projected before it ever reaches `admitCase`.
 
-## What `tools/lib` holds, and what stays here
+## What `tools/evaluation/lib` holds, and what stays here
 
-`tools/lib/credentials.mjs`, `tools/lib/mock-workspace.mjs` and
-`tools/lib/transcript/` are shared because they are shaped by the operating
+`tools/evaluation/lib/credentials.mjs`, `tools/evaluation/lib/mock-workspace.mjs` and
+`tools/evaluation/lib/transcript/` are shared because they are shaped by the operating
 system, the CLI's `stream-json` format, and materializing a mock project —
 none of which either evaluation owns. The own/colliding/foreign loaded-skill
 classification (`src/isolation.mjs`) does **not** move there: the effect side

@@ -73,7 +73,7 @@ either a rule people route around or a warning people stop reading.
 
 ### The discovery evaluation, as a reporting tool
 
-`tools/discovery-eval/evaluate.mjs` answers "does a prompt actually surface the
+`tools/evaluation/discovery/evaluate.mjs` answers "does a prompt actually surface the
 right skills?" — the first check here that measured a skill outcome rather
 than a textual property. It cannot gate for three independent reasons: it is
 non-deterministic, it costs real money per probe, and it needs a secret that

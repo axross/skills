@@ -2,7 +2,7 @@
 
 What the skill discovery evaluation has measured, and the declared cases it
 measures. The instrument that writes all of this lives in
-[`tools/discovery-eval/`](../../tools/discovery-eval/README.md).
+[`tools/evaluation/discovery/`](../../discovery/README.md).
 
 ## Three kinds of file, three rules
 
@@ -21,7 +21,7 @@ value treated as derived is one something will cheerfully regenerate as
 empty.
 
 ```text
-data/discovery-eval/
+tools/evaluation/data/discovery/
   fixture.json                  declared — the cases
   summary.json                  derived — one entry per measurement, across all of them
   measurements/
@@ -36,13 +36,13 @@ data/discovery-eval/
 are not a series — so an index would imply one; a random id implies none.
 
 No `changes.patch` appears under a probe directory. A discovery probe's tools
-are always `Read`, `Glob`, `Grep` and `Skill` at most (`tools/discovery-eval`'s
+are always `Read`, `Glob`, `Grep` and `Skill` at most (`tools/evaluation/discovery`'s
 own README has the full posture), so a probe never edits the workspace and
 produces no artifact to capture.
 
 ## There is no baseline
 
-[`tools/discovery-eval/summarize.mjs`](../../tools/discovery-eval/summarize.mjs)
+[`tools/evaluation/discovery/summarize.mjs`](../../discovery/summarize.mjs)
 derives `summary.json` across every directory under `measurements/` and
 regenerates it from that directory alone — nothing here is a stored
 conclusion a later run is compared against. With no measurements present the
@@ -63,8 +63,8 @@ reports the condition that made none comparable rather than a delta.
 ## Regenerating, and the drift check
 
 ```sh
-node tools/discovery-eval/summarize.mjs           # derive and write every summary
-node tools/discovery-eval/summarize.mjs --check   # derive and compare; write nothing
+node tools/evaluation/discovery/summarize.mjs           # derive and write every summary
+node tools/evaluation/discovery/summarize.mjs --check   # derive and compare; write nothing
 ```
 
 `--check` is the drift check. It runs in this repository's test suite over
@@ -73,15 +73,16 @@ root one) from the measured and declared files beside it and failing on any
 byte difference.
 
 Both derived surfaces are covered by `.prettierignore`'s generic
-`data/*/summary.json` and `data/*/measurements/**` entries — the bytes come
-from exactly one serializer (`tools/discovery-eval/src/layout.mjs`'s
+`tools/evaluation/data/*/summary.json` and
+`tools/evaluation/data/*/measurements/**` entries — the bytes come from
+exactly one serializer (`tools/evaluation/discovery/src/layout.mjs`'s
 `canonicalJson`), and a second formatter with an opinion about them would make
 the drift check fail against a file this instrument never wrote.
 
 ## `capUsd` and `unmeasuredProbeCostCeilingUsd`
 
 Both bound spending, and they bound different things — the same split
-[`data/effect-eval/README.md`](../effect-eval/README.md) documents for its own
+[`tools/evaluation/data/effect/README.md`](../effect/README.md) documents for its own
 instrument. `capUsd` is a case's real budget: a dispatch may lower it and may
 not raise it, because the fixture is reviewed and committed where a dispatch
 input is typed into a form. `unmeasuredProbeCostCeilingUsd` is not a budget at
@@ -106,13 +107,13 @@ measurements, per mode, per "Superseding is per mode too" below. The bare
 figure's shortfall did not cost anything here — the whole fixture still
 admitted comfortably under its cap either way — but it is a defect in the
 declared number's direction, not a rounding difference: a ceiling that sits
-below the true cost is the "Money leaves" row `data/effect-eval/README.md`'s
+below the true cost is the "Money leaves" row `tools/evaluation/data/effect/README.md`'s
 own ceiling table names, and the discovery fixture's declared `0.05` was in
 that row for the entire run that measured it. The situated figure had no such
 problem.
 
 Admission projects each case at the ceiling for **the mode that dispatch will
-actually run it in** ([`tools/discovery-eval/src/plan.mjs`](../../tools/discovery-eval/src/plan.mjs)'s
+actually run it in** ([`tools/evaluation/discovery/src/plan.mjs`](../../discovery/src/plan.mjs)'s
 `planFor`), never the mode the case merely declares. A case declaring a `mock`
 runs bare under `--head-skills` regardless — a head dispatch forces every case
 bare — so it is projected at the bare figure, not the situated one. Projecting
@@ -164,8 +165,8 @@ all and 35 did. Its 3 unreadable probes are all bare: each spent its single
 permitted turn on `ToolSearch` rather than `Skill`, so no selection exists on
 the tape to recover. What that 42, and the 22 `MISS` verdicts alongside it,
 does and does not mean is
-[`docs/specs/skill-evaluation.md`](../../docs/specs/skill-evaluation.md)'s to
-say; this file only reports what ran.
+[`docs/specs/skill-evaluation.md`](../../../../docs/specs/skill-evaluation.md)'s
+to say; this file only reports what ran.
 
 **Round two re-measured the 6 bare cases** under the runtime
 [#345](https://github.com/axross/skills/pull/345) introduced — a 2-turn cap
@@ -203,7 +204,7 @@ One case, `write-the-commit-message-for-this-change`, has a round-one
 measurement with zero readable probes: every tracked skill there reports
 `unevidenced` rather than `miss`, because `verdictFor` answers "no evidence"
 before it ever reaches the `mustInclude`/`mustExclude` rule — see
-[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md)'s
+[`tools/evaluation/discovery/README.md`](../../discovery/README.md)'s
 "Verdicts, unchanged".
 
 **`living-product-specification` no longer names a skill in this corpus.**

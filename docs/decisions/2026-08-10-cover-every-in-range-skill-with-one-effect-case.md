@@ -37,7 +37,7 @@ that the question was never put rather than settled.
 ## The decision
 
 **One case per in-range skill, and one negative control.**
-[`data/effect-eval/coverage.md`](../../data/effect-eval/coverage.md) enumerates the out-of-range skills under the spec's three groups; every other installed skill gets exactly one case in [`data/effect-eval/fixture.json`](../../data/effect-eval/fixture.json), and one more case beyond that is a declared negative control — bringing the fixture to <!-- count:effect-eval-case-count -->twenty-one<!-- /count --> cases in total.
+[`tools/evaluation/data/effect/coverage.md`](../../tools/evaluation/data/effect/coverage.md) enumerates the out-of-range skills under the spec's three groups; every other installed skill gets exactly one case in [`tools/evaluation/data/effect/fixture.json`](../../tools/evaluation/data/effect/fixture.json), and one more case beyond that is a declared negative control — bringing the fixture to <!-- count:effect-eval-case-count -->twenty-one<!-- /count --> cases in total.
 
 The case set is written to span the spectrum a residue-sizing measurement
 needs, not just to name every skill once. The mechanical end — `unit-testing`,
@@ -67,19 +67,19 @@ would make the control's own premise expire out from under it.
 
 **A case whose prompt is symptom-shaped and whose mock ships that part sound
 declares a patch.** Three do:
-[`fix-a-minified-production-stack-trace`](../../data/effect-eval/patches/fix-a-minified-production-stack-trace.patch)
+[`fix-a-minified-production-stack-trace`](../../tools/evaluation/data/effect/patches/fix-a-minified-production-stack-trace.patch)
 flips a `sourcemap` option the same way the discovery fixture's own patch of
 the same shape does;
-[`remove-config-options-the-test-runner-ignores`](../../data/effect-eval/patches/remove-config-options-the-test-runner-ignores.patch)
+[`remove-config-options-the-test-runner-ignores`](../../tools/evaluation/data/effect/patches/remove-config-options-the-test-runner-ignores.patch)
 adds a `deps.optimizer` block Vitest 4 no longer reads; and
-[`migrate-a-card-id-helper-to-an-esm-only-package`](../../data/effect-eval/patches/migrate-a-card-id-helper-to-an-esm-only-package.patch)
+[`migrate-a-card-id-helper-to-an-esm-only-package`](../../tools/evaluation/data/effect/patches/migrate-a-card-id-helper-to-an-esm-only-package.patch)
 switches `recall`'s hand-rolled card-id generator for an ESM-only package,
 which is the one patch here that also touches `package.json` and
 `package-lock.json` rather than only source and config — the honest cost of
 reproducing "a dependency that breaks the suite's transform" without
 inventing a defect the project would not otherwise have. Every other case uses
 a gap the mock genuinely has, several of them already named in
-[`mocks/README.md`](../../mocks/README.md)'s own "choices made for coverage"
+[`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s own "choices made for coverage"
 lists; no mock is modified by this change.
 
 ## What was rejected
@@ -105,7 +105,7 @@ completeness check still has teeth, because it parses the Markdown rather than
 trusting it.
 
 **Wiring `extractArtifact` into the derived layer as part of this change.**
-Rejected: it would move `data/effect-eval/summary.json`, and there is no case
+Rejected: it would move `tools/evaluation/data/effect/summary.json`, and there is no case
 yet whose reading it would improve — of the whole fixture, only one case is
 "add tests to a module". `extractArtifact`'s two defaults are gone and both inputs
 are now required rather than assumed, but connecting it to what
@@ -132,7 +132,7 @@ costs nothing to write and leaves the axis with no measured floor at all.
 
 ## What it costs
 
-No dollar total is stated here on purpose — `node tools/effect-eval/evaluate.mjs
+No dollar total is stated here on purpose — `node tools/evaluation/effect/evaluate.mjs
 --dry-run` prints the current per-case and whole-fixture projection over the
 committed fixture, and that command is the number to trust rather than a
 figure that could go stale beside it. Every case's `capUsd` and

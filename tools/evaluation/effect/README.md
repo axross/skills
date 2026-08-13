@@ -4,7 +4,7 @@ Measures whether an installed skill changes what a model does during real work,
 by running the same task twice under two conditions — **skill-absent** and
 **skill-present** — and storing everything each run produced. It measures; it
 never judges. The measurements it writes live in
-[`data/effect-eval/`](../../data/effect-eval/README.md).
+[`tools/evaluation/data/effect/`](../data/effect/README.md).
 
 ## It never gates
 
@@ -19,7 +19,7 @@ as its only trigger and gives its probe job no write permission. Wiring any of
 that differently breaks a test first.
 
 What `npm test` _does_ run is the drift check over
-[`data/effect-eval/`](../../data/effect-eval/README.md) — a deterministic
+[`tools/evaluation/data/effect/`](../data/effect/README.md) — a deterministic
 re-derivation from committed files, offline, with no model call. That is a check
 on the instrument's own bookkeeping, not on the measurement's verdict, and it is
 the one thing here that can legitimately fail a merge.
@@ -32,9 +32,9 @@ request](#the-measurement-pull-request-is-checked-by-the-dispatch) below.
 ## Three entry points, one verb each
 
 ```sh
-node tools/effect-eval/setup.mjs     --mock tsuzuri --skill unit-testing --install
-node tools/effect-eval/evaluate.mjs  --workspace <dir> --case <id> --condition skill-present --out <dir>
-node tools/effect-eval/summarize.mjs --check
+node tools/evaluation/effect/setup.mjs     --mock tsuzuri --skill unit-testing --install
+node tools/evaluation/effect/evaluate.mjs  --workspace <dir> --case <id> --condition skill-present --out <dir>
+node tools/evaluation/effect/summarize.mjs --check
 ```
 
 | Command         | Does                                                                                                                                                  |
@@ -114,8 +114,9 @@ itself, before it commits: the drift check, the comparability checks, and
 
 That division is declared rather than inherited. `merge-checks.yaml` excludes
 this pull request at its trigger, by **path**: one whose changed files are all
-under `data/*/measurements/**` or `data/*/summary.json` carries measurement data
-and no code, so the gate workflow does not start.
+under `tools/evaluation/data/*/measurements/**` or
+`tools/evaluation/data/*/summary.json` carries measurement data and no code,
+so the gate workflow does not start.
 
 By path rather than by branch name for two reasons. GitHub cannot do it by
 branch name at all — `branches` on a `pull_request` trigger filters the _base_
@@ -132,7 +133,7 @@ request itself, and what sits in it has already been checked once.
 
 ## Credentials
 
-[`tools/lib/credentials.mjs`](../lib/credentials.mjs) strips the environment
+[`tools/evaluation/lib/credentials.mjs`](../lib/credentials.mjs) strips the environment
 going in and redacts the transcript coming out — one requirement's two faces,
 and previously two separate implementations of the first half alone.
 
@@ -198,7 +199,7 @@ mock fixture and its own installed skills, and whether the model _invokes_ a
 skill during real work — reading the project, writing a file, running its
 commands — is exactly what is being measured.
 
-That difference is also where the shared layer stops. `tools/lib` holds only
+That difference is also where the shared layer stops. `tools/evaluation/lib` holds only
 what is shaped outside either evaluation's question — the CLI's `stream-json`
 format, the requirement to keep a credential out of a subprocess and out of a
 stored file, and expanding a mock project into a Git workspace, which decides
@@ -211,10 +212,11 @@ what its fingerprint covers, what a measurement directory holds — stays with i
 A mock ships **sound**. Where a case's prompt is symptom-shaped — it describes a
 defect rather than a task — the defect arrives as a unified diff that case
 declares, applied while the workspace is materialized and before the recorded
-history is replayed over it. `mocks/README.md` states the principle and
-[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
+history is replayed over it. `tools/evaluation/mocks/README.md` states the
+principle and
+[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
 records what it beat.
 
 A case declares one as `patch` in
-[`data/effect-eval/fixture.json`](../../data/effect-eval/fixture.json), the probe
-plan resolves it, and `setup.mjs --patch` applies it. Today <!-- count:effect-eval-patched-case-count -->three<!-- /count --> cases in that fixture declare one — see [`data/effect-eval/README.md`](../../data/effect-eval/README.md)'s `patch` section for the rule and [`data/effect-eval/patches/`](../../data/effect-eval/patches) for the diffs themselves. What holds the mechanism honest is `npm test`: every declared patch is applied against its mock offline, so a patch that stopped fitting fails there rather than in a dispatch that has already spent money reaching it.
+[`tools/evaluation/data/effect/fixture.json`](../data/effect/fixture.json), the probe
+plan resolves it, and `setup.mjs --patch` applies it. Today <!-- count:effect-eval-patched-case-count -->three<!-- /count --> cases in that fixture declare one — see [`tools/evaluation/data/effect/README.md`](../data/effect/README.md)'s `patch` section for the rule and [`tools/evaluation/data/effect/patches/`](../data/effect/patches) for the diffs themselves. What holds the mechanism honest is `npm test`: every declared patch is applied against its mock offline, so a patch that stopped fitting fails there rather than in a dispatch that has already spent money reaching it.

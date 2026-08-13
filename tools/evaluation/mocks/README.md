@@ -2,20 +2,20 @@
 
 Fixtures for the skill evaluations. Each subdirectory is a small,
 self-contained project that
-[`tools/effect-eval/setup.mjs`](../tools/effect-eval/setup.mjs) expands into an
+[`tools/evaluation/effect/setup.mjs`](../effect/setup.mjs) expands into an
 isolated temporary directory as a real Git repository, with a chosen set of
 skills installed, so a probe can give a model a task inside one.
 
-They live at the repository root rather than under either evaluation, because
-they belong to neither: the skill effect evaluation measures against them
-today, and [#238](https://github.com/axross/skills/issues/238) situates the
-discovery evaluation over the same fixtures.
+They live under `tools/evaluation/` rather than under either evaluation,
+because they belong to neither: the skill effect evaluation measures against
+them today, and [#238](https://github.com/axross/skills/issues/238) situates
+the discovery evaluation over the same fixtures.
 
 They carry their own formatter, linter, and test runner. That is not tidiness:
 a skill whose effect is running the project's checks cannot be measured at all
 where those commands do not exist. It is also what keeps a mock honest, since
 this repository's own format, lint, and link gates deliberately exclude
-`mocks/`.
+`tools/evaluation/mocks/`.
 
 ## Why this file is here and not inside a mock
 
@@ -23,8 +23,8 @@ Everything under a mock's own directory is copied into the workspace the model
 works in, so a model reads it. A note explaining that the project is an
 experiment would tell it so — and a model that knows it is being measured is
 not measuring what we wanted. This file sits one level up, where
-[`tools/lib/mock-workspace.mjs`](../tools/lib/mock-workspace.mjs) never copies
-from.
+[`tools/evaluation/lib/mock-workspace.mjs`](../lib/mock-workspace.mjs) never
+copies from.
 
 ## A mock is a genuine project
 
@@ -32,12 +32,12 @@ Nothing inside a mock is bent to fit a case. Its **stack and structure are
 chosen** with skill and case coverage in mind — that is what makes it useful —
 but anything a case needs that the project would not naturally have arrives as
 **that case's patch**: a unified diff the case declares, applied by
-[`tools/lib/mock-workspace.mjs`](../tools/lib/mock-workspace.mjs) after the mock
-is copied and **before** its history is replayed, so the workspace a model sees
-is clean and its history unremarkable. A patch that changes the file set
-maintains `history.jsonc` itself. The reasoning, and the alternatives it beat,
-are in
-[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
+[`tools/evaluation/lib/mock-workspace.mjs`](../lib/mock-workspace.mjs) after
+the mock is copied and **before** its history is replayed, so the workspace a
+model sees is clean and its history unremarkable. A patch that changes the
+file set maintains `history.jsonc` itself. The reasoning, and the
+alternatives it beat, are in
+[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
 
 The test for any candidate flaw is: _would a competent developer of this
 project have done it this way, for their own reasons?_ A realistic project has
