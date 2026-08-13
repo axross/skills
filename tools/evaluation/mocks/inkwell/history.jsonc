@@ -1,5 +1,5 @@
-// history.jsonc — the commit history tools/lib/mock-workspace.mjs replays
-// into a real Git repository when it expands this mock.
+// history.jsonc — the commit history tools/evaluation/lib/mock-workspace.mjs
+// replays into a real Git repository when it expands this mock.
 //
 // This file is fixture metadata, not part of the project: mock-workspace.mjs
 // omits it from the materialized tree, and nothing under src/, server/, or

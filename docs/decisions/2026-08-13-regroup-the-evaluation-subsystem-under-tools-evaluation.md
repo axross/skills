@@ -30,8 +30,7 @@ is provable on its own before anything about the pipeline changes.
 path-reference-only update to every importer, test, workflow, and piece of
 prose that named the old locations.**
 
-The resulting tree is in
-[`docs/conventions/directory-structure.md`](../conventions/directory-structure.md).
+The resulting tree is in `docs/conventions/directory-structure.md`.
 
 This supersedes `tools/evaluation/mocks/README.md`'s own stated rationale for
 where the mocks lived: that file used to say they sat "at the repository
@@ -82,10 +81,4 @@ siblings for now; a later record will cover the collapse when it lands.
 Every importer, every CI workflow step, every test that resolves a
 repository-relative path, and every piece of prose naming the old locations
 needed a matching edit — a wide diff for a change that alters nothing
-measured. Two files inside the moved mock fixtures still name the old
-`tools/lib` path in a comment (`tools/evaluation/mocks/inkwell/history.jsonc`
-and `.../recall/history.jsonc`): left as committed rather than edited,
-because the mocks are self-contained fixtures outside this repository's own
-gates, and touching their content for a cosmetic comment fix would be a
-content edit to something this step's own protected surfaces say to move
-without reformatting.
+measured.
