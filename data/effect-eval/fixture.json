@@ -184,7 +184,7 @@
       "capUsd": 40,
       "unmeasuredProbeCostCeilingUsd": 6,
       "task": {
-        "prompt": "Several screens each pull the same thing out of the address bar the same way, and each spells out its own loading and error branches. Where should that live?"
+        "prompt": "Several screens each pull the same thing out of the address bar the same way, and each spells out its own loading and error branches. Pull that into one place."
       },
       "prediction": "Whether a new shared hook or component appears, and how many of Layout, PostListPage, and PostEditorPage now import it instead of repeating useParams(...) ?? \"\" or their own isPending/isError branches, is countable straight off the changed files. What a deterministic reading cannot judge is whether the extraction actually improved the three call sites or just moved the repetition one level up — whether the shared version still lets each screen customize its own loading and error copy the way the originals did — which needs the call sites read for what they lost, not only what they now share."
     },
@@ -232,7 +232,7 @@
       "capUsd": 40,
       "unmeasuredProbeCostCeilingUsd": 6,
       "task": {
-        "prompt": "The language-matching logic has grown a handful of helpers and I can't hold the whole thing in my head any more."
+        "prompt": "The language-matching logic has grown a handful of helpers and I can't hold the whole thing in my head any more. Tidy it up."
       },
       "prediction": "Whether the number of exported functions in resolve-translation.ts changes, and whether call sites elsewhere in the diff still import the same names, are both countable. Almost everything that actually matters here is not: whether the restructuring genuinely reduces how much a reader has to hold at once, whether the resolution order (exact, then language, then default) stayed correct through the change, and whether the new shape is actually easier to follow rather than merely different — none of that is a presence or absence a deterministic reading can register, which is why this case sits near the unreachable end of the spectrum rather than the reachable one."
     },
