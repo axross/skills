@@ -70,6 +70,17 @@ the discovery evaluation found 42 of its 77 readable probes selecting no
 skill at all, and 22 of its cases report a `MISS`
 ([`data/discovery-eval/README.md`](../../data/discovery-eval/README.md)).
 
+**Those two numbers are not the same failure, and the `MISS` count is not
+homogeneous.** Of the 21 situated cases carrying one, 14 selected nothing at
+all; 4 routed to a skill the case does not require —
+`say-what-you-do-not-know-before-answering` reached for
+`next-app-development` over `professional-behavior`, and
+`decide-where-a-rollback-procedure-is-written-down` for the very skill its
+case excludes; and 3 found one of two required skills and missed the other.
+What follows is about the first and largest kind. Whether a routing that went
+somewhere else has the same cause as one that never happened is a separate
+question, and this measurement does not answer it.
+
 The obvious reading of that number is that the descriptions need better
 keywords. The evidence refutes it directly: `high-fidelity-ui-design`'s
 `description` already contains the phrase "real colors, type, spacing, and
@@ -103,7 +114,10 @@ need it to actually look like the rest of the app." — scored 0/6. The
 vocabulary-matched wording — "We've settled what goes on the screen for
 changing a card that already exists, and in what order. Now I need the real
 colours, type and spacing on it, and the states it can be in." — scored 6/6.
-Two-sided Fisher exact: p = 0.0022.
+Two-sided Fisher exact: p = 0.0022. Worth stating plainly: round one never
+selected `high-fidelity-ui-design` at all, in either of the two cases that
+track it, so those six are the first selections of that skill any measurement
+here has recorded — and a wording change is the whole of what produced them.
 
 `stop-two-sites-sharing-one-cached-list`, which tracks
 `tanstack-query-development`: the declared wording — "Switching from one
