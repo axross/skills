@@ -25,14 +25,14 @@ cases were counted per skill. The effect fixture was in that same pre-rebuild
 state, at n=1.
 
 The effect axis carries a bound the discovery axis does not.
-`docs/specs/skill-evaluation.md`'s "The effect
-axis cannot observe every skill" names three groups a mock-and-task probe has
-nothing to measure: a skill whose surface is not the working tree, a skill
-whose effect is a judgement rather than an artifact, and a skill needing a
-stack no mock installs. "Cover every skill" is therefore the wrong target
-here — an out-of-range skill's two conditions agree by construction, which
-reads exactly like a skill that changed nothing, and the correct reading is
-that the question was never put rather than settled.
+`docs/specs/skill-evaluation.md`'s "The effect axis cannot observe every skill"
+names three groups a mock-and-task probe has nothing to measure: a skill whose
+surface is not the working tree, a skill whose effect is a judgement rather
+than an artifact, and a skill needing a stack no mock installs. "Cover every
+skill" is therefore the wrong target here — an out-of-range skill's two
+conditions agree by construction, which reads exactly like a skill that changed
+nothing, and the correct reading is that the question was never put rather than
+settled.
 
 ## The decision
 
@@ -66,21 +66,20 @@ want of a mock stops being out of range the moment somebody adds one, which
 would make the control's own premise expire out from under it.
 
 **A case whose prompt is symptom-shaped and whose mock ships that part sound
-declares a patch.** Three do:
-`fix-a-minified-production-stack-trace`
-flips a `sourcemap` option the same way the discovery fixture's own patch of
-the same shape does;
-`remove-config-options-the-test-runner-ignores`
-adds a `deps.optimizer` block Vitest 4 no longer reads; and
-`migrate-a-card-id-helper-to-an-esm-only-package`
+declares a patch.** Three do, as `.patch` files under
+`tools/evaluation/data/effect/patches/`:
+`fix-a-minified-production-stack-trace` flips a `sourcemap` option the same way
+the discovery fixture's own patch of the same shape does;
+`remove-config-options-the-test-runner-ignores` adds a `deps.optimizer` block
+Vitest 4 no longer reads; and `migrate-a-card-id-helper-to-an-esm-only-package`
 switches `recall`'s hand-rolled card-id generator for an ESM-only package,
 which is the one patch here that also touches `package.json` and
 `package-lock.json` rather than only source and config — the honest cost of
-reproducing "a dependency that breaks the suite's transform" without
-inventing a defect the project would not otherwise have. Every other case uses
-a gap the mock genuinely has, several of them already named in
-`tools/evaluation/mocks/README.md`'s own "choices made for coverage"
-lists; no mock is modified by this change.
+reproducing "a dependency that breaks the suite's transform" without inventing
+a defect the project would not otherwise have. Every other case uses a gap the
+mock genuinely has, several of them already named in
+`tools/evaluation/mocks/README.md`'s own "choices made for coverage" lists; no
+mock is modified by this change.
 
 ## What was rejected
 
