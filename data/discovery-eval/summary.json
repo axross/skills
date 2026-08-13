@@ -1,6 +1,6 @@
 {
-  "measurementCount": 40,
-  "comparableCount": 40,
+  "measurementCount": 41,
+  "comparableCount": 41,
   "measurements": [
     {
       "measurement": "accept-a-page-number-from-a-url-70e19ac8",
@@ -1592,6 +1592,58 @@
       }
     },
     {
+      "measurement": "review-what-changed-on-this-branch-44d929f1",
+      "case": "review-what-changed-on-this-branch",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.23990029999999996,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (review-what-changed-on-this-branch-7d99d730) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
+      }
+    },
+    {
       "measurement": "review-what-changed-on-this-branch-7d99d730",
       "case": "review-what-changed-on-this-branch",
       "population": "discovered",
@@ -1639,7 +1691,7 @@
       "findings": [],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
       }
     },
     {
