@@ -124,6 +124,68 @@ describe("discovery-eval-admit.mjs", () => {
     });
   });
 
+  describe("safety property 6 — a prompt override records nothing either", () => {
+    it.each([
+      ["a situated case", CASE],
+      ["a bare case", BARE_CASE],
+    ])("resolves mode=override and records=false for a prompt naming %s", (_label, caseId) => {
+      const result = admit(["--case", caseId, "--prompt", "a maintainer's reworded prompt", "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("override");
+      expect(plan.records).toBe("false");
+    });
+
+    it("prices an override dispatch like a measurement one, never forced bare the way a head dispatch is", async () => {
+      const root = await tempDir();
+      await writeScratchFixture(root, {
+        capUsd: 1000,
+        // deliberately far apart, so a projection that used the wrong one is
+        // easy to tell from the right one.
+        unmeasuredProbeCostCeilingUsd: { situated: 99, bare: 0.05 },
+        cases: [{ id: "a-case", mock: "some-mock", repeats: 2 }], // declares situated
+      });
+      const result = admit(["--root", root, "--case", "a-case", "--prompt", "x", "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("override");
+      // priced at the situated ceiling — a head dispatch of the same case
+      // would price it at the (much smaller) bare one instead.
+      expect(plan["projected-usd"]).toBeCloseTo(2 * 99, 5);
+    });
+
+    it("refuses a prompt together with a pull request before any probe spawns", () => {
+      const result = admit([
+        "--case",
+        CASE,
+        "--pull-request",
+        "42",
+        "--prompt",
+        "x",
+        "--dry-run-input",
+        "false",
+      ]);
+      expect(result.code).toBe(2);
+      expect(result.output).toMatch(/--pull-request and --prompt cannot both be given/);
+    });
+
+    it("admits an override run against a case with no committed measurement, pricing it from the declared ceiling", async () => {
+      const root = await tempDir();
+      await writeScratchFixture(root, {
+        capUsd: 1000,
+        unmeasuredProbeCostCeilingUsd: { situated: 0.35, bare: 99 },
+        cases: [{ id: "never-measured", mock: "some-mock", repeats: 2 }],
+      });
+      // no summary.json at all in this scratch root — no committed
+      // measurement of this case exists in either mode.
+      const result = admit(["--root", root, "--case", "never-measured", "--prompt", "x", "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("override");
+      expect(plan["projected-usd"]).toBeCloseTo(2 * 0.35, 5);
+    });
+  });
+
   it("refuses a case the fixture does not declare", () => {
     const result = admit(["--case", "no-such-case", "--dry-run-input", "false"]);
     expect(result.code).toBe(2);
@@ -339,6 +401,7 @@ describe("discovery-eval-probe-plan.mjs", () => {
     expect(plan.measurementDir).toMatch(new RegExp(`^${CASE}-[0-9a-f]{8}$`));
     expect(plan.args).toEqual(["--case", CASE]);
     expect(plan.headSkillsNeeded).toBe(false);
+    expect(plan.promptNeeded).toBe(false);
   });
 
   it("two resolutions of the same case get two different measurement directories", () => {
@@ -366,13 +429,13 @@ describe("discovery-eval-probe-plan.mjs", () => {
       expect(plan.headSkillsNeeded).toBe(true);
     });
 
-    it("never emits --out or --head-skills itself in either mode — the workflow adds those", () => {
-      for (const pullRequest of [null, "7"]) {
-        const args = pullRequest ? ["--pull-request", pullRequest] : [];
-        const result = probePlan(["--case", CASE, "--dry-run-input", "false", ...args]);
+    it("never emits --out, --head-skills or --prompt itself in any mode — the workflow adds those", () => {
+      for (const extra of [[], ["--pull-request", "7"], ["--prompt", "reworded"]]) {
+        const result = probePlan(["--case", CASE, "--dry-run-input", "false", ...extra]);
         const plan = JSON.parse(result.stdout);
         expect(plan.args).not.toContain("--out");
         expect(plan.args).not.toContain("--head-skills");
+        expect(plan.args).not.toContain("--prompt");
       }
     });
 
@@ -380,6 +443,36 @@ describe("discovery-eval-probe-plan.mjs", () => {
       const result = probePlan(["--case", CASE, "--pull-request", "not-a-number", "--dry-run-input", "false"]);
       expect(result.code).toBe(2);
       expect(result.output).toMatch(/--pull-request must be empty or a positive integer/);
+    });
+  });
+
+  describe("safety property 6 — a prompt override records nothing either", () => {
+    it.each([
+      ["a situated case", CASE],
+      ["a bare case", BARE_CASE],
+    ])("resolves measurementDir=null and promptNeeded=true for a prompt naming %s", (_label, caseId) => {
+      const result = probePlan(["--case", caseId, "--prompt", "reworded", "--dry-run-input", "false"]);
+      expect(result.code, result.output).toBe(0);
+      const plan = JSON.parse(result.stdout);
+      expect(plan.mode).toBe("override");
+      expect(plan.measurementDir).toBeNull();
+      expect(plan.promptNeeded).toBe(true);
+      expect(plan.headSkillsNeeded).toBe(false);
+    });
+
+    it("refuses a prompt together with a pull request", () => {
+      const result = probePlan([
+        "--case",
+        CASE,
+        "--pull-request",
+        "7",
+        "--prompt",
+        "reworded",
+        "--dry-run-input",
+        "false",
+      ]);
+      expect(result.code).toBe(2);
+      expect(result.output).toMatch(/--pull-request and --prompt cannot both be given/);
     });
   });
 

@@ -528,13 +528,13 @@ describe("the discovery evaluation's own workflow", () => {
     }
   });
 
-  it("declares exactly the four documented dispatch inputs, all optional", async () => {
+  it("declares exactly the five documented dispatch inputs, all optional", async () => {
     const yaml = await readWorkflow();
     const inputs = blockUnder(yaml, "    inputs:");
     expect(inputs, `${WORKFLOW} declares no inputs: block under workflow_dispatch`).not.toBeNull();
     const names = [...inputs.matchAll(/^ {6}([a-z_]+):$/gm)].map(([, name]) => name);
-    expect(names).toEqual(["case", "repeats", "pull_request", "dry_run"]);
-    // every one of the four is optional — none blocks an ordinary dispatch.
+    expect(names).toEqual(["case", "repeats", "pull_request", "prompt", "dry_run"]);
+    // every one of the five is optional — none blocks an ordinary dispatch.
     expect(inputs).not.toMatch(/required: true/);
   });
 
@@ -627,17 +627,21 @@ describe("the discovery evaluation's own workflow", () => {
     it("passes --head-skills, never --out, on the probe job's head-mode branch", async () => {
       const probe = directivesOnly(blockUnder(await readWorkflow(), "  probe:"));
       const headBranchStart = probe.indexOf('if [ "${mode}" = "head" ]; then');
-      const headBranchEnd = probe.indexOf("          else", headBranchStart);
+      const headBranchEnd = probe.indexOf('elif [ "${mode}" = "override" ]; then', headBranchStart);
       expect(headBranchStart, "the probe step never branches on mode at all").toBeGreaterThan(-1);
-      expect(headBranchEnd, "the head-mode branch has no else — every case would run head").toBeGreaterThan(
-        headBranchStart,
-      );
+      expect(
+        headBranchEnd,
+        "the head-mode branch has no elif for override mode right after it",
+      ).toBeGreaterThan(headBranchStart);
       const headBranch = probe.slice(headBranchStart, headBranchEnd);
       expect(headBranch, "the head-mode branch never stages head skills").toContain("--head-skills");
       expect(
         headBranch,
         "the head-mode branch passes --out, which would ask evaluate.mjs to record a measurement",
       ).not.toContain("--out");
+      expect(headBranch, "the head-mode branch passes --prompt, a different threat model").not.toContain(
+        "--prompt",
+      );
     });
 
     it("refuses a malformed pull_request reference through admit rather than reading it loosely", async () => {
@@ -646,6 +650,83 @@ describe("the discovery evaluation's own workflow", () => {
         admitStep,
         "admit passes --pull-request straight through to the admit script, which parses and refuses it",
       ).toContain('args+=(--pull-request "${PR_NUMBER}")');
+    });
+  });
+
+  describe("safety property 6 — a prompt-override dispatch stays situated and records nothing", () => {
+    it("gates the land job on admit's own records output, which a prompt override sets false too", async () => {
+      // the same records-based gate property 5 tests, restated here because
+      // this is the property that makes an override run's inability to reach
+      // land structural rather than a second, independent claim: `admit`
+      // sets records = mode === "measurement" and nothing else decides it, so
+      // "override" is refused by the same reading "head" is.
+      const land = blockUnder(await readWorkflow(), "  land:");
+      expect(land).toMatch(/needs\.admit\.outputs\.records == 'true'/);
+    });
+
+    it("never routes an override dispatch into the report job, which is scoped to head only", async () => {
+      const report = blockUnder(await readWorkflow(), "  report:");
+      expect(
+        report,
+        "report's if: reads something other than mode == 'head', so an override dispatch could reach it too",
+      ).toMatch(/needs\.admit\.outputs\.mode == 'head'/);
+      expect(directivesOnly(report), "report reads an override-shaped condition").not.toMatch(/mode == 'override'/);
+    });
+
+    it("passes --prompt, never --out or --head-skills, on the probe job's override-mode branch", async () => {
+      const probe = directivesOnly(blockUnder(await readWorkflow(), "  probe:"));
+      const overrideBranchStart = probe.indexOf('elif [ "${mode}" = "override" ]; then');
+      const overrideBranchEnd = probe.indexOf("          else", overrideBranchStart);
+      expect(overrideBranchStart, "the probe step never branches on override mode at all").toBeGreaterThan(-1);
+      expect(
+        overrideBranchEnd,
+        "the override-mode branch has no else — every case would run override",
+      ).toBeGreaterThan(overrideBranchStart);
+      const overrideBranch = probe.slice(overrideBranchStart, overrideBranchEnd);
+      expect(overrideBranch, "the override-mode branch never passes --prompt").toContain("--prompt");
+      expect(
+        overrideBranch,
+        "the override-mode branch passes --out, which would ask evaluate.mjs to record a measurement",
+      ).not.toContain("--out");
+      expect(
+        overrideBranch,
+        "the override-mode branch passes --head-skills, a different threat model",
+      ).not.toContain("--head-skills");
+    });
+
+    it("uploads the override records with 30-day retention, not the head report's 1", async () => {
+      const probe = await readWorkflow();
+      const uploadStart = probe.indexOf("Upload this case's override records");
+      expect(uploadStart, "no dedicated upload step for override records").toBeGreaterThan(-1);
+      const uploadStep = probe.slice(uploadStart, probe.indexOf("\n\n", uploadStart));
+      expect(uploadStep, "the override upload step is not gated on mode == 'override'").toContain(
+        "steps.run.outputs.mode == 'override'",
+      );
+      expect(uploadStep, "the override upload step does not retain for 30 days").toMatch(
+        /retention-days: 30/,
+      );
+    });
+
+    it("refuses a prompt together with a pull_request reference through admit rather than running any probe", async () => {
+      const admitStep = directivesOnly(blockUnder(await readWorkflow(), "  admit:"));
+      expect(
+        admitStep,
+        "admit passes --pull-request straight through to the admit script",
+      ).toContain('args+=(--pull-request "${PR_NUMBER}")');
+      expect(
+        admitStep,
+        "admit passes --prompt straight through to the admit script, which refuses the combination",
+      ).toContain('args+=(--prompt "${PROMPT}")');
+    });
+
+    it("gives an override dispatch its own concurrency group, distinct from a measurement dispatch of the same case", async () => {
+      const yaml = await readWorkflow();
+      const concurrency = blockUnder(yaml, "concurrency:");
+      expect(concurrency, `${WORKFLOW} declares no concurrency: block`).not.toBeNull();
+      expect(
+        concurrency,
+        "the concurrency group names no override-specific branch, so it collides with the measurement group",
+      ).toMatch(/format\('override-\{0\}',/);
     });
   });
 });

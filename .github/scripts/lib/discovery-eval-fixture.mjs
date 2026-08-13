@@ -124,3 +124,20 @@ export function parsePullRequestInput(value) {
   }
   return n;
 }
+
+/**
+ * the dispatch's `prompt` input: the literal override text, or `null` when
+ * absent.
+ *
+ * mirrors `parsePullRequestInput`'s "an unfilled workflow_dispatch input
+ * interpolates the empty string, and that means absent" convention, but
+ * there is no format to validate — a prompt is free text — so this never
+ * throws.
+ *
+ * @param {string|undefined} value
+ * @returns {string|null}
+ */
+export function parsePromptInput(value) {
+  if (value === undefined || value === "") return null;
+  return value;
+}

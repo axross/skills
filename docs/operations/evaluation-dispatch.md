@@ -11,7 +11,7 @@ why neither is a merge gate; this document covers how to run them.
 Run it in CI from the Actions tab by dispatching
 [`discovery-eval.yaml`](../../.github/workflows/discovery-eval.yaml) — the
 only workflow allowed to invoke it, and manual dispatch is its only trigger,
-so nothing a pull request does can start it or spend money. Four inputs, all
+so nothing a pull request does can start it or spend money. Five inputs, all
 optional:
 
 | Input          | Does                                                                                      |
@@ -19,12 +19,65 @@ optional:
 | `case`         | Runs one case rather than the whole fixture                                               |
 | `repeats`      | Overrides what a case declares                                                            |
 | `pull_request` | Evaluates that pull request's changed skills in the bare probe mode, posts a report there |
+| `prompt`       | Overrides `case`'s declared prompt, evaluated exactly as declared, uploads an artifact    |
 | `dry_run`      | Rehearses every step with no probe spawned                                                |
 
 A dispatch that names a pull request **records nothing** — it reports, because
 what it measured is routing on the prompt alone, and that is not comparable
-with a situated measurement. Every other dispatch lands its result through a
-pull request of its own.
+with a situated measurement. A dispatch that names a `prompt` **records
+nothing either** — see "Overriding a Case's Prompt" below. `pull_request` and
+`prompt` are refused together, before any probe spawns: they are two
+different threat models (untrusted head text vs. a maintainer's own text) and
+two different workspaces (forced bare vs. exactly what the case declares).
+Every other dispatch lands its result through a pull request of its own.
+
+## Overriding a Case's Prompt
+
+`prompt` reruns a declared case against different wording, without declaring
+a second case for it — the case's `mock`, `patch`,
+`mustInclude`/`mustExclude`/`mayInclude` tiers, repeat count and corpus stay
+exactly what the fixture declares, so the prompt is the only variable. It
+exists because declaring a near-duplicate case to test a wording collides
+with the coverage invariant in
+[`data/discovery-eval/README.md`](../../data/discovery-eval/README.md) — no
+skill named by more than two cases — and a twin case is exactly the
+near-duplicate shape that invariant removes.
+
+It never records. `evaluate.mjs --prompt` refuses `--out` outright, the same
+way `--head-skills` does (see
+[`tools/discovery-eval/README.md`](../../tools/discovery-eval/README.md)),
+and the dispatch uploads what it measured as an artifact — every probe's
+`metadata.json` and `transcript.jsonl`, retained 30 days rather than the head
+report's 1, because this is the only copy either file will ever have. It
+opens no pull request and cannot reach the landing job.
+
+**The use rule, stated before the mechanism existed so it binds before the
+first dispatch:**
+
+> A declared prompt may be revised to remove accidental ambiguity, phrasing no
+> real person would use, or a mismatch with the mock it runs against. It may
+> **not** be revised to move it toward a skill's `description` wording. A
+> prompt override exists to find out which of those a case suffers from — not
+> to make a case pass.
+
+**The comparability brake.** A case's prompt is part of the cross-measurement
+comparability key — `findComparablePredecessor`'s `predecessorMismatches` in
+[`tools/discovery-eval/src/summary.mjs`](../../tools/discovery-eval/src/summary.mjs)
+compares `case.prompt` between a new measurement and its most recent
+predecessor — so revising a _committed_ prompt orphans every measurement that
+case already has: none of them shares the new prompt, so none of them is a
+comparable predecessor any longer. Prompt churn costs measurement history,
+and that cost is why revising a committed prompt stays rare regardless of
+what an override run finds. A positive result from an override — wording
+closer to a skill's `description` genuinely changes the outcome — is
+knowledge about the model's routing; it is not, by itself, authorization to
+edit the fixture. Any prompt worth keeping becomes a declared prompt through
+an ordinary reviewed change, and is measured normally after that.
+
+Admission binds an override run exactly as it binds any other: projecting
+from the case's committed measurements where they exist, and from the
+fixture's declared per-mode ceiling where they do not — the same projection
+any case's first run gets, override or not.
 
 `npm test` re-derives every committed summary under `data/discovery-eval/` and
 fails on a mismatch, confirms every skill the fixture names still exists, and
