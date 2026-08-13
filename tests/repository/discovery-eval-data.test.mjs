@@ -36,15 +36,15 @@ import {
   caseIdOf,
   MEASUREMENTS_DIR,
   SUMMARY_FILE,
-} from "../../tools/discovery-eval/src/layout.mjs";
-import { deriveCaseSummary, deriveDelta } from "../../tools/discovery-eval/src/summary.mjs";
+} from "../../tools/evaluation/discovery/src/layout.mjs";
+import { deriveCaseSummary, deriveDelta } from "../../tools/evaluation/discovery/src/summary.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
-const DATA = repoPath("data/discovery-eval");
+const DATA = repoPath("tools/evaluation/data/discovery");
 const MEASUREMENTS = join(DATA, MEASUREMENTS_DIR);
 
 const readFixture = async () =>
-  JSON.parse(await readFile(repoPath("data/discovery-eval/fixture.json"), "utf8"));
+  JSON.parse(await readFile(repoPath("tools/evaluation/data/discovery/fixture.json"), "utf8"));
 
 /** every case measurement directory committed under `measurements/`, sorted. */
 async function measurementNames() {
@@ -189,13 +189,13 @@ describe("the discovery-eval fixture", () => {
       (await readFixture()).cases.filter((entry) => entry.patch).map((entry) => entry.patch),
     );
     const onDisk = new Set(
-      (await readdir(repoPath("data/discovery-eval/patches")))
+      (await readdir(repoPath("tools/evaluation/data/discovery/patches")))
         .filter((name) => name.endsWith(".patch"))
         .map((name) => `patches/${name}`),
     );
     expect(
       [...declared].filter((path) => !onDisk.has(path)).sort(),
-      "a case declares a patch that is not under data/discovery-eval/patches/ — materialization " +
+      "a case declares a patch that is not under tools/evaluation/data/discovery/patches/ — materialization " +
         "would fail mid-dispatch instead of here",
     ).toEqual([]);
     expect(
@@ -207,7 +207,7 @@ describe("the discovery-eval fixture", () => {
 
 describe("the derived layer", () => {
   // README.md states that `npm test` re-derives every committed summary under
-  // data/discovery-eval/ and fails on a mismatch. Until this block existed it
+  // tools/evaluation/data/discovery/ and fails on a mismatch. Until this block existed it
   // did not: the independent review on #318 found the claim standing on
   // nothing, invisible only because measurements/ is still empty. The effect
   // axis has carried the same property since #278 — offline over committed
@@ -261,7 +261,7 @@ describe("the derived layer", () => {
       expect(
         committed,
         `${name}/${SUMMARY_FILE} is not what its measured files derive — regenerate with ` +
-          "`node tools/discovery-eval/summarize.mjs` and commit the result",
+          "`node tools/evaluation/discovery/summarize.mjs` and commit the result",
       ).toBe(canonicalJson(summary));
     }
   });
@@ -277,7 +277,7 @@ describe("the derived layer", () => {
 
 describe("the fixture check's own teeth", () => {
   // a negative control, exercised against synthetic fixtures rather than the
-  // committed one: data/discovery-eval/fixture.json's content is settled
+  // committed one: tools/evaluation/data/discovery/fixture.json's content is settled
   // (#280's non-goals), so the demonstration that this check can fail lives
   // here instead of by editing and reverting the real file.
   const installed = new Set(["real-skill", "open-the-door"]);

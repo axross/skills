@@ -26,7 +26,7 @@ export const CHANGES_FILE = "changes.patch";
 export const SUMMARY_FILE = "summary.json";
 export const FIXTURE_FILE = "fixture.json";
 export const MEASUREMENTS_DIR = "measurements";
-export const DATA_ROOT = "data/effect-eval";
+export const DATA_ROOT = "tools/evaluation/data/effect";
 
 export function newId() {
   return randomBytes(4).toString("hex");

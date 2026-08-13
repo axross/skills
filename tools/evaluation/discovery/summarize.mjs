@@ -239,7 +239,7 @@ async function main() {
     process.stderr.write(
       `\n${drifted.length} derived file(s) drifted from their measured inputs:\n  ` +
         `${drifted.join("\n  ")}\n\n` +
-        "Regenerate with `node tools/discovery-eval/summarize.mjs` and commit the result.\n",
+        "Regenerate with `node tools/evaluation/discovery/summarize.mjs` and commit the result.\n",
     );
   }
 

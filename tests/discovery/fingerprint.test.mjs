@@ -1,5 +1,5 @@
 // digesting what a discovery probe ran against: the project tree, and —
-// separately, and NOT via tools/effect-eval's whole-tree skill digest —
+// separately, and NOT via tools/evaluation/effect's whole-tree skill digest —
 // each installed skill's `description` alone.
 
 import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
@@ -19,7 +19,7 @@ import {
   readInvocable,
   treeDigest,
   UNRECOGNISED,
-} from "../../tools/discovery-eval/src/fingerprint.mjs";
+} from "../../tools/evaluation/discovery/src/fingerprint.mjs";
 
 let root;
 

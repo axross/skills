@@ -30,7 +30,7 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
  * below is derived from it, so trimming a case moves the expectation with the
  * fixture instead of leaving a pinned figure to fail.
  */
-const fixture = JSON.parse(readFileSync(repoPath("data/discovery-eval/fixture.json"), "utf8"));
+const fixture = JSON.parse(readFileSync(repoPath("tools/evaluation/data/discovery/fixture.json"), "utf8"));
 
 // derived from the fixture for the same reason every projection below is: a
 // case id is prose that moves when the fixture is trimmed or a prompt is
@@ -275,7 +275,7 @@ describe("discovery-eval-admit.mjs", () => {
     // ceiling with a committed measurement per case per mode (see
     // admission.mjs's header), so a test that computes its expectation from
     // `fixture.unmeasuredProbeCostCeilingUsd` alone against the real root only
-    // holds while data/discovery-eval/measurements/ is empty — it breaks the
+    // holds while tools/evaluation/data/discovery/measurements/ is empty — it breaks the
     // moment a real measurement lands, and it breaks inside the job that just
     // spent the money the broken assertion then refuses to land. A scratch
     // fixture has no measurements/ to supersede anything, so these three keep

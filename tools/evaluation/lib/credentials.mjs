@@ -6,10 +6,11 @@
 // of the second: two chances to get one security property wrong, and no
 // implementation at all of the half that had not been thought of.
 //
-// it lives in tools/lib because the requirement is the operating system's and
-// the CLI's, not either evaluation's. a subprocess inherits its parent's
-// environment unless something stops it, and a stored transcript is bytes
-// someone will read later. neither fact changes when a second consumer arrives.
+// it lives in tools/evaluation/lib because the requirement is the operating
+// system's and the CLI's, not either evaluation's. a subprocess inherits its
+// parent's environment unless something stops it, and a stored transcript is
+// bytes someone will read later. neither fact changes when a second consumer
+// arrives.
 
 /**
  * a denylist by shape rather than an enumeration of known variables: a runner

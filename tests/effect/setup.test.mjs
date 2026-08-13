@@ -1,8 +1,8 @@
-// tools/effect-eval/setup.mjs, exercised as a real child process —
+// tools/evaluation/effect/setup.mjs, exercised as a real child process —
 // same convention as every other bundled validator (see
 // tests/helpers/run.mjs's header): importing it would run its own `main()`
 // and call `process.exit`. it is the interface every real caller uses to reach
-// tools/lib/mock-workspace.mjs, the workflow included, so the patch cases at
+// tools/evaluation/lib/mock-workspace.mjs, the workflow included, so the patch cases at
 // the bottom of this file drive the mechanism through it rather than around it.
 //
 // what is asserted here is exactly the acceptance bar this script exists to
@@ -18,7 +18,7 @@ import { dirname, join } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
 
-import { declaresPlaywright } from "../../tools/lib/mock-workspace.mjs";
+import { declaresPlaywright } from "../../tools/evaluation/lib/mock-workspace.mjs";
 import { tempDir } from "../helpers/fixtures.mjs";
 import { editHistory, patchFromMock, readMockHistory } from "../helpers/mock-patch.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
@@ -297,7 +297,7 @@ describe("setup.mjs", () => {
     expect(result).toPassCleanly();
 
     const materialized = await listFiles(workspace);
-    const shipped = (await listFiles(repoPath("mocks/tsuzuri"))).filter(
+    const shipped = (await listFiles(repoPath("tools/evaluation/mocks/tsuzuri"))).filter(
       (file) => file !== "history.jsonc" && !file.startsWith("node_modules/"),
     );
     expect(materialized).toEqual(shipped);
@@ -305,7 +305,7 @@ describe("setup.mjs", () => {
     for (const file of materialized) {
       const [got, want] = await Promise.all([
         readFile(join(workspace, file), "utf8"),
-        readFile(repoPath("mocks/tsuzuri", file), "utf8"),
+        readFile(repoPath("tools/evaluation/mocks/tsuzuri", file), "utf8"),
       ]);
       expect(got, `${file} differs from what the mock ships`).toBe(want);
     }
@@ -317,7 +317,8 @@ describe("setup.mjs", () => {
 });
 
 // a case whose prompt describes a defect needs that defect to be real, and the
-// mock must not be the thing that carries it — see mocks/README.md and
+// mock must not be the thing that carries it — see
+// tools/evaluation/mocks/README.md and
 // docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md.
 // every patch below is generated from the real mock at test time rather than
 // committed; tests/helpers/mock-patch.mjs says why.

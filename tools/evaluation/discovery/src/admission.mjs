@@ -1,5 +1,5 @@
 // the budget guard, as one decision before the spend — mirrors
-// tools/effect-eval/src/admission.mjs's shape, which is not specific to
+// tools/evaluation/effect/src/admission.mjs's shape, which is not specific to
 // either evaluation: projecting from committed measurements where they exist
 // and from a declared ceiling where they do not, and refusing before any
 // probe is spawned rather than after.
@@ -9,7 +9,7 @@
 // figure. A situated probe (a runaway turn guard, Read/Glob/Grep permitted)
 // and a bare probe (two turns, Skill only) cost roughly an order of magnitude
 // apart, so projecting either at the other's figure is a category error —
-// see data/discovery-eval/README.md's "capUsd and
+// see tools/evaluation/data/discovery/README.md's "capUsd and
 // unmeasuredProbeCostCeilingUsd". `ceilingFor` resolves the fixture's
 // declaration to the single figure that matters: the mode THIS DISPATCH runs
 // the case in (src/plan.mjs's `planFor`), never the mode the case merely

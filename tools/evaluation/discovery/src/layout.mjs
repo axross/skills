@@ -1,6 +1,6 @@
 // where a discovery case measurement's files live, and what they are called.
 //
-// mirrors tools/effect-eval/src/layout.mjs's three-kinds-of-file split, with
+// mirrors tools/evaluation/effect/src/layout.mjs's three-kinds-of-file split, with
 // one probe directory per repeat rather than per condition — discovery has no
 // second condition to pair against, so `probe-<id>` replaces
 // `<condition>-<id>`:
@@ -24,7 +24,7 @@ export const TRANSCRIPT_FILE = "transcript.jsonl";
 export const SUMMARY_FILE = "summary.json";
 export const FIXTURE_FILE = "fixture.json";
 export const MEASUREMENTS_DIR = "measurements";
-export const DATA_ROOT = "data/discovery-eval";
+export const DATA_ROOT = "tools/evaluation/data/discovery";
 
 /** every probe directory under a case measurement starts with this. */
 export const PROBE_PREFIX = "probe";
@@ -74,7 +74,7 @@ export function probePaths(probeDir) {
  *
  * one, for the same reason as the effect side's: the drift check compares a
  * regeneration against a commit, and that means something only if both went
- * through the same function. `data/discovery-eval/`'s derived surfaces are
+ * through the same function. `tools/evaluation/data/discovery/`'s derived surfaces are
  * excluded from this repository's Prettier config for the same reason — the
  * generic summary.json and measurements-directory globs in .prettierignore
  * already cover this instrument's data root, so nothing here needs to widen

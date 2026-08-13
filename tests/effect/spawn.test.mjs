@@ -15,7 +15,7 @@ import {
   NONINTERACTIVE_BRIEF,
   shellQuote,
   TURN_CAP,
-} from "../../tools/effect-eval/src/spawn.mjs";
+} from "../../tools/evaluation/effect/src/spawn.mjs";
 
 const aConfiguration = (overrides = {}) =>
   buildConfiguration({

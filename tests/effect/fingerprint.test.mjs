@@ -10,7 +10,7 @@ import {
   digestibleFiles,
   skillDigests,
   treeDigest,
-} from "../../tools/effect-eval/src/fingerprint.mjs";
+} from "../../tools/evaluation/effect/src/fingerprint.mjs";
 
 let root;
 

@@ -3,11 +3,11 @@
 // foreign.
 //
 // rebuilt from the replaced instrument's own classification rather
-// than moved into tools/lib — the plan's own accounting of what the second
+// than moved into tools/evaluation/lib — the plan's own accounting of what the second
 // consumer proves is that the loaded-skill classification does NOT belong
 // there: the effect side reads `loadedSkills` only to assert set equality
 // across probes and never asks whether a name is own, foreign or colliding.
-// See tools/discovery-eval/README.md.
+// See tools/evaluation/discovery/README.md.
 //
 // THE THREE-WAY SPLIT, NOT "OURS OR NOT". Each simpler version was written
 // before it was rejected:

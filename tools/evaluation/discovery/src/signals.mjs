@@ -9,7 +9,7 @@
 // that stopped reading has read fewer files by construction, and that is
 // visible where the outcome alone is not.
 //
-// built on tools/lib/transcript's shared stream reading rather than
+// built on tools/evaluation/lib/transcript's shared stream reading rather than
 // reimplementing it — `readEvents`/`toolUseBlocks` frame the CLI's
 // `stream-json` output, which is the CLI's decision and not this
 // evaluation's. what this module adds is its own: `readBehaviour` in that
@@ -24,7 +24,7 @@
 // zero-hit reading of that probe would misreport "found nothing" as an
 // outcome the probe never reached. `selectedSkills` is `null` in that case,
 // matching this codebase's existing idiom for "the stream did not say"
-// (tools/lib/transcript/parse.mjs's `loadedSkills`): a caller that tallies
+// (tools/evaluation/lib/transcript/parse.mjs's `loadedSkills`): a caller that tallies
 // hits must never fold `null` into a count of zero.
 //
 // A PROBE THAT TERMINATES ON `error_max_turns` HAVING ALREADY SELECTED A
@@ -108,7 +108,7 @@ export function skillsSelected(toolCalls) {
   for (const call of toolCalls) {
     if (call.name !== "Skill" || typeof call.input?.skill !== "string") continue;
     // a plugin-qualified name reduces to the skill itself, matching
-    // tools/lib/transcript/parse.mjs's readBehaviour — a fixture label never
+    // tools/evaluation/lib/transcript/parse.mjs's readBehaviour — a fixture label never
     // has to know how a skill was installed.
     const selected = call.input.skill;
     const name = selected.includes(":") ? selected.split(":").pop() : selected;

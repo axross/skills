@@ -114,9 +114,9 @@ export function parseTranscript(stdout) {
 
 /**
  * command shapes this repository's mocks actually run (see
- * mocks/tsuzuri/package.json), plus the runners a caller might invoke
- * directly. not exhaustive by design — a different mock's toolchain overrides
- * them.
+ * tools/evaluation/mocks/tsuzuri/package.json), plus the runners a caller
+ * might invoke directly. not exhaustive by design — a different mock's
+ * toolchain overrides them.
  */
 export const DEFAULT_TEST_COMMAND_PATTERNS = [
   /\b(?:npm|yarn|pnpm)\s+(?:run\s+)?test\b/i,

@@ -29,7 +29,7 @@
 // fixture: what each case would cost to measure and whether admission would
 // refuse it, derived from the same admitCase call the real dispatch makes. it
 // spawns nothing and reads no workspace, mirroring
-// tools/discovery-eval/evaluate.mjs's own whole-fixture preview rather than
+// tools/evaluation/discovery/evaluate.mjs's own whole-fixture preview rather than
 // inventing a second idiom for the same idea.
 //
 // exit codes:
@@ -79,7 +79,7 @@ record — metadata.json (declared), transcript.jsonl and changes.patch
   --out <dir>           the case measurement directory to write the probe
                          directory into (required)
   --fixture <path>      the case fixture to read the task from
-                         (default: data/effect-eval/fixture.json)
+                         (default: tools/evaluation/data/effect/fixture.json)
   --probe-id <hex>      the probe directory's id, for a reproducible tree
                          (default: eight random hex digits)
   --run-url <url>       the dispatch that produced this probe, recorded as
@@ -241,7 +241,7 @@ async function wholeFixtureDryRun(fixturePath) {
     "That total is the sum of per-case projections across separate dispatches, not what one",
     "dispatch may spend: each case is admitted on its own, against its own cap. A case with no",
     "committed measurement is priced from its declared ceiling, which is a guard rather than an",
-    "estimate — see data/effect-eval/README.md.",
+    "estimate — see tools/evaluation/data/effect/README.md.",
     "No process was spawned; no network was reached.",
     "",
   );
@@ -388,7 +388,7 @@ async function main() {
   }
 
   // refuse rather than write something this tool cannot vouch for — see
-  // tools/lib/credentials.mjs.
+  // tools/evaluation/lib/credentials.mjs.
   let transcriptText;
   let redactedNames = [];
   try {

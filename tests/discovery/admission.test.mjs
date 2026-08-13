@@ -7,7 +7,7 @@ import {
   ceilingFor,
   meanProbeCost,
   reconcile,
-} from "../../tools/discovery-eval/src/admission.mjs";
+} from "../../tools/evaluation/discovery/src/admission.mjs";
 
 const CEILINGS = { situated: 0.35, bare: 0.05 };
 

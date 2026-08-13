@@ -1,16 +1,16 @@
 // the declared configuration a discovery probe runs under, the CLI argv built
 // from it, and — unlike the effect side — the actual run.
 //
-// `buildConfiguration`/`buildArgv` mirror tools/effect-eval/src/spawn.mjs's
+// `buildConfiguration`/`buildArgv` mirror tools/evaluation/effect/src/spawn.mjs's
 // round trip: the configuration is the source and the argv is derived, never
 // the other way round and never both independently, so a stored
 // `metadata.json` is a complete account of the invocation rather than a
 // description that might have drifted.
 //
 // RUNNING THE CLI LIVES HERE TOO, which is where this module parts ways with
-// its effect-side counterpart. tools/effect-eval/evaluate.mjs calls
+// its effect-side counterpart. tools/evaluation/effect/evaluate.mjs calls
 // `spawnSync` itself, because that instrument writes exactly one probe per
-// invocation. tools/discovery-eval/evaluate.mjs writes a whole case's repeats
+// invocation. tools/evaluation/discovery/evaluate.mjs writes a whole case's repeats
 // in one process (see this instrument's README — discovery has one
 // condition, so preparing a workspace and probing it happen together), so
 // `runProbe` is called once per repeat from inside one loop; giving it a
@@ -30,7 +30,7 @@ import { stripCredentials } from "../../lib/credentials.mjs";
 
 /**
  * pinned rather than left to the CLI's default, for the same reason
- * tools/effect-eval/src/spawn.mjs pins one: changing it invalidates every
+ * tools/evaluation/effect/src/spawn.mjs pins one: changing it invalidates every
  * measurement taken before the change, because comparability holds only
  * while the model is constant.
  */
@@ -214,7 +214,7 @@ export function shellQuote(argument) {
  * a one-turn, cost-free transcript shaped like the CLI's — so a dry run
  * exercises the whole pipeline, redaction and derivation included, rather
  * than only the half that precedes the spawn. mirrors
- * tools/effect-eval/evaluate.mjs's `syntheticTranscript`.
+ * tools/evaluation/effect/evaluate.mjs's `syntheticTranscript`.
  *
  * @param {Configuration} configuration
  * @returns {string}

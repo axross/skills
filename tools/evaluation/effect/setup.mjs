@@ -15,7 +15,7 @@
 // downloads that browser, which npm does not carry — see mock-workspace.mjs.
 //
 // `--patch` is how a case brings the broken starting state its own prompt
-// describes, without the mock shipping one. the mechanism lives in tools/lib
+// describes, without the mock shipping one. the mechanism lives in tools/evaluation/lib
 // because a mock belongs to neither evaluation; this entry point only passes
 // the path through.
 //
@@ -30,11 +30,11 @@ const DEFAULT_MOCK = "tsuzuri";
 
 const USAGE = `Usage: setup.mjs [options]
 
-Expand a mock project (mocks/<mock>) into an isolated, git-backed temporary
-directory, install the condition's skills into its .claude/skills/, and print
-the workspace path.
+Expand a mock project (tools/evaluation/mocks/<mock>) into an isolated,
+git-backed temporary directory, install the condition's skills into its
+.claude/skills/, and print the workspace path.
 
-  --mock <name>    which mocks/ fixture to materialize (default: ${DEFAULT_MOCK})
+  --mock <name>    which tools/evaluation/mocks/ fixture to materialize (default: ${DEFAULT_MOCK})
   --skill <name>   a skill to install into the workspace's .claude/skills/<name>,
                     copied from this repository's OWN installed skills;
                     repeatable. Passing none is the skill-absent condition.

@@ -2,9 +2,9 @@
 // resolve one case, prepare its probe workspace, run its declared repeats
 // serially against it, and write one probe record per repeat.
 //
-// ONE PROCESS, NOT TWO. tools/effect-eval splits setup.mjs from evaluate.mjs
+// ONE PROCESS, NOT TWO. tools/evaluation/effect splits setup.mjs from evaluate.mjs
 // because its probes fan out across separate runners under two conditions.
-// Discovery has one condition — see tools/discovery-eval/README.md — so
+// Discovery has one condition — see tools/evaluation/discovery/README.md — so
 // preparing a case's workspace and probing it happen together here, and a
 // case's repeats run serially against the one workspace they share.
 //
@@ -75,7 +75,7 @@ import { MODES, planFor, PROVISIONAL_SITUATED_TURN_CAP } from "./src/plan.mjs";
 import { extractSignals } from "./src/signals.mjs";
 import { buildConfiguration, runProbe, shellQuote } from "./src/spawn.mjs";
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 const USAGE = `Usage: evaluate.mjs --case <id> [options]
@@ -282,7 +282,7 @@ async function buildBareWorkspace(skillNames) {
     // symlinks, and copying targets means the workspace holds only real
     // files, so a later write (a head overlay) can never land through a link
     // back into this repository's own installed skill. see
-    // tools/lib/mock-workspace.mjs's header for the same hazard and fix.
+    // tools/evaluation/lib/mock-workspace.mjs's header for the same hazard and fix.
     await cp(join(INSTALLED_SKILLS_ROOT, name), join(skillsRoot, name), {
       recursive: true,
       dereference: true,
@@ -527,7 +527,7 @@ async function main() {
       }
 
       // refuse rather than write something this tool cannot vouch for — see
-      // tools/lib/credentials.mjs.
+      // tools/evaluation/lib/credentials.mjs.
       let transcriptText;
       let redactedNames = [];
       try {

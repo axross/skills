@@ -86,7 +86,9 @@ export function parseHistoryFixture(raw) {
  * @throws {Error} when the mock ships no history.jsonc, or it does not parse
  */
 export async function readMockHistory(mock = "tsuzuri") {
-  return parseHistoryFixture(await readFile(repoPath("mocks", mock, HISTORY_FILE), "utf8"));
+  return parseHistoryFixture(
+    await readFile(repoPath("tools/evaluation/mocks", mock, HISTORY_FILE), "utf8"),
+  );
 }
 
 /**
@@ -108,7 +110,8 @@ export async function editHistory(tree, mutate) {
 }
 
 /**
- * produces a unified diff against `mocks/<mock>` and returns its path.
+ * produces a unified diff against `tools/evaluation/mocks/<mock>` and
+ * returns its path.
  *
  * @param {(tree: string) => Promise<void>} mutate edits the scratch copy in place
  * @param {{ mock?: string }} [options]
@@ -122,7 +125,7 @@ export async function patchFromMock(mutate, { mock = "tsuzuri" } = {}) {
   onTestFinished(() => rm(scratch, { recursive: true, force: true }));
 
   const tree = join(scratch, "tree");
-  await cp(repoPath("mocks", mock), tree, {
+  await cp(repoPath("tools/evaluation/mocks", mock), tree, {
     recursive: true,
     filter: (source) => basename(source) !== "node_modules",
   });

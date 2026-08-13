@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { admitCase, meanProbeCost, reconcile } from "../../tools/effect-eval/src/admission.mjs";
+import { admitCase, meanProbeCost, reconcile } from "../../tools/evaluation/effect/src/admission.mjs";
 
 const base = {
   caseId: "add-unit-tests-for-an-untested-module",

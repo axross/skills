@@ -13,7 +13,7 @@
 //              BARE_TURN_CAP turns (2: one to select, one the cap absorbs).
 //
 // a case declaring no `mock` is bare by construction: situating removes the
-// very thing its prompt is about (see data/discovery-eval/fixture.json's
+// very thing its prompt is about (see tools/evaluation/data/discovery/fixture.json's
 // asa-tighten-description-shaped cases). `--head-skills` forces bare
 // regardless of what the case declares, because a situated workspace's
 // Read/Glob/Grep is exactly the capability that must never reach
@@ -49,7 +49,7 @@ export const BARE_TURN_CAP = 2;
  * loose guard." this is that guess — deliberately loose, so it is a guard
  * that must not bind rather than a budget that truncates a legitimately
  * longer situated exploration. it is not a tuning knob: do not lower it to
- * save money, for the same reason tools/effect-eval/src/spawn.mjs's TURN_CAP
+ * save money, for the same reason tools/evaluation/effect/src/spawn.mjs's TURN_CAP
  * must not be lowered. `--turn-cap` on evaluate.mjs overrides it per
  * invocation, and the pilot's own measurement is what should replace this
  * constant, not a second guess made here.

@@ -1,7 +1,7 @@
 // digesting what a discovery probe ran against, by content: the project tree
 // it was situated in, and — separately — each installed skill's `description`.
 //
-// THE PROJECT TREE DIGEST follows tools/effect-eval/src/fingerprint.mjs's
+// THE PROJECT TREE DIGEST follows tools/evaluation/effect/src/fingerprint.mjs's
 // shape (sha256 over sorted `path\0mode\0sha256(content)` lines, `.git/`,
 // `node_modules/` and `.claude/skills/` excluded) because nothing about what
 // makes two project trees comparable is specific to either evaluation — see
@@ -21,7 +21,7 @@
 //
 // each digest is per skill, not one over the whole corpus, so editing one
 // skill's description by one byte moves that entry and names it — the same
-// reasoning tools/effect-eval/src/fingerprint.mjs gives for skillDigests, and
+// reasoning tools/evaluation/effect/src/fingerprint.mjs gives for skillDigests, and
 // the same shape the instrument this one replaces used.
 
 import { createHash } from "node:crypto";

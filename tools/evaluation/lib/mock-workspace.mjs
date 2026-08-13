@@ -1,17 +1,18 @@
 // mock-workspace.mjs — expands a mock project into an isolated, reproducible
-// Git working copy for one probe to run inside. tools/effect-eval/setup.mjs is
-// the entry point that drives it today.
+// Git working copy for one probe to run inside. tools/evaluation/effect/setup.mjs
+// is the entry point that drives it today.
 //
-// it lives in tools/lib because a mock belongs to neither evaluation. what is
-// below decides nothing either instrument owns: it copies a tree, applies a
-// diff, replays a recorded history, and copies some skills in. the effect
-// evaluation situates its probes in a mock today and the discovery rebuild
-// (#280) situates its own in the same ones, so the alternative was one
-// evaluation importing out of the other's src/.
+// it lives in tools/evaluation/lib because a mock belongs to neither
+// evaluation. what is below decides nothing either instrument owns: it
+// copies a tree, applies a diff, replays a recorded history, and copies some
+// skills in. the effect evaluation situates its probes in a mock today and
+// the discovery rebuild (#280) situates its own in the same ones, so the
+// alternative was one evaluation importing out of the other's src/.
 //
-// a mock lives under mocks/<name>/ (e.g. mocks/tsuzuri/) as a
-// plain, uncommitted-history file tree, plus a history.jsonc that records the
-// commits to replay on top of it. this module does the replaying: it copies
+// a mock lives under tools/evaluation/mocks/<name>/ (e.g.
+// tools/evaluation/mocks/tsuzuri/) as a plain, uncommitted-history file
+// tree, plus a history.jsonc that records the commits to replay on top of
+// it. this module does the replaying: it copies
 // the mock's files into a fresh temporary directory, applies the case's patch
 // if it declares one, turns that directory into a real Git repository whose
 // commit-by-commit history matches history.jsonc, and installs a chosen subset
@@ -43,7 +44,8 @@
 // the mock would make the mock a fixture rather than a project: the defects
 // accumulate, contradict each other, and demonstrate to the model the very
 // convention the case asks it to apply. so a mock ships sound and a case
-// declares a patch, applied here. mocks/README.md states the principle and
+// declares a patch, applied here. tools/evaluation/mocks/README.md states
+// the principle and
 // docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md
 // records why the alternatives lost.
 //
@@ -61,8 +63,8 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const MOCKS_ROOT = join(REPO_ROOT, "mocks");
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const MOCKS_ROOT = join(REPO_ROOT, "tools", "evaluation", "mocks");
 const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 const HISTORY_FILE = "history.jsonc";
@@ -286,7 +288,7 @@ function applyPatch(workspace, patchPath) {
  * and it let each run resolve its own dependency versions. a real developer
  * opens a repository whose dependencies are already installed.
  *
- * it is opt-in, and that is deliberate. tests/effect-eval/setup.test.mjs
+ * it is opt-in, and that is deliberate. tests/effect/setup.test.mjs
  * materializes this mock repeatedly and must stay hermetic and fast, so the
  * default path touches no network at all. the evaluation driver asks for the
  * install explicitly.
@@ -331,8 +333,9 @@ function installDependencies(workspace) {
 // depends on `@playwright/test`, while a Vitest browser-mode suite depends on
 // `playwright` itself (through `@vitest/browser-playwright`) and never pulls
 // the test runner in. keying on the first name alone recognized the first
-// shape and silently missed the second, which is how `mocks/inkwell` would
-// have reached a probe with a `npm test` that cannot launch a browser.
+// shape and silently missed the second, which is how
+// `tools/evaluation/mocks/inkwell` would have reached a probe with a
+// `npm test` that cannot launch a browser.
 const BROWSER_DRIVER_PACKAGES = ["@playwright/test", "playwright"];
 
 /**
@@ -433,11 +436,11 @@ function commitEnv(index) {
 }
 
 /**
- * expands `mocks/<mock>` into a fresh temporary directory: every file the mock
- * ships, with the case's patch applied if it declares one, replayed as a real
- * Git history that matches the patched history.jsonc commit for commit, plus
- * the requested skills copied (as real files — see this file's header) into
- * `.claude/skills/`.
+ * expands `tools/evaluation/mocks/<mock>` into a fresh temporary directory:
+ * every file the mock ships, with the case's patch applied if it declares
+ * one, replayed as a real Git history that matches the patched
+ * history.jsonc commit for commit, plus the requested skills copied (as real
+ * files — see this file's header) into `.claude/skills/`.
  *
  * @param {{ mock?: string, skills?: string[], install?: boolean, patch?: string|null }} [options]
  * @returns {Promise<string>} the materialized workspace's absolute path

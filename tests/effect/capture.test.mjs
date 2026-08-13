@@ -1,4 +1,4 @@
-// tools/effect-eval/src/capture.mjs, driven against real temporary Git
+// tools/evaluation/effect/src/capture.mjs, driven against real temporary Git
 // repositories.
 //
 // why real Git rather than an argv assertion. spawn.mjs is tested by checking
@@ -27,7 +27,7 @@ import { dirname, join } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
 
-import { captureDiff, readChangedTestFiles } from "../../tools/effect-eval/src/capture.mjs";
+import { captureDiff, readChangedTestFiles } from "../../tools/evaluation/effect/src/capture.mjs";
 
 function git(args, cwd) {
   const result = spawnSync("git", args, { cwd, encoding: "utf8" });
@@ -92,7 +92,7 @@ async function plantRepo({ gitignoresClaude, installsSkill }) {
  * that ran `git commit` without first branching. any other string creates and
  * checks out a branch of that name before committing — a probe that ran `git
  * checkout -b` and stayed there, which is what `skill-present-632e2800`
- * (`data/effect-eval/README.md`) actually did.
+ * (`tools/evaluation/data/effect/README.md`) actually did.
  *
  * @param {string} root
  * @param {{ path?: string, content?: string, commit?: false | "current" | string }} [options]

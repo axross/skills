@@ -13,6 +13,7 @@
 // checking what was just edited is the useful answer.
 
 import { readdirSync } from "node:fs";
+import { join } from "node:path";
 
 import { REPO_ROOT, SCRIPTS } from "../helpers/run.mjs";
 
@@ -25,27 +26,56 @@ import { REPO_ROOT, SCRIPTS } from "../helpers/run.mjs";
  */
 
 /**
- * every top-level entry of this repository the links gate should walk: the
- * whole tree, dot-directories included, minus the mock fixtures under
- * `mocks/` (self-contained projects with their own toolchain, never
- * covered by this repository's own gates — see .prettierignore) and the two
- * entries a bare "." sweep would already prune internally as it descended
- * into them.
- *
- * check-links.mjs has no ignore-file mechanism of its own — its only
- * scoping lever is which roots it is handed — and a root named directly on
- * its command line bypasses its internal pruning (that only filters a
- * directory's children as they're discovered mid-walk, not a root passed in
- * outright), which is why `.git` and `node_modules` are excluded here rather
- * than left for it to skip on its own. computed from the real directory
- * listing, not a literal list, so a new top-level entry is covered without
- * anyone remembering to add it here.
+ * paths the links gate must never walk: the mock fixtures under
+ * `tools/evaluation/mocks/` (self-contained projects with their own
+ * toolchain, never covered by this repository's own gates — see
+ * .prettierignore) and the two entries a bare "." sweep would already prune
+ * internally as it descended into them.
  */
+const EXCLUDED_PATHS = ["tools/evaluation/mocks", ".git", "node_modules"];
+
+/**
+ * every path the links gate should walk: the whole tree, dot-directories
+ * included, minus `EXCLUDED_PATHS`.
+ *
+ * check-links.mjs has no ignore-file mechanism of its own — its only scoping
+ * lever is which roots it is handed — and a root named directly on its
+ * command line bypasses its internal pruning (that only filters a
+ * directory's children as they're discovered mid-walk, not a root passed in
+ * outright), which is why an excluded path is kept out of the roots handed to
+ * it here rather than left for it to skip on its own.
+ *
+ * a top-level exclusion like `.git` is one entry deep, but
+ * `tools/evaluation/mocks` sits three levels down — naming `tools` itself as
+ * a root would walk straight into it. so this descends past an excluded
+ * path's own ancestors: an ancestor directory is not added as a root itself,
+ * its children are listed as roots instead (recursively, in case an
+ * ancestor holds more than one excluded descendant or the exclusion nests
+ * deeper still). every one of those roots is still computed from the real
+ * directory listing rather than named by hand, so a new sibling landing
+ * beside `tools/evaluation/mocks` — or beside any other excluded path — stays
+ * covered without anyone remembering to add it here.
+ *
+ * @param {string} dir absolute path to list
+ * @param {string} relPath `dir`'s path relative to `REPO_ROOT`, POSIX-style
+ * @returns {string[]} repository-relative root paths, unsorted
+ */
+function collectRoots(dir, relPath) {
+  const roots = [];
+  for (const name of readdirSync(dir)) {
+    const childRel = relPath ? `${relPath}/${name}` : name;
+    if (EXCLUDED_PATHS.includes(childRel)) continue;
+    if (EXCLUDED_PATHS.some((excluded) => excluded.startsWith(`${childRel}/`))) {
+      roots.push(...collectRoots(join(dir, name), childRel));
+      continue;
+    }
+    roots.push(childRel);
+  }
+  return roots;
+}
+
 function linksGateRoots() {
-  const excluded = new Set(["mocks", ".git", "node_modules"]);
-  return readdirSync(REPO_ROOT)
-    .filter((name) => !excluded.has(name))
-    .sort();
+  return collectRoots(REPO_ROOT, "").sort();
 }
 
 /** @type {Gate[]} */

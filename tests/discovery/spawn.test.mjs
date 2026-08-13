@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { planFor } from "../../tools/discovery-eval/src/plan.mjs";
+import { planFor } from "../../tools/evaluation/discovery/src/plan.mjs";
 import {
   BARE_DISALLOWED_TOOLS,
   buildArgv,
@@ -14,7 +14,7 @@ import {
   shellQuote,
   SITUATED_DISALLOWED_TOOLS,
   syntheticTranscript,
-} from "../../tools/discovery-eval/src/spawn.mjs";
+} from "../../tools/evaluation/discovery/src/spawn.mjs";
 
 const testCase = {
   id: "invalidate-a-stale-list-after-a-write",

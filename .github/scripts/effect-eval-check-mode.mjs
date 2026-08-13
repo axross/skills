@@ -24,7 +24,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { conditionOf, METADATA_FILE } from "../../tools/effect-eval/src/layout.mjs";
+import { conditionOf, METADATA_FILE } from "../../tools/evaluation/effect/src/layout.mjs";
 
 /** what `trigger.kind` reads on a record from each kind of dispatch. */
 const DRY_RUN_KIND = "dry-run";

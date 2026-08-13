@@ -11,8 +11,8 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { canonicalJson } from "../../tools/effect-eval/src/layout.mjs";
-import { buildConfiguration } from "../../tools/effect-eval/src/spawn.mjs";
+import { canonicalJson } from "../../tools/evaluation/effect/src/layout.mjs";
+import { buildConfiguration } from "../../tools/evaluation/effect/src/spawn.mjs";
 import {
   changedPaths,
   comparabilityOf,
@@ -21,7 +21,7 @@ import {
   finalMessageHeadings,
   readProbe,
   solicitsDecision,
-} from "../../tools/effect-eval/src/summary.mjs";
+} from "../../tools/evaluation/effect/src/summary.mjs";
 
 let caseDir;
 

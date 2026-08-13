@@ -4,7 +4,7 @@
 // mechanical rather than judgmental, same as transcript.mjs: import specifiers,
 // a name check against a caller-supplied list of exports, string literals, a
 // count, a pattern match. nothing here decides whether the tests written are
-// any good — that residue is what data/effect-eval/coverage.md's judgeable-end
+// any good — that residue is what tools/evaluation/data/effect/coverage.md's judgeable-end
 // cases and their written predictions exist to size, once the fixture is
 // measured.
 //
@@ -18,9 +18,9 @@
 //
 // unwired from the derived layer (summary.mjs never imports this module) and
 // deliberately so: wiring it in would add fields to every committed probe
-// summary and move data/effect-eval/summary.json, and of the fixture's cases
+// summary and move tools/evaluation/data/effect/summary.json, and of the fixture's cases
 // only one is "add tests to a module" in the first place. see
-// data/effect-eval/README.md's "reading" section for what a case declaring no
+// tools/evaluation/data/effect/README.md's "reading" section for what a case declaring no
 // `reading` is stating: that the deterministic layer sees only what every case
 // already shares (`changedPaths`, `ranTests`, and the rest `summary.mjs`
 // derives from every transcript and diff).

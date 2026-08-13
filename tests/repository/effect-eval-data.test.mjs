@@ -1,4 +1,4 @@
-// the committed contents of data/effect-eval, judged against this repository.
+// the committed contents of tools/evaluation/data/effect, judged against this repository.
 //
 // these read the real fixture and the real committed measurements, which is
 // what catches a hand-edited derived file and a case identifier that has
@@ -12,12 +12,12 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { READING_KINDS } from "../../tools/effect-eval/src/artifact.mjs";
-import { canonicalJson } from "../../tools/effect-eval/src/layout.mjs";
-import { deriveCaseSummary } from "../../tools/effect-eval/src/summary.mjs";
+import { READING_KINDS } from "../../tools/evaluation/effect/src/artifact.mjs";
+import { canonicalJson } from "../../tools/evaluation/effect/src/layout.mjs";
+import { deriveCaseSummary } from "../../tools/evaluation/effect/src/summary.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
-const DATA_ROOT = repoPath("data/effect-eval");
+const DATA_ROOT = repoPath("tools/evaluation/data/effect");
 const MEASUREMENTS = join(DATA_ROOT, "measurements");
 const COVERAGE_PATH = join(DATA_ROOT, "coverage.md");
 
@@ -132,7 +132,7 @@ describe("the case fixture", () => {
 
   it("names a mock that exists and skills that are installed", async () => {
     const mocks = new Set(
-      (await readdir(repoPath("mocks"), { withFileTypes: true }))
+      (await readdir(repoPath("tools/evaluation/mocks"), { withFileTypes: true }))
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name),
     );
@@ -177,7 +177,7 @@ describe("the case fixture", () => {
 
     expect(
       [...declared].filter((path) => !onDisk.has(path)).sort(),
-      "a case declares a patch that is not under data/effect-eval/patches/ — materialization " +
+      "a case declares a patch that is not under tools/evaluation/data/effect/patches/ — materialization " +
         "would fail mid-dispatch instead of here",
     ).toEqual([]);
     expect(
@@ -295,7 +295,7 @@ describe("the derived layer", () => {
       expect(
         committed,
         `${name}/summary.json is not what its measured files derive — regenerate with ` +
-          "`node tools/effect-eval/summarize.mjs` and commit the result",
+          "`node tools/evaluation/effect/summarize.mjs` and commit the result",
       ).toBe(derived);
     }
   });
@@ -451,7 +451,7 @@ describe("what is committed to the repository", () => {
     // committed yet.
     const tracked = execFileSync(
       "git",
-      ["ls-files", "-z", "--", "data/*/measurements/*/*/metadata.json"],
+      ["ls-files", "-z", "--", "tools/evaluation/data/*/measurements/*/*/metadata.json"],
       { cwd: repoPath("."), encoding: "utf8" },
     )
       .split("\0")

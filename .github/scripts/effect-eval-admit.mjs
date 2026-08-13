@@ -2,7 +2,7 @@
 // the admit step of .github/workflows/effect-eval.yaml.
 //
 // it belongs to the workflow rather than to the instrument, which is why it is
-// here and not beside the three commands under tools/effect-eval/. everything
+// here and not beside the three commands under tools/evaluation/effect/. everything
 // it does that is not a library call is shaped by GitHub — reading a dispatch
 // input, writing `$GITHUB_OUTPUT`, and emitting the arrays a `strategy.matrix`
 // expands. none of that is a question the evaluation asks.
@@ -23,12 +23,12 @@
 import { appendFile, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { admitCase } from "../../tools/effect-eval/src/admission.mjs";
+import { admitCase } from "../../tools/evaluation/effect/src/admission.mjs";
 import {
   caseMeasurementName,
   CONDITIONS,
   SUMMARY_FILE,
-} from "../../tools/effect-eval/src/layout.mjs";
+} from "../../tools/evaluation/effect/src/layout.mjs";
 import { DEFAULT_ROOT, readDeclaredCase } from "./lib/effect-eval-fixture.mjs";
 
 const USAGE = `Usage: effect-eval-admit.mjs --case <id> [options]
