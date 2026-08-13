@@ -5,7 +5,11 @@
 // the checker has been broken, silently converting a merge gate into decoration.
 //
 // each case here plants the violation that gate exists to catch into a throwaway
-// tree and requires that same invocation from gates.mjs to report it.
+// tree and requires that same invocation from gates.mjs to report it — except
+// where the roster itself is under test. linksGateRoots() walks REPO_ROOT, not
+// the fixture, so a path that exists only in a throwaway tree never becomes a
+// root and the gate passes whatever the roster does; the collectRoots() case
+// below therefore asserts on the roster directly.
 
 import { describe, expect, it } from "vitest";
 

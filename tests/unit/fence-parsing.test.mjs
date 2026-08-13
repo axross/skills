@@ -182,8 +182,8 @@ describe("CommonMark fence parsing", () => {
     });
 
     it("emits no unterminated-fence warning over the repository's corpus", () => {
-      // the links gate's own roster, not a bare no-argument sweep — see
-      // check-links.test.mjs's equivalent case for why.
+      // the links gate's own roster, not a bare no-argument sweep; this
+      // file's header carries why.
       const result = checkLinks(...gate("links").args);
 
       expect(result).toPassCleanly();
