@@ -1,6 +1,6 @@
 {
-  "measurementCount": 40,
-  "comparableCount": 40,
+  "measurementCount": 41,
+  "comparableCount": 41,
   "measurements": [
     {
       "measurement": "accept-a-page-number-from-a-url-70e19ac8",
@@ -939,6 +939,65 @@
       }
     },
     {
+      "measurement": "judge-whether-a-change-was-actually-checked-2de92ff4",
+      "case": "judge-whether-a-change-was-actually-checked",
+      "population": "discovered",
+      "comparable": true,
+      "probeCount": 2,
+      "readableCount": 2,
+      "totalCostUsd": 0.1634308,
+      "workspace": {
+        "mode": "bare",
+        "mock": null,
+        "tree": null
+      },
+      "model": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5",
+        "options": {}
+      },
+      "runtime": {
+        "name": "claude-code",
+        "version": "2.1.220",
+        "options": {
+          "maxTurns": 2,
+          "settingSources": [
+            "project"
+          ],
+          "allowedTools": [
+            "Skill"
+          ],
+          "disallowedTools": [
+            "Agent",
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "NotebookEdit",
+            "Read",
+            "Task",
+            "TodoWrite",
+            "ToolSearch",
+            "WebFetch",
+            "WebSearch",
+            "Write"
+          ]
+        }
+      },
+      "findings": [
+        {
+          "kind": "miss",
+          "skill": "quality-assurance",
+          "hits": 0,
+          "repeats": 2
+        }
+      ],
+      "delta": {
+        "usable": false,
+        "reason": "the most recent prior measurement (judge-whether-a-change-was-actually-checked-820959ad) is not comparable: runtime maxTurns differs: now 2, then 1; runtime disallowedTools differs: now [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"ToolSearch\",\"WebFetch\",\"WebSearch\",\"Write\"], then [\"Agent\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Task\",\"TodoWrite\",\"WebFetch\",\"WebSearch\",\"Write\"]"
+      }
+    },
+    {
       "measurement": "judge-whether-a-change-was-actually-checked-820959ad",
       "case": "judge-whether-a-change-was-actually-checked",
       "population": "discovered",
@@ -993,7 +1052,7 @@
       ],
       "delta": {
         "usable": false,
-        "reason": "no prior measurement of this case exists yet"
+        "reason": "no measurement of this case is timestamped earlier than this one"
       }
     },
     {
