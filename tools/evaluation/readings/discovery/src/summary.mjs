@@ -12,11 +12,13 @@
 // COMPARABILITY HAS TWO SCOPES, AND THEY GET DIFFERENT TREATMENT.
 //
 //   * WITHIN one measurement — `runComparabilityChecks` /
-//     `comparabilityOf` — probes that ran under different conditions (a
-//     different project tree, a different corpus, a different loaded skill
-//     set) cannot be read as one measurement of anything, so a failure here
-//     is a hard finding: the case's `comparable` flag goes false and the
-//     landing job (a later part of this issue) refuses to commit it.
+//     `comparabilityOf` (the shared half — see
+//     tools/evaluation/src/comparability.mjs) — probes that ran under
+//     different conditions (a different project tree, a different corpus, a
+//     different loaded skill set) cannot be read as one measurement of
+//     anything, so a failure here is a hard finding: the case's `comparable`
+//     flag goes false and the landing job (a later part of this issue)
+//     refuses to commit it.
 //   * ACROSS measurements of the same case — `findComparablePredecessor` /
 //     `deriveDelta` — a predecessor that differs is ordinary. It is recorded
 //     with the reason it is not attributable, never suppressed, and never
@@ -56,8 +58,9 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { METADATA_FILE } from "../../../src/layout.mjs";
 import { classifyLoaded } from "./isolation.mjs";
-import { isProbeName, METADATA_FILE, probePaths } from "./layout.mjs";
+import { isProbeName, probePaths } from "./layout.mjs";
 import { extractSignals } from "./signals.mjs";
 
 /**
@@ -189,10 +192,11 @@ export function runComparabilityChecks(probes, derived, declaredRepeats) {
   );
 
   // identical, not empty — no available flag guarantees the CLI loads nothing
-  // (see spawn.mjs's SETTING_SOURCES), so the achievable invariant is that
-  // whatever loaded outside the workspace's own install is the same across
-  // every probe of this measurement. order is not signal, so compare sorted,
-  // mirroring tools/evaluation/effect/src/summary.mjs's identical check.
+  // (see tools/evaluation/src/spawn.mjs's SETTING_SOURCES), so the achievable
+  // invariant is that whatever loaded outside the workspace's own install is
+  // the same across every probe of this measurement. order is not signal, so
+  // compare sorted, mirroring
+  // tools/evaluation/readings/effect/src/summary.mjs's identical check.
   const loaded = distinct(
     derived.map((summary) =>
       Array.isArray(summary.loadedSkills) ? [...summary.loadedSkills].sort() : summary.loadedSkills,
@@ -218,17 +222,6 @@ export function runComparabilityChecks(probes, derived, declaredRepeats) {
   }
 
   return checks;
-}
-
-/**
- * @param {Record<string, unknown>} summary
- * @returns {{ comparable: boolean, failures: string[] }}
- */
-export function comparabilityOf(summary) {
-  const failures = (summary.checks ?? [])
-    .filter((check) => !check.passed)
-    .map((check) => `${check.check}: ${check.detail}`);
-  return { comparable: failures.length === 0, failures };
 }
 
 /** a skill counts once per repeat above this rate to be `SPURIOUS`. */

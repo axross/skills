@@ -6,16 +6,15 @@
 
 import { describe, expect, it } from "vitest";
 
+import { MODEL, shellQuote } from "../../tools/evaluation/src/spawn.mjs";
 import {
   ALLOWED_TOOLS,
   buildArgv,
   buildConfiguration,
   DISALLOWED_TOOLS,
-  MODEL,
   NONINTERACTIVE_BRIEF,
-  shellQuote,
   TURN_CAP,
-} from "../../tools/evaluation/effect/src/spawn.mjs";
+} from "../../tools/evaluation/readings/effect/src/spawn.mjs";
 
 const aConfiguration = (overrides = {}) =>
   buildConfiguration({

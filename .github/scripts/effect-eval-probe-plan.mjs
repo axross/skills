@@ -31,7 +31,7 @@
 
 import { join, resolve } from "node:path";
 
-import { CONDITIONS } from "../../tools/evaluation/effect/src/layout.mjs";
+import { CONDITIONS } from "../../tools/evaluation/readings/effect/src/layout.mjs";
 import { DEFAULT_ROOT, parseDryRunInput, readDeclaredCase } from "./lib/effect-eval-fixture.mjs";
 
 const USAGE = `Usage: effect-eval-probe-plan.mjs --case <id> --condition <c> --dry-run-input <b>

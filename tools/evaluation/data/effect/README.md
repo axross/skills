@@ -2,7 +2,7 @@
 
 What the skill effect evaluation has measured, and the declared cases it
 measures. The instrument that writes all of this lives in
-[`tools/evaluation/effect/`](../../effect/README.md).
+[`tools/evaluation/readings/effect/`](../../readings/effect/README.md).
 
 ## Three kinds of file, three rules
 
@@ -59,8 +59,8 @@ GitHub UI.
 ## Regenerating, and the drift check
 
 ```sh
-node tools/evaluation/effect/summarize.mjs           # derive and write every summary
-node tools/evaluation/effect/summarize.mjs --check   # derive and compare; write nothing
+node tools/evaluation/readings/effect/summarize.mjs           # derive and write every summary
+node tools/evaluation/readings/effect/summarize.mjs --check   # derive and compare; write nothing
 ```
 
 `--check` is the drift check. It runs in this repository's test suite over
@@ -128,7 +128,7 @@ are the ones the field was added to make readable.
 It is derived, not declared. `tools/evaluation/lib/transcript/parse.mjs` reads the
 transcript's last assistant message into `finalAssistantText` (`null` when the
 stream carried none, the same convention every other field in that module
-follows). `tools/evaluation/effect/src/summary.mjs` exports the judgement itself,
+follows). `tools/evaluation/readings/effect/src/summary.mjs` exports the judgement itself,
 `solicitsDecision`, kept out of the shared transcript library because it is an
 effect-eval reading rather than a fact about the stream. Both are pure
 functions of the stored files, so `endedAwaitingDecision` regenerates and
@@ -219,7 +219,7 @@ skill never reached the workspace: a scratch diagnostic run under a newer CLI,
 `2.1.228`, reported a marker skill in `loadedSkills` under the same
 `--setting-sources project`.
 
-`tools/evaluation/effect/src/summary.mjs` reads that consequence in two places.
+`tools/evaluation/readings/effect/src/summary.mjs` reads that consequence in two places.
 `deriveProbeSummary` derives `declaredSkillsLoaded`: the sorted subset of a
 probe's own declared skills (the keys of its own `configuration.skills`) that
 its own `loadedSkills` actually contains — `null` when `loadedSkills` is
@@ -318,7 +318,7 @@ rather than to `main` directly, because it had read the mock's own
 instruct.
 
 That commit is why the stored patch is empty. `captureDiff`
-(`tools/evaluation/effect/src/capture.mjs`) read a probe's work as `git diff
+(`tools/evaluation/readings/effect/src/capture.mjs`) read a probe's work as `git diff
 --cached` against whatever HEAD happened to be when the probe finished, and
 committing moves HEAD onto the commit — so the diff came back empty and the
 probe was recorded as having changed nothing, even though the transcript
@@ -335,7 +335,7 @@ correction, not a rewrite.
 ## The non-interactive brief, and what it supersedes
 
 Every dispatch now carries a pinned brief, `NONINTERACTIVE_BRIEF` in
-`tools/evaluation/effect/src/spawn.mjs`, into both conditions' argv via
+`tools/evaluation/readings/effect/src/spawn.mjs`, into both conditions' argv via
 `--append-system-prompt`. It states that the session is non-interactive — no
 one will read a question the model asks, and no answer will come back — and
 that where it would otherwise put a decision to a person, it should choose
@@ -435,7 +435,7 @@ that omits it is stating that the deterministic layer sees only what every
 case already shares — `changedPaths`, `ranTests`, `ranLint`, `ranFormat`,
 `commandsRun`, and the rest `summarize.mjs` derives from every probe's
 transcript and diff alike. A case that declares one names a `kind` the
-extractor in `tools/evaluation/effect/src/artifact.mjs` knows (today, only
+extractor in `tools/evaluation/readings/effect/src/artifact.mjs` knows (today, only
 `unit-test-artifact`) plus that reading's own inputs — for the existing case,
 `targetModule` and `helpers`. Declaring a `reading` does not connect it to
 anything: `extractArtifact` stays unwired from `summarize.mjs`'s derivation on
@@ -490,5 +490,5 @@ does not place out of range, plus a negative control — and declaring a case
 is not the same as measuring it; see
 [`docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md`](../../../../docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md)
 for the policy the rest of the fixture was declared under, and
-`node tools/evaluation/effect/evaluate.mjs --dry-run` for the current projected cost
+`node tools/evaluation/readings/effect/evaluate.mjs --dry-run` for the current projected cost
 of measuring what is not yet landed.

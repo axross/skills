@@ -52,7 +52,7 @@ refuses before any probe spawns.
 
 It never records. `evaluate.mjs --prompt` refuses `--out` outright, the same
 way `--head-skills` does (see
-[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md)),
+[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md)),
 and the dispatch uploads what it measured as an artifact — every probe's
 `metadata.json` and `transcript.jsonl`, retained 30 days rather than the head
 report's 1, because this is the only copy either file will ever have. It
@@ -69,7 +69,7 @@ first dispatch:**
 
 **The comparability brake.** A case's prompt is part of the cross-measurement
 comparability key — `findComparablePredecessor`'s `predecessorMismatches` in
-[`tools/evaluation/discovery/src/summary.mjs`](../../tools/evaluation/discovery/src/summary.mjs)
+[`tools/evaluation/readings/discovery/src/summary.mjs`](../../tools/evaluation/readings/discovery/src/summary.mjs)
 compares `case.prompt` between a new measurement and its most recent
 predecessor — so revising a _committed_ prompt orphans every measurement that
 case already has: none of them shares the new prompt, so none of them is a
@@ -92,7 +92,7 @@ applies every declared case patch against its mock offline — deterministic
 checks that never invoke the runner, so a fixture naming a renamed skill, or a
 patch that stopped fitting its mock, rots in CI rather than only being
 discovered mid-dispatch. See
-[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md) for
+[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md) for
 the two probe modes and how a verdict is reached, and
 [`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md) for
 what a measurement holds.
@@ -111,7 +111,7 @@ reviewed fixture rather than to a dispatch input.
 A dispatch runs one case as a two-dimensional matrix — every condition times
 every repetition — admits, probes, and lands the result through a pull
 request in one pass. See
-[`tools/evaluation/effect/README.md`](../../tools/evaluation/effect/README.md) for the
+[`tools/evaluation/readings/effect/README.md`](../../tools/evaluation/readings/effect/README.md) for the
 three entry points behind that (`setup.mjs`, `evaluate.mjs`, `summarize.mjs`)
 and what makes two measurements comparable.
 

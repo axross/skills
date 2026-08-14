@@ -8,9 +8,9 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { canonicalJson } from "../../tools/evaluation/discovery/src/layout.mjs";
+import { comparabilityOf } from "../../tools/evaluation/src/comparability.mjs";
+import { canonicalJson } from "../../tools/evaluation/src/layout.mjs";
 import {
-  comparabilityOf,
   deriveCaseSummary,
   deriveDelta,
   deriveProbeSummary,
@@ -20,7 +20,7 @@ import {
   tallyVerdicts,
   trackedSkillsOf,
   verdictFor,
-} from "../../tools/evaluation/discovery/src/summary.mjs";
+} from "../../tools/evaluation/readings/discovery/src/summary.mjs";
 
 const line = (event) => JSON.stringify(event);
 

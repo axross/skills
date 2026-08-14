@@ -17,7 +17,7 @@ name: Discovery Evaluation
 # act that breaks a test first.
 #
 # ── why a matrix rather than a loop, and why per CASE rather than per probe.
-# tools/evaluation/discovery/evaluate.mjs runs one case's whole set of repeats
+# tools/evaluation/readings/discovery/evaluate.mjs runs one case's whole set of repeats
 # serially in one process — see that instrument's README, "Two probe modes"
 # — because they share one materialized workspace and a warm cache would
 # otherwise be paid for twice. The matrix unit this workflow adds on top is
@@ -30,7 +30,7 @@ name: Discovery Evaluation
 # `case` matrixes over the whole fixture, pricing each selected case from its
 # committed measurements where they exist and from the fixture's declared
 # per-mode ceiling where they do not (see
-# tools/evaluation/discovery/src/admission.mjs). A refusal exits 4 and nothing
+# tools/evaluation/readings/discovery/src/admission.mjs). A refusal exits 4 and nothing
 # downstream runs, so a dispatch that does not fit its cap costs nothing. The
 # recommended first dispatch after this workflow exists is still a single
 # case — the fixture's current whole-run projection is recomputed from the
@@ -60,7 +60,7 @@ name: Discovery Evaluation
 # through an allowlist. When a run names a pull request, `admit` fetches that
 # pull request's changed `.agents/skills/<name>/SKILL.md` files through the
 # API and stages them under `$RUNNER_TEMP`, uploaded as an artifact the probe
-# jobs download. tools/evaluation/discovery/src/head-overlay.mjs is the real bound
+# jobs download. tools/evaluation/readings/discovery/src/head-overlay.mjs is the real bound
 # — it accepts only that one path shape, rejects traversal, absolute paths
 # and backslashes, caps the size of what it accepts, and derives every
 # destination from the DIFF PATH rather than from any `name:` field inside
@@ -77,7 +77,7 @@ name: Discovery Evaluation
 # `GITHUB_TOKEN`, so it needs no permission at all. Skills are prompt
 # content, so allowlisted head text does reach a model in bare mode; what
 # that model can then do is nothing — only the `Skill` tool, no Bash, no
-# network fetch, no filesystem (see tools/evaluation/discovery/src/plan.mjs). The
+# network fetch, no filesystem (see tools/evaluation/readings/discovery/src/plan.mjs). The
 # tool set is what bounds this, not the turn cap: that cap is 2, enough for one
 # `Skill` call to finish, and raising it from 1 changed how much the model may
 # say, never what it may reach.
@@ -97,7 +97,7 @@ name: Discovery Evaluation
 # head-mode plan, so a head-mode probe cell has no directory to hand
 # evaluate.mjs as `--out` even if the shell around it tried — every probe
 # argv it builds passes `--head-skills`, never `--out`, which is also the
-# combination tools/evaluation/discovery/evaluate.mjs itself refuses outright (see
+# combination tools/evaluation/readings/discovery/evaluate.mjs itself refuses outright (see
 # tests/discovery/evaluate.test.mjs, "refuses a request to record"). Both
 # halves are asserted by tests/repository/discovery-eval-dispatch-plan.test.mjs
 # rather than only documented here.
@@ -116,7 +116,7 @@ name: Discovery Evaluation
 # materialize a mock either, for the same reason property 5 gives:
 # discovery-eval-probe-plan.mjs emits `measurementDir: null` on every
 # override-mode plan, and every probe argv it builds passes `--prompt`, never
-# `--out` — the combination tools/evaluation/discovery/evaluate.mjs itself refuses
+# `--out` — the combination tools/evaluation/readings/discovery/evaluate.mjs itself refuses
 # outright. Unlike a head dispatch, an override dispatch does NOT force every
 # case bare: it stays situated or bare exactly as the case declares, because
 # forcing bare would move two variables — the prompt and the workspace — when
@@ -355,7 +355,7 @@ jobs:
       # SAFETY PROPERTY 4 — the only secret in this step's environment is the
       # one the CLI cannot authenticate without. Whether the case is situated
       # or bare, materializing its workspace and running its repeats both
-      # happen inside tools/evaluation/discovery/evaluate.mjs, invoked once per
+      # happen inside tools/evaluation/readings/discovery/evaluate.mjs, invoked once per
       # matrix cell — see that instrument's README, "Two entry points, one
       # process each".
       - name: Run the probe
@@ -396,7 +396,7 @@ jobs:
             # (actions/download-artifact's `merge-multiple: true`), and a
             # shared filename would let one case's report silently overwrite
             # another's.
-            node tools/evaluation/discovery/evaluate.mjs "${args[@]}" \
+            node tools/evaluation/readings/discovery/evaluate.mjs "${args[@]}" \
               | tee "${RUNNER_TEMP}/report-${CASE}.txt"
           elif [ "${mode}" = "override" ]; then
             args+=(--prompt "${PROMPT}")
@@ -408,7 +408,7 @@ jobs:
             # written to disk. This step explodes each line back into real
             # files, which is what makes the uploaded artifact hold real
             # probe records rather than only a summary.
-            node tools/evaluation/discovery/evaluate.mjs "${args[@]}" \
+            node tools/evaluation/readings/discovery/evaluate.mjs "${args[@]}" \
               > "${RUNNER_TEMP}/override-report-${CASE}.jsonl"
             mkdir -p "${RUNNER_TEMP}/override/${CASE}"
             while IFS= read -r line; do
@@ -423,7 +423,7 @@ jobs:
             mkdir -p "${RUNNER_TEMP}/measurement"
             args+=(--out "${RUNNER_TEMP}/measurement")
             args+=(--run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}")
-            node tools/evaluation/discovery/evaluate.mjs "${args[@]}"
+            node tools/evaluation/readings/discovery/evaluate.mjs "${args[@]}"
             measurement_dir="$(jq -er '.measurementDir' <<<"${plan}")"
             echo "measurement-dir=${measurement_dir}" >> "$GITHUB_OUTPUT"
           fi
@@ -539,7 +539,7 @@ jobs:
       - name: Derive the summaries and check comparability
         id: summarize
         continue-on-error: true
-        run: node tools/evaluation/discovery/summarize.mjs
+        run: node tools/evaluation/readings/discovery/summarize.mjs
 
       # no `continue-on-error`: a measurement that fails the repository's own
       # gates is a defect in this instrument, not a finding about a skill.

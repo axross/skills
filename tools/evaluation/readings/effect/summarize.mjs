@@ -21,14 +21,10 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import {
-  canonicalJson,
-  DATA_ROOT,
-  FIXTURE_FILE,
-  MEASUREMENTS_DIR,
-  SUMMARY_FILE,
-} from "./src/layout.mjs";
-import { comparabilityOf, deriveCaseSummary } from "./src/summary.mjs";
+import { comparabilityOf } from "../../src/comparability.mjs";
+import { canonicalJson, FIXTURE_FILE, MEASUREMENTS_DIR, SUMMARY_FILE } from "../../src/layout.mjs";
+import { DATA_ROOT } from "./src/layout.mjs";
+import { deriveCaseSummary } from "./src/summary.mjs";
 
 const DEFAULT_ROOT = DATA_ROOT;
 
@@ -220,7 +216,7 @@ async function main() {
     process.stderr.write(
       `\n${drifted.length} derived file(s) drifted from their measured inputs:\n  ` +
         `${drifted.join("\n  ")}\n\n` +
-        "Regenerate with `node tools/evaluation/effect/summarize.mjs` and commit the result.\n",
+        "Regenerate with `node tools/evaluation/readings/effect/summarize.mjs` and commit the result.\n",
     );
   }
 

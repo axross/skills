@@ -15,7 +15,7 @@ import {
   FILE_BYTES_MAX,
   planOverlay,
   resolveInside,
-} from "../../tools/evaluation/discovery/src/head-overlay.mjs";
+} from "../../tools/evaluation/readings/discovery/src/head-overlay.mjs";
 
 describe("allowOverlayPath — accepted", () => {
   it("accepts a well-formed .agents/skills/<name>/SKILL.md path", () => {

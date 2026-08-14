@@ -3,18 +3,16 @@
 
 import { describe, expect, it } from "vitest";
 
-import { planFor } from "../../tools/evaluation/discovery/src/plan.mjs";
+import { MODEL, SETTING_SOURCES, shellQuote } from "../../tools/evaluation/src/spawn.mjs";
+import { planFor } from "../../tools/evaluation/readings/discovery/src/plan.mjs";
 import {
   BARE_DISALLOWED_TOOLS,
   buildArgv,
   buildConfiguration,
-  MODEL,
   runProbe,
-  SETTING_SOURCES,
-  shellQuote,
   SITUATED_DISALLOWED_TOOLS,
   syntheticTranscript,
-} from "../../tools/evaluation/discovery/src/spawn.mjs";
+} from "../../tools/evaluation/readings/discovery/src/spawn.mjs";
 
 const testCase = {
   id: "invalidate-a-stale-list-after-a-write",

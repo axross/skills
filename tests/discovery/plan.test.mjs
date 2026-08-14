@@ -8,7 +8,7 @@ import {
   planFor,
   PROVISIONAL_SITUATED_TURN_CAP,
   SITUATED_ALLOWED_TOOLS,
-} from "../../tools/evaluation/discovery/src/plan.mjs";
+} from "../../tools/evaluation/readings/discovery/src/plan.mjs";
 
 describe("planFor", () => {
   it("runs a case declaring a mock situated: Read, Glob, Grep, Skill, a runaway turn cap", () => {

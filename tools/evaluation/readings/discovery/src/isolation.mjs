@@ -7,7 +7,7 @@
 // consumer proves is that the loaded-skill classification does NOT belong
 // there: the effect side reads `loadedSkills` only to assert set equality
 // across probes and never asks whether a name is own, foreign or colliding. See
-// tools/evaluation/discovery/README.md.
+// tools/evaluation/readings/discovery/README.md.
 //
 // THE THREE-WAY SPLIT, NOT "OURS OR NOT". Each simpler version was written
 // before it was rejected:

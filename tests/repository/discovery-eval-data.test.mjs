@@ -31,20 +31,15 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import {
-  canonicalJson,
-  caseIdOf,
-  MEASUREMENTS_DIR,
-  SUMMARY_FILE,
-} from "../../tools/evaluation/discovery/src/layout.mjs";
-import { deriveCaseSummary, deriveDelta } from "../../tools/evaluation/discovery/src/summary.mjs";
+import { canonicalJson, FIXTURE_FILE, MEASUREMENTS_DIR, SUMMARY_FILE } from "../../tools/evaluation/src/layout.mjs";
+import { caseIdOf, DATA_ROOT } from "../../tools/evaluation/readings/discovery/src/layout.mjs";
+import { deriveCaseSummary, deriveDelta } from "../../tools/evaluation/readings/discovery/src/summary.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
-const DATA = repoPath("tools/evaluation/data/discovery");
+const DATA = repoPath(DATA_ROOT);
 const MEASUREMENTS = join(DATA, MEASUREMENTS_DIR);
 
-const readFixture = async () =>
-  JSON.parse(await readFile(repoPath("tools/evaluation/data/discovery/fixture.json"), "utf8"));
+const readFixture = async () => JSON.parse(await readFile(join(DATA, FIXTURE_FILE), "utf8"));
 
 /** every case measurement directory committed under `measurements/`, sorted. */
 async function measurementNames() {
@@ -189,7 +184,7 @@ describe("the discovery-eval fixture", () => {
       (await readFixture()).cases.filter((entry) => entry.patch).map((entry) => entry.patch),
     );
     const onDisk = new Set(
-      (await readdir(repoPath("tools/evaluation/data/discovery/patches")))
+      (await readdir(join(DATA, "patches")))
         .filter((name) => name.endsWith(".patch"))
         .map((name) => `patches/${name}`),
     );
@@ -261,7 +256,7 @@ describe("the derived layer", () => {
       expect(
         committed,
         `${name}/${SUMMARY_FILE} is not what its measured files derive — regenerate with ` +
-          "`node tools/evaluation/discovery/summarize.mjs` and commit the result",
+          "`node tools/evaluation/readings/discovery/summarize.mjs` and commit the result",
       ).toBe(canonicalJson(summary));
     }
   });

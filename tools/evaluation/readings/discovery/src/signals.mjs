@@ -42,7 +42,7 @@
 // failed to decide, but because the instrument never gave a completed
 // decision anywhere to land.
 
-import { readEvents, toolUseBlocks } from "../../lib/transcript/index.mjs";
+import { readEvents, toolUseBlocks } from "../../../lib/transcript/index.mjs";
 
 /**
  * the path or pattern one tool call names, or `null` when the call reads

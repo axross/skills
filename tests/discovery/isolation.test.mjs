@@ -3,8 +3,12 @@
 
 import { describe, expect, it } from "vitest";
 
-import { INVOCABLE, NOT_INVOCABLE, UNRECOGNISED } from "../../tools/evaluation/discovery/src/fingerprint.mjs";
-import { classifyLoaded, contamination } from "../../tools/evaluation/discovery/src/isolation.mjs";
+import {
+  INVOCABLE,
+  NOT_INVOCABLE,
+  UNRECOGNISED,
+} from "../../tools/evaluation/readings/discovery/src/fingerprint.mjs";
+import { classifyLoaded, contamination } from "../../tools/evaluation/readings/discovery/src/isolation.mjs";
 
 describe("classifyLoaded", () => {
   it("classifies a legitimately user-invocable skill of ours as own", () => {

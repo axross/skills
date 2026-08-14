@@ -6,11 +6,8 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import {
-  digestibleFiles,
-  skillDigests,
-  treeDigest,
-} from "../../tools/evaluation/effect/src/fingerprint.mjs";
+import { digestibleFiles, treeDigest } from "../../tools/evaluation/src/fingerprint.mjs";
+import { skillDigests } from "../../tools/evaluation/readings/effect/src/fingerprint.mjs";
 
 let root;
 

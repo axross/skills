@@ -40,7 +40,7 @@
 //   0  the plan is on stdout as JSON
 //   2  bad invocation, an unknown case, or an input that does not resolve
 
-import { caseMeasurementName } from "../../tools/evaluation/discovery/src/layout.mjs";
+import { caseMeasurementName } from "../../tools/evaluation/src/layout.mjs";
 import {
   DEFAULT_ROOT,
   parseDryRunInput,

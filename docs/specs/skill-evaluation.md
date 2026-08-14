@@ -56,7 +56,7 @@ The **skill discovery evaluation** answers this: it asks prompts of a real agent
 agent selected. Situating it is what makes the answer worth having — a skill is
 discovered while someone is working in a codebase, not in an empty room, and a
 prompt asked in an empty room can only be answered from the prompt.
-[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md) owns the
+[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md) owns the
 instrument — its two probe modes, how a verdict is reached, and the limits of
 what a run can conclude — and
 [`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md) what a
@@ -326,9 +326,9 @@ queue deciding what to block.
 
 The concrete reasons each instrument cannot gate belong to the instrument, and
 are stated with it:
-[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md)
+[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md)
 for the skill discovery evaluation,
-[`tools/evaluation/effect/README.md`](../../tools/evaluation/effect/README.md) for the skill
+[`tools/evaluation/readings/effect/README.md`](../../tools/evaluation/readings/effect/README.md) for the skill
 effect evaluation, and `docs/conventions/verification-gates.md` for the
 obligation report that supplies the cost term.
 `tests/repository/reporting-tools.test.mjs` is what
@@ -345,7 +345,7 @@ when someone edits it. The two numbers therefore go stale on different clocks,
 and a reader comparing results across time has to know which kind they are
 holding. What that means for a recorded selection result is stated with the
 instrument in
-[`tools/evaluation/discovery/README.md`](../../tools/evaluation/discovery/README.md).
+[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md).
 
 **Coverage is not the same as correctness.** A fixture measures the prompts
 somebody thought to write down. A skill that is never surfaced by any labelled

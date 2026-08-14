@@ -22,6 +22,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { DATA_ROOT } from "../../tools/evaluation/readings/discovery/src/layout.mjs";
+import { FIXTURE_FILE } from "../../tools/evaluation/src/layout.mjs";
 import { tempDir } from "../helpers/fixtures.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
@@ -30,7 +32,7 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
  * below is derived from it, so trimming a case moves the expectation with the
  * fixture instead of leaving a pinned figure to fail.
  */
-const fixture = JSON.parse(readFileSync(repoPath("tools/evaluation/data/discovery/fixture.json"), "utf8"));
+const fixture = JSON.parse(readFileSync(repoPath(DATA_ROOT, FIXTURE_FILE), "utf8"));
 
 // derived from the fixture for the same reason every projection below is: a
 // case id is prose that moves when the fixture is trimmed or a prompt is

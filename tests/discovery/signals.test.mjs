@@ -8,7 +8,7 @@ import {
   extractSignals,
   pathsBeforeFirstSelection,
   skillsSelected,
-} from "../../tools/evaluation/discovery/src/signals.mjs";
+} from "../../tools/evaluation/readings/discovery/src/signals.mjs";
 
 const line = (event) => JSON.stringify(event);
 

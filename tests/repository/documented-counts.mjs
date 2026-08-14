@@ -50,6 +50,8 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 
+import { DATA_ROOT as EFFECT_DATA_ROOT } from "../../tools/evaluation/readings/effect/src/layout.mjs";
+import { FIXTURE_FILE } from "../../tools/evaluation/src/layout.mjs";
 import { REPO_ROOT, repoPath } from "../helpers/run.mjs";
 import { GATES } from "./gates.mjs";
 
@@ -493,7 +495,7 @@ export const CLAIMS = {
     owner: "the cases array in tools/evaluation/data/effect/fixture.json",
     note: "adding or removing a case moves this number, and effect-eval-out-of-range-skill-count moves opposite it as skills cross between the two lists",
     derive: async () => {
-      const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
+      const fixture = JSON.parse(await readFile(repoPath(EFFECT_DATA_ROOT, FIXTURE_FILE), "utf8"));
       return fixture.cases.length;
     },
   },
@@ -502,7 +504,7 @@ export const CLAIMS = {
     owner: "the skill bullets listed under tools/evaluation/data/effect/coverage.md's three group headings",
     note: "an offline check already holds every installed skill to being named by a case or listed here, so a skill moving between the two moves this number and effect-eval-case-count's implicit complement together",
     derive: async () => {
-      const coverage = await readFile(repoPath("tools/evaluation/data/effect/coverage.md"), "utf8");
+      const coverage = await readFile(repoPath(EFFECT_DATA_ROOT, "coverage.md"), "utf8");
       return [...coverage.matchAll(/^- `[a-z0-9-]+`/gm)].length;
     },
   },
@@ -511,7 +513,7 @@ export const CLAIMS = {
     owner: 'the cases in tools/evaluation/data/effect/fixture.json carrying a "patch" field',
     note: "declared-patches.test.mjs applies every one of these against its mock, so a case gaining or losing a patch moves both that check's coverage and this number",
     derive: async () => {
-      const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
+      const fixture = JSON.parse(await readFile(repoPath(EFFECT_DATA_ROOT, FIXTURE_FILE), "utf8"));
       return fixture.cases.filter((entry) => Boolean(entry.patch)).length;
     },
   },

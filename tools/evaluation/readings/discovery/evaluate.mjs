@@ -2,12 +2,12 @@
 // resolve one case, prepare its probe workspace, run its declared repeats
 // serially against it, and write one probe record per repeat.
 //
-// ONE PROCESS, NOT TWO. tools/evaluation/effect splits setup.mjs from
-// evaluate.mjs because its probes fan out across separate runners under two
-// conditions. Discovery has one condition — see
-// tools/evaluation/discovery/README.md — so preparing a case's workspace and
-// probing it happen together here, and a case's repeats run serially against
-// the one workspace they share.
+// ONE PROCESS, NOT TWO. tools/evaluation/readings/effect splits setup.mjs
+// from evaluate.mjs because its probes fan out across separate runners under
+// two conditions. Discovery has one condition — see
+// tools/evaluation/readings/discovery/README.md — so preparing a case's
+// workspace and probing it happen together here, and a case's repeats run
+// serially against the one workspace they share.
 //
 // TWO MODES, NEVER MIXED IN ONE DISPATCH. A case declaring a `mock` runs
 // situated: a materialized mock, the whole skill corpus installed, Read,
@@ -53,30 +53,25 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { redactTranscript } from "../lib/credentials.mjs";
-import { materialize } from "../lib/mock-workspace.mjs";
+import { redactTranscript } from "../../lib/credentials.mjs";
+import { materialize } from "../../lib/mock-workspace.mjs";
+import { treeDigest } from "../../src/fingerprint.mjs";
+import { canonicalJson, FIXTURE_FILE, newId, SUMMARY_FILE } from "../../src/layout.mjs";
+import { shellQuote } from "../../src/spawn.mjs";
 import { admitCase } from "./src/admission.mjs";
-import { UNRECOGNISED, corpusInvocability, descriptionDigests, treeDigest } from "./src/fingerprint.mjs";
+import { UNRECOGNISED, corpusInvocability, descriptionDigests } from "./src/fingerprint.mjs";
 import {
   allowOverlayContent,
   assertRealDirectory,
   planOverlay,
   resolveInside,
 } from "./src/head-overlay.mjs";
-import {
-  canonicalJson,
-  DATA_ROOT,
-  FIXTURE_FILE,
-  newId,
-  probeName,
-  probePaths,
-  SUMMARY_FILE,
-} from "./src/layout.mjs";
+import { DATA_ROOT, probeName, probePaths } from "./src/layout.mjs";
 import { MODES, planFor, PROVISIONAL_SITUATED_TURN_CAP } from "./src/plan.mjs";
 import { extractSignals } from "./src/signals.mjs";
-import { buildConfiguration, runProbe, shellQuote } from "./src/spawn.mjs";
+import { buildConfiguration, runProbe } from "./src/spawn.mjs";
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 const USAGE = `Usage: evaluate.mjs --case <id> [options]

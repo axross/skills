@@ -8,7 +8,7 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { canonicalJson } from "../../tools/evaluation/discovery/src/layout.mjs";
+import { canonicalJson } from "../../tools/evaluation/src/layout.mjs";
 import { runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const line = (event) => JSON.stringify(event);

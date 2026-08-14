@@ -15,18 +15,11 @@
 // a refusal is a finding, not a prompt to raise the cap. whether to shrink the
 // case, raise the cap, or abandon it is a spending decision, and this module
 // never sees that choice.
+//
+// `meanProbeCost` and `reconcile` are not here: neither is specific to this
+// reading, and both live in tools/evaluation/src/admission.mjs instead.
 
-/**
- * @param {number[]} costs every committed probe's reported cost
- * @returns {number|null} `null` when there is no history, so a caller must fall
- *   back deliberately rather than average an empty set to zero
- */
-export function meanProbeCost(costs) {
-  // a zero means "no cost was reported" rather than "this run was free".
-  const usable = costs.filter((cost) => typeof cost === "number" && cost > 0);
-  if (usable.length === 0) return null;
-  return usable.reduce((sum, cost) => sum + cost, 0) / usable.length;
-}
+import { meanProbeCost } from "../../../src/admission.mjs";
 
 /**
  * decides whether one case measurement may start.
@@ -120,32 +113,5 @@ export function admitCase({
       `${probeCount} probe(s) at $${perProbeUsd.toFixed(2)} each, projected from ${basis}, ` +
       `comes to $${projectedTotalUsd.toFixed(2)} against a $${capUsd.toFixed(2)} cap${capNote}` +
       (admitted ? " — admitted" : " — REFUSED"),
-  };
-}
-
-/**
- * compares what a finished case cost against what it was admitted under.
- *
- * reported, never enforced: the money is already spent by the time this runs,
- * so its job is to tell the next admission that its projection was too low.
- *
- * @param {{ capUsd: number, projectedTotalUsd: number, actualTotalUsd: number }} input
- * @returns {{ withinCap: boolean, overrunUsd: number, projectionErrorUsd: number, reason: string }}
- */
-export function reconcile({ capUsd, projectedTotalUsd, actualTotalUsd }) {
-  const withinCap = actualTotalUsd <= capUsd;
-  const overrunUsd = withinCap ? 0 : actualTotalUsd - capUsd;
-  const projectionErrorUsd = actualTotalUsd - projectedTotalUsd;
-
-  return {
-    withinCap,
-    overrunUsd,
-    projectionErrorUsd,
-    reason: withinCap
-      ? `spent $${actualTotalUsd.toFixed(2)} against a $${capUsd.toFixed(2)} cap; the ` +
-        `projection was off by $${projectionErrorUsd.toFixed(2)}`
-      : `spent $${actualTotalUsd.toFixed(2)}, OVER the $${capUsd.toFixed(2)} cap by ` +
-        `$${overrunUsd.toFixed(2)}; admission projected $${projectedTotalUsd.toFixed(2)}, so the ` +
-        "projection this case was admitted under is too low",
   };
 }

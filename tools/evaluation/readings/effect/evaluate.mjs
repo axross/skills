@@ -29,7 +29,7 @@
 // what each case would cost to measure and whether admission would refuse it,
 // derived from the same admitCase call the real dispatch makes. it spawns
 // nothing and reads no workspace, mirroring
-// tools/evaluation/discovery/evaluate.mjs's own whole-fixture preview rather
+// tools/evaluation/readings/discovery/evaluate.mjs's own whole-fixture preview rather
 // than inventing a second idiom for the same idea.
 //
 // exit codes:
@@ -43,21 +43,15 @@ import { spawnSync } from "node:child_process";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
-import { redactTranscript, stripCredentials } from "../lib/credentials.mjs";
+import { redactTranscript, stripCredentials } from "../../lib/credentials.mjs";
+import { treeDigest } from "../../src/fingerprint.mjs";
+import { canonicalJson, FIXTURE_FILE, newId, SUMMARY_FILE } from "../../src/layout.mjs";
+import { shellQuote } from "../../src/spawn.mjs";
 import { admitCase } from "./src/admission.mjs";
 import { captureDiff, runGitCapture } from "./src/capture.mjs";
-import { skillDigests, treeDigest } from "./src/fingerprint.mjs";
-import {
-  canonicalJson,
-  CONDITIONS,
-  DATA_ROOT,
-  FIXTURE_FILE,
-  newId,
-  probeName,
-  probePaths,
-  SUMMARY_FILE,
-} from "./src/layout.mjs";
-import { buildArgv, buildConfiguration, shellQuote } from "./src/spawn.mjs";
+import { skillDigests } from "./src/fingerprint.mjs";
+import { CONDITIONS, DATA_ROOT, probeName, probePaths } from "./src/layout.mjs";
+import { buildArgv, buildConfiguration } from "./src/spawn.mjs";
 
 // up to 100 turns of edits and diffs, where the discovery probe is one turn of
 // a single tool call.

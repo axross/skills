@@ -14,12 +14,17 @@
 // — the difference it reports cannot be attributed. storing the numbers and
 // leaving a reader to notice would be worse than not measuring, because it
 // looks like data.
+//
+// the pass/fail reading of `checks` — `comparabilityOf` — is not here: it is
+// the same operation regardless of what produced the checks, and lives in
+// tools/evaluation/src/comparability.mjs instead.
 
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { parseTranscript, readBehaviour } from "../../lib/transcript/index.mjs";
-import { conditionOf, METADATA_FILE, probePaths } from "./layout.mjs";
+import { parseTranscript, readBehaviour } from "../../../lib/transcript/index.mjs";
+import { METADATA_FILE } from "../../../src/layout.mjs";
+import { conditionOf, probePaths } from "./layout.mjs";
 
 /** @returns {string[]} in first-appearance order */
 export function changedPaths(patch) {
@@ -458,15 +463,4 @@ export async function deriveCaseSummary(caseDir, { declaredRepetitions = null } 
     totalCostUsd: totalCost,
     probes: derived,
   };
-}
-
-/**
- * @param {Record<string, unknown>} summary
- * @returns {{ comparable: boolean, failures: string[] }}
- */
-export function comparabilityOf(summary) {
-  const failures = (summary.checks ?? [])
-    .filter((check) => !check.passed)
-    .map((check) => `${check.check}: ${check.detail}`);
-  return { comparable: failures.length === 0, failures };
 }

@@ -131,7 +131,7 @@ costs nothing to write and leaves the axis with no measured floor at all.
 
 ## What it costs
 
-No dollar total is stated here on purpose — `node tools/evaluation/effect/evaluate.mjs
+No dollar total is stated here on purpose — `node tools/evaluation/readings/effect/evaluate.mjs
 --dry-run` prints the current per-case and whole-fixture projection over the
 committed fixture, and that command is the number to trust rather than a
 figure that could go stale beside it. Every case's `capUsd` and
