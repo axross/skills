@@ -9,8 +9,8 @@ import { join } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { buildArgv } from "../../tools/evaluation/effect/src/spawn.mjs";
-import { deriveCaseSummary } from "../../tools/evaluation/effect/src/summary.mjs";
+import { buildArgv } from "../../tools/evaluation/readings/effect/src/spawn.mjs";
+import { deriveCaseSummary } from "../../tools/evaluation/readings/effect/src/summary.mjs";
 import { runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const CASE = "add-unit-tests-for-an-untested-module";

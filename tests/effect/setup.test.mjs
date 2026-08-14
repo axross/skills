@@ -1,4 +1,4 @@
-// tools/evaluation/effect/setup.mjs, exercised as a real child process — same
+// tools/evaluation/readings/effect/setup.mjs, exercised as a real child process — same
 // convention as every other bundled validator (see tests/helpers/run.mjs's
 // header): importing it would run its own `main()` and call `process.exit`. it
 // is the interface every real caller uses to reach

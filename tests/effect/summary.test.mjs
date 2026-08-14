@@ -11,17 +11,17 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { canonicalJson } from "../../tools/evaluation/effect/src/layout.mjs";
-import { buildConfiguration } from "../../tools/evaluation/effect/src/spawn.mjs";
+import { comparabilityOf } from "../../tools/evaluation/src/comparability.mjs";
+import { canonicalJson } from "../../tools/evaluation/src/layout.mjs";
+import { buildConfiguration } from "../../tools/evaluation/readings/effect/src/spawn.mjs";
 import {
   changedPaths,
-  comparabilityOf,
   deriveCaseSummary,
   deriveProbeSummary,
   finalMessageHeadings,
   readProbe,
   solicitsDecision,
-} from "../../tools/evaluation/effect/src/summary.mjs";
+} from "../../tools/evaluation/readings/effect/src/summary.mjs";
 
 let caseDir;
 

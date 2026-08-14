@@ -1,6 +1,6 @@
 // digesting what a discovery probe ran against: the project tree, and —
-// separately, and NOT via tools/evaluation/effect's whole-tree skill digest —
-// each installed skill's `description` alone.
+// separately, and NOT via tools/evaluation/readings/effect's whole-tree skill
+// digest — each installed skill's `description` alone.
 
 import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -8,18 +8,17 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { digestibleFiles, treeDigest } from "../../tools/evaluation/src/fingerprint.mjs";
 import {
   corpusInvocability,
   descriptionDigests,
   digestDescription,
-  digestibleFiles,
   INVOCABLE,
   NOT_INVOCABLE,
   readDescription,
   readInvocable,
-  treeDigest,
   UNRECOGNISED,
-} from "../../tools/evaluation/discovery/src/fingerprint.mjs";
+} from "../../tools/evaluation/readings/discovery/src/fingerprint.mjs";
 
 let root;
 

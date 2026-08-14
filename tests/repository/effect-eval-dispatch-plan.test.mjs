@@ -19,6 +19,8 @@ import { join } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
 
+import { DATA_ROOT } from "../../tools/evaluation/readings/effect/src/layout.mjs";
+import { FIXTURE_FILE } from "../../tools/evaluation/src/layout.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const CASE = "add-unit-tests-for-an-untested-module";
@@ -36,7 +38,7 @@ const landingPlan = (args) => runScript(SCRIPTS.effectEvalLandingPlan, args);
 
 /** the declared skills of one fixture case, so the assertions track the fixture. */
 async function declaredSkills(caseId = CASE) {
-  const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
+  const fixture = JSON.parse(await readFile(repoPath(DATA_ROOT, FIXTURE_FILE), "utf8"));
   return fixture.cases.find((entry) => entry.id === caseId).skills;
 }
 
@@ -109,7 +111,7 @@ describe("the probe plan", () => {
     // workflow's `jq -er` has something to read either way. other cases in the
     // fixture do declare one, and the branch that resolves it is exercised
     // through them.
-    const fixture = JSON.parse(await readFile(repoPath("tools/evaluation/data/effect/fixture.json"), "utf8"));
+    const fixture = JSON.parse(await readFile(repoPath(DATA_ROOT, FIXTURE_FILE), "utf8"));
     const declared = fixture.cases.find((entry) => entry.id === CASE);
 
     for (const condition of ["skill-absent", "skill-present"]) {
@@ -120,7 +122,7 @@ describe("the probe plan", () => {
       expect(
         plan.patch,
         "a patch is per case, so both conditions of one case get the same one",
-      ).toBe(declared.patch ? repoPath("tools/evaluation/data/effect", declared.patch) : "");
+      ).toBe(declared.patch ? repoPath(DATA_ROOT, declared.patch) : "");
     }
   });
 

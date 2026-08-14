@@ -13,12 +13,13 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { READING_KINDS } from "../../tools/evaluation/effect/src/artifact.mjs";
-import { canonicalJson } from "../../tools/evaluation/effect/src/layout.mjs";
-import { deriveCaseSummary } from "../../tools/evaluation/effect/src/summary.mjs";
+import { canonicalJson } from "../../tools/evaluation/src/layout.mjs";
+import { READING_KINDS } from "../../tools/evaluation/readings/effect/src/artifact.mjs";
+import { DATA_ROOT as EFFECT_DATA_ROOT } from "../../tools/evaluation/readings/effect/src/layout.mjs";
+import { deriveCaseSummary } from "../../tools/evaluation/readings/effect/src/summary.mjs";
 import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
-const DATA_ROOT = repoPath("tools/evaluation/data/effect");
+const DATA_ROOT = repoPath(EFFECT_DATA_ROOT);
 const MEASUREMENTS = join(DATA_ROOT, "measurements");
 const COVERAGE_PATH = join(DATA_ROOT, "coverage.md");
 
@@ -296,7 +297,7 @@ describe("the derived layer", () => {
       expect(
         committed,
         `${name}/summary.json is not what its measured files derive — regenerate with ` +
-          "`node tools/evaluation/effect/summarize.mjs` and commit the result",
+          "`node tools/evaluation/readings/effect/summarize.mjs` and commit the result",
       ).toBe(derived);
     }
   });

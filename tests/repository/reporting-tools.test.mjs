@@ -18,7 +18,7 @@
 // distributable — so a gate on similarity would fail correct prose. only intent
 // separates the cases, and intent is not in the corpus.
 //
-// tools/evaluation/discovery/evaluate.mjs reports which skills a prompt
+// tools/evaluation/readings/discovery/evaluate.mjs reports which skills a prompt
 // surfaced. it cannot gate for three independent reasons: it is
 // non-deterministic, it costs money per run, and it needs a secret that fork
 // pull requests do not receive. a flaky merge gate gets bypassed or deleted.
@@ -65,7 +65,7 @@ const REPORTING_TOOLS = [
     script: SCRIPTS.discoveryEvalEvaluate,
     // matched by PATH for the same reason as its effect-side sibling below:
     // "evaluate.mjs" alone is too generic to assert anything.
-    needle: "tools/evaluation/discovery/evaluate.mjs",
+    needle: "tools/evaluation/readings/discovery/evaluate.mjs",
     // its own workflow is the one place it may appear — maintainer-triggered,
     // and not a required check.
     workflow: "discovery-eval.yaml",
@@ -78,7 +78,7 @@ const REPORTING_TOOLS = [
     script: SCRIPTS.evaluate,
     // matched by PATH for the same reason as its discovery-side sibling above:
     // "evaluate.mjs" alone is too generic to assert anything.
-    needle: "tools/evaluation/effect/evaluate.mjs",
+    needle: "tools/evaluation/readings/effect/evaluate.mjs",
     // it has earned its own workflow, and exactly one. until #278 this entry
     // read `workflow: null` with the note "this has no such entry point yet,
     // and until it does, any workflow naming it is a wiring mistake" — so
@@ -446,7 +446,7 @@ describe("the effect evaluation's own workflow", () => {
     expect(
       land,
       "the writing job invokes the probe, which would hand a model a write token",
-    ).not.toContain("tools/evaluation/effect/evaluate.mjs");
+    ).not.toContain("tools/evaluation/readings/effect/evaluate.mjs");
   });
 });
 
@@ -596,7 +596,7 @@ describe("the discovery evaluation's own workflow", () => {
     expect(
       land,
       "the writing job invokes the probe, which would hand a model a write token",
-    ).not.toContain("tools/evaluation/discovery/evaluate.mjs");
+    ).not.toContain("tools/evaluation/readings/discovery/evaluate.mjs");
   });
 
   describe("safety property 5 — a pull-request dispatch runs bare and records nothing", () => {

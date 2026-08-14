@@ -116,7 +116,7 @@ describe("every mock under tools/evaluation/mocks/", () => {
       .toBe("");
   });
 
-  // the first of the two layers tools/evaluation/effect/src/capture.mjs's
+  // the first of the two layers tools/evaluation/readings/effect/src/capture.mjs's
   // header describes: a mock's own .gitignore should keep an installed skill
   // out of Git entirely, so the capture's `.claude` filter — the second layer
   // — never has anything to catch. behavioural rather than a grep of the

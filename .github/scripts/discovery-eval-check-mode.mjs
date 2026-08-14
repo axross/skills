@@ -25,7 +25,8 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { isProbeName, METADATA_FILE } from "../../tools/evaluation/discovery/src/layout.mjs";
+import { METADATA_FILE } from "../../tools/evaluation/src/layout.mjs";
+import { isProbeName } from "../../tools/evaluation/readings/discovery/src/layout.mjs";
 
 /** what `trigger.kind` reads on a record from a rehearsal. */
 const DRY_RUN_KIND = "dry-run";

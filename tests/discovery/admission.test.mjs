@@ -2,12 +2,8 @@
 
 import { describe, expect, it } from "vitest";
 
-import {
-  admitCase,
-  ceilingFor,
-  meanProbeCost,
-  reconcile,
-} from "../../tools/evaluation/discovery/src/admission.mjs";
+import { meanProbeCost, reconcile } from "../../tools/evaluation/src/admission.mjs";
+import { admitCase, ceilingFor } from "../../tools/evaluation/readings/discovery/src/admission.mjs";
 
 const CEILINGS = { situated: 0.35, bare: 0.05 };
 
