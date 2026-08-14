@@ -208,9 +208,10 @@ nothing.
 That makes `loadedSkills` runtime-dependent in a way none of this module's
 other fields are: whether the CLI announces workspace skills at all is a
 property of the CLI version, not of the probe. On the runtime pinned for every
-measurement here, claude-code `2.1.220`, **it does not.** Across all 22
-committed measurements, no probe's `loadedSkills` ever contains the one skill
-its case declares — not even the three skill-present probes of
+measurement here, claude-code `2.1.220`, **it does not.** Across the
+measurements committed as of this pass, no probe's `loadedSkills` ever
+contains the one skill its case declares — not even the three skill-present
+probes of
 [`remove-config-options-the-test-runner-ignores-b2e5e389`](./measurements/remove-config-options-the-test-runner-ignores-b2e5e389),
 which invoked `vitest-testing` by exact name as their second tool call. #364
 established this is the pinned runtime's behavior rather than evidence the
@@ -231,17 +232,17 @@ does; **contradicted**, and failing, when some probe does report a declared
 skill but the distribution is wrong; and **unavailable** — passing,
 deliberately — when no probe reports any declared skill at all, because
 failing there would mark every measurement this runtime produces incomparable
-for information the runtime never offered. All 22 committed measurements
-resolve unavailable, which is a record of this runtime's behavior, not a
-defect in any of them.
+for information the runtime never offered. Every measurement committed as of
+this pass resolves unavailable, which is a record of this runtime's behavior,
+not a defect in any of them.
 
 **A skill-present probe with an empty `skillsInvoked` is therefore an
 ambiguous outcome, not a measured null.** "The skill was there and went
 unused" and "the skill never reached the model" read identically in every
 field this instrument can check, because the one outcome-based signal that
 would tell them apart — the treatment showing up in `loadedSkills` — is
-unavailable on this runtime for every probe. Four of the 22 committed
-measurements are in that state:
+unavailable on this runtime for every probe. Four of the 22 measurements
+committed as of this pass are in that state:
 
 - `write-a-custom-not-found-page` — the fixture's negative control. Its clean
   null result is the main evidence offered that the instrument discriminates
@@ -267,10 +268,10 @@ what it compares now.
 ## Whether a probe produced a diff does not discriminate between the conditions
 
 `changedPaths` is the most prominent field on a probe's summary and the first
-thing a reader reaches for when comparing the two conditions. Across every
-measurement committed here, whether it is empty or not agrees between
-skill-present and skill-absent in 20 of 22 measurements. The two exceptions
-run in opposite directions:
+thing a reader reaches for when comparing the two conditions. Across the
+measurements committed as of this pass, whether it is empty or not agrees
+between skill-present and skill-absent in 20 of 22 measurements. The two
+exceptions run in opposite directions:
 [`remove-config-options-the-test-runner-ignores`](./measurements/remove-config-options-the-test-runner-ignores-b2e5e389)
 produced a diff in 3 of 3 skill-present probes against 2 of 3 skill-absent,
 and
@@ -478,7 +479,9 @@ this field is never read for that case again — it governs only the first run.
 
 `measurements/` holds every case measurement taken so far, one directory per
 measurement, and `summary.json` is the snapshot derived across all of them —
-that file, not this paragraph, is the live record. It currently holds <!-- count:effect-eval-measurement-count -->22<!-- /count --> measurements across 21 distinct cases, together costing `$75.3194`:
+that file, not this paragraph, is the live record; read it, or derive from its
+`measurements` array, for the current measurement count, distinct-case count,
+and total cost.
 `fix-a-minified-production-stack-trace` is measured twice — `201f1200`,
 superseded, and `156f5602`, its replacement under the non-interactive brief
 (see above) — and every other measured case once. `fixture.json` declares
