@@ -17,8 +17,8 @@ under `tools/evaluation/` is laid out.
 ├── docs/                        # this tree
 ├── tools/evaluation/            # the skill discovery and effect evaluations
 │   ├── lib/                     # shared by both: credentials, mock-workspace, transcript/
-│   ├── discovery/               # the skill discovery evaluation
-│   ├── effect/                  # the skill effect evaluation
+│   ├── src/                     # the 16 shared definitions, grouped by concern: layout, fingerprint, admission, comparability, spawn
+│   ├── readings/                # each reading's own modules: discovery/, effect/
 │   ├── mocks/                   # the mock fixtures both evaluations situate probes in
 │   └── data/                    # discovery/ and effect/ measurement data, one per instrument
 └── tests/                       # the suite that gates all of the above
