@@ -50,7 +50,7 @@ export const BARE_TURN_CAP = 2;
  * loose guard." this is that guess — deliberately loose, so it is a guard that
  * must not bind rather than a budget that truncates a legitimately longer
  * situated exploration. it is not a tuning knob: do not lower it to save
- * money, for the same reason tools/evaluation/effect/src/spawn.mjs's TURN_CAP
+ * money, for the same reason tools/evaluation/readings/effect/src/spawn.mjs's TURN_CAP
  * must not be lowered. `--turn-cap` on evaluate.mjs overrides it per
  * invocation, and the pilot's own measurement is what should replace this
  * constant, not a second guess made here.

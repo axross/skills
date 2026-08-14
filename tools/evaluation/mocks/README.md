@@ -2,7 +2,7 @@
 
 Fixtures for the skill evaluations. Each subdirectory is a small,
 self-contained project that
-[`tools/evaluation/effect/setup.mjs`](../effect/setup.mjs) expands into an
+[`tools/evaluation/readings/effect/setup.mjs`](../readings/effect/setup.mjs) expands into an
 isolated temporary directory as a real Git repository, with a chosen set of
 skills installed, so a probe can give a model a task inside one.
 

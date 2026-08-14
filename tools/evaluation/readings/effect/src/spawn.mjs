@@ -23,16 +23,11 @@
 // and run commands, which is the whole task. Skill stays permitted because
 // whether an installed skill gets invoked during real work is the thing
 // being measured.
+//
+// `MODEL` and `SETTING_SOURCES` are not here: neither is specific to this
+// reading, and both live in tools/evaluation/src/spawn.mjs instead.
 
-/**
- * pinned rather than left to the CLI's default.
- *
- * changing it invalidates every measurement taken before the change. the
- * instrument attributes a difference between two conditions to the skill, and
- * that holds only while everything else is constant — the model most of all. a
- * change here supersedes the existing measurements rather than extending them.
- */
-export const MODEL = "claude-sonnet-5";
+import { MODEL, SETTING_SOURCES } from "../../../src/spawn.mjs";
 
 /**
  * a runaway guard, not a budget control.
@@ -47,16 +42,6 @@ export const MODEL = "claude-sonnet-5";
  * measurement.
  */
 export const TURN_CAP = 100;
-
-/**
- * on every invocation, no exceptions.
- *
- * it strips the user-level skills for free. the ones a managed environment
- * injects cannot be stripped without also stripping the workspace's own, which
- * are the treatment — so this is the one isolation lever available, and both
- * conditions take it alike.
- */
-export const SETTING_SOURCES = ["project"];
 
 export const ALLOWED_TOOLS = ["Bash", "Edit", "Glob", "Grep", "Read", "Skill", "TodoWrite", "Write"];
 
@@ -174,18 +159,4 @@ export function buildArgv(configuration) {
     "--append-system-prompt",
     options.appendSystemPrompt,
   ];
-}
-
-/**
- * for display only — the real invocation passes an argv array with no shell.
- * the quoting exists so a reader who pastes a printed command gets the command
- * that was described rather than a prompt split across several arguments.
- *
- * @param {string} argument
- * @returns {string}
- */
-export function shellQuote(argument) {
-  return /^[A-Za-z0-9_./:=-]+$/.test(argument)
-    ? argument
-    : `'${argument.replaceAll("'", `'\\''`)}'`;
 }

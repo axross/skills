@@ -2,7 +2,7 @@
 
 What the skill discovery evaluation has measured, and the declared cases it
 measures. The instrument that writes all of this lives in
-[`tools/evaluation/discovery/`](../../discovery/README.md).
+[`tools/evaluation/readings/discovery/`](../../readings/discovery/README.md).
 
 ## Three kinds of file, three rules
 
@@ -36,13 +36,13 @@ tools/evaluation/data/discovery/
 are not a series — so an index would imply one; a random id implies none.
 
 No `changes.patch` appears under a probe directory. A discovery probe's tools
-are always `Read`, `Glob`, `Grep` and `Skill` at most (`tools/evaluation/discovery`'s
+are always `Read`, `Glob`, `Grep` and `Skill` at most (`tools/evaluation/readings/discovery`'s
 own README has the full posture), so a probe never edits the workspace and
 produces no artifact to capture.
 
 ## There is no baseline
 
-[`tools/evaluation/discovery/summarize.mjs`](../../discovery/summarize.mjs)
+[`tools/evaluation/readings/discovery/summarize.mjs`](../../readings/discovery/summarize.mjs)
 derives `summary.json` across every directory under `measurements/` and
 regenerates it from that directory alone — nothing here is a stored
 conclusion a later run is compared against. With no measurements present the
@@ -63,8 +63,8 @@ reports the condition that made none comparable rather than a delta.
 ## Regenerating, and the drift check
 
 ```sh
-node tools/evaluation/discovery/summarize.mjs           # derive and write every summary
-node tools/evaluation/discovery/summarize.mjs --check   # derive and compare; write nothing
+node tools/evaluation/readings/discovery/summarize.mjs           # derive and write every summary
+node tools/evaluation/readings/discovery/summarize.mjs --check   # derive and compare; write nothing
 ```
 
 `--check` is the drift check. It runs in this repository's test suite over
@@ -75,7 +75,7 @@ byte difference.
 Both derived surfaces are covered by `.prettierignore`'s
 `tools/evaluation/data/*/summary.json` and
 `tools/evaluation/data/*/measurements/` entries — the bytes come from
-exactly one serializer (`tools/evaluation/discovery/src/layout.mjs`'s
+exactly one serializer (`tools/evaluation/readings/discovery/src/layout.mjs`'s
 `canonicalJson`), and a second formatter with an opinion about them would make
 the drift check fail against a file this instrument never wrote.
 
@@ -113,7 +113,7 @@ that row for the entire run that measured it. The situated figure had no such
 problem.
 
 Admission projects each case at the ceiling for **the mode that dispatch will
-actually run it in** ([`tools/evaluation/discovery/src/plan.mjs`](../../discovery/src/plan.mjs)'s
+actually run it in** ([`tools/evaluation/readings/discovery/src/plan.mjs`](../../readings/discovery/src/plan.mjs)'s
 `planFor`), never the mode the case merely declares. A case declaring a `mock`
 runs bare under `--head-skills` regardless — a head dispatch forces every case
 bare — so it is projected at the bare figure, not the situated one. Projecting
@@ -204,7 +204,7 @@ One case, `write-the-commit-message-for-this-change`, has a round-one
 measurement with zero readable probes: every tracked skill there reports
 `unevidenced` rather than `miss`, because `verdictFor` answers "no evidence"
 before it ever reaches the `mustInclude`/`mustExclude` rule — see
-[`tools/evaluation/discovery/README.md`](../../discovery/README.md)'s
+[`tools/evaluation/readings/discovery/README.md`](../../readings/discovery/README.md)'s
 "Verdicts, unchanged".
 
 **`living-product-specification` no longer names a skill in this corpus.**

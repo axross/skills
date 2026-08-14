@@ -24,7 +24,7 @@
 //   2  bad invocation, a malformed mock, a patch that does not apply, or a
 //      failure preparing the workspace
 
-import { materialize } from "../lib/mock-workspace.mjs";
+import { materialize } from "../../lib/mock-workspace.mjs";
 
 const DEFAULT_MOCK = "tsuzuri";
 

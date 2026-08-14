@@ -215,7 +215,7 @@ which is checked by the same suite.
 | Skill structure   | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`  |
 | Installed copies  | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                    |
 | Obligation burden | `scripts/report-obligation-burden.mjs` (reports; never gates)                         |
-| Skill discovery   | `tools/evaluation/discovery/evaluate.mjs` (reports; never gates)                      |
+| Skill discovery   | `tools/evaluation/readings/discovery/evaluate.mjs` (reports; never gates)             |
 | Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                         |
 | Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)           |
 | Project docs      | `skills/living-project-documentation/scripts/check-*.mjs` (five, over `docs/`)        |

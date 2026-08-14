@@ -1,14 +1,9 @@
-// digesting what a discovery probe ran against, by content: the project tree
-// it was situated in, and — separately — each installed skill's `description`.
+// digesting what a discovery probe ran against: the project tree it was
+// situated in (the shared `treeDigest`, imported rather than reimplemented —
+// see tools/evaluation/src/fingerprint.mjs) and — separately — each
+// installed skill's `description`.
 //
-// THE PROJECT TREE DIGEST follows tools/evaluation/effect/src/fingerprint.mjs's
-// shape (sha256 over sorted `path\0mode\0sha256(content)` lines, `.git/`,
-// `node_modules/` and `.claude/skills/` excluded) because nothing about what
-// makes two project trees comparable is specific to either evaluation — see
-// that module's own header for the four reasons a commit hash cannot serve
-// as this key instead.
-//
-// THE SKILL DIGEST DOES NOT REUSE THAT MODULE'S. The effect side digests a
+// THE SKILL DIGEST DOES NOT REUSE `treeDigest`. The effect side digests a
 // skill's whole installed tree, because a skill-present probe's task is
 // affected by anything in the skill it might read once selected. Discovery
 // never gets that far: only `description` reaches the model before a
@@ -21,72 +16,14 @@
 //
 // each digest is per skill, not one over the whole corpus, so editing one
 // skill's description by one byte moves that entry and names it — the same
-// reasoning tools/evaluation/effect/src/fingerprint.mjs gives for skillDigests,
-// and the same shape the instrument this one replaces used.
+// reasoning the shared fingerprint module gives for a per-skill digest, and
+// the same shape the instrument this one replaces used.
 
 import { createHash } from "node:crypto";
-import { readdir, readFile, stat } from "node:fs/promises";
-import { join, relative, sep } from "node:path";
-
-/** matched at any depth: a nested `node_modules/` is the same non-content. */
-const EXCLUDED_DIRECTORIES = new Set([".git", "node_modules"]);
-
-/**
- * excluded by position, so a directory named `skills` elsewhere in the tree
- * is still digested. load-bearing for the same reason it is on the effect
- * side: every situated probe installs the whole corpus, so a project digest
- * that covered it would move for every case identically and say nothing
- * about the project itself.
- */
-const EXCLUDED_PATHS = new Set([".claude/skills"]);
+import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const sha256 = (input) => createHash("sha256").update(input).digest("hex");
-
-/**
- * @param {string} root
- * @returns {Promise<string[]>} sorted, so a digest never depends on
- *   directory-read order
- */
-export async function digestibleFiles(root) {
-  const files = [];
-
-  async function walk(directory) {
-    const entries = await readdir(directory, { withFileTypes: true });
-    for (const entry of entries) {
-      const full = join(directory, entry.name);
-      const rel = relative(root, full).split(sep).join("/");
-      if (EXCLUDED_PATHS.has(rel)) continue;
-      if (entry.isDirectory()) {
-        if (EXCLUDED_DIRECTORIES.has(entry.name)) continue;
-        await walk(full);
-      } else if (entry.isFile() || entry.isSymbolicLink()) {
-        files.push(rel);
-      }
-    }
-  }
-
-  await walk(root);
-  return files.sort();
-}
-
-/**
- * a content digest over a directory tree — the project a situated probe ran
- * against. `null` for a bare probe, which has no project.
- *
- * @param {string} root
- * @returns {Promise<string>} `sha256:<hex>`
- */
-export async function treeDigest(root) {
-  const files = await digestibleFiles(root);
-  const lines = [];
-  for (const path of files) {
-    const full = join(root, path);
-    const [info, content] = await Promise.all([stat(full), readFile(full)]);
-    const mode = info.mode & 0o111 ? "755" : "644";
-    lines.push(`${path}\0${mode}\0${sha256(content)}`);
-  }
-  return `sha256:${sha256(lines.join("\n"))}`;
-}
 
 /** the frontmatter block's body, or `null` when the file carries none. */
 function frontmatterBlock(text) {

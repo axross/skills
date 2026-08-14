@@ -2,20 +2,22 @@
 // from it, and — unlike the effect side — the actual run.
 //
 // `buildConfiguration`/`buildArgv` mirror
-// tools/evaluation/effect/src/spawn.mjs's round trip: the configuration is the
-// source and the argv is derived, never the other way round and never both
-// independently, so a stored `metadata.json` is a complete account of the
-// invocation rather than a description that might have drifted.
+// tools/evaluation/readings/effect/src/spawn.mjs's round trip: the
+// configuration is the source and the argv is derived, never the other way
+// round and never both independently, so a stored `metadata.json` is a
+// complete account of the invocation rather than a description that might
+// have drifted. `MODEL`, `SETTING_SOURCES` and `shellQuote` are that shared
+// shape and live in tools/evaluation/src/spawn.mjs.
 //
 // RUNNING THE CLI LIVES HERE TOO, which is where this module parts ways with
-// its effect-side counterpart. tools/evaluation/effect/evaluate.mjs calls
-// `spawnSync` itself, because that instrument writes exactly one probe per
-// invocation. tools/evaluation/discovery/evaluate.mjs writes a whole case's
-// repeats in one process (see this instrument's README — discovery has one
-// condition, so preparing a workspace and probing it happen together), so
-// `runProbe` is called once per repeat from inside one loop; giving it a module
-// of its own keeps evaluate.mjs's own body about orchestrating repeats rather
-// than about the subprocess.
+// its effect-side counterpart. tools/evaluation/readings/effect/evaluate.mjs
+// calls `spawnSync` itself, because that instrument writes exactly one probe
+// per invocation. tools/evaluation/readings/discovery/evaluate.mjs writes a
+// whole case's repeats in one process (see this instrument's README —
+// discovery has one condition, so preparing a workspace and probing it
+// happen together), so `runProbe` is called once per repeat from inside one
+// loop; giving it a module of its own keeps evaluate.mjs's own body about
+// orchestrating repeats rather than about the subprocess.
 //
 // the tool posture is built from plan.mjs's resolved mode rather than
 // declared again here — see plan.mjs's header for why situated permits
@@ -26,18 +28,8 @@
 
 import { spawnSync } from "node:child_process";
 
-import { stripCredentials } from "../../lib/credentials.mjs";
-
-/**
- * pinned rather than left to the CLI's default, for the same reason
- * tools/evaluation/effect/src/spawn.mjs pins one: changing it invalidates every
- * measurement taken before the change, because comparability holds only
- * while the model is constant.
- */
-export const MODEL = "claude-sonnet-5";
-
-/** on every invocation, no exceptions — strips the user-level skill tier. */
-export const SETTING_SOURCES = ["project"];
+import { stripCredentials } from "../../../lib/credentials.mjs";
+import { MODEL, SETTING_SOURCES, shellQuote } from "../../../src/spawn.mjs";
 
 /**
  * denied in every situated probe: Bash and the editing tools would let a
@@ -201,20 +193,10 @@ export function buildArgv(configuration) {
 }
 
 /**
- * for display only — the real invocation passes an argv array with no shell.
- *
- * @param {string} argument
- * @returns {string}
- */
-export function shellQuote(argument) {
-  return /^[A-Za-z0-9_./:=-]+$/.test(argument) ? argument : `'${argument.replaceAll("'", `'\\''`)}'`;
-}
-
-/**
  * a one-turn, cost-free transcript shaped like the CLI's — so a dry run
  * exercises the whole pipeline, redaction and derivation included, rather
  * than only the half that precedes the spawn. mirrors
- * tools/evaluation/effect/evaluate.mjs's `syntheticTranscript`.
+ * tools/evaluation/readings/effect/evaluate.mjs's `syntheticTranscript`.
  *
  * @param {Configuration} configuration
  * @returns {string}

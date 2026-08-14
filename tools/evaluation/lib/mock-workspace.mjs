@@ -1,6 +1,6 @@
 // mock-workspace.mjs — expands a mock project into an isolated, reproducible
 // Git working copy for one probe to run inside.
-// tools/evaluation/effect/setup.mjs is the entry point that drives it today.
+// tools/evaluation/readings/effect/setup.mjs is the entry point that drives it today.
 //
 // it lives in tools/evaluation/lib because a mock belongs to neither
 // evaluation. what is below decides nothing either instrument owns: it
