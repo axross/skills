@@ -267,10 +267,10 @@ what it compares now.
 ## Whether a probe produced a diff does not discriminate between the conditions
 
 `changedPaths` is the most prominent field on a probe's summary and the first
-thing a reader reaches for when comparing the two conditions. Across every
-measurement committed here, whether it is empty or not agrees between
-skill-present and skill-absent in 20 of 22 measurements. The two exceptions
-run in opposite directions:
+thing a reader reaches for when comparing the two conditions. Across the
+measurements committed as of this pass, whether it is empty or not agrees
+between skill-present and skill-absent in 20 of 22 measurements. The two
+exceptions run in opposite directions:
 [`remove-config-options-the-test-runner-ignores`](./measurements/remove-config-options-the-test-runner-ignores-b2e5e389)
 produced a diff in 3 of 3 skill-present probes against 2 of 3 skill-absent,
 and
@@ -478,7 +478,8 @@ this field is never read for that case again — it governs only the first run.
 
 `measurements/` holds every case measurement taken so far, one directory per
 measurement, and `summary.json` is the snapshot derived across all of them —
-that file, not this paragraph, is the live record. It currently holds <!-- count:effect-eval-measurement-count -->22<!-- /count --> measurements across 21 distinct cases, together costing `$75.3194`:
+that file, not this paragraph, is the live record; read it for the current
+measurement count, distinct-case count, and total cost.
 `fix-a-minified-production-stack-trace` is measured twice — `201f1200`,
 superseded, and `156f5602`, its replacement under the non-interactive brief
 (see above) — and every other measured case once. `fixture.json` declares
