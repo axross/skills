@@ -29,7 +29,7 @@
 import { spawnSync } from "node:child_process";
 
 import { stripCredentials } from "../../../lib/credentials.mjs";
-import { MODEL, SETTING_SOURCES, shellQuote } from "../../../src/spawn.mjs";
+import { MODEL, SETTING_SOURCES } from "../../../src/spawn.mjs";
 
 /**
  * denied in every situated probe: Bash and the editing tools would let a
