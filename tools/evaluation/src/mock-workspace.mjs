@@ -1,8 +1,10 @@
 // mock-workspace.mjs — expands a mock project into an isolated, reproducible
 // Git working copy for one probe to run inside.
-// it has no CLI entry point of its own: tests/repository/mock-materialization.test.mjs
-// imports materialize() directly, and the probe driver that will call it in
-// production is not written yet.
+// it has no CLI entry point of its own. probe-runner.mjs materializes the
+// workspace a probe runs inside, reconstruct.mjs materializes the one a stored
+// measurement is judged against, and
+// tests/repository/mock-materialization.test.mjs imports materialize()
+// directly.
 //
 // it lives in tools/evaluation/src because a mock belongs to no one
 // instrument. what is below decides nothing any one instrument owns: it
