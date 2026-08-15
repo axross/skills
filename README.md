@@ -174,7 +174,7 @@ which is the entire point of running it.
 
 See [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) for
 what skill evaluation is, why checking textual properties cannot reach it,
-and the scenario it now runs against, and
+and the scenario model it describes, and
 [`docs/operations/evaluation-dispatch.md`](./docs/operations/evaluation-dispatch.md)
 for how to run either instrument today.
 

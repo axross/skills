@@ -16,8 +16,8 @@ uses none of them.
 ## Specifications
 
 - [specs/skill-evaluation.md](./specs/skill-evaluation.md) — what it means to
-  measure whether a skill works, and the evaluation scenario this library
-  runs, under two conditions and three phases, to check it.
+  measure whether a skill works, and the evaluation scenario it describes,
+  under two conditions and three phases, to check it.
 
 ## Conventions
 
