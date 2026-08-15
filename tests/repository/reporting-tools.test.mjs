@@ -174,11 +174,8 @@ describe("the merge gate's measurement-pull-request exclusion", () => {
   const readMergeChecks = () =>
     readFile(repoPath(".github/workflows/merge-checks.yaml"), "utf8");
 
-  /** the two derived surfaces a measurement pull request consists of. */
-  const DERIVED_PATHS = [
-    "tools/evaluation/data/*/measurements/**",
-    "tools/evaluation/data/*/summary.json",
-  ];
+  /** the derived surface a measurement pull request consists of. */
+  const DERIVED_PATHS = ["tools/evaluation/measurements/**"];
 
   it("excludes the measurement pull request at the trigger, by path", async () => {
     const yaml = await readMergeChecks();
