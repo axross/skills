@@ -2,7 +2,7 @@
 status: accepted
 ---
 
-# Record the discovery vocabulary cost before its artifact expires
+# Argue description vocabulary on reader value, not on the discovery score
 
 ## Context
 
@@ -54,9 +54,9 @@ recorded, and a wording change was the whole of what produced them.
 `stop-two-sites-sharing-one-cached-list`, which tracked
 `tanstack-query-development`: the declared wording — "Switching from one
 customer's site to another shows the wrong site's posts for a moment before
-it corrects itself." — scored 0/6. The vocabulary-matched wording —
-adding "the two sites look like they are sharing one cached list until it
-refetches" — scored 2/6. Two-sided Fisher exact: p = 0.455 — off zero, but
+it corrects itself." — scored 0/6. The vocabulary-matched wording — the same
+opening with "before it corrects itself" replaced by "— the two sites look
+like they are sharing one cached list until it refetches" — scored 2/6. Two-sided Fisher exact: p = 0.455 — off zero, but
 indistinguishable from chance at this sample size. This pair did not
 replicate the first; it was the pair that failed to reproduce the effect,
 not weak evidence for it. The two pairs disagreeing is exactly why no
@@ -89,15 +89,15 @@ which was enough repeats to say the n=2 `MISS` was not a sampling artefact
 
 ## The decision
 
-**Keep this finding as a decision record rather than let it disappear with
-the artifact and the file that reported it.** The evidence expires whether
-or not the instrument that produced it is rebuilt, and rebuilding the
-effect side of the evaluation carries no obligation to also carry this
-prose forward — nothing about it argues for or against that rebuild. It is
-recorded here because it constrains a proposal nobody has written yet, and
-because its own rationale — two Fisher-tested pairs, on two cases, out of a
-fixture of forty — is not recoverable from any code once the pairs
-themselves are gone.
+**A proposal to add problem vocabulary to a `description` is argued on
+whether it helps a real project's reader act on that description, never on
+whether it moves the discovery score.** The measurement above is what makes
+that binding rather than a preference, which is why it is kept here at all:
+the evidence expires whether or not the instrument that produced it is
+rebuilt, rebuilding the effect side carries no obligation to carry this
+prose forward — nothing about it argues for or against that rebuild — and
+its own rationale, two Fisher-tested pairs on two cases out of a fixture of
+forty, is recoverable from no code once the pairs themselves are gone.
 
 **What it rules out.** Adding problem vocabulary to a `description` would
 raise the discovery number, but only by re-creating the circularity

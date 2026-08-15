@@ -45,7 +45,7 @@ skill as loaded before the first turn — never contained a case's own
 declared skill in any probe committed under the pinned runtime, claude-code
 `2.1.220`, including three skill-present probes of
 `remove-config-options-the-test-runner-ignores` that invoked `vitest-testing`
-by exact name as their second tool call. #364 established this as the
+by exact name within their first two tool calls. #364 established this as the
 pinned runtime's own behavior rather than evidence the skill never reached
 the workspace — a scratch run under `2.1.228` reported a marker skill in
 `loadedSkills` under the same settings. That left every skill-present probe
@@ -119,9 +119,10 @@ fact on its own, as a property of what the harness names, rather than as a
 classification a scenario declares about itself.
 
 **Estimating cost before a dispatch**, as the deleted instrument's
-`unmeasuredProbeCostCeilingUsd` did. It was declared `6` per bare probe from
-a $40 cap divided across six planned probes — never a cost observation — and
-the pilot measured $0.25 per probe against it. An estimate that has been
+`unmeasuredProbeCostCeilingUsd` did. It was declared `6` per effect probe,
+from a $40 cap divided across the six probes one case plans — three
+repetitions in each of two conditions — never a cost observation, and the
+pilot measured $0.25 per probe against it. An estimate that has been
 wrong this often is not a limit; a dispatch is bounded by an exact probe
 count instead, refused before any probe runs, with actual spend recorded
 after rather than projected before.
@@ -144,7 +145,7 @@ makes two measurements comparable, not to the skill.
 
 **The discovery-side evidence behind this same deletion is recorded
 separately**, in
-`2026-08-15-record-the-discovery-vocabulary-cost-before-its-artifact-expires.md`.
+`2026-08-15-argue-description-vocabulary-on-reader-value-not-on-the-discovery-score.md`.
 It does not bear on why the effect side was rebuilt, which is what this
 record states; it bears on how a scenario's discovery-phase task should be
 worded, which is a constraint on work still ahead rather than evidence for
