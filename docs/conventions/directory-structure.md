@@ -15,12 +15,14 @@ under `tools/evaluation/` is laid out.
 ├── .claude/skills/<name>        # installed: a symlink into .agents/skills/<name>/
 ├── .claude/agents/              # agent definitions — never a skill
 ├── docs/                        # this tree
-├── tools/evaluation/            # the skill discovery and effect evaluations
-│   ├── lib/                     # shared by both: credentials, mock-workspace, transcript/
-│   ├── src/                     # what both readings share, by concern: layout, fingerprint, admission, comparability, spawn
-│   ├── readings/                # each reading's own modules: discovery/, effect/
-│   ├── mocks/                   # the mock fixtures both evaluations situate probes in
-│   └── data/                    # discovery/ and effect/ measurement data, one per instrument
+├── tools/evaluation/            # the skill evaluation instrument
+│   ├── probe.mjs                # takes one measurement: a scenario's probe matrix, one condition and repetition per probe
+│   ├── evaluate.mjs             # judges a stored measurement's factors
+│   ├── derive.mjs               # computes (or --check verifies) a measurement's derived tier
+│   ├── src/                     # shared modules, by concern: layout, fingerprint, admission, comparability, judge, spawn
+│   ├── mocks/                   # the mock projects a probe's workspace is materialized from
+│   ├── scenarios/<id>/          # one scenario.json plus its patch and judgment scripts, per id
+│   └── measurements/            # what probe.mjs, evaluate.mjs, and derive.mjs wrote, judged, and derived
 └── tests/                       # the suite that gates all of the above
 ```
 

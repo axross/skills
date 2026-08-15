@@ -45,7 +45,8 @@ uses none of them.
 - [operations/code-review.md](./operations/code-review.md) — running
   `@claude review` on a pull request.
 - [operations/evaluation-dispatch.md](./operations/evaluation-dispatch.md) —
-  running the two evaluation instruments against this repository.
+  running the evaluation instrument locally against this repository's
+  declared scenarios.
 
 ## Decisions
 
