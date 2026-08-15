@@ -45,7 +45,7 @@ skill as loaded before the first turn — never contained a case's own
 declared skill in any probe committed under the pinned runtime, claude-code
 `2.1.220`, including three skill-present probes of
 `remove-config-options-the-test-runner-ignores` that invoked `vitest-testing`
-by exact name as their second tool call. `#364` established this as the
+by exact name as their second tool call. #364 established this as the
 pinned runtime's own behavior rather than evidence the skill never reached
 the workspace — a scratch run under `2.1.228` reported a marker skill in
 `loadedSkills` under the same settings. That left every skill-present probe
@@ -71,19 +71,12 @@ transcript afterward.
 ## The decision
 
 **Replace both instruments with one, built around an evaluation scenario
-judged by factors.** A scenario is the unit: a mock project, the installed
-skills, the git history the project starts from, and the non-skill harness,
-together with the task it performs. It runs under two conditions —
-skill-present installs `targetSkills` plus `peerSkills`, skill-absent
-installs `peerSkills` only — so the difference between the two runs is
-attributable to the skill under test rather than to the rest of the
-library. It declares whichever of three phases apply — discovery, outcome,
-transcript — each checked by factors: a declared, checkable expectation with
-its own judgment method, `script` or `reasoning`, siblings rather than two
-storage tiers. Every factor result is `true`, `false`, or an error carrying
-its reason, never a float, and every judgment records the evidence it was
-reached from. `docs/specs/skill-evaluation.md` states the model in full;
-this record states why it replaced what was here before.
+judged by factors.** A scenario runs under two conditions built to isolate
+the skill under test — the fix for the control that measured the whole
+library instead — and every factor's judgment resolves to `true`, `false`,
+or an error, never a float, rather than the generic, non-discriminating
+signal the old instrument reported. `docs/specs/skill-evaluation.md` states
+the model in full; this record states why it was chosen.
 
 Three decisions particular to this rebuild are worth stating beside it,
 because none is recoverable from the model alone. **A reasoning judge is
