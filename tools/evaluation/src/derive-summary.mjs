@@ -32,6 +32,14 @@ function isErrored(result) {
  * result errored, `null`, distinguishable from a differential of zero by
  * being the JSON literal `null` rather than the number `0`.
  *
+ * a condition whose results include an error reports no pass rate either, for
+ * the same reason the differential reports none: docs/specs/skill-evaluation.md
+ * says a pass rate cannot be computed over a result that was never reached.
+ * computing one over the results that did come back would put an unjudged
+ * probe in the denominator, and reporting the quotient — 0 when every result
+ * errored, 0.667 when one of three did — reads as measurement rather than as
+ * "not judged".
+ *
  * docs/specs/skill-evaluation.md, "The differential": a discovery factor's
  * differential is read as the skill-present pass rate alone, because the
  * skill-absent condition cannot pass one by construction; every other phase
@@ -65,6 +73,7 @@ function deriveFactor(factorId, phase, probesByCondition) {
       blocked ??=
         `${errored.length} of ${results.length} ${condition} probe(s) errored for "${factorId}": ` +
         errored[0].error;
+      continue;
     }
     const trueCount = results.filter((result) => result === true).length;
     passRates[condition] = trueCount / results.length;

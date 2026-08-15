@@ -93,6 +93,33 @@ describe("computeDerivedSummary", () => {
     expect(factor.differential).toBeNull();
     expect(factor.differential).not.toBe(0);
     expect(factor.reason).toMatch(/errored/);
+    // the condition carrying the error reports no rate either: 1 of its 2
+    // probes was never judged, so 0.5 would put an unreached result in the
+    // denominator. the condition that judged cleanly still reports its own.
+    expect(factor.skillPresentPassRate).toBeNull();
+    expect(factor.skillAbsentPassRate).toBe(0);
+  });
+
+  // the all-errored case reads worst of all: every rate the old code could
+  // produce here was `0`, which is indistinguishable at a glance from "judged,
+  // and nothing passed".
+  it("reports a `null` pass rate, never `0`, when every result under a condition errored", () => {
+    const summary = computeDerivedSummary({
+      scenarioId: "s",
+      measurementId: "m",
+      factorDeclarations: [{ id: "f1", phase: "outcome" }],
+      probes: [
+        probe("skill-present", 1, { f1: { error: "the script exited 1" } }),
+        probe("skill-present", 2, { f1: { error: "the script exited 1" } }),
+        probe("skill-absent", 1, { f1: true }),
+      ],
+      comparablePredecessor: null,
+    });
+    const factor = summary.factors[0];
+    expect(factor.skillPresentPassRate).toBeNull();
+    expect(factor.skillPresentPassRate).not.toBe(0);
+    expect(factor.differential).toBeNull();
+    expect(factor.reason).toMatch(/errored/);
   });
 
   it("reports `null` when a condition recorded no probes for a factor at all", () => {
