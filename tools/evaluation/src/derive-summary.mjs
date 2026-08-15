@@ -16,6 +16,9 @@
  * @property {Condition} condition
  * @property {number} repetition
  * @property {Array<{ id: string, phase: string, result: true|false|{error:string} }>} factors
+ * @property {number|null} [costUsd] the probe's own recorded spend
+ *   (metadata.json's `costUsd`), or `null`/absent when the probe carries
+ *   none — see {@link deriveCost}.
  */
 
 /**
@@ -97,6 +100,29 @@ function deriveFactor(factorId, phase, probesByCondition) {
 }
 
 /**
+ * the measurement's actual total spend — #392's other half of "no cost
+ * estimate": "The dispatch is bounded by an exact probe count instead, and
+ * actual spend is recorded after." Each probe's own `costUsd` is measured
+ * (probe-runner.mjs, from the CLI's own reported total); this sums it, the
+ * same regenerable step every other field in this file goes through.
+ *
+ * a probe with no recorded cost is not the same as one that cost nothing —
+ * exactly the distinction the pass rates above already draw between "not
+ * judged" and "judged false" — so ANY probe missing its own `costUsd` makes
+ * the whole aggregate `null` rather than a sum that silently omits it. A
+ * partial sum would read as the full spend while quietly under-reporting
+ * it, which is worse than reporting nothing: `null` cannot be mistaken for
+ * a small total the way a partial sum can.
+ *
+ * @param {ProbeRecord[]} probes
+ * @returns {number|null}
+ */
+function deriveCost(probes) {
+  if (probes.some((probe) => typeof probe.costUsd !== "number")) return null;
+  return probes.reduce((total, probe) => total + probe.costUsd, 0);
+}
+
+/**
  * @param {{
  *   scenarioId: string,
  *   measurementId: string,
@@ -129,6 +155,7 @@ export function computeDerivedSummary({
       "skill-present": probesByCondition["skill-present"].length,
       "skill-absent": probesByCondition["skill-absent"].length,
     },
+    costUsd: deriveCost(probes),
     factors: factorDeclarations.map(({ id, phase }) => deriveFactor(id, phase, probesByCondition)),
     comparablePredecessor,
   };

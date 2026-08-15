@@ -139,7 +139,12 @@ export async function deriveMeasurement({ measurementDir, scenariosRoot }) {
     scenarioId,
     measurementId,
     factorDeclarations: scenario.factors.map((factor) => ({ id: factor.id, phase: factor.phase })),
-    probes: probes.map(({ condition, repetition, factors }) => ({ condition, repetition, factors })),
+    probes: probes.map(({ condition, repetition, factors, metadata }) => ({
+      condition,
+      repetition,
+      factors,
+      costUsd: metadata.costUsd ?? null,
+    })),
     comparablePredecessor,
   });
 

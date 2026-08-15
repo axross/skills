@@ -6,11 +6,12 @@ import { describe, expect, it } from "vitest";
 
 import { computeDerivedSummary } from "../../tools/evaluation/src/derive-summary.mjs";
 
-function probe(condition, repetition, factorResults) {
+function probe(condition, repetition, factorResults, costUsd) {
   return {
     condition,
     repetition,
     factors: Object.entries(factorResults).map(([id, result]) => ({ id, result })),
+    ...(costUsd === undefined ? {} : { costUsd }),
   };
 }
 
@@ -150,6 +151,54 @@ describe("computeDerivedSummary", () => {
     });
     expect(summary.probeCount).toBe(3);
     expect(summary.probeCountByCondition).toEqual({ "skill-present": 2, "skill-absent": 1 });
+  });
+
+  // #392: "The dispatch is bounded by an exact probe count instead, and
+  // actual spend is recorded after." This is that aggregation, regenerable
+  // from each probe's own costUsd the same way every other derived field is.
+  it("sums each probe's own costUsd into the measurement's total spend", () => {
+    const summary = computeDerivedSummary({
+      scenarioId: "s",
+      measurementId: "m",
+      factorDeclarations: [{ id: "f1", phase: "outcome" }],
+      probes: [
+        probe("skill-present", 1, { f1: true }, 0.05),
+        probe("skill-present", 2, { f1: true }, 0.03),
+        probe("skill-absent", 1, { f1: false }, 0.02),
+      ],
+      comparablePredecessor: null,
+    });
+    expect(summary.costUsd).toBeCloseTo(0.1);
+  });
+
+  // a probe with no recorded cost is not the same as one that cost nothing —
+  // the same distinction the pass rates above draw between "not judged" and
+  // "judged false". a missing figure must not silently read as zero, so it
+  // nulls the whole aggregate rather than reporting a partial, under-counted
+  // sum that looks complete.
+  it("reports `costUsd: null`, never a partial sum, when any probe has no recorded cost", () => {
+    const summary = computeDerivedSummary({
+      scenarioId: "s",
+      measurementId: "m",
+      factorDeclarations: [{ id: "f1", phase: "outcome" }],
+      probes: [
+        probe("skill-present", 1, { f1: true }, 0.05),
+        probe("skill-present", 2, { f1: true }), // no costUsd at all
+      ],
+      comparablePredecessor: null,
+    });
+    expect(summary.costUsd).toBeNull();
+  });
+
+  it("reports `costUsd: null` when a probe's own cost was recorded as null", () => {
+    const summary = computeDerivedSummary({
+      scenarioId: "s",
+      measurementId: "m",
+      factorDeclarations: [{ id: "f1", phase: "outcome" }],
+      probes: [probe("skill-present", 1, { f1: true }, null)],
+      comparablePredecessor: null,
+    });
+    expect(summary.costUsd).toBeNull();
   });
 
   it("carries the comparable-predecessor link through unchanged", () => {
