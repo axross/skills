@@ -1,10 +1,9 @@
 # Evaluation Dispatch
 
-Running the two evaluation instruments —
-[skill discovery evaluation and skill effect evaluation](../specs/skill-evaluation.md) —
-against this repository, and what each dispatch does before it spends
-anything. [Verification Gates](../conventions/verification-gates.md) covers
-why neither is a merge gate; this document covers how to run them.
+Running the two evaluation instruments — skill discovery evaluation and skill
+effect evaluation — against this repository, and what each dispatch does
+before it spends anything. [Verification Gates](../conventions/verification-gates.md)
+covers why neither is a merge gate; this document covers how to run them.
 
 ## Dispatching the Discovery Evaluation
 
