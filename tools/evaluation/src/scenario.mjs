@@ -86,6 +86,12 @@ export function validateScenario(scenario, sourcePath) {
     if (typeof factor.id !== "string" || factor.id.length === 0) fail(`${at}.id must be a non-empty string.`);
     if (factorIds.has(factor.id)) fail(`${at}.id "${factor.id}" duplicates an earlier factor's id.`);
     factorIds.add(factor.id);
+    if (typeof factor.description !== "string" || factor.description.length === 0) {
+      fail(
+        `${at}.description must be a non-empty string stating what this factor expects and why — ` +
+          "a rationale a reader can disagree with without reading the judgment script.",
+      );
+    }
     if (!PHASES.includes(factor.phase)) {
       fail(`${at}.phase must be one of ${PHASES.join(", ")}, got ${JSON.stringify(factor.phase)}.`);
     }

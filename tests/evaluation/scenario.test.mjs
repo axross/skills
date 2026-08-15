@@ -30,6 +30,7 @@ function validScenario(overrides = {}) {
       {
         id: "a-factor",
         phase: "outcome",
+        description: "Whether the thing got done, stated so a reader can disagree without reading the script.",
         judgment: { method: "script", script: "scripts/check.mjs" },
       },
     ],
@@ -63,33 +64,49 @@ describe("validateScenario", () => {
 
   it("rejects an unknown factor phase", () => {
     const scenario = validScenario({
-      factors: [{ id: "x", phase: "sideways", judgment: { method: "script", script: "s.mjs" } }],
+      factors: [
+        { id: "x", phase: "sideways", description: "d", judgment: { method: "script", script: "s.mjs" } },
+      ],
     });
     expect(() => validateScenario(scenario, "test.json")).toThrow(/phase must be one of/);
   });
 
   it("rejects an unknown judgment method", () => {
     const scenario = validScenario({
-      factors: [{ id: "x", phase: "outcome", judgment: { method: "vibes" } }],
+      factors: [{ id: "x", phase: "outcome", description: "d", judgment: { method: "vibes" } }],
     });
     expect(() => validateScenario(scenario, "test.json")).toThrow(/judgment\.method/);
   });
 
   it("rejects a script factor with no script named", () => {
     const scenario = validScenario({
-      factors: [{ id: "x", phase: "outcome", judgment: { method: "script" } }],
+      factors: [{ id: "x", phase: "outcome", description: "d", judgment: { method: "script" } }],
     });
     expect(() => validateScenario(scenario, "test.json")).toThrow(/judgment\.script/);
   });
 
   it("rejects a reasoning factor missing a model or instructions", () => {
     const noModel = validScenario({
-      factors: [{ id: "x", phase: "transcript", judgment: { method: "reasoning", instructions: "look" } }],
+      factors: [
+        {
+          id: "x",
+          phase: "transcript",
+          description: "d",
+          judgment: { method: "reasoning", instructions: "look" },
+        },
+      ],
     });
     expect(() => validateScenario(noModel, "test.json")).toThrow(/judgment\.model/);
 
     const noInstructions = validScenario({
-      factors: [{ id: "x", phase: "transcript", judgment: { method: "reasoning", model: "anthropic/x" } }],
+      factors: [
+        {
+          id: "x",
+          phase: "transcript",
+          description: "d",
+          judgment: { method: "reasoning", model: "anthropic/x" },
+        },
+      ],
     });
     expect(() => validateScenario(noInstructions, "test.json")).toThrow(/judgment\.instructions/);
   });
@@ -97,11 +114,40 @@ describe("validateScenario", () => {
   it("rejects a duplicate factor id", () => {
     const scenario = validScenario({
       factors: [
-        { id: "dup", phase: "outcome", judgment: { method: "script", script: "a.mjs" } },
-        { id: "dup", phase: "outcome", judgment: { method: "script", script: "b.mjs" } },
+        {
+          id: "dup",
+          phase: "outcome",
+          description: "one",
+          judgment: { method: "script", script: "a.mjs" },
+        },
+        {
+          id: "dup",
+          phase: "outcome",
+          description: "two",
+          judgment: { method: "script", script: "b.mjs" },
+        },
       ],
     });
     expect(() => validateScenario(scenario, "test.json")).toThrow(/duplicates/);
+  });
+
+  // docs/glossary.md's old Evaluation case entry required exactly this — "a
+  // written rationale a human can disagree with without reading code" — and
+  // no decision record retired it when the model was rebuilt around factors.
+  it("rejects a factor with no description at all", () => {
+    const scenario = validScenario({
+      factors: [{ id: "x", phase: "outcome", judgment: { method: "script", script: "a.mjs" } }],
+    });
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/description/);
+  });
+
+  it("rejects a factor with an empty-string description", () => {
+    const scenario = validScenario({
+      factors: [
+        { id: "x", phase: "outcome", description: "", judgment: { method: "script", script: "a.mjs" } },
+      ],
+    });
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/description/);
   });
 
   // the plan's own non-goal: "do not estimate cost... in any form". A
@@ -121,6 +167,7 @@ describe("validateScenario", () => {
         {
           id: "x",
           phase: "outcome",
+          description: "d",
           judgment: { method: "script", script: "a.mjs" },
           expect: { costCap: 5 },
         },
