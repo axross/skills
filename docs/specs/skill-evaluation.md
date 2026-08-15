@@ -38,21 +38,6 @@ This is the asymmetry the practice exists to address: the cheap checks answer a
 question nobody was worried about, and the expensive question has no cheap
 proxy.
 
-## What this describes
-
-Everything below states the model in the present tense, the way every spec in
-this repository is written — but no instrument implements it yet. #392
-sequences this document first so the instrument that follows it is checked
-against a written contract, rather than the contract being written afterward
-to match whatever the code turned out to do. Its steps 2 through 5 build that
-instrument, reshape the workflows that run it, author the scenario set, and
-run the first measurement pass. Until step 2 lands, `tools/evaluation/` runs
-the two instruments this model replaces, exactly as it does today, against
-the model each was built for rather than this one.
-[`2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md`](../decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md)
-is the decision to replace those two instruments with this model, and it
-carries the evidence that forced the rebuild.
-
 ## The evaluation scenario
 
 The unit skill evaluation runs against is an **evaluation scenario**: a mock
@@ -214,6 +199,70 @@ something will cheerfully regenerate as empty the moment it is asked for
 before it was ever taken. Holding the line between the three is what keeps a
 later question about a stored measurement answerable by reading rather than
 by running the scenario again.
+
+## What a measurement stores
+
+Four shapes are fixed as part of this model rather than left to whichever
+implementation writes them, because a stored measurement is read long
+after the run that produced it, by whatever opens the file rather than by
+the code that wrote it.
+
+**`metadata.json` carries no `configuration` nesting.** `runtime` is a
+top-level field, merging what were three separate concerns: the CLI that
+ran the probe, the model it called, and the project state the probe
+started from. All three answer the same question — what circumstances
+produced this probe — rather than what the probe measured or what it was
+declared to test, and they are exactly the facts this document already
+reads together, alongside the digest of every installed skill, to decide
+whether two measurements may be read against each other. `skills` sits
+under `harness` rather than beside it, next to `agentsMd`, for the
+matching reason: both are what accompanied the agent, not what ran it, so
+they stay under the one key a scenario's own `harness` declaration already
+names. Neither grouping nests a level further under a `configuration`
+wrapper, because `runtime` and `harness` already name what they hold; a
+wrapper around both would only rename the pair as a group, not describe
+anything a reader does not already have from the two of them.
+
+**`factors.json` names each factor's result field `result`, not
+`outcome`.** `outcome` already names one of the three phases a factor can
+belong to. Had the verdict kept that name too, an outcome-phase factor's
+own record would carry `{"phase": "outcome", "outcome": true}` — the same
+word naming both what is being asked and, right beside it, the answer.
+
+**The measurement-level `summary.json` carries the aggregate and nothing
+else** — no `comparable` field, no per-probe result or rate, and no
+per-condition pass rate of its own. The rate is still computed, per
+condition, exactly as before, and is exactly what a factor's differential
+is built from — what stops here is the field, not the computation.
+`summary.json` carries each factor's differential, the probe counts, and
+the measurement's actual spend. `comparable` was the deleted instrument's
+own field: a boolean, derived from a summary's per-probe checks, answering
+whether every probe inside one measurement actually shared a single
+condition. That question is settled by construction now — a probe's
+condition is what materialization installs, not something to verify
+afterward — so there is nothing left to compute it from. What survives,
+under its own name, is the real remaining question: which earlier
+measurement, if any, this one is read as a change against — recorded as
+`comparablePredecessor`. A per-condition pass rate is left off the summary
+for the same reason a per-probe result is: it costs nothing to recompute
+from the probes on the rare read that wants one, and storing it as well
+would put the same number in two places — which is how the two stop
+agreeing.
+
+A differential of exactly `0` does not, by itself, distinguish two very
+different results: every probe on both sides passing, or every probe on
+both sides failing. Both report the same number for opposite reasons, and
+the summary alone cannot tell a reader which — that takes reading the
+probes a zero differential was built from. A zero is read with that in
+mind, not as evidence that nothing happened.
+
+**A model identifier is written vendor-prefixed and fully qualified**, in
+the form `anthropic/claude-haiku-4-5-20251001`. The wire API a probe or a
+reasoning judge is called through takes the bare name alone, but this
+instrument records the fuller form regardless: the identifier is read back
+long after the call that used it, by a later comparability check or by
+someone reading a stored measurement on its own, and a bare name would
+leave the vendor to be assumed rather than stated.
 
 ## The practice does not gate a merge
 

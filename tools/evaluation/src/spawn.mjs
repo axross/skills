@@ -1,9 +1,12 @@
-// the constants and the one helper that are the same regardless of which
-// reading is building an invocation: the pinned model, the setting-sources
-// flag that strips the user-level skill tier, and the display-only argv
-// quoter. each reading's own spawn.mjs builds the rest of the
-// configuration/argv round trip — its own turn cap, its own tool lists, and
-// (on the effect side) the appended non-interactive brief — around these.
+// the pinned model, the setting-sources flag that strips the user-level
+// skill tier, and the display-only argv quoter — the parts of one probe's
+// invocation that never vary. probe-process.mjs builds the rest of the
+// configuration/argv round trip around these: the turn cap, the tool lists,
+// and the appended non-interactive brief.
+//
+// there is one instrument now, not two readings each building their own
+// invocation around a shared core — #392 merged them, and this module is
+// what survived the merge unchanged.
 
 /**
  * pinned rather than left to the CLI's default: changing it invalidates

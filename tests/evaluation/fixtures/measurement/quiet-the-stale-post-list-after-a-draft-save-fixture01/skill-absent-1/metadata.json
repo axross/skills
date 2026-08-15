@@ -1,0 +1,40 @@
+{
+  "scenario": "quiet-the-stale-post-list-after-a-draft-save",
+  "condition": "skill-absent",
+  "repetition": 1,
+  "timestamp": "2026-08-15T09:15:41Z",
+  "runtime": {
+    "model": "anthropic/claude-sonnet-5-20260215",
+    "cliVersion": "2.1.233",
+    "node": "v26.7.0",
+    "os": "linux",
+    "instrumentCommit": "5b34e6afd0c3489bcfc7875a77fd06de640da1f3",
+    "project": {
+      "mock": "inkwell",
+      "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+      "commit": "68d6de0695b8a5f3218d22c4826d1c2c3a9c7ab2"
+    }
+  },
+  "harness": {
+    "skills": {
+      "react-component-development": "sha256:5191cd0f4f4d1ad8c761be1d2f0e89dc8b797364d0d29d7f03bd55735a090531",
+      "code-maintainability": "sha256:e80521d50f3a117cb17278785a846700648f3fba116ba96383b0253f06242efb"
+    },
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "After I edit a post's title and save a draft, the site's post list still shows the old title and timestamp until I leave the page and come back. Fix it so the list is right immediately after a save, the same as it already is right after a publish."
+  },
+  "cliExitCode": 0,
+  "turns": 7,
+  "truncated": false,
+  "costUsd": 0.048213,
+  "usage": {
+    "input": 8210,
+    "output": 544,
+    "cacheCreation": 8440,
+    "cacheRead": 33920,
+    "messages": 5
+  },
+  "loadedSkills": ["react-component-development", "code-maintainability"]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "quiet-the-stale-post-list-after-a-draft-save",
+  "mock": "inkwell",
+  "targetSkills": ["tanstack-query-development"],
+  "peerSkills": ["react-component-development", "code-maintainability"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "After I edit a post's title and save a draft, the site's post list still shows the old title and timestamp until I leave the page and come back. Fix it so the list is right immediately after a save, the same as it already is right after a publish."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-tanstack-query-development",
+      "phase": "discovery",
+      "description": "The bug report names neither TanStack Query nor a cache, only a stale list — so an agent that reaches for tanstack-query-development here is finding it from the problem, with react-component-development and code-maintainability sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "tanstack-query-development" }
+      }
+    },
+    {
+      "id": "invalidates-the-post-list-after-save",
+      "phase": "outcome",
+      "description": "This is the actual bug: a draft save writes only the post's own detail cache, never touching the list's own cached query, so the list keeps showing what it fetched before the edit. The fix has to make the save mutation invalidate the list query the same way the publish mutation already does — a fix that patches the symptom some other way (a manual cache write, a full reload) does not satisfy this.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/queries/posts/post-save-mutation.ts",
+          "mustContainAll": ["getPostListQueryOptions", "invalidateQueries"]
+        }
+      }
+    },
+    {
+      "id": "keeps-the-detail-cache-write",
+      "phase": "outcome",
+      "description": "The existing setQueryData call for the post's own detail cache already works correctly on a save, and nothing about this bug asks for it to change. A fix that adds the missing list invalidation by replacing rather than augmenting that call would trade the list bug for a detail-view regression, which this factor is here to catch.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/queries/posts/post-save-mutation.ts",
+          "mustContainAll": ["setQueryData", "getPostQueryOptions"]
+        }
+      }
+    },
+    {
+      "id": "explains-why-the-list-was-stale",
+      "phase": "transcript",
+      "description": "A correct diff can still be produced by an agent that never understood why the list was stale, for instance by copying the shape of the publish mutation without stating the cause. This factor asks whether the transcript itself, at some point, names the real cause — that nothing invalidated or refetched the list's own cached query after a save — as distinct from a plausible-sounding fix applied without diagnosis.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work on a bug report. Decide whether the agent's own reasoning, at some point before it finished, correctly identified WHY the post list page was showing stale data after a draft save — specifically, that nothing was invalidating or refetching the post list's own cached query after the save mutation succeeded (as distinct from merely fixing the symptom without ever stating the cause). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+      }
+    }
+  ]
+}

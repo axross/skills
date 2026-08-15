@@ -38,7 +38,7 @@ settled.
 ## The decision
 
 **One case per in-range skill, and one negative control.**
-`tools/evaluation/data/effect/coverage.md` enumerates the out-of-range skills under the spec's three groups; every other installed skill gets exactly one case in `tools/evaluation/data/effect/fixture.json`, and one more case beyond that is a declared negative control — bringing the fixture to <!-- count:effect-eval-case-count -->twenty-one<!-- /count --> cases in total.
+`tools/evaluation/data/effect/coverage.md` enumerates the out-of-range skills under the spec's three groups; every other installed skill gets exactly one case in `tools/evaluation/data/effect/fixture.json`, and one more case beyond that is a declared negative control — bringing the fixture to twenty-one cases in total.
 
 The case set is written to span the spectrum a residue-sizing measurement
 needs, not just to name every skill once. The mechanical end — `unit-testing`,

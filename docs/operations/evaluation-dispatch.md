@@ -1,151 +1,124 @@
 # Evaluation Dispatch
 
-Running the two evaluation instruments — skill discovery evaluation and skill
-effect evaluation — against this repository, and what each dispatch does
-before it spends anything. [Verification Gates](../conventions/verification-gates.md)
-covers why neither is a merge gate; this document covers how to run them.
+Running `tools/evaluation`'s one instrument — `probe.mjs`, `evaluate.mjs`,
+and `derive.mjs` — against this repository's declared evaluation scenarios.
+[Verification Gates](../conventions/verification-gates.md) covers why it
+reports rather than gates; this document covers how to run it.
 
-## Dispatching the Discovery Evaluation
+## There Is No Dispatch Workflow Yet
 
-Run it in CI from the Actions tab by dispatching
-[`discovery-eval.yaml`](../../.github/workflows/discovery-eval.yaml) — the
-only workflow allowed to invoke it, and manual dispatch is its only trigger,
-so nothing a pull request does can start it or spend money. Five inputs, all
-optional:
+Every run described below is local. `.github/workflows/` names no entry
+point for this instrument, and nothing here should be read as one — the two
+workflows it replaced are deleted, not renamed, and their replacement has
+not been written yet. Until it lands, taking a measurement means a person
+running the three scripts below on their own machine, with their own
+credentials, and deciding for themselves whether to commit what came out.
 
-| Input          | Does                                                                                                 |
-| -------------- | ---------------------------------------------------------------------------------------------------- |
-| `case`         | Runs one case rather than the whole fixture                                                          |
-| `repeats`      | Overrides what a case declares                                                                       |
-| `pull_request` | Evaluates that pull request's changed skills in the bare probe mode, posts a report there            |
-| `prompt`       | Overrides `case`'s declared prompt, evaluated exactly as declared, uploads an artifact. Needs `case` |
-| `dry_run`      | Rehearses every step with no probe spawned                                                           |
+## Taking a Measurement: `probe.mjs`
 
-A dispatch that names a pull request **records nothing** — it reports, because
-what it measured is routing on the prompt alone, and that is not comparable
-with a situated measurement. A dispatch that names a `prompt` **records
-nothing either** — see "Overriding a Case's Prompt" below. `pull_request` and
-`prompt` are refused together, before any probe spawns: they are two
-different threat models (untrusted head text vs. a maintainer's own text) and
-two different workspaces (forced bare vs. exactly what the case declares).
-Every other dispatch lands its result through a pull request of its own.
+```bash
+node tools/evaluation/probe.mjs --dry-run
+node tools/evaluation/probe.mjs --scenario <id> --repetitions <n> --limit <n>
+node tools/evaluation/probe.mjs --help
+```
 
-## Overriding a Case's Prompt
+| Flag                  | Does                                                                             |
+| --------------------- | -------------------------------------------------------------------------------- |
+| `--scenario <id>`     | Only this scenario (default: every scenario under `tools/evaluation/scenarios/`) |
+| `--conditions <list>` | Comma-separated, from `skill-present`, `skill-absent` (default: both)            |
+| `--repetitions <n>`   | Repetitions per condition (default: 3)                                           |
+| `--limit <n>`         | Refuses the run before anything starts if the exact probe count exceeds this     |
+| `--out <dir>`         | Measurement root to write under (default: `tools/evaluation/measurements`)       |
+| `--dry-run`           | Reports the probe matrix and the admission outcome; spawns nothing               |
 
-`prompt` reruns a declared case against different wording, without declaring
-a second case for it — the case's `mock`, `patch`,
-`mustInclude`/`mustExclude`/`mayInclude` tiers, repeat count and corpus stay
-exactly what the fixture declares, so the prompt is the only variable. It
-exists because declaring a near-duplicate case to test a wording collides
-with the coverage invariant in
-[`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md) — no
-skill named by more than two cases — and a twin case is exactly the
-near-duplicate shape that invariant removes.
+With no `--scenario`, a run expands every scenario under
+`tools/evaluation/scenarios/` into its probe matrix — every declared
+condition times every repetition — and, absent `--dry-run`, runs each probe
+for real: materializing the scenario's mock project as a real Git
+repository, installing the condition's skills into it, and spawning the
+`claude` CLI on the scenario's task with `Bash`, `Edit`, `Glob`, `Grep`,
+`Read`, `Skill`, `TodoWrite`, and `Write` all permitted. A probe is told in
+its own system prompt that it runs unattended, and it runs until it
+finishes or until it has produced 100 assistant turns, whichever comes
+first.
 
-**It overrides one case, and a dispatch that names no `case` is refused.**
-Every case's tiers belong to a different skill, so substituting one wording
-into all of them measures nothing — it would just fan a single reworded
-question across the whole corpus at full price. Admission is the only place
-that can catch this, because it is the only place the matrix widens, and it
-refuses before any probe spawns.
+`--dry-run` walks the same matrix-and-admission path with the spawn
+stubbed out: it prints the matrix and the admission outcome and exits
+before any probe would have started, so it costs nothing and needs no
+credential. A real run needs the `claude` CLI on `PATH`, authenticated with
+`CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` — the two variables
+`tools/evaluation/src/credentials.mjs` keeps in a probe's environment while
+stripping everything else that looks like a secret, and redacts from the
+transcript it stores.
 
-It never records. `evaluate.mjs --prompt` refuses `--out` outright, the same
-way `--head-skills` does (see
-[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md)),
-and the dispatch uploads what it measured as an artifact — every probe's
-`metadata.json` and `transcript.jsonl`, retained 30 days rather than the head
-report's 1, because this is the only copy either file will ever have. It
-opens no pull request and cannot reach the landing job.
+Each probe writes its `metadata.json`, `transcript.jsonl`, `changes.patch`,
+and `invocations.json` under
+`tools/evaluation/measurements/<scenario-id>-<id>/<condition>-<repetition>/`.
+Nothing here commits what it wrote — that stays a person's decision, the
+same as opening the pull request that would carry it.
 
-**The use rule, stated before the mechanism existed so it binds before the
-first dispatch:**
+## Admission Binds Before Any Probe Starts
 
-> A declared prompt may be revised to remove accidental ambiguity, phrasing no
-> real person would use, or a mismatch with the mock it runs against. It may
-> **not** be revised to move it toward a skill's `description` wording. A
-> prompt override exists to find out which of those a case suffers from — not
-> to make a case pass.
+A run refuses before spawning anything when its exact probe count exceeds
+the `--limit` it was given — never by projecting a dollar figure. That
+replaces a cost estimate rather than tightening one:
+[`2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md`](../decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md)
+is the decision that rejected estimating cost before a dispatch, because
+the deleted instrument's own projection was wrong often enough that the
+limit it fed was not a limit. `--limit` is optional; a run given none is
+admitted unconditionally, and a run over its limit is refused with a
+message naming both the count and the limit.
 
-**The comparability brake.** A case's prompt is part of the cross-measurement
-comparability key — `findComparablePredecessor`'s `predecessorMismatches` in
-[`tools/evaluation/readings/discovery/src/summary.mjs`](../../tools/evaluation/readings/discovery/src/summary.mjs)
-compares `case.prompt` between a new measurement and its most recent
-predecessor — so revising a _committed_ prompt orphans every measurement that
-case already has: none of them shares the new prompt, so none of them is a
-comparable predecessor any longer. Prompt churn costs measurement history,
-and that cost is why revising a committed prompt stays rare regardless of
-what an override run finds. A positive result from an override — wording
-closer to a skill's `description` genuinely changes the outcome — is
-knowledge about the model's routing; it is not, by itself, authorization to
-edit the fixture. Any prompt worth keeping becomes a declared prompt through
-an ordinary reviewed change, and is measured normally after that.
+## Judging a Measurement: `evaluate.mjs`
 
-Admission binds an override run exactly as it binds any other: projecting
-from the case's committed measurements where they exist, and from the
-fixture's declared per-mode ceiling where they do not — the same projection
-any case's first run gets, override or not.
+```bash
+node tools/evaluation/evaluate.mjs <measurement-dir>
+node tools/evaluation/evaluate.mjs --help
+```
 
-`npm test` re-derives every committed summary under `tools/evaluation/data/discovery/` and
-fails on a mismatch, confirms every skill the fixture names still exists, and
-applies every declared case patch against its mock offline — deterministic
-checks that never invoke the runner, so a fixture naming a renamed skill, or a
-patch that stopped fitting its mock, rots in CI rather than only being
-discovered mid-dispatch. See
-[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md) for
-the two probe modes and how a verdict is reached, and
-[`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md) for
-what a measurement holds.
+For every probe directory under `<measurement-dir>`, `evaluate.mjs`
+reconstructs that probe's workspace from what it stored — never from a
+workspace still on disk — and judges every factor its scenario declares
+against the material its phase permits: a `discovery` factor sees the
+skill invocations, an `outcome` factor sees the diff and the task, a
+`transcript` factor sees the transcript. A measurement missing one of the
+four files a probe writes fails the whole run loudly, naming what is
+missing, rather than being judged on what remains.
 
-## Dispatching the Effect Evaluation
+A `script` factor runs its declared script against the reconstructed
+workspace. A `reasoning` factor asks the model its scenario names, over the
+Anthropic Messages API directly, and needs `ANTHROPIC_API_KEY`; without
+one, that factor's own result is recorded as an error — never as `false`,
+and never by aborting any other factor's judgment — so the script still
+completes end to end with no credential present at all, which is how this
+repository's own test suite exercises it. Each probe's judged factors are
+written to its own `factors.json`.
 
-Run it in CI from the Actions tab by dispatching
-[`effect-eval.yaml`](../../.github/workflows/effect-eval.yaml) — manual
-dispatch is likewise its only trigger. It takes one required input, `case`
-(the evaluation case id), and two optional ones: `dry-run` rehearses the whole
-dispatch with no model spawned and nothing billed, and `cap_usd` lowers that
-case's declared budget cap for this dispatch only — it cannot raise it, since
-raising a cap is a spending decision that belongs to a human editing the
-reviewed fixture rather than to a dispatch input.
+## Deriving the Summary: `derive.mjs`
 
-A dispatch runs one case as a two-dimensional matrix — every condition times
-every repetition — admits, probes, and lands the result through a pull
-request in one pass. See
-[`tools/evaluation/readings/effect/README.md`](../../tools/evaluation/readings/effect/README.md) for the
-three entry points behind that (`setup.mjs`, `evaluate.mjs`, `summarize.mjs`)
-and what makes two measurements comparable.
+```bash
+node tools/evaluation/derive.mjs <measurement-dir>
+node tools/evaluation/derive.mjs <measurement-dir> --check
+node tools/evaluation/derive.mjs --help
+```
 
-## Admission Binds Before the Fan-Out
+`derive.mjs` computes a measurement's derived tier — each factor's
+differential, the probe counts, the measurement's actual spend summed from
+each probe's own, and its comparable predecessor among that scenario's
+other measurements — from what
+`probe.mjs` and `evaluate.mjs` already wrote, and writes it to the
+measurement's own `summary.json`. `--check` recomputes it and compares the
+result byte-for-byte against what is already there, failing on any
+mismatch — the drift check that catches a hand-edited derived file.
 
-Both instruments bind their spending by refusal rather than by exhaustion.
-Admission runs once, before any probe, and projects the dispatch's cost from
-committed measurements where they exist and from the fixture's declared
-per-probe ceiling where they do not — a ceiling per probe mode on the
-discovery side, since a situated probe and a bare one cost about an order of
-magnitude apart. A projection over the cap refuses the run and nothing
-downstream runs, so a dispatch that does not fit its cap costs nothing. Until
-a case has been measured its projection rests on the ceiling, which is meant
-to be declared above what a probe should cost, so an early dispatch is priced
-pessimistically on purpose.
+## The One Declared Scenario
 
-**That is the direction a ceiling is declared in, not a property admission can
-enforce.** Nothing checks a declared ceiling against reality until a
-measurement arrives to supersede it, so a ceiling set too low prices an early
-dispatch optimistically and admits a run that should have been refused. The
-discovery fixture's bare ceiling was in exactly that state for the whole run
-that first measured it — `0.05` declared against $0.0770 measured, recorded
-in [`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md).
-Read a ceiling as an unverified declaration by whoever wrote it, and check it
-against the first measurement that supersedes it.
-
-## The Measurement Pull Request Is Checked by the Dispatch, Not by `merge-checks.yaml`
-
-Both workflows open their landing pull request with `GITHUB_TOKEN`, which
-GitHub does not fire other workflows on — so `merge-checks.yaml` never runs on
-what a dispatch opens, by an explicit `paths-ignore` on
-`tools/evaluation/data/*/measurements/**` and
-`tools/evaluation/data/*/summary.json` rather than by that platform accident
-alone. Nothing is left unchecked by this: the dispatch itself runs the drift check, the
-comparability checks, and `npm run check` before it commits, and the ordinary
-gates run again against the merged tree once the measurement pull request
-merges — so measurement data is exempt from blocking a pull request, not from
-being checked.
+`tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/`
+is the only scenario declared today. It targets
+`tanstack-query-development` against the `inkwell` mock project, alongside
+`react-component-development` and `code-maintainability` as peers, and
+carries a `discovery` factor, two `outcome` factors, and a `transcript`
+factor judged by reasoning — enough to exercise every path through the
+three scripts above. Authoring the rest of the scenario set is separate,
+later work; this document describes what runs today, not the coverage it
+will eventually have.

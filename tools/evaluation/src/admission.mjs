@@ -1,51 +1,39 @@
-// the two pieces of the budget guard that are the same decision regardless
-// of which reading is spending: averaging a case's committed history into a
-// per-probe figure, and reporting afterwards how a finished case's actual
-// cost compared with what it was admitted under.
+// whether a run may start, decided by an exact probe count against a
+// declared limit — never by a projected cost.
 //
-// deciding whether a case may START — `admitCase` — is not here, because the
-// two readings decide it differently: discovery projects per PROBE MODE
-// (situated vs. bare cost roughly an order of magnitude apart), effect
-// projects per case alone. see each reading's own admission.mjs for that
-// decision and for the reasoning behind admitting by refusal, before the
-// spend, rather than by a ledger that charges as it goes.
+// the deleted instrument admitted a case by projecting a dollar figure from
+// a mean of past probe costs and refusing when the projection cleared a cap.
+// #392 settled that the projection was "badly wrong" often enough that the
+// limit it fed was not a limit, and replaced it with a count a caller states
+// up front: a probe matrix has an exact size before anything runs, so there
+// is nothing left to estimate. nothing here computes a dollar figure, in any
+// form — the deleted instrument's meanProbeCost and reconcile() do not
+// survive this rework.
 
 /**
- * @param {number[]} costs every committed probe's reported cost
- * @returns {number|null} `null` when there is no history, so a caller must
- *   fall back deliberately rather than average an empty set to zero
+ * @param {{ probeCount: number, limit: number|null|undefined }} input
+ *   `limit` of `null` or `undefined` means no cap was declared for this run,
+ *   which admits unconditionally — a run that names no limit has nothing to
+ *   be refused against.
+ * @returns {{ admitted: boolean, reason: string }} `reason` explains the
+ *   admission either way, so a caller can report why a run proceeded and not
+ *   only why it was refused
  */
-export function meanProbeCost(costs) {
-  // a zero means "no cost was reported" rather than "this run was free".
-  const usable = costs.filter((cost) => typeof cost === "number" && cost > 0);
-  if (usable.length === 0) return null;
-  return usable.reduce((sum, cost) => sum + cost, 0) / usable.length;
-}
-
-/**
- * compares what a finished case cost against what it was admitted under.
- *
- * reported, never enforced: the money is already spent by the time this
- * runs, so its job is to tell the next admission that its projection was
- * too low.
- *
- * @param {{ capUsd: number, projectedTotalUsd: number, actualTotalUsd: number }} input
- * @returns {{ withinCap: boolean, overrunUsd: number, projectionErrorUsd: number, reason: string }}
- */
-export function reconcile({ capUsd, projectedTotalUsd, actualTotalUsd }) {
-  const withinCap = actualTotalUsd <= capUsd;
-  const overrunUsd = withinCap ? 0 : actualTotalUsd - capUsd;
-  const projectionErrorUsd = actualTotalUsd - projectedTotalUsd;
-
+export function admitDispatch({ probeCount, limit }) {
+  if (limit === null || limit === undefined) {
+    return {
+      admitted: true,
+      reason: `${probeCount} probe(s), no limit declared for this run`,
+    };
+  }
+  if (probeCount > limit) {
+    return {
+      admitted: false,
+      reason: `this run would start ${probeCount} probe(s), which exceeds the declared limit of ${limit}`,
+    };
+  }
   return {
-    withinCap,
-    overrunUsd,
-    projectionErrorUsd,
-    reason: withinCap
-      ? `spent $${actualTotalUsd.toFixed(2)} against a $${capUsd.toFixed(2)} cap; the ` +
-        `projection was off by $${projectionErrorUsd.toFixed(2)}`
-      : `spent $${actualTotalUsd.toFixed(2)}, OVER the $${capUsd.toFixed(2)} cap by ` +
-        `$${overrunUsd.toFixed(2)}; admission projected $${projectedTotalUsd.toFixed(2)}, so the ` +
-        "projection this case was admitted under is too low",
+    admitted: true,
+    reason: `${probeCount} probe(s), at or under the declared limit of ${limit}`,
   };
 }

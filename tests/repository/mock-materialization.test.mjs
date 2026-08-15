@@ -1,13 +1,19 @@
 // every mock under tools/evaluation/mocks/, materialized twice, held to the
-// contract tools/evaluation/lib/mock-workspace.mjs enforces.
+// contract tools/evaluation/src/mock-workspace.mjs enforces.
 //
-// this is mock-agnostic on purpose. tests/effect/setup.test.mjs proves
-// the materializer works, and proves it against one mock — so a second mock
-// whose history.jsonc and tree disagree is caught by nothing here. the
-// bijection is not a formality at that size: a mock ships dozens of files,
-// every one has to be named in exactly one commit, and the failure surfaces
-// where nothing is watching — inside a paid probe, as a materialization that
-// aborts before the model gets a workspace at all.
+// this calls materialize() directly rather than through a spawned CLI. the
+// old instrument's own entry point was removed with the rest of the deleted
+// subsystem, and mock-workspace.mjs has no CLI of its own yet — see its own
+// header. the contract under test is unchanged: one call in, one workspace
+// or one thrown error out.
+//
+// this is mock-agnostic on purpose, and proves the materializer against every
+// mock this repository ships — so a mock whose history.jsonc and tree
+// disagree is caught here rather than by whichever probe first materializes
+// it. the bijection is not a formality at that size: a mock ships dozens of
+// files, every one has to be named in exactly one commit, and the failure
+// surfaces where nothing is watching — inside a paid probe, as a
+// materialization that aborts before the model gets a workspace at all.
 //
 // reproducibility is asserted alongside it because the two share a walk and
 // because it is the property the pinned commit identity and dates exist for:
@@ -32,7 +38,8 @@ import { join, relative, sep } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
 
-import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
+import { materialize as materializeMock } from "../../tools/evaluation/src/mock-workspace.mjs";
+import { repoPath } from "../helpers/run.mjs";
 
 /** every file under `root`, POSIX-style and relative, skipping `.git`. */
 async function listFiles(root, base = root) {
@@ -62,16 +69,22 @@ function gitLog(workspace) {
 
 /**
  * materializes `mock` with `skills` installed, registers cleanup, and returns
- * the run and its workspace.
+ * a `{ result, workspace }` pair shaped like this suite's other spawn-based
+ * helpers do: `result.code` is 0 on success and 2 on a materialization error
+ * — mirroring the exit codes the deleted setup.mjs CLI used to report — with
+ * the thrown error's message as `result.output`. That keeps the assertions
+ * below, and the `toPassCleanly()` matcher they use, reading exactly as they
+ * did when this called a spawned CLI.
  */
-function materialize(mock, skills = []) {
-  const args = ["--mock", mock, ...skills.flatMap((skill) => ["--skill", skill])];
-  const result = runScript(SCRIPTS.setup, args);
-  const workspace = result.stdout.trim();
-  if (result.code === 0 && workspace) {
+async function materialize(mock, skills = []) {
+  try {
+    const workspace = await materializeMock({ mock, skills });
     onTestFinished(() => rm(workspace, { recursive: true, force: true }));
+    return { result: { code: 0, output: "" }, workspace };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { result: { code: 2, output: message }, workspace: null };
   }
-  return { result, workspace };
 }
 
 const mocks = (await readdir(repoPath("tools/evaluation/mocks"), { withFileTypes: true }))
@@ -88,15 +101,15 @@ describe("every mock under tools/evaluation/mocks/", () => {
     expect(mocks.length).toBeGreaterThan(0);
   });
 
-  it.each(mocks)("materializes: %s", (mock) => {
-    const { result } = materialize(mock);
+  it.each(mocks)("materializes: %s", async (mock) => {
+    const { result } = await materialize(mock);
 
     expect(result, `${mock} does not satisfy the materializer's contract`).toPassCleanly();
   });
 
   it.each(mocks)("materializes reproducibly: %s", async (mock) => {
-    const first = materialize(mock);
-    const second = materialize(mock);
+    const first = await materialize(mock);
+    const second = await materialize(mock);
 
     expect(first.result.code).toBe(0);
     expect(second.result.code).toBe(0);
@@ -107,7 +120,7 @@ describe("every mock under tools/evaluation/mocks/", () => {
   });
 
   it.each(mocks)("leaves no fixture metadata and nothing uncommitted: %s", async (mock) => {
-    const { workspace } = materialize(mock);
+    const { workspace } = await materialize(mock);
 
     // history.jsonc is fixture metadata, not project content: a model working
     // in the workspace must never find it.
@@ -116,18 +129,17 @@ describe("every mock under tools/evaluation/mocks/", () => {
       .toBe("");
   });
 
-  // the first of the two layers tools/evaluation/readings/effect/src/capture.mjs's
-  // header describes: a mock's own .gitignore should keep an installed skill
-  // out of Git entirely, so the capture's `.claude` filter — the second layer
-  // — never has anything to catch. behavioural rather than a grep of the
-  // .gitignore text, for the reason capture.mjs's own header gives for
-  // running real git rather than asserting on argv: a textual check passes
-  // just as happily on an entry that is present but ineffective, e.g. one
-  // placed under a `!` negation or in a file git does not read here.
+  // a mock's own .gitignore should keep an installed skill out of Git
+  // entirely — the old effect evaluation's capture step relied on this as the
+  // first of two layers, with a second filter of its own catching whatever
+  // slipped past it. behavioural rather than a grep of the .gitignore text: a
+  // textual check passes just as happily on an entry that is present but
+  // ineffective, e.g. one placed under a `!` negation or in a file git does
+  // not read here.
   it.each(mocks)(
     "leaves nothing for git to report once a skill is installed: %s",
-    (mock) => {
-      const { result, workspace } = materialize(mock, ["unit-testing"]);
+    async (mock) => {
+      const { result, workspace } = await materialize(mock, ["unit-testing"]);
 
       expect(
         result,

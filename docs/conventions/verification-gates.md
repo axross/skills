@@ -71,36 +71,35 @@ invocation however large the numbers. There is no evidence for a defensible
 limit in this skill corpus yet, and a threshold nobody can defend becomes
 either a rule people route around or a warning people stop reading.
 
-### The discovery evaluation, as a reporting tool
+### Skill evaluation, as a reporting tool
 
-`tools/evaluation/readings/discovery/evaluate.mjs` answers "does a prompt actually surface the
-right skills?" — the first check here that measured a skill outcome rather
-than a textual property. It cannot gate for three independent reasons: it is
-non-deterministic, it costs real money per probe, and it needs a secret that
-fork pull requests do not receive.
+`tools/evaluation`'s one instrument — `probe.mjs`, `evaluate.mjs`, and
+`derive.mjs` — answers "does holding a skill change what the agent does,
+and does the agent reach for it unprompted?" — the checks here that measure
+a skill outcome rather than a textual property. It cannot gate for three
+independent reasons: it is non-deterministic, it costs real money per
+probe, and a reasoning factor's judge needs a credential this repository
+does not hand to a fork's pull request.
 
-**A probe reads the project before it chooses, which is the whole point.** A
-prompt states the problem in the words of whoever has it — no path, no
-library, no vendor — so the model has to open the codebase to route, exactly
-as it would for a real request. A situated probe materializes a mock project
-and asks that prompt with every installed skill competing, with `Read`,
-`Glob`, and `Grep` permitted and `Bash` and the editing tools withheld — a
-probe that starts doing the work would be measuring the other axis at this
-one's prices. **One mode does not read a
-project, and it is the one that handles untrusted text**: evaluating a pull
-request's changed `SKILL.md` files runs in a bare workspace with only the
-`Skill` tool, no filesystem, no shell, no credentials, because that mode reads
-prose written by someone outside the repository. What bounds it is that tool
-set rather than its turn cap — the cap is 2, enough for one `Skill` call to
-finish and not a budget for a second, unrelated one, and raising it from 1
-changed how much the model may say, never what it may reach. The two modes are
-mutually exclusive per dispatch, and the instrument refuses the combination
-rather than documenting it.
+**A probe works inside a real project, which is the whole point.** Each
+scenario declares a mock project and a task stated in the words of whoever
+has the problem — no path, no library, no vendor — so the model has to open
+the workspace to route and to work, exactly as it would for a real request.
+`probe.mjs` materializes that project as a real Git repository, installs
+the condition's skills into it, and runs the model with `Bash`, `Edit`,
+`Glob`, `Grep`, `Read`, `Skill`, `TodoWrite`, and `Write` all permitted —
+full working access, because one probe's transcript, workspace diff, and
+skill invocations are what all three evaluation phases are judged from
+afterward. What bounds a probe is its declared turn cap (100 by default) —
+a runaway guard, not a budget control — rather than a restricted tool set.
+There is one probe shape, not the two the deleted instrument used, and
+nothing here evaluates a pull request's own changed text.
 
-**Spending is bound by refusal rather than by exhaustion, and a refusal is a
-finding rather than a prompt to raise the cap.** How admission projects that
-cost before any probe runs, the workflow, its inputs, and what a run records
-are in [Evaluation Dispatch](../operations/evaluation-dispatch.md).
+**Spending is bound by refusal rather than by exhaustion, and a refusal is
+a finding rather than a prompt to raise the limit.** A run refuses before
+any probe starts when its exact probe count exceeds the limit it was given
+— never a projected dollar figure. How that bound works, and how to run
+the instrument, are in [Evaluation Dispatch](../operations/evaluation-dispatch.md).
 
 ### `report-skill-duplication.mjs`
 
