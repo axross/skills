@@ -1,7 +1,8 @@
 // running one probe end to end and returning the four files it produces —
 // the verbatim transcript, the workspace diff, the skill invocations, and
 // metadata carrying the runtime, the model, and the digest of every
-// installed skill (docs/specs/skill-evaluation.md, "probe.mjs").
+// installed skill (docs/specs/skill-evaluation.md, "What a measurement
+// stores").
 //
 // filesystem-write-free on purpose: this module materializes a workspace,
 // spawns (or, in a test, is handed a stub for) the CLI, and returns the four

@@ -2,7 +2,7 @@
 // cap enforced from outside the process.
 //
 // the deleted instrument's own per-reading spawn.mjs is gone, but its
-// recorded metadata (see docs/specs/skill-evaluation.md's "Turn cap" and the
+// recorded metadata (see the turn cap docs/glossary.md defines, and the
 // old measurement this rework read as data) shows a runaway guard was part
 // of the design. the CLI installed in this environment — `claude --help`,
 // checked before writing this file rather than assumed — has no flag that

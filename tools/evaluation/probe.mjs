@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 // probe.mjs — runs one evaluation scenario's probe matrix, or previews it.
 //
-// docs/specs/skill-evaluation.md, "probe.mjs" and "The admission bound is a
-// probe count, not a cost": a run expands its scenario(s) into every
-// (condition, repetition) probe the matrix implies, refuses before any
-// probe starts when that exact count exceeds a declared limit, and
+// docs/specs/skill-evaluation.md, "Repetitions", gives the matrix its shape:
+// a run expands its scenario(s) into every (condition, repetition) probe the
+// matrix implies. the refusal is #392's decision rather than the spec's —
+// "the dispatch is bounded by an exact probe count instead" — so a run
+// refuses before any probe starts when that exact count exceeds a declared
+// limit, and
 // otherwise runs every one of them — each recording the verbatim
 // transcript, the workspace diff, the skill invocations, and metadata
 // carrying the runtime, the model, and the digest of every installed skill.

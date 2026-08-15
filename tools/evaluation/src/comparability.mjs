@@ -61,9 +61,10 @@ function sameReasoningJudges(a, b) {
 
 /**
  * whether two measurements ran under matching conditions, per
- * docs/specs/skill-evaluation.md's "Condition fingerprint": the same
- * project tree, the same probe model, the same installed-skill digests, and
- * — for every reasoning factor — the same judge and the same prompt.
+ * docs/specs/skill-evaluation.md's "What makes two measurements comparable"
+ * and the condition fingerprint docs/glossary.md defines: the same project
+ * tree, the same probe model, the same installed-skill digests, and — for
+ * every reasoning factor — the same judge and the same prompt.
  *
  * @param {ConditionFingerprint} a
  * @param {ConditionFingerprint} b
