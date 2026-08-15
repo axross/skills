@@ -1,5 +1,5 @@
-// builds a case patch the way a case author would: by mutating a real copy of
-// a mock and taking `git diff` over the result.
+// builds a scenario patch the way a scenario author would: by mutating a real
+// copy of a mock and taking `git diff` over the result.
 //
 // generated rather than committed, because a patch rots the moment the mock
 // moves under it — that is the drift the declared-patch check exists to catch.
@@ -95,8 +95,9 @@ export async function readMockHistory(mock = "tsuzuri") {
  * rewrites a scratch tree's history.jsonc from its own parsed commits.
  *
  * the rewrite drops the file's comments, which is fine and is not what a real
- * case patch would do: history.jsonc never reaches the workspace a probe runs
- * in, so what a patch leaves in it only has to parse and to name the tree.
+ * scenario patch would do: history.jsonc never reaches the workspace a probe
+ * runs in, so what a patch leaves in it only has to parse and to name the
+ * tree.
  *
  * @param {string} tree the scratch tree
  * @param {(commits: Array<{ message: string, files: string[] }>) => void} mutate
