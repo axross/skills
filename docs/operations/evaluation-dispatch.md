@@ -102,9 +102,10 @@ node tools/evaluation/derive.mjs <measurement-dir> --check
 node tools/evaluation/derive.mjs --help
 ```
 
-`derive.mjs` computes a measurement's derived tier — each factor's pass
-rate under both conditions, its differential, and its comparable
-predecessor among that scenario's other measurements — from what
+`derive.mjs` computes a measurement's derived tier — each factor's
+differential, the probe counts, the measurement's actual spend summed from
+each probe's own, and its comparable predecessor among that scenario's
+other measurements — from what
 `probe.mjs` and `evaluate.mjs` already wrote, and writes it to the
 measurement's own `summary.json`. `--check` recomputes it and compares the
 result byte-for-byte against what is already there, failing on any

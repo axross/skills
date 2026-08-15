@@ -1,5 +1,5 @@
 // computing the derived tier for one scenario measurement: each factor's
-// pass rates and differential, and the comparable-predecessor link — from
+// differential, and the comparable-predecessor link — from
 // the measured tier (every probe's metadata.json and factors.json) and the
 // declared tier (the scenario's own factor declarations, already folded
 // into each factors.json entry).
