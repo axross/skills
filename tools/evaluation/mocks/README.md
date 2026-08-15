@@ -2,7 +2,7 @@
 
 Fixtures for the skill evaluations. Each subdirectory is a small,
 self-contained project that
-[`tools/evaluation/readings/effect/setup.mjs`](../readings/effect/setup.mjs) expands into an
+[`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs) expands into an
 isolated temporary directory as a real Git repository, with a chosen set of
 skills installed, so a probe can give a model a task inside one.
 
@@ -23,7 +23,7 @@ Everything under a mock's own directory is copied into the workspace the model
 works in, so a model reads it. A note explaining that the project is an
 experiment would tell it so — and a model that knows it is being measured is
 not measuring what we wanted. This file sits one level up, where
-[`tools/evaluation/lib/mock-workspace.mjs`](../lib/mock-workspace.mjs) never
+[`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs) never
 copies from.
 
 ## A mock is a genuine project
@@ -32,7 +32,7 @@ Nothing inside a mock is bent to fit a case. Its **stack and structure are
 chosen** with skill and case coverage in mind — that is what makes it useful —
 but anything a case needs that the project would not naturally have arrives as
 **that case's patch**: a unified diff the case declares, applied by
-[`tools/evaluation/lib/mock-workspace.mjs`](../lib/mock-workspace.mjs) after
+[`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs) after
 the mock is copied and **before** its history is replayed, so the workspace a
 model sees is clean and its history unremarkable. A patch that changes the
 file set maintains `history.jsonc` itself. The reasoning, and the

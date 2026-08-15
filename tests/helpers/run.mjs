@@ -50,19 +50,6 @@ export const SCRIPTS = {
     "skills/agent-skill-authoring/scripts/link-freshness/check.mjs",
   reportObligationBurden: "scripts/report-obligation-burden.mjs",
   reportSkillDuplication: "scripts/report-skill-duplication.mjs",
-  setup: "tools/evaluation/readings/effect/setup.mjs",
-  evaluate: "tools/evaluation/readings/effect/evaluate.mjs",
-  summarize: "tools/evaluation/readings/effect/summarize.mjs",
-  effectEvalAdmit: ".github/scripts/effect-eval-admit.mjs",
-  effectEvalCheckMode: ".github/scripts/effect-eval-check-mode.mjs",
-  effectEvalProbePlan: ".github/scripts/effect-eval-probe-plan.mjs",
-  effectEvalLandingPlan: ".github/scripts/effect-eval-landing-plan.mjs",
-  discoveryEvalEvaluate: "tools/evaluation/readings/discovery/evaluate.mjs",
-  discoveryEvalSummarize: "tools/evaluation/readings/discovery/summarize.mjs",
-  discoveryEvalAdmit: ".github/scripts/discovery-eval-admit.mjs",
-  discoveryEvalCheckMode: ".github/scripts/discovery-eval-check-mode.mjs",
-  discoveryEvalProbePlan: ".github/scripts/discovery-eval-probe-plan.mjs",
-  discoveryEvalLandingPlan: ".github/scripts/discovery-eval-landing-plan.mjs",
 };
 
 /**

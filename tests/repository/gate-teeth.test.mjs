@@ -72,14 +72,18 @@ describe("repository gates have teeth", () => {
   it("the links gate reaches a sibling of the excluded path", async () => {
     const { script, args } = gate("links");
     const root = await tempDir();
-    // tools/evaluation/readings/discovery/ is reachable only if
-    // collectRoots() descends past tools/, tools/evaluation/, and
-    // tools/evaluation/readings/ instead of pruning any of them wholesale —
-    // the case the mocks-exclusion test above cannot cover, since a clean
-    // file there passes whether the roster reached it or never saw it.
+    // `args` is the real repository's own root list (gates.mjs computes it
+    // once, from the real tree), so the planted file has to sit under a name
+    // that list actually contains — tools/evaluation/src is that name today,
+    // the one real child tools/evaluation/ has besides the excluded mocks/.
+    // reaching it is only possible if collectRoots() descends past tools/,
+    // tools/evaluation/, and tools/evaluation/src/ instead of pruning any of
+    // them wholesale — the case the mocks-exclusion test above cannot cover,
+    // since a clean file there passes whether the roster reached it or never
+    // saw it.
     await writeFileIn(
       root,
-      "tools/evaluation/readings/discovery/doc.md",
+      "tools/evaluation/src/doc.md",
       "See [gone](./missing.md).\n",
     );
 
@@ -100,15 +104,15 @@ describe("repository gates have teeth", () => {
       "tools/evaluation/node_modules/somepkg/index.js",
       "",
     );
-    await writeFileIn(root, "tools/evaluation/readings/discovery/doc.md", "");
+    await writeFileIn(root, "tools/evaluation/src/doc.md", "");
 
     const roots = collectRoots(root, "");
 
     expect(roots).not.toContain("tools/evaluation/node_modules");
     // collectRoots() only descends as far as an ancestor of the excluded
-    // tools/evaluation/mocks path — readings/ is a sibling of mocks/, not an
-    // ancestor of it, so it is the root pushed, not readings/discovery/.
-    expect(roots).toContain("tools/evaluation/readings");
+    // tools/evaluation/mocks path — src/ is a sibling of mocks/, not an
+    // ancestor of it, so it is the root pushed, not src/doc.md's parent.
+    expect(roots).toContain("tools/evaluation/src");
   });
 
   it("the links gate still reaches an ordinary top-level directory", async () => {

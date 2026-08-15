@@ -9,8 +9,8 @@ node_modules
 tools/evaluation/mocks/
 
 # An evaluation's derived layer is regenerated and then compared BYTE FOR BYTE
-# against what is committed, which is how a hand-edited summary is caught (see
-# tools/evaluation/readings/effect/summarize.mjs --check). Those bytes come from exactly one
+# against what is committed, which is how a hand-edited summary is caught (the
+# old effect evaluation's summarize.mjs --check did this). Those bytes come from exactly one
 # serializer — layout.mjs's `canonicalJson` — so a second formatter with an
 # opinion about them would make the drift check fail against a file the
 # instrument never wrote. The measured files under measurements/ are excluded
