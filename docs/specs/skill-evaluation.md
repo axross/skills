@@ -38,325 +38,185 @@ This is the asymmetry the practice exists to address: the cheap checks answer a
 question nobody was worried about, and the expensive question has no cheap
 proxy.
 
-## The two axes
+## What this describes
 
-Skill outcome decomposes into two questions, measured by two separate
-instruments. They are independent — a skill can pass either and fail the other
-— and neither is informative about the other.
+Everything below states the model in the present tense, the way every spec in
+this repository is written — but no instrument implements it yet.
+[#392](https://github.com/axross/skills/issues/392) sequences this document
+first so the instrument that follows it is checked against a written contract,
+rather than the contract being written afterward to match whatever the code
+turned out to do. Its steps 2 through 5 build that instrument, reshape the
+workflows that run it, author the scenario set, and run the first measurement
+pass. Until they land, `tools/evaluation/` runs the two instruments this model
+replaces, exactly as it does today, against the model each was built for
+rather than this one.
 
-### Does discovery surface the skill?
+## The evaluation scenario
 
-A skill nobody loads cannot change anything, so selection is the first thing
-worth knowing. It is also the half that is cheapest to be wrong about: an author
-reads their own `description` knowing what it is for, which is the one condition
-under which it always looks adequate.
+The unit skill evaluation runs against is an **evaluation scenario**: a mock
+project, the installed skills, the git history the project starts from, and
+the non-skill harness — `AGENTS.md`, subagents — together with the task it is
+asked to perform.
 
-The **skill discovery evaluation** answers this: it asks prompts of a real agent
-**inside a mock project**, with the whole corpus competing, and records what the
-agent selected. Situating it is what makes the answer worth having — a skill is
-discovered while someone is working in a codebase, not in an empty room, and a
-prompt asked in an empty room can only be answered from the prompt.
-[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md) owns the
-instrument — its two probe modes, how a verdict is reached, and the limits of
-what a run can conclude — and
-[`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md) what a
-measurement holds.
+**Every scenario runs under two conditions, and the difference between them is
+the measurement.** The **skill-present condition** installs `targetSkills`
+plus `peerSkills`; the **skill-absent condition** installs `peerSkills` only,
+leaving the rest of the scenario exactly as declared. Installing nothing at
+all in the absent condition would make a measured difference attributable to
+the whole library rather than to the skill under test, which is why the peer
+set is installed in both — the two runs differ by exactly the skill being
+measured, and nothing else a scenario declares.
 
-### The discovery axis's low selection rate is largely a decision's price
+**`peerSkills` is declared per scenario**, never defaulted to the rest of the
+library, and that carries a standing obligation rather than a one-time choice:
+a scenario's peer set is what makes its discovery phase hard or trivial, and a
+skill added to the library sits in no scenario's choice set until someone
+decides it belongs there.
 
-**The discovery axis's low selection rate is substantially the measured cost
-of a deliberate decision, not a verdict on the descriptions.** Round one of
-the discovery evaluation found 42 of its 77 readable probes selecting no
-skill at all, and 22 of its cases report a `MISS`
-([`tools/evaluation/data/discovery/README.md`](../../tools/evaluation/data/discovery/README.md)).
+## Three phases
 
-**Those two numbers are not the same failure, and the `MISS` count is not
-homogeneous.** Of the 21 situated cases carrying one, 14 selected nothing at
-all; 4 routed to a skill the case does not require —
-`say-what-you-do-not-know-before-answering` reached for
-`next-app-development` over `professional-behavior`, and
-`decide-where-a-rollback-procedure-is-written-down` for the very skill its
-case excludes; and 3 found one of two required skills and missed the other.
-What follows is about the first and largest kind. Whether a routing that went
-somewhere else has the same cause as one that never happened is a separate
-question, and this measurement does not answer it.
+A scenario declares whichever of three **evaluation phases** apply to what it
+is testing.
 
-The obvious reading of that number is that the descriptions need better
-keywords. The evidence refutes it directly: `high-fidelity-ui-design`'s
-`description` already contains the phrase "real colors, type, spacing, and
-states". The prompt that scored 0/6 against it was "make it look like the
-rest of the app". Nothing was missing from the description — the prompt was
-asking in a different vocabulary.
+- **`discovery`** asks whether the agent reached for the target skill
+  unprompted, with `peerSkills` competing for the same prompt.
+- **`outcome`** asks whether the artefacts the agent produced matched
+  expectation — both what had to appear and what had to not.
+- **`transcript`** asks whether the agent reasoned as expected.
 
-That gap sits there on purpose.
-[`docs/decisions/2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md`](../decisions/2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md)
-rewrote the fixture's prompts to stop them carrying their own answer, naming
-as its own example a prompt that "used the low-fidelity design capability's
-own vocabulary to ask for low-fidelity design" and calling that circular:
-"the model never has to read the project, so the measurement records routing
-on vocabulary rather than routing on a situation." What follows confirms that
-decision; it does not revisit it.
+A scenario whose skill leaves no trace an outcome or a transcript phase could
+read — because its surface is not the working tree, or because holding it
+changes only what the agent says along the way — declares discovery alone
+rather than declaring a phase with nothing to check.
 
-A controlled experiment (#377) reconstructed that same circularity on
-purpose, on two cases, and measured its size. It ran four override
-dispatches — one per wording per case — six repeats each, 24 probes in
-total, for $6.60, with mock, patch, tiers, repeat count and corpus held fixed
-by the prompt-override mechanism
-([`docs/operations/evaluation-dispatch.md`](../operations/evaluation-dispatch.md))
-so the prompt was the only variable. Being an override run, it recorded none
-of it as a case measurement; what it produced landed only in an uploaded
-artifact.
+What a factor's judge is shown is decided by the phase its factor belongs to,
+never by what else the probe recorded: a discovery factor sees the skill
+invocations, an outcome factor sees the diff and the task, and a transcript
+factor sees the transcript. An outcome judgment is deliberately never shown
+the reasoning that produced the artefact it is judging, so a plausible
+explanation cannot substitute for the artefact actually meeting expectation.
 
-`turn-a-settled-layout-into-a-real-screen`, which tracks
-`high-fidelity-ui-design`: the declared wording — "We've settled what goes on
-the screen for changing a card that already exists, and in what order. Now I
-need it to actually look like the rest of the app." — scored 0/6. The
-vocabulary-matched wording — "We've settled what goes on the screen for
-changing a card that already exists, and in what order. Now I need the real
-colours, type and spacing on it, and the states it can be in." — scored 6/6.
-Two-sided Fisher exact: p = 0.0022. Worth stating plainly: round one never
-selected `high-fidelity-ui-design` at all, in either of the two cases that
-track it, so those six are the first selections of that skill any measurement
-here has recorded — and a wording change is the whole of what produced them.
+A discovery-phase task is written the way the problem's own owner would state
+it, never in the tracked skill's own vocabulary — the situation this practice
+means to measure is whether the skill's description reaches a reader with a
+problem, not whether a prompt and a description share words.
+[`2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md`](../decisions/2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md)
+is the decision that constrains this, and it costs something real: a prompt
+asking in the tracked skill's own words routes on vocabulary rather than on a
+situation, and the more of that cost a scenario's author is willing to pay,
+the harder — and the more informative — the discovery phase becomes.
 
-`stop-two-sites-sharing-one-cached-list`, which tracks
-`tanstack-query-development`: the declared wording — "Switching from one
-customer's site to another shows the wrong site's posts for a moment before
-it corrects itself." — scored 0/6. The vocabulary-matched wording —
-"Switching from one customer's site to another shows the wrong site's posts
-for a moment — the two sites look like they are sharing one cached list
-until it refetches." — scored 2/6. Two-sided Fisher exact: p = 0.455 — off
-zero, but indistinguishable from chance at this sample size. This pair did
-not replicate the first; it is the pair that failed to reproduce the effect,
-not weak evidence for it. The two pairs disagreeing is exactly why this
-section draws no corpus-wide conclusion from either.
+## The factor
 
-Where the vocabulary-matched arm applies, it is the circularity the
-2026-08-09 decision removed, rebuilt on purpose and measured, and it changed
-the outcome by a wide margin in one case and, at this sample size, not
-detectably in the other. So a substantial share of the 22 `MISS` verdicts is
-not a verdict on the descriptions at all — it is what routing on a
-**situation** costs against routing on **vocabulary**, and that cost is
-largely what the 2026-08-09 decision buys.
+A **factor** is a declared, checkable expectation one scenario carries for one
+of its phases, together with the judgment method that checks it. `script` and
+`reasoning` are siblings — two ways of judging a factor, not two storage
+tiers, and both results are part of the measurement. A **script judgment**
+runs a deterministic script against the reconstructed probe workspace; a
+**reasoning judgment** asks a **reasoning judge** — a model — to read the
+material its factor's phase permits and report a verdict. Either way, the
+judgment is the factor's own: nothing about a factor's declaration says in
+advance which method will turn out to answer it better.
 
-**What the experiment does not license.** Both declared arms scored 0/6,
-which is enough repeats to say the n=2 `MISS` was not a sampling artefact —
-but only for those two cases. It licenses nothing about the other 20 `MISS`
-verdicts in round one, which nobody has re-read this way.
+**Every factor result is `true`, `false`, or an error carrying its reason.**
+A judgment that could not be made is not a judgment that came out false, and
+the two stay distinguishable at every layer that stores one. Float results
+are abolished: a factor that wanted a ratio — three of five files renamed,
+two of three log lines quieted — is decomposed into one factor per element
+instead, so the result names which element failed rather than only how many
+did.
 
-**Three mechanisms, one of them measured.** A transcript investigation
-separated three distinct reasons a probe fails to select a tracked skill.
-This experiment tested only the first.
+**Every judgment records evidence.** A judgment with no recorded basis cannot
+be checked later, by a reviewer reading the record or by anyone re-deriving
+it, so evidence is not optional on either judgment method.
 
-1. **Prompt shape** — measured, above: seven skills split between a hit and
-   a `MISS` across their two cases, same skill and the same `description`,
-   with only the prompt differing.
-2. **The situated condition itself.** 41 of 68 situated readable probes
-   selected nothing, against 3 of 21 across both bare rounds; not one of
-   those 41 mentions "skill" anywhere in its own prose, so the skill layer
-   appears never to enter the model's reasoning rather than being weighed
-   and declined. Selection, when it happens, happens early — a median of 3
-   paths read before selecting, against a median of 7 read in total by a
-   probe that never selects. **Unmeasured**: no experiment has isolated this
-   from the other two.
-3. **The mock already answers the prompt.**
-   `choose-the-level-a-retry-is-logged-at` missed `software-instrumentation`
-   because the probe read `server/deploy-hook.ts` and reported the log
-   levels already there; `agree-a-plan-before-writing-code` missed
-   `loop-engineering` because the probe read the mock's own README and
-   correctly stated the project's plan-first rule. **Unmeasured**.
+## The differential
 
-**The evidence expires.** A prompt override records nothing by design — the
-run reports to an uploaded artifact rather than to a case measurement — and
-that artifact is retained 30 days from 2026-08-13. Once it is gone, this
-document is the only durable record of the four scores and the two Fisher
-values above.
+A factor's **differential** is the difference of pass rates between its
+scenario's two conditions, ranging from −1 to 1. A skill that makes a factor
+worse is recorded at its true value rather than clamped to zero, because a
+regression is exactly the kind of result this practice exists to surface.
 
-**What this rules out.** Adding problem vocabulary to a `description` would
-raise the discovery number, but only by re-creating the circularity the
-2026-08-09 decision removed, one level down: the fixture's prompt would stop
-carrying the answer, and the corpus's description would carry it instead —
-for every prompt near that vocabulary, not only the one this measurement
-happened to sample. A proposal that closes this gap has to be argued on
-whether it helps a real project's reader act on the description, never on
-whether it moves this measurement — the same move the 2026-08-09 decision
-already forecloses for the fixture side.
+**A factor with any errored judgment has no differential, and that is not the
+same as a differential of zero.** A pass rate cannot be computed over a result
+that was never reached, and reporting zero in its place would read as "no
+effect" when the honest report is "not judged."
 
-### Does holding the skill change what the agent does?
+## Repetitions
 
-Selection is only half the bet. The other half is the one the practice exists
-for and the one nothing here could state until there was an instrument for it:
-whether an agent that holds the skill works differently from one that does not.
+**Three repetitions per condition is the default a scenario may override, not
+a fixed count.** It fixes the resolution of every differential it produces: a
+pass rate taken over three repetitions can only be 0, 1/3, 2/3, or 1, so a
+differential built from it can only be a multiple of 1/3. A factor that
+passes twice with the skill and once without reports 0.333, and at this
+resolution that is not distinguishable from chance — a single scenario's
+differential is read with that in mind, not as a precise ratio.
 
-The **skill effect evaluation** answers this. It gives a real agent a real task
-in a project modelled on a real consumer, runs the same task with the skill
-installed and without it, and compares what the two runs produced — both the
-files written and the record of what the agent did to write them.
+## What makes two measurements comparable
 
-**Cost is one term of the judgement, not the whole of it.** A skill occupies
-context whether or not it changes anything, and that is paid on every turn that
-loads it, so "does this skill earn its place" is a ratio: effect over cost. The
-obligation report supplies the denominator, and what it counts and the policy
-that follows are stated with the tool in
-`docs/conventions/verification-gates.md`. Read
-alone it answers a narrower question than this axis asks — a price with no
-account of what was bought.
+A later measurement of a scenario is read as a change against its
+**comparable predecessor** — the most recent earlier measurement of that
+scenario whose conditions match — rather than against a stored baseline.
+There is no baseline to compare against instead: a result is a change because
+the previous measurement is still on disk, not because a separate document
+says which one counts as current.
+[`2026-08-09-compare-a-measurement-against-its-predecessor-not-a-baseline.md`](../decisions/2026-08-09-compare-a-measurement-against-its-predecessor-not-a-baseline.md)
+is the decision that removed the baseline this replaced; nothing about the
+model in this document reopens it.
 
-### An instrument stores what it measured, not what it concluded
+**A reasoning judge's model and the full prompt it was given are both part of
+what makes two measurements comparable**, exactly as the runtime, the model
+that ran the probe, and the digest of every installed skill already are.
+Re-judging a stored measurement with a different reasoning judge is therefore
+a new measurement, never a silent update to the old one — the two results sit
+side by side rather than one replacing the other.
 
-This holds across both axes, and it is the reason a threshold can be argued
-about after the fact rather than re-bought.
+## Measured, declared, and derived
 
-Neither instrument persists a verdict, and neither keeps a baseline. Each stores
-what one probe produced — its verbatim transcript, and on the effect axis the
-diff beside it — so changing the rule for what counts as a finding is a
-re-derivation over data already paid for rather than another run.
+What one measurement holds is kept in three kinds, because they answer
+different questions when something goes wrong.
 
-**Raw enough is a stronger claim than it sounds, and the effect axis learned it
-the expensive way.** Its first instrument stored the extracted signals and threw
-the stream away, reasoning that a later question would be a threshold over the
-signal already extracted. That is an assumption about what the next question
-will be, and it failed the first time the question changed: reading six
-recovered session logs answered three things the stored records could not —
-which tools each run used, the per-message token usage, and the model each
-message reported. Every question the extractor did not anticipate cost a paid
-re-run.
-
-A second instance of the same lesson arrived with #331: `changedPaths` alone
-recorded a probe that found the planted defect and then asked whether to
-apply it, and a probe that found nothing at all, identically — both `[]`. The
-stream already held the difference; a new reading, `endedAwaitingDecision`,
-tells the two apart without spending another probe. The same change pinned a
-non-interactive brief into every dispatch's argv, which supersedes any
-measurement taken before it existed — two measurements predate it, committed
-under `add-unit-tests-for-an-untested-module-4204a1ed` and
-`fix-a-minified-production-stack-trace-201f1200`. The same principle paid off
-a second time: `finalMessageHeadings` reads those same stored transcripts for
-a different question and recovers a result from bytes already paid for,
-rather than costing another probe. All of this is stated in full in
-[`tools/evaluation/data/effect/README.md`](../../tools/evaluation/data/effect/README.md).
-
-**A baseline is the same mistake one level up**, and the discovery axis carried
-one until it was rebuilt. A file recording "the current result" is a stored
-conclusion about which measurement counts as current, it has to be re-recorded
-by hand, and it overwrites the numbers it replaces. Measurements accumulate
-instead: a new one is compared against the most recent earlier one it is
-_comparable_ with — same prompt, same model, same project, same runtime, and
-the same discovery text for the skills that case tracks — and where none is,
-the report names the condition that failed rather than suppressing the
-comparison. Nothing has to be re-recorded, because measuring again is the only
-act there is.
-
-**The runtime is one of those dimensions because the probe's own configuration
-is part of the condition.** The CLI's name and version, its turn cap, and the
-tools it permits and denies all shape what a probe can do before it answers, so
-two measurements taken under different ones are not measuring the same thing. A
-comparability key that omitted them would not report a broken comparison — it
-would report a confident one, and attribute the difference to a skill.
-
-So both axes separate their files by what can be re-acquired:
-
-| Kind         | Rule                                                                                            |
-| ------------ | ----------------------------------------------------------------------------------------------- |
-| **measured** | Never regenerated. Re-acquiring it costs a paid probe.                                          |
-| **declared** | What was set. Everything derivable from it — the CLI argv — is derived, not recorded beside it. |
-| **derived**  | Regenerable from the two above. A drift check re-derives and fails on a mismatch.               |
+| Kind         | Rule                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------ |
+| **measured** | Never regenerated. Re-acquiring it costs a paid probe.                               |
+| **declared** | What was set. Everything derivable from it is derived, not recorded beside it.       |
+| **derived**  | Regenerable from the two above. A drift check re-derives it and fails on a mismatch. |
 
 The taxonomy earns its keep in both directions. A derived value stored as
-measured is a value nothing can check; a measured value treated as derived is
-one something will cheerfully regenerate as empty. And a derived layer that
-merely _claims_ to be regenerable is worth nothing without the check that
-re-derives it, which is why the drift check runs both in this repository's own
-test suite and inside the measurement dispatch before anything is committed.
+measured is a value nothing can check, because there is nothing to re-derive
+it from and compare against. A measured value treated as derived is one
+something will cheerfully regenerate as empty the moment it is asked for
+before it was ever taken. Holding the line between the three is what keeps a
+later question about a stored measurement answerable by reading rather than
+by running the scenario again.
 
-The distinction is between the record and the report, not between measuring and
-judging: the discovery evaluation very much does judge, classifying a tally as a
-miss or as spurious and naming a remedy. It computes that at report time from
-stored counts, so the judgement can be revised and the counts cannot. An
-instrument that stored the verdict instead would make every threshold change
-cost another run.
+## The practice does not gate a merge
 
-### The effect axis cannot observe every skill
+Skill evaluation reports; it blocks nothing. That is not squeamishness about
+enforcement, and it is not a gap waiting to be closed — it follows from what
+is being measured.
 
-What the instrument can see is bounded by where it looks: one agent, given one
-coding task, inside one **mock project**, with the editing tools and a shell. A
-skill whose effect does not show up there cannot be measured by it — not
-measured and found absent, but out of range, which is a different result and
-must not be reported as the first.
-
-Three groups fall outside it today, for three different reasons:
-
-- **Skills whose surface is not the working tree.** Anything governing how an
-  agent operates GitHub, drives a change loop, or conducts a review acts on
-  issues, pull requests, and other sessions. None of that exists inside a mock
-  project, and manufacturing it would measure the manufactured thing.
-- **Skills whose effect is a judgement rather than an artifact.** Conduct,
-  reporting, and how an uncertainty is resolved change what an agent _says_ and
-  when it _stops_. A diff and a tool-call list do not carry that, and a
-  **signal extractor** that claimed to read it would be judging.
-- **Skills that need a stack the mock does not have.** A mock carries one
-  toolchain. A skill about a framework, a runner, or a vendor SDK the fixture
-  does not install has nothing to act on — this is the softest of the three,
-  because it is answered by adding a mock rather than by a limit of the method.
-
-This bound is worth stating because the instrument reports a number either way.
-A measurement of a skill in the first two groups would show the two conditions
-agreeing, which reads exactly like a skill that changed nothing — and the
-correct reading is that the question was never put.
-[`tools/evaluation/data/effect/coverage.md`](../../tools/evaluation/data/effect/coverage.md) is the
-enumeration: every installed skill sorted into one of the three groups above,
-or left off that file because it is in range and named by a case in
-[`tools/evaluation/data/effect/fixture.json`](../../tools/evaluation/data/effect/fixture.json) instead.
-
-## Neither axis gates a merge
-
-Both instruments report; neither blocks anything. That is not squeamishness
-about enforcement, and it is not a gap waiting to be closed — it follows from
-what is being measured.
-
-A gate has to be able to say a change is wrong. A skill-outcome measurement says
-that a result moved, and how surprised to be by the movement. Those are
-different kinds of claim: the first admits a yes or no, the second is a piece of
-evidence whose weight depends on how much was measured and against what. Handing
-the second to a merge queue would force it into a shape it does not have.
+A gate has to be able to say a change is wrong. A skill-outcome measurement
+says that a result moved, and how surprised to be by the movement. Those are
+different kinds of claim: the first admits a yes or no, the second is a piece
+of evidence whose weight depends on how much was measured and against what.
+Handing the second to a merge queue would force it into a shape it does not
+have.
 
 A measurement that cannot gate is not a weaker measurement. It is one whose
-output has a different reader — a person deciding what to change, rather than a
-queue deciding what to block.
-
-The concrete reasons each instrument cannot gate belong to the instrument, and
-are stated with it:
-[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md)
-for the skill discovery evaluation,
-[`tools/evaluation/readings/effect/README.md`](../../tools/evaluation/readings/effect/README.md) for the skill
-effect evaluation, and `docs/conventions/verification-gates.md` for the
-obligation report that supplies the cost term.
-`tests/repository/reporting-tools.test.mjs` is what
-actually keeps both out of every gate, npm script, and hook.
+output has a different reader — a person deciding what to change, rather than
+a queue deciding what to block.
 
 ## What the practice does not establish
 
-Three limits belong to skill evaluation as a practice, rather than to either
-instrument's implementation.
+**A scenario set is coverage of what someone thought to write, not proof of
+correctness for what nobody did.** A skill that no scenario ever exercises has
+been shown nothing; the absence of a finding about it is not evidence that it
+works.
 
-**The two axes do not age the same way.** Selection is a property of a model,
-and models are replaced. Cost is a property of the text, and text changes only
-when someone edits it. The two numbers therefore go stale on different clocks,
-and a reader comparing results across time has to know which kind they are
-holding. What that means for a recorded selection result is stated with the
-instrument in
-[`tools/evaluation/readings/discovery/README.md`](../../tools/evaluation/readings/discovery/README.md).
-
-**Coverage is not the same as correctness.** A fixture measures the prompts
-somebody thought to write down. A skill that is never surfaced by any labelled
-prompt has been shown nothing; the absence of a finding is not evidence of a
-working `description`.
-
-**A measured difference is not a measured improvement.** The effect axis now
-has a comparable measurement behind it, and a deterministic reading of what the
-two conditions produced was enough to tell them apart. Telling them apart is
-the whole of what such a reading gives: a deterministic signal answers whether
-the output moved and never whether it moved for the better, which is why the
-cost axis reports a number without claiming that number buys anything. The
-records behind that measurement are committed under
-[`tools/evaluation/data/effect/`](../../tools/evaluation/data/effect/README.md).
+**A passing factor is not a quality verdict, even when a reasoning judge
+produced it.** A factor answers the specific, checkable expectation it was
+written to declare — that a named file exists, that a document reads as
+covering a required point — never a holistic judgment of whether the work was
+good. A scenario whose every declared factor passes has confirmed exactly
+what its author thought to check, and nothing wider than that.
