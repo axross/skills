@@ -1,0 +1,57 @@
+{
+  "id": "quiet-the-stale-post-list-after-a-draft-save",
+  "mock": "inkwell",
+  "targetSkills": ["tanstack-query-development"],
+  "peerSkills": ["react-component-development", "code-maintainability"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "After I edit a post's title and save a draft, the site's post list still shows the old title and timestamp until I leave the page and come back. Fix it so the list is right immediately after a save, the same as it already is right after a publish."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-tanstack-query-development",
+      "phase": "discovery",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "tanstack-query-development" }
+      }
+    },
+    {
+      "id": "invalidates-the-post-list-after-save",
+      "phase": "outcome",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/queries/posts/post-save-mutation.ts",
+          "mustContainAll": ["getPostListQueryOptions", "invalidateQueries"]
+        }
+      }
+    },
+    {
+      "id": "keeps-the-detail-cache-write",
+      "phase": "outcome",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/queries/posts/post-save-mutation.ts",
+          "mustContainAll": ["setQueryData", "getPostQueryOptions"]
+        }
+      }
+    },
+    {
+      "id": "explains-why-the-list-was-stale",
+      "phase": "transcript",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work on a bug report. Decide whether the agent's own reasoning, at some point before it finished, correctly identified WHY the post list page was showing stale data after a draft save — specifically, that nothing was invalidating or refetching the post list's own cached query after the save mutation succeeded (as distinct from merely fixing the symptom without ever stating the cause). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+      }
+    }
+  ]
+}
