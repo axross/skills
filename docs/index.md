@@ -17,7 +17,7 @@ uses none of them.
 
 - [specs/skill-evaluation.md](./specs/skill-evaluation.md) — what it means to
   measure whether a skill works, and the evaluation scenario it describes,
-  under two conditions and three phases, to check it.
+  run under two conditions and checked across three phases.
 
 ## Conventions
 
