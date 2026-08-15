@@ -83,15 +83,14 @@ because none is recoverable from the model alone. **A reasoning judge is
 accepted, at its cost.** The failed judgment layer left the effect
 evaluation with no way to check anything but the shallowest deterministic
 signal; admitting a model to judge a factor is what the case-specific
-layer needed and never got, and its model and its full prompt are recorded
-on every result it produces, so re-judging with a different judge is a new
-measurement rather than an update to an old one — never a silent
-comparison across instruments that were not the same instrument.
+layer needed and never got. The cost accepted with it is that a judge
+becomes part of the condition, so a stored measurement can be re-judged
+only by taking a new one.
 **Three repetitions per condition is the default**, the same number the old
-fixtures declared. It fixes the resolution of every differential: a pass
-rate over three runs can only be 0, 1/3, 2/3, or 1, so a differential can
-only be a multiple of 1/3, and a run scoring 0.333 is not distinguishable
-from chance at that resolution. **The existing 68 measurements are
+fixtures declared. The cost accepted with it is a coarse resolution: at
+three runs a single scenario's differential is not fine enough to separate
+a small effect from chance, and every measurement this instrument produces
+is read with that in mind. **The existing 68 measurements are
 deleted rather than migrated.** They carry no factor judgments — the layer
 that would have produced one was never wired — and their control condition
 means something else than the one this record adopts, so nothing in them is
