@@ -50,7 +50,7 @@ run the first measurement pass. Until they land, `tools/evaluation/` runs the
 two instruments this model replaces, exactly as it does today, against the
 model each was built for rather than this one.
 [`2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md`](../decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md)
-is the decision that replaced those two instruments with this model, and
+is the decision to replace those two instruments with this model, and it
 carries the evidence that forced the rebuild.
 
 ## The evaluation scenario
