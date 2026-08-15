@@ -169,12 +169,13 @@ to avoid.
 
 **Three repetitions per condition is the default a dispatch may override, not
 a fixed count.** A scenario does not carry it: a scenario declares what it
-tests, and how many times to run it is an argument to the run. It fixes the resolution of every differential it produces: a
-pass rate taken over three repetitions can only be 0, 1/3, 2/3, or 1, so a
-differential built from it can only be a multiple of 1/3. A factor that
-passes twice with the skill and once without reports 0.333, and at this
-resolution that is not distinguishable from chance — a single scenario's
-differential is read with that in mind, not as a precise ratio.
+tests, and how many times to run it is an argument to the run. It fixes the
+resolution of every differential it produces: a pass rate taken over three
+repetitions can only be 0, 1/3, 2/3, or 1, so a differential built from it
+can only be a multiple of 1/3. A factor that passes twice with the skill and
+once without reports 0.333, and at this resolution that is not
+distinguishable from chance — a single scenario's differential is read with
+that in mind, not as a precise ratio.
 
 ## What makes two measurements comparable
 
