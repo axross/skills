@@ -122,6 +122,8 @@
 
 **Evaluation probe** — one run of an **evaluation scenario** under one **evaluation condition**, against the real CLI.
 
+**Turn cap** — the ceiling on how many turns one **evaluation probe** may take, set as a runaway guard rather than a budget control.
+
 **Repetition** — one of several **evaluation probes** run under the same **evaluation scenario** and **evaluation condition**, with no fixed order among them. Three repetitions per condition is the default: a pass rate over three can only be 0, 1/3, 2/3, or 1, so a **differential** built from it can only be a multiple of 1/3.
 
 **Scenario set** — the **evaluation scenarios** an instrument runs, together with what each is measured against.
@@ -143,8 +145,6 @@
 **Scenario measurement** — every **evaluation probe** of one **evaluation scenario**, run together as one unit and stored together, because no single probe supports a comparison on its own.
 
 **Condition fingerprint** — the digests of the **probe workspace** and of each installed skill, recorded with a **probe record** so two records are judged comparable by content rather than by the names of what produced them.
-
-**Comparability check** — a check that every **evaluation probe** of one **scenario measurement** ran under the same conditions, so a difference between them can be attributed to the skill at all.
 
 **Comparable predecessor** — the most recent earlier **scenario measurement** of one **evaluation scenario** whose conditions match a later one's, which is what that later one reads as a change against. There is no baseline to compare against instead: a result is a change because the previous measurement is still on disk.
 
