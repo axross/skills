@@ -26,7 +26,7 @@
 
 **Reference file** — a file beside a `SKILL.md` holding detail the body defers to, read only when a task needs it.
 
-**Skill corpus** — the body of skill text under one **skill root**, taken together: what an **obligation burden** report counts and a **scheduled audit** dereferences the URLs of, and whose **skill descriptions** a **skill corpus fingerprint** digests.
+**Skill corpus** — the body of skill text under one **skill root**, taken together: what an **obligation burden** report counts and a **scheduled audit** dereferences the URLs of.
 
 ## Agent Runtimes
 
@@ -92,75 +92,67 @@
 
 **Skill outcome** — whether an **agent skill** does its job: whether **skill discovery** surfaces it for the right prompt, and whether holding it changes what the model does. It does not follow from any **textual property**.
 
-**Skill discovery evaluation** — the instrument measuring whether an **agent runtime** surfaces a given **agent skill** for a prompt, from its **skill description** alone.
+**Evaluation scenario** — the unit **skill evaluation** runs against: a **mock project**, the installed skills, the git history the project starts from, and the non-skill harness, together with the task it is asked to perform.
 
-**Skill effect evaluation** — the instrument measuring whether holding an **agent skill** changes what an agent does and what it produces.
+**Target skills** — the skill or skills one **evaluation scenario** is testing, installed only in the **skill-present condition**.
 
-**Evaluation fixture** — the set of **evaluation cases** an instrument runs, together with what each case is measured against.
+**Peer skills** — the skills one **evaluation scenario** installs in both conditions, declared per scenario rather than defaulted to the rest of the library.
 
-**Evaluation case** — one labelled unit of an **evaluation fixture**, carrying a written rationale a human can disagree with without reading code. A discovery case carries the prompt to send, and names the **agent skills** it should surface and the ones it should not; an effect case carries the task to perform and the **evaluation conditions** to perform it under.
+**Evaluation condition** — one setup an **evaluation scenario** is run under, differing from the others in exactly what the scenario is testing.
 
-**Evaluation probe** — one run of one **evaluation case** against the real CLI. A discovery probe produces the set of **agent skills** the run selected; an effect probe produces a **probe artifact** and a **probe transcript**.
+**Skill-present condition** — the **evaluation condition** that installs an **evaluation scenario**'s **target skills** plus its **peer skills**.
+
+**Skill-absent condition** — the **evaluation condition** that installs an **evaluation scenario**'s **peer skills** only. The difference between the two conditions is the measurement.
+
+**Evaluation phase** — one of the three questions an **evaluation scenario** may declare, each judged by its own **factors**: `discovery`, whether the agent reached for the **target skills** unprompted; `outcome`, whether the produced artefacts matched expectation; `transcript`, whether the agent reasoned as expected. A scenario declares whichever apply to what it is testing.
+
+**Factor** — a declared, checkable expectation an **evaluation scenario** carries for one of its **evaluation phases**, together with the judgment method — **script judgment** or **reasoning judgment** — that checks it.
+
+**Factor result** — the outcome of one **factor**'s judgment for one **evaluation probe**: `true`, `false`, or an error carrying its reason. A judgment that could not be made is not a judgment that came out false, and the two stay distinguishable at every layer that stores one.
+
+**Script judgment** — a **factor**'s judgment method that runs a deterministic script against a **probe workspace**, reporting a **factor result** and its **evidence**. A sibling of **reasoning judgment**, not a separate storage tier.
+
+**Reasoning judgment** — a **factor**'s judgment method that asks a **reasoning judge** to read the material its **factor**'s **evaluation phase** permits and report a **factor result** and its **evidence**. A sibling of **script judgment**, not a separate storage tier.
+
+**Reasoning judge** — a model asked to render a **reasoning judgment**. Its model and the full prompt it was given are both part of what makes two measurements comparable, so re-judging with a different reasoning judge is a new measurement rather than an update to an old one.
+
+**Evidence** — the recorded basis for one **factor result**, required of a **script judgment** and a **reasoning judgment** alike, because a judgment with no recorded basis cannot be checked later.
+
+**Differential** — the difference of pass rates between an **evaluation scenario**'s two conditions, for one **factor**, ranging from −1 to 1. A **factor** with any errored **factor result** has no differential, which is not the same as a differential of zero.
+
+**Evaluation probe** — one run of an **evaluation scenario** under one **evaluation condition**, against the real CLI.
+
+**Repetition** — one of several **evaluation probes** run under the same **evaluation scenario** and **evaluation condition**, with no fixed order among them. Three repetitions per condition is the default: a pass rate over three can only be 0, 1/3, 2/3, or 1, so a **differential** built from it can only be a multiple of 1/3.
+
+**Scenario set** — the **evaluation scenarios** an instrument runs, together with what each is measured against.
 
 **Mock project** — a small self-contained project modelled on a real consumer, kept as a fixture so an evaluation can give an agent real work to do.
 
 **Probe workspace** — the isolated temporary directory a **mock project** is expanded into, a real Git repository where the agent works.
 
-**Mock materialization** — expanding a **mock project** into a **probe workspace**: copying its files, applying the **case patch** where the **evaluation case** declares one, replaying its recorded commit history, and installing the skills that run holds.
+**Mock materialization** — expanding a **mock project** into a **probe workspace**: copying its files, applying the **scenario patch** where the **evaluation scenario** declares one, replaying its recorded commit history, and installing the skills its **evaluation condition** calls for.
 
-**Case patch** — a unified diff one **evaluation case** declares, applied during **mock materialization** so the case starts from the broken state its own prompt describes. It belongs to the case rather than to the **mock project**, which ships sound: a defect built into the mock would be there for every other case too, and a project holding one of everything an evaluation measures reads as a fixture rather than as a project.
+**Scenario patch** — a unified diff one **evaluation scenario** declares, applied during **mock materialization** so the scenario starts from the broken state its own prompt describes. It belongs to the scenario rather than to the **mock project**, which ships sound: a defect built into the mock would be there for every other scenario too, and a project holding one of everything an evaluation measures reads as a fixture rather than as a project.
 
-## Skill Discovery Evaluation
+**Probe transcript** — the verbatim stream one **evaluation probe** produced, stored as the **agent runtime** emitted it rather than as an extraction over it, so a question a later reading asks is answered by re-reading rather than by re-running. What a `transcript` **factor** reads, and where a `discovery` **factor** reads the skill invocations in it.
 
-**Discovery count** — how many **evaluation probes** surfaced each **agent skill** for one **evaluation case**, which is what makes the result a distribution rather than a single verdict.
-
-**Situated probe** — an **evaluation probe** that reads a **probe workspace** before it selects, which is the situation an **agent skill** is discovered in: real instructions, a real codebase, and every other skill competing.
-
-**Bare probe** — an **evaluation probe** whose workspace holds the installed skills and no project, so the prompt is the only thing it can route on. What a **head overlay** requires, and where an **evaluation case** whose subject situating would remove still runs.
-
-**Head overlay** — the **skill descriptions** of a pull request's own head, staged as data for a **bare probe**, so a changed one can be measured before it merges. Never combined with a **situated probe**, which holds capabilities text from outside the repository must not reach.
-
-**Skill corpus fingerprint** — a digest of the **skill descriptions** across one **skill corpus**, recorded with a **probe record**, so a later comparison can say whether the text **skill discovery** reads has moved since that probe ran.
-
-**Comparable predecessor** — the most recent earlier **case measurement** of one **evaluation case** whose conditions match a later one's, which is what that later one reads as a change against. There is no baseline to compare against instead: a result is a change because the previous measurement is still on disk.
-
-**Measured population** — which of two groups an **evaluation case** is reported within, so a result about a **mandated skill** and a result about a **discovered skill** never reach one number. The two answer different questions: for a **discovered skill** the **skill description** is the whole of what surfaces it, and for a **mandated skill** it is barely involved, since the consumer's own instructions name that skill outright.
-
-## Skill Effect Evaluation
-
-**Evaluation condition** — one setup an **evaluation case** is run under, differing from the others in exactly what the case is testing.
-
-**Skill-absent condition** — the **evaluation condition** run without the skill under test installed.
-
-**Skill-present condition** — the **evaluation condition** run with the skill under test installed.
-
-**Probe artifact** — what one **evaluation probe** left in its **probe workspace**: the files the agent created or changed.
-
-**Probe transcript** — the verbatim stream one **evaluation probe** produced, stored as the **agent runtime** emitted it rather than as an extraction over it, so a question a later reading asks is answered by re-reading rather than by re-running.
-
-**Signal extractor** — a deterministic function that reads a **probe transcript** or a **probe artifact** and reports measured signals without judging them.
-
-**Residue** — the part of an **agent skill**'s effect that no **signal extractor** reaches: what a **probe artifact** and a **probe transcript** cannot settle because the question is one of quality rather than of presence. Sizing it across an **evaluation fixture** is what decides whether an **LLM judge** is worth adopting.
+**Probe artifact** — what one **evaluation probe** left in its **probe workspace**: the files the agent created or changed. What an `outcome` **factor** reads.
 
 **Probe record** — everything one **evaluation probe** produced — its **probe transcript** and its **probe artifact** — together with the **condition fingerprint** it ran under, carrying no verdict.
 
-**Case measurement** — every **evaluation probe** of one **evaluation case**, run together as one unit and stored together, because no single probe supports a comparison on its own.
+**Scenario measurement** — every **evaluation probe** of one **evaluation scenario**, run together as one unit and stored together, because no single probe supports a comparison on its own.
 
 **Condition fingerprint** — the digests of the **probe workspace** and of each installed skill, recorded with a **probe record** so two records are judged comparable by content rather than by the names of what produced them.
 
-**Comparability check** — a check that every **evaluation probe** of one **case measurement** ran under the same conditions, so a difference between them can be attributed to the skill at all.
+**Comparability check** — a check that every **evaluation probe** of one **scenario measurement** ran under the same conditions, so a difference between them can be attributed to the skill at all.
 
-**Negative control** — an **evaluation case** drawn from a skill the effect axis cannot observe at all, so its **skill-absent condition** and **skill-present condition** are predicted to agree. It is the axis's only measurement of its own **noise floor**, and a result that diverges instead is a finding about the instrument rather than evidence the control was miscast.
-
-**Noise floor** — how large a difference between two **evaluation probes** has to be before it can be attributed to an **agent skill** at all, as against ordinary run-to-run variance the **evaluation condition** itself did not cause. Measured, on the effect axis, by a **negative control**.
+**Comparable predecessor** — the most recent earlier **scenario measurement** of one **evaluation scenario** whose conditions match a later one's, which is what that later one reads as a change against. There is no baseline to compare against instead: a result is a change because the previous measurement is still on disk.
 
 **Superseded record** — a **probe record** taken under conditions a later change invalidated, so it is evidence of its own run and not comparable with later ones.
 
-**LLM judge** — a model asked to rank or score what a **signal extractor** cannot reach.
+**Negative control** — an **evaluation scenario** deliberately drawn from a skill whose effect a **mock project**'s `outcome` and `transcript` phases cannot observe, so its **skill-absent condition** and **skill-present condition** are predicted to agree. It is the practice's only measurement of its own **noise floor**, and a result that diverges instead is a finding about the instrument rather than evidence the control was miscast.
 
-**Stop-loss guard** — the check standing between a **case measurement**'s projected cost and the start of it, so a declared cap binds by refusal before the spend rather than by exhaustion during it.
-
-**Turn cap** — the ceiling on how many turns one **evaluation probe** may take, set as a runaway guard rather than a budget control.
+**Noise floor** — how large a difference between two **evaluation probes** has to be before it can be attributed to an **agent skill** at all, as against ordinary run-to-run variance the **evaluation condition** itself did not cause. Measured by a **negative control**.
 
 **Deliberate imperfection** — a flaw a **mock project** carries on purpose because it is part of the instrument, and which its own documentation declares.
 
@@ -173,7 +165,3 @@
 **Foreign skill** — a loaded skill the environment injected, which no available flag removes without also removing the workspace's own.
 
 **Colliding skill** — a **foreign skill** sharing a name with a **library skill**.
-
-**Mandated skill** — an **agent skill** a project's own instructions name and require, so **skill discovery** never has to surface it.
-
-**Discovered skill** — an **agent skill** no instruction names, left to **skill discovery** to surface.
