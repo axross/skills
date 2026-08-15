@@ -1,12 +1,13 @@
 // deriveMeasurement: computing the derived tier from a measurement's own
 // probes (metadata.json + factors.json).
 //
-// two measurement shapes are exercised. The committed fixture is the real
-// one probe.mjs's own recording (task phase 3) will later replace — a
-// single probe, so every factor's differential is correctly "not yet
-// computable" (both conditions have to have run at all before a
-// differential means anything). A synthetic, multi-probe measurement built
-// in a temporary directory exercises the arithmetic itself, and the
+// two measurement shapes are exercised. The committed fixture is real —
+// skill-present-1 is probe.mjs's own recording (task phase 3 will replace it
+// with a fresh one), and skill-absent-1 is hand-authored the same way, so
+// deriveMeasurement runs its real arithmetic end to end over both
+// conditions rather than over one condition and a reason string. A
+// synthetic, multi-probe measurement built in a temporary directory then
+// exercises repetitions beyond one-per-condition, and the
 // comparable-predecessor link across two sibling measurements.
 
 import { cp, mkdir, readdir, writeFile } from "node:fs/promises";
@@ -33,7 +34,7 @@ const okFetch = () =>
   });
 
 describe("deriveMeasurement — the committed fixture", () => {
-  it("derives a well-shaped, byte-serializable summary with every differential null (a single-sided measurement)", async () => {
+  it("derives a well-shaped, byte-serializable summary from both conditions", async () => {
     const dir = await tempDir();
     const measurementDir = join(dir, "measurement");
     await cp(FIXTURE_MEASUREMENT_DIR, measurementDir, { recursive: true });
@@ -61,13 +62,72 @@ describe("deriveMeasurement — the committed fixture", () => {
     expect(summary).not.toHaveProperty("comparable");
     expect(summary).not.toHaveProperty("probes");
     expect(summary.scenario).toBe(SCENARIO_ID);
-    expect(summary.probeCount).toBe(1);
-    expect(summary.probeCountByCondition).toEqual({ "skill-present": 1, "skill-absent": 0 });
+    expect(summary.probeCount).toBe(2);
+    expect(summary.probeCountByCondition).toEqual({ "skill-present": 1, "skill-absent": 1 });
     expect(summary.comparablePredecessor).toBeNull();
-    for (const factor of summary.factors) {
-      expect(factor.differential).toBeNull();
-      expect(factor.reason).toMatch(/no skill-absent probe/);
+    // both probes carry their own costUsd, so the aggregate is their real sum
+    // (0.061847 + 0.048213), not null and not either figure alone.
+    expect(summary.costUsd).toBeCloseTo(0.11006, 5);
+  });
+
+  // this is the integration coverage the two-condition path lacked: not a
+  // hand-built ProbeRecord, but deriveMeasurement's real output over the
+  // committed fixture's two real conditions.
+  //
+  // docs/specs/skill-evaluation.md, "The differential": a discovery
+  // factor's differential is read as the skill-present pass rate alone,
+  // because the skill-absent condition cannot pass one by construction;
+  // every other phase's differential is the skill-present rate minus the
+  // skill-absent rate.
+  it("computes a discovery factor's differential as the skill-present rate, and a non-discovery factor's as the difference of the two rates", async () => {
+    const dir = await tempDir();
+    const measurementDir = join(dir, "measurement");
+    await cp(FIXTURE_MEASUREMENT_DIR, measurementDir, { recursive: true });
+
+    for (const probe of await evaluateMeasurement({
+      measurementDir,
+      scenariosRoot: SCENARIOS_ROOT,
+      apiKey: "k",
+      fetchImpl: okFetch,
+    })) {
+      await writeFile(
+        join(measurementDir, probe.probeDirName, "factors.json"),
+        canonicalJson({
+          scenario: probe.scenarioId,
+          condition: probe.condition,
+          repetition: probe.repetition,
+          factors: probe.factors,
+        }),
+      );
     }
+
+    const outcome = await deriveMeasurement({ measurementDir, scenariosRoot: SCENARIOS_ROOT });
+    const summary = JSON.parse(outcome.computed);
+    const byId = Object.fromEntries(summary.factors.map((factor) => [factor.id, factor]));
+
+    // the target skill was never installed in the skill-absent arm, so it
+    // cannot have been discovered there — the present rate is the whole
+    // differential.
+    const discovery = byId["reaches-for-tanstack-query-development"];
+    expect(discovery.skillPresentPassRate).toBe(1);
+    expect(discovery.skillAbsentPassRate).toBe(0);
+    expect(discovery.differential).toBe(discovery.skillPresentPassRate);
+
+    // the skill-absent arm's naive fix never invalidates the list query —
+    // the skill made exactly this difference.
+    const invalidates = byId["invalidates-the-post-list-after-save"];
+    expect(invalidates.skillPresentPassRate).toBe(1);
+    expect(invalidates.skillAbsentPassRate).toBe(0);
+    expect(invalidates.differential).toBe(invalidates.skillPresentPassRate - invalidates.skillAbsentPassRate);
+
+    // both arms keep the pre-existing detail-cache write — a real,
+    // non-null differential of zero, not the null a single-arm
+    // measurement could only ever have reported here.
+    const keepsDetail = byId["keeps-the-detail-cache-write"];
+    expect(keepsDetail.skillPresentPassRate).toBe(1);
+    expect(keepsDetail.skillAbsentPassRate).toBe(1);
+    expect(keepsDetail.differential).toBe(0);
+    expect(keepsDetail.differential).not.toBeNull();
   });
 });
 

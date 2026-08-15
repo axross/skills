@@ -47,9 +47,9 @@ describe("evaluateMeasurement — the committed fixture", () => {
       fetchImpl: okFetch,
     });
 
-    expect(results).toHaveLength(1);
-    const [probe] = results;
-    expect(probe.condition).toBe("skill-present");
+    // the fixture carries both conditions — see this file's own header.
+    expect(results).toHaveLength(2);
+    const probe = results.find((result) => result.condition === "skill-present");
     expect(probe.factors).toHaveLength(4);
 
     const byId = Object.fromEntries(probe.factors.map((factor) => [factor.id, factor]));
@@ -70,12 +70,33 @@ describe("evaluateMeasurement — the committed fixture", () => {
     }
   });
 
+  it("judges the skill-absent arm too, and its incomplete fix does not pass every outcome factor", async () => {
+    const measurementDir = await copyFixture();
+
+    const results = await evaluateMeasurement({
+      measurementDir,
+      scenariosRoot: SCENARIOS_ROOT,
+      apiKey: "test-key",
+      fetchImpl: okFetch,
+    });
+
+    const probe = results.find((result) => result.condition === "skill-absent");
+    const byId = Object.fromEntries(probe.factors.map((factor) => [factor.id, factor]));
+    // the target skill was never installed, so nothing could invoke it.
+    expect(byId["reaches-for-tanstack-query-development"].result).toBe(false);
+    // the naive fix patches the list's cache by hand rather than invalidating it.
+    expect(byId["invalidates-the-post-list-after-save"].result).toBe(false);
+    // it never touched the existing, already-correct detail-cache write.
+    expect(byId["keeps-the-detail-cache-write"].result).toBe(true);
+  });
+
   it("completes even with no reasoning-judge API key — the one factor errors, nothing else does", async () => {
     const measurementDir = await copyFixture();
 
     const results = await evaluateMeasurement({ measurementDir, scenariosRoot: SCENARIOS_ROOT });
 
-    const byId = Object.fromEntries(results[0].factors.map((factor) => [factor.id, factor]));
+    const probe = results.find((result) => result.condition === "skill-present");
+    const byId = Object.fromEntries(probe.factors.map((factor) => [factor.id, factor]));
     expect(byId["reaches-for-tanstack-query-development"].result).toBe(true);
     expect(byId["explains-why-the-list-was-stale"].result).toEqual({
       error: expect.stringContaining("no reasoning-judge API key"),

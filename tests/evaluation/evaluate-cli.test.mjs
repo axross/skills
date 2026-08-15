@@ -57,7 +57,8 @@ describe("evaluate.mjs against the committed fixture", () => {
     const result = runEvaluateCli([measurementDir]);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toMatch(/Judged 1 probe\(s\)/);
+    // the fixture carries both conditions, skill-present-1 and skill-absent-1.
+    expect(result.stdout).toMatch(/Judged 2 probe\(s\)/);
 
     const factors = JSON.parse(
       await readFile(join(measurementDir, "skill-present-1", "factors.json"), "utf8"),

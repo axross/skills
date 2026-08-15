@@ -57,6 +57,43 @@ describe("derive.mjs — write mode", () => {
     expect(summary).not.toHaveProperty("comparable");
     expect(summary).not.toHaveProperty("probes");
     expect(summary.factors.length).toBeGreaterThan(0);
+    // both probes carry their own costUsd (0.061847, 0.048213), so the
+    // aggregate is their real sum rather than null or either figure alone.
+    expect(summary.costUsd).toBeCloseTo(0.11006, 5);
+  });
+});
+
+// the fixture carries both conditions (skill-present-1, skill-absent-1), so
+// the two-condition path runs end to end here rather than only in
+// derive-summary.test.mjs's hand-built ProbeRecords. these assertions read
+// derive.mjs's real subprocess output on that fixture, not a constructed
+// object.
+describe("derive.mjs — the two-condition path, on the real fixture", () => {
+  it("computes a discovery factor's differential as the skill-present pass rate, and a non-discovery factor's as the difference of the two rates", async () => {
+    const measurementDir = await preparedMeasurement();
+
+    expect(run(DERIVE_SCRIPT, [measurementDir]).code).toBe(0);
+    const summary = JSON.parse(await readFile(join(measurementDir, "summary.json"), "utf8"));
+    const byId = Object.fromEntries(summary.factors.map((factor) => [factor.id, factor]));
+
+    // docs/specs/skill-evaluation.md, "The differential": a discovery
+    // factor's differential is read as the skill-present pass rate alone,
+    // since the skill-absent condition cannot pass one by construction —
+    // the target skill was never installed there.
+    const discovery = byId["reaches-for-tanstack-query-development"];
+    expect(discovery.phase).toBe("discovery");
+    expect(discovery.skillPresentPassRate).toBe(1);
+    expect(discovery.skillAbsentPassRate).toBe(0);
+    expect(discovery.differential).toBe(discovery.skillPresentPassRate);
+
+    // every other phase's differential is the skill-present rate minus the
+    // skill-absent rate — here, the difference the skill made between the
+    // idiomatic fix and the skill-absent arm's naive one.
+    const outcome = byId["invalidates-the-post-list-after-save"];
+    expect(outcome.phase).toBe("outcome");
+    expect(outcome.skillPresentPassRate).toBe(1);
+    expect(outcome.skillAbsentPassRate).toBe(0);
+    expect(outcome.differential).toBe(outcome.skillPresentPassRate - outcome.skillAbsentPassRate);
   });
 });
 
@@ -89,7 +126,7 @@ describe("derive.mjs --check", () => {
 
     const summaryPath = join(measurementDir, "summary.json");
     const original = await readFile(summaryPath, "utf8");
-    const tampered = original.replace('"probeCount": 1', '"probeCount": 2');
+    const tampered = original.replace('"probeCount": 2', '"probeCount": 3');
     expect(tampered).not.toBe(original); // the plant actually changed something
     await writeFile(summaryPath, tampered, "utf8");
 
