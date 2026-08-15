@@ -102,29 +102,29 @@
 
 **Skill-present condition** — the **evaluation condition** that installs an **evaluation scenario**'s **target skills** plus its **peer skills**.
 
-**Skill-absent condition** — the **evaluation condition** that installs an **evaluation scenario**'s **peer skills** only. The difference between the two conditions is the measurement.
+**Skill-absent condition** — the **evaluation condition** that installs an **evaluation scenario**'s **peer skills** only.
 
-**Evaluation phase** — one of the three questions an **evaluation scenario** may declare, each judged by its own **factors**: `discovery`, whether the agent reached for the **target skills** unprompted; `outcome`, whether the produced artefacts matched expectation; `transcript`, whether the agent reasoned as expected. A scenario declares whichever apply to what it is testing.
+**Evaluation phase** — one of the three questions an **evaluation scenario** may declare, each judged by its own **factors**: `discovery`, whether the agent reached for the **target skills** unprompted; `outcome`, whether the produced artefacts matched expectation; `transcript`, whether the agent reasoned as expected.
 
 **Factor** — a declared, checkable expectation an **evaluation scenario** carries for one of its **evaluation phases**, together with the judgment method — **script judgment** or **reasoning judgment** — that checks it.
 
-**Factor result** — the outcome of one **factor**'s judgment for one **evaluation probe**: `true`, `false`, or an error carrying its reason. A judgment that could not be made is not a judgment that came out false, and the two stay distinguishable at every layer that stores one.
+**Factor result** — the outcome of one **factor**'s judgment for one **evaluation probe**: `true`, `false`, or an error carrying its reason.
 
 **Script judgment** — a **factor**'s judgment method that runs a deterministic script against a **probe workspace**, reporting a **factor result** and its **evidence**. A sibling of **reasoning judgment**, not a separate storage tier.
 
 **Reasoning judgment** — a **factor**'s judgment method that asks a **reasoning judge** to read the material its **factor**'s **evaluation phase** permits and report a **factor result** and its **evidence**. A sibling of **script judgment**, not a separate storage tier.
 
-**Reasoning judge** — a model asked to render a **reasoning judgment**. Its model and the full prompt it was given are both part of what makes two measurements comparable, so re-judging with a different reasoning judge is a new measurement rather than an update to an old one.
+**Reasoning judge** — a model asked to render a **reasoning judgment**.
 
 **Evidence** — the recorded basis for one **factor result**, required of a **script judgment** and a **reasoning judgment** alike, because a judgment with no recorded basis cannot be checked later.
 
-**Differential** — the difference of pass rates between an **evaluation scenario**'s two conditions, for one **factor**, ranging from −1 to 1. A **factor** with any errored **factor result** has no differential, which is not the same as a differential of zero.
+**Differential** — the difference of pass rates between an **evaluation scenario**'s two conditions, for one **factor**.
 
 **Evaluation probe** — one run of an **evaluation scenario** under one **evaluation condition**, against the real CLI.
 
 **Turn cap** — the ceiling on how many turns one **evaluation probe** may take, set as a runaway guard rather than a budget control.
 
-**Repetition** — one of several **evaluation probes** run under the same **evaluation scenario** and **evaluation condition**, with no fixed order among them. Three repetitions per condition is the default: a pass rate over three can only be 0, 1/3, 2/3, or 1, so a **differential** built from it can only be a multiple of 1/3.
+**Repetition** — one of several **evaluation probes** run under the same **evaluation scenario** and **evaluation condition**, with no fixed order among them.
 
 **Scenario set** — the **evaluation scenarios** an instrument runs, together with what each is measured against.
 
