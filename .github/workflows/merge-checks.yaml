@@ -44,12 +44,14 @@ permissions:
 
 # ── why the measurement pull request is excluded, and why by path.
 #
-# effect-eval.yaml opens a pull request with GITHUB_TOKEN, and GitHub does not
-# fire workflows on those — so these gates already did not run on it. that was
-# an accident of platform behaviour; the `paths-ignore` above makes it a
-# declared division, so a future change in how GitHub treats
+# a measurement lands through a pull request opened with GITHUB_TOKEN, and
+# GitHub does not fire workflows on those — so these gates already did not run
+# on one. that was an accident of platform behaviour; the `paths-ignore` above
+# makes it a declared division, so a future change in how GitHub treats
 # GITHUB_TOKEN-authored pull requests cannot silently move which gate is
-# responsible for measurement data.
+# responsible for measurement data. no workflow opens that pull request today:
+# the two that used to were deleted with the instruments they drove, and
+# #392's step 3 authors the one that replaces them.
 #
 # the division: measurement data is checked by the dispatch that produced it,
 # before the commit, and again here on the push to the default branch once it
