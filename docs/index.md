@@ -16,8 +16,8 @@ uses none of them.
 ## Specifications
 
 - [specs/skill-evaluation.md](./specs/skill-evaluation.md) — what it means to
-  measure whether a skill works, and the two axes this library measures it
-  on.
+  measure whether a skill works, and the evaluation scenario it describes,
+  run under two conditions and checked across three phases.
 
 ## Conventions
 
