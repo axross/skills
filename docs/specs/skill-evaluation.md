@@ -91,8 +91,9 @@ read — because its surface is not the working tree, or because holding it
 changes only what the agent says along the way — declares discovery alone
 rather than declaring a phase with nothing to check.
 
-What a factor's judge is shown is decided by the phase its factor belongs to,
-never by what else the probe recorded: a discovery factor sees the skill
+What a factor's judge is shown is decided by the phase its factor belongs to
+— a factor carries no kind of its own; its phase is what bounds the material
+— never by what else the probe recorded: a discovery factor sees the skill
 invocations, an outcome factor sees the diff and the task, and a transcript
 factor sees the transcript. An outcome judgment is deliberately never shown
 the reasoning that produced the artefact it is judging, so a plausible
@@ -111,10 +112,16 @@ the harder — and the more informative — the discovery phase becomes.
 ## The factor
 
 A **factor** is a declared, checkable expectation one scenario carries for one
-of its phases, together with the judgment method that checks it. `script` and
-`reasoning` are siblings — two ways of judging a factor, not two storage
-tiers, and both results are part of the measurement. A **script judgment**
-runs a deterministic script against the reconstructed probe workspace; a
+of its phases, together with the judgment method that checks it.
+
+**A judgment is made against the stored measurement and nothing else.** The
+probe workspace is reconstructed from what the measurement holds, never
+reused from the run that produced it, so a stored measurement is sufficient
+to judge on its own rather than only at the moment it was taken.
+
+`script` and `reasoning` are siblings — two ways of judging a factor, not two
+storage tiers, and both results are part of the measurement. A **script
+judgment** runs a deterministic script against that reconstructed workspace; a
 **reasoning judgment** asks a **reasoning judge** — a model — to read the
 material its factor's phase permits and report a verdict. Either way, the
 judgment is the factor's own: nothing about a factor's declaration says in
@@ -128,9 +135,11 @@ two of three log lines quieted — is decomposed into one factor per element
 instead, so the result names which element failed rather than only how many
 did.
 
-**Every judgment records evidence.** A judgment with no recorded basis cannot
-be checked later, by a reviewer reading the record or by anyone re-deriving
-it, so evidence is not optional on either judgment method.
+**Every judgment records evidence, and every reasoning judgment additionally
+records the judge's model and the full prompt it was given.** A judgment with
+no recorded basis cannot be checked later, by a reviewer reading the record or
+by anyone re-deriving it; and a reasoning verdict whose judge is not recorded
+on the result itself cannot be attributed at all. Neither is optional.
 
 ## The differential
 
@@ -144,10 +153,23 @@ same as a differential of zero.** A pass rate cannot be computed over a result
 that was never reached, and reporting zero in its place would read as "no
 effect" when the honest report is "not judged."
 
+**A discovery factor's differential is bounded below by construction, and is
+read as the skill-present pass rate.** The skill-absent condition installs
+peer skills only, so a factor asking whether the agent reached for a target
+skill cannot pass there — the skill is not present to be reached for. Both
+conditions still run, because the scenario is one unit and the absent arm is
+what the other phases measure against; but for this one phase the control arm
+is settled by the setup rather than by what the agent did, so the difference
+carries no more than the present arm already does. Where a differential
+elsewhere in this document is informative because either arm could have gone
+either way, this one is not, and reading it as though it were is the mistake
+to avoid.
+
 ## Repetitions
 
-**Three repetitions per condition is the default a scenario may override, not
-a fixed count.** It fixes the resolution of every differential it produces: a
+**Three repetitions per condition is the default a dispatch may override, not
+a fixed count.** A scenario does not carry it: a scenario declares what it
+tests, and how many times to run it is an argument to the run. It fixes the resolution of every differential it produces: a
 pass rate taken over three repetitions can only be 0, 1/3, 2/3, or 1, so a
 differential built from it can only be a multiple of 1/3. A factor that
 passes twice with the skill and once without reports 0.333, and at this
