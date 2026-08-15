@@ -41,7 +41,7 @@ proxy.
 ## What this describes
 
 Everything below states the model in the present tense, the way every spec in
-this repository is written — but no instrument implements it yet. `#392`
+this repository is written — but no instrument implements it yet. #392
 sequences this document first so the instrument that follows it is checked
 against a written contract, rather than the contract being written afterward
 to match whatever the code turned out to do. Its steps 2 through 5 build that

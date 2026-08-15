@@ -29,7 +29,7 @@ own vocabulary to ask for low-fidelity design" and calling that circular —
 "the model never has to read the project, so the measurement records
 routing on vocabulary rather than routing on a situation."
 
-A controlled experiment (`#377`) reconstructed that same circularity on
+A controlled experiment (#377) reconstructed that same circularity on
 purpose, on two cases, and measured its size. It ran four override
 dispatches — one per wording per case — six repeats each, 24 probes in
 total, for $6.60, with mock, patch, tiers, repeat count, and corpus held
