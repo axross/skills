@@ -5,8 +5,9 @@
 // docs/specs/skill-evaluation.md, "Measured, declared, and derived": the
 // derived tier is regenerable from the measured and declared tiers, and a
 // drift check re-derives it and fails on a mismatch. summary.json is that
-// derived tier — the aggregate and nothing else, per the plan's stored-shape
-// note: no `comparable` field, no per-probe result or rate.
+// derived tier — the aggregate and nothing else, per "What a measurement
+// stores": no `comparable` field, no per-probe result or rate, and no
+// per-condition pass rate.
 //
 // usage:
 //   node derive.mjs <measurement-dir> [--check]

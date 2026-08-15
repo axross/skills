@@ -10,7 +10,7 @@
 // exercises repetitions beyond one-per-condition, and the
 // comparable-predecessor link across two sibling measurements.
 
-import { cp, mkdir, readdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -79,6 +79,12 @@ describe("deriveMeasurement — the committed fixture", () => {
   // because the skill-absent condition cannot pass one by construction;
   // every other phase's differential is the skill-present rate minus the
   // skill-absent rate.
+  //
+  // the per-condition rate itself is not on summary.json — narrowed by
+  // "What a measurement stores" — so the rate side of each assertion below
+  // reads each probe's own written factors.json (one repetition per
+  // condition here, so "the rate" is just that one result) rather than a
+  // field the summary no longer carries.
   it("computes a discovery factor's differential as the skill-present rate, and a non-discovery factor's as the difference of the two rates", async () => {
     const dir = await tempDir();
     const measurementDir = join(dir, "measurement");
@@ -105,27 +111,34 @@ describe("deriveMeasurement — the committed fixture", () => {
     const summary = JSON.parse(outcome.computed);
     const byId = Object.fromEntries(summary.factors.map((factor) => [factor.id, factor]));
 
+    async function rate(probeDirName, factorId) {
+      const { factors } = JSON.parse(await readFile(join(measurementDir, probeDirName, "factors.json"), "utf8"));
+      return factors.find((factor) => factor.id === factorId).result === true ? 1 : 0;
+    }
+
     // the target skill was never installed in the skill-absent arm, so it
     // cannot have been discovered there — the present rate is the whole
     // differential.
     const discovery = byId["reaches-for-tanstack-query-development"];
-    expect(discovery.skillPresentPassRate).toBe(1);
-    expect(discovery.skillAbsentPassRate).toBe(0);
-    expect(discovery.differential).toBe(discovery.skillPresentPassRate);
+    const discoveryPresentRate = await rate("skill-present-1", "reaches-for-tanstack-query-development");
+    expect(await rate("skill-absent-1", "reaches-for-tanstack-query-development")).toBe(0);
+    expect(discovery.differential).toBe(discoveryPresentRate);
 
     // the skill-absent arm's naive fix never invalidates the list query —
     // the skill made exactly this difference.
     const invalidates = byId["invalidates-the-post-list-after-save"];
-    expect(invalidates.skillPresentPassRate).toBe(1);
-    expect(invalidates.skillAbsentPassRate).toBe(0);
-    expect(invalidates.differential).toBe(invalidates.skillPresentPassRate - invalidates.skillAbsentPassRate);
+    const invalidatesPresentRate = await rate("skill-present-1", "invalidates-the-post-list-after-save");
+    const invalidatesAbsentRate = await rate("skill-absent-1", "invalidates-the-post-list-after-save");
+    expect(invalidates.differential).toBe(invalidatesPresentRate - invalidatesAbsentRate);
 
     // both arms keep the pre-existing detail-cache write — a real,
     // non-null differential of zero, not the null a single-arm
     // measurement could only ever have reported here.
     const keepsDetail = byId["keeps-the-detail-cache-write"];
-    expect(keepsDetail.skillPresentPassRate).toBe(1);
-    expect(keepsDetail.skillAbsentPassRate).toBe(1);
+    const keepsDetailPresentRate = await rate("skill-present-1", "keeps-the-detail-cache-write");
+    const keepsDetailAbsentRate = await rate("skill-absent-1", "keeps-the-detail-cache-write");
+    expect(keepsDetailPresentRate).toBe(1);
+    expect(keepsDetailAbsentRate).toBe(1);
     expect(keepsDetail.differential).toBe(0);
     expect(keepsDetail.differential).not.toBeNull();
   });
@@ -200,9 +213,10 @@ describe("deriveMeasurement — a synthetic multi-probe measurement", () => {
     const summary = JSON.parse(outcome.computed);
     const factor = summary.factors.find((f) => f.id === "invalidates-the-post-list-after-save");
 
-    expect(factor.skillPresentPassRate).toBeCloseTo(2 / 3);
-    expect(factor.skillAbsentPassRate).toBeCloseTo(0);
-    expect(factor.differential).toBeCloseTo(2 / 3);
+    // present rate 2/3 (two `true` of three), absent rate 0 (three `false`)
+    // — the per-condition rate is no longer on the summary, so this is
+    // checked only through the differential their subtraction produces.
+    expect(factor.differential).toBeCloseTo(2 / 3 - 0);
     expect(summary.comparablePredecessor).toBeNull();
   });
 

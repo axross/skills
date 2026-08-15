@@ -16,7 +16,13 @@ function probe(condition, repetition, factorResults, costUsd) {
 }
 
 describe("computeDerivedSummary", () => {
-  it("carries the aggregate and nothing else — no `comparable` field, no per-probe entry", () => {
+  // docs/specs/skill-evaluation.md, "What a measurement stores": a factor
+  // entry carries its id, its phase, its differential, and its reason —
+  // nothing else. `skillPresentPassRate` and `skillAbsentPassRate` are
+  // computed internally (see the other cases below, which prove the
+  // differential formula still uses them) but are never part of what this
+  // function returns.
+  it("carries the aggregate and nothing else — no `comparable` field, no per-probe entry, and no per-condition pass rate", () => {
     const summary = computeDerivedSummary({
       scenarioId: "s",
       measurementId: "s-abcd1234",
@@ -29,9 +35,8 @@ describe("computeDerivedSummary", () => {
     });
     expect(summary).not.toHaveProperty("comparable");
     expect(summary).not.toHaveProperty("probes");
-    expect(summary.factors).toEqual([
-      expect.objectContaining({ id: "f1", skillPresentPassRate: 1, skillAbsentPassRate: 0, differential: 1 }),
-    ]);
+    expect(Object.keys(summary.factors[0]).sort()).toEqual(["differential", "id", "phase", "reason"]);
+    expect(summary.factors).toEqual([expect.objectContaining({ id: "f1", differential: 1 })]);
   });
 
   it("computes an outcome factor's differential as present rate minus absent rate", () => {
@@ -49,10 +54,9 @@ describe("computeDerivedSummary", () => {
       ],
       comparablePredecessor: null,
     });
-    const factor = summary.factors[0];
-    expect(factor.skillPresentPassRate).toBeCloseTo(2 / 3);
-    expect(factor.skillAbsentPassRate).toBeCloseTo(1 / 3);
-    expect(factor.differential).toBeCloseTo(1 / 3);
+    // present rate 2/3, absent rate 1/3 — asserted only through the
+    // differential, since the rates themselves are no longer on the summary.
+    expect(summary.factors[0].differential).toBeCloseTo(2 / 3 - 1 / 3);
   });
 
   // docs/specs/skill-evaluation.md, "The differential": a discovery factor's
@@ -71,14 +75,33 @@ describe("computeDerivedSummary", () => {
       ],
       comparablePredecessor: null,
     });
+    // the skill-present rate computed from the probes above is 1/2; the rate
+    // itself is no longer emitted on the summary (docs/specs/skill-evaluation.md,
+    // "What a measurement stores"), so this is checked only through the
+    // differential a discovery-phase factor reads it as.
+    //
+    // this fixture cannot, by itself, tell "read alone" apart from
+    // "subtracted against the absent rate": every skill-absent result here
+    // is `false` — the only value that condition can honestly produce for a
+    // discovery factor, per "The differential" above — so the absent rate is
+    // always 0 and both formulas agree. `deriveFactor`'s own branch on
+    // `phase === "discovery"` is what actually makes the two paths
+    // different code, not this assertion.
     expect(summary.factors[0].differential).toBeCloseTo(0.5);
-    expect(summary.factors[0].skillPresentPassRate).toBeCloseTo(0.5);
   });
 
   // negative control 1/5 (the derive.mjs half): an errored judgment
   // produces a differential of `null`, distinguishable from the JSON number
   // `0` — never treated as a failing (0) result.
-  it("reports `null`, never `0`, when a probe's judgment for a factor errored", () => {
+  //
+  // this also covers the partial-error case the rate computation itself
+  // must get right: 1 of 2 skill-present results errored, so a rate that
+  // divided by both (1/2 = 0.5) rather than nulling out the whole condition
+  // would surface here as `differential: 0.5` (0.5 present minus 0 absent)
+  // instead of `null` — the exact bug this fixture would catch even though
+  // the per-condition rate that would have been wrong is no longer emitted
+  // for direct inspection.
+  it("produces a `null` differential — never one computed by dividing by an unjudged probe — when a probe's judgment for a factor errored", () => {
     const summary = computeDerivedSummary({
       scenarioId: "s",
       measurementId: "m",
@@ -92,19 +115,17 @@ describe("computeDerivedSummary", () => {
     });
     const factor = summary.factors[0];
     expect(factor.differential).toBeNull();
+    expect(factor.differential).not.toBe(0.5);
     expect(factor.differential).not.toBe(0);
     expect(factor.reason).toMatch(/errored/);
-    // the condition carrying the error reports no rate either: 1 of its 2
-    // probes was never judged, so 0.5 would put an unreached result in the
-    // denominator. the condition that judged cleanly still reports its own.
-    expect(factor.skillPresentPassRate).toBeNull();
-    expect(factor.skillAbsentPassRate).toBe(0);
   });
 
-  // the all-errored case reads worst of all: every rate the old code could
-  // produce here was `0`, which is indistinguishable at a glance from "judged,
-  // and nothing passed".
-  it("reports a `null` pass rate, never `0`, when every result under a condition errored", () => {
+  // the all-errored case reads worst of all under the old, wider shape: every
+  // rate the naive computation could produce here was `0`, indistinguishable
+  // at a glance from "judged, and nothing passed". with the rate itself no
+  // longer emitted, the same defect would surface as a wrong *differential*
+  // instead — `0 - 1 = -1` rather than `null` — which is what this asserts.
+  it("produces a `null` differential, never a number, when every result under a condition errored", () => {
     const summary = computeDerivedSummary({
       scenarioId: "s",
       measurementId: "m",
@@ -117,9 +138,9 @@ describe("computeDerivedSummary", () => {
       comparablePredecessor: null,
     });
     const factor = summary.factors[0];
-    expect(factor.skillPresentPassRate).toBeNull();
-    expect(factor.skillPresentPassRate).not.toBe(0);
     expect(factor.differential).toBeNull();
+    expect(factor.differential).not.toBe(0);
+    expect(factor.differential).not.toBe(-1);
     expect(factor.reason).toMatch(/errored/);
   });
 
@@ -133,7 +154,6 @@ describe("computeDerivedSummary", () => {
     });
     const factor = summary.factors[0];
     expect(factor.differential).toBeNull();
-    expect(factor.skillAbsentPassRate).toBeNull();
     expect(factor.reason).toMatch(/no skill-absent probe/);
   });
 

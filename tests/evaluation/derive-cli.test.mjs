@@ -68,6 +68,19 @@ describe("derive.mjs — write mode", () => {
 // derive-summary.test.mjs's hand-built ProbeRecords. these assertions read
 // derive.mjs's real subprocess output on that fixture, not a constructed
 // object.
+//
+// the per-condition pass rate itself is not on summary.json — narrowed by
+// docs/specs/skill-evaluation.md's "What a measurement stores" — so it is
+// read here from each probe's own factors.json (one repetition per
+// condition in this fixture, so "the rate" is just that one result), the
+// same file evaluate.mjs wrote it to and the only place it still lives.
+async function factorResult(measurementDir, probeDirName, factorId) {
+  const { factors } = JSON.parse(await readFile(join(measurementDir, probeDirName, "factors.json"), "utf8"));
+  const factor = factors.find((entry) => entry.id === factorId);
+  if (!factor) throw new Error(`${probeDirName}/factors.json has no factor "${factorId}"`);
+  return factor.result;
+}
+
 describe("derive.mjs — the two-condition path, on the real fixture", () => {
   it("computes a discovery factor's differential as the skill-present pass rate, and a non-discovery factor's as the difference of the two rates", async () => {
     const measurementDir = await preparedMeasurement();
@@ -79,21 +92,34 @@ describe("derive.mjs — the two-condition path, on the real fixture", () => {
     // docs/specs/skill-evaluation.md, "The differential": a discovery
     // factor's differential is read as the skill-present pass rate alone,
     // since the skill-absent condition cannot pass one by construction —
-    // the target skill was never installed there.
-    const discovery = byId["reaches-for-tanstack-query-development"];
+    // the target skill was never installed there. This fixture's single
+    // skill-absent repetition bears that out: `factorResult` below reads
+    // `false` for it, exactly as the spec says it must.
+    const discoveryId = "reaches-for-tanstack-query-development";
+    const discovery = byId[discoveryId];
     expect(discovery.phase).toBe("discovery");
-    expect(discovery.skillPresentPassRate).toBe(1);
-    expect(discovery.skillAbsentPassRate).toBe(0);
-    expect(discovery.differential).toBe(discovery.skillPresentPassRate);
+    const discoveryPresentResult = await factorResult(measurementDir, "skill-present-1", discoveryId);
+    const discoveryAbsentResult = await factorResult(measurementDir, "skill-absent-1", discoveryId);
+    expect(discoveryAbsentResult).toBe(false); // cannot pass — the skill was never installed
+    expect(discovery.differential).toBe(discoveryPresentResult === true ? 1 : 0);
 
     // every other phase's differential is the skill-present rate minus the
     // skill-absent rate — here, the difference the skill made between the
     // idiomatic fix and the skill-absent arm's naive one.
-    const outcome = byId["invalidates-the-post-list-after-save"];
+    const outcomeId = "invalidates-the-post-list-after-save";
+    const outcome = byId[outcomeId];
     expect(outcome.phase).toBe("outcome");
-    expect(outcome.skillPresentPassRate).toBe(1);
-    expect(outcome.skillAbsentPassRate).toBe(0);
-    expect(outcome.differential).toBe(outcome.skillPresentPassRate - outcome.skillAbsentPassRate);
+    const outcomePresentResult = await factorResult(measurementDir, "skill-present-1", outcomeId);
+    const outcomeAbsentResult = await factorResult(measurementDir, "skill-absent-1", outcomeId);
+    const outcomePresentRate = outcomePresentResult === true ? 1 : 0;
+    const outcomeAbsentRate = outcomeAbsentResult === true ? 1 : 0;
+    expect(outcome.differential).toBe(outcomePresentRate - outcomeAbsentRate);
+    // both factors are declared to pass under skill-present and fail under
+    // skill-absent in this fixture (see scenario.json's task and the
+    // fixture's own changes.patch), so the difference the skill made is
+    // visible directly here too, not only through the formula above.
+    expect(outcomePresentResult).toBe(true);
+    expect(outcomeAbsentResult).toBe(false);
   });
 });
 

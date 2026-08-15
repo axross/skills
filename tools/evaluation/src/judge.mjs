@@ -21,7 +21,8 @@ const MAX_RESPONSE_TOKENS = 1024;
 /**
  * strips a model id's vendor prefix. the wire API takes the bare model name;
  * `anthropic/…` is this instrument's own recorded, comparable form (see
- * docs/specs/skill-evaluation.md's stored-shapes note), not the API's.
+ * docs/specs/skill-evaluation.md's "What a measurement stores"), not the
+ * API's.
  *
  * @param {string} model e.g. "anthropic/claude-haiku-4-5-20251001"
  * @returns {string} e.g. "claude-haiku-4-5-20251001"

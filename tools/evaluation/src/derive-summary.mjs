@@ -30,18 +30,26 @@ function isErrored(result) {
 }
 
 /**
- * one factor's derived record: its pass rate under each condition, and its
- * differential — or, when either condition recorded no result for it or any
- * result errored, `null`, distinguishable from a differential of zero by
- * being the JSON literal `null` rather than the number `0`.
+ * one factor's derived record: its differential — or, when either condition
+ * recorded no result for it or any result errored, `null`, distinguishable
+ * from a differential of zero by being the JSON literal `null` rather than
+ * the number `0`.
  *
- * a condition whose results include an error reports no pass rate either, for
- * the same reason the differential reports none: docs/specs/skill-evaluation.md
+ * the differential is computed from each condition's own pass rate, exactly
+ * as before, but the rates themselves stay internal to this function —
+ * docs/specs/skill-evaluation.md's "What a measurement stores" narrows
+ * summary.json to the aggregate alone, so a per-condition pass rate is no
+ * longer part of what this returns.
+ *
+ * a condition whose results include an error contributes no pass rate either,
+ * for the same reason the differential reports none: docs/specs/skill-evaluation.md
  * says a pass rate cannot be computed over a result that was never reached.
  * computing one over the results that did come back would put an unjudged
  * probe in the denominator, and reporting the quotient — 0 when every result
  * errored, 0.667 when one of three did — reads as measurement rather than as
- * "not judged".
+ * "not judged". That protection stays exactly as strict now that the rate
+ * itself is never written out: a wrongly-computed rate would still corrupt
+ * the differential built from it, which is the value this function does emit.
  *
  * docs/specs/skill-evaluation.md, "The differential": a discovery factor's
  * differential is read as the skill-present pass rate alone, because the
@@ -53,7 +61,6 @@ function isErrored(result) {
  * @param {Record<Condition, ProbeRecord[]>} probesByCondition
  * @returns {{
  *   id: string, phase: string,
- *   skillPresentPassRate: number|null, skillAbsentPassRate: number|null,
  *   differential: number|null, reason: string|null,
  * }}
  */
@@ -92,8 +99,6 @@ function deriveFactor(factorId, phase, probesByCondition) {
   return {
     id: factorId,
     phase,
-    skillPresentPassRate: passRates["skill-present"],
-    skillAbsentPassRate: passRates["skill-absent"],
     differential,
     reason: blocked,
   };
@@ -132,7 +137,8 @@ function deriveCost(probes) {
  * }} input
  * @returns {Record<string, unknown>} the measurement-level summary.json
  *   value — the aggregate and nothing else, per docs/specs/skill-evaluation.md's
- *   stored-shapes note: no `comparable` field, no per-probe result or rate.
+ *   "What a measurement stores": no `comparable` field, no per-probe result
+ *   or rate, and no per-condition pass rate.
  */
 export function computeDerivedSummary({
   scenarioId,
