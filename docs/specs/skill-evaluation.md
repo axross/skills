@@ -41,15 +41,17 @@ proxy.
 ## What this describes
 
 Everything below states the model in the present tense, the way every spec in
-this repository is written — but no instrument implements it yet.
-[#392](https://github.com/axross/skills/issues/392) sequences this document
-first so the instrument that follows it is checked against a written contract,
-rather than the contract being written afterward to match whatever the code
-turned out to do. Its steps 2 through 5 build that instrument, reshape the
-workflows that run it, author the scenario set, and run the first measurement
-pass. Until they land, `tools/evaluation/` runs the two instruments this model
-replaces, exactly as it does today, against the model each was built for
-rather than this one.
+this repository is written — but no instrument implements it yet. `#392`
+sequences this document first so the instrument that follows it is checked
+against a written contract, rather than the contract being written afterward
+to match whatever the code turned out to do. Its steps 2 through 5 build that
+instrument, reshape the workflows that run it, author the scenario set, and
+run the first measurement pass. Until they land, `tools/evaluation/` runs the
+two instruments this model replaces, exactly as it does today, against the
+model each was built for rather than this one.
+[`2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md`](../decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md)
+is the decision that replaced those two instruments with this model, and
+carries the evidence that forced the rebuild.
 
 ## The evaluation scenario
 
