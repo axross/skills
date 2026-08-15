@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md
 ---
 
 # Cover every in-range skill with one effect case, plus a negative control
