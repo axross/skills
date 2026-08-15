@@ -6,10 +6,10 @@ self-contained project that
 isolated temporary directory as a real Git repository, with a chosen set of
 skills installed, so a probe can give a model a task inside one.
 
-They live under `tools/evaluation/` rather than under either evaluation,
-because they belong to neither: the skill effect evaluation measures against
-them today, and [#238](https://github.com/axross/skills/issues/238) situates
-the discovery evaluation over the same fixtures.
+They live beside the instrument rather than inside it, because a mock belongs
+to no one phase of an evaluation: the same materialized project is what a
+scenario's `discovery`, `outcome`, and `transcript` factors are all judged
+against.
 
 They carry their own formatter, linter, and test runner. That is not tidiness:
 a skill whose effect is running the project's checks cannot be measured at all
@@ -28,10 +28,11 @@ copies from.
 
 ## A mock is a genuine project
 
-Nothing inside a mock is bent to fit a case. Its **stack and structure are
-chosen** with skill and case coverage in mind — that is what makes it useful —
-but anything a case needs that the project would not naturally have arrives as
-**that case's patch**: a unified diff the case declares, applied by
+Nothing inside a mock is bent to fit a scenario. Its **stack and structure are
+chosen** with skill and scenario coverage in mind — that is what makes it
+useful — but anything a scenario needs that the project would not naturally
+have arrives as **that scenario's patch**: a unified diff the scenario
+declares, applied by
 [`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs) after
 the mock is copied and **before** its history is replayed, so the workspace a
 model sees is clean and its history unremarkable. A patch that changes the
