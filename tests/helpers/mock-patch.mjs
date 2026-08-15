@@ -144,7 +144,7 @@ export async function patchFromMock(mutate, { mock = "tsuzuri" } = {}) {
   const diff = git([...PINNED, "diff", "--cached"], tree);
   if (diff.trim().length === 0) throw new Error("the mutation produced an empty patch");
 
-  const patchPath = join(scratch, "case.patch");
+  const patchPath = join(scratch, "scenario.patch");
   await writeFile(patchPath, diff, "utf8");
   return patchPath;
 }
