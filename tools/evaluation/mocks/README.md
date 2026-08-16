@@ -111,13 +111,16 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   `tsuzuri`'s is: a tidy log would let a control run copy the convention
   out of context and erase the effect of any skill that teaches it.
 - **The publish toast's animation carries no `prefers-reduced-motion` guard.**
-  One scenario asks a model to add one. This is a gap the project has rather
-  than one planted in it — a project that added a single animation and never
+  [`respect-reduced-motion-in-the-publish-toast`](../scenarios/respect-reduced-motion-in-the-publish-toast/)
+  asks a model to add one. This is a gap the project has rather than one
+  planted in it — a project that added a single animation and never
   revisited motion preferences is ordinary, and the alternative (shipping the
   guard) would demonstrate the answer beside the question.
 - **CSS property order is not uniform across the stylesheets.** Nothing
   enforces an order and none is followed file to file. A mock that codified
-  one would hand a control run the very convention a scenario asks about.
+  one would hand a control run the very convention
+  [`give-the-empty-post-list-a-real-empty-state`](../scenarios/give-the-empty-post-list-a-real-empty-state/)
+  asks about.
 - **The analytics event names are ordinary and mildly inconsistent.**
   `"post published"` and `"draft saved"` fire from the editor and
   `"Site switched"` from the sidebar's switcher — the last in a different

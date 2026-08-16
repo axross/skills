@@ -195,14 +195,33 @@ measurement's own `summary.json`. `--check` recomputes it and compares the
 result byte-for-byte against what is already there, failing on any
 mismatch — the drift check that catches a hand-edited derived file.
 
-## The One Declared Scenario
+## The Declared Scenario Set
 
-`tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/`
-is the only scenario declared today. It targets
-`tanstack-query-development` against the `inkwell` mock project, alongside
-`react-component-development` and `code-maintainability` as peers, and
-carries a `discovery` factor, two `outcome` factors, and a `transcript`
-factor judged by reasoning — enough to exercise every path through the
-three scripts above. Authoring the rest of the scenario set is separate,
+Four scenarios are declared today, all against the `inkwell` mock project,
+under `tools/evaluation/scenarios/`:
+
+- [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
+  targets `tanstack-query-development`, alongside `react-component-development`
+  and `code-maintainability` as peers, and carries a `discovery` factor, two
+  `outcome` factors, and a `transcript` factor judged by reasoning.
+- [`respect-reduced-motion-in-the-publish-toast`](../../tools/evaluation/scenarios/respect-reduced-motion-in-the-publish-toast/)
+  and
+  [`give-the-empty-post-list-a-real-empty-state`](../../tools/evaluation/scenarios/give-the-empty-post-list-a-real-empty-state/)
+  both target `react-component-styling`, claiming the two subjects
+  `tools/evaluation/mocks/README.md`'s own "choices made for coverage" list
+  names for `inkwell`: the toast's missing `prefers-reduced-motion` guard,
+  and the property order the mock's stylesheets deliberately never
+  demonstrate.
+- [`confirm-a-draft-save-like-a-publish-does`](../../tools/evaluation/scenarios/confirm-a-draft-save-like-a-publish-does/)
+  targets `github-operation` on an ordinary `inkwell` task with nothing
+  GitHub-shaped about it — this practice's **negative control** (see
+  [`docs/glossary.md`](../glossary.md)), its one measurement of its own
+  noise floor. It declares no `discovery` factor, for the reason its own
+  `scenario.json` states.
+
+Together the four exercise every path through the three scripts above:
+every phase, both judgment methods, and a scenario that omits a phase
+entirely. Authoring further scenarios against `inkwell`'s remaining
+catalogued subjects, and against this repository's other mocks, is separate,
 later work; this document describes what runs today, not the coverage it
 will eventually have.
