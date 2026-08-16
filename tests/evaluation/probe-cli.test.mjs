@@ -49,14 +49,22 @@ describe("probe.mjs --dry-run", () => {
   it("reports the exact probe matrix and never spawns a model", () => {
     const result = runProbeCli(["--dry-run"]);
     expect(result.code).toBe(0);
-    expect(result.stdout).toMatch(/Probe matrix: 6 probe\(s\)/);
+    expect(result.stdout).toMatch(/Probe matrix: 24 probe\(s\)/);
     expect(result.stdout).toContain("quiet-the-stale-post-list-after-a-draft-save skill-present #1");
     expect(result.stdout).toContain("quiet-the-stale-post-list-after-a-draft-save skill-absent #3");
     expect(result.stdout).toMatch(/Dry run: no probe was spawned\./);
   });
 
   it("honors --repetitions and --conditions in the reported matrix", () => {
-    const result = runProbeCli(["--dry-run", "--repetitions", "1", "--conditions", "skill-present"]);
+    const result = runProbeCli([
+      "--dry-run",
+      "--scenario",
+      SCENARIO,
+      "--repetitions",
+      "1",
+      "--conditions",
+      "skill-present",
+    ]);
     expect(result.code).toBe(0);
     expect(result.stdout).toMatch(/Probe matrix: 1 probe\(s\)/);
   });
@@ -68,12 +76,12 @@ describe("probe.mjs --dry-run", () => {
     const result = runProbeCli(["--dry-run", "--limit", "3"]);
     expect(result.code).toBe(1);
     expect(result.stderr).toMatch(/Refusing to start/);
-    expect(result.stderr).toContain("6");
+    expect(result.stderr).toContain("24");
     expect(result.stderr).toContain("3");
   });
 
   it("admits a run at or under its declared limit", () => {
-    const result = runProbeCli(["--dry-run", "--limit", "6"]);
+    const result = runProbeCli(["--dry-run", "--scenario", SCENARIO, "--limit", "6"]);
     expect(result.code).toBe(0);
   });
 });
@@ -84,7 +92,7 @@ describe("probe.mjs a real (non-dry-run) run, against a fake claude", () => {
     const env = await fakeClaudeEnv({ FAKE_CLAUDE_INVOKE_SKILL: "tanstack-query-development" });
 
     const result = runProbeCli(
-      ["--repetitions", "1", "--conditions", "skill-present", "--out", out],
+      ["--scenario", SCENARIO, "--repetitions", "1", "--conditions", "skill-present", "--out", out],
       { env },
     );
 
@@ -235,7 +243,7 @@ describe("probe.mjs --measurement-id, bad invocation", () => {
 
 describe("probe.mjs --emit-matrix", () => {
   it("prints the probe and judgment matrices as one JSON document, and spawns nothing", () => {
-    const result = runProbeCli(["--emit-matrix", "--repetitions", "1"]);
+    const result = runProbeCli(["--emit-matrix", "--scenario", SCENARIO, "--repetitions", "1"]);
     expect(result.code).toBe(0);
 
     const payload = JSON.parse(result.stdout);
@@ -255,6 +263,19 @@ describe("probe.mjs --emit-matrix", () => {
     expect(judgment.measurementDirName).toBe(`${judgment.scenarioId}-${judgment.measurementId}`);
   });
 
+  // the repository-wide default — every declared scenario, none named —
+  // is what docs/operations/evaluation-dispatch.md's own worked numbers
+  // describe: one judgment-matrix entry per declared scenario.
+  it("emits one judgment-matrix entry per declared scenario when none is named", () => {
+    const result = runProbeCli(["--emit-matrix", "--repetitions", "1"]);
+    expect(result.code).toBe(0);
+
+    const payload = JSON.parse(result.stdout);
+    expect(payload.admission).toMatchObject({ admitted: true, probeCount: 8, limit: null });
+    expect(payload.probes).toHaveLength(8);
+    expect(payload.judgments).toHaveLength(4);
+  });
+
   it("honors a fixed --measurement-id in its emitted matrix", () => {
     const result = runProbeCli(["--emit-matrix", "--measurement-id", "cafef00d"]);
     expect(result.code).toBe(0);
@@ -271,11 +292,11 @@ describe("probe.mjs --emit-matrix", () => {
     // machine-readable channel: the admission outcome is in the JSON too.
     const payload = JSON.parse(result.stdout);
     expect(payload.admission.admitted).toBe(false);
-    expect(payload.admission.probeCount).toBe(6);
+    expect(payload.admission.probeCount).toBe(24);
     expect(payload.admission.limit).toBe(3);
 
     // human-readable channel: the same count and limit, in the log.
-    expect(result.stderr).toContain("6");
+    expect(result.stderr).toContain("24");
     expect(result.stderr).toContain("3");
   });
 
