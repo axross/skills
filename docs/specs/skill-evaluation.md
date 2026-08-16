@@ -45,6 +45,11 @@ project, the installed skills, the git history the project starts from, and
 the non-skill harness — `AGENTS.md`, subagents — together with the task it is
 asked to perform.
 
+**A scenario's `description` is one of its declared parts rather than a
+comment beside them.** It states what the scenario measures and why, so a
+reader can disagree with the choice without reading its factors — the same
+treatment a factor's own `description` already receives, one level up.
+
 **Every scenario runs under two conditions, and the difference between them is
 the measurement.** The **skill-present condition** installs `targetSkills`
 plus `peerSkills`; the **skill-absent condition** installs `peerSkills` only,
