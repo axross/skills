@@ -131,6 +131,48 @@ describe("evaluation-dispatch.yaml's trigger", () => {
   });
 });
 
+describe("a matrix job never declares its own concurrency group", () => {
+  it("no job with strategy.matrix also declares a job-level concurrency block", async () => {
+    const yaml = await readWorkflow();
+    const jobs = jobBlocksOf(yaml);
+    const matrixJobs = Object.entries(jobs).filter(([, text]) => {
+      const strategy = blockAfter(text, 4, "strategy");
+      return strategy !== null && /matrix:/.test(strategy);
+    });
+
+    // guards this test against going vacuous: if nothing here declares a
+    // matrix strategy, the loop below would pass having checked nothing —
+    // and this workflow is supposed to fan two jobs out over one.
+    expect(
+      matrixJobs.length,
+      `expected at least one job in ${WORKFLOW_FILE} to declare strategy.matrix`,
+    ).toBeGreaterThan(0);
+
+    for (const [name, text] of matrixJobs) {
+      // `jobs.<job_id>.concurrency` is evaluated once per matrix cell. a
+      // group key with no `matrix.*` in it — the only kind this workflow
+      // ever wants, since the point is grouping by dispatch, not by cell —
+      // resolves to the identical string for every cell, and GitHub cancels
+      // all but the most recently queued pending job in a group regardless
+      // of cancel-in-progress: false, which only protects an already-running
+      // job. that would silently drop most of a dispatch's probes. the fix
+      // is a workflow-level group instead, asserted separately below.
+      expect(
+        blockAfter(text, 4, "concurrency"),
+        `${name} declares strategy.matrix and its own concurrency block — a matrix job's own concurrency group collapses every cell into the same group and cancels most of them`,
+      ).toBeNull();
+    }
+
+    // the workflow-level group this workflow actually relies on for "grouped
+    // per dispatch, never cancelling a run in flight" — present once, above
+    // every job, not per matrix cell.
+    expect(
+      blockAfter(yaml, 0, "concurrency"),
+      `${WORKFLOW_FILE} must declare a workflow-level concurrency block`,
+    ).not.toBeNull();
+  });
+});
+
 describe("write access and a model token never share a job", () => {
   it("no job declaring contents: write also references a model-credential secret", async () => {
     const jobs = jobBlocksOf(await readWorkflow());

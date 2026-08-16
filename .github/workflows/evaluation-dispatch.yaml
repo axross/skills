@@ -33,9 +33,24 @@ name: Evaluation Dispatch
 # it once), so every probe of one dispatch that shares a scenario lands under
 # one measurement directory regardless of which of several parallel
 # processes wrote it — probe.mjs could not do this on its own before this
-# change; see its header. concurrency is grouped per dispatch (by the
-# `scenario` input) and never cancels a run in flight: cancelling a matrix
-# mid-flight destroys probes already paid for.
+# change; see its header.
+#
+# concurrency is declared at the WORKFLOW level below (grouped per dispatch,
+# by the `scenario` input), never at this job's own level, and that is
+# deliberate: `jobs.<job_id>.concurrency` is evaluated once per matrix cell,
+# and a group key that does not include `matrix.*` resolves to the identical
+# string for every cell. GitHub's own docs on concurrency groups: "any
+# existing pending job or workflow in the same concurrency group will be
+# canceled and the new queued job or workflow will take its place" — and
+# that replacement happens regardless of `cancel-in-progress`, which only
+# governs an already-RUNNING job, not the single pending slot a group
+# allows. six matrix cells racing to queue into one shared group would
+# cancel all but the last one queued, over and over, silently discarding
+# most of a dispatch's probes — which is exactly what cancelling a matrix
+# mid-flight destroys probes already paid for was written to prevent. a
+# workflow-level group does not have this failure mode: it is resolved once
+# per workflow RUN, so it governs whether two separate dispatches race, not
+# whether this run's own jobs do.
 #
 # ── evaluate judges from what was stored, one cell per scenario — not one
 # job for the whole dispatch, and not one cell per probe. `evaluate.mjs`
@@ -80,9 +95,19 @@ name: Evaluation Dispatch
 # on empty input — they have nothing to run against.
 #
 # ── workflow_dispatch is the only trigger, on purpose and permanently.
-# GitHub always runs a `workflow_dispatch` from the version of this file on
-# the default branch and requires write access to fire it, so no contributor
-# can cause a run and no pull request can alter what a run executes. never add
+# `workflow_dispatch` requires write access on the repository to fire at
+# all — that, not which ref it runs from, is what keeps a contributor from
+# causing a run and a pull request from altering what a run executes: a
+# dispatch runs the workflow file as it exists on whichever ref the
+# dispatcher selects ("Use workflow from"; GitHub's own reference docs give
+# `GITHUB_REF` for this event as "Branch or tag that received dispatch",
+# never fixed to the default branch), so someone who could dispatch a
+# modified copy from a branch could already push that branch — and could
+# already push to the default branch. the default branch matters for a
+# narrower reason: this event "will only trigger a workflow run if the
+# workflow file exists on the default branch" (GitHub's own wording) — that
+# is what makes the dispatch VISIBLE at all, the first time this file
+# merges, not what ref a later dispatch is forced to run from. never add
 # `pull_request` or `pull_request_target`, and never wire this into
 # merge-checks.yaml: this dispatch is non-deterministic, costs real money per
 # probe, and needs a credential a fork's pull request does not receive — see
@@ -116,6 +141,15 @@ on:
 # least privilege at the top; every job below states exactly what it adds.
 permissions: {}
 
+# grouped per dispatch (by the scenario this dispatch names, or the empty
+# string for "every scenario"), and never cancelling: cancelling a matrix
+# mid-flight destroys probes already paid for. workflow-level, not
+# job-level — see the `probe` job's own comment on why a matrix job's
+# concurrency group must never be declared there.
+concurrency:
+  group: evaluation-dispatch-${{ inputs.scenario }}
+  cancel-in-progress: false
+
 env:
   # pinned, and recorded in every probe's metadata.json: the CLI's version is
   # part of the condition, held fixed for the same reason the model is
@@ -147,6 +181,14 @@ jobs:
       # standard library plus this repository's own modules — no package
       # this step would need to fetch. see link-freshness.yaml for the same
       # reasoning, in the same words.
+      #
+      # the unspecified default shell on a Linux runner is `bash -e {0}` (see
+      # GitHub's own supported-shells reference) — `-e` is already active
+      # before the `set` line below runs, and `set -uo pipefail` does not
+      # clear it. that is why the probe.mjs invocation below is the
+      # CONDITION of an `if`, never a bare command: a bare command that
+      # exits non-zero would abort the script right there under `-e`, before
+      # a line reading its exit code afterward ever ran.
       - name: Derive the probe and judgment matrices
         id: matrix
         env:
@@ -160,8 +202,11 @@ jobs:
           if [ -n "${REPETITIONS}" ]; then args+=(--repetitions "${REPETITIONS}"); fi
           if [ -n "${PROBE_LIMIT}" ]; then args+=(--limit "${PROBE_LIMIT}"); fi
 
-          node tools/evaluation/probe.mjs "${args[@]}" > "${RUNNER_TEMP}/matrix.json"
-          status=$?
+          if node tools/evaluation/probe.mjs "${args[@]}" > "${RUNNER_TEMP}/matrix.json"; then
+            status=0
+          else
+            status=$?
+          fi
           if [ "${status}" -ne 0 ]; then
             echo "::error::plan refused this dispatch before any probe job could start — see the admission message above, which names the exact probe count and the declared limit."
             exit "${status}"
@@ -177,13 +222,11 @@ jobs:
     timeout-minutes: 60
     # this job spawns a model with Bash and the editing tools; it must never
     # be able to write to this repository. no step here sets GITHUB_TOKEN.
+    #
+    # no concurrency block here — see the workflow-level one above and this
+    # job's own header comment for why a matrix job must never declare its
+    # own.
     permissions: {}
-    concurrency:
-      # grouped per dispatch (by the scenario this dispatch names, or the
-      # empty string for "every scenario"), and never cancelling: cancelling
-      # a matrix mid-flight destroys probes already paid for.
-      group: evaluation-dispatch-probe-${{ inputs.scenario }}
-      cancel-in-progress: false
     strategy:
       # one failed probe must not discard the paid work of the cells that
       # already finished.
@@ -349,13 +392,24 @@ jobs:
       # wherever a scenario's judgment completed). a scenario whose evaluate
       # cell never uploaded anything still lands here from its probe-*
       # artifacts alone — unjudged, not discarded.
+      #
+      # no `if-no-artifacts-found` here: `actions/download-artifact@v4`
+      # takes no such input (its real inputs are name, artifact-ids, path,
+      # pattern, merge-multiple, github-token, repository, run-id — an
+      # unrecognised one is silently ignored but for a warning, doing
+      # nothing). that turns out not to matter for THIS step: its own
+      # source, for a `pattern` match, filters the run's artifact list and
+      # downloads whatever matched — zero matches is an empty list, which it
+      # reports ("Total of 0 artifact(s) downloaded") and exits 0 for,
+      # never throwing. what a zero-artifact dispatch actually risks is
+      # downstream, at the commit below — see "Confirm there is something
+      # to land".
       - name: Assemble this dispatch's probe records
         uses: actions/download-artifact@v4
         with:
           pattern: probe-*
           merge-multiple: true
           path: tools/evaluation/measurements
-          if-no-artifacts-found: warn
 
       - name: Assemble this dispatch's judged measurements
         uses: actions/download-artifact@v4
@@ -363,7 +417,19 @@ jobs:
           pattern: judged-*
           merge-multiple: true
           path: tools/evaluation/measurements
-          if-no-artifacts-found: warn
+
+      # every probe cell failing (or every one running under a dry run that
+      # reached this job in error) would otherwise surface only as `git
+      # commit`'s own opaque failure, several steps and a full `npm run
+      # check` later, under `set -e`: nothing staged is nothing to commit,
+      # and git exits non-zero for that. caught here, immediately, with a
+      # message that says what actually happened.
+      - name: Confirm there is something to land
+        run: |
+          if [ -z "$(git status --porcelain tools/evaluation/measurements)" ]; then
+            echo "::error::Nothing was downloaded into tools/evaluation/measurements — every probe and evaluate cell in this dispatch produced no artifact. Nothing to land."
+            exit 1
+          fi
 
       # derives each measurement's summary.json, but never fails the job on
       # a measurement that cannot be derived: a measurement whose judgment

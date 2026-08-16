@@ -11,12 +11,19 @@ than gates; this document covers how to run it, either way.
 
 `evaluation-dispatch.yaml` is triggered manually, by `workflow_dispatch`, and
 by nothing else — a contributor cannot cause a run, and a pull request cannot
-alter what a run executes, because GitHub always runs a `workflow_dispatch`
-from the version of the file on the default branch. Its dispatch form takes
-four inputs: `scenario` (blank: every scenario declared under
-`tools/evaluation/scenarios/`), `repetitions` (blank: the instrument's own
-default), `probe-limit` (the exact probe count admission refuses the dispatch
-against; blank: no limit), and `dry-run` (a boolean; see below).
+alter what a run executes, because `workflow_dispatch` requires write access
+on the repository to fire at all (a dispatch runs the workflow file as it
+exists on whichever ref is selected, not forcibly the default branch; the
+default branch only has to hold the file for the event to be dispatchable in
+the first place). Someone able to dispatch a modified copy of this workflow
+from a branch could already push that branch — and could already push to the
+default branch.
+
+Its dispatch form takes four inputs: `scenario` (blank: every scenario
+declared under `tools/evaluation/scenarios/`), `repetitions` (blank: the
+instrument's own default), `probe-limit` (the exact probe count admission
+refuses the dispatch against; blank: no limit), and `dry-run` (a boolean; see
+below).
 
 It runs four jobs in order:
 
