@@ -1,5 +1,6 @@
 {
   "id": "quiet-the-stale-post-list-after-a-draft-save",
+  "description": "tanstack-query-development is targeted against a bug report that names neither TanStack Query nor a cache, only a stale list, with react-component-development (a component-behaviour read of the same report) and code-maintainability (a general-quality read of the same report) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The outcome factors check that the fix invalidates the list query the way the existing publish path already does, without trading away the working detail-cache write, and the transcript factor checks that the agent names the actual cause — a missed invalidation — rather than producing a correct-looking diff for the wrong reason.",
   "mock": "inkwell",
   "targetSkills": ["tanstack-query-development"],
   "peerSkills": ["react-component-development", "code-maintainability"],

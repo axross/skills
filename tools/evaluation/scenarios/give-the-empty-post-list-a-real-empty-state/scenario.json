@@ -1,5 +1,6 @@
 {
   "id": "give-the-empty-post-list-a-real-empty-state",
+  "description": "react-component-styling is targeted against a visual-presence ask on an existing screen — nothing about CSS, a property, or the skill's own vocabulary is in the prompt — with react-component-development (a component-structure read of the same ask) and high-fidelity-ui-design (a visual-design-rationale read of the same ask) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The outcome factors check that a fix follows the property-order convention react-component-styling teaches against a codebase whose own stylesheets never demonstrate that order, so a treatment run has something specific to produce that a control run has no local precedent to copy, and that the reordered stylesheet still parses.",
   "mock": "inkwell",
   "targetSkills": ["react-component-styling"],
   "peerSkills": ["react-component-development", "high-fidelity-ui-design"],
