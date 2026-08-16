@@ -8,19 +8,30 @@
 // drives has exactly one entry point. a grep proves these today; this file
 // proves them on every run.
 //
-// four properties, matching evaluation-dispatch.yaml's own System design
+// seven properties, matching evaluation-dispatch.yaml's own System design
 // exactly (see docs/operations/evaluation-dispatch.md and the workflow's own
 // header comment):
 //
 //   1. workflow_dispatch is the workflow's only trigger — no contributor can
 //      cause a run, and no pull request can alter what a run executes.
-//   2. no job declaring `contents: write` also references a model-credential
+//   2. no job declaring `strategy.matrix` also declares its own
+//      `concurrency` block — a matrix job's group is evaluated once per
+//      cell, so a job-level group would collapse every cell into one and
+//      cancel most of them.
+//   3. the workflow-level `concurrency` block groups per dispatch scenario
+//      (`group` interpolates `inputs.scenario`) and never cancels a run in
+//      progress (`cancel-in-progress: false`) — cancelling a matrix
+//      mid-flight destroys probes already paid for.
+//   4. every job declaring `strategy.matrix` also declares
+//      `fail-fast: false` — one failed cell must not cancel its siblings or
+//      discard the paid work of the cells that already finished.
+//   5. no job declaring `contents: write` also references a model-credential
 //      secret — the job that can write to this repository never also holds
 //      the credential that spends money.
-//   3. every job that DOES reference a model-credential secret declares
+//   6. every job that DOES reference a model-credential secret declares
 //      `permissions: {}` — the least this repository can grant a job that
 //      spawns a model or feeds one a transcript.
-//   4. the instrument's three scripts (probe.mjs, evaluate.mjs, derive.mjs)
+//   7. the instrument's three scripts (probe.mjs, evaluate.mjs, derive.mjs)
 //      are named by this workflow and by no other — so a second workflow
 //      cannot quietly grow a second, differently-permissioned entry point.
 //
@@ -162,14 +173,70 @@ describe("a matrix job never declares its own concurrency group", () => {
         `${name} declares strategy.matrix and its own concurrency block — a matrix job's own concurrency group collapses every cell into the same group and cancels most of them`,
       ).toBeNull();
     }
+  });
+});
 
-    // the workflow-level group this workflow actually relies on for "grouped
-    // per dispatch, never cancelling a run in flight" — present once, above
-    // every job, not per matrix cell.
+describe("evaluation-dispatch.yaml's workflow-level concurrency group", () => {
+  it("is grouped per dispatch scenario and never cancels a run already in progress", async () => {
+    const yaml = await readWorkflow();
+    const block = blockAfter(yaml, 0, "concurrency");
+
+    // present once, above every job, not per matrix cell — see the matrix
+    // job describe above for why it cannot live at the job level instead.
+    expect(block, `${WORKFLOW_FILE} must declare a workflow-level concurrency block`).not.toBeNull();
+
+    const groupMatch = block.match(/^ {2}group:(.*)$/m);
+    const group = groupMatch ? groupMatch[1].trim() : "";
+    const cancelMatch = block.match(/^ {2}cancel-in-progress:(.*)$/m);
+    const cancelInProgress = cancelMatch ? cancelMatch[1].trim() : "";
+
+    // grouped per dispatch SCENARIO, not per run: two dispatches of
+    // different scenarios must not queue behind each other, and only
+    // interpolating the scenario input expresses that — some interpolation
+    // (e.g. `github.run_id`) would satisfy "non-constant" while still
+    // defeating the group, since a group every run is alone in is the same
+    // as no group at all.
     expect(
-      blockAfter(yaml, 0, "concurrency"),
-      `${WORKFLOW_FILE} must declare a workflow-level concurrency block`,
-    ).not.toBeNull();
+      group,
+      `${WORKFLOW_FILE}'s workflow-level concurrency group must interpolate inputs.scenario, found ${JSON.stringify(group)}`,
+    ).toMatch(/inputs\.scenario/);
+
+    // never cancelling: cancelling a matrix mid-flight destroys probes
+    // already paid for.
+    expect(
+      cancelInProgress,
+      `${WORKFLOW_FILE}'s workflow-level concurrency group must declare cancel-in-progress: false, found ${JSON.stringify(cancelInProgress)}`,
+    ).toBe("false");
+  });
+});
+
+describe("every job with strategy.matrix declares fail-fast: false", () => {
+  it("no matrix job cancels its siblings, or discards the paid work of the cells that already finished, when one cell fails", async () => {
+    const yaml = await readWorkflow();
+    const jobs = jobBlocksOf(yaml);
+    const matrixJobs = Object.entries(jobs).filter(([, text]) => {
+      const strategy = blockAfter(text, 4, "strategy");
+      return strategy !== null && /matrix:/.test(strategy);
+    });
+
+    // guards this test against going vacuous the same way the describe
+    // above does: if nothing here declares a matrix strategy, the loop
+    // below would pass having checked nothing.
+    expect(
+      matrixJobs.length,
+      `expected at least one job in ${WORKFLOW_FILE} to declare strategy.matrix`,
+    ).toBeGreaterThan(0);
+
+    for (const [name, text] of matrixJobs) {
+      const strategy = blockAfter(text, 4, "strategy");
+      const failFastMatch = strategy.match(/^ {6}fail-fast:(.*)$/m);
+      const failFast = failFastMatch ? failFastMatch[1].trim() : "";
+
+      expect(
+        failFast,
+        `${name} declares strategy.matrix and must set fail-fast: false, found ${JSON.stringify(failFast)}`,
+      ).toBe("false");
+    }
   });
 });
 
