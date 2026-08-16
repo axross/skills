@@ -202,11 +202,13 @@ describe("validateScenario", () => {
   );
 
   // cap stays a whole word rather than a prefix — a cap prefix would fire on
-  // capture/capability below — so its irregular inflections (English
-  // doubles the final consonant) are named outright rather than produced by
-  // an ending rule.
-  it.each(["capped", "capping"])(
-    "rejects %s, the irregular inflection of cap that a regular ending rule would miss",
+  // capture/capability below — so every form it takes is listed outright in
+  // FORBIDDEN_WORDS rather than produced by an ending rule: the plural, and
+  // the two inflections English spells with a doubled consonant. each is
+  // named here, so dropping one from that set fails a test rather than
+  // quietly widening what a scenario may declare.
+  it.each(["caps", "capped", "capping"])(
+    "rejects %s, a form of cap that only an outright listing catches",
     (key) => {
       const scenario = { ...validScenario(), [key]: 5 };
       expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`"${key}"`));
