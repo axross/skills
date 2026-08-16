@@ -3,8 +3,9 @@
 // workspace contain every substring the factor expects.
 //
 // generic across this scenario's two outcome factors — one checking what
-// the fix has to ADD (the missing invalidation), one checking what it must
-// NOT remove (the existing detail-cache write) — docs/specs/skill-evaluation.md's
+// the fix has to ADD (the prefers-reduced-motion guard), one checking what
+// it must NOT remove (the toast's own animation and @keyframes, so guarding
+// is distinguishable from deleting) — docs/specs/skill-evaluation.md's
 // "both what had to appear and what had to not". The file itself lives in
 // the reconstructed workspace, which is this process's own cwd (see this
 // scenario's scenario.json and factor-judgment.mjs's runScriptJudgment); a

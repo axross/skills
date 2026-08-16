@@ -2,15 +2,17 @@
 // an outcome-phase script judgment: does one file in the reconstructed
 // workspace contain every substring the factor expects.
 //
-// generic across this scenario's two outcome factors — one checking what
-// the fix has to ADD (the missing invalidation), one checking what it must
-// NOT remove (the existing detail-cache write) — docs/specs/skill-evaluation.md's
-// "both what had to appear and what had to not". The file itself lives in
-// the reconstructed workspace, which is this process's own cwd (see this
-// scenario's scenario.json and factor-judgment.mjs's runScriptJudgment); a
-// file the expectation names but the workspace does not have is a judgment
-// this script cannot make, not a `false` result, so it exits non-zero
-// rather than reporting one.
+// used here for this scenario's "keeps-the-publish-confirmation-messages"
+// factor — a plain whole-file check is the right tool for that one, since
+// it asks only whether pre-existing, untouched text survives. Its sibling
+// outcome factor, "adds-a-save-confirmation", needs the marker-scoped
+// variant instead (check-function-contains.mjs), because a whole-file
+// search for its own substring would already be true before any fix. The
+// file itself lives in the reconstructed workspace, which is this
+// process's own cwd (see this scenario's scenario.json and
+// factor-judgment.mjs's runScriptJudgment); a file the expectation names
+// but the workspace does not have is a judgment this script cannot make,
+// not a `false` result, so it exits non-zero rather than reporting one.
 //
 // usage: node check-file-contains.mjs <context.json>
 
