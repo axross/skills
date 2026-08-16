@@ -20,6 +20,52 @@ export const JUDGMENT_METHODS = ["script", "reasoning"];
 /** matches a key this instrument was told never to add — see admission.mjs's header. */
 const FORBIDDEN_KEY_RE = /budget|dollar|(?:cost|price)(?:usd)?|usdcap|\bcap\b/i;
 
+// the keys this instrument actually reads, per level. A key admitted at one
+// level is not implicitly admitted at another — a judgment's own set is
+// chosen by its `method`, so `script` is read for a script judgment and
+// rejected for a reasoning one, and vice versa for `model`/`instructions`.
+// `judgment.expect` is deliberately not reached further down: its keys are
+// the judgment script's own vocabulary (`file`, `startMarker`,
+// `mustContainAll` today, whatever a new script needs tomorrow), and the
+// instrument reads only the `expect` key itself.
+const SCENARIO_KEYS = [
+  "id",
+  "description",
+  "mock",
+  "targetSkills",
+  "peerSkills",
+  "patch",
+  "harness",
+  "task",
+  "factors",
+];
+const HARNESS_KEYS = ["agentsMd"];
+const TASK_KEYS = ["prompt"];
+const FACTOR_KEYS = ["id", "phase", "description", "judgment"];
+const SCRIPT_JUDGMENT_KEYS = ["method", "script", "expect"];
+const REASONING_JUDGMENT_KEYS = ["method", "model", "instructions"];
+
+/**
+ * fails on any key of `value` that is not in `allowed` — a key the
+ * instrument does not read is a mistake (a typo, a leftover field, a
+ * property that was removed from the shape) rather than a permitted
+ * extension, so it fails at load instead of being admitted and ignored.
+ *
+ * @param {Record<string, unknown>} value
+ * @param {readonly string[]} allowed the exact keys this level reads
+ * @param {string} prefix path prefix for an offending key, e.g. "harness" or
+ *   "factors[0].judgment" — the empty string at the scenario's own top level
+ * @param {(message: string) => never} fail
+ */
+function assertOnlyKnownKeys(value, allowed, prefix, fail) {
+  for (const key of Object.keys(value)) {
+    if (!allowed.includes(key)) {
+      const path = prefix ? `${prefix}.${key}` : key;
+      fail(`${path} is not a field this instrument reads (expected one of ${allowed.join(", ")}).`);
+    }
+  }
+}
+
 /**
  * @param {unknown} value
  * @param {string} path for the error message, e.g. "scenario.json" or "factors[0]"
@@ -56,7 +102,15 @@ export function validateScenario(scenario, sourcePath) {
   };
 
   if (scenario === null || typeof scenario !== "object") fail("must be a JSON object.");
+  assertNoBudgetField(scenario, sourcePath);
+  assertOnlyKnownKeys(scenario, SCENARIO_KEYS, "", fail);
   if (typeof scenario.id !== "string" || scenario.id.length === 0) fail('"id" must be a non-empty string.');
+  if (typeof scenario.description !== "string" || scenario.description.length === 0) {
+    fail(
+      '"description" must be a non-empty string stating what this scenario measures and why — ' +
+        "a rationale a reader can disagree with without reading its factors.",
+    );
+  }
   if (typeof scenario.mock !== "string" || scenario.mock.length === 0) {
     fail('"mock" must be a non-empty string.');
   }
@@ -70,10 +124,15 @@ export function validateScenario(scenario, sourcePath) {
   if (scenario.harness === null || typeof scenario.harness !== "object") {
     fail('"harness" must be an object.');
   }
+  assertOnlyKnownKeys(scenario.harness, HARNESS_KEYS, "harness", fail);
   if (typeof scenario.harness.agentsMd !== "boolean") {
     fail('"harness.agentsMd" must be a boolean.');
   }
-  if (scenario.task === null || typeof scenario.task !== "object" || typeof scenario.task.prompt !== "string") {
+  if (scenario.task === null || typeof scenario.task !== "object") {
+    fail('"task" must be an object.');
+  }
+  assertOnlyKnownKeys(scenario.task, TASK_KEYS, "task", fail);
+  if (typeof scenario.task.prompt !== "string") {
     fail('"task.prompt" must be a string.');
   }
   if (!Array.isArray(scenario.factors) || scenario.factors.length === 0) {
@@ -83,6 +142,8 @@ export function validateScenario(scenario, sourcePath) {
   const factorIds = new Set();
   for (const [index, factor] of scenario.factors.entries()) {
     const at = `factors[${index}]`;
+    if (factor === null || typeof factor !== "object") fail(`${at} must be an object.`);
+    assertOnlyKnownKeys(factor, FACTOR_KEYS, at, fail);
     if (typeof factor.id !== "string" || factor.id.length === 0) fail(`${at}.id must be a non-empty string.`);
     if (factorIds.has(factor.id)) fail(`${at}.id "${factor.id}" duplicates an earlier factor's id.`);
     factorIds.add(factor.id);
@@ -98,10 +159,14 @@ export function validateScenario(scenario, sourcePath) {
     if (!factor.judgment || !JUDGMENT_METHODS.includes(factor.judgment.method)) {
       fail(`${at}.judgment.method must be one of ${JUDGMENT_METHODS.join(", ")}.`);
     }
-    if (factor.judgment.method === "script" && typeof factor.judgment.script !== "string") {
-      fail(`${at}.judgment.script must name a script relative to the scenario directory.`);
+    if (factor.judgment.method === "script") {
+      assertOnlyKnownKeys(factor.judgment, SCRIPT_JUDGMENT_KEYS, `${at}.judgment`, fail);
+      if (typeof factor.judgment.script !== "string") {
+        fail(`${at}.judgment.script must name a script relative to the scenario directory.`);
+      }
     }
     if (factor.judgment.method === "reasoning") {
+      assertOnlyKnownKeys(factor.judgment, REASONING_JUDGMENT_KEYS, `${at}.judgment`, fail);
       if (typeof factor.judgment.model !== "string" || factor.judgment.model.length === 0) {
         fail(`${at}.judgment.model must be a vendor-prefixed, fully-qualified model id.`);
       }
@@ -110,8 +175,6 @@ export function validateScenario(scenario, sourcePath) {
       }
     }
   }
-
-  assertNoBudgetField(scenario, sourcePath);
 }
 
 /**
