@@ -142,6 +142,7 @@ export function validateScenario(scenario, sourcePath) {
   const factorIds = new Set();
   for (const [index, factor] of scenario.factors.entries()) {
     const at = `factors[${index}]`;
+    if (factor === null || typeof factor !== "object") fail(`${at} must be an object.`);
     assertOnlyKnownKeys(factor, FACTOR_KEYS, at, fail);
     if (typeof factor.id !== "string" || factor.id.length === 0) fail(`${at}.id must be a non-empty string.`);
     if (factorIds.has(factor.id)) fail(`${at}.id "${factor.id}" duplicates an earlier factor's id.`);

@@ -122,6 +122,16 @@ describe("validateScenario", () => {
     expect(() => validateScenario(noInstructions, "test.json")).toThrow(/judgment\.instructions/);
   });
 
+  // #407: a null factor entry (a plausible half-removed array element) must
+  // not reach assertOnlyKnownKeys's Object.keys and surface as a raw,
+  // path-free TypeError — it gets this validator's normal, path-naming
+  // failure instead, the same treatment assertNoBudgetField already gives a
+  // null value.
+  it("rejects a null factor entry with a clean, path-naming error rather than a raw TypeError", () => {
+    const scenario = validScenario({ factors: [null] });
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/factors\[0\] must be an object/);
+  });
+
   it("rejects a duplicate factor id", () => {
     const scenario = validScenario({
       factors: [
