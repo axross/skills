@@ -106,7 +106,7 @@
 
 **Evaluation phase** — one of the three questions an **evaluation scenario** may declare, each judged by its own **factors**: `discovery`, whether the agent reached for the **target skills** unprompted; `outcome`, whether the produced artefacts matched expectation; `transcript`, whether the agent reasoned as expected.
 
-**Factor** — a declared, checkable expectation an **evaluation scenario** carries for one of its **evaluation phases**, together with the judgment method — **script judgment** or **reasoning judgment** — that checks it.
+**Factor** — a declared, checkable expectation an **evaluation scenario** carries for one of its **evaluation phases**, together with the `description` stating what it expects and why, and the judgment method — **script judgment** or **reasoning judgment** — that checks it.
 
 **Factor result** — the outcome of one **factor**'s judgment for one **evaluation probe**: `true`, `false`, or an error carrying its reason.
 
