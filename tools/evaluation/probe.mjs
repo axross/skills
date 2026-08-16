@@ -104,7 +104,7 @@ Options:
                          probe count exceeds this (default: no limit)
   --dry-run              report the probe matrix and the admission outcome;
                          spawn nothing
-  --emit-matrix           print the probe matrix and the judgment matrix as
+  --emit-matrix          print the probe matrix and the judgment matrix as
                          one JSON document instead of the lines above, and
                          exit before anything would have been spawned
   --out <dir>            measurement root to write under (default:
