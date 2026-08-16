@@ -163,15 +163,19 @@ describe("validateScenario", () => {
 
   // the plan's own non-goal: "do not estimate cost... in any form". A
   // budget-shaped key anywhere in the document is rejected, not only at the
-  // top level. The key itself is asserted rather than the old fixed wording,
-  // since #407's allow-list now catches an unrecognized top-level key (any
-  // key, budget-shaped or not) before this guard ever runs — the key still
-  // ends up named in whichever message rejects it.
+  // top level. assertNoBudgetField runs before the allow-list
+  // (assertOnlyKnownKeys) in validateScenario, so the guard gets first
+  // refusal on a budget-shaped top-level key: its own message, not the
+  // allow-list's (which would also name the key, for an unrelated reason),
+  // is what a scenario document sees. The assertion checks for that
+  // guard-specific phrasing rather than the bare key, so this negative
+  // control fails again if the guard itself ever stops catching the key —
+  // #406 owns widening the pattern it matches.
   it.each(["budgetUsd", "costCeiling", "dollarCap", "maxCostUsd", "priceUsd"])(
     "rejects a top-level %s key as a budget-shaped field",
     (key) => {
       const scenario = { ...validScenario(), [key]: 5 };
-      expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(key));
+      expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`${key} looks like a budget`));
     },
   );
 

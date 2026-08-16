@@ -102,6 +102,7 @@ export function validateScenario(scenario, sourcePath) {
   };
 
   if (scenario === null || typeof scenario !== "object") fail("must be a JSON object.");
+  assertNoBudgetField(scenario, sourcePath);
   assertOnlyKnownKeys(scenario, SCENARIO_KEYS, "", fail);
   if (typeof scenario.id !== "string" || scenario.id.length === 0) fail('"id" must be a non-empty string.');
   if (typeof scenario.description !== "string" || scenario.description.length === 0) {
@@ -173,8 +174,6 @@ export function validateScenario(scenario, sourcePath) {
       }
     }
   }
-
-  assertNoBudgetField(scenario, sourcePath);
 }
 
 /**
