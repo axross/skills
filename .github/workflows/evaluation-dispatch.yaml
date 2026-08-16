@@ -1,0 +1,523 @@
+name: Evaluation Dispatch
+
+# the one entry point for tools/evaluation's instrument — probe.mjs,
+# evaluate.mjs, and derive.mjs. step 2 of #392 deleted the two workflows that
+# used to drive the two instruments it replaced (discovery-eval.yaml and
+# effect-eval.yaml); this is their replacement, authored against the one
+# instrument that survived the rebuild. docs/operations/evaluation-dispatch.md
+# describes what a dispatch does from a reader's side; this comment is the
+# design this file itself is answerable to.
+#
+# four jobs, one direction: plan -> probe -> evaluate -> land.
+#
+# ── plan derives BOTH matrices once, and refuses an oversized dispatch before
+# anything downstream starts. it runs `probe.mjs --emit-matrix`, which expands
+# the selected scenario(s) into every (scenario, condition, repetition) probe,
+# applies the same admission the instrument applies locally, and prints one
+# JSON document carrying the probe matrix `probe` fans out over and the
+# judgment matrix `evaluate` fans out over — each scenario's measurement
+# directory name included in both, derived once rather than twice. a
+# dispatch whose exact probe count exceeds its declared limit makes
+# `probe.mjs` exit non-zero; this step's own exit code fails the job, and
+# `probe`/`evaluate`/`land` — every one of them keyed on `needs: plan` or
+# `needs.plan.result == 'success'` — never start. see probe.mjs's own header
+# for why one expansion beats two: two derivations of one fact can disagree.
+#
+# ── probe runs one probe per matrix cell, `permissions: {}`, and never
+# receives GITHUB_TOKEN: this job spawns a model with Bash and the editing
+# tools, deliberately, since whether an installed skill gets used during real
+# work is what is measured — but it must never be able to write to this
+# repository. `fail-fast: false` so one failed probe neither cancels its
+# siblings nor discards the paid work of the cells that already finished.
+# every cell is told the SAME --measurement-id for its scenario (plan minted
+# it once), so every probe of one dispatch that shares a scenario lands under
+# one measurement directory regardless of which of several parallel
+# processes wrote it — probe.mjs could not do this on its own before this
+# change; see its header.
+#
+# concurrency is declared at the WORKFLOW level below (grouped per dispatch,
+# by the `scenario` input), never at this job's own level, and that is
+# deliberate: `jobs.<job_id>.concurrency` is evaluated once per matrix cell,
+# and a group key that does not include `matrix.*` resolves to the identical
+# string for every cell. GitHub's own docs on concurrency groups: "any
+# existing pending job or workflow in the same concurrency group will be
+# canceled and the new queued job or workflow will take its place" — and
+# that replacement happens regardless of `cancel-in-progress`, which only
+# governs an already-RUNNING job, not the single pending slot a group
+# allows. six matrix cells racing to queue into one shared group would
+# cancel all but the last one queued, over and over, silently discarding
+# most of a dispatch's probes — which is exactly what cancelling a matrix
+# mid-flight destroys probes already paid for was written to prevent. a
+# workflow-level group does not have this failure mode: it is resolved once
+# per workflow RUN, so it governs whether two separate dispatches race, not
+# whether this run's own jobs do.
+#
+# ── evaluate judges from what was stored, one cell per scenario — not one
+# job for the whole dispatch, and not one cell per probe. `evaluate.mjs`
+# takes a measurement directory, and a measurement directory is exactly one
+# scenario's, so that is the grain judgment fans out at. `fail-fast: false`
+# for the same reason `probe` has it: one scenario's failed judgment must not
+# take every other scenario's, after every probe in the dispatch has already
+# been paid for. `permissions: {}` and no GITHUB_TOKEN, because this is the
+# job that feeds a probe's transcript to a model — an ambient repository
+# token is least wanted here of anywhere in this workflow. it references
+# `secrets.ANTHROPIC_API_KEY`, which this repository does not set today; with
+# none, `evaluate.mjs` already records each reasoning factor's result as an
+# error carrying its reason rather than as `false`, and every script factor
+# is still judged, so the cell still completes and still uploads what it
+# judged.
+#
+# ── land is the only job that can write, and the only one with no model
+# credential at any step. it assembles every probe artifact and every judged
+# artifact this dispatch produced, derives each measurement's summary (a
+# derivation that fails is caught and reported rather than allowed to fail
+# the job: a measurement whose judgment could not complete is data that cost
+# money and cannot be re-acquired for free, so it is committed anyway, with
+# the pull request body saying so), runs this repository's own `npm run
+# check` — which DOES fail the job, because a measurement that fails this
+# repository's own gates is a defect in the instrument, not a finding about a
+# skill — commits under the github-actions[bot] identity, and opens the
+# measurement pull request. merge-checks.yaml excludes that pull request by
+# path (see its own header), which is why the checks run here instead.
+#
+# every probe cell and every evaluate cell uploads its own artifact
+# independently of what any other cell does, so a `land` that fails is
+# recovered by re-running `land` alone against those artifacts — never by
+# re-probing.
+#
+# ── a dry-run dispatch reaches `probe` and stops there. `plan`'s own
+# `--emit-matrix` step never spawns anything regardless of this input — it
+# only ever expands and admits. every `probe` cell is told to add `--dry-run`
+# itself, which walks the same matrix-and-admission path with the spawn
+# stubbed (see probe.mjs's header): nothing is spawned, nothing is billed,
+# and no record is written, which is what makes `evaluate` and `land` skip
+# themselves by condition (`inputs.dry-run == false`) rather than by failing
+# on empty input — they have nothing to run against.
+#
+# ── workflow_dispatch is the only trigger, on purpose and permanently.
+# `workflow_dispatch` requires write access on the repository to fire at
+# all — that, not which ref it runs from, is what keeps a contributor from
+# causing a run and a pull request from altering what a run executes: a
+# dispatch runs the workflow file as it exists on whichever ref the
+# dispatcher selects ("Use workflow from"; GitHub's own reference docs give
+# `GITHUB_REF` for this event as "Branch or tag that received dispatch",
+# never fixed to the default branch), so someone who could dispatch a
+# modified copy from a branch could already push that branch — and could
+# already push to the default branch. the default branch matters for a
+# narrower reason: this event "will only trigger a workflow run if the
+# workflow file exists on the default branch" (GitHub's own wording) — that
+# is what makes the dispatch VISIBLE at all, the first time this file
+# merges, not what ref a later dispatch is forced to run from. never add
+# `pull_request` or `pull_request_target`, and never wire this into
+# merge-checks.yaml: this dispatch is non-deterministic, costs real money per
+# probe, and needs a credential a fork's pull request does not receive — see
+# docs/conventions/verification-gates.md, "Skill evaluation, as a reporting
+# tool". tests/repository/evaluation-dispatch-workflow.test.mjs asserts these
+# safety properties, not just this comment.
+#
+# operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret claude-review.yaml
+# already documents (Settings → Secrets and variables → Actions). no new
+# secret is required by this file — ANTHROPIC_API_KEY is referenced, never
+# required; see the `evaluate` job above.
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Evaluation scenario id, under tools/evaluation/scenarios/ (blank: every declared scenario)"
+        required: false
+      repetitions:
+        description: "Repetitions per condition (blank: the instrument's own default)"
+        required: false
+      probe-limit:
+        description: "Refuse the dispatch in `plan`, before any probe starts, if its exact probe count exceeds this (blank: no limit)"
+        required: false
+      dry-run:
+        description: "Rehearse plan and probe with no model spawned, nothing billed, and no record written; evaluate and land are skipped"
+        required: false
+        type: boolean
+        default: false
+
+# least privilege at the top; every job below states exactly what it adds.
+permissions: {}
+
+# grouped per dispatch (by the scenario this dispatch names, or the empty
+# string for "every scenario"), and never cancelling: cancelling a matrix
+# mid-flight destroys probes already paid for. workflow-level, not
+# job-level — see the `probe` job's own comment on why a matrix job's
+# concurrency group must never be declared there.
+concurrency:
+  group: evaluation-dispatch-${{ inputs.scenario }}
+  cancel-in-progress: false
+
+env:
+  # pinned, and recorded in every probe's metadata.json: the CLI's version is
+  # part of the condition, held fixed for the same reason the model is
+  # (spawn.mjs's MODEL). current at the time this workflow was authored;
+  # bumping it is a deliberate act, not something this workflow decides for
+  # itself.
+  CLAUDE_CODE_VERSION: 2.1.233
+
+jobs:
+  plan:
+    name: Plan the dispatch
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      probe-matrix: ${{ steps.matrix.outputs.probe-matrix }}
+      judgment-matrix: ${{ steps.matrix.outputs.judgment-matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+
+      # no `npm install`: probe.mjs and everything it imports are Node
+      # standard library plus this repository's own modules — no package
+      # this step would need to fetch. see link-freshness.yaml for the same
+      # reasoning, in the same words.
+      #
+      # the unspecified default shell on a Linux runner is `bash -e {0}` (see
+      # GitHub's own supported-shells reference) — `-e` is already active
+      # before the `set` line below runs, and `set -uo pipefail` does not
+      # clear it. that is why the probe.mjs invocation below is the
+      # CONDITION of an `if`, never a bare command: a bare command that
+      # exits non-zero would abort the script right there under `-e`, before
+      # a line reading its exit code afterward ever ran.
+      - name: Derive the probe and judgment matrices
+        id: matrix
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+          REPETITIONS: ${{ inputs.repetitions }}
+          PROBE_LIMIT: ${{ inputs.probe-limit }}
+        run: |
+          set -uo pipefail
+          args=(--emit-matrix)
+          if [ -n "${SCENARIO}" ]; then args+=(--scenario "${SCENARIO}"); fi
+          if [ -n "${REPETITIONS}" ]; then args+=(--repetitions "${REPETITIONS}"); fi
+          if [ -n "${PROBE_LIMIT}" ]; then args+=(--limit "${PROBE_LIMIT}"); fi
+
+          if node tools/evaluation/probe.mjs "${args[@]}" > "${RUNNER_TEMP}/matrix.json"; then
+            status=0
+          else
+            status=$?
+          fi
+          if [ "${status}" -ne 0 ]; then
+            echo "::error::plan refused this dispatch before any probe job could start — see the admission message above, which names the exact probe count and the declared limit."
+            exit "${status}"
+          fi
+
+          echo "probe-matrix=$(jq -c '.probes' "${RUNNER_TEMP}/matrix.json")" >> "${GITHUB_OUTPUT}"
+          echo "judgment-matrix=$(jq -c '.judgments' "${RUNNER_TEMP}/matrix.json")" >> "${GITHUB_OUTPUT}"
+
+  probe:
+    name: Probe ${{ matrix.scenarioId }} ${{ matrix.condition }} #${{ matrix.repetition }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # this job spawns a model with Bash and the editing tools; it must never
+    # be able to write to this repository. no step here sets GITHUB_TOKEN.
+    #
+    # no concurrency block here — see the workflow-level one above and this
+    # job's own header comment for why a matrix job must never declare its
+    # own.
+    permissions: {}
+    strategy:
+      # one failed probe must not discard the paid work of the cells that
+      # already finished.
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.probe-matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+
+      - name: Install the Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
+
+      # the only secret this job holds. passed on a rehearsal too: nothing
+      # spawns under --dry-run, so it goes unused, and making the line
+      # conditional would put cleverness on a security-relevant expression to
+      # save nothing.
+      - name: Run the probe
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          SCENARIO_ID: ${{ matrix.scenarioId }}
+          MEASUREMENT_ID: ${{ matrix.measurementId }}
+          CONDITION: ${{ matrix.condition }}
+          REPETITION: ${{ matrix.repetition }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          set -uo pipefail
+          args=(
+            --scenario "${SCENARIO_ID}"
+            --measurement-id "${MEASUREMENT_ID}"
+            --condition "${CONDITION}"
+            --repetition "${REPETITION}"
+            --out "${RUNNER_TEMP}/probe-out"
+          )
+          if [ "${DRY_RUN}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          node tools/evaluation/probe.mjs "${args[@]}"
+
+      # `if: always()` so a failed probe still uploads whatever it managed to
+      # write; `if-no-files-found: warn` rather than `error` because a
+      # dry-run cell (or a probe that failed before writing anything) legitimately
+      # uploads nothing, which is not itself a defect. the artifact's own
+      # internal path already carries the scenario's measurement directory
+      # name (probe.mjs wrote under
+      # <out>/<measurementDirName>/<condition>-<repetition>/), so downloading
+      # every probe-* artifact with merge-multiple reconstructs the whole
+      # dispatch's measurement tree without this step doing anything extra.
+      - name: Upload the probe record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-${{ matrix.scenarioId }}-${{ matrix.condition }}-${{ matrix.repetition }}
+          path: ${{ runner.temp }}/probe-out/
+          if-no-files-found: warn
+          retention-days: 7
+
+  evaluate:
+    name: Evaluate ${{ matrix.scenarioId }}
+    needs: [plan, probe]
+    # `always()`, not the default "skip if a dependency failed": `probe`'s
+    # overall job result is 'failure' the moment any one matrix cell fails,
+    # even with fail-fast:false — but a different scenario's probes may have
+    # completed cleanly and still deserve judging. only `plan` failing (no
+    # matrix to fan out over) and a dry run (nothing was recorded to judge)
+    # skip this job outright.
+    if: always() && needs.plan.result == 'success' && inputs.dry-run == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # this is the job that feeds a probe's transcript to a model; an ambient
+    # repository token is least wanted here of anywhere in this workflow. no
+    # step here sets GITHUB_TOKEN.
+    permissions: {}
+    strategy:
+      # one scenario's failed judgment must not take every other scenario's,
+      # after every probe in the dispatch has already been paid for.
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.judgment-matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+
+      # every probe-* artifact, not only this scenario's, downloaded into one
+      # scratch root and then addressed by the exact measurement directory
+      # name this cell's own matrix entry carries. matching by an artifact
+      # NAME glob (e.g. "probe-<scenarioId>-*") would mismatch the moment one
+      # scenario id is a prefix of another's; matching by the exact directory
+      # name this job is handed sidesteps that entirely, and the extra bytes
+      # of every other scenario's probes cost nothing this corpus's size
+      # cannot afford.
+      - name: Download this dispatch's probe records
+        uses: actions/download-artifact@v4
+        with:
+          pattern: probe-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/measurement
+
+      # ANTHROPIC_API_KEY is referenced unconditionally rather than only when
+      # set: this repository does not set it today, and evaluate.mjs already
+      # records each reasoning factor's result as an error carrying its
+      # reason rather than as `false` when it is absent — a property this
+      # step relies on rather than works around. no GITHUB_TOKEN anywhere in
+      # this job.
+      - name: Judge this scenario's measurement
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node tools/evaluation/evaluate.mjs "${{ runner.temp }}/measurement/${{ matrix.measurementDirName }}"
+
+      # the whole reconstructed measurement directory, factors.json included
+      # — not only what changed — so `land`'s later download lines up with
+      # every probe-* artifact's own internal path (see the comment there).
+      - name: Upload the judged measurement
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: judged-${{ matrix.scenarioId }}
+          path: ${{ runner.temp }}/measurement/
+          if-no-files-found: warn
+          retention-days: 7
+
+  land:
+    name: Land the measurement
+    needs: [plan, probe, evaluate]
+    # same reasoning as `evaluate`'s `if:`: this job assembles whatever
+    # exists, even when a probe or a judgment failed partway — that data cost
+    # money and is not re-acquired for free by refusing to land it.
+    if: always() && needs.plan.result == 'success' && inputs.dry-run == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # the only job that can write, and the only one that never holds a model
+    # credential at any step.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Dependency installation
+        run: npm ci
+
+      # both patterns land in the same directory: every probe-* artifact
+      # first (the raw, unjudged data every scenario's probes produced,
+      # regardless of what evaluate did with it), then every judged-*
+      # artifact (adding factors.json alongside the same probe directories
+      # wherever a scenario's judgment completed). a scenario whose evaluate
+      # cell never uploaded anything still lands here from its probe-*
+      # artifacts alone — unjudged, not discarded.
+      #
+      # no `if-no-artifacts-found` here: `actions/download-artifact@v4`
+      # takes no such input (its real inputs are name, artifact-ids, path,
+      # pattern, merge-multiple, github-token, repository, run-id — an
+      # unrecognised one is silently ignored but for a warning, doing
+      # nothing). that turns out not to matter for THIS step: its own
+      # source, for a `pattern` match, filters the run's artifact list and
+      # downloads whatever matched — zero matches is an empty list, which it
+      # reports ("Total of 0 artifact(s) downloaded") and exits 0 for,
+      # never throwing. what a zero-artifact dispatch actually risks is
+      # downstream, at the commit below — see "Confirm there is something
+      # to land".
+      - name: Assemble this dispatch's probe records
+        uses: actions/download-artifact@v4
+        with:
+          pattern: probe-*
+          merge-multiple: true
+          path: tools/evaluation/measurements
+
+      - name: Assemble this dispatch's judged measurements
+        uses: actions/download-artifact@v4
+        with:
+          pattern: judged-*
+          merge-multiple: true
+          path: tools/evaluation/measurements
+
+      # every probe cell failing (or every one running under a dry run that
+      # reached this job in error) would otherwise surface only as `git
+      # commit`'s own opaque failure, several steps and a full `npm run
+      # check` later, under `set -e`: nothing staged is nothing to commit,
+      # and git exits non-zero for that. caught here, immediately, with a
+      # message that says what actually happened.
+      - name: Confirm there is something to land
+        run: |
+          if [ -z "$(git status --porcelain tools/evaluation/measurements)" ]; then
+            echo "::error::Nothing was downloaded into tools/evaluation/measurements — every probe and evaluate cell in this dispatch produced no artifact. Nothing to land."
+            exit 1
+          fi
+
+      # derives each measurement's summary.json, but never fails the job on
+      # a measurement that cannot be derived: a measurement whose judgment
+      # did not complete (no factors.json) is still worth committing, with
+      # its derived tier absent, rather than discarding probes that already
+      # cost money. every failure here is recorded, not silenced, and the
+      # pull request body below says which measurements it applies to.
+      - name: Derive each measurement's summary
+        id: derive
+        env:
+          JUDGMENT_MATRIX: ${{ needs.plan.outputs.judgment-matrix }}
+        run: |
+          set -uo pipefail
+          missing_file="${RUNNER_TEMP}/missing-derivation.txt"
+          : > "${missing_file}"
+          mapfile -t dirs < <(jq -r '.[].measurementDirName' <<<"${JUDGMENT_MATRIX}")
+          for dir in "${dirs[@]}"; do
+            path="tools/evaluation/measurements/${dir}"
+            if [ ! -d "${path}" ]; then
+              echo "::warning::${path} was never downloaded; its probe or evaluate cell produced nothing to derive from."
+              echo "${dir}" >> "${missing_file}"
+              continue
+            fi
+            if ! node tools/evaluation/derive.mjs "${path}"; then
+              echo "::warning::derive.mjs failed for ${path}; its derived tier (summary.json) is absent from this pull request."
+              echo "${dir}" >> "${missing_file}"
+            fi
+          done
+          {
+            echo "missing<<MISSING_EOF"
+            cat "${missing_file}"
+            echo "MISSING_EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      # no continue-on-error: a measurement that fails this repository's own
+      # gates is a defect in the instrument, not a finding about a skill.
+      # this is what merge-checks.yaml's own exclusion of this pull request
+      # (by path — see its header) leaves for this job to cover instead.
+      - name: Run the repository's own checks
+        run: npm run check
+
+      - name: Commit and open the pull request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JUDGMENT_MATRIX: ${{ needs.plan.outputs.judgment-matrix }}
+          MISSING_DERIVATION: ${{ steps.derive.outputs.missing }}
+          DISPATCH_SCENARIO: ${{ inputs.scenario }}
+        run: |
+          set -euo pipefail
+
+          scenario_list="$(jq -r '[.[].scenarioId] | unique | join(", ")' <<<"${JUDGMENT_MATRIX}")"
+          branch="evaluation-dispatch/${GITHUB_RUN_ID}"
+          title="data(evaluation): record a dispatch measurement of ${scenario_list}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${branch}"
+          git add tools/evaluation/measurements
+          git commit -m "${title}" \
+                     -m "Dispatched from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          git push -u origin "${branch}"
+
+          {
+            echo "Measurement(s) from an evaluation dispatch of \`${DISPATCH_SCENARIO:-every declared scenario}\`."
+            echo
+            if [ -n "${MISSING_DERIVATION}" ]; then
+              echo "**At least one measurement's derived tier (\`summary.json\`) is absent.**"
+              echo "Its judgment did not complete — the probes are committed anyway, because they"
+              echo "already cost money and are not re-acquired for free:"
+              echo
+              while IFS= read -r dir; do
+                [ -n "${dir}" ] && echo "- \`${dir}\`"
+              done <<<"${MISSING_DERIVATION}"
+              echo
+            else
+              echo "Every measurement's derived tier was computed."
+              echo
+            fi
+            echo "\`merge-checks.yaml\` does not run on this pull request: it is opened with"
+            echo "\`GITHUB_TOKEN\`, and the gate excludes these paths. The checks it would have"
+            echo "run — \`npm run check\` — ran in the dispatch, before this branch was committed."
+            echo
+            echo "---"
+            echo "_Generated by [Claude Code](https://claude.ai/code)_"
+          } > "${RUNNER_TEMP}/body.md"
+
+          gh pr create \
+            --title "${title}" \
+            --body-file "${RUNNER_TEMP}/body.md" \
+            --base "${{ github.ref_name }}" \
+            --head "${branch}"

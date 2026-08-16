@@ -174,7 +174,8 @@ See [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) for
 what skill evaluation is, why checking textual properties cannot reach it,
 and the scenario model it describes, and
 [`docs/operations/evaluation-dispatch.md`](./docs/operations/evaluation-dispatch.md)
-for the instrument that runs it today, and how to run it yourself.
+for the instrument that runs it, by hand or through its own dispatch
+workflow.
 
 ## Contributing
 
