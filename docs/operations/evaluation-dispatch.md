@@ -1,18 +1,82 @@
 # Evaluation Dispatch
 
 Running `tools/evaluation`'s one instrument — `probe.mjs`, `evaluate.mjs`,
-and `derive.mjs` — against this repository's declared evaluation scenarios.
-[Verification Gates](../conventions/verification-gates.md) covers why it
-reports rather than gates; this document covers how to run it.
+and `derive.mjs` — against this repository's declared evaluation scenarios,
+by hand on a local machine or through `.github/workflows/evaluation-dispatch.yaml`,
+this repository's one dispatch workflow. [Verification
+Gates](../conventions/verification-gates.md) covers why it reports rather
+than gates; this document covers how to run it, either way.
 
-## There Is No Dispatch Workflow Yet
+## The Dispatch Workflow
 
-Every run described below is local. `.github/workflows/` names no entry
-point for this instrument, and nothing here should be read as one — the two
-workflows it replaced are deleted, not renamed, and their replacement has
-not been written yet. Until it lands, taking a measurement means a person
-running the three scripts below on their own machine, with their own
-credentials, and deciding for themselves whether to commit what came out.
+`evaluation-dispatch.yaml` is triggered manually, by `workflow_dispatch`, and
+by nothing else — a contributor cannot cause a run, and a pull request cannot
+alter what a run executes, because GitHub always runs a `workflow_dispatch`
+from the version of the file on the default branch. Its dispatch form takes
+four inputs: `scenario` (blank: every scenario declared under
+`tools/evaluation/scenarios/`), `repetitions` (blank: the instrument's own
+default), `probe-limit` (the exact probe count admission refuses the dispatch
+against; blank: no limit), and `dry-run` (a boolean; see below).
+
+It runs four jobs in order:
+
+1. **`plan`** expands the selected scenario(s) into the probe matrix and the
+   judgment matrix once, applying the same admission `probe.mjs` applies
+   locally, and emits both as job outputs. A dispatch whose exact probe count
+   exceeds `probe-limit` is refused here, naming both the count and the
+   limit, before any probe job starts.
+2. **`probe`** fans the probe matrix out one cell per job — one scenario, one
+   condition, one repetition — with `permissions: {}` and the
+   `CLAUDE_CODE_OAUTH_TOKEN` credential a probe's `claude` CLI authenticates
+   with, and no `GITHUB_TOKEN`. `fail-fast: false`, so one failed probe
+   neither cancels its siblings nor discards the paid work of the cells that
+   already finished. Every probe of one dispatch that shares a scenario
+   writes under the same measurement directory, whichever cell's own process
+   wrote it — `plan` mints that directory name once per scenario and hands it
+   to every cell that needs it.
+3. **`evaluate`** fans out one cell per selected scenario — not one job for
+   the whole dispatch, and not one cell per probe — and judges what `probe`
+   stored. **The granularity follows the instrument, not a preference**:
+   `evaluate.mjs` takes a measurement directory as its one argument, and a
+   measurement directory is exactly one scenario's, so one cell per scenario
+   is the grain the script itself already draws. `fail-fast: false` for the
+   same reason `probe` has it — a scenario's failed judgment must not take
+   every other scenario's, after every probe in the dispatch has already
+   been paid for; a coarser grain (one job for the whole dispatch) would give
+   judgment no equivalent of that isolation. `permissions: {}` and no
+   `GITHUB_TOKEN`, since this is the job that feeds a probe's transcript to a
+   model. It references `secrets.ANTHROPIC_API_KEY`, which this repository
+   does not set today; with none, `evaluate.mjs` already records each
+   reasoning factor's result as an error carrying its reason rather than as
+   `false`, so the cell still completes and still uploads what it judged.
+4. **`land`** is the only job with `contents: write` and
+   `pull-requests: write`, and the only one that receives no model
+   credential at any step.
+   It assembles every probe artifact and every judged artifact the dispatch
+   produced, derives each measurement's summary (a derivation that fails is
+   reported rather than allowed to fail the job — a measurement whose
+   judgment could not complete is still committed, with the pull request
+   body saying its derived tier is absent, because the probes already cost
+   money and are not re-acquired for free), runs this repository's own
+   `npm run check` — which **does** fail the job, because a measurement
+   that fails this repository's own gates is a defect in the instrument
+   rather than a finding about a skill — commits under the `github-actions[bot]`
+   identity, and opens the measurement pull request.
+   `merge-checks.yaml` excludes that pull request by path (see its own
+   header comment), which is why the checks run here instead of there.
+
+Every probe cell and every `evaluate` cell uploads its own artifact
+independently of what any other cell does, so a `land` that fails is
+recovered by re-running `land` alone against those artifacts — never by
+re-probing.
+
+**A dry-run dispatch reaches `probe` and stops there.** `plan`'s matrix
+derivation never spawns anything regardless of this input, and every `probe`
+cell adds the instrument's own `--dry-run` — which walks the same
+matrix-and-admission path with the spawn stubbed, so nothing is spawned,
+nothing is billed, and no record is written. With nothing recorded,
+`evaluate` and `land` have nothing to run against and are skipped by
+condition rather than by an empty run.
 
 ## Taking a Measurement: `probe.mjs`
 
@@ -22,14 +86,27 @@ node tools/evaluation/probe.mjs --scenario <id> --repetitions <n> --limit <n>
 node tools/evaluation/probe.mjs --help
 ```
 
-| Flag                  | Does                                                                             |
-| --------------------- | -------------------------------------------------------------------------------- |
-| `--scenario <id>`     | Only this scenario (default: every scenario under `tools/evaluation/scenarios/`) |
-| `--conditions <list>` | Comma-separated, from `skill-present`, `skill-absent` (default: both)            |
-| `--repetitions <n>`   | Repetitions per condition (default: 3)                                           |
-| `--limit <n>`         | Refuses the run before anything starts if the exact probe count exceeds this     |
-| `--out <dir>`         | Measurement root to write under (default: `tools/evaluation/measurements`)       |
-| `--dry-run`           | Reports the probe matrix and the admission outcome; spawns nothing               |
+| Flag                    | Does                                                                                                                    |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `--scenario <id>`       | Only this scenario (default: every scenario under `tools/evaluation/scenarios/`)                                        |
+| `--conditions <list>`   | Comma-separated, from `skill-present`, `skill-absent` (default: both)                                                   |
+| `--repetitions <n>`     | Repetitions per condition (default: 3)                                                                                  |
+| `--condition <c>`       | With `--repetition`, select exactly one probe instead of the `--conditions` x `--repetitions` cross product             |
+| `--repetition <n>`      | With `--condition`, the 1-based repetition index this one probe is recorded under                                       |
+| `--measurement-id <id>` | Fix the id `measurementDirName` mints, so every invocation given the same id writes into the same measurement directory |
+| `--limit <n>`           | Refuses the run before anything starts if the exact probe count exceeds this                                            |
+| `--out <dir>`           | Measurement root to write under (default: `tools/evaluation/measurements`)                                              |
+| `--dry-run`             | Reports the probe matrix and the admission outcome; spawns nothing                                                      |
+| `--emit-matrix`         | Prints the probe matrix and the judgment matrix as one JSON document; spawns nothing                                    |
+
+`--condition`/`--repetition`, `--measurement-id`, and `--emit-matrix` exist
+for the dispatch workflow above: they are what makes one GitHub Actions
+matrix cell — its own, separate process — able to run exactly one probe of a
+larger matrix and agree with its sibling cells on where their shared
+scenario's measurement lives, and what lets `plan` feed Actions a matrix
+without re-parsing the human-readable lines below. Run by hand, the plural
+`--conditions`/`--repetitions` and the default fresh id per scenario are
+still what a person normally wants.
 
 With no `--scenario`, a run expands every scenario under
 `tools/evaluation/scenarios/` into its probe matrix — every declared
