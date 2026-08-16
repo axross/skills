@@ -187,11 +187,29 @@ describe("validateScenario", () => {
     },
   );
 
-  it.each(["budgets", "costs", "spending"])(
-    "rejects the inflected spelling %s that a bare word set would let through",
+  // #406 revision 2: this guard briefly matched a whole word against a fixed
+  // root plus an s/es/ed/ing ending list, and that list could not keep up
+  // with how English actually spells these inflections — "priced" drops the
+  // silent e, and "costly"/"budgetary" aren't endings at all. Matching a
+  // root as a word-prefix instead catches the whole class in one rule
+  // rather than one literal per spelling.
+  it.each(["priced", "pricey", "costly", "budgetary", "budgets", "costs", "spending"])(
+    "rejects the within-word derivation %s that a word-exact rule would drop",
     (key) => {
       const scenario = { ...validScenario(), [key]: 5 };
-      expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|cost|spend/i);
+      expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|cost|price|spend/i);
+    },
+  );
+
+  // cap stays a whole word rather than a prefix — a cap prefix would fire on
+  // capture/capability below — so its irregular inflections (English
+  // doubles the final consonant) are named outright rather than produced by
+  // an ending rule.
+  it.each(["capped", "capping"])(
+    "rejects %s, the irregular inflection of cap that a regular ending rule would miss",
+    (key) => {
+      const scenario = { ...validScenario(), [key]: 5 };
+      expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`"${key}"`));
     },
   );
 
@@ -207,6 +225,28 @@ describe("validateScenario", () => {
       expect(() => validateScenario(scenario, "test.json")).not.toThrow();
     },
   );
+
+  // two disclosed limits, recorded here as the behavior they are so neither
+  // is discovered later as a surprise (plan's Assumptions section).
+
+  // costume begins with "cost" and is refused, an accepted false positive:
+  // refusing a key unrelated to budgets is the safe direction for a guard
+  // whose failure mode is admitting one, and costume is not a plausible key
+  // in a scenario document.
+  it("rejects costume, an accepted false positive", () => {
+    const scenario = { ...validScenario(), costume: 5 };
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/"costume"/);
+  });
+
+  // unpriced buries "price" behind "un" — a root preceded by other letters
+  // inside one word is out of reach of any word-level rule, and closing it
+  // would mean returning to the substring matching that produced the capUsd
+  // gap this guard exists to fix. a residual gap, disclosed rather than
+  // closed.
+  it("accepts unpriced, a residual gap disclosed rather than closed", () => {
+    const scenario = { ...validScenario(), unpriced: 5 };
+    expect(() => validateScenario(scenario, "test.json")).not.toThrow();
+  });
 
   it("rejects a budget-shaped key nested inside a factor", () => {
     const scenario = validScenario({

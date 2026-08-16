@@ -18,12 +18,20 @@ export const PHASES = ["discovery", "outcome", "transcript"];
 export const JUDGMENT_METHODS = ["script", "reasoning"];
 
 /**
- * a whole word a scenario's key may never carry — the vocabulary of budgets,
- * with the endings such a word takes in a key name. matched against one word
- * of a key rather than against the key's text, so `capUsd` is caught and
- * `capture` is not. see admission.mjs's header.
+ * a budget root, matched against the start of one word of a key rather than
+ * against the key's text — so `capUsd` is caught, `capture` is not, and the
+ * within-word derivations the substring guard this replaces caught, such as
+ * `priced` and `costly`, stay caught. see admission.mjs's header.
  */
-const FORBIDDEN_WORD_RE = /^(?:budget|cost|dollar|price|pricing|spend|usd|cap)(?:s|es|ed|ing)?$/i;
+const FORBIDDEN_PREFIX_RE = /^(?:budget|cost|dollar|price|spend)/i;
+
+/**
+ * the two roots too short to be prefixes: `cap` would fire on `capture` and
+ * `capability`, and `usd` prefixes nothing English spells. matched whole,
+ * with cap's irregular inflections named outright since no ending rule
+ * produces a doubled consonant.
+ */
+const FORBIDDEN_WORDS = new Set(["cap", "caps", "capped", "capping", "usd"]);
 
 /** the words a key is spelled from: camelCase, snake_case, kebab-case, and a run of capitals each break apart. */
 function keyWords(key) {
@@ -36,7 +44,9 @@ function keyWords(key) {
 
 /** the forbidden word `key` carries, or null. */
 function forbiddenWordIn(key) {
-  return keyWords(key).find((word) => FORBIDDEN_WORD_RE.test(word)) ?? null;
+  return (
+    keyWords(key).find((word) => FORBIDDEN_PREFIX_RE.test(word) || FORBIDDEN_WORDS.has(word.toLowerCase())) ?? null
+  );
 }
 
 /**
