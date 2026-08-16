@@ -17,8 +17,37 @@ import { join } from "node:path";
 export const PHASES = ["discovery", "outcome", "transcript"];
 export const JUDGMENT_METHODS = ["script", "reasoning"];
 
-/** matches a key this instrument was told never to add — see admission.mjs's header. */
-const FORBIDDEN_KEY_RE = /budget|dollar|(?:cost|price)(?:usd)?|usdcap|\bcap\b/i;
+/**
+ * a budget root, matched against the start of one word of a key rather than
+ * against the key's text — so `capUsd` is caught, `capture` is not, and the
+ * within-word derivations the substring guard this replaces caught, such as
+ * `priced` and `costly`, stay caught. see admission.mjs's header.
+ */
+const FORBIDDEN_PREFIX_RE = /^(?:budget|cost|dollar|price|spend)/i;
+
+/**
+ * the two roots too short to be prefixes: `cap` would fire on `capture` and
+ * `capability`, and `usd` prefixes nothing English spells. matched whole,
+ * with cap's irregular inflections named outright since no ending rule
+ * produces a doubled consonant.
+ */
+const FORBIDDEN_WORDS = new Set(["cap", "caps", "capped", "capping", "usd"]);
+
+/** the words a key is spelled from: camelCase, snake_case, kebab-case, and a run of capitals each break apart. */
+function keyWords(key) {
+  return key
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .split(/[^A-Za-z0-9]+/)
+    .filter((word) => word.length > 0);
+}
+
+/** the forbidden word `key` carries, or null. */
+function forbiddenWordIn(key) {
+  return (
+    keyWords(key).find((word) => FORBIDDEN_PREFIX_RE.test(word) || FORBIDDEN_WORDS.has(word.toLowerCase())) ?? null
+  );
+}
 
 // the keys this instrument actually reads, per level. A key admitted at one
 // level is not implicitly admitted at another — a judgment's own set is
@@ -79,10 +108,11 @@ function assertNoBudgetField(value, path) {
     return;
   }
   for (const [key, entry] of Object.entries(value)) {
-    if (FORBIDDEN_KEY_RE.test(key)) {
+    const word = forbiddenWordIn(key);
+    if (word !== null) {
       throw new Error(
-        `${path}.${key} looks like a budget, a cost ceiling, or a dollar figure — a scenario ` +
-          "declares no such thing (docs/specs/skill-evaluation.md; the admission bound this " +
+        `${path}.${key} looks like a budget, a cost ceiling, or a dollar figure (the word "${word}") — ` +
+          "a scenario declares no such thing (docs/specs/skill-evaluation.md; the admission bound this " +
           "instrument enforces is a probe count, never a cost).",
       );
     }

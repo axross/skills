@@ -177,17 +177,121 @@ describe("validateScenario", () => {
   // (assertOnlyKnownKeys) in validateScenario, so the guard gets first
   // refusal on a budget-shaped top-level key: its own message, not the
   // allow-list's (which would also name the key, for an unrelated reason),
-  // is what a scenario document sees. The assertion checks for that
-  // guard-specific phrasing rather than the bare key, so this negative
-  // control fails again if the guard itself ever stops catching the key —
-  // #406 owns widening the pattern it matches.
-  it.each(["budgetUsd", "costCeiling", "dollarCap", "maxCostUsd", "priceUsd"])(
-    "rejects a top-level %s key as a budget-shaped field",
+  // is what a scenario document sees. Each rejection below therefore checks
+  // for that guard-specific phrasing rather than the bare key, so a control
+  // fails again if the guard itself ever stops catching the key.
+  it.each([
+    "budget",
+    "budgetUsd",
+    "cap",
+    "usdCap",
+    "costUsd",
+    "costCeiling",
+    "costCap",
+    "dollarCap",
+    "dollarLimit",
+    "maxCostUsd",
+    "priceUsd",
+    "priceCeiling",
+    "unmeasuredProbeCostCeilingUsd",
+  ])("rejects a top-level %s key as a budget-shaped field", (key) => {
+    const scenario = { ...validScenario(), [key]: 5 };
+    expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`${key} looks like a budget`));
+  });
+
+  // #406: \bcap\b never fires once a word character follows "cap", so these
+  // five slipped past the old substring guard untouched.
+  it("rejects a top-level capUsd key, naming the path, the key, and the matched word", () => {
+    const scenario = { ...validScenario(), capUsd: 5 };
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/test\.json\.capUsd.*"cap"/);
+  });
+
+  it.each(["capUSD", "capUsdCeiling", "maxSpend", "spendLimit"])(
+    "rejects the top-level %s key that slipped through the old substring guard",
     (key) => {
       const scenario = { ...validScenario(), [key]: 5 };
       expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`${key} looks like a budget`));
     },
   );
+
+  // #406 revision 2: this guard briefly matched a whole word against a fixed
+  // root plus an s/es/ed/ing ending list, and that list could not keep up
+  // with how English actually spells these inflections — "priced" drops the
+  // silent e, and "costly"/"budgetary" aren't endings at all. Matching a
+  // root as a word-prefix instead catches the whole class in one rule
+  // rather than one literal per spelling.
+  it.each(["priced", "pricey", "costly", "budgetary", "budgets", "costs", "spending"])(
+    "rejects the within-word derivation %s that a word-exact rule would drop",
+    (key) => {
+      const scenario = { ...validScenario(), [key]: 5 };
+      expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`${key} looks like a budget`));
+    },
+  );
+
+  // cap stays a whole word rather than a prefix — a cap prefix would fire on
+  // capture/capability below — so every form it takes is listed outright in
+  // FORBIDDEN_WORDS rather than produced by an ending rule: the plural, and
+  // the two inflections English spells with a doubled consonant. each is
+  // named here, so dropping one from that set fails a test rather than
+  // quietly widening what a scenario may declare.
+  it.each(["caps", "capped", "capping"])(
+    "rejects %s, a form of cap that only an outright listing catches",
+    (key) => {
+      const scenario = { ...validScenario(), [key]: 5 };
+      expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`"${key}"`));
+    },
+  );
+
+  it.each(["max_spend", "cap-usd"])("rejects the snake_case or kebab-case budget key %s", (key) => {
+    const scenario = { ...validScenario(), [key]: 5 };
+    expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`${key} looks like a budget`));
+  });
+
+  // the acceptance side of this guard is exercised inside `judgment.expect`
+  // rather than at the scenario's top level. #407's allow-list refuses any
+  // top-level key the instrument does not read, so a top-level probe would
+  // be rejected for a reason that has nothing to do with word matching, and
+  // the control would pass for the wrong reason or fail for one. `expect` is
+  // the one subtree the allow-list deliberately does not reach, which makes
+  // it the only place a key's verdict is attributable to this guard alone.
+  const withExpectKey = (key) =>
+    validScenario({
+      factors: [
+        {
+          id: "x",
+          phase: "outcome",
+          description: "d",
+          judgment: { method: "script", script: "a.mjs", expect: { [key]: 5 } },
+        },
+      ],
+    });
+
+  it.each(["capture", "capability", "recap"])(
+    "accepts the %s key, whose text merely contains a forbidden word",
+    (key) => {
+      expect(() => validateScenario(withExpectKey(key), "test.json")).not.toThrow();
+    },
+  );
+
+  // two disclosed limits, recorded here as the behavior they are so neither
+  // is discovered later as a surprise (plan's Assumptions section).
+
+  // costume begins with "cost" and is refused, an accepted false positive:
+  // refusing a key unrelated to budgets is the safe direction for a guard
+  // whose failure mode is admitting one, and costume is not a plausible key
+  // in a scenario document.
+  it("rejects costume, an accepted false positive", () => {
+    expect(() => validateScenario(withExpectKey("costume"), "test.json")).toThrow(/"costume"/);
+  });
+
+  // unpriced buries "price" behind "un" — a root preceded by other letters
+  // inside one word is out of reach of any word-level rule, and closing it
+  // would mean returning to the substring matching that produced the capUsd
+  // gap this guard exists to fix. a residual gap, disclosed rather than
+  // closed.
+  it("accepts unpriced, a residual gap disclosed rather than closed", () => {
+    expect(() => validateScenario(withExpectKey("unpriced"), "test.json")).not.toThrow();
+  });
 
   // #407: the allow-list admits `judgment.expect` without looking inside it
   // (its keys are the judgment script's own vocabulary), so this guard is
@@ -204,6 +308,13 @@ describe("validateScenario", () => {
       ],
     });
     expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|dollar|cost|cap/i);
+  });
+
+  // #406: the key the whole issue is about, checked below the top level as
+  // well — this is where a per-case cap would actually be written now that
+  // the allow-list holds the levels above it.
+  it("rejects a capUsd key nested inside a judgment's own `expect`", () => {
+    expect(() => validateScenario(withExpectKey("capUsd"), "test.json")).toThrow(/"cap"/);
   });
 
   // #407: an allow-list check beside the presence checks — a key the
