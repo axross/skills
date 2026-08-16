@@ -200,10 +200,14 @@ describe("loadScenario", () => {
 });
 
 describe("loadAllScenarios", () => {
-  it("finds exactly the one scenario this repository declares", async () => {
+  it("finds all four scenarios this repository declares, sorted by id", async () => {
     const scenarios = await loadAllScenarios(SCENARIOS_ROOT);
-    expect(scenarios).toHaveLength(1);
-    expect(scenarios[0].id).toBe("quiet-the-stale-post-list-after-a-draft-save");
+    expect(scenarios.map((scenario) => scenario.id)).toEqual([
+      "confirm-a-draft-save-like-a-publish-does",
+      "give-the-empty-post-list-a-real-empty-state",
+      "quiet-the-stale-post-list-after-a-draft-save",
+      "respect-reduced-motion-in-the-publish-toast",
+    ]);
   });
 
   it("returns an empty array for a root that does not exist", async () => {

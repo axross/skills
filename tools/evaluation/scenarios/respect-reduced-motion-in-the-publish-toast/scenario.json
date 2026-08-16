@@ -1,0 +1,61 @@
+{
+  "id": "respect-reduced-motion-in-the-publish-toast",
+  "mock": "inkwell",
+  "targetSkills": ["react-component-styling"],
+  "peerSkills": ["react-component-development", "high-fidelity-ui-design"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "The little banner that pops up after I save or publish always slides in with some motion. A couple of people on the team turn their OS's 'reduce motion' setting on because animation bothers them, and they've asked whether the toast could stop moving around for them specifically, without changing it for everyone else."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-react-component-styling",
+      "phase": "discovery",
+      "description": "The complaint names a motion preference, never CSS, a media query, or the skill — an agent that reaches for react-component-styling here is finding it from the problem, with react-component-development (a component-behaviour read of the same complaint) and high-fidelity-ui-design (a motion-taste read of the same complaint) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "react-component-styling" }
+      }
+    },
+    {
+      "id": "adds-a-reduced-motion-guard",
+      "phase": "outcome",
+      "description": "Nothing in inkwell mentions prefers-reduced-motion anywhere today — the toast's animation is the app's only one, and it runs unconditionally. The fix has to add a guard that reads the visitor's own motion preference, not merely acknowledge the request in prose.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/components/PublishToast/PublishToast.module.css",
+          "mustContainAll": ["prefers-reduced-motion"]
+        }
+      }
+    },
+    {
+      "id": "keeps-the-animation-for-everyone-else",
+      "phase": "outcome",
+      "description": "A fix that satisfies the complaint by deleting the `animation` declaration and its `@keyframes slide-in` outright would pass a naive reading of the request while removing the feature for every visitor, not only the ones who asked. This factor checks that the base animation and its keyframes are still there, so guarding is distinguishable from deleting.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/components/PublishToast/PublishToast.module.css",
+          "mustContainAll": ["animation", "@keyframes slide-in"]
+        }
+      }
+    },
+    {
+      "id": "names-the-motion-preference-as-the-reason",
+      "phase": "transcript",
+      "description": "A correct guard can still be produced by an agent that copied a snippet without ever registering why it belongs there. This factor asks whether the transcript, at some point, names the actual reason for the change — that some visitors have a motion preference the toast should honour — as distinct from a plausible-looking media query applied without that reasoning ever appearing.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work on a request about a UI toast's motion. Decide whether the agent's own reasoning, at some point before it finished, names the visitor's own reduced-motion preference (however phrased — 'prefers-reduced-motion', 'reduce motion', an accessibility or comfort preference for less animation) as the reason for adding a guard around the toast's animation, as distinct from producing a correct `prefers-reduced-motion` media query without ever stating why it belongs there. Answer false if the transcript never states this reasoning, even if the code change it produced was correct."
+      }
+    }
+  ]
+}

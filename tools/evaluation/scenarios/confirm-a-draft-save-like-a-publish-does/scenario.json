@@ -1,0 +1,58 @@
+{
+  "id": "confirm-a-draft-save-like-a-publish-does",
+  "description": "The practice's negative control (docs/glossary.md's Negative control entry). github-operation is targeted against an ordinary inkwell task — adding a save confirmation to the post editor — that has nothing GitHub-shaped about it, exactly as docs/decisions/2026-08-10-cover-every-in-range-skill-with-one-effect-case.md settled: a materialized mock has no remote, no issue, and no pull request, so installing the skill hands the model nothing extra to act on and the two conditions are predicted to agree. It declares no discovery factor on purpose: a discovery factor would ask whether the agent reached for github-operation on a task with nothing GitHub-shaped in it, and that question's answer could genuinely differ between conditions — which is the one thing a control must not do. Its outcome and transcript factors are ordinary checks on the ordinary task, chosen because github-operation's presence or absence has no plausible bearing on whether either one passes.",
+  "mock": "inkwell",
+  "targetSkills": ["github-operation"],
+  "peerSkills": ["react-component-development", "code-maintainability"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "When I click Publish, I get a little banner telling me it worked (or didn't). When I click Save draft, nothing like that happens — the button just stops saying 'Saving…' and I'm left guessing whether it actually went through. Can you give saving a draft the same kind of confirmation publishing already gets?"
+  },
+  "factors": [
+    {
+      "id": "adds-a-save-confirmation",
+      "phase": "outcome",
+      "description": "handleSaveDraft's onSuccess currently does nothing but let the Save button's own pending state settle — nothing tells the author the save actually happened, unlike handlePublish's onSuccess a few lines below, which already calls setToast. This factor checks specifically inside handleSaveDraft's own body, because setToast( already appears in this file for the publish flow — a whole-file substring check would pass without the fix ever being made.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-function-contains.mjs",
+        "expect": {
+          "file": "src/routes/PostEditorPage.tsx",
+          "startMarker": "function handleSaveDraft",
+          "endMarker": "function handlePublish",
+          "mustContainAll": ["setToast("]
+        }
+      }
+    },
+    {
+      "id": "keeps-the-publish-confirmation-messages",
+      "phase": "outcome",
+      "description": "The fix should add a confirmation to the save path without touching the publish path's own, already-correct messages. handlePublish produces three: two from onSuccess, depending on whether the deploy fired, and one from onError. This factor checks that all three are still exactly present, so a fix that accidentally replaces or generalises any of them away from its working text is caught — nothing about adding a save confirmation requires editing any of the three, and github-operation has no more bearing on whether existing text survives than it has on whether new text gets added.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/routes/PostEditorPage.tsx",
+          "mustContainAll": [
+            "Published. The site will rebuild shortly.",
+            "Published, but the deploy didn't fire — you may need to trigger it yourself.",
+            "Publishing failed. Try again."
+          ]
+        }
+      }
+    },
+    {
+      "id": "names-the-missing-save-confirmation",
+      "phase": "transcript",
+      "description": "A diff that adds a setToast call to handleSaveDraft can still be produced by an agent that copied the shape of handlePublish's onSuccess without ever registering what was actually missing for the person using the editor. This factor asks whether the transcript, at some point, names the actual gap — that saving a draft currently gives no confirmation it worked, unlike publishing — as distinct from a plausible-looking fix applied without diagnosis. Because inkwell has no remote, no issue, and no pull request to act on, github-operation has nothing here that could move this factor's answer either way, which is exactly why it can sit in a scenario that declares no discovery factor: the same reasoning check is expected to come out identically whether the skill is installed or not.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work on a request about a post editor's Save draft button. Decide whether the agent's own reasoning, at some point before it finished, correctly identifies WHY the save action needed a fix — specifically, that saving a draft currently gives the author no confirmation that it worked, unlike publishing, which already shows a banner (as distinct from merely adding a toast call without ever stating that this was the gap). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+      }
+    }
+  ]
+}
