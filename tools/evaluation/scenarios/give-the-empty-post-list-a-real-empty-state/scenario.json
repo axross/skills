@@ -1,0 +1,44 @@
+{
+  "id": "give-the-empty-post-list-a-real-empty-state",
+  "mock": "inkwell",
+  "targetSkills": ["react-component-styling"],
+  "peerSkills": ["react-component-development", "high-fidelity-ui-design"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "When a site doesn't have any posts yet, the page just shows one plain sentence with nothing else around it — it looks broken, like something failed to load, rather than like an empty site waiting for its first post. Can you give that moment some real visual presence?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-react-component-styling",
+      "phase": "discovery",
+      "description": "The ask is for a visual change to an existing screen, with nothing about CSS, a property, or the skill in it — an agent that reaches for react-component-styling here is finding it from the problem, with react-component-development (a component-structure read of the same ask) and high-fidelity-ui-design (a visual-design-rationale read of the same ask) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "react-component-styling" }
+      }
+    },
+    {
+      "id": "follows-the-taught-property-group-order",
+      "phase": "outcome",
+      "description": "react-component-styling teaches a fifteen-group semantic property order in references/style-property-order.md; inkwell's own stylesheets never demonstrate it — Card.module.css runs border, border-radius, background, padding, Sidebar.module.css runs container, display, flex-direction, gap, height, background, border-right, padding, box-sizing, and PublishToast.module.css opens with animation and then goes to position, none of which matches the taught sequence. A control run therefore has no local convention to copy, and a treatment run has something specific to produce. This factor reads only the lines the probe's own diff added to any CSS Module, since checking a whole file would fail on non-uniform content this scenario never asked the model to touch.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-css-property-group-order.mjs"
+      }
+    },
+    {
+      "id": "the-new-css-is-syntactically-valid",
+      "phase": "outcome",
+      "description": "A reorder attempted without care can leave a stylesheet that no longer parses — a dropped semicolon, a mismatched brace — which the group-order factor alone would not catch, since it only reads the lines the diff added rather than parsing the file as a whole. This factor reads every CSS Module in the final workspace and checks each is still well-formed, so 'reordered correctly but broke the file' is distinguishable from 'did the task well'.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-css-syntax.mjs",
+        "expect": { "dir": "src" }
+      }
+    }
+  ]
+}
