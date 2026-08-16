@@ -153,11 +153,58 @@ describe("validateScenario", () => {
   // the plan's own non-goal: "do not estimate cost... in any form". A
   // budget-shaped key anywhere in the document is rejected, not only at the
   // top level.
-  it.each(["budgetUsd", "costCeiling", "dollarCap", "maxCostUsd", "priceUsd"])(
-    "rejects a top-level %s key as a budget-shaped field",
+  it.each([
+    "budget",
+    "budgetUsd",
+    "cap",
+    "usdCap",
+    "costUsd",
+    "costCeiling",
+    "costCap",
+    "dollarCap",
+    "dollarLimit",
+    "maxCostUsd",
+    "priceUsd",
+    "priceCeiling",
+    "unmeasuredProbeCostCeilingUsd",
+  ])("rejects a top-level %s key as a budget-shaped field", (key) => {
+    const scenario = { ...validScenario(), [key]: 5 };
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|dollar|cost|price|cap/i);
+  });
+
+  // #406: \bcap\b never fires once a word character follows "cap", so these
+  // five slipped past the old substring guard untouched.
+  it("rejects a top-level capUsd key, naming the path, the key, and the matched word", () => {
+    const scenario = { ...validScenario(), capUsd: 5 };
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/test\.json\.capUsd.*"cap"/);
+  });
+
+  it.each(["capUSD", "capUsdCeiling", "maxSpend", "spendLimit"])(
+    "rejects the top-level %s key that slipped through the old substring guard",
     (key) => {
       const scenario = { ...validScenario(), [key]: 5 };
-      expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|dollar|cost|cap/i);
+      expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|dollar|cost|price|cap|spend/i);
+    },
+  );
+
+  it.each(["budgets", "costs", "spending"])(
+    "rejects the inflected spelling %s that a bare word set would let through",
+    (key) => {
+      const scenario = { ...validScenario(), [key]: 5 };
+      expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|cost|spend/i);
+    },
+  );
+
+  it.each(["max_spend", "cap-usd"])("rejects the snake_case or kebab-case budget key %s", (key) => {
+    const scenario = { ...validScenario(), [key]: 5 };
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/spend|cap/i);
+  });
+
+  it.each(["capture", "capability", "recap"])(
+    "accepts the %s key, whose text merely contains a forbidden word",
+    (key) => {
+      const scenario = { ...validScenario(), [key]: 5 };
+      expect(() => validateScenario(scenario, "test.json")).not.toThrow();
     },
   );
 
@@ -174,6 +221,21 @@ describe("validateScenario", () => {
       ],
     });
     expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|dollar|cost|cap/i);
+  });
+
+  it("rejects a capUsd key nested inside a factor, not only at the top level", () => {
+    const scenario = validScenario({
+      factors: [
+        {
+          id: "x",
+          phase: "outcome",
+          description: "d",
+          judgment: { method: "script", script: "a.mjs" },
+          expect: { capUsd: 5 },
+        },
+      ],
+    });
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/"cap"/);
   });
 });
 

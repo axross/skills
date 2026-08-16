@@ -17,8 +17,27 @@ import { join } from "node:path";
 export const PHASES = ["discovery", "outcome", "transcript"];
 export const JUDGMENT_METHODS = ["script", "reasoning"];
 
-/** matches a key this instrument was told never to add — see admission.mjs's header. */
-const FORBIDDEN_KEY_RE = /budget|dollar|(?:cost|price)(?:usd)?|usdcap|\bcap\b/i;
+/**
+ * a whole word a scenario's key may never carry — the vocabulary of budgets,
+ * with the endings such a word takes in a key name. matched against one word
+ * of a key rather than against the key's text, so `capUsd` is caught and
+ * `capture` is not. see admission.mjs's header.
+ */
+const FORBIDDEN_WORD_RE = /^(?:budget|cost|dollar|price|pricing|spend|usd|cap)(?:s|es|ed|ing)?$/i;
+
+/** the words a key is spelled from: camelCase, snake_case, kebab-case, and a run of capitals each break apart. */
+function keyWords(key) {
+  return key
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .split(/[^A-Za-z0-9]+/)
+    .filter((word) => word.length > 0);
+}
+
+/** the forbidden word `key` carries, or null. */
+function forbiddenWordIn(key) {
+  return keyWords(key).find((word) => FORBIDDEN_WORD_RE.test(word)) ?? null;
+}
 
 /**
  * @param {unknown} value
@@ -33,10 +52,11 @@ function assertNoBudgetField(value, path) {
     return;
   }
   for (const [key, entry] of Object.entries(value)) {
-    if (FORBIDDEN_KEY_RE.test(key)) {
+    const word = forbiddenWordIn(key);
+    if (word !== null) {
       throw new Error(
-        `${path}.${key} looks like a budget, a cost ceiling, or a dollar figure — a scenario ` +
-          "declares no such thing (docs/specs/skill-evaluation.md; the admission bound this " +
+        `${path}.${key} looks like a budget, a cost ceiling, or a dollar figure (the word "${word}") — ` +
+          "a scenario declares no such thing (docs/specs/skill-evaluation.md; the admission bound this " +
           "instrument enforces is a probe count, never a cost).",
       );
     }
