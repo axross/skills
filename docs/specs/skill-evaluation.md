@@ -97,7 +97,16 @@ the harder — and the more informative — the discovery phase becomes.
 ## The factor
 
 A **factor** is a declared, checkable expectation one scenario carries for one
-of its phases, together with the judgment method that checks it.
+of its phases, together with the `description` that states the expectation in
+prose and the judgment method that checks it.
+
+**A factor's `description` is one of its declared parts rather than a comment
+beside them.** It states what the factor expects and why, so a reader can
+disagree with the expectation without reading the judgment: a judgment says
+how an expectation is checked, never whether it was the right one to hold. A
+factor whose rationale exists only inside its script is one nobody can
+dispute from outside the code, which is how a scenario set fills with
+expectations no one ever chose.
 
 **A judgment is made against the stored measurement and nothing else.** The
 probe workspace is reconstructed from what the measurement holds, never
@@ -137,6 +146,13 @@ regression is exactly the kind of result this practice exists to surface.
 same as a differential of zero.** A pass rate cannot be computed over a result
 that was never reached, and reporting zero in its place would read as "no
 effect" when the honest report is "not judged."
+
+**A differential of exactly `0` does not, by itself, distinguish two very
+different results**: every probe on both sides passing, or every probe on
+both sides failing. Both report the same number for opposite reasons, and
+the number alone cannot tell a reader which — that takes reading the probes
+it was built from. A zero is read with that in mind, not as evidence that
+nothing happened.
 
 **A discovery factor's differential is bounded below by construction, and is
 read as the skill-present pass rate.** The skill-absent condition installs
@@ -248,13 +264,6 @@ for the same reason a per-probe result is: it costs nothing to recompute
 from the probes on the rare read that wants one, and storing it as well
 would put the same number in two places — which is how the two stop
 agreeing.
-
-A differential of exactly `0` does not, by itself, distinguish two very
-different results: every probe on both sides passing, or every probe on
-both sides failing. Both report the same number for opposite reasons, and
-the summary alone cannot tell a reader which — that takes reading the
-probes a zero differential was built from. A zero is read with that in
-mind, not as evidence that nothing happened.
 
 **A model identifier is written vendor-prefixed and fully qualified**, in
 the form `anthropic/claude-haiku-4-5-20251001`. The wire API a probe or a
