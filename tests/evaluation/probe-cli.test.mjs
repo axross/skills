@@ -11,9 +11,16 @@ import { describe, expect, it } from "vitest";
 import { tempDir } from "../helpers/fixtures.mjs";
 import { repoPath } from "../helpers/run.mjs";
 import { fakeClaudeEnv } from "./helpers/fake-cli.mjs";
+import { CONDITIONS, DEFAULT_REPETITIONS } from "../../tools/evaluation/src/probe-matrix.mjs";
 
 const PROBE_SCRIPT = repoPath("tools/evaluation/probe.mjs");
 const SCENARIO = "quiet-the-stale-post-list-after-a-draft-save";
+
+// #420: every count below is one named scenario's own matrix, derived rather
+// than written down, so nothing in this file moves when the repository
+// declares another scenario. #404 pinned several of these tests to
+// --scenario for the same reason; this finishes the ones it did not reach.
+const PROBES_PER_SCENARIO = CONDITIONS.length * DEFAULT_REPETITIONS;
 
 function runProbeCli(args, { env } = {}) {
   const result = spawnSync(process.execPath, [PROBE_SCRIPT, ...args], {
@@ -47,11 +54,11 @@ describe("probe.mjs bad invocation", () => {
 
 describe("probe.mjs --dry-run", () => {
   it("reports the exact probe matrix and never spawns a model", () => {
-    const result = runProbeCli(["--dry-run"]);
+    const result = runProbeCli(["--dry-run", "--scenario", SCENARIO]);
     expect(result.code).toBe(0);
-    expect(result.stdout).toMatch(/Probe matrix: 24 probe\(s\)/);
-    expect(result.stdout).toContain("quiet-the-stale-post-list-after-a-draft-save skill-present #1");
-    expect(result.stdout).toContain("quiet-the-stale-post-list-after-a-draft-save skill-absent #3");
+    expect(result.stdout).toContain(`Probe matrix: ${PROBES_PER_SCENARIO} probe(s)`);
+    expect(result.stdout).toContain(`${SCENARIO} skill-present #1`);
+    expect(result.stdout).toContain(`${SCENARIO} skill-absent #${DEFAULT_REPETITIONS}`);
     expect(result.stdout).toMatch(/Dry run: no probe was spawned\./);
   });
 
@@ -73,15 +80,16 @@ describe("probe.mjs --dry-run", () => {
   // declared limit is refused before any probe starts, and the message
   // names which count exceeded which limit.
   it("refuses a run over its declared limit, before anything would have started", () => {
-    const result = runProbeCli(["--dry-run", "--limit", "3"]);
+    const limit = PROBES_PER_SCENARIO - 1;
+    const result = runProbeCli(["--dry-run", "--scenario", SCENARIO, "--limit", String(limit)]);
     expect(result.code).toBe(1);
     expect(result.stderr).toMatch(/Refusing to start/);
-    expect(result.stderr).toContain("24");
-    expect(result.stderr).toContain("3");
+    expect(result.stderr).toContain(String(PROBES_PER_SCENARIO));
+    expect(result.stderr).toContain(String(limit));
   });
 
   it("admits a run at or under its declared limit", () => {
-    const result = runProbeCli(["--dry-run", "--scenario", SCENARIO, "--limit", "6"]);
+    const result = runProbeCli(["--dry-run", "--scenario", SCENARIO, "--limit", String(PROBES_PER_SCENARIO)]);
     expect(result.code).toBe(0);
   });
 });
@@ -263,21 +271,8 @@ describe("probe.mjs --emit-matrix", () => {
     expect(judgment.measurementDirName).toBe(`${judgment.scenarioId}-${judgment.measurementId}`);
   });
 
-  // the repository-wide default — every declared scenario, none named —
-  // is what docs/operations/evaluation-dispatch.md's own worked numbers
-  // describe: one judgment-matrix entry per declared scenario.
-  it("emits one judgment-matrix entry per declared scenario when none is named", () => {
-    const result = runProbeCli(["--emit-matrix", "--repetitions", "1"]);
-    expect(result.code).toBe(0);
-
-    const payload = JSON.parse(result.stdout);
-    expect(payload.admission).toMatchObject({ admitted: true, probeCount: 8, limit: null });
-    expect(payload.probes).toHaveLength(8);
-    expect(payload.judgments).toHaveLength(4);
-  });
-
   it("honors a fixed --measurement-id in its emitted matrix", () => {
-    const result = runProbeCli(["--emit-matrix", "--measurement-id", "cafef00d"]);
+    const result = runProbeCli(["--emit-matrix", "--scenario", SCENARIO, "--measurement-id", "cafef00d"]);
     expect(result.code).toBe(0);
     const payload = JSON.parse(result.stdout);
     for (const entry of [...payload.probes, ...payload.judgments]) {
@@ -286,23 +281,24 @@ describe("probe.mjs --emit-matrix", () => {
   });
 
   it("still names the count and the limit, and exits 1, on a refused dispatch", () => {
-    const result = runProbeCli(["--emit-matrix", "--limit", "3"]);
+    const limit = PROBES_PER_SCENARIO - 1;
+    const result = runProbeCli(["--emit-matrix", "--scenario", SCENARIO, "--limit", String(limit)]);
     expect(result.code).toBe(1);
 
     // machine-readable channel: the admission outcome is in the JSON too.
     const payload = JSON.parse(result.stdout);
     expect(payload.admission.admitted).toBe(false);
-    expect(payload.admission.probeCount).toBe(24);
-    expect(payload.admission.limit).toBe(3);
+    expect(payload.admission.probeCount).toBe(PROBES_PER_SCENARIO);
+    expect(payload.admission.limit).toBe(limit);
 
     // human-readable channel: the same count and limit, in the log.
-    expect(result.stderr).toContain("24");
-    expect(result.stderr).toContain("3");
+    expect(result.stderr).toContain(String(PROBES_PER_SCENARIO));
+    expect(result.stderr).toContain(String(limit));
   });
 
   it("writes nothing to disk", async () => {
     const out = join(await tempDir(), "measurements");
-    const result = runProbeCli(["--emit-matrix", "--out", out]);
+    const result = runProbeCli(["--emit-matrix", "--scenario", SCENARIO, "--out", out]);
     expect(result.code).toBe(0);
     await expect(readdir(out)).rejects.toThrow();
   });

@@ -1,6 +1,7 @@
 // loading and validating scenario.json: the real declared scenario loads
 // clean, and each structural or budget-shaped defect is caught by name.
 
+import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -453,15 +454,47 @@ describe("loadScenario", () => {
   });
 });
 
+// #420: nothing in this block states how many scenarios this repository
+// declares, because that is the one fact every scenario-adding branch
+// changes. two such branches merging in sequence would otherwise leave
+// `main` asserting a set that omits one of them — caught by CI, but as a
+// mismatched array inside an assertion about counting, several steps from
+// what went wrong. what the old exact-list assertion was really for is
+// checked against the directory listing instead.
 describe("loadAllScenarios", () => {
-  it("finds all four scenarios this repository declares, sorted by id", async () => {
+  it("loads and validates every scenario directory this repository declares", async () => {
+    const entries = await readdir(SCENARIOS_ROOT, { withFileTypes: true });
+    const declaredDirs = entries.filter((entry) => entry.isDirectory());
+    // without this, a root that listed nothing would satisfy the length
+    // check below against an empty load, and pass while measuring nothing.
+    expect(declaredDirs.length).toBeGreaterThan(0);
+
+    // loadScenario validates as it loads, so a malformed scenario.json
+    // rejects here rather than being discovered inside a paid dispatch.
     const scenarios = await loadAllScenarios(SCENARIOS_ROOT);
-    expect(scenarios.map((scenario) => scenario.id)).toEqual([
-      "confirm-a-draft-save-like-a-publish-does",
-      "give-the-empty-post-list-a-real-empty-state",
-      "quiet-the-stale-post-list-after-a-draft-save",
-      "respect-reduced-motion-in-the-publish-toast",
-    ]);
+    expect(scenarios).toHaveLength(declaredDirs.length);
+  });
+
+  it("gives every scenario a distinct id", async () => {
+    const ids = (await loadAllScenarios(SCENARIOS_ROOT)).map((scenario) => scenario.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  // against a fixture root rather than the real one on purpose: every
+  // directory under tools/evaluation/scenarios/ is named for the id it
+  // declares, so a readdir that already returns them in order would let a
+  // loadAllScenarios that had dropped its sort pass anyway — the test would
+  // be incapable of failing. here the directory order and the id order are
+  // deliberately opposed.
+  it("sorts by id rather than by directory name", async () => {
+    const root = await tempDir();
+    const declareScenario = (dirName, id) =>
+      writeFileIn(root, join(dirName, "scenario.json"), JSON.stringify(validScenario({ id })));
+    await declareScenario("a-directory", "zeta-scenario");
+    await declareScenario("z-directory", "alpha-scenario");
+
+    const scenarios = await loadAllScenarios(root);
+    expect(scenarios.map((scenario) => scenario.id)).toEqual(["alpha-scenario", "zeta-scenario"]);
   });
 
   it("returns an empty array for a root that does not exist", async () => {
