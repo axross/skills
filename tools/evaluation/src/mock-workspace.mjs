@@ -73,11 +73,13 @@ const HISTORY_FILE = "history.jsonc";
 const DEFAULT_MOCK = "tsuzuri";
 
 // pinned commit identity — see this file's header for why these are
-// constants rather than read from the environment.
-const AUTHOR_NAME = "Effect Eval Fixture";
-const AUTHOR_EMAIL = "effect-eval-fixture@example.invalid";
-const COMMITTER_NAME = "Effect Eval Fixture";
-const COMMITTER_EMAIL = "effect-eval-fixture@example.invalid";
+// constants rather than read from the environment. named for this
+// instrument (docs/specs/skill-evaluation.md), not for a deleted one — see
+// #413.
+const AUTHOR_NAME = "Skill Evaluation Fixture";
+const AUTHOR_EMAIL = "skill-evaluation-fixture@example.invalid";
+const COMMITTER_NAME = "Skill Evaluation Fixture";
+const COMMITTER_EMAIL = "skill-evaluation-fixture@example.invalid";
 // one synthetic day per commit from a fixed epoch (2023-11-14T22:13:20Z), so
 // `git log` reads as an ordered history rather than one instant repeated, and
 // every run derives the same dates from nothing but the commit's own index.
@@ -488,7 +490,7 @@ export async function materialize({
     );
   }
 
-  const workspace = await mkdtemp(join(tmpdir(), "effect-eval-"));
+  const workspace = await mkdtemp(join(tmpdir(), "skill-evaluation-"));
   try {
     // every file the mock ships, its own fixture metadata included
     // (history.jsonc, removed again below) so a patch can maintain it, minus a
