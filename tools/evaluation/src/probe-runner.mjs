@@ -15,6 +15,7 @@ import { rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { captureWorkspaceDiff } from "./capture.mjs";
 import { redactTranscript, stripCredentials } from "./credentials.mjs";
 import { treeDigest } from "./fingerprint.mjs";
 import { materialize } from "./mock-workspace.mjs";
@@ -29,13 +30,6 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "
 function instrumentCommit() {
   const proc = spawnSync("git", ["rev-parse", "HEAD"], { cwd: REPO_ROOT, encoding: "utf8" });
   return proc.status === 0 ? proc.stdout.trim() : null;
-}
-
-/** the workspace's own uncommitted diff against HEAD — the probe artefact. */
-function workspaceDiff(workspace) {
-  const proc = spawnSync("git", ["diff"], { cwd: workspace, encoding: "utf8" });
-  if (proc.status !== 0) throw new Error(`git diff (in ${workspace}) exited ${proc.status}:\n${proc.stderr}`);
-  return proc.stdout;
 }
 
 /** the workspace's own HEAD commit — the base state the probe started from. */
@@ -105,7 +99,7 @@ export async function runProbe({
     const parsed = parseTranscript(redactedStdout);
     const behaviour = readBehaviour(parsed);
 
-    const diff = workspaceDiff(workspace);
+    const diff = captureWorkspaceDiff(workspace, { baseCommit: commit });
 
     const metadata = {
       scenario: scenario.id,
