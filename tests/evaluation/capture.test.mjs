@@ -237,6 +237,26 @@ describe("captureWorkspaceDiff", () => {
     expect(log.text()).toContain(".claude/skills/unit-testing/SKILL.md");
   });
 
+  // the staged-but-not-committed case above does not reach this: once the
+  // probe commits .claude directly, the index and HEAD agree on it, so a
+  // staged-path read taken against implicit HEAD (rather than baseCommit)
+  // sees nothing to name — the stored patch stays correct either way, since
+  // the :(exclude).claude pathspec on the reads below does not depend on this
+  // read at all, but the diagnostic goes silent in exactly the combination it
+  // exists to catch.
+  it("names a .claude path the probe committed directly, even though the index and HEAD already agree on it", async () => {
+    const { root, baseCommit } = await plantRepo({ gitignoresClaude: false, installsSkill: true });
+    await write(root, "newfile.txt", "brand new\n");
+    commit(root, "Probe work, .claude swept in with it");
+    const log = sink();
+
+    const diff = captureWorkspaceDiff(root, { baseCommit, warn: log.warn });
+
+    expect(diff).not.toContain(".claude");
+    expect(diff).toContain("newfile.txt");
+    expect(log.text()).toContain(".claude/skills/unit-testing/SKILL.md");
+  });
+
   it("excludes a binary file from the patch, keeps every text change, names the omission on stderr, and leaves the rest git apply accepts", async () => {
     const { root, baseCommit } = await plantRepo();
     await write(root, "tracked.txt", "hello world\n");
