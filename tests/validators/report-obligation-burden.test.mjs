@@ -554,9 +554,9 @@ describe("report-obligation-burden.mjs", () => {
       // and 17 more in that change's pre-flight fix round, which qualified the
       // section's scope sentence so it stops claiming the capability covers
       // nothing but the product. still wording only, still one obligation.
-      // and 589 more in #435, the same Response Language section's SKILL.md
+      // and 630 more in #435, the same Response Language section's SKILL.md
       // prose and its four Guidelines bullets.
-      expect.soft(totals.floorTokens).toBe(9_265);
+      expect.soft(totals.floorTokens).toBe(9_306);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -900,9 +900,9 @@ describe("report-obligation-burden.mjs", () => {
       // section rename noted there touched SKILL.md alone.
       // and 17 more in that change's pre-flight fix round, again the floor's
       // own delta and again SKILL.md alone.
-      // and 1,158 more in #435, the combined bytes of SKILL.md's new section
+      // and 1,199 more in #435, the combined bytes of SKILL.md's new section
       // and reporting.md's new section.
-      expect.soft(totals.ceilingTokens).toBe(44_593);
+      expect.soft(totals.ceilingTokens).toBe(44_634);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -930,9 +930,9 @@ describe("report-obligation-burden.mjs", () => {
       // in SKILL.md's own Guidelines block, per this repository's
       // load-bearing-rule placement, so the floor is no longer zero.
       expect.soft(tiers[0].floorObligations).toBe(4);
-      expect.soft(tiers[0].floorTokens).toBe(1_693);
+      expect.soft(tiers[0].floorTokens).toBe(1_734);
       expect.soft(tiers[0].ceilingObligations).toBe(127);
-      expect.soft(tiers[0].ceilingTokens).toBe(9_824);
+      expect.soft(tiers[0].ceilingTokens).toBe(9_865);
 
       // tier 2 — plus `software-development`. drifted from 204 in #209, which
       // gave it a Product Specification section, and again in #215/#221, which
@@ -951,9 +951,9 @@ describe("report-obligation-burden.mjs", () => {
       // above: `software-development` is unchanged, so this tier rises by
       // exactly what professional-behavior's Response Language section added.
       expect.soft(tiers[1].floorObligations).toBe(9);
-      expect.soft(tiers[1].floorTokens).toBe(2_889);
+      expect.soft(tiers[1].floorTokens).toBe(2_930);
       expect.soft(tiers[1].ceilingObligations).toBe(220);
-      expect.soft(tiers[1].ceilingTokens).toBe(16_880);
+      expect.soft(tiers[1].ceilingTokens).toBe(16_921);
 
       // tier 3 — plus `loop-engineering`, and the figure this report printed
       // alone before #211. drifted from 361 by #204's plan-structure rewrite,
@@ -1010,9 +1010,9 @@ describe("report-obligation-burden.mjs", () => {
       // #435 moved both copies too, for the same reasons as the mandated-set
       // totals above: all four figures move, by the same deltas given there.
       expect.soft(tiers[2].floorObligations).toBe(31);
-      expect.soft(tiers[2].floorTokens).toBe(9_265);
+      expect.soft(tiers[2].floorTokens).toBe(9_306);
       expect.soft(tiers[2].ceilingObligations).toBe(451);
-      expect.soft(tiers[2].ceilingTokens).toBe(44_593);
+      expect.soft(tiers[2].ceilingTokens).toBe(44_634);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
