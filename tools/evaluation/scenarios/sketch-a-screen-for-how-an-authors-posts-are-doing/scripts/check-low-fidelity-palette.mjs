@@ -498,6 +498,54 @@ function cssDeclarationText(html) {
 }
 
 /**
+ * blanks the CONTENTS of every quoted string in `text` (single-, double-,
+ * or backtick-quoted; escapes respected), keeping the quote characters and
+ * every other character in place, so the result is safe to scan for a
+ * NAMED colour keyword without a word like "Coral" inside ordinary quoted
+ * text — `content: "No drafts yet — Coral Bay import pending"`, or a
+ * quoted `font-family` name — being misread as the declared colour coral.
+ * Named colours are the only scan this feeds: hex and rgb()/hsl() are
+ * never legitimately written inside a quoted string in real CSS (a colour
+ * is never itself quoted), so their own matching still runs against the
+ * unmodified text.
+ * @param {string} text
+ * @returns {string}
+ */
+function blankQuotedStringContents(text) {
+  let out = "";
+  let quote = null;
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\" && i + 1 < text.length) {
+        out += "  ";
+        i += 2;
+        continue;
+      }
+      if (ch === quote) {
+        quote = null;
+        out += ch;
+        i++;
+        continue;
+      }
+      out += " ";
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      out += ch;
+      i++;
+      continue;
+    }
+    out += ch;
+    i++;
+  }
+  return out;
+}
+
+/**
  * every distinct colour this CSS text declares, as `{ r, g, b, h, s, l }`,
  * deduplicated by its resolved (r, g, b) triple so the same colour declared
  * twice (e.g. once in a base :root and again in an explicit
@@ -533,7 +581,7 @@ function distinctColorsIn(cssText) {
     if ([h, s, l].some(Number.isNaN)) continue;
     add(hslToRgb(h, s, l));
   }
-  for (const m of cssText.matchAll(NAMED_COLOR_RE)) {
+  for (const m of blankQuotedStringContents(cssText).matchAll(NAMED_COLOR_RE)) {
     add(hexToRgb(NAMED_COLORS[m[1].toLowerCase()].slice(1)));
   }
 
