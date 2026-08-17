@@ -251,9 +251,10 @@ function runGit(args, cwd, extraEnv = {}) {
  * `git init`, so the history is replayed over the already-patched tree. every
  * other moment was considered and is worse: after materialization it leaves an
  * uncommitted diff the model can see and poisons the effect side's
- * `changes.patch`, which is taken against `HEAD`; before the copy it mutates
- * this repository; after the replay, committed, it writes a history that
- * announces the defect louder than the defect itself.
+ * `changes.patch`, which is taken against the pre-spawn commit (capture.mjs's
+ * own `captureWorkspaceDiff`); before the copy it mutates this repository;
+ * after the replay, committed, it writes a history that announces the defect
+ * louder than the defect itself.
  *
  * `git apply` rather than a hand-rolled applier, and three of its properties
  * are load-bearing rather than incidental. it runs outside a Git repository,
