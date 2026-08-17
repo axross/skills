@@ -71,29 +71,112 @@ export function boundNamesFromClause(clause) {
 }
 
 /**
+ * strips `//` and `/* *\/` comments from `text`, leaving every other
+ * character — including a comment-LIKE sequence inside a single-, double-,
+ * or backtick-quoted string, which is not a comment and is walked over
+ * untouched (escapes respected). A `//` comment's own characters are
+ * dropped outright; a `/* *\/` comment's non-newline characters become
+ * spaces and its own newlines are kept as newlines, so a caller's line
+ * arithmetic over the result (`text.slice(0, i).split("\n").length`) still
+ * lines up with the original source. importsIn's own clauseRe is
+ * unbounded-lazy (`[\s\S]*?`) between "import"/"export" and the next
+ * "from \"...\"", which is exactly the shape a same-named mention inside an
+ * ordinary code comment — "// Mirrors the pattern from '../components/X'"
+ * — can satisfy; stripping comments first is what keeps that mention from
+ * ever reaching the regex at all.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function stripComments(text) {
+  let out = "";
+  let quote = null;
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      out += ch;
+      if (ch === "\\" && i + 1 < text.length) {
+        out += text[i + 1];
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      out += ch;
+      i++;
+      continue;
+    }
+    if (ch === "/" && text[i + 1] === "/") {
+      while (i < text.length && text[i] !== "\n") i++;
+      continue; // leaves the newline itself for the next loop turn
+    }
+    if (ch === "/" && text[i + 1] === "*") {
+      i += 2;
+      while (i < text.length && !(text[i] === "*" && text[i + 1] === "/")) {
+        out += text[i] === "\n" ? "\n" : " ";
+        i++;
+      }
+      i += 2; // past the closing */
+      continue;
+    }
+    out += ch;
+    i++;
+  }
+  return out;
+}
+
+/**
+ * true when `clause` — the text between "import"/"export" and "from" —
+ * contains a `;` or a blank line. An import clause never contains either;
+ * either one appearing means clauseRe's lazy-but-unbounded match spanned
+ * past a real statement boundary onto some later, unrelated "from \"...\"".
+ * This is belt-and-braces behind stripComments, not a replacement for it:
+ * a comment stripped to spaces can still leave the clause looking
+ * superficially plausible, and this check is what catches a match that
+ * still crossed a statement it should not have.
+ *
+ * @param {string} clause
+ * @returns {boolean}
+ */
+function clauseCrossesAStatementBoundary(clause) {
+  return clause.includes(";") || /\n[ \t]*\r?\n/.test(clause);
+}
+
+/**
  * every import statement's specifier in `content`, paired with the bound
  * local identifier names and the source line range the whole clause
  * occupies — good enough for the Prettier-formatted TSX this mock's route
  * files are written in, not a full parser. Re-exports ("export ... from")
  * are included too, since a barrel-style extraction could plausibly
- * re-export rather than import.
+ * re-export rather than import. Comments are stripped first (see
+ * stripComments), and a match whose own clause still crosses what would be
+ * a statement boundary is rejected (see clauseCrossesAStatementBoundary),
+ * so a mention of an import-shaped phrase inside a code comment can never
+ * be read as an import.
  *
  * @param {string} content
  * @returns {Array<{ specifier: string, names: string[], lineIndex: number, lineCount: number }>}
  */
 export function importsIn(content) {
+  const scanned = stripComments(content);
   const results = [];
   const clauseRe = /\b(?:import|export)\s+([\s\S]*?)\s+from\s*["']([^"']+)["']/g;
   let match;
-  while ((match = clauseRe.exec(content))) {
-    const before = content.slice(0, match.index);
+  while ((match = clauseRe.exec(scanned))) {
+    if (clauseCrossesAStatementBoundary(match[1])) continue;
+    const before = scanned.slice(0, match.index);
     const lineIndex = before.split("\n").length - 1;
     const lineCount = match[0].split("\n").length;
     results.push({ specifier: match[2], names: boundNamesFromClause(match[1]), lineIndex, lineCount });
   }
   const bareRe = /\bimport\s*["']([^"']+)["']/g;
-  while ((match = bareRe.exec(content))) {
-    const before = content.slice(0, match.index);
+  while ((match = bareRe.exec(scanned))) {
+    const before = scanned.slice(0, match.index);
     const lineIndex = before.split("\n").length - 1;
     const lineCount = match[0].split("\n").length;
     results.push({ specifier: match[1], names: [], lineIndex, lineCount });
