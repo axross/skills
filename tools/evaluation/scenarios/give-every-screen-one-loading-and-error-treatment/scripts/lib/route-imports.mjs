@@ -287,50 +287,161 @@ export function readRouteFile(routeFile) {
 }
 
 /**
- * a loading-ish token: "pending" or "loading", bare or fused with a
- * leading "is" ("isPending", "isLoading") — the vocabulary both route
- * files' own pre-existing branches already use.
+ * a loading-ish token: "pending", "loading", "waiting", "busy",
+ * "fetching", "spinner", or "skeleton" — bare or fused with a leading "is"
+ * — covering both the vocabulary this mock's own pre-existing branches use
+ * and the equally natural synonyms a probe might reach for instead
+ * ("status: waiting", a component literally named Spinner).
  */
-const LOADING_TOKEN_RE = /\b(?:is)?(?:pending|loading)\b/i;
+const LOADING_TOKEN_RE =
+  /\b(?:is)?(?:pending|loading|waiting|busy|fetching|spinner|skeleton)\b/i;
 
 /**
  * a failure-ish token, deliberately NARROWER than the bare word "error":
  * "isError"/"hasError"/"onError"/"errorMessage" as whole fused
- * identifiers, "failure"/"failed", the mock's own "Couldn't load" copy, or
- * a rendered `role="alert"` — the strongest single signal an element is
- * standing in as an error surface, and the one all three of this mock's
- * own route files already use for their error branch. A BARE
+ * identifiers, "failure"/"failed"/"problem"/"retry"/"alert", the mock's
+ * own "Couldn't load" copy, or a rendered `role="alert"`. A BARE
  * case-insensitive "error" is deliberately excluded: almost any module
  * contains that word somewhere unrelated to rendering a loading/error
  * state for a screen (a `catch (error)`, an unrelated ErrorBoundary
  * import, a comment), so matching on it alone would defeat the whole
- * point of this check.
+ * point of this check. None of the other words share that problem.
  */
 const FAILURE_TOKEN_RE =
-  /\b(?:is|has|on)error\b|\berrorMessage\b|\bfailure\b|\bfailed\b|couldn'?t\s+load|role\s*=\s*["']alert["']/i;
+  /\b(?:is|has|on)error\b|\berrorMessage\b|\bfailure\b|\bfailed\b|\bproblem\b|\bretry\b|\balert\b|couldn'?t\s+load|role\s*=\s*["']alert["']/i;
 
 /**
- * true when `modulePath`'s own source, read from the reconstructed
- * workspace, references BOTH a loading-ish token and a failure-ish token —
- * this scenario's actual subject (a screen's "still loading" AND "that
- * didn't work" states together), not merely "some module both screens
- * happen to share". A generic data-fetching wrapper —
- * `export function useRouteQuery(options) { return useQuery(options); }`
- * — references neither and correctly fails this; a shared component or
- * hook that actually renders or selects a loading/error branch references
- * both. Requiring BOTH rather than EITHER is deliberate: a module that
- * only ever mentions loading, with each screen's own error branch left
- * untouched and inline, has not moved this scenario's own subject either.
+ * a bare re-export clause — "export { X } from './Y'", "export * from
+ * './Y'", or "export * as X from './Y'" — the shape a barrel file is made
+ * of. Anchored to the start of a line for the same reason importsIn's own
+ * clauseRe is (see that function's own header): Prettier never places one
+ * anywhere else. A fresh RegExp literal per call — this is `g`-flagged and
+ * reused across a `while (exec())` loop by its callers, so a shared,
+ * module-level instance would leak `lastIndex` between them.
  *
- * @param {string} modulePath workspace-relative path
+ * @returns {RegExp}
+ */
+function reExportClauseRe() {
+  return /^[ \t]*export\s+(?:\*(?:\s+as\s+[A-Za-z_$][\w$]*)?|\{[^}]*\})\s+from\s*["']([^"']+)["'];?[ \t]*$/gm;
+}
+
+/**
+ * every specifier a bare re-export clause in `strippedSource` names, in
+ * source order.
+ *
+ * @param {string} strippedSource comment-stripped source text
+ * @returns {string[]}
+ */
+function reExportSpecifiers(strippedSource) {
+  const specifiers = [];
+  let match;
+  const re = reExportClauseRe();
+  while ((match = re.exec(strippedSource))) specifiers.push(match[1]);
+  return specifiers;
+}
+
+/**
+ * true when `strippedSource` is nothing but one or more bare re-export
+ * clauses — a barrel file — with no other substantive code: every
+ * re-export clause is removed and what remains must be only whitespace.
+ *
+ * @param {string} strippedSource comment-stripped source text
  * @returns {boolean}
  */
-export function isAboutLoadingAndError(modulePath) {
+function isBareReExport(strippedSource) {
+  if (reExportSpecifiers(strippedSource).length === 0) return false;
+  return strippedSource.replace(reExportClauseRe(), "").trim() === "";
+}
+
+/**
+ * the text this factor pair actually reads `modulePath` as saying,
+ * following ONE barrel hop when the module's own source is nothing but a
+ * re-export: resolve its first re-export specifier relative to
+ * `modulePath` and read THAT file's source instead — `src/components/
+ * LoadingError/index.tsx` doing `export { LoadingError } from
+ * "./LoadingError"` is read as `./LoadingError`'s own words, not its own
+ * (empty) ones. This is not a general resolver: if the target reached this
+ * way is ALSO nothing but a re-export (a second hop would be needed), or
+ * the specifier does not resolve to a file that exists at all, this
+ * returns null rather than chasing further or reading nothing — a null
+ * return is this scenario's own signal for "could not read this module's
+ * own words," and isSetAboutLoadingAndError treats it as satisfying the
+ * concern rather than as a module that contributed nothing (see that
+ * function's own header for why).
+ *
+ * @param {string} modulePath workspace-relative path
+ * @returns {string | null}
+ */
+function effectiveSourceFor(modulePath) {
   let source;
   try {
     source = readFileSync(modulePath, "utf8");
   } catch {
-    return false;
+    return null;
   }
-  return LOADING_TOKEN_RE.test(source) && FAILURE_TOKEN_RE.test(source);
+  const stripped = stripComments(source);
+  if (!isBareReExport(stripped)) return stripped;
+
+  const [specifier] = reExportSpecifiers(stripped);
+  const resolved = resolveRelativeSpecifier(specifier, modulePath);
+  if (!resolved) return null; // an unresolvable barrel target — permissive, not a failure
+
+  let targetSource;
+  try {
+    targetSource = readFileSync(resolved, "utf8");
+  } catch {
+    return null;
+  }
+  const targetStripped = stripComments(targetSource);
+  if (isBareReExport(targetStripped)) return null; // a second hop — permissive, not chased
+
+  return targetStripped;
+}
+
+/**
+ * true when the shared, newly-added module SET this scenario's two
+ * outcome factors compare — not any single file in isolation — is
+ * actually ABOUT this scenario's own subject: a loading-ish token and a
+ * failure-ish token found somewhere ACROSS the set (each module's own
+ * effective source — see effectiveSourceFor — joined together), not
+ * necessarily both within the same file. Two focused components, a
+ * Spinner carrying the loading-ish vocabulary and a separate ErrorBanner
+ * carrying the failure-ish vocabulary, answer this factor's own question
+ * — did the repeated concern move into shared code — exactly as well as
+ * one combined component does; requiring both tokens in a single file was
+ * stricter than the concern itself demands, and rejected exactly that
+ * shape of correct extraction.
+ *
+ * Deliberately permissive where this function cannot fully read a module
+ * (see effectiveSourceFor's own null cases): this evaluation instrument
+ * treats a false negative — rejecting a shared module that really did take
+ * over the concern — as the worse of its two possible errors, since a
+ * skill's own extraction habit is what produces this shape of module, so a
+ * false negative here lands disproportionately on the skill-present arm
+ * and is read as the skill making things worse. A false positive — this
+ * function accepting a module that references both concerns without truly
+ * consolidating them — costs one probe's worth of an over-generous
+ * verdict, symmetric across both conditions, which is the cheaper mistake
+ * to risk.
+ *
+ * This still rejects a shared module that is merely present: a generic
+ * data-fetching wrapper — `export function useRouteQuery(options) {
+ * return useQuery(options); }` — references neither token in either its
+ * own text or (there being nothing to follow) any barrel target, and a
+ * module that only ever mentions loading, with each screen's own error
+ * branch left untouched and inline, still fails this, because the set as a
+ * whole still lacks a failure-ish token.
+ *
+ * @param {string[]} modulePaths workspace-relative paths
+ * @returns {boolean}
+ */
+export function isSetAboutLoadingAndError(modulePaths) {
+  const sources = [];
+  for (const modulePath of modulePaths) {
+    const effective = effectiveSourceFor(modulePath);
+    if (effective === null) return true; // permissive — see this function's own header
+    sources.push(effective);
+  }
+  const combined = sources.join("\n");
+  return LOADING_TOKEN_RE.test(combined) && FAILURE_TOKEN_RE.test(combined);
 }

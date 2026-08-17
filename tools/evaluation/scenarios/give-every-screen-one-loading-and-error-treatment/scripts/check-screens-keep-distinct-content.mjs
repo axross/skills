@@ -18,28 +18,34 @@
 // the same ./lib/route-imports.mjs both scripts import, so a fix to how
 // that resolution works lands identically for both factors.
 //
-// The check: find the shared newly-added module that is actually ABOUT
-// this scenario's own subject (same resolution AND same
-// isAboutLoadingAndError concern check check-shared-extracted-module.mjs
-// uses — see ./lib/route-imports.mjs's own header), then for each route
-// file, collect the exact usage SPAN of each identifier it imports from that
-// module — a JSX element's own tag and attributes, or a call expression's
-// own arguments, and nothing outside either shape, so a surrounding
-// `if (...) return`, `&&` guard, or trailing `;` never reaches the
-// comparison. Each span is then normalized: whitespace collapses, and any
-// identifier ending in "Query" is replaced with a fixed placeholder, since
-// the two screens' own pre-existing query-variable names (postsQuery vs
-// postQuery) differ under essentially any extraction and say nothing about
-// whether the extraction itself kept each screen's content distinct. The
-// two files' normalized usage is then compared: identical usage (including
-// "neither file visibly uses what it imported") is reported as false,
-// naming that as its own evidence; different usage is true. This is a
-// character-accumulating read, not a real parser — see usageSpansFor — and
-// a route file missing from the workspace, or no shared newly-added module
-// to compare at all, are two different situations: the former is a
-// judgment this script cannot make (exits non-zero); the latter is a
-// judgment this script CAN make, and it is false (nothing was parameterized
-// because nothing was shared).
+// The check: find the shared, newly-added module SET that is actually
+// ABOUT this scenario's own subject (same resolution AND same
+// isSetAboutLoadingAndError concern check check-shared-extracted-module.mjs
+// uses, applied to the whole set rather than one file at a time — see
+// ./lib/route-imports.mjs's own header for why and for the deliberate
+// permissiveness that check carries), then for each route file, collect
+// the exact usage SPAN of each identifier it imports from ANY module in
+// that set — a JSX element's own tag and attributes, or a call
+// expression's own arguments, and nothing outside either shape, so a
+// surrounding `if (...) return`, `&&` guard, or trailing `;` never reaches
+// the comparison. Reading across the whole set (not just one module)
+// matters the same way the concern check itself does: a Spinner and a
+// separate ErrorBanner each contribute their own usage span, and either
+// one differing between screens is enough to say the two screens still say
+// their own thing. Each screen's spans are joined and then normalized:
+// whitespace collapses, and any identifier ending in "Query" is replaced
+// with a fixed placeholder, since the two screens' own pre-existing
+// query-variable names (postsQuery vs postQuery) differ under essentially
+// any extraction and say nothing about whether the extraction itself kept
+// each screen's content distinct. The two files' normalized usage is then
+// compared: identical usage (including "neither file visibly uses what it
+// imported") is reported as false, naming that as its own evidence;
+// different usage is true. This is a character-accumulating read, not a
+// real parser — see usageSpansFor — and a route file missing from the
+// workspace, or no shared newly-added module set to compare at all, are
+// two different situations: the former is a judgment this script cannot
+// make (exits non-zero); the latter is a judgment this script CAN make,
+// and it is false (nothing was parameterized because nothing was shared).
 //
 // An earlier version of this factor compared the raw source lines
 // surrounding each occurrence rather than the usage span alone, which let
@@ -66,7 +72,7 @@
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
 import { existsSync, readFileSync } from "node:fs";
-import { ROUTE_FILES, addedFilesFromDiff, isAboutLoadingAndError, readRouteFile } from "./lib/route-imports.mjs";
+import { ROUTE_FILES, addedFilesFromDiff, isSetAboutLoadingAndError, readRouteFile } from "./lib/route-imports.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -365,23 +371,25 @@ const routeB = readRouteFile(fileB);
 const resolvedA = new Set(routeA.imports.map((entry) => entry.resolved).filter(Boolean));
 const resolvedB = new Set(routeB.imports.map((entry) => entry.resolved).filter(Boolean));
 const sharedAndAdded = [...resolvedA].filter((path) => resolvedB.has(path) && addedFiles.has(path)).sort();
-const sharedAddedAboutConcern = sharedAndAdded.filter(isAboutLoadingAndError);
+const aboutConcern =
+  sharedAndAdded.length > 0 && isSetAboutLoadingAndError(sharedAndAdded);
 
-if (sharedAddedAboutConcern.length === 0) {
+if (!aboutConcern) {
   const evidence =
     sharedAndAdded.length > 0
-      ? `${fileA} and ${fileB} share the newly-added module(s) ${sharedAndAdded.join(", ")}, but none references both a loading-ish and a failure-ish token, so there is nothing about this scenario's own subject for either screen's content to say through`
+      ? `${fileA} and ${fileB} share the newly-added module(s) ${sharedAndAdded.join(", ")}, but taken together they do not reference both a loading-ish and a failure-ish token, so there is nothing about this scenario's own subject for either screen's content to say through`
       : `${fileA} and ${fileB} share no newly-added module to parameterize — there is nothing for either screen's content to say through`;
   process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
   process.exit(0);
 }
 
-const sharedModule = sharedAddedAboutConcern[0];
-
 function usageTextFor(route) {
-  const importEntry = route.imports.find((entry) => entry.resolved === sharedModule);
-  if (!importEntry || importEntry.names.length === 0) return "";
-  const spans = importEntry.names.flatMap((name) => usageSpansFor(route.content, name));
+  const spans = [];
+  for (const modulePath of sharedAndAdded) {
+    const importEntry = route.imports.find((entry) => entry.resolved === modulePath);
+    if (!importEntry || importEntry.names.length === 0) continue;
+    for (const name of importEntry.names) spans.push(...usageSpansFor(route.content, name));
+  }
   return normalizeUsage(spans.join(" "));
 }
 
@@ -390,7 +398,7 @@ const usageB = usageTextFor(routeB);
 
 const result = usageA !== usageB;
 const evidence = result
-  ? `${fileA}'s usage of ${sharedModule} ("${usageA}") differs from ${fileB}'s ("${usageB}") after normalizing pre-existing query-variable names`
-  : `${fileA} and ${fileB} use ${sharedModule} identically ("${usageA}") once each screen's own query-variable name is normalized away, so nothing distinguishes what either screen says`;
+  ? `${fileA}'s usage of ${sharedAndAdded.join(", ")} ("${usageA}") differs from ${fileB}'s ("${usageB}") after normalizing pre-existing query-variable names`
+  : `${fileA} and ${fileB} use ${sharedAndAdded.join(", ")} identically ("${usageA}") once each screen's own query-variable name is normalized away, so nothing distinguishes what either screen says`;
 
 process.stdout.write(`${JSON.stringify({ result, evidence })}\n`);
