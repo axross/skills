@@ -71,11 +71,15 @@ anywhere in the app yet (confirmed via `App.tsx` routes) — adding one would
 be a separate feature, not a visual fix. Verified with `npm run typecheck`,
 `npm run lint`, `npm test` … and `vite build`." That is verified separated
 from assumed, a decision stated with its reason, in the arm that is supposed
-to lack the skill. `ALLOWED_TOOLS` naming `TodoWrite` did not bound what the
-CLI actually exposed either — the `system init` event's own `tools` list has
-no `TodoWrite` at all, and `skill-present-1` used `ToolSearch`, a tool
-`ALLOWED_TOOLS` never named ([#440](https://github.com/axross/skills/issues/440)).
-No probe called `TodoWrite` or produced a plan artifact, for the same reason.
+to lack the skill.
+
+**No probe planned before editing, and none could have written a TODO list.**
+Every probe went from `Read`/`Bash` reconnaissance straight to `Edit`, at the
+tool-call positions in the table above, and none left a plan artifact behind.
+`TodoWrite` was never called because the CLI does not expose it: the
+`system init` event's own `tools` list carries no such tool, while it does
+carry several `ALLOWED_TOOLS` never names — `skill-present-1` used
+`ToolSearch` ([#440](https://github.com/axross/skills/issues/440)).
 
 ## The decision
 
@@ -139,8 +143,9 @@ count, before the model has said anything.
 
 **Changing `NONINTERACTIVE_BRIEF` so the gate becomes measurable.** Out of
 scope for this slice: it changes what every probe is told and would make
-every stored measurement incomparable. It is the question #439's sibling
-issues exist to carry forward, not one this record settles.
+every stored measurement incomparable. No issue carries that question today —
+[#427](https://github.com/axross/skills/issues/427)'s archived original
+description is where it was put — and this record does not settle it.
 
 **Recording the exclusion in #423 alone**, matching how `agent-skill-authoring`
 and `agent-skill-management` are recorded there. Put to the maintainer at the
