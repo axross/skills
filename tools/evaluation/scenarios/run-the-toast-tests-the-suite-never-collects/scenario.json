@@ -1,0 +1,71 @@
+{
+  "id": "run-the-toast-tests-the-suite-never-collects",
+  "description": "vitest-testing is targeted against a developer's own report — tests were written for the publish toast a while ago and have never once appeared in a run, which finishes green without mentioning them — naming neither the runner, the config, globs, project collection, nor the skill, with unit-testing (a testing-shaped read of the same report) and software-development (a project-commands read of it) sitting in the peer set as competing, plausible-looking picks. inkwell's patch changes no config at all: it adds src/components/PublishToast/PublishToast.test.tsx, a well-formed real-DOM test for the one component that has none, named the way a developer names a test without having read which glob collects it — .test.tsx matches neither the unit project's src/**/*.test.ts nor the browser project's src/**/*.browser.test.tsx, so it is collected by nothing and the suite stays green without ever mentioning it. The outcome factors are both textual, structural reads of vitest.config.ts and the workspace tree rather than a glob evaluator, and each factor's own description states what that limit means it reports false on: one checks that the toast's test now sits where the browser project's own include reaches it, satisfied either by the file being renamed into *.browser.test.tsx or by that project's include gaining a pattern that covers it; the other checks that the Node-only unit project's include never grew a .tsx pattern, so a 'fix' that instead widened the wrong project to swallow a real-DOM render it has no browser to run is caught rather than rewarded. The transcript factor is a script, not a reasoning judge — tracking issue #431 records why — and greps for whether the agent's own words name the actual cause, that the file matched no project's collection pattern, rather than only describing a rename.",
+  "mock": "inkwell",
+  "targetSkills": ["vitest-testing"],
+  "peerSkills": ["unit-testing", "software-development"],
+  "patch": "patch.diff",
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "A while back I wrote some tests for the publish toast component, but I just noticed they've never actually run — not once, in any of our test output. The suite finishes green every time without mentioning them at all. Can you find out why and get them running?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-vitest-testing",
+      "phase": "discovery",
+      "description": "The report names neither the runner, the config, globs, nor project collection — an agent that reaches for vitest-testing here is finding it from the report, with unit-testing (a testing-shaped read of the same report) and software-development (a project-commands read of it) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "vitest-testing" }
+      }
+    },
+    {
+      "id": "toast-test-reaches-the-browser-project",
+      "phase": "outcome",
+      "description": "PublishToast.test.tsx matches neither project's include today, which is the actual defect. This factor is a textual, structural read of vitest.config.ts and the workspace tree, not a glob evaluator, and accepts the two fixes the project's own structure makes natural: the file renamed so its own name ends in .browser.test.tsx, or the browser project's include gaining a pattern beyond its original src/**/*.browser.test.tsx while a *.test.tsx file for the component still exists. Because it does not evaluate a glob, a widened pattern that in fact does not cover the file's path, or one added to the wrong project, is not something this factor can catch on its own — it reports false only when neither shape is present at all.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-toast-test-reaches-browser-project.mjs"
+      }
+    },
+    {
+      "id": "unit-project-stays-ts-only",
+      "phase": "outcome",
+      "description": "The unit project runs with environment: \"node\" and has no browser to render into. A fix that instead widens ITS include to also swallow PublishToast's real-DOM test — rather than getting the file to the browser project — would collect a test that fails the moment it actually ran there, which this factor never observes directly: it is a textual, structural read of vitest.config.ts's unit project include, checking that no pattern in it ends in .tsx, so a widened Node-only project is caught by declaration rather than by a run this offline check does not perform.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-unit-project-stays-ts-only.mjs"
+      }
+    },
+    {
+      "id": "names-the-collection-gap-as-the-cause",
+      "phase": "transcript",
+      "description": "A file renamed into the browser project can still be produced by an agent that tried names until the suite reported it, without ever registering why the original name was invisible to every project. This is a script judgment, not a reasoning one — tracking issue #431 records why — and greps the transcript for whether the agent's own words name the actual cause, that the file matched no project's own collection pattern, as distinct from a transcript that only describes renaming it.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-transcript-mentions.mjs",
+        "expect": {
+          "mustContainAny": [
+            "include pattern",
+            "collection pattern",
+            "doesn't match",
+            "does not match",
+            "wasn't matching",
+            "was not matching",
+            "never matched",
+            "not matched by",
+            "test glob",
+            "glob pattern",
+            "wasn't being collected",
+            "not being collected",
+            "never collected",
+            "not collected"
+          ]
+        }
+      }
+    }
+  ]
+}
