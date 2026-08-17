@@ -55,6 +55,7 @@
 // usage: node check-low-fidelity-palette.mjs <context.json>
 
 import { readFileSync } from "node:fs";
+import { addedFilesFromDiff } from "./lib/added-files.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -80,18 +81,6 @@ const ACHROMATIC_SATURATION_MAX = 20; // percent
 const MIN_ACHROMATIC_VALUES = 3;
 const MAX_CHROMATIC_HUE_FAMILIES = 3;
 const HUE_BIN_WIDTH = 30; // degrees
-
-/** every path this unified diff ADDED, from its "--- /dev/null" / "+++ b/<path>" pair. */
-function addedFilesFromDiff(diffText) {
-  const added = new Set();
-  const lines = diffText.split("\n");
-  for (let i = 0; i < lines.length - 1; i++) {
-    if (lines[i] === "--- /dev/null" && lines[i + 1].startsWith("+++ ")) {
-      added.add(lines[i + 1].slice(4).replace(/^b\//, "").trim());
-    }
-  }
-  return added;
-}
 
 /**
  * the CSS Color Module's standard extended named-colour keywords, mapped to
