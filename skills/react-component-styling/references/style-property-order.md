@@ -38,7 +38,7 @@ The fifteen-group order puts positioning and layout first, spacing and colour in
 
 ## Applying the Composed Order
 
-The `<Pressable>` below composes nine entries in the order `SKILL.md` states: an invariant base, two size-variant branches, two tone-variant branches, a transient state, an animated style, and the consumer's own style last — precedence readable from position alone, with nothing after the consumer's style to override it.
+The `<Pressable>` below composes nine entries in the order `SKILL.md` states: an invariant base, two size-variant branches, two tone-variant branches, two transient states, an animated style, and the consumer's own style last — precedence readable from position alone, with nothing after the consumer's style to override it.
 
 ```tsx
 <Pressable

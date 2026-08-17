@@ -4,15 +4,13 @@ Apply this reference when deciding whether to split a `SKILL.md` into reference 
 
 ## The Load-Bearing Test
 
-A rule is **load-bearing** when an agent that loads `SKILL.md` and opens no reference would produce wrong output for want of it — it has to be held _before_ the work starts, not looked up once the reader already knows the question exists. Everything below applies this test: it decides which side of a split a piece of content belongs on, and which side wins when the two could otherwise both state the same thing.
+`SKILL.md` states the test itself, as a rule — which is where a load-bearing rule belongs, so this section elaborates it rather than repeating it. The table sorts a topic's content into the two sides that rule names, and every section below applies that sorting, including which side wins when both could otherwise state the same thing.
 
 | Load-bearing — belongs in `SKILL.md`                             | Elaboration — belongs in `references/`                                   |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | the rule statement itself, and its RFC-2119 bullets              | worked examples, and the code that shows the rule applied                |
 | a fixed order, list, or closed set the output must match         | rationale, and what was rejected                                         |
 | a constraint whose violation is not self-evident from the output | edge cases, platform adapters, and per-option tables consulted on demand |
-
-The test is stated again, as a normative rule, in `agent-skill-authoring`'s own `SKILL.md` — an author who never opens this file would otherwise split a skill wrongly for want of it, which is exactly the failure the test exists to prevent.
 
 ## References Directory Pattern
 
