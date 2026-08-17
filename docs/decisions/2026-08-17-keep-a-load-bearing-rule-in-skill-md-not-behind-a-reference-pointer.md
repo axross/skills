@@ -144,10 +144,38 @@ depends on host cooperation would not survive it.
 
 **Measuring more before changing anything.** A cheap replication would raise
 n without touching the argument the convention text already supplies on its
-own. The pilot instead produces a measurement of the fix, which is a more
-useful thing to have than another measurement of the defect.
+own. The pilot was expected to produce a measurement of the fix instead,
+which would have been a more useful thing to have than another measurement
+of the defect. It did not — see below.
 
 ## Consequences
+
+**The pilot was measured, and the measurement did not test it.** Run
+31993004164 dispatched the same scenario from this change's own branch —
+three repetitions per condition, six probes, all six completed, $6.9898. It
+has no comparable predecessor and could not have one: `comparability.mjs`
+requires matching skill digests, and editing the skill under test changes
+its digest by construction. `follows-the-taught-property-group-order` came
+out `false` in all six probes again.
+
+That result says nothing about the relocated rule, because **no
+`skill-present` probe invoked `react-component-styling` at all**. Two
+reached for the peer `high-fidelity-ui-design`; the third invoked nothing.
+The string `component-styling` appears zero times in all three treatment
+transcripts. Moving a rule into `SKILL.md` can only matter once `SKILL.md`
+is loaded, and here it never was — so the rule still did not reach the
+model, for a reason upstream of the one this change addresses. An outcome
+factor being unmeasurable when discovery does not fire is how the scenario
+model works, not a defect in it.
+
+Issue #411 had two of three treatment probes invoke the skill; this run had
+none.
+The `description` — the only text a host reads before deciding to load a
+skill — is byte-identical across the two runs, so no mechanism connects this
+change to the difference, and at three probes a side the swing is not
+distinguishable from chance in either direction. The honest statement is
+that the intervention remains **untested**, and that buying another sample
+was declined rather than overlooked.
 
 **What the evidence licenses, and what it does not.** The convention
 argument — that the four composed rules make the observed behaviour the
