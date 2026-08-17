@@ -1,0 +1,63 @@
+{
+  "id": "find-out-what-a-change-has-to-pass-here",
+  "description": "software-development is targeted against a plain contributor question — what has to run and pass before a change goes up — that names no skill, no command, and no file, with quality-assurance (a 'was this actually verified' read of the same question) and unit-testing (a 'which tests matter' read of it) sitting in the peer set as competing, plausible picks, which is what makes the discovery factor a real question rather than a formality. The transcript factors climb from a plain lookup — reading the project's own contributor documentation rather than guessing from package.json or memory — through naming every check that documentation lists, a factor predicted to be close to a walkover since both conditions can read the same commands table, to the discipline software-development actually adds beyond the lookup: conveying format, lint, and fix as an ordered working loop rather than a flat checklist, which no script can honestly judge and which is declared as a reasoning factor instead.",
+  "mock": "inkwell",
+  "targetSkills": ["software-development"],
+  "peerSkills": ["quality-assurance", "unit-testing"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "I've just cloned this. What do I have to run and pass before I put a change up?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-software-development",
+      "phase": "discovery",
+      "description": "The question is a plain contributor ask — what to run and pass before opening a change — naming no skill, no command, and no file. An agent that reaches for software-development here is finding it from the situation, with quality-assurance (a 'was this actually verified' read of the same question) and unit-testing (a 'which tests matter' read of it) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "software-development" }
+      }
+    },
+    {
+      "id": "reads-the-projects-own-contributor-documentation",
+      "phase": "transcript",
+      "description": "software-development's project-documentation rules require consulting the project's own contributor documentation — conventionally README.md — before performing a project-specific operation, and require preferring a documented invocation over one inferred from the manifest or from memory. An agent that answers from package.json's scripts alone, or from what a similar project usually runs, has skipped exactly that. This factor checks a tool call's own input for README.md or AGENTS.md, so a Read, Grep, Glob, or even a plain cat of either file counts as reaching for the documentation, and a reply that merely names the filename in prose without any tool ever opening it does not.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-transcript-tool-input-mentions.mjs",
+        "expect": { "anyOf": ["README.md", "AGENTS.md"] }
+      }
+    },
+    {
+      "id": "names-every-check-the-project-documents",
+      "phase": "transcript",
+      "description": "inkwell's README.md lists four commands in its own commands table — format:check, lint, typecheck, and test — and this factor checks whether the agent's own final text names all four. It is the content check the walkover risk attaches to: both the skill-present and the skill-absent condition can read that same table without software-development ever having to be installed, so this factor is predicted to be close to a walkover, with a differential near zero, rather than a real discriminator — that prediction is stated here rather than left for a reader to discover only from the number. It is declared anyway because the next factor's ordering claim presupposes the four checks were named at all.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-transcript-mentions-all.mjs",
+        "expect": {
+          "mustMentionEachOf": [
+            ["format:check"],
+            ["run lint"],
+            ["typecheck"],
+            ["npm test", "run test"]
+          ]
+        }
+      }
+    },
+    {
+      "id": "conveys-the-format-then-lint-loop-as-an-ordering",
+      "phase": "transcript",
+      "description": "software-development's code-quality rules describe running format, then lint, then fixing what lint flags, then re-linting — a working loop, not four independent commands to run once each in any order. Whether the agent's own answer conveys that ordering, rather than a flat checklist of four commands, is a judgment about content no script can honestly proxy: a script counting the same four command names the previous factor already counts would collapse straight back into that walkover-prone check, and inventing a stricter keyword pattern for 'ordering' would reward a template phrase over an actually-conveyed discipline. Until a reasoning judge is available to make this call, this factor's own result records as an error rather than a verdict — never as false, since docs/specs/skill-evaluation.md keeps a judgment that could not be made distinct from one that came out false, and a missing judge is the former, not the latter.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work answering a contributor's question about what to run and pass before opening a change. Decide whether the agent's own final answer conveys the project's format and lint checks as an ordered working discipline — format before lint, with whatever lint flags then fixed and the check re-run — rather than presenting format:check, lint, typecheck, and test as an unordered list of commands to each run once. Answer false if the answer reads as a flat checklist with no ordering or feedback loop conveyed, even if every command is correctly named."
+      }
+    }
+  ]
+}
