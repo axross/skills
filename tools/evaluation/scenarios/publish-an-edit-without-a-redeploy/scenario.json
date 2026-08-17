@@ -1,6 +1,6 @@
 {
   "id": "publish-an-edit-without-a-redeploy",
-  "description": "next-app-development is targeted against a site owner's complaint that a post edit does not reach readers until someone redeploys — naming neither a framework surface nor a cause — with tanstack-query-development (a client-cache read of the same complaint) and code-maintainability (a where-should-this-data-live read of the same complaint) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The outcome factors check the one thing a static read of the produced source can honestly claim about this defect: that the post text leaves every .ts and .tsx file in the workspace rather than staying compiled into the bundle, and that the text survives the move rather than being deleted along with the catalog it moved out of. Neither outcome factor establishes that the route actually renders dynamically at request time — that would take a running server and a real request, not a diff — and the transcript factor checks only that the agent's own reasoning names the build-time catalog as the cause, not that whatever it built to replace the catalog is otherwise well designed.",
+  "description": "next-app-development is targeted against a site owner's complaint that a post edit does not reach readers until someone redeploys — naming neither a framework surface nor a cause — with tanstack-query-development (a client-cache read of the same complaint) and code-maintainability (a where-should-this-data-live read of the same complaint) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The outcome factors check the one thing a static read of the produced source can honestly claim about this defect: that the post text leaves every .ts and .tsx file in the workspace rather than staying compiled into the bundle, and that the text survives the move rather than being deleted along with the catalog it moved out of. Three limits are stated here rather than left to be found in a reading of the result. Neither outcome factor establishes that the route actually renders dynamically at request time — that would take a running server and a real request, not a diff. This scenario declares no transcript factor, because the mock states this defect's cause in its own prose and does so in both conditions: posts-data.ts's own doc comment says the catalog is 'compiled into the build', and docs/deployment.md's rolling-back section says 'the post catalog and everything else the app reads live in the build itself' — so a transcript scan for that reasoning would measure whether an agent read a comment rather than whether it worked the cause out. And that same doc comment goes on to name the remedy, 'Reading it from a content backend instead is a later change', which reaches the skill-absent arm identically and so weakens both outcome factors: the prompt still has to be acted on and the comment only signposts a direction, but the hint is real. Removing that leak means editing the mock, which this scenario's own slice put out of scope; it is recorded here so the differential is read with it in mind rather than taken at face value.",
   "mock": "tsuzuri",
   "targetSkills": ["next-app-development"],
   "peerSkills": ["tanstack-query-development", "code-maintainability"],
@@ -49,25 +49,6 @@
         "expect": {
           "roots": ["."],
           "anyOf": ["はじめまして"]
-        }
-      }
-    },
-    {
-      "id": "names-the-build-time-catalog-as-the-cause",
-      "phase": "transcript",
-      "description": "The prompt never says 'build' or 'bundle'; it only describes what a reader sees. This factor checks whether the agent's own transcript, at some point, names the build-time catalog as the actual cause, using vocabulary like 'build time', 'compiled into', 'bundled', 'baked in', or 'at build' — as distinct from a correct-looking fix produced without the transcript ever stating why the staleness happens.",
-      "judgment": {
-        "method": "script",
-        "script": "scripts/check-transcript-mentions.mjs",
-        "expect": {
-          "anyOf": [
-            "build time",
-            "build-time",
-            "compiled into",
-            "bundled",
-            "baked in",
-            "at build"
-          ]
         }
       }
     }

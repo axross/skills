@@ -222,8 +222,11 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->seven<!-- 
   — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
   own "choices made for coverage" list names it — alongside
   `tanstack-query-development` and `code-maintainability` as peers, and
-  carries a `discovery` factor, two `outcome` factors, and a `transcript`
-  factor judged by script.
+  carries a `discovery` factor and two `outcome` factors. It declares no
+  `transcript` factor, and its own `scenario.json` says why: the mock
+  states this defect's cause in its own prose, in both conditions, so a
+  transcript scan for that reasoning would measure reading rather than
+  reasoning.
 - [`accept-a-page-number-from-a-url`](../../tools/evaluation/scenarios/accept-a-page-number-from-a-url/)
   targets `zod-schema` against a URL page number `tsuzuri` parses nowhere
   today, alongside `next-app-development` and `react-component-development`
