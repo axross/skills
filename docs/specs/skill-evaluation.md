@@ -65,6 +65,18 @@ a scenario's peer set is what makes its discovery phase hard or trivial, and a
 skill added to the library sits in no scenario's choice set until someone
 decides it belongs there.
 
+**A scenario's `patch` is its own defect, never the mock's.** A mock ships
+sound by design, and anything a scenario needs that the project would not
+naturally have arrives instead as a unified diff the scenario declares —
+applied after the mock is copied and before its recorded history replays over
+it, so the workspace a model opens is clean and its history unremarkable.
+`patch` is `null` for a scenario whose mock already has what it needs.
+[`2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
+is the decision this follows from, and
+[`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)
+states the authoring convention — where the file lives, how it is
+regenerated, and what it must not do.
+
 ## Three phases
 
 A scenario declares whichever of three **evaluation phases** apply to what it
