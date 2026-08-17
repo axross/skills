@@ -189,6 +189,21 @@ export function importsIn(content) {
  * trying the usual TS/JS extension and index-file candidates against what
  * actually exists in the reconstructed workspace (this process's own cwd).
  *
+ * A `.css` file — `.module.css` included, however the specifier named it —
+ * is never a valid resolution: this scenario's own subject is the repeated
+ * loading-and-error BEHAVIOUR the two route files hand-roll, not their
+ * styling, and a probe adding only a CSS Module both files happen to
+ * import shares nothing about that behaviour — it is a styling change, the
+ * kind `react-component-styling` (a peer, and a deliberate misroute for
+ * this scenario) would own. Resolving to a shared stylesheet would let
+ * that count as "the repetition landed in one new place both screens now
+ * use" when it is not. Rejecting the extension outright (rather than
+ * simply not guessing it for an extensionless specifier) is what this
+ * scenario's own route files need: inkwell always writes a CSS Module
+ * import with its extension already explicit — `import css from
+ * "./PostListPage.module.css"` — which resolves through the bare `base`
+ * candidate below regardless of any extension list.
+ *
  * A candidate that exists as a DIRECTORY is skipped rather than returned:
  * `import { X } from "../components/LoadingError"` where
  * `src/components/LoadingError/` is a real folder must resolve through its
@@ -211,13 +226,13 @@ export function resolveRelativeSpecifier(specifier, fromFile) {
     `${base}.ts`,
     `${base}.jsx`,
     `${base}.js`,
-    `${base}.module.css`,
     join(base, "index.tsx"),
     join(base, "index.ts"),
     join(base, "index.jsx"),
     join(base, "index.js"),
   ];
   for (const candidate of candidates) {
+    if (candidate.endsWith(".css")) continue; // never a valid resolution — see this function's own header
     if (!existsSync(candidate)) continue;
     if (statSync(candidate).isDirectory()) continue;
     return candidate;
