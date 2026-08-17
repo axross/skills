@@ -197,8 +197,10 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
-under `tools/evaluation/scenarios/`:
+Scenarios are declared today under `tools/evaluation/scenarios/` against two
+mock projects. Grouped here by which:
+
+### Against `inkwell`
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -219,9 +221,27 @@ under `tools/evaluation/scenarios/`:
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
 
-Together the four exercise every path through the three scripts above:
+Together these four exercise every path through the three scripts above:
 every phase, both judgment methods, and a scenario that omits a phase
-entirely. Authoring further scenarios against `inkwell`'s remaining
-catalogued subjects, and against this repository's other mocks, is separate,
-later work; this document describes what runs today, not the coverage it
-will eventually have.
+entirely.
+
+### Against `recall`
+
+- [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../../tools/evaluation/scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
+  targets `expo-app-development`, alongside `react-component-development` and
+  `application-security` as peers, and carries a `discovery` factor and two
+  `outcome` factors, claiming a gap `tools/evaluation/mocks/README.md`'s own
+  "choices made for coverage" list names for `recall`: the signed-in group
+  gated by an imperative redirect rather than a declarative guard at the
+  navigator.
+- [`add-a-screen-for-editing-an-existing-card`](../../tools/evaluation/scenarios/add-a-screen-for-editing-an-existing-card/)
+  targets `high-fidelity-ui-design`, alongside `wireframe-design`,
+  `react-component-styling`, and `react-component-development` as peers, and
+  carries a `discovery` factor and two `outcome` factors, claiming the other
+  gap that same list names for `recall`: nothing in the app has a disabled
+  state.
+
+Authoring further scenarios against `inkwell`'s remaining catalogued
+subjects, and against this repository's other mocks, is separate, later
+work; this document describes what runs today, not the coverage it will
+eventually have.
