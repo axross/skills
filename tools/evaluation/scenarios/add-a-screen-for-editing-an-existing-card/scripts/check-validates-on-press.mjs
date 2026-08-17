@@ -102,15 +102,80 @@ function newFilesFromDiff(diffText) {
   return files;
 }
 
-/** the attribute text of every `<tagName ...>` opening tag in `content`. */
+/**
+ * the attribute text of every `<tagName ...>` opening tag in `content`,
+ * scanned to each tag's TRUE closing `>` rather than assumed to end at the
+ * first literal `>`.
+ *
+ * A first version of this function used a lazy regex
+ * (`<tagName\b([\s\S]*?)>`) instead, which is wrong whenever an earlier prop
+ * contains a `>` of its own — an arrow function's `=>` is the ordinary case,
+ * and it is exactly what `action-button.tsx`'s own `Pressable` already had
+ * in `onFocus={() => setIsFocused(true)}`, ahead of where a `disabled` prop
+ * naturally gets appended. The lazy regex truncated the captured tag text
+ * right there, so a prop appended after either arrow function went unseen —
+ * a verdict that depended on unrelated prop ordering. See findTagEnd below.
+ */
 function jsxOpeningTags(content, tagName) {
-  const re = new RegExp(`<${tagName}\\b([\\s\\S]*?)>`, "g");
+  const startRe = new RegExp(`<${tagName}\\b`, "g");
   const tags = [];
-  let match;
-  while ((match = re.exec(content)) !== null) {
-    tags.push(match[1]);
+  let startMatch;
+  while ((startMatch = startRe.exec(content)) !== null) {
+    const attrStart = startMatch.index + startMatch[0].length;
+    const end = findTagEnd(content, attrStart);
+    if (end === -1) continue; // an unterminated tag — nothing more to scan
+    tags.push(content.slice(attrStart, end));
+    startRe.lastIndex = end + 1;
   }
   return tags;
+}
+
+/**
+ * scans forward from `from` (just past a JSX opening tag's name) for that
+ * tag's own closing `>`, tracking `{}` depth and skipping over `'...'`,
+ * `"..."`, and `` `...` `` so a `>` inside a prop expression — an arrow
+ * function's `=>`, a numeric comparison, JSX nested inside a brace — is
+ * never mistaken for the tag's own close. A `>` only ends the tag when
+ * brace depth is 0 and no string or template literal is open; `/>` is
+ * handled the same way as a plain `>`, since the trailing `/` is harmless
+ * inside the returned attribute text.
+ *
+ * What this does not handle, stated rather than hidden: a `>` or an
+ * unbalanced brace written inside a RegExp literal in a prop expression
+ * (`disabled={/>/.test(x)}`), and a template literal's own `${...}`
+ * interpolation is treated as opaque text up to the closing backtick rather
+ * than parsed for braces of its own. Neither shape appears anywhere in this
+ * codebase today. This is a scanner for one JSX opening tag, not a JS
+ * parser — it is deliberately no more than what distinguishing a real
+ * tag-closing `>` from one written inside a prop's own expression requires.
+ *
+ * @returns {number} the index of the tag's closing `>`, or -1 if `content`
+ *   ends before one is found
+ */
+function findTagEnd(content, from) {
+  let depth = 0;
+  let quote = null; // one of "'", '"', "`", or null
+  for (let i = from; i < content.length; i++) {
+    const ch = content[i];
+    if (quote) {
+      if (ch === "\\") {
+        i++; // an escaped character inside the open string — never its end
+      } else if (ch === quote) {
+        quote = null;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === "`") {
+      quote = ch;
+    } else if (ch === "{") {
+      depth++;
+    } else if (ch === "}") {
+      if (depth > 0) depth--;
+    } else if (ch === ">" && depth === 0) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 const INLINE_ERROR_RENDER_RE = /\{\s*\w*[Ee]rror\w*\s*(?:\?|&&)/;
