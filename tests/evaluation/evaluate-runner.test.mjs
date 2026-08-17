@@ -11,11 +11,17 @@
 import { cp, readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { tempDir } from "../helpers/fixtures.mjs";
 import { repoPath } from "../helpers/run.mjs";
+import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { evaluateMeasurement } from "../../tools/evaluation/src/evaluate-runner.mjs";
+
+// spy-mode (not a replacing factory): every node:fs/promises call keeps its
+// real behavior unless a test explicitly overrides one — see
+// helpers/planted-cleanup-failure.mjs.
+vi.mock(import("node:fs/promises"), { spy: true });
 
 const FIXTURE_MEASUREMENT_DIR = repoPath(
   "tests/evaluation/fixtures/measurement/quiet-the-stale-post-list-after-a-draft-save-fixture01",
@@ -88,6 +94,39 @@ describe("evaluateMeasurement — the committed fixture", () => {
     expect(byId["invalidates-the-post-list-after-save"].result).toBe(false);
     // it never touched the existing, already-correct detail-cache write.
     expect(byId["keeps-the-detail-cache-write"].result).toBe(true);
+  });
+
+  // #413: a reconstructed-workspace removal failure must not cost the factor
+  // judgments already produced for that probe. reverting evaluate-runner.mjs's
+  // fix — putting `await rm(...)` back directly in the `finally` with no
+  // try/catch — makes this fail: the planted rejection propagates past
+  // `results.push(...)` and rejects evaluateMeasurement's whole promise
+  // instead of it resolving with every judged factor.
+  it("returns the factors it judged, and warns instead of throwing, when workspace cleanup fails", async () => {
+    const measurementDir = await copyFixture();
+    const cleanup = await plantCleanupFailure({ pathIncludes: "skill-evaluation-" });
+    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+    try {
+      const results = await evaluateMeasurement({
+        measurementDir,
+        scenariosRoot: SCENARIOS_ROOT,
+        apiKey: "test-key",
+        fetchImpl: okFetch,
+      });
+
+      expect(cleanup.triggered).toBe(true);
+      expect(results).toHaveLength(2);
+      const probe = results.find((result) => result.condition === "skill-present");
+      expect(probe.factors).toHaveLength(4);
+
+      const warnings = stderrSpy.mock.calls.map(([text]) => text).filter(Boolean);
+      expect(warnings.some((line) => /warning: could not remove/.test(line))).toBe(true);
+      expect(warnings.some((line) => line.includes("planted cleanup failure"))).toBe(true);
+    } finally {
+      cleanup.restore();
+      stderrSpy.mockRestore();
+    }
   });
 
   it("completes even with no reasoning-judge API key — the one factor errors, nothing else does", async () => {

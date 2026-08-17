@@ -112,7 +112,15 @@ export async function evaluateMeasurement({ measurementDir, scenariosRoot, apiKe
         );
       }
     } finally {
-      await rm(workspace, { recursive: true, force: true });
+      try {
+        await rm(workspace, { recursive: true, force: true });
+      } catch (error) {
+        // a cleanup that cannot complete must never discard the factor
+        // judgments this call already produced — see #413. the leak is
+        // reported, not swallowed, so an unremovable workspace on a runner
+        // is still visible.
+        process.stderr.write(`  warning: could not remove ${workspace}: ${error.message}\n`);
+      }
     }
 
     results.push({

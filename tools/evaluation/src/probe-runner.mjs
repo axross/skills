@@ -140,6 +140,13 @@ export async function runProbe({
       invocations: { skillsInvoked: behaviour.skillsInvoked },
     };
   } finally {
-    await rm(workspace, { recursive: true, force: true });
+    try {
+      await rm(workspace, { recursive: true, force: true });
+    } catch (error) {
+      // a cleanup that cannot complete must never discard the probe record
+      // this call already produced — see #413. the leak is reported, not
+      // swallowed, so an unremovable workspace on a runner is still visible.
+      process.stderr.write(`  warning: could not remove ${workspace}: ${error.message}\n`);
+    }
   }
 }
