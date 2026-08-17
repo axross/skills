@@ -1,0 +1,67 @@
+diff --git a/src/routes/PostListPage.module.css b/src/routes/PostListPage.module.css
+index 2017685..747a95c 100644
+--- a/src/routes/PostListPage.module.css
++++ b/src/routes/PostListPage.module.css
+@@ -54,3 +54,43 @@
+   background: #e4f5ea;
+   color: #1c7a41;
+ }
++
++.emptyState {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 0.75rem;
++  max-width: 26rem;
++  margin: 1.5rem 0 0;
++  padding: 3rem 2rem;
++  border: 1px dashed #c9cfdb;
++  border-radius: 0.75rem;
++  background: #f7f8fb;
++  text-align: center;
++}
++
++.emptyIcon {
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  width: 3rem;
++  height: 3rem;
++  border-radius: 999px;
++  background: #edf0f5;
++  color: #5b6472;
++  font-size: 1.375rem;
++}
++
++.emptyTitle {
++  font-size: 1.0625rem;
++  font-weight: 600;
++  color: #1f2a44;
++  margin: 0;
++}
++
++.emptyDescription {
++  font-size: 0.875rem;
++  color: #5b6472;
++  line-height: 1.5;
++  margin: 0;
++}
+diff --git a/src/routes/PostListPage.tsx b/src/routes/PostListPage.tsx
+index 25fcd08..f735cc7 100644
+--- a/src/routes/PostListPage.tsx
++++ b/src/routes/PostListPage.tsx
+@@ -20,7 +20,13 @@ export function PostListPage() {
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length === 0 && (
+-        <p>This site doesn't have any posts yet.</p>
++        <div className={css.emptyState}>
++          <span className={css.emptyIcon} aria-hidden="true">
++            ▤
++          </span>
++          <p className={css.emptyTitle}>No posts yet</p>
++          <p className={css.emptyDescription}>Posts you create for this site will show up here.</p>
++        </div>
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length > 0 && (

@@ -1,0 +1,88 @@
+diff --git a/src/routes/PostListPage.module.css b/src/routes/PostListPage.module.css
+index 2017685..a60e898 100644
+--- a/src/routes/PostListPage.module.css
++++ b/src/routes/PostListPage.module.css
+@@ -21,6 +21,45 @@
+   text-decoration: none;
+ }
+ 
++.empty {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  max-width: 40rem;
++  padding: 3rem 2rem;
++  border: 1px dashed #c9cfdb;
++  border-radius: 0.75rem;
++  background: #fafbfd;
++  text-align: center;
++}
++
++.emptyIcon {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  width: 3rem;
++  height: 3rem;
++  margin-bottom: 1rem;
++  border-radius: 999px;
++  background: #edf0f5;
++  color: #5b6472;
++}
++
++.emptyTitle {
++  margin: 0 0 0.375rem;
++  font-size: 1.0625rem;
++  font-weight: 700;
++  color: #1f2a44;
++}
++
++.emptyText {
++  margin: 0;
++  max-width: 24rem;
++  font-size: 0.875rem;
++  line-height: 1.5;
++  color: #5b6472;
++}
++
+ .title {
+   font-size: 1rem;
+   font-weight: 600;
+diff --git a/src/routes/PostListPage.tsx b/src/routes/PostListPage.tsx
+index 25fcd08..2892d2e 100644
+--- a/src/routes/PostListPage.tsx
++++ b/src/routes/PostListPage.tsx
+@@ -20,7 +20,32 @@ export function PostListPage() {
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length === 0 && (
+-        <p>This site doesn't have any posts yet.</p>
++        <div className={css.empty}>
++          <span className={css.emptyIcon} aria-hidden="true">
++            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
++              <path
++                d="M7 3.5h7.5L18 7v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"
++                stroke="currentColor"
++                strokeWidth="1.5"
++                strokeLinejoin="round"
++              />
++              <path
++                d="M14.5 3.5V7a1 1 0 0 0 1 1H18"
++                stroke="currentColor"
++                strokeWidth="1.5"
++                strokeLinejoin="round"
++              />
++              <path
++                d="M9 12h6M9 15.5h6M9 8.5h2"
++                stroke="currentColor"
++                strokeWidth="1.5"
++                strokeLinecap="round"
++              />
++            </svg>
++          </span>
++          <p className={css.emptyTitle}>No posts yet</p>
++          <p className={css.emptyText}>Posts you create for this site will show up here.</p>
++        </div>
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length > 0 && (

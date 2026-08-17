@@ -1,0 +1,58 @@
+{
+  "scenario": "give-the-empty-post-list-a-real-empty-state",
+  "condition": "skill-present",
+  "repetition": 2,
+  "timestamp": "2026-08-17T04:01:27.544Z",
+  "runtime": {
+    "model": "anthropic/claude-sonnet-5",
+    "cliVersion": null,
+    "node": "v26.7.0",
+    "os": "linux",
+    "instrumentCommit": "953f79aa373ef5066b3e4322abbef6351762595c",
+    "project": {
+      "mock": "inkwell",
+      "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+      "commit": "420110d345247b646b3880091c38006800d0e615"
+    }
+  },
+  "harness": {
+    "skills": {
+      "react-component-styling": "sha256:448b7abdb5b17a098b59ed7aabbeb09b35c9f014bb5fa074fd11b3b565cf5765",
+      "react-component-development": "sha256:5191cd0f4f4d1ad8c761be1d2f0e89dc8b797364d0d29d7f03bd55735a090531",
+      "high-fidelity-ui-design": "sha256:1588e6c8b4ee754b6b2f27309d15caf6eb43c4c4fa989148fbf2f9d1462902b4"
+    },
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "When a site doesn't have any posts yet, the page just shows one plain sentence with nothing else around it — it looks broken, like something failed to load, rather than like an empty site waiting for its first post. Can you give that moment some real visual presence?"
+  },
+  "cliExitCode": 0,
+  "turns": 49,
+  "truncated": false,
+  "costUsd": 1.0768101000000003,
+  "usage": {
+    "input": 154,
+    "output": 453,
+    "cacheCreation": 121138,
+    "cacheRead": 4109806,
+    "messages": 77
+  },
+  "loadedSkills": [
+    "deep-research",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "run",
+    "run-skill-generator"
+  ]
+}

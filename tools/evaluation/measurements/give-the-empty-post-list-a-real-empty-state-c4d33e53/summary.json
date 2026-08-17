@@ -1,0 +1,31 @@
+{
+  "scenario": "give-the-empty-post-list-a-real-empty-state",
+  "measurement": "give-the-empty-post-list-a-real-empty-state-c4d33e53",
+  "probeCount": 6,
+  "probeCountByCondition": {
+    "skill-present": 3,
+    "skill-absent": 3
+  },
+  "costUsd": 6.989808200000001,
+  "factors": [
+    {
+      "id": "reaches-for-react-component-styling",
+      "phase": "discovery",
+      "differential": 0,
+      "reason": null
+    },
+    {
+      "id": "follows-the-taught-property-group-order",
+      "phase": "outcome",
+      "differential": 0,
+      "reason": null
+    },
+    {
+      "id": "the-new-css-is-syntactically-valid",
+      "phase": "outcome",
+      "differential": 0,
+      "reason": null
+    }
+  ],
+  "comparablePredecessor": null
+}

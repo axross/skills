@@ -1,0 +1,57 @@
+{
+  "scenario": "give-the-empty-post-list-a-real-empty-state",
+  "condition": "skill-absent",
+  "repetition": 1,
+  "timestamp": "2026-08-17T04:01:30.306Z",
+  "runtime": {
+    "model": "anthropic/claude-sonnet-5",
+    "cliVersion": null,
+    "node": "v26.7.0",
+    "os": "linux",
+    "instrumentCommit": "953f79aa373ef5066b3e4322abbef6351762595c",
+    "project": {
+      "mock": "inkwell",
+      "tree": "sha256:1aeeead4cccd8e0c85b70e5b165fa906de9a5514bea1c2b30869353d9fe76d32",
+      "commit": "420110d345247b646b3880091c38006800d0e615"
+    }
+  },
+  "harness": {
+    "skills": {
+      "react-component-development": "sha256:5191cd0f4f4d1ad8c761be1d2f0e89dc8b797364d0d29d7f03bd55735a090531",
+      "high-fidelity-ui-design": "sha256:1588e6c8b4ee754b6b2f27309d15caf6eb43c4c4fa989148fbf2f9d1462902b4"
+    },
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "When a site doesn't have any posts yet, the page just shows one plain sentence with nothing else around it — it looks broken, like something failed to load, rather than like an empty site waiting for its first post. Can you give that moment some real visual presence?"
+  },
+  "cliExitCode": 143,
+  "turns": 59,
+  "truncated": true,
+  "costUsd": 1.4211760999999998,
+  "usage": {
+    "input": 198,
+    "output": 556,
+    "cacheCreation": 103319,
+    "cacheRead": 5839365,
+    "messages": 100
+  },
+  "loadedSkills": [
+    "deep-research",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "run",
+    "run-skill-generator"
+  ]
+}

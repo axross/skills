@@ -1,0 +1,75 @@
+diff --git a/src/routes/PostListPage.module.css b/src/routes/PostListPage.module.css
+index 2017685..bec1633 100644
+--- a/src/routes/PostListPage.module.css
++++ b/src/routes/PostListPage.module.css
+@@ -54,3 +54,43 @@
+   background: #e4f5ea;
+   color: #1c7a41;
+ }
++
++.emptyState {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 0.75rem;
++  max-width: 40rem;
++  padding: 4rem 2rem;
++  border: 1px solid #dfe3ea;
++  border-radius: 0.5rem;
++  background: #fafbfc;
++  text-align: center;
++}
++
++.emptyIcon {
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  width: 3.5rem;
++  height: 3.5rem;
++  border-radius: 999px;
++  background: #edf0f5;
++  color: #5b6472;
++  margin-bottom: 0.25rem;
++}
++
++.emptyHeading {
++  font-size: 1.125rem;
++  font-weight: 600;
++  color: #1f2a44;
++  margin: 0;
++}
++
++.emptyBody {
++  font-size: 0.9375rem;
++  line-height: 1.5;
++  color: #5b6472;
++  margin: 0;
++  max-width: 28rem;
++}
+diff --git a/src/routes/PostListPage.tsx b/src/routes/PostListPage.tsx
+index 25fcd08..8d4e998 100644
+--- a/src/routes/PostListPage.tsx
++++ b/src/routes/PostListPage.tsx
+@@ -20,7 +20,21 @@ export function PostListPage() {
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length === 0 && (
+-        <p>This site doesn't have any posts yet.</p>
++        <div className={css.emptyState}>
++          <div className={css.emptyIcon} aria-hidden="true">
++            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
++              <path
++                d="M6 2.75h8.5L19 7.25V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.75a1 1 0 0 1 1-1Z"
++                strokeWidth="1.5"
++                strokeLinejoin="round"
++              />
++              <path d="M14.5 2.75V7h4.25" strokeWidth="1.5" strokeLinejoin="round" />
++              <path d="M8 12.5h8M8 16h5" strokeWidth="1.5" strokeLinecap="round" />
++            </svg>
++          </div>
++          <p className={css.emptyHeading}>No posts yet</p>
++          <p className={css.emptyBody}>Posts you create for this site will show up here.</p>
++        </div>
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length > 0 && (

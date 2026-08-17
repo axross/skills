@@ -1,0 +1,95 @@
+diff --git a/package-lock.json b/package-lock.json
+index 84bea61..4cf3167 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -2916,6 +2916,7 @@
+       "version": "13.0.3",
+       "resolved": "https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-13.0.3.tgz",
+       "integrity": "sha512-RbOBxmLBG8uvFUc15X9+9SFemKcQ0WBuISBVkpuiaUB2qblC8UWlHEjdWVoZ8AdhSwmoEgsiXKfopX0CQxaACQ==",
++      "hasInstallScript": true,
+       "license": "MIT",
+       "dependencies": {
+         "node-addon-api": "^8.0.0"
+diff --git a/src/routes/PostListPage.module.css b/src/routes/PostListPage.module.css
+index 2017685..fe8baa6 100644
+--- a/src/routes/PostListPage.module.css
++++ b/src/routes/PostListPage.module.css
+@@ -5,6 +5,38 @@
+   margin: 0 0 1.5rem;
+ }
+ 
++.empty {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 0.5rem;
++  max-width: 40rem;
++  padding: 4rem 2rem;
++  text-align: center;
++  border: 1px dashed #c9cfdb;
++  border-radius: 0.75rem;
++  background: #f8f9fb;
++}
++
++.emptyIcon {
++  color: #7d8798;
++  margin-bottom: 0.5rem;
++}
++
++.emptyTitle {
++  font-size: 1.125rem;
++  font-weight: 600;
++  color: #1f2a44;
++  margin: 0;
++}
++
++.emptyBody {
++  font-size: 0.9375rem;
++  color: #5b6472;
++  margin: 0;
++  max-width: 32ch;
++}
++
+ .list {
+   list-style: none;
+   margin: 0;
+diff --git a/src/routes/PostListPage.tsx b/src/routes/PostListPage.tsx
+index 25fcd08..98684c8 100644
+--- a/src/routes/PostListPage.tsx
++++ b/src/routes/PostListPage.tsx
+@@ -20,7 +20,21 @@ export function PostListPage() {
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length === 0 && (
+-        <p>This site doesn't have any posts yet.</p>
++        <div className={css.empty}>
++          <svg
++            className={css.emptyIcon}
++            width="40"
++            height="40"
++            viewBox="0 0 40 40"
++            fill="none"
++            aria-hidden="true"
++          >
++            <rect x="8" y="4" width="24" height="32" rx="2" stroke="currentColor" strokeWidth="2" />
++            <path d="M14 14h12M14 20h12M14 26h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
++          </svg>
++          <p className={css.emptyTitle}>No posts yet</p>
++          <p className={css.emptyBody}>This site doesn't have any posts yet.</p>
++        </div>
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length > 0 && (
+diff --git a/vite.config.ts b/vite.config.ts
+index a78e1da..0829332 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -28,7 +28,7 @@ export default defineConfig({
+   },
+   server: {
+     proxy: {
+-      "/api": API_PROXY_TARGET,
++      "/api": { target: API_PROXY_TARGET, rewrite: (path) => path.replace(/^\/api/, "") },
+     },
+   },
+   preview: {
