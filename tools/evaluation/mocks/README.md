@@ -170,11 +170,14 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   dashboard. The new-author onboarding path is a genuinely different
   subject the same skill could measure, and is recorded here as
   **unclaimed** rather than dropped — #423's coverage policy does not
-  budget a second `wireframe-design` scenario in this slice. The absence is
-  honest at this stage of a product, and `AGENTS.md` says so in the
-  project's own voice rather than leaving a reader to wonder; session
-  handling is stated there as living outside this cut, which is also why no
-  sign-in screen exists.
+  budget a second `wireframe-design` scenario in this slice. The settings
+  page is a different case from onboarding's: no scenario, old or planned,
+  has ever taken it as a subject, so its absence rests on the product-stage
+  reasoning alone, the same footing the sign-in screen's absence already
+  stands on. The absence is honest at this stage of a product, and
+  `AGENTS.md` says so in the project's own voice rather than leaving a
+  reader to wonder; session handling is stated there as living outside this
+  cut, which is also why no sign-in screen exists.
 - **There is no design-token layer and no dark mode.** Plain CSS Modules. The
   token layer belongs to the Expo mock, where Unistyles' core API is themes and
   a light/dark pair is idiomatic; here it would be a bolted-on device, and the
