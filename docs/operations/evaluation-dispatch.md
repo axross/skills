@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
+Six scenarios are declared today, all against the `inkwell` mock project,
 under `tools/evaluation/scenarios/`:
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
@@ -218,8 +218,18 @@ under `tools/evaluation/scenarios/`:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`bring-the-analytics-event-names-into-one-scheme`](../../tools/evaluation/scenarios/bring-the-analytics-event-names-into-one-scheme/)
+  targets `software-instrumentation`, with `amplitude-instrumentation` and
+  `code-maintainability` as peers, and
+  [`keep-a-running-count-of-an-authors-visits`](../../tools/evaluation/scenarios/keep-a-running-count-of-an-authors-visits/)
+  targets `amplitude-instrumentation`, with `software-instrumentation` and
+  `sentry-instrumentation` as peers — each names the other as its own peer,
+  since a scheme for an event's name and which `Identify` operator a running
+  count needs are the same kind of question read two ways. Both carry a
+  `discovery` factor and two `outcome` factors, every factor judged by
+  script, and neither declares a `transcript` phase.
 
-Together the four exercise every path through the three scripts above:
+Together the six exercise every path through the three scripts above:
 every phase, both judgment methods, and a scenario that omits a phase
 entirely. Authoring further scenarios against `inkwell`'s remaining
 catalogued subjects, and against this repository's other mocks, is separate,
