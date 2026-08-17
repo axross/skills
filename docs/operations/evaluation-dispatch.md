@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
+Six scenarios are declared today, all against the `inkwell` mock project,
 under `tools/evaluation/scenarios/`:
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
@@ -212,6 +212,22 @@ under `tools/evaluation/scenarios/`:
   names for `inkwell`: the toast's missing `prefers-reduced-motion` guard,
   and the property order the mock's stylesheets deliberately never
   demonstrate.
+- [`give-every-screen-one-loading-and-error-treatment`](../../tools/evaluation/scenarios/give-every-screen-one-loading-and-error-treatment/)
+  targets `react-component-development`, alongside `code-maintainability` and
+  `react-component-styling` as peers, against the three route components that
+  each hand-roll their own loading and error branches in three different
+  shapes. It carries a `discovery` factor and two `outcome` factors — one
+  checking the repetition landed in one new module both screens import, the
+  other checking that module still lets each screen say its own thing — and
+  no `transcript` factor.
+- [`sketch-a-screen-for-how-an-authors-posts-are-doing`](../../tools/evaluation/scenarios/sketch-a-screen-for-how-an-authors-posts-are-doing/)
+  targets `wireframe-design`, alongside `high-fidelity-ui-design` and
+  `react-component-styling` as peers, against a screen `inkwell` deliberately
+  does not have: an author's own performance dashboard. It carries a
+  `discovery` factor and two `outcome` factors — one checking a
+  self-contained document exists and names this screen's own subject, the
+  other checking it stays at breadboard fidelity — and no `transcript`
+  factor.
 - [`confirm-a-draft-save-like-a-publish-does`](../../tools/evaluation/scenarios/confirm-a-draft-save-like-a-publish-does/)
   targets `github-operation` on an ordinary `inkwell` task with nothing
   GitHub-shaped about it — this practice's **negative control** (see
@@ -219,7 +235,7 @@ under `tools/evaluation/scenarios/`:
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
 
-Together the four exercise every path through the three scripts above:
+Together the six exercise every path through the three scripts above:
 every phase, both judgment methods, and a scenario that omits a phase
 entirely. Authoring further scenarios against `inkwell`'s remaining
 catalogued subjects, and against this repository's other mocks, is separate,
