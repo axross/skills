@@ -59,10 +59,10 @@ Both are declared below so a reviewer can tell either from a bug —
 review round.
 
 Where an entry below names a scenario asking something of a model, it is
-naming the coverage that affordance exists for, not a scenario already
-declared. The tree currently holds one; #392's step 4 authors the set. An
-entry whose scenario is not yet written is a standing reason the mock is
-shaped as it is, and is why the shape survives until then.
+naming the coverage that affordance exists for, not necessarily a scenario
+already declared — #392's step 4 is still authoring the set. An entry whose
+scenario is not yet written is a standing reason the mock is shaped as it
+is, and is why the shape survives until then.
 
 ### `tsuzuri` — choices made for coverage
 
@@ -78,11 +78,20 @@ shaped as it is, and is why the shape survives until then.
   control run the conventions the evaluation is trying to detect. A uniformly
   poor one would be just as wrong in the other direction, flattering a
   treatment run by giving it something obvious to correct.
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
+  reads this suite as its own counter-precedent — bare subject naming and no
+  condition grouping — so a fix to the untested module beside it has nothing
+  here to copy.
 - **`shared/resolve-translation.ts` exports its three helpers**, which a real
   module might keep private. Private, "did the test go through the caller's
   public surface" stops being a choice a model can get wrong, and the signal
   disappears.
-- **`shared/resolve-translation.ts` ships no test**, which is what a scenario
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
+  is the scenario this choice serves: its own outcome factors ask whether a
+  new spec names those exported functions as callable subjects, which stays
+  a real question only while they are public.
+- **`shared/resolve-translation.ts` ships no test**, which is what
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
   asks a model to fix. This is a gap the project has rather than one planted
   in it: the history says how it happened without being asked to, since the
   slug module was committed _with_ its spec and the locale module alone

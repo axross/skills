@@ -197,8 +197,8 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
-under `tools/evaluation/scenarios/`:
+Seven scenarios are declared today, against two mock projects — `inkwell`
+and `tsuzuri` — under `tools/evaluation/scenarios/`:
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -218,10 +218,38 @@ under `tools/evaluation/scenarios/`:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`cover-the-locale-fallback-nothing-tests`](../../tools/evaluation/scenarios/cover-the-locale-fallback-nothing-tests/)
+  targets `unit-testing` against `tsuzuri`, alongside `jest-testing` and
+  `end-to-end-testing` as peers, and asks a fix to cover
+  `shared/resolve-translation.ts` — the one module under `shared/` that ships
+  no spec — with both outcome factors checking spec craft the mock's own
+  `blog-post-slug.spec.ts` demonstrates only the opposite half of, or not at
+  all: naming a callable subject with `()`, and grouping a shared condition
+  under its own `describe("when ...")` block.
+- [`show-what-the-test-run-never-reaches`](../../tools/evaluation/scenarios/show-what-the-test-run-never-reaches/)
+  targets `jest-testing` against `tsuzuri`, alongside `unit-testing` and
+  `quality-assurance` as peers, and asks for real coverage visibility rather
+  than trust in a green run — checking that a fix declares
+  `collectCoverageFrom` (so an untouched file stays visible as uncovered
+  instead of disappearing from the report) and sets `coverageProvider` to
+  `v8` (the instrumentation `jest-testing` prefers for a project transformed
+  by SWC rather than Babel), neither of which `jest.config.cjs` declares
+  today.
+- [`broaden-a-suite-that-never-opens-a-post`](../../tools/evaluation/scenarios/broaden-a-suite-that-never-opens-a-post/)
+  targets `end-to-end-testing` against `tsuzuri`, alongside `unit-testing`
+  and `next-app-development` as peers, and asks for the post pages
+  `e2e/home.spec.ts` never opens — checking that a fix drives a reader whose
+  accepted language matches only by language rather than by exact locale,
+  and drives the one post the home page links to that has no translation at
+  all and so 404s.
 
-Together the four exercise every path through the three scripts above:
-every phase, both judgment methods, and a scenario that omits a phase
-entirely. Authoring further scenarios against `inkwell`'s remaining
-catalogued subjects, and against this repository's other mocks, is separate,
-later work; this document describes what runs today, not the coverage it
-will eventually have.
+Every factor across the three `tsuzuri` scenarios is judged by `script`; none
+declares a `transcript` factor, for the reason each scenario's own plan
+recorded — a script transcript factor would grep for vocabulary the task
+prompt itself already contains. The three `inkwell` scenarios that carry a
+`transcript` factor judge it by reasoning instead. Together the seven
+exercise every path through the three scripts above: every phase, both
+judgment methods, and a scenario that omits a phase entirely. Authoring
+further scenarios against either mock's remaining catalogued subjects, and
+against this repository's other mocks, remains later work; this document
+describes what runs today, not the coverage it will eventually have.
