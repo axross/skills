@@ -2,10 +2,11 @@
 // an outcome-phase script judgment: does one file in the reconstructed
 // workspace contain every substring the factor expects.
 //
-// generic across this scenario's two outcome factors — one checking what
-// the fix has to ADD (the missing invalidation), one checking what it must
-// NOT remove (the existing detail-cache write) — docs/specs/skill-evaluation.md's
-// "both what had to appear and what had to not". The file itself lives in
+// this scenario uses it for one factor only — reads-the-page-number-from-the-route,
+// which asks whether app/(site)/page.tsx reads searchParams at all. That is
+// the scenario's completion floor rather than a skill effect: it separates a
+// run that never attempted the task from one that attempted it without the
+// discipline the other outcome factors look for. The file itself lives in
 // the reconstructed workspace, which is this process's own cwd (see this
 // scenario's scenario.json and factor-judgment.mjs's runScriptJudgment); a
 // file the expectation names but the workspace does not have is a judgment
