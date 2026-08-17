@@ -3,10 +3,16 @@
 
 import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
+import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { judgeFactor, materialFor } from "../../tools/evaluation/src/factor-judgment.mjs";
+
+// spy-mode (not a replacing factory): every node:fs/promises call keeps its
+// real behavior unless a test explicitly overrides one — see
+// helpers/planted-cleanup-failure.mjs.
+vi.mock(import("node:fs/promises"), { spy: true });
 
 const PROBE = {
   skillsInvoked: ["unit-testing"],
@@ -125,6 +131,42 @@ describe("judgeFactor — script method", () => {
     const record = await judgeFactor(factor, { scenarioDir, workspace, probe: PROBE });
 
     expect(record.evidence).toBe(workspace);
+  });
+
+  // #413: a scratch-directory removal failure must not cost the judgment
+  // already decided. this module has no CLI of its own and writes nothing to
+  // disk, so the warning is carried in the returned record rather than
+  // written to stderr — see runScriptJudgment's own doc comment. reverting
+  // factor-judgment.mjs's fix — collapsing judgeWithScript back into
+  // runScriptJudgment's `try { … return X } finally { await rm(...) }` —
+  // makes this fail: the planted rejection propagates past the return and
+  // replaces it, so `judgeFactor(...)` rejects instead of resolving.
+  it("returns the judgment, carrying a cleanup warning, when scratch-directory cleanup fails", async () => {
+    const scenarioDir = await scenarioWithScript(PASSING_SCRIPT);
+    const workspace = await tempDir();
+    const factor = {
+      id: "f1",
+      phase: "discovery",
+      judgment: { method: "script", script: "scripts/check.mjs" },
+    };
+    const cleanup = await plantCleanupFailure({ pathIncludes: "evaluate-context-" });
+
+    try {
+      const record = await judgeFactor(factor, { scenarioDir, workspace, probe: PROBE });
+
+      expect(cleanup.triggered).toBe(true);
+      expect(record).toMatchObject({
+        id: "f1",
+        phase: "discovery",
+        method: "script",
+        result: true,
+        evidence: "checked skillsInvoked",
+      });
+      expect(record.cleanupWarning).toMatch(/could not remove/);
+      expect(record.cleanupWarning).toMatch(/planted cleanup failure/);
+    } finally {
+      cleanup.restore();
+    }
   });
 });
 

@@ -6,12 +6,18 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { fakeClaudeEnv } from "./helpers/fake-cli.mjs";
+import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { runProbe } from "../../tools/evaluation/src/probe-runner.mjs";
 import { loadScenario } from "../../tools/evaluation/src/scenario.mjs";
 import { repoPath } from "../helpers/run.mjs";
+
+// spy-mode (not a replacing factory): every node:fs/promises call keeps its
+// real behavior unless a test explicitly overrides one — see
+// helpers/planted-cleanup-failure.mjs.
+vi.mock(import("node:fs/promises"), { spy: true });
 
 const SCENARIO_DIR = repoPath(
   "tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save",
@@ -71,6 +77,37 @@ describe("runProbe", () => {
     // temp directory from the first would not prevent, but at minimum
     // proves runProbe does not itself throw on cleanup.
     await expect(runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env })).resolves.toBeTruthy();
+  });
+
+  // #413: a workspace-removal failure (an ENOTEMPTY from something still
+  // writing under node_modules, in the reproduction that found this) must
+  // not cost the probe record that was already built. reverting
+  // probe-runner.mjs's fix — putting `await rm(...)` back directly in the
+  // `finally` with no try/catch — makes this fail: the planted rejection
+  // propagates past `return { metadata, ... }` and replaces it, so
+  // `recorded` rejects instead of resolving.
+  it("returns the probe record, and warns instead of throwing, when workspace cleanup fails", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv();
+    const cleanup = await plantCleanupFailure({ pathIncludes: "skill-evaluation-" });
+    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+    try {
+      const recorded = await runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env });
+
+      expect(cleanup.triggered).toBe(true);
+      expect(recorded.metadata).toBeTypeOf("object");
+      expect(recorded.transcript).toContain('"type":"result"');
+      expect(typeof recorded.diff).toBe("string");
+      expect(recorded.invocations.skillsInvoked).toEqual([]);
+
+      const warnings = stderrSpy.mock.calls.map(([text]) => text).filter(Boolean);
+      expect(warnings.some((line) => /warning: could not remove/.test(line))).toBe(true);
+      expect(warnings.some((line) => line.includes("planted cleanup failure"))).toBe(true);
+    } finally {
+      cleanup.restore();
+      stderrSpy.mockRestore();
+    }
   });
 
   it("strips credential-shaped environment variables before spawning", async () => {
