@@ -44,8 +44,16 @@
 // the screens' own pre-existing query-variable names carry a comparison
 // that should have found nothing to distinguish — reported true for a
 // textbook flattening whose only surviving difference was postsQuery vs
-// postQuery. Fixed after a review round; see #429's fix-round history for
-// the reproduction this version was built and checked against.
+// postQuery. A later version's own JSX-span reader (captureJsxElement)
+// found the end of an open tag by scanning for an unquoted `>` with no
+// notion of `=>`, so an element carrying a callback prop —
+// `onRetry={() => query.refetch()}` — hit the `>` inside `=>` first, was
+// read as having children, found no matching close tag, and its whole
+// span was silently dropped: two screens passing genuinely distinct
+// messages alongside a retry callback compared as two empty strings and
+// reported false. Both fixed after separate review rounds; see #429's
+// fix-round history for the reproductions each version was built and
+// checked against.
 //
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
@@ -119,6 +127,67 @@ function captureBalanced(text, openIndex, openChar, closeChar) {
 }
 
 /**
+ * finds the end of a JSX element's OPEN TAG — the `>` (or `/>`) that
+ * actually closes it — starting at `start`, the index right after the tag
+ * name. A `>` only terminates the tag when it is at JSX-expression-
+ * container depth 0 AND outside any quoted span: an attribute value can
+ * itself carry a `>` that means something else entirely — `=>` in a prop
+ * like `onRetry={() => query.refetch()}`, a comparison in
+ * `showRetry={attempts > 2}`, or a literal character in `title="Drafts >
+ * 10"` — and none of those may be read as the tag's own close. Container
+ * depth is tracked via `{`/`}` (an attribute's `{expression}`); inside a
+ * quote, `{`/`}`/`>` are all inert until the matching close, the same
+ * string-skipping stripComments in the sibling lib/route-imports.mjs
+ * already does for its own scan (escapes respected; a backtick's own
+ * `${…}` holes are not specially re-entered as code, matching that same
+ * precedent — not a concern for the flat prop values this scenario's
+ * subject produces).
+ *
+ * @param {string} text
+ * @param {number} start
+ * @returns {{ end: number, selfClosing: boolean } | null} `end` is the
+ *   index of the terminating `>` itself; null if the tag never closes
+ *   before the text ends
+ */
+function findOpenTagEnd(text, start) {
+  let i = start;
+  let quote = null;
+  let depth = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\") {
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      i++;
+      continue;
+    }
+    if (ch === "{") {
+      depth++;
+      i++;
+      continue;
+    }
+    if (ch === "}") {
+      depth = Math.max(0, depth - 1);
+      i++;
+      continue;
+    }
+    if (ch === ">" && depth === 0) {
+      return { end: i, selfClosing: text[i - 1] === "/" };
+    }
+    i++;
+  }
+  return null;
+}
+
+/**
  * captures one JSX element occurrence starting at `ltIndex`, where
  * `text[ltIndex] === "<"` and the tag name immediately following is `name`.
  * Returns the element's own source text — `<Name .../>` or
@@ -137,34 +206,12 @@ function captureBalanced(text, openIndex, openChar, closeChar) {
  *   ends
  */
 function captureJsxElement(text, ltIndex, name) {
-  let i = ltIndex + 1 + name.length;
-  let quote = null;
-  while (i < text.length) {
-    const ch = text[i];
-    if (quote) {
-      if (ch === "\\") {
-        i += 2;
-        continue;
-      }
-      if (ch === quote) quote = null;
-      i++;
-      continue;
-    }
-    if (ch === '"' || ch === "'" || ch === "`") {
-      quote = ch;
-      i++;
-      continue;
-    }
-    if (ch === ">") {
-      if (text[i - 1] === "/") return text.slice(ltIndex, i + 1); // self-closing
-      break; // open tag ends here; this element has children
-    }
-    i++;
-  }
-  if (i >= text.length) return null; // the opening tag itself never closed
+  const openTag = findOpenTagEnd(text, ltIndex + 1 + name.length);
+  if (!openTag) return null; // the opening tag itself never closed
+  if (openTag.selfClosing) return text.slice(ltIndex, openTag.end + 1);
 
   let depth = 1;
-  i++; // past the '>'
+  let i = openTag.end + 1; // past the '>'
   const closeTag = `</${name}>`;
   while (i < text.length) {
     if (text.startsWith(closeTag, i)) {
