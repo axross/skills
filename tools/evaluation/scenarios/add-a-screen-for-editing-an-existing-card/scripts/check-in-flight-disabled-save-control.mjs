@@ -25,11 +25,16 @@
 //   2. THE SCREEN BINDS IT — some file the diff newly added uses
 //      <ActionButton ... disabled={EXPR} ...> where EXPR's own text names
 //      an in-flight/save state (matched against submit/saving/pending/
-//      progress, case-insensitively) rather than, say, field validity.
-//      This is the check that keeps this factor distinct from its sibling
-//      (still-validates-on-press-rather-than-gating-the-control.mjs's own
-//      script), which is what catches a disabled expression bound to
-//      validity instead.
+//      progress, case-insensitively) somewhere in it. This check does NOT
+//      require EXPR to name nothing else: `disabled={saving || !front.trim()
+//      || !back.trim()}` still satisfies this factor's own narrower claim
+//      that AN in-flight state is bound, because that claim does not by
+//      itself rule out a validity check layered alongside it. Whether EXPR
+//      ALSO couples to field validity — and so greys the control out on
+//      invalid input regardless of the in-flight term riding along — is
+//      still-validates-on-press-rather-than-gating-the-control.mjs's own
+//      claim, not this one's; that sibling script is what catches the
+//      combination, deliberately, rather than this one re-deriving it.
 //
 // action-button.tsx is read by a fixed, known path — it already exists in
 // every recall workspace, patch or no patch, so its absence means the

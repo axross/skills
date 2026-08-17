@@ -23,13 +23,32 @@
 //      variable whose name contains "error" (`{error ? ... : null}` or
 //      `{error && ...}`), the same shape that block's own render already
 //      has.
-//   3. NOT GATED BY THE DISABLED PROP INSTEAD — the screen's ActionButton
-//      usage for the save control, if it passes a `disabled={EXPR}` at all,
-//      names an in-flight/save state (submit/saving/pending/progress) in
-//      EXPR rather than anything else. A `disabled={!front.trim() ||
-//      !back.trim()}` — the plausible wrong fix greying the control out on
-//      invalid input — fails this condition, and with it this factor,
-//      because EXPR names no in-flight state.
+//   3. NOT COUPLED TO FIELD VALIDITY — the screen's ActionButton usage for
+//      the save control, if it passes a `disabled={EXPR}` at all, must not
+//      reference the screen's own field-state (an identifier also passed as
+//      `value={...}` to some field component in the same file, e.g. `front`
+//      or `back`) or call `.trim()`/`.length` inside EXPR. This is a
+//      positive detection of validity-coupling, not merely the absence of
+//      an in-flight term: an expression may legitimately name an in-flight
+//      state AND still fail this condition, because a combined guard —
+//      `disabled={saving || !front.trim() || !back.trim()}` — greys the
+//      control out on invalid input exactly as much as a validity-only one
+//      does, layered under a legitimate-looking in-flight term. Whether
+//      EXPR names an in-flight state at all is
+//      check-in-flight-disabled-save-control.mjs's own claim, not this
+//      one's; that script does not require exclusivity either, precisely
+//      because this script is what catches the combination.
+//
+// Limitation, stated rather than hidden: a validity check laundered through
+// a derived, differently-named boolean the disabled expression alone
+// references (`const isValid = front.trim() && back.trim(); ...
+// disabled={!isValid}`) is caught by neither signal above and would pass
+// this factor undetected. What this heuristic deliberately does NOT do:
+// treat a bare negated identifier (`disabled={!ready}`, `disabled={!saving}`)
+// as validity-shaped by itself. A negated boolean is exactly as likely to be
+// a legitimate, if unusually named or polarized, in-flight flag as a
+// validity check, and over-rejecting that shape would fail correct work —
+// the defect a broader "any `!identifier`" pattern would have introduced.
 //
 // Same limitation as its sibling script: the `if` and `disabled={...}`
 // extraction assumes no nested `{}` inside either, true of every precedent
@@ -94,8 +113,8 @@ function jsxOpeningTags(content, tagName) {
   return tags;
 }
 
-const IN_FLIGHT_EXPR_RE = /\b(?:submit|saving|save|pending|progress)\w*\b/i;
 const INLINE_ERROR_RENDER_RE = /\{\s*\w*[Ee]rror\w*\s*(?:\?|&&)/;
+const VALIDITY_METHOD_RE = /\.trim\(\)|\.length\b/;
 
 /** whether `content` contains a single-level `if (...) { ... }` block that both sets an error and returns. */
 function validatesOnPress(content) {
@@ -118,11 +137,45 @@ function disabledExpressionOn(content, tagName) {
   return null;
 }
 
+/**
+ * every bare identifier passed as `value={IDENT}` anywhere in `content` —
+ * the screen's own field-state, on the same convention every field in this
+ * codebase already follows (`<TextField label="Front" value={front} .../>`).
+ * Not scoped to one component name, so a future field-shaped component
+ * beside TextField is picked up the same way.
+ * @returns {Set<string>}
+ */
+function fieldStateIdentifiers(content) {
+  const re = /\bvalue\s*=\s*\{\s*([A-Za-z_$][\w$]*)\s*\}/g;
+  const ids = new Set();
+  let match;
+  while ((match = re.exec(content)) !== null) {
+    ids.add(match[1]);
+  }
+  return ids;
+}
+
+/**
+ * whether `expr` couples to field validity — a positive detection of the
+ * specific pattern this factor exists to catch, not merely the absence of
+ * an in-flight term. See this file's own header for what this can and
+ * cannot tell apart.
+ * @param {string} expr
+ * @param {Set<string>} fieldIds
+ */
+function isValidityCoupled(expr, fieldIds) {
+  if (VALIDITY_METHOD_RE.test(expr)) return true;
+  for (const id of fieldIds) {
+    if (new RegExp(`\\b${id}\\b`).test(expr)) return true;
+  }
+  return false;
+}
+
 const newFiles = newFilesFromDiff(diff).filter((path) => path.endsWith(".tsx"));
 
 let readableCount = 0;
 let matchedFile = null;
-let sawUnboundCandidate = false; // a readable candidate whose disabled expr, if any, is NOT in-flight-shaped
+let sawValidityCoupledCandidate = false; // a readable candidate whose disabled expr, if any, couples to field validity
 for (const path of newFiles) {
   let content;
   try {
@@ -133,10 +186,10 @@ for (const path of newFiles) {
   readableCount++;
 
   const disabledExpr = disabledExpressionOn(content, "ActionButton");
-  const boundToSomethingElse = disabledExpr !== null && !IN_FLIGHT_EXPR_RE.test(disabledExpr);
-  if (boundToSomethingElse) sawUnboundCandidate = true;
+  const boundToValidity = disabledExpr !== null && isValidityCoupled(disabledExpr, fieldStateIdentifiers(content));
+  if (boundToValidity) sawValidityCoupledCandidate = true;
 
-  if (validatesOnPress(content) && INLINE_ERROR_RENDER_RE.test(content) && !boundToSomethingElse) {
+  if (validatesOnPress(content) && INLINE_ERROR_RENDER_RE.test(content) && !boundToValidity) {
     matchedFile = path;
     break;
   }
@@ -153,11 +206,11 @@ const result = matchedFile !== null;
 
 let evidence;
 if (result) {
-  evidence = `${matchedFile} validates on press with an inline error, and does not gate its save control's disabled state on anything but an in-flight save`;
+  evidence = `${matchedFile} validates on press with an inline error, and its save control's disabled state, if any, does not couple to field validity`;
 } else if (newFiles.length === 0) {
   evidence = "the diff added no .tsx file, so there is no edit screen for this factor to check";
-} else if (sawUnboundCandidate) {
-  evidence = `a candidate edit screen among (${newFiles.join(", ")}) gates its save control's disabled state on something other than an in-flight save, rather than validating on press`;
+} else if (sawValidityCoupledCandidate) {
+  evidence = `a candidate edit screen among (${newFiles.join(", ")}) gates its save control's disabled state on field validity, rather than validating on press`;
 } else {
   evidence = `none of the diff's added files (${newFiles.join(", ")}) both validate on press and surface the error inline`;
 }
