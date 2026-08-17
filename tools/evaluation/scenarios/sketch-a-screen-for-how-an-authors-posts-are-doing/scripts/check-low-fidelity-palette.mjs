@@ -16,7 +16,11 @@
 // document actually DECLARES colour, as distinct from its visible prose,
 // which is why the scan is scoped there and not to the whole file):
 // convert each hex, rgb()/rgba(), hsl()/hsla(), and CSS named colour to
-// HSL, and require
+// HSL, and require. None of the four is read inside a quoted string's own
+// CONTENTS — a `content:` value, a quoted `font-family` name — where a
+// design annotation or placeholder copy can carry text shaped exactly like
+// a declared colour without being one; see blankQuotedStringContents's own
+// header.
 //
 // cssDeclarationText reads STRUCTURALLY, not as one bag of text: it yields
 // only the VALUE side of each "property: value" declaration inside a
@@ -498,16 +502,83 @@ function cssDeclarationText(html) {
 }
 
 /**
+ * true when `text[i]` starts a `url(` function call — "url" immediately
+ * followed by "(", case-insensitively, and not itself the tail of a longer
+ * identifier (a value that merely contains the letters, or a name like
+ * "my-url", never opens a span). Matches CSS's own url-token grammar
+ * closely enough for this factor's purpose: a bare identifier boundary
+ * check, not a full tokenizer.
+ * @param {string} text
+ * @param {number} i
+ * @returns {boolean}
+ */
+function isUrlCallStart(text, i) {
+  if (text.slice(i, i + 4).toLowerCase() !== "url(") return false;
+  const before = text[i - 1];
+  return before === undefined || !/[\w$]/.test(before);
+}
+
+/**
+ * the index just past the closing ")" of a url(...) call, given `start` —
+ * the index right after the opening "(". Quote-aware (both a double-quoted
+ * whole payload, `url("data:...")`, and the single-quoted attribute values
+ * a data URI's own embedded SVG markup carries, `fill='#3355ff'`, whether
+ * or not the payload itself is quoted) so a ")" or a nested quote inside
+ * the payload never closes the call early. Falls back to the end of `text`
+ * if the call is never closed.
+ * @param {string} text
+ * @param {number} start index right after the opening "("
+ * @returns {number}
+ */
+function findUrlCallEnd(text, start) {
+  let quote = null;
+  let i = start;
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\" && i + 1 < text.length) {
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      i++;
+      continue;
+    }
+    if (ch === ")") return i + 1;
+    i++;
+  }
+  return text.length;
+}
+
+/**
  * blanks the CONTENTS of every quoted string in `text` (single-, double-,
  * or backtick-quoted; escapes respected), keeping the quote characters and
  * every other character in place, so the result is safe to scan for a
- * NAMED colour keyword without a word like "Coral" inside ordinary quoted
- * text — `content: "No drafts yet — Coral Bay import pending"`, or a
- * quoted `font-family` name — being misread as the declared colour coral.
- * Named colours are the only scan this feeds: hex and rgb()/hsl() are
- * never legitimately written inside a quoted string in real CSS (a colour
- * is never itself quoted), so their own matching still runs against the
- * unmodified text.
+ * declared colour without ordinary quoted prose being misread as one —
+ * `content: "No drafts yet — Coral Bay import pending"` reading the named
+ * colour coral, or `content: "Design note: swap accent for #ff00aa"`
+ * reading that hex literal, are the same defect: a design annotation
+ * written as a document's own visible text is not a declared colour
+ * whichever colour syntax it happens to use. All four colour matchers —
+ * hex, rgb()/rgba(), hsl()/hsla(), and named — run against this function's
+ * output, not the raw text.
+ *
+ * The one exception: a `url(...)` call's own payload is left completely
+ * untouched, quoted or not (see isUrlCallStart / findUrlCallEnd) — not
+ * because it escapes the quote rule, but because it is not the same KIND
+ * of string. Every other quoted value in CSS is TEXT: a reader sees its
+ * characters, and nothing renders them. A url() payload is a RESOURCE: a
+ * data URI's own embedded SVG markup — `url("data:image/svg+xml;utf8,
+ * <svg><rect fill='#3355ff'/></svg>")` — paints pixels on the page exactly
+ * as `background: #3355ff` does, so a colour declared inside it is a real
+ * declared colour, not prose that happens to be colour-shaped. Blanking it
+ * anyway would silently under-count a page that hides a real brand colour
+ * inside an icon.
  * @param {string} text
  * @returns {string}
  */
@@ -531,6 +602,12 @@ function blankQuotedStringContents(text) {
       }
       out += " ";
       i++;
+      continue;
+    }
+    if (isUrlCallStart(text, i)) {
+      const end = findUrlCallEnd(text, i + 4);
+      out += text.slice(i, end);
+      i = end;
       continue;
     }
     if (ch === '"' || ch === "'" || ch === "`") {
@@ -562,17 +639,19 @@ function distinctColorsIn(cssText) {
     byKey.set(key, { ...rgb, ...rgbToHsl(rgb.r, rgb.g, rgb.b) });
   };
 
-  for (const m of cssText.matchAll(/#([0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3})\b/gi)) {
+  const unquoted = blankQuotedStringContents(cssText);
+
+  for (const m of unquoted.matchAll(/#([0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3})\b/gi)) {
     add(hexToRgb(m[1].toLowerCase()));
   }
-  for (const m of cssText.matchAll(/\brgba?\(\s*([^)]+)\)/gi)) {
+  for (const m of unquoted.matchAll(/\brgba?\(\s*([^)]+)\)/gi)) {
     const tokens = m[1].split(/[\s,/]+/).filter(Boolean);
     if (tokens.length < 3) continue;
     const channel = (token) =>
       token.endsWith("%") ? Math.round((parseFloat(token) / 100) * 255) : Math.round(parseFloat(token));
     add({ r: channel(tokens[0]), g: channel(tokens[1]), b: channel(tokens[2]) });
   }
-  for (const m of cssText.matchAll(/\bhsla?\(\s*([^)]+)\)/gi)) {
+  for (const m of unquoted.matchAll(/\bhsla?\(\s*([^)]+)\)/gi)) {
     const tokens = m[1].split(/[\s,/]+/).filter(Boolean);
     if (tokens.length < 3) continue;
     const h = parseAngle(tokens[0]);
@@ -581,7 +660,7 @@ function distinctColorsIn(cssText) {
     if ([h, s, l].some(Number.isNaN)) continue;
     add(hslToRgb(h, s, l));
   }
-  for (const m of blankQuotedStringContents(cssText).matchAll(NAMED_COLOR_RE)) {
+  for (const m of unquoted.matchAll(NAMED_COLOR_RE)) {
     add(hexToRgb(NAMED_COLORS[m[1].toLowerCase()].slice(1)));
   }
 
