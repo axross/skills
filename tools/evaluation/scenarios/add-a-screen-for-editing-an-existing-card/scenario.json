@@ -1,0 +1,48 @@
+{
+  "id": "add-a-screen-for-editing-an-existing-card",
+  "description": "high-fidelity-ui-design is targeted against a product ask that states a finish bar — 'goes straight to everyone, so it needs to be finished rather than a rough first pass' — and names neither the skill, a mechanism, nor a state, with wireframe-design (a layout-only read the finish bar itself argues against), react-component-styling (a token-application read of the same ask), and react-component-development (a component-structure read of the same ask) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. recall's shared ActionButton has no disabled input and no disabled variant, and its three existing in-flight flows all swap a label rather than disabling anything, so the first outcome factor checks that the new edit screen's save control gains a real in-flight disabled state — the one thing this mock demonstrates nothing of. The second checks that the screen still validates on press and surfaces the error inline, the way new-card-screen.tsx already does, rather than solving the disabled-state ask the wrong way: greying the control out until every field passes, which the skill's own MUST rule forbids just as directly as it requires the first.",
+  "mock": "recall",
+  "targetSkills": ["high-fidelity-ui-design"],
+  "peerSkills": [
+    "wireframe-design",
+    "react-component-styling",
+    "react-component-development"
+  ],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "There's no way to fix a card once it's been added — if you typo the answer, your only option is to delete it and start over, which also throws away everything the app has learned about how well you know it. Can learners get a way to change a card that's already in a deck? This one goes straight to everyone, so it needs to be finished rather than a rough first pass."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-high-fidelity-ui-design",
+      "phase": "discovery",
+      "description": "The ask states a product problem and a finish bar and names neither the skill, a mechanism, nor a state. An agent that reaches for high-fidelity-ui-design here is finding it from the problem, with wireframe-design (a layout-only read the finish bar itself argues against), react-component-styling (a token-application read of the same ask), and react-component-development (a component-structure read of the same ask) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "high-fidelity-ui-design" }
+      }
+    },
+    {
+      "id": "gives-the-save-control-an-in-flight-disabled-state",
+      "phase": "outcome",
+      "description": "high-fidelity-ui-design's own MUST rule (references/interaction-states-and-feedback.md:103) reserves a disabled state for an in-flight submission, paired with a working-state label, to block a double-submit. recall's shared ActionButton demonstrates nothing of this: its props type declares no disabled input and its stylesheet declares no disabled variant, and the three existing flows that wait on async work — new-card-screen.tsx:99-103, sign-in-screen.tsx:65-69, settings-screen.tsx:54-59 — all swap the control's label and leave it pressable throughout. The one disabled in the tree, swipe-card.tsx:73, is a behavioural disable on a raw Pressable with no visual treatment and nothing to do with a submission. This factor checks that ActionButton gains a real disabled input with a visual treatment, and that the new edit screen actually binds it to its own in-flight save state rather than to anything else.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-in-flight-disabled-save-control.mjs"
+      }
+    },
+    {
+      "id": "still-validates-on-press-rather-than-gating-the-control",
+      "phase": "outcome",
+      "description": "The same MUST rule that asks for an in-flight disabled state (references/interaction-states-and-feedback.md:100) also forbids the plausible way to satisfy it wrong: greying the control out until every field passes, instead of keeping it pressable and validating on press. new-card-screen.tsx:54-57 already validates on press and surfaces the error inline, and TextField already carries an error variant, so a fix that follows that local precedent for the edit screen passes this factor. This is the 'what had to not' half that separates an in-flight disabled state from a control permanently disabled by field validity.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-validates-on-press.mjs"
+      }
+    }
+  ]
+}
