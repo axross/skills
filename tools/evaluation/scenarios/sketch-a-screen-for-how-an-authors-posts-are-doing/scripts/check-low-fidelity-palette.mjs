@@ -17,6 +17,17 @@
 // which is why the scan is scoped there and not to the whole file):
 // convert each hex, rgb()/rgba(), hsl()/hsla(), and CSS named colour to
 // HSL, and require
+//
+// cssDeclarationText reads STRUCTURALLY, not as one bag of text: it yields
+// only the VALUE side of each "property: value" declaration inside a
+// <style> block's rule bodies, and each style="..." attribute's own
+// declaration values — never a selector, a class name, an at-rule prelude,
+// or a property name. A class named ".indigo-panel" or ".plum-tag" is a
+// selector, not a value, and never reaches the colour scan below; neither
+// does a comment (comments are stripped from a <style> block's content
+// first, string-aware, before any declaration is read), so a colour
+// function's name mentioned only in a comment can never trigger the
+// refusal path either. See declarationValuesIn's own header for how.
 //   - at least THREE distinct achromatic values (saturation <= 20%) — a
 //     grey-box drawing needs several greys, so an unstyled HTML outline
 //     with zero or one grey is not one; and
@@ -324,19 +335,121 @@ function parsePercent(token) {
 }
 
 /**
- * extracts the text a document actually DECLARES colour in: every
- * <style>...</style> block, plus every style="..." attribute value. Colour
- * words appearing only in visible prose (a heading, a label) are not
- * declarations and are deliberately excluded, so this factor is never
- * tripped by, say, a screen whose copy happens to mention "orange".
+ * strips `//`-shaped and `/* *\/` comment spans from `text`, leaving every
+ * other character — including one inside a single-, double-, or
+ * backtick-quoted string, which is walked over untouched (escapes
+ * respected) since comment syntax has no special meaning inside a string.
+ * A `/* *\/` comment's own newlines are kept as newlines. CSS has no `//`
+ * line comment of its own, but this also runs over a `<style>` block's raw
+ * text before any HTML/CSS-specific reading, so stripping it too costs
+ * nothing and catches a stray one without having to special-case CSS's own
+ * comment grammar.
+ * @param {string} text
+ * @returns {string}
+ */
+function stripComments(text) {
+  let out = "";
+  let quote = null;
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      out += ch;
+      if (ch === "\\" && i + 1 < text.length) {
+        out += text[i + 1];
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      out += ch;
+      i++;
+      continue;
+    }
+    if (ch === "/" && text[i + 1] === "/") {
+      while (i < text.length && text[i] !== "\n") i++;
+      continue;
+    }
+    if (ch === "/" && text[i + 1] === "*") {
+      i += 2;
+      while (i < text.length && !(text[i] === "*" && text[i + 1] === "/")) {
+        out += text[i] === "\n" ? "\n" : " ";
+        i++;
+      }
+      i += 2;
+      continue;
+    }
+    out += ch;
+    i++;
+  }
+  return out;
+}
+
+/**
+ * every VALUE side of a "property: value" declaration in `cssText`, read
+ * structurally rather than as one bag of text: `cssText` is split on `{`,
+ * `}`, and `;` the way a plain (non-preprocessor) stylesheet's own grammar
+ * does, and a segment is treated as a declaration only when it matches
+ * "property: value" AND does not itself end in `{` — a segment ending in
+ * `{` is a selector or an at-rule prelude (".indigo-panel {",
+ * "@media (prefers-color-scheme: dark) {"), never a declaration, however
+ * colour-word-shaped its own text is. A `style="..."` attribute has no
+ * braces at all, so every segment there is delimited by `;` alone, plus
+ * one trailing segment with no closing delimiter — both are handled by
+ * the same scan. This is the same declaration-recognition shape
+ * check-css-property-group-order.mjs and check-css-syntax.mjs already use
+ * elsewhere in this repository, not a full CSS parser: it does not
+ * validate that a value is well-formed CSS on its own terms, only that
+ * the text before a delimiter reads as "ident: value".
+ * @param {string} cssText
+ * @returns {string[]}
+ */
+function declarationValuesIn(cssText) {
+  const values = [];
+  const consider = (segment) => {
+    const trimmed = segment.trim();
+    if (!trimmed) return;
+    const match = trimmed.match(/^(--[A-Za-z0-9-]+|[A-Za-z-]+)\s*:\s*([\s\S]+)$/);
+    if (match) values.push(match[2]);
+  };
+  let segStart = 0;
+  for (let i = 0; i < cssText.length; i++) {
+    const ch = cssText[i];
+    if (ch !== "{" && ch !== "}" && ch !== ";") continue;
+    const segment = cssText.slice(segStart, i);
+    if (ch !== "{") consider(segment); // "{" starts a selector/prelude segment, never a declaration
+    segStart = i + 1;
+  }
+  consider(cssText.slice(segStart)); // a trailing declaration with no closing ";" (a style="" attribute's last pair)
+  return values;
+}
+
+/**
+ * extracts the text a document actually DECLARES colour in: the VALUE side
+ * of every declaration inside every <style>...</style> block (comments
+ * stripped first, string-aware — see stripComments), plus every
+ * style="..." attribute's own declaration values. A selector, a class
+ * name, an at-rule prelude, a property name, and a comment are never
+ * declaration VALUES and are excluded structurally (see
+ * declarationValuesIn) — so a class named ".indigo-panel" or ".plum-tag",
+ * or a colour-function name mentioned only in a comment, can never reach
+ * the colour scan below. Colour words appearing only in visible prose (a
+ * heading, a label) are excluded for the same underlying reason: they are
+ * not inside a <style> block or a style="..." attribute at all.
  * @param {string} html
  * @returns {string}
  */
 function cssDeclarationText(html) {
   const parts = [];
-  for (const m of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) parts.push(m[1]);
-  for (const m of html.matchAll(/\bstyle\s*=\s*"([^"]*)"/gi)) parts.push(m[1]);
-  for (const m of html.matchAll(/\bstyle\s*=\s*'([^']*)'/gi)) parts.push(m[1]);
+  for (const m of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) {
+    parts.push(...declarationValuesIn(stripComments(m[1])));
+  }
+  for (const m of html.matchAll(/\bstyle\s*=\s*"([^"]*)"/gi)) parts.push(...declarationValuesIn(m[1]));
+  for (const m of html.matchAll(/\bstyle\s*=\s*'([^']*)'/gi)) parts.push(...declarationValuesIn(m[1]));
   return parts.join("\n");
 }
 
