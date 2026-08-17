@@ -171,13 +171,28 @@ function clauseCrossesAStatementBoundary(clause) {
  * so a mention of an import-shaped phrase inside a code comment can never
  * be read as an import.
  *
+ * Both patterns below anchor "import"/"export" to the START of a line
+ * (`^[ \t]*`, multiline) rather than a bare `\b`. stripComments does not
+ * understand regex-literal syntax, so a regex like `/^\/posts\//` carries a
+ * genuine `//` in its own text (the escaped `\/` before the closing `/`)
+ * that reads exactly like a line comment and strips the rest of that
+ * source line. A bare `\b` would still let the clause regex match an
+ * "import"/"export" keyword that a stripped-and-corrupted line happened to
+ * expose mid-line; anchoring to line start closes that off structurally
+ * rather than probabilistically, because Prettier never places an import
+ * or export declaration anywhere but the start of its own line — the same
+ * guarantee a same-line regex-literal corruption can never violate, since
+ * a `//`-shaped strip stops at the first newline and can't manufacture a
+ * new line start mid-corruption.
+ *
  * @param {string} content
  * @returns {Array<{ specifier: string, names: string[], lineIndex: number, lineCount: number }>}
  */
 export function importsIn(content) {
   const scanned = stripComments(content);
   const results = [];
-  const clauseRe = /\b(?:import|export)\s+([\s\S]*?)\s+from\s*["']([^"']+)["']/g;
+  const clauseRe =
+    /^[ \t]*(?:import|export)\b\s+([\s\S]*?)\s+from\s*["']([^"']+)["']/gm;
   let match;
   while ((match = clauseRe.exec(scanned))) {
     if (clauseCrossesAStatementBoundary(match[1])) continue;
@@ -186,7 +201,7 @@ export function importsIn(content) {
     const lineCount = match[0].split("\n").length;
     results.push({ specifier: match[2], names: boundNamesFromClause(match[1]), lineIndex, lineCount });
   }
-  const bareRe = /\bimport\s*["']([^"']+)["']/g;
+  const bareRe = /^[ \t]*import\b\s*["']([^"']+)["']/gm;
   while ((match = bareRe.exec(scanned))) {
     const before = scanned.slice(0, match.index);
     const lineIndex = before.split("\n").length - 1;
