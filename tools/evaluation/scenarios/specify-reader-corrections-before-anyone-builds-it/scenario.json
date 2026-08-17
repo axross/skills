@@ -18,7 +18,7 @@
     {
       "id": "reaches-for-product-requirement-document-authoring",
       "phase": "discovery",
-      "description": "The complaint names no document type, no section, and no skill — an agent that reaches for product-requirement-document-authoring here is finding it from the problem, with technical-document-authoring (a how-it-reads take on the same complaint) and living-project-documentation (a keep-the-docs-true take on the same complaint) sitting right there as competing, plausible-looking picks.",
+      "description": "The complaint names no document type, no section, and no skill — an agent that reaches for product-requirement-document-authoring here is finding it from the problem, with technical-document-authoring (a how-it-reads take on the same complaint) and living-project-documentation (a keep-the-docs-true take on the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether the document that came out carries anything the skill teaches, which is what the outcome factors below are for.",
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
