@@ -1,0 +1,45 @@
+{
+  "id": "sketch-a-screen-for-how-an-authors-posts-are-doing",
+  "description": "wireframe-design is targeted against a screen inkwell deliberately does not have — an author's own performance dashboard, naming no colour, type, or spacing — with high-fidelity-ui-design (a real-token read of the same ask, the exact pair wireframe-design's own description disclaims and is disclaimed back by) and react-component-styling (a misroute a model who reaches for building the screen might make) as peers. react-component-development is deliberately not a peer: installing it would push a model toward building the screen instead of sketching it, which would make this scenario's own setup the confound rather than the model's routing. The outcome factors check that a self-contained document exists and actually names this screen's subject rather than a generic template, and that whatever it is stays at breadboard fidelity — several distinct greys and at most three chromatic hue families (the accent, danger, and annotation cues the wireframe kit's own primitives allow) — which is exactly what the skill's own check-wireframe.mjs states it cannot see. Neither factor runs that validator or reads any path under skills/; the self-containment and colour-fidelity readings are this scenario's own. No transcript factor is declared: with no ANTHROPIC_API_KEY configured, a reasoning judgment over this subject would reduce to searching a transcript for wireframe-design's own vocabulary, which the discovery-prompt decision this practice follows already rules out.",
+  "mock": "inkwell",
+  "targetSkills": ["wireframe-design"],
+  "peerSkills": ["high-fidelity-ui-design", "react-component-styling"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Authors keep asking how their posts are doing — how many are published, how many are still drafts, that kind of thing. There's nowhere in the product that shows them any of it. Before anybody starts building it, I want to see what a screen like that would actually hold and how it'd be arranged, while it's still cheap to change my mind. Leave whatever you come up with somewhere in the project so I can look at it."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-wireframe-design",
+      "phase": "discovery",
+      "description": "The ask names no colour, type, or spacing, and asks only what a not-yet-built screen \"would actually hold and how it'd be arranged\" while it is \"still cheap to change my mind\" — an agent that reaches for wireframe-design here is finding it from the problem, with high-fidelity-ui-design (a real-token read of the same ask) and react-component-styling (a misroute toward building rather than sketching) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "wireframe-design" }
+      }
+    },
+    {
+      "id": "produces-a-self-contained-sketch-of-that-screen",
+      "phase": "outcome",
+      "description": "Reads the diff's added-file list, requires at least one added file that is an HTML document, and reads it back from the reconstructed workspace to check two things: that it fetches nothing external (no src, srcset, <link href>, @import, or CSS url() pointing at http:, https:, or a protocol-relative host), and that it names this screen's own subject — posts, drafts, or how many are published — rather than a generic or unfilled template. A run that answered by building a real React screen, by writing prose, or by leaving the wireframe kit's own instructional boilerplate untouched produces no passing document and fails. The self-containment reading is implemented in this script, not by calling the skill's own check-wireframe.mjs, so a later edit to that validator cannot silently change what a stored measurement meant.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-self-contained-sketch.mjs",
+        "expect": { "subjectTerms": ["post", "draft", "published"] }
+      }
+    },
+    {
+      "id": "keeps-the-sketch-at-low-fidelity",
+      "phase": "outcome",
+      "description": "The discriminating factor, and the one the skill's own validator explicitly cannot make (\"it cannot see hierarchy, grouping, or grayscale discipline\"). wireframe-design's SKILL.md rule is to \"keep the whole page at breadboard fidelity: greys, dashed inputs, solid buttons, danger tint — never brand color … final typography, or final copy.\" The script extracts every colour value the added document declares in its own CSS — hex, rgb()/rgba(), hsl()/hsla(), and CSS named colours — converts each to HSL, and requires at least three distinct achromatic values (a grey-box drawing needs several greys, so an unstyled HTML outline is not one) and at most three distinct chromatic hue families (the accent, danger, and annotation cues the primitives are allowed to carry, and nothing else). Achromatic is saturation <= 20%, not r == g == b: the wireframe kit's own greys are slightly blue-tinted — its --wire-fill #e7e8ec is 11.6% saturated where its --accent #0588f0 is 95.9% saturated, measured rather than assumed, so the threshold separates them with room on both sides. Hue families are 30°-wide bins, so one hue declared once for light mode and again for dark counts once. inkwell contains no wireframe, so a control run has no local precedent for any of this. The thresholds are carried in this script itself, never read from skills/wireframe-design at runtime.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-low-fidelity-palette.mjs"
+      }
+    }
+  ]
+}
