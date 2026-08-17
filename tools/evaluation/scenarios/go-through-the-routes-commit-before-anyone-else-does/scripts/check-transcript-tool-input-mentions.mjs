@@ -13,10 +13,10 @@
 // tools/evaluation/src/transcript/ (see this scenario's own scenario.json
 // for why every judgment script here is self-contained).
 //
-// Reading TOOL INPUT, not assistant prose, is the point: this asks what the
-// probe told a tool to do — the path a `Read` opened, the pattern a `Grep`
-// searched for, the command a `Bash` call ran — never what the probe said
-// about it afterward. A file named only inside a `Read` call's `file_path`
+// What this reads is a tool's own input rather than the probe's prose, and
+// that is the point: it asks what the probe told a tool to do — the path a
+// `Read` opened, the pattern a `Grep` searched for, the command a `Bash`
+// call ran — never what the probe said about it afterward. A file named only inside a `Read` call's `file_path`
 // satisfies this even when the probe's own final answer never repeats the
 // filename.
 //

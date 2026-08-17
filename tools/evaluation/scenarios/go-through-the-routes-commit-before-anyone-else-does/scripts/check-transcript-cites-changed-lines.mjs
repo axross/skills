@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// a transcript-phase script judgment: does the agent's OWN text carry
-// enough distinct, VALID `path:line` citations against the reviewed
-// commit's own files.
+// a transcript-phase script judgment: does the agent's own text — not a
+// tool result it happened to read — carry enough distinct `path:line`
+// citations that resolve against the reviewed commit's own files.
 //
 // docs/specs/skill-evaluation.md, "The factor": a script judgment "runs
 // with the reconstructed workspace as its working directory and a context
@@ -19,16 +19,17 @@
 // how routing was wired") — that distinction is not machine-checkable from
 // the transcript alone. What it checks instead is anchoring, which
 // code-review's own evidence rule makes a real, checkable property: every
-// citation this script counts has to name a path the reviewed commit
-// actually touched AND a line that actually exists in that file, as the
-// reconstructed workspace holds it — a relationship checked against the
-// workspace, not the presence of a word. A citation naming a real file at
-// an invented line number, or an invented file, does not count.
+// citation this script counts has to satisfy both halves: a path the
+// reviewed commit actually touched, and a line that actually exists in
+// that file as the reconstructed workspace holds it — a relationship
+// checked against the workspace, not the presence of a word. A citation
+// naming a real file at an invented line number, or an invented file, does
+// not count.
 //
 // Reading only `text` blocks of `type: "assistant"` events is what keeps a
-// citation printed inside a `git show` or `Grep` tool RESULT from counting
-// as one the agent made — a tool result is not the agent's own text, and
-// this script never reads one.
+// citation printed by a `git show` or a `Grep` from counting as one the
+// agent made — what a tool returned is not what the agent wrote, and this
+// script never reads a tool result at all.
 //
 // Citation syntax: a repo-relative `path:line` or `path:line-line`, per
 // code-review's own evidence-and-reporting rule ("MUST cite a `file:line`

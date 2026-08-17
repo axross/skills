@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// a transcript-phase script judgment: does the agent's OWN text name every
-// required item, each of which may be spelled more than one accepted way.
+// a transcript-phase script judgment: does the agent's own text — not a
+// tool result it happened to read — name every required item, each of
+// which may be spelled more than one accepted way.
 //
 // docs/specs/skill-evaluation.md, "The factor": a script judgment "runs
 // with the reconstructed workspace as its working directory and a context
