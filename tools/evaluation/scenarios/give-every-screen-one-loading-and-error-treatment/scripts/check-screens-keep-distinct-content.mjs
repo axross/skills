@@ -14,12 +14,9 @@
 //
 // This is deliberately not independent of
 // check-shared-extracted-module.mjs: it judges the quality of the very
-// extraction that script detects, re-deriving "the shared module" the same
-// way. As with quiet-the-stale-post-list-after-a-draft-save's
-// keeps-the-detail-cache-write and respect-reduced-motion-in-the-publish-
-// toast's keeps-the-animation-for-everyone-else, a run that changed nothing
-// also passes THAT factor, which is why this one exists alongside it rather
-// than instead of it.
+// extraction that script detects, re-deriving "the shared module" through
+// the same ./lib/route-imports.mjs both scripts import, so a fix to how
+// that resolution works lands identically for both factors.
 //
 // The check: find the shared newly-added module (same resolution
 // check-shared-extracted-module.mjs uses), then for each route file, collect
@@ -38,7 +35,7 @@
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, normalize } from "node:path";
+import { addedFilesFromDiff, readRouteFile } from "./lib/route-imports.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -61,98 +58,6 @@ if (typeof diff !== "string") {
 }
 
 const ROUTE_FILES = ["src/routes/PostListPage.tsx", "src/routes/PostEditorPage.tsx"];
-
-/** every path this unified diff ADDED — see check-shared-extracted-module.mjs's own copy of this function. */
-function addedFilesFromDiff(diffText) {
-  const added = new Set();
-  const lines = diffText.split("\n");
-  for (let i = 0; i < lines.length - 1; i++) {
-    if (lines[i] === "--- /dev/null" && lines[i + 1].startsWith("+++ ")) {
-      added.add(lines[i + 1].slice(4).replace(/^b\//, "").trim());
-    }
-  }
-  return added;
-}
-
-/**
- * every import statement's specifier in `content`, paired with the bound
- * local identifier names — see check-shared-extracted-module.mjs's own copy
- * of this function for the same house-style caveat (good enough for this
- * mock's Prettier-formatted TSX, not a full parser).
- *
- * @param {string} content
- * @returns {Array<{ specifier: string, names: string[], lineIndex: number, lineCount: number }>}
- */
-function importsIn(content) {
-  const results = [];
-  const clauseRe = /\b(?:import|export)\s+([\s\S]*?)\s+from\s*["']([^"']+)["']/g;
-  let match;
-  while ((match = clauseRe.exec(content))) {
-    const before = content.slice(0, match.index);
-    const lineIndex = before.split("\n").length - 1;
-    const lineCount = match[0].split("\n").length;
-    results.push({ specifier: match[2], names: boundNamesFromClause(match[1]), lineIndex, lineCount });
-  }
-  return results;
-}
-
-function boundNamesFromClause(clause) {
-  const names = [];
-  const text = clause.trim().replace(/^type\s+/, "");
-  const nsMatch = text.match(/\*\s+as\s+([A-Za-z_$][\w$]*)/);
-  if (nsMatch) names.push(nsMatch[1]);
-  const namedMatch = text.match(/\{([\s\S]*)\}/);
-  if (namedMatch) {
-    for (const part of namedMatch[1].split(",")) {
-      const piece = part.trim().replace(/^type\s+/, "");
-      if (!piece) continue;
-      const asMatch = piece.match(/^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/);
-      if (asMatch) names.push(asMatch[2]);
-      else {
-        const bare = piece.match(/^([A-Za-z_$][\w$]*)$/);
-        if (bare) names.push(bare[1]);
-      }
-    }
-  }
-  const beforeBraceOrStar = text.split(/[{*]/)[0];
-  const defaultMatch = beforeBraceOrStar.match(/^([A-Za-z_$][\w$]*)/);
-  if (defaultMatch) names.push(defaultMatch[1]);
-  return [...new Set(names)];
-}
-
-function resolveRelativeSpecifier(specifier, fromFile) {
-  if (!specifier.startsWith(".")) return null;
-  const base = normalize(join(dirname(fromFile), specifier));
-  const candidates = [
-    base,
-    `${base}.tsx`,
-    `${base}.ts`,
-    `${base}.jsx`,
-    `${base}.js`,
-    `${base}.module.css`,
-    join(base, "index.tsx"),
-    join(base, "index.ts"),
-    join(base, "index.jsx"),
-    join(base, "index.js"),
-  ];
-  for (const candidate of candidates) {
-    if (existsSync(candidate)) return candidate;
-  }
-  return null;
-}
-
-/**
- * @param {string} routeFile workspace-relative path
- * @returns {{ content: string, resolvedImports: Array<{ specifier: string, resolved: string | null, names: string[], lineIndex: number, lineCount: number }> }}
- */
-function readRoute(routeFile) {
-  const content = readFileSync(routeFile, "utf8");
-  const resolvedImports = importsIn(content).map((entry) => ({
-    ...entry,
-    resolved: resolveRelativeSpecifier(entry.specifier, routeFile),
-  }));
-  return { content, resolvedImports };
-}
 
 /**
  * collects every place `name` is used in `lines`, skipping the import
@@ -213,14 +118,12 @@ for (const file of ROUTE_FILES) {
 
 const addedFiles = addedFilesFromDiff(diff);
 const [fileA, fileB] = ROUTE_FILES;
-const routeA = readRoute(fileA);
-const routeB = readRoute(fileB);
+const routeA = readRouteFile(fileA);
+const routeB = readRouteFile(fileB);
 
-const resolvedA = new Set(routeA.resolvedImports.map((entry) => entry.resolved).filter(Boolean));
-const resolvedB = new Set(routeB.resolvedImports.map((entry) => entry.resolved).filter(Boolean));
-const sharedAndAdded = [...resolvedA]
-  .filter((path) => resolvedB.has(path) && addedFiles.has(path))
-  .sort();
+const resolvedA = new Set(routeA.imports.map((entry) => entry.resolved).filter(Boolean));
+const resolvedB = new Set(routeB.imports.map((entry) => entry.resolved).filter(Boolean));
+const sharedAndAdded = [...resolvedA].filter((path) => resolvedB.has(path) && addedFiles.has(path)).sort();
 
 if (sharedAndAdded.length === 0) {
   const evidence = `${fileA} and ${fileB} share no newly-added module to parameterize — there is nothing for either screen's content to say through`;
@@ -230,8 +133,8 @@ if (sharedAndAdded.length === 0) {
 
 const sharedModule = sharedAndAdded[0];
 
-function usageTextFor(route, file) {
-  const importEntry = route.resolvedImports.find((entry) => entry.resolved === sharedModule);
+function usageTextFor(route) {
+  const importEntry = route.imports.find((entry) => entry.resolved === sharedModule);
   if (!importEntry || importEntry.names.length === 0) return "";
   const lines = route.content.split("\n");
   const parts = [];
@@ -243,8 +146,8 @@ function usageTextFor(route, file) {
   return normalizeWhitespace(parts.join(" "));
 }
 
-const usageA = usageTextFor(routeA, fileA);
-const usageB = usageTextFor(routeB, fileB);
+const usageA = usageTextFor(routeA);
+const usageB = usageTextFor(routeB);
 
 const result = usageA !== usageB;
 const evidence = result
