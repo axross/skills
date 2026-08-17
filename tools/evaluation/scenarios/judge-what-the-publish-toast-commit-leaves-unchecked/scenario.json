@@ -1,0 +1,51 @@
+{
+  "id": "judge-what-the-publish-toast-commit-leaves-unchecked",
+  "description": "quality-assurance is targeted against a sign-off question about one named commit — the publish toast commit, which adds PublishToast.tsx and its stylesheet, a visual, animated surface with no test of its own and, at that point in the history, no caller at all — with code-review (a 'what would I raise about the code' read of the same commit) and unit-testing (a 'which test is missing' read of the same gap) sitting in the peer set as competing, plausible picks. That is deliberately a different question from go-through-the-routes-commit-before-anyone-else-does's, and on a different commit: that scenario asks what a reviewer would raise about a change — judging the change itself — while this one asks what signing the change off would mean taking on trust — judging the adequacy of the evidence behind it, which is the actual split the two skills draw. The two skills are each other's obvious peer, and this scenario's prompt is written to hold the sign-off framing rather than slide into the review framing, so that split is something the scenario can actually test rather than something asserted about it. The transcript factors check that the answer names the format-and-lint gate as evidence a sign-off needs, and — reasoning-only, since no script can honestly tell content from a keyword — that it names the untested toast itself as the specific gap.",
+  "mock": "inkwell",
+  "targetSkills": ["quality-assurance"],
+  "peerSkills": ["code-review", "unit-testing"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "The commit that added the publish toast is being called finished, and I'm the one signing it off. What would I be taking on trust if I did?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-quality-assurance",
+      "phase": "discovery",
+      "description": "The prompt asks what a sign-off would be taking on trust — the shape of an evidence-adequacy question, naming no skill. An agent that reaches for quality-assurance here is finding it from the situation, with code-review (a 'what would I raise about the code' read of the same commit) and unit-testing (a 'which test is missing' read of the same gap) sitting right there as competing, plausible-looking picks — the same two skills go-through-the-routes-commit-before-anyone-else-does uses as this scenario's own near-neighbors, on a different commit and a differently framed question.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "quality-assurance" }
+      }
+    },
+    {
+      "id": "requires-the-format-and-lint-gate-as-evidence",
+      "phase": "transcript",
+      "description": "quality-assurance's own verification-evidence rules require evidence that the project's format and lint commands ran, before a change is called verified — a claim of 'it's finished' is not itself evidence. This factor checks the agent's own text for a mention of inkwell's format and lint commands as evidence a sign-off would still need, so an answer that lists only functional risk, without naming the gate a reviewer would still have to run, does not satisfy it.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-transcript-mentions-all.mjs",
+        "expect": {
+          "mustMentionEachOf": [
+            ["format:check", "run format"],
+            ["run lint", "eslint"]
+          ]
+        }
+      }
+    },
+    {
+      "id": "names-the-untested-toast-as-the-gap",
+      "phase": "transcript",
+      "description": "Whether the answer actually names that the publish toast commit (src/components/PublishToast/PublishToast.tsx and its stylesheet) ships with no test of its own — while its four sibling components, Button, Card, ConsentBanner, and Sidebar, each ship a .browser.test.tsx — and states what risk that gap leaves, is a judgment about content that no script can honestly proxy. A scripted stand-in would either demand a specific, nonexistent test filename (unfalsifiable — a correct answer that says 'nothing exercises this' without inventing a filename would fail it) or collapse to a grep for the word 'test', which a generic 'add more tests' remark can satisfy without ever naming the actual gap. Until a reasoning judge is available to make this call, this factor's own result records as an error rather than a verdict — never as false, since docs/specs/skill-evaluation.md keeps a judgment that could not be made distinct from one that came out false, and a missing judge is the former, not the latter.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work answering what a sign-off on one specific commit would be taking on trust. That commit added PublishToast.tsx and PublishToast.module.css — a visual, animated toast component. Decide whether the agent's own reasoning names, at some point, that this component ships with no test of its own, in contrast to its sibling components (Button, Card, ConsentBanner, Sidebar), which each have a .browser.test.tsx of their own — and states what risk or exposure that gap leaves, as distinct from a generic caution to 'add tests' with no specific gap named. Answer false if the transcript never names this specific gap, even if it raises other genuine concerns."
+      }
+    }
+  ]
+}
