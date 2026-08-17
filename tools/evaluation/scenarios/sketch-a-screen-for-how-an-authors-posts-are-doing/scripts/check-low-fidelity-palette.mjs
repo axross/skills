@@ -405,6 +405,23 @@ function stripComments(text) {
  * elsewhere in this repository, not a full CSS parser: it does not
  * validate that a value is well-formed CSS on its own terms, only that
  * the text before a delimiter reads as "ident: value".
+ *
+ * The scan is both quote- AND paren-depth-aware: a `{`, `}`, or `;`
+ * encountered inside a `'…'`/`"…"`/`` `…` `` span, or inside any `(…)`, is
+ * never treated as a delimiter. Both matter independently. A quoted value
+ * can itself carry a `;` — a `data:` URI's own MIME marker
+ * (`url("data:image/svg+xml;utf8,…")`) is exactly that shape, and without
+ * quote-awareness the `;` inside it splits one declaration into two
+ * fragments, neither of which reads as "ident: value" any more, so the
+ * fragment carrying the actual colour is silently dropped from `values`
+ * rather than misclassified — a real fidelity violation (a colour smuggled
+ * past the achromatic/hue-family count) then passes as compliant. The same
+ * `data:` URI written WITHOUT quotes (`url(data:image/svg+xml;utf8,…)`,
+ * which CSS's own url-token grammar permits) carries the identical `;`
+ * with no quote to protect it at all, which is why parens are tracked
+ * independently rather than relying on quote-awareness alone: any `;`
+ * while paren-depth is above zero is inert, quoted or not, until the
+ * matching `)` returns depth to zero.
  * @param {string} cssText
  * @returns {string[]}
  */
@@ -417,8 +434,31 @@ function declarationValuesIn(cssText) {
     if (match) values.push(match[2]);
   };
   let segStart = 0;
+  let quote = null;
+  let parenDepth = 0;
   for (let i = 0; i < cssText.length; i++) {
     const ch = cssText[i];
+    if (quote) {
+      if (ch === "\\") {
+        i++;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      continue;
+    }
+    if (ch === "(") {
+      parenDepth++;
+      continue;
+    }
+    if (ch === ")") {
+      parenDepth = Math.max(0, parenDepth - 1);
+      continue;
+    }
+    if (parenDepth > 0) continue; // inside a function call — its own "{"/"}"/";" are not delimiters here
     if (ch !== "{" && ch !== "}" && ch !== ";") continue;
     const segment = cssText.slice(segStart, i);
     if (ch !== "{") consider(segment); // "{" starts a selector/prelude segment, never a declaration
