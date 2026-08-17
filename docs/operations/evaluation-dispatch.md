@@ -197,8 +197,11 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
-under `tools/evaluation/scenarios/`:
+This repository declares <!-- count:declared-scenarios -->eight<!-- /count -->
+scenarios today, under `tools/evaluation/scenarios/`, against two mock
+projects.
+
+Four target `inkwell`:
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -219,9 +222,41 @@ under `tools/evaluation/scenarios/`:
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
 
-Together the four exercise every path through the three scripts above:
-every phase, both judgment methods, and a scenario that omits a phase
-entirely. Authoring further scenarios against `inkwell`'s remaining
-catalogued subjects, and against this repository's other mocks, is separate,
-later work; this document describes what runs today, not the coverage it
-will eventually have.
+Four more target `tsuzuri`, covering the three document skills and the one
+refactoring skill the mock hosts (`tsuzuri` ships no patch-driven subject
+today, so every one of the four declares `"patch": null`):
+
+- [`document-a-rollback-someone-can-follow`](../../tools/evaluation/scenarios/document-a-rollback-someone-can-follow/)
+  targets `technical-document-authoring`, alongside `living-project-documentation`
+  and `product-requirement-document-authoring` as peers, and carries a
+  `discovery` factor, two structural `outcome` factors reading
+  `docs/deployment.md`'s "Rolling back" section, and an `outcome` factor
+  judged by reasoning.
+- [`specify-reader-corrections-before-anyone-builds-it`](../../tools/evaluation/scenarios/specify-reader-corrections-before-anyone-builds-it/)
+  targets `product-requirement-document-authoring`, alongside
+  `technical-document-authoring` and `living-project-documentation` as
+  peers, and carries a `discovery` factor, three structural `outcome`
+  factors — one per required heading, since a factor result is never a
+  ratio — and an `outcome` factor judged by reasoning.
+- [`keep-the-locale-notes-true-after-changing-the-fallback`](../../tools/evaluation/scenarios/keep-the-locale-notes-true-after-changing-the-fallback/)
+  targets `living-project-documentation`, alongside `technical-document-authoring`
+  and `next-app-development` as peers, and carries a `discovery` factor, a
+  guard `outcome` factor confirming the requested behaviour change actually
+  happened, two structural `outcome` factors reading whether the
+  documentation that change invalidated was corrected, and an `outcome`
+  factor judged by reasoning.
+- [`make-room-for-a-third-language-matching-rule`](../../tools/evaluation/scenarios/make-room-for-a-third-language-matching-rule/)
+  targets `code-maintainability`, alongside `code-review` and `unit-testing`
+  as peers, and carries a `discovery` factor, an improvement `outcome`
+  factor, and a non-effect `outcome` factor that neither requires nor
+  forbids the mock's own declared choice to keep its helpers exported. It
+  declares no `reasoning` factor: its artefact is code and both of its
+  expectations are mechanically checkable.
+
+Together the eight exercise every path through the three scripts above:
+every phase, both judgment methods, a scenario that omits a phase entirely,
+and — across the `tsuzuri` four — an artefact that is prose rather than
+code. Authoring further scenarios against either mock's remaining catalogued
+subjects, and against this repository's other mocks, is separate, later
+work; this document describes what runs today, not the coverage it will
+eventually have.

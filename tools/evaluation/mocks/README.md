@@ -60,9 +60,9 @@ review round.
 
 Where an entry below names a scenario asking something of a model, it is
 naming the coverage that affordance exists for, not a scenario already
-declared. The tree currently holds one; #392's step 4 authors the set. An
-entry whose scenario is not yet written is a standing reason the mock is
-shaped as it is, and is why the shape survives until then.
+declared. #392's step 4 authors the set, one slice at a time; an entry whose
+scenario is not yet written is a standing reason the mock is shaped as it is,
+and is why the shape survives until then.
 
 ### `tsuzuri` — choices made for coverage
 

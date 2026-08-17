@@ -382,6 +382,17 @@ async function claudeSkillSymlinks() {
   return entries.filter((entry) => entry.isSymbolicLink()).map((entry) => entry.name);
 }
 
+/** directory names under tools/evaluation/scenarios/ that hold a scenario.json. */
+async function declaredScenarioDirs() {
+  const root = repoPath("tools/evaluation/scenarios");
+  const names = [];
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (await isFile(join(root, entry.name, "scenario.json"))) names.push(entry.name);
+  }
+  return names;
+}
+
 /**
  * the standalone validator CLIs README.md enumerates: this repository's own
  * gates, plus the ones that ship inside a skill for the projects that install
@@ -487,6 +498,12 @@ export const CLAIMS = {
         ),
       );
     },
+  },
+
+  "declared-scenarios": {
+    owner: "the directories under tools/evaluation/scenarios/ that hold a scenario.json",
+    note: "docs/operations/evaluation-dispatch.md's own Declared Scenario Set section walks through each one by mock, so a new scenario needs an entry there too",
+    derive: async () => (await declaredScenarioDirs()).length,
   },
 
 };
