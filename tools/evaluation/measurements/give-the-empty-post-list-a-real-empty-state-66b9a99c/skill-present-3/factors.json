@@ -1,0 +1,28 @@
+{
+  "scenario": "give-the-empty-post-list-a-real-empty-state",
+  "condition": "skill-present",
+  "repetition": 3,
+  "factors": [
+    {
+      "id": "reaches-for-react-component-styling",
+      "phase": "discovery",
+      "method": "script",
+      "result": false,
+      "evidence": "the probe's invoked skills were [\"high-fidelity-ui-design\"], which does not include \"react-component-styling\""
+    },
+    {
+      "id": "follows-the-taught-property-group-order",
+      "phase": "outcome",
+      "method": "script",
+      "result": false,
+      "evidence": "src/routes/PostListPage.module.css: \"display\" (group 2) appears after group 8. src/routes/PostListPage.module.css: \"align-items\" (group 2) appears after group 8. src/routes/PostListPage.module.css: \"justify-content\" (group 2) appears after group 8. src/routes/PostListPage.module.css: \"width\" (group 4) appears after group 8. src/routes/PostListPage.module.css: \"height\" (group 4) appears after group 8. src/routes/PostListPage.module.css: \"margin-bottom\" (group 5) appears after group 8. src/routes/PostListPage.module.css: \"border-radius\" (group 7) appears after group 8. src/routes/PostListPage.module.css: \"background\" (group 6) appears after group 8. src/routes/PostListPage.module.css: \"color\" (group 6) appears after group 8. src/routes/PostListPage.module.css: \"color\" (group 6) appears after group 8. src/routes/PostListPage.module.css: \"margin\" (group 5) appears after group 8. src/routes/PostListPage.module.css: \"color\" (group 6) appears after group 8. src/routes/PostListPage.module.css: \"margin\" (group 5) appears after group 8."
+    },
+    {
+      "id": "the-new-css-is-syntactically-valid",
+      "phase": "outcome",
+      "method": "script",
+      "result": true,
+      "evidence": "every one of 8 CSS Module file(s) under src is still well-formed"
+    }
+  ]
+}

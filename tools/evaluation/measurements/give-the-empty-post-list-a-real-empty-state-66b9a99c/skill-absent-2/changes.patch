@@ -1,0 +1,79 @@
+diff --git a/src/routes/PostListPage.module.css b/src/routes/PostListPage.module.css
+index 2017685..c74e452 100644
+--- a/src/routes/PostListPage.module.css
++++ b/src/routes/PostListPage.module.css
+@@ -15,6 +15,35 @@
+   max-width: 40rem;
+ }
+ 
++.empty {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 0.375rem;
++  max-width: 26rem;
++  padding: 3rem 2rem;
++  text-align: center;
++  background: #f8f9fb;
++}
++
++.emptyIcon {
++  color: #b7bfce;
++  margin-bottom: 0.5rem;
++}
++
++.emptyTitle {
++  font-size: 1.0625rem;
++  font-weight: 700;
++  color: #1f2a44;
++  margin: 0;
++}
++
++.emptyBody {
++  font-size: 0.875rem;
++  color: #5b6472;
++  margin: 0;
++}
++
+ .cardLink {
+   display: block;
+   color: inherit;
+diff --git a/src/routes/PostListPage.tsx b/src/routes/PostListPage.tsx
+index 25fcd08..931a4c0 100644
+--- a/src/routes/PostListPage.tsx
++++ b/src/routes/PostListPage.tsx
+@@ -20,7 +20,33 @@ export function PostListPage() {
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length === 0 && (
+-        <p>This site doesn't have any posts yet.</p>
++        <Card className={css.empty}>
++          <svg
++            className={css.emptyIcon}
++            width="40"
++            height="40"
++            viewBox="0 0 24 24"
++            fill="none"
++            aria-hidden="true"
++          >
++            <path
++              d="M6 4.5A1.5 1.5 0 0 1 7.5 3h6.379a1.5 1.5 0 0 1 1.06.44l2.622 2.62a1.5 1.5 0 0 1 .439 1.061V19.5A1.5 1.5 0 0 1 16.5 21h-9A1.5 1.5 0 0 1 6 19.5v-15Z"
++              stroke="currentColor"
++              strokeWidth="1.5"
++              strokeLinejoin="round"
++            />
++            <path
++              d="M9.5 12.5h5M9.5 15.5h5M9.5 9.5h2"
++              stroke="currentColor"
++              strokeWidth="1.5"
++              strokeLinecap="round"
++            />
++          </svg>
++          <p className={css.emptyTitle}>No posts yet</p>
++          <p className={css.emptyBody}>
++            Posts you create for this site will show up here.
++          </p>
++        </Card>
+       )}
+ 
+       {postsQuery.isSuccess && postsQuery.data.length > 0 && (
