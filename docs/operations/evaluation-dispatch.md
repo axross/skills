@@ -245,12 +245,16 @@ toast` — and a differently framed question: not what a reviewer would
   by reasoning (naming the untested toast as the actual gap) — again with
   no `outcome` phase.
 
-Together these exercise every path through the three scripts named above,
-plus three more that read a stored transcript's tool inputs and assistant
-text directly rather than by counting keywords over the whole stream: every
-phase, both judgment methods, and a scenario that omits a phase entirely.
-This change is itself further scenario authoring against `inkwell`; what
-remains later work is authoring against the mock's still-uncatalogued
-subjects and against this repository's other mocks, not against `inkwell`
-as a whole. This document describes what runs today, not the coverage it
-will eventually have.
+Together these exercise every path through `probe.mjs`, `evaluate.mjs` and
+`derive.mjs`: every phase, both judgment methods, and a scenario that omits
+a phase entirely. Three of the judgment scripts they declare are a newer
+kind, reading a stored transcript's tool inputs and its assistant text
+directly rather than counting keywords over the whole stream.
+
+Authoring the rest is still later work. Several subjects
+`tools/evaluation/mocks/README.md`'s own "choices made for coverage" list
+already names for `inkwell` carry no scenario yet — the analytics event
+names, `identifyAuthor`'s missing call site, the log-level choice, and the
+screens the mock deliberately ships without — and neither does any subject
+in this repository's other mocks. This document describes what runs today,
+not the coverage it will eventually have.
