@@ -1,0 +1,60 @@
+{
+  "id": "restore-real-file-names-in-production-stack-traces",
+  "description": "sentry-instrumentation is targeted against a production symptom — a hashed bundle name and one enormous column number in place of a real file and line — never Sentry, source maps, or the build, with software-instrumentation (a vendor-neutral read of the same report) and software-development (a build-configuration read of it) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. inkwell's patch turns its working source-map upload off: build.sourcemap goes from true to false, the comment above it is rewritten into the reasoning of a developer who does not know what else depends on it, and the plugin's own post-upload cleanup is dropped as pointless once nothing is generated to clean up. The outcome factors check that a fix restores an emitting sourcemap setting (true or hidden, so a defensible choice is not failed by the check) and, independently, that the Sentry plugin's own cleanup step is still declared, since restoring maps without it would leave them sitting in the shipped build for a browser to fetch — the concern that motivated the patch's breaking change in the first place. The transcript factor is a script, not a reasoning judge — tracking issue #431 records why — and greps for whether the agent's own words name source maps as the cause, as a weak but real proxy for whether it actually diagnosed the report rather than pattern-matching a fix.",
+  "mock": "inkwell",
+  "targetSkills": ["sentry-instrumentation"],
+  "peerSkills": ["software-instrumentation", "software-development"],
+  "patch": "patch.diff",
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Whenever a customer's site throws an error in production, the crash report we get back just points at something like assets/index-4f9a2c1b.js:1:48213 — a bundle name and one huge column number, not any file or line I actually recognize. I can't tell what broke from that. Can you get it so a production crash points at our real source again?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-sentry-instrumentation",
+      "phase": "discovery",
+      "description": "The report names neither Sentry, source maps, nor the build — an agent that reaches for sentry-instrumentation here is finding it from the symptom, with software-instrumentation (a vendor-neutral read of the same report) and software-development (a build-configuration read of it) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "sentry-instrumentation" }
+      }
+    },
+    {
+      "id": "restores-source-maps-for-the-build",
+      "phase": "outcome",
+      "description": "The patch turned build.sourcemap from true to false, which is why production stack traces stopped resolving. This factor reads the final vite.config.ts and checks its sourcemap setting actually emits a source map again — true or hidden both satisfy it, so a fix that reasonably chose hidden over true is not failed by a check that only recognized one of the two.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-source-maps-restored.mjs"
+      }
+    },
+    {
+      "id": "keeps-the-upload-cleanup",
+      "phase": "outcome",
+      "description": "The patch also dropped the Sentry plugin's own filesToDeleteAfterUpload cleanup as pointless once no maps were generated. A fix that restores sourcemap emission without restoring this would leave .map files sitting in the shipped build for anyone who opens devtools to fetch — the exact concern that motivated the original, over-broad breaking change. This factor checks the final vite.config.ts still declares that cleanup, independent of which sourcemap value the fix chose.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "vite.config.ts",
+          "mustContainAll": ["filesToDeleteAfterUpload"]
+        }
+      }
+    },
+    {
+      "id": "names-missing-source-maps-as-the-cause",
+      "phase": "transcript",
+      "description": "A correct config change can still be produced by an agent that copied the shape of a working Sentry setup without ever registering why the report looked the way it did. This is a script judgment, not a reasoning one — tracking issue #431 records why — and greps the transcript for whether the agent's own words name source maps as the cause, as a weak but real proxy for diagnosis over pattern-matching.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-transcript-mentions.mjs",
+        "expect": {
+          "mustContainAny": ["source map", "sourcemap", "source-map"]
+        }
+      }
+    }
+  ]
+}
