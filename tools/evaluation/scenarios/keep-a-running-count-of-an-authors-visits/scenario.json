@@ -1,0 +1,52 @@
+{
+  "id": "keep-a-running-count-of-an-authors-visits",
+  "description": "amplitude-instrumentation is targeted against a want, not a symptom — a running count that should keep climbing rather than reset to today's number — that names no operator, no vendor method, and no field, with software-instrumentation (which Identify operator a monotonically increasing count needs is a fact about Amplitude's own API, not about what is worth recording, so this read is plausible but wrong) and sentry-instrumentation (the project's other observability vendor, plausible to a model routing on which SDK the repository's telemetry already uses rather than on which vendor owns the API in question) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The outcome factors check that the new running count is recorded with Amplitude's `add` operator — the one its own operator table gives for 'a running numeric total' — while identifyAuthor's two existing `set` calls, on `name` and on `site_count`, stay exactly as they are: `site_count` is a genuinely absolute count, AuthorProfile.siteCount handed in whole rather than as a delta, so switching it to `.add()` would double-count on every call, and an agent that pattern-matches 'count → add' and moves it too is exactly what the second factor exists to catch.",
+  "mock": "inkwell",
+  "targetSkills": ["amplitude-instrumentation"],
+  "peerSkills": ["software-instrumentation", "sentry-instrumentation"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "We already have the piece that hands our analytics who an author is, ready for when sign-in lands — it records a couple of things about them today. Alongside those, I want a running count of how many times we've seen that person: one that keeps climbing every time it runs, rather than one that only ever shows today's number."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-amplitude-instrumentation",
+      "phase": "discovery",
+      "description": "The want names no operator, no vendor method, and no field — only a running count that keeps climbing rather than showing only today's number. An agent that reaches for amplitude-instrumentation here is finding it from the want, with software-instrumentation (which operator a monotonically increasing count needs is a fact about Amplitude's own API, not about what is worth recording) and sentry-instrumentation (the project's other observability vendor, plausible to a model routing on which SDK the repository's telemetry already uses) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "amplitude-instrumentation" }
+      }
+    },
+    {
+      "id": "the-running-count-uses-the-adding-operator",
+      "phase": "outcome",
+      "description": ".add( appears nowhere in src/lib/analytics.ts today, so this cannot already be true before the change. The fix has to add a running visit count to identifyAuthor using Amplitude's add operator — the one its own operator table gives for 'a running numeric total' — rather than set, which would overwrite the stored count with whatever value was last recorded instead of accumulating it.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/lib/analytics.ts",
+          "mustContainAll": [".add("]
+        }
+      }
+    },
+    {
+      "id": "the-absolute-properties-stay-on-set",
+      "phase": "outcome",
+      "description": "identifyAuthor already calls identify.set(\"name\", …) and identify.set(\"site_count\", …), and both are genuinely current-value properties: site_count is AuthorProfile.siteCount, an absolute count handed in whole rather than as a delta, so switching it to .add() would double-count on every call. This factor checks both survive unmoved: an agent that pattern-matches 'count → add' and moves site_count along with the new property passes the factor above while failing this one, which is exactly the confound this pairing is built to catch.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "expect": {
+          "file": "src/lib/analytics.ts",
+          "mustContainAll": [".set(\"name\"", ".set(\"site_count\""]
+        }
+      }
+    }
+  ]
+}
