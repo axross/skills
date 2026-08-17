@@ -97,6 +97,25 @@ is, and is why the shape survives until then.
   slug module was committed _with_ its spec and the locale module alone
   during a refactor. An untested module beside a tested one is what real
   repositories look like, so no patch creates it.
+- **`jest.config.cjs` declares no coverage options.** `history.jsonc`'s own
+  commit that adds the file carries the message `"WIP"` — a project that
+  wired up a test runner and moved on without ever turning coverage on is
+  ordinary, not a defect invented for the scenario.
+  [`show-what-the-test-run-never-reaches`](../scenarios/show-what-the-test-run-never-reaches/)
+  needs exactly this gap: a mock that already declared `collectCoverageFrom`
+  would demonstrate the answer beside the question.
+- **`e2e/home.spec.ts` is a two-test suite that only ever opens the home
+  page**, and `app/(site)/posts/[slug]/` — the route where the site's
+  multi-language behaviour actually happens — has no end-to-end coverage at
+  all. `history.jsonc`'s own `"WIP e2e"` commit is honest evidence the suite
+  was started and not finished, which is an ordinary shape for a project
+  this size. This is a different claim from the stand-in
+  [#299](https://github.com/axross/skills/issues/299) removed from the
+  fixture-artifacts list below — that was a hand-written type stand-in and a
+  command that did not exist, never a statement about how much of the site
+  the suite drives.
+  [`broaden-a-suite-that-never-opens-a-post`](../scenarios/broaden-a-suite-that-never-opens-a-post/)
+  asks a model to close that gap.
 - **The post catalog in `posts-data.ts` is a build-time module rather than a
   fetch from a content backend.** `publish-an-edit-without-a-redeploy` needs a
   project where staying stale until someone redeploys is genuinely what
