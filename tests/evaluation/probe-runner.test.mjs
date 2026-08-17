@@ -3,13 +3,14 @@
 // OS process (tests/evaluation/helpers/fake-cli.mjs's fake `claude`), never
 // the real network.
 
-import { readFile } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 
 import { fakeClaudeEnv } from "./helpers/fake-cli.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
+import { reconstructWorkspace } from "../../tools/evaluation/src/reconstruct.mjs";
 import { runProbe } from "../../tools/evaluation/src/probe-runner.mjs";
 import { loadScenario } from "../../tools/evaluation/src/scenario.mjs";
 import { repoPath } from "../helpers/run.mjs";
@@ -55,6 +56,45 @@ describe("runProbe", () => {
     expect(recorded.transcript).toContain('"type":"result"');
     expect(typeof recorded.diff).toBe("string");
     expect(recorded.invocations.skillsInvoked).toEqual(["tanstack-query-development"]);
+  });
+
+  // the level the defect this instrument's capture step used to have —
+  // reporting a probe that commits its own work as having changed nothing —
+  // actually bit at, and no test above reaches it: a fake `claude` that
+  // creates a file and commits it (helpers/fake-claude.mjs's opt-in
+  // FAKE_CLAUDE_COMMIT_FILE mode), driven through the real subprocess
+  // boundary runProbe uses, then fed back through reconstructWorkspace —
+  // the same path a stored measurement is judged through — to confirm the
+  // file a probe committed is not just present in the stored diff but
+  // actually reconstructs.
+  it("captures a probe's work even when it commits it, and the stored diff reconstructs it", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv({
+      FAKE_CLAUDE_COMMIT_FILE: "shared/probe-committed.test.ts",
+      FAKE_CLAUDE_COMMIT_CONTENT: 'it("captures even when committed", () => {});\n',
+    });
+
+    const recorded = await runProbe({
+      scenario,
+      condition: "skill-present",
+      repetition: 1,
+      apiKeyEnv: env,
+    });
+
+    expect(recorded.diff).toContain("shared/probe-committed.test.ts");
+    expect(recorded.diff).toContain('it("captures even when committed", () => {});');
+
+    const workspace = await reconstructWorkspace({
+      scenario,
+      condition: "skill-present",
+      diffText: recorded.diff,
+    });
+    try {
+      const written = await readFile(join(workspace, "shared/probe-committed.test.ts"), "utf8");
+      expect(written).toBe('it("captures even when committed", () => {});\n');
+    } finally {
+      await rm(workspace, { recursive: true, force: true });
+    }
   });
 
   it("installs only peer skills under the skill-absent condition", async () => {
