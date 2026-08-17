@@ -270,3 +270,52 @@ export function readRouteFile(routeFile) {
   }));
   return { content, imports };
 }
+
+/**
+ * a loading-ish token: "pending" or "loading", bare or fused with a
+ * leading "is" ("isPending", "isLoading") — the vocabulary both route
+ * files' own pre-existing branches already use.
+ */
+const LOADING_TOKEN_RE = /\b(?:is)?(?:pending|loading)\b/i;
+
+/**
+ * a failure-ish token, deliberately NARROWER than the bare word "error":
+ * "isError"/"hasError"/"onError"/"errorMessage" as whole fused
+ * identifiers, "failure"/"failed", the mock's own "Couldn't load" copy, or
+ * a rendered `role="alert"` — the strongest single signal an element is
+ * standing in as an error surface, and the one all three of this mock's
+ * own route files already use for their error branch. A BARE
+ * case-insensitive "error" is deliberately excluded: almost any module
+ * contains that word somewhere unrelated to rendering a loading/error
+ * state for a screen (a `catch (error)`, an unrelated ErrorBoundary
+ * import, a comment), so matching on it alone would defeat the whole
+ * point of this check.
+ */
+const FAILURE_TOKEN_RE =
+  /\b(?:is|has|on)error\b|\berrorMessage\b|\bfailure\b|\bfailed\b|couldn'?t\s+load|role\s*=\s*["']alert["']/i;
+
+/**
+ * true when `modulePath`'s own source, read from the reconstructed
+ * workspace, references BOTH a loading-ish token and a failure-ish token —
+ * this scenario's actual subject (a screen's "still loading" AND "that
+ * didn't work" states together), not merely "some module both screens
+ * happen to share". A generic data-fetching wrapper —
+ * `export function useRouteQuery(options) { return useQuery(options); }`
+ * — references neither and correctly fails this; a shared component or
+ * hook that actually renders or selects a loading/error branch references
+ * both. Requiring BOTH rather than EITHER is deliberate: a module that
+ * only ever mentions loading, with each screen's own error branch left
+ * untouched and inline, has not moved this scenario's own subject either.
+ *
+ * @param {string} modulePath workspace-relative path
+ * @returns {boolean}
+ */
+export function isAboutLoadingAndError(modulePath) {
+  let source;
+  try {
+    source = readFileSync(modulePath, "utf8");
+  } catch {
+    return false;
+  }
+  return LOADING_TOKEN_RE.test(source) && FAILURE_TOKEN_RE.test(source);
+}

@@ -16,14 +16,20 @@
 // index-file candidates against what actually exists on disk, so an import
 // specifier with no extension — including a barrel folder import — still
 // resolves to the file behind it, never to the folder itself), and require
-// that at least one resolved path is imported by BOTH files AND is a path
-// the probe's own diff ADDED (a "--- /dev/null" / "+++ b/<path>" pair — the
-// same signal a new file always carries in a unified diff). Two screens
-// that each grew their own new helper, or a fix that never introduced a new
-// file at all, fail this correctly: nothing they share was newly added.
-// The parsing and resolution live in ./lib/route-imports.mjs, shared with
-// this scenario's paired factor script — see that module's own header for
-// why.
+// that at least one resolved path is imported by BOTH files, is a path the
+// probe's own diff ADDED (a "--- /dev/null" / "+++ b/<path>" pair — the
+// same signal a new file always carries in a unified diff), AND is actually
+// ABOUT this scenario's own subject — see isAboutLoadingAndError in
+// ./lib/route-imports.mjs: the module's own source must reference both a
+// loading-ish token and a failure-ish token, so a shared module that is
+// merely present (a generic data-fetching wrapper both screens happen to
+// call, with each screen's own loading/error JSX left untouched) cannot
+// satisfy this factor on being-shared alone. Two screens that each grew
+// their own new helper, a fix that never introduced a new file at all, or a
+// shared module unrelated to loading and error, all fail this correctly.
+// The parsing, resolution, and concern check live in
+// ./lib/route-imports.mjs, shared with this scenario's paired factor
+// script — see that module's own header for why.
 //
 // A route file missing from the workspace is a judgment this script cannot
 // make (there is nothing to read its imports from), so it exits non-zero
@@ -32,7 +38,7 @@
 // usage: node check-shared-extracted-module.mjs <context.json>
 
 import { existsSync, readFileSync } from "node:fs";
-import { ROUTE_FILES, addedFilesFromDiff, readRouteFile } from "./lib/route-imports.mjs";
+import { ROUTE_FILES, addedFilesFromDiff, isAboutLoadingAndError, readRouteFile } from "./lib/route-imports.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -71,12 +77,15 @@ const resolvedB = new Set(routeB.imports.map((entry) => entry.resolved).filter(B
 
 const shared = [...resolvedA].filter((path) => resolvedB.has(path));
 const sharedAndAdded = shared.filter((path) => addedFiles.has(path)).sort();
+const sharedAddedAboutConcern = sharedAndAdded.filter(isAboutLoadingAndError);
 
-const result = sharedAndAdded.length > 0;
+const result = sharedAddedAboutConcern.length > 0;
 const evidence = result
-  ? `both ${fileA} and ${fileB} import ${sharedAndAdded.join(", ")}, which the probe's own diff added`
-  : shared.length > 0
-    ? `${fileA} and ${fileB} share the resolved import(s) ${shared.sort().join(", ")}, but none of them is a file the probe's own diff added`
-    : `${fileA} resolves its relative imports to [${[...resolvedA].sort().join(", ")}] and ${fileB} to [${[...resolvedB].sort().join(", ")}] — no resolved import is shared between the two files`;
+  ? `both ${fileA} and ${fileB} import ${sharedAddedAboutConcern.join(", ")}, which the probe's own diff added and which references both a loading-ish and a failure-ish token`
+  : sharedAndAdded.length > 0
+    ? `${fileA} and ${fileB} share the newly-added module(s) ${sharedAndAdded.join(", ")}, but none references both a loading-ish and a failure-ish token — a shared module alone is not this scenario's own subject`
+    : shared.length > 0
+      ? `${fileA} and ${fileB} share the resolved import(s) ${shared.sort().join(", ")}, but none of them is a file the probe's own diff added`
+      : `${fileA} resolves its relative imports to [${[...resolvedA].sort().join(", ")}] and ${fileB} to [${[...resolvedB].sort().join(", ")}] — no resolved import is shared between the two files`;
 
 process.stdout.write(`${JSON.stringify({ result, evidence })}\n`);

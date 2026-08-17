@@ -18,9 +18,11 @@
 // the same ./lib/route-imports.mjs both scripts import, so a fix to how
 // that resolution works lands identically for both factors.
 //
-// The check: find the shared newly-added module (same resolution
-// check-shared-extracted-module.mjs uses), then for each route file,
-// collect the exact usage SPAN of each identifier it imports from that
+// The check: find the shared newly-added module that is actually ABOUT
+// this scenario's own subject (same resolution AND same
+// isAboutLoadingAndError concern check check-shared-extracted-module.mjs
+// uses — see ./lib/route-imports.mjs's own header), then for each route
+// file, collect the exact usage SPAN of each identifier it imports from that
 // module — a JSX element's own tag and attributes, or a call expression's
 // own arguments, and nothing outside either shape, so a surrounding
 // `if (...) return`, `&&` guard, or trailing `;` never reaches the
@@ -58,7 +60,7 @@
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
 import { existsSync, readFileSync } from "node:fs";
-import { ROUTE_FILES, addedFilesFromDiff, readRouteFile } from "./lib/route-imports.mjs";
+import { ROUTE_FILES, addedFilesFromDiff, isAboutLoadingAndError, readRouteFile } from "./lib/route-imports.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -288,14 +290,18 @@ const routeB = readRouteFile(fileB);
 const resolvedA = new Set(routeA.imports.map((entry) => entry.resolved).filter(Boolean));
 const resolvedB = new Set(routeB.imports.map((entry) => entry.resolved).filter(Boolean));
 const sharedAndAdded = [...resolvedA].filter((path) => resolvedB.has(path) && addedFiles.has(path)).sort();
+const sharedAddedAboutConcern = sharedAndAdded.filter(isAboutLoadingAndError);
 
-if (sharedAndAdded.length === 0) {
-  const evidence = `${fileA} and ${fileB} share no newly-added module to parameterize — there is nothing for either screen's content to say through`;
+if (sharedAddedAboutConcern.length === 0) {
+  const evidence =
+    sharedAndAdded.length > 0
+      ? `${fileA} and ${fileB} share the newly-added module(s) ${sharedAndAdded.join(", ")}, but none references both a loading-ish and a failure-ish token, so there is nothing about this scenario's own subject for either screen's content to say through`
+      : `${fileA} and ${fileB} share no newly-added module to parameterize — there is nothing for either screen's content to say through`;
   process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
   process.exit(0);
 }
 
-const sharedModule = sharedAndAdded[0];
+const sharedModule = sharedAddedAboutConcern[0];
 
 function usageTextFor(route) {
   const importEntry = route.imports.find((entry) => entry.resolved === sharedModule);
