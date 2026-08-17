@@ -15,6 +15,8 @@
 
 import { readFileSync } from "node:fs";
 
+import { projectInclude } from "./vitest-config.mjs";
+
 function fail(message) {
   process.stderr.write(`${message}\n`);
   process.exit(1);
@@ -32,22 +34,6 @@ try {
   config = readFileSync("vitest.config.ts", "utf8");
 } catch (error) {
   fail(`could not read vitest.config.ts from the reconstructed workspace: ${error.message}`);
-}
-
-/**
- * the string literals inside the first `include: [...]` array appearing
- * after `name: "<projectName>"` in `content` — a textual read, not a real
- * TypeScript parser.
- *
- * @returns {string[] | null} null when the project or its include array
- *   cannot be located at all
- */
-function projectInclude(content, projectName) {
-  const nameIndex = content.indexOf(`name: "${projectName}"`);
-  if (nameIndex === -1) return null;
-  const includeMatch = content.slice(nameIndex).match(/include:\s*\[([^\]]*)\]/);
-  if (!includeMatch) return null;
-  return [...includeMatch[1].matchAll(/["'`]([^"'`]+)["'`]/g)].map((m) => m[1]);
 }
 
 const unitInclude = projectInclude(config, "unit");
