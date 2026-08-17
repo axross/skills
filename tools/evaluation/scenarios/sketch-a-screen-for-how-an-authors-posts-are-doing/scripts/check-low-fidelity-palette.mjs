@@ -53,15 +53,19 @@
 //
 // What this script classifies, and what it refuses to judge: hex,
 // rgb()/rgba(), hsl()/hsla(), and CSS named colours are converted to HSL
-// and counted as above. `oklch()`, `lch()`, `lab()`, `hwb()`, and
-// `color-mix()` are NOT converted or classified — their channels are not
-// directly comparable to the HSL saturation this factor's thresholds were
-// measured against, and inventing an unverifiable chroma threshold for them
-// would be a worse defect than the silent under-count it would replace. If
-// any added HTML candidate's own CSS invokes one of those functions, this
-// script exits non-zero naming the function and the file, exactly as it
-// already does for a workspace it cannot read — never a guessed true or
-// false for a page whose colours it could not actually classify.
+// and counted as above. `color-mix()`'s own OPERANDS are scanned as
+// ordinary value text alongside those — not blended, not resolved — see
+// UNSUPPORTED_COLOR_FUNCTIONS's own header for why that is the right
+// reading for this factor rather than a refusal. `oklch()`, `lch()`,
+// `lab()`, and `hwb()` are NOT converted or classified — their channels
+// are not directly comparable to the HSL saturation this factor's
+// thresholds were measured against, and inventing an unverifiable chroma
+// threshold for them would be a worse defect than the silent under-count
+// it would replace. If any added HTML candidate's own CSS invokes one of
+// those FOUR functions, this script exits non-zero naming the function and
+// the file, exactly as it already does for a workspace it cannot read —
+// never a guessed true or false for a page whose colours it could not
+// actually classify.
 //
 // usage: node check-low-fidelity-palette.mjs <context.json>
 
@@ -537,17 +541,39 @@ function distinctColorsIn(cssText) {
 }
 
 /**
- * CSS colour functions this script does not attempt to classify:
- * `oklch()`, `lch()`, `lab()`, `hwb()`, and `color-mix()`. Their channels
- * are not directly comparable to the HSL saturation this factor's
- * thresholds are calibrated against (measured against the wireframe kit's
- * own hex palette — see this file's header), and inventing a chroma
- * threshold for them with nothing to calibrate it against would be a worse
- * defect than the under-count it would replace: a page that declares its
- * greys through one of these functions is a case this script refuses to
- * judge, not one it guesses at.
+ * CSS colour functions this script does not attempt to classify: `oklch()`,
+ * `lch()`, `lab()`, and `hwb()`. Their channels are not directly comparable
+ * to the HSL saturation this factor's thresholds are calibrated against
+ * (measured against the wireframe kit's own hex palette — see this file's
+ * header), and inventing a chroma threshold for them with nothing to
+ * calibrate it against would be a worse defect than the under-count it
+ * would replace: a page that declares its greys through one of these
+ * functions is a case this script refuses to judge, not one it guesses at.
+ *
+ * `color-mix()` is deliberately NOT on this list, though it shares the
+ * same "channels this script cannot blend" shape. wireframe-kit.html's own
+ * boilerplate uses it five times (`.modal-scrim`, `.wc-frame .scrim`,
+ * `.wc-table .trow.sel`, `.wc-spin`, `.browser .win .scrim`), all inside
+ * the one <style> block every primitive and archetype shares, and nothing
+ * prompts a model to prune those rules — so refusing on it blanked this
+ * factor for any run that copied the kit at all, on the treatment arm
+ * only (the skill-absent arm never installs wireframe-design and so never
+ * has the kit to copy), which is the exact treatment-arm asymmetry this
+ * scenario's own design otherwise avoids. Its operands are left to be
+ * scanned as ordinary value text instead (see declarationValuesIn and
+ * distinctColorsIn below) rather than resolved or blended: every operand
+ * in the kit is a var() naming a custom property declared with a literal
+ * elsewhere in the same block, so that literal is already counted at its
+ * own declaration and scanning color-mix()'s own text loses nothing for a
+ * kit-derived page; a hand-authored page that introduces a hue ONLY inside
+ * a color-mix() with a literal operand (`color-mix(in srgb, coral 50%,
+ * white)`) still gets that literal counted, since it is ordinary value
+ * text. The blend ratio itself is not modelled — a faint tint counts as
+ * its full hue family — which is over-strict rather than under-strict,
+ * the safe direction for a factor whose job is to catch a fidelity
+ * violation, not to under-count one.
  */
-const UNSUPPORTED_COLOR_FUNCTIONS = ["oklch", "lch", "lab", "hwb", "color-mix"];
+const UNSUPPORTED_COLOR_FUNCTIONS = ["oklch", "lch", "lab", "hwb"];
 
 /**
  * every unsupported colour function (see UNSUPPORTED_COLOR_FUNCTIONS) this
