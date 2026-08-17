@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "844852232ffc26a56f6be673f39aaf50257ede7767f2e0e6e89a9187787930a2"
+      "computedHash": "8679c0d85663c75deddf0f612c02bd0323e54ae11e98aa82cd1683ce50651acd"
     },
     "agent-skill-management": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "046f6905617aafe309105781ef5d1b64e8cc1e2a390bc68957d23b1fb4ee4fc4"
+      "computedHash": "6e4422c7e892b0c42d5cccd7d0448c06c2c36d4568a59296f93a7cce09078157"
     },
     "sentry-instrumentation": {
       "source": "./skills",

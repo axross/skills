@@ -64,13 +64,24 @@ See [body-content-style.md](./references/body-content-style.md) for:
 
 ## Progressive Disclosure
 
+A rule is **load-bearing** when an agent that loads `SKILL.md` and opens no reference would produce wrong output for want of it — held before the work starts, not looked up once the reader already knows the question exists. That test is itself load-bearing for a skill's author, so it is stated here as a rule rather than left behind the pointer below.
+
 See [progressive-disclosure.md](./references/progressive-disclosure.md) for:
 
 - deciding when a skill should stay single-file or split into `references/`
+- the load-bearing test's full sorting table, and how it resolves which side of a split a rule's content belongs on
 - the size thresholds that signal a skill or reference file has grown too large
 - using the parent routing-section format: `## Topic`, `See [file.md](./references/file.md) for:`, then descriptive situation bullets
 - stating the fact a routing bullet points at — the flag, limit, or rule by name — instead of announcing that one exists
 - keeping parent routing bullets free of RFC-2119-style requirement keywords so they remain routing cues, not duplicated rules
+- which side wins when a load-bearing rule and its reference could otherwise both state it
+
+**Guidelines:**
+
+- MUST treat a rule as load-bearing when an agent that loads `SKILL.md` alone would produce wrong output for want of it — a fixed order, a closed set, or a constraint whose violation is not self-evident from the output — and as elaboration otherwise.
+- MUST place a load-bearing rule's statement and its RFC-2119 bullets in `SKILL.md`, never behind a reference-only pointer.
+- MUST route a load-bearing rule's worked examples, rationale, and edge cases into `references/` rather than duplicating them in `SKILL.md`.
+- MUST NOT restate a load-bearing rule's statement or its RFC-2119 bullets in the reference file that elaborates it.
 
 ## Cross-Referencing and Discovery
 
