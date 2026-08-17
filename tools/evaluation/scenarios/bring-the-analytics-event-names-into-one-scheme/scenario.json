@@ -1,0 +1,53 @@
+{
+  "id": "bring-the-analytics-event-names-into-one-scheme",
+  "description": "software-instrumentation is targeted against a complaint that names no scheme, no vendor, and no tool — only that the recorded names have drifted and that one rule should cover them, old and new alike — with amplitude-instrumentation (the SDK already wired into the project, and the designated wrong pick: reaching for it here means routing on what was found rather than on what was asked) and code-maintainability (a general naming-consistency read of the same complaint, since its own description covers 'what should this be called') sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The two outcome factors check that a single, self-consistent naming scheme is actually applied on both sides of `trackEvent<Name extends keyof Events>` — the literal names the call sites in PostEditorPage.tsx and Layout.tsx actually pass, and the keys the Events interface in analytics.ts declares — rather than asserting one particular scheme, since the capability asks for one written convention applied everywhere, never a specific spelling. They stay two factors rather than one because the generic type parameter makes the two sets agree by compilation: a fix that renames only the type and leaves a call site's own literal untouched would read as consistent to a check of the type alone, which is exactly the risk tools/evaluation/mocks/README.md names for this mock, and is what a fix limited to one side of the type/call-site divide would silently pass.",
+  "mock": "inkwell",
+  "targetSkills": ["software-instrumentation"],
+  "peerSkills": ["amplitude-instrumentation", "code-maintainability"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "The names we've given the things we record have drifted — they don't read like they came from the same place, and there's a fourth one coming. I'd like one rule for how a name is formed, one that would still make sense if we swapped the tool out, and the ones we already have brought in line with it."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-software-instrumentation",
+      "phase": "discovery",
+      "description": "The complaint names no scheme, no vendor, and no tool — only that the recorded names have drifted and that a durable rule is wanted. An agent that reaches for software-instrumentation here is finding it from the problem, with amplitude-instrumentation (the SDK already in the project, and the wrong pick precisely because reaching for it means routing on what was found rather than on what was asked) and code-maintainability (a general naming-consistency read of the same complaint) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "software-instrumentation" }
+      }
+    },
+    {
+      "id": "the-emitted-names-share-one-scheme",
+      "phase": "outcome",
+      "description": "trackEvent(\"post published\", …) and trackEvent(\"draft saved\", …) fire from PostEditorPage.tsx and trackEvent(\"Site switched\", …) fires from Layout.tsx today — three literal names with no shared word separator or capitalization pattern between them. The fix has to bring the names these call sites actually pass into one self-consistent scheme; this factor does not assert which scheme, only that all three end up sharing one. A fix that renames only the Events interface and leaves these three literals exactly as they are today passes the declared-names factor and fails this one — the split tools/evaluation/mocks/README.md names as the reason a name existing only in the event type would leave the exercised convention perfectly consistent.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-call-site-event-names.mjs",
+        "expect": {
+          "files": ["src/routes/PostEditorPage.tsx", "src/routes/Layout.tsx"],
+          "expectedCount": 3
+        }
+      }
+    },
+    {
+      "id": "the-declared-names-share-the-same-scheme",
+      "phase": "outcome",
+      "description": "interface Events in src/lib/analytics.ts declares the same three names as its keys, in the same inconsistent spelling the call sites use. This factor reads that declaration rather than the call sites: a fix that renames every emitted name at its call site but leaves the type's own keys behind would pass its sibling factor and fail this one, and together the two name which side of the rename was missed.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-declared-event-names.mjs",
+        "expect": {
+          "file": "src/lib/analytics.ts",
+          "interfaceName": "Events",
+          "expectedCount": 3
+        }
+      }
+    }
+  ]
+}
