@@ -53,9 +53,15 @@
 // read as having children, found no matching close tag, and its whole
 // span was silently dropped: two screens passing genuinely distinct
 // messages alongside a retry callback compared as two empty strings and
-// reported false. Both fixed after separate review rounds; see #429's
-// fix-round history for the reproductions each version was built and
-// checked against.
+// reported false. A third version's own children-scanning loop (inside
+// captureJsxElement) was neither expression-string-aware nor
+// self-closing-aware: a `{...}` child holding a string shaped like this
+// element's own closing tag truncated the capture early, and a nested
+// same-named element that was itself self-closing left the depth count one
+// too high, running the scan past the real close and returning null for an
+// element that had closed just fine. All three fixed after separate review
+// rounds; see #429's fix-round history for the reproductions each version
+// was built and checked against.
 //
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
@@ -194,9 +200,31 @@ function findOpenTagEnd(text, start) {
  * `<Name ...>...</Name>` — never anything before the `<` or after the
  * matching close, so a surrounding `if (...) return`, `&&` guard, or
  * trailing `;` never reaches the captured span. A same-named child element
- * nested inside is tracked (a rough depth count) rather than assumed away,
- * though this scenario's own subject — a leaf surface component taking its
- * content as props — is not expected to nest itself.
+ * nested inside is tracked (a depth count) rather than assumed away, though
+ * this scenario's own subject — a leaf surface component taking its content
+ * as props — is not expected to nest itself.
+ *
+ * The children scan is both expression-string-aware and self-closing-aware,
+ * extended from the two things findOpenTagEnd already tracks for the OPEN
+ * tag. A `{...}` expression container a child passes through can itself
+ * hold a quoted string shaped exactly like this element's own closing tag
+ * — `{"See the </LoadingError> tag"}` — which an unguarded
+ * `text.startsWith(closeTag, i)` would read as the real close and truncate
+ * the capture right there; quote-tracking is scoped to INSIDE a `{...}`
+ * container specifically (an `exprDepth` counter, separate from the
+ * element-nesting `depth` below), not to the children region as a whole,
+ * because plain JSX text is not itself quoted the way an attribute value or
+ * a JS string literal is — "Couldn't load posts." carries an apostrophe
+ * that is not a string delimiter, and treating it as one would swallow
+ * everything after it looking for a closing quote that will never come.
+ * Separately, a nested SAME-NAMED element that is itself self-closing
+ * (`<LoadingError text="inner" />`) contributes no `</LoadingError>` of its
+ * own, so naively incrementing `depth` on every `<LoadingError` occurrence
+ * — self-closing or not — leaves depth one too high and the scan runs past
+ * the real close looking for a second one that does not exist, returning
+ * null for an element that closed just fine; a nested `<name` occurrence is
+ * resolved with findOpenTagEnd itself, the same reader the outer tag uses,
+ * before deciding whether it opens a new depth level.
  *
  * @param {string} text
  * @param {number} ltIndex
@@ -213,14 +241,61 @@ function captureJsxElement(text, ltIndex, name) {
   let depth = 1;
   let i = openTag.end + 1; // past the '>'
   const closeTag = `</${name}>`;
+  let quote = null;
+  let exprDepth = 0; // depth of {...} expression containers within children
   while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\") {
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (exprDepth > 0) {
+      if (ch === '"' || ch === "'" || ch === "`") {
+        quote = ch;
+        i++;
+        continue;
+      }
+      if (ch === "{") {
+        exprDepth++;
+        i++;
+        continue;
+      }
+      if (ch === "}") {
+        exprDepth--;
+        i++;
+        continue;
+      }
+      i++;
+      continue;
+    }
+    if (ch === "{") {
+      exprDepth++;
+      i++;
+      continue;
+    }
     if (text.startsWith(closeTag, i)) {
       depth--;
       i += closeTag.length;
       if (depth === 0) return text.slice(ltIndex, i);
       continue;
     }
-    if (text.startsWith(`<${name}`, i)) depth++;
+    if (text.startsWith(`<${name}`, i)) {
+      const nestedOpen = findOpenTagEnd(text, i + 1 + name.length);
+      if (nestedOpen) {
+        if (!nestedOpen.selfClosing) depth++;
+        i = nestedOpen.end + 1;
+        continue;
+      }
+      // the nested tag's own open never closed either — fall through to
+      // the default single-character advance, the same "no matching close
+      // before the text ends" outcome this function already returns for
+      // that shape at the top level.
+    }
     i++;
   }
   return null; // no matching close before the text ends
