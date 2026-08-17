@@ -21,17 +21,37 @@
 // requireLocale true, "covers-the-post-that-is-listed-but-unreachable"
 // passes it false.
 //
-// e2e/home.spec.ts is excluded by name because it already exists,
-// unmodified, in every materialized tsuzuri workspace — counting it would
-// let a probe that touched nothing pass by construction. e2e/ itself is one
-// of tsuzuri's own baseline directories (playwright.config.ts's own
-// testDir) and always exists in a materialized workspace, so its absence
-// here would mean the workspace itself is not what this script expects to
-// judge, not that the factor's own artefact is missing — which is why that
-// one case still exits non-zero rather than reporting a `false` result. A
-// candidate spec that exists but never mentions the slug, or never sets a
-// language, is the ordinary case this script exists to catch, and both are
-// reported as `false`.
+// e2e/ is walked recursively, and a file counts as a candidate when it ends
+// in ".spec.ts" or ".test.ts" — this script's own accepted extensions,
+// stated here rather than derived from any one runner's default collection
+// glob, which is a version-sensitive fact this script does not claim to
+// know. Both extensions and a nested location matter for the same reason:
+// end-to-end-testing's own references/structure.md teaches a route-tree
+// layout under e2e/tests/routes/ (its worked example is
+// e2e/tests/routes/items/id/page.test.ts) as the default, and a
+// purpose-based layout under e2e/tests/ (e.g. e2e/tests/smoke.test.ts) as
+// the alternative — a probe that followed either would land its file in a
+// subdirectory, named *.test.ts, which an earlier, non-recursive,
+// *.spec.ts-only version of this script could not see. That version made
+// both outcome factors report `false` exactly when the treatment condition
+// worked, which is the defect this walk and this extension list exist to
+// close.
+//
+// e2e/home.spec.ts is excluded by its exact workspace-relative path, not by
+// bare filename, because it already exists, unmodified, in every
+// materialized tsuzuri workspace — counting it would let a probe that
+// touched nothing pass by construction, and excluding by bare filename
+// would also silently discard a probe's own file that happens to share that
+// name at a different path (e2e/tests/routes/home.spec.ts, say). e2e/
+// itself is one of tsuzuri's own baseline directories (playwright.config.ts's
+// own testDir) and always exists in a materialized workspace, so its
+// absence here would mean the workspace itself is not what this script
+// expects to judge, not that the factor's own artefact is missing — which
+// is why that one case still exits non-zero rather than reporting a `false`
+// result. e2e/ holding no candidate file at all — the ordinary case a probe
+// that did nothing leaves behind — is reported as `false`, and so is a
+// candidate that exists but never mentions the slug, or never sets a
+// language.
 //
 // setsReaderLanguage's three tokens — a bare "locale:" object key (the
 // Playwright test.use()/browser-context option), "extraHTTPHeaders" (the
@@ -71,21 +91,23 @@ if (typeof requireLocale !== "boolean") {
 }
 
 const E2E_DIR = "e2e";
-const EXCLUDED_FILE = "home.spec.ts";
+const EXCLUDED_PATH = join(E2E_DIR, "home.spec.ts");
+const CANDIDATE_EXTENSIONS = [".spec.ts", ".test.ts"];
 
 let entries;
 try {
-  entries = readdirSync(E2E_DIR, { withFileTypes: true });
+  entries = readdirSync(E2E_DIR, { withFileTypes: true, recursive: true });
 } catch (error) {
   fail(`could not read ${E2E_DIR} from the reconstructed workspace: ${error.message}`);
 }
 
 const candidateFiles = entries
-  .filter((entry) => entry.isFile() && entry.name.endsWith(".spec.ts") && entry.name !== EXCLUDED_FILE)
-  .map((entry) => join(E2E_DIR, entry.name));
+  .filter((entry) => entry.isFile() && CANDIDATE_EXTENSIONS.some((ext) => entry.name.endsWith(ext)))
+  .map((entry) => join(entry.parentPath ?? entry.path, entry.name))
+  .filter((path) => path !== EXCLUDED_PATH);
 
 if (candidateFiles.length === 0) {
-  const evidence = `${E2E_DIR}/ holds no *.spec.ts file other than ${EXCLUDED_FILE}, so nothing in it can exercise "${slug}"`;
+  const evidence = `${E2E_DIR}/ holds no *.spec.ts or *.test.ts file other than ${EXCLUDED_PATH}, so nothing in it can exercise "${slug}"`;
   process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
   process.exit(0);
 }
