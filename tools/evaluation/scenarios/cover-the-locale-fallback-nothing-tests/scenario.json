@@ -1,0 +1,44 @@
+{
+  "id": "cover-the-locale-fallback-nothing-tests",
+  "description": "unit-testing is targeted against a request that names neither TDD nor a runner, only a module the owner trusts least and the fact that nothing beside it has a test — with jest-testing (the runner's own mechanics) and end-to-end-testing (a whole-system check of what a reader sees) sitting in the peer set as the two competing readings of the same anxiety, which is what makes the discovery factor a real question rather than a formality. The outcome factors check that a new spec names its callable subjects with the `()` suffix unit-testing requires and groups the module's four resolution conditions — exact match, language-only match, default-locale fallback, and nothing at all — under their own `describe(\"when ...\")` blocks; `blog-post-slug.spec.ts`, the one spec already in the tree, demonstrates only the bare half of the naming rule and groups nothing at all, so a control run has neither convention to copy into a pass.",
+  "mock": "tsuzuri",
+  "targetSkills": ["unit-testing"],
+  "peerSkills": ["jest-testing", "end-to-end-testing"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "The locale fallback in `shared/resolve-translation.ts` is the part of this codebase I trust least. When it picks the wrong translation nothing errors — a reader just gets the wrong language, and we find out weeks later, from a reader. `shared/blog-post-slug.ts` next to it has a `.spec.ts` beside it and this module has nothing at all. Please close that gap before I touch the resolution order again."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-unit-testing",
+      "phase": "discovery",
+      "description": "The request names neither TDD, a runner, nor the skill itself — only a module the owner trusts least and the fact that nothing beside it has a test — so an agent that reaches for unit-testing here is finding it from the problem, with jest-testing (the runner's own mechanics) and end-to-end-testing (a whole-system check of what a reader sees) sitting right there as the two competing readings of the same anxiety; the two skills' own descriptions disclaim each other explicitly, which is what keeps this a real question rather than a formality.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "unit-testing" }
+      }
+    },
+    {
+      "id": "names-callable-subjects-as-callable",
+      "phase": "outcome",
+      "description": "unit-testing requires a callable subject named in a `describe(...)` or case title to carry the `()` suffix, and forbids it on a non-callable one. Every subject `resolve-translation.ts` offers — `normalizeLocale`, `findExactMatch`, `findLanguageMatch`, `resolveTranslation` — is callable, and the one spec already in the tree, `blog-post-slug.spec.ts`, names a schema and is therefore correctly bare, demonstrating only the rule's other half. A control run has nothing local to copy the callable-naming convention from.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-spec-names-callables.mjs"
+      }
+    },
+    {
+      "id": "groups-conditions-in-their-own-block",
+      "phase": "outcome",
+      "description": "unit-testing requires cases sharing a condition to sit under their own nested `describe(\"when ...\")` block. `resolve-translation.ts` has four such conditions by construction — an exact match, a language-only match, a fallback to the post's default locale, and no match at all — and `blog-post-slug.spec.ts` is one flat block of five ungrouped cases, so the codebase demonstrates the opposite of the convention this factor checks for. It judges only whether a condition-named group exists, not how deeply it nests — a limit its own script states.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-spec-groups-conditions.mjs"
+      }
+    }
+  ]
+}
