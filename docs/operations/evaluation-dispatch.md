@@ -225,7 +225,7 @@ under `tools/evaluation/scenarios/`:
   source-map upload, applied at materialization rather than shipped in the
   mock. Every factor, including its transcript factor, is judged by script —
   see [Skill Evaluation](../specs/skill-evaluation.md) on `patch`, and
-  `tools/evaluation/mocks/README.md`'s "Authoring a patch" for the
+  [Directory Structure](../conventions/directory-structure.md) for the
   convention it follows.
 - [`run-the-toast-tests-the-suite-never-collects`](../../tools/evaluation/scenarios/run-the-toast-tests-the-suite-never-collects/)
   targets `vitest-testing`, alongside `unit-testing` and `software-development`

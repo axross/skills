@@ -64,48 +64,6 @@ declared. The tree currently holds one; #392's step 4 authors the set. An
 entry whose scenario is not yet written is a standing reason the mock is
 shaped as it is, and is why the shape survives until then.
 
-## Authoring a patch
-
-A patch lives inside its own scenario's directory, beside `scenario.json` and
-`scripts/` — never under a mock's own directory, and never shared between
-scenarios, because
-[`tools/evaluation/src/scenario.mjs`](../src/scenario.mjs) resolves a
-scenario's `patch` field relative to that scenario's own directory, and a
-patch belongs to exactly one scenario. `docs/specs/skill-evaluation.md`
-describes the field among a scenario's other declared parts.
-
-Generate it against the mock as it currently ships rather than hand-writing
-hunks: check the target file out at its current committed state, edit it into
-the state the scenario needs, and let `git diff` (or, for a file the patch
-adds, `git diff --no-index` against `/dev/null`) produce the unified diff. A
-hand-edited patch that only looks right is exactly the failure
-[the patch-materialization test](../../../tests/repository/patch-materialization.test.mjs)
-below exists to catch, but regenerating one correctly is still cheaper than
-debugging one that merely happens to apply.
-
-A patch rots the moment a file it touches changes under it elsewhere in the
-mock, and nothing catches that until the next materialization: offline, in
-the patch-materialization test just linked, or — if that test is ever
-skipped — inside a paid probe that has already spent money reaching it.
-Regenerating a rotted patch is the same procedure as authoring it the first
-time: diff the mock's new state into the patch's intended result again, and
-confirm with `git apply --check` that the regenerated file still applies
-before committing it.
-
-A patch that changes the file set — adding or removing one — maintains
-`history.jsonc` itself, in that same diff:
-[`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs)
-refuses a mock whose tree and history disagree in either direction, so an
-added file with no matching `history.jsonc` entry, or a removed file still
-named in one, fails materialization rather than silently landing wrong. A
-patch that only edits a file already in the tree — never adding or removing
-one — needs no `history.jsonc` change at all.
-
-It is not covered by this repository's own format or lint gates, which run
-over Markdown, JSON, and YAML files respectively — a patch reformatted by a
-house-style formatter would stop applying, so it stays out of both by
-extension alone.
-
 ### `tsuzuri` — choices made for coverage
 
 - **The commit history is inconsistent in style.** `history.jsonc` mixes

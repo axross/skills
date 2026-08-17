@@ -73,9 +73,9 @@ it, so the workspace a model opens is clean and its history unremarkable.
 `patch` is `null` for a scenario whose mock already has what it needs.
 [`2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
 is the decision this follows from, and
-[`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)
-states the authoring convention — where the file lives, how it is
-regenerated, and what it must not do.
+[Directory Structure](../conventions/directory-structure.md) states the
+authoring convention — where the file lives, how it is regenerated, and what
+it must not do.
 
 ## Three phases
 
