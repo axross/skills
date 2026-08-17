@@ -354,11 +354,24 @@ async function isFile(path) {
   }
 }
 
-/** directory names under `tools/evaluation/scenarios/`, one per declared evaluation scenario. */
+/**
+ * directory names under `tools/evaluation/scenarios/` that hold a
+ * `scenario.json`, one per declared evaluation scenario.
+ *
+ * the `scenario.json` requirement matches distributableSkillDirs' own
+ * SKILL.md requirement below rather than counting bare directories: a
+ * directory without one is not a declared scenario, and counting it would
+ * inflate the marker. loadAllScenarios would throw on such a directory and
+ * fail the suite first, so this is rigor rather than a live defect — but a
+ * derivation that is only correct because something else fails earlier is
+ * one nobody can read on its own.
+ */
 async function declaredScenarioDirs() {
   const root = repoPath("tools/evaluation/scenarios");
   const entries = await readdir(root, { withFileTypes: true });
-  return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const dirs = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const declared = await Promise.all(dirs.map(async (name) => ((await isFile(join(root, name, "scenario.json"))) ? name : null)));
+  return declared.filter((name) => name !== null);
 }
 
 /** directory names under `skills/` that hold a SKILL.md. */

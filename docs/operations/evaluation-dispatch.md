@@ -230,7 +230,7 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->seven<!-- 
 - [`accept-a-page-number-from-a-url`](../../tools/evaluation/scenarios/accept-a-page-number-from-a-url/)
   targets `zod-schema` against a URL page number `tsuzuri` parses nowhere
   today, alongside `next-app-development` and `react-component-development`
-  as peers, and carries a `discovery` factor and three `outcome` factors.
+  as peers, and carries a `discovery` factor and two `outcome` factors.
 - [`let-readers-leave-a-note-on-a-post`](../../tools/evaluation/scenarios/let-readers-leave-a-note-on-a-post/)
   targets `application-security` against a reader-note feature invented in
   its own prompt, alongside `zod-schema` and `next-app-development` as
