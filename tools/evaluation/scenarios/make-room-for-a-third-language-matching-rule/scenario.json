@@ -1,0 +1,55 @@
+{
+  "id": "make-room-for-a-third-language-matching-rule",
+  "description": "code-maintainability is targeted against a complaint about a module resisting a coming change, never a duplicate search, a helper function's name, or the skill's own vocabulary, with code-review (a diff-quality take on the same complaint) and unit-testing (a coverage take on the same complaint) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. shared/resolve-translation.ts's exported helpers are a choice this mock makes for coverage, not an accident, so the two outcome factors neither require nor forbid them staying exported: the improvement factor reads only how many times the post's translation list is searched by literal text, which is twice today across the module's two matching helpers, and the non-effect factor reads only that the module's own public entry point survives, so a refactor that keeps every helper exported and one that folds them into a single parameterized finder both pass it alike. The improvement factor's own limit: judging the duplication acceptable and leaving it unchanged is itself a defensible answer to this prompt, and a run that does that is recorded false rather than reinterpreted as a pass.",
+  "mock": "tsuzuri",
+  "targetSkills": ["code-maintainability"],
+  "peerSkills": ["code-review", "unit-testing"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "There's a third, looser way of matching a reader's language coming later. Looking at the module that does this matching today to work out where that third rule would even go, and then adding it, looks like more work than it should be. Get the module into a shape where adding that next rule will be easy, without changing what it does today."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-code-maintainability",
+      "phase": "discovery",
+      "description": "The complaint describes a module resisting a coming change, never a duplicate search or a helper's name, and never the skill — an agent that reaches for code-maintainability here is finding it from the problem, with code-review (a diff-quality take on the same complaint) and unit-testing (a coverage take on the same complaint) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "code-maintainability" }
+      }
+    },
+    {
+      "id": "stops-searching-the-translation-list-once-per-rule",
+      "phase": "outcome",
+      "description": "The post's translation list is searched by literal text twice in the file today, once inside each of the module's two locale-matching helpers, which is exactly the shape that makes adding a third matching rule mean writing a third near-identical search rather than adding one new comparison to a shared one. This factor reads only how many times that literal search text appears in the file — it does not check where, so a refactor that removes the duplication some other way it did not anticipate could still fail it, and judging the duplication acceptable and leaving it as it is a legitimate answer this factor is meant to record as false.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-substring-count-at-most.mjs",
+        "expect": {
+          "file": "shared/resolve-translation.ts",
+          "substring": "post.translations",
+          "max": 1
+        }
+      }
+    },
+    {
+      "id": "keeps-the-callers-entry-point",
+      "phase": "outcome",
+      "description": "This is the non-effect factor: shared/resolve-translation.ts already exports its top-level resolution function and the post detail page already imports it from the same module path, and nothing about this prompt asks for that surface to move, so it is expected to read true regardless of what a run does about the duplication above. It reads only that the module still exports a function under that name and that the caller's own import statement still names it from that path — it cannot see whether the function's own behaviour changed at all, which is exactly what the sibling factor above is for.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-entry-point-preserved.mjs",
+        "expect": {
+          "moduleFile": "shared/resolve-translation.ts",
+          "exportedName": "resolveTranslation",
+          "callerFile": "app/(site)/posts/[slug]/page.tsx",
+          "importPath": "@/shared/resolve-translation"
+        }
+      }
+    }
+  ]
+}
