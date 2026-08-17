@@ -197,8 +197,8 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
-under `tools/evaluation/scenarios/`:
+Five scenarios are declared today under `tools/evaluation/scenarios/`, four
+against the `inkwell` mock project and one against `tsuzuri`:
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -218,10 +218,16 @@ under `tools/evaluation/scenarios/`:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`let-readers-choose-which-language-a-post-shows-in`](../../tools/evaluation/scenarios/let-readers-choose-which-language-a-post-shows-in/)
+  targets `loop-engineering` on `tsuzuri`, alongside
+  `product-requirement-document-authoring`, `software-development`, and
+  `next-app-development` as peers. It declares a `discovery` factor judged by
+  script and nothing else, because the other two phases cannot be judged
+  honestly for a skill that governs how an agent works — see
+  [`docs/decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md`](../decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md).
 
-Together the four exercise every path through the three scripts above:
-every phase, both judgment methods, and a scenario that omits a phase
-entirely. Authoring further scenarios against `inkwell`'s remaining
-catalogued subjects, and against this repository's other mocks, is separate,
-later work; this document describes what runs today, not the coverage it
-will eventually have.
+Together they exercise every path through the three scripts above: every
+phase, both judgment methods, a scenario that omits a phase entirely, and
+two mocks. Authoring further scenarios against the remaining catalogued
+subjects is separate, later work; this document describes what runs today,
+not the coverage it will eventually have.
