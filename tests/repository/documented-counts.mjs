@@ -354,6 +354,13 @@ async function isFile(path) {
   }
 }
 
+/** directory names under `tools/evaluation/scenarios/`, one per declared evaluation scenario. */
+async function declaredScenarioDirs() {
+  const root = repoPath("tools/evaluation/scenarios");
+  const entries = await readdir(root, { withFileTypes: true });
+  return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+}
+
 /** directory names under `skills/` that hold a SKILL.md. */
 async function distributableSkillDirs() {
   const root = repoPath("skills");
@@ -487,6 +494,12 @@ export const CLAIMS = {
         ),
       );
     },
+  },
+
+  "declared-scenarios": {
+    owner: "the directories under tools/evaluation/scenarios/",
+    note: "docs/operations/evaluation-dispatch.md's own scenario list must gain or lose an entry to match, and node tools/evaluation/probe.mjs --dry-run's admitted probe count moves by 6 probes per scenario",
+    derive: async () => (await declaredScenarioDirs()).length,
   },
 
 };

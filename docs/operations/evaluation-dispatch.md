@@ -197,8 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
-under `tools/evaluation/scenarios/`:
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->seven<!-- /count --> scenarios are declared today: four against the `inkwell` mock project, and three against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -218,10 +217,25 @@ under `tools/evaluation/scenarios/`:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`publish-an-edit-without-a-redeploy`](../../tools/evaluation/scenarios/publish-an-edit-without-a-redeploy/)
+  targets `next-app-development` against `tsuzuri`'s build-time post catalog
+  — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
+  own "choices made for coverage" list names it — alongside
+  `tanstack-query-development` and `code-maintainability` as peers, and
+  carries a `discovery` factor, two `outcome` factors, and a `transcript`
+  factor judged by script.
+- [`accept-a-page-number-from-a-url`](../../tools/evaluation/scenarios/accept-a-page-number-from-a-url/)
+  targets `zod-schema` against a URL page number `tsuzuri` parses nowhere
+  today, alongside `next-app-development` and `react-component-development`
+  as peers, and carries a `discovery` factor and three `outcome` factors.
+- [`let-readers-leave-a-note-on-a-post`](../../tools/evaluation/scenarios/let-readers-leave-a-note-on-a-post/)
+  targets `application-security` against a reader-note feature invented in
+  its own prompt, alongside `zod-schema` and `next-app-development` as
+  peers, and carries a `discovery` factor, one `outcome` factor, and a
+  `transcript` factor judged by script.
 
-Together the four exercise every path through the three scripts above:
-every phase, both judgment methods, and a scenario that omits a phase
-entirely. Authoring further scenarios against `inkwell`'s remaining
-catalogued subjects, and against this repository's other mocks, is separate,
-later work; this document describes what runs today, not the coverage it
-will eventually have.
+Together the seven exercise every phase, both judgment methods, and a
+scenario that omits a phase entirely. Authoring further scenarios against
+`inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
+repository's other mocks, is separate, later work; this document describes
+what runs today, not the coverage it will eventually have.
