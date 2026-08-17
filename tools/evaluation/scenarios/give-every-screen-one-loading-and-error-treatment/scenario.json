@@ -1,0 +1,44 @@
+{
+  "id": "give-every-screen-one-loading-and-error-treatment",
+  "description": "react-component-development is targeted against three route components that each hand-roll their own loading and error branches in three different shapes — PostListPage.tsx inline, PostEditorPage.tsx by early return, RootRedirect.tsx by early return that renders nothing at all while pending — with code-maintainability (a general-quality read of the same repetition) and react-component-styling (a misroute, since nothing about the repetition is CSS) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The outcome factors check that the repeated concern lands in one new module both PostListPage.tsx and PostEditorPage.tsx import, and that the extraction still lets each screen say its own thing rather than flattening both onto one hardcoded message. Neither factor asserts the role=\"alert\" asymmetry only PostEditorPage.tsx carries today: react-component-development's own SKILL.md defers semantics and keyboard behaviour to a high-fidelity UI design capability, and none is in this scenario's peer set, so asserting it would measure accessibility instinct with nothing to attribute the result to.",
+  "mock": "inkwell",
+  "targetSkills": ["react-component-development"],
+  "peerSkills": ["code-maintainability", "react-component-styling"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Right now every screen in the console handles \"still loading\" and \"that didn't work\" in its own way — the post list prints one sentence, the editor replaces the whole screen with a different one, and opening the app shows nothing at all for a moment. None of them quite matches the others. We're adding a couple more screens soon and I'd rather each one didn't invent its own version of this all over again."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-react-component-development",
+      "phase": "discovery",
+      "description": "The ask names neither react-component-development nor the mechanism a fix would use, only three screens that each handle \"still loading\" and \"that didn't work\" differently — an agent that reaches for react-component-development here is finding it from the problem, with code-maintainability (a general-quality read of the same repetition) and react-component-styling (a misroute, since nothing about the repetition is CSS) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "expect": { "skill": "react-component-development" }
+      }
+    },
+    {
+      "id": "pulls-the-two-screens-onto-one-shared-module",
+      "phase": "outcome",
+      "description": "Reads the reconstructed workspace's src/routes/PostListPage.tsx and src/routes/PostEditorPage.tsx, resolves each file's relative imports against the workspace, and checks that at least one resolved module is imported by both and is a file this probe's own diff added. That is the whole of \"the repetition landed in one new place both screens now use\". Two screens that each grew their own new helper fail it, correctly, and so does a fix that never introduced any new file. A route file missing from the workspace is a judgment this script cannot make, so it exits non-zero rather than reporting false.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-shared-extracted-module.mjs"
+      }
+    },
+    {
+      "id": "lets-each-screen-say-its-own-thing",
+      "phase": "outcome",
+      "description": "The paired \"must not disappear\" factor. react-component-development's own component-states.md has the shared surface take its content from the caller so features \"keep their distinct control without forking the surface\"; an extraction that renders one hardcoded message on both screens has moved the duplication rather than removed it, and has cost the product two sentences that said different, useful things. The script finds the same shared new module the factor above detects, collects how each route file uses the identifiers it imports from it, normalizes whitespace, and reports false when the two files' usages are identical — including when there is no shared module to parameterize at all, which it names as its own evidence. It is deliberately not independent of the factor above: it judges the quality of the extraction that factor detects, so a run that changed nothing also passes it, the same way keeps-the-detail-cache-write and keeps-the-animation-for-everyone-else do for their own scenarios — which is why it is declared as one of a pair rather than alone.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-screens-keep-distinct-content.mjs"
+      }
+    }
+  ]
+}
