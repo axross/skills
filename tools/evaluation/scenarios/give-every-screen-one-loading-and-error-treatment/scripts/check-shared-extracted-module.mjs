@@ -32,7 +32,7 @@
 // usage: node check-shared-extracted-module.mjs <context.json>
 
 import { existsSync, readFileSync } from "node:fs";
-import { addedFilesFromDiff, readRouteFile } from "./lib/route-imports.mjs";
+import { ROUTE_FILES, addedFilesFromDiff, readRouteFile } from "./lib/route-imports.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -53,8 +53,6 @@ const diff = context.material?.diff;
 if (typeof diff !== "string") {
   fail("context.material.diff must be a string — this script judges the outcome phase alone.");
 }
-
-const ROUTE_FILES = ["src/routes/PostListPage.tsx", "src/routes/PostEditorPage.tsx"];
 
 for (const file of ROUTE_FILES) {
   if (!existsSync(file)) {

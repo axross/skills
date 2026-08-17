@@ -41,7 +41,7 @@
 // usage: node check-self-contained-sketch.mjs <context.json>
 
 import { readFileSync } from "node:fs";
-import { addedFilesFromDiff } from "./lib/added-files.mjs";
+import { readAddedHtmlFiles } from "./lib/added-files.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -109,24 +109,13 @@ function externalFetchFailures(text) {
   return failures;
 }
 
-const addedFiles = [...addedFilesFromDiff(diff)];
-const htmlCandidates = addedFiles.filter((path) => /\.html?$/i.test(path)).sort();
+const { candidates: htmlCandidates, readable, unreadable } = readAddedHtmlFiles(diff);
 
 if (htmlCandidates.length === 0) {
   const evidence =
     "the diff added no HTML document at all — no self-contained sketch of the screen was produced for this task";
   process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
   process.exit(0);
-}
-
-const readable = [];
-const unreadable = [];
-for (const path of htmlCandidates) {
-  try {
-    readable.push({ path, content: readFileSync(path, "utf8") });
-  } catch (error) {
-    unreadable.push(`${path} (${error.message})`);
-  }
 }
 
 if (readable.length === 0) {

@@ -21,6 +21,18 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 
 /**
+ * the two route files both this scenario's factor scripts read — the
+ * scenario's own subject. Declared once here rather than in each entry
+ * script for the same reason the parsing and resolution logic around it
+ * is: pulls-the-two-screens-onto-one-shared-module and
+ * lets-each-screen-say-its-own-thing must agree on which two files they
+ * are reading, and a change to that pair (a third screen added to the
+ * scenario's own subject, say) should not risk landing in one script and
+ * not the other.
+ */
+export const ROUTE_FILES = ["src/routes/PostListPage.tsx", "src/routes/PostEditorPage.tsx"];
+
+/**
  * every path a unified diff ADDED, read from its "--- /dev/null" /
  * "+++ b/<path>" pair — the shape `git diff` always writes for a new file,
  * regardless of how the hunks inside are shaped.

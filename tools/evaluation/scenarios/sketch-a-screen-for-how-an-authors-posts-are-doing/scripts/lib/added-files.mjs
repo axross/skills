@@ -17,6 +17,8 @@
 // never invoked directly by factor-judgment.mjs and carries no
 // `#!/usr/bin/env node` shebang for that reason.
 
+import { readFileSync } from "node:fs";
+
 /**
  * every path a unified diff ADDED, read from its "--- /dev/null" /
  * "+++ b/<path>" pair — the shape `git diff` always writes for a new file,
@@ -34,4 +36,36 @@ export function addedFilesFromDiff(diffText) {
     }
   }
   return added;
+}
+
+/**
+ * every `.html`/`.htm` path this diff added, sorted, read back from the
+ * reconstructed workspace (this process's own cwd) where possible. Returns
+ * raw data only — no printing, no exit — so each caller keeps its own
+ * evidence text and its own `fail()` for the two situations that differ
+ * per factor: no candidate at all (a real, judgeable false, worded
+ * differently by each factor) and a candidate the diff names but the
+ * workspace does not actually contain (a refusal, worded identically
+ * today but each script's own to phrase).
+ *
+ * @param {string} diffText
+ * @returns {{
+ *   candidates: string[],
+ *   readable: Array<{ path: string, content: string }>,
+ *   unreadable: string[],
+ * }} `unreadable` entries read "<path> (<error message>)"
+ */
+export function readAddedHtmlFiles(diffText) {
+  const addedFiles = [...addedFilesFromDiff(diffText)];
+  const candidates = addedFiles.filter((path) => /\.html?$/i.test(path)).sort();
+  const readable = [];
+  const unreadable = [];
+  for (const path of candidates) {
+    try {
+      readable.push({ path, content: readFileSync(path, "utf8") });
+    } catch (error) {
+      unreadable.push(`${path} (${error.message})`);
+    }
+  }
+  return { candidates, readable, unreadable };
 }
