@@ -152,6 +152,11 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   exemplary suite would hand a control run the conventions the evaluation
   detects; a uniformly poor one would flatter a treatment run by leaving
   something obvious to correct.
+  [`judge-what-the-publish-toast-commit-leaves-unchecked`](../scenarios/judge-what-the-publish-toast-commit-leaves-unchecked/)
+  claims one specific instance of this mix: the publish toast component ships
+  with no test of its own, while its four sibling components under
+  `src/components/` — `Button`, `Card`, `ConsentBanner`, and `Sidebar` — each
+  ship a `.browser.test.tsx`.
 - **There is no dashboard, settings page, onboarding flow, or sign-in
   screen.** Four scenarios ask a model to sketch one of the first three, so
   building one removes the task. The absence is honest at this stage of a

@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Four scenarios are declared today, all against the `inkwell` mock project,
+Seven scenarios are declared today, all against the `inkwell` mock project,
 under `tools/evaluation/scenarios/`:
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
@@ -218,10 +218,39 @@ under `tools/evaluation/scenarios/`:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`find-out-what-a-change-has-to-pass-here`](../../tools/evaluation/scenarios/find-out-what-a-change-has-to-pass-here/)
+  targets `software-development`, alongside `quality-assurance` and
+  `unit-testing` as peers, on a plain contributor question rather than a
+  code change. It carries a `discovery` factor and three `transcript`
+  factors — two judged by script (reading the project's own contributor
+  documentation, then naming every check it lists) and one by reasoning
+  (conveying the format-then-lint loop as an ordered discipline rather
+  than a flat checklist) — and declares no `outcome` phase, since the task
+  leaves no artefact in the working tree for one to read.
+- [`go-through-the-routes-commit-before-anyone-else-does`](../../tools/evaluation/scenarios/go-through-the-routes-commit-before-anyone-else-does/)
+  targets `code-review`, alongside `quality-assurance`, `code-maintainability`,
+  and `loop-engineering` as peers, on `inkwell`'s `routes + shell` commit — its
+  real front end, not the trivial `docs` commit at `HEAD`. It carries a
+  `discovery` factor and three `transcript` factors — two judged by script
+  (scoping the review from the commit's own diff, then anchoring findings to
+  real lines of the commit's own files) and one by reasoning (naming an
+  actual defect) — with no `outcome` phase, for the same reason as above.
+- [`judge-what-the-publish-toast-commit-leaves-unchecked`](../../tools/evaluation/scenarios/judge-what-the-publish-toast-commit-leaves-unchecked/)
+  targets `quality-assurance`, alongside `code-review` and `unit-testing` as
+  peers, on a different commit from the review scenario above — `publish
+toast` — and a differently framed question: not what a reviewer would
+  raise about the change, but what signing it off would mean taking on
+  trust. It carries a `discovery` factor and two `transcript` factors — one
+  judged by script (requiring the format-and-lint gate as evidence) and one
+  by reasoning (naming the untested toast as the actual gap) — again with
+  no `outcome` phase.
 
-Together the four exercise every path through the three scripts above:
-every phase, both judgment methods, and a scenario that omits a phase
-entirely. Authoring further scenarios against `inkwell`'s remaining
-catalogued subjects, and against this repository's other mocks, is separate,
-later work; this document describes what runs today, not the coverage it
+Together these exercise every path through the three scripts named above,
+plus three more that read a stored transcript's tool inputs and assistant
+text directly rather than by counting keywords over the whole stream: every
+phase, both judgment methods, and a scenario that omits a phase entirely.
+This change is itself further scenario authoring against `inkwell`; what
+remains later work is authoring against the mock's still-uncatalogued
+subjects and against this repository's other mocks, not against `inkwell`
+as a whole. This document describes what runs today, not the coverage it
 will eventually have.
