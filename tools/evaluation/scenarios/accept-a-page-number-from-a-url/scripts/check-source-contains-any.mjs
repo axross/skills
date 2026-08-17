@@ -63,9 +63,10 @@ if (!Array.isArray(anyOf) || anyOf.length === 0 || !anyOf.every((n) => typeof n 
   fail("context.expect.anyOf must be a non-empty array of non-empty strings.");
 }
 
-// undefined/null means "every extension" — the filter this scenario needs
-// when a subject (a catalog's own text, say) could legitimately move into
-// any file type, not only the ones a stricter factor wants to bound.
+// undefined/null means "every extension". Both of this scenario's factors
+// do bound it — a parse belongs in a .ts or .tsx file under app/ or shared/
+// — but the option stays open for a factor whose subject could legitimately
+// land in any file type.
 const extensionList = extensions ?? null;
 const suffixes = excludeSuffixes ?? [];
 
