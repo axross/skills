@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "sentry-instrumentation" }
+        "input": { "skill": "sentry-instrumentation" }
       }
     },
     {
@@ -38,7 +38,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "vite.config.ts",
           "mustContainAll": ["filesToDeleteAfterUpload"]
         }
@@ -51,7 +51,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-transcript-mentions.mjs",
-        "expect": {
+        "input": {
           "mustContainAny": ["source map", "sourcemap", "source-map"]
         }
       }

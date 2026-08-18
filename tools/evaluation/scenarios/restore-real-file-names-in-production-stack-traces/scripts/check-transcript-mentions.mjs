@@ -34,9 +34,9 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { mustContainAny } = context.expect ?? {};
+const { mustContainAny } = context.input ?? {};
 if (!Array.isArray(mustContainAny) || mustContainAny.length === 0) {
-  fail("context.expect.mustContainAny must be a non-empty array of phrases.");
+  fail("context.input.mustContainAny must be a non-empty array of phrases.");
 }
 
 const transcript = context.material?.transcript;

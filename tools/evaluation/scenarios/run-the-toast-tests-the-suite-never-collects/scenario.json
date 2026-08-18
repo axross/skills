@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "vitest-testing" }
+        "input": { "skill": "vitest-testing" }
       }
     },
     {
@@ -47,7 +47,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-transcript-mentions.mjs",
-        "expect": {
+        "input": {
           "mustContainAny": [
             "include pattern",
             "collection pattern",
