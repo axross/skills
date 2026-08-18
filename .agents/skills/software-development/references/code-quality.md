@@ -107,7 +107,7 @@ An explanatory comment that clears the admissibility test above still has to be 
 
 ### TODO Comments
 
-A `TODO` is a promise that something not-yet-good-enough gets finished later, and a promise nobody can find again is not a plan. Marking it with the issue it is tracked under is what keeps it findable — and pointing at the project's own issue tracker anywhere else in a comment does not earn that same concession, because nothing there anchors it to being acted on.
+A `TODO` is a promise that something not-yet-good-enough gets finished later, and a promise nobody can find again is not a plan. Marking it with the issue it is tracked under is what keeps it findable — and pointing at the project's own issue tracker anywhere else in a comment does not earn that same concession, because nothing there anchors it to being acted on. A `TODO` is an explanatory comment, so the form and length rules above govern it too; what the issue it names cannot hold belongs in that issue rather than in a longer comment.
 
 Four other comment forms carry an identifier or a URL for a different reason: each names something the code cannot state at all, and a documented standard already prescribes exactly this shape for it.
 
@@ -117,17 +117,20 @@ Four other comment forms carry an identifier or a URL for a different reason: ea
 - MUST reference, in a `TODO(#123):` comment, an issue already tracked in the project's own issue or ticket tracker that resolves to a follow-up someone can act on.
 - MUST use `TODO` for anything temporary or good-enough-but-not-perfect that a future action can settle, and MUST NOT mark the same case with `FIXME`, `XXX`, `HACK`, or any other marker; `TODO` is the one vocabulary this convention collects.
 - MUST NOT reference the project's own issue or ticket tracker anywhere in a comment except inside a `TODO(#123):` comment; a bare issue number or a link to one, left in an explanatory comment or a doc-comment, is not admissible.
-- MUST treat as admissible, despite carrying an identifier or a URL, each of: an SPDX license identifier at the top of a source file (e.g. `// SPDX-License-Identifier: MIT`); a linter suppression directive's required reason (e.g. `// eslint-disable-next-line no-explicit-any -- vendor types are wrong here`); a documentation standard's own reference-link syntax inside a doc-comment, resolved by that standard rather than left as a bare address (e.g. Go's `[Wrap]`-style doc link, or TSDoc's `{@link}` tag); and a reference to the upstream bug or specification a workaround is written against, naming the tracker and the issue rather than only describing it (e.g. `// works around a parser bug in the vendor's library, tracked upstream as issue 4821, until the next release`).
+- MUST treat each of the following as admissible despite carrying an identifier or a URL:
+  - an SPDX license identifier at the top of a source file — `// SPDX-License-Identifier: MIT`
+  - a linter suppression directive's required reason — `// eslint-disable-next-line no-explicit-any -- vendor types are wrong here`
+  - a documentation standard's own reference-link syntax inside a doc-comment, resolved by that standard rather than left as a bare address — Go's `[Wrap]`-style doc link, or TSDoc's `{@link}` tag
+  - a reference to the upstream bug or specification a workaround is written against, naming the tracker and the issue rather than only describing it — `// works around a parser bug in the vendor's library, tracked upstream as issue 4821, until the next release`
 
 ### Outside the Code
 
-A comment kept out by the rules above still has to go somewhere, or the discipline just deletes information instead of relocating it.
+A comment kept out by the rules above still has to go somewhere, or the discipline just deletes information instead of relocating it. Where a project ships no living-documentation capability there is nowhere prescribed to put it, and deletion is the whole of what these rules then ask.
 
 **Guidelines:**
 
 - MUST move a specification fact or a domain-vocabulary definition evicted from a comment into a specification or glossary entry, and a piece of rationale evicted from a comment into a decision record, where the project ships a living-documentation capability — consult that capability for when a record is owed and how it is written, rather than any summary of that gating here.
 - MUST route the reasoning behind a specific change to the commit message that made it, per the project's Conventional Commits practices, rather than leaving it in a comment beside the diff.
-- MUST NOT require either move on a project that ships no living-documentation capability; a comment evicted there has nowhere prescribed to go beyond deletion, and this rule adds no obligation in its absence.
 
 ## Import Hygiene
 
