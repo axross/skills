@@ -19,6 +19,7 @@ under `tools/evaluation/` is laid out.
 │   ├── probe.mjs                # takes one measurement: a scenario's probe matrix, one condition and repetition per probe
 │   ├── evaluate.mjs             # judges a stored measurement's factors
 │   ├── derive.mjs               # computes (or --check verifies) a measurement's derived tier
+│   ├── scenario.schema.json     # the one declaration of a scenario.json's shape; src/scenario.mjs evaluates it
 │   ├── src/                     # shared modules, by concern: layout, fingerprint, admission, comparability, judge, spawn
 │   ├── mocks/                   # the mock projects a probe's workspace is materialized from
 │   ├── scenarios/<id>/          # one scenario.json plus its patch and judgment scripts, per id
