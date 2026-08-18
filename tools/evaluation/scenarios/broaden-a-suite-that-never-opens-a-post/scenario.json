@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "end-to-end-testing" }
+        "input": { "skill": "end-to-end-testing" }
       }
     },
     {
@@ -29,7 +29,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-e2e-covers.mjs",
-        "expect": {
+        "input": {
           "slug": "on-writing-in-two-languages",
           "requireLocale": true
         }
@@ -42,7 +42,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-e2e-covers.mjs",
-        "expect": {
+        "input": {
           "slug": "draft-notes",
           "requireLocale": false
         }

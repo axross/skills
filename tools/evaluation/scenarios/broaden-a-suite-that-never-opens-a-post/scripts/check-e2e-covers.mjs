@@ -13,7 +13,7 @@
 // check-css-syntax.mjs's own outcome factor already does, since what it
 // judges is a spec's content, not which lines a probe happened to add.
 //
-// Parameterised through context.expect.slug and context.expect.requireLocale
+// Parameterised through context.input.slug and context.input.requireLocale
 // rather than forked into two scripts, because the two factors this
 // scenario declares differ only in which slug they look for and whether
 // setting the reader's language is part of what they require:
@@ -82,12 +82,12 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { slug, requireLocale } = context.expect ?? {};
+const { slug, requireLocale } = context.input ?? {};
 if (typeof slug !== "string" || slug.length === 0) {
-  fail("context.expect.slug must be a non-empty string naming the post slug this factor covers.");
+  fail("context.input.slug must be a non-empty string naming the post slug this factor covers.");
 }
 if (typeof requireLocale !== "boolean") {
-  fail("context.expect.requireLocale must be a boolean.");
+  fail("context.input.requireLocale must be a boolean.");
 }
 
 const E2E_DIR = "e2e";
