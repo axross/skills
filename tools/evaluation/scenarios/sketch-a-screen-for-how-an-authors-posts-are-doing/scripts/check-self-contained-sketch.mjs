@@ -22,7 +22,7 @@
 //    and no judgment script in this repository may read a path under
 //    skills/ at all.
 // 2. Subject-naming: the document must contain at least one of
-//    context.expect.subjectTerms (case-insensitive substring) — words drawn
+//    context.input.subjectTerms (case-insensitive substring) — words drawn
 //    from THIS task's own subject (posts, drafts, published counts), not
 //    from the wireframe-design skill's vocabulary. A run that answered by
 //    building a real React screen, by writing prose, or by leaving the
@@ -63,9 +63,9 @@ if (typeof diff !== "string") {
   fail("context.material.diff must be a string — this script judges the outcome phase alone.");
 }
 
-const subjectTerms = context.expect?.subjectTerms;
+const subjectTerms = context.input?.subjectTerms;
 if (!Array.isArray(subjectTerms) || subjectTerms.length === 0) {
-  fail("context.expect.subjectTerms must be a non-empty array of case-insensitive substrings.");
+  fail("context.input.subjectTerms must be a non-empty array of case-insensitive substrings.");
 }
 
 /**
