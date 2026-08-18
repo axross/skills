@@ -7,24 +7,24 @@ Apply this reference to decide what belongs inside one unit, and to keep a chang
 Cohesion is what the parts of a unit are grouped by, and it decides whether an abstraction was worth making at all. A unit built on a weak grouping cannot be named, tested, or changed as one thing, so every later reader pays for a grouping that was convenient once.
 
 | Level (strongest first) | Its parts are grouped because                     | Where it stands                              |
-| ------------------------ | --------------------------------------------------- | ----------------------------------------------- |
-| Functional                | every one is essential to a single job              | the target at every granularity                |
-| Sequential                | each one's output is the next one's input           | the floor for a module bundling several jobs   |
-| Communicational            | they all read from or write to the same data         | the same floor                                  |
-| Procedural                | they run in a fixed order, for different jobs        | below the floor — split it                     |
-| Temporal                   | they happen at the same moment                       | not a basis for an abstraction                 |
-| Logical                    | they are the same kind of thing, picked by a flag     | not a basis for an abstraction                 |
-| Coincidental                | they happened to be sitting together                 | not a basis for an abstraction                 |
+| ----------------------- | ------------------------------------------------- | -------------------------------------------- |
+| Functional              | every one is essential to a single job            | the target at every granularity              |
+| Sequential              | each one's output is the next one's input         | the floor for a module bundling several jobs |
+| Communicational         | they all read from or write to the same data      | the same floor                               |
+| Procedural              | they run in a fixed order, for different jobs     | below the floor — split it                   |
+| Temporal                | they happen at the same moment                    | not a basis for an abstraction               |
+| Logical                 | they are the same kind of thing, picked by a flag | not a basis for an abstraction               |
+| Coincidental            | they happened to be sitting together              | not a basis for an abstraction               |
 
 The scale is **non-linear**: functional cohesion sits far stronger than the rest, and coincidental and logical sit far weaker than the intermediate levels — so a procedural grouping should not read as nearly as strong as a communicational one just because the table lists it one row down.
 
 A unit's own name is the cheapest test of where it sits, and it reads straight off the diff without reconstructing the design:
 
 | The name                                                        | What it says about the unit                                             |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| one verb plus one object (`deserializeTemplate`, `sendRequest`)  | one job — functionally cohesive                                          |
-| two verbs, or an `and` (`parseAndSendRequest`)                   | two concerns wearing one name                                            |
-| a vague object (`parseData`)                                     | the data model is under-schematised, or the unit covers several targets  |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| one verb plus one object (`deserializeTemplate`, `sendRequest`) | one job — functionally cohesive                                         |
+| two verbs, or an `and` (`parseAndSendRequest`)                  | two concerns wearing one name                                           |
+| a vague object (`parseData`)                                    | the data model is under-schematised, or the unit covers several targets |
 
 **Guidelines:**
 
