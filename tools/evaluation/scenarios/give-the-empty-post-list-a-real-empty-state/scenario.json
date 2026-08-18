@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "react-component-styling" }
+        "input": { "skill": "react-component-styling" }
       }
     },
     {
@@ -38,7 +38,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-css-syntax.mjs",
-        "expect": { "dir": "src" }
+        "input": { "dir": "src" }
       }
     }
   ]
