@@ -36,18 +36,18 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { file, startMarker, endMarker, mustContainAll } = context.expect ?? {};
+const { file, startMarker, endMarker, mustContainAll } = context.input ?? {};
 if (typeof file !== "string" || file.length === 0) {
-  fail("context.expect.file must be a non-empty, workspace-relative path.");
+  fail("context.input.file must be a non-empty, workspace-relative path.");
 }
 if (typeof startMarker !== "string" || startMarker.length === 0) {
-  fail("context.expect.startMarker must be a non-empty string.");
+  fail("context.input.startMarker must be a non-empty string.");
 }
 if (typeof endMarker !== "string" || endMarker.length === 0) {
-  fail("context.expect.endMarker must be a non-empty string.");
+  fail("context.input.endMarker must be a non-empty string.");
 }
 if (!Array.isArray(mustContainAll) || mustContainAll.length === 0) {
-  fail("context.expect.mustContainAll must be a non-empty array of substrings.");
+  fail("context.input.mustContainAll must be a non-empty array of substrings.");
 }
 
 let content;

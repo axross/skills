@@ -80,7 +80,7 @@ describe("validateScenario", () => {
         { id: "x", phase: "sideways", description: "d", judgment: { method: "script", script: "s.mjs" } },
       ],
     });
-    expect(() => validateScenario(scenario, "test.json")).toThrow(/phase must be one of/);
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/"phase" must be one of/);
   });
 
   it("rejects an unknown judgment method", () => {
@@ -124,13 +124,12 @@ describe("validateScenario", () => {
   });
 
   // #407: a null factor entry (a plausible half-removed array element) must
-  // not reach assertOnlyKnownKeys's Object.keys and surface as a raw,
-  // path-free TypeError — it gets this validator's normal, path-naming
-  // failure instead, the same treatment assertNoBudgetField already gives a
-  // null value.
+  // not surface as a raw, path-free TypeError — it gets this validator's
+  // normal, path-naming failure instead. the schema's own `type` on a factor
+  // is what refuses it now, and the message still names the position.
   it("rejects a null factor entry with a clean, path-naming error rather than a raw TypeError", () => {
     const scenario = validScenario({ factors: [null] });
-    expect(() => validateScenario(scenario, "test.json")).toThrow(/factors\[0\] must be an object/);
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/factors\[0\] — a factor must be an object/);
   });
 
   it("rejects a duplicate factor id", () => {
@@ -174,11 +173,11 @@ describe("validateScenario", () => {
 
   // the plan's own non-goal: "do not estimate cost... in any form". A
   // budget-shaped key anywhere in the document is rejected, not only at the
-  // top level. assertNoBudgetField runs before the allow-list
-  // (assertOnlyKnownKeys) in validateScenario, so the guard gets first
-  // refusal on a budget-shaped top-level key: its own message, not the
-  // allow-list's (which would also name the key, for an unrelated reason),
-  // is what a scenario document sees. Each rejection below therefore checks
+  // top level. a budget-shaped top-level key fails two of the schema's
+  // rules at once — `propertyNames` and `additionalProperties` — and
+  // validateScenario prefers the first, so the guard gets first refusal and
+  // its own message, not the closed-key one (which would also name the key,
+  // for an unrelated reason), is what a scenario document sees. Each rejection below therefore checks
   // for that guard-specific phrasing rather than the bare key, so a control
   // fails again if the guard itself ever stops catching the key.
   it.each([
@@ -202,9 +201,9 @@ describe("validateScenario", () => {
 
   // #406: \bcap\b never fires once a word character follows "cap", so these
   // five slipped past the old substring guard untouched.
-  it("rejects a top-level capUsd key, naming the path, the key, and the matched word", () => {
+  it("rejects a top-level capUsd key, naming the path and the key", () => {
     const scenario = { ...validScenario(), capUsd: 5 };
-    expect(() => validateScenario(scenario, "test.json")).toThrow(/test\.json\.capUsd.*"cap"/);
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/test\.json\.capUsd.*"capUsd"/);
   });
 
   it.each(["capUSD", "capUsdCeiling", "maxSpend", "spendLimit"])(
@@ -231,10 +230,10 @@ describe("validateScenario", () => {
 
   // cap stays a whole word rather than a prefix — a cap prefix would fire on
   // capture/capability below — so every form it takes is listed outright in
-  // FORBIDDEN_WORDS rather than produced by an ending rule: the plural, and
-  // the two inflections English spells with a doubled consonant. each is
-  // named here, so dropping one from that set fails a test rather than
-  // quietly widening what a scenario may declare.
+  // the schema's `nonBudgetKey` pattern rather than produced by an ending
+  // rule: the plural, and the two inflections English spells with a doubled
+  // consonant. each is named here, so dropping one from that pattern fails a
+  // test rather than quietly widening what a scenario may declare.
   it.each(["caps", "capped", "capping"])(
     "rejects %s, a form of cap that only an outright listing catches",
     (key) => {
@@ -248,21 +247,22 @@ describe("validateScenario", () => {
     expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`${key} looks like a budget`));
   });
 
-  // the acceptance side of this guard is exercised inside `judgment.expect`
-  // rather than at the scenario's top level. #407's allow-list refuses any
-  // top-level key the instrument does not read, so a top-level probe would
+  // the acceptance side of this guard is exercised inside `judgment.input`
+  // rather than at the scenario's top level. #407's closed key set refuses
+  // any top-level key the instrument does not read, so a top-level probe would
   // be rejected for a reason that has nothing to do with word matching, and
-  // the control would pass for the wrong reason or fail for one. `expect` is
-  // the one subtree the allow-list deliberately does not reach, which makes
-  // it the only place a key's verdict is attributable to this guard alone.
-  const withExpectKey = (key) =>
+  // the control would pass for the wrong reason or fail for one. `input` is
+  // the one subtree the schema deliberately leaves open — a judgment script's
+  // own arguments, which it validates itself — which makes it the only place
+  // a key's verdict is attributable to this guard alone.
+  const withInputKey = (key) =>
     validScenario({
       factors: [
         {
           id: "x",
           phase: "outcome",
           description: "d",
-          judgment: { method: "script", script: "a.mjs", expect: { [key]: 5 } },
+          judgment: { method: "script", script: "a.mjs", input: { [key]: 5 } },
         },
       ],
     });
@@ -270,7 +270,7 @@ describe("validateScenario", () => {
   it.each(["capture", "capability", "recap"])(
     "accepts the %s key, whose text merely contains a forbidden word",
     (key) => {
-      expect(() => validateScenario(withExpectKey(key), "test.json")).not.toThrow();
+      expect(() => validateScenario(withInputKey(key), "test.json")).not.toThrow();
     },
   );
 
@@ -282,7 +282,7 @@ describe("validateScenario", () => {
   // whose failure mode is admitting one, and costume is not a plausible key
   // in a scenario document.
   it("rejects costume, an accepted false positive", () => {
-    expect(() => validateScenario(withExpectKey("costume"), "test.json")).toThrow(/"costume"/);
+    expect(() => validateScenario(withInputKey("costume"), "test.json")).toThrow(/"costume"/);
   });
 
   // unpriced buries "price" behind "un" — a root preceded by other letters
@@ -291,20 +291,21 @@ describe("validateScenario", () => {
   // gap this guard exists to fix. a residual gap, disclosed rather than
   // closed.
   it("accepts unpriced, a residual gap disclosed rather than closed", () => {
-    expect(() => validateScenario(withExpectKey("unpriced"), "test.json")).not.toThrow();
+    expect(() => validateScenario(withInputKey("unpriced"), "test.json")).not.toThrow();
   });
 
-  // #407: the allow-list admits `judgment.expect` without looking inside it
-  // (its keys are the judgment script's own vocabulary), so this guard is
-  // what still catches a budget-shaped key nested inside it.
-  it("rejects a budget-shaped key nested inside a judgment's own `expect`", () => {
+  // #407: the schema admits `judgment.input` without constraining what
+  // shape an argument takes (its keys are the judgment script's own
+  // vocabulary, validated by that script), so this guard is what still
+  // catches a budget-shaped key nested inside it.
+  it("rejects a budget-shaped key nested inside a judgment's own `input`", () => {
     const scenario = validScenario({
       factors: [
         {
           id: "x",
           phase: "outcome",
           description: "d",
-          judgment: { method: "script", script: "a.mjs", expect: { costCap: 5 } },
+          judgment: { method: "script", script: "a.mjs", input: { costCap: 5 } },
         },
       ],
     });
@@ -313,14 +314,14 @@ describe("validateScenario", () => {
 
   // #406: the key the whole issue is about, checked below the top level as
   // well — this is where a per-case cap would actually be written now that
-  // the allow-list holds the levels above it.
-  it("rejects a capUsd key nested inside a judgment's own `expect`", () => {
-    expect(() => validateScenario(withExpectKey("capUsd"), "test.json")).toThrow(/"cap"/);
+  // the closed key sets hold the levels above it.
+  it("rejects a capUsd key nested inside a judgment's own `input`", () => {
+    expect(() => validateScenario(withInputKey("capUsd"), "test.json")).toThrow(/"capUsd"/);
   });
 
-  // #407: an allow-list check beside the presence checks — a key the
+  // #407: a closed-key check beside the presence checks — a key the
   // instrument does not read fails at load, named at the path it sits on.
-  describe("the key allow-list", () => {
+  describe("the closed key sets", () => {
     it("rejects a scenario carrying `repetitionsPerCondition`", () => {
       const scenario = { ...validScenario(), repetitionsPerCondition: 3 };
       expect(() => validateScenario(scenario, "test.json")).toThrow(/repetitionsPerCondition/);
@@ -398,21 +399,21 @@ describe("validateScenario", () => {
       expect(() => validateScenario(scenario, "test.json")).toThrow(/judgment\.script/);
     });
 
-    it("rejects a reasoning judgment carrying `expect`", () => {
+    it("rejects a reasoning judgment carrying `input`", () => {
       const scenario = validScenario({
         factors: [
           {
             id: "x",
             phase: "transcript",
             description: "d",
-            judgment: { method: "reasoning", model: "anthropic/x", instructions: "look", expect: {} },
+            judgment: { method: "reasoning", model: "anthropic/x", instructions: "look", input: {} },
           },
         ],
       });
-      expect(() => validateScenario(scenario, "test.json")).toThrow(/judgment\.expect/);
+      expect(() => validateScenario(scenario, "test.json")).toThrow(/judgment\.input/);
     });
 
-    it("accepts a script judgment's `expect` and examines nothing inside it", () => {
+    it("accepts a script judgment's `input` and examines nothing inside it", () => {
       const scenario = validScenario({
         factors: [
           {
@@ -422,7 +423,7 @@ describe("validateScenario", () => {
             judgment: {
               method: "script",
               script: "a.mjs",
-              expect: { file: "src/x.ts", mustContainAll: ["y"] },
+              input: { file: "src/x.ts", mustContainAll: ["y"] },
             },
           },
         ],
@@ -516,5 +517,133 @@ describe("skillsForCondition", () => {
 
   it("throws on an unknown condition", () => {
     expect(() => skillsForCondition(scenario, "skill-sideways")).toThrow(/Unknown condition/);
+  });
+});
+
+// the argument bag a judgment script is handed. #450 renamed it from
+// `expect` to `input` and stopped the schema describing its interior: the
+// instrument copies it verbatim into the context file, and each script
+// validates its own arguments where it uses them. what the schema still says
+// is that the bag is an object and that no key inside it, at any depth, names
+// a budget — the repository rule from #392 and #395 that no script checks.
+describe("a script judgment's input", () => {
+  const withInput = (input) =>
+    validScenario({
+      factors: [
+        {
+          id: "x",
+          phase: "outcome",
+          description: "Whether the thing got done, stated so a reader can disagree without reading the script.",
+          judgment: { method: "script", script: "scripts/check.mjs", input },
+        },
+      ],
+    });
+
+  it("rejects the retired `expect` spelling, so a missed rename fails rather than being ignored", () => {
+    const scenario = validScenario({
+      factors: [
+        {
+          id: "x",
+          phase: "outcome",
+          description: "Whether the thing got done, stated so a reader can disagree without reading the script.",
+          judgment: { method: "script", script: "scripts/check.mjs", expect: { file: "a.ts" } },
+        },
+      ],
+    });
+    expect(() => validateScenario(scenario, "test.json")).toThrow(/judgment\.expect is not a field/);
+  });
+
+  it("is optional, since a script may read no arguments at all", () => {
+    const scenario = validScenario();
+    delete scenario.factors[0].judgment.input;
+    expect(() => validateScenario(scenario, "test.json")).not.toThrow();
+  });
+
+  // the shapes below are deliberately unconstrained. an earlier draft allowed
+  // only scalars and string lists, which described the corpus of the day and
+  // presented it as a rule: it would have refused a future script with a
+  // genuinely structured argument for no reason the instrument has.
+  it.each([
+    ["a string", { file: "src/x.ts" }],
+    ["a number", { max: 1 }],
+    ["a boolean", { requireLocale: false }],
+    ["a string list", { mustContainAll: ["a", "b"] }],
+    ["a nested list", { mustMentionEachOf: [["npm test", "run test"], ["lint"]] }],
+    ["an empty list", { roots: [] }],
+    ["a null", { dir: null }],
+    ["a nested object", { opts: { deep: { deeper: 1 } } }],
+    ["a list of objects", { rules: [{ a: 1 }, { b: 2 }] }],
+  ])("accepts %s as an argument, leaving its shape to the script", (_label, input) => {
+    expect(() => validateScenario(withInput(input), "test.json")).not.toThrow();
+  });
+
+  it.each([
+    ["directly", { costCeiling: 1 }],
+    ["one object down", { opts: { capUsd: 5 } }],
+    ["three objects down", { a: { b: { c: { spendLimit: 1 } } } }],
+    ["inside a list of objects", { rules: [{ ok: 1 }, { dollarCap: 2 }] }],
+    ["inside a nested list of objects", { rules: [[{ budgetary: 1 }]] }],
+  ])("rejects a budget-shaped key %s", (_label, input) => {
+    expect(() => validateScenario(withInput(input), "test.json")).toThrow(/looks like a budget/);
+  });
+
+  it("accepts a nested structure carrying no budget-shaped key, so the guard is shown to discriminate", () => {
+    expect(() => validateScenario(withInput({ a: { b: { c: [{ ok: 1 }] } } }), "test.json")).not.toThrow();
+  });
+});
+
+// the judgment script is named as a path, not chosen from a list: the schema
+// deliberately knows no script, so adding one needs no schema edit. what it
+// does refuse is a path that could not be a script beside its own scenario.
+describe("a script judgment's script path", () => {
+  const withScript = (script) =>
+    validScenario({
+      factors: [
+        {
+          id: "x",
+          phase: "outcome",
+          description: "Whether the thing got done, stated so a reader can disagree without reading the script.",
+          judgment: { method: "script", script },
+        },
+      ],
+    });
+
+  it("accepts a script this repository has never seen, since the schema names none", () => {
+    expect(() => validateScenario(withScript("scripts/check-something-new.mjs"), "test.json")).not.toThrow();
+  });
+
+  it.each([
+    ["an absolute path", "/etc/passwd.mjs"],
+    ["a path that is not a module", "scripts/check.sh"],
+    ["an empty path", ""],
+  ])("rejects %s", (_label, script) => {
+    expect(() => validateScenario(withScript(script), "test.json")).toThrow(/judgment\.script/);
+  });
+});
+
+// #450's rename, checked by exhaustion rather than by having looked: every
+// scenario declares `input`, and every judgment script reads `context.input`.
+// a single missed occurrence would starve its script of arguments, and would
+// otherwise surface first inside a paid dispatch.
+describe("the declared scenarios and their judgment scripts", () => {
+  it("carry no `expect` key and no `context.expect` read", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const entries = await readdir(SCENARIOS_ROOT, { withFileTypes: true });
+    const offenders = [];
+    for (const entry of entries.filter((candidate) => candidate.isDirectory())) {
+      const scenarioPath = join(SCENARIOS_ROOT, entry.name, "scenario.json");
+      if (/"expect"\s*:/.test(await readFile(scenarioPath, "utf8"))) offenders.push(scenarioPath);
+      let scripts;
+      try {
+        scripts = await readdir(join(SCENARIOS_ROOT, entry.name, "scripts"));
+      } catch {
+        continue;
+      }
+      for (const script of scripts.filter((name) => name.endsWith(".mjs"))) {
+        const scriptPath = join(SCENARIOS_ROOT, entry.name, "scripts", script);
+        if ((await readFile(scriptPath, "utf8")).includes("context.expect")) offenders.push(scriptPath);
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 });

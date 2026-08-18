@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "react-component-styling" }
+        "input": { "skill": "react-component-styling" }
       }
     },
     {
@@ -29,7 +29,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/components/PublishToast/PublishToast.module.css",
           "mustContainAll": ["prefers-reduced-motion"]
         }
@@ -42,7 +42,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/components/PublishToast/PublishToast.module.css",
           "mustContainAll": ["animation", "@keyframes slide-in"]
         }
