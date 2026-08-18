@@ -150,7 +150,7 @@ description is where it was put — and this record does not settle it.
 **Recording the exclusion in #423 alone**, matching how `agent-skill-authoring`
 and `agent-skill-management` are recorded there. Put to the maintainer at the
 clarify gate and not chosen: the conclusion constrains later slices, and
-[docs/index.md](../index.md) routes "why a past decision still constrains
+`docs/index.md` routes "why a past decision still constrains
 current work" to `docs/decisions/` rather than to an issue.
 
 ## Consequences
