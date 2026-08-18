@@ -39,15 +39,15 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { file, substring, max } = context.expect ?? {};
+const { file, substring, max } = context.input ?? {};
 if (typeof file !== "string" || file.length === 0) {
-  fail("context.expect.file must be a non-empty, workspace-relative path.");
+  fail("context.input.file must be a non-empty, workspace-relative path.");
 }
 if (typeof substring !== "string" || substring.length === 0) {
-  fail("context.expect.substring must be a non-empty string.");
+  fail("context.input.substring must be a non-empty string.");
 }
 if (typeof max !== "number" || !Number.isInteger(max) || max < 0) {
-  fail("context.expect.max must be a non-negative integer.");
+  fail("context.input.max must be a non-negative integer.");
 }
 
 let content;

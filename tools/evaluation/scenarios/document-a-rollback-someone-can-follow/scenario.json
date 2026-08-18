@@ -22,7 +22,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "technical-document-authoring" }
+        "input": { "skill": "technical-document-authoring" }
       }
     },
     {

@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "living-project-documentation" }
+        "input": { "skill": "living-project-documentation" }
       }
     },
     {
@@ -38,7 +38,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-diff-touches-file.mjs",
-        "expect": { "file": "docs/deployment.md" }
+        "input": { "file": "docs/deployment.md" }
       }
     },
     {
@@ -48,7 +48,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-sentence-absent.mjs",
-        "expect": {
+        "input": {
           "file": "shared/resolve-translation.ts",
           "sentence": "The locale a reader is shown when none of their accepted locales match."
         }

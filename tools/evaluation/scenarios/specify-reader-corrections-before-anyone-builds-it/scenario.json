@@ -22,7 +22,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "product-requirement-document-authoring" }
+        "input": { "skill": "product-requirement-document-authoring" }
       }
     },
     {
@@ -32,7 +32,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-heading-in-touched-markdown.mjs",
-        "expect": { "headingContains": "Acceptance criteria" }
+        "input": { "headingContains": "Acceptance criteria" }
       }
     },
     {
@@ -42,7 +42,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-heading-in-touched-markdown.mjs",
-        "expect": { "headingContains": "Verification strategy" }
+        "input": { "headingContains": "Verification strategy" }
       }
     },
     {
@@ -52,7 +52,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-heading-in-touched-markdown.mjs",
-        "expect": { "headingContains": "non-goal" }
+        "input": { "headingContains": "non-goal" }
       }
     },
     {

@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "code-maintainability" }
+        "input": { "skill": "code-maintainability" }
       }
     },
     {
@@ -29,7 +29,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-substring-count-at-most.mjs",
-        "expect": {
+        "input": {
           "file": "shared/resolve-translation.ts",
           "substring": "post.translations",
           "max": 1
@@ -43,7 +43,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-entry-point-preserved.mjs",
-        "expect": {
+        "input": {
           "moduleFile": "shared/resolve-translation.ts",
           "exportedName": "resolveTranslation",
           "callerFile": "app/(site)/posts/[slug]/page.tsx",

@@ -35,12 +35,12 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { file, sentence } = context.expect ?? {};
+const { file, sentence } = context.input ?? {};
 if (typeof file !== "string" || file.length === 0) {
-  fail("context.expect.file must be a non-empty, workspace-relative path.");
+  fail("context.input.file must be a non-empty, workspace-relative path.");
 }
 if (typeof sentence !== "string" || sentence.length === 0) {
-  fail("context.expect.sentence must be a non-empty string.");
+  fail("context.input.sentence must be a non-empty string.");
 }
 
 let content;

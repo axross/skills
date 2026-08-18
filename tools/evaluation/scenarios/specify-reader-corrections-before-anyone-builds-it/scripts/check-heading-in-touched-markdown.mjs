@@ -65,9 +65,9 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const headingContains = context.expect?.headingContains;
+const headingContains = context.input?.headingContains;
 if (typeof headingContains !== "string" || headingContains.length === 0) {
-  fail("context.expect.headingContains must be a non-empty string.");
+  fail("context.input.headingContains must be a non-empty string.");
 }
 
 const diff = context.material?.diff;

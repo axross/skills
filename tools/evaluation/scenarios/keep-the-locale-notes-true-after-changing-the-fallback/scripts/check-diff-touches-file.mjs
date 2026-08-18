@@ -44,9 +44,9 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const file = context.expect?.file;
+const file = context.input?.file;
 if (typeof file !== "string" || file.length === 0) {
-  fail("context.expect.file must be a non-empty, workspace-relative path.");
+  fail("context.input.file must be a non-empty, workspace-relative path.");
 }
 
 const diff = context.material?.diff;

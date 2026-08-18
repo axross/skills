@@ -62,10 +62,10 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { moduleFile, exportedName, callerFile, importPath } = context.expect ?? {};
+const { moduleFile, exportedName, callerFile, importPath } = context.input ?? {};
 for (const [key, value] of Object.entries({ moduleFile, exportedName, callerFile, importPath })) {
   if (typeof value !== "string" || value.length === 0) {
-    fail(`context.expect.${key} must be a non-empty string.`);
+    fail(`context.input.${key} must be a non-empty string.`);
   }
 }
 
