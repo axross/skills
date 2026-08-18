@@ -31,6 +31,9 @@
 // including recursively inside a judgment's `input` — which is the one open
 // subtree in the document and therefore the one place a budget-shaped key
 // could otherwise hide.
+//
+// why this validator and not ajv, the better-known one:
+// docs/decisions/2026-08-18-validate-scenarios-with-a-zero-dependency-validator.md.
 
 import { readFileSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
