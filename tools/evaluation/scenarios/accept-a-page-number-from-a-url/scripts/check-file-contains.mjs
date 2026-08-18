@@ -9,7 +9,7 @@
 // discipline the other outcome factors look for. The file itself lives in
 // the reconstructed workspace, which is this process's own cwd (see this
 // scenario's scenario.json and factor-judgment.mjs's runScriptJudgment); a
-// file the expectation names but the workspace does not have is a judgment
+// file the input names but the workspace does not have is a judgment
 // this script cannot make, not a `false` result, so it exits non-zero
 // rather than reporting one.
 //
@@ -32,12 +32,12 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { file, mustContainAll } = context.expect ?? {};
+const { file, mustContainAll } = context.input ?? {};
 if (typeof file !== "string" || file.length === 0) {
-  fail("context.expect.file must be a non-empty, workspace-relative path.");
+  fail("context.input.file must be a non-empty, workspace-relative path.");
 }
 if (!Array.isArray(mustContainAll) || mustContainAll.length === 0) {
-  fail("context.expect.mustContainAll must be a non-empty array of substrings.");
+  fail("context.input.mustContainAll must be a non-empty array of substrings.");
 }
 
 let content;

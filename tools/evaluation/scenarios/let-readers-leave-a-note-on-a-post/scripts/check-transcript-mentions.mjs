@@ -44,9 +44,9 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { anyOf } = context.expect ?? {};
+const { anyOf } = context.input ?? {};
 if (!Array.isArray(anyOf) || anyOf.length === 0 || !anyOf.every((p) => typeof p === "string" && p.length > 0)) {
-  fail("context.expect.anyOf must be a non-empty array of non-empty strings.");
+  fail("context.input.anyOf must be a non-empty array of non-empty strings.");
 }
 
 const transcript = context.material?.transcript;

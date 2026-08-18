@@ -16,7 +16,7 @@
 // there means none was.
 //
 // .git, node_modules, and .claude are skipped unconditionally, regardless
-// of what the expectation's own roots or extensions name. .git is the
+// of what the input's own roots or extensions name. .git is the
 // load-bearing exclusion: the reconstructed workspace is a real Git
 // repository whose object store holds every version of every file it ever
 // committed, so a walk that descended into it could find a needle inside a
@@ -45,22 +45,22 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { roots, extensions, excludeSuffixes, anyOf } = context.expect ?? {};
+const { roots, extensions, excludeSuffixes, anyOf } = context.input ?? {};
 if (!Array.isArray(roots) || roots.length === 0 || !roots.every((r) => typeof r === "string" && r.length > 0)) {
-  fail("context.expect.roots must be a non-empty array of non-empty strings.");
+  fail("context.input.roots must be a non-empty array of non-empty strings.");
 }
 if (extensions !== undefined && extensions !== null) {
   if (!Array.isArray(extensions) || !extensions.every((e) => typeof e === "string" && e.length > 0)) {
-    fail("context.expect.extensions, when present, must be an array of non-empty strings.");
+    fail("context.input.extensions, when present, must be an array of non-empty strings.");
   }
 }
 if (excludeSuffixes !== undefined) {
   if (!Array.isArray(excludeSuffixes) || !excludeSuffixes.every((s) => typeof s === "string" && s.length > 0)) {
-    fail("context.expect.excludeSuffixes, when present, must be an array of non-empty strings.");
+    fail("context.input.excludeSuffixes, when present, must be an array of non-empty strings.");
   }
 }
 if (!Array.isArray(anyOf) || anyOf.length === 0 || !anyOf.every((n) => typeof n === "string" && n.length > 0)) {
-  fail("context.expect.anyOf must be a non-empty array of non-empty strings.");
+  fail("context.input.anyOf must be a non-empty array of non-empty strings.");
 }
 
 // undefined/null means "every extension" — the filter this scenario needs
@@ -94,11 +94,11 @@ for (const root of roots) {
     rootStat = statSync(root);
   } catch (error) {
     fail(
-      `context.expect.roots names ${JSON.stringify(root)}, which does not exist in the reconstructed workspace: ${error.message}`,
+      `context.input.roots names ${JSON.stringify(root)}, which does not exist in the reconstructed workspace: ${error.message}`,
     );
   }
   if (!rootStat.isDirectory()) {
-    fail(`context.expect.roots names ${JSON.stringify(root)}, which is not a directory in the reconstructed workspace.`);
+    fail(`context.input.roots names ${JSON.stringify(root)}, which is not a directory in the reconstructed workspace.`);
   }
   walk(root, files);
 }

@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "zod-schema" }
+        "input": { "skill": "zod-schema" }
       }
     },
     {
@@ -29,7 +29,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "app/(site)/page.tsx",
           "mustContainAll": ["searchParams"]
         }
@@ -42,7 +42,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-source-contains-any.mjs",
-        "expect": {
+        "input": {
           "roots": ["app", "shared"],
           "extensions": [".ts", ".tsx"],
           "excludeSuffixes": [".spec.ts", ".spec.tsx"],
