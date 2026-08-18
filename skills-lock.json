@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8679c0d85663c75deddf0f612c02bd0323e54ae11e98aa82cd1683ce50651acd"
+      "computedHash": "e07e1bdd222a7862bca68fbcce31cf5b52f73f4b66c6eb78ede2211f22d38f5f"
     },
     "agent-skill-management": {
       "source": "./skills",
@@ -24,7 +24,7 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c6cc7e9d96a38fdacedcf488bc281812aa41ff4ae7f59fff0fd32a107656b9ad"
+      "computedHash": "8c8bc676d58dc85e07164f5e8c83dc655c547bbf806a369baef5d0d03ace21ba"
     },
     "code-review": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "cfd9f9c41a02f0cb3e8ededc203463a6d3449074751fbbe2fac4cbe94948829b"
+      "computedHash": "1071e46091fdc72eeba258be7b99df6b6d333e69bffd3b1788930df0bb9747ba"
     },
     "quality-assurance": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6e4422c7e892b0c42d5cccd7d0448c06c2c36d4568a59296f93a7cce09078157"
+      "computedHash": "18c3d9507915e787c29d890186d538fbce41564eb2e8df9e3c5e94737bb87558"
     },
     "sentry-instrumentation": {
       "source": "./skills",
