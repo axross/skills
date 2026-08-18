@@ -23,7 +23,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "code-review" }
+        "input": { "skill": "code-review" }
       }
     },
     {
@@ -33,7 +33,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-transcript-tool-input-mentions.mjs",
-        "expect": {
+        "input": {
           "anyOf": ["git show", "git diff", "git log -p", "git log --patch"]
         }
       }
@@ -45,7 +45,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-transcript-cites-changed-lines.mjs",
-        "expect": {
+        "input": {
           "files": [
             "src/App.tsx",
             "src/main.tsx",

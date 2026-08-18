@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "software-development" }
+        "input": { "skill": "software-development" }
       }
     },
     {
@@ -29,7 +29,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-transcript-tool-input-mentions.mjs",
-        "expect": { "anyOf": ["README.md", "AGENTS.md"] }
+        "input": { "anyOf": ["README.md", "AGENTS.md"] }
       }
     },
     {
@@ -39,7 +39,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-transcript-mentions-all.mjs",
-        "expect": {
+        "input": {
           "mustMentionEachOf": [
             ["format:check"],
             ["run lint"],

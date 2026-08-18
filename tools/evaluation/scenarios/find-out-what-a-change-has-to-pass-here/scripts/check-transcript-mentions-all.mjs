@@ -18,7 +18,7 @@
 // `Grep` hit or a `cat`'d file from satisfying this factor: a tool result
 // naming "npm test" is not the agent saying so, and this script never reads
 // tool results at all. Matching is case-insensitive, and each entry of
-// `expect.mustMentionEachOf` is itself a list of accepted spellings, so
+// `input.mustMentionEachOf` is itself a list of accepted spellings, so
 // "npm test" and "npm run test" both satisfy the same required item.
 //
 // A stream line that does not parse as JSON is skipped rather than treated
@@ -44,7 +44,7 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const mustMentionEachOf = context.expect?.mustMentionEachOf;
+const mustMentionEachOf = context.input?.mustMentionEachOf;
 const isValidExpectation =
   Array.isArray(mustMentionEachOf) &&
   mustMentionEachOf.length > 0 &&
@@ -54,7 +54,7 @@ const isValidExpectation =
   );
 if (!isValidExpectation) {
   fail(
-    "context.expect.mustMentionEachOf must be a non-empty array of non-empty string arrays " +
+    "context.input.mustMentionEachOf must be a non-empty array of non-empty string arrays " +
       "(the accepted spellings for one required item).",
   );
 }

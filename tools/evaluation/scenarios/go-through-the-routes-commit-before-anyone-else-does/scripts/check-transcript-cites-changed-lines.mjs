@@ -59,12 +59,12 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { files, minimumDistinctCitations } = context.expect ?? {};
+const { files, minimumDistinctCitations } = context.input ?? {};
 if (!Array.isArray(files) || files.length === 0 || files.some((file) => typeof file !== "string")) {
-  fail("context.expect.files must be a non-empty array of repo-relative path strings.");
+  fail("context.input.files must be a non-empty array of repo-relative path strings.");
 }
 if (!Number.isInteger(minimumDistinctCitations) || minimumDistinctCitations < 1) {
-  fail("context.expect.minimumDistinctCitations must be a positive integer.");
+  fail("context.input.minimumDistinctCitations must be a positive integer.");
 }
 
 const transcript = context.material?.transcript;
