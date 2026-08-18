@@ -29,9 +29,9 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const expectedSkill = context.expect?.skill;
+const expectedSkill = context.input?.skill;
 if (typeof expectedSkill !== "string" || expectedSkill.length === 0) {
-  fail('context.expect.skill must be a non-empty string naming the skill to look for.');
+  fail('context.input.skill must be a non-empty string naming the skill to look for.');
 }
 
 const invoked = context.material?.skillsInvoked;

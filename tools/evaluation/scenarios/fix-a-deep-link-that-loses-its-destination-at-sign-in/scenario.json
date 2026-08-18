@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "expo-app-development" }
+        "input": { "skill": "expo-app-development" }
       }
     },
     {
