@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axross/skills/blob/main/tools/evaluation/scenario.schema.json",
+  "title": "Evaluation scenario",
+  "description": "One evaluation scenario, as docs/specs/skill-evaluation.md defines it: a mock project, the skills each condition installs, the git history the workspace starts from, the non-skill harness, the task the model is asked to perform, and the factors the result is judged on. This schema is the single declaration of that shape — tools/evaluation/src/scenario.mjs evaluates it rather than restating it. Its one rule that is not here is factor-id uniqueness, which standard JSON Schema cannot express; scenario.mjs checks that immediately afterward and says so.",
+  "type": "object",
+  "additionalProperties": false,
+  "propertyNames": {
+    "$ref": "#/$defs/nonBudgetKey"
+  },
+  "required": [
+    "id",
+    "description",
+    "mock",
+    "targetSkills",
+    "peerSkills",
+    "patch",
+    "harness",
+    "task",
+    "factors"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "\"id\" must be a non-empty string, equal to the name of the directory holding this scenario."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "\"description\" must be a non-empty string stating what this scenario measures and why — a rationale a reader can disagree with without reading its factors."
+    },
+    "mock": {
+      "type": "string",
+      "minLength": 1,
+      "description": "\"mock\" must be a non-empty string naming a directory under tools/evaluation/mocks/, which is what a probe's workspace is materialized from."
+    },
+    "targetSkills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/skillName"
+      },
+      "description": "\"targetSkills\" must be a non-empty array of skill names. These are the skills under measurement: the skill-present condition installs them alongside peerSkills, and the skill-absent condition installs peerSkills alone."
+    },
+    "peerSkills": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/skillName"
+      },
+      "description": "\"peerSkills\" must be an array of skill names (may be empty). Both conditions install them, so a discovery factor asks a real question rather than a formality."
+    },
+    "patch": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/scenarioRelativePath"
+        }
+      ],
+      "description": "\"patch\" must be present, and either null or a path to a unified diff. The path resolves against this scenario's own directory, and mock-workspace.mjs applies the diff after the mock is copied and before its history is replayed."
+    },
+    "harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": {
+        "$ref": "#/$defs/nonBudgetKey"
+      },
+      "required": ["agentsMd"],
+      "properties": {
+        "agentsMd": {
+          "type": "boolean",
+          "description": "\"harness.agentsMd\" must be a boolean, saying whether the mock's own AGENTS.md is meant to reach the probe."
+        }
+      },
+      "description": "\"harness\" must be an object declaring the non-skill harness the probe runs under."
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": {
+        "$ref": "#/$defs/nonBudgetKey"
+      },
+      "required": ["prompt"],
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "description": "\"task.prompt\" must be a string stating the problem in the words of whoever has it — naming neither the target skill, nor the mechanism that answers it, nor the defect's cause."
+        }
+      },
+      "description": "\"task\" must be an object carrying the task the probe is asked to perform."
+    },
+    "factors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/factor"
+      },
+      "description": "\"factors\" must be a non-empty array of what the result is judged on. Each factor's id must also be unique within the scenario — a rule this schema cannot express, checked separately by scenario.mjs."
+    }
+  },
+  "$defs": {
+    "nonBudgetKey": {
+      "type": "string",
+      "not": {
+        "pattern": "(?:(?:^|[^A-Za-z0-9])(?:[Bb][Uu][Dd][Gg][Ee][Tt]|[Cc][Oo][Ss][Tt]|[Dd][Oo][Ll][Ll][Aa][Rr]|[Pp][Rr][Ii][Cc][Ee]|[Ss][Pp][Ee][Nn][Dd])|[a-z0-9](?:B[Uu][Dd][Gg][Ee][Tt]|C[Oo][Ss][Tt]|D[Oo][Ll][Ll][Aa][Rr]|P[Rr][Ii][Cc][Ee]|S[Pp][Ee][Nn][Dd])|[A-Z](?:Budget|Cost|Dollar|Price|Spend)|(?:^|[^A-Za-z0-9])(?:[Cc][Aa][Pp][Pp][Ii][Nn][Gg]|[Cc][Aa][Pp][Pp][Ee][Dd]|[Cc][Aa][Pp][Ss]|[Cc][Aa][Pp]|[Uu][Ss][Dd])(?=$|[^A-Za-z0-9]|[A-Z])|[a-z0-9](?:C[Aa][Pp][Pp][Ii][Nn][Gg]|C[Aa][Pp][Pp][Ee][Dd]|C[Aa][Pp][Ss]|C[Aa][Pp]|U[Ss][Dd])(?=$|[^A-Za-z0-9]|[A-Z])|[A-Z](?:Capping|Capped|Caps|Cap|Usd)(?=$|[^A-Za-z0-9]|[A-Z]))"
+      },
+      "description": "looks like a budget, a cost ceiling, or a dollar figure — a scenario declares no such thing (docs/specs/skill-evaluation.md; the admission bound this instrument enforces is a probe count, never a cost).",
+      "$comment": "A key is refused when any word of it starts with budget, cost, dollar, price, or spend, or is exactly cap, caps, capped, capping, or usd — where a word breaks on camelCase, snake_case, kebab-case, and a run of capitals, exactly as the imperative guard this replaces did. Two boundaries are deliberate and disclosed rather than closed: costume is refused, an accepted false positive, because refusing a key unrelated to budgets is the safe direction for a guard whose failure mode is admitting one; and unpriced is admitted, because a root buried behind other letters inside one word is out of reach of any word-level rule, and closing it would mean returning to the substring matching that produced the capUsd gap this rule exists to fix (#406)."
+    },
+    "skillName": {
+      "type": "string",
+      "minLength": 1,
+      "$comment": "The name of a skill, as its own directory is named. Deliberately carries no description: it is a shared value shape, and the field referencing it is what an author needs named."
+    },
+    "scenarioRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^/]",
+      "$comment": "A non-empty path relative to the scenario's own directory. Deliberately carries no description, for the same reason as skillName."
+    },
+    "factor": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": {
+        "$ref": "#/$defs/nonBudgetKey"
+      },
+      "required": ["id", "phase", "description", "judgment"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a factor's \"id\" must be a non-empty string, unique within its scenario."
+        },
+        "phase": {
+          "enum": ["discovery", "outcome", "transcript"],
+          "description": "a factor's \"phase\" must be one of discovery, outcome, transcript — which is what bounds the material its judge is shown."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a factor's \"description\" must be a non-empty string stating what this factor expects and why — a rationale a reader can disagree with without reading the judgment script."
+        },
+        "judgment": {
+          "$ref": "#/$defs/judgment"
+        }
+      },
+      "description": "a factor must be an object declaring one thing the result is judged on."
+    },
+    "judgment": {
+      "type": "object",
+      "required": ["method"],
+      "propertyNames": {
+        "$ref": "#/$defs/nonBudgetKey"
+      },
+      "properties": {
+        "method": {
+          "enum": ["script", "reasoning"],
+          "description": "a judgment's \"method\" must be one of script, reasoning."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "script"
+              }
+            },
+            "required": ["method"]
+          },
+          "then": {
+            "$ref": "#/$defs/scriptJudgment"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "reasoning"
+              }
+            },
+            "required": ["method"]
+          },
+          "then": {
+            "$ref": "#/$defs/reasoningJudgment"
+          }
+        }
+      ],
+      "description": "how a factor is judged: a deterministic script run against the reconstructed workspace, or a reasoning judge asked to read the transcript."
+    },
+    "scriptJudgment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "script"],
+      "properties": {
+        "method": {
+          "const": "script"
+        },
+        "script": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/scenarioRelativePath"
+            }
+          ],
+          "pattern": "\\.mjs$",
+          "description": "a script judgment's \"script\" must name a module relative to the scenario's own directory."
+        },
+        "input": {
+          "$ref": "#/$defs/input"
+        }
+      },
+      "description": "a script judgment reads \"script\" and \"input\" and nothing else — a \"model\" or \"instructions\" here belongs to a reasoning judgment."
+    },
+    "reasoningJudgment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "model", "instructions"],
+      "properties": {
+        "method": {
+          "const": "reasoning"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9-]+/.+$",
+          "description": "a reasoning judgment's \"model\" must be a vendor-prefixed, fully-qualified model id."
+        },
+        "instructions": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a reasoning judgment's \"instructions\" must be a non-empty string stating what the judge is asked to decide."
+        }
+      },
+      "description": "a reasoning judgment reads \"model\" and \"instructions\" and nothing else — a \"script\" or \"input\" here belongs to a script judgment."
+    },
+    "input": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/nonBudgetKey"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/inputValue"
+      },
+      "description": "the arguments the named script is given, so one script can serve many factors. The instrument does not read inside it — factor-judgment.mjs copies it verbatim into the context file the script is handed, typed unknown in its own signature — and each script validates its own arguments, exiting non-zero with a reason when one is missing or malformed. This schema therefore says nothing about what shape an argument takes: that is the script's own contract, checked where it is used. The one rule it does carry inward is the repository's own, which no script checks — no key here, at any depth, may name a budget."
+    },
+    "inputValue": {
+      "anyOf": [
+        {
+          "type": ["string", "number", "boolean", "null"]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inputValue"
+          }
+        },
+        {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/nonBudgetKey"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/inputValue"
+          }
+        }
+      ],
+      "description": "any JSON value. Recursive for one reason only: so the no-budget rule reaches a key nested at any depth, which is the only thing this schema has to say about a script's arguments."
+    }
+  }
+}
