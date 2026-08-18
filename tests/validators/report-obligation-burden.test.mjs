@@ -430,7 +430,18 @@ describe("report-obligation-burden.mjs", () => {
       // term-handling clause and its borrowing convention — all four landing
       // directly in SKILL.md's own Guidelines block, per this repository's
       // load-bearing-rule placement.
-      expect.soft(totals.floorObligations).toBe(31);
+      // and 6 more in #451 revision 2, which reverses the load-bearing-hoist
+      // direction #435 (and #418, #436's own precedent) had been applying:
+      // a load-bearing rule's own statement now returns to its reference
+      // behind a conditional MUST-read obligation, and professional-behavior
+      // gains that obligation for the six references it had previously
+      // routed to with no Guidelines block at all — Uncertainty Triage,
+      // Clarifying Interview, Asking the Human, External Research, Accuracy
+      // Discipline, and Reporting. Response Language's own four bullets are
+      // untouched: they were added directly to SKILL.md, never hoisted from
+      // a reference, and the reversal's own carve-out keeps an unconditional-
+      // scope rule like this one stated in SKILL.md rather than moving it.
+      expect.soft(totals.floorObligations).toBe(37);
       // drifted from 6,958 in #195, which folded each skill's `when_to_use`
       // into its `description`, and then co-notated the harness references so
       // each names both its Claude Code and its Codex form. the fold lowered
@@ -556,7 +567,11 @@ describe("report-obligation-burden.mjs", () => {
       // nothing but the product. still wording only, still one obligation.
       // and 630 more in #435, the same Response Language section's SKILL.md
       // prose and its four Guidelines bullets.
-      expect.soft(totals.floorTokens).toBe(9_306);
+      // and 256 more in #451 revision 2, the bytes of the same six new
+      // `**Guidelines:**` blocks noted at the floor above; the routing
+      // lists above them were already there and this change left them
+      // untouched.
+      expect.soft(totals.floorTokens).toBe(9_562);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -743,7 +758,13 @@ describe("report-obligation-burden.mjs", () => {
       // Guidelines block counted at the floor above, plus three more in
       // reporting.md's own new Response Language section, which the ceiling
       // counts and the floor does not.
-      expect.soft(totals.ceilingObligations).toBe(451);
+      // and 6 more in #451 revision 2: the same six new SKILL.md
+      // read-obligation bullets counted at the floor above. no reference
+      // file's own obligation count moved — each of the six pointed-at
+      // references was already fully descriptive, carrying no rule this
+      // change needed to relocate — so the ceiling moves by exactly the
+      // floor's own delta.
+      expect.soft(totals.ceilingObligations).toBe(457);
       // drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -902,7 +923,10 @@ describe("report-obligation-burden.mjs", () => {
       // own delta and again SKILL.md alone.
       // and 1,199 more in #435, the combined bytes of SKILL.md's new section
       // and reporting.md's new section.
-      expect.soft(totals.ceilingTokens).toBe(44_634);
+      // and 257 more in #451 revision 2, the same six new SKILL.md bytes the
+      // floor above already counts; each figure rounds its own byte total
+      // independently, which is the one-token gap between the two deltas.
+      expect.soft(totals.ceilingTokens).toBe(44_891);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -929,10 +953,17 @@ describe("report-obligation-burden.mjs", () => {
       // Response Language section: four MUST/MUST NOT bullets landed directly
       // in SKILL.md's own Guidelines block, per this repository's
       // load-bearing-rule placement, so the floor is no longer zero.
-      expect.soft(tiers[0].floorObligations).toBe(4);
-      expect.soft(tiers[0].floorTokens).toBe(1_734);
-      expect.soft(tiers[0].ceilingObligations).toBe(127);
-      expect.soft(tiers[0].ceilingTokens).toBe(9_865);
+      // #451 revision 2 reverses that placement rule everywhere except this
+      // one section, which the reversal's own carve-out keeps in SKILL.md
+      // because Response Language's condition is unconditional within its
+      // skill's scope — so those four bullets are untouched, and the +6 here
+      // is entirely the six new conditional MUST-read bullets the skill's
+      // other six references gained, each replacing what used to be a
+      // routing list with no obligation at all.
+      expect.soft(tiers[0].floorObligations).toBe(10);
+      expect.soft(tiers[0].floorTokens).toBe(1_991);
+      expect.soft(tiers[0].ceilingObligations).toBe(133);
+      expect.soft(tiers[0].ceilingTokens).toBe(10_121);
 
       // tier 2 — plus `software-development`. drifted from 204 in #209, which
       // gave it a Product Specification section, and again in #215/#221, which
@@ -950,10 +981,13 @@ describe("report-obligation-burden.mjs", () => {
       // and #435 moves all four again, entirely from tier 1's own delta
       // above: `software-development` is unchanged, so this tier rises by
       // exactly what professional-behavior's Response Language section added.
-      expect.soft(tiers[1].floorObligations).toBe(9);
-      expect.soft(tiers[1].floorTokens).toBe(2_930);
-      expect.soft(tiers[1].ceilingObligations).toBe(220);
-      expect.soft(tiers[1].ceilingTokens).toBe(16_921);
+      // #451 revision 2 moves all four again the same way — software-
+      // development untouched, the whole delta inherited from tier 1's own
+      // six new read-obligation bullets.
+      expect.soft(tiers[1].floorObligations).toBe(15);
+      expect.soft(tiers[1].floorTokens).toBe(3_186);
+      expect.soft(tiers[1].ceilingObligations).toBe(226);
+      expect.soft(tiers[1].ceilingTokens).toBe(17_177);
 
       // tier 3 — plus `loop-engineering`, and the figure this report printed
       // alone before #211. drifted from 361 by #204's plan-structure rewrite,
@@ -1009,10 +1043,14 @@ describe("report-obligation-burden.mjs", () => {
       // again, by the same scope-sentence qualification noted there.
       // #435 moved both copies too, for the same reasons as the mandated-set
       // totals above: all four figures move, by the same deltas given there.
-      expect.soft(tiers[2].floorObligations).toBe(31);
-      expect.soft(tiers[2].floorTokens).toBe(9_306);
-      expect.soft(tiers[2].ceilingObligations).toBe(451);
-      expect.soft(tiers[2].ceilingTokens).toBe(44_634);
+      // #451 revision 2 moved both copies once more, for the same reasons as
+      // the mandated-set totals above: all four figures move, by the same
+      // deltas given there — loop-engineering and software-development are
+      // both untouched by this change.
+      expect.soft(tiers[2].floorObligations).toBe(37);
+      expect.soft(tiers[2].floorTokens).toBe(9_562);
+      expect.soft(tiers[2].ceilingObligations).toBe(457);
+      expect.soft(tiers[2].ceilingTokens).toBe(44_891);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -1039,10 +1077,10 @@ describe("report-obligation-burden.mjs", () => {
       // left it at 435 when the tier above went to 441 — stops proving that:
       // it would keep passing even if `code-review` contributed nothing at
       // all, which is exactly the regression this pair exists to catch.
-      // #271 moved this to 441 to close that gap, #283 to 444 with it, and
-      // #435 to 451 with it.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(451);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(451);
+      // #271 moved this to 441 to close that gap, #283 to 444 with it, #435
+      // to 451 with it, and #451 revision 2 to 457 with it.
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(457);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(457);
     });
 
     it("prints no tier block without --mandated", async () => {

@@ -67,8 +67,8 @@ default; the rule's content stops being one of them.
 its own skill's scope keeps its statement in `SKILL.md`, because a pointer
 that fires on every turn costs a read and shakes nothing a direct statement
 would not already have shaken. `professional-behavior`'s Response Language
-section is the case this exists for: it was added directly to `SKILL.md` by
-#437, never hoisted from a reference, and governs every turn's output within
+section is the case this exists for: it was added directly to `SKILL.md` by #437,
+never hoisted from a reference, and governs every turn's output within
 that skill's scope. It is the only exception applied in this change; every
 other place in the library that stated a rule directly in `SKILL.md` for
 placement reasons alone is converted here.
@@ -128,8 +128,8 @@ sections untouched.
 
 **This is a judgment call, not a finding.** No evaluation instrument ran
 against this change, and none is claimed to have run. Whether a conditional
-`MUST read` bullet gets followed any better than the descriptive pointer
-#411 measured failing is exactly as open now as it was when the 2026-08-17
+`MUST read` bullet gets followed any better than the descriptive pointer #411
+measured failing is exactly as open now as it was when the 2026-08-17
 record declined to adopt that same shape for that same reason. This record
 does not close that question; it records that the
 human chose to accept the risk that it stays open, in exchange for the
