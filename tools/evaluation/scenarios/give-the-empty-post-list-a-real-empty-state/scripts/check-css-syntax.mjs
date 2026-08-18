@@ -38,9 +38,9 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const dir = context.expect?.dir ?? "src";
+const dir = context.input?.dir ?? "src";
 if (typeof dir !== "string" || dir.length === 0) {
-  fail("context.expect.dir, when present, must be a non-empty, workspace-relative directory.");
+  fail("context.input.dir, when present, must be a non-empty, workspace-relative directory.");
 }
 
 /** every `*.module.css` file under `root`, workspace-relative, recursively. */

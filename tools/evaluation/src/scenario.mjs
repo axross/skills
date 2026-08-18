@@ -7,203 +7,184 @@
 // probe.mjs and evaluate.mjs both trust the same validated shape rather than
 // each re-deriving what a well-formed scenario looks like.
 //
-// the no-budget rule is enforced here rather than trusted to prose: #392 and
-// #395 both state it as a non-goal ("do not estimate cost... in any form"),
-// and a rule nothing checks is a rule the next scenario silently breaks.
+// what a well-formed scenario looks like is declared in
+// ../scenario.schema.json and nowhere else. this module evaluates that
+// schema; it does not restate it. a shape stated twice drifts, and the
+// schema is the copy an editor, a reviewer, or a tool outside this
+// repository can also read.
+//
+// two things this module still does by hand, each for a reason:
+//
+//   - factor-id uniqueness. standard JSON Schema has no uniqueness-by-
+//     property keyword — `uniqueItems` compares whole objects, so two
+//     factors sharing an id but differing elsewhere pass it — and the
+//     non-standard keyword that can would stop the file being a portable
+//     JSON Schema, which is the point of writing one. it is the residual,
+//     checked below, and the only rule the schema does not carry.
+//   - error messages. a validator's own message names a keyword; the
+//     rationale a scenario author needs is in the schema's `description`,
+//     so failureMessage walks from the failing keyword back to the
+//     subschema that owns it and surfaces that prose instead.
+//
+// the no-budget rule (#392, #395: "do not estimate cost... in any form") is
+// in the schema rather than here, as `nonBudgetKey`, applied at every level
+// including recursively inside a judgment's `input` — which is the one open
+// subtree in the document and therefore the one place a budget-shaped key
+// could otherwise hide.
+//
+// why this validator and not ajv, the better-known one:
+// docs/decisions/2026-08-18-validate-scenarios-with-a-zero-dependency-validator.md.
 
+import { readFileSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 
-export const PHASES = ["discovery", "outcome", "transcript"];
-export const JUDGMENT_METHODS = ["script", "reasoning"];
+import { Validator } from "@cfworker/json-schema";
+
+const SCHEMA = JSON.parse(readFileSync(new URL("../scenario.schema.json", import.meta.url), "utf8"));
+
+/** one compiled validator for the process, since the schema never changes under it. */
+const validator = new Validator(SCHEMA, "2020-12");
+
+export const PHASES = SCHEMA.$defs.factor.properties.phase.enum;
+export const JUDGMENT_METHODS = SCHEMA.$defs.judgment.properties.method.enum;
 
 /**
- * a budget root, matched against the start of one word of a key rather than
- * against the key's text — so `capUsd` is caught, `capture` is not, and the
- * within-word derivations the substring guard this replaces caught, such as
- * `priced` and `costly`, stay caught. see admission.mjs's header.
+ * the keywords that only report that something below them failed. dropping
+ * them leaves the keyword that actually rejected the document, which is the
+ * one whose subschema carries the explanation.
  */
-const FORBIDDEN_PREFIX_RE = /^(?:budget|cost|dollar|price|spend)/i;
+const PASS_THROUGH_KEYWORDS = new Set(["$ref", "allOf", "anyOf", "oneOf", "properties", "items", "if", "false"]);
 
-/**
- * the two roots too short to be prefixes: `cap` would fire on `capture` and
- * `capability`, and `usd` prefixes nothing English spells. matched whole,
- * with cap's irregular inflections named outright since no ending rule
- * produces a doubled consonant.
- */
-const FORBIDDEN_WORDS = new Set(["cap", "caps", "capped", "capping", "usd"]);
-
-/** the words a key is spelled from: camelCase, snake_case, kebab-case, and a run of capitals each break apart. */
-function keyWords(key) {
-  return key
-    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .split(/[^A-Za-z0-9]+/)
-    .filter((word) => word.length > 0);
-}
-
-/** the forbidden word `key` carries, or null. */
-function forbiddenWordIn(key) {
-  return (
-    keyWords(key).find((word) => FORBIDDEN_PREFIX_RE.test(word) || FORBIDDEN_WORDS.has(word.toLowerCase())) ?? null
+/** "#/factors/0/judgment/method" -> "factors[0].judgment.method" */
+function dottedPath(instanceLocation) {
+  const segments = instanceLocation
+    .replace(/^#\/?/, "")
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
+  return segments.reduce(
+    (path, segment) => (/^\d+$/.test(segment) ? `${path}[${segment}]` : path === "" ? segment : `${path}.${segment}`),
+    "",
   );
 }
 
-// the keys this instrument actually reads, per level. A key admitted at one
-// level is not implicitly admitted at another — a judgment's own set is
-// chosen by its `method`, so `script` is read for a script judgment and
-// rejected for a reasoning one, and vice versa for `model`/`instructions`.
-// `judgment.expect` is deliberately not reached further down: its keys are
-// the judgment script's own vocabulary (`file`, `startMarker`,
-// `mustContainAll` today, whatever a new script needs tomorrow), and the
-// instrument reads only the `expect` key itself.
-const SCENARIO_KEYS = [
-  "id",
-  "description",
-  "mock",
-  "targetSkills",
-  "peerSkills",
-  "patch",
-  "harness",
-  "task",
-  "factors",
-];
-const HARNESS_KEYS = ["agentsMd"];
-const TASK_KEYS = ["prompt"];
-const FACTOR_KEYS = ["id", "phase", "description", "judgment"];
-const SCRIPT_JUDGMENT_KEYS = ["method", "script", "expect"];
-const REASONING_JUDGMENT_KEYS = ["method", "model", "instructions"];
-
-/**
- * fails on any key of `value` that is not in `allowed` — a key the
- * instrument does not read is a mistake (a typo, a leftover field, a
- * property that was removed from the shape) rather than a permitted
- * extension, so it fails at load instead of being admitted and ignored.
- *
- * @param {Record<string, unknown>} value
- * @param {readonly string[]} allowed the exact keys this level reads
- * @param {string} prefix path prefix for an offending key, e.g. "harness" or
- *   "factors[0].judgment" — the empty string at the scenario's own top level
- * @param {(message: string) => never} fail
- */
-function assertOnlyKnownKeys(value, allowed, prefix, fail) {
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) {
-      const path = prefix ? `${prefix}.${key}` : key;
-      fail(`${path} is not a field this instrument reads (expected one of ${allowed.join(", ")}).`);
-    }
+/** the node a JSON Pointer addresses within `SCHEMA`, or null. */
+function atPointer(pointer) {
+  const segments = pointer.replace(/^#\/?/, "").split("/").filter(Boolean);
+  let node = SCHEMA;
+  for (const segment of segments) {
+    if (node === null || typeof node !== "object") return null;
+    node = node[segment.replace(/~1/g, "/").replace(/~0/g, "~")];
   }
+  return node ?? null;
 }
 
 /**
- * @param {unknown} value
- * @param {string} path for the error message, e.g. "scenario.json" or "factors[0]"
- * @throws {Error} when a key anywhere under `value` names a budget, a cost
- *   ceiling, or a dollar figure
+ * walks a keywordLocation and reports two schemas along it. a keywordLocation
+ * names every step taken to reach the failing keyword, `$ref` included — so a
+ * `$ref` segment means the reference was followed, and resolving it is what
+ * keeps the walk on the schema the validator was actually evaluating.
+ *
+ * `keyword` is the schema holding the failing keyword, which is what an
+ * `additionalProperties` or `required` failure needs, since only that schema
+ * knows the property set it was checking against.
+ *
+ * `property` is the innermost schema reached through a `properties/<name>`
+ * step. that is the one carrying prose written for a scenario author: a
+ * failure inside a shared `$def` — `scenarioRelativePath`, say, which both
+ * `patch` and a judgment's `script` reuse — would otherwise report the
+ * definition's generic wording instead of the field's own.
+ *
+ * @param {string} keywordLocation e.g. "#/properties/factors/items/$ref/properties/phase/enum"
+ * @returns {{ keyword: Record<string, unknown> | null, property: Record<string, unknown> | null }}
  */
-function assertNoBudgetField(value, path) {
-  if (value === null || typeof value !== "object") return;
-  if (Array.isArray(value)) {
-    value.forEach((entry, index) => assertNoBudgetField(entry, `${path}[${index}]`));
-    return;
+function schemasAlong(keywordLocation) {
+  const segments = keywordLocation.replace(/^#\/?/, "").split("/").filter(Boolean);
+  segments.pop(); // the keyword itself
+  let node = SCHEMA;
+  let property = null;
+  let afterProperties = false;
+  for (const segment of segments) {
+    if (node === null || typeof node !== "object") return { keyword: null, property };
+    node = segment === "$ref" ? atPointer(node.$ref) : node[segment.replace(/~1/g, "/").replace(/~0/g, "~")];
+    if (afterProperties && node !== null && typeof node === "object") property = node;
+    afterProperties = segment === "properties";
   }
-  for (const [key, entry] of Object.entries(value)) {
-    const word = forbiddenWordIn(key);
-    if (word !== null) {
-      throw new Error(
-        `${path}.${key} looks like a budget, a cost ceiling, or a dollar figure (the word "${word}") — ` +
-          "a scenario declares no such thing (docs/specs/skill-evaluation.md; the admission bound this " +
-          "instrument enforces is a probe count, never a cost).",
-      );
-    }
-    assertNoBudgetField(entry, `${path}.${key}`);
+  return { keyword: node !== null && typeof node === "object" ? node : null, property };
+}
+
+/** the property name a validator quoted in its own message, or null. */
+function quotedName(message) {
+  return /"([^"]+)"/.exec(message)?.[1] ?? null;
+}
+
+/**
+ * turns one validation failure into the sentence a scenario author needs.
+ *
+ * @param {{ instanceLocation: string, keyword: string, keywordLocation: string, error: string }} error
+ * @param {string} sourcePath
+ * @returns {string}
+ */
+function failureMessage(error, sourcePath) {
+  const { keyword: owner, property } = schemasAlong(error.keywordLocation);
+  const path = dottedPath(error.instanceLocation);
+  const at = path === "" ? sourcePath : `${sourcePath}: ${path}`;
+
+  // a budget-shaped key is refused by name rather than by position, and its
+  // message reads as the guard it replaces did — the path, the key, and why.
+  if (error.keyword === "propertyNames") {
+    const key = quotedName(error.error);
+    const reason = atPointer("#/$defs/nonBudgetKey")?.description ?? error.error;
+    return `${sourcePath}${path === "" ? "" : `.${path}`}.${key} ${reason} The offending key is "${key}".`;
   }
+
+  if (error.keyword === "additionalProperties") {
+    const key = quotedName(error.error);
+    const known = Object.keys(owner?.properties ?? {});
+    const where = path === "" ? key : `${path}.${key}`;
+    return `${sourcePath}: ${where} is not a field this instrument reads (expected one of ${known.join(", ")}).`;
+  }
+
+  if (error.keyword === "required") {
+    const key = quotedName(error.error);
+    const missing = owner?.properties?.[key]?.description;
+    const where = path === "" ? key : `${path}.${key}`;
+    return `${sourcePath}: ${where} is required — ${missing ?? error.error}`;
+  }
+
+  return `${at} — ${owner?.description ?? property?.description ?? error.error}`;
 }
 
 /**
  * @param {unknown} scenario the parsed scenario.json
  * @param {string} sourcePath for error messages
  * @throws {Error} on any structural defect — a missing or malformed field, an
- *   unknown factor phase or judgment method, or a forbidden budget-shaped key
+ *   unknown factor phase or judgment method, a duplicate factor id, or a
+ *   forbidden budget-shaped key
  */
 export function validateScenario(scenario, sourcePath) {
-  const fail = (message) => {
-    throw new Error(`${sourcePath}: ${message}`);
-  };
-
-  if (scenario === null || typeof scenario !== "object") fail("must be a JSON object.");
-  assertNoBudgetField(scenario, sourcePath);
-  assertOnlyKnownKeys(scenario, SCENARIO_KEYS, "", fail);
-  if (typeof scenario.id !== "string" || scenario.id.length === 0) fail('"id" must be a non-empty string.');
-  if (typeof scenario.description !== "string" || scenario.description.length === 0) {
-    fail(
-      '"description" must be a non-empty string stating what this scenario measures and why — ' +
-        "a rationale a reader can disagree with without reading its factors.",
-    );
-  }
-  if (typeof scenario.mock !== "string" || scenario.mock.length === 0) {
-    fail('"mock" must be a non-empty string.');
-  }
-  if (!Array.isArray(scenario.targetSkills) || scenario.targetSkills.length === 0) {
-    fail('"targetSkills" must be a non-empty array of skill names.');
-  }
-  if (!Array.isArray(scenario.peerSkills)) fail('"peerSkills" must be an array of skill names (may be empty).');
-  if (!("patch" in scenario) || (scenario.patch !== null && typeof scenario.patch !== "string")) {
-    fail('"patch" must be present, and either null or a path to a unified diff.');
-  }
-  if (scenario.harness === null || typeof scenario.harness !== "object") {
-    fail('"harness" must be an object.');
-  }
-  assertOnlyKnownKeys(scenario.harness, HARNESS_KEYS, "harness", fail);
-  if (typeof scenario.harness.agentsMd !== "boolean") {
-    fail('"harness.agentsMd" must be a boolean.');
-  }
-  if (scenario.task === null || typeof scenario.task !== "object") {
-    fail('"task" must be an object.');
-  }
-  assertOnlyKnownKeys(scenario.task, TASK_KEYS, "task", fail);
-  if (typeof scenario.task.prompt !== "string") {
-    fail('"task.prompt" must be a string.');
-  }
-  if (!Array.isArray(scenario.factors) || scenario.factors.length === 0) {
-    fail('"factors" must be a non-empty array.');
+  const outcome = validator.validate(scenario);
+  if (!outcome.valid) {
+    // a budget-shaped key is also an unknown key, and the guard gets first
+    // refusal so the author is told the real reason rather than the
+    // incidental one. otherwise the last non-structural failure is the one
+    // that actually rejected the document.
+    const errors = outcome.errors;
+    const chosen =
+      errors.find((error) => error.keyword === "propertyNames") ??
+      [...errors].reverse().find((error) => !PASS_THROUGH_KEYWORDS.has(error.keyword)) ??
+      errors[errors.length - 1];
+    throw new Error(failureMessage(chosen, sourcePath));
   }
 
-  const factorIds = new Set();
+  // the residual: see this module's header for why it is not in the schema.
+  const seen = new Set();
   for (const [index, factor] of scenario.factors.entries()) {
-    const at = `factors[${index}]`;
-    if (factor === null || typeof factor !== "object") fail(`${at} must be an object.`);
-    assertOnlyKnownKeys(factor, FACTOR_KEYS, at, fail);
-    if (typeof factor.id !== "string" || factor.id.length === 0) fail(`${at}.id must be a non-empty string.`);
-    if (factorIds.has(factor.id)) fail(`${at}.id "${factor.id}" duplicates an earlier factor's id.`);
-    factorIds.add(factor.id);
-    if (typeof factor.description !== "string" || factor.description.length === 0) {
-      fail(
-        `${at}.description must be a non-empty string stating what this factor expects and why — ` +
-          "a rationale a reader can disagree with without reading the judgment script.",
-      );
+    if (seen.has(factor.id)) {
+      throw new Error(`${sourcePath}: factors[${index}].id "${factor.id}" duplicates an earlier factor's id.`);
     }
-    if (!PHASES.includes(factor.phase)) {
-      fail(`${at}.phase must be one of ${PHASES.join(", ")}, got ${JSON.stringify(factor.phase)}.`);
-    }
-    if (!factor.judgment || !JUDGMENT_METHODS.includes(factor.judgment.method)) {
-      fail(`${at}.judgment.method must be one of ${JUDGMENT_METHODS.join(", ")}.`);
-    }
-    if (factor.judgment.method === "script") {
-      assertOnlyKnownKeys(factor.judgment, SCRIPT_JUDGMENT_KEYS, `${at}.judgment`, fail);
-      if (typeof factor.judgment.script !== "string") {
-        fail(`${at}.judgment.script must name a script relative to the scenario directory.`);
-      }
-    }
-    if (factor.judgment.method === "reasoning") {
-      assertOnlyKnownKeys(factor.judgment, REASONING_JUDGMENT_KEYS, `${at}.judgment`, fail);
-      if (typeof factor.judgment.model !== "string" || factor.judgment.model.length === 0) {
-        fail(`${at}.judgment.model must be a vendor-prefixed, fully-qualified model id.`);
-      }
-      if (typeof factor.judgment.instructions !== "string" || factor.judgment.instructions.length === 0) {
-        fail(`${at}.judgment.instructions must be a non-empty string.`);
-      }
-    }
+    seen.add(factor.id);
   }
 }
 

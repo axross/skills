@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-function-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/routes/PostEditorPage.tsx",
           "startMarker": "function handleSaveDraft",
           "endMarker": "function handlePublish",
@@ -34,7 +34,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/routes/PostEditorPage.tsx",
           "mustContainAll": [
             "Published. The site will rebuild shortly.",
