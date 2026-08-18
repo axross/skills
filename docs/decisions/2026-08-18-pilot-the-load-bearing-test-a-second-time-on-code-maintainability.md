@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 2026-08-18-trade-the-load-bearing-hoist-for-a-conditional-read-obligation.md
 ---
 
 # Pilot the load-bearing test a second time on code-maintainability
