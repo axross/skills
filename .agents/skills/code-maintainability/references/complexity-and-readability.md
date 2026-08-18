@@ -37,6 +37,10 @@ Commented-out code cannot be tested or type-checked and only rots, and version c
 
 A comment is the fallback, not the plan. What a reader needs first is an implementation whose names, steps, and types already say what is happening, so the only thing left for a comment is what the code structurally cannot state — the reason, the constraint, the alternative that was rejected. Where the code cannot say something it should have been able to say, that is a defect in the code before it is a missing comment.
 
+A comment earns its place only by adding either **precision** below the code's own level of abstraction — measurement units, whether null is permitted, whether a bound is inclusive — or **intuition** above it. One written at the code's own level of abstraction only restates what the code already says, which is not earning its place.
+
+A boundary doc-comment that has to describe implementation details to make sense is evidence of a shallow interface, not of a well-documented one — the fix is narrowing the interface the comment is compensating for, not writing a longer comment.
+
 **Guidelines:**
 
 - MUST write the implementation so it carries its own explanation, and reserve a comment for what the code cannot state; what such a comment then says, and in what voice, belongs to the project's development conventions, which the Comments and Doc-Comments section below routes to.
