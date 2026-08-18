@@ -58,7 +58,7 @@ See [complexity-and-readability.md](./references/complexity-and-readability.md) 
 
 **Guidelines:**
 
-- MUST read [complexity-and-readability.md](./references/complexity-and-readability.md) before writing an implementation's logic or a comment, or before judging in review whether a comment is compensating for an unclear name or flow.
+- MUST read [complexity-and-readability.md](./references/complexity-and-readability.md) before adding a literal constant, a comment, or a doc-comment on a module or domain boundary, before leaving a function past the project's configured complexity or length budget, and before removing or keeping code that looks dead.
 
 ## Scope Discipline
 

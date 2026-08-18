@@ -571,7 +571,12 @@ describe("report-obligation-burden.mjs", () => {
       // `**Guidelines:**` blocks noted at the floor above; the routing
       // lists above them were already there and this change left them
       // untouched.
-      expect.soft(totals.floorTokens).toBe(9_562);
+      // its pre-flight review round moved the token figures once more, and
+      // only them: three read-obligation conditions were rewritten narrower
+      // after the reviewer found professional-behavior's Reporting one fired
+      // on every turn, which the change's own new rule calls a defect. prose
+      // only, so no obligation count moves.
+      expect.soft(totals.floorTokens).toBe(9_586);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -926,7 +931,12 @@ describe("report-obligation-burden.mjs", () => {
       // and 257 more in #451 revision 2, the same six new SKILL.md bytes the
       // floor above already counts; each figure rounds its own byte total
       // independently, which is the one-token gap between the two deltas.
-      expect.soft(totals.ceilingTokens).toBe(44_891);
+      // its pre-flight review round moved the token figures once more, and
+      // only them: three read-obligation conditions were rewritten narrower
+      // after the reviewer found professional-behavior's Reporting one fired
+      // on every turn, which the change's own new rule calls a defect. prose
+      // only, so no obligation count moves.
+      expect.soft(totals.ceilingTokens).toBe(44_914);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -961,9 +971,14 @@ describe("report-obligation-burden.mjs", () => {
       // other six references gained, each replacing what used to be a
       // routing list with no obligation at all.
       expect.soft(tiers[0].floorObligations).toBe(10);
-      expect.soft(tiers[0].floorTokens).toBe(1_991);
+      // its pre-flight review round moved the token figures once more, and
+      // only them: three read-obligation conditions were rewritten narrower
+      // after the reviewer found professional-behavior's Reporting one fired
+      // on every turn, which the change's own new rule calls a defect. prose
+      // only, so no obligation count moves.
+      expect.soft(tiers[0].floorTokens).toBe(2_014);
       expect.soft(tiers[0].ceilingObligations).toBe(133);
-      expect.soft(tiers[0].ceilingTokens).toBe(10_121);
+      expect.soft(tiers[0].ceilingTokens).toBe(10_145);
 
       // tier 2 — plus `software-development`. drifted from 204 in #209, which
       // gave it a Product Specification section, and again in #215/#221, which
@@ -985,9 +1000,14 @@ describe("report-obligation-burden.mjs", () => {
       // development untouched, the whole delta inherited from tier 1's own
       // six new read-obligation bullets.
       expect.soft(tiers[1].floorObligations).toBe(15);
-      expect.soft(tiers[1].floorTokens).toBe(3_186);
+      // its pre-flight review round moved the token figures once more, and
+      // only them: three read-obligation conditions were rewritten narrower
+      // after the reviewer found professional-behavior's Reporting one fired
+      // on every turn, which the change's own new rule calls a defect. prose
+      // only, so no obligation count moves.
+      expect.soft(tiers[1].floorTokens).toBe(3_210);
       expect.soft(tiers[1].ceilingObligations).toBe(226);
-      expect.soft(tiers[1].ceilingTokens).toBe(17_177);
+      expect.soft(tiers[1].ceilingTokens).toBe(17_201);
 
       // tier 3 — plus `loop-engineering`, and the figure this report printed
       // alone before #211. drifted from 361 by #204's plan-structure rewrite,
@@ -1048,9 +1068,14 @@ describe("report-obligation-burden.mjs", () => {
       // deltas given there — loop-engineering and software-development are
       // both untouched by this change.
       expect.soft(tiers[2].floorObligations).toBe(37);
-      expect.soft(tiers[2].floorTokens).toBe(9_562);
+      // its pre-flight review round moved the token figures once more, and
+      // only them: three read-obligation conditions were rewritten narrower
+      // after the reviewer found professional-behavior's Reporting one fired
+      // on every turn, which the change's own new rule calls a defect. prose
+      // only, so no obligation count moves.
+      expect.soft(tiers[2].floorTokens).toBe(9_586);
       expect.soft(tiers[2].ceilingObligations).toBe(457);
-      expect.soft(tiers[2].ceilingTokens).toBe(44_891);
+      expect.soft(tiers[2].ceilingTokens).toBe(44_914);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

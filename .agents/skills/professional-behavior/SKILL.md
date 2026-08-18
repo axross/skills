@@ -107,7 +107,7 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 
 **Guidelines:**
 
-- MUST read [accuracy-discipline.md](./references/accuracy-discipline.md) before resolving an uncertainty already sorted to a source, and before asserting a fact, version, price, figure, or date.
+- MUST read [accuracy-discipline.md](./references/accuracy-discipline.md) before asserting a version, price, figure, date, path, line number, or quotation, and before labelling a claim verified, inferred, or assumed.
 
 ## Reporting
 
@@ -122,4 +122,4 @@ See [reporting.md](./references/reporting.md) for:
 
 **Guidelines:**
 
-- MUST read [reporting.md](./references/reporting.md) before handing something back — an answer, a set of findings, a progress note, or a completion summary.
+- MUST read [reporting.md](./references/reporting.md) before writing a completion summary, before reporting the outcome of a command or check that ran, and before shaping a reply longer than a short paragraph into a table, a list, or sectioned prose.

@@ -24,7 +24,7 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "57ae6a01ceeb9e4c14c1e5a20603413ccbd2fea4fd6e08dfb8b6e6d2f97cb54c"
+      "computedHash": "8c8bc676d58dc85e07164f5e8c83dc655c547bbf806a369baef5d0d03ace21ba"
     },
     "code-review": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "44ba82da67bdc414191a363a3cce353d94b344d6580db215072a4333a27783a2"
+      "computedHash": "1071e46091fdc72eeba258be7b99df6b6d333e69bffd3b1788930df0bb9747ba"
     },
     "quality-assurance": {
       "source": "./skills",
