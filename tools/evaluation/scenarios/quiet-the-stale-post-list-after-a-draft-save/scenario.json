@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "tanstack-query-development" }
+        "input": { "skill": "tanstack-query-development" }
       }
     },
     {
@@ -29,7 +29,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/queries/posts/post-save-mutation.ts",
           "mustContainAll": ["getPostListQueryOptions", "invalidateQueries"]
         }
@@ -42,7 +42,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/queries/posts/post-save-mutation.ts",
           "mustContainAll": ["setQueryData", "getPostQueryOptions"]
         }

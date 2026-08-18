@@ -52,6 +52,63 @@ describe("judgeFactor — script method", () => {
     console.log(JSON.stringify({ result: context.material.skillsInvoked.includes("unit-testing"), evidence: "checked skillsInvoked" }));
   `;
 
+  // #450 renamed a judgment's argument bag from `expect` to `input`, and the
+  // context file is what carries it. this is the round trip that rename has
+  // to survive: a factor's arguments reach the script under the new key, and
+  // reach it as themselves. the transport is a JSON file rather than argv, so
+  // a number stays a number and a list stays a list — a script guarding
+  // `typeof max !== "number"` would otherwise reject every real invocation,
+  // and would do so first inside a paid dispatch.
+  const ECHOING_SCRIPT = `
+    import { readFileSync } from "node:fs";
+    const context = JSON.parse(readFileSync(process.argv[2], "utf8"));
+    const shape = (value) =>
+      Array.isArray(value) ? (value.length > 0 && Array.isArray(value[0]) ? "string[][]" : "string[]")
+      : value === null ? "null" : typeof value;
+    const shapes = Object.fromEntries(Object.entries(context.input ?? {}).map(([key, value]) => [key, shape(value)]));
+    console.log(JSON.stringify({ result: true, evidence: JSON.stringify(shapes) }));
+  `;
+
+  it("hands the script its arguments under `input`, with each value's type intact", async () => {
+    const scenarioDir = await scenarioWithScript(ECHOING_SCRIPT);
+    const workspace = await tempDir();
+    const factor = {
+      id: "f1",
+      phase: "outcome",
+      judgment: {
+        method: "script",
+        script: "scripts/check.mjs",
+        input: {
+          file: "src/x.ts",
+          max: 1,
+          requireLocale: false,
+          mustContainAll: ["x", "y"],
+          mustMentionEachOf: [["a", "b"], ["c"]],
+        },
+      },
+    };
+    const record = await judgeFactor(factor, { scenarioDir, workspace, probe: PROBE });
+    expect(JSON.parse(record.evidence)).toEqual({
+      file: "string",
+      max: "number",
+      requireLocale: "boolean",
+      mustContainAll: "string[]",
+      mustMentionEachOf: "string[][]",
+    });
+  });
+
+  it("hands the script a null `input` when the factor declares no arguments", async () => {
+    const scenarioDir = await scenarioWithScript(`
+      import { readFileSync } from "node:fs";
+      const context = JSON.parse(readFileSync(process.argv[2], "utf8"));
+      console.log(JSON.stringify({ result: context.input === null, evidence: "input was " + JSON.stringify(context.input) }));
+    `);
+    const workspace = await tempDir();
+    const factor = { id: "f1", phase: "outcome", judgment: { method: "script", script: "scripts/check.mjs" } };
+    const record = await judgeFactor(factor, { scenarioDir, workspace, probe: PROBE });
+    expect(record.result).toBe(true);
+  });
+
   it("returns a true/false result with evidence on a clean exit", async () => {
     const scenarioDir = await scenarioWithScript(PASSING_SCRIPT);
     const workspace = await tempDir();

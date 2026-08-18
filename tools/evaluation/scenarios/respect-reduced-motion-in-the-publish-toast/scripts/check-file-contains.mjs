@@ -32,12 +32,12 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { file, mustContainAll } = context.expect ?? {};
+const { file, mustContainAll } = context.input ?? {};
 if (typeof file !== "string" || file.length === 0) {
-  fail("context.expect.file must be a non-empty, workspace-relative path.");
+  fail("context.input.file must be a non-empty, workspace-relative path.");
 }
 if (!Array.isArray(mustContainAll) || mustContainAll.length === 0) {
-  fail("context.expect.mustContainAll must be a non-empty array of substrings.");
+  fail("context.input.mustContainAll must be a non-empty array of substrings.");
 }
 
 let content;
