@@ -63,15 +63,15 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { file, interfaceName, expectedCount } = context.expect ?? {};
+const { file, interfaceName, expectedCount } = context.input ?? {};
 if (typeof file !== "string" || file.length === 0) {
-  fail("context.expect.file must be a non-empty, workspace-relative path.");
+  fail("context.input.file must be a non-empty, workspace-relative path.");
 }
 if (typeof interfaceName !== "string" || interfaceName.length === 0) {
-  fail("context.expect.interfaceName must be a non-empty string.");
+  fail("context.input.interfaceName must be a non-empty string.");
 }
 if (!Number.isInteger(expectedCount) || expectedCount <= 0) {
-  fail("context.expect.expectedCount must be a positive integer.");
+  fail("context.input.expectedCount must be a positive integer.");
 }
 
 let content;

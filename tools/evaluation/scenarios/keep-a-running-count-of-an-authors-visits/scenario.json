@@ -19,7 +19,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "amplitude-instrumentation" }
+        "input": { "skill": "amplitude-instrumentation" }
       }
     },
     {
@@ -29,7 +29,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/lib/analytics.ts",
           "mustContainAll": [".add("]
         }
@@ -42,7 +42,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
-        "expect": {
+        "input": {
           "file": "src/lib/analytics.ts",
           "mustContainAll": [".set(\"name\"", ".set(\"site_count\""]
         }

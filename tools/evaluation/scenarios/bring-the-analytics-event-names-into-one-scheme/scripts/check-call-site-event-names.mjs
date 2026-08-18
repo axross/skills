@@ -12,7 +12,7 @@
 // asks about are not emitted from one place — two fire from
 // src/routes/PostEditorPage.tsx (the editor's save and publish flows) and
 // the third from src/routes/Layout.tsx (the sidebar's site switcher).
-// `context.expect.files` names every file this factor reads, so a fix that
+// `context.input.files` names every file this factor reads, so a fix that
 // brings the editor's own two names into a scheme while leaving the
 // switcher's untouched (or the reverse) is read correctly rather than
 // missed because only one file was checked.
@@ -61,17 +61,17 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { files, expectedCount } = context.expect ?? {};
+const { files, expectedCount } = context.input ?? {};
 if (!Array.isArray(files) || files.length === 0) {
-  fail("context.expect.files must be a non-empty array of workspace-relative paths.");
+  fail("context.input.files must be a non-empty array of workspace-relative paths.");
 }
 for (const file of files) {
   if (typeof file !== "string" || file.length === 0) {
-    fail("context.expect.files must contain only non-empty strings.");
+    fail("context.input.files must contain only non-empty strings.");
   }
 }
 if (!Number.isInteger(expectedCount) || expectedCount <= 0) {
-  fail("context.expect.expectedCount must be a positive integer.");
+  fail("context.input.expectedCount must be a positive integer.");
 }
 
 const CALL_RE = /\btrackEvent\(\s*(["'])((?:\\.|(?!\1).)*)\1/g;
