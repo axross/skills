@@ -35,13 +35,19 @@ Commented-out code cannot be tested or type-checked and only rots, and version c
 
 ## Self-Explanatory Implementation
 
-The five rules governing a self-explanatory implementation — including the boundary doc-comment criterion — are stated in `SKILL.md`'s **Complexity and Readability** section, under **Self-Explanatory Implementation**; this file carries why a comment is the fallback rather than the plan, and two further tests for the comments that remain.
-
 A comment is the fallback, not the plan. What a reader needs first is an implementation whose names, steps, and types already say what is happening, so the only thing left for a comment is what the code structurally cannot state — the reason, the constraint, the alternative that was rejected. Where the code cannot say something it should have been able to say, that is a defect in the code before it is a missing comment.
 
 A comment earns its place only by adding either **precision** below the code's own level of abstraction — measurement units, whether null is permitted, whether a bound is inclusive — or **intuition** above it. One written at the code's own level of abstraction only restates what the code already says, which is not earning its place.
 
 A boundary doc-comment that has to describe implementation details to make sense is evidence of a shallow interface, not of a well-documented one — the fix is narrowing the interface the comment is compensating for, not writing a longer comment.
+
+**Guidelines:**
+
+- MUST write the implementation so it carries its own explanation, and reserve a comment for what the code cannot state; what such a comment then says, and in what voice, belongs to the project's development conventions, which the Comments and Doc-Comments section below routes to.
+- SHOULD name the intermediate steps of a procedure so the flow reads as an account of what happens rather than as a sequence to be decoded; the KISS rules in [scope-discipline.md](./scope-discipline.md) own the single unreadable line, while this rule owns the flow it sits in.
+- MUST let the types carry the shape of what a unit takes and returns, in a statically-typed language, rather than leaving a reader to infer it from the body or from a comment restating it.
+- MUST hold a doc-comment on a module or domain boundary to one criterion — a caller can use the function, class, or constant without reading its implementation — and treat a boundary unit that fails it as the finding. This deliberately extends the project's development conventions, which require a doc-comment on an exported type and on a function past a length threshold, to every symbol sitting on a boundary, a constant included; how much detail that takes, and in what format, stays with those conventions rather than being decided here.
+- SHOULD treat a comment that exists to compensate for an unclear name or an unclear flow as a finding against that name or flow, not as a comment worth keeping.
 
 ## Comments and Doc-Comments
 
