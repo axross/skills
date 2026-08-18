@@ -23,7 +23,7 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "expect": { "skill": "loop-engineering" }
+        "input": { "skill": "loop-engineering" }
       }
     }
   ]
