@@ -111,7 +111,7 @@ async function runScriptJudgment({ scriptPath, workspace, context }) {
  *
  * @param {{
  *   id: string, phase: "discovery"|"outcome"|"transcript",
- *   judgment: { method: "script", script: string, expect?: unknown }
+ *   judgment: { method: "script", script: string, input?: unknown }
  *            | { method: "reasoning", model: string, instructions: string },
  * }} factor one scenario's own factor declaration
  * @param {{
@@ -138,7 +138,7 @@ export async function judgeFactor(factor, { scenarioDir, workspace, probe, apiKe
       context: {
         phase: factor.phase,
         factorId: factor.id,
-        expect: factor.judgment.expect ?? null,
+        input: factor.judgment.input ?? null,
         material,
       },
     });
