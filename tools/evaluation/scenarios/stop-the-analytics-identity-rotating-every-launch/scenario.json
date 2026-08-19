@@ -1,0 +1,88 @@
+{
+  "id": "stop-the-analytics-identity-rotating-every-launch",
+  "description": "amplitude-instrumentation is targeted against a report that names neither Amplitude, reset, nor a device identifier — a dashboard where distinct-device counts climb at roughly the rate the app is opened, long-standing learners arrive as though new, and signed-in people go anonymous again by the next launch — with software-instrumentation (a vendor-neutral read of the same complaint) and expo-app-development (a startup-and-on-device-storage read of it) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. recall's patch is additive rather than a move: it adds a forgetUser() call to app/_layout.tsx's startup path, beside the existing initAnalytics() call, and rewrites the two doc comments that would otherwise contradict it. This is the more plausible mistake for a developer to have made — clearing a leftover identity so each launch starts clean has a reason to add a line and no reason to delete the sign-out one — and it leaves recall's own suite green, since session.spec.ts only asserts forgetUser is called on sign-out, never that it is called nowhere else. The one outcome factor that actually moves checks that the startup call is gone; three more are 'what had to not change' guards, each satisfied by a skill-absent run that does nothing, so each is expected to contribute a zero differential on its own — they exist to disqualify a wrong fix, not to measure one. The transcript factor is judged by reasoning, not by a script grep — a deliberate divergence from this tree's two earlier patch-declaring scenarios, recorded in the tracking issue's plan — and asks whether the agent's own words name why the startup call was wrong, as distinct from a diff that merely looks right.",
+  "mock": "recall",
+  "targetSkills": ["amplitude-instrumentation"],
+  "peerSkills": ["software-instrumentation", "expo-app-development"],
+  "patch": "patch.diff",
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Something's off with our usage numbers. The distinct-device count keeps climbing at roughly the same rate as app opens, so it looks like a lot more people are using the app than actually are. Learners who've been studying with us for months are showing up in the data as if they just started, and someone who's signed in ends up looking like a stranger again the next time they open the app. Can you dig into what's happening and get it fixed?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-amplitude-instrumentation",
+      "phase": "discovery",
+      "description": "The report names neither Amplitude, reset, nor a device identifier — an agent that reaches for amplitude-instrumentation here is finding it from the symptom, with software-instrumentation (a vendor-neutral read of the same complaint) and expo-app-development (a startup-and-on-device-storage read of it) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "amplitude-instrumentation" }
+      }
+    },
+    {
+      "id": "startup-stops-forgetting-the-user",
+      "phase": "outcome",
+      "description": "The patch added a forgetUser() call to app/_layout.tsx's startup path, and calling it there is what rotates the device and user identity on every launch. This is the one outcome factor expected to actually move: it checks that the final app/_layout.tsx no longer calls forgetUser at all.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-excludes.mjs",
+        "input": {
+          "file": "app/_layout.tsx",
+          "mustExcludeAll": ["forgetUser"]
+        }
+      }
+    },
+    {
+      "id": "sign-out-still-forgets-the-user",
+      "phase": "outcome",
+      "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: session.ts's signOut must still call forgetUser, so a fix that removes the sign-out reset along with the startup one — leaving sign-out no longer clearing the identity at all — is distinguishable from a fix that removes only the startup call.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "src/session/session.ts",
+          "mustContainAll": ["forgetUser"]
+        }
+      }
+    },
+    {
+      "id": "startup-still-initializes-analytics",
+      "phase": "outcome",
+      "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: app/_layout.tsx must still call initAnalytics(), so silencing the symptom by disabling analytics altogether rather than fixing the identity call is not credited.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "app/_layout.tsx",
+          "mustContainAll": ["initAnalytics()"]
+        }
+      }
+    },
+    {
+      "id": "keeps-the-sdks-own-identity-storage",
+      "phase": "outcome",
+      "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: analytics.ts must still set neither storageProvider nor cookieStorage as an actual init option, so a fix that instead reaches for an identity-storage override — which makes the SDK fall back to MemoryStorage and reproduces the very symptom it was meant to cure — is not credited. Checked as the key-usage form with its trailing colon rather than the bare word, since initAnalytics's own doc comment already names both words in the negative ('neither storageProvider nor cookieStorage is set here') and a bare-word check would never pass regardless of the code.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-excludes.mjs",
+        "input": {
+          "file": "src/analytics/analytics.ts",
+          "mustExcludeAll": ["storageProvider:", "cookieStorage:"]
+        }
+      }
+    },
+    {
+      "id": "names-the-startup-reset-as-the-cause",
+      "phase": "transcript",
+      "description": "A correct diff can still be produced by an agent that deleted the startup call because it 'looked out of place' without ever registering why it was wrong. This factor asks whether the agent's own reasoning names the actual cause — that clearing the analytics identity on every launch is what rotates it — as distinct from a transcript that only describes removing a line.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work on a product-analytics report. Decide whether the agent's own reasoning, at some point before it finished, correctly identified WHY distinct-device counts were climbing and signed-in learners kept losing their identity — specifically, that an analytics identity-reset call was running on every app launch, which rotates the device and user identity each time (as distinct from merely removing a line because it looked wrong, without ever stating that clearing the identity on every launch is what caused the symptom). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+      }
+    }
+  ]
+}

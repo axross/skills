@@ -1,0 +1,51 @@
+diff --git a/app/_layout.tsx b/app/_layout.tsx
+index 965c447..1e840c1 100644
+--- a/app/_layout.tsx
++++ b/app/_layout.tsx
+@@ -7,10 +7,13 @@ import { StatusBar } from "expo-status-bar";
+ import { GestureHandlerRootView } from "react-native-gesture-handler";
+ import { useUnistyles } from "react-native-unistyles";
+ 
+-import { initAnalytics } from "@/analytics/analytics";
++import { forgetUser, initAnalytics } from "@/analytics/analytics";
+ import { SessionProvider } from "@/session/session-context";
+ 
+ initAnalytics();
++// Clear out any analytics identity left over from whoever last used this
++// device, so a fresh launch never inherits a stale user id.
++forgetUser();
+ 
+ export default function RootLayout() {
+   const { theme } = useUnistyles();
+diff --git a/src/analytics/analytics.ts b/src/analytics/analytics.ts
+index 58135b6..130031e 100644
+--- a/src/analytics/analytics.ts
++++ b/src/analytics/analytics.ts
+@@ -34,9 +34,9 @@ export function identifyUser(accountId: string): void {
+ }
+ 
+ /**
+- * Rotates Amplitude's device and user identity. Called only from the
+- * sign-out path — calling it anywhere else (say, on every app launch)
+- * would rotate the device id on every launch instead of on sign-out.
++ * Rotates Amplitude's device and user identity. Called on sign-out, and
++ * again at startup so a fresh launch never inherits an identity left over
++ * from whoever used the app last.
+  */
+ export function forgetUser(): void {
+   if (!amplitudeApiKey) return;
+diff --git a/src/session/session.ts b/src/session/session.ts
+index 411dabf..f69436c 100644
+--- a/src/session/session.ts
++++ b/src/session/session.ts
+@@ -42,8 +42,8 @@ export async function signIn(email: string): Promise<Session> {
+ }
+ 
+ /**
+- * Clears the local session and forgets the analytics identity. This is the
+- * only place `forgetUser` (and so the underlying `reset()`) is called.
++ * Clears the local session and forgets the analytics identity, the same
++ * as a fresh app launch already does.
+  */
+ export async function signOut(): Promise<void> {
+   await AsyncStorage.removeItem(STORAGE_KEY);
