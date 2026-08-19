@@ -238,14 +238,10 @@ async function main() {
 
   const admission = admitDispatch({ probeCount: matrix.length, limit: options.limit });
 
-  // --emit-matrix answers a different question from everything below: not
-  // "run this", but "what would running this write, and where". it mints
-  // one id per scenario right here — the same id every real probe of this
-  // dispatch will be told to use via --measurement-id — and prints the
-  // whole matrix as one JSON document rather than the prose below. like
-  // --dry-run, it never reaches runProbe; unlike --dry-run, it prints
-  // nothing but that one document, so a caller can read stdout directly as
-  // JSON with nothing else to strip out first.
+  // --emit-matrix mints one id per scenario here — the same id every real probe of this
+  // dispatch will be told via --measurement-id — and prints the whole matrix as one
+  // JSON document instead of the prose below. unlike --dry-run, it prints nothing else,
+  // so a caller can parse stdout directly as JSON.
   if (options.emitMatrix) {
     const idByScenario = new Map(scenarios.map((scenario) => [scenario.id, options.measurementId ?? newId()]));
     const dirNameOf = (scenarioId) => measurementDirName(scenarioId, idByScenario.get(scenarioId));

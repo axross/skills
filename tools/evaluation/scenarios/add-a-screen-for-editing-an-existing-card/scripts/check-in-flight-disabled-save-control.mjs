@@ -207,13 +207,10 @@ const newFiles = newFilesFromDiff(diff).filter((path) => path.endsWith(".tsx"));
 
 const IN_FLIGHT_EXPR_RE = /\b(?:submit|saving|save|pending|progress)\w*\b/i;
 
-// a diff naming zero new .tsx files is a real, judgeable "no edit screen was
-// added" — a legitimate `false`, not an error (this scenario's whole task is
-// new-file work, so nothing existed before the probe ran; see this script's
-// own header). A diff naming new files that are then unreadable from the
-// reconstructed workspace is the different case: the workspace does not
-// hold what the diff claims it added, which is exactly the missing-material
-// case this factor cannot judge through.
+// zero new .tsx files is a legitimate `false`, not an error: this scenario is new-file
+// work, so nothing existed before the probe ran. new files unreadable from the
+// workspace differ — it does not hold what the diff claims, the missing-material case
+// this factor cannot judge through.
 let readableCount = 0;
 let boundInFile = null;
 for (const path of newFiles) {
