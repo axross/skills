@@ -320,8 +320,8 @@ probe or the offline check under `tests/repository/` ever sees it, a second mock
 project, and — across the four writing-and-maintainability scenarios — an
 artefact that is prose rather than code. Six carry a `transcript` factor —
 three judged by reasoning and three by script. Of the eleven that carry none,
-two state their reason in their own `scenario.json`; the others' reasons are
-recorded outside this document. Authoring further scenarios against
+two state their reason in their own `scenario.json`. Authoring further
+scenarios against
 `inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
 repository's other mocks, is separate, later work; this document describes what
 runs today, not the coverage it will eventually have.
