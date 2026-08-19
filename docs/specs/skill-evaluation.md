@@ -221,6 +221,8 @@ stored measurement with a different reasoning judge, a different prompt, or a
 different route is therefore a new measurement, never a silent update to the
 old one — the two results sit side by side rather than one replacing the
 other.
+[`2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md`](../decisions/2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md)
+is the decision that gave a reasoning judge its one route and put it here.
 
 ## Measured, declared, and derived
 

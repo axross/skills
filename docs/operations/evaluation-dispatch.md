@@ -182,6 +182,8 @@ error — never as `false`, and never by aborting any other factor's
 judgment — so the script still completes end to end with no credential
 present at all, which is how this repository's own test suite exercises it.
 Each probe's judged factors are written to its own `factors.json`.
+[`2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md`](../decisions/2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md)
+is the decision behind asking through the CLI rather than over HTTP.
 
 ## Deriving the Summary: `derive.mjs`
 
