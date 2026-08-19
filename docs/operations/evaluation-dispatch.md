@@ -197,8 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Six scenarios are declared today, all against the `inkwell` mock project,
-under `tools/evaluation/scenarios/`:
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->nine<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and three against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -234,11 +233,31 @@ under `tools/evaluation/scenarios/`:
   Its two outcome factors are textual, structural reads of `vitest.config.ts`
   rather than a glob evaluator, and its transcript factor, like the sentry
   scenario's, is judged by script.
+- [`publish-an-edit-without-a-redeploy`](../../tools/evaluation/scenarios/publish-an-edit-without-a-redeploy/)
+  targets `next-app-development` against `tsuzuri`'s build-time post catalog
+  — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
+  own "choices made for coverage" list names it — alongside
+  `tanstack-query-development` and `code-maintainability` as peers, and
+  carries a `discovery` factor and two `outcome` factors. It declares no
+  `transcript` factor, and its own `scenario.json` says why: the mock
+  states this defect's cause in its own prose, in both conditions, so a
+  transcript scan for that reasoning would measure reading rather than
+  reasoning.
+- [`accept-a-page-number-from-a-url`](../../tools/evaluation/scenarios/accept-a-page-number-from-a-url/)
+  targets `zod-schema` against a URL page number `tsuzuri` parses nowhere
+  today, alongside `next-app-development` and `react-component-development`
+  as peers, and carries a `discovery` factor and two `outcome` factors.
+- [`let-readers-leave-a-note-on-a-post`](../../tools/evaluation/scenarios/let-readers-leave-a-note-on-a-post/)
+  targets `application-security` against a reader-note feature invented in
+  its own prompt, alongside `zod-schema` and `next-app-development` as
+  peers, and carries a `discovery` factor, one `outcome` factor, and a
+  `transcript` factor judged by script.
 
-Together the six exercise every path through the three scripts above: every
-phase, both judgment methods, a scenario that omits a phase entirely, and —
-the last two add — a scenario whose mock is patched before a probe or the
-offline check under `tests/repository/` ever sees it. Authoring further
-scenarios against `inkwell`'s remaining catalogued subjects, and against this
+Together the nine exercise every path through the three scripts above: every
+phase, both judgment methods, a scenario that omits a phase entirely, a
+scenario whose mock is patched before a probe or the offline check under
+`tests/repository/` ever sees it, and a second mock project. Authoring further
+scenarios against `inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and
+against this
 repository's other mocks, is separate, later work; this document describes
 what runs today, not the coverage it will eventually have.
