@@ -197,8 +197,8 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Six scenarios are declared today, all against the `inkwell` mock project,
-under `tools/evaluation/scenarios/`:
+Eight scenarios are declared today under `tools/evaluation/scenarios/`: six
+against the `inkwell` mock project, and two against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -234,11 +234,36 @@ under `tools/evaluation/scenarios/`:
   Its two outcome factors are textual, structural reads of `vitest.config.ts`
   rather than a glob evaluator, and its transcript factor, like the sentry
   scenario's, is judged by script.
+- [`stop-the-analytics-identity-rotating-every-launch`](../../tools/evaluation/scenarios/stop-the-analytics-identity-rotating-every-launch/)
+  targets `amplitude-instrumentation`, alongside `software-instrumentation`
+  and `expo-app-development` as peers, and is the first scenario in the tree
+  declared against a mock other than `inkwell`: it targets `recall`. Its
+  patch is additive rather than a move — it adds a `forgetUser()` call to
+  `app/_layout.tsx`'s startup path beside the existing sign-out one, which is
+  what rotates the analytics identity on every launch while leaving
+  `recall`'s own suite green. One outcome factor carries the measurement;
+  three more are "what had to not change" guards, each expected to
+  contribute a zero differential on its own. Its transcript factor is judged
+  by reasoning rather than by script, a deliberate divergence from the two
+  `inkwell` patch scenarios above, recorded in this scenario's own
+  `scenario.json` description.
+- [`replace-a-conditional-style-with-a-proper-variant`](../../tools/evaluation/scenarios/replace-a-conditional-style-with-a-proper-variant/)
+  is also against `recall`, and targets `react-component-styling` against
+  `src/ui/action-button.tsx` reverted to React Native's own
+  `StyleSheet.create`, with hard-coded colour literals and a conditional
+  style array standing in for the styling library's variants. It is declared
+  in the knowledge that its outcome differential is expected to be at or
+  near zero: `recall/AGENTS.md` states the very convention its factors
+  assert, in the project's own voice, and names this component as one of the
+  two to read for how it is done — an accepted limit recorded at this
+  scenario's clarify gate rather than found in review.
 
-Together the six exercise every path through the three scripts above: every
+Together the eight exercise every path through the three scripts above: every
 phase, both judgment methods, a scenario that omits a phase entirely, and —
-the last two add — a scenario whose mock is patched before a probe or the
-offline check under `tests/repository/` ever sees it. Authoring further
-scenarios against `inkwell`'s remaining catalogued subjects, and against this
-repository's other mocks, is separate, later work; this document describes
-what runs today, not the coverage it will eventually have.
+four of the eight now — a scenario whose mock is patched before a probe or
+the offline check under `tests/repository/` ever sees it. The last two are
+also the tree's first declared against a mock other than `inkwell`.
+Authoring further scenarios against `inkwell`'s remaining catalogued
+subjects, and against this repository's other mocks, is separate, later
+work; this document describes what runs today, not the coverage it will
+eventually have.

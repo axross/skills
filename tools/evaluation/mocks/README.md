@@ -187,11 +187,22 @@ resolves, and its four checks pass in a materialized copy.
   well-formed email address and issues a local account id, persisted on the
   device — there's no account service behind it. A probe workspace has no
   network and no credentials to sign in against a real one, and
-  `amp-rn-identity-resets` needs a genuine sign-out path for its `reset()`
-  call to sit in.
+  [`stop-the-analytics-identity-rotating-every-launch`](../scenarios/stop-the-analytics-identity-rotating-every-launch/)
+  needs a genuine sign-out path for its `reset()` call to sit in.
 - **Deck content is seeded on first launch rather than fetched.** Same
   reason: a probe workspace has no network, and studying needs cards to
   work with from the first run.
+- **Every styled component reads from the styling library's theme, and
+  `AGENTS.md` states that as the project's own rule in its own voice** —
+  never from React Native's own `StyleSheet`, with `src/ui/text-field.tsx`
+  and `src/ui/action-button.tsx` named as the two components to read for how
+  it's done here.
+  [`replace-a-conditional-style-with-a-proper-variant`](../scenarios/replace-a-conditional-style-with-a-proper-variant/)'s
+  patch reverts one of those two away from that convention while its sibling
+  keeps demonstrating it — and that same sentence in `AGENTS.md` is also the
+  confounder the scenario's own description records: a skill-absent run can
+  reach the correct fix by reading the working component beside the broken
+  one, without ever discovering the skill.
 
 ### `recall` — fixture artifacts
 
