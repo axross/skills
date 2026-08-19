@@ -105,11 +105,13 @@ function deriveFactor(factorId, phase, probesByCondition) {
 }
 
 /**
- * the measurement's actual total spend — #392's other half of "no cost
- * estimate": "The dispatch is bounded by an exact probe count instead, and
- * actual spend is recorded after." Each probe's own `costUsd` is measured
- * (probe-runner.mjs, from the CLI's own reported total); this sums it, the
- * same regenerable step every other field in this file goes through.
+ * the measurement's actual total spend — the other half of
+ * docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md's
+ * no-cost-estimate decision: "a dispatch is bounded by an exact probe
+ * count instead", with actual spend recorded after rather than
+ * projected before. Each probe's own `costUsd` is measured
+ * (probe-runner.mjs, from the CLI's own reported total); this sums it,
+ * the same regenerable step every other field in this file goes through.
  *
  * a probe with no recorded cost is not the same as one that cost nothing —
  * exactly the distinction the pass rates above already draw between "not

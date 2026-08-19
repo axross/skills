@@ -5,8 +5,9 @@
 // and the appended non-interactive brief.
 //
 // there is one instrument now, not two readings each building their own
-// invocation around a shared core — #392 merged them, and this module is
-// what survived the merge unchanged.
+// invocation around a shared core — see
+// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md.
+// this module is what survived that merge unchanged.
 
 /**
  * pinned rather than left to the CLI's default: changing it invalidates

@@ -3,11 +3,12 @@
 //
 // docs/specs/skill-evaluation.md, "Repetitions", gives the matrix its shape:
 // a run expands its scenario(s) into every (condition, repetition) probe the
-// matrix implies. the refusal is #392's decision rather than the spec's —
-// "the dispatch is bounded by an exact probe count instead" — so a run
+// matrix implies. the refusal below is a deliberate design decision rather
+// than the spec's — see
+// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md,
+// "a dispatch is bounded by an exact probe count instead" — so a run
 // refuses before any probe starts when that exact count exceeds a declared
-// limit, and
-// otherwise runs every one of them — each recording the verbatim
+// limit, and otherwise runs every one of them — each recording the verbatim
 // transcript, the workspace diff, the skill invocations, and metadata
 // carrying the runtime, the model, and the digest of every installed skill.
 //

@@ -52,7 +52,7 @@ describe("judgeFactor — script method", () => {
     console.log(JSON.stringify({ result: context.material.skillsInvoked.includes("unit-testing"), evidence: "checked skillsInvoked" }));
   `;
 
-  // #450 renamed a judgment's argument bag from `expect` to `input`, and the
+  // a judgment's argument bag was renamed from `expect` to `input`, and the
   // context file is what carries it. this is the round trip that rename has
   // to survive: a factor's arguments reach the script under the new key, and
   // reach it as themselves. the transport is a JSON file rather than argv, so
@@ -190,7 +190,7 @@ describe("judgeFactor — script method", () => {
     expect(record.evidence).toBe(workspace);
   });
 
-  // #413: a scratch-directory removal failure must not cost the judgment
+  // a scratch-directory removal failure must not cost the judgment
   // already decided. this module has no CLI of its own and writes nothing to
   // disk, so the warning is carried in the returned record rather than
   // written to stderr — see runScriptJudgment's own doc comment. reverting

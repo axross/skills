@@ -5,8 +5,7 @@
 // promised when it accepted the cost of a patch at all: "every declared
 // patch is applied against its mock offline, before any dispatch, so a
 // rotted patch fails in the test suite rather than in a run that has
-// already spent money reaching it." Until this file, no scenario declared a
-// patch and nothing exercised the promise — see tracking issue #431.
+// already spent money reaching it."
 //
 // this is generic over scenarios and mocks on purpose, and names neither: a
 // third patch-declaring scenario is picked up here with no edit, the same

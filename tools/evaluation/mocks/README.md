@@ -60,9 +60,9 @@ review round.
 
 Where an entry below names a scenario asking something of a model, it is
 naming the coverage that affordance exists for, not a scenario already
-declared. The tree currently holds one; #392's step 4 authors the set. An
-entry whose scenario is not yet written is a standing reason the mock is
-shaped as it is, and is why the shape survives until then.
+declared. #392's step 4 authors the set, one slice at a time; an entry whose
+scenario is not yet written is a standing reason the mock is shaped as it is,
+and is why the shape survives until then.
 
 ### `tsuzuri` — choices made for coverage
 
@@ -78,22 +78,54 @@ shaped as it is, and is why the shape survives until then.
   control run the conventions the evaluation is trying to detect. A uniformly
   poor one would be just as wrong in the other direction, flattering a
   treatment run by giving it something obvious to correct.
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
+  reads this suite as its own counter-precedent — bare subject naming and no
+  condition grouping — so a fix to the untested module beside it has nothing
+  here to copy.
 - **`shared/resolve-translation.ts` exports its three helpers**, which a real
   module might keep private. Private, "did the test go through the caller's
   public surface" stops being a choice a model can get wrong, and the signal
   disappears.
-- **`shared/resolve-translation.ts` ships no test**, which is what a scenario
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
+  is the scenario this choice serves: its own outcome factors ask whether a
+  new spec names those exported functions as callable subjects, which stays
+  a real question only while they are public.
+- **`shared/resolve-translation.ts` ships no test**, which is what
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
   asks a model to fix. This is a gap the project has rather than one planted
   in it: the history says how it happened without being asked to, since the
   slug module was committed _with_ its spec and the locale module alone
   during a refactor. An untested module beside a tested one is what real
   repositories look like, so no patch creates it.
+- **`jest.config.cjs` declares no coverage options.** `history.jsonc`'s own
+  commit that adds the file carries the message `"WIP"` — a project that
+  wired up a test runner and moved on without ever turning coverage on is
+  ordinary, not a defect invented for the scenario.
+  [`show-what-the-test-run-never-reaches`](../scenarios/show-what-the-test-run-never-reaches/)
+  needs exactly this gap: a mock that already declared `collectCoverageFrom`
+  would demonstrate the answer beside the question.
+- **`e2e/home.spec.ts` is a two-test suite that never renders a post.** One
+  test lists the posts on the home page; the other asserts that an unknown
+  slug 404s. Neither opens a post that resolves, so
+  `app/(site)/posts/[slug]/` — the route where the site's multi-language
+  behaviour actually happens — is driven only for its not-found path.
+  `history.jsonc`'s own `"WIP e2e"` commit is honest evidence the suite was
+  started and not finished, which is an ordinary shape for a project this
+  size. This is a different claim from the stand-in
+  [#299](https://github.com/axross/skills/issues/299) removed from the
+  fixture-artifacts list below — that was a hand-written type stand-in and a
+  command that did not exist, never a statement about how much of the site
+  the suite drives.
+  [`broaden-a-suite-that-never-opens-a-post`](../scenarios/broaden-a-suite-that-never-opens-a-post/)
+  asks a model to close that gap.
 - **The post catalog in `posts-data.ts` is a build-time module rather than a
-  fetch from a content backend.** `publish-an-edit-without-a-redeploy` needs a
-  project where staying stale until someone redeploys is genuinely what
-  happens, not a defect invented for the scenario — and a checked-in catalog
-  compiled into the build is an ordinary way for a project this size to
-  start, so the choice reads as honest regardless of the scenario behind it.
+  fetch from a content backend.**
+  [`publish-an-edit-without-a-redeploy`](../scenarios/publish-an-edit-without-a-redeploy/)
+  needs a project where staying stale until someone redeploys is genuinely
+  what happens, not a defect invented for the scenario — and a checked-in
+  catalog compiled into the build is an ordinary way for a project this size
+  to start, so the choice reads as honest regardless of the scenario behind
+  it.
 
 ### `tsuzuri` — fixture artifacts
 
@@ -123,12 +155,11 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   asks about.
 - **The analytics event names are ordinary and mildly inconsistent.**
   `"post published"` and `"draft saved"` fire from the editor and
-  `"Site switched"` from the sidebar's switcher — the last in a different
-  scenario from the other two. Two scenarios measure event naming, so a mock
-  demonstrating a scheme would flatter a control run. All three fire from a
-  real call site: a name that existed only in the event type would leave the
-  _exercised_ convention perfectly consistent, which is the opposite of what
-  is wanted here.
+  `"Site switched"` from the sidebar's switcher. One scenario measures event
+  naming, so a mock demonstrating a scheme would flatter a control run. All
+  three fire from a real call site: a name that existed only in the event
+  type would leave the _exercised_ convention perfectly consistent, which is
+  the opposite of what is wanted here.
 - **`identifyAuthor` in `src/lib/analytics.ts` has no caller yet.** It is
   written, exported and tested, and nothing invokes it, because session
   handling lives outside this cut of the product and nothing in the SPA knows
@@ -146,12 +177,18 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   both — which is what a project looks like when one path was written
   carefully and its neighbour was not.
 - **Log levels are applied plainly rather than exemplarily**, for the same
-  reason: one scenario is about choosing between `warn` and `info`.
+  reason: choosing between `warn` and `info` is a subject this shape leaves
+  available, not yet claimed by any declared scenario.
 - **The test suite is mixed in quality.** Coverage is real but not exhaustive
   and some names describe the implementation rather than the behaviour. An
   exemplary suite would hand a control run the conventions the evaluation
   detects; a uniformly poor one would flatter a treatment run by leaving
   something obvious to correct.
+  [`judge-what-the-publish-toast-commit-leaves-unchecked`](../scenarios/judge-what-the-publish-toast-commit-leaves-unchecked/)
+  claims one specific instance of this mix: the publish toast component ships
+  with no test of its own, while its four sibling components under
+  `src/components/` — `Button`, `Card`, `ConsentBanner`, and `Sidebar` — each
+  ship a `.browser.test.tsx`.
 - **There is no dashboard, settings page, onboarding flow, or sign-in
   screen.** Four scenarios ask a model to sketch one of the first three, so
   building one removes the task. The absence is honest at this stage of a
@@ -192,6 +229,23 @@ resolves, and its four checks pass in a materialized copy.
 - **Deck content is seeded on first launch rather than fetched.** Same
   reason: a probe workspace has no network, and studying needs cards to
   work with from the first run.
+- **The signed-in group is gated by redirecting out of a layout component,
+  not by a guard at the navigator.** `authenticated-layout.tsx` returns
+  `<Redirect href="/sign-in" />` for a signed-out visitor rather than
+  mounting or omitting the `(app)` group declaratively, so the route a
+  learner was heading for is gone by the time they have signed in — a real
+  gap a competent Expo developer could easily have left in place before
+  reaching for the framework's own declarative guard.
+  [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
+  asks a model to close it.
+- **Nothing in the app has a disabled state.** Three flows that wait on
+  async work — adding a card, signing in, signing out — swap their
+  control's label and leave it pressable throughout, and the theme
+  declares no disabled role in either palette. An app whose only submit
+  flows are these three, none of them urgent enough to have provoked a
+  double-submit complaint yet, is an ordinary place for this to still be
+  missing. [`add-a-screen-for-editing-an-existing-card`](../scenarios/add-a-screen-for-editing-an-existing-card/)
+  asks a model to add one.
 - **Every styled component reads from the styling library's theme, and
   `AGENTS.md` states that as the project's own rule in its own voice** —
   never from React Native's own `StyleSheet`, with `src/ui/text-field.tsx`

@@ -146,12 +146,12 @@ describe("check-skill-frontmatter.mjs", () => {
         reported: /frontmatter: `description` is 1025 bytes \(max 1024 bytes\)/,
       },
       {
-        // issue #194's verification strategy item 3. the all-ASCII case above
-        // cannot tell the new behaviour from the old one it replaced: its
-        // character and byte counts are equal, so it fails identically under
-        // either reading. this one is under the cap in characters and over it
-        // in bytes, so only a byte-measuring check rejects it — and a refactor
-        // back to `description.length` turns this red.
+        // the all-ASCII case above cannot tell the new behaviour from the old
+        // one it replaced: its character and byte counts are equal, so it
+        // fails identically under either reading. this one is under the cap
+        // in characters and over it in bytes, so only a byte-measuring check
+        // rejects it — and a refactor back to `description.length` turns this
+        // red.
         what: "a description under 1024 characters but over 1024 bytes",
         dirName: "multibyte-description",
         options: {
