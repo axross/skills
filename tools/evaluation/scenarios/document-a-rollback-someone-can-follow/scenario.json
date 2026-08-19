@@ -1,0 +1,57 @@
+{
+  "id": "document-a-rollback-someone-can-follow",
+  "description": "technical-document-authoring is targeted against a complaint about a rollback that needed someone else's help, never a document type, a heading, or the skill's own vocabulary, with living-project-documentation (a keep-the-docs-true read of the same complaint) and product-requirement-document-authoring (a write-up-a-feature read of the same complaint) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. docs/deployment.md's 'Rolling back' section carries no ordered list and no colon-ending lead-in anywhere in the mock today, so the two structural outcome factors have something specific to produce that a control run has no local convention to copy. The third outcome factor is a reasoning judgment for the one thing neither structural check can reach: whether the rewritten section actually tells an operator which build to return to, how to put it back, and how to confirm it worked, as distinct from a longer restatement of the one-line instruction already there.",
+  "mock": "tsuzuri",
+  "targetSkills": ["technical-document-authoring"],
+  "peerSkills": [
+    "living-project-documentation",
+    "product-requirement-document-authoring"
+  ],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "The last time the site needed to be rolled back to an earlier version, whoever did it had to go ask someone else how, because what's written down about it doesn't get them far enough on their own. Make that part of the deployment notes something a person could actually work through by themselves next time."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-technical-document-authoring",
+      "phase": "discovery",
+      "description": "The complaint names no document, no heading, and no skill — an agent that reaches for technical-document-authoring here is finding it from the problem, with living-project-documentation (a keep-the-docs-true read of the same complaint) and product-requirement-document-authoring (a write-up-a-feature read of the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether anything it teaches reached the rewritten section, which is what the outcome factors below are for.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "technical-document-authoring" }
+      }
+    },
+    {
+      "id": "writes-the-rollback-as-an-ordered-procedure",
+      "phase": "outcome",
+      "description": "docs/deployment.md's 'Rolling back' section carries no ordered list anywhere in the mock today, so this is something a treatment run has to produce rather than copy from local precedent. This factor reads only whether the section's own Markdown contains at least two lines that open with a numeral and a period — a rewrite that lists the same steps as well-formed prose paragraphs, with nothing that renders as a numbered list, fails it even if a person would recognize the paragraphs as a clear procedure.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-rollback-ordered-list.mjs"
+      }
+    },
+    {
+      "id": "introduces-the-procedure-with-a-lead-in-sentence",
+      "phase": "outcome",
+      "description": "A numbered list dropped into the section with nothing introducing what it is a list of reads as less finished than one that says what a reader is about to do. This factor reads only whether the line immediately before the ordered list is prose ending in a colon — never whether that sentence is itself well-written — and it cannot make a judgment at all when the sibling factor above found no ordered list to introduce, which this script reports as an error rather than as a false.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-rollback-lead-in.mjs"
+      }
+    },
+    {
+      "id": "covers-what-a-rollback-actually-needs",
+      "phase": "outcome",
+      "description": "Neither structural factor above can tell a numbered list that satisfies the letter of 'ordered, colon-introduced' from one that actually equips an operator to perform a rollback alone. This factor asks a reasoning judge to read the diff and decide whether the rewritten section lets an operator identify which build to return to, put it back, and confirm the site is serving it, as distinct from a longer restatement of 'redeploy the previous commit's build' that adds words without adding information.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the task prompt and the diff of an agent's work on a request to improve a deployment runbook's rollback instructions. Decide whether the diff's changes to docs/deployment.md's \"Rolling back\" section let an operator, working alone, identify which build to roll back to, put it back into place, and confirm the site is now serving it — as distinct from a longer restatement of \"redeploy the previous commit's build\" that adds words without adding any of those specifics. Answer false if the diff does not touch docs/deployment.md's \"Rolling back\" section at all, or if the section still reads as the single generic instruction it started as."
+      }
+    }
+  ]
+}
