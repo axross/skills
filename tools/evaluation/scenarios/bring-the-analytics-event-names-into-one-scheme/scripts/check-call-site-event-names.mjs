@@ -39,8 +39,9 @@
 // literal — a known limitation, since every call site this mock actually
 // has passes a plain quoted string directly. Finding literally zero
 // `trackEvent(` calls with a literal first argument across every named file
-// is treated as this factor having nothing to judge; finding some but not
-// the expected count is a real, reportable mismatch rather than an error.
+// is a real `false`, the same as finding some but not the expected count:
+// the named files are there and readable, and this factor is reporting what
+// they do and do not emit, not guessing at an answer it could not reach.
 //
 // usage: node check-call-site-event-names.mjs <context.json>
 
@@ -90,10 +91,9 @@ for (const file of files) {
 }
 
 if (found.length === 0) {
-  fail(
-    `none of ${files.join(", ")} contains a trackEvent( call with a literal first argument — ` +
-      "this factor has no emitted names to judge.",
-  );
+  const evidence = `none of ${files.join(", ")} contains a trackEvent( call with a literal first argument.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 /**
