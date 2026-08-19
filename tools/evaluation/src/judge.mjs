@@ -130,7 +130,10 @@ export function buildJudgeArgv({ userPrompt, model, systemPrompt }) {
  */
 function readJudgeEnvelope({ stdout, stderr, exitCode }) {
   if (exitCode !== 0) {
-    const detail = stderr.trim() || stdout.trim() || "(nothing on stdout or stderr)";
+    // bounded the same way the HTTP path this replaced bounded a non-200
+    // response body (`body.slice(0, 500)`): a runaway `claude` stderr must
+    // not bloat a stored factors.json without limit.
+    const detail = (stderr.trim() || stdout.trim() || "(nothing on stdout or stderr)").slice(0, 500);
     return { error: `the judge exited ${exitCode}: ${detail}` };
   }
 
@@ -139,6 +142,12 @@ function readJudgeEnvelope({ stdout, stderr, exitCode }) {
     envelope = JSON.parse(stdout.trim());
   } catch (error) {
     return { error: `the judge's stdout was not a single JSON object: ${error.message}` };
+  }
+  // JSON.parse succeeds for a JSON value that is not an object at all — the
+  // literal `null` and a bare primitive both parse cleanly — so this is
+  // checked before any property of `envelope` is read.
+  if (typeof envelope !== "object" || envelope === null) {
+    return { error: `the judge's stdout parsed as JSON but was not an object: ${JSON.stringify(envelope)}` };
   }
 
   if (envelope.is_error === true) {
@@ -168,7 +177,18 @@ function readJudgeEnvelope({ stdout, stderr, exitCode }) {
  */
 function runJudgeProcess({ argv, cwd, env, spawnFn }) {
   return new Promise((resolvePromise) => {
-    const child = spawnFn("claude", argv, { cwd, env });
+    // guarded rather than left to the executor: an executor that throws
+    // synchronously produces a REJECTED promise, not an `{ error }` result,
+    // and spawn() does throw synchronously for some malformed options (a
+    // non-string cwd, for instance) — "spawn only ever emits an error
+    // event" holds for ENOENT/EACCES but is not universal.
+    let child;
+    try {
+      child = spawnFn("claude", argv, { cwd, env });
+    } catch (error) {
+      resolvePromise({ error: `the judge could not be spawned: ${error.message}` });
+      return;
+    }
 
     let stdout = "";
     let stderr = "";

@@ -15,7 +15,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { tempDir } from "../helpers/fixtures.mjs";
 import { repoPath } from "../helpers/run.mjs";
-import { spawnFnEnvelope } from "./helpers/fake-judge-process.mjs";
+import { spawnFnEnvelope, spawnFnStdout, spawnFnThrowSync } from "./helpers/fake-judge-process.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { evaluateMeasurement } from "../../tools/evaluation/src/evaluate-runner.mjs";
 
@@ -184,5 +184,66 @@ describe("evaluateMeasurement — the committed fixture", () => {
     expect(reasoning.result).not.toBe(false);
     expect(reasoning.result.error).toMatch(/held no JSON object/);
     expect(reasoning.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
+  });
+
+  // integration-level regression (fix round 1, F1/F2): the reasoning
+  // judge's own failure — at the spawn stage or at the envelope-parsing
+  // stage — must never abort evaluateMeasurement, never cost the current
+  // probe its already-computed factors, and never cost a later probe its
+  // judgment. This is the level the plan's "never aborts another factor's
+  // judgment" criterion actually lives at; a unit test on judge.mjs alone
+  // cannot show that evaluateMeasurement's two probes and four factors per
+  // probe all still complete.
+  it("a reasoning judge that fails at the spawn stage still yields every other factor of every probe", async () => {
+    const measurementDir = await copyFixture();
+    const throwingSpawn = spawnFnThrowSync("EINVAL: spawn options were malformed");
+
+    const results = await evaluateMeasurement({
+      measurementDir,
+      scenariosRoot: SCENARIOS_ROOT,
+      env: okEnv,
+      spawnFn: throwingSpawn,
+    });
+
+    // both probes complete, each with its full set of four factors.
+    expect(results).toHaveLength(2);
+    for (const probe of results) {
+      expect(probe.factors).toHaveLength(4);
+      const reasoning = probe.factors.find((factor) => factor.method === "reasoning");
+      expect(reasoning.result).not.toBe(false);
+      expect(reasoning.result.error).toMatch(/EINVAL/);
+      // the three script factors are untouched by the reasoning judge's
+      // failure — each still carries a real true/false verdict, not an error.
+      const scriptFactors = probe.factors.filter((factor) => factor.method === "script");
+      expect(scriptFactors).toHaveLength(3);
+      for (const factor of scriptFactors) {
+        expect(typeof factor.result).toBe("boolean");
+      }
+    }
+  });
+
+  it("a reasoning judge whose envelope parses as JSON null still yields every other factor of every probe", async () => {
+    const measurementDir = await copyFixture();
+    const nullSpawn = () => spawnFnStdout("null\n")();
+
+    const results = await evaluateMeasurement({
+      measurementDir,
+      scenariosRoot: SCENARIOS_ROOT,
+      env: okEnv,
+      spawnFn: nullSpawn,
+    });
+
+    expect(results).toHaveLength(2);
+    for (const probe of results) {
+      expect(probe.factors).toHaveLength(4);
+      const reasoning = probe.factors.find((factor) => factor.method === "reasoning");
+      expect(reasoning.result).not.toBe(false);
+      expect(reasoning.result.error).toMatch(/not an object/);
+      const scriptFactors = probe.factors.filter((factor) => factor.method === "script");
+      expect(scriptFactors).toHaveLength(3);
+      for (const factor of scriptFactors) {
+        expect(typeof factor.result).toBe("boolean");
+      }
+    }
   });
 });

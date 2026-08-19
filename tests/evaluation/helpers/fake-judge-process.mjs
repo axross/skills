@@ -61,6 +61,18 @@ export function spawnFnError(message) {
   };
 }
 
+/**
+ * a spawnFn that throws SYNCHRONOUSLY, the way Node's real `spawn` does for
+ * some malformed `options` (a non-string `cwd`, for instance) rather than
+ * only emitting an async "error" event — the gap between "spawn only ever
+ * emits error" and what spawn() actually does.
+ */
+export function spawnFnThrowSync(message) {
+  return () => {
+    throw new Error(message);
+  };
+}
+
 /** a spawnFn whose child exits non-zero, optionally with stderr text. */
 export function spawnFnExit(exitCode, stderr = "") {
   return () => {

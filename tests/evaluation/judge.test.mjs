@@ -6,7 +6,13 @@ import { tmpdir } from "node:os";
 
 import { describe, expect, it } from "vitest";
 
-import { spawnFnEnvelope, spawnFnError, spawnFnExit, spawnFnStdout } from "./helpers/fake-judge-process.mjs";
+import {
+  spawnFnEnvelope,
+  spawnFnError,
+  spawnFnExit,
+  spawnFnStdout,
+  spawnFnThrowSync,
+} from "./helpers/fake-judge-process.mjs";
 import { bareModel, buildJudgeArgv, callReasoningJudge, parseVerdict } from "../../tools/evaluation/src/judge.mjs";
 import { ALLOWED_TOOLS, DISALLOWED_TOOLS } from "../../tools/evaluation/src/probe-process.mjs";
 
@@ -146,10 +152,34 @@ describe("callReasoningJudge", () => {
     expect(outcome).toEqual({ error: expect.stringContaining("ENOENT") });
   });
 
+  // F1: spawn() itself can throw synchronously (a non-string cwd, for
+  // instance) rather than only ever emitting an async "error" event. A
+  // spawnFn that throws synchronously must resolve to `{ error }` — never
+  // reject — on the same footing as the async path above. Asserted with
+  // `resolves`, not `rejects`, since a rejection here is exactly the defect
+  // this guards against.
+  it("returns an error, never rejects, when spawnFn itself throws synchronously", async () => {
+    const spawnFn = spawnFnThrowSync("EINVAL: spawn options were malformed");
+    await expect(
+      callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn }),
+    ).resolves.toEqual({ error: expect.stringContaining("EINVAL") });
+  });
+
   it("returns an error on a non-zero exit", async () => {
     const spawnFn = spawnFnExit(1, "could not authenticate");
     const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
     expect(outcome).toEqual({ error: expect.stringContaining("could not authenticate") });
+  });
+
+  // F3: the HTTP path this replaced bounded a non-200 response body to 500
+  // characters (`body.slice(0, 500)`); a non-zero exit's stderr must carry
+  // the same bound, or a runaway `claude` stderr bloats a stored
+  // factors.json without limit.
+  it("bounds a non-zero exit's stderr the same way the HTTP path bounded a non-200 body", async () => {
+    const runawayStderr = "x".repeat(10_000);
+    const spawnFn = spawnFnExit(1, runawayStderr);
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome.error.length).toBeLessThan(600);
   });
 
   it("returns an error when the envelope's is_error is true", async () => {
@@ -178,6 +208,26 @@ describe("callReasoningJudge", () => {
     const spawnFn = spawnFnStdout(`${JSON.stringify({ type: "result", subtype: "success", is_error: false })}\n`);
     const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
     expect(outcome).toEqual({ error: expect.stringContaining('no readable "result" string') });
+  });
+
+  // F2: JSON.parse succeeds for a JSON value that is not an object — the
+  // literal `null` being the plausible case for a misbehaving CLI. Reading
+  // `envelope.is_error` off `null` would throw a TypeError inside the
+  // "close" listener, which is NOT converted into a promise rejection and
+  // would take the whole evaluate.mjs process down. Neither case may reject
+  // or throw; both must resolve to `{ error }`.
+  it("returns an error, never throws, when stdout parses as JSON null", async () => {
+    const spawnFn = spawnFnStdout("null\n");
+    await expect(
+      callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn }),
+    ).resolves.toEqual({ error: expect.stringContaining("not an object") });
+  });
+
+  it("returns an error, never throws, when stdout parses as a bare JSON primitive", async () => {
+    const spawnFn = spawnFnStdout('"3"\n');
+    await expect(
+      callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn }),
+    ).resolves.toEqual({ error: expect.stringContaining("not an object") });
   });
 
   // negative control 5/5: the envelope is well-formed, but its `result`
