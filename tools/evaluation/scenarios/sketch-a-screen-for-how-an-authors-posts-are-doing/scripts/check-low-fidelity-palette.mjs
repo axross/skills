@@ -513,16 +513,20 @@ function declarationValuesIn(cssText) {
 
 /**
  * extracts the text a document actually DECLARES colour in: the VALUE side
- * of every declaration inside every <style>...</style> block (comments
- * stripped first, string-aware — see stripComments), plus every
- * style="..." attribute's own declaration values. A selector, a class
- * name, an at-rule prelude, a property name, and a comment are never
- * declaration VALUES and are excluded structurally (see
- * declarationValuesIn) — so a class named ".indigo-panel" or ".plum-tag",
- * or a colour-function name mentioned only in a comment, can never reach
- * the colour scan below. Colour words appearing only in visible prose (a
- * heading, a label) are excluded for the same underlying reason: they are
- * not inside a <style> block or a style="..." attribute at all.
+ * of every declaration inside every <style>...</style> block, and every
+ * style="..." attribute's own declaration values — comments stripped
+ * first, string-aware (see stripComments), from BOTH sources alike, not
+ * just the <style> block: an earlier version left a style="..."
+ * attribute's own text unstripped, so a CSS comment inside one —
+ * `style="background: /* was gold, now matches the accent token *\/
+ * #0588f0;"` — could still smuggle a colour word past this function. A
+ * selector, a class name, an at-rule prelude, and a property name are
+ * never declaration VALUES either and are excluded structurally (see
+ * declarationValuesIn) — so a class named ".indigo-panel" or ".plum-tag"
+ * can never reach the colour scan below. Colour words appearing only in
+ * visible prose (a heading, a label) are excluded for the same underlying
+ * reason: they are not inside a <style> block or a style="..." attribute
+ * at all.
  * @param {string} html
  * @returns {string}
  */
@@ -531,8 +535,12 @@ function cssDeclarationText(html) {
   for (const m of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) {
     parts.push(...declarationValuesIn(stripComments(m[1])));
   }
-  for (const m of html.matchAll(/\bstyle\s*=\s*"([^"]*)"/gi)) parts.push(...declarationValuesIn(m[1]));
-  for (const m of html.matchAll(/\bstyle\s*=\s*'([^']*)'/gi)) parts.push(...declarationValuesIn(m[1]));
+  for (const m of html.matchAll(/\bstyle\s*=\s*"([^"]*)"/gi)) {
+    parts.push(...declarationValuesIn(stripComments(m[1])));
+  }
+  for (const m of html.matchAll(/\bstyle\s*=\s*'([^']*)'/gi)) {
+    parts.push(...declarationValuesIn(stripComments(m[1])));
+  }
   return parts.join("\n");
 }
 
