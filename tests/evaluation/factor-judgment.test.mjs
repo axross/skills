@@ -6,13 +6,17 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
+import { spawnFnEnvelope, spawnFnStdout } from "./helpers/fake-judge-process.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { judgeFactor, materialFor } from "../../tools/evaluation/src/factor-judgment.mjs";
+import * as judgeModule from "../../tools/evaluation/src/judge.mjs";
 
-// spy-mode (not a replacing factory): every node:fs/promises call keeps its
-// real behavior unless a test explicitly overrides one — see
-// helpers/planted-cleanup-failure.mjs.
+// spy-mode (not a replacing factory): every node:fs/promises call and every
+// judge.mjs export keeps its real behavior unless a test explicitly
+// overrides one — see helpers/planted-cleanup-failure.mjs and the
+// callReasoningJudge spy below.
 vi.mock(import("node:fs/promises"), { spy: true });
+vi.mock(import("../../tools/evaluation/src/judge.mjs"), { spy: true });
 
 const PROBE = {
   skillsInvoked: ["unit-testing"],
@@ -234,41 +238,98 @@ describe("judgeFactor — reasoning method", () => {
     judgment: { method: "reasoning", model: "anthropic/claude-haiku-4-5-20251001", instructions: "look closely" },
   };
 
-  it("records the judge's model and the full prompt on a normal verdict", async () => {
-    const fetchImpl = async () => ({
-      ok: true,
-      json: async () => ({ content: [{ type: "text", text: '{"result": true, "evidence": "quoted"}' }] }),
+  it("records the judge's model and route, and the full prompt, on a normal verdict", async () => {
+    const spawnFn = spawnFnEnvelope({ result: '{"result": true, "evidence": "quoted"}' });
+    const record = await judgeFactor(factor, {
+      scenarioDir: "/unused",
+      workspace: "/unused",
+      probe: PROBE,
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+      spawnFn,
     });
-    const record = await judgeFactor(factor, { scenarioDir: "/unused", workspace: "/unused", probe: PROBE, apiKey: "k", fetchImpl });
 
     expect(record.result).toBe(true);
     expect(record.evidence).toBe("quoted");
-    expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001" });
+    expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
     expect(record.prompt).toContain("look closely");
     expect(record.prompt).toContain(JSON.stringify(PROBE.transcript));
   });
 
-  it("errors, carrying judge and prompt, when no API key was given", async () => {
+  it("errors, carrying judge and prompt, when no CLI credential was given", async () => {
     const record = await judgeFactor(factor, { scenarioDir: "/unused", workspace: "/unused", probe: PROBE });
 
-    expect(record.result).toEqual({ error: expect.stringContaining("no reasoning-judge API key") });
-    expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001" });
+    expect(record.result).toEqual({ error: expect.stringContaining("no Claude CLI credential") });
+    expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
     expect(record.prompt).toContain("look closely");
+  });
+
+  it("errors, carrying judge and prompt, when the environment holds neither CLI credential variable", async () => {
+    const record = await judgeFactor(factor, {
+      scenarioDir: "/unused",
+      workspace: "/unused",
+      probe: PROBE,
+      env: { SOME_OTHER_VAR: "x" },
+    });
+
+    expect(record.result).toEqual({ error: expect.stringContaining("no Claude CLI credential") });
   });
 
   // negative control 5/5: a judge returning something unreadable yields an
   // errored judgment carrying its reason — never `false` — and still
   // records the judge and the prompt, so the failed attempt is auditable.
   it("errors, never `false`, and still records judge and prompt, when the judge's answer is unreadable", async () => {
-    const fetchImpl = async () => ({
-      ok: true,
-      json: async () => ({ content: [{ type: "text", text: "I'm not totally sure, honestly." }] }),
+    const spawnFn = spawnFnEnvelope({ result: "I'm not totally sure, honestly." });
+    const record = await judgeFactor(factor, {
+      scenarioDir: "/unused",
+      workspace: "/unused",
+      probe: PROBE,
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+      spawnFn,
     });
-    const record = await judgeFactor(factor, { scenarioDir: "/unused", workspace: "/unused", probe: PROBE, apiKey: "k", fetchImpl });
 
     expect(record.result).not.toBe(false);
     expect(record.result.error).toMatch(/held no JSON object/);
-    expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001" });
+    expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
     expect(record.prompt).toContain("look closely");
+  });
+
+  it("errors, never `false`, when the judge's stdout is not a single JSON object", async () => {
+    const spawnFn = spawnFnStdout("not json\n");
+    const record = await judgeFactor(factor, {
+      scenarioDir: "/unused",
+      workspace: "/unused",
+      probe: PROBE,
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+      spawnFn,
+    });
+
+    expect(record.result).not.toBe(false);
+    expect(record.result.error).toMatch(/not a single JSON object/);
+  });
+
+  // the credential check above and callReasoningJudge's own throw guard the
+  // same predicate independently; nothing keeps the two in sync. This
+  // proves the second line of defense: an unexpected throw still yields a
+  // well-formed record for this one factor, rather than escaping uncaught.
+  it("still yields a well-formed error record when callReasoningJudge throws unexpectedly", async () => {
+    const spy = vi
+      .spyOn(judgeModule, "callReasoningJudge")
+      .mockRejectedValue(new Error("a predicate divergence this test stands in for"));
+
+    try {
+      const record = await judgeFactor(factor, {
+        scenarioDir: "/unused",
+        workspace: "/unused",
+        probe: PROBE,
+        env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+        spawnFn: () => {},
+      });
+
+      expect(record.result).toEqual({ error: expect.stringContaining("predicate divergence") });
+      expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
+      expect(record.prompt).toContain("look closely");
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

@@ -14,7 +14,8 @@
 // this module's: everything here is filesystem-read-only plus one
 // throwaway reconstructed workspace per probe, so a test can run this
 // module's whole orchestration against a temporary measurement directory
-// and a stub `fetchImpl`, with nothing written outside a directory it owns.
+// and a fake judge `spawnFn`, with nothing written outside a directory it
+// owns.
 
 import { readdir, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -55,9 +56,10 @@ async function readProbeArtifacts(probeDir) {
  * @param {{
  *   measurementDir: string,
  *   scenariosRoot: string,
- *   apiKey?: string,
- *   fetchImpl?: typeof fetch,
- * }} options
+ *   env?: Record<string, string|undefined>,
+ *   spawnFn?: Function,
+ * }} options `env` and `spawnFn` are threaded straight through to
+ *   `judgeFactor` — see its own doc comment
  * @returns {Promise<Array<{
  *   probeDirName: string, scenarioId: string, condition: string, repetition: number,
  *   factors: Array<{ id: string, phase: string, method: string, result: unknown }>,
@@ -65,7 +67,7 @@ async function readProbeArtifacts(probeDir) {
  * @throws {Error} when `measurementDir` holds no probe directories, a probe
  *   is missing a required artefact, or its scenario cannot be loaded
  */
-export async function evaluateMeasurement({ measurementDir, scenariosRoot, apiKey, fetchImpl }) {
+export async function evaluateMeasurement({ measurementDir, scenariosRoot, env, spawnFn }) {
   const entries = await readdir(measurementDir, { withFileTypes: true });
   const probeDirNames = entries
     .filter((entry) => entry.isDirectory())
@@ -107,9 +109,7 @@ export async function evaluateMeasurement({ measurementDir, scenariosRoot, apiKe
       // against the same reconstructed workspace, and nothing here promises
       // a scenario's scripts are read-only of it.
       for (const factor of scenario.factors) {
-        factors.push(
-          await judgeFactor(factor, { scenarioDir: scenario.dir, workspace, probe, apiKey, fetchImpl }),
-        );
+        factors.push(await judgeFactor(factor, { scenarioDir: scenario.dir, workspace, probe, env, spawnFn }));
       }
     } finally {
       try {

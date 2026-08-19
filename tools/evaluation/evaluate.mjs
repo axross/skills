@@ -10,10 +10,14 @@
 // rather than being judged on what remains — see evaluate-runner.mjs's
 // readProbeArtifacts.
 //
-// a reasoning factor needs ANTHROPIC_API_KEY to ask a real judge. without
-// it, that factor's own result is recorded as an error — never as `false`,
-// and never by aborting every other factor's judgment — so this script
-// still completes end to end with no credential present.
+// a reasoning factor asks its judge through the `claude` CLI, authenticated
+// with whichever of CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY is set in
+// this process's environment (tools/evaluation/src/credentials.mjs's
+// CLI_AUTH_ENV_VARS) — the same two variables a probe's own CLI spawn
+// authenticates with. without either, that factor's own result is recorded
+// as an error — never as `false`, and never by aborting every other
+// factor's judgment — so this script still completes end to end with no
+// credential present.
 //
 // usage:
 //   node evaluate.mjs <measurement-dir>
@@ -40,7 +44,8 @@ Judges every probe under <measurement-dir> against its scenario's declared
 factors, reconstructing each probe's workspace from what it stored, and
 writes each probe's own factors.json.
 
-Reads ANTHROPIC_API_KEY for a reasoning factor's judge; without one, that
+A reasoning factor's judge runs through the \`claude\` CLI, authenticated
+with CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY; without either, that
 factor's result is recorded as an error rather than skipped or guessed.
 
 Exit codes: 0 judged (factors may still be individually errored), 1 the
@@ -61,11 +66,10 @@ async function main() {
   if (positional.length !== 1) fail2(`Expected exactly one <measurement-dir> argument.\n${USAGE}`);
 
   const measurementDir = resolve(positional[0]);
-  const apiKey = process.env.ANTHROPIC_API_KEY;
 
   let results;
   try {
-    results = await evaluateMeasurement({ measurementDir, scenariosRoot: SCENARIOS_ROOT, apiKey });
+    results = await evaluateMeasurement({ measurementDir, scenariosRoot: SCENARIOS_ROOT, env: process.env });
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exit(1);

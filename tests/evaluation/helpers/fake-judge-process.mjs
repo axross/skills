@@ -1,0 +1,159 @@
+// a fake `spawnFn` for callReasoningJudge (tools/evaluation/src/judge.mjs),
+// in the same EventEmitter shape probe-process.test.mjs's own fakeChild()
+// drives real child_process-spawning code with — so a test can exercise
+// judge.mjs's real branching logic (a well-formed envelope, a spawn
+// failure, a non-zero exit, an is_error envelope, unreadable stdout)
+// without ever spawning a real `claude`.
+//
+// every helper here schedules its child's events on the next microtask,
+// after callReasoningJudge has already attached its listeners — mirroring
+// the async gap a real child_process would have between spawnFn returning
+// and its first "data"/"close" event.
+
+import { EventEmitter } from "node:events";
+
+/**
+ * a stand-in child_process.ChildProcess: an EventEmitter with piped-like
+ * stdout/stderr/stdin. `stdin.write` succeeds by default, recording what
+ * was written on `stdin.written` — see spawnFnStdinWriteError() for the
+ * failure case a test wants instead.
+ */
+export function fakeJudgeChild() {
+  const child = new EventEmitter();
+  child.stdout = new EventEmitter();
+  child.stdout.setEncoding = () => {};
+  child.stderr = new EventEmitter();
+  child.stderr.setEncoding = () => {};
+  child.stdin = new EventEmitter();
+  child.stdin.written = "";
+  child.stdin.write = (chunk, callback) => {
+    child.stdin.written += chunk;
+    if (callback) queueMicrotask(() => callback());
+    return true;
+  };
+  child.stdin.end = () => {};
+  child.killed = false;
+  child.kill = (signal) => {
+    child.killed = true;
+    child.killSignal = signal;
+  };
+  return child;
+}
+
+/**
+ * a spawnFn whose child prints one `--output-format json` envelope and
+ * exits 0 — the well-formed case most tests want without wiring up events
+ * themselves.
+ *
+ * @param {{ result: string, isError?: boolean, subtype?: string }} envelope
+ * @returns {(...args: unknown[]) => ReturnType<typeof fakeJudgeChild>}
+ */
+export function spawnFnEnvelope({ result, isError = false, subtype = "success" }) {
+  return () => {
+    const child = fakeJudgeChild();
+    queueMicrotask(() => {
+      child.stdout.emit(
+        "data",
+        `${JSON.stringify({
+          type: "result",
+          subtype,
+          is_error: isError,
+          permission_denials: [],
+          total_cost_usd: 0.01,
+          result,
+        })}\n`,
+      );
+      child.emit("close", 0);
+    });
+    return child;
+  };
+}
+
+/** a spawnFn whose child fires a spawn-time "error" event instead of ever producing output. */
+export function spawnFnError(message) {
+  return () => {
+    const child = fakeJudgeChild();
+    queueMicrotask(() => child.emit("error", new Error(message)));
+    return child;
+  };
+}
+
+/**
+ * a spawnFn that throws SYNCHRONOUSLY, the way Node's real `spawn` does for
+ * some malformed `options` (a non-string `cwd`, for instance) rather than
+ * only emitting an async "error" event — the gap between "spawn only ever
+ * emits error" and what spawn() actually does.
+ */
+export function spawnFnThrowSync(message) {
+  return () => {
+    throw new Error(message);
+  };
+}
+
+/** a spawnFn whose child exits non-zero, optionally with stderr text. */
+export function spawnFnExit(exitCode, stderr = "") {
+  return () => {
+    const child = fakeJudgeChild();
+    queueMicrotask(() => {
+      if (stderr) child.stderr.emit("data", stderr);
+      child.emit("close", exitCode);
+    });
+    return child;
+  };
+}
+
+/** a spawnFn whose child prints raw (non-envelope) stdout and exits 0. */
+export function spawnFnStdout(stdout) {
+  return () => {
+    const child = fakeJudgeChild();
+    queueMicrotask(() => {
+      child.stdout.emit("data", stdout);
+      child.emit("close", 0);
+    });
+    return child;
+  };
+}
+
+/**
+ * a spawnFn whose child never emits "close" or "error" — a stuck judge,
+ * for driving `runJudgeProcess`'s timeout path. The returned `child` tracks
+ * `.killed`/`.killSignal`, so a test can assert the timeout actually killed
+ * it rather than merely resolving.
+ */
+export function spawnFnHangs() {
+  return () => fakeJudgeChild();
+}
+
+/**
+ * a spawnFn whose child's stdin write fails, as a broken pipe would — the
+ * failure `runJudgeProcess`'s write-callback branch must resolve
+ * `{ error }` for, never throw or reject.
+ */
+export function spawnFnStdinWriteError(message = "EPIPE: broken pipe") {
+  return () => {
+    const child = fakeJudgeChild();
+    child.stdin.write = (chunk, callback) => {
+      if (callback) queueMicrotask(() => callback(new Error(message)));
+      return false;
+    };
+    return child;
+  };
+}
+
+/**
+ * a spawnFn whose child has `stdout: null` (and `stderr: null`) — the shape
+ * a `stdio` override, or a malformed test double, could hand back — then
+ * exits 0 with nothing captured. Exercises that `runJudgeProcess`
+ * optional-chains both streams' handlers rather than assuming either
+ * exists.
+ */
+export function spawnFnNullStdio() {
+  return () => {
+    const child = new EventEmitter();
+    child.stdout = null;
+    child.stderr = null;
+    child.kill = () => {};
+    queueMicrotask(() => child.emit("close", 0));
+    return child;
+  };
+}

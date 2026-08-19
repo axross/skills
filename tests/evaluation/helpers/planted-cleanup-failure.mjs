@@ -1,14 +1,14 @@
 // plants exactly one cleanup failure — a throwing `rm(path, { recursive:
 // true, force: true })` — the shape of the temporary-directory removal at
-// each of three sites this covers (probe-runner.mjs, evaluate-runner.mjs,
-// factor-judgment.mjs). Every other node:fs/promises call, including any
-// other shape of `rm` call (mock-workspace.mjs's own single-file
-// `rm(historyPath)`, for instance), passes through to the real
+// each of four sites this covers (probe-runner.mjs, evaluate-runner.mjs,
+// factor-judgment.mjs, judge.mjs). Every other node:fs/promises call,
+// including any other shape of `rm` call (mock-workspace.mjs's own
+// single-file `rm(historyPath)`, for instance), passes through to the real
 // implementation untouched — so a scenario's whole materialize() still
 // completes normally around the one planted failure.
 //
 // `pathIncludes` is required, not optional, because more than one of these
-// three sites can be live inside a single call under test —
+// four sites can be live inside a single call under test —
 // evaluate-runner.mjs's own workspace cleanup and factor-judgment.mjs's
 // per-factor scratch-directory cleanup both fire inside one
 // evaluateMeasurement() call, both shaped identically. Without narrowing by
@@ -16,7 +16,8 @@
 // whichever site happens to run first rather than the one a test names.
 // mock-workspace.mjs's materialize() mints the workspace under a
 // "skill-evaluation-" prefix; factor-judgment.mjs's scratch directory is
-// prefixed "evaluate-context-" — see each site's own mkdtemp call.
+// prefixed "evaluate-context-"; judge.mjs's is prefixed "judge-cwd-" — see
+// each site's own mkdtemp call.
 //
 // the caller MUST write `vi.mock(import("node:fs/promises"), { spy: true
 // });` at its own file's top level before using this helper. `vi.mock` is
