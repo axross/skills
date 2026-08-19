@@ -15,6 +15,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { tempDir } from "../helpers/fixtures.mjs";
 import { repoPath } from "../helpers/run.mjs";
+import { spawnFnEnvelope } from "./helpers/fake-judge-process.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { evaluateMeasurement } from "../../tools/evaluation/src/evaluate-runner.mjs";
 
@@ -36,11 +37,8 @@ async function copyFixture() {
   return measurementDir;
 }
 
-const okFetch = () =>
-  Promise.resolve({
-    ok: true,
-    json: async () => ({ content: [{ type: "text", text: '{"result": true, "evidence": "stated plainly"}' }] }),
-  });
+const okSpawn = () => spawnFnEnvelope({ result: '{"result": true, "evidence": "stated plainly"}' })();
+const okEnv = { CLAUDE_CODE_OAUTH_TOKEN: "test-token" };
 
 describe("evaluateMeasurement — the committed fixture", () => {
   it("judges every probe to completion, reconstructing the workspace from the fixture alone", async () => {
@@ -49,8 +47,8 @@ describe("evaluateMeasurement — the committed fixture", () => {
     const results = await evaluateMeasurement({
       measurementDir,
       scenariosRoot: SCENARIOS_ROOT,
-      apiKey: "test-key",
-      fetchImpl: okFetch,
+      env: okEnv,
+      spawnFn: okSpawn,
     });
 
     // the fixture carries both conditions — see this file's own header.
@@ -65,7 +63,7 @@ describe("evaluateMeasurement — the committed fixture", () => {
     expect(byId["explains-why-the-list-was-stale"]).toMatchObject({
       method: "reasoning",
       result: true,
-      judge: { model: "anthropic/claude-haiku-4-5-20251001" },
+      judge: { model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" },
     });
     expect(byId["explains-why-the-list-was-stale"].prompt).toBeTypeOf("string");
 
@@ -82,8 +80,8 @@ describe("evaluateMeasurement — the committed fixture", () => {
     const results = await evaluateMeasurement({
       measurementDir,
       scenariosRoot: SCENARIOS_ROOT,
-      apiKey: "test-key",
-      fetchImpl: okFetch,
+      env: okEnv,
+      spawnFn: okSpawn,
     });
 
     const probe = results.find((result) => result.condition === "skill-absent");
@@ -111,8 +109,8 @@ describe("evaluateMeasurement — the committed fixture", () => {
       const results = await evaluateMeasurement({
         measurementDir,
         scenariosRoot: SCENARIOS_ROOT,
-        apiKey: "test-key",
-        fetchImpl: okFetch,
+        env: okEnv,
+        spawnFn: okSpawn,
       });
 
       expect(cleanup.triggered).toBe(true);
@@ -129,16 +127,16 @@ describe("evaluateMeasurement — the committed fixture", () => {
     }
   });
 
-  it("completes even with no reasoning-judge API key — the one factor errors, nothing else does", async () => {
+  it("completes even with no CLI credential — the one factor errors, nothing else does", async () => {
     const measurementDir = await copyFixture();
 
-    const results = await evaluateMeasurement({ measurementDir, scenariosRoot: SCENARIOS_ROOT });
+    const results = await evaluateMeasurement({ measurementDir, scenariosRoot: SCENARIOS_ROOT, env: {} });
 
     const probe = results.find((result) => result.condition === "skill-present");
     const byId = Object.fromEntries(probe.factors.map((factor) => [factor.id, factor]));
     expect(byId["reaches-for-tanstack-query-development"].result).toBe(true);
     expect(byId["explains-why-the-list-was-stale"].result).toEqual({
-      error: expect.stringContaining("no reasoning-judge API key"),
+      error: expect.stringContaining("no Claude CLI credential"),
     });
   });
 
@@ -173,19 +171,18 @@ describe("evaluateMeasurement — the committed fixture", () => {
   // yields an errored judgment carrying its reason, never `false`.
   it("errors, never `false`, when the reasoning judge answers off-contract", async () => {
     const measurementDir = await copyFixture();
-    const unreadableFetch = () =>
-      Promise.resolve({ ok: true, json: async () => ({ content: [{ type: "text", text: "hard to say" }] }) });
+    const unreadableSpawn = () => spawnFnEnvelope({ result: "hard to say" })();
 
     const results = await evaluateMeasurement({
       measurementDir,
       scenariosRoot: SCENARIOS_ROOT,
-      apiKey: "test-key",
-      fetchImpl: unreadableFetch,
+      env: okEnv,
+      spawnFn: unreadableSpawn,
     });
 
     const reasoning = results[0].factors.find((factor) => factor.method === "reasoning");
     expect(reasoning.result).not.toBe(false);
     expect(reasoning.result.error).toMatch(/held no JSON object/);
-    expect(reasoning.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001" });
+    expect(reasoning.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
   });
 });

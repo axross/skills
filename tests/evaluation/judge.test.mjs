@@ -1,13 +1,14 @@
-// callReasoningJudge / parseVerdict: asking a reasoning judge, with a stub
-// `fetchImpl` throughout — this file never reaches the real network.
+// bareModel / parseVerdict / callReasoningJudge: asking a reasoning judge
+// through a fake `claude` CLI spawn throughout — this file never spawns a
+// real process and never reaches the network.
+
+import { tmpdir } from "node:os";
 
 import { describe, expect, it } from "vitest";
 
-import { bareModel, callReasoningJudge, parseVerdict } from "../../tools/evaluation/src/judge.mjs";
-
-function textResponse(text) {
-  return { ok: true, json: async () => ({ content: [{ type: "text", text }] }) };
-}
+import { spawnFnEnvelope, spawnFnError, spawnFnExit, spawnFnStdout } from "./helpers/fake-judge-process.mjs";
+import { bareModel, buildJudgeArgv, callReasoningJudge, parseVerdict } from "../../tools/evaluation/src/judge.mjs";
+import { ALLOWED_TOOLS, DISALLOWED_TOOLS } from "../../tools/evaluation/src/probe-process.mjs";
 
 describe("bareModel", () => {
   it("strips a vendor prefix", () => {
@@ -56,74 +57,143 @@ describe("parseVerdict", () => {
   });
 });
 
+describe("buildJudgeArgv", () => {
+  it("passes the prompt as --print, the bare model, and the system prompt verbatim", () => {
+    const argv = buildJudgeArgv({
+      userPrompt: "judge this",
+      model: "anthropic/claude-haiku-4-5-20251001",
+      systemPrompt: "you are a judge",
+    });
+    expect(argv).toEqual(
+      expect.arrayContaining([
+        "--print",
+        "judge this",
+        "--model",
+        "claude-haiku-4-5-20251001",
+        "--system-prompt",
+        "you are a judge",
+      ]),
+    );
+  });
+
+  it("asks for a single JSON envelope on stdout", () => {
+    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
+    expect(argv).toEqual(expect.arrayContaining(["--output-format", "json"]));
+  });
+
+  it("loads no setting sources", () => {
+    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
+    expect(argv).toEqual(expect.arrayContaining(["--setting-sources", ""]));
+  });
+
+  it("denies every tool a probe's own module names — the union of ALLOWED_TOOLS and DISALLOWED_TOOLS — and nothing less", () => {
+    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
+    const index = argv.indexOf("--disallowed-tools");
+    expect(index).toBeGreaterThan(-1);
+    const denied = argv[index + 1].split(",");
+    expect(denied.sort()).toEqual([...ALLOWED_TOOLS, ...DISALLOWED_TOOLS].sort());
+  });
+});
+
 describe("callReasoningJudge", () => {
   const base = { model: "anthropic/claude-haiku-4-5-20251001", systemPrompt: "sys", userPrompt: "user" };
 
-  it("throws when called with no API key — this instrument's own misconfiguration", async () => {
-    await expect(callReasoningJudge({ ...base, apiKey: "" })).rejects.toThrow(/needs an API key/);
+  it("throws when called with no CLI credential in `env` — this instrument's own misconfiguration", async () => {
+    await expect(callReasoningJudge({ ...base, env: {} })).rejects.toThrow(/needs one of/);
   });
 
-  it("returns a verdict from a well-formed response", async () => {
-    const fetchImpl = async () => textResponse('{"result": true, "evidence": "quoted line"}');
-    await expect(callReasoningJudge({ ...base, apiKey: "k", fetchImpl })).resolves.toEqual({
-      result: true,
-      evidence: "quoted line",
+  it("returns a verdict from a well-formed envelope", async () => {
+    const spawnFn = spawnFnEnvelope({ result: '{"result": true, "evidence": "quoted line"}' });
+    await expect(
+      callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn }),
+    ).resolves.toEqual({ result: true, evidence: "quoted line" });
+  });
+
+  it("spawns `claude` with the bare model name, never the vendor prefix", async () => {
+    let seenCommand;
+    let seenArgv;
+    const spawnFn = (command, argv) => {
+      seenCommand = command;
+      seenArgv = argv;
+      return spawnFnEnvelope({ result: '{"result": true, "evidence": "x"}' })();
+    };
+    await callReasoningJudge({ ...base, env: { ANTHROPIC_API_KEY: "sk-test" }, spawnFn });
+    expect(seenCommand).toBe("claude");
+    expect(seenArgv).toEqual(expect.arrayContaining(["--model", "claude-haiku-4-5-20251001"]));
+  });
+
+  it("runs with a working directory outside the repository, and an environment stripped of every credential but the CLI's own", async () => {
+    let seenOptions;
+    const spawnFn = (command, argv, options) => {
+      seenOptions = options;
+      return spawnFnEnvelope({ result: '{"result": true, "evidence": "x"}' })();
+    };
+    await callReasoningJudge({
+      ...base,
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok", OTHER_SECRET_TOKEN: "should-not-survive" },
+      spawnFn,
     });
+    expect(seenOptions.cwd.startsWith(tmpdir())).toBe(true);
+    expect(seenOptions.cwd).not.toBe(process.cwd());
+    expect(seenOptions.env).toEqual({ CLAUDE_CODE_OAUTH_TOKEN: "tok" });
   });
 
-  it("sends the bare model name and the API key header, never the vendor prefix", async () => {
-    let seenBody;
-    let seenHeaders;
-    const fetchImpl = async (url, init) => {
-      seenBody = JSON.parse(init.body);
-      seenHeaders = init.headers;
-      return textResponse('{"result": true, "evidence": "x"}');
-    };
-    await callReasoningJudge({ ...base, apiKey: "sk-test", fetchImpl });
-    expect(seenBody.model).toBe("claude-haiku-4-5-20251001");
-    expect(seenHeaders["x-api-key"]).toBe("sk-test");
-  });
-
-  // negative control 5/5: a network failure is an error the caller can act
+  // negative control 5/5: a spawn failure is an error the caller can act
   // on, never a thrown exception and never a `false` verdict.
-  it("returns an error, never throws, when the judge cannot be reached", async () => {
-    const fetchImpl = async () => {
-      throw new Error("ECONNREFUSED");
-    };
-    const outcome = await callReasoningJudge({ ...base, apiKey: "k", fetchImpl });
-    expect(outcome).toEqual({ error: expect.stringContaining("ECONNREFUSED") });
+  it("returns an error, never throws, when the judge could not be spawned", async () => {
+    const spawnFn = spawnFnError("ENOENT");
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome).toEqual({ error: expect.stringContaining("ENOENT") });
   });
 
-  it("returns an error on a non-200 response", async () => {
-    const fetchImpl = async () => ({ ok: false, status: 529, statusText: "Overloaded", text: async () => "busy" });
-    const outcome = await callReasoningJudge({ ...base, apiKey: "k", fetchImpl });
-    expect(outcome).toEqual({ error: expect.stringContaining("529") });
+  it("returns an error on a non-zero exit", async () => {
+    const spawnFn = spawnFnExit(1, "could not authenticate");
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome).toEqual({ error: expect.stringContaining("could not authenticate") });
+  });
+
+  it("returns an error when the envelope's is_error is true", async () => {
+    const spawnFn = spawnFnEnvelope({ result: "something went wrong", isError: true });
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome).toEqual({ error: expect.stringContaining("is_error: true") });
+  });
+
+  it("returns an error when the envelope's subtype is not success", async () => {
+    const spawnFn = spawnFnEnvelope({ result: "ran out of turns", subtype: "error_max_turns" });
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome).toEqual({ error: expect.stringContaining("error_max_turns") });
   });
 
   // negative control 5/5: the judge answers, but not with a verdict this
   // instrument can read — an errored judgment carrying the reason, never a
   // `false` one.
-  it("returns an error, never `false`, when the response cannot be read as a verdict", async () => {
-    const fetchImpl = async () => textResponse("I looked at it and it seems fine to me.");
-    const outcome = await callReasoningJudge({ ...base, apiKey: "k", fetchImpl });
+  it("returns an error, never `false`, when stdout is not a single JSON object", async () => {
+    const spawnFn = spawnFnStdout("not json at all\n");
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome).toEqual({ error: expect.stringContaining("not a single JSON object") });
+    expect(outcome).not.toHaveProperty("result");
+  });
+
+  it("returns an error when the envelope carries no readable result string", async () => {
+    const spawnFn = spawnFnStdout(`${JSON.stringify({ type: "result", subtype: "success", is_error: false })}\n`);
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome).toEqual({ error: expect.stringContaining('no readable "result" string') });
+  });
+
+  // negative control 5/5: the envelope is well-formed, but its `result`
+  // text holds no verdict — errored, never coerced to `false`.
+  it("returns an error, never `false`, when the envelope's result text holds no verdict", async () => {
+    const spawnFn = spawnFnEnvelope({ result: "I looked at it and it seems fine to me." });
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
     expect(outcome).toEqual({ error: expect.stringContaining("held no JSON object") });
     expect(outcome).not.toHaveProperty("result");
   });
 
-  it("returns an error when the response body itself is not valid JSON", async () => {
-    const fetchImpl = async () => ({
-      ok: true,
-      json: async () => {
-        throw new SyntaxError("Unexpected token");
-      },
-    });
-    const outcome = await callReasoningJudge({ ...base, apiKey: "k", fetchImpl });
-    expect(outcome).toEqual({ error: expect.stringContaining("not valid JSON") });
-  });
-
-  it("returns an error when the response carries no text content block", async () => {
-    const fetchImpl = async () => ({ ok: true, json: async () => ({ content: [] }) });
-    const outcome = await callReasoningJudge({ ...base, apiKey: "k", fetchImpl });
-    expect(outcome).toEqual({ error: expect.stringContaining("no text content") });
+  // this is the shape the plan's verification run actually observed: the
+  // model's verdict fenced as a ```json code block inside `result`.
+  it("reads a verdict fenced as a ```json code block inside the envelope's result", async () => {
+    const spawnFn = spawnFnEnvelope({ result: '```json\n{"result": true, "evidence": "fenced"}\n```' });
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome).toEqual({ result: true, evidence: "fenced" });
   });
 });

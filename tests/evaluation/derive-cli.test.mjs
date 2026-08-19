@@ -18,7 +18,11 @@ const FIXTURE_MEASUREMENT_DIR = repoPath(
 
 function run(script, args) {
   const env = { ...process.env };
+  // preparedMeasurement() below spawns evaluate.mjs for real; both CLI
+  // credential variables are stripped so its reasoning factor takes the
+  // no-credential error path rather than spawning a real `claude`.
   delete env.ANTHROPIC_API_KEY;
+  delete env.CLAUDE_CODE_OAUTH_TOKEN;
   const result = spawnSync(process.execPath, [script, ...args], { encoding: "utf8", env });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }

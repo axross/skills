@@ -17,6 +17,7 @@ import { describe, expect, it } from "vitest";
 
 import { tempDir } from "../helpers/fixtures.mjs";
 import { repoPath } from "../helpers/run.mjs";
+import { spawnFnEnvelope } from "./helpers/fake-judge-process.mjs";
 import { deriveMeasurement } from "../../tools/evaluation/src/derive-runner.mjs";
 import { evaluateMeasurement } from "../../tools/evaluation/src/evaluate-runner.mjs";
 import { canonicalJson } from "../../tools/evaluation/src/layout.mjs";
@@ -27,11 +28,8 @@ const FIXTURE_MEASUREMENT_DIR = repoPath(
 const SCENARIOS_ROOT = repoPath("tools/evaluation/scenarios");
 const SCENARIO_ID = "quiet-the-stale-post-list-after-a-draft-save";
 
-const okFetch = () =>
-  Promise.resolve({
-    ok: true,
-    json: async () => ({ content: [{ type: "text", text: '{"result": true, "evidence": "stated plainly"}' }] }),
-  });
+const okSpawn = () => spawnFnEnvelope({ result: '{"result": true, "evidence": "stated plainly"}' })();
+const okEnv = { CLAUDE_CODE_OAUTH_TOKEN: "test-token" };
 
 describe("deriveMeasurement — the committed fixture", () => {
   it("derives a well-shaped, byte-serializable summary from both conditions", async () => {
@@ -42,8 +40,8 @@ describe("deriveMeasurement — the committed fixture", () => {
     for (const probe of await evaluateMeasurement({
       measurementDir,
       scenariosRoot: SCENARIOS_ROOT,
-      apiKey: "k",
-      fetchImpl: okFetch,
+      env: okEnv,
+      spawnFn: okSpawn,
     })) {
       await writeFile(
         join(measurementDir, probe.probeDirName, "factors.json"),
@@ -93,8 +91,8 @@ describe("deriveMeasurement — the committed fixture", () => {
     for (const probe of await evaluateMeasurement({
       measurementDir,
       scenariosRoot: SCENARIOS_ROOT,
-      apiKey: "k",
-      fetchImpl: okFetch,
+      env: okEnv,
+      spawnFn: okSpawn,
     })) {
       await writeFile(
         join(measurementDir, probe.probeDirName, "factors.json"),
