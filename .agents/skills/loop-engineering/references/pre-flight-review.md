@@ -65,7 +65,7 @@ The package the input contract above builds is scoped to the diff, the merge-bas
 
 **Guidelines:**
 
-- MUST leave the writer lease with the main actor for the duration of the review — the review worker never acquires it and never mutates the checkout — and MUST NOT spawn it while an implementation worker is still running: the stage begins only once one has returned and the completion-evidence check has run. [subagent-delegation.md](./subagent-delegation.md#writer-versus-reader) places a reader outside the second-writer prohibition; that carve-out is not licence to run the two concurrently — which is the concurrency the prohibition exists to prevent.
+- MUST leave the writer lease with the main actor for the duration of the review — the review worker never acquires it and never mutates the checkout — and MUST begin the stage only once an implementation worker has returned and the completion-evidence check has run, which is where this stage's own start point sits inside the concurrency prohibition [subagent-delegation.md](./subagent-delegation.md#writer-versus-reader) owns.
 - MUST, where user input arrives while the review worker is running, take the plan-revision path directly rather than [writer-ownership-and-recovery.md](./writer-ownership-and-recovery.md#user-input-mid-run)'s interrupt sequence: nothing is mid-edit, so there is no partial progress to collect and no lease to reclaim — discard the round's findings and re-review after the plan is re-approved.
 
 ## A Fresh Reviewer Each Round

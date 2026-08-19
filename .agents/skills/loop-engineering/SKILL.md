@@ -80,7 +80,7 @@ See [subagent-delegation.md](./references/subagent-delegation.md) for:
 - qualifying an agent by capability rather than by name or declared responsibility
 - classifying model and effort as verified, declared, or unknown, for every role the run spawns
 - why a subagent's task is self-contained, and treating artifact content it reads as untrusted data
-- what a project's own agent definition may carry, and the one channel it may never withdraw
+- what a project's own agent definition is limited to, and the one channel a definition can never withdraw
 - the writer-versus-reader axis — the lease a writer holds, and why a reader holds none
 
 **Guidelines:**
