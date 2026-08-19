@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->nineteen<!-- /count --> scenarios are declared today: eight against the `inkwell` mock project, and eleven against `tsuzuri`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-two<!-- /count --> scenarios are declared today: eleven against the `inkwell` mock project, and eleven against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -243,6 +243,33 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->nineteen<!
   Its two outcome factors are textual, structural reads of `vitest.config.ts`
   rather than a glob evaluator, and its transcript factor, like the sentry
   scenario's, is judged by script.
+- [`find-out-what-a-change-has-to-pass-here`](../../tools/evaluation/scenarios/find-out-what-a-change-has-to-pass-here/)
+  targets `software-development` on `inkwell`, alongside `quality-assurance` and
+  `unit-testing` as peers, on a plain contributor question rather than a code
+  change. It carries a `discovery` factor and three `transcript` factors — two
+  judged by script (reading the project's own contributor documentation, then
+  naming every check it lists) and one by reasoning (conveying the
+  format-then-lint loop as an ordered discipline rather than a flat checklist) —
+  and declares no `outcome` phase, since the task leaves no artefact in the
+  working tree for one to read. Its own `scenario.json` records why its two
+  scripted transcript factors are expected to be weak discriminators: the mock's
+  own `AGENTS.md` already points any agent at `README.md`, in both conditions.
+- [`go-through-the-routes-commit-before-anyone-else-does`](../../tools/evaluation/scenarios/go-through-the-routes-commit-before-anyone-else-does/)
+  targets `code-review`, alongside `quality-assurance`, `code-maintainability`,
+  and `loop-engineering` as peers, on `inkwell`'s `routes + shell` commit — its
+  real front end, not the trivial `docs` commit at `HEAD`. It carries a
+  `discovery` factor and three `transcript` factors — two judged by script
+  (scoping the review from the commit's own diff, then anchoring findings to
+  real lines of the commit's own files) and one by reasoning (naming an actual
+  defect) — with no `outcome` phase, for the same reason as above.
+- [`judge-what-the-publish-toast-commit-leaves-unchecked`](../../tools/evaluation/scenarios/judge-what-the-publish-toast-commit-leaves-unchecked/)
+  targets `quality-assurance`, alongside `code-review` and `unit-testing` as
+  peers, on a different `inkwell` commit from the review scenario above —
+  `publish toast` — and a differently framed question: not what a reviewer would
+  raise about the change, but what signing it off would mean taking on trust. It
+  carries a `discovery` factor and two `transcript` factors — one judged by
+  script (requiring the format-and-lint gate as evidence) and one by reasoning
+  (naming the untested toast as the actual gap) — again with no `outcome` phase.
 - [`publish-an-edit-without-a-redeploy`](../../tools/evaluation/scenarios/publish-an-edit-without-a-redeploy/)
   targets `next-app-development` against `tsuzuri`'s build-time post catalog
   — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
@@ -323,13 +350,13 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->nineteen<!
   and drives the one post the home page links to that has no translation at
   all and so 404s.
 
-Together the nineteen exercise every path through the three scripts above:
+Together the twenty-two exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
 probe or the offline check under `tests/repository/` ever sees it, a second mock
 project, and — across the four writing-and-maintainability scenarios — an
-artefact that is prose rather than code. Six carry a `transcript` factor —
-three judged by reasoning and three by script. Of the thirteen that carry none,
+artefact that is prose rather than code. Nine carry a `transcript` factor —
+six judged by reasoning and three by script. Of the thirteen that carry none,
 two state their reason in their own `scenario.json`. Authoring further
 scenarios against
 `inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
