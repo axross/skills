@@ -28,7 +28,7 @@ Where the pre-flight review runs, its round number and waiting state join that l
 
 - MUST NOT duplicate the commit list into the status block; Git history and the completion receipt stay authoritative for individual commits.
 - MUST keep opaque worker identifiers, transcript paths, and other ephemeral harness details in session state rather than writing them to GitHub.
-- MUST treat a status-block entry that names no determination as invalid; the delegation-permission field carries one of the three results — permitted, barred, or undetermined — together with the policy text quoted or the no-restricting-policy observation from [implementation-worker.md](./implementation-worker.md#a-spawn-the-harnesss-policy-blocks).
+- MUST treat a status-block entry that names no determination as invalid; the delegation-permission field carries one of the three results — permitted, barred, or undetermined — together with the policy text quoted or the no-restricting-policy observation from [subagent-delegation.md](./subagent-delegation.md#harness-permission-determination).
 
 ## Reporting a Delegated Run
 
@@ -36,7 +36,7 @@ Execution detail belongs inside the existing report, not beside it. A separate a
 
 **Guidelines:**
 
-- MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; the delegation-permission determination and, where a question was put, the human's answer; model and effort as verified, declared, or unknown; the fallback or recovery reason; whether the intended implementation-model saving was actually achieved; any skipped or unavailable verification; and residual worker or routing risk.
+- MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; the delegation-permission determination and, where a question was put, the human's answer; model and effort as verified, declared, or unknown for every role the run spawned, including a pre-flight review worker where the stage ran; the fallback or recovery reason; whether the intended implementation-model saving was actually achieved; any skipped or unavailable verification; and residual worker or routing risk.
 - MUST NOT duplicate that information into a separate verbose activity log.
 - MUST report, where the pre-flight review ran, how many findings it raised and how many were fixed, dismissed, or deferred — and, once the independent review lands, how many of its findings pre-flight had not raised. The second figure is what answers whether the stage earns its cost: a pre-flight that consistently misses what the external review then finds is not working.
 - MUST report a review worker's disclosure that it read run state — its own status block or another run's — while judging the diff (see [pre-flight-review.md](./pre-flight-review.md)'s Run State Is Not Input), so an exposure the write/clear pairing failed to prevent does not go unrecorded.

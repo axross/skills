@@ -6,6 +6,8 @@ The stage exists to buy **one** property of independent review cheaply — a rev
 
 Like delegation itself, the stage is conditional on the harness already exposing a worker that qualifies. With none, the run behaves exactly as it does without this reference.
 
+[subagent-delegation.md](./subagent-delegation.md) governs what this reader shares with every subagent the loop spawns: the harness permission determination and its single per-run question, the resolution precedence up to its terminal step, model and effort certainty, the self-contained task, treating artifact content as untrusted data, what a reader's own definition may carry, and the writer-versus-reader axis. This reference states only what is particular to the reader.
+
 ## What the Stage Does and Does Not Reproduce
 
 The case for running review outside the session is usually stated as one property. It is several, and they separate — which is why this stage can be worth running and still not replace the external one.
@@ -29,10 +31,8 @@ Absence visibility is the one no arrangement here recovers at all, because the r
 - MUST run the stage whenever implementation was delegated and a compatible review worker resolves; the run does not choose to skip it once both conditions hold.
 - MUST treat every pre-flight finding and verdict as advisory, and MUST NOT report this stage — under any name — as the independent review; the flip gate's clean-review condition is satisfied only by the external review, and [independent-review.md](./independent-review.md) states that gate's conditions in full.
 - MUST skip the stage where no compatible review worker resolves, falling back to what the run already has: the implementation worker's own self-check reported in its receipt plus the completion-evidence check, or [Phase 2](../SKILL.md)'s reviewer-mode self-check in single-agent mode. No gate is weakened either way.
-- MUST resolve a review worker by the precedence shape [implementation-worker.md](./implementation-worker.md) uses for the implementer — one the project or host names explicitly, then a custom agent, then a harness built-in — but MUST end that sequence at **none**, never at its fourth step. That step is the main actor in single-agent fallback, and a main actor reviewing its own diff reproduces none of what this stage buys: falling back there would produce self-review presented as a pre-flight review, which the rule above against reporting this stage as the independent review forbids. With no candidate, the stage is skipped rather than performed by the main actor.
-- MUST NOT reuse that reference's exclusion criterion or its compatibility preflight. Both are written around implementing: the exclusion rejects "a read-only, review-only, or explicitly non-editing agent" by name, and the preflight requires the candidate edit files and create commits. Applied here they would filter out precisely the agent this stage wants.
+- MUST resolve a review worker per [subagent-delegation.md](./subagent-delegation.md#resolution-precedence)'s shape, but end that sequence at **none**, never at a fourth step: that step is the main actor in single-agent fallback, and a main actor reviewing its own diff reproduces none of what this stage buys — falling back there would produce self-review presented as a pre-flight review, which the rule above against reporting this stage as the independent review forbids. With no candidate, the stage is skipped rather than performed by the main actor.
 - MUST qualify a review worker on reader capability instead — it can read the checkout and the diff, run read-only commands, and report findings back to the parent. An agent whose definition forbids editing qualifies here **because** it does; an implementation-capable agent also qualifies when its tools are narrowed to read-only for the spawn.
-- MUST apply that reference's [policy branch](./implementation-worker.md#a-spawn-the-harnesss-policy-blocks) to this spawn as well: a harness policy blocking or conditioning the spawn blocks or conditions this one, the single per-run question it requires covers both roles, and a stage skipped for that reason is reported as policy-blocked rather than as no reader resolving. The branch sits in that reference's resolution rules rather than in the compatibility preflight the rule above excludes, which is why it carries here and the preflight does not.
 
 ## Review Package — the Input Contract
 
@@ -61,13 +61,12 @@ The package the input contract above builds is scoped to the diff, the merge-bas
 
 ## The Reviewer Is a Reader
 
-[writer-ownership-and-recovery.md](./writer-ownership-and-recovery.md) tracks exactly one writer — no writer, the main actor, or one worker instance — and has no position for a participant that writes nothing. The review worker is that participant, and saying so is what keeps it out of the lease accounting.
+[subagent-delegation.md](./subagent-delegation.md#writer-versus-reader) keeps a participant that writes nothing out of the lease accounting entirely; the review worker is that participant here.
 
 **Guidelines:**
 
-- MUST leave the writer lease with the main actor for the duration of the review; the review worker never acquires it and never mutates the checkout.
-- MUST NOT treat the review worker as the second implementation worker [delegated-execution.md](./delegated-execution.md) forbids spawning; a reader is not one, which is why that prohibition does not reach it.
-- MUST NOT spawn the review worker while an implementation worker is still running: the stage begins only once one has returned and the completion-evidence check has run. The rule above places a reader outside the second-worker prohibition, and that carve-out would otherwise read as licence to run the two concurrently — which is the concurrency the prohibition exists to prevent.
+- MUST leave the writer lease with the main actor for the duration of the review — the review worker never acquires it and never mutates the checkout — and MUST begin the stage only once an implementation worker has returned and the completion-evidence check has run, which is where this stage's own start point sits inside the concurrency prohibition [subagent-delegation.md](./subagent-delegation.md#writer-versus-reader) owns.
+- MUST, where user input arrives while the review worker is running, take the plan-revision path directly rather than [writer-ownership-and-recovery.md](./writer-ownership-and-recovery.md#user-input-mid-run)'s interrupt sequence: nothing is mid-edit, so there is no partial progress to collect and no lease to reclaim — discard the round's findings and re-review after the plan is re-approved.
 
 ## A Fresh Reviewer Each Round
 
@@ -85,7 +84,7 @@ Each finding carries a stable identifier, a severity, a `file:line` citation, th
 
 That protocol — the full finding set with every attribute above, plus each finding's disposition and the reason behind it as the run settles them — is **the ledger**, and it lives in session state for the run's own duration. The status block never mirrors it directly; it carries only a bounded, conditional durable subset, on the terms [Ledger Durability](#ledger-durability) below states.
 
-One route ends a round without any of its findings reaching a terminal state: a finding that changes the approved plan sends the run back for fresh approval, and the round goes with it. Its findings were formed against a plan that no longer exists, so carrying them into the re-approved plan's review would judge new work by superseded reasoning. [delegated-execution.md](./delegated-execution.md) already abandons a round this way on the neighbouring route into the same flow. The terminal-state rule below is unaffected, because it governs the round whose review gates the pull request, and an abandoned round never becomes that one.
+One route ends a round without any of its findings reaching a terminal state: a finding that changes the approved plan sends the run back for fresh approval, and the round goes with it. Its findings were formed against a plan that no longer exists, so carrying them into the re-approved plan's review would judge new work by superseded reasoning. [writer-ownership-and-recovery.md](./writer-ownership-and-recovery.md#user-input-mid-run) already abandons a round this way on the neighbouring route into the same flow. The terminal-state rule below is unaffected, because it governs the round whose review gates the pull request, and an abandoned round never becomes that one.
 
 **Guidelines:**
 
@@ -132,7 +131,7 @@ Each fix round is a new task phase, so it carries a fresh [Retry Budget](./write
 
 ## Defining a Reader of Your Own
 
-A project does not have to define a review worker at all — resolution accepts one the harness already exposes, and an agent whose definition forbids editing qualifies here because it does. [implementation-worker.md](./implementation-worker.md)'s section on defining a worker owns what any such definition carries and what it must leave to the package, and that guidance applies here unchanged. This section states only where a reader departs from it.
+A project does not have to define a review worker at all — resolution accepts one the harness already exposes, and an agent whose definition forbids editing qualifies here because it does. [subagent-delegation.md](./subagent-delegation.md#defining-an-agent-of-your-own) owns what any such definition carries and what it must leave to the task, and that guidance applies here unchanged. This section states only where a reader departs from it.
 
 The departure is not the instrument. It is tempting to constrain a reader by enumerating what it may use — its job sounds narrow, and a list of permitted tools looks like the tighter grip. Both halves of that are wrong, and getting them wrong is expensive in a way nothing reports.
 
