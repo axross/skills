@@ -78,7 +78,8 @@ name: Evaluation Dispatch
 # repository's own gates is a defect in the instrument, not a finding about a
 # skill — commits under the github-actions[bot] identity, and opens the
 # measurement pull request. merge-checks.yaml excludes that pull request by
-# path (see its own header), which is why the checks run here instead.
+# path (see docs/conventions/verification-gates.md), which is why the checks
+# run here instead.
 #
 # every probe cell and every evaluate cell uploads its own artifact
 # independently of what any other cell does, so a `land` that fails is
@@ -434,7 +435,8 @@ jobs:
       # no continue-on-error: a measurement that fails this repository's own
       # gates is a defect in the instrument, not a finding about a skill.
       # this is what merge-checks.yaml's own exclusion of this pull request
-      # (by path — see its header) leaves for this job to cover instead.
+      # (by path — see docs/conventions/verification-gates.md) leaves for this
+      # job to cover instead.
       - name: Run the repository's own checks
         run: npm run check
 
