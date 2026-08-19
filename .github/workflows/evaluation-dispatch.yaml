@@ -60,12 +60,14 @@ name: Evaluation Dispatch
 # take every other scenario's, after every probe in the dispatch has already
 # been paid for. `permissions: {}` and no GITHUB_TOKEN, because this is the
 # job that feeds a probe's transcript to a model — an ambient repository
-# token is least wanted here of anywhere in this workflow. it references
-# `secrets.ANTHROPIC_API_KEY`, which this repository does not set today; with
-# none, `evaluate.mjs` already records each reasoning factor's result as an
-# error carrying its reason rather than as `false`, and every script factor
-# is still judged, so the cell still completes and still uploads what it
-# judged.
+# token is least wanted here of anywhere in this workflow. it installs the
+# same pinned Claude Code CLI `probe` installs, and asks a reasoning factor's
+# judge through it rather than over HTTP: the Anthropic Messages API refuses
+# a Claude Code OAuth token outright, and that token is the only model
+# credential this repository sets. with the secret unset, `evaluate.mjs`
+# still records each reasoning factor's result as an error carrying its
+# reason rather than as `false`, and every script factor is still judged, so
+# the cell still completes and still uploads what it judged.
 #
 # ── land is the only job that can write, and the only one with no model
 # credential at any step. it assembles every probe artifact and every judged
@@ -117,8 +119,9 @@ name: Evaluation Dispatch
 #
 # operator prerequisite: the CLAUDE_CODE_OAUTH_TOKEN secret claude-review.yaml
 # already documents (Settings → Secrets and variables → Actions). no new
-# secret is required by this file — ANTHROPIC_API_KEY is referenced, never
-# required; see the `evaluate` job above.
+# secret is required by this file — both `probe` and `evaluate` authenticate
+# their own `claude` CLI with it, and this file references no other model
+# credential.
 
 on:
   workflow_dispatch:
@@ -320,6 +323,9 @@ jobs:
         with:
           node-version-file: package.json
 
+      - name: Install the Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
+
       # every probe-* artifact, not only this scenario's, downloaded into one
       # scratch root and then addressed by the exact measurement directory
       # name this cell's own matrix entry carries. matching by an artifact
@@ -335,15 +341,13 @@ jobs:
           merge-multiple: true
           path: ${{ runner.temp }}/measurement
 
-      # ANTHROPIC_API_KEY is referenced unconditionally rather than only when
-      # set: this repository does not set it today, and evaluate.mjs already
-      # records each reasoning factor's result as an error carrying its
-      # reason rather than as `false` when it is absent — a property this
-      # step relies on rather than works around. no GITHUB_TOKEN anywhere in
-      # this job.
+      # the only secret this job holds, and the same one `probe` already
+      # authenticates with: the Messages API this job used to call directly
+      # refuses a Claude Code OAuth token outright, so the judge now runs
+      # through the CLI instead. no GITHUB_TOKEN anywhere in this job.
       - name: Judge this scenario's measurement
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: node tools/evaluation/evaluate.mjs "${{ runner.temp }}/measurement/${{ matrix.measurementDirName }}"
 
       # the whole reconstructed measurement directory, factors.json included
