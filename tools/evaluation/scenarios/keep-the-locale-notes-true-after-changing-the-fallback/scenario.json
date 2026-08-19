@@ -1,0 +1,68 @@
+{
+  "id": "keep-the-locale-notes-true-after-changing-the-fallback",
+  "description": "living-project-documentation is targeted against a behaviour complaint about a silent language substitution, never resolveTranslation, defaultLocale, or the skill's own vocabulary, with technical-document-authoring (a how-it-reads take on the same complaint) and next-app-development (a routing-and-rendering take on the same complaint) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The task asks directly for the behaviour change, so any competent run — with or without the target skill — is expected to make it; the guard factor confirms that premise so the remaining factors read as a documentation finding rather than as evidence the bug was never fixed. docs/deployment.md's 'Locale fallback' section and shared/resolve-translation.ts's own comment both describe the fallback the task asks to remove, and history.jsonc's own last commit shows this project's habit of shipping a behaviour change and its documentation as two separate commits — the opposite of what this scenario asks for — which is what makes a factor checking that the two land together a real differential rather than a convention the mock already demonstrates.",
+  "mock": "tsuzuri",
+  "targetSkills": ["living-project-documentation"],
+  "peerSkills": ["technical-document-authoring", "next-app-development"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "When a reader's browser asks for a language a post was never translated into, the site quietly serves the post in whatever language the author originally wrote it in, without saying anything about that substitution. Stop doing that — don't show the post at all in that situation. Falling through to the site's regular not-found page is fine."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-living-project-documentation",
+      "phase": "discovery",
+      "description": "The complaint describes a behaviour, never resolveTranslation, defaultLocale, or the skill — an agent that reaches for living-project-documentation here is finding it from the problem, with technical-document-authoring (a how-it-reads take on the same complaint) and next-app-development (a routing-and-rendering take on the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether any documentation was actually corrected as a result, which is what the outcome factors below are for.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "living-project-documentation" }
+      }
+    },
+    {
+      "id": "stops-falling-back-to-the-posts-default-locale",
+      "phase": "outcome",
+      "description": "This factor is a guard, not a differential carrier: the prompt asks directly for this behaviour change, so it is expected to read true under both of this scenario's probe conditions once the task has actually been attempted, and exists only so the three factors below are readable as a documentation finding rather than as evidence that the underlying bug was never fixed. It reads shared/resolve-translation.ts's own resolveTranslation function for the literal expression post.defaultLocale and nothing else — it cannot see a fallback reintroduced through a renamed field or a level of indirection this kind of text search does not follow, and it cannot make a judgment at all when resolveTranslation itself cannot be located in the file, which it reports as an error rather than as false.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-resolve-translation-guard.mjs"
+      }
+    },
+    {
+      "id": "opens-the-projects-deployment-notes",
+      "phase": "outcome",
+      "description": "This is the shallowest factor in the scenario, deliberately: it reads only that docs/deployment.md is among the paths the diff touched, never that what replaced the stale claim there is accurate. It earns a place anyway because docs/deployment.md is somewhere a change to shared/resolve-translation.ts has no other reason to go, and because history.jsonc's own last commit shows this project shipping a behaviour change and its documentation as two separate commits — the opposite of what a factor like this one is asking for here.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-diff-touches-file.mjs",
+        "input": { "file": "docs/deployment.md" }
+      }
+    },
+    {
+      "id": "retires-the-stale-default-locale-claim",
+      "phase": "outcome",
+      "description": "shared/resolve-translation.ts documents Post.defaultLocale with the sentence this factor checks for, and that sentence becomes false the moment the fallback it describes is removed. This factor reads only whether that exact sentence is still present verbatim — a rewording that keeps the same false claim in different words would still pass it, and a correction placed anywhere other than this one documented spot would not be seen by it at all.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-sentence-absent.mjs",
+        "input": {
+          "file": "shared/resolve-translation.ts",
+          "sentence": "The locale a reader is shown when none of their accepted locales match."
+        }
+      }
+    },
+    {
+      "id": "corrects-what-the-change-made-untrue",
+      "phase": "outcome",
+      "description": "None of the three structural factors above can tell a correction that actually describes the new behaviour from one that merely deletes the old claim, or a correction placed somewhere this scenario's other factors do not check. This factor asks a reasoning judge to read the diff and decide whether the documentation the change invalidated was corrected, in the same change, to describe what the site now does, rather than left saying what it said before or simply removed.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the task prompt and the diff of an agent's work on a request to stop a silent locale fallback. Decide whether the diff corrects the project's documentation of the old fallback behaviour to describe what the site now does instead, as part of this same change — as distinct from leaving the old claim standing, deleting it without saying what replaced it, or fixing the behaviour with no documentation change at all. Answer false if the diff changes the behaviour but leaves every prior documentation claim about it untouched."
+      }
+    }
+  ]
+}

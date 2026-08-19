@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->ten<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and four against `tsuzuri`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->fourteen<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and eight against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -260,11 +260,41 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->ten<!-- /c
   honestly for a skill that governs how an agent works — see
   [`docs/decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md`](../decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md).
 
-Together the ten exercise every path through the three scripts above: every
-phase, both judgment methods, a scenario that omits a phase entirely, one that
-declares a single phase alone, a scenario whose mock is patched before a probe
-or the offline check under `tests/repository/` ever sees it, and a second mock
-project. Authoring further scenarios against `inkwell`'s and `tsuzuri`'s
-remaining catalogued subjects, and against this repository's other mocks, is
-separate, later work; this document describes what runs today, not the coverage
-it will eventually have.
+- [`document-a-rollback-someone-can-follow`](../../tools/evaluation/scenarios/document-a-rollback-someone-can-follow/)
+  targets `technical-document-authoring` against `docs/deployment.md`'s
+  bare "Rolling back" section, alongside `living-project-documentation`
+  and `product-requirement-document-authoring` as peers, and carries a
+  `discovery` factor, two structural `outcome` factors reading that section,
+  and an `outcome` factor judged by reasoning.
+- [`specify-reader-corrections-before-anyone-builds-it`](../../tools/evaluation/scenarios/specify-reader-corrections-before-anyone-builds-it/)
+  targets `product-requirement-document-authoring` against a feature the mock
+  has never specified, alongside `technical-document-authoring` and
+  `living-project-documentation` as peers, and carries a `discovery` factor,
+  three structural `outcome` factors — one per required heading, since a
+  factor result is never a ratio — and an `outcome` factor judged by reasoning.
+- [`keep-the-locale-notes-true-after-changing-the-fallback`](../../tools/evaluation/scenarios/keep-the-locale-notes-true-after-changing-the-fallback/)
+  targets `living-project-documentation` against a behaviour change that
+  invalidates what the project already documents, alongside
+  `technical-document-authoring` and `next-app-development` as peers. It
+  carries a `discovery` factor, a guard `outcome` factor confirming the
+  requested behaviour change actually happened, two structural `outcome`
+  factors reading whether the documentation it invalidated was corrected, and
+  an `outcome` factor judged by reasoning.
+- [`make-room-for-a-third-language-matching-rule`](../../tools/evaluation/scenarios/make-room-for-a-third-language-matching-rule/)
+  targets `code-maintainability` against the duplicated translation search in
+  `shared/resolve-translation.ts`, alongside `code-review` and `unit-testing`
+  as peers, and carries a `discovery` factor, an improvement `outcome` factor,
+  and a non-effect `outcome` factor that neither requires nor forbids the
+  mock's own declared choice to keep its helpers exported. It declares no
+  `reasoning` factor: its artefact is code and both of its expectations are
+  mechanically checkable.
+
+Together the fourteen exercise every path through the three scripts above:
+every phase, both judgment methods, a scenario that omits a phase entirely, one
+that declares a single phase alone, a scenario whose mock is patched before a
+probe or the offline check under `tests/repository/` ever sees it, a second mock
+project, and — across the four writing-and-maintainability scenarios — an
+artefact that is prose rather than code. Authoring further scenarios against
+`inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
+repository's other mocks, is separate, later work; this document describes what
+runs today, not the coverage it will eventually have.
