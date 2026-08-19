@@ -52,7 +52,7 @@ See [complexity-and-readability.md](./references/complexity-and-readability.md) 
 - Staying within the project's configured linter and complexity budget instead of silently bypassing it
 - Giving magic numbers and strings a named constant or design token, reserving an inline lint-suppression directive (with a justifying comment) for the rare justified case
 - Removing dead code (unused imports, unreachable branches, commented-out blocks)
-- Why a comment is the fallback rather than the plan, and the precision-or-intuition test for what a comment must add
+- Why a comment is the fallback rather than the plan, and why a unit, a nullability, or a bound's inclusivity belongs in the type or the name before it belongs in a comment
 - Why a boundary doc-comment that has to describe implementation details signals a shallow interface, not a well-documented one
 - Deferring doc-comment, restating-comment, and comment-voice rules to the project's development conventions, and extracting a repeated inline type into a named alias in a statically-typed language
 

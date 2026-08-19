@@ -24,7 +24,7 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b6fcdaf6ab1a6fe923b3153cfe5faa37e110e053302099140c41b90abba6e560"
+      "computedHash": "c8773317aa8e0dd4de859ae9285b5cbef0cab9f8cd4426845ee50caab3159048"
     },
     "code-review": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "aa0eee0f41ccb486fcc2776c8a0a77c37d59916708c2374de63f9a3e9e2b692e"
+      "computedHash": "70180d0b59e36bacaf7fcc86cbb5eed2fc4211fbdc37fda8578d7ec4fd6eb584"
     },
     "software-instrumentation": {
       "source": "./skills",
