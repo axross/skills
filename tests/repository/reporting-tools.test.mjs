@@ -168,9 +168,10 @@ describe("reporting tools are not gates", () => {
 });
 
 describe("the merge gate's measurement-pull-request exclusion", () => {
-  // GitHub does not fire workflows on a GITHUB_TOKEN-authored pull request, so
-  // merge-checks.yaml already did not run on the measurement one. that is an
-  // accident of platform behaviour; the exclusion makes it declared.
+  // a GITHUB_TOKEN-authored pull request does start runs, but GitHub holds them
+  // for an approval nobody gives, so merge-checks.yaml already did not run on the
+  // measurement one. that is an accident of platform behaviour; the exclusion
+  // makes it declared.
   const readMergeChecks = () =>
     readFile(repoPath(".github/workflows/merge-checks.yaml"), "utf8");
 
