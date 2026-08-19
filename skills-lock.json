@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5959b5da78f3611eb35f204966876624aa549e2b1f88b2d7d5f5525acd77133c"
+      "computedHash": "aaea1e1d38d5d171e2adc0bab8bc1fa1962dbb6de0e9ca599fa68406803b141e"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "bd15772113dea18ada0d2aaa8b8cb4ff328c0d2fb5a85755c546fd1c22d5d9b0"
+      "computedHash": "aa0eee0f41ccb486fcc2776c8a0a77c37d59916708c2374de63f9a3e9e2b692e"
     },
     "software-instrumentation": {
       "source": "./skills",

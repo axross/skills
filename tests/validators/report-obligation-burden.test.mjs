@@ -936,7 +936,7 @@ describe("report-obligation-burden.mjs", () => {
       // after the reviewer found professional-behavior's Reporting one fired
       // on every turn, which the change's own new rule calls a defect. prose
       // only, so no obligation count moves.
-      expect.soft(totals.ceilingTokens).toBe(46_255);
+      expect.soft(totals.ceilingTokens).toBe(46_317);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -1007,7 +1007,7 @@ describe("report-obligation-burden.mjs", () => {
       // only, so no obligation count moves.
       expect.soft(tiers[1].floorTokens).toBe(3_210);
       expect.soft(tiers[1].ceilingObligations).toBe(240);
-      expect.soft(tiers[1].ceilingTokens).toBe(18_542);
+      expect.soft(tiers[1].ceilingTokens).toBe(18_604);
 
       // tier 3 — plus `loop-engineering`, and the figure this report printed
       // alone before #211. drifted from 361 by #204's plan-structure rewrite,
@@ -1075,7 +1075,7 @@ describe("report-obligation-burden.mjs", () => {
       // only, so no obligation count moves.
       expect.soft(tiers[2].floorTokens).toBe(9_586);
       expect.soft(tiers[2].ceilingObligations).toBe(471);
-      expect.soft(tiers[2].ceilingTokens).toBe(46_255);
+      expect.soft(tiers[2].ceilingTokens).toBe(46_317);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

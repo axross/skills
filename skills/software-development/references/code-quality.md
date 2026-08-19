@@ -125,7 +125,7 @@ Four other comment forms carry an identifier or a URL for a different reason: ea
 
 ### Outside the Code
 
-A comment kept out by the rules above still has to go somewhere, or the discipline just deletes information instead of relocating it. Where a project ships no living-documentation capability there is nowhere prescribed to put it, and deletion is the whole of what these rules then ask.
+A comment kept out by the rules above still has to go somewhere, or the discipline just deletes information instead of relocating it. Where a project ships no living-documentation capability these rules name no destination and add no obligation of their own, which settles the case they would otherwise leave open: a "why" that genuinely will not compress, in a project with nowhere to move it, stays where it is and over the ceiling. The rule against deleting such a comment outranks the length ceiling, because that ceiling exists to relocate material rather than to destroy it.
 
 **Guidelines:**
 
