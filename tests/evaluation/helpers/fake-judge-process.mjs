@@ -12,13 +12,26 @@
 
 import { EventEmitter } from "node:events";
 
-/** a stand-in child_process.ChildProcess: an EventEmitter with piped-like stdout/stderr. */
+/**
+ * a stand-in child_process.ChildProcess: an EventEmitter with piped-like
+ * stdout/stderr/stdin. `stdin.write` succeeds by default, recording what
+ * was written on `stdin.written` — see spawnFnStdinWriteError() for the
+ * failure case a test wants instead.
+ */
 export function fakeJudgeChild() {
   const child = new EventEmitter();
   child.stdout = new EventEmitter();
   child.stdout.setEncoding = () => {};
   child.stderr = new EventEmitter();
   child.stderr.setEncoding = () => {};
+  child.stdin = new EventEmitter();
+  child.stdin.written = "";
+  child.stdin.write = (chunk, callback) => {
+    child.stdin.written += chunk;
+    if (callback) queueMicrotask(() => callback());
+    return true;
+  };
+  child.stdin.end = () => {};
   child.killed = false;
   child.kill = (signal) => {
     child.killed = true;
@@ -112,26 +125,16 @@ export function spawnFnHangs() {
 }
 
 /**
- * a spawnFn whose child never emits "close" on its own, but does — with a
- * well-formed, readable verdict — once `kill()` is called, mirroring a real
- * killed process whose "close" event can still arrive after the signal
- * that ended it. Drives `runJudgeProcess`'s `settled` guard: the timeout's
- * own `{ error }` must survive this belated close, never be overwritten by
- * whatever the close event reports.
+ * a spawnFn whose child's stdin write fails, as a broken pipe would — the
+ * failure `runJudgeProcess`'s write-callback branch must resolve
+ * `{ error }` for, never throw or reject.
  */
-export function spawnFnHangsThenReportsAfterKill({ result }) {
+export function spawnFnStdinWriteError(message = "EPIPE: broken pipe") {
   return () => {
     const child = fakeJudgeChild();
-    const kill = child.kill;
-    child.kill = (signal) => {
-      kill(signal);
-      queueMicrotask(() => {
-        child.stdout.emit(
-          "data",
-          `${JSON.stringify({ type: "result", subtype: "success", is_error: false, result })}\n`,
-        );
-        child.emit("close", 0);
-      });
+    child.stdin.write = (chunk, callback) => {
+      if (callback) queueMicrotask(() => callback(new Error(message)));
+      return false;
     };
     return child;
   };

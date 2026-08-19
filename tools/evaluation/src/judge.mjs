@@ -6,7 +6,7 @@
 // this repository sets no ANTHROPIC_API_KEY. So a reasoning judgment is
 // asked the same way a probe already gets one: by spawning the CLI a probe
 // already spawns and already authenticates, non-interactively, with every
-// tool this instrument knows about denied, no setting sources loaded, and a
+// tool disabled outright (`--tools ""`), no setting sources loaded, and a
 // working directory holding none of this repository's files.
 //
 // docs/specs/skill-evaluation.md, "The factor": "a reasoning judgment asks a
@@ -28,14 +28,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { CLI_AUTH_ENV_VARS, stripCredentials } from "./credentials.mjs";
-import { ALLOWED_TOOLS, DISALLOWED_TOOLS } from "./probe-process.mjs";
-
-/**
- * every tool name this instrument's probe module knows about, denied
- * wholesale on a judge's own spawn: a judge reads a stored transcript —
- * untrusted model output — and must be able to act on nothing it says.
- */
-const DENIED_TOOLS = [...ALLOWED_TOOLS, ...DISALLOWED_TOOLS];
 
 /**
  * the route recorded on every reasoning factor's `judge` object, alongside
@@ -111,26 +103,29 @@ export function parseVerdict(text) {
  * follows. `--system-prompt` replaces the CLI's own default system prompt
  * rather than appending to it (`--append-system-prompt` would add to it),
  * so the judge's context carries the instrument's own system prompt in
- * place of the CLI's, not the CLI's plus the instrument's.
+ * place of the CLI's, not the CLI's plus the instrument's. The user prompt
+ * is not here: it is written to the child's stdin — see `runJudgeProcess`
+ * — because a transcript-sized argv element can exceed the OS's per-argument
+ * ceiling (verified in this environment at 128 KiB, far tighter than the
+ * ARG_MAX total), and a probe can run long enough to cross it.
  *
- * `--allowed-tools ""` pairs with `--disallowed-tools`, rather than
- * standing in for it: `DENIED_TOOLS` is `probe-process.mjs`'s own scoped
- * allowlist plus its own denylist, authored as the tools a trusted PROBE
- * may use — never as a census of the CLI's built-ins — so it cannot be a
- * complete denylist on its own (a tool the CLI adds later, or one it
- * already ships that the probe module never had reason to name, would fall
- * through to the ambient permission mode). An empty allowlist closes that
- * gap by construction: anything not explicitly allowed is refused,
- * regardless of what the denylist does or does not enumerate. Verified
- * accepted by the CLI in this environment before being relied on here.
+ * `--tools ""` is the CLI's own closed-form primitive for disabling every
+ * tool (`claude --help`: "Use \"\" to disable all tools"). A prior version
+ * of this argv paired `--allowed-tools ""` with a `--disallowed-tools`
+ * enumeration built from probe-process.mjs's own capability grant — but an
+ * empty `--allowed-tools` does not itself deny anything; `--print` with no
+ * `--permission-mode` still auto-approves reads under its own baseline, and
+ * the enumeration it was paired with was a trusted PROBE's capability list,
+ * not a security denylist, so it omitted built-ins needing no permission at
+ * all. `--tools ""` does not depend on this module tracking the CLI's own,
+ * evolving tool surface.
  *
- * @param {{ userPrompt: string, model: string, systemPrompt: string }} options
+ * @param {{ model: string, systemPrompt: string }} options
  * @returns {string[]}
  */
-export function buildJudgeArgv({ userPrompt, model, systemPrompt }) {
+export function buildJudgeArgv({ model, systemPrompt }) {
   return [
     "--print",
-    userPrompt,
     "--output-format",
     "json",
     "--model",
@@ -139,10 +134,8 @@ export function buildJudgeArgv({ userPrompt, model, systemPrompt }) {
     systemPrompt,
     "--setting-sources",
     "",
-    "--allowed-tools",
+    "--tools",
     "",
-    "--disallowed-tools",
-    DENIED_TOOLS.join(","),
   ];
 }
 
@@ -204,19 +197,21 @@ function readJudgeEnvelope({ stdout, stderr, exitCode }) {
  * the judge can fail to do all resolve as `{ error }` alike.
  *
  * kills the child and resolves `{ error }` once `timeoutMs` elapses with no
- * `close` event — the runaway guard `JUDGE_TIMEOUT_MS` documents. A
- * `settled` flag makes that race safe: the child can still emit `close`
- * after being killed (a signal does not terminate a process instantly),
- * and that later event must not silently overwrite the timeout's own
- * `{ error }` with whatever exit code the kill produced.
+ * `close` event — the runaway guard `JUDGE_TIMEOUT_MS` documents. `settled`
+ * is an efficiency short-circuit, not a correctness guard: a `Promise`'s own
+ * resolving function is idempotent by the language's own guarantee, so a
+ * belated event after settling could never overwrite an already-resolved
+ * outcome regardless of this flag. What it actually saves is a wasted
+ * `readJudgeEnvelope` call and a redundant `clearTimeout` once the result is
+ * already decided.
  *
  * @param {{
- *   argv: string[], cwd: string, env: Record<string,string>,
+ *   argv: string[], userPrompt: string, cwd: string, env: Record<string,string>,
  *   spawnFn: typeof nodeSpawn, timeoutMs?: number,
  * }} options
  * @returns {Promise<{ result: boolean, evidence: string } | { error: string }>}
  */
-function runJudgeProcess({ argv, cwd, env, spawnFn, timeoutMs = JUDGE_TIMEOUT_MS }) {
+function runJudgeProcess({ argv, userPrompt, cwd, env, spawnFn, timeoutMs = JUDGE_TIMEOUT_MS }) {
   return new Promise((resolvePromise) => {
     // guarded rather than left to the executor: an executor that throws
     // synchronously produces a REJECTED promise, not an `{ error }` result,
@@ -265,6 +260,25 @@ function runJudgeProcess({ argv, cwd, env, spawnFn, timeoutMs = JUDGE_TIMEOUT_MS
     child.on("close", (exitCode) => {
       settle(readJudgeEnvelope({ stdout, stderr, exitCode }));
     });
+
+    // the user prompt travels over stdin, not argv — see buildJudgeArgv's
+    // own doc comment for why. A write or broken-pipe failure here is
+    // exactly as unreached as a spawn failure: resolved as `{ error }`,
+    // never thrown, never left to crash the process on an unhandled event.
+    child.stdin?.on("error", (error) => {
+      settle({ error: `could not write the judge's prompt: ${error.message}` });
+    });
+    try {
+      child.stdin?.write(userPrompt, (error) => {
+        if (error) {
+          settle({ error: `could not write the judge's prompt: ${error.message}` });
+          return;
+        }
+        child.stdin?.end();
+      });
+    } catch (error) {
+      settle({ error: `could not write the judge's prompt: ${error.message}` });
+    }
   });
 }
 
@@ -328,7 +342,8 @@ export async function callReasoningJudge({
   let outcome;
   try {
     outcome = await runJudgeProcess({
-      argv: buildJudgeArgv({ userPrompt, model, systemPrompt }),
+      argv: buildJudgeArgv({ model, systemPrompt }),
+      userPrompt,
       cwd: scratch,
       env: stripCredentials(env),
       spawnFn,

@@ -11,14 +11,13 @@ import {
   spawnFnError,
   spawnFnExit,
   spawnFnHangs,
-  spawnFnHangsThenReportsAfterKill,
   spawnFnNullStdio,
+  spawnFnStdinWriteError,
   spawnFnStdout,
   spawnFnThrowSync,
 } from "./helpers/fake-judge-process.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { bareModel, buildJudgeArgv, callReasoningJudge, parseVerdict } from "../../tools/evaluation/src/judge.mjs";
-import { ALLOWED_TOOLS, DISALLOWED_TOOLS } from "../../tools/evaluation/src/probe-process.mjs";
 
 // spy-mode (not a replacing factory): every node:fs/promises call keeps its
 // real behavior unless a test explicitly overrides one — see
@@ -73,49 +72,43 @@ describe("parseVerdict", () => {
 });
 
 describe("buildJudgeArgv", () => {
-  it("passes the prompt as --print, the bare model, and the system prompt verbatim", () => {
+  // the user prompt is not here — it travels over stdin instead, because a
+  // transcript-sized argv element can exceed the OS's own per-argument
+  // ceiling. --print itself takes no positional value any more.
+  it("passes --print with no positional prompt argument", () => {
+    const argv = buildJudgeArgv({ model: "m", systemPrompt: "s" });
+    expect(argv[argv.indexOf("--print") + 1]).toBe("--output-format");
+  });
+
+  it("passes the bare model and the system prompt verbatim", () => {
     const argv = buildJudgeArgv({
-      userPrompt: "judge this",
       model: "anthropic/claude-haiku-4-5-20251001",
       systemPrompt: "you are a judge",
     });
     expect(argv).toEqual(
-      expect.arrayContaining([
-        "--print",
-        "judge this",
-        "--model",
-        "claude-haiku-4-5-20251001",
-        "--system-prompt",
-        "you are a judge",
-      ]),
+      expect.arrayContaining(["--model", "claude-haiku-4-5-20251001", "--system-prompt", "you are a judge"]),
     );
   });
 
   it("asks for a single JSON envelope on stdout", () => {
-    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
+    const argv = buildJudgeArgv({ model: "m", systemPrompt: "s" });
     expect(argv).toEqual(expect.arrayContaining(["--output-format", "json"]));
   });
 
   it("loads no setting sources", () => {
-    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
+    const argv = buildJudgeArgv({ model: "m", systemPrompt: "s" });
     expect(argv).toEqual(expect.arrayContaining(["--setting-sources", ""]));
   });
 
-  it("denies every tool a probe's own module names — the union of ALLOWED_TOOLS and DISALLOWED_TOOLS — and nothing less", () => {
-    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
-    const index = argv.indexOf("--disallowed-tools");
-    expect(index).toBeGreaterThan(-1);
-    const denied = argv[index + 1].split(",");
-    expect(denied.sort()).toEqual([...ALLOWED_TOOLS, ...DISALLOWED_TOOLS].sort());
-  });
-
-  // DENIED_TOOLS is a scoped allowlist-plus-denylist authored for a
-  // trusted probe, not a census of the CLI's own built-ins, so it cannot
-  // enumerate every tool that could exist. An empty `--allowed-tools`
-  // closes that gap by construction: anything unlisted is refused.
-  it("also passes an empty --allowed-tools, so anything unlisted is refused by construction", () => {
-    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
-    expect(argv).toEqual(expect.arrayContaining(["--allowed-tools", ""]));
+  // an empty --allowed-tools does not itself deny anything — --print with
+  // no --permission-mode still auto-approves reads under its own baseline.
+  // --tools "" is the CLI's own closed-form primitive for disabling every
+  // tool outright ("Use \"\" to disable all tools", per --help).
+  it('disables every tool with --tools "", not an allow/deny-list pair', () => {
+    const argv = buildJudgeArgv({ model: "m", systemPrompt: "s" });
+    expect(argv).toEqual(expect.arrayContaining(["--tools", ""]));
+    expect(argv).not.toContain("--allowed-tools");
+    expect(argv).not.toContain("--disallowed-tools");
   });
 });
 
@@ -291,22 +284,6 @@ describe("callReasoningJudge", () => {
     expect(child.killSignal).toBe("SIGTERM");
   });
 
-  // a killed child can still emit "close" afterward — a signal does not
-  // terminate a process instantly. That belated close must not overwrite
-  // the timeout's own `{ error }`, even when it carries a real verdict.
-  it("keeps the timeout's own error when the killed child later closes with a real verdict", async () => {
-    const spawnFn = spawnFnHangsThenReportsAfterKill({
-      result: '{"result": true, "evidence": "arrived too late"}',
-    });
-    const outcome = await callReasoningJudge({
-      ...base,
-      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
-      spawnFn,
-      timeoutMs: 30,
-    });
-    expect(outcome).toEqual({ error: expect.stringContaining("30ms") });
-  });
-
   // a spawnFn that hands back a child with `stdout: null` (a `stdio`
   // override, a malformed test double) must not throw inside the executor
   // — the "never rejects" guarantee has to hold structurally, not only for
@@ -335,5 +312,15 @@ describe("callReasoningJudge", () => {
     } finally {
       cleanup.restore();
     }
+  });
+
+  // the user prompt travels over stdin now, so a broken pipe there is a
+  // real failure mode — resolved as { error } like any other judge
+  // failure, never a throw and never a rejection.
+  it("resolves { error } rather than throwing or rejecting, when writing the prompt to stdin fails", async () => {
+    const spawnFn = spawnFnStdinWriteError("EPIPE: broken pipe");
+    await expect(
+      callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn }),
+    ).resolves.toEqual({ error: expect.stringContaining("EPIPE") });
   });
 });
