@@ -207,12 +207,19 @@ says which one counts as current.
 is the decision that removed the baseline this replaced; nothing about the
 model in this document reopens it.
 
-**A reasoning judge's model and the full prompt it was given are both part of
-what makes two measurements comparable**, exactly as the runtime, the model
-that ran the probe, and the digest of every installed skill already are.
-Re-judging a stored measurement with a different reasoning judge is therefore
-a new measurement, never a silent update to the old one — the two results sit
-side by side rather than one replacing the other.
+**A reasoning judge's model, the full prompt it was given, and the route that
+asked it are all part of what makes two measurements comparable**, exactly as
+the runtime, the model that ran the probe, and the digest of every installed
+skill already are. The route earns its place beside the other two because it
+is not a transparent wrapper around the prompt: asking through the `claude`
+CLI carries scaffolding of its own — the CLI's own preamble and defaults
+sitting around whatever system and user prompt this instrument supplies — so
+a verdict taken over the same prompt through a different route is not
+guaranteed to have seen the same context the earlier one did. Re-judging a
+stored measurement with a different reasoning judge, a different prompt, or a
+different route is therefore a new measurement, never a silent update to the
+old one — the two results sit side by side rather than one replacing the
+other.
 
 ## Measured, declared, and derived
 
