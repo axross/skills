@@ -844,6 +844,39 @@ function effectiveSourceFor(modulePath) {
  *   returns
  * @returns {boolean}
  */
+/**
+ * every JSX usage span one route file shows for the names it binds from any
+ * module in modulePaths, comments stripped first so a commented-out mention
+ * is never read as a usage.
+ *
+ * Both of this scenario's outcome factors read a route's usage through this
+ * one function, which is the point of it: their own descriptions promise
+ * they agree on how a screen uses the shared set, and when each collected
+ * that usage itself they diverged. One walked every import entry; the other
+ * took only the FIRST entry resolving to each module, so a route binding two
+ * names from one module through two separate import statements had every
+ * name after the first silently dropped — a false negative on the "must not
+ * disappear" factor for a probe that had kept each screen's own content.
+ *
+ * The spans are sorted rather than left in source order, so two screens
+ * that render the same usages in a different order still compare as the
+ * same content: the factor above asks what each screen SAYS, and the order
+ * its import statements happen to sit in says nothing about that.
+ * @param {{ content: string, imports: Array<{ names: string[], resolved: string | null }> }} route
+ * @param {Iterable<string>} modulePaths
+ * @returns {string[]}
+ */
+export function usageSpansForSharedSet(route, modulePaths) {
+  const shared = new Set(modulePaths);
+  const scannedContent = stripComments(route.content);
+  const spans = [];
+  for (const entry of route.imports) {
+    if (!entry.resolved || !shared.has(entry.resolved)) continue;
+    for (const name of entry.names) spans.push(...usageSpansFor(scannedContent, name));
+  }
+  return spans.sort();
+}
+
 export function isSetAboutLoadingAndError(modulePaths, routes) {
   const sources = [];
   for (const modulePath of modulePaths) {
@@ -852,14 +885,7 @@ export function isSetAboutLoadingAndError(modulePaths, routes) {
     sources.push(effective);
   }
 
-  const sharedModules = new Set(modulePaths);
-  for (const route of routes) {
-    const scannedContent = stripComments(route.content);
-    for (const entry of route.imports) {
-      if (!entry.resolved || !sharedModules.has(entry.resolved)) continue;
-      for (const name of entry.names) sources.push(...usageSpansFor(scannedContent, name));
-    }
-  }
+  for (const route of routes) sources.push(...usageSpansForSharedSet(route, modulePaths));
 
   const combined = sources.join("\n");
   const scanned = `${combined}\n${unfuseCamelBoundaries(combined)}`;

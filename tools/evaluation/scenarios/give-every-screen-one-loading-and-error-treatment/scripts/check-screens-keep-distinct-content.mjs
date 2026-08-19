@@ -87,8 +87,7 @@ import {
   addedFilesFromDiff,
   isSetAboutLoadingAndError,
   readRouteFile,
-  stripComments,
-  usageSpansFor,
+  usageSpansForSharedSet,
 } from "./lib/route-imports.mjs";
 
 function fail(message) {
@@ -165,14 +164,7 @@ if (!aboutConcern) {
  * commented-out mention of a shared component never joins a real usage.
  */
 function usageTextFor(route) {
-  const spans = [];
-  const scannedContent = stripComments(route.content);
-  for (const modulePath of sharedAndAdded) {
-    const importEntry = route.imports.find((entry) => entry.resolved === modulePath);
-    if (!importEntry || importEntry.names.length === 0) continue;
-    for (const name of importEntry.names) spans.push(...usageSpansFor(scannedContent, name));
-  }
-  return normalizeUsage(spans.join(" "));
+  return normalizeUsage(usageSpansForSharedSet(route, sharedAndAdded).join(" "));
 }
 
 const usageA = usageTextFor(routeA);
