@@ -43,9 +43,9 @@ permissions:
   contents: read
 
 # ── why the measurement pull request is excluded, and why by path: see
-# docs/conventions/verification-gates.md. it is opened with GITHUB_TOKEN,
-# which already skips this trigger; the exclusion here just makes that
-# declared, not an accident of platform behaviour.
+# docs/conventions/verification-gates.md. it is opened with GITHUB_TOKEN, so
+# any run this trigger starts is held for an approval nobody gives; the
+# exclusion makes that declared rather than an accident of platform behaviour.
 
 jobs:
   format-validation:
