@@ -117,11 +117,13 @@ is, and is why the shape survives until then.
   [`broaden-a-suite-that-never-opens-a-post`](../scenarios/broaden-a-suite-that-never-opens-a-post/)
   asks a model to close that gap.
 - **The post catalog in `posts-data.ts` is a build-time module rather than a
-  fetch from a content backend.** `publish-an-edit-without-a-redeploy` needs a
-  project where staying stale until someone redeploys is genuinely what
-  happens, not a defect invented for the scenario — and a checked-in catalog
-  compiled into the build is an ordinary way for a project this size to
-  start, so the choice reads as honest regardless of the scenario behind it.
+  fetch from a content backend.**
+  [`publish-an-edit-without-a-redeploy`](../scenarios/publish-an-edit-without-a-redeploy/)
+  needs a project where staying stale until someone redeploys is genuinely
+  what happens, not a defect invented for the scenario — and a checked-in
+  catalog compiled into the build is an ordinary way for a project this size
+  to start, so the choice reads as honest regardless of the scenario behind
+  it.
 
 ### `tsuzuri` — fixture artifacts
 
