@@ -74,10 +74,13 @@
 // captured as a real usage span: two screens passing the shared component
 // byte-for-byte identical props, the exact flattening this factor exists
 // to catch, compared as different once that comment's own captured span
-// joined the real one. usageTextFor now strips comments (lib/route-imports
-// .mjs's stripComments, exported for this) before either screen's content
-// ever reaches usageSpansFor. Each was fixed after its own review round,
-// against a reproduction constructed for it first.
+// joined the real one. Comments are stripped before either screen's
+// content reaches a usage scan at all. A fifth version read only the
+// FIRST import statement resolving to each shared module, so a screen
+// binding two names from one module across two statements had every name
+// after the first dropped from the comparison; both factors now read a
+// route's usage through one shared usageSpansForSharedSet. Each was fixed
+// after its own review round, against a reproduction constructed first.
 //
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
@@ -109,11 +112,6 @@ const diff = context.material?.diff;
 if (typeof diff !== "string") {
   fail("context.material.diff must be a string — this script judges the outcome phase alone.");
 }
-
-// the usage-span capture is a move into ./lib/route-imports.mjs rather
-// than a reimplementation: isSetAboutLoadingAndError needs the exact same
-// reader to see how each route file uses a shared module, not only that
-// module's own text — see that function's own header.
 
 /** collapses whitespace runs to a single space and trims. */
 const collapseWhitespace = (text) => text.replace(/\s+/g, " ").trim();
