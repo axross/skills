@@ -309,7 +309,7 @@ jobs:
 
       # downloads every probe-* artifact, not only this scenario's, into one
       # scratch root, then addresses by the exact directory name its matrix
-      # entry carries — an artifact NAME glob (probe-<scenarioId>-*) mismatches
+      # entry carries — an artifact-name glob (probe-<scenarioId>-*) mismatches
       # when one id prefixes another's. the extra bytes cost nothing this
       # corpus's size can't afford.
       - name: Download this dispatch's probe records
@@ -370,9 +370,9 @@ jobs:
 
       # probe-* lands first, judged-* overlays factors.json after — an unjudged
       # scenario still lands, not discarded. download-artifact@v4 takes no
-      # if-no-artifacts-found input; one added here is silently ignored, so the
-      # real check for a zero-artifact dispatch is "Confirm there is something
-      # to land" below.
+      # if-no-artifacts-found input, and a zero-match pattern exits 0 rather
+      # than throwing, so the real check for a zero-artifact dispatch is
+      # "Confirm there is something to land" below.
       - name: Assemble this dispatch's probe records
         uses: actions/download-artifact@v4
         with:

@@ -36,8 +36,9 @@ where a path is a fact about what the pull request actually changes.
 
 The pull request this excludes is opened under `GITHUB_TOKEN`, by
 `evaluation-dispatch.yaml`'s `land` job (see [Evaluation
-Dispatch](../operations/evaluation-dispatch.md)). GitHub already never fires a
-workflow on a `GITHUB_TOKEN`-authored pull request, so this exclusion held true
+Dispatch](../operations/evaluation-dispatch.md)). A `pull_request` opened under
+`GITHUB_TOKEN` does create workflow runs, but GitHub holds them in an
+approval-required state that nobody here approves, so this exclusion held true
 by accident of platform behaviour before `paths-ignore` made it declared — a
 future change to that platform behaviour can no longer silently move which gate
 is responsible for measurement data.
@@ -52,7 +53,7 @@ states.
 
 A skipped _workflow_ reports no status at all. If these three checks ever
 become required status checks on the default branch, this exclusion MUST move
-from the trigger to a job-level `if:` — keyed on both the path prefix and the
+from the trigger to a job-level `if:` — keyed on both the branch prefix and the
 `github-actions[bot]` author — because a skipped _job_ still reports and
 satisfies a required check, where a skipped workflow does not.
 `tests/repository/reporting-tools.test.mjs` asserts the exclusion's current
