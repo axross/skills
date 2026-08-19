@@ -400,10 +400,10 @@ describe("report-obligation-burden.mjs", () => {
       // when a change moves them, the fix is to re-run the reporter against
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
-      expect.soft(totals.floorObligations).toBe(37);
-      expect.soft(totals.floorTokens).toBe(9_743);
+      expect.soft(totals.floorObligations).toBe(48);
+      expect.soft(totals.floorTokens).toBe(10_291);
       expect.soft(totals.ceilingObligations).toBe(477);
-      expect.soft(totals.ceilingTokens).toBe(47_384);
+      expect.soft(totals.ceilingTokens).toBe(48_716);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -445,10 +445,10 @@ describe("report-obligation-burden.mjs", () => {
       // branch that moves one copy and not the other merges without a
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
-      expect.soft(tiers[2].floorObligations).toBe(37);
-      expect.soft(tiers[2].floorTokens).toBe(9_743);
+      expect.soft(tiers[2].floorObligations).toBe(48);
+      expect.soft(tiers[2].floorTokens).toBe(10_291);
       expect.soft(tiers[2].ceilingObligations).toBe(477);
-      expect.soft(tiers[2].ceilingTokens).toBe(47_384);
+      expect.soft(tiers[2].ceilingTokens).toBe(48_716);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
