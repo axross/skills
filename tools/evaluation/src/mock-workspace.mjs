@@ -183,10 +183,10 @@ function parseHistory(raw) {
     if (typeof commit?.message !== "string" || commit.message.length === 0) {
       throw new Error(`${HISTORY_FILE} commits[${index}] needs a non-empty "message".`);
     }
-    // an empty `files` is accepted, where every other malformation is not: a patch that
-    // removed every file one commit introduced leaves exactly that behind, and the replay
-    // loop in `materialize` simply skips such a commit — the cost being a hand-authored
-    // empty commit is now skipped rather than refused, which nobody has a reason to write.
+    // an empty `files` is accepted, unlike every other malformation: a patch that
+    // removes every file one commit introduced leaves exactly that behind, and
+    // `materialize`'s replay loop just skips it — a hand-authored empty commit is now
+    // skipped rather than refused, which nobody has reason to write.
     if (
       !Array.isArray(commit.files) ||
       !commit.files.every((file) => typeof file === "string" && file.length > 0)
@@ -329,11 +329,10 @@ function installDependencies(workspace) {
   installBrowsersIfNeeded(workspace);
 }
 
-// the two package names that mean "this workspace drives a real browser":
-// `@playwright/test` for a Playwright-driven end-to-end suite, and `playwright` itself
-// (via `@vitest/browser-playwright`) for a Vitest browser-mode suite that never pulls
-// the test runner in — keying on the first name alone silently missed the second, the
-// shape `tools/evaluation/mocks/inkwell` uses.
+// the two names meaning "this workspace drives a real browser": `@playwright/test`
+// (Playwright end-to-end) and `playwright` (Vitest browser-mode via
+// `@vitest/browser-playwright`, which skips the test runner) — keying on the first
+// alone missed the second, the shape `tools/evaluation/mocks/inkwell` uses.
 const BROWSER_DRIVER_PACKAGES = ["@playwright/test", "playwright"];
 
 /**
@@ -487,9 +486,9 @@ export async function materialize({
   const workspace = await mkdtemp(join(tmpdir(), "skill-evaluation-"));
   try {
     // every file the mock ships, its own fixture metadata included (history.jsonc,
-    // removed again below) so a patch can maintain it — minus a defensive exclusion of
-    // node_modules, in case the mock was exercised locally (this repository's README
-    // "own toolchain" verification does) without cleaning up afterward.
+    // removed below) so a patch can maintain it — minus node_modules, excluded
+    // defensively in case the mock was run locally (this repository's README "own
+    // toolchain" verification does) without cleanup.
     await cp(mockDir, workspace, {
       recursive: true,
       filter: (source) => basename(source) !== "node_modules",
@@ -512,10 +511,10 @@ export async function materialize({
     const commits = parseHistory(historyRaw);
     await rm(workspaceHistory);
 
-    // history.jsonc and the copied tree must name exactly the same files, or replaying it
-    // would either leave files uncommitted or try to `git add` something never copied. a
-    // patch that changed the file set without maintaining history.jsonc fails here, named
-    // in the message — otherwise a rotted patch reads as a broken mock.
+    // history.jsonc and the copied tree must name exactly the same files, or replaying
+    // it would leave files uncommitted or try to `git add` something never copied. a
+    // patch that changes the file set without updating history.jsonc fails here, named
+    // in the message — else a rotted patch reads as a broken mock.
     const patchNote = patchPath === null ? "" : ` (after applying ${patchPath})`;
     const treeFiles = new Set(await listFilesRecursively(workspace));
     const historyFiles = new Set(commits.flatMap((commit) => commit.files));
@@ -536,10 +535,10 @@ export async function materialize({
 
     runGit(["init", "--quiet", "-b", "main"], workspace);
     commits.forEach((commit, index) => {
-      // a commit a patch emptied is skipped, and the skip is reported. leaving it to `git`
-      // is not an option — `git commit` exits non-zero on an empty staged set, aborting
-      // materialization — and `--allow-empty` was rejected: unusual enough in a real project
-      // to read as a fixture. the date still comes from the declared index either way.
+      // a commit a patch emptied is skipped and reported. `git commit` exits non-zero
+      // on an empty staged set, so leaving it to `git` would abort materialization;
+      // `--allow-empty` was rejected too, since it is unusual enough in a real project
+      // to read as a fixture. the date still comes from the declared index.
       if (commit.files.length === 0) {
         process.stderr.write(
           `A patch emptied ${HISTORY_FILE} commits[${index}], so the replay skips it: ` +
@@ -548,11 +547,10 @@ export async function materialize({
         return;
       }
       runGit(["add", "--", ...commit.files], workspace, commitEnv(index));
-      // `maintenance.auto=false` because every `git commit` otherwise invokes `git
-      // maintenance run --auto` once per commit, which can detach and race a caller that
-      // removes this workspace right after materialization into an intermittent `ENOTEMPTY:
-      // ... .git/objects/pack`. passed with `-c`, not written into the config, for the same
-      // reason `commit.gpgsign` is: a fixture should look ordinary.
+      // `maintenance.auto=false` avoids `git commit`'s background `git maintenance run
+      // --auto`, which can race a caller removing this workspace right after
+      // materialization into an intermittent `ENOTEMPTY`. passed via `-c`, not written
+      // to config — same reason as `commit.gpgsign`: a fixture should look ordinary.
       runGit(
         [
           "-c",

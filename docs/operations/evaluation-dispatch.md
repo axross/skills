@@ -72,8 +72,9 @@ It runs four jobs in order:
    that fails this repository's own gates is a defect in the instrument
    rather than a finding about a skill — commits under the `github-actions[bot]`
    identity, and opens the measurement pull request.
-   `merge-checks.yaml` excludes that pull request by path (see its own
-   header comment), which is why the checks run here instead of there.
+   `merge-checks.yaml` excludes that pull request by path (see
+   [Verification Gates](../conventions/verification-gates.md)), which is why
+   the checks run here instead of there.
 
 Every probe cell and every `evaluate` cell uploads its own artifact
 independently of what any other cell does, so a `land` that fails is

@@ -229,10 +229,11 @@ function checkGroupOrder(addedText) {
       if (depth > 0) depth--;
       if (depth === 0) nestedSeenAtDepth1 = false; // the next top-level rule starts fresh
     } else if (ch === RUN_BREAK) {
-      // a contiguity break in the added lines themselves — never treated as a declaration
-      // boundary; the pending segment, if any, is dropped rather than guessed at, same as
-      // unterminated trailing text at the scan's end. only the depth-0 "loose" tracker is
-      // scoped to one run; depth, lastGroupAtDepth1, and nestedSeenAtDepth1 are untouched.
+      // a contiguity break in the added lines — never treated as a declaration
+      // boundary; any pending segment is dropped rather than guessed at, same as
+      // unterminated trailing text at the scan's end. only the depth-0 "loose" tracker
+      // resets per run; depth, lastGroupAtDepth1, and nestedSeenAtDepth1 stay
+      // untouched.
       if (depth === 0) lastGroupLoose = -1;
     } else {
       considerDeclaration(segment);

@@ -173,12 +173,10 @@ function schemeFingerprint(name) {
   const cases = words.map(wordCase);
 
   if (separator === "camel") {
-    // every word after the first is capitalized by construction — that is
-    // how the split above found it — so only the first word's own case
-    // distinguishes lowerCamelCase from PascalCase; anything else (a
-    // lowercase or all-caps word in the middle, which the split could not
-    // actually produce, or a first word this classifier calls "other") is
-    // reported as not fitting a named pattern rather than guessed at.
+    // every word after the first is capitalized by construction, so only the first
+    // word's case distinguishes lowerCamelCase from PascalCase. anything else — a
+    // lowercase/all-caps middle word (impossible from the split), or an "other" first
+    // word — is reported as not fitting a named pattern, never guessed at.
     const restFit = cases.slice(1).every((c) => c === "capitalized");
     if (restFit && cases[0] === "lower") return "camel:lower";
     if (restFit && cases[0] === "capitalized") return "camel:title";

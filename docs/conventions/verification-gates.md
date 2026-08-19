@@ -24,6 +24,46 @@ that a change did.
 folded inside `npm test` runs through it, so a small mismatch there breaks the
 verification gate outright rather than one test file.
 
+## The Measurement Pull Request's Exclusion
+
+`merge-checks.yaml`'s `pull_request` trigger excludes
+`tools/evaluation/measurements/**` by `paths-ignore`. That exclusion MUST NOT
+key on branch name instead: GitHub does not even offer that lever — on a
+`pull_request` trigger, `branches` and `branches-ignore` filter the _base_
+branch, never the head — and a path is the better signal regardless, since a
+branch name is a public string any contributor could adopt to skip every gate,
+where a path is a fact about what the pull request actually changes. The two
+platform behaviours this section leans on are GitHub's, not this project's, so
+read them at the source rather than here: [events that trigger
+workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
+for the filters, and [GITHUB_TOKEN](https://docs.github.com/en/actions/concepts/security/github_token)
+for what a token-authored pull request does to a trigger.
+
+The pull request this excludes is opened under `GITHUB_TOKEN`, by
+`evaluation-dispatch.yaml`'s `land` job (see [Evaluation
+Dispatch](../operations/evaluation-dispatch.md)). A `pull_request` opened under
+`GITHUB_TOKEN` does create workflow runs, but GitHub holds them in an
+approval-required state that nobody here approves, so this exclusion held true
+by accident of platform behaviour before `paths-ignore` made it declared — a
+future change to that platform behaviour can no longer silently move which gate
+is responsible for measurement data.
+
+Measurement data is rerouted, not left unchecked: `land` runs `npm run check`
+before it commits, and `merge-checks.yaml`'s `push` trigger — which carries no
+`paths-ignore` of its own — runs the same three gates again once the pull
+request merges. Ordinary code is checked by the `pull_request` trigger, as
+usual; nothing is checked by neither. The exclusion adds no `run:` line of its
+own, so it carries none of the gate-consistency coupling the previous section
+states.
+
+A skipped _workflow_ reports no status at all. If these three checks ever
+become required status checks on the default branch, this exclusion MUST move
+from the trigger to a job-level `if:` — keyed on both the branch prefix and the
+`github-actions[bot]` author — because a skipped _job_ still reports and
+satisfies a required check, where a skipped workflow does not.
+`tests/repository/reporting-tools.test.mjs` asserts the exclusion's current
+shape.
+
 ## Gate, Report, or Scheduled Audit
 
 A **merge gate** blocks a pull request and can say a change is wrong — a yes

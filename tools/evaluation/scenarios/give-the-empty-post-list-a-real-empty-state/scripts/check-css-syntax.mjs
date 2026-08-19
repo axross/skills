@@ -69,11 +69,10 @@ function validateCssSyntax(content) {
   const isDeclaration = (segment) => {
     const match = segment.match(/^(--[A-Za-z0-9-]+|[A-Za-z-]+)\s*:\s*([\s\S]+)$/);
     if (!match) return false;
-    // a second "prop:" starting its own line inside the value almost always means a
-    // missing ";" merged two declarations into one segment, not a single multi-line value
-    // — none of this mock's CSS values put a bare newline directly before another
-    // identifier and a colon; a value that spans lines (Button.module.css's `transition`)
-    // separates lines with a trailing comma instead.
+    // a second "prop:" starting its own line inside a value usually means a missing ";"
+    // merged two declarations, not a multi-line value — none of this mock's CSS values
+    // put a bare newline before an identifier and colon; a value that spans lines
+    // (Button.module.css's `transition`) uses a trailing comma instead.
     return !/\n\s*(--[A-Za-z0-9-]+|[A-Za-z-]+)\s*:/.test(match[2]);
   };
 
