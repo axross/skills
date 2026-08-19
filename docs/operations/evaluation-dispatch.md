@@ -197,8 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Five scenarios are declared today under `tools/evaluation/scenarios/`, four
-against the `inkwell` mock project and one against `tsuzuri`:
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->ten<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and four against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -218,6 +217,41 @@ against the `inkwell` mock project and one against `tsuzuri`:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`restore-real-file-names-in-production-stack-traces`](../../tools/evaluation/scenarios/restore-real-file-names-in-production-stack-traces/)
+  targets `sentry-instrumentation`, alongside `software-instrumentation` and
+  `software-development` as peers, and is the first scenario in the tree to
+  declare a `patch`: a unified diff that turns off `inkwell`'s working
+  source-map upload, applied at materialization rather than shipped in the
+  mock. Every factor, including its transcript factor, is judged by script —
+  see [Skill Evaluation](../specs/skill-evaluation.md) on `patch`, and
+  [Directory Structure](../conventions/directory-structure.md) for the
+  convention it follows.
+- [`run-the-toast-tests-the-suite-never-collects`](../../tools/evaluation/scenarios/run-the-toast-tests-the-suite-never-collects/)
+  targets `vitest-testing`, alongside `unit-testing` and `software-development`
+  as peers, and likewise declares a `patch`: one that adds a real-DOM test for
+  `PublishToast` named so it matches neither Vitest project's own `include`.
+  Its two outcome factors are textual, structural reads of `vitest.config.ts`
+  rather than a glob evaluator, and its transcript factor, like the sentry
+  scenario's, is judged by script.
+- [`publish-an-edit-without-a-redeploy`](../../tools/evaluation/scenarios/publish-an-edit-without-a-redeploy/)
+  targets `next-app-development` against `tsuzuri`'s build-time post catalog
+  — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
+  own "choices made for coverage" list names it — alongside
+  `tanstack-query-development` and `code-maintainability` as peers, and
+  carries a `discovery` factor and two `outcome` factors. It declares no
+  `transcript` factor, and its own `scenario.json` says why: the mock
+  states this defect's cause in its own prose, in both conditions, so a
+  transcript scan for that reasoning would measure reading rather than
+  reasoning.
+- [`accept-a-page-number-from-a-url`](../../tools/evaluation/scenarios/accept-a-page-number-from-a-url/)
+  targets `zod-schema` against a URL page number `tsuzuri` parses nowhere
+  today, alongside `next-app-development` and `react-component-development`
+  as peers, and carries a `discovery` factor and two `outcome` factors.
+- [`let-readers-leave-a-note-on-a-post`](../../tools/evaluation/scenarios/let-readers-leave-a-note-on-a-post/)
+  targets `application-security` against a reader-note feature invented in
+  its own prompt, alongside `zod-schema` and `next-app-development` as
+  peers, and carries a `discovery` factor, one `outcome` factor, and a
+  `transcript` factor judged by script.
 - [`let-readers-choose-which-language-a-post-shows-in`](../../tools/evaluation/scenarios/let-readers-choose-which-language-a-post-shows-in/)
   targets `loop-engineering` on `tsuzuri`, alongside
   `product-requirement-document-authoring`, `software-development`, and
@@ -226,8 +260,11 @@ against the `inkwell` mock project and one against `tsuzuri`:
   honestly for a skill that governs how an agent works — see
   [`docs/decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md`](../decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md).
 
-Together they exercise every path through the three scripts above: every
-phase, both judgment methods, a scenario that omits a phase entirely, and
-two mocks. Authoring further scenarios against the remaining catalogued
-subjects is separate, later work; this document describes what runs today,
-not the coverage it will eventually have.
+Together the ten exercise every path through the three scripts above: every
+phase, both judgment methods, a scenario that omits a phase entirely, one that
+declares a single phase alone, a scenario whose mock is patched before a probe
+or the offline check under `tests/repository/` ever sees it, and a second mock
+project. Authoring further scenarios against `inkwell`'s and `tsuzuri`'s
+remaining catalogued subjects, and against this repository's other mocks, is
+separate, later work; this document describes what runs today, not the coverage
+it will eventually have.
