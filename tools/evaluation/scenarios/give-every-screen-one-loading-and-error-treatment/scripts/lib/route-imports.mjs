@@ -406,6 +406,45 @@ function findOpenTagEnd(text, start) {
 }
 
 /**
+ * skips one JSX tag occurrence — an opening tag (`<Name ...>`), a
+ * self-closing tag (`<Name ... />`), or a closing tag (`</Name>`) — of
+ * WHATEVER name follows `text[ltIndex] === "<"`, unlike findOpenTagEnd
+ * (which is handed a specific `name` and a `start` already past it): this
+ * is what captureJsxElement's own children scan uses to step over a
+ * DIFFERENTLY-named nested element — `<p>` inside a `<SharedLayout>`'s own
+ * children — found while scanning a `{...}` expression container, so its
+ * own attribute quotes (`role="alert"`) are consumed correctly (delegated
+ * to findOpenTagEnd) and its own JSX TEXT afterward is never mistaken for
+ * a JS string (see that call site's own header for why that mistake
+ * happens without this). Declines to treat `<` as a tag start at all when
+ * not immediately followed by a name character or `/` — `attempts < 2` is
+ * a comparison, not a tag — the same disambiguation real JSX tooling makes
+ * from the very next character.
+ *
+ * @param {string} text
+ * @param {number} ltIndex text[ltIndex] === "<"
+ * @returns {{ end: number, kind: "open" | "close" | "self-closing" } | null}
+ *   `end` is the index of the tag's own terminating `>`; null when the
+ *   character after `<` is not a plausible tag start, or the tag never
+ *   closes before the text ends
+ */
+function skipJsxTag(text, ltIndex) {
+  let i = ltIndex + 1;
+  const closing = text[i] === "/";
+  if (closing) i++;
+  if (!/[A-Za-z_]/.test(text[i] ?? "")) return null; // not actually a tag start
+  while (i < text.length && /[A-Za-z0-9_$.]/.test(text[i])) i++;
+  if (closing) {
+    while (i < text.length && text[i] !== ">") i++;
+    if (i >= text.length) return null;
+    return { end: i, kind: "close" };
+  }
+  const openTag = findOpenTagEnd(text, i);
+  if (!openTag) return null;
+  return { end: openTag.end, kind: openTag.selfClosing ? "self-closing" : "open" };
+}
+
+/**
  * captures one JSX element occurrence starting at `ltIndex`, where
  * `text[ltIndex] === "<"` and the tag name immediately following is `name`.
  * Returns the element's own source text — `<Name .../>` or
@@ -429,7 +468,20 @@ function findOpenTagEnd(text, start) {
  * a JS string literal is — "Couldn't load posts." carries an apostrophe
  * that is not a string delimiter, and treating it as one would swallow
  * everything after it looking for a closing quote that will never come.
- * Separately, a nested SAME-NAMED
+ * That same plain-JSX-text-is-not-quoted fact holds one level DEEPER too:
+ * a ternary directly yielding leaf JSX — `{q.isPending ? <p>Loading…</p> :
+ * <p role="alert">Couldn't load posts.</p>}`, exactly this scenario's own
+ * subject — nests a DIFFERENTLY-named element inside the `{...}`
+ * container, and that nested element's own JSX text carries the same kind
+ * of apostrophe. A `jsxDepth` counter (via skipJsxTag, which itself
+ * delegates to findOpenTagEnd so a nested element's own attribute quotes
+ * are still consumed correctly) tracks whether the current position is
+ * inside such a nested element's own text; quote-tracking inside
+ * `exprDepth > 0` is gated on `jsxDepth === 0` for exactly this reason —
+ * without it, that apostrophe is misread as opening a string that no
+ * subsequent character ever closes, silently dropping the whole span (see
+ * usageSpansFor's own docs for why a dropped span reads as "this screen
+ * never used it" rather than an error). Separately, a nested SAME-NAMED
  * element that is itself self-closing (`<LoadingError text="inner" />`)
  * contributes no `</LoadingError>` of its own, so naively incrementing
  * `depth` on every `<LoadingError` occurrence — self-closing or not —
@@ -456,6 +508,7 @@ function captureJsxElement(text, ltIndex, name) {
   const closeTag = `</${name}>`;
   let quote = null;
   let exprDepth = 0; // depth of {...} expression containers within children
+  let jsxDepth = 0; // depth of a DIFFERENTLY-named nested element's own JSX text, within exprDepth
   while (i < text.length) {
     const ch = text[i];
     if (quote) {
@@ -468,7 +521,7 @@ function captureJsxElement(text, ltIndex, name) {
       continue;
     }
     if (exprDepth > 0) {
-      if (ch === '"' || ch === "'" || ch === "`") {
+      if (jsxDepth === 0 && (ch === '"' || ch === "'" || ch === "`")) {
         quote = ch;
         i++;
         continue;
@@ -482,6 +535,15 @@ function captureJsxElement(text, ltIndex, name) {
         exprDepth--;
         i++;
         continue;
+      }
+      if (ch === "<") {
+        const tag = skipJsxTag(text, i);
+        if (tag) {
+          if (tag.kind === "open") jsxDepth++;
+          else if (tag.kind === "close") jsxDepth = Math.max(0, jsxDepth - 1);
+          i = tag.end + 1;
+          continue;
+        }
       }
       i++;
       continue;
