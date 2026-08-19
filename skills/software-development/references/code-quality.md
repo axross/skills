@@ -55,6 +55,16 @@ The linter catches correctness and quality problems the formatter cannot see (an
 
 There are two kinds of comment, each with its own style: **doc-comments** that document an API, and **explanatory comments** that explain a specific spot in the code. Both are written in the comment voice below, and both are held to the admissibility test that follows it before either kind's own form and length rules apply. These rules apply to source-code comments only, not to commit messages — which the project's Conventional Commits practices own — or to prose documentation.
 
+### Comment Scope
+
+What makes text a comment is what it does, not what syntax carries it: text whose only purpose is to explain the artifact it sits beside, and that no program reads as data. Most languages carry that text in dedicated comment syntax — `//`, `#`, `/* */` — and every rule in this section reaches it directly. A format that offers no comment syntax at all does not fall outside these rules by construction: where the format provides a field or keyword for commentary and nothing reads that field to render, validate, or act on it — JSON Schema's `$comment` keyword is the worked example — that field carries a comment, and every rule in this section reaches it too. The reverse also holds: a field the format defines for something a program does read — renders to a user, validates input against, or hands to a downstream consumer — is data, not commentary, however prose-like its content looks; JSON Schema's own `description` keyword is exactly that, since a tool renders or consumes it, so the rules in this section do not reach it.
+
+**Guidelines:**
+
+- MUST treat text as a comment when its only purpose is to explain the artifact it sits beside and no program reads it as data, whatever syntax carries it.
+- MUST treat a field or keyword a format provides for commentary — one no validator, renderer, or consumer reads — as a comment held to every rule in this section, where the carrying format offers no dedicated comment syntax.
+- MUST NOT treat a field a program renders, validates against, or hands to a consumer as a comment, however prose-like its content reads; the rules in this section do not reach it.
+
 ### Comment Voice
 
 The voice is stated here rather than inferred from the surrounding files, because inferring it fails exactly when it matters. A codebase drifts the moment one large change is written in a different style, and from then on the surrounding files answer two ways — so a rule that points at them hands the next author whichever answer they happened to open, and no linter can see the disagreement. A stated voice answers once.
@@ -100,7 +110,7 @@ An explanatory comment that clears the admissibility test above still has to be 
 
 **Guidelines:**
 
-- MUST write an explanatory comment in the language's line-comment form (e.g. `//`, `#`) rather than a block-comment form.
+- MUST write an explanatory comment in the language's line-comment form (e.g. `//`, `#`) rather than a block-comment form, where the carrying language offers a choice of comment forms; a commentary field or keyword in a format with no comment syntax of its own — see Comment Scope above — has no such choice to make and this rule does not apply to it.
 - MUST keep an explanatory comment within a budget of about 300 characters of comment text — roughly four lines at an 80-column wrap, with a single line well within it. The budget protects a comment a reader can hold at a glance while still seeing the code it sits beside: rewrapping the same paragraph onto fewer, longer lines never brings it inside the budget, only shortening the prose does. A comment that needs more room is carrying material that belongs in Outside the Code below, not in a longer comment, unless that section's carve-out for file-local implementation rationale admits it.
 - MUST NOT delete a comment that explains a "why", an edge case, or non-obvious behavior.
 - MUST let the linter/formatter enforce comment conventions where it can, and fix any comment-style violations it reports.
@@ -109,12 +119,15 @@ An explanatory comment that clears the admissibility test above still has to be 
 
 A `TODO` is a promise that something not-yet-good-enough gets finished later, and a promise nobody can find again is not a plan. Marking it with the issue it is tracked under is what keeps it findable — and pointing at the project's own issue tracker anywhere else in a comment does not earn that same concession, because nothing there anchors it to being acted on. A `TODO` is an explanatory comment, so the form and length rules above govern it too; what the issue it names cannot hold belongs in that issue rather than in a longer comment.
 
+What makes a site a `TODO` is the code sitting beside it, not the state of the issue the comment references: a `TODO` marks code that is itself unfinished, and that is the test, never whether the referenced issue happens to be open or closed. An issue can stay open long after every decision it records has already landed — a multi-step umbrella whose early steps shipped and whose last is still moving — and citing that issue does not make an already-finished site unfinished. Converting such a site to a `TODO` for the sake of keeping a reference tracked tells the next reader that finished code still needs work, which is a worse defect than the bare reference it replaces.
+
 Four other comment forms carry an identifier or a URL for a different reason: each names something the code cannot state at all, and a documented standard already prescribes exactly this shape for it.
 
 **Guidelines:**
 
 - MUST write a `TODO` comment as `TODO(#123):` — the issue number in parentheses immediately after `TODO`, no space, followed by a colon — unless the project documents its own convention, in which case follow that instead.
 - MUST reference, in a `TODO(#123):` comment, an issue already tracked in the project's own issue or ticket tracker that resolves to a follow-up someone can act on.
+- MUST write a `TODO` only where the code beside it is itself unfinished; an issue's own open state is not by itself grounds for one, and an issue that is open but whose decisions the code already implements gives no license to mark that site a `TODO`.
 - MUST use `TODO` for anything temporary or good-enough-but-not-perfect that a future action can settle, and MUST NOT mark the same case with `FIXME`, `XXX`, `HACK`, or any other marker; `TODO` is the one vocabulary this convention collects.
 - MUST NOT reference the project's own issue or ticket tracker anywhere in a comment except inside a `TODO(#123):` comment; a bare issue number or a link to one, left in an explanatory comment or a doc-comment, is not admissible.
 - MUST treat each of the following as admissible despite carrying an identifier or a URL:
