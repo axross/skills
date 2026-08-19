@@ -1,0 +1,52 @@
+{
+  "id": "broaden-a-suite-that-never-opens-a-post",
+  "description": "end-to-end-testing is targeted against a complaint that the browser suite only ever looks at the home page — never a test file, a locator, or the skill's own vocabulary — with unit-testing (the multi-language behaviour does have a unit-testable module behind it) and next-app-development (a framework reading of \"the post pages are not checked\") sitting in the peer set as competing, plausible-looking picks. The outcome factors check that a new spec drives the post page for a reader whose accepted language matches only by language, not by exact locale — the fallback behaviour the owner called the whole point, which `e2e/home.spec.ts` never exercises because it never sets a locale at all — and that a new spec also drives the one listed post nothing can actually reach, the negative case a happy-path broadening would miss. Neither post is named in the prompt, so a control run has no local demonstration of either journey to copy.",
+  "mock": "tsuzuri",
+  "targetSkills": ["end-to-end-testing"],
+  "peerSkills": ["unit-testing", "next-app-development"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Our browser tests only ever look at the home page. The post pages are the whole point of the site — they are where the multi-language behaviour actually happens — and nothing checks them at all. Every release I am just hoping. Can you fix that?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-end-to-end-testing",
+      "phase": "discovery",
+      "description": "The complaint names a whole suite and a whole page, never a test file or a locator — so an agent that reaches for end-to-end-testing here is finding it from the problem, with unit-testing (the multi-language behaviour does have a unit-testable module behind it) and next-app-development (a framework reading of \"the post pages are not checked\") sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "end-to-end-testing" }
+      }
+    },
+    {
+      "id": "covers-a-reader-whose-language-matches-only-loosely",
+      "phase": "outcome",
+      "description": "`on-writing-in-two-languages` carries exactly one translation, tagged plain `ja`, so a browser sending `ja-JP` reaches it only through the language-only fallback — the behaviour the owner called the whole point. Asserting it from a browser means controlling the reader's own accepted language, which `e2e/home.spec.ts` never does. This factor passes only when some spec other than `home.spec.ts` both names that slug and sets the reader's language.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-e2e-covers.mjs",
+        "input": {
+          "slug": "on-writing-in-two-languages",
+          "requireLocale": true
+        }
+      }
+    },
+    {
+      "id": "covers-the-post-that-is-listed-but-unreachable",
+      "phase": "outcome",
+      "description": "`draft-notes` carries no translations at all, so `resolveTranslation` returns `null` and its page 404s — while the home page still lists it as a link. It is the negative case a happy-path broadening misses, and end-to-end-testing is what pushes toward enumerating journeys rather than adding just one. This factor passes only when some spec other than `home.spec.ts` names that slug.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-e2e-covers.mjs",
+        "input": {
+          "slug": "draft-notes",
+          "requireLocale": false
+        }
+      }
+    }
+  ]
+}

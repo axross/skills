@@ -78,16 +78,46 @@ and is why the shape survives until then.
   control run the conventions the evaluation is trying to detect. A uniformly
   poor one would be just as wrong in the other direction, flattering a
   treatment run by giving it something obvious to correct.
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
+  reads this suite as its own counter-precedent — bare subject naming and no
+  condition grouping — so a fix to the untested module beside it has nothing
+  here to copy.
 - **`shared/resolve-translation.ts` exports its three helpers**, which a real
   module might keep private. Private, "did the test go through the caller's
   public surface" stops being a choice a model can get wrong, and the signal
   disappears.
-- **`shared/resolve-translation.ts` ships no test**, which is what a scenario
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
+  is the scenario this choice serves: its own outcome factors ask whether a
+  new spec names those exported functions as callable subjects, which stays
+  a real question only while they are public.
+- **`shared/resolve-translation.ts` ships no test**, which is what
+  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
   asks a model to fix. This is a gap the project has rather than one planted
   in it: the history says how it happened without being asked to, since the
   slug module was committed _with_ its spec and the locale module alone
   during a refactor. An untested module beside a tested one is what real
   repositories look like, so no patch creates it.
+- **`jest.config.cjs` declares no coverage options.** `history.jsonc`'s own
+  commit that adds the file carries the message `"WIP"` — a project that
+  wired up a test runner and moved on without ever turning coverage on is
+  ordinary, not a defect invented for the scenario.
+  [`show-what-the-test-run-never-reaches`](../scenarios/show-what-the-test-run-never-reaches/)
+  needs exactly this gap: a mock that already declared `collectCoverageFrom`
+  would demonstrate the answer beside the question.
+- **`e2e/home.spec.ts` is a two-test suite that never renders a post.** One
+  test lists the posts on the home page; the other asserts that an unknown
+  slug 404s. Neither opens a post that resolves, so
+  `app/(site)/posts/[slug]/` — the route where the site's multi-language
+  behaviour actually happens — is driven only for its not-found path.
+  `history.jsonc`'s own `"WIP e2e"` commit is honest evidence the suite was
+  started and not finished, which is an ordinary shape for a project this
+  size. This is a different claim from the stand-in
+  [#299](https://github.com/axross/skills/issues/299) removed from the
+  fixture-artifacts list below — that was a hand-written type stand-in and a
+  command that did not exist, never a statement about how much of the site
+  the suite drives.
+  [`broaden-a-suite-that-never-opens-a-post`](../scenarios/broaden-a-suite-that-never-opens-a-post/)
+  asks a model to close that gap.
 - **The post catalog in `posts-data.ts` is a build-time module rather than a
   fetch from a content backend.**
   [`publish-an-edit-without-a-redeploy`](../scenarios/publish-an-edit-without-a-redeploy/)
@@ -165,6 +195,11 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   exemplary suite would hand a control run the conventions the evaluation
   detects; a uniformly poor one would flatter a treatment run by leaving
   something obvious to correct.
+  [`judge-what-the-publish-toast-commit-leaves-unchecked`](../scenarios/judge-what-the-publish-toast-commit-leaves-unchecked/)
+  claims one specific instance of this mix: the publish toast component ships
+  with no test of its own, while its four sibling components under
+  `src/components/` — `Button`, `Card`, `ConsentBanner`, and `Sidebar` — each
+  ship a `.browser.test.tsx`.
 - **There is no dashboard, settings page, onboarding flow, or sign-in
   screen.**
   [`sketch-a-screen-for-how-an-authors-posts-are-doing`](../scenarios/sketch-a-screen-for-how-an-authors-posts-are-doing/)
@@ -214,6 +249,23 @@ resolves, and its four checks pass in a materialized copy.
 - **Deck content is seeded on first launch rather than fetched.** Same
   reason: a probe workspace has no network, and studying needs cards to
   work with from the first run.
+- **The signed-in group is gated by redirecting out of a layout component,
+  not by a guard at the navigator.** `authenticated-layout.tsx` returns
+  `<Redirect href="/sign-in" />` for a signed-out visitor rather than
+  mounting or omitting the `(app)` group declaratively, so the route a
+  learner was heading for is gone by the time they have signed in — a real
+  gap a competent Expo developer could easily have left in place before
+  reaching for the framework's own declarative guard.
+  [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
+  asks a model to close it.
+- **Nothing in the app has a disabled state.** Three flows that wait on
+  async work — adding a card, signing in, signing out — swap their
+  control's label and leave it pressable throughout, and the theme
+  declares no disabled role in either palette. An app whose only submit
+  flows are these three, none of them urgent enough to have provoked a
+  double-submit complaint yet, is an ordinary place for this to still be
+  missing. [`add-a-screen-for-editing-an-existing-card`](../scenarios/add-a-screen-for-editing-an-existing-card/)
+  asks a model to add one.
 
 ### `recall` — fixture artifacts
 

@@ -1,0 +1,75 @@
+{
+  "id": "go-through-the-routes-commit-before-anyone-else-does",
+  "description": "code-review is targeted against a pre-review ask pointed at one named commit — 'the commit that put the routes and the shell in' — inkwell's routes + shell commit, which is its real front end: nine files carrying two real screens, the shell they render inside, the root redirect, and three stylesheets, with genuine issues in it (an unvalidated Number() on a route param that reaches a query key and an API path, two screens hand-rolling their own pending and error branches, a locale-dependent date render with no invalid-date path, and no test for either screen while every component under src/components/ ships one) rather than the trivial docs commit sitting at HEAD. quality-assurance (a 'was this actually verified' read of the same ask), code-maintainability (a design-quality read of the same commit), and loop-engineering (a 'here's a change, drive it through review' read of the same situation) sit in the peer set as competing, plausible picks, which is what makes the discovery factor a real question rather than a formality. The transcript factors climb from scoping — did the agent ask git for the commit's own diff rather than guessing which files changed — through anchoring — do its findings cite real lines of the commit's own files, a relationship checked against the reconstructed workspace rather than a keyword — to content: whether it actually names a defect, which only a reasoning judge can confirm today.",
+  "mock": "inkwell",
+  "targetSkills": ["code-review"],
+  "peerSkills": [
+    "quality-assurance",
+    "code-maintainability",
+    "loop-engineering"
+  ],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Before I ask anyone else to look at it, go through the commit that put the routes and the shell in, and tell me what you'd raise."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-code-review",
+      "phase": "discovery",
+      "description": "The prompt asks the agent to 'go through' a named commit and say what it 'would raise' before anyone else looks at it — the shape of an ordinary pre-review ask, naming no skill. An agent that reaches for code-review here is finding it from the situation, with quality-assurance (a 'was this actually verified' read of the same ask), code-maintainability (a design-quality read of the same commit), and loop-engineering (a 'here's a change, drive it through review' read of the same situation) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "code-review" }
+      }
+    },
+    {
+      "id": "scopes-the-review-from-the-commits-own-diff",
+      "phase": "transcript",
+      "description": "code-review's own scoping rule requires establishing the diff mechanically before reading anything else — 'git diff <base>..HEAD for a branch ... Do not reconstruct the change set from memory.' This factor checks a tool call's own input for the Bash invocation that would actually produce this commit's diff, so an agent that opened files by guessing which ones the commit touched, without ever asking git what the commit itself contains, does not satisfy it.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-transcript-tool-input-mentions.mjs",
+        "input": {
+          "anyOf": ["git show", "git diff", "git log -p", "git log --patch"]
+        }
+      }
+    },
+    {
+      "id": "anchors-findings-to-lines-of-the-reviewed-commit",
+      "phase": "transcript",
+      "description": "code-review's own evidence rule requires every finding anchored to a precise, repo-relative file:line (or file:line-line for a range), never an invented line number or path. This script cannot tell a citation that sits inside an actual finding from one that sits inside plain narration — that distinction is not machine-checkable from the transcript alone — so what it checks is anchoring itself, not report structure: whether the agent's own text carries at least two distinct citations whose path is one of the nine files the routes + shell commit touched and whose line genuinely exists in that file, as the reconstructed workspace holds it. That is a relationship validated against the workspace, not the presence of a word — a citation naming a real file at a made-up line number, or naming a file the commit never touched, does not count.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-transcript-cites-changed-lines.mjs",
+        "input": {
+          "files": [
+            "src/App.tsx",
+            "src/main.tsx",
+            "src/routes/Layout.tsx",
+            "src/routes/Layout.module.css",
+            "src/routes/RootRedirect.tsx",
+            "src/routes/PostListPage.tsx",
+            "src/routes/PostListPage.module.css",
+            "src/routes/PostEditorPage.tsx",
+            "src/routes/PostEditorPage.module.css"
+          ],
+          "minimumDistinctCitations": 2
+        }
+      }
+    },
+    {
+      "id": "names-a-real-defect-in-the-reviewed-commit",
+      "phase": "transcript",
+      "description": "Whether the transcript names an actual defect present in the commit — and the risk it carries — rather than a style preference or a suggestion outside the commit's own diff, is a judgment about content that no script can honestly proxy: a scripted stand-in would collapse to a grep for words like 'bug' or 'risk', which a generic, unfounded caution can satisfy without ever finding anything real. Until a reasoning judge is available to make this call, this factor's own result records as an error rather than a verdict — never as false, since docs/specs/skill-evaluation.md keeps a judgment that could not be made distinct from one that came out false, and a missing judge is the former, not the latter.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work reviewing one specific commit that added an app's routes and shell (src/App.tsx, src/main.tsx, src/routes/Layout.tsx, src/routes/Layout.module.css, src/routes/RootRedirect.tsx, src/routes/PostListPage.tsx, src/routes/PostListPage.module.css, src/routes/PostEditorPage.tsx, src/routes/PostEditorPage.module.css). Decide whether the agent's own reasoning names at least one concrete, real defect actually present in that commit's code, and states the risk it carries, as distinct from a style preference, a suggestion outside the commit's own diff, or a generic caution with no specific defect named. Answer false if the transcript names no such concrete defect, even if its prose sounds thorough."
+      }
+    }
+  ]
+}

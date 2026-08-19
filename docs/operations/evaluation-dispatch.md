@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->eighteen<!-- /count --> scenarios are declared today: ten against the `inkwell` mock project, and eight against `tsuzuri`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-six<!-- /count --> scenarios are declared today: thirteen against `inkwell`, eleven against `tsuzuri`, and two against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -259,6 +259,33 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->eighteen<!
   Its two outcome factors are textual, structural reads of `vitest.config.ts`
   rather than a glob evaluator, and its transcript factor, like the sentry
   scenario's, is judged by script.
+- [`find-out-what-a-change-has-to-pass-here`](../../tools/evaluation/scenarios/find-out-what-a-change-has-to-pass-here/)
+  targets `software-development` on `inkwell`, alongside `quality-assurance` and
+  `unit-testing` as peers, on a plain contributor question rather than a code
+  change. It carries a `discovery` factor and three `transcript` factors — two
+  judged by script (reading the project's own contributor documentation, then
+  naming every check it lists) and one by reasoning (conveying the
+  format-then-lint loop as an ordered discipline rather than a flat checklist) —
+  and declares no `outcome` phase, since the task leaves no artefact in the
+  working tree for one to read. Its own `scenario.json` records why its two
+  scripted transcript factors are expected to be weak discriminators: the mock's
+  own `AGENTS.md` already points any agent at `README.md`, in both conditions.
+- [`go-through-the-routes-commit-before-anyone-else-does`](../../tools/evaluation/scenarios/go-through-the-routes-commit-before-anyone-else-does/)
+  targets `code-review`, alongside `quality-assurance`, `code-maintainability`,
+  and `loop-engineering` as peers, on `inkwell`'s `routes + shell` commit — its
+  real front end, not the trivial `docs` commit at `HEAD`. It carries a
+  `discovery` factor and three `transcript` factors — two judged by script
+  (scoping the review from the commit's own diff, then anchoring findings to
+  real lines of the commit's own files) and one by reasoning (naming an actual
+  defect) — with no `outcome` phase, for the same reason as above.
+- [`judge-what-the-publish-toast-commit-leaves-unchecked`](../../tools/evaluation/scenarios/judge-what-the-publish-toast-commit-leaves-unchecked/)
+  targets `quality-assurance`, alongside `code-review` and `unit-testing` as
+  peers, on a different `inkwell` commit from the review scenario above —
+  `publish toast` — and a differently framed question: not what a reviewer would
+  raise about the change, but what signing it off would mean taking on trust. It
+  carries a `discovery` factor and two `transcript` factors — one judged by
+  script (requiring the format-and-lint gate as evidence) and one by reasoning
+  (naming the untested toast as the actual gap) — again with no `outcome` phase.
 - [`publish-an-edit-without-a-redeploy`](../../tools/evaluation/scenarios/publish-an-edit-without-a-redeploy/)
   targets `next-app-development` against `tsuzuri`'s build-time post catalog
   — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
@@ -314,13 +341,57 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->eighteen<!
   mock's own declared choice to keep its helpers exported. It declares no
   `reasoning` factor: its artefact is code and both of its expectations are
   mechanically checkable.
+- [`cover-the-locale-fallback-nothing-tests`](../../tools/evaluation/scenarios/cover-the-locale-fallback-nothing-tests/)
+  targets `unit-testing` against `tsuzuri`, alongside `jest-testing` and
+  `end-to-end-testing` as peers, and asks a fix to cover
+  `shared/resolve-translation.ts` — the one module under `shared/` that ships
+  no spec — with both outcome factors checking spec craft the mock's own
+  `blog-post-slug.spec.ts` demonstrates only the opposite half of, or not at
+  all: naming a callable subject with `()`, and grouping a shared condition
+  under its own `describe("when ...")` block.
+- [`show-what-the-test-run-never-reaches`](../../tools/evaluation/scenarios/show-what-the-test-run-never-reaches/)
+  targets `jest-testing` against `tsuzuri`, alongside `unit-testing` and
+  `quality-assurance` as peers, and asks for real coverage visibility rather
+  than trust in a green run — checking that a fix declares
+  `collectCoverageFrom` (so an untouched file stays visible as uncovered
+  instead of disappearing from the report) and sets `coverageProvider` to
+  `v8` (the instrumentation `jest-testing` prefers for a project transformed
+  by SWC rather than Babel), neither of which `jest.config.cjs` declares
+  today.
+- [`broaden-a-suite-that-never-opens-a-post`](../../tools/evaluation/scenarios/broaden-a-suite-that-never-opens-a-post/)
+  targets `end-to-end-testing` against `tsuzuri`, alongside `unit-testing`
+  and `next-app-development` as peers, and asks for the post pages
+  `e2e/home.spec.ts` never opens — checking that a fix drives a reader whose
+  accepted language matches only by language rather than by exact locale,
+  and drives the one post the home page links to that has no translation at
+  all and so 404s.
 
-Together the eighteen exercise every path through the three scripts above:
+- [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../../tools/evaluation/scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
+  targets `expo-app-development` against `recall`, alongside
+  `react-component-development` and `application-security` as peers, and
+  carries a `discovery` factor and two `outcome` factors. It claims a gap
+  [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
+  own "choices made for coverage" list names for `recall`: the signed-in
+  group gated by an imperative redirect rather than a declarative guard at
+  the navigator, so a deck link loses its destination at sign-in.
+- [`add-a-screen-for-editing-an-existing-card`](../../tools/evaluation/scenarios/add-a-screen-for-editing-an-existing-card/)
+  targets `high-fidelity-ui-design` against `recall`, alongside
+  `wireframe-design`, `react-component-styling`, and
+  `react-component-development` as peers, and carries a `discovery` factor
+  and two `outcome` factors. It claims the other gap that same list names
+  for `recall`: nothing in the app has a disabled state.
+
+Together the twenty-six exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
-probe or the offline check under `tests/repository/` ever sees it, a second mock
-project, and — across the four writing-and-maintainability scenarios — an
-artefact that is prose rather than code. Authoring further scenarios against
-`inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
+probe or the offline check under `tests/repository/` ever sees it, scenarios spread across three
+different mock projects, and — across the three scenarios that target a
+document-authoring skill (`technical-document-authoring`,
+`living-project-documentation`, and `product-requirement-document-authoring`)
+— an artefact that is prose rather than code. Nine carry at least one
+`transcript` factor — fourteen transcript factors in total, six judged by
+reasoning and eight by script. Of the seventeen that carry none, three state
+their reason in their own `scenario.json`. Authoring further scenarios against
+`inkwell`'s, `tsuzuri`'s, and `recall`'s remaining catalogued subjects, and against this
 repository's other mocks, is separate, later work; this document describes what
 runs today, not the coverage it will eventually have.

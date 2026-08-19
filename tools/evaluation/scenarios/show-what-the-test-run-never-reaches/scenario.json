@@ -1,0 +1,54 @@
+{
+  "id": "show-what-the-test-run-never-reaches",
+  "description": "jest-testing is targeted against a complaint about trust in the test run's own report — never coverage, an option, or the skill's own vocabulary — with unit-testing (a coverage-questions reading of the same complaint) and quality-assurance (a was-this-really-verified reading of it) sitting in the peer set as competing, plausible-looking picks. The outcome factors check that the fix actually declares which files Jest instruments, rather than merely turning `--coverage` on — a naive answer that would make the very module the owner is worried about disappear from the report instead of appearing as uncovered — and that it measures with the runner's own `v8` instrumentation, which jest-testing prefers for a project whose transform (`next/jest`'s SWC, not Babel) is this one's shape. `jest.config.cjs` declares neither option today, so a control run has nothing local to copy.",
+  "mock": "tsuzuri",
+  "targetSkills": ["jest-testing"],
+  "peerSkills": ["unit-testing", "quality-assurance"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "`npm test` prints a row of green ticks and I have stopped trusting it. Before I rewrite the locale matching under `shared/` I want to be able to run something that tells me how much of the code in there the tests actually exercise — and I want it honest about the files no test touches at all, because those are exactly the ones I am worried about. Make it something I can run again later rather than a one-off you paste into chat. Do not add any new tests yet; I want to see the gap first."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-jest-testing",
+      "phase": "discovery",
+      "description": "The complaint names no coverage percentage, no config option, and no runner — only that the green ticks are no longer trusted — so an agent that reaches for jest-testing here is finding it from the problem, with unit-testing (which names \"coverage questions\" in its own description) and quality-assurance (which asks whether a change was really verified) sitting right there as competing, plausible-looking picks; the actual answer is the runner's own machinery, which is jest-testing's territory.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": {
+          "skill": "jest-testing"
+        }
+      }
+    },
+    {
+      "id": "counts-the-files-no-test-imports",
+      "phase": "outcome",
+      "description": "This is the defect in the naive answer. With `--coverage` alone Jest reports only on the files the tests actually loaded, which — in jest-testing's own words — flatters the number: `shared/resolve-translation.ts`, the module the owner is worried about, does not appear as uncovered, it disappears and quietly raises the reported percentage. `collectCoverageFrom` is what names the files that should be covered whether or not anything imported them, which that skill calls the only way the percentage means what a reader assumes. Its guideline bullet scopes the MUST to a threshold being enforced, and this task asks for no threshold — so what this factor asserts is that remedy for an honest number, not an unconditional obligation. `jest.config.cjs` declares no coverage option today, so there is nothing local to copy.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "jest.config.cjs",
+          "mustContainAll": ["collectCoverageFrom"]
+        }
+      }
+    },
+    {
+      "id": "measures-with-the-engines-own-instrumentation",
+      "phase": "outcome",
+      "description": "jest-testing prefers `v8` coverage instrumentation over Babel's own in a project whose transform is not Babel — and `jest.config.cjs` wraps `next/jest`, which transforms with SWC. The fix has to set `coverageProvider` to `v8` rather than leave the default; this asserts adherence to what the skill teaches for a project of this shape, stated here so a reader can disagree with the expectation without reading the script.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "jest.config.cjs",
+          "mustContainAll": ["coverageProvider", "v8"]
+        }
+      }
+    }
+  ]
+}
