@@ -59,10 +59,10 @@ Both are declared below so a reviewer can tell either from a bug —
 review round.
 
 Where an entry below names a scenario asking something of a model, it is
-naming the coverage that affordance exists for, not necessarily a scenario
-already declared — #392's step 4 is still authoring the set. An entry whose
-scenario is not yet written is a standing reason the mock is shaped as it
-is, and is why the shape survives until then.
+naming the coverage that affordance exists for, not a scenario already
+declared. #392's step 4 authors the set, one slice at a time; an entry whose
+scenario is not yet written is a standing reason the mock is shaped as it is,
+and is why the shape survives until then.
 
 ### `tsuzuri` — choices made for coverage
 
@@ -78,44 +78,16 @@ is, and is why the shape survives until then.
   control run the conventions the evaluation is trying to detect. A uniformly
   poor one would be just as wrong in the other direction, flattering a
   treatment run by giving it something obvious to correct.
-  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
-  reads this suite as its own counter-precedent — bare subject naming and no
-  condition grouping — so a fix to the untested module beside it has nothing
-  here to copy.
 - **`shared/resolve-translation.ts` exports its three helpers**, which a real
   module might keep private. Private, "did the test go through the caller's
   public surface" stops being a choice a model can get wrong, and the signal
   disappears.
-  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
-  is the scenario this choice serves: its own outcome factors ask whether a
-  new spec names those exported functions as callable subjects, which stays
-  a real question only while they are public.
-- **`shared/resolve-translation.ts` ships no test**, which is what
-  [`cover-the-locale-fallback-nothing-tests`](../scenarios/cover-the-locale-fallback-nothing-tests/)
+- **`shared/resolve-translation.ts` ships no test**, which is what a scenario
   asks a model to fix. This is a gap the project has rather than one planted
   in it: the history says how it happened without being asked to, since the
   slug module was committed _with_ its spec and the locale module alone
   during a refactor. An untested module beside a tested one is what real
   repositories look like, so no patch creates it.
-- **`jest.config.cjs` declares no coverage options.** `history.jsonc`'s own
-  commit that adds the file carries the message `"WIP"` — a project that
-  wired up a test runner and moved on without ever turning coverage on is
-  ordinary, not a defect invented for the scenario.
-  [`show-what-the-test-run-never-reaches`](../scenarios/show-what-the-test-run-never-reaches/)
-  needs exactly this gap: a mock that already declared `collectCoverageFrom`
-  would demonstrate the answer beside the question.
-- **`e2e/home.spec.ts` is a two-test suite that only ever opens the home
-  page**, and `app/(site)/posts/[slug]/` — the route where the site's
-  multi-language behaviour actually happens — has no end-to-end coverage at
-  all. `history.jsonc`'s own `"WIP e2e"` commit is honest evidence the suite
-  was started and not finished, which is an ordinary shape for a project
-  this size. This is a different claim from the stand-in
-  [#299](https://github.com/axross/skills/issues/299) removed from the
-  fixture-artifacts list below — that was a hand-written type stand-in and a
-  command that did not exist, never a statement about how much of the site
-  the suite drives.
-  [`broaden-a-suite-that-never-opens-a-post`](../scenarios/broaden-a-suite-that-never-opens-a-post/)
-  asks a model to close that gap.
 - **The post catalog in `posts-data.ts` is a build-time module rather than a
   fetch from a content backend.**
   [`publish-an-edit-without-a-redeploy`](../scenarios/publish-an-edit-without-a-redeploy/)
