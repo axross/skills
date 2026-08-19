@@ -96,12 +96,12 @@ Doc-comments carry the API-level documentation, written in the project's doc-com
 
 ### Explanatory Comments
 
-An explanatory comment that clears the admissibility test above still has to be written in the right shape: the language's own line-comment form, and no longer than a reader can hold at a glance while still seeing the code it sits beside.
+An explanatory comment that clears the admissibility test above still has to be written in the right shape: the language's own line-comment form, and short enough that a reader can hold it at a glance while still seeing the code it sits beside. That limit is a budget on the comment's prose, not on the lines carrying it — the same paragraph pushed onto fewer, longer lines is exactly as long to read, so a limit stated in lines can be satisfied without shortening anything.
 
 **Guidelines:**
 
 - MUST write an explanatory comment in the language's line-comment form (e.g. `//`, `#`) rather than a block-comment form.
-- MUST keep an explanatory comment within a two-to-four-line ceiling: a single line is well within it, and a comment already spanning more than one line stops at four. A comment that needs more room is carrying material that belongs in Outside the Code below, not in a longer comment.
+- MUST keep an explanatory comment within a budget of about 300 characters of comment text — roughly four lines at an 80-column wrap, with a single line well within it. The budget protects a comment a reader can hold at a glance while still seeing the code it sits beside: rewrapping the same paragraph onto fewer, longer lines never brings it inside the budget, only shortening the prose does. A comment that needs more room is carrying material that belongs in Outside the Code below, not in a longer comment, unless that section's carve-out for file-local implementation rationale admits it.
 - MUST NOT delete a comment that explains a "why", an edge case, or non-obvious behavior.
 - MUST let the linter/formatter enforce comment conventions where it can, and fix any comment-style violations it reports.
 
@@ -125,12 +125,14 @@ Four other comment forms carry an identifier or a URL for a different reason: ea
 
 ### Outside the Code
 
-A comment kept out by the rules above still has to go somewhere, or the discipline just deletes information instead of relocating it. Where a project ships no living-documentation capability these rules name no destination and add no obligation of their own, which settles the case they would otherwise leave open: a "why" that genuinely will not compress, in a project with nowhere to move it, stays where it is and over the ceiling. The rule against deleting such a comment outranks the length ceiling, because that ceiling exists to relocate material rather than to destroy it.
+A comment kept out by the rules above still has to go somewhere, or the discipline just deletes information instead of relocating it. Three destinations cover most of what gets evicted: a specification or glossary entry for a specification fact or a domain term, a decision record for rationale that constrains future work, and the commit message for the reasoning behind one diff. They do not cover file-local implementation rationale — a "why" that explains why the code beside it is shaped as it is. That is not a specification fact or a domain-vocabulary definition; it is not a decision constraining future work whose rationale the code cannot recover; and it is not the reason for one diff, because the reader needs it while reading the code, not while reading history. A "why" of that kind that also will not come within the budget above without dropping a step the reader needs stays where it is and over the budget, whether or not the project ships a living-documentation capability. The rule against deleting such a comment outranks the length budget, because that budget exists to relocate material rather than to destroy it.
 
 **Guidelines:**
 
 - MUST move a specification fact or a domain-vocabulary definition evicted from a comment into a specification or glossary entry, and a piece of rationale evicted from a comment into a decision record, where the project ships a living-documentation capability — consult that capability for when a record is owed and how it is written, rather than any summary of that gating here.
 - MUST route the reasoning behind a specific change to the commit message that made it, per the project's Conventional Commits practices, rather than leaving it in a comment beside the diff.
+- MUST check a comment over the budget against the three destinations above before leaving it beside the code: a comment any one of them accepts belongs there, not in place.
+- MUST leave a comment in place and over the budget when none of the three destinations accepts it because it is file-local implementation rationale, and shortening it into the budget would drop a step the reader needs.
 
 ## Import Hygiene
 
