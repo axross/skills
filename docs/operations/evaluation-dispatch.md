@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->nine<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and three against `tsuzuri`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->ten<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and four against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -252,12 +252,19 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->nine<!-- /
   its own prompt, alongside `zod-schema` and `next-app-development` as
   peers, and carries a `discovery` factor, one `outcome` factor, and a
   `transcript` factor judged by script.
+- [`let-readers-choose-which-language-a-post-shows-in`](../../tools/evaluation/scenarios/let-readers-choose-which-language-a-post-shows-in/)
+  targets `loop-engineering` on `tsuzuri`, alongside
+  `product-requirement-document-authoring`, `software-development`, and
+  `next-app-development` as peers. It declares a `discovery` factor judged by
+  script and nothing else, because the other two phases cannot be judged
+  honestly for a skill that governs how an agent works — see
+  [`docs/decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md`](../decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md).
 
-Together the nine exercise every path through the three scripts above: every
-phase, both judgment methods, a scenario that omits a phase entirely, a
-scenario whose mock is patched before a probe or the offline check under
-`tests/repository/` ever sees it, and a second mock project. Authoring further
-scenarios against `inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and
-against this
-repository's other mocks, is separate, later work; this document describes
-what runs today, not the coverage it will eventually have.
+Together the ten exercise every path through the three scripts above: every
+phase, both judgment methods, a scenario that omits a phase entirely, one that
+declares a single phase alone, a scenario whose mock is patched before a probe
+or the offline check under `tests/repository/` ever sees it, and a second mock
+project. Authoring further scenarios against `inkwell`'s and `tsuzuri`'s
+remaining catalogued subjects, and against this repository's other mocks, is
+separate, later work; this document describes what runs today, not the coverage
+it will eventually have.
