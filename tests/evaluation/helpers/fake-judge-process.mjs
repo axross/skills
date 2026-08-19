@@ -19,7 +19,11 @@ export function fakeJudgeChild() {
   child.stdout.setEncoding = () => {};
   child.stderr = new EventEmitter();
   child.stderr.setEncoding = () => {};
-  child.kill = () => {};
+  child.killed = false;
+  child.kill = (signal) => {
+    child.killed = true;
+    child.killSignal = signal;
+  };
   return child;
 }
 
@@ -93,6 +97,34 @@ export function spawnFnStdout(stdout) {
       child.stdout.emit("data", stdout);
       child.emit("close", 0);
     });
+    return child;
+  };
+}
+
+/**
+ * a spawnFn whose child never emits "close" or "error" — a stuck judge,
+ * for driving `runJudgeProcess`'s timeout path. The returned `child` tracks
+ * `.killed`/`.killSignal`, so a test can assert the timeout actually killed
+ * it rather than merely resolving.
+ */
+export function spawnFnHangs() {
+  return () => fakeJudgeChild();
+}
+
+/**
+ * a spawnFn whose child has `stdout: null` (and `stderr: null`) — the shape
+ * a `stdio` override, or a malformed test double, could hand back — then
+ * exits 0 with nothing captured. Exercises that `runJudgeProcess`
+ * optional-chains both streams' handlers rather than assuming either
+ * exists.
+ */
+export function spawnFnNullStdio() {
+  return () => {
+    const child = new EventEmitter();
+    child.stdout = null;
+    child.stderr = null;
+    child.kill = () => {};
+    queueMicrotask(() => child.emit("close", 0));
     return child;
   };
 }

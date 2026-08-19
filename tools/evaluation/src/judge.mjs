@@ -45,6 +45,20 @@ const DENIED_TOOLS = [...ALLOWED_TOOLS, ...DISALLOWED_TOOLS];
 export const JUDGE_ROUTE = "claude-code-cli";
 
 /**
+ * the wall-clock ceiling on one judge's `claude` invocation, in
+ * milliseconds. A runaway guard, not a latency budget: `probe-process.mjs`
+ * has an equivalent for its own spawn (the turn cap), and a judge needs one
+ * for the same reason — `evaluateMeasurement` judges every factor of every
+ * probe sequentially in one process, so a judge process that never exits
+ * would otherwise cost every remaining factor and probe of that scenario
+ * its judgment, and burn the whole `evaluate` job's time budget. Generous
+ * on purpose: the cost of running long once is a delayed factor, the cost
+ * of a false timeout is a judgment this instrument could have made but
+ * didn't, and the two are not symmetric.
+ */
+export const JUDGE_TIMEOUT_MS = 5 * 60 * 1000;
+
+/**
  * strips a model id's vendor prefix. the CLI's `--model` flag takes the bare
  * model name; `anthropic/…` is this instrument's own recorded, comparable
  * form (see docs/specs/skill-evaluation.md's "What a measurement stores"),
@@ -99,6 +113,17 @@ export function parseVerdict(text) {
  * so the judge's context carries the instrument's own system prompt in
  * place of the CLI's, not the CLI's plus the instrument's.
  *
+ * `--allowed-tools ""` pairs with `--disallowed-tools`, rather than
+ * standing in for it: `DENIED_TOOLS` is `probe-process.mjs`'s own scoped
+ * allowlist plus its own denylist, authored as the tools a trusted PROBE
+ * may use — never as a census of the CLI's built-ins — so it cannot be a
+ * complete denylist on its own (a tool the CLI adds later, or one it
+ * already ships that the probe module never had reason to name, would fall
+ * through to the ambient permission mode). An empty allowlist closes that
+ * gap by construction: anything not explicitly allowed is refused,
+ * regardless of what the denylist does or does not enumerate. Verified
+ * accepted by the CLI in this environment before being relied on here.
+ *
  * @param {{ userPrompt: string, model: string, systemPrompt: string }} options
  * @returns {string[]}
  */
@@ -113,6 +138,8 @@ export function buildJudgeArgv({ userPrompt, model, systemPrompt }) {
     "--system-prompt",
     systemPrompt,
     "--setting-sources",
+    "",
+    "--allowed-tools",
     "",
     "--disallowed-tools",
     DENIED_TOOLS.join(","),
@@ -147,7 +174,11 @@ function readJudgeEnvelope({ stdout, stderr, exitCode }) {
   // literal `null` and a bare primitive both parse cleanly — so this is
   // checked before any property of `envelope` is read.
   if (typeof envelope !== "object" || envelope === null) {
-    return { error: `the judge's stdout parsed as JSON but was not an object: ${JSON.stringify(envelope)}` };
+    // bounded the same way the exit-code branch above bounds its detail:
+    // a large non-object payload (a big JSON array, say) must not land in a
+    // stored factors.json whole.
+    const detail = JSON.stringify(envelope).slice(0, 500);
+    return { error: `the judge's stdout parsed as JSON but was not an object: ${detail}` };
   }
 
   if (envelope.is_error === true) {
@@ -169,13 +200,23 @@ function readJudgeEnvelope({ stdout, stderr, exitCode }) {
 
 /**
  * runs one judge's `claude` invocation to completion and reads its one JSON
- * envelope — never rejects; a spawn failure resolves as `{ error }`, the
- * same as every other way the judge can fail to answer.
+ * envelope — never rejects; a spawn failure, a timeout, or anything else
+ * the judge can fail to do all resolve as `{ error }` alike.
  *
- * @param {{ argv: string[], cwd: string, env: Record<string,string>, spawnFn: typeof nodeSpawn }} options
+ * kills the child and resolves `{ error }` once `timeoutMs` elapses with no
+ * `close` event — the runaway guard `JUDGE_TIMEOUT_MS` documents. A
+ * `settled` flag makes that race safe: the child can still emit `close`
+ * after being killed (a signal does not terminate a process instantly),
+ * and that later event must not silently overwrite the timeout's own
+ * `{ error }` with whatever exit code the kill produced.
+ *
+ * @param {{
+ *   argv: string[], cwd: string, env: Record<string,string>,
+ *   spawnFn: typeof nodeSpawn, timeoutMs?: number,
+ * }} options
  * @returns {Promise<{ result: boolean, evidence: string } | { error: string }>}
  */
-function runJudgeProcess({ argv, cwd, env, spawnFn }) {
+function runJudgeProcess({ argv, cwd, env, spawnFn, timeoutMs = JUDGE_TIMEOUT_MS }) {
   return new Promise((resolvePromise) => {
     // guarded rather than left to the executor: an executor that throws
     // synchronously produces a REJECTED promise, not an `{ error }` result,
@@ -192,8 +233,28 @@ function runJudgeProcess({ argv, cwd, env, spawnFn }) {
 
     let stdout = "";
     let stderr = "";
-    child.stdout.setEncoding("utf8");
-    child.stdout.on("data", (chunk) => {
+    let settled = false;
+    let timer;
+
+    const settle = (result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolvePromise(result);
+    };
+
+    timer = setTimeout(() => {
+      child.kill("SIGTERM");
+      settle({ error: `the judge did not finish within ${timeoutMs}ms and was killed — a runaway guard, not a normal exit.` });
+    }, timeoutMs);
+
+    // optional-chained the same way `stderr`'s handlers already are: a
+    // `spawnFn` that returns a child with no `stdout` (a `stdio` override, a
+    // malformed test double) must not throw inside this executor — see F2
+    // of the second review round, which is also why `callReasoningJudge`
+    // wraps this whole call in its own `catch` as a second line of defense.
+    child.stdout?.setEncoding("utf8");
+    child.stdout?.on("data", (chunk) => {
       stdout += chunk;
     });
     child.stderr?.setEncoding("utf8");
@@ -202,10 +263,10 @@ function runJudgeProcess({ argv, cwd, env, spawnFn }) {
     });
 
     child.on("error", (error) => {
-      resolvePromise({ error: `the judge could not be spawned: ${error.message}` });
+      settle({ error: `the judge could not be spawned: ${error.message}` });
     });
     child.on("close", (exitCode) => {
-      resolvePromise(readJudgeEnvelope({ stdout, stderr, exitCode }));
+      settle(readJudgeEnvelope({ stdout, stderr, exitCode }));
     });
   });
 }
@@ -226,14 +287,20 @@ function runJudgeProcess({ argv, cwd, env, spawnFn }) {
  * discard it — the same pattern factor-judgment.mjs's own
  * `runScriptJudgment` uses for its own scratch directory.
  *
+ * the `runJudgeProcess` call below is also wrapped in its own `catch`, even
+ * though that function is designed to never reject: a belt-and-braces line
+ * of defense that does not depend on tracing every reachable path through
+ * it correctly (see F2 of the second review round).
+ *
  * @param {{
  *   model: string,
  *   systemPrompt: string,
  *   userPrompt: string,
  *   env?: Record<string, string|undefined>,
  *   spawnFn?: typeof nodeSpawn,
+ *   timeoutMs?: number,
  * }} options `model` is vendor-prefixed, e.g. "anthropic/claude-haiku-4-5-20251001";
- *   `env` is usually `process.env`
+ *   `env` is usually `process.env`; `timeoutMs` defaults to `JUDGE_TIMEOUT_MS`
  * @returns {Promise<
  *   { result: boolean, evidence: string, cleanupWarning?: string } |
  *   { error: string, cleanupWarning?: string }
@@ -246,6 +313,7 @@ export async function callReasoningJudge({
   userPrompt,
   env = process.env,
   spawnFn = nodeSpawn,
+  timeoutMs = JUDGE_TIMEOUT_MS,
 }) {
   if (!CLI_AUTH_ENV_VARS.some((name) => env[name])) {
     throw new Error(
@@ -267,7 +335,10 @@ export async function callReasoningJudge({
       cwd: scratch,
       env: stripCredentials(env),
       spawnFn,
+      timeoutMs,
     });
+  } catch (error) {
+    outcome = { error: `the judge could not be run: ${error.message}` };
   } finally {
     try {
       await rm(scratch, { recursive: true, force: true });

@@ -147,10 +147,11 @@ instead, so the result names which element failed rather than only how many
 did.
 
 **Every judgment records evidence, and every reasoning judgment additionally
-records the judge's model and the full prompt it was given.** A judgment with
-no recorded basis cannot be checked later, by a reviewer reading the record or
-by anyone re-deriving it; and a reasoning verdict whose judge is not recorded
-on the result itself cannot be attributed at all. Neither is optional.
+records the judge's model, its route, and the full prompt it was given.** A
+judgment with no recorded basis cannot be checked later, by a reviewer reading
+the record or by anyone re-deriving it; and a reasoning verdict whose judge is
+not recorded on the result itself cannot be attributed at all. Neither is
+optional.
 
 ## The differential
 

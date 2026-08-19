@@ -10,6 +10,8 @@ import {
   spawnFnEnvelope,
   spawnFnError,
   spawnFnExit,
+  spawnFnHangs,
+  spawnFnNullStdio,
   spawnFnStdout,
   spawnFnThrowSync,
 } from "./helpers/fake-judge-process.mjs";
@@ -98,6 +100,16 @@ describe("buildJudgeArgv", () => {
     expect(index).toBeGreaterThan(-1);
     const denied = argv[index + 1].split(",");
     expect(denied.sort()).toEqual([...ALLOWED_TOOLS, ...DISALLOWED_TOOLS].sort());
+  });
+
+  // F1(a), round 2: DENIED_TOOLS is a scoped allowlist-plus-denylist authored
+  // for a trusted PROBE, never a census of the CLI's built-ins — it cannot
+  // enumerate every tool that could exist. An empty `--allowed-tools` closes
+  // that gap by construction: anything not explicitly allowed is refused,
+  // regardless of what --disallowed-tools does or does not name.
+  it("also passes an empty --allowed-tools, so anything unlisted is refused by construction", () => {
+    const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
+    expect(argv).toEqual(expect.arrayContaining(["--allowed-tools", ""]));
   });
 });
 
@@ -230,6 +242,20 @@ describe("callReasoningJudge", () => {
     ).resolves.toEqual({ error: expect.stringContaining("not an object") });
   });
 
+  // F3, round 2: the exit-code branch bounds its own detail to 500
+  // characters; the non-object-envelope branch beside it must carry the
+  // same bound, or a large non-object payload (a long JSON string
+  // primitive, say — `typeof "x" !== "object"`, so it still lands in this
+  // branch, not the subtype check further down) lands in a stored
+  // factors.json whole.
+  it("bounds a non-object envelope's error message the same way a non-zero exit's is bounded", async () => {
+    const runawayString = JSON.stringify("x".repeat(10_000));
+    const spawnFn = spawnFnStdout(`${runawayString}\n`);
+    const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+    expect(outcome.error).toContain("not an object");
+    expect(outcome.error.length).toBeLessThan(600);
+  });
+
   // negative control 5/5: the envelope is well-formed, but its `result`
   // text holds no verdict — errored, never coerced to `false`.
   it("returns an error, never `false`, when the envelope's result text holds no verdict", async () => {
@@ -245,5 +271,36 @@ describe("callReasoningJudge", () => {
     const spawnFn = spawnFnEnvelope({ result: '```json\n{"result": true, "evidence": "fenced"}\n```' });
     const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
     expect(outcome).toEqual({ result: true, evidence: "fenced" });
+  });
+
+  // F1(b), round 2: evaluateMeasurement judges every factor of every probe
+  // sequentially in one process, so a judge that never exits would
+  // otherwise cost every remaining factor and probe its judgment. A real
+  // short timeoutMs (rather than fake timers) is used here so the test
+  // itself proves the wall clock actually elapses and the promise actually
+  // settles, not just that a timer API was called.
+  it("kills the child and resolves { error } naming the timeout, when the judge never finishes", async () => {
+    const child = spawnFnHangs()();
+    const spawnFn = () => child;
+    const outcome = await callReasoningJudge({
+      ...base,
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+      spawnFn,
+      timeoutMs: 30,
+    });
+    expect(outcome).toEqual({ error: expect.stringContaining("30ms") });
+    expect(child.killed).toBe(true);
+    expect(child.killSignal).toBe("SIGTERM");
+  });
+
+  // F2, round 2: a spawnFn that hands back a child with `stdout: null` (a
+  // `stdio` override, a malformed test double) must not throw inside the
+  // executor — the "never rejects" guarantee has to hold structurally, not
+  // only for the paths this file happens to exercise.
+  it("resolves { error } rather than rejecting, when the child's stdout is null", async () => {
+    const spawnFn = spawnFnNullStdio();
+    await expect(
+      callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn }),
+    ).resolves.toEqual({ error: expect.stringContaining("not a single JSON object") });
   });
 });
