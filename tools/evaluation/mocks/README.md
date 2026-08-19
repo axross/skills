@@ -199,6 +199,23 @@ resolves, and its four checks pass in a materialized copy.
 - **Deck content is seeded on first launch rather than fetched.** Same
   reason: a probe workspace has no network, and studying needs cards to
   work with from the first run.
+- **The signed-in group is gated by redirecting out of a layout component,
+  not by a guard at the navigator.** `authenticated-layout.tsx` returns
+  `<Redirect href="/sign-in" />` for a signed-out visitor rather than
+  mounting or omitting the `(app)` group declaratively, so the route a
+  learner was heading for is gone by the time they have signed in — a real
+  gap a competent Expo developer could easily have left in place before
+  reaching for the framework's own declarative guard.
+  [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
+  asks a model to close it.
+- **Nothing in the app has a disabled state.** Three flows that wait on
+  async work — adding a card, signing in, signing out — swap their
+  control's label and leave it pressable throughout, and the theme
+  declares no disabled role in either palette. An app whose only submit
+  flows are these three, none of them urgent enough to have provoked a
+  double-submit complaint yet, is an ordinary place for this to still be
+  missing. [`add-a-screen-for-editing-an-existing-card`](../scenarios/add-a-screen-for-editing-an-existing-card/)
+  asks a model to add one.
 
 ### `recall` — fixture artifacts
 
