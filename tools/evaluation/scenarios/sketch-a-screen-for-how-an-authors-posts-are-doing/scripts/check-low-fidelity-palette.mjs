@@ -20,7 +20,13 @@
 // CONTENTS — a `content:` value, a quoted `font-family` name — where a
 // design annotation or placeholder copy can carry text shaped exactly like
 // a declared colour without being one; see blankQuotedStringContents's own
-// header.
+// header. The one exception: a colour rendered through a url() payload — a
+// data URI's own embedded SVG fill, quoted or not — DOES count, since it
+// paints pixels on the page rather than being read as text; see
+// findUrlCallEnd's own header for how a payload's own quote characters
+// (paired or not — an SVG `<text>Author's posts</text>` is a natural,
+// unpaired one) are kept from being misread as CSS-level delimiters
+// either way.
 //
 // cssDeclarationText reads STRUCTURALLY, not as one bag of text: it yields
 // only the VALUE side of each "property: value" declaration inside a
@@ -414,22 +420,42 @@ function stripComments(text) {
  * validate that a value is well-formed CSS on its own terms, only that
  * the text before a delimiter reads as "ident: value".
  *
- * The scan is both quote- AND paren-depth-aware: a `{`, `}`, or `;`
- * encountered inside a `'…'`/`"…"`/`` `…` `` span, or inside any `(…)`, is
- * never treated as a delimiter. Both matter independently. A quoted value
- * can itself carry a `;` — a `data:` URI's own MIME marker
- * (`url("data:image/svg+xml;utf8,…")`) is exactly that shape, and without
- * quote-awareness the `;` inside it splits one declaration into two
- * fragments, neither of which reads as "ident: value" any more, so the
- * fragment carrying the actual colour is silently dropped from `values`
- * rather than misclassified — a real fidelity violation (a colour smuggled
- * past the achromatic/hue-family count) then passes as compliant. The same
- * `data:` URI written WITHOUT quotes (`url(data:image/svg+xml;utf8,…)`,
- * which CSS's own url-token grammar permits) carries the identical `;`
- * with no quote to protect it at all, which is why parens are tracked
- * independently rather than relying on quote-awareness alone: any `;`
- * while paren-depth is above zero is inert, quoted or not, until the
- * matching `)` returns depth to zero.
+ * The scan is quote-, paren-depth-, AND url()-aware: a `{`, `}`, or `;`
+ * encountered inside a `'…'`/`"…"`/`` `…` `` span, inside any `(…)`, or
+ * inside a `url(...)` call's own payload, is never treated as a
+ * delimiter. A quoted value can itself carry a `;` — a `data:` URI's own
+ * MIME marker (`url("data:image/svg+xml;utf8,…")`) is exactly that shape,
+ * and without quote-awareness the `;` inside it splits one declaration
+ * into two fragments, neither of which reads as "ident: value" any more,
+ * so the fragment carrying the actual colour is silently dropped from
+ * `values` rather than misclassified — a real fidelity violation (a
+ * colour smuggled past the achromatic/hue-family count) then passes as
+ * compliant. The same `data:` URI written WITHOUT quotes
+ * (`url(data:image/svg+xml;utf8,…)`, which CSS's own url-token grammar
+ * permits) carries the identical `;` with no quote to protect it at all,
+ * which is why parens are tracked independently rather than relying on
+ * quote-awareness alone: any `;` while paren-depth is above zero is
+ * inert, quoted or not, until the matching `)` returns depth to zero.
+ *
+ * A url() call gets a THIRD kind of awareness, on top of both: its own
+ * span — from "url(" through the matching ")", found with the same
+ * isUrlCallStart / findUrlCallEnd this file's own blankQuotedStringContents
+ * already uses for the identical reason — is consumed as one atomic unit
+ * BEFORE the character-by-character quote check ever runs on it. Without
+ * this, an apostrophe inside an unquoted url() payload (an SVG
+ * `<text>Author's posts</text>`, the natural way to get one on this very
+ * subject) is read as opening a single-quoted string, since the bare
+ * quote-detection below has no notion of "already inside a url() call"
+ * and triggers on ANY unescaped quote character regardless of paren
+ * depth. That single stray quote then desyncs quote state for the rest of
+ * the stylesheet: nothing after it is ever recognised as a real `;`/`{`/
+ * `}` delimiter until some later, unrelated quote happens to close it, so
+ * selector text downstream gets folded into what this function treats as
+ * a declaration value — exactly the failure this function's own header
+ * (see cssDeclarationText) promises never happens to a class name.
+ * Consuming the whole span atomically means the quote(s) inside a url()
+ * payload are never seen by the outer scan at all, so they cannot open or
+ * close anything out here.
  * @param {string} cssText
  * @returns {string[]}
  */
@@ -452,6 +478,10 @@ function declarationValuesIn(cssText) {
         continue;
       }
       if (ch === quote) quote = null;
+      continue;
+    }
+    if (isUrlCallStart(cssText, i)) {
+      i = findUrlCallEnd(cssText, i + 4) - 1; // -1: this loop's own i++ lands just past it
       continue;
     }
     if (ch === '"' || ch === "'" || ch === "`") {
@@ -520,33 +550,52 @@ function isUrlCallStart(text, i) {
 
 /**
  * the index just past the closing ")" of a url(...) call, given `start` —
- * the index right after the opening "(". Quote-aware (both a double-quoted
- * whole payload, `url("data:...")`, and the single-quoted attribute values
- * a data URI's own embedded SVG markup carries, `fill='#3355ff'`, whether
- * or not the payload itself is quoted) so a ")" or a nested quote inside
- * the payload never closes the call early. Falls back to the end of `text`
- * if the call is never closed.
+ * the index right after the opening "(". `start` is first checked for a
+ * single leading quote character: a `url("data:...")` payload is wrapped
+ * in exactly ONE such quote, which owns everything up to its own matching
+ * close (escapes respected) regardless of what that span contains —
+ * including a nested, unrelated quote character, such as the single-
+ * quoted attribute values a data URI's own embedded SVG markup carries
+ * (`fill='#3355ff'`), which is never itself tracked as a delimiter once
+ * inside the OUTER quote. An UNQUOTED payload — `url(data:...)` with no
+ * wrapping quote at all — gets no quote-tracking of its own either: this
+ * factor does not try to tell a genuine attribute-delimiting quote apart
+ * from an ordinary apostrophe appearing as SVG prose text (an
+ * `<text>Author's posts</text>` is exactly this shape), which a naive
+ * per-character quote toggle cannot do without deeper parsing, so it does
+ * not attempt to; it scans straight to the first unescaped ")" instead,
+ * matching how an unquoted url-token's own CSS grammar treats an
+ * unexpected quote inside it (as an ordinary byte, not a delimiter) once
+ * a call is already malformed enough to need this recovery at all. Only
+ * ONE quote character — the outer wrapper, if the payload has one at all
+ * — is ever tracked; nothing nested inside it, quoted or not, is. Falls
+ * back to the end of `text` if the call is never closed.
  * @param {string} text
  * @param {number} start index right after the opening "("
  * @returns {number}
  */
 function findUrlCallEnd(text, start) {
-  let quote = null;
   let i = start;
-  while (i < text.length) {
-    const ch = text[i];
-    if (quote) {
+  const wrapQuote = text[i] === '"' || text[i] === "'" ? text[i] : null;
+  if (wrapQuote) {
+    i++; // past the opening wrapper quote
+    while (i < text.length) {
+      const ch = text[i];
       if (ch === "\\" && i + 1 < text.length) {
         i += 2;
         continue;
       }
-      if (ch === quote) quote = null;
+      if (ch === wrapQuote) {
+        i++;
+        break;
+      }
       i++;
-      continue;
     }
-    if (ch === '"' || ch === "'") {
-      quote = ch;
-      i++;
+  }
+  while (i < text.length) {
+    const ch = text[i];
+    if (ch === "\\" && i + 1 < text.length) {
+      i += 2;
       continue;
     }
     if (ch === ")") return i + 1;
