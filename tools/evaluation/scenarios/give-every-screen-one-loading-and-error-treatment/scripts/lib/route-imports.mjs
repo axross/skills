@@ -293,6 +293,30 @@ export function readRouteFile(routeFile) {
 }
 
 /**
+ * inserts a space at every camelCase/PascalCase boundary in `text` — a
+ * lower-or-digit-to-upper transition ("loadingError" -> "loading Error",
+ * "onError" -> "on Error") and an upper-RUN-to-upper+lower transition
+ * ("HTTPError" -> "HTTP Error", so a trailing acronym's own last letter
+ * stays attached to the word it introduces rather than orphaned). A run of
+ * same-case letters never inserts a boundary, so ordinary lowercase prose
+ * is untouched and no boundary is manufactured inside an acronym itself.
+ *
+ * isSetAboutLoadingAndError uses this to read a vocabulary word FUSED into
+ * a larger identifier — the "LoadingError" in a component named
+ * `LoadingError`, not any word inside its own copy or props — the same way
+ * `\b`-delimited LOADING_TOKEN_RE / FAILURE_TOKEN_RE already read that word
+ * when it appears with real whitespace around it. See that function's own
+ * header for why testing this alongside (never instead of) the raw text is
+ * required, and for the false positives this deliberately accepts.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function unfuseCamelBoundaries(text) {
+  return text.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2");
+}
+
+/**
  * a loading-ish token: "pending", "loading", "waiting", "busy",
  * "fetching", "spinner", or "skeleton" — bare or fused with a leading "is"
  * — covering both the vocabulary this mock's own pre-existing branches use
@@ -418,6 +442,20 @@ function effectiveSourceFor(modulePath) {
  * stricter than the concern itself demands, and rejected exactly that
  * shape of correct extraction.
  *
+ * Before testing, the combined text is tested alongside a second copy with
+ * a space inserted at every camelCase/PascalCase boundary (see
+ * unfuseCamelBoundaries) — "LoadingError" reads as "Loading Error",
+ * "JobListSkeleton" as "Job List Skeleton" — so a vocabulary word FUSED
+ * into an identifier (a component literally named `LoadingError`, carrying
+ * neither token as a `\b`-delimited word anywhere in its own copy or
+ * props) is read the same as if it appeared with real whitespace around
+ * it. Both the raw text and the un-fused copy are tested (concatenated,
+ * not the un-fused copy alone): FAILURE_TOKEN_RE deliberately matches
+ * `\b(?:is|has|on)error\b` as a FUSED identifier (`onError`), and
+ * un-fusing alone would turn that into "on Error" and lose a match the raw
+ * text already correctly makes. Testing the concatenation is a monotone
+ * widening — every match the raw text alone makes still fires.
+ *
  * Deliberately permissive where this function cannot fully read a module
  * (see effectiveSourceFor's own null cases): this evaluation instrument
  * treats a false negative — rejecting a shared module that really did take
@@ -428,7 +466,17 @@ function effectiveSourceFor(modulePath) {
  * function accepting a module that references both concerns without truly
  * consolidating them — costs one probe's worth of an over-generous
  * verdict, symmetric across both conditions, which is the cheaper mistake
- * to risk.
+ * to risk. The un-fusing widening above trades the same direction, and has
+ * a known, accepted cost: a bare `\berror\b` still never matches
+ * (deliberately absent from FAILURE_TOKEN_RE — see that constant's own
+ * header), so un-fusing `ErrorBoundary` still contributes nothing; but a
+ * shared `AlertDialog` un-fuses to "Alert Dialog" and now satisfies
+ * `\balert\b` — a false positive this function did not make before. The
+ * same reasoning covers any identifier that merely NAMES a bare-word token
+ * as part of a prop or parameter rather than rendering it: a module whose
+ * only trace of "retry" is a parameter called `onRetry` (never rendered as
+ * literal "Retry" copy) un-fuses to "on Retry" and now satisfies
+ * `\bretry\b` too.
  *
  * This still rejects a shared module that is merely present: a generic
  * data-fetching wrapper — `export function useRouteQuery(options) {
@@ -449,5 +497,6 @@ export function isSetAboutLoadingAndError(modulePaths) {
     sources.push(effective);
   }
   const combined = sources.join("\n");
-  return LOADING_TOKEN_RE.test(combined) && FAILURE_TOKEN_RE.test(combined);
+  const scanned = `${combined}\n${unfuseCamelBoundaries(combined)}`;
+  return LOADING_TOKEN_RE.test(scanned) && FAILURE_TOKEN_RE.test(scanned);
 }
