@@ -1,0 +1,27 @@
+diff --git a/vite.config.ts b/vite.config.ts
+index a78e1da..43df231 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -11,9 +11,6 @@ const sentryPlugin = process.env.SENTRY_AUTH_TOKEN
+       org: process.env.SENTRY_ORG ?? "inkwell",
+       project: process.env.SENTRY_PROJECT ?? "inkwell-web",
+       authToken: process.env.SENTRY_AUTH_TOKEN,
+-      sourcemaps: {
+-        filesToDeleteAfterUpload: ["dist/**/*.map"],
+-      },
+     })
+   : undefined;
+ 
+@@ -22,9 +19,9 @@ const API_PROXY_TARGET = process.env.VITE_API_PROXY_TARGET ?? "http://localhost:
+ export default defineConfig({
+   plugins: [react(), sentryPlugin].filter(Boolean),
+   build: {
+-    // Required for the Sentry plugin above to have anything to upload, and
+-    // for a production stack trace to resolve back to real source at all.
+-    sourcemap: true,
++    // We don't want to keep shipping our own source to anyone who opens
++    // devtools, so production builds no longer emit source maps.
++    sourcemap: false,
+   },
+   server: {
+     proxy: {

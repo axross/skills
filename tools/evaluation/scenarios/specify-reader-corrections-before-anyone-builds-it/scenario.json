@@ -1,0 +1,69 @@
+{
+  "id": "specify-reader-corrections-before-anyone-builds-it",
+  "description": "product-requirement-document-authoring is targeted against a workflow complaint about lost correction emails, never a document type, a section heading, or the skill's own vocabulary, with technical-document-authoring (a how-it-reads take on the same complaint) and living-project-documentation (a keep-the-docs-true take on the same complaint) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. The mock carries no requirement document of any kind today, so a treatment run that writes one has nothing local to copy; the three heading factors check for exactly the sections a reader needs to build and verify the feature without guessing, decomposed one per heading rather than folded into one 'has most of the required sections' factor, because a factor result is true, false, or an error and never a ratio, and a decomposed failure names which section specifically is missing. The fourth factor is a reasoning judgment for what no heading check can reach: whether the document specifies the feature's required behaviour and how it is verified, rather than describing how to build it.",
+  "mock": "tsuzuri",
+  "targetSkills": ["product-requirement-document-authoring"],
+  "peerSkills": [
+    "technical-document-authoring",
+    "living-project-documentation"
+  ],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Readers keep emailing in typos and factual mistakes they find on posts, and about half of those emails end up getting lost somewhere and never acted on. The site should let a reader submit a correction directly instead. Before anyone writes a line of code for it, the whole thing needs to be written down somewhere so whoever ends up building it isn't left guessing what it's supposed to do."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-product-requirement-document-authoring",
+      "phase": "discovery",
+      "description": "The complaint names no document type, no section, and no skill — an agent that reaches for product-requirement-document-authoring here is finding it from the problem, with technical-document-authoring (a how-it-reads take on the same complaint) and living-project-documentation (a keep-the-docs-true take on the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether the document that came out carries anything the skill teaches, which is what the outcome factors below are for.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "product-requirement-document-authoring" }
+      }
+    },
+    {
+      "id": "states-acceptance-criteria",
+      "phase": "outcome",
+      "description": "The mock carries no requirement document today, so nothing here already has an 'Acceptance criteria' heading for a control run to copy. This factor reads only whether some Markdown file the diff touched carries a heading whose text contains 'Acceptance criteria' — it cannot see whether the criteria it lists are actually the right ones, or verifiable at all, only that the heading exists.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-heading-in-touched-markdown.mjs",
+        "input": { "headingContains": "Acceptance criteria" }
+      }
+    },
+    {
+      "id": "states-a-verification-strategy",
+      "phase": "outcome",
+      "description": "Same shape as the acceptance-criteria factor, for a 'Verification strategy' heading: this factor reads only that the heading is present in a touched Markdown file, never whether the strategy it describes would actually catch a broken correction flow.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-heading-in-touched-markdown.mjs",
+        "input": { "headingContains": "Verification strategy" }
+      }
+    },
+    {
+      "id": "states-explicit-non-goals",
+      "phase": "outcome",
+      "description": "Same shape again, for a heading naming non-goals ('Non-goals', or 'Goals and Non-goals'): this factor reads only that such a heading exists in a touched Markdown file, never whether what it excludes is the right line to draw. These three headings were chosen over ones like Summary or Background because a competent writer produces those unprompted regardless of skill — a factor on them would measure the writer, not the skill.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-heading-in-touched-markdown.mjs",
+        "input": { "headingContains": "non-goal" }
+      }
+    },
+    {
+      "id": "specifies-the-feature-rather-than-designing-it",
+      "phase": "outcome",
+      "description": "None of the three heading factors can tell a document that specifies required behaviour from one that describes an implementation plan under the same headings. This factor asks a reasoning judge to read the diff and decide whether the document says what the correction flow must do and how its completion is verified, rather than how to build it — for instance, naming a database table or an API route the requirement itself does not call for.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the task prompt and the diff of an agent's work on a request to specify a reader-corrections feature before it is built. Decide whether the Markdown document the diff added describes what the feature must do and how its completion would be verified — acceptance criteria, a verification strategy, what is out of scope — rather than describing how to implement it, such as naming specific database tables, API routes, or component names the requirement itself does not call for. Answer false if the diff adds no such document, or if what it adds reads as an implementation plan rather than a requirement."
+      }
+    }
+  ]
+}

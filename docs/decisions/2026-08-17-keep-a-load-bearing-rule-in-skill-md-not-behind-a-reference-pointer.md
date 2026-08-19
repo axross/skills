@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 2026-08-18-trade-the-load-bearing-hoist-for-a-conditional-read-obligation.md
 ---
 
 # Keep a load-bearing rule in SKILL.md, not behind a reference pointer

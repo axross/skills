@@ -1,0 +1,30 @@
+{
+  "id": "let-readers-choose-which-language-a-post-shows-in",
+  "description": "loop-engineering governs how an agent works rather than what it builds, and this scenario declares the discovery phase alone — never outcome or transcript — because both are unavailable here for three independent reasons. NONINTERACTIVE_BRIEF, appended to every probe's system prompt in both conditions by tools/evaluation/src/probe-process.mjs, tells the probe that a question is a dead end and that it should decide for itself, which countermands loop-engineering's plan-approval gate before the skill is ever loaded. tools/evaluation/mocks/tsuzuri/AGENTS.md's own 'How changes are made' section already states the plan-before-code convention to both conditions, so an outcome or transcript factor asserting that convention would be asserting something the mock itself demonstrates, not something the skill taught. And the stored transcript carries no reasoning to read at all (#439) — a transcript factor would have no material to judge. The peer set is what keeps the discovery question real rather than a formality: product-requirement-document-authoring, software-development, and next-app-development each plausibly answer this exact request — as an under-specified feature needing a spec, as an ordinary change to make, and as routing and rendering work in a Next.js app — so loop-engineering's own trigger, a free-form change request, has to win against three competing, plausible-looking picks rather than an empty field. With the target skill installed, whatever a run does past the discovery moment is incoherent by construction: loop-engineering instructs a stop — the plan-approval gate — that NONINTERACTIVE_BRIEF has already forbidden, so the two halves of a skill-present probe pull in opposite directions from the moment the skill is read. The factor below is judged on the Skill tool invocation alone, which precedes that conflict, so the incoherence downstream of it never touches what is measured. loop-engineering also states, in its own body rather than in the description a host reads to route, that it needs a GitHub-operation capability installed alongside it; this scenario installs none, because discovery — whether the agent reaches for the skill at all — does not need one.",
+  "mock": "tsuzuri",
+  "targetSkills": ["loop-engineering"],
+  "peerSkills": [
+    "product-requirement-document-authoring",
+    "software-development",
+    "next-app-development"
+  ],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Right now a visitor just gets whichever language their browser asks for, and there's no way for them to say \"actually, show me this one in English\". I'd like readers to be able to choose. I haven't worked out what that should look like though — where the control lives, what happens when someone picks a language a post was never translated into, whether the choice sticks when they open the next post. Can you take this one from here?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-loop-engineering",
+      "phase": "discovery",
+      "description": "The ask is an open-ended, under-specified change request in the site owner's own words — no mechanism named, none of loop-engineering's own vocabulary in it — with product-requirement-document-authoring (an under-specified-feature read of the same ask), software-development (an ordinary-change read of the same ask), and next-app-development (a routing-and-rendering read of the same ask) sitting in the peer set as competing, plausible-looking picks. An agent that reaches for loop-engineering here is finding it from the shape of the request itself — 'I haven't worked out what that should look like', 'can you take this one from here' — not from a hint toward the skill or the loop it drives.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "loop-engineering" }
+      }
+    }
+  ]
+}
