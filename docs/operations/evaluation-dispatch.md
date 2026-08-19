@@ -287,7 +287,7 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-six
 - [`let-readers-leave-a-note-on-a-post`](../../tools/evaluation/scenarios/let-readers-leave-a-note-on-a-post/)
   targets `application-security` against a reader-note feature invented in
   its own prompt, alongside `zod-schema` and `next-app-development` as
-  peers, and carries a `discovery` factor, one `outcome` factor, and a
+  peers, and carries a `discovery` factor, two `outcome` factors, and a
   `transcript` factor judged by script.
 - [`let-readers-choose-which-language-a-post-shows-in`](../../tools/evaluation/scenarios/let-readers-choose-which-language-a-post-shows-in/)
   targets `loop-engineering` on `tsuzuri`, alongside
