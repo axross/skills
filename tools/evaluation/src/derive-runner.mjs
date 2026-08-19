@@ -43,7 +43,12 @@ function fingerprintOf(probes) {
     for (const factor of probe.factors) {
       if (factor.method !== "reasoning" || seenFactors.has(factor.id)) continue;
       seenFactors.add(factor.id);
-      reasoningJudges.push({ factor: factor.id, judgeModel: factor.judge.model, prompt: factor.prompt });
+      reasoningJudges.push({
+        factor: factor.id,
+        judgeModel: factor.judge.model,
+        route: factor.judge.route,
+        prompt: factor.prompt,
+      });
     }
   }
 

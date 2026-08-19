@@ -52,8 +52,11 @@ It runs four jobs in order:
    been paid for; a coarser grain (one job for the whole dispatch) would give
    judgment no equivalent of that isolation. `permissions: {}` and no
    `GITHUB_TOKEN`, since this is the job that feeds a probe's transcript to a
-   model. It references `secrets.ANTHROPIC_API_KEY`, which this repository
-   does not set today; with none, `evaluate.mjs` already records each
+   model. It installs the same pinned Claude Code CLI `probe` does and asks a
+   reasoning factor's judge through it — the Anthropic Messages API this job
+   used to call directly refuses a Claude Code OAuth token outright — so it
+   authenticates with the same `CLAUDE_CODE_OAUTH_TOKEN` credential `probe`
+   already holds. Without the secret set, `evaluate.mjs` still records each
    reasoning factor's result as an error carrying its reason rather than as
    `false`, so the cell still completes and still uploads what it judged.
 4. **`land`** is the only job with `contents: write` and
@@ -171,13 +174,17 @@ four files a probe writes fails the whole run loudly, naming what is
 missing, rather than being judged on what remains.
 
 A `script` factor runs its declared script against the reconstructed
-workspace. A `reasoning` factor asks the model its scenario names, over the
-Anthropic Messages API directly, and needs `ANTHROPIC_API_KEY`; without
-one, that factor's own result is recorded as an error — never as `false`,
-and never by aborting any other factor's judgment — so the script still
-completes end to end with no credential present at all, which is how this
-repository's own test suite exercises it. Each probe's judged factors are
-written to its own `factors.json`.
+workspace. A `reasoning` factor asks the model its scenario names through the
+`claude` CLI — the same route a probe's own model spawn uses, non-interactively,
+with every tool denied and no setting sources loaded — and needs
+`CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` set in the process's
+environment; without either, that factor's own result is recorded as an
+error — never as `false`, and never by aborting any other factor's
+judgment — so the script still completes end to end with no credential
+present at all, which is how this repository's own test suite exercises it.
+Each probe's judged factors are written to its own `factors.json`.
+[`2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md`](../decisions/2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md)
+is the decision behind asking through the CLI rather than over HTTP.
 
 ## Deriving the Summary: `derive.mjs`
 

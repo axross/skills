@@ -16,7 +16,8 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { callReasoningJudge } from "./judge.mjs";
+import { CLI_AUTH_ENV_VARS } from "./credentials.mjs";
+import { callReasoningJudge, JUDGE_ROUTE } from "./judge.mjs";
 import { canonicalJson } from "./layout.mjs";
 
 /**
@@ -119,17 +120,20 @@ async function runScriptJudgment({ scriptPath, workspace, context }) {
  *   scenarioDir: string,
  *   workspace: string,
  *   probe: { skillsInvoked: string[], diff: string, task: { prompt: string }, transcript: string },
- *   apiKey?: string,
- *   fetchImpl?: typeof fetch,
- * }} context
+ *   env?: Record<string, string|undefined>,
+ *   spawnFn?: Function,
+ * }} context `env` is usually `process.env`, and is the source
+ *   `callReasoningJudge` reads a CLI credential from; `spawnFn` is threaded
+ *   through to it unchanged, so a test can hand it a fake child process.
  * @returns {Promise<{
  *   id: string, phase: string, method: "script"|"reasoning",
  *   result: true|false|{error:string}, evidence?: string,
- *   judge?: { model: string }, prompt?: string, cleanupWarning?: string,
- * }>} `cleanupWarning`, when present, means the script judgment's scratch
- *   directory could not be removed — see runScriptJudgment.
+ *   judge?: { model: string, route?: string }, prompt?: string, cleanupWarning?: string,
+ * }>} `cleanupWarning`, when present, means the judgment's own scratch or
+ *   working directory could not be removed — see runScriptJudgment and
+ *   judge.mjs's callReasoningJudge.
  */
-export async function judgeFactor(factor, { scenarioDir, workspace, probe, apiKey, fetchImpl }) {
+export async function judgeFactor(factor, { scenarioDir, workspace, probe, env = {}, spawnFn }) {
   const material = materialFor(factor.phase, probe);
 
   if (factor.judgment.method === "script") {
@@ -164,37 +168,52 @@ export async function judgeFactor(factor, { scenarioDir, workspace, probe, apiKe
     'Answer with exactly one JSON object and nothing else: {"result": true|false, ' +
     '"evidence": "<a short, specific quote or description of what you based the verdict on>"}.';
 
-  // a missing API key cannot reach the judge at all, and is exactly as
-  // unreached as a network failure would be — recorded as an error on this
+  // no CLI credential in `env` cannot reach the judge at all, and is exactly
+  // as unreached as a spawn failure would be — recorded as an error on this
   // one factor, never as a thrown exception that would abort every other
   // factor's judgment, and never as `false`.
-  if (!apiKey) {
+  if (!CLI_AUTH_ENV_VARS.some((name) => env[name])) {
     return {
       id: factor.id,
       phase: factor.phase,
       method: "reasoning",
-      result: { error: "no reasoning-judge API key was provided; the judge was never asked." },
-      judge: { model: factor.judgment.model },
+      result: {
+        error: `no Claude CLI credential was found in the environment (${CLI_AUTH_ENV_VARS.join(" or ")}); the judge was never asked.`,
+      },
+      judge: { model: factor.judgment.model, route: JUDGE_ROUTE },
       prompt: userPrompt,
     };
   }
 
-  const outcome = await callReasoningJudge({
-    model: factor.judgment.model,
-    systemPrompt:
-      "You are a strict, literal-minded judge for one checkable expectation about a single " +
-      "piece of software work. Answer only the JSON object asked for; never anything outside it.",
-    userPrompt,
-    apiKey,
-    fetchImpl,
-  });
+  let outcome;
+  try {
+    outcome = await callReasoningJudge({
+      model: factor.judgment.model,
+      systemPrompt:
+        "You are a strict, literal-minded judge for one checkable expectation about a single " +
+        "piece of software work. Answer only the JSON object asked for; never anything outside it.",
+      userPrompt,
+      env,
+      spawnFn,
+    });
+  } catch (error) {
+    // callReasoningJudge throws only for no CLI credential, a predicate the
+    // check above re-implements without staying in sync by construction. A
+    // second, independent line of defense, so a divergence costs this one
+    // factor rather than every probe's factors.json going unwritten.
+    outcome = { error: error.message };
+  }
   const common = {
     id: factor.id,
     phase: factor.phase,
     method: "reasoning",
-    judge: { model: factor.judgment.model },
+    judge: { model: factor.judgment.model, route: JUDGE_ROUTE },
     prompt: userPrompt,
   };
-  if ("error" in outcome) return { ...common, result: { error: outcome.error } };
-  return { ...common, result: outcome.result, evidence: outcome.evidence };
+  // spread only when present, so a clean cleanup leaves the record with no
+  // cleanupWarning key at all — the same convention the script branch above
+  // follows.
+  const cleanup = "cleanupWarning" in outcome ? { cleanupWarning: outcome.cleanupWarning } : {};
+  if ("error" in outcome) return { ...common, result: { error: outcome.error }, ...cleanup };
+  return { ...common, result: outcome.result, evidence: outcome.evidence, ...cleanup };
 }
