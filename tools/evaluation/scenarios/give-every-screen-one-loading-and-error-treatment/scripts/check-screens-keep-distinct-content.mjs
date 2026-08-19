@@ -76,9 +76,8 @@
 // to catch, compared as different once that comment's own captured span
 // joined the real one. usageTextFor now strips comments (lib/route-imports
 // .mjs's stripComments, exported for this) before either screen's content
-// ever reaches usageSpansFor. All four fixed after separate review rounds;
-// see #429's fix-round history for the reproductions each version was
-// built and checked against.
+// ever reaches usageSpansFor. Each was fixed after its own review round,
+// against a reproduction constructed for it first.
 //
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
@@ -112,13 +111,10 @@ if (typeof diff !== "string") {
   fail("context.material.diff must be a string — this script judges the outcome phase alone.");
 }
 
-// captureBalanced, findOpenTagEnd, captureJsxElement, and usageSpansFor —
-// the JSX/call usage-span capture this factor was built around — now live
-// in ./lib/route-imports.mjs (imported above), a move rather than a
-// reimplementation: isSetAboutLoadingAndError needs the exact same reader
-// to see how each route file USES a shared module, not only the module's
-// own text (see that function's own header), and this factor's own
-// usageTextFor below still calls usageSpansFor the same way it always did.
+// the usage-span capture is a move into ./lib/route-imports.mjs rather
+// than a reimplementation: isSetAboutLoadingAndError needs the exact same
+// reader to see how each route file uses a shared module, not only that
+// module's own text — see that function's own header.
 
 /** collapses whitespace runs to a single space and trims. */
 const collapseWhitespace = (text) => text.replace(/\s+/g, " ").trim();
