@@ -10,7 +10,15 @@
 // scenario's scenario.json and factor-judgment.mjs's runScriptJudgment) to
 // check it.
 //
-// Two checks, both on the whole raw document text:
+// Two checks, both on the document text with every `<!-- ... -->` HTML
+// comment stripped first (see stripHtmlComments) — the SAME stripped text
+// feeds both, deliberately: a page is self-contained or not, and names its
+// subject or not, by what it actually RENDERS, and an HTML comment renders
+// nothing. Stripping for one check and not the other would trade one
+// comment-blind defect for a different, asymmetric one — a subject named
+// only in a leftover comment would then pass subject-naming while a URL
+// fetched only from a leftover comment correctly failed self-containment,
+// two inconsistent readings of the same "does this comment count" question.
 //
 // 1. Self-containment: no `src`/`srcset` attribute, `<link href>`, CSS
 //    `@import`, or CSS `url(...)` pointing at an `http:`, `https:`, or
@@ -66,6 +74,22 @@ if (typeof diff !== "string") {
 const subjectTerms = context.input?.subjectTerms;
 if (!Array.isArray(subjectTerms) || subjectTerms.length === 0) {
   fail("context.input.subjectTerms must be a non-empty array of case-insensitive substrings.");
+}
+
+/**
+ * strips every `<!-- ... -->` HTML comment from `text`, leaving everything
+ * else untouched. Applied ONCE, before either of this script's two checks
+ * run — see this file's own header for why the same stripped text feeds
+ * both. No string-literal awareness is needed here the way
+ * lib/route-imports.mjs's own stripComments needs for JS/TSX: HTML has no
+ * string-literal syntax outside an attribute value, and a `<!--`/`-->`
+ * sequence inside a quoted attribute value is not a realistic shape this
+ * factor's own subject — a wireframe sketch — would ever produce.
+ * @param {string} text
+ * @returns {string}
+ */
+function stripHtmlComments(text) {
+  return text.replace(/<!--[\s\S]*?-->/g, "");
 }
 
 /**
@@ -125,8 +149,9 @@ if (readable.length === 0) {
 }
 
 const perFile = readable.map(({ path, content }) => {
-  const fetchFailures = externalFetchFailures(content);
-  const lower = content.toLowerCase();
+  const scanned = stripHtmlComments(content);
+  const fetchFailures = externalFetchFailures(scanned);
+  const lower = scanned.toLowerCase();
   const matchedTerm = subjectTerms.find((term) => lower.includes(term.toLowerCase()));
   const passes = fetchFailures.length === 0 && matchedTerm !== undefined;
   return { path, passes, fetchFailures, matchedTerm };
