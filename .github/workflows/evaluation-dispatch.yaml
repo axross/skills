@@ -141,11 +141,10 @@ on:
 # least privilege at the top; every job below states exactly what it adds.
 permissions: {}
 
-# grouped per dispatch (by the scenario this dispatch names, or the empty
-# string for "every scenario"), and never cancelling: cancelling a matrix
-# mid-flight destroys probes already paid for. workflow-level, not
-# job-level — see the `probe` job's own comment on why a matrix job's
-# concurrency group must never be declared there.
+# grouped per dispatch (the named scenario, or empty for every scenario), never
+# cancelling: cancelling a matrix mid-flight destroys probes already paid for.
+# workflow-level, not job-level — see the probe job's own comment for why a
+# matrix job must never declare its own.
 concurrency:
   group: evaluation-dispatch-${{ inputs.scenario }}
   cancel-in-progress: false
@@ -177,18 +176,11 @@ jobs:
         with:
           node-version-file: package.json
 
-      # no `npm install`: probe.mjs and everything it imports are Node
-      # standard library plus this repository's own modules — no package
-      # this step would need to fetch. see link-freshness.yaml for the same
-      # reasoning, in the same words.
-      #
-      # the unspecified default shell on a Linux runner is `bash -e {0}` (see
-      # GitHub's own supported-shells reference) — `-e` is already active
-      # before the `set` line below runs, and `set -uo pipefail` does not
-      # clear it. that is why the probe.mjs invocation below is the
-      # CONDITION of an `if`, never a bare command: a bare command that
-      # exits non-zero would abort the script right there under `-e`, before
-      # a line reading its exit code afterward ever ran.
+      # no npm install: probe.mjs imports only stdlib and this repo's own code
+      # (see link-freshness.yaml). the runner's default shell is `bash -e {0}`,
+      # active before `set -uo pipefail`, so the call below is an `if`
+      # condition, never bare — bare, a non-zero exit aborts under `-e` before
+      # its status is read.
       - name: Derive the probe and judgment matrices
         id: matrix
         env:
@@ -271,15 +263,11 @@ jobs:
           fi
           node tools/evaluation/probe.mjs "${args[@]}"
 
-      # `if: always()` so a failed probe still uploads whatever it managed to
-      # write; `if-no-files-found: warn` rather than `error` because a
-      # dry-run cell (or a probe that failed before writing anything) legitimately
-      # uploads nothing, which is not itself a defect. the artifact's own
-      # internal path already carries the scenario's measurement directory
-      # name (probe.mjs wrote under
-      # <out>/<measurementDirName>/<condition>-<repetition>/), so downloading
-      # every probe-* artifact with merge-multiple reconstructs the whole
-      # dispatch's measurement tree without this step doing anything extra.
+      # always() uploads whatever a failed probe wrote. if-no-files-found:
+      # warn, not error — a dry-run or early-failed cell legitimately uploads
+      # nothing. the path already carries
+      # <measurementDirName>/<condition>-<repetition>/, so merge-multiple over
+      # probe-* reconstructs the tree with nothing extra here.
       - name: Upload the probe record
         if: always()
         uses: actions/upload-artifact@v4
@@ -292,12 +280,11 @@ jobs:
   evaluate:
     name: Evaluate ${{ matrix.scenarioId }}
     needs: [plan, probe]
-    # `always()`, not the default "skip if a dependency failed": `probe`'s
-    # overall job result is 'failure' the moment any one matrix cell fails,
-    # even with fail-fast:false — but a different scenario's probes may have
-    # completed cleanly and still deserve judging. only `plan` failing (no
-    # matrix to fan out over) and a dry run (nothing was recorded to judge)
-    # skip this job outright.
+    # always(), not the default skip-if-a-dependency-failed: probe's overall
+    # result is 'failure' the moment any one cell fails, even with
+    # fail-fast:false — but a different scenario's probes may have completed
+    # cleanly and still deserve judging. only plan failing, or a dry run, skips
+    # this job outright.
     if: always() && needs.plan.result == 'success' && inputs.dry-run == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -320,14 +307,11 @@ jobs:
         with:
           node-version-file: package.json
 
-      # every probe-* artifact, not only this scenario's, downloaded into one
-      # scratch root and then addressed by the exact measurement directory
-      # name this cell's own matrix entry carries. matching by an artifact
-      # NAME glob (e.g. "probe-<scenarioId>-*") would mismatch the moment one
-      # scenario id is a prefix of another's; matching by the exact directory
-      # name this job is handed sidesteps that entirely, and the extra bytes
-      # of every other scenario's probes cost nothing this corpus's size
-      # cannot afford.
+      # downloads every probe-* artifact, not only this scenario's, into one
+      # scratch root, then addresses by the exact directory name its matrix
+      # entry carries — an artifact NAME glob (probe-<scenarioId>-*) mismatches
+      # when one id prefixes another's. the extra bytes cost nothing this
+      # corpus's size can't afford.
       - name: Download this dispatch's probe records
         uses: actions/download-artifact@v4
         with:
@@ -335,12 +319,11 @@ jobs:
           merge-multiple: true
           path: ${{ runner.temp }}/measurement
 
-      # ANTHROPIC_API_KEY is referenced unconditionally rather than only when
-      # set: this repository does not set it today, and evaluate.mjs already
-      # records each reasoning factor's result as an error carrying its
-      # reason rather than as `false` when it is absent — a property this
-      # step relies on rather than works around. no GITHUB_TOKEN anywhere in
-      # this job.
+      # ANTHROPIC_API_KEY is referenced unconditionally, not only when set:
+      # this repo doesn't set it today, and evaluate.mjs already records a
+      # reasoning factor's result as an error carrying its reason, not `false`,
+      # when it's absent — relied on here, not worked around. no GITHUB_TOKEN
+      # anywhere in this job.
       - name: Judge this scenario's measurement
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -385,25 +368,11 @@ jobs:
       - name: Dependency installation
         run: npm ci
 
-      # both patterns land in the same directory: every probe-* artifact
-      # first (the raw, unjudged data every scenario's probes produced,
-      # regardless of what evaluate did with it), then every judged-*
-      # artifact (adding factors.json alongside the same probe directories
-      # wherever a scenario's judgment completed). a scenario whose evaluate
-      # cell never uploaded anything still lands here from its probe-*
-      # artifacts alone — unjudged, not discarded.
-      #
-      # no `if-no-artifacts-found` here: `actions/download-artifact@v4`
-      # takes no such input (its real inputs are name, artifact-ids, path,
-      # pattern, merge-multiple, github-token, repository, run-id — an
-      # unrecognised one is silently ignored but for a warning, doing
-      # nothing). that turns out not to matter for THIS step: its own
-      # source, for a `pattern` match, filters the run's artifact list and
-      # downloads whatever matched — zero matches is an empty list, which it
-      # reports ("Total of 0 artifact(s) downloaded") and exits 0 for,
-      # never throwing. what a zero-artifact dispatch actually risks is
-      # downstream, at the commit below — see "Confirm there is something
-      # to land".
+      # probe-* lands first, judged-* overlays factors.json after — an unjudged
+      # scenario still lands, not discarded. download-artifact@v4 takes no
+      # if-no-artifacts-found input; one added here is silently ignored, so the
+      # real check for a zero-artifact dispatch is "Confirm there is something
+      # to land" below.
       - name: Assemble this dispatch's probe records
         uses: actions/download-artifact@v4
         with:
@@ -418,12 +387,11 @@ jobs:
           merge-multiple: true
           path: tools/evaluation/measurements
 
-      # every probe cell failing (or every one running under a dry run that
-      # reached this job in error) would otherwise surface only as `git
-      # commit`'s own opaque failure, several steps and a full `npm run
-      # check` later, under `set -e`: nothing staged is nothing to commit,
-      # and git exits non-zero for that. caught here, immediately, with a
-      # message that says what actually happened.
+      # every probe cell failing (or a dry run reaching this job in error)
+      # would otherwise surface only as git commit's own opaque failure, steps
+      # and a full npm run check later, under set -e: nothing staged is nothing
+      # to commit. caught here instead, immediately, naming what actually
+      # happened.
       - name: Confirm there is something to land
         run: |
           if [ -z "$(git status --porcelain tools/evaluation/measurements)" ]; then
@@ -431,12 +399,11 @@ jobs:
             exit 1
           fi
 
-      # derives each measurement's summary.json, but never fails the job on
-      # a measurement that cannot be derived: a measurement whose judgment
-      # did not complete (no factors.json) is still worth committing, with
-      # its derived tier absent, rather than discarding probes that already
-      # cost money. every failure here is recorded, not silenced, and the
-      # pull request body below says which measurements it applies to.
+      # derives each measurement's summary.json, never failing the job on one
+      # it can't derive — an incomplete judgment (no factors.json) is still
+      # committed, derived tier absent, rather than discarding paid-for probes.
+      # every failure is recorded; the pull request body names which
+      # measurements it applies to.
       - name: Derive each measurement's summary
         id: derive
         env:
