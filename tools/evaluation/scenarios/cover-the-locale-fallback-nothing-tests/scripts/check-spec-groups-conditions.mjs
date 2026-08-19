@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// an outcome-phase script judgment: does some *.spec.ts or *.test.ts file
-// outside e2e/ that mentions resolve-translation group a condition under its
-// own nested describe("when ...") block, the way unit-testing requires for
-// cases that share a condition.
+// an outcome-phase script judgment: does some spec covering
+// shared/resolve-translation.ts group a condition under its own
+// describe("when ...") block, the way unit-testing requires for cases that
+// share a condition.
 //
 // docs/specs/skill-evaluation.md, "The factor": a script judgment "runs
 // with the reconstructed workspace as its working directory and a context
@@ -21,94 +21,19 @@
 // That is its stated limit, not an oversight: any of those would need
 // reading the case bodies, which this factor does not attempt.
 //
-// Both ".spec.ts" and ".test.ts" are accepted as this script's own scope,
-// not because either is what tsuzuri's own jest.config.cjs testMatch
-// collects — that stays pinned to "*.spec.ts", a fact this script does not
-// restate — but because this factor judges grouping, never whether the
-// runner would collect the file.
-//
-// e2e/ and .claude/ are excluded for the same reasons
-// check-spec-names-callables.mjs excludes them: a browser spec is
-// end-to-end-testing's vocabulary, not this factor's, and .claude/ is where
-// a probe's installed skills live — the one directory the skill-present and
-// skill-absent conditions differ by, so reading a result out of it would be
-// an asymmetric confound between them (#422), even though no installed
-// skill ships a *.spec.ts or *.test.ts today. "mentions resolve-translation"
-// is a plain substring match on the module's own name, however a spec
-// imports it.
-//
-// No candidate spec outside e2e/ mentioning resolve-translation at all is a
-// `false` result, not an error — the module having no spec yet is exactly
-// what this scenario's prompt asks a fix to close, and a scenario's task
-// prompt cannot itself fail the judgment it sets up.
+// Which files count as a candidate spec, and why e2e/ and .claude/ are left
+// out of the scan, are spec-scan.mjs's own decisions and documented there.
 //
 // usage: node check-spec-groups-conditions.mjs <context.json>
 
-import { readdirSync, readFileSync } from "node:fs";
-import { join, sep } from "node:path";
+import { NO_SPEC_EVIDENCE, describeTitles, requireContext, specsCoveringTheModule } from "./spec-scan.mjs";
 
-function fail(message) {
-  process.stderr.write(`${message}\n`);
-  process.exit(1);
-}
+requireContext("check-spec-groups-conditions.mjs");
 
-const contextPath = process.argv[2];
-if (!contextPath) fail("usage: check-spec-groups-conditions.mjs <context.json>");
-
-try {
-  JSON.parse(readFileSync(contextPath, "utf8"));
-} catch (error) {
-  fail(`could not read or parse ${contextPath}: ${error.message}`);
-}
-
-const EXCLUDED_SEGMENTS = new Set(["e2e", ".git", "node_modules", ".claude"]);
-const CANDIDATE_EXTENSIONS = [".spec.ts", ".test.ts"];
-
-/** every `*.spec.ts` or `*.test.ts` file under `root`, recursively, outside e2e/ and .claude/. */
-function findSpecFilesOutsideE2e(root) {
-  let entries;
-  try {
-    entries = readdirSync(root, { withFileTypes: true, recursive: true });
-  } catch (error) {
-    fail(`could not read the reconstructed workspace at ${root}: ${error.message}`);
-  }
-  const files = [];
-  for (const entry of entries) {
-    if (!entry.isFile() || !CANDIDATE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) continue;
-    const parent = entry.parentPath ?? entry.path;
-    const segments = parent.split(sep).filter((segment) => segment.length > 0 && segment !== ".");
-    if (segments.some((segment) => EXCLUDED_SEGMENTS.has(segment))) continue;
-    files.push(join(parent, entry.name));
-  }
-  return files;
-}
-
-/** every `describe(...)` title in `source`, in source order — single, double, or backtick-quoted. */
-function describeTitles(source) {
-  const titles = [];
-  const re = /\bdescribe\s*\(\s*(?:`([^`]*)`|"([^"]*)"|'([^']*)')/g;
-  let match;
-  while ((match = re.exec(source)) !== null) {
-    titles.push(match[1] ?? match[2] ?? match[3] ?? "");
-  }
-  return titles;
-}
-
-const candidates = [];
-for (const file of findSpecFilesOutsideE2e(".")) {
-  let content;
-  try {
-    content = readFileSync(file, "utf8");
-  } catch (error) {
-    fail(`could not read ${file} from the reconstructed workspace: ${error.message}`);
-  }
-  if (content.includes("resolve-translation")) candidates.push({ file, content });
-}
+const candidates = specsCoveringTheModule();
 
 if (candidates.length === 0) {
-  const evidence =
-    "no *.spec.ts or *.test.ts file outside e2e/ mentions resolve-translation — shared/resolve-translation.ts still has no spec in the reconstructed workspace";
-  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.stdout.write(`${JSON.stringify({ result: false, evidence: NO_SPEC_EVIDENCE })}\n`);
   process.exit(0);
 }
 
