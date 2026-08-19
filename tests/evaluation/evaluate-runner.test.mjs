@@ -96,7 +96,7 @@ describe("evaluateMeasurement — the committed fixture", () => {
     expect(byId["keeps-the-detail-cache-write"].result).toBe(true);
   });
 
-  // #413: a reconstructed-workspace removal failure must not cost the factor
+  // a reconstructed-workspace removal failure must not cost the factor
   // judgments already produced for that probe. reverting evaluate-runner.mjs's
   // fix — putting `await rm(...)` back directly in the `finally` with no
   // try/catch — makes this fail: the planted rejection propagates past

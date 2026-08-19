@@ -119,7 +119,7 @@ describe("runProbe", () => {
     await expect(runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env })).resolves.toBeTruthy();
   });
 
-  // #413: a workspace-removal failure (an ENOTEMPTY from something still
+  // a workspace-removal failure (an ENOTEMPTY from something still
   // writing under node_modules, in the reproduction that found this) must
   // not cost the probe record that was already built. reverting
   // probe-runner.mjs's fix — putting `await rm(...)` back directly in the

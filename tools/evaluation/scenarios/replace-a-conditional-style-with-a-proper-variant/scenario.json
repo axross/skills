@@ -1,0 +1,101 @@
+{
+  "id": "replace-a-conditional-style-with-a-proper-variant",
+  "description": "react-component-styling is targeted against a report that names neither the styling library, StyleSheet, variants, nor a theme API — buttons that stay bright on a dark background while the rest of the app follows the phone, and a selection outline with the same problem — with react-component-development (a props-contract read of 'this component drives a look from a boolean') and high-fidelity-ui-design (the theme-and-dark-mode read of the same complaint) sitting in the peer set as competing, plausible-looking picks. recall's patch reverts src/ui/action-button.tsx to React Native's own StyleSheet.create, inlining the light theme's colour literals and replacing the two variants groups with a lookup keyed on kind and a conditional entry in the style array for the focused state; nothing is invented, every look the component has today survives, expressed the way the project's own instructions say not to express it. This scenario is declared in the knowledge that its outcome differential is expected to be at or near zero: recall/AGENTS.md states the exact convention these factors assert, in the project's own voice, and names src/ui/text-field.tsx and src/ui/action-button.tsx as the components to read for it — a skill-absent run can reach the correct fix by copying local precedent alone. That confounder reaches the transcript factor too, because AGENTS.md states the reason as well as the rule. The discovery factor is the one phase left unconfounded, since nothing in AGENTS.md names a skill, and it is the phase that carries this scenario's real measurement. Recorded as an accepted limit at the tracking issue's clarify gate, not discovered in review.",
+  "mock": "recall",
+  "targetSkills": ["react-component-styling"],
+  "peerSkills": ["react-component-development", "high-fidelity-ui-design"],
+  "patch": "patch.diff",
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "Our buttons stay bright with their light-mode colours no matter what — even when the rest of the screen has followed the phone into dark mode, the buttons look like they're stuck in daytime. The outline that shows up when one of them is focused has the same problem. Can you get the buttons to actually follow the theme like everything else does?"
+  },
+  "factors": [
+    {
+      "id": "reaches-for-react-component-styling",
+      "phase": "discovery",
+      "description": "The report names neither the styling library, StyleSheet, variants, nor a theme API — an agent that reaches for react-component-styling here is finding it from the symptom, with react-component-development (a props-contract read of the same complaint) and high-fidelity-ui-design (its theme-and-dark-mode read) sitting right there as competing, plausible-looking picks. This is the phase that carries the scenario's real measurement — every other factor below is expected to be confounded by recall/AGENTS.md stating the fix's own convention.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "react-component-styling" }
+      }
+    },
+    {
+      "id": "reads-styles-from-unistyles-again",
+      "phase": "outcome",
+      "description": "The patch reverted src/ui/action-button.tsx to import StyleSheet from React Native's own package rather than the styling library. This factor checks that the final file's stylesheet comes from the library again.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "src/ui/action-button.tsx",
+          "mustContainAll": ["react-native-unistyles"]
+        }
+      }
+    },
+    {
+      "id": "expresses-kind-through-variants",
+      "phase": "outcome",
+      "description": "The patch replaced the two variants groups with a plain object lookup keyed on kind and a conditional entry in the style array for the focused state. This factor checks that the closed set of looks is expressed through the library's variants again rather than a hand-rolled conditional.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "src/ui/action-button.tsx",
+          "mustContainAll": ["variants"]
+        }
+      }
+    },
+    {
+      "id": "drops-the-inlined-colour-literals",
+      "phase": "outcome",
+      "description": "The patch inlined the light theme's own colour literals as hex values. A fix that adds a second, dark-mode palette of its own hard-coded hex values beside the first would still look like it 'handles' dark mode without ever going back through the theme, which is what this factor is here to catch: it checks that none of the exact literals the patch inlined survive in the final file.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-excludes.mjs",
+        "input": {
+          "file": "src/ui/action-button.tsx",
+          "mustExcludeAll": [
+            "#ffffff",
+            "#1b1f24",
+            "#3a49c9",
+            "#1f7a4d",
+            "#b3271e",
+            "#767e8a"
+          ]
+        }
+      }
+    },
+    {
+      "id": "keeps-all-four-looks-and-the-focus-outline",
+      "phase": "outcome",
+      "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: all four kind looks and the focused-state outline the component has today must still exist, so collapsing the variation away — rather than expressing it through the library properly — is not credited as a fix.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "src/ui/action-button.tsx",
+          "mustContainAll": [
+            "primary",
+            "secondary",
+            "destructive",
+            "positive",
+            "isFocused"
+          ]
+        }
+      }
+    },
+    {
+      "id": "names-the-theme-detachment-as-the-cause",
+      "phase": "transcript",
+      "description": "A correct diff can still be produced by an agent that copied the shape of a working styling library component without ever registering why the broken one stopped following the theme. This factor asks whether the agent's own reasoning names the actual cause — that the component's stylesheet no longer recomputes when the theme changes, because its colours are fixed literals rather than theme values — as distinct from a plausible-looking fix applied without diagnosis. Declared in the knowledge that recall/AGENTS.md states this reason too, so this factor is expected to be as flat as the outcome factors above.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the transcript of an agent's work on a UI bug report. Decide whether the agent's own reasoning, at some point before it finished, correctly identified WHY the buttons stopped following the app's theme — specifically, that the component's stylesheet was built with a plain, static object rather than the styling library's own theme-aware mechanism, so its colours were fixed literals that never recomputed when the theme changed (as distinct from merely fixing the symptom without ever stating that cause). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+      }
+    }
+  ]
+}

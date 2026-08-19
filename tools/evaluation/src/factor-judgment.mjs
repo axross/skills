@@ -42,7 +42,7 @@ export function materialFor(phase, probe) {
  * anything the script itself did. split out of runScriptJudgment so that
  * function can capture this one's outcome in a variable rather than return
  * it directly, which is what lets a cleanup failure attach a warning to an
- * outcome already decided instead of replacing it (see #413).
+ * outcome already decided instead of replacing it.
  *
  * @param {{ scriptPath: string, workspace: string, context: Record<string, unknown>, scratch: string }} options
  * @returns {Promise<{ result: boolean, evidence: string } | { error: string }>}
@@ -86,7 +86,7 @@ async function judgeWithScript({ scriptPath, workspace, context, scratch }) {
  * >} `cleanupWarning` is present only when the scratch directory could not
  *   be removed afterward; this module has no CLI of its own and no other
  *   channel a person reads, so the warning rides along in what
- *   judgeFactor turns into the stored factor record — see #413.
+ *   judgeFactor turns into the stored factor record.
  */
 async function runScriptJudgment({ scriptPath, workspace, context }) {
   const scratch = await mkdtemp(join(tmpdir(), "evaluate-context-"));
@@ -98,8 +98,9 @@ async function runScriptJudgment({ scriptPath, workspace, context }) {
       await rm(scratch, { recursive: true, force: true });
     } catch (error) {
       // a cleanup that cannot complete must never discard the judgment
-      // already decided above — see #413. carried into the outcome rather
-      // than thrown, since throwing here is exactly the bug this fixes.
+      // already decided above. carried into the outcome rather than thrown,
+      // since throwing here would silently replace the judgment with the
+      // cleanup error.
       outcome = { ...outcome, cleanupWarning: `could not remove ${scratch}: ${error.message}` };
     }
   }
@@ -142,8 +143,8 @@ export async function judgeFactor(factor, { scenarioDir, workspace, probe, apiKe
         material,
       },
     });
-    // spread only when present, so a clean cleanup leaves the record exactly
-    // as it was before #413's fix.
+    // spread only when present, so a clean cleanup leaves the record with no
+    // cleanupWarning key at all.
     const cleanup = "cleanupWarning" in outcome ? { cleanupWarning: outcome.cleanupWarning } : {};
     if ("error" in outcome) {
       return { id: factor.id, phase: factor.phase, method: "script", result: { error: outcome.error }, ...cleanup };

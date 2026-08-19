@@ -1,0 +1,139 @@
+diff --git a/src/ui/action-button.tsx b/src/ui/action-button.tsx
+index 8e1f252..756b584 100644
+--- a/src/ui/action-button.tsx
++++ b/src/ui/action-button.tsx
+@@ -1,6 +1,12 @@
+ import { useState } from "react";
+-import { Pressable, Text, type StyleProp, type ViewStyle } from "react-native";
+-import { StyleSheet } from "react-native-unistyles";
++import {
++  Pressable,
++  StyleSheet,
++  Text,
++  type StyleProp,
++  type TextStyle,
++  type ViewStyle,
++} from "react-native";
+ 
+ export type ActionButtonKind =
+   "primary" | "secondary" | "destructive" | "positive";
+@@ -30,8 +36,6 @@ export function ActionButton({
+ }: ActionButtonProps) {
+   const [isFocused, setIsFocused] = useState(false);
+ 
+-  styles.useVariants({ kind, focused: isFocused });
+-
+   return (
+     <Pressable
+       accessibilityRole="button"
+@@ -40,53 +44,73 @@ export function ActionButton({
+       onPress={onPress}
+       onFocus={() => setIsFocused(true)}
+       onBlur={() => setIsFocused(false)}
+-      style={[styles.button, style]}
++      style={[
++        styles.button,
++        KIND_STYLES[kind].button,
++        // Applied after the kind lookup so a focused button's border colour
++        // wins over secondary's own — a later entry in a style array wins
++        // over an earlier one.
++        isFocused && styles.buttonFocused,
++        style,
++      ]}
+     >
+-      <Text style={styles.label}>{label}</Text>
++      <Text style={[styles.label, KIND_STYLES[kind].label]}>{label}</Text>
+     </Pressable>
+   );
+ }
+ 
+-const styles = StyleSheet.create((theme) => ({
++// The light theme's own colour values, inlined here now that this component
++// reads from neither the theme nor a colour scheme.
++const COLORS = {
++  surface: "#ffffff",
++  text: "#1b1f24",
++  accent: "#3a49c9",
++  onAccent: "#ffffff",
++  positive: "#1f7a4d",
++  negative: "#b3271e",
++  border: "#767e8a",
++  focusRing: "#3a49c9",
++};
++
++const KIND_STYLES: Record<
++  ActionButtonKind,
++  { button: ViewStyle; label: TextStyle }
++> = {
++  primary: {
++    button: { backgroundColor: COLORS.accent },
++    label: { color: COLORS.onAccent },
++  },
++  secondary: {
++    button: { backgroundColor: COLORS.surface, borderColor: COLORS.border },
++    label: { color: COLORS.text },
++  },
++  destructive: {
++    button: { backgroundColor: COLORS.negative },
++    label: { color: COLORS.onAccent },
++  },
++  positive: {
++    button: { backgroundColor: COLORS.positive },
++    label: { color: COLORS.onAccent },
++  },
++};
++
++const styles = StyleSheet.create({
+   button: {
+-    minWidth: theme.sizing.minTouchTarget,
+-    minHeight: theme.sizing.minTouchTarget,
++    minWidth: 44,
++    minHeight: 44,
+     alignItems: "center",
+     justifyContent: "center",
+-    borderRadius: theme.radius.md,
++    borderRadius: 12,
+     borderWidth: 2,
+     borderColor: "transparent",
+-    paddingHorizontal: theme.spacing(2),
+-    variants: {
+-      kind: {
+-        primary: { backgroundColor: theme.colors.accent },
+-        secondary: {
+-          backgroundColor: theme.colors.surface,
+-          borderColor: theme.colors.border,
+-        },
+-        destructive: { backgroundColor: theme.colors.negative },
+-        positive: { backgroundColor: theme.colors.positive },
+-        default: { backgroundColor: theme.colors.accent },
+-      },
+-      // Declared after `kind` so a focused button's border colour wins over
+-      // `secondary`'s — variant groups apply in this object's key order.
+-      focused: {
+-        true: { borderColor: theme.colors.focusRing },
+-        false: {},
+-        default: {},
+-      },
+-    },
++    paddingHorizontal: 16,
++  },
++  buttonFocused: {
++    borderColor: COLORS.focusRing,
+   },
+   label: {
+-    ...theme.typography.label,
+-    variants: {
+-      kind: {
+-        primary: { color: theme.colors.onAccent },
+-        secondary: { color: theme.colors.text },
+-        destructive: { color: theme.colors.onAccent },
+-        positive: { color: theme.colors.onAccent },
+-        default: { color: theme.colors.onAccent },
+-      },
+-    },
++    fontSize: 14,
++    lineHeight: 20,
++    fontWeight: "600",
+   },
+-}));
++});

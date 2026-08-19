@@ -116,8 +116,8 @@ describe("extractUrls", () => {
       // unread. blanking code spans first is what makes an opener have to be
       // real text to count.
       //
-      // the ordering now lives in commonmark.mjs (#185), shared with
-      // check-links.mjs, which carried the same defect until then. this case
+      // the ordering now lives in commonmark.mjs, shared with check-links.mjs,
+      // which carried the same defect until then. this case
       // stays here anyway: it asserts what this module's callers get, and would
       // catch a future extractUrls that stopped going through extractProse.
       const source = [

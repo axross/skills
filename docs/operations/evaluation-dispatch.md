@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-six<!-- /count --> scenarios are declared today: thirteen against `inkwell`, eleven against `tsuzuri`, and two against `recall`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eight<!-- /count --> scenarios are declared today: thirteen against `inkwell`, eleven against `tsuzuri`, and four against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -380,16 +380,42 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-six
   `react-component-development` as peers, and carries a `discovery` factor
   and two `outcome` factors. It claims the other gap that same list names
   for `recall`: nothing in the app has a disabled state.
+- [`stop-the-analytics-identity-rotating-every-launch`](../../tools/evaluation/scenarios/stop-the-analytics-identity-rotating-every-launch/)
+  targets `amplitude-instrumentation` against `recall`, alongside
+  `software-instrumentation` and `expo-app-development` as peers, and declares a
+  `patch` — the first against a mock other than `inkwell`. That patch is
+  additive rather than a move: it adds a `forgetUser()` call to
+  `app/_layout.tsx`'s startup path beside the existing sign-out one, which is
+  what rotates the analytics identity on every launch while leaving `recall`'s
+  own suite green. One outcome factor carries the measurement; three more are
+  "what had to not change" guards, each expected to contribute a zero
+  differential on its own. Its transcript factor is judged by reasoning rather
+  than by script, a deliberate divergence from the two `inkwell` patch scenarios
+  above, recorded in this scenario's own `scenario.json` description. It claims
+  the gap
+  [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
+  own "choices made for coverage" list names as `amp-rn-identity-resets`.
+- [`replace-a-conditional-style-with-a-proper-variant`](../../tools/evaluation/scenarios/replace-a-conditional-style-with-a-proper-variant/)
+  is also against `recall` and also declares a `patch`, targeting
+  `react-component-styling` alongside `react-component-development` and
+  `high-fidelity-ui-design` as peers. Its patch reverts
+  `src/ui/action-button.tsx` to React Native's own `StyleSheet.create`, with
+  hard-coded colour literals and a conditional style array standing in for the
+  styling library's variants. It is declared in the knowledge that its outcome
+  differential is expected to be at or near zero: `recall/AGENTS.md` states the
+  very convention its factors assert, in the project's own voice, and names this
+  component as one of the two to read for how it is done — an accepted limit
+  recorded at this scenario's plan gate rather than found in review.
 
-Together the twenty-six exercise every path through the three scripts above:
+Together the twenty-eight exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
 probe or the offline check under `tests/repository/` ever sees it, scenarios spread across three
 different mock projects, and — across the three scenarios that target a
 document-authoring skill (`technical-document-authoring`,
 `living-project-documentation`, and `product-requirement-document-authoring`)
-— an artefact that is prose rather than code. Nine carry at least one
-`transcript` factor — fourteen transcript factors in total, six judged by
+— an artefact that is prose rather than code. Eleven carry at least one
+`transcript` factor — sixteen transcript factors in total, eight judged by
 reasoning and eight by script. Of the seventeen that carry none, three state
 their reason in their own `scenario.json`. Authoring further scenarios against
 `inkwell`'s, `tsuzuri`'s, and `recall`'s remaining catalogued subjects, and against this

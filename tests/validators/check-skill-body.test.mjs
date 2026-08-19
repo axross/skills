@@ -603,8 +603,9 @@ describe("check-skill-body.mjs", () => {
 
       it("does not count the RFC-2119 boilerplate as a citation", async () => {
         const root = await tempDir();
-        // every skill carries this link. counting it would silence the check on
-        // the whole corpus, which is why #171 measured "non-RFC URLs".
+        // every skill carries this link. counting it would silence the check
+        // on the whole corpus, which is why the citation count is "non-RFC
+        // URLs" rather than URLs.
         const dir = await skillWith(root, "boilerplate-only", [
           "Everything here is written against SDK 57.",
           "",

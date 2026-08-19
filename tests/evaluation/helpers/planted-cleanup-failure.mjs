@@ -1,6 +1,6 @@
 // plants exactly one cleanup failure — a throwing `rm(path, { recursive:
 // true, force: true })` — the shape of the temporary-directory removal at
-// each of #413's three sites (probe-runner.mjs, evaluate-runner.mjs,
+// each of three sites this covers (probe-runner.mjs, evaluate-runner.mjs,
 // factor-judgment.mjs). Every other node:fs/promises call, including any
 // other shape of `rm` call (mock-workspace.mjs's own single-file
 // `rm(historyPath)`, for instance), passes through to the real
@@ -30,8 +30,8 @@ import { vi } from "vitest";
 /**
  * @param {{ pathIncludes: string, message?: string }} options `pathIncludes`
  *   narrows which `rm` call is made to fail — see this file's header.
- *   `message` is the planted error's text, ENOTEMPTY-shaped by default since
- *   that is the failure #413 was filed from.
+ *   `message` is the planted error's text, ENOTEMPTY-shaped by default to
+ *   match the real workspace-removal failure this coverage guards against.
  * @returns {Promise<{ triggered: boolean, restore: () => void }>}
  *   `triggered` is read after the call under test completes, and is `true`
  *   once the planted failure has fired; `restore` must be called (from a

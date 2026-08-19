@@ -189,7 +189,7 @@ describe("commonmark.mjs", () => {
       ]);
     });
 
-    // the regression this export exists for (#185). README.md documents the
+    // the regression this export exists for: README.md documents the
     // `count:` marker rule with the sentence "a line beginning with `<!--` is an
     // HTML block in CommonMark" — a comment opener inside an inline code span.
     // stripping comments from the raw source believes that opener and discards
