@@ -9,7 +9,10 @@
 // that would fail the moment it actually ran there. This factor never runs
 // the suite to observe that failure; it reads vitest.config.ts structurally
 // and checks the unit project's declared include never grew a `.tsx`
-// pattern, which is the textual signal of that mistake being made.
+// pattern, which is the textual signal of that mistake being made. When
+// vitest.config.ts carries no "unit" project with a locatable include array
+// at all, that is a real `false`: the file is there and readable, and the
+// project structure this factor expects simply is not in it.
 //
 // usage: node check-unit-project-stays-ts-only.mjs <context.json>
 
@@ -38,9 +41,9 @@ try {
 
 const unitInclude = projectInclude(config, "unit");
 if (unitInclude === null) {
-  fail(
-    'vitest.config.ts has no project named "unit" with a locatable include array — this factor cannot judge the project structure it expects.',
-  );
+  const evidence = 'vitest.config.ts has no project named "unit" with a locatable include array.';
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 const widenedToTsx = unitInclude.filter((pattern) => pattern.endsWith(".tsx"));

@@ -22,9 +22,11 @@
 // declaration to the end of the file, for the literal expression
 // `post.defaultLocale` — a fallback reintroduced through a renamed field, a
 // helper this script does not know to look inside, or `post["defaultLocale"]`
-// would not be caught. It cannot make a judgment at all when
-// resolveTranslation itself cannot be located in the file — not the same as
-// a `false` result — and exits non-zero rather than reporting one.
+// would not be caught. When resolveTranslation itself cannot be located in
+// the file, that is a real `false`: shared/resolve-translation.ts is there
+// and readable, and the function whose body this factor reads for the
+// forbidden expression is simply not in it — which is a different fact
+// from the module itself being unreadable.
 //
 // usage: node check-resolve-translation-guard.mjs <context.json>
 
@@ -57,9 +59,9 @@ try {
 
 const start = content.indexOf(START_MARKER);
 if (start === -1) {
-  fail(
-    `${MODULE_PATH} no longer contains ${JSON.stringify(START_MARKER)} — this factor cannot locate resolveTranslation's own body to judge.`,
-  );
+  const evidence = `${MODULE_PATH} no longer contains ${JSON.stringify(START_MARKER)}.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 const body = content.slice(start);
