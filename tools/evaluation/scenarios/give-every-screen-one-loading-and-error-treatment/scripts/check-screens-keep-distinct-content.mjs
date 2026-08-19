@@ -65,14 +65,29 @@
 // element's own closing tag truncated the capture early, and a nested
 // same-named element that was itself self-closing left the depth count one
 // too high, running the scan past the real close and returning null for an
-// element that had closed just fine. All three fixed after separate review
-// rounds; see #429's fix-round history for the reproductions each version
-// was built and checked against.
+// element that had closed just fine. A fourth version scanned each route
+// file's RAW content for usage spans, comments included, so a code comment
+// merely mentioning the shared component in tag shape —
+// "// See <LoadingError message="..." /> for the older shape." — was
+// captured as a real usage span: two screens passing the shared component
+// byte-for-byte identical props, the exact flattening this factor exists
+// to catch, compared as different once that comment's own captured span
+// joined the real one. usageTextFor now strips comments (lib/route-imports
+// .mjs's stripComments, exported for this) before either screen's content
+// ever reaches usageSpansFor. All four fixed after separate review rounds;
+// see #429's fix-round history for the reproductions each version was
+// built and checked against.
 //
 // usage: node check-screens-keep-distinct-content.mjs <context.json>
 
 import { existsSync, readFileSync } from "node:fs";
-import { ROUTE_FILES, addedFilesFromDiff, isSetAboutLoadingAndError, readRouteFile } from "./lib/route-imports.mjs";
+import {
+  ROUTE_FILES,
+  addedFilesFromDiff,
+  isSetAboutLoadingAndError,
+  readRouteFile,
+  stripComments,
+} from "./lib/route-imports.mjs";
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -313,7 +328,14 @@ function captureJsxElement(text, ltIndex, name) {
  * opens (`name(...)`) — and nothing outside either shape. A bare reference
  * (neither shape: a type position, a value passed by name alone) contributes
  * nothing, since this factor cares about how the shared surface is actually
- * invoked, not every mention of its name.
+ * invoked, not every mention of its name. `text` is expected to already be
+ * comment-stripped (see usageTextFor's own call site, and
+ * lib/route-imports.mjs's stripComments): this function has no comment
+ * awareness of its own, so a caller that fed it raw source would have a
+ * code comment merely MENTIONING the component in tag shape —
+ * "// See <LoadingError message=\"...\" /> for the older shape." — read as
+ * a real usage span, exactly the shape a genuine flattening this factor
+ * exists to catch could hide behind.
  *
  * @param {string} text
  * @param {string} name
@@ -385,10 +407,11 @@ if (!aboutConcern) {
 
 function usageTextFor(route) {
   const spans = [];
+  const scannedContent = stripComments(route.content);
   for (const modulePath of sharedAndAdded) {
     const importEntry = route.imports.find((entry) => entry.resolved === modulePath);
     if (!importEntry || importEntry.names.length === 0) continue;
-    for (const name of importEntry.names) spans.push(...usageSpansFor(route.content, name));
+    for (const name of importEntry.names) spans.push(...usageSpansFor(scannedContent, name));
   }
   return normalizeUsage(spans.join(" "));
 }

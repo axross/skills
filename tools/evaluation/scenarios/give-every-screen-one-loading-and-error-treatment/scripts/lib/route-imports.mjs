@@ -95,12 +95,18 @@ export function boundNamesFromClause(clause) {
  * "from \"...\"", which is exactly the shape a same-named mention inside an
  * ordinary code comment — "// Mirrors the pattern from '../components/X'"
  * — can satisfy; stripping comments first is what keeps that mention from
- * ever reaching the regex at all.
+ * ever reaching the regex at all. Exported for the same reason: a shared
+ * component's own usage capture in the sibling script (usageSpansFor in
+ * check-screens-keep-distinct-content.mjs) scans a route file's raw
+ * content for the same tag/call shapes, and without stripping first, a
+ * comment merely MENTIONING the component in tag shape — "// See
+ * <LoadingError message=\"...\" /> for the older shape." — is read as a
+ * real usage span.
  *
  * @param {string} text
  * @returns {string}
  */
-function stripComments(text) {
+export function stripComments(text) {
   let out = "";
   let quote = null;
   let i = 0;
