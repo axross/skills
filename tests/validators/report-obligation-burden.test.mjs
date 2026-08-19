@@ -576,7 +576,7 @@ describe("report-obligation-burden.mjs", () => {
       // after the reviewer found professional-behavior's Reporting one fired
       // on every turn, which the change's own new rule calls a defect. prose
       // only, so no obligation count moves.
-      expect.soft(totals.floorTokens).toBe(9_586);
+      expect.soft(totals.floorTokens).toBe(9_685);
       // drifted from 299 in #174. all ten come from loop-engineering's
       // github-conventions.md, which gave the GitHub-operation mechanics back
       // to their owner: twelve restated bullets out, two loop-specific ones
@@ -769,7 +769,7 @@ describe("report-obligation-burden.mjs", () => {
       // references was already fully descriptive, carrying no rule this
       // change needed to relocate — so the ceiling moves by exactly the
       // floor's own delta.
-      expect.soft(totals.ceilingObligations).toBe(457);
+      expect.soft(totals.ceilingObligations).toBe(471);
       // drifted from 25,265 in #195, by the same fold-then-co-notate pair as
       // the floor above; the reference files the ceiling adds carry no
       // frontmatter of their own, so only their co-notation moves this one
@@ -936,7 +936,7 @@ describe("report-obligation-burden.mjs", () => {
       // after the reviewer found professional-behavior's Reporting one fired
       // on every turn, which the change's own new rule calls a defect. prose
       // only, so no obligation count moves.
-      expect.soft(totals.ceilingTokens).toBe(44_914);
+      expect.soft(totals.ceilingTokens).toBe(46_416);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -1005,9 +1005,9 @@ describe("report-obligation-burden.mjs", () => {
       // after the reviewer found professional-behavior's Reporting one fired
       // on every turn, which the change's own new rule calls a defect. prose
       // only, so no obligation count moves.
-      expect.soft(tiers[1].floorTokens).toBe(3_210);
-      expect.soft(tiers[1].ceilingObligations).toBe(226);
-      expect.soft(tiers[1].ceilingTokens).toBe(17_201);
+      expect.soft(tiers[1].floorTokens).toBe(3_309);
+      expect.soft(tiers[1].ceilingObligations).toBe(240);
+      expect.soft(tiers[1].ceilingTokens).toBe(18_703);
 
       // tier 3 — plus `loop-engineering`, and the figure this report printed
       // alone before #211. drifted from 361 by #204's plan-structure rewrite,
@@ -1073,9 +1073,9 @@ describe("report-obligation-burden.mjs", () => {
       // after the reviewer found professional-behavior's Reporting one fired
       // on every turn, which the change's own new rule calls a defect. prose
       // only, so no obligation count moves.
-      expect.soft(tiers[2].floorTokens).toBe(9_586);
-      expect.soft(tiers[2].ceilingObligations).toBe(457);
-      expect.soft(tiers[2].ceilingTokens).toBe(44_914);
+      expect.soft(tiers[2].floorTokens).toBe(9_685);
+      expect.soft(tiers[2].ceilingObligations).toBe(471);
+      expect.soft(tiers[2].ceilingTokens).toBe(46_416);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -1103,9 +1103,11 @@ describe("report-obligation-burden.mjs", () => {
       // it would keep passing even if `code-review` contributed nothing at
       // all, which is exactly the regression this pair exists to catch.
       // #271 moved this to 441 to close that gap, #283 to 444 with it, #435
-      // to 451 with it, and #451 revision 2 to 457 with it.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(457);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(457);
+      // to 451 with it, and #451 revision 2 to 457 with it. tightening the
+      // comment rules to an admissibility test moved it to 471, all 14 from
+      // software-development's own new comment obligations.
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(471);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(471);
     });
 
     it("prints no tier block without --mandated", async () => {

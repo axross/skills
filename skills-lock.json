@@ -24,12 +24,12 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8c8bc676d58dc85e07164f5e8c83dc655c547bbf806a369baef5d0d03ace21ba"
+      "computedHash": "c8773317aa8e0dd4de859ae9285b5cbef0cab9f8cd4426845ee50caab3159048"
     },
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "72de5c8e8c255a4b9fac24b4d40155c7227f27c850a49949d60cddbc1419b076"
+      "computedHash": "aaea1e1d38d5d171e2adc0bab8bc1fa1962dbb6de0e9ca599fa68406803b141e"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -64,7 +64,7 @@
     "living-project-documentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "d7d110990a78e60bc5880c15f8c71768a5d383523522237406e93561eb78e6b9"
+      "computedHash": "6d1cd7e6f3bdf244bc7034e3cb1f68b2d1a07517f61ae99c284354d573a02620"
     },
     "loop-engineering": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "96bcc17a2ddafaff8f75cdd2cdc3993d347b39a4d447798a448e61b9e4dc03f4"
+      "computedHash": "70180d0b59e36bacaf7fcc86cbb5eed2fc4211fbdc37fda8578d7ec4fd6eb584"
     },
     "software-instrumentation": {
       "source": "./skills",
