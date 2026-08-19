@@ -9,11 +9,14 @@ import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
 import { spawnFnEnvelope, spawnFnStdout } from "./helpers/fake-judge-process.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { judgeFactor, materialFor } from "../../tools/evaluation/src/factor-judgment.mjs";
+import * as judgeModule from "../../tools/evaluation/src/judge.mjs";
 
-// spy-mode (not a replacing factory): every node:fs/promises call keeps its
-// real behavior unless a test explicitly overrides one — see
-// helpers/planted-cleanup-failure.mjs.
+// spy-mode (not a replacing factory): every node:fs/promises call and every
+// judge.mjs export keeps its real behavior unless a test explicitly
+// overrides one — see helpers/planted-cleanup-failure.mjs and the
+// callReasoningJudge spy below.
 vi.mock(import("node:fs/promises"), { spy: true });
+vi.mock(import("../../tools/evaluation/src/judge.mjs"), { spy: true });
 
 const PROBE = {
   skillsInvoked: ["unit-testing"],
@@ -302,5 +305,31 @@ describe("judgeFactor — reasoning method", () => {
 
     expect(record.result).not.toBe(false);
     expect(record.result.error).toMatch(/not a single JSON object/);
+  });
+
+  // the credential check above and callReasoningJudge's own throw guard the
+  // same predicate independently; nothing keeps the two in sync. This
+  // proves the second line of defense: an unexpected throw still yields a
+  // well-formed record for this one factor, rather than escaping uncaught.
+  it("still yields a well-formed error record when callReasoningJudge throws unexpectedly", async () => {
+    const spy = vi
+      .spyOn(judgeModule, "callReasoningJudge")
+      .mockRejectedValue(new Error("a predicate divergence this test stands in for"));
+
+    try {
+      const record = await judgeFactor(factor, {
+        scenarioDir: "/unused",
+        workspace: "/unused",
+        probe: PROBE,
+        env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+        spawnFn: () => {},
+      });
+
+      expect(record.result).toEqual({ error: expect.stringContaining("predicate divergence") });
+      expect(record.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
+      expect(record.prompt).toContain("look closely");
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

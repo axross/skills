@@ -185,15 +185,24 @@ export async function judgeFactor(factor, { scenarioDir, workspace, probe, env =
     };
   }
 
-  const outcome = await callReasoningJudge({
-    model: factor.judgment.model,
-    systemPrompt:
-      "You are a strict, literal-minded judge for one checkable expectation about a single " +
-      "piece of software work. Answer only the JSON object asked for; never anything outside it.",
-    userPrompt,
-    env,
-    spawnFn,
-  });
+  let outcome;
+  try {
+    outcome = await callReasoningJudge({
+      model: factor.judgment.model,
+      systemPrompt:
+        "You are a strict, literal-minded judge for one checkable expectation about a single " +
+        "piece of software work. Answer only the JSON object asked for; never anything outside it.",
+      userPrompt,
+      env,
+      spawnFn,
+    });
+  } catch (error) {
+    // callReasoningJudge throws only for no CLI credential, a predicate the
+    // check above re-implements without staying in sync by construction. A
+    // second, independent line of defense, so a divergence costs this one
+    // factor rather than every probe's factors.json going unwritten.
+    outcome = { error: error.message };
+  }
   const common = {
     id: factor.id,
     phase: factor.phase,
