@@ -42,7 +42,7 @@
       "description": "The request raises nothing about safety, so a diff that never renders raw HTML can still be produced by an agent that never registered why that mattered. This factor checks whether the agent, at some point, said so itself — naming the reader's text as untrusted, using vocabulary like 'XSS', 'cross-site scripting', 'sanitiz', 'injection', 'untrusted input', or 'HTML escap' — as distinct from a safe-looking diff produced without that reasoning ever appearing. It scans the agent's own assistant messages and nothing else: the stored transcript carries every file the agent read, and both peer skills, installed in both conditions, contain these very phrases, so a scan over the whole transcript would have measured whether a file was opened rather than whether the agent reasoned.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-mentions.mjs",
+        "script": "../../judgments/check-transcript-mentions.mjs",
         "input": {
           "anyOf": [
             "xss",

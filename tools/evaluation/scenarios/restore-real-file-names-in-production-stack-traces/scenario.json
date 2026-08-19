@@ -50,9 +50,9 @@
       "description": "A correct config change can still be produced by an agent that copied the shape of a working Sentry setup without ever registering why the report looked the way it did. This is a script judgment, not a reasoning one — tracking issue #431 records why — and greps the transcript for whether the agent's own words name source maps as the cause, as a weak but real proxy for diagnosis over pattern-matching.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-mentions.mjs",
+        "script": "../../judgments/check-transcript-mentions.mjs",
         "input": {
-          "mustContainAny": ["source map", "sourcemap", "source-map"]
+          "anyOf": ["source map", "sourcemap", "source-map"]
         }
       }
     }
