@@ -96,9 +96,8 @@ export function boundNamesFromClause(clause) {
  * ordinary code comment — "// Mirrors the pattern from '../components/X'"
  * — can satisfy; stripping comments first is what keeps that mention from
  * ever reaching the regex at all. Exported for the same reason: a shared
- * component's own usage capture in the sibling script (usageSpansFor in
- * check-screens-keep-distinct-content.mjs) scans a route file's raw
- * content for the same tag/call shapes, and without stripping first, a
+ * component's own usage capture (usageSpansFor, below) scans a route
+ * file's raw content for the same tag/call shapes, and without stripping first, a
  * comment merely MENTIONING the component in tag shape — "// See
  * <LoadingError message=\"...\" /> for the older shape." — is read as a
  * real usage span.
@@ -305,8 +304,9 @@ export function readRouteFile(routeFile) {
  * read how each route file USES a shared module, not only the module's own
  * text, and forking a second copy would risk the two drifting the same way
  * this file's own header explains resolveRelativeSpecifier was pulled out
- * to prevent. check-screens-keep-distinct-content.mjs now imports
- * usageSpansFor from here instead of defining it locally.
+ * to prevent. check-screens-keep-distinct-content.mjs now reads a route's
+ * usage through usageSpansForSharedSet, which calls this, instead of
+ * defining its own capture locally.
  *
  * @param {string} text
  * @param {number} openIndex
@@ -583,8 +583,8 @@ function captureJsxElement(text, ltIndex, name) {
  * (neither shape: a type position, a value passed by name alone) contributes
  * nothing, since this factor cares about how the shared surface is actually
  * invoked, not every mention of its name. `text` is expected to already be
- * comment-stripped (see usageTextFor's own call site, and
- * lib/route-imports.mjs's stripComments): this function has no comment
+ * comment-stripped — usageSpansForSharedSet, this file's only caller of
+ * it, runs stripComments first: this function has no comment
  * awareness of its own, so a caller that fed it raw source would have a
  * code comment merely MENTIONING the component in tag shape —
  * "// See <LoadingError message=\"...\" /> for the older shape." — read as
@@ -754,6 +754,39 @@ function effectiveSourceFor(modulePath) {
 }
 
 /**
+ * every JSX usage span one route file shows for the names it binds from any
+ * module in modulePaths, comments stripped first so a commented-out mention
+ * is never read as a usage.
+ *
+ * Both of this scenario's outcome factors read a route's usage through this
+ * one function, which is the point of it: their own descriptions promise
+ * they agree on how a screen uses the shared set, and when each collected
+ * that usage itself they diverged. One walked every import entry; the other
+ * took only the FIRST entry resolving to each module, so a route binding two
+ * names from one module through two separate import statements had every
+ * name after the first silently dropped — a false negative on the "must not
+ * disappear" factor for a probe that had kept each screen's own content.
+ *
+ * The spans are sorted rather than left in source order, so two screens
+ * that render the same usages in a different order still compare as the
+ * same content: the factor above asks what each screen SAYS, and the order
+ * its import statements happen to sit in says nothing about that.
+ * @param {{ content: string, imports: Array<{ names: string[], resolved: string | null }> }} route
+ * @param {Iterable<string>} modulePaths
+ * @returns {string[]}
+ */
+export function usageSpansForSharedSet(route, modulePaths) {
+  const shared = new Set(modulePaths);
+  const scannedContent = stripComments(route.content);
+  const spans = [];
+  for (const entry of route.imports) {
+    if (!entry.resolved || !shared.has(entry.resolved)) continue;
+    for (const name of entry.names) spans.push(...usageSpansFor(scannedContent, name));
+  }
+  return spans.sort();
+}
+
+/**
  * true when the shared, newly-added module SET this scenario's two
  * outcome factors compare — not any single file in isolation — is
  * actually ABOUT this scenario's own subject: a loading-ish token and a
@@ -844,39 +877,6 @@ function effectiveSourceFor(modulePath) {
  *   returns
  * @returns {boolean}
  */
-/**
- * every JSX usage span one route file shows for the names it binds from any
- * module in modulePaths, comments stripped first so a commented-out mention
- * is never read as a usage.
- *
- * Both of this scenario's outcome factors read a route's usage through this
- * one function, which is the point of it: their own descriptions promise
- * they agree on how a screen uses the shared set, and when each collected
- * that usage itself they diverged. One walked every import entry; the other
- * took only the FIRST entry resolving to each module, so a route binding two
- * names from one module through two separate import statements had every
- * name after the first silently dropped — a false negative on the "must not
- * disappear" factor for a probe that had kept each screen's own content.
- *
- * The spans are sorted rather than left in source order, so two screens
- * that render the same usages in a different order still compare as the
- * same content: the factor above asks what each screen SAYS, and the order
- * its import statements happen to sit in says nothing about that.
- * @param {{ content: string, imports: Array<{ names: string[], resolved: string | null }> }} route
- * @param {Iterable<string>} modulePaths
- * @returns {string[]}
- */
-export function usageSpansForSharedSet(route, modulePaths) {
-  const shared = new Set(modulePaths);
-  const scannedContent = stripComments(route.content);
-  const spans = [];
-  for (const entry of route.imports) {
-    if (!entry.resolved || !shared.has(entry.resolved)) continue;
-    for (const name of entry.names) spans.push(...usageSpansFor(scannedContent, name));
-  }
-  return spans.sort();
-}
-
 export function isSetAboutLoadingAndError(modulePaths, routes) {
   const sources = [];
   for (const modulePath of modulePaths) {
