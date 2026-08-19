@@ -197,8 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Scenarios are declared today under `tools/evaluation/scenarios/` against two
-mock projects. Grouped here by which:
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->eleven<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, three against `tsuzuri`, and two against `recall`. Grouped here by which:
 
 ### Against `inkwell`
 
@@ -242,6 +241,28 @@ above: every phase, both judgment methods, a scenario that omits a phase
 entirely, and — the last two add — a scenario whose mock is patched before a
 probe or the offline check under `tests/repository/` ever sees it.
 
+### Against `tsuzuri`
+
+- [`publish-an-edit-without-a-redeploy`](../../tools/evaluation/scenarios/publish-an-edit-without-a-redeploy/)
+  targets `next-app-development` against `tsuzuri`'s build-time post catalog
+  — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
+  own "choices made for coverage" list names it — alongside
+  `tanstack-query-development` and `code-maintainability` as peers, and
+  carries a `discovery` factor and two `outcome` factors. It declares no
+  `transcript` factor, and its own `scenario.json` says why: the mock
+  states this defect's cause in its own prose, in both conditions, so a
+  transcript scan for that reasoning would measure reading rather than
+  reasoning.
+- [`accept-a-page-number-from-a-url`](../../tools/evaluation/scenarios/accept-a-page-number-from-a-url/)
+  targets `zod-schema` against a URL page number `tsuzuri` parses nowhere
+  today, alongside `next-app-development` and `react-component-development`
+  as peers, and carries a `discovery` factor and two `outcome` factors.
+- [`let-readers-leave-a-note-on-a-post`](../../tools/evaluation/scenarios/let-readers-leave-a-note-on-a-post/)
+  targets `application-security` against a reader-note feature invented in
+  its own prompt, alongside `zod-schema` and `next-app-development` as
+  peers, and carries a `discovery` factor, one `outcome` factor, and a
+  `transcript` factor judged by script.
+
 ### Against `recall`
 
 - [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../../tools/evaluation/scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
@@ -258,12 +279,12 @@ probe or the offline check under `tests/repository/` ever sees it.
   gap that same list names for `recall`: nothing in the app has a disabled
   state.
 
-Neither `recall` scenario declares a `patch` or a `transcript` factor, so the
-pair adds no path the `inkwell` group does not already cover. What it adds is
-a second mock: the first scenarios declared against a project that is not
-`inkwell`.
+What the `tsuzuri` and `recall` groups add is mocks rather than paths: no
+scenario in either declares a `patch`, and neither introduces a judgment the
+`inkwell` group does not already exercise. Three mock projects are now
+represented, which is the coverage those two groups carry.
 
-Authoring further scenarios against `inkwell`'s remaining catalogued
-subjects, and against this repository's other mocks, is separate, later
-work; this document describes what runs today, not the coverage it will
-eventually have.
+Authoring further scenarios against `inkwell`'s and `tsuzuri`'s remaining
+catalogued subjects, and against this repository's other mocks, is separate,
+later work; this document describes what runs today, not the coverage it
+will eventually have.

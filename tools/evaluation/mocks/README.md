@@ -89,11 +89,13 @@ shaped as it is, and is why the shape survives until then.
   during a refactor. An untested module beside a tested one is what real
   repositories look like, so no patch creates it.
 - **The post catalog in `posts-data.ts` is a build-time module rather than a
-  fetch from a content backend.** `publish-an-edit-without-a-redeploy` needs a
-  project where staying stale until someone redeploys is genuinely what
-  happens, not a defect invented for the scenario — and a checked-in catalog
-  compiled into the build is an ordinary way for a project this size to
-  start, so the choice reads as honest regardless of the scenario behind it.
+  fetch from a content backend.**
+  [`publish-an-edit-without-a-redeploy`](../scenarios/publish-an-edit-without-a-redeploy/)
+  needs a project where staying stale until someone redeploys is genuinely
+  what happens, not a defect invented for the scenario — and a checked-in
+  catalog compiled into the build is an ordinary way for a project this size
+  to start, so the choice reads as honest regardless of the scenario behind
+  it.
 
 ### `tsuzuri` — fixture artifacts
 

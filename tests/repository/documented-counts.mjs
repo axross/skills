@@ -354,6 +354,26 @@ async function isFile(path) {
   }
 }
 
+/**
+ * directory names under `tools/evaluation/scenarios/` that hold a
+ * `scenario.json`, one per declared evaluation scenario.
+ *
+ * the `scenario.json` requirement matches distributableSkillDirs' own
+ * SKILL.md requirement below rather than counting bare directories: a
+ * directory without one is not a declared scenario, and counting it would
+ * inflate the marker. loadAllScenarios would throw on such a directory and
+ * fail the suite first, so this is rigor rather than a live defect — but a
+ * derivation that is only correct because something else fails earlier is
+ * one nobody can read on its own.
+ */
+async function declaredScenarioDirs() {
+  const root = repoPath("tools/evaluation/scenarios");
+  const entries = await readdir(root, { withFileTypes: true });
+  const dirs = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const declared = await Promise.all(dirs.map(async (name) => ((await isFile(join(root, name, "scenario.json"))) ? name : null)));
+  return declared.filter((name) => name !== null);
+}
+
 /** directory names under `skills/` that hold a SKILL.md. */
 async function distributableSkillDirs() {
   const root = repoPath("skills");
@@ -487,6 +507,12 @@ export const CLAIMS = {
         ),
       );
     },
+  },
+
+  "declared-scenarios": {
+    owner: "the directories under tools/evaluation/scenarios/",
+    note: "docs/operations/evaluation-dispatch.md's own scenario list must gain or lose an entry to match, and node tools/evaluation/probe.mjs --dry-run's admitted probe count moves by 6 probes per scenario",
+    derive: async () => (await declaredScenarioDirs()).length,
   },
 
 };
