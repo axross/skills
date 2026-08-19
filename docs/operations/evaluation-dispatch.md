@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-one<!-- /count --> scenarios are declared today: eleven against the `inkwell` mock project, eight against `tsuzuri`, and two against `recall`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-four<!-- /count --> scenarios are declared today: eleven against `inkwell`, eleven against `tsuzuri`, and two against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -325,6 +325,30 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-one
   mock's own declared choice to keep its helpers exported. It declares no
   `reasoning` factor: its artefact is code and both of its expectations are
   mechanically checkable.
+- [`cover-the-locale-fallback-nothing-tests`](../../tools/evaluation/scenarios/cover-the-locale-fallback-nothing-tests/)
+  targets `unit-testing` against `tsuzuri`, alongside `jest-testing` and
+  `end-to-end-testing` as peers, and asks a fix to cover
+  `shared/resolve-translation.ts` — the one module under `shared/` that ships
+  no spec — with both outcome factors checking spec craft the mock's own
+  `blog-post-slug.spec.ts` demonstrates only the opposite half of, or not at
+  all: naming a callable subject with `()`, and grouping a shared condition
+  under its own `describe("when ...")` block.
+- [`show-what-the-test-run-never-reaches`](../../tools/evaluation/scenarios/show-what-the-test-run-never-reaches/)
+  targets `jest-testing` against `tsuzuri`, alongside `unit-testing` and
+  `quality-assurance` as peers, and asks for real coverage visibility rather
+  than trust in a green run — checking that a fix declares
+  `collectCoverageFrom` (so an untouched file stays visible as uncovered
+  instead of disappearing from the report) and sets `coverageProvider` to
+  `v8` (the instrumentation `jest-testing` prefers for a project transformed
+  by SWC rather than Babel), neither of which `jest.config.cjs` declares
+  today.
+- [`broaden-a-suite-that-never-opens-a-post`](../../tools/evaluation/scenarios/broaden-a-suite-that-never-opens-a-post/)
+  targets `end-to-end-testing` against `tsuzuri`, alongside `unit-testing`
+  and `next-app-development` as peers, and asks for the post pages
+  `e2e/home.spec.ts` never opens — checking that a fix drives a reader whose
+  accepted language matches only by language rather than by exact locale,
+  and drives the one post the home page links to that has no translation at
+  all and so 404s.
 
 - [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../../tools/evaluation/scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
   targets `expo-app-development` against `recall`, alongside
@@ -341,12 +365,12 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-one
   and two `outcome` factors. It claims the other gap that same list names
   for `recall`: nothing in the app has a disabled state.
 
-Together the twenty-one exercise every path through the three scripts above:
+Together the twenty-four exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
 probe or the offline check under `tests/repository/` ever sees it, scenarios spread across three
 different mock projects, and — across the four writing-and-maintainability
-scenarios — an artefact that is prose rather than code. Authoring further scenarios against
+scenarios — an artefact that is prose rather than code. Nine carry a `transcript` factor — six judged by reasoning and three by script. Of the fifteen that carry none, two state their reason in their own `scenario.json`. Authoring further scenarios against
 `inkwell`'s, `tsuzuri`'s, and `recall`'s remaining catalogued subjects, and against this
 repository's other mocks, is separate, later work; this document describes what
 runs today, not the coverage it will eventually have.
