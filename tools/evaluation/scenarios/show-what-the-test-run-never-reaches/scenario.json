@@ -18,7 +18,7 @@
       "description": "The complaint names no coverage percentage, no config option, and no runner — only that the green ticks are no longer trusted — so an agent that reaches for jest-testing here is finding it from the problem, with unit-testing (which names \"coverage questions\" in its own description) and quality-assurance (which asks whether a change was really verified) sitting right there as competing, plausible-looking picks; the actual answer is the runner's own machinery, which is jest-testing's territory.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": {
           "skill": "jest-testing"
         }
@@ -30,7 +30,7 @@
       "description": "This is the defect in the naive answer. With `--coverage` alone Jest reports only on the files the tests actually loaded, which — in jest-testing's own words — flatters the number: `shared/resolve-translation.ts`, the module the owner is worried about, does not appear as uncovered, it disappears and quietly raises the reported percentage. `collectCoverageFrom` is what names the files that should be covered whether or not anything imported them, which that skill calls the only way the percentage means what a reader assumes. Its guideline bullet scopes the MUST to a threshold being enforced, and this task asks for no threshold — so what this factor asserts is that remedy for an honest number, not an unconditional obligation. `jest.config.cjs` declares no coverage option today, so there is nothing local to copy.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "jest.config.cjs",
           "mustContainAll": ["collectCoverageFrom"]
@@ -43,7 +43,7 @@
       "description": "jest-testing prefers `v8` coverage instrumentation over Babel's own in a project whose transform is not Babel — and `jest.config.cjs` wraps `next/jest`, which transforms with SWC. The fix has to set `coverageProvider` to `v8` rather than leave the default; this asserts adherence to what the skill teaches for a project of this shape, stated here so a reader can disagree with the expectation without reading the script.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "jest.config.cjs",
           "mustContainAll": ["coverageProvider", "v8"]

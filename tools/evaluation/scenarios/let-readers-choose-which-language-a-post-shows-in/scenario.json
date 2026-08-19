@@ -22,7 +22,7 @@
       "description": "The ask is an open-ended, under-specified change request in the site owner's own words — no mechanism named, none of loop-engineering's own vocabulary in it — with product-requirement-document-authoring (an under-specified-feature read of the same ask), software-development (an ordinary-change read of the same ask), and next-app-development (a routing-and-rendering read of the same ask) sitting in the peer set as competing, plausible-looking picks. An agent that reaches for loop-engineering here is finding it from the shape of the request itself — 'I haven't worked out what that should look like', 'can you take this one from here' — not from a hint toward the skill or the loop it drives.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "loop-engineering" }
       }
     }

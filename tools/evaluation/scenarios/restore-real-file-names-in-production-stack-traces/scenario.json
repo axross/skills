@@ -18,7 +18,7 @@
       "description": "The report names neither Sentry, source maps, nor the build — an agent that reaches for sentry-instrumentation here is finding it from the symptom, with software-instrumentation (a vendor-neutral read of the same report) and software-development (a build-configuration read of it) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "sentry-instrumentation" }
       }
     },
@@ -37,7 +37,7 @@
       "description": "The patch also dropped the Sentry plugin's own filesToDeleteAfterUpload cleanup as pointless once no maps were generated. A fix that restores sourcemap emission without restoring this would leave .map files sitting in the shipped build for anyone who opens devtools to fetch — the exact concern that motivated the original, over-broad breaking change. This factor checks the final vite.config.ts still declares that cleanup, independent of which sourcemap value the fix chose.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "vite.config.ts",
           "mustContainAll": ["filesToDeleteAfterUpload"]

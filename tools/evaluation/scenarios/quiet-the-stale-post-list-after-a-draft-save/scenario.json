@@ -18,7 +18,7 @@
       "description": "The bug report names neither TanStack Query nor a cache, only a stale list — so an agent that reaches for tanstack-query-development here is finding it from the problem, with react-component-development and code-maintainability sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "tanstack-query-development" }
       }
     },
@@ -28,7 +28,7 @@
       "description": "This is the actual bug: a draft save writes only the post's own detail cache, never touching the list's own cached query, so the list keeps showing what it fetched before the edit. The fix has to make the save mutation invalidate the list query the same way the publish mutation already does — a fix that patches the symptom some other way (a manual cache write, a full reload) does not satisfy this.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/queries/posts/post-save-mutation.ts",
           "mustContainAll": ["getPostListQueryOptions", "invalidateQueries"]
@@ -41,7 +41,7 @@
       "description": "The existing setQueryData call for the post's own detail cache already works correctly on a save, and nothing about this bug asks for it to change. A fix that adds the missing list invalidation by replacing rather than augmenting that call would trade the list bug for a detail-view regression, which this factor is here to catch.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/queries/posts/post-save-mutation.ts",
           "mustContainAll": ["setQueryData", "getPostQueryOptions"]

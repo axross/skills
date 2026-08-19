@@ -33,7 +33,7 @@
       "description": "The fix should add a confirmation to the save path without touching the publish path's own, already-correct messages. handlePublish produces three: two from onSuccess, depending on whether the deploy fired, and one from onError. This factor checks that all three are still exactly present, so a fix that accidentally replaces or generalises any of them away from its working text is caught — nothing about adding a save confirmation requires editing any of the three, and github-operation has no more bearing on whether existing text survives than it has on whether new text gets added.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/routes/PostEditorPage.tsx",
           "mustContainAll": [

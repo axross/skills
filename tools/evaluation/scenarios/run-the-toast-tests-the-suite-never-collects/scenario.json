@@ -18,7 +18,7 @@
       "description": "The report names neither the runner, the config, globs, nor project collection — an agent that reaches for vitest-testing here is finding it from the report, with unit-testing (a testing-shaped read of the same report) and software-development (a project-commands read of it) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "vitest-testing" }
       }
     },

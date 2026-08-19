@@ -2,16 +2,19 @@
 // an outcome-phase script judgment: does one file in the reconstructed
 // workspace contain every substring the factor expects.
 //
-// generic across this scenario's two outcome factors that check what the
-// fix has to ADD back — "reads-styles-from-unistyles-again" (the stylesheet
-// import) and "expresses-kind-through-variants" (a variants block) — each a
-// plain whole-file substring check of src/ui/action-button.tsx. Its sibling
-// outcome factor that checks what the fix must NOT leave behind
-// ("drops-the-inlined-colour-literals") is the negative counterpart,
-// check-file-excludes.mjs, beside this file. The file itself lives in the
-// reconstructed workspace, which is this process's own cwd (see this
-// scenario's scenario.json and factor-judgment.mjs's runScriptJudgment); a
-// file the expectation names but the workspace does not have is a judgment
+// docs/specs/skill-evaluation.md, "The factor": a script judgment "runs
+// with the reconstructed workspace as its working directory and a context
+// file as its argument, prints {"result", "evidence"} on stdout, and
+// signals a failed judgment by a non-zero exit with a reason on stderr."
+// This factor's phase is "outcome", so this script reads the reconstructed
+// workspace itself — its own cwd — rather than the diff-and-task material
+// factor-judgment.mjs's materialFor hands an outcome factor.
+//
+// check-file-excludes.mjs is this script's negative counterpart, for a
+// factor whose expectation is that something is now absent rather than
+// present. The file itself lives in the reconstructed workspace, which is
+// this process's own cwd (see factor-judgment.mjs's runScriptJudgment); a
+// file the input names but the workspace does not have is a judgment
 // this script cannot make, not a `false` result, so it exits non-zero
 // rather than reporting one.
 //
