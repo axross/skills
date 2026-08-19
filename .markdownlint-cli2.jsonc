@@ -19,18 +19,10 @@
     "MD031": false, // blanks around fences — Prettier governs fenced-block spacing
     "MD010": { "code_blocks": false } // hard tabs allowed inside code samples
   },
-  // the mock fixtures under tools/evaluation/mocks/ are self-contained
-  // projects with their own linter (see e.g.
-  // tools/evaluation/mocks/tsuzuri/package.json) and their own conventions,
-  // so this repository's own gates never cover them; the mock's own
-  // toolchain is what keeps it honest instead.
-  //
-  // the full relative path, not a bare "mocks": these "ignores" entries are
-  // globs, not gitignore patterns, and a slash-free name matches only that
-  // literal top-level entry rather than at any depth.
-  //
-  // verified empirically against markdownlint-cli2 0.15.0; a future minor
-  // could resolve "ignores" through a different matcher, so re-run the
-  // fixture check when the pin moves.
+  // tools/evaluation/mocks/ ships self-contained projects with their own
+  // linter, so this repository's gates skip them. these "ignores" entries
+  // are globs, not gitignore patterns — a bare "mocks" only matches a
+  // top-level entry, so the full path is required. verified against
+  // 0.15.0; re-check on a future minor.
   "ignores": ["node_modules", "tools/evaluation/mocks"]
 }
