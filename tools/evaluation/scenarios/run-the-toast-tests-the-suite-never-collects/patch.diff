@@ -1,0 +1,46 @@
+diff --git a/history.jsonc b/history.jsonc
+index e71e7d8..bfaacb1 100644
+--- a/history.jsonc
++++ b/history.jsonc
+@@ -103,7 +103,8 @@
+       "message": "publish toast",
+       "files": [
+         "src/components/PublishToast/PublishToast.tsx",
+-        "src/components/PublishToast/PublishToast.module.css"
++        "src/components/PublishToast/PublishToast.module.css",
++        "src/components/PublishToast/PublishToast.test.tsx"
+       ]
+     },
+     {
+diff --git a/src/components/PublishToast/PublishToast.test.tsx b/src/components/PublishToast/PublishToast.test.tsx
+new file mode 100644
+index 0000000..2d08382
+--- /dev/null
++++ b/src/components/PublishToast/PublishToast.test.tsx
+@@ -0,0 +1,26 @@
++import { render } from "@testing-library/react";
++import { describe, expect, it } from "vitest";
++import { PublishToast } from "./PublishToast";
++
++describe("PublishToast", () => {
++  it("shows its message", () => {
++    const { getByText } = render(<PublishToast tone="success" message="Published." />);
++
++    expect(getByText("Published.")).toBeInTheDocument();
++  });
++
++  it("announces itself as a status region for assistive tech", () => {
++    const { getByRole } = render(<PublishToast tone="success" message="Published." />);
++
++    expect(getByRole("status")).toBeInTheDocument();
++  });
++
++  it("carries a distinct class for the error tone", () => {
++    const success = render(<PublishToast tone="success" message="Published." />);
++    const error = render(<PublishToast tone="error" message="Publishing failed." />);
++
++    expect(error.container.firstElementChild?.className).not.toBe(
++      success.container.firstElementChild?.className,
++    );
++  });
++});

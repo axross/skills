@@ -197,8 +197,8 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Seven scenarios are declared today, against two mock projects — `inkwell`
-and `tsuzuri` — under `tools/evaluation/scenarios/`:
+Nine scenarios are declared today, against two mock projects — six on
+`inkwell` and three on `tsuzuri` — under `tools/evaluation/scenarios/`:
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -218,6 +218,22 @@ and `tsuzuri` — under `tools/evaluation/scenarios/`:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`restore-real-file-names-in-production-stack-traces`](../../tools/evaluation/scenarios/restore-real-file-names-in-production-stack-traces/)
+  targets `sentry-instrumentation`, alongside `software-instrumentation` and
+  `software-development` as peers, and is the first scenario in the tree to
+  declare a `patch`: a unified diff that turns off `inkwell`'s working
+  source-map upload, applied at materialization rather than shipped in the
+  mock. Every factor, including its transcript factor, is judged by script —
+  see [Skill Evaluation](../specs/skill-evaluation.md) on `patch`, and
+  [Directory Structure](../conventions/directory-structure.md) for the
+  convention it follows.
+- [`run-the-toast-tests-the-suite-never-collects`](../../tools/evaluation/scenarios/run-the-toast-tests-the-suite-never-collects/)
+  targets `vitest-testing`, alongside `unit-testing` and `software-development`
+  as peers, and likewise declares a `patch`: one that adds a real-DOM test for
+  `PublishToast` named so it matches neither Vitest project's own `include`.
+  Its two outcome factors are textual, structural reads of `vitest.config.ts`
+  rather than a glob evaluator, and its transcript factor, like the sentry
+  scenario's, is judged by script.
 - [`cover-the-locale-fallback-nothing-tests`](../../tools/evaluation/scenarios/cover-the-locale-fallback-nothing-tests/)
   targets `unit-testing` against `tsuzuri`, alongside `jest-testing` and
   `end-to-end-testing` as peers, and asks a fix to cover
@@ -243,13 +259,14 @@ and `tsuzuri` — under `tools/evaluation/scenarios/`:
   and drives the one post the home page links to that has no translation at
   all and so 404s.
 
-Every factor across the three `tsuzuri` scenarios is judged by `script`; none
-declares a `transcript` factor, for the reason each scenario's own plan
-recorded — a script transcript factor would grep for vocabulary the task
-prompt itself already contains. The three `inkwell` scenarios that carry a
-`transcript` factor judge it by reasoning instead. Together the seven
-exercise every path through the three scripts above: every phase, both
-judgment methods, and a scenario that omits a phase entirely. Authoring
-further scenarios against either mock's remaining catalogued subjects, and
-against this repository's other mocks, remains later work; this document
-describes what runs today, not the coverage it will eventually have.
+Together the nine exercise every path through the three scripts above: every
+phase, both judgment methods, a scenario that omits a phase entirely, and a
+scenario whose mock is patched before a probe or the offline check under
+`tests/repository/` ever sees it. A `transcript` factor is carried by five of
+them — judged by reasoning in the three that predate the patch pair, and by
+script in those two; the three `tsuzuri` scenarios declare none at all, for the
+reason each one's own plan recorded, that a script transcript factor here would
+grep for vocabulary the task prompt itself already contains. Authoring further
+scenarios against either mock's remaining catalogued subjects, and against this
+repository's other mocks, remains later work; this document describes what runs
+today, not the coverage it will eventually have.

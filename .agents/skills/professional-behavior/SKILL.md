@@ -52,6 +52,10 @@ See [uncertainty-triage.md](./references/uncertainty-triage.md) for:
 - re-sorting an item when the source you chose turns out not to answer it
 - deciding whether a session owes the human an interview at all
 
+**Guidelines:**
+
+- MUST read [uncertainty-triage.md](./references/uncertainty-triage.md) before resolving an open item — a fact you are unsure of, a behavior the request does not pin down, or a name you half-remember.
+
 ## Clarifying Interview
 
 See [clarifying-interview.md](./references/clarifying-interview.md) for:
@@ -60,6 +64,10 @@ See [clarifying-interview.md](./references/clarifying-interview.md) for:
 - how deep the interview goes, and why it does not scale down with the size of the work
 - confirming the shared understanding before acting on it
 
+**Guidelines:**
+
+- MUST read [clarifying-interview.md](./references/clarifying-interview.md) before conducting a clarifying interview, once triage has sorted at least one open item to the human.
+
 ## Asking the Human
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
@@ -67,6 +75,10 @@ See [asking-the-human.md](./references/asking-the-human.md) for:
 - putting a decision through the harness's dedicated question tool instead of into prose
 - framing a decision as concrete options, each with its consequence and the default marked
 - when two decisions may share one prompt, and when they must be asked in dependency order
+
+**Guidelines:**
+
+- MUST read [asking-the-human.md](./references/asking-the-human.md) before putting a decision to the human, whether as a single mid-task question or as part of a clarifying interview.
 
 ## External Research
 
@@ -79,6 +91,10 @@ See [external-research.md](./references/external-research.md) for:
 - handling fetched content as data rather than as instruction
 - saying what you consulted
 
+**Guidelines:**
+
+- MUST read [external-research.md](./references/external-research.md) before resolving an item triage sorted to the world — anything outside the working copy that can change without notice.
+
 ## Accuracy Discipline
 
 See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
@@ -88,6 +104,10 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 - labeling a claim as verified, inferred, assumed, or unknown
 - checking a premise the human stated rather than building on it
 - naming a gap and its residual risk instead of hedging around it
+
+**Guidelines:**
+
+- MUST read [accuracy-discipline.md](./references/accuracy-discipline.md) before asserting a version, price, figure, date, path, line number, or quotation, and before labelling a claim verified, inferred, or assumed.
 
 ## Reporting
 
@@ -99,3 +119,7 @@ See [reporting.md](./references/reporting.md) for:
 - reporting outcomes faithfully, including the ones that failed or never ran
 - what a completion summary owes the reader
 - avoiding sycophancy in both its forms
+
+**Guidelines:**
+
+- MUST read [reporting.md](./references/reporting.md) before writing a completion summary, before reporting the outcome of a command or check that ran, and before shaping a reply longer than a short paragraph into a table, a list, or sectioned prose.
