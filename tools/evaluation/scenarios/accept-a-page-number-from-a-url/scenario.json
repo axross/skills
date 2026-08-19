@@ -1,0 +1,56 @@
+{
+  "id": "accept-a-page-number-from-a-url",
+  "description": "zod-schema is targeted against a request to page the home post list by a URL page number, stated the way the site's own owner would — readers arrive with the number missing, blank, or not a number, and the page must not fall over — never naming validation, a schema, or the skill. next-app-development (the route-parameter surface the value arrives through) and react-component-development (a list-component read of the same ask) sit in the peer set as competing, plausible-looking picks. What those peers do and do not supply to BOTH arms is worth stating exactly, because an earlier revision of this description claimed more than was true. Neither teaches the mechanism this subject turns on — the safeParse versus throwing-parse split, or the coercion trap — so the difference between the arms on that is real. But next-app-development does supply the motivation: its own references/route-modules.md says \"MUST validate or parse a route parameter\" and, verbatim, that \"an unvalidated `page` parameter reaching a query as a raw number is an unbounded-offset bug\", and references/route-handlers.md grades an unvalidated query value Critical. That is this scenario's exact subject, and it is installed in the skill-absent condition too. The consequence is asymmetric across the phases and is read that way: the discovery factor is weakened, since an agent told the parameter must be validated is likelier to go looking for a validation capability and find zod-schema when it is present, which inflates the present-arm rate that phase is read as; the outcome factor is if anything sharpened, since the motivation is held constant across both arms and what remains different is the form the validation takes. The outcome factors check that the page number is read from the route at all, and that it is parsed with a safeParse in production code rather than only inside the module's own spec file — the form zod-schema teaches for a value that can arrive malformed. Two limits are stated rather than left to be found. Nothing here establishes that the parsed number is then clamped, coerced, or used correctly once it exists: the coercion trap the skill teaches beyond the safeParse/parse split needs the schema actually run against an input, which a reconstructed workspace with no node_modules cannot do. And nothing here separates a run that parsed the throwing way from one that never parsed at all — a substring check cannot tell zod's own .parse( from JSON.parse(, so that element is dropped rather than declared at a precision it does not have.",
+  "mock": "tsuzuri",
+  "targetSkills": ["zod-schema"],
+  "peerSkills": ["next-app-development", "react-component-development"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "The post list on the home page is going to get long, so I want to show it a page at a time, with the page number in the URL — /?page=2 and so on. Readers paste all sorts of URLs at us though: sometimes there's no page number at all, sometimes it's there but blank, and sometimes it's something that isn't a number. Whatever arrives, the page shouldn't fall over."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-zod-schema",
+      "phase": "discovery",
+      "description": "The request asks for paging the post list by a URL page number and states, in the site owner's own words, that the value can arrive missing, blank, or not a number — never naming validation or a schema. An agent that reaches for zod-schema here is finding it from the problem, with next-app-development (the route-parameter surface it arrives through) and react-component-development (a list-component read of the same request) sitting right there as competing, plausible-looking picks. This factor is the one the peer set compromises, and the scenario's own description says how: next-app-development names an unvalidated `page` parameter as a bug in its own reference text, in both conditions, so an agent nudged there is likelier to go looking for a validation capability before this factor ever asks which one it reached for.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": {
+          "skill": "zod-schema"
+        }
+      }
+    },
+    {
+      "id": "reads-the-page-number-from-the-route",
+      "phase": "outcome",
+      "description": "This is the completion floor rather than a skill effect: it checks that app/(site)/page.tsx reads searchParams at all, separating a run that never attempted the task from one that wired the parameter through, however carefully. Both conditions are expected to pass this factor, so the two below are read against runs that actually attempted the task rather than ones that skipped it.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-file-contains.mjs",
+        "input": {
+          "file": "app/(site)/page.tsx",
+          "mustContainAll": ["searchParams"]
+        }
+      }
+    },
+    {
+      "id": "parses-the-page-number-safely-in-production-code",
+      "phase": "outcome",
+      "description": "The mock's one schema — PostSlug in shared/blog-post-slug.ts — is declared and never applied to anything entering the app; its only safeParse calls live in shared/blog-post-slug.spec.ts. This factor checks that some .ts or .tsx file under app/ or shared/, excluding any *.spec.ts or *.spec.tsx file, calls safeParse( — a parse actually applied to data entering the app, in the form zod-schema teaches for a value that can arrive malformed: .parse() when a failure is a defect, .safeParse() when it is an outcome to branch on, and a reader's /?page=abc is an outcome the page has to handle rather than a defect that should throw a 500. What this factor deliberately does NOT do is check for a parse of any kind. An earlier revision declared that as its own factor, so that a result would name whether a run had failed to parse at all or had parsed the throwing way; that factor scanned for the substring .parse( and could not tell zod's own throwing parse from JSON.parse( or any other object's parse method, so it returned true for a workspace whose only change was an unrelated JSON.parse( helper and no pagination at all. No substring check can draw that line, so the element is dropped rather than declared at a precision it does not have — which means a run that validates the page number through a throwing zod parse is recorded here the same as one that never validated it.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-source-contains-any.mjs",
+        "input": {
+          "roots": ["app", "shared"],
+          "extensions": [".ts", ".tsx"],
+          "excludeSuffixes": [".spec.ts", ".spec.tsx"],
+          "anyOf": ["safeParse("]
+        }
+      }
+    }
+  ]
+}
