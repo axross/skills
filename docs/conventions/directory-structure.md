@@ -22,7 +22,8 @@ under `tools/evaluation/` is laid out.
 │   ├── scenario.schema.json     # the one declaration of a scenario.json's shape; src/scenario.mjs evaluates it
 │   ├── src/                     # shared modules, by concern: layout, fingerprint, admission, comparability, judge, spawn
 │   ├── mocks/                   # the mock projects a probe's workspace is materialized from
-│   ├── scenarios/<id>/          # one scenario.json plus its patch and judgment scripts, per id
+│   ├── judgments/<name>.mjs     # a judgment script more than one scenario names, referenced as ../../judgments/<name>.mjs
+│   ├── scenarios/<id>/          # one scenario.json, its patch, and any judgment script that scenario alone names
 │   └── measurements/            # what probe.mjs, evaluate.mjs, and derive.mjs wrote, judged, and derived
 └── tests/                       # the suite that gates all of the above
 ```
@@ -128,6 +129,28 @@ A patch file MUST stay out of this repository's own format and lint gates,
 which run over Markdown, JSON, and YAML files respectively — a patch
 reformatted by a house-style formatter would stop applying, and its file
 extension alone already keeps it out of both.
+
+## Where a Judgment Script Lives
+
+A factor's `judgment.script` resolves relative to its own scenario's
+directory — `join(scenarioDir, factor.judgment.script)` in
+[`tools/evaluation/src/factor-judgment.mjs`](../../tools/evaluation/src/factor-judgment.mjs)
+— but where the script named there physically lives depends on how many
+scenarios name it. A script used by exactly one scenario lives in that
+scenario's own `scenarios/<id>/scripts/`, named relative to it (e.g.
+`"scripts/check-something.mjs"`). A script named by more than one scenario
+lives once in `tools/evaluation/judgments/` instead, and every scenario that
+uses it references the shared copy as `"../../judgments/<name>.mjs"` — a
+relative path `scenarioRelativePath`'s own pattern already accepts, since it
+rejects only an absolute one.
+
+A `patch`, unlike a script, is never shared: [Where a Scenario's Patch
+Lives](#where-a-scenarios-patch-lives) above is unchanged by this — a
+scenario's defect is its own, even when the fix two scenarios need happens to
+read alike. Nothing enforces the one-script-per-name rule across
+`scenarios/`; a same-named script under two scenario directories again is a
+defect a reviewer catches by reading, the way the drift this convention
+replaces was caught in the first place.
 
 ## `.claude/agents/` Is the Only Home for an Agent Definition
 

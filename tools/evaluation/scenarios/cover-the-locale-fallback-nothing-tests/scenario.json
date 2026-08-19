@@ -18,7 +18,7 @@
       "description": "The request names neither TDD, a runner, nor the skill itself — only a module the owner trusts least and the fact that nothing beside it has a test — so an agent that reaches for unit-testing here is finding it from the problem, with jest-testing (the runner's own mechanics) and end-to-end-testing (a whole-system check of what a reader sees) sitting right there as the two competing readings of the same anxiety; the two skills' own descriptions disclaim each other explicitly, which is what keeps this a real question rather than a formality.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "unit-testing" }
       }
     },

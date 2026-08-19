@@ -18,7 +18,7 @@
       "description": "The complaint names a whole suite and a whole page, never a test file or a locator — so an agent that reaches for end-to-end-testing here is finding it from the problem, with unit-testing (the multi-language behaviour does have a unit-testable module behind it) and next-app-development (a framework reading of \"the post pages are not checked\") sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "end-to-end-testing" }
       }
     },

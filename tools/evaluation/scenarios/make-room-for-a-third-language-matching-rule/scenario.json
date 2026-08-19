@@ -18,7 +18,7 @@
       "description": "The complaint describes a module resisting a coming change, never a duplicate search or a helper's name, and never the skill — an agent that reaches for code-maintainability here is finding it from the problem, with code-review (a diff-quality take on the same complaint) and unit-testing (a coverage take on the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether the module actually came out easier to extend, which is what the outcome factors below are for.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "code-maintainability" }
       }
     },

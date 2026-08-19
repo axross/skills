@@ -18,7 +18,7 @@
       "description": "The complaint describes a behaviour, never resolveTranslation, defaultLocale, or the skill — an agent that reaches for living-project-documentation here is finding it from the problem, with technical-document-authoring (a how-it-reads take on the same complaint) and next-app-development (a routing-and-rendering take on the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether any documentation was actually corrected as a result, which is what the outcome factors below are for.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "living-project-documentation" }
       }
     },
