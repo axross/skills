@@ -26,15 +26,12 @@
 //     so failureMessage walks from the failing keyword back to the
 //     subschema that owns it and surfaces that prose instead.
 //
-// the no-budget rule ("do not estimate cost... in any form" — see
-// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md)
-// is in the schema rather than here, as `nonBudgetKey`, applied at every level
-// including recursively inside a judgment's `input` — which is the one open
-// subtree in the document and therefore the one place a budget-shaped key
-// could otherwise hide.
-//
-// why this validator and not ajv, the better-known one:
-// docs/decisions/2026-08-18-validate-scenarios-with-a-zero-dependency-validator.md.
+// the no-budget rule is in the schema rather than here, as
+// `nonBudgetKey`, applied at every level including recursively inside a
+// judgment's `input` — the one open subtree in the document and
+// therefore the one place a budget-shaped key could otherwise hide. see
+// docs/decisions/2026-08-18-validate-scenarios-with-a-zero-dependency-validator.md,
+// which also names why this validator and not ajv, the better-known one.
 
 import { readFileSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";

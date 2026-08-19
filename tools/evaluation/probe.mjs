@@ -6,7 +6,7 @@
 // matrix implies. the refusal below is a deliberate design decision rather
 // than the spec's — see
 // docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md,
-// "the dispatch is bounded by an exact probe count instead" — so a run
+// "a dispatch is bounded by an exact probe count instead" — so a run
 // refuses before any probe starts when that exact count exceeds a declared
 // limit, and otherwise runs every one of them — each recording the verbatim
 // transcript, the workspace diff, the skill invocations, and metadata

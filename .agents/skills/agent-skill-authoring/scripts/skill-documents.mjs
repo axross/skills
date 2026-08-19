@@ -58,10 +58,11 @@ export async function resolveSkillDirs(paths) {
     const entries = await readdir(path, { withFileTypes: true });
     let found = 0;
     for (const entry of entries) {
-      // `isDirectory()` comes from lstat semantics and is false for a symlink
-      // pointing at a directory, so testing it here would skip a symlinked
-      // skill root and report "All 0 skill(s) passed" — a pass that checked
-      // nothing. `isDir` stats through the link instead: symlinking one source into two agents' roots is a real, supported layout, not a hypothetical one.
+      // `isDirectory()` comes from lstat semantics and is false for a symlink pointing at a
+      // directory, so testing it here would skip a symlinked skill root and report "All 0
+      // skill(s) passed" — a pass that checked nothing. `isDir` stats through the link
+      // instead: symlinking one source into two agents' roots is a real, supported layout,
+      // not a hypothetical one.
       if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
       const child = join(path, entry.name);
       if (!(await isDir(child))) continue;

@@ -57,10 +57,10 @@ const YAML_LEADING_ALWAYS = new Set(["[", "{", "]", "}", ",", "&", "*", "!", "|"
 // `- x` is a list item, `? x` a complex key, `: x` a value.
 const YAML_LEADING_BEFORE_SPACE = new Set(["-", "?", ":"]);
 
-// the escapes YAML defines inside a double-quoted scalar, mapped to what
-// they produce. the set is closed: `\d`, `\s`, `\w` and every other
-// undefined sequence is a parse error, not a literal backslash — accepting
-// them would reintroduce this check's own defect: a value the validator passes and no host can load.
+// the escapes YAML defines inside a double-quoted scalar, mapped to what they
+// produce. the set is closed: `\d`, `\s`, `\w` and every other undefined sequence
+// is a parse error, not a literal backslash — accepting them would reintroduce
+// this check's own defect: a value the validator passes and no host can load.
 
 // verified against a real parser rather than transcribed, on the same
 // reasoning as the hazard set above.
