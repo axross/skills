@@ -281,9 +281,9 @@ Together the twelve exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, a
 scenario whose mock is patched before a probe or the offline check under
 `tests/repository/` ever sees it, and both mock projects. Six carry a
-`transcript` factor — three judged by reasoning and three by script — and the
-six that carry none say so in their own `scenario.json`, each for its own
-reason rather than a shared policy. Authoring further scenarios against
+`transcript` factor — three judged by reasoning and three by script. Of the six
+that carry none, one states its reason in its own `scenario.json`; the others'
+reasons are recorded outside this document. Authoring further scenarios against
 `inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
 repository's other mocks, is separate, later work; this document describes
 what runs today, not the coverage it will eventually have.
