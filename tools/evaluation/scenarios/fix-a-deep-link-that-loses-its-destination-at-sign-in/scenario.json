@@ -1,0 +1,44 @@
+{
+  "id": "fix-a-deep-link-that-loses-its-destination-at-sign-in",
+  "description": "expo-app-development is targeted against a deep-link complaint that names no router, redirect, route, or config — only a link that stops delivering a learner to the deck it pointed at, once signing in gets in the way — with react-component-development (a component-behaviour read of a mobile navigation complaint) and application-security (an access-control read of an auth-gating complaint) sitting in the peer set as competing, plausible-looking picks, which is what makes the discovery factor a real question rather than a formality. recall's own session path already demonstrates the anti-pattern the skill's own MUST rule forbids, twice over: an imperative Redirect gates entry to the authenticated group, discarding the destination, and a second imperative Redirect in sign-in-screen.tsx bounces an already-signed-in visitor home rather than onward. Only the first is what the outcome factors judge. They check that the entry gate — the redirect to /sign-in — is replaced by a declarative Stack.Protected guard at the navigator, rather than by threading a return-path parameter through the existing redirect — a fix that would solve the learner's problem without ever adopting the framework's own affordance for it — and that neither the gate itself nor the neutral surface a signed-out learner still needs while the session resolves gets stripped out along the way. The second redirect is deliberately left unjudged: under a declarative guard the sign-in route is not mounted for a signed-in visitor at all, so that bounce becomes unreachable rather than wrong, and requiring its removal would hold the fix to more than the skill's own rule asks.",
+  "mock": "recall",
+  "targetSkills": ["expo-app-development"],
+  "peerSkills": ["react-component-development", "application-security"],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "We started sending learners links straight to a deck — the kind you tap in a message and it opens Recall on that deck. It works if you're already signed in. If you're signed out it asks you to sign in, which is fine, but once you're through you land on the deck list and have to go find the deck yourself. People keep tapping the link again thinking it didn't work."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-expo-app-development",
+      "phase": "discovery",
+      "description": "The complaint states a symptom in the product owner's own words — a link that works once signed in but loses its destination when it has to detour through sign-in first — and names no mechanism: no router, no redirect, no route, no config. An agent that reaches for expo-app-development here is finding it from the problem, with react-component-development (a component-behaviour read of a mobile navigation complaint) and application-security (an access-control read of an auth-gating complaint) sitting right there as competing, plausible-looking picks.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-discovery.mjs",
+        "input": { "skill": "expo-app-development" }
+      }
+    },
+    {
+      "id": "gates-the-authenticated-subtree-declaratively",
+      "phase": "outcome",
+      "description": "expo-app-development's own MUST rule (references/navigators-and-layouts.md:105) is to gate a protected route tree declaratively at the navigator — mounting or omitting it from a Stack.Protected guard — rather than redirecting imperatively from inside a screen, because a declaratively gated route is never reached by an unauthenticated visitor in the first place, so there is no window in which it mounts and then bounces. recall's mock demonstrates nothing of this: Stack.Protected appears nowhere in the tree, and authenticated-layout.tsx:20 and sign-in-screen.tsx:48 are two separate instances of exactly the pattern the rule names as the thing not to do. This factor is deliberately opinionated: an agent that instead threads a return-path parameter through the existing imperative redirect solves the learner's problem without ever adopting the framework's own declarative affordance, and that fix is meant to fail this factor — a reader who disagrees can disagree with this stated expectation rather than with the script.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-declarative-auth-gate.mjs"
+      }
+    },
+    {
+      "id": "still-keeps-a-signed-out-learner-out",
+      "phase": "outcome",
+      "description": "A fix is not judged only on what it adds. This factor checks that the authenticated subtree is still gated somehow — declaratively, or, on an unmodified workspace, by the existing imperative redirect — rather than left open to anyone, and that a neutral surface still renders while the session is still resolving, the way authenticated-layout.tsx:15-17 already renders LoadingScreen for status === \"loading\". An unmodified workspace already passes this factor, since both properties already hold there; this is the 'what had to not' half that keeps 'gated declaratively' distinguishable from 'the gate was removed entirely' or 'the signed-out tree flashes at launch'.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-signed-out-learner-still-gated.mjs"
+      }
+    }
+  ]
+}

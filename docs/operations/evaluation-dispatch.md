@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-two<!-- /count --> scenarios are declared today: eleven against the `inkwell` mock project, and eleven against `tsuzuri`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-four<!-- /count --> scenarios are declared today: eleven against `inkwell`, eleven against `tsuzuri`, and two against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -350,15 +350,27 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-two
   and drives the one post the home page links to that has no translation at
   all and so 404s.
 
-Together the twenty-two exercise every path through the three scripts above:
+- [`fix-a-deep-link-that-loses-its-destination-at-sign-in`](../../tools/evaluation/scenarios/fix-a-deep-link-that-loses-its-destination-at-sign-in/)
+  targets `expo-app-development` against `recall`, alongside
+  `react-component-development` and `application-security` as peers, and
+  carries a `discovery` factor and two `outcome` factors. It claims a gap
+  [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
+  own "choices made for coverage" list names for `recall`: the signed-in
+  group gated by an imperative redirect rather than a declarative guard at
+  the navigator, so a deck link loses its destination at sign-in.
+- [`add-a-screen-for-editing-an-existing-card`](../../tools/evaluation/scenarios/add-a-screen-for-editing-an-existing-card/)
+  targets `high-fidelity-ui-design` against `recall`, alongside
+  `wireframe-design`, `react-component-styling`, and
+  `react-component-development` as peers, and carries a `discovery` factor
+  and two `outcome` factors. It claims the other gap that same list names
+  for `recall`: nothing in the app has a disabled state.
+
+Together the twenty-four exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
-probe or the offline check under `tests/repository/` ever sees it, a second mock
-project, and — across the four writing-and-maintainability scenarios — an
-artefact that is prose rather than code. Nine carry a `transcript` factor —
-six judged by reasoning and three by script. Of the thirteen that carry none,
-two state their reason in their own `scenario.json`. Authoring further
-scenarios against
-`inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
+probe or the offline check under `tests/repository/` ever sees it, scenarios spread across three
+different mock projects, and — across the four writing-and-maintainability
+scenarios — an artefact that is prose rather than code. Nine carry a `transcript` factor — six judged by reasoning and three by script. Of the fifteen that carry none, two state their reason in their own `scenario.json`. Authoring further scenarios against
+`inkwell`'s, `tsuzuri`'s, and `recall`'s remaining catalogued subjects, and against this
 repository's other mocks, is separate, later work; this document describes what
 runs today, not the coverage it will eventually have.
