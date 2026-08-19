@@ -19,7 +19,10 @@ See [code-quality.md](./references/code-quality.md) for:
 - running the format → lint → fix → re-lint loop after any change
 - language compliance and import hygiene
 - the comment voice — lowercase prose, no all-caps emphasis, and what keeps its real casing
-- doc-comment and line-comment conventions in source files
+- the admissibility test a comment must clear — nothing recoverable by reading the code or following it — and deletion rather than rewording as the fix
+- doc-comment and explanatory-comment conventions in source files, including the line-comment form and the two-to-four-line ceiling
+- the `TODO(#123):` convention, the tracked follow-up it must resolve to, and the standardized forms that may still carry an identifier or a URL
+- where a specification, a domain term, or a rationale goes once a comment may no longer carry it
 
 ## Change Management
 

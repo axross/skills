@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->seven<!-- /count --> scenarios are declared today: four against the `inkwell` mock project, and three against `tsuzuri`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->nine<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and three against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -217,6 +217,22 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->seven<!-- 
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`restore-real-file-names-in-production-stack-traces`](../../tools/evaluation/scenarios/restore-real-file-names-in-production-stack-traces/)
+  targets `sentry-instrumentation`, alongside `software-instrumentation` and
+  `software-development` as peers, and is the first scenario in the tree to
+  declare a `patch`: a unified diff that turns off `inkwell`'s working
+  source-map upload, applied at materialization rather than shipped in the
+  mock. Every factor, including its transcript factor, is judged by script —
+  see [Skill Evaluation](../specs/skill-evaluation.md) on `patch`, and
+  [Directory Structure](../conventions/directory-structure.md) for the
+  convention it follows.
+- [`run-the-toast-tests-the-suite-never-collects`](../../tools/evaluation/scenarios/run-the-toast-tests-the-suite-never-collects/)
+  targets `vitest-testing`, alongside `unit-testing` and `software-development`
+  as peers, and likewise declares a `patch`: one that adds a real-DOM test for
+  `PublishToast` named so it matches neither Vitest project's own `include`.
+  Its two outcome factors are textual, structural reads of `vitest.config.ts`
+  rather than a glob evaluator, and its transcript factor, like the sentry
+  scenario's, is judged by script.
 - [`publish-an-edit-without-a-redeploy`](../../tools/evaluation/scenarios/publish-an-edit-without-a-redeploy/)
   targets `next-app-development` against `tsuzuri`'s build-time post catalog
   — [`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md)'s
@@ -237,8 +253,11 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->seven<!-- 
   peers, and carries a `discovery` factor, one `outcome` factor, and a
   `transcript` factor judged by script.
 
-Together the seven exercise every phase, both judgment methods, and a
-scenario that omits a phase entirely. Authoring further scenarios against
-`inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and against this
+Together the nine exercise every path through the three scripts above: every
+phase, both judgment methods, a scenario that omits a phase entirely, a
+scenario whose mock is patched before a probe or the offline check under
+`tests/repository/` ever sees it, and a second mock project. Authoring further
+scenarios against `inkwell`'s and `tsuzuri`'s remaining catalogued subjects, and
+against this
 repository's other mocks, is separate, later work; this document describes
 what runs today, not the coverage it will eventually have.
