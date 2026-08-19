@@ -19,13 +19,15 @@
       "judgment": {
         "method": "script",
         "script": "scripts/check-discovery.mjs",
-        "input": { "skill": "jest-testing" }
+        "input": {
+          "skill": "jest-testing"
+        }
       }
     },
     {
       "id": "counts-the-files-no-test-imports",
       "phase": "outcome",
-      "description": "This is the defect in the naive answer, and jest-testing states it as a MUST: with `--coverage` alone Jest reports only on files the tests loaded, so `shared/resolve-translation.ts` — the module the owner is actually worried about — does not appear as uncovered, it disappears and quietly raises the reported percentage. The fix has to declare `collectCoverageFrom` so an untouched file stays visible in the report; `jest.config.cjs` declares no coverage option today, so there is nothing local to copy.",
+      "description": "This is the defect in the naive answer. With `--coverage` alone Jest reports only on the files the tests actually loaded, which — in jest-testing's own words — flatters the number: `shared/resolve-translation.ts`, the module the owner is worried about, does not appear as uncovered, it disappears and quietly raises the reported percentage. `collectCoverageFrom` is what names the files that should be covered whether or not anything imported them, which that skill calls the only way the percentage means what a reader assumes. Its guideline bullet scopes the MUST to a threshold being enforced, and this task asks for no threshold — so what this factor asserts is that remedy for an honest number, not an unconditional obligation. `jest.config.cjs` declares no coverage option today, so there is nothing local to copy.",
       "judgment": {
         "method": "script",
         "script": "scripts/check-file-contains.mjs",
