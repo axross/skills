@@ -95,8 +95,7 @@ const mocks = (await readdir(repoPath("tools/evaluation/mocks"), { withFileTypes
 describe("every mock under tools/evaluation/mocks/", () => {
   // guards the walk itself: an empty tools/evaluation/mocks/ would make every
   // case below pass vacuously, which is indistinguishable from a walk that
-  // has stopped working. this repository has had at least one mock since
-  // #281.
+  // has stopped working.
   it("is a non-empty set, so the cases below are not vacuous", () => {
     expect(mocks.length).toBeGreaterThan(0);
   });

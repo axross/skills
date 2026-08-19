@@ -74,8 +74,7 @@ const DEFAULT_MOCK = "tsuzuri";
 
 // pinned commit identity — see this file's header for why these are
 // constants rather than read from the environment. named for this
-// instrument (docs/specs/skill-evaluation.md), not for a deleted one — see
-// #413.
+// instrument (docs/specs/skill-evaluation.md), not for a deleted one.
 const AUTHOR_NAME = "Skill Evaluation Fixture";
 const AUTHOR_EMAIL = "skill-evaluation-fixture@example.invalid";
 const COMMITTER_NAME = "Skill Evaluation Fixture";
@@ -184,13 +183,10 @@ function parseHistory(raw) {
     if (typeof commit?.message !== "string" || commit.message.length === 0) {
       throw new Error(`${HISTORY_FILE} commits[${index}] needs a non-empty "message".`);
     }
-    // an empty `files` is accepted, where every other malformation is not,
-    // because a patch that removed every file one commit introduced leaves
-    // exactly that behind — and the patch maintaining history.jsonc is what
-    // keeps the tree-versus-history invariant below an invariant rather than a
-    // rule with an exception. the replay loop in `materialize` skips such a
-    // commit. the cost is that a hand-authored empty commit is now skipped
-    // rather than refused, which is a mock nobody has a reason to write.
+    // an empty `files` is accepted, where every other malformation is not: a patch that
+    // removed every file one commit introduced leaves exactly that behind, and the replay
+    // loop in `materialize` simply skips such a commit — the cost being a hand-authored
+    // empty commit is now skipped rather than refused, which nobody has a reason to write.
     if (
       !Array.isArray(commit.files) ||
       !commit.files.every((file) => typeof file === "string" && file.length > 0)
@@ -285,8 +281,8 @@ function applyPatch(workspace, patchPath) {
  * prepares the materialized workspace's dependencies: the mock's pinned npm
  * tree, and — for a mock that drives one — the browser npm does not carry.
  *
- * the harness does this rather than the model. every probe run before #264
- * spent three to five of its twelve to fifteen turns discovering `node_modules`
+ * the harness does this rather than the model. every probe run before this
+ * existed spent three to five of its twelve to fifteen turns discovering `node_modules`
  * was absent, running `npm install`, and re-running the tests. that is the
  * harness's own setup showing up inside the measurement: it costs turns and
  * money in both conditions, it puts a network-dependent step in every probe,
@@ -333,14 +329,11 @@ function installDependencies(workspace) {
   installBrowsersIfNeeded(workspace);
 }
 
-// the two package names that mean "this workspace drives a real browser".
-// they are one question rather than two: a Playwright-driven end-to-end suite
-// depends on `@playwright/test`, while a Vitest browser-mode suite depends on
-// `playwright` itself (through `@vitest/browser-playwright`) and never pulls
-// the test runner in. keying on the first name alone recognized the first
-// shape and silently missed the second, which is how
-// `tools/evaluation/mocks/inkwell` would have reached a probe with a
-// `npm test` that cannot launch a browser.
+// the two package names that mean "this workspace drives a real browser":
+// `@playwright/test` for a Playwright-driven end-to-end suite, and `playwright` itself
+// (via `@vitest/browser-playwright`) for a Vitest browser-mode suite that never pulls
+// the test runner in — keying on the first name alone silently missed the second, the
+// shape `tools/evaluation/mocks/inkwell` uses.
 const BROWSER_DRIVER_PACKAGES = ["@playwright/test", "playwright"];
 
 /**
@@ -493,11 +486,10 @@ export async function materialize({
 
   const workspace = await mkdtemp(join(tmpdir(), "skill-evaluation-"));
   try {
-    // every file the mock ships, its own fixture metadata included
-    // (history.jsonc, removed again below) so a patch can maintain it, minus a
-    // defensive exclusion of node_modules, in case the mock was exercised
-    // locally (as this repository's own README's "own toolchain" verification
-    // does) without cleaning up afterward.
+    // every file the mock ships, its own fixture metadata included (history.jsonc,
+    // removed again below) so a patch can maintain it — minus a defensive exclusion of
+    // node_modules, in case the mock was exercised locally (this repository's README
+    // "own toolchain" verification does) without cleaning up afterward.
     await cp(mockDir, workspace, {
       recursive: true,
       filter: (source) => basename(source) !== "node_modules",
@@ -520,11 +512,10 @@ export async function materialize({
     const commits = parseHistory(historyRaw);
     await rm(workspaceHistory);
 
-    // history.jsonc and the copied tree must name exactly the same files, or
-    // either replaying it would leave files uncommitted, or it would try to
-    // `git add` something that was never copied. a patch that changed the file
-    // set without maintaining history.jsonc is what fails here, so the message
-    // names it: otherwise a rotted patch reads as a broken mock.
+    // history.jsonc and the copied tree must name exactly the same files, or replaying it
+    // would either leave files uncommitted or try to `git add` something never copied. a
+    // patch that changed the file set without maintaining history.jsonc fails here, named
+    // in the message — otherwise a rotted patch reads as a broken mock.
     const patchNote = patchPath === null ? "" : ` (after applying ${patchPath})`;
     const treeFiles = new Set(await listFilesRecursively(workspace));
     const historyFiles = new Set(commits.flatMap((commit) => commit.files));
@@ -545,12 +536,10 @@ export async function materialize({
 
     runGit(["init", "--quiet", "-b", "main"], workspace);
     commits.forEach((commit, index) => {
-      // a commit a patch emptied is skipped, and the skip is reported. leaving
-      // it to `git` is not an option — `git commit` exits non-zero on an empty
-      // staged set, which would abort the materialization — and `--allow-empty`
-      // was rejected at the plan gate: a commit touching no file is unusual
-      // enough in a real project to read as a fixture. the date still comes
-      // from the declared index, so skipping one does not shift the others.
+      // a commit a patch emptied is skipped, and the skip is reported. leaving it to `git`
+      // is not an option — `git commit` exits non-zero on an empty staged set, aborting
+      // materialization — and `--allow-empty` was rejected: unusual enough in a real project
+      // to read as a fixture. the date still comes from the declared index either way.
       if (commit.files.length === 0) {
         process.stderr.write(
           `A patch emptied ${HISTORY_FILE} commits[${index}], so the replay skips it: ` +
@@ -559,14 +548,11 @@ export async function materialize({
         return;
       }
       runGit(["add", "--", ...commit.files], workspace, commitEnv(index));
-      // `maintenance.auto=false` because every `git commit` otherwise invokes
-      // `git maintenance run --auto`, once per commit in this loop. that run
-      // may detach, and a caller that removes this workspace the moment
-      // materialization returns then races it into an intermittent
-      // `ENOTEMPTY: ... .git/objects/pack`. passed with `-c` rather than
-      // written into the workspace's config, for the same reason
-      // `commit.gpgsign` is: a line in .git/config is one the model working
-      // here can read, and this is a fixture that should look ordinary.
+      // `maintenance.auto=false` because every `git commit` otherwise invokes `git
+      // maintenance run --auto` once per commit, which can detach and race a caller that
+      // removes this workspace right after materialization into an intermittent `ENOTEMPTY:
+      // ... .git/objects/pack`. passed with `-c`, not written into the config, for the same
+      // reason `commit.gpgsign` is: a fixture should look ordinary.
       runGit(
         [
           "-c",

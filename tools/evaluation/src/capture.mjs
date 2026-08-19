@@ -150,11 +150,10 @@ function parseNumstat(output) {
 export function captureWorkspaceDiff(workspace, { baseCommit, warn = writeStderr }) {
   runGit(["add", "-A", "--", "."], workspace);
 
-  // read against baseCommit, and before the unstage, so the warning below can
-  // name what the mock's own ignore rules let through — including a path the
-  // probe already committed to HEAD itself, where the index and an
-  // implicit-HEAD read would agree and see nothing to name. after the reset
-  // there is nothing staged left to name.
+  // read against baseCommit, and before the unstage, so the warning below can name
+  // what the mock's ignore rules let through — including a path the probe already
+  // committed to HEAD, where the index and an implicit-HEAD read would agree and see
+  // nothing to name. after the reset there is nothing staged left to name.
   const stagedPaths = splitNul(
     runGit(["diff", "--cached", "--name-only", "-z", baseCommit], workspace),
   );

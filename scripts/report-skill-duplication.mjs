@@ -22,8 +22,8 @@
 //
 // nothing in the two bullets distinguishes those. only intent does, and intent
 // is not in the corpus. a gate here would fail correct text, so this ranks
-// candidates and a human adjudicates — which is what #174 is doing, by hand,
-// for the nine pairs a one-off scan already found.
+// candidates and leaves a human to adjudicate them by hand — a one-off scan
+// already found nine pairs that needed exactly that.
 //
 // the obligation definition is imported rather than re-implemented here. it
 // comes from guidelines.mjs, the same module check-skill-body.mjs reads for its
