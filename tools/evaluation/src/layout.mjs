@@ -4,7 +4,9 @@
 // derived file goes through.
 //
 // there is one instrument now, not two readings each with their own data
-// root — #392 merged them. the old dataRootFor(reading) resolved a
+// root — see
+// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md.
+// the old dataRootFor(reading) resolved a
 // per-reading root keyed on a reading's name ("discovery" or "effect");
 // nothing here reads a reading's name any more, because there is no second
 // one to disambiguate from. MEASUREMENTS_ROOT replaces it with the one root

@@ -52,11 +52,9 @@ export function parseTranscript(stdout) {
   let model = null;
   let runtimeVersion = null;
   // overwritten on every assistant event, never merged with an earlier one,
-  // so what survives the loop is whatever the *last* assistant message said —
-  // or, when that message carried no text block of its own (a turn that ended
-  // on a tool call), `null`. that is still "the stream did not say": a caller
-  // asking whether the run ended by soliciting a decision gets no signal
-  // either way, the same as if there had been no assistant message at all.
+  // so what survives the loop is whatever the *last* assistant message said
+  // — or `null` when that message carried no text block (a turn that ended
+  // on a tool call). either way reads as "the stream did not say", the same as no assistant message at all.
   let finalAssistantText = null;
   const usage = { input: 0, output: 0, cacheCreation: 0, cacheRead: 0, messages: 0 };
 

@@ -65,9 +65,8 @@ describe("validateScenario", () => {
     expect(() => validateScenario(scenario, "test.json")).toThrow(/"patch"/);
   });
 
-  // the maintainer settled this at the clarify gate for #407: a scenario's
-  // own `description` is a required, non-empty declared part of its shape,
-  // the same treatment a factor's `description` received in #398.
+  // a scenario's own `description` is a required, non-empty declared part
+  // of its shape — the same treatment a factor's `description` receives.
   it("rejects a scenario with no `description` key at all", () => {
     const scenario = validScenario();
     delete scenario.description;
@@ -123,7 +122,7 @@ describe("validateScenario", () => {
     expect(() => validateScenario(noInstructions, "test.json")).toThrow(/judgment\.instructions/);
   });
 
-  // #407: a null factor entry (a plausible half-removed array element) must
+  // a null factor entry (a plausible half-removed array element) must
   // not surface as a raw, path-free TypeError — it gets this validator's
   // normal, path-naming failure instead. the schema's own `type` on a factor
   // is what refuses it now, and the message still names the position.
@@ -199,7 +198,7 @@ describe("validateScenario", () => {
     expect(() => validateScenario(scenario, "test.json")).toThrow(new RegExp(`${key} looks like a budget`));
   });
 
-  // #406: \bcap\b never fires once a word character follows "cap", so these
+  // \bcap\b never fires once a word character follows "cap", so these
   // five slipped past the old substring guard untouched.
   it("rejects a top-level capUsd key, naming the path and the key", () => {
     const scenario = { ...validScenario(), capUsd: 5 };
@@ -214,7 +213,7 @@ describe("validateScenario", () => {
     },
   );
 
-  // #406 revision 2: this guard briefly matched a whole word against a fixed
+  // this guard briefly matched a whole word against a fixed
   // root plus an s/es/ed/ing ending list, and that list could not keep up
   // with how English actually spells these inflections — "priced" drops the
   // silent e, and "costly"/"budgetary" aren't endings at all. Matching a
@@ -248,7 +247,7 @@ describe("validateScenario", () => {
   });
 
   // the acceptance side of this guard is exercised inside `judgment.input`
-  // rather than at the scenario's top level. #407's closed key set refuses
+  // rather than at the scenario's top level. the closed key set refuses
   // any top-level key the instrument does not read, so a top-level probe would
   // be rejected for a reason that has nothing to do with word matching, and
   // the control would pass for the wrong reason or fail for one. `input` is
@@ -294,7 +293,7 @@ describe("validateScenario", () => {
     expect(() => validateScenario(withInputKey("unpriced"), "test.json")).not.toThrow();
   });
 
-  // #407: the schema admits `judgment.input` without constraining what
+  // the schema admits `judgment.input` without constraining what
   // shape an argument takes (its keys are the judgment script's own
   // vocabulary, validated by that script), so this guard is what still
   // catches a budget-shaped key nested inside it.
@@ -312,14 +311,14 @@ describe("validateScenario", () => {
     expect(() => validateScenario(scenario, "test.json")).toThrow(/budget|dollar|cost|cap/i);
   });
 
-  // #406: the key the whole issue is about, checked below the top level as
+  // capUsd, the pivotal budget key, checked below the top level as
   // well — this is where a per-case cap would actually be written now that
   // the closed key sets hold the levels above it.
   it("rejects a capUsd key nested inside a judgment's own `input`", () => {
     expect(() => validateScenario(withInputKey("capUsd"), "test.json")).toThrow(/"capUsd"/);
   });
 
-  // #407: a closed-key check beside the presence checks — a key the
+  // a closed-key check beside the presence checks — a key the
   // instrument does not read fails at load, named at the path it sits on.
   describe("the closed key sets", () => {
     it("rejects a scenario carrying `repetitionsPerCondition`", () => {
@@ -455,7 +454,7 @@ describe("loadScenario", () => {
   });
 });
 
-// #420: nothing in this block states how many scenarios this repository
+// nothing in this block states how many scenarios this repository
 // declares, because that is the one fact every scenario-adding branch
 // changes. two such branches merging in sequence would otherwise leave
 // `main` asserting a set that omits one of them — caught by CI, but as a
@@ -520,12 +519,13 @@ describe("skillsForCondition", () => {
   });
 });
 
-// the argument bag a judgment script is handed. #450 renamed it from
-// `expect` to `input` and stopped the schema describing its interior: the
-// instrument copies it verbatim into the context file, and each script
-// validates its own arguments where it uses them. what the schema still says
-// is that the bag is an object and that no key inside it, at any depth, names
-// a budget — the repository rule from #392 and #395 that no script checks.
+// the argument bag a judgment script is handed, named `input`. the schema
+// does not describe its interior: the instrument copies it verbatim into the
+// context file, and each script validates its own arguments where it uses
+// them. what the schema still says is that the bag is an object and that no
+// key inside it, at any depth, names a budget — the no-budget rule from
+// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md,
+// which no script checks itself.
 describe("a script judgment's input", () => {
   const withInput = (input) =>
     validScenario({
@@ -621,8 +621,9 @@ describe("a script judgment's script path", () => {
   });
 });
 
-// #450's rename, checked by exhaustion rather than by having looked: every
-// scenario declares `input`, and every judgment script reads `context.input`.
+// the rename from `expect` to `input`, checked by exhaustion rather than by
+// having looked: every scenario declares `input`, and every judgment script
+// reads `context.input`.
 // a single missed occurrence would starve its script of arguments, and would
 // otherwise surface first inside a paid dispatch.
 describe("the declared scenarios and their judgment scripts", () => {

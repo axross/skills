@@ -16,10 +16,9 @@ import { CONDITIONS, DEFAULT_REPETITIONS } from "../../tools/evaluation/src/prob
 const PROBE_SCRIPT = repoPath("tools/evaluation/probe.mjs");
 const SCENARIO = "quiet-the-stale-post-list-after-a-draft-save";
 
-// #420: every count below is one named scenario's own matrix, derived rather
+// every count below is one named scenario's own matrix, derived rather
 // than written down, so nothing in this file moves when the repository
-// declares another scenario. #404 pinned several of these tests to
-// --scenario for the same reason; this finishes the ones it did not reach.
+// declares another scenario.
 const PROBES_PER_SCENARIO = CONDITIONS.length * DEFAULT_REPETITIONS;
 
 function runProbeCli(args, { env } = {}) {

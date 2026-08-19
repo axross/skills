@@ -5,8 +5,7 @@
 // docs/specs/skill-evaluation.md, "The factor": a script judgment can judge
 // any phase a factor declares; a transcript factor's material is
 // { transcript }, per factor-judgment.mjs's materialFor. This one is a grep,
-// not a reasoning read, and that is a deliberate choice recorded in this
-// scenario's own plan (tracking issue #431's Assumptions): no
+// not a reasoning read, and that is a deliberate choice: no
 // ANTHROPIC_API_KEY is assumed to exist, so a reasoning judgment would
 // return only an error carrying that reason, while a grep is a factor that
 // can return a real verdict. The accepted cost, stated rather than hidden,

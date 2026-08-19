@@ -173,9 +173,9 @@ describe("computeDerivedSummary", () => {
     expect(summary.probeCountByCondition).toEqual({ "skill-present": 2, "skill-absent": 1 });
   });
 
-  // #392: "The dispatch is bounded by an exact probe count instead, and
-  // actual spend is recorded after." This is that aggregation, regenerable
-  // from each probe's own costUsd the same way every other derived field is.
+  // "The dispatch is bounded by an exact probe count instead, and actual
+  // spend is recorded after." This is that aggregation, regenerable from
+  // each probe's own costUsd the same way every other derived field is.
   it("sums each probe's own costUsd into the measurement's total spend", () => {
     const summary = computeDerivedSummary({
       scenarioId: "s",

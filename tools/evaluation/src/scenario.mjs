@@ -26,8 +26,9 @@
 //     so failureMessage walks from the failing keyword back to the
 //     subschema that owns it and surfaces that prose instead.
 //
-// the no-budget rule (#392, #395: "do not estimate cost... in any form") is
-// in the schema rather than here, as `nonBudgetKey`, applied at every level
+// the no-budget rule ("do not estimate cost... in any form" — see
+// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md)
+// is in the schema rather than here, as `nonBudgetKey`, applied at every level
 // including recursively inside a judgment's `input` — which is the one open
 // subtree in the document and therefore the one place a budget-shaped key
 // could otherwise hide.

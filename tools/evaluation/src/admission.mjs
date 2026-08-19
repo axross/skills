@@ -3,9 +3,10 @@
 //
 // the deleted instrument admitted a case by projecting a dollar figure from
 // a mean of past probe costs and refusing when the projection cleared a cap.
-// #392 settled that the projection was "badly wrong" often enough that the
-// limit it fed was not a limit, and replaced it with a count a caller states
-// up front: a probe matrix has an exact size before anything runs, so there
+// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md
+// found that projection "badly wrong" often enough that the limit it fed was
+// not a limit, and replaced it with a count a caller states up front: a
+// probe matrix has an exact size before anything runs, so there
 // is nothing left to estimate. nothing here computes a dollar figure, in any
 // form — the deleted instrument's meanProbeCost and reconcile() do not
 // survive this rework.
