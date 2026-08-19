@@ -20,6 +20,9 @@
  * @typedef {object} ReasoningJudgeFingerprint
  * @property {string} factor the factor id this judge and prompt belong to
  * @property {string} judgeModel vendor-prefixed, fully-qualified
+ * @property {string|undefined} route the route that asked the judge (see
+ *   judge.mjs's JUDGE_ROUTE); undefined for a factor record that predates
+ *   route tracking, which must compare unequal to any recorded route
  * @property {string} prompt the full prompt the judge was given
  */
 
@@ -33,8 +36,8 @@
  *   own tree digest, keyed by skill name
  * @property {ReasoningJudgeFingerprint[]} reasoningJudges one entry per
  *   reasoning factor the scenario declares — re-judging with a different
- *   judge or a different prompt is a new fingerprint, never a silent update
- *   to the old one, exactly as docs/specs/skill-evaluation.md states
+ *   judge, prompt, or route is a new fingerprint, never a silent update to
+ *   the old one, exactly as docs/specs/skill-evaluation.md states
  */
 
 /** @param {Record<string, string>} a @param {Record<string, string>} b */
@@ -55,6 +58,7 @@ function sameReasoningJudges(a, b) {
     (entry, index) =>
       entry.factor === sortedB[index].factor &&
       entry.judgeModel === sortedB[index].judgeModel &&
+      entry.route === sortedB[index].route &&
       entry.prompt === sortedB[index].prompt,
   );
 }
@@ -64,7 +68,8 @@ function sameReasoningJudges(a, b) {
  * docs/specs/skill-evaluation.md's "What makes two measurements comparable"
  * and the condition fingerprint docs/glossary.md defines: the same project
  * tree, the same probe model, the same installed-skill digests, and — for
- * every reasoning factor — the same judge and the same prompt.
+ * every reasoning factor — the same judge, the same route, and the same
+ * prompt.
  *
  * @param {ConditionFingerprint} a
  * @param {ConditionFingerprint} b

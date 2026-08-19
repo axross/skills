@@ -68,6 +68,27 @@ describe("fingerprintsMatch", () => {
     expect(fingerprintsMatch(a, b)).toBe(false);
   });
 
+  // docs/specs/skill-evaluation.md: "the route that asked it" is part of
+  // what makes two measurements comparable, alongside the model and the
+  // prompt — re-judging through a different route is a new measurement.
+  it("mismatches when a reasoning factor's route changed", () => {
+    const a = fingerprint({
+      reasoningJudges: [{ factor: "f1", judgeModel: "m", route: "claude-code-cli", prompt: "p" }],
+    });
+    const b = fingerprint({
+      reasoningJudges: [{ factor: "f1", judgeModel: "m", route: "direct-http", prompt: "p" }],
+    });
+    expect(fingerprintsMatch(a, b)).toBe(false);
+  });
+
+  it("mismatches when one fingerprint records a reasoning judge's route and the other records none", () => {
+    const a = fingerprint({
+      reasoningJudges: [{ factor: "f1", judgeModel: "m", route: "claude-code-cli", prompt: "p" }],
+    });
+    const b = fingerprint({ reasoningJudges: [{ factor: "f1", judgeModel: "m", prompt: "p" }] });
+    expect(fingerprintsMatch(a, b)).toBe(false);
+  });
+
   it("is insensitive to reasoning-judge entry order", () => {
     const a = fingerprint({
       reasoningJudges: [
