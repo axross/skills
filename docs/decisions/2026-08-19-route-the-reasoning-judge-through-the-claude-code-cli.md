@@ -26,22 +26,20 @@ again, were turned down; that is what this record holds.
 
 ## The decision
 
-**A reasoning judgment is asked through the `claude` CLI, spawned
-non-interactively with `--system-prompt` carrying the instrument's own
-system prompt, every tool denied, no setting sources loaded, and a working
-directory outside this repository — the same credential and the same spawn
-discipline `probe.mjs` already uses.** `callReasoningJudge` takes a `spawnFn`
-in place of the old `fetchImpl`, refuses only when neither
-`CLAUDE_CODE_OAUTH_TOKEN` nor `ANTHROPIC_API_KEY` is present, and runs with
-an environment `stripCredentials` has reduced to that one variable.
+**A reasoning judgment is asked through the `claude` CLI rather than the
+Messages API, under the same credential and the same spawn discipline
+`probe.mjs` already uses for its own model call.**
+`docs/operations/evaluation-dispatch.md` states that procedure in full;
+this record states why it was chosen.
 
-Because the CLI wraps the instrument's prompt in scaffolding of its own —
-the same verification run that confirmed the shape above reported 16,633
-cache-creation tokens against 10 input tokens — the route a verdict was taken
-through is recorded on the factor alongside the judge's model, and compared
-as part of what makes two measurements comparable
-(`docs/specs/skill-evaluation.md`, "What makes two measurements comparable").
-A route change is a new measurement, never a silent update to the old one.
+Because the CLI wraps the instrument's prompt in scaffolding of its
+own — the verification run this decision rests on reported 16,633
+cache-creation tokens against 10 input tokens for a prompt carrying
+almost nothing of its own — a reasoning judge's route joins its model
+and its prompt as part of what makes two measurements comparable.
+`docs/specs/skill-evaluation.md`, "What makes two measurements
+comparable", states that rule in full; this record states why the
+route earns a place in it.
 
 ## What was rejected
 
