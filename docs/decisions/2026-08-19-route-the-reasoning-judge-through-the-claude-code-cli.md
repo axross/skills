@@ -32,11 +32,14 @@ Messages API, under the same credential and the same spawn discipline
 `docs/operations/evaluation-dispatch.md` states that procedure in full;
 this record states why it was chosen.
 
-Because the CLI wraps the instrument's prompt in scaffolding of its
-own — the verification run this decision rests on reported 16,633
-cache-creation tokens against 10 input tokens for a prompt carrying
-almost nothing of its own — a reasoning judge's route joins its model
-and its prompt as part of what makes two measurements comparable.
+A reasoning judge's route joins its model and its prompt as part of
+what makes two measurements comparable, because the route decides what
+surrounds the prompt, not merely how the prompt is delivered. The CLI
+still assembles a preamble of its own around whatever system and user
+prompt this instrument supplies, and that preamble rides on a CLI
+version this instrument does not record (see "What it costs," below)
+— so a verdict taken through one route is not interchangeable with one
+taken through another, even naming the same model and the same prompt.
 `docs/specs/skill-evaluation.md`, "What makes two measurements
 comparable", states that rule in full; this record states why the
 route earns a place in it.
@@ -62,11 +65,14 @@ remaining justification.
 
 ## What it costs
 
-**A judgment now spends money where it previously errored for free.** The
-verification run this decision is based on reported `total_cost_usd`
-0.034739 for a trivial prompt, most of it the CLI's own cached preamble; a
-real transcript adds its own tokens on top, and a dispatch pays this per
-reasoning factor per probe.
+**A judgment now spends money where it previously errored for free.** A
+verification run against the shape this instrument actually spawns —
+every tool disabled, the prompt sent over stdin — reported
+`total_cost_usd` 0.000866 for a trivial prompt; a real transcript adds
+its own tokens on top, and a dispatch pays this per reasoning factor
+per probe. Denying every tool outright is part of what keeps that
+figure small: a less restrictive argv would carry a tool-definition
+preamble this one does not pay for.
 
 **The CLI version is not recorded beside the route.** The dispatch pins it
 (`CLAUDE_CODE_VERSION`), a local run's is not the instrument's to control,
