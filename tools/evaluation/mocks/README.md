@@ -153,6 +153,17 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   one would hand a control run the very convention
   [`give-the-empty-post-list-a-real-empty-state`](../scenarios/give-the-empty-post-list-a-real-empty-state/)
   asks about.
+- **Three route components each hand-roll their own loading and error
+  branches, in three different shapes.** `PostListPage.tsx` renders them
+  inline, `PostEditorPage.tsx` early-returns instead, and `RootRedirect.tsx`
+  early-returns too but renders nothing at all while pending. Nothing in
+  `src/components/` is a shared state surface.
+  [`give-every-screen-one-loading-and-error-treatment`](../scenarios/give-every-screen-one-loading-and-error-treatment/)
+  asks a model to pull that repeated concern onto one place both screens
+  use. A mock that already shared this handling would hand a control run
+  the very structure the scenario asks a model to arrive at; three screens
+  each growing their own version of it, with nothing yet forcing them to
+  converge, is an ordinary shape for a product still adding screens.
 - **The analytics event names are ordinary and mildly inconsistent.**
   `"post published"` and `"draft saved"` fire from the editor and
   `"Site switched"` from the sidebar's switcher. One scenario measures event
@@ -190,11 +201,20 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   `src/components/` — `Button`, `Card`, `ConsentBanner`, and `Sidebar` — each
   ship a `.browser.test.tsx`.
 - **There is no dashboard, settings page, onboarding flow, or sign-in
-  screen.** Four scenarios ask a model to sketch one of the first three, so
-  building one removes the task. The absence is honest at this stage of a
-  product, and `AGENTS.md` says so in the project's own voice rather than
-  leaving a reader to wonder; session handling is stated there as living
-  outside this cut, which is also why no sign-in screen exists.
+  screen.**
+  [`sketch-a-screen-for-how-an-authors-posts-are-doing`](../scenarios/sketch-a-screen-for-how-an-authors-posts-are-doing/)
+  asks a model to sketch the first of those, the author performance
+  dashboard. The new-author onboarding path is a genuinely different
+  subject the same skill could measure, and is recorded here as
+  **unclaimed** rather than dropped — #423's coverage policy does not
+  budget a second `wireframe-design` scenario in this slice. The settings
+  page is a different case from onboarding's: no scenario, old or planned,
+  has ever taken it as a subject, so its absence rests on the product-stage
+  reasoning alone, the same footing the sign-in screen's absence already
+  stands on. The absence is honest at this stage of a product, and
+  `AGENTS.md` says so in the project's own voice rather than leaving a
+  reader to wonder; session handling is stated there as living outside this
+  cut, which is also why no sign-in screen exists.
 - **There is no design-token layer and no dark mode.** Plain CSS Modules. The
   token layer belongs to the Expo mock, where Unistyles' core API is themes and
   a light/dark pair is idiomatic; here it would be a bolted-on device, and the

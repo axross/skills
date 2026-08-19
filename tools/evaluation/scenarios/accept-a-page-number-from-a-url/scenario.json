@@ -18,7 +18,7 @@
       "description": "The request asks for paging the post list by a URL page number and states, in the site owner's own words, that the value can arrive missing, blank, or not a number — never naming validation or a schema. An agent that reaches for zod-schema here is finding it from the problem, with next-app-development (the route-parameter surface it arrives through) and react-component-development (a list-component read of the same request) sitting right there as competing, plausible-looking picks. This factor is the one the peer set compromises, and the scenario's own description says how: next-app-development names an unvalidated `page` parameter as a bug in its own reference text, in both conditions, so an agent nudged there is likelier to go looking for a validation capability before this factor ever asks which one it reached for.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": {
           "skill": "zod-schema"
         }
@@ -30,7 +30,7 @@
       "description": "This is the completion floor rather than a skill effect: it checks that app/(site)/page.tsx reads searchParams at all, separating a run that never attempted the task from one that wired the parameter through, however carefully. Both conditions are expected to pass this factor, so the two below are read against runs that actually attempted the task rather than ones that skipped it.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "app/(site)/page.tsx",
           "mustContainAll": ["searchParams"]
@@ -43,7 +43,7 @@
       "description": "The mock's one schema — PostSlug in shared/blog-post-slug.ts — is declared and never applied to anything entering the app; its only safeParse calls live in shared/blog-post-slug.spec.ts. This factor checks that some .ts or .tsx file under app/ or shared/, excluding any *.spec.ts or *.spec.tsx file, calls safeParse( — a parse actually applied to data entering the app, in the form zod-schema teaches for a value that can arrive malformed: .parse() when a failure is a defect, .safeParse() when it is an outcome to branch on, and a reader's /?page=abc is an outcome the page has to handle rather than a defect that should throw a 500. What this factor deliberately does NOT do is check for a parse of any kind. An earlier revision declared that as its own factor, so that a result would name whether a run had failed to parse at all or had parsed the throwing way; that factor scanned for the substring .parse( and could not tell zod's own throwing parse from JSON.parse( or any other object's parse method, so it returned true for a workspace whose only change was an unrelated JSON.parse( helper and no pagination at all. No substring check can draw that line, so the element is dropped rather than declared at a precision it does not have — which means a run that validates the page number through a throwing zod parse is recorded here the same as one that never validated it.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-source-contains-any.mjs",
+        "script": "../../judgments/check-source-contains-any.mjs",
         "input": {
           "roots": ["app", "shared"],
           "extensions": [".ts", ".tsx"],

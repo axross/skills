@@ -18,7 +18,7 @@
       "description": "The want names no operator, no vendor method, and no field — only a running count that keeps climbing rather than showing only today's number. An agent that reaches for amplitude-instrumentation here is finding it from the want, with software-instrumentation (which operator a monotonically increasing count needs is a fact about Amplitude's own API, not about what is worth recording) and sentry-instrumentation (the project's other observability vendor, plausible to a model routing on which SDK the repository's telemetry already uses) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "amplitude-instrumentation" }
       }
     },
@@ -28,7 +28,7 @@
       "description": ".add( appears nowhere in src/lib/analytics.ts today, so this cannot already be true before the change. The fix has to add a running visit count to identifyAuthor using Amplitude's add operator — the one its own operator table gives for 'a running numeric total' — rather than set, which would overwrite the stored count with whatever value was last recorded instead of accumulating it.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/lib/analytics.ts",
           "mustContainAll": [".add("]
@@ -41,7 +41,7 @@
       "description": "identifyAuthor already calls identify.set(\"name\", …) and identify.set(\"site_count\", …), and both are genuinely current-value properties: site_count is AuthorProfile.siteCount, an absolute count handed in whole rather than as a delta, so switching it to .add() would double-count on every call. This factor checks both survive unmoved: an agent that pattern-matches 'count → add' and moves site_count along with the new property passes the factor above while failing this one, which is exactly the confound this pairing is built to catch.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/lib/analytics.ts",
           "mustContainAll": [".set(\"name\"", ".set(\"site_count\""]

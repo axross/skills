@@ -18,14 +18,14 @@
       "description": "The complaint describes a behaviour, never resolveTranslation, defaultLocale, or the skill — an agent that reaches for living-project-documentation here is finding it from the problem, with technical-document-authoring (a how-it-reads take on the same complaint) and next-app-development (a routing-and-rendering take on the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether any documentation was actually corrected as a result, which is what the outcome factors below are for.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "living-project-documentation" }
       }
     },
     {
       "id": "stops-falling-back-to-the-posts-default-locale",
       "phase": "outcome",
-      "description": "This factor is a guard, not a differential carrier: the prompt asks directly for this behaviour change, so it is expected to read true under both of this scenario's probe conditions once the task has actually been attempted, and exists only so the three factors below are readable as a documentation finding rather than as evidence that the underlying bug was never fixed. It reads shared/resolve-translation.ts's own resolveTranslation function for the literal expression post.defaultLocale and nothing else — it cannot see a fallback reintroduced through a renamed field or a level of indirection this kind of text search does not follow, and it cannot make a judgment at all when resolveTranslation itself cannot be located in the file, which it reports as an error rather than as false.",
+      "description": "This factor is a guard, not a differential carrier: the prompt asks directly for this behaviour change, so it is expected to read true under both of this scenario's probe conditions once the task has actually been attempted, and exists only so the three factors below are readable as a documentation finding rather than as evidence that the underlying bug was never fixed. It reads shared/resolve-translation.ts's own resolveTranslation function for the literal expression post.defaultLocale and nothing else — it cannot see a fallback reintroduced through a renamed field or a level of indirection this kind of text search does not follow, and it reports false, rather than an error, when resolveTranslation itself cannot be located in the file: the module is there and readable, and the function this factor reads is simply not in it.",
       "judgment": {
         "method": "script",
         "script": "scripts/check-resolve-translation-guard.mjs"

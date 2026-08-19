@@ -40,9 +40,12 @@
 // this script does not name, or a value type this reader's brace-counting
 // cannot balance (an unterminated string containing a brace, for instance)
 // are known gaps this script does not attempt to cover — none of them
-// appears in this mock's own Events interface. Only "interface <name> {"
-// with no such block found is treated as this factor having nothing to
-// judge; every other case above still returns a real true or false verdict.
+// appears in this mock's own Events interface. "interface <name> {" with
+// no such block found is a real `false` — the file is there and readable,
+// and it simply declares no names for this factor to read. A block that
+// opens but never closes is the different case: this reader's own
+// brace-counting cannot tell where the interface ends, so that one stays a
+// judgment this script cannot make.
 //
 // usage: node check-declared-event-names.mjs <context.json>
 
@@ -84,9 +87,9 @@ try {
 const openPattern = new RegExp(`\\binterface\\s+${interfaceName}\\b[^{]*\\{`);
 const openMatch = openPattern.exec(content);
 if (!openMatch) {
-  fail(
-    `${file} declares no "interface ${interfaceName}" block — this factor has no declared names to judge.`,
-  );
+  const evidence = `${file} declares no "interface ${interfaceName}" block.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 // walk forward from the matched "{" counting brace depth, so the block ends

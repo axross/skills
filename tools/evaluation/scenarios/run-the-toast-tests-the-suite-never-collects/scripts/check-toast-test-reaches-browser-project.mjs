@@ -26,7 +26,10 @@
 //
 // Renamed-away-with-no-replacement, moved outside PublishToast's own
 // directory, or an `include` change to the *unit* project instead all fall
-// through both checks and report false.
+// through both checks and report false — and so does vitest.config.ts
+// carrying no "browser" project with a locatable include array at all: the
+// file is there and readable, and neither of the two fixes this factor
+// recognizes could have been made to a project this reading cannot find.
 //
 // usage: node check-toast-test-reaches-browser-project.mjs <context.json>
 
@@ -74,9 +77,9 @@ try {
 
 const browserInclude = projectInclude(config, "browser");
 if (browserInclude === null) {
-  fail(
-    'vitest.config.ts has no project named "browser" with a locatable include array — this factor cannot judge the project structure it expects.',
-  );
+  const evidence = 'vitest.config.ts has no project named "browser" with a locatable include array.';
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 const widenedPatterns = browserInclude.filter(

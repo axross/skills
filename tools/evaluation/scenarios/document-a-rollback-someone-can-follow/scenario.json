@@ -21,7 +21,7 @@
       "description": "The complaint names no document, no heading, and no skill — an agent that reaches for technical-document-authoring here is finding it from the problem, with living-project-documentation (a keep-the-docs-true read of the same complaint) and product-requirement-document-authoring (a write-up-a-feature read of the same complaint) sitting right there as competing, plausible-looking picks. This factor reads only whether the skill was invoked at all, at some point in the run — it cannot see whether it was reached for before a peer was, whether a peer was invoked alongside it, or whether anything it teaches reached the rewritten section, which is what the outcome factors below are for.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "technical-document-authoring" }
       }
     },
@@ -37,7 +37,7 @@
     {
       "id": "introduces-the-procedure-with-a-lead-in-sentence",
       "phase": "outcome",
-      "description": "A numbered list dropped into the section with nothing introducing what it is a list of reads as less finished than one that says what a reader is about to do. This factor reads only whether the line immediately before the ordered list is prose ending in a colon — never whether that sentence is itself well-written — and it cannot make a judgment at all when the sibling factor above found no ordered list to introduce, which this script reports as an error rather than as a false.",
+      "description": "A numbered list dropped into the section with nothing introducing what it is a list of reads as less finished than one that says what a reader is about to do. This factor reads only whether the line immediately before the ordered list is prose ending in a colon — never whether that sentence is itself well-written — and it reports false, rather than an error, when the sibling factor above found no ordered list to introduce, or when the section itself is gone: docs/deployment.md is there and readable either way, and what a lead-in would introduce is simply absent from it.",
       "judgment": {
         "method": "script",
         "script": "scripts/check-rollback-lead-in.mjs"

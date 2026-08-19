@@ -18,7 +18,7 @@
       "description": "The ask is for a visual change to an existing screen, with nothing about CSS, a property, or the skill in it — an agent that reaches for react-component-styling here is finding it from the problem, with react-component-development (a component-structure read of the same ask) and high-fidelity-ui-design (a visual-design-rationale read of the same ask) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "react-component-styling" }
       }
     },

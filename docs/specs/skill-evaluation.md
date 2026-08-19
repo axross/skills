@@ -146,6 +146,21 @@ two of three log lines quieted — is decomposed into one factor per element
 instead, so the result names which element failed rather than only how many
 did.
 
+**A script judgment tells `false` from an error by whether the material it
+reads is there, not by how much of what it looked for turned up.** The
+judgment reads some material — a file in the reconstructed workspace, the
+probe's diff, the probe's transcript — and looks in it for something. The
+material being there, with what the judgment looks for simply absent from
+it, is `false`: an agent that produced none of what was expected is being
+measured exactly as one that produced less of it than expected, and finding
+nothing is not different in kind from finding too little. An error is what
+a judgment could not make at all — the material itself missing, unreadable,
+or internally inconsistent (a file the reconstruction does not have, a
+context file that will not parse, a transcript in a shape the script cannot
+read), or what the agent produced being something the judgment's own
+recognizer cannot classify, so that either verdict would be a guess rather
+than a reading.
+
 **Every judgment records evidence, and every reasoning judgment additionally
 records the judge's model, its route, and the full prompt it was given.** A
 judgment with no recorded basis cannot be checked later, by a reviewer reading

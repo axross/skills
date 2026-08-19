@@ -18,7 +18,7 @@
       "description": "The report names neither Amplitude, reset, nor a device identifier — an agent that reaches for amplitude-instrumentation here is finding it from the symptom, with software-instrumentation (a vendor-neutral read of the same complaint) and expo-app-development (a startup-and-on-device-storage read of it) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "amplitude-instrumentation" }
       }
     },
@@ -28,7 +28,7 @@
       "description": "The patch added a forgetUser() call to app/_layout.tsx's startup path, and calling it there is what rotates the device and user identity on every launch. This is the one outcome factor expected to actually move: it checks that the final app/_layout.tsx no longer calls forgetUser at all.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-excludes.mjs",
+        "script": "../../judgments/check-file-excludes.mjs",
         "input": {
           "file": "app/_layout.tsx",
           "mustExcludeAll": ["forgetUser"]
@@ -41,7 +41,7 @@
       "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: session.ts's signOut must still call forgetUser, so a fix that removes the sign-out reset along with the startup one — leaving sign-out no longer clearing the identity at all — is distinguishable from a fix that removes only the startup call.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/session/session.ts",
           "mustContainAll": ["forgetUser"]
@@ -54,7 +54,7 @@
       "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: app/_layout.tsx must still call initAnalytics(), so silencing the symptom by disabling analytics altogether rather than fixing the identity call is not credited.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "app/_layout.tsx",
           "mustContainAll": ["initAnalytics()"]
@@ -67,7 +67,7 @@
       "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: analytics.ts must still set neither storageProvider nor cookieStorage as an actual init option, so a fix that instead reaches for an identity-storage override — which makes the SDK fall back to MemoryStorage and reproduces the very symptom it was meant to cure — is not credited. Checked as the key-usage form with its trailing colon rather than the bare word, since initAnalytics's own doc comment already names both words in the negative ('neither storageProvider nor cookieStorage is set here') and a bare-word check would never pass regardless of the code.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-excludes.mjs",
+        "script": "../../judgments/check-file-excludes.mjs",
         "input": {
           "file": "src/analytics/analytics.ts",
           "mustExcludeAll": ["storageProvider:", "cookieStorage:"]

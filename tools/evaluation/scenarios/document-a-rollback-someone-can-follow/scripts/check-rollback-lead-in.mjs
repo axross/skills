@@ -12,11 +12,12 @@
 //
 // What this cannot see: whether the lead-in sentence itself is any good —
 // only that some line of prose sits directly above the list and ends with
-// a colon. It also cannot make a judgment at all when the section carries
-// no ordered list to introduce in the first place — that is a limitation of
-// this script, not a `false` result, since "does the lead-in end in a
-// colon" presupposes there is a lead-in to check, so this script exits
-// non-zero and reports why rather than guessing at an answer.
+// a colon. When the section carries no ordered list to introduce in the
+// first place, or the "Rolling back" heading itself is gone, there is
+// nothing for a lead-in to introduce — docs/specs/skill-evaluation.md's
+// false-versus-error line reads that as `false`, not as a judgment this
+// script could not make: docs/deployment.md is there and readable, and what
+// a lead-in would introduce is simply absent from it.
 //
 // usage: node check-rollback-lead-in.mjs <context.json>
 
@@ -58,17 +59,17 @@ try {
 
 const section = sectionAfter(content, SECTION_HEADING);
 if (section === null) {
-  fail(
-    `${DEPLOYMENT_DOC} no longer has a ${JSON.stringify(SECTION_HEADING)} heading — this factor cannot locate the section it judges.`,
-  );
+  const evidence = `${DEPLOYMENT_DOC} no longer has a ${JSON.stringify(SECTION_HEADING)} heading, so there is no section for a lead-in to introduce.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 const lines = section.split("\n");
 const listIndex = lines.findIndex((line) => ORDERED_LIST_ITEM.test(line));
 if (listIndex === -1) {
-  fail(
-    `the "Rolling back" section carries no ordered list — this factor judges what introduces one, and there is nothing to introduce.`,
-  );
+  const evidence = `the "Rolling back" section carries no ordered list, so there is nothing for a lead-in to introduce.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 let leadInIndex = -1;
