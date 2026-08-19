@@ -37,10 +37,10 @@ const EXTERNAL_TARGET_RE = /^([a-z][a-z0-9+.-]*:|\/\/)/i;
 const GESTURE_NOUNS =
   "flags?|limits?|files?|rules?|options?|settings?|approaches|details?|caveats?|conditions?|requirements?|thresholds?|caps?";
 
-// three refinements: emphasis markers are skipped, so a bolded gesture still reads as
-// one; `(?![\w-])` not `\b`, so "the file-notation set" doesn't match on its "file"
-// prefix; and a gerund right before it exempts the phrase — "naming the file" performs
-// the naming, not withholds it.
+// three refinements, measured against the corpus: emphasis markers are skipped, so a
+// bolded gesture still reads as one; `(?![\w-])` not `\b`, so "the file-notation set"
+// doesn't match on its "file" prefix; and a gerund right before it exempts the phrase
+// — "naming the file" performs the naming, not withholds it.
 const ROUTING_GESTURE_RE = new RegExp(
   `(?<!ing\\s)\\bthe\\s+[*_]{0,2}(?:${GESTURE_NOUNS})(?![\\w-])`,
   "i",
