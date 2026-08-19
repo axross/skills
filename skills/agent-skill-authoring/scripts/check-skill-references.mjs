@@ -31,18 +31,16 @@ const EXTERNAL_TARGET_RE = /^([a-z][a-z0-9+.-]*:|\/\/)/i;
 // routing-concreteness advisory (warnings only — see the header note).
 
 // the abstract nouns a gestural routing bullet reaches for, held to the set the rule
-// and its examples enumerate. wider sets were measured against this corpus and cost
-// more than they found: `function`, `property`, `value`, `field`, and `parameter` all
-// name their subject well enough already, so including them bought noise only.
+// and its examples enumerate. wider sets were tried and cost more than they found:
+// `function`, `property`, `value`, `field`, and `parameter` already name their subject
+// well enough, so including them bought only noise.
 const GESTURE_NOUNS =
   "flags?|limits?|files?|rules?|options?|settings?|approaches|details?|caveats?|conditions?|requirements?|thresholds?|caps?";
 
-// three refinements, each measured against the corpus rather than assumed:
-//   * emphasis markers are skipped, so a bolded gesture reads like a plain one;
-//   * `(?![\w-])` rather than `\b`, so "the file-notation set" doesn't match on its
-//     "file" prefix;
-//   * a gerund right before it exempts the phrase — "naming the file" performs the
-//     naming, not withholds it.
+// three refinements: emphasis markers are skipped, so a bolded gesture still reads as
+// one; `(?![\w-])` not `\b`, so "the file-notation set" doesn't match on its "file"
+// prefix; and a gerund right before it exempts the phrase — "naming the file" performs
+// the naming, not withholds it.
 const ROUTING_GESTURE_RE = new RegExp(
   `(?<!ing\\s)\\bthe\\s+[*_]{0,2}(?:${GESTURE_NOUNS})(?![\\w-])`,
   "i",
