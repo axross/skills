@@ -293,6 +293,269 @@ export function readRouteFile(routeFile) {
 }
 
 /**
+ * captures balanced text starting at `openIndex`, where
+ * `text[openIndex] === openChar`, tracking nested `openChar`/`closeChar`
+ * pairs while skipping their occurrences inside a single-, double-, or
+ * backtick-quoted string (so a prop value like `message="Loading (posts)…"`
+ * cannot unbalance the scan on its own parenthesis).
+ *
+ * Moved here (from check-screens-keep-distinct-content.mjs, its original
+ * home) rather than reimplemented: isSetAboutLoadingAndError below needs
+ * the same JSX/call usage-span capture that factor already relied on, to
+ * read how each route file USES a shared module, not only the module's own
+ * text, and forking a second copy would risk the two drifting the same way
+ * this file's own header explains resolveRelativeSpecifier was pulled out
+ * to prevent. check-screens-keep-distinct-content.mjs now imports
+ * usageSpansFor from here instead of defining it locally.
+ *
+ * @param {string} text
+ * @param {number} openIndex
+ * @param {string} openChar
+ * @param {string} closeChar
+ * @returns {number | null} the index just past the matching `closeChar`, or
+ *   null if the text ends before the nesting returns to zero
+ */
+function captureBalanced(text, openIndex, openChar, closeChar) {
+  let depth = 0;
+  let quote = null;
+  let i = openIndex;
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\") {
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      i++;
+      continue;
+    }
+    if (ch === openChar) depth++;
+    else if (ch === closeChar) {
+      depth--;
+      if (depth === 0) return i + 1;
+    }
+    i++;
+  }
+  return null;
+}
+
+/**
+ * finds the end of a JSX element's OPEN TAG — the `>` (or `/>`) that
+ * actually closes it — starting at `start`, the index right after the tag
+ * name. A `>` only terminates the tag when it is at JSX-expression-
+ * container depth 0 AND outside any quoted span: an attribute value can
+ * itself carry a `>` that means something else entirely — `=>` in a prop
+ * like `onRetry={() => query.refetch()}`, a comparison in
+ * `showRetry={attempts > 2}`, or a literal character in `title="Drafts >
+ * 10"` — and none of those may be read as the tag's own close. Container
+ * depth is tracked via `{`/`}` (an attribute's `{expression}`); inside a
+ * quote, `{`/`}`/`>` are all inert until the matching close, the same
+ * string-skipping this same module's own stripComments already does for
+ * its own scan (escapes respected; a backtick's own `${…}` holes are not
+ * specially re-entered as code, matching that same precedent — not a
+ * concern for the flat prop values this scenario's subject produces).
+ *
+ * @param {string} text
+ * @param {number} start
+ * @returns {{ end: number, selfClosing: boolean } | null} `end` is the
+ *   index of the terminating `>` itself; null if the tag never closes
+ *   before the text ends
+ */
+function findOpenTagEnd(text, start) {
+  let i = start;
+  let quote = null;
+  let depth = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\") {
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      i++;
+      continue;
+    }
+    if (ch === "{") {
+      depth++;
+      i++;
+      continue;
+    }
+    if (ch === "}") {
+      depth = Math.max(0, depth - 1);
+      i++;
+      continue;
+    }
+    if (ch === ">" && depth === 0) {
+      return { end: i, selfClosing: text[i - 1] === "/" };
+    }
+    i++;
+  }
+  return null;
+}
+
+/**
+ * captures one JSX element occurrence starting at `ltIndex`, where
+ * `text[ltIndex] === "<"` and the tag name immediately following is `name`.
+ * Returns the element's own source text — `<Name .../>` or
+ * `<Name ...>...</Name>` — never anything before the `<` or after the
+ * matching close, so a surrounding `if (...) return`, `&&` guard, or
+ * trailing `;` never reaches the captured span. A same-named child element
+ * nested inside is tracked (a depth count) rather than assumed away, though
+ * this scenario's own subject — a leaf surface component taking its content
+ * as props — is not expected to nest itself.
+ *
+ * The children scan is both expression-string-aware and self-closing-aware,
+ * extended from the two things findOpenTagEnd already tracks for the OPEN
+ * tag. A `{...}` expression container a child passes through can itself
+ * hold a quoted string shaped exactly like this element's own closing tag
+ * — `{"See the </LoadingError> tag"}` — which an unguarded
+ * `text.startsWith(closeTag, i)` would read as the real close and truncate
+ * the capture right there; quote-tracking is scoped to INSIDE a `{...}`
+ * container specifically (an `exprDepth` counter, separate from the
+ * element-nesting `depth` below), not to the children region as a whole,
+ * because plain JSX text is not itself quoted the way an attribute value or
+ * a JS string literal is — "Couldn't load posts." carries an apostrophe
+ * that is not a string delimiter, and treating it as one would swallow
+ * everything after it looking for a closing quote that will never come.
+ * Separately, a nested SAME-NAMED
+ * element that is itself self-closing (`<LoadingError text="inner" />`)
+ * contributes no `</LoadingError>` of its own, so naively incrementing
+ * `depth` on every `<LoadingError` occurrence — self-closing or not —
+ * leaves depth one too high and the scan runs past the real close looking
+ * for a second one that does not exist, returning null for an element that
+ * closed just fine; a nested `<name` occurrence is resolved with
+ * findOpenTagEnd itself, the same reader the outer tag uses, before
+ * deciding whether it opens a new depth level.
+ *
+ * @param {string} text
+ * @param {number} ltIndex
+ * @param {string} name
+ * @returns {string | null} the whole element's source text, or null if the
+ *   opening tag or a required closing tag never resolves before the text
+ *   ends
+ */
+function captureJsxElement(text, ltIndex, name) {
+  const openTag = findOpenTagEnd(text, ltIndex + 1 + name.length);
+  if (!openTag) return null; // the opening tag itself never closed
+  if (openTag.selfClosing) return text.slice(ltIndex, openTag.end + 1);
+
+  let depth = 1;
+  let i = openTag.end + 1; // past the '>'
+  const closeTag = `</${name}>`;
+  let quote = null;
+  let exprDepth = 0; // depth of {...} expression containers within children
+  while (i < text.length) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === "\\") {
+        i += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      i++;
+      continue;
+    }
+    if (exprDepth > 0) {
+      if (ch === '"' || ch === "'" || ch === "`") {
+        quote = ch;
+        i++;
+        continue;
+      }
+      if (ch === "{") {
+        exprDepth++;
+        i++;
+        continue;
+      }
+      if (ch === "}") {
+        exprDepth--;
+        i++;
+        continue;
+      }
+      i++;
+      continue;
+    }
+    if (ch === "{") {
+      exprDepth++;
+      i++;
+      continue;
+    }
+    if (text.startsWith(closeTag, i)) {
+      depth--;
+      i += closeTag.length;
+      if (depth === 0) return text.slice(ltIndex, i);
+      continue;
+    }
+    if (text.startsWith(`<${name}`, i)) {
+      const nestedOpen = findOpenTagEnd(text, i + 1 + name.length);
+      if (nestedOpen) {
+        if (!nestedOpen.selfClosing) depth++;
+        i = nestedOpen.end + 1;
+        continue;
+      }
+      // the nested tag's own open never closed either — fall through to
+      // the default single-character advance, the same "no matching close
+      // before the text ends" outcome this function already returns for
+      // that shape at the top level.
+    }
+    i++;
+  }
+  return null; // no matching close before the text ends
+}
+
+/**
+ * every usage SPAN of `name` in `text` — the JSX element it opens
+ * (`<name .../>` or `<name ...>...</name>`), or the call expression it
+ * opens (`name(...)`) — and nothing outside either shape. A bare reference
+ * (neither shape: a type position, a value passed by name alone) contributes
+ * nothing, since this factor cares about how the shared surface is actually
+ * invoked, not every mention of its name. `text` is expected to already be
+ * comment-stripped (see usageTextFor's own call site, and
+ * lib/route-imports.mjs's stripComments): this function has no comment
+ * awareness of its own, so a caller that fed it raw source would have a
+ * code comment merely MENTIONING the component in tag shape —
+ * "// See <LoadingError message=\"...\" /> for the older shape." — read as
+ * a real usage span, exactly the shape a genuine flattening this factor
+ * exists to catch could hide behind.
+ *
+ * @param {string} text
+ * @param {string} name
+ * @returns {string[]}
+ */
+export function usageSpansFor(text, name) {
+  const spans = [];
+  const nameRe = new RegExp(`\\b${name}\\b`, "g");
+  let match;
+  while ((match = nameRe.exec(text))) {
+    const start = match.index;
+    if (text[start - 1] === "<") {
+      const span = captureJsxElement(text, start - 1, name);
+      if (span) spans.push(span);
+      continue;
+    }
+    let j = start + name.length;
+    while (j < text.length && /\s/.test(text[j])) j++;
+    if (text[j] === "(") {
+      const end = captureBalanced(text, j, "(", ")");
+      if (end !== null) spans.push(text.slice(start, end));
+    }
+    // else: a bare reference — not this factor's concern.
+  }
+  return spans;
+}
+
+/**
  * inserts a space at every camelCase/PascalCase boundary in `text` — a
  * lower-or-digit-to-upper transition ("loadingError" -> "loading Error",
  * "onError" -> "on Error") and an upper-RUN-to-upper+lower transition
@@ -432,28 +695,43 @@ function effectiveSourceFor(modulePath) {
  * true when the shared, newly-added module SET this scenario's two
  * outcome factors compare — not any single file in isolation — is
  * actually ABOUT this scenario's own subject: a loading-ish token and a
- * failure-ish token found somewhere ACROSS the set (each module's own
- * effective source — see effectiveSourceFor — joined together), not
- * necessarily both within the same file. Two focused components, a
- * Spinner carrying the loading-ish vocabulary and a separate ErrorBanner
- * carrying the failure-ish vocabulary, answer this factor's own question
- * — did the repeated concern move into shared code — exactly as well as
- * one combined component does; requiring both tokens in a single file was
- * stricter than the concern itself demands, and rejected exactly that
- * shape of correct extraction.
+ * failure-ish token found somewhere ACROSS the set and across how `routes`
+ * (this scenario's own two route files, in the shape readRouteFile
+ * returns) USE it, not necessarily both within the same file or the same
+ * source.
  *
- * Before testing, the combined text is tested alongside a second copy with
- * a space inserted at every camelCase/PascalCase boundary (see
- * unfuseCamelBoundaries) — "LoadingError" reads as "Loading Error",
+ * The text tested is, for each module in `modulePaths`, its own effective
+ * source (see effectiveSourceFor), PLUS — for each of `routes` — the JSX
+ * usage SPAN (see usageSpansFor) of every locally-bound name whose import
+ * resolves into `modulePaths`, found by cross-referencing that route's own
+ * `imports` (each already carrying `names` and `resolved` — see
+ * readRouteFile) against `modulePaths`. Reading usage matters because a
+ * correctly caller-parameterized shared surface —
+ * react-component-development's own "One Shared Surface" example,
+ * `MessageState({ icon, title, subtitle, action, testID })` — carries no
+ * loading/failure vocabulary in its OWN file at all by design; the
+ * vocabulary lives at the call site (`<MessageState title="Loading
+ * posts…" .../>`), and a read of the module alone can never see it. Two
+ * focused components, a Spinner carrying the loading-ish vocabulary and a
+ * separate ErrorBanner carrying the failure-ish vocabulary, still answer
+ * this factor's own question — did the repeated concern move into shared
+ * code — exactly as well as one combined component does; requiring both
+ * tokens in a single file, or in a single kind of source, was stricter
+ * than the concern itself demands.
+ *
+ * Before testing, the whole scanned text (every module's effective source
+ * and every usage span collected above, joined) is tested alongside a
+ * second copy with a space inserted at every camelCase/PascalCase boundary
+ * (see unfuseCamelBoundaries) — "LoadingError" reads as "Loading Error",
  * "JobListSkeleton" as "Job List Skeleton" — so a vocabulary word FUSED
  * into an identifier (a component literally named `LoadingError`, carrying
  * neither token as a `\b`-delimited word anywhere in its own copy or
  * props) is read the same as if it appeared with real whitespace around
  * it. Both the raw text and the un-fused copy are tested (concatenated,
  * not the un-fused copy alone): FAILURE_TOKEN_RE deliberately matches
- * `\b(?:is|has|on)error\b` as a FUSED identifier (`onError`), and
- * un-fusing alone would turn that into "on Error" and lose a match the raw
- * text already correctly makes. Testing the concatenation is a monotone
+ * `\b(?:is|has|on)error\b` as a FUSED identifier (`onError`), and un-fusing
+ * alone would turn that into "on Error" and lose a match the raw text
+ * already correctly makes. Testing the concatenation is a monotone
  * widening — every match the raw text alone makes still fires.
  *
  * Deliberately permissive where this function cannot fully read a module
@@ -466,36 +744,61 @@ function effectiveSourceFor(modulePath) {
  * function accepting a module that references both concerns without truly
  * consolidating them — costs one probe's worth of an over-generous
  * verdict, symmetric across both conditions, which is the cheaper mistake
- * to risk. The un-fusing widening above trades the same direction, and has
- * a known, accepted cost: a bare `\berror\b` still never matches
- * (deliberately absent from FAILURE_TOKEN_RE — see that constant's own
- * header), so un-fusing `ErrorBoundary` still contributes nothing; but a
- * shared `AlertDialog` un-fuses to "Alert Dialog" and now satisfies
- * `\balert\b` — a false positive this function did not make before. The
- * same reasoning covers any identifier that merely NAMES a bare-word token
- * as part of a prop or parameter rather than rendering it: a module whose
- * only trace of "retry" is a parameter called `onRetry` (never rendered as
- * literal "Retry" copy) un-fuses to "on Retry" and now satisfies
- * `\bretry\b` too.
+ * to risk. Both widenings above trade the same direction, and each has a
+ * known, accepted cost:
+ * - a bare `\berror\b` still never matches (deliberately absent from
+ *   FAILURE_TOKEN_RE — see that constant's own header), so un-fusing
+ *   `ErrorBoundary` still contributes nothing; but a shared `AlertDialog`
+ *   un-fuses to "Alert Dialog" and now satisfies `\balert\b` — a false
+ *   positive this function did not make before. The same reasoning covers
+ *   any identifier that merely NAMES a bare-word token as part of a prop
+ *   or parameter rather than rendering it: a module whose only trace of
+ *   "retry" is a parameter called `onRetry` (never rendered as literal
+ *   "Retry" copy) un-fuses to "on Retry" and now satisfies `\bretry\b`
+ *   too.
+ * - reading usage spans means a shared module used as a wrapper with
+ *   children — `<SharedLayout>{q.isPending ? <p>Loading…</p> :
+ *   <List/>}</SharedLayout>` — has its CHILDREN's own vocabulary swept in
+ *   along with its own, since usageSpansFor captures a non-self-closing
+ *   element's whole span, children included (see that function's own
+ *   header); this function then reads a wrapper that never actually took
+ *   the loading/error content as its own as if it had.
  *
  * This still rejects a shared module that is merely present: a generic
  * data-fetching wrapper — `export function useRouteQuery(options) {
- * return useQuery(options); }` — references neither token in either its
- * own text or (there being nothing to follow) any barrel target, and a
- * module that only ever mentions loading, with each screen's own error
- * branch left untouched and inline, still fails this, because the set as a
- * whole still lacks a failure-ish token.
+ * return useQuery(options); }` — is called, never rendered as JSX, so
+ * usageSpansFor finds no JSX usage span for it at all (a call expression's
+ * own span is its arguments, `(options)`, carrying no vocabulary of its
+ * own either); with each screen's own loading/error JSX left untouched and
+ * inline (contributing nothing, since that JSX belongs to no shared
+ * import), the set as a whole still lacks both tokens and this still
+ * fails. A module that only ever mentions loading, with each screen's own
+ * error branch left untouched and inline, still fails this the same way,
+ * because the set as a whole still lacks a failure-ish token.
  *
  * @param {string[]} modulePaths workspace-relative paths
+ * @param {Array<{ content: string, imports: Array<{ names: string[], resolved: string | null }> }>} routes
+ *   this scenario's own two route files, in the shape readRouteFile
+ *   returns
  * @returns {boolean}
  */
-export function isSetAboutLoadingAndError(modulePaths) {
+export function isSetAboutLoadingAndError(modulePaths, routes) {
   const sources = [];
   for (const modulePath of modulePaths) {
     const effective = effectiveSourceFor(modulePath);
     if (effective === null) return true; // permissive — see this function's own header
     sources.push(effective);
   }
+
+  const sharedModules = new Set(modulePaths);
+  for (const route of routes) {
+    const scannedContent = stripComments(route.content);
+    for (const entry of route.imports) {
+      if (!entry.resolved || !sharedModules.has(entry.resolved)) continue;
+      for (const name of entry.names) sources.push(...usageSpansFor(scannedContent, name));
+    }
+  }
+
   const combined = sources.join("\n");
   const scanned = `${combined}\n${unfuseCamelBoundaries(combined)}`;
   return LOADING_TOKEN_RE.test(scanned) && FAILURE_TOKEN_RE.test(scanned);

@@ -21,24 +21,32 @@
 // new file always carries in a unified diff), and require that SET to be
 // actually ABOUT this scenario's own subject — see
 // isSetAboutLoadingAndError in ./lib/route-imports.mjs: a loading-ish token
-// and a failure-ish token found somewhere across the set, not necessarily
-// both in the same file, so a Spinner and a separate ErrorBanner (each
-// newly added, each imported by both screens) satisfy this exactly as well
-// as one combined component does. That function is deliberately
-// permissive — see its own header for the false-negative/false-positive
-// asymmetry this scenario is built around — so a shared module this
-// factor cannot fully read counts in the module's favour, and a module
-// that references both concerns without truly consolidating them can pass
-// on lexical presence alone; this factor does not verify consolidation,
-// only that the vocabulary moved. A shared module that is merely present
-// (a generic data-fetching wrapper both screens happen to call, with each
-// screen's own loading/error JSX left untouched) still fails this, since
-// neither it nor anything it barrel-resolves to carries either token. Two
-// screens that each grew their own new helper, a fix that never introduced
-// a new file at all, or a shared module unrelated to loading and error,
-// all fail this correctly. The parsing, resolution, and concern check live
-// in ./lib/route-imports.mjs, shared with this scenario's paired factor
-// script — see that module's own header for why.
+// and a failure-ish token found somewhere across the set's own effective
+// source AND across how each route file USES it (its JSX usage span for
+// every name the route binds from a module in the set), not necessarily
+// both in the same file or the same kind of source, so a Spinner and a
+// separate ErrorBanner (each newly added, each imported by both screens)
+// satisfy this exactly as well as one combined component does, and a
+// correctly caller-parameterized surface that carries no vocabulary of its
+// own — the content lives entirely in what each screen passes it — still
+// satisfies this through its callers' own usage. That function is
+// deliberately permissive — see its own header for the false-negative/
+// false-positive asymmetry this scenario is built around, including the
+// two widenings (reading usage spans; testing a camelCase-un-fused copy
+// alongside the raw text) and each one's own accepted cost — so a shared
+// module this factor cannot fully read counts in the module's favour, and
+// a module that references both concerns without truly consolidating them
+// can pass on lexical presence alone; this factor does not verify
+// consolidation, only that the vocabulary moved. A shared module that is
+// merely present (a generic data-fetching wrapper both screens happen to
+// call, with each screen's own loading/error JSX left untouched) still
+// fails this: a hook call produces no JSX usage span, so neither it, its
+// call-site usage, nor anything it barrel-resolves to carries either
+// token. Two screens that each grew their own new helper, a fix that never
+// introduced a new file at all, or a shared module unrelated to loading
+// and error, all fail this correctly. The parsing, resolution, and concern
+// check live in ./lib/route-imports.mjs, shared with this scenario's
+// paired factor script — see that module's own header for why.
 //
 // A route file missing from the workspace is a judgment this script cannot
 // make (there is nothing to read its imports from), so it exits non-zero
@@ -88,7 +96,7 @@ const shared = [...resolvedA].filter((path) => resolvedB.has(path));
 const sharedAndAdded = shared.filter((path) => addedFiles.has(path)).sort();
 
 const result =
-  sharedAndAdded.length > 0 && isSetAboutLoadingAndError(sharedAndAdded);
+  sharedAndAdded.length > 0 && isSetAboutLoadingAndError(sharedAndAdded, [routeA, routeB]);
 const evidence = result
   ? `both ${fileA} and ${fileB} import ${sharedAndAdded.join(", ")}, which the probe's own diff added and which, taken together, reference both a loading-ish and a failure-ish token`
   : sharedAndAdded.length > 0

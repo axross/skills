@@ -21,9 +21,11 @@
 // The check: find the shared, newly-added module SET that is actually
 // ABOUT this scenario's own subject (same resolution AND same
 // isSetAboutLoadingAndError concern check check-shared-extracted-module.mjs
-// uses, applied to the whole set rather than one file at a time — see
-// ./lib/route-imports.mjs's own header for why and for the deliberate
-// permissiveness that check carries), then for each route file, collect
+// uses, applied to the whole set rather than one file at a time, and
+// itself reading both route files' JSX usage of that set alongside each
+// module's own source — see ./lib/route-imports.mjs's own header for why
+// and for the deliberate permissiveness and widenings that check carries),
+// then for each route file, collect
 // the exact usage SPAN of each identifier it imports from ANY module in
 // that set — a JSX element's own tag and attributes, or a call
 // expression's own arguments, and nothing outside either shape, so a
@@ -87,6 +89,7 @@ import {
   isSetAboutLoadingAndError,
   readRouteFile,
   stripComments,
+  usageSpansFor,
 } from "./lib/route-imports.mjs";
 
 function fail(message) {
@@ -109,259 +112,13 @@ if (typeof diff !== "string") {
   fail("context.material.diff must be a string — this script judges the outcome phase alone.");
 }
 
-/**
- * captures balanced text starting at `openIndex`, where
- * `text[openIndex] === openChar`, tracking nested `openChar`/`closeChar`
- * pairs while skipping their occurrences inside a single-, double-, or
- * backtick-quoted string (so a prop value like `message="Loading (posts)…"`
- * cannot unbalance the scan on its own parenthesis).
- *
- * @param {string} text
- * @param {number} openIndex
- * @param {string} openChar
- * @param {string} closeChar
- * @returns {number | null} the index just past the matching `closeChar`, or
- *   null if the text ends before the nesting returns to zero
- */
-function captureBalanced(text, openIndex, openChar, closeChar) {
-  let depth = 0;
-  let quote = null;
-  let i = openIndex;
-  while (i < text.length) {
-    const ch = text[i];
-    if (quote) {
-      if (ch === "\\") {
-        i += 2;
-        continue;
-      }
-      if (ch === quote) quote = null;
-      i++;
-      continue;
-    }
-    if (ch === '"' || ch === "'" || ch === "`") {
-      quote = ch;
-      i++;
-      continue;
-    }
-    if (ch === openChar) depth++;
-    else if (ch === closeChar) {
-      depth--;
-      if (depth === 0) return i + 1;
-    }
-    i++;
-  }
-  return null;
-}
-
-/**
- * finds the end of a JSX element's OPEN TAG — the `>` (or `/>`) that
- * actually closes it — starting at `start`, the index right after the tag
- * name. A `>` only terminates the tag when it is at JSX-expression-
- * container depth 0 AND outside any quoted span: an attribute value can
- * itself carry a `>` that means something else entirely — `=>` in a prop
- * like `onRetry={() => query.refetch()}`, a comparison in
- * `showRetry={attempts > 2}`, or a literal character in `title="Drafts >
- * 10"` — and none of those may be read as the tag's own close. Container
- * depth is tracked via `{`/`}` (an attribute's `{expression}`); inside a
- * quote, `{`/`}`/`>` are all inert until the matching close, the same
- * string-skipping stripComments in the sibling lib/route-imports.mjs
- * already does for its own scan (escapes respected; a backtick's own
- * `${…}` holes are not specially re-entered as code, matching that same
- * precedent — not a concern for the flat prop values this scenario's
- * subject produces).
- *
- * @param {string} text
- * @param {number} start
- * @returns {{ end: number, selfClosing: boolean } | null} `end` is the
- *   index of the terminating `>` itself; null if the tag never closes
- *   before the text ends
- */
-function findOpenTagEnd(text, start) {
-  let i = start;
-  let quote = null;
-  let depth = 0;
-  while (i < text.length) {
-    const ch = text[i];
-    if (quote) {
-      if (ch === "\\") {
-        i += 2;
-        continue;
-      }
-      if (ch === quote) quote = null;
-      i++;
-      continue;
-    }
-    if (ch === '"' || ch === "'" || ch === "`") {
-      quote = ch;
-      i++;
-      continue;
-    }
-    if (ch === "{") {
-      depth++;
-      i++;
-      continue;
-    }
-    if (ch === "}") {
-      depth = Math.max(0, depth - 1);
-      i++;
-      continue;
-    }
-    if (ch === ">" && depth === 0) {
-      return { end: i, selfClosing: text[i - 1] === "/" };
-    }
-    i++;
-  }
-  return null;
-}
-
-/**
- * captures one JSX element occurrence starting at `ltIndex`, where
- * `text[ltIndex] === "<"` and the tag name immediately following is `name`.
- * Returns the element's own source text — `<Name .../>` or
- * `<Name ...>...</Name>` — never anything before the `<` or after the
- * matching close, so a surrounding `if (...) return`, `&&` guard, or
- * trailing `;` never reaches the captured span. A same-named child element
- * nested inside is tracked (a depth count) rather than assumed away, though
- * this scenario's own subject — a leaf surface component taking its content
- * as props — is not expected to nest itself.
- *
- * The children scan is both expression-string-aware and self-closing-aware,
- * extended from the two things findOpenTagEnd already tracks for the OPEN
- * tag. A `{...}` expression container a child passes through can itself
- * hold a quoted string shaped exactly like this element's own closing tag
- * — `{"See the </LoadingError> tag"}` — which an unguarded
- * `text.startsWith(closeTag, i)` would read as the real close and truncate
- * the capture right there; quote-tracking is scoped to INSIDE a `{...}`
- * container specifically (an `exprDepth` counter, separate from the
- * element-nesting `depth` below), not to the children region as a whole,
- * because plain JSX text is not itself quoted the way an attribute value or
- * a JS string literal is — "Couldn't load posts." carries an apostrophe
- * that is not a string delimiter, and treating it as one would swallow
- * everything after it looking for a closing quote that will never come.
- * Separately, a nested SAME-NAMED element that is itself self-closing
- * (`<LoadingError text="inner" />`) contributes no `</LoadingError>` of its
- * own, so naively incrementing `depth` on every `<LoadingError` occurrence
- * — self-closing or not — leaves depth one too high and the scan runs past
- * the real close looking for a second one that does not exist, returning
- * null for an element that closed just fine; a nested `<name` occurrence is
- * resolved with findOpenTagEnd itself, the same reader the outer tag uses,
- * before deciding whether it opens a new depth level.
- *
- * @param {string} text
- * @param {number} ltIndex
- * @param {string} name
- * @returns {string | null} the whole element's source text, or null if the
- *   opening tag or a required closing tag never resolves before the text
- *   ends
- */
-function captureJsxElement(text, ltIndex, name) {
-  const openTag = findOpenTagEnd(text, ltIndex + 1 + name.length);
-  if (!openTag) return null; // the opening tag itself never closed
-  if (openTag.selfClosing) return text.slice(ltIndex, openTag.end + 1);
-
-  let depth = 1;
-  let i = openTag.end + 1; // past the '>'
-  const closeTag = `</${name}>`;
-  let quote = null;
-  let exprDepth = 0; // depth of {...} expression containers within children
-  while (i < text.length) {
-    const ch = text[i];
-    if (quote) {
-      if (ch === "\\") {
-        i += 2;
-        continue;
-      }
-      if (ch === quote) quote = null;
-      i++;
-      continue;
-    }
-    if (exprDepth > 0) {
-      if (ch === '"' || ch === "'" || ch === "`") {
-        quote = ch;
-        i++;
-        continue;
-      }
-      if (ch === "{") {
-        exprDepth++;
-        i++;
-        continue;
-      }
-      if (ch === "}") {
-        exprDepth--;
-        i++;
-        continue;
-      }
-      i++;
-      continue;
-    }
-    if (ch === "{") {
-      exprDepth++;
-      i++;
-      continue;
-    }
-    if (text.startsWith(closeTag, i)) {
-      depth--;
-      i += closeTag.length;
-      if (depth === 0) return text.slice(ltIndex, i);
-      continue;
-    }
-    if (text.startsWith(`<${name}`, i)) {
-      const nestedOpen = findOpenTagEnd(text, i + 1 + name.length);
-      if (nestedOpen) {
-        if (!nestedOpen.selfClosing) depth++;
-        i = nestedOpen.end + 1;
-        continue;
-      }
-      // the nested tag's own open never closed either — fall through to
-      // the default single-character advance, the same "no matching close
-      // before the text ends" outcome this function already returns for
-      // that shape at the top level.
-    }
-    i++;
-  }
-  return null; // no matching close before the text ends
-}
-
-/**
- * every usage SPAN of `name` in `text` — the JSX element it opens
- * (`<name .../>` or `<name ...>...</name>`), or the call expression it
- * opens (`name(...)`) — and nothing outside either shape. A bare reference
- * (neither shape: a type position, a value passed by name alone) contributes
- * nothing, since this factor cares about how the shared surface is actually
- * invoked, not every mention of its name. `text` is expected to already be
- * comment-stripped (see usageTextFor's own call site, and
- * lib/route-imports.mjs's stripComments): this function has no comment
- * awareness of its own, so a caller that fed it raw source would have a
- * code comment merely MENTIONING the component in tag shape —
- * "// See <LoadingError message=\"...\" /> for the older shape." — read as
- * a real usage span, exactly the shape a genuine flattening this factor
- * exists to catch could hide behind.
- *
- * @param {string} text
- * @param {string} name
- * @returns {string[]}
- */
-function usageSpansFor(text, name) {
-  const spans = [];
-  const nameRe = new RegExp(`\\b${name}\\b`, "g");
-  let match;
-  while ((match = nameRe.exec(text))) {
-    const start = match.index;
-    if (text[start - 1] === "<") {
-      const span = captureJsxElement(text, start - 1, name);
-      if (span) spans.push(span);
-      continue;
-    }
-    let j = start + name.length;
-    while (j < text.length && /\s/.test(text[j])) j++;
-    if (text[j] === "(") {
-      const end = captureBalanced(text, j, "(", ")");
-      if (end !== null) spans.push(text.slice(start, end));
-    }
-    // else: a bare reference — not this factor's concern.
-  }
-  return spans;
-}
+// captureBalanced, findOpenTagEnd, captureJsxElement, and usageSpansFor —
+// the JSX/call usage-span capture this factor was built around — now live
+// in ./lib/route-imports.mjs (imported above), a move rather than a
+// reimplementation: isSetAboutLoadingAndError needs the exact same reader
+// to see how each route file USES a shared module, not only the module's
+// own text (see that function's own header), and this factor's own
+// usageTextFor below still calls usageSpansFor the same way it always did.
 
 /** collapses whitespace runs to a single space and trims. */
 const collapseWhitespace = (text) => text.replace(/\s+/g, " ").trim();
@@ -394,7 +151,7 @@ const resolvedA = new Set(routeA.imports.map((entry) => entry.resolved).filter(B
 const resolvedB = new Set(routeB.imports.map((entry) => entry.resolved).filter(Boolean));
 const sharedAndAdded = [...resolvedA].filter((path) => resolvedB.has(path) && addedFiles.has(path)).sort();
 const aboutConcern =
-  sharedAndAdded.length > 0 && isSetAboutLoadingAndError(sharedAndAdded);
+  sharedAndAdded.length > 0 && isSetAboutLoadingAndError(sharedAndAdded, [routeA, routeB]);
 
 if (!aboutConcern) {
   const evidence =
