@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8679c0d85663c75deddf0f612c02bd0323e54ae11e98aa82cd1683ce50651acd"
+      "computedHash": "e07e1bdd222a7862bca68fbcce31cf5b52f73f4b66c6eb78ede2211f22d38f5f"
     },
     "agent-skill-management": {
       "source": "./skills",
@@ -24,12 +24,12 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c6cc7e9d96a38fdacedcf488bc281812aa41ff4ae7f59fff0fd32a107656b9ad"
+      "computedHash": "c8773317aa8e0dd4de859ae9285b5cbef0cab9f8cd4426845ee50caab3159048"
     },
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "72de5c8e8c255a4b9fac24b4d40155c7227f27c850a49949d60cddbc1419b076"
+      "computedHash": "aaea1e1d38d5d171e2adc0bab8bc1fa1962dbb6de0e9ca599fa68406803b141e"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -64,7 +64,7 @@
     "living-project-documentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "d7d110990a78e60bc5880c15f8c71768a5d383523522237406e93561eb78e6b9"
+      "computedHash": "6d1cd7e6f3bdf244bc7034e3cb1f68b2d1a07517f61ae99c284354d573a02620"
     },
     "loop-engineering": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "cfd9f9c41a02f0cb3e8ededc203463a6d3449074751fbbe2fac4cbe94948829b"
+      "computedHash": "1071e46091fdc72eeba258be7b99df6b6d333e69bffd3b1788930df0bb9747ba"
     },
     "quality-assurance": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6e4422c7e892b0c42d5cccd7d0448c06c2c36d4568a59296f93a7cce09078157"
+      "computedHash": "18c3d9507915e787c29d890186d538fbce41564eb2e8df9e3c5e94737bb87558"
     },
     "sentry-instrumentation": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "96bcc17a2ddafaff8f75cdd2cdc3993d347b39a4d447798a448e61b9e4dc03f4"
+      "computedHash": "70180d0b59e36bacaf7fcc86cbb5eed2fc4211fbdc37fda8578d7ec4fd6eb584"
     },
     "software-instrumentation": {
       "source": "./skills",

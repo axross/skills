@@ -220,10 +220,27 @@ mock projects. Grouped here by which:
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`restore-real-file-names-in-production-stack-traces`](../../tools/evaluation/scenarios/restore-real-file-names-in-production-stack-traces/)
+  targets `sentry-instrumentation`, alongside `software-instrumentation` and
+  `software-development` as peers, and is the first scenario in the tree to
+  declare a `patch`: a unified diff that turns off `inkwell`'s working
+  source-map upload, applied at materialization rather than shipped in the
+  mock. Every factor, including its transcript factor, is judged by script —
+  see [Skill Evaluation](../specs/skill-evaluation.md) on `patch`, and
+  [Directory Structure](../conventions/directory-structure.md) for the
+  convention it follows.
+- [`run-the-toast-tests-the-suite-never-collects`](../../tools/evaluation/scenarios/run-the-toast-tests-the-suite-never-collects/)
+  targets `vitest-testing`, alongside `unit-testing` and `software-development`
+  as peers, and likewise declares a `patch`: one that adds a real-DOM test for
+  `PublishToast` named so it matches neither Vitest project's own `include`.
+  Its two outcome factors are textual, structural reads of `vitest.config.ts`
+  rather than a glob evaluator, and its transcript factor, like the sentry
+  scenario's, is judged by script.
 
-Together these four exercise every path through the three scripts above:
-every phase, both judgment methods, and a scenario that omits a phase
-entirely.
+The `inkwell` group is what exercises every path through the three scripts
+above: every phase, both judgment methods, a scenario that omits a phase
+entirely, and — the last two add — a scenario whose mock is patched before a
+probe or the offline check under `tests/repository/` ever sees it.
 
 ### Against `recall`
 
@@ -240,6 +257,11 @@ entirely.
   carries a `discovery` factor and two `outcome` factors, claiming the other
   gap that same list names for `recall`: nothing in the app has a disabled
   state.
+
+Neither `recall` scenario declares a `patch` or a `transcript` factor, so the
+pair adds no path the `inkwell` group does not already cover. What it adds is
+a second mock: the first scenarios declared against a project that is not
+`inkwell`.
 
 Authoring further scenarios against `inkwell`'s remaining catalogued
 subjects, and against this repository's other mocks, is separate, later
