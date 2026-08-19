@@ -89,7 +89,7 @@ Doc-comments carry the API-level documentation, written in the project's doc-com
 **Guidelines:**
 
 - MUST give every exported/public type definition, and every function whose body exceeds ~5 lines, a doc-comment in the project's doc-comment standard stating what it is or does.
-- MUST treat a module- or file-level comment as a doc-comment regardless of the syntax carrying it, so neither the line-comment-form rule nor the length ceiling in Explanatory Comments below reaches it.
+- MUST treat a module- or file-level comment as a doc-comment regardless of the syntax carrying it, so neither the line-comment-form rule nor the length budget in Explanatory Comments below reaches it.
 - MUST document the conditions under which a function throws, using the standard's throws tag (e.g., `@throws`), where the language uses unchecked exceptions; where an error reaches the caller as a value in the signature instead — a `Result` type, a `(value, error)` return pair, a typed union in the return type — the signature already states the condition, and no comment is owed on top of it.
 - MUST NOT restate, in a documentation tag, a type the language's own type system already carries, in a statically typed language — a `@param {string} name` beside a parameter the signature already types as `string` repeats a fact the compiler already checks. This does not reach a language with no static type system to restate, such as plain JavaScript's existing `@param` usage.
 - SHOULD add parameter/return documentation only when the name and type do not already make the meaning obvious; do NOT add restating noise.
