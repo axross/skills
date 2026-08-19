@@ -624,6 +624,27 @@ function findUrlCallEnd(text, start) {
 }
 
 /**
+ * blanks the encoded bytes of a base64 `data:` payload within one url()
+ * span, length-preserving, leaving every other character in place.
+ *
+ * A url() payload is otherwise left whole deliberately — see
+ * blankQuotedStringContents's own header: a data URI's embedded SVG really
+ * does paint pixels, so a colour declared inside it is a declared colour.
+ * Base64 is the exception, because it is opaque bytes rather than text. A
+ * colour word matched inside an encoded blob is an artefact of the
+ * encoding, not something the page renders, and base64's own `+`, `/` and
+ * `=` characters supply the word boundaries that make such a match likely
+ * in a long enough payload — enough to push a sketch that declared no
+ * fourth hue over this factor's own ceiling. A payload that is not base64,
+ * such as `data:image/svg+xml,` or `;utf8,` markup, keeps being read.
+ * @param {string} urlSpan
+ * @returns {string}
+ */
+function blankBase64Payload(urlSpan) {
+  return urlSpan.replace(/(;base64,)([^)"']*)/i, (whole, marker, encoded) => marker + " ".repeat(encoded.length));
+}
+
+/**
  * blanks the CONTENTS of every quoted string in `text` (single-, double-,
  * or backtick-quoted; escapes respected), keeping the quote characters and
  * every other character in place, so the result is safe to scan for a
@@ -674,7 +695,7 @@ function blankQuotedStringContents(text) {
     }
     if (isUrlCallStart(text, i)) {
       const end = findUrlCallEnd(text, i + 4);
-      out += text.slice(i, end);
+      out += blankBase64Payload(text.slice(i, end));
       i = end;
       continue;
     }
