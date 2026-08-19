@@ -221,8 +221,7 @@ function runJudgeProcess({ argv, cwd, env, spawnFn, timeoutMs = JUDGE_TIMEOUT_MS
     // guarded rather than left to the executor: an executor that throws
     // synchronously produces a REJECTED promise, not an `{ error }` result,
     // and spawn() does throw synchronously for some malformed options (a
-    // non-string cwd, for instance) — "spawn only ever emits an error
-    // event" holds for ENOENT/EACCES but is not universal.
+    // non-string cwd, for instance).
     let child;
     try {
       child = spawnFn("claude", argv, { cwd, env });
@@ -250,9 +249,7 @@ function runJudgeProcess({ argv, cwd, env, spawnFn, timeoutMs = JUDGE_TIMEOUT_MS
 
     // optional-chained the same way `stderr`'s handlers already are: a
     // `spawnFn` that returns a child with no `stdout` (a `stdio` override, a
-    // malformed test double) must not throw inside this executor — see F2
-    // of the second review round, which is also why `callReasoningJudge`
-    // wraps this whole call in its own `catch` as a second line of defense.
+    // malformed test double) must not throw inside this executor.
     child.stdout?.setEncoding("utf8");
     child.stdout?.on("data", (chunk) => {
       stdout += chunk;
@@ -290,7 +287,7 @@ function runJudgeProcess({ argv, cwd, env, spawnFn, timeoutMs = JUDGE_TIMEOUT_MS
  * the `runJudgeProcess` call below is also wrapped in its own `catch`, even
  * though that function is designed to never reject: a belt-and-braces line
  * of defense that does not depend on tracing every reachable path through
- * it correctly (see F2 of the second review round).
+ * it correctly.
  *
  * @param {{
  *   model: string,

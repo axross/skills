@@ -186,14 +186,10 @@ describe("evaluateMeasurement — the committed fixture", () => {
     expect(reasoning.judge).toEqual({ model: "anthropic/claude-haiku-4-5-20251001", route: "claude-code-cli" });
   });
 
-  // integration-level regression (fix round 1, F1/F2): the reasoning
-  // judge's own failure — at the spawn stage or at the envelope-parsing
-  // stage — must never abort evaluateMeasurement, never cost the current
-  // probe its already-computed factors, and never cost a later probe its
-  // judgment. This is the level the plan's "never aborts another factor's
-  // judgment" criterion actually lives at; a unit test on judge.mjs alone
-  // cannot show that evaluateMeasurement's two probes and four factors per
-  // probe all still complete.
+  // a reasoning judge's own failure — at the spawn stage or the
+  // envelope-parsing stage — must never abort evaluateMeasurement, never
+  // cost the current probe its already-computed factors, and never cost a
+  // later probe its judgment.
   it("a reasoning judge that fails at the spawn stage still yields every other factor of every probe", async () => {
     const measurementDir = await copyFixture();
     const throwingSpawn = spawnFnThrowSync("EINVAL: spawn options were malformed");

@@ -4,19 +4,26 @@
 
 import { tmpdir } from "node:os";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   spawnFnEnvelope,
   spawnFnError,
   spawnFnExit,
   spawnFnHangs,
+  spawnFnHangsThenReportsAfterKill,
   spawnFnNullStdio,
   spawnFnStdout,
   spawnFnThrowSync,
 } from "./helpers/fake-judge-process.mjs";
+import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
 import { bareModel, buildJudgeArgv, callReasoningJudge, parseVerdict } from "../../tools/evaluation/src/judge.mjs";
 import { ALLOWED_TOOLS, DISALLOWED_TOOLS } from "../../tools/evaluation/src/probe-process.mjs";
+
+// spy-mode (not a replacing factory): every node:fs/promises call keeps its
+// real behavior unless a test explicitly overrides one — see
+// helpers/planted-cleanup-failure.mjs.
+vi.mock(import("node:fs/promises"), { spy: true });
 
 describe("bareModel", () => {
   it("strips a vendor prefix", () => {
@@ -102,11 +109,10 @@ describe("buildJudgeArgv", () => {
     expect(denied.sort()).toEqual([...ALLOWED_TOOLS, ...DISALLOWED_TOOLS].sort());
   });
 
-  // F1(a), round 2: DENIED_TOOLS is a scoped allowlist-plus-denylist authored
-  // for a trusted PROBE, never a census of the CLI's built-ins — it cannot
-  // enumerate every tool that could exist. An empty `--allowed-tools` closes
-  // that gap by construction: anything not explicitly allowed is refused,
-  // regardless of what --disallowed-tools does or does not name.
+  // DENIED_TOOLS is a scoped allowlist-plus-denylist authored for a
+  // trusted probe, not a census of the CLI's own built-ins, so it cannot
+  // enumerate every tool that could exist. An empty `--allowed-tools`
+  // closes that gap by construction: anything unlisted is refused.
   it("also passes an empty --allowed-tools, so anything unlisted is refused by construction", () => {
     const argv = buildJudgeArgv({ userPrompt: "x", model: "m", systemPrompt: "s" });
     expect(argv).toEqual(expect.arrayContaining(["--allowed-tools", ""]));
@@ -164,12 +170,10 @@ describe("callReasoningJudge", () => {
     expect(outcome).toEqual({ error: expect.stringContaining("ENOENT") });
   });
 
-  // F1: spawn() itself can throw synchronously (a non-string cwd, for
-  // instance) rather than only ever emitting an async "error" event. A
-  // spawnFn that throws synchronously must resolve to `{ error }` — never
-  // reject — on the same footing as the async path above. Asserted with
-  // `resolves`, not `rejects`, since a rejection here is exactly the defect
-  // this guards against.
+  // spawn() itself can throw synchronously (a non-string cwd, for instance)
+  // rather than only ever emitting an async "error" event. Asserted with
+  // `resolves`, not `rejects`, since a rejection here is exactly the
+  // defect this guards against.
   it("returns an error, never rejects, when spawnFn itself throws synchronously", async () => {
     const spawnFn = spawnFnThrowSync("EINVAL: spawn options were malformed");
     await expect(
@@ -183,7 +187,7 @@ describe("callReasoningJudge", () => {
     expect(outcome).toEqual({ error: expect.stringContaining("could not authenticate") });
   });
 
-  // F3: the HTTP path this replaced bounded a non-200 response body to 500
+  // the HTTP path this replaced bounded a non-200 response body to 500
   // characters (`body.slice(0, 500)`); a non-zero exit's stderr must carry
   // the same bound, or a runaway `claude` stderr bloats a stored
   // factors.json without limit.
@@ -222,12 +226,10 @@ describe("callReasoningJudge", () => {
     expect(outcome).toEqual({ error: expect.stringContaining('no readable "result" string') });
   });
 
-  // F2: JSON.parse succeeds for a JSON value that is not an object — the
-  // literal `null` being the plausible case for a misbehaving CLI. Reading
-  // `envelope.is_error` off `null` would throw a TypeError inside the
-  // "close" listener, which is NOT converted into a promise rejection and
-  // would take the whole evaluate.mjs process down. Neither case may reject
-  // or throw; both must resolve to `{ error }`.
+  // JSON.parse succeeds for a JSON value that is not an object — `null` is
+  // the plausible case for a misbehaving CLI. Reading `envelope.is_error`
+  // off `null` would throw a TypeError inside the "close" listener, never
+  // converted into a promise rejection, taking evaluate.mjs down with it.
   it("returns an error, never throws, when stdout parses as JSON null", async () => {
     const spawnFn = spawnFnStdout("null\n");
     await expect(
@@ -242,12 +244,10 @@ describe("callReasoningJudge", () => {
     ).resolves.toEqual({ error: expect.stringContaining("not an object") });
   });
 
-  // F3, round 2: the exit-code branch bounds its own detail to 500
-  // characters; the non-object-envelope branch beside it must carry the
-  // same bound, or a large non-object payload (a long JSON string
-  // primitive, say — `typeof "x" !== "object"`, so it still lands in this
-  // branch, not the subtype check further down) lands in a stored
-  // factors.json whole.
+  // the exit-code branch above bounds its own detail to 500 characters;
+  // the non-object-envelope branch beside it must carry the same bound, or
+  // a large non-object payload (a long JSON string primitive, say) lands
+  // in a stored factors.json whole.
   it("bounds a non-object envelope's error message the same way a non-zero exit's is bounded", async () => {
     const runawayString = JSON.stringify("x".repeat(10_000));
     const spawnFn = spawnFnStdout(`${runawayString}\n`);
@@ -273,12 +273,10 @@ describe("callReasoningJudge", () => {
     expect(outcome).toEqual({ result: true, evidence: "fenced" });
   });
 
-  // F1(b), round 2: evaluateMeasurement judges every factor of every probe
-  // sequentially in one process, so a judge that never exits would
-  // otherwise cost every remaining factor and probe its judgment. A real
-  // short timeoutMs (rather than fake timers) is used here so the test
-  // itself proves the wall clock actually elapses and the promise actually
-  // settles, not just that a timer API was called.
+  // evaluateMeasurement judges every factor of every probe sequentially in
+  // one process, so a judge that never exits would cost every remaining
+  // factor and probe its judgment. A real short timeoutMs (not fake
+  // timers) proves the wall clock actually elapses and the promise settles.
   it("kills the child and resolves { error } naming the timeout, when the judge never finishes", async () => {
     const child = spawnFnHangs()();
     const spawnFn = () => child;
@@ -293,14 +291,49 @@ describe("callReasoningJudge", () => {
     expect(child.killSignal).toBe("SIGTERM");
   });
 
-  // F2, round 2: a spawnFn that hands back a child with `stdout: null` (a
-  // `stdio` override, a malformed test double) must not throw inside the
-  // executor — the "never rejects" guarantee has to hold structurally, not
-  // only for the paths this file happens to exercise.
+  // a killed child can still emit "close" afterward — a signal does not
+  // terminate a process instantly. That belated close must not overwrite
+  // the timeout's own `{ error }`, even when it carries a real verdict.
+  it("keeps the timeout's own error when the killed child later closes with a real verdict", async () => {
+    const spawnFn = spawnFnHangsThenReportsAfterKill({
+      result: '{"result": true, "evidence": "arrived too late"}',
+    });
+    const outcome = await callReasoningJudge({
+      ...base,
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+      spawnFn,
+      timeoutMs: 30,
+    });
+    expect(outcome).toEqual({ error: expect.stringContaining("30ms") });
+  });
+
+  // a spawnFn that hands back a child with `stdout: null` (a `stdio`
+  // override, a malformed test double) must not throw inside the executor
+  // — the "never rejects" guarantee has to hold structurally, not only for
+  // the paths this file happens to exercise.
   it("resolves { error } rather than rejecting, when the child's stdout is null", async () => {
     const spawnFn = spawnFnNullStdio();
     await expect(
       callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn }),
     ).resolves.toEqual({ error: expect.stringContaining("not a single JSON object") });
+  });
+
+  // a judge-cwd- removal failure must not cost the verdict already decided
+  // — the same parity with runScriptJudgment's own scratch-directory
+  // cleanup this module's own doc comment claims.
+  it("returns the verdict, carrying a cleanup warning, when the judge's working directory cleanup fails", async () => {
+    const spawnFn = spawnFnEnvelope({ result: '{"result": true, "evidence": "stated plainly"}' });
+    const cleanup = await plantCleanupFailure({ pathIncludes: "judge-cwd-" });
+
+    try {
+      const outcome = await callReasoningJudge({ ...base, env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" }, spawnFn });
+
+      expect(cleanup.triggered).toBe(true);
+      expect(outcome).toMatchObject({ result: true, evidence: "stated plainly" });
+      expect(outcome.cleanupWarning).toMatch(/could not remove/);
+      expect(outcome.cleanupWarning).toMatch(/planted cleanup failure/);
+    } finally {
+      cleanup.restore();
+    }
   });
 });

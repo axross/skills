@@ -112,6 +112,32 @@ export function spawnFnHangs() {
 }
 
 /**
+ * a spawnFn whose child never emits "close" on its own, but does — with a
+ * well-formed, readable verdict — once `kill()` is called, mirroring a real
+ * killed process whose "close" event can still arrive after the signal
+ * that ended it. Drives `runJudgeProcess`'s `settled` guard: the timeout's
+ * own `{ error }` must survive this belated close, never be overwritten by
+ * whatever the close event reports.
+ */
+export function spawnFnHangsThenReportsAfterKill({ result }) {
+  return () => {
+    const child = fakeJudgeChild();
+    const kill = child.kill;
+    child.kill = (signal) => {
+      kill(signal);
+      queueMicrotask(() => {
+        child.stdout.emit(
+          "data",
+          `${JSON.stringify({ type: "result", subtype: "success", is_error: false, result })}\n`,
+        );
+        child.emit("close", 0);
+      });
+    };
+    return child;
+  };
+}
+
+/**
  * a spawnFn whose child has `stdout: null` (and `stderr: null`) — the shape
  * a `stdio` override, or a malformed test double, could hand back — then
  * exits 0 with nothing captured. Exercises that `runJudgeProcess`
