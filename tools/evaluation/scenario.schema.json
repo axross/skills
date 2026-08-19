@@ -118,7 +118,7 @@
       "type": "string",
       "minLength": 1,
       "pattern": "^[^/]",
-      "$comment": "a non-empty path relative to the scenario's own directory. deliberately carries no description, for the same reason as skillName."
+      "$comment": "a non-empty path relative to the scenario's own directory. deliberately carries no description, for the same reason as skillName. this pattern rejects only an absolute path, so a judgment script's \"../../judgments/<name>.mjs\" — the shared home a script used by more than one scenario lives in — already validates here without a schema change; see tools/evaluation/judgments/ and docs/conventions/directory-structure.md."
     },
     "factor": {
       "type": "object",
@@ -205,7 +205,7 @@
             }
           ],
           "pattern": "\\.mjs$",
-          "description": "a script judgment's \"script\" must name a module relative to the scenario's own directory."
+          "description": "a script judgment's \"script\" must name a module relative to the scenario's own directory. A script used by exactly one scenario lives in that scenario's own scripts/ and is named relative to it (e.g. \"scripts/check-something.mjs\"); a script more than one scenario names lives in tools/evaluation/judgments/ instead and is referenced from there (e.g. \"../../judgments/check-something.mjs\")."
         },
         "input": {
           "$ref": "#/$defs/input"

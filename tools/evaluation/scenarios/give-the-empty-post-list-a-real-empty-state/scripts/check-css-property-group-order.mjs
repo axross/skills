@@ -30,9 +30,9 @@
 // convention it never wrote any properties into, so that is reported as a
 // real `false` rather than treated as unjudgeable. A model that touches a
 // CSS Module but writes only properties this reference does not cover is a
-// genuinely different situation — this script cannot tell whether an
-// unrecognized-only change followed the taught order or not — so that case
-// exits non-zero, an error rather than a guessed verdict.
+// real `false` too: the added lines are there to read, and none of them is
+// a declaration this reference places in a group, so nothing in them can
+// have followed the taught order.
 //
 // A subtlety a first version of this script got wrong: `git diff`'s added
 // lines for one file are not one contiguous stretch of that file. Two
@@ -262,10 +262,9 @@ for (const file of touchedFiles) {
 }
 
 if (!sawAnyRecognizedAnywhere) {
-  fail(
-    `the diff's added lines in ${touchedFiles.join(", ")} contain no declaration this reference places in a group — ` +
-      "this factor has nothing recognizable to judge.",
-  );
+  const evidence = `the diff's added lines in ${touchedFiles.join(", ")} contain no declaration this reference places in a group.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 const result = allViolations.length === 0;

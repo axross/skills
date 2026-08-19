@@ -15,7 +15,9 @@
 // marker text no longer names, will not be found by this script — a known
 // limitation of a marker-scoped substring search, not a claim that this
 // factor can tell "fixed" apart from "refactored into something this script
-// no longer recognizes".
+// no longer recognizes". Either marker missing from the file is a real
+// `false` for the same reason: the file is there and readable, and the
+// region this factor would check simply is not in it.
 //
 // usage: node check-function-contains.mjs <context.json>
 
@@ -59,15 +61,15 @@ try {
 
 const start = content.indexOf(startMarker);
 if (start === -1) {
-  fail(
-    `${file} does not contain the start marker ${JSON.stringify(startMarker)} — this factor cannot locate the region it judges.`,
-  );
+  const evidence = `${file} does not contain the start marker ${JSON.stringify(startMarker)}.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 const end = content.indexOf(endMarker, start + startMarker.length);
 if (end === -1) {
-  fail(
-    `${file} does not contain the end marker ${JSON.stringify(endMarker)} after the start marker — this factor cannot locate the region it judges.`,
-  );
+  const evidence = `${file} does not contain the end marker ${JSON.stringify(endMarker)} after the start marker.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 const region = content.slice(start, end);

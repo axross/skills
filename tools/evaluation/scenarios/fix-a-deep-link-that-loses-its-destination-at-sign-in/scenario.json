@@ -18,7 +18,7 @@
       "description": "The complaint states a symptom in the product owner's own words — a link that works once signed in but loses its destination when it has to detour through sign-in first — and names no mechanism: no router, no redirect, no route, no config. An agent that reaches for expo-app-development here is finding it from the problem, with react-component-development (a component-behaviour read of a mobile navigation complaint) and application-security (an access-control read of an auth-gating complaint) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "expo-app-development" }
       }
     },

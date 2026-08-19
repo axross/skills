@@ -18,7 +18,7 @@
       "description": "The prompt asks what a sign-off would be taking on trust — the shape of an evidence-adequacy question, naming no skill. An agent that reaches for quality-assurance here is finding it from the situation, with code-review (a 'what would I raise about the code' read of the same commit) and unit-testing (a 'which test is missing' read of the same gap) sitting right there as competing, plausible-looking picks — the same two skills go-through-the-routes-commit-before-anyone-else-does uses as this scenario's own near-neighbors, on a different commit and a differently framed question.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "quality-assurance" }
       }
     },
@@ -28,7 +28,7 @@
       "description": "quality-assurance's own verification-evidence rules require evidence that the project's format and lint commands ran, before a change is called verified — a claim of 'it's finished' is not itself evidence. This factor checks the agent's own text for a mention of inkwell's format and lint commands as evidence a sign-off would still need, so an answer that lists only functional risk, without naming the gate a reviewer would still have to run, does not satisfy it.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-mentions-all.mjs",
+        "script": "../../judgments/check-transcript-mentions-all.mjs",
         "input": {
           "mustMentionEachOf": [
             ["format:check", "run format"],

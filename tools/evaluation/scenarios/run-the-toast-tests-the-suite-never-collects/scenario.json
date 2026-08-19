@@ -18,7 +18,7 @@
       "description": "The report names neither the runner, the config, globs, nor project collection — an agent that reaches for vitest-testing here is finding it from the report, with unit-testing (a testing-shaped read of the same report) and software-development (a project-commands read of it) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "vitest-testing" }
       }
     },
@@ -46,9 +46,9 @@
       "description": "A file renamed into the browser project can still be produced by an agent that tried names until the suite reported it, without ever registering why the original name was invisible to every project. This is a script judgment, not a reasoning one — tracking issue #431 records why — and greps the transcript for whether the agent's own words name the actual cause, that the file matched no project's own collection pattern, as distinct from a transcript that only describes renaming it.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-mentions.mjs",
+        "script": "../../judgments/check-transcript-mentions.mjs",
         "input": {
-          "mustContainAny": [
+          "anyOf": [
             "include pattern",
             "collection pattern",
             "doesn't match",

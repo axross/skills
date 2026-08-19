@@ -17,7 +17,10 @@
 // looks for Markdown's own ordered-list syntax, not for "reads like a
 // procedure" in general, and docs/deployment.md carries no ordered list
 // anywhere in the mock today, so producing the syntax itself is something a
-// treatment run has to do rather than copy from local precedent.
+// treatment run has to do rather than copy from local precedent. A
+// "## Rolling back" heading that is gone entirely reads the same way: no
+// section, so no ordered list in it either, which is `false` rather than a
+// judgment this script could not make.
 //
 // usage: node check-rollback-ordered-list.mjs <context.json>
 
@@ -59,9 +62,9 @@ try {
 
 const section = sectionAfter(content, SECTION_HEADING);
 if (section === null) {
-  fail(
-    `${DEPLOYMENT_DOC} no longer has a ${JSON.stringify(SECTION_HEADING)} heading — this factor cannot locate the section it judges.`,
-  );
+  const evidence = `${DEPLOYMENT_DOC} no longer has a ${JSON.stringify(SECTION_HEADING)} heading, so it carries no ordered list either.`;
+  process.stdout.write(`${JSON.stringify({ result: false, evidence })}\n`);
+  process.exit(0);
 }
 
 const items = section.split("\n").filter((line) => ORDERED_LIST_ITEM.test(line));

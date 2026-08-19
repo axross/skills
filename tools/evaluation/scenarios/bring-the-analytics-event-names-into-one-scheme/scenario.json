@@ -18,7 +18,7 @@
       "description": "The complaint names no scheme, no vendor, and no tool — only that the recorded names have drifted and that a durable rule is wanted. An agent that reaches for software-instrumentation here is finding it from the problem, with amplitude-instrumentation (the SDK already in the project, and the wrong pick precisely because reaching for it means routing on what was found rather than on what was asked) and code-maintainability (a general naming-consistency read of the same complaint) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "software-instrumentation" }
       }
     },

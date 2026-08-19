@@ -18,7 +18,7 @@
       "description": "The complaint names a motion preference, never CSS, a media query, or the skill — an agent that reaches for react-component-styling here is finding it from the problem, with react-component-development (a component-behaviour read of the same complaint) and high-fidelity-ui-design (a motion-taste read of the same complaint) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "react-component-styling" }
       }
     },
@@ -28,7 +28,7 @@
       "description": "Nothing in inkwell mentions prefers-reduced-motion anywhere today — the toast's animation is the app's only one, and it runs unconditionally. The fix has to add a guard that reads the visitor's own motion preference, not merely acknowledge the request in prose.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/components/PublishToast/PublishToast.module.css",
           "mustContainAll": ["prefers-reduced-motion"]
@@ -41,7 +41,7 @@
       "description": "A fix that satisfies the complaint by deleting the `animation` declaration and its `@keyframes slide-in` outright would pass a naive reading of the request while removing the feature for every visitor, not only the ones who asked. This factor checks that the base animation and its keyframes are still there, so guarding is distinguishable from deleting.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/components/PublishToast/PublishToast.module.css",
           "mustContainAll": ["animation", "@keyframes slide-in"]

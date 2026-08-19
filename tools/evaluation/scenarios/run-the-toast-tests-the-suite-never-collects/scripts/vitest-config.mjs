@@ -19,8 +19,9 @@
  * @param {string} content the text of vitest.config.ts
  * @param {string} projectName the `name` a Vitest project declares
  * @returns {string[] | null} null when the project, or its include array,
- *   cannot be located at all — which each caller turns into a judgment it
- *   cannot make rather than into a `false` result
+ *   cannot be located at all — vitest.config.ts is there and readable
+ *   either way, so each caller turns that into a real `false` result
+ *   rather than into a judgment it cannot make
  */
 export function projectInclude(content, projectName) {
   const nameIndex = content.indexOf(`name: "${projectName}"`);

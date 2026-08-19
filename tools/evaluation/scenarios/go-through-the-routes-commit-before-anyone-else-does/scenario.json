@@ -22,7 +22,7 @@
       "description": "The prompt asks the agent to 'go through' a named commit and say what it 'would raise' before anyone else looks at it — the shape of an ordinary pre-review ask, naming no skill. An agent that reaches for code-review here is finding it from the situation, with quality-assurance (a 'was this actually verified' read of the same ask), code-maintainability (a design-quality read of the same commit), and loop-engineering (a 'here's a change, drive it through review' read of the same situation) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "code-review" }
       }
     },
@@ -32,7 +32,7 @@
       "description": "code-review's own scoping rule requires establishing the diff mechanically before reading anything else — 'git diff <base>..HEAD for a branch ... Do not reconstruct the change set from memory.' This factor checks a tool call's own input for the Bash invocation that would actually produce this commit's diff, so an agent that opened files by guessing which ones the commit touched, without ever asking git what the commit itself contains, does not satisfy it.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-tool-input-mentions.mjs",
+        "script": "../../judgments/check-transcript-tool-input-mentions.mjs",
         "input": {
           "anyOf": ["git show", "git diff", "git log -p", "git log --patch"]
         }
