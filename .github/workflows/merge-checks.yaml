@@ -42,38 +42,10 @@ concurrency:
 permissions:
   contents: read
 
-# ── why the measurement pull request is excluded, and why by path.
-#
-# a measurement lands through a pull request opened with GITHUB_TOKEN, and
-# GitHub does not fire workflows on those — so these gates already did not run
-# on one. that was an accident of platform behaviour; the `paths-ignore` above
-# makes it a declared division, so a future change in how GitHub treats
-# GITHUB_TOKEN-authored pull requests cannot silently move which gate is
-# responsible for measurement data. no workflow opens that pull request today:
-# the two that used to were deleted with the instruments they drove, and
-# #392's step 3 authors the one that replaces them.
-#
-# the division: measurement data is checked by the dispatch that produced it,
-# before the commit, and again here on the push to the default branch once it
-# merges. code is checked here. nothing is checked by neither.
-#
-# by path rather than by branch name for two reasons. GitHub cannot do it by
-# branch name at all — `branches` and `branches-ignore` on a `pull_request`
-# trigger filter the base branch, not the head. and a path key is better
-# anyway: a branch name is a public string any contributor could adopt to skip
-# all three gates, where a path says the pull request changes nothing but
-# measurement data, which is a fact about its contents.
-#
-# what this costs: a skipped workflow reports nothing, so if these three ever
-# become required status checks on the default branch, a measurement pull
-# request would sit pending forever. the fix then is to move the exclusion back
-# to a job-level `if:` keyed on both the branch prefix and the
-# `github-actions[bot]` author — a skipped job reports and satisfies a required
-# check, where a skipped workflow does not.
-#
-# tests/repository/reporting-tools.test.mjs asserts the exclusion is present and
-# scoped to those two paths. it adds no `run:` line, so the gate-consistency
-# coupling above is unaffected.
+# ── why the measurement pull request is excluded, and why by path: see
+# docs/conventions/verification-gates.md. it is opened with GITHUB_TOKEN,
+# which already skips this trigger; the exclusion here just makes that
+# declared, not an accident of platform behaviour.
 
 jobs:
   format-validation:
