@@ -32,7 +32,12 @@ key on branch name instead: GitHub does not even offer that lever — on a
 `pull_request` trigger, `branches` and `branches-ignore` filter the _base_
 branch, never the head — and a path is the better signal regardless, since a
 branch name is a public string any contributor could adopt to skip every gate,
-where a path is a fact about what the pull request actually changes.
+where a path is a fact about what the pull request actually changes. The two
+platform behaviours this section leans on are GitHub's, not this project's, so
+read them at the source rather than here: [events that trigger
+workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
+for the filters, and [GITHUB_TOKEN](https://docs.github.com/en/actions/concepts/security/github_token)
+for what a token-authored pull request does to a trigger.
 
 The pull request this excludes is opened under `GITHUB_TOKEN`, by
 `evaluation-dispatch.yaml`'s `land` job (see [Evaluation
