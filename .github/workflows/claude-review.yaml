@@ -54,11 +54,11 @@ permissions:
 jobs:
   review:
     name: Review
-    # load-bearing safety property 1 (continued) — the author-association gate.
-    # fire only on a comment carrying the trigger phrase, on a pull request
-    # rather than a plain issue, from an owner, member, or collaborator. this
-    # is what stops an untrusted author from spending tokens or steering the
-    # reviewer. do not widen the association list.
+    # load-bearing safety property 1 (continued): fires only on a
+    # trigger-phrase comment, on a pull request not a plain issue, from an
+    # owner, member, or collaborator — what stops an untrusted author from
+    # spending tokens or steering the reviewer. do not widen the association
+    # list.
     if: >-
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '@claude review') &&
@@ -73,11 +73,11 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # claude-code-action forwards these from the workflow `env` context into
-    # the Claude Code process, so this block is the whole telemetry wiring — no
-    # `with:` input and no prompt change. gating enablement on the endpoint
-    # variable keeps observability from becoming a dependency of the review:
-    # unset, no exporter starts at all.
+    # claude-code-action forwards these from the workflow env context into the
+    # Claude Code process, so this block is the whole telemetry wiring — no
+    # with: input, no prompt change. gating on the endpoint variable keeps
+    # observability from becoming a dependency of the review: unset, no
+    # exporter starts.
     env:
       CLAUDE_CODE_ENABLE_TELEMETRY: ${{ vars.CLAUDE_OTEL_EXPORTER_OTLP_ENDPOINT != '' && '1' || '0' }}
       OTEL_METRICS_EXPORTER: otlp
@@ -97,19 +97,18 @@ jobs:
       # session is still tagged if that file is ever missing.
       OTEL_RESOURCE_ATTRIBUTES: repository=skills,ci=github_actions,workflow=claude_review
     steps:
-      # load-bearing safety property 2 of 3 — base-ref checkout. check out the
-      # base ref and never the PR head: the review reads the diff through the
-      # GitHub API, so untrusted head code never executes on the runner. the
-      # checkout supplies only CLAUDE.md, REVIEW.md, and the project skills as
-      # trusted review context.
+      # load-bearing safety property 2 of 3 — base-ref checkout, never the PR
+      # head: the review reads the diff via the GitHub API, so untrusted head
+      # code never executes on the runner. the checkout supplies only
+      # CLAUDE.md, REVIEW.md, and the project skills as trusted review context.
       - name: Checkout
         uses: actions/checkout@v4
 
-      # the CI resource attributes, which must live outside the repository
-      # tree: a settings file's `env` outranks the process environment and the
-      # checkout's .claude/settings.json sets repository=skills alone, while
-      # claude-code-action deletes .claude/ wholesale before launching the CLI.
-      # written unconditionally so --settings never points at a missing path.
+      # these CI resource attributes live outside the repo tree: a settings
+      # file's env outranks the process environment, and claude-code-action
+      # deletes .claude/ (whose settings.json set repository=skills alone)
+      # before launching the CLI. written unconditionally so --settings never
+      # points at a missing path.
       - name: Write the review session's telemetry settings
         run: |
           cat > "${RUNNER_TEMP}/claude-otel-settings.json" <<'JSON'
@@ -131,25 +130,19 @@ jobs:
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
           prompt: "/code-review:code-review https://github.com/${{ github.repository }}/pull/${{ github.event.issue.number }} --comment"
-          # --allowedTools is not optional: the action does not honor a plugin
-          # command's own `allowed-tools` frontmatter, so without it the plugin
-          # is denied the tools it needs and posts nothing. `Bash` is broad
-          # rather than per-subcommand because the plugin issues compound shell
-          # commands no prefix matcher can match — safe only because of safety
-          # property 2 (trusted base tree, never the PR head) and contents:read.
+          # --allowedTools is not optional: the action ignores a plugin's
+          # allowed-tools frontmatter, so without it the plugin gets no tools
+          # and posts nothing. Bash is broad, not per-subcommand: the plugin
+          # issues compound shell commands no prefix matcher can match — safe
+          # only via safety property 2 and contents:read.
           claude_args: >-
             --append-system-prompt "Read REVIEW.md at the repository root and follow it as the highest-priority, review-only instructions for this review. Review this pull request even if it is a draft — do not skip it for being a draft. Do the ENTIRE review within this single turn: run every check and review pass yourself, synchronously and in order. Do NOT kick off background or parallel work and then end your turn to wait for it — this is a one-shot job that terminates the instant your turn ends, so anything you defer is lost and no review is posted. You MUST post your findings (inline comments plus a summary via `gh pr comment`) before your turn ends. This reviewer is advisory and does not gate merges."
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Read,Grep,Glob,Bash"
             --disallowedTools "WebFetch,WebSearch,Task"
             --max-turns 200
             --settings "${{ runner.temp }}/claude-otel-settings.json"
-          # load-bearing safety property 3 of 3 — background-task denial.
-          # denying Task forces a synchronous review: the plugin otherwise fans
-          # its passes out to sub-agents that run in the background, and this
-          # single-shot action terminates the instant the main agent's turn
-          # ends, orphaning them so nothing posts. WebFetch/WebSearch stay
-          # denied so the reviewer makes no external calls.
-          #
-          # --max-turns is sized for the worst case because turn count is
-          # high-variance even on a tiny diff; `timeout-minutes: 30` is the real
-          # backstop, and the cap only guards against a pathological loop.
+          # load-bearing safety property 3 of 3: Task denied forces synchronous
+          # review — the plugin fans passes to background sub-agents this
+          # action orphans at turn end, so nothing posts. WebFetch/WebSearch
+          # denied: no external calls. max-turns sized high for turn variance;
+          # timeout-minutes: 30 is the real backstop.
