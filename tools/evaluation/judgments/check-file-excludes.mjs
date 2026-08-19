@@ -4,17 +4,19 @@
 // counterpart of check-file-contains.mjs, for a factor whose expectation is
 // that something is now absent rather than present.
 //
-// used here for this scenario's "startup-stops-forgetting-the-user" factor
-// (app/_layout.tsx must no longer call forgetUser) and its
-// "keeps-the-sdks-own-identity-storage" factor (analytics.ts must still set
-// neither storageProvider nor cookieStorage). Both are plain whole-file
-// substring checks, the same tool check-file-contains.mjs already is for the
-// opposite question. The file itself lives in the reconstructed workspace,
-// which is this process's own cwd (see this scenario's scenario.json and
-// factor-judgment.mjs's runScriptJudgment); a file the expectation names but
-// the workspace does not have is a judgment this script cannot make, not a
-// vacuous `true` result, so it exits non-zero rather than reporting one —
-// the same rule check-file-contains.mjs holds for the same reason.
+// docs/specs/skill-evaluation.md, "The factor": a script judgment "runs
+// with the reconstructed workspace as its working directory and a context
+// file as its argument, prints {"result", "evidence"} on stdout, and
+// signals a failed judgment by a non-zero exit with a reason on stderr."
+// This factor's phase is "outcome", so this script reads the reconstructed
+// workspace itself — its own cwd — rather than the diff-and-task material
+// factor-judgment.mjs's materialFor hands an outcome factor. The file
+// itself lives in the reconstructed workspace, which is this process's own
+// cwd (see factor-judgment.mjs's runScriptJudgment); a file the
+// expectation names but the workspace does not have is a judgment this
+// script cannot make, not a vacuous `true` result, so it exits non-zero
+// rather than reporting one — the same rule check-file-contains.mjs holds
+// for the same reason.
 //
 // usage: node check-file-excludes.mjs <context.json>
 

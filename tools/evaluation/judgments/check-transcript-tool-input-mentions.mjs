@@ -10,8 +10,10 @@
 // factor-judgment.mjs's materialFor hands it is the raw transcript string
 // — the CLI's `--output-format stream-json` stdout, one JSON object per
 // line. This script re-reads that stream for itself rather than importing
-// tools/evaluation/src/transcript/ (see this scenario's own scenario.json
-// for why every judgment script here is self-contained).
+// tools/evaluation/src/transcript/ — a judgment script is spawned as its
+// own process rather than imported (factor-judgment.mjs's
+// runScriptJudgment), so it stays runnable on its own rather than reaching
+// into the instrument's own internal modules.
 //
 // What this reads is a tool's own input rather than the probe's prose, and
 // that is the point: it asks what the probe told a tool to do — the path a

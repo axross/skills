@@ -12,11 +12,12 @@
 // the CLI's whole redacted stream-json stdout as the transcript, so every
 // file the agent read is in there verbatim, tool result and all. A plain
 // substring scan over that text therefore fires on what the agent READ,
-// not on what it worked out — and in this scenario the installed peer
-// skills' own bodies carry the very phrases this factor looks for, in
-// both conditions, so a scan of the whole transcript would answer itself.
-// This script parses the stream as JSONL instead and scans only the text
-// blocks of `assistant` events: the agent's own words.
+// not on what it worked out — a file the agent merely opened, including an
+// installed skill's own body, can already contain the very phrase a
+// factor is checking for, satisfying a whole-stream scan without the agent
+// ever having reasoned about it. This script parses the stream as JSONL
+// instead and scans only the text blocks of `assistant` events: the
+// agent's own words.
 //
 // a line that does not parse as JSON is skipped rather than fatal — a
 // truncated final line is ordinary, and transcript/events.mjs's own reader

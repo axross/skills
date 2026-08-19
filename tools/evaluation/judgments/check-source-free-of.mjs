@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// an outcome-phase script judgment: does any file under the named roots,
+// an outcome-phase script judgment: does no file under the named roots,
 // after the extension and suffix filters, contain any of the named needles.
 //
 // docs/specs/skill-evaluation.md, "The factor": a script judgment "runs
@@ -11,19 +11,19 @@
 // factor-judgment.mjs's materialFor hands an outcome factor; the walk below
 // is what does the reading.
 //
-// check-source-free-of.mjs is this script's negative counterpart: same
-// walk, opposite verdict — passing here means a needle was found, passing
-// there means none was.
+// check-source-contains-any.mjs is this script's positive counterpart: same
+// walk, opposite verdict — passing there means a needle was found, passing
+// here means none was.
 //
 // .git, node_modules, and .claude are skipped unconditionally, regardless
 // of what the input's own roots or extensions name. .git is the
 // load-bearing exclusion: the reconstructed workspace is a real Git
 // repository whose object store holds every version of every file it ever
 // committed, so a walk that descended into it could find a needle inside a
-// blob the probe never touched, rather than inside the workspace as the
-// probe actually left it.
+// blob a fix already removed from the working tree, defeating a factor
+// that means to check what the workspace looks like now.
 //
-// usage: node check-source-contains-any.mjs <context.json>
+// usage: node check-source-free-of.mjs <context.json>
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -36,7 +36,7 @@ function fail(message) {
 }
 
 const contextPath = process.argv[2];
-if (!contextPath) fail("usage: check-source-contains-any.mjs <context.json>");
+if (!contextPath) fail("usage: check-source-free-of.mjs <context.json>");
 
 let context;
 try {
@@ -45,7 +45,7 @@ try {
   fail(`could not read or parse ${contextPath}: ${error.message}`);
 }
 
-const { roots, extensions, excludeSuffixes, anyOf } = context.input ?? {};
+const { roots, extensions, excludeSuffixes, mustNotContainAny } = context.input ?? {};
 if (!Array.isArray(roots) || roots.length === 0 || !roots.every((r) => typeof r === "string" && r.length > 0)) {
   fail("context.input.roots must be a non-empty array of non-empty strings.");
 }
@@ -59,13 +59,18 @@ if (excludeSuffixes !== undefined) {
     fail("context.input.excludeSuffixes, when present, must be an array of non-empty strings.");
   }
 }
-if (!Array.isArray(anyOf) || anyOf.length === 0 || !anyOf.every((n) => typeof n === "string" && n.length > 0)) {
-  fail("context.input.anyOf must be a non-empty array of non-empty strings.");
+if (
+  !Array.isArray(mustNotContainAny) ||
+  mustNotContainAny.length === 0 ||
+  !mustNotContainAny.every((n) => typeof n === "string" && n.length > 0)
+) {
+  fail("context.input.mustNotContainAny must be a non-empty array of non-empty strings.");
 }
 
-// undefined/null means "every extension" — the filter this scenario needs
-// when a subject (a catalog's own text, say) could legitimately move into
-// any file type, not only the ones a stricter factor wants to bound.
+// undefined/null means "every extension" — the option stays open for a
+// factor whose forbidden content could legitimately land in any file type;
+// a factor that wants a narrower search bounds it via
+// context.input.extensions.
 const extensionList = extensions ?? null;
 const suffixes = excludeSuffixes ?? [];
 
@@ -120,11 +125,11 @@ function firstMatch(candidates, needles) {
   return null;
 }
 
-const match = firstMatch(searched, anyOf);
-const result = match !== null;
+const offender = firstMatch(searched, mustNotContainAny);
+const result = offender === null;
 const evidence = result
-  ? `${relative(".", match.file)} contains "${match.needle}"`
-  : `none of the ${searched.length} file(s) searched under [${roots.join(", ")}]` +
-    `${extensionList ? ` (extensions: ${extensionList.join(", ")})` : ""} contain any of: ${anyOf.join(", ")}`;
+  ? `none of the ${searched.length} file(s) searched under [${roots.join(", ")}]` +
+    `${extensionList ? ` (extensions: ${extensionList.join(", ")})` : ""} contain any of: ${mustNotContainAny.join(", ")}`
+  : `${relative(".", offender.file)} contains "${offender.needle}"`;
 
 process.stdout.write(`${JSON.stringify({ result, evidence })}\n`);

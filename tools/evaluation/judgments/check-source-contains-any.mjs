@@ -63,10 +63,9 @@ if (!Array.isArray(anyOf) || anyOf.length === 0 || !anyOf.every((n) => typeof n 
   fail("context.input.anyOf must be a non-empty array of non-empty strings.");
 }
 
-// undefined/null means "every extension". Both of this scenario's factors
-// do bound it — a parse belongs in a .ts or .tsx file under app/ or shared/
-// — but the option stays open for a factor whose subject could legitimately
-// land in any file type.
+// undefined/null means "every extension" — the option stays open for a
+// factor whose subject could legitimately land in any file type; a factor
+// that wants a narrower search bounds it via context.input.extensions.
 const extensionList = extensions ?? null;
 const suffixes = excludeSuffixes ?? [];
 

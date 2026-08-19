@@ -18,7 +18,7 @@
       "description": "The request asks for a reader note with a little emphasis or a link, with nothing about safety, sanitization, or the skill's own vocabulary in it. An agent that reaches for application-security here is finding it from the problem, with zod-schema (a validate-what-arrives read of the same request) and next-app-development (a where-does-the-submission-go read of the same request) sitting right there as competing, plausible-looking picks that both name an application-security capability as the owner of the untrusted-input judgment in their own text.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "application-security" }
       }
     },
@@ -43,7 +43,7 @@
       "description": "The mock has no dangerouslySetInnerHTML anywhere today, no sanitizer dependency, and no network to install one from mid-probe. This factor checks that no .ts or .tsx file in the final workspace introduces one — a raw-HTML sink here would render the reader's own italics-or-link markup, or anything else they typed, straight into the page unescaped.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-source-free-of.mjs",
+        "script": "../../judgments/check-source-free-of.mjs",
         "input": {
           "roots": ["."],
           "extensions": [".ts", ".tsx"],
@@ -57,7 +57,7 @@
       "description": "The request raises nothing about safety, so a diff that never renders raw HTML can still be produced by an agent that never registered why that mattered. This factor checks whether the agent, at some point, said so itself — naming the reader's text as untrusted, using vocabulary like 'XSS', 'cross-site scripting', 'sanitiz', 'injection', 'untrusted input', or 'HTML escap' — as distinct from a safe-looking diff produced without that reasoning ever appearing. It scans the agent's own assistant messages and nothing else: the stored transcript carries every file the agent read, and both peer skills, installed in both conditions, contain these very phrases, so a scan over the whole transcript would have measured whether a file was opened rather than whether the agent reasoned.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-mentions.mjs",
+        "script": "../../judgments/check-transcript-mentions.mjs",
         "input": {
           "anyOf": [
             "xss",

@@ -22,7 +22,7 @@
       "description": "The ask states a product problem and a finish bar and names neither the skill, a mechanism, nor a state. An agent that reaches for high-fidelity-ui-design here is finding it from the problem, with wireframe-design (a layout-only read the finish bar itself argues against), react-component-styling (a token-application read of the same ask), and react-component-development (a component-structure read of the same ask) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "high-fidelity-ui-design" }
       }
     },

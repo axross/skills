@@ -18,7 +18,7 @@
       "description": "The question is a plain contributor ask — what to run and pass before opening a change — naming no skill, no command, and no file. An agent that reaches for software-development here is finding it from the situation, with quality-assurance (a 'was this actually verified' read of the same question) and unit-testing (a 'which tests matter' read of it) sitting right there as competing, plausible-looking picks.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "software-development" }
       }
     },
@@ -28,7 +28,7 @@
       "description": "software-development's project-documentation rules require consulting the project's own contributor documentation — conventionally README.md — before performing a project-specific operation, and require preferring a documented invocation over one inferred from the manifest or from memory. An agent that answers from package.json's scripts alone, or from what a similar project usually runs, has skipped exactly that. This factor checks a tool call's own input for README.md or AGENTS.md, so a Read, Grep, Glob, or even a plain cat of either file counts as reaching for the documentation, and a reply that merely names the filename in prose without any tool ever opening it does not. What this factor does not do is isolate software-development's own contribution, and the reason is worth stating rather than leaving for a reader to find: tools/evaluation/mocks/inkwell/AGENTS.md:36 already says 'Read README.md for the full command list and layout before touching either side', it reaches the model through the mock's own CLAUDE.md import under CLAUDE.md auto-discovery, and no probe is spawned with --bare — so the skill-absent condition is asked for the same behaviour by the project itself. A reader who expects a differential near zero here is reading the setup correctly; what the factor still distinguishes is an agent that acts on that instruction from one that answers from the manifest or from memory in spite of it.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-tool-input-mentions.mjs",
+        "script": "../../judgments/check-transcript-tool-input-mentions.mjs",
         "input": { "anyOf": ["README.md", "AGENTS.md"] }
       }
     },
@@ -38,7 +38,7 @@
       "description": "inkwell's README.md lists four commands in its own commands table — format:check, lint, typecheck, and test — and this factor checks whether the agent's own final text names all four. The walkover risk attaches here as it does to the factor above, and for a second, independent reason: both the skill-present and the skill-absent condition can read that same table without software-development ever having to be installed, so this factor is predicted to be close to a walkover, with a differential near zero, rather than a real discriminator — that prediction is stated here rather than left for a reader to discover only from the number. It is declared anyway because the next factor's ordering claim presupposes the four checks were named at all.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-transcript-mentions-all.mjs",
+        "script": "../../judgments/check-transcript-mentions-all.mjs",
         "input": {
           "mustMentionEachOf": [
             ["format:check"],

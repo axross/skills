@@ -18,7 +18,7 @@
       "description": "The report names neither the styling library, StyleSheet, variants, nor a theme API — an agent that reaches for react-component-styling here is finding it from the symptom, with react-component-development (a props-contract read of the same complaint) and high-fidelity-ui-design (its theme-and-dark-mode read) sitting right there as competing, plausible-looking picks. This is the phase that carries the scenario's real measurement — every other factor below is expected to be confounded by recall/AGENTS.md stating the fix's own convention.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-discovery.mjs",
+        "script": "../../judgments/check-discovery.mjs",
         "input": { "skill": "react-component-styling" }
       }
     },
@@ -28,7 +28,7 @@
       "description": "The patch reverted src/ui/action-button.tsx to import StyleSheet from React Native's own package rather than the styling library. This factor checks that the final file's stylesheet comes from the library again.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/ui/action-button.tsx",
           "mustContainAll": ["react-native-unistyles"]
@@ -41,7 +41,7 @@
       "description": "The patch replaced the two variants groups with a plain object lookup keyed on kind and a conditional entry in the style array for the focused state. This factor checks that the closed set of looks is expressed through the library's variants again rather than a hand-rolled conditional.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/ui/action-button.tsx",
           "mustContainAll": ["variants"]
@@ -54,7 +54,7 @@
       "description": "The patch inlined the light theme's own colour literals as hex values. A fix that adds a second, dark-mode palette of its own hard-coded hex values beside the first would still look like it 'handles' dark mode without ever going back through the theme, which is what this factor is here to catch: it checks that none of the exact literals the patch inlined survive in the final file.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-excludes.mjs",
+        "script": "../../judgments/check-file-excludes.mjs",
         "input": {
           "file": "src/ui/action-button.tsx",
           "mustExcludeAll": [
@@ -74,7 +74,7 @@
       "description": "A 'what had to not change' guard, expected to contribute a zero differential on its own: all four kind looks and the focused-state outline the component has today must still exist, so collapsing the variation away — rather than expressing it through the library properly — is not credited as a fix.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-file-contains.mjs",
+        "script": "../../judgments/check-file-contains.mjs",
         "input": {
           "file": "src/ui/action-button.tsx",
           "mustContainAll": [
