@@ -37,7 +37,12 @@
 // does a comment (comments are stripped from a <style> block's content
 // first, string-aware, before any declaration is read), so a colour
 // function's name mentioned only in a comment can never trigger the
-// refusal path either. See declarationValuesIn's own header for how.
+// refusal path either. See declarationValuesIn's own header for how. Nor
+// does a custom-property NAME inside a var(...) reference: `--icon-red`
+// and `--brand-blue` are ordinary naming, so var()'s own name token is
+// blanked before the colour scan runs — see blankVarPropertyNames's own
+// header for why the reference's optional fallback is deliberately left
+// untouched instead.
 //   - at least THREE distinct achromatic values (saturation <= 20%) — a
 //     grey-box drawing needs several greys, so an unstyled HTML outline
 //     with zero or one grey is not one; and
@@ -672,6 +677,35 @@ function blankQuotedStringContents(text) {
 }
 
 /**
+ * blanks the CUSTOM-PROPERTY-NAME token of every var(...) reference in
+ * `text` — from "var(" up to the first "," or the matching ")", whichever
+ * comes first (the name itself: `--[A-Za-z0-9-]+` immediately after "var("
+ * and any leading whitespace) — length-preserving (replaced with spaces),
+ * leaving everything else untouched. A custom property NAME is ordinary
+ * naming, not a declared colour: `--icon-red` and `--brand-blue` are
+ * common, and the substring "red" or "blue" inside the name must never
+ * reach the colour scan, the same defect class as a class name or a
+ * comment. The optional FALLBACK after the name is deliberately NOT
+ * blanked: `var(--accent, #ff0000)` really does put red on the page if
+ * `--accent` is unset, so blanking the whole argument list would stop
+ * counting a fallback that genuinely declares a colour. A var() whose
+ * named property resolves to a real colour is not double-counted by
+ * leaving its name blanked either: that colour is already counted once,
+ * at the custom property's own declaration (`--brand-blue: #...;`)
+ * elsewhere in the stylesheet — this function only stops the REFERENCE
+ * from being read a second time, as if it were a value in its own right.
+ * @param {string} text
+ * @returns {string}
+ */
+function blankVarPropertyNames(text) {
+  return text.replace(
+    /\bvar\(\s*(--[A-Za-z0-9-]+)/gi,
+    (match, name) =>
+      match.slice(0, match.length - name.length) + " ".repeat(name.length),
+  );
+}
+
+/**
  * every distinct colour this CSS text declares, as `{ r, g, b, h, s, l }`,
  * deduplicated by its resolved (r, g, b) triple so the same colour declared
  * twice (e.g. once in a base :root and again in an explicit
@@ -688,19 +722,19 @@ function distinctColorsIn(cssText) {
     byKey.set(key, { ...rgb, ...rgbToHsl(rgb.r, rgb.g, rgb.b) });
   };
 
-  const unquoted = blankQuotedStringContents(cssText);
+  const scanned = blankVarPropertyNames(blankQuotedStringContents(cssText));
 
-  for (const m of unquoted.matchAll(/#([0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3})\b/gi)) {
+  for (const m of scanned.matchAll(/#([0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3})\b/gi)) {
     add(hexToRgb(m[1].toLowerCase()));
   }
-  for (const m of unquoted.matchAll(/\brgba?\(\s*([^)]+)\)/gi)) {
+  for (const m of scanned.matchAll(/\brgba?\(\s*([^)]+)\)/gi)) {
     const tokens = m[1].split(/[\s,/]+/).filter(Boolean);
     if (tokens.length < 3) continue;
     const channel = (token) =>
       token.endsWith("%") ? Math.round((parseFloat(token) / 100) * 255) : Math.round(parseFloat(token));
     add({ r: channel(tokens[0]), g: channel(tokens[1]), b: channel(tokens[2]) });
   }
-  for (const m of unquoted.matchAll(/\bhsla?\(\s*([^)]+)\)/gi)) {
+  for (const m of scanned.matchAll(/\bhsla?\(\s*([^)]+)\)/gi)) {
     const tokens = m[1].split(/[\s,/]+/).filter(Boolean);
     if (tokens.length < 3) continue;
     const h = parseAngle(tokens[0]);
@@ -709,7 +743,7 @@ function distinctColorsIn(cssText) {
     if ([h, s, l].some(Number.isNaN)) continue;
     add(hslToRgb(h, s, l));
   }
-  for (const m of unquoted.matchAll(NAMED_COLOR_RE)) {
+  for (const m of scanned.matchAll(NAMED_COLOR_RE)) {
     add(hexToRgb(NAMED_COLORS[m[1].toLowerCase()].slice(1)));
   }
 
