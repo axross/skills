@@ -97,8 +97,8 @@ export function boundNamesFromClause(clause) {
  * — can satisfy; stripping comments first is what keeps that mention from
  * ever reaching the regex at all. Exported for the same reason: a shared
  * component's own usage capture (usageSpansFor, below) scans a route
- * file's raw content for the same tag/call shapes, and without stripping first, a
- * comment merely MENTIONING the component in tag shape — "// See
+ * file's raw content for the same tag/call shapes, and without stripping
+ * first, a comment merely MENTIONING the component in tag shape — "// See
  * <LoadingError message=\"...\" /> for the older shape." — is read as a
  * real usage span.
  *
