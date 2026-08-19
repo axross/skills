@@ -158,6 +158,12 @@ if (!aboutConcern) {
   process.exit(0);
 }
 
+/**
+ * the text one route file shows for the shared module set: every JSX usage
+ * span of every name that file binds from a module in sharedAndAdded,
+ * joined and normalized. Comments are stripped from the file first, so a
+ * commented-out mention of a shared component never joins a real usage.
+ */
 function usageTextFor(route) {
   const spans = [];
   const scannedContent = stripComments(route.content);

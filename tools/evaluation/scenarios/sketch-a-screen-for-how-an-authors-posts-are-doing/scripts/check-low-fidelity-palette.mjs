@@ -337,6 +337,12 @@ function hexToRgb(hex) {
   return null;
 }
 
+/**
+ * a CSS angle token as degrees, honouring deg/grad/rad/turn and treating a
+ * bare number as degrees.
+ * @param {string} token
+ * @returns {number} degrees, or NaN when the token is not an angle at all
+ */
 function parseAngle(token) {
   const match = token.trim().match(/^(-?[\d.]+)(deg|grad|rad|turn)?$/i);
   if (!match) return NaN;
