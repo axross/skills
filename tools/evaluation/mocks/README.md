@@ -125,12 +125,11 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   asks about.
 - **The analytics event names are ordinary and mildly inconsistent.**
   `"post published"` and `"draft saved"` fire from the editor and
-  `"Site switched"` from the sidebar's switcher — the last in a different
-  scenario from the other two. Two scenarios measure event naming, so a mock
-  demonstrating a scheme would flatter a control run. All three fire from a
-  real call site: a name that existed only in the event type would leave the
-  _exercised_ convention perfectly consistent, which is the opposite of what
-  is wanted here.
+  `"Site switched"` from the sidebar's switcher. One scenario measures event
+  naming, so a mock demonstrating a scheme would flatter a control run. All
+  three fire from a real call site: a name that existed only in the event
+  type would leave the _exercised_ convention perfectly consistent, which is
+  the opposite of what is wanted here.
 - **`identifyAuthor` in `src/lib/analytics.ts` has no caller yet.** It is
   written, exported and tested, and nothing invokes it, because session
   handling lives outside this cut of the product and nothing in the SPA knows
@@ -148,7 +147,8 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   both — which is what a project looks like when one path was written
   carefully and its neighbour was not.
 - **Log levels are applied plainly rather than exemplarily**, for the same
-  reason: one scenario is about choosing between `warn` and `info`.
+  reason: choosing between `warn` and `info` is a subject this shape leaves
+  available, not yet claimed by any declared scenario.
 - **The test suite is mixed in quality.** Coverage is real but not exhaustive
   and some names describe the implementation rather than the behaviour. An
   exemplary suite would hand a control run the conventions the evaluation

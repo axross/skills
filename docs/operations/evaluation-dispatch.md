@@ -197,7 +197,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->fourteen<!-- /count --> scenarios are declared today: six against the `inkwell` mock project, and eight against `tsuzuri`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->sixteen<!-- /count --> scenarios are declared today: eight against the `inkwell` mock project, and eight against `tsuzuri`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -217,6 +217,16 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->fourteen<!
   [`docs/glossary.md`](../glossary.md)), its one measurement of its own
   noise floor. It declares no `discovery` factor, for the reason its own
   `scenario.json` states.
+- [`bring-the-analytics-event-names-into-one-scheme`](../../tools/evaluation/scenarios/bring-the-analytics-event-names-into-one-scheme/)
+  targets `software-instrumentation`, with `amplitude-instrumentation` and
+  `code-maintainability` as peers, and
+  [`keep-a-running-count-of-an-authors-visits`](../../tools/evaluation/scenarios/keep-a-running-count-of-an-authors-visits/)
+  targets `amplitude-instrumentation`, with `software-instrumentation` and
+  `sentry-instrumentation` as peers — each names the other as its own peer,
+  since a scheme for an event's name and which `Identify` operator a running
+  count needs are the same kind of question read two ways. Both carry a
+  `discovery` factor and two `outcome` factors, every factor judged by
+  script, and neither declares a `transcript` phase.
 - [`restore-real-file-names-in-production-stack-traces`](../../tools/evaluation/scenarios/restore-real-file-names-in-production-stack-traces/)
   targets `sentry-instrumentation`, alongside `software-instrumentation` and
   `software-development` as peers, and is the first scenario in the tree to
@@ -289,7 +299,7 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->fourteen<!
   `reasoning` factor: its artefact is code and both of its expectations are
   mechanically checkable.
 
-Together the fourteen exercise every path through the three scripts above:
+Together the sixteen exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
 probe or the offline check under `tests/repository/` ever sees it, a second mock
