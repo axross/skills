@@ -6,7 +6,7 @@
   "peerSkills": ["next-app-development", "react-component-development"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "The post list on the home page is going to get long, so I want to show it a page at a time, with the page number in the URL — /?page=2 and so on. Readers paste all sorts of URLs at us though: sometimes there's no page number at all, sometimes it's there but blank, and sometimes it's something that isn't a number. Whatever arrives, the page shouldn't fall over."

@@ -6,7 +6,7 @@
   "peerSkills": ["unit-testing", "software-development"],
   "patch": "patch.diff",
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "A while back I wrote some tests for the publish toast component, but I just noticed they've never actually run — not once, in any of our test output. The suite finishes green every time without mentioning them at all. Can you find out why and get them running?"

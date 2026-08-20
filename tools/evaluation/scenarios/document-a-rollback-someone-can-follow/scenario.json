@@ -9,7 +9,7 @@
   ],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "The last time the site needed to be rolled back to an earlier version, whoever did it had to go ask someone else how, because what's written down about it doesn't get them far enough on their own. Make that part of the deployment notes something a person could actually work through by themselves next time."

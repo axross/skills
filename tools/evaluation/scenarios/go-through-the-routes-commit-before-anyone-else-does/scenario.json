@@ -10,7 +10,7 @@
   ],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Before I ask anyone else to look at it, go through the commit that put the routes and the shell in, and tell me what you'd raise."

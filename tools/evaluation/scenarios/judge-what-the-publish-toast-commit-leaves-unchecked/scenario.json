@@ -6,7 +6,7 @@
   "peerSkills": ["code-review", "unit-testing"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "The commit that added the publish toast is being called finished, and I'm the one signing it off. What would I be taking on trust if I did?"

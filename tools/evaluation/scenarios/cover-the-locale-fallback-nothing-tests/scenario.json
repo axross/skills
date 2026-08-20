@@ -6,7 +6,7 @@
   "peerSkills": ["jest-testing", "end-to-end-testing"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "The locale fallback in `shared/resolve-translation.ts` is the part of this codebase I trust least. When it picks the wrong translation nothing errors — a reader just gets the wrong language, and we find out weeks later, from a reader. `shared/blog-post-slug.ts` next to it has a `.spec.ts` beside it and this module has nothing at all. Please close that gap before I touch the resolution order again."

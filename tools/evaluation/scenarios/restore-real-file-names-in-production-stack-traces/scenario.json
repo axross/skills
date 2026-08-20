@@ -6,7 +6,7 @@
   "peerSkills": ["software-instrumentation", "software-development"],
   "patch": "patch.diff",
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Whenever a customer's site throws an error in production, the crash report we get back just points at something like assets/index-4f9a2c1b.js:1:48213 — a bundle name and one huge column number, not any file or line I actually recognize. I can't tell what broke from that. Can you get it so a production crash points at our real source again?"

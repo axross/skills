@@ -6,7 +6,7 @@
   "peerSkills": ["technical-document-authoring", "next-app-development"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "When a reader's browser asks for a language a post was never translated into, the site quietly serves the post in whatever language the author originally wrote it in, without saying anything about that substitution. Stop doing that — don't show the post at all in that situation. Falling through to the site's regular not-found page is fine."
