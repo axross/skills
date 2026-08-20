@@ -49,7 +49,7 @@ See [color-and-gamut.md](./references/color-and-gamut.md) for:
 - the 13-step ramp as an internal primitive tier, and the semantic role names components actually consume
 - the step-to-role table, the colour schemes a project declares, and the alpha ramp
 - picking a step by role rather than by how it looks in one scheme, and what a per-scheme override signals
-- preferring a wide-gamut colour format with an sRGB fallback, and which of `@supports` and `@media (color-gamut:)` answers which question
+- preferring a wide-gamut colour format, deciding whether it needs an sRGB fallback from the project's support matrix rather than from the format, and which of `@supports` and `@media (color-gamut:)` answers which question
 - the colour-space reality on mobile native, and what it means for parity with web
 
 ## Fluid and Responsive Sizing
