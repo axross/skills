@@ -122,7 +122,7 @@
 
 **Evaluation probe** — one run of an **evaluation scenario** under one **evaluation condition**, against the real CLI.
 
-**Turn cap** — the ceiling on how many turns one **evaluation probe** may take, set as a runaway guard rather than a budget control.
+**Turn cap** — the ceiling on how many assistant events one **evaluation probe** may produce before the instrument kills it, set as a runaway guard rather than a budget control. What it counts is the **agent runtime**'s streamed assistant events, not the turn count a **probe record** stores alongside them: in the one measurement where both were recorded, the former ran about 1.6 times the latter.
 
 **Repetition** — one of several **evaluation probes** run under the same **evaluation scenario** and **evaluation condition**, with no fixed order among them.
 

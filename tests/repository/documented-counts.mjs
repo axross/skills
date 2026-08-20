@@ -515,6 +515,21 @@ export const CLAIMS = {
     derive: async () => (await declaredScenarioDirs()).length,
   },
 
+  "probe-turn-cap": {
+    owner: "DEFAULT_TURN_CAP in tools/evaluation/src/probe-process.mjs",
+    note: "docs/conventions/verification-gates.md is the only prose that states this number — the glossary's own Turn cap entry and the decision record that reads a truncation describe the cap without one, deliberately, so moving the constant moves this sentence and nothing else",
+    derive: async () => {
+      const source = await readFile(repoPath("tools/evaluation/src/probe-process.mjs"), "utf8");
+      return Number(
+        anchored(
+          source,
+          /export const DEFAULT_TURN_CAP = (\d+);/,
+          "tools/evaluation/src/probe-process.mjs",
+          "the DEFAULT_TURN_CAP constant",
+        ),
+      );
+    },
+  },
 };
 
 /** every Markdown file in the repository, as repository-relative paths. */
