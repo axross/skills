@@ -407,7 +407,7 @@ describe("report-obligation-burden.mjs", () => {
       // obligation. subagent-delegation.md's standing-mandate recording
       // requirement moved no count at all, because it widened an existing
       // bullet rather than adding one; it shows up in the ceiling's token
-      // growth (+2,996 bytes against the floor's +1,971) and nowhere else.
+      // growth (+3,003 bytes against the floor's +1,971) and nowhere else.
       expect.soft(totals.floorObligations).toBe(51);
       expect.soft(totals.floorTokens).toBe(10_901);
       expect.soft(totals.ceilingObligations).toBe(484);
