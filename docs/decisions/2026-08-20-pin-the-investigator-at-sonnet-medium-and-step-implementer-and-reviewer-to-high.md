@@ -6,7 +6,7 @@ status: accepted
 
 ## Context
 
-[context-ownership.md](../../skills/loop-engineering/references/context-ownership.md)
+`context-ownership.md`
 (added by [#480](https://github.com/axross/skills/issues/480)) defines an
 investigator: a reader handed a large payload and asked to return a
 conclusion and a locator rather than the payload itself. This repository
