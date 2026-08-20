@@ -130,14 +130,17 @@ and its own status stays `accepted`, not `superseded`.
 
 ## Consequences accepted
 
-`loop-engineering`'s obligation count moves at both tiers: the floor gains
-the two new Phase 1 `**Guidelines:**` bullets, and the reference ceiling
-gains the standing-mandate recording obligation in `subagent-delegation.md`,
-while Phase 2's existing obligation is restated rather than duplicated. The
-exact delta is measured with `node scripts/report-obligation-burden.mjs`
-against the pre-change baseline (floor 34 obligations / 33,891 bytes, ceiling
-236 obligations / 149,866 bytes) and stated wherever this change is reported,
-not predicted here.
+`loop-engineering`'s obligation count moves by two at both tiers, and from
+one source: the two new Phase 1 `**Guidelines:**` bullets. Everything else
+this change writes widened prose that was already counted — Phase 2's
+obligation is restated rather than duplicated, and
+`subagent-delegation.md`'s standing-mandate recording requirement folded into
+a bullet that already existed, so the reference file's own obligation count
+did not move at all. It shows up in the ceiling's token growth and nowhere
+else. The exact delta is measured with
+`node scripts/report-obligation-burden.mjs` against the pre-change baseline
+(floor 34 obligations / 33,891 bytes, ceiling 236 obligations / 149,866
+bytes) and stated wherever this change is reported, not predicted here.
 
 Nothing here measures the outcome the change exists to produce — that a
 later run actually reaches the determination at Phase 1 and delegates a
