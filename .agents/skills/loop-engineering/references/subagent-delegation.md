@@ -1,10 +1,14 @@
 # Subagent Delegation
 
-Apply this reference for every subagent the loop spawns — [implementation-worker.md](./implementation-worker.md)'s implementation worker and [pre-flight-review.md](./pre-flight-review.md)'s review reader today, and any further role a project adds. It owns what all of them share; each role's own reference states only what is particular to that role, and links back here for the rest.
+Apply this reference for every subagent the loop spawns — [implementation-worker.md](./implementation-worker.md)'s implementation worker, [pre-flight-review.md](./pre-flight-review.md)'s review reader, and [context-ownership.md](./context-ownership.md)'s investigator today, and any further role a project adds. It owns what all of them share; each role's own reference states only what is particular to that role, and links back here for the rest.
 
 ## Why the Loop Delegates
 
-The main actor is the only long-lived actor, and stays so whether or not a phase or stage is delegated. A subagent is a bounded execution actor for one phase of one plan revision — never a second loop driver. Delegating lets a project pin, through that subagent's own definition, the model and reasoning effort it runs at; a harness that instead defaults a definition to inheriting the session's own settings runs the subagent at the main actor's cost, and the saving delegation is meant to buy disappears without anything reporting it.
+The main actor is the only long-lived actor, and stays so whether or not a phase or stage is delegated. A subagent is a bounded execution actor for one phase of one plan revision — never a second loop driver.
+
+The loop delegates for context separation, and each role separates a different context from the main actor's own: an implementation worker so it does not inherit Phase 1's accumulated planning context; a pre-flight review reader so it does not inherit the implementer's reasoning state; [context-ownership.md](./context-ownership.md)'s investigator so a large payload it is sent to read never enters the main actor's context at all. What differs between the roles is only what each may touch — the reason for separating is the same across all three, and a further role a project adds states its own context reason the same way.
+
+Delegating also lets a project pin, through a subagent's own definition, the model and reasoning effort it runs at — a secondary benefit, not the reason itself. A harness that instead defaults a definition to inheriting the session's own settings runs the subagent at the main actor's cost, and that saving disappears without anything reporting it; the context separation above holds either way, because it comes from the subagent being a distinct actor, not from what it costs to run.
 
 ## Harness Permission Determination
 
@@ -55,7 +59,7 @@ Only the terminal step differs by role. [implementation-worker.md](./implementat
 
 ## Model and Effort Certainty
 
-Whether a subagent is _capable_ and which model it _runs_ are separate questions, and a harness may answer the second only partially. Reporting a configured value as a confirmed one turns an unverified assumption into a claim the human cannot audit. This classification governs every role the run spawns — the implementation worker and a pre-flight review worker alike.
+Whether a subagent is _capable_ and which model it _runs_ are separate questions, and a harness may answer the second only partially. Reporting a configured value as a confirmed one turns an unverified assumption into a claim the human cannot audit. This classification governs every role the run spawns — the implementation worker, a pre-flight review worker, and an investigator alike.
 
 Classify model and effort independently as:
 
@@ -100,7 +104,7 @@ Everything else belongs in the task. A definition that also carried the decision
 
 ## Writer Versus Reader
 
-Every role the loop spawns is one of two kinds. A writer edits the checkout and holds [the one lease](./writer-ownership-and-recovery.md#branch-and-writer-lease) the run tracks — no writer, the main actor, or one worker instance, never more than one at a time. A reader — the pre-flight reviewer today — writes nothing, so it does not enter that accounting at all: it holds no lease, displaces none, and is not the second implementation worker the lease rules forbid a run from spawning.
+Every role the loop spawns is one of two kinds. A writer edits the checkout and holds [the one lease](./writer-ownership-and-recovery.md#branch-and-writer-lease) the run tracks — no writer, the main actor, or one worker instance, never more than one at a time. A reader — the pre-flight reviewer and the investigator today — writes nothing, so it does not enter that accounting at all: it holds no lease, displaces none, and is not the second implementation worker the lease rules forbid a run from spawning.
 
 A reader still never runs concurrently with a writer. The two kinds are not interchangeable at runtime: a role that spawns while a writer is still working races it exactly as a second writer would, whatever that role reads or returns.
 
