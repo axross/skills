@@ -88,6 +88,16 @@ is testing.
   expectation — both what had to appear and what had to not.
 - **`transcript`** asks whether the agent reasoned as expected.
 
+**The `transcript` question is answerable only while the pinned probe model
+emits reasoning content into its stored transcript.** A model that returns a
+`thinking` block carrying a signature and no content leaves nothing for a
+`transcript` factor's judge to read, whatever the phase asks — this is a
+property of the model generation, not of the CLI or of this instrument, so
+repinning to a model that withholds it silently empties the phase rather than
+raising any error.
+[`2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md`](../decisions/2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md)
+holds the measurement that found this and the model it settled on.
+
 A scenario whose skill leaves no trace an outcome or a transcript phase could
 read — because its surface is not the working tree, or because holding it
 changes only what the agent says along the way — declares discovery alone
