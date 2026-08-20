@@ -174,7 +174,7 @@ See [plan-document.md](./references/plan-document.md) for:
 
 - MUST read [plan-document.md](./references/plan-document.md) before writing or revising the plan in the issue body, before comparing a plan revision's identity, and before writing a plan that amends another issue's already-approved plan.
 - MUST establish the harness-permission determination from [Delegated Implementation](#delegated-implementation) before the first Phase 1 investigation read a subagent could carry, on every run and regardless of whether a policy statement was noticed, landing on permitted, barred, or undetermined; where that determination needs a question, the single per-run question covers every role the run may spawn, the investigator included, so no later executor resolution re-asks it.
-- MUST read [context-ownership.md](./references/context-ownership.md) before deciding, during investigation, whether to read a large payload itself or hand it to an investigator.
+- MUST raise the investigator question on every Phase 1 investigation read wide enough to carry one — a broad code or history search, a long issue thread, a file tree being located in — rather than leaving it to surface mid-read; [Delegated Implementation](#delegated-implementation)'s context-ownership rule then governs where that read lands. Phase 1 is where a run's largest reads happen and nothing else there raises the question, which is the whole gap this bullet closes.
 
 Then step through the phase:
 
