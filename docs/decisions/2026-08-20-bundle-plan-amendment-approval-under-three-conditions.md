@@ -26,7 +26,7 @@ different ways of getting there.
 
 The amending plan's own approval carries the amendment's approval under the
 conditions stated in
-[plan-document.md](../../skills/loop-engineering/references/plan-document.md)'s
+[`plan-document.md`](../../skills/loop-engineering/references/plan-document.md)'s
 Plan Amendment section, rather than always requiring a second, separate
 approval. Failing any one of those conditions, the amendment takes its own
 approval against the amended plan's own revision identity instead — #395's
@@ -62,7 +62,7 @@ a habit a particular run happened to follow.
 
 A plan that amends another issue's already-approved plan now has one
 documented disposition instead of two undocumented habits, stated in
-[plan-document.md](../../skills/loop-engineering/references/plan-document.md).
+[`plan-document.md`](../../skills/loop-engineering/references/plan-document.md).
 Neither #392, #395, #397, nor #399 is reopened, amended, or re-approved by
 this decision — it governs practice going forward, and each of those issues
 remains readable exactly as it stood when it was approved.

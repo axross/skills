@@ -34,10 +34,9 @@ by whoever happens to be writing the plan.
    rather than a standing fact the tree carries everywhere.
 3. **`docs/decisions/`.** Failing both, a decision MUST land in a new decision
    record there, under that capability's own filename and structure rules,
-   when it constrains future work and its rationale is unrecoverable from the
-   code — the two conditions
+   when it meets the existence test
    [living-project-documentation's decision-record guidance](../../skills/living-project-documentation/references/decision-records.md)
-   already states, and no third condition invented here.
+   states — those two conditions, and no third condition invented here.
 
 A decision the test places nowhere MAY be one the plan closes on without a
 durable home, and the plan MUST state that explicitly rather than leaving the
