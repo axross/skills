@@ -16,8 +16,17 @@
  * model most of all — is held constant across the measurements being
  * compared. a change here supersedes existing measurements rather than
  * extending them.
+ *
+ * it is also constrained to a model whose stored transcript actually
+ * carries reasoning content: the `transcript` evaluation phase reads that
+ * transcript and asks whether the agent reasoned as expected, and a model
+ * that returns a `thinking` block with a signature and no content leaves
+ * that phase nothing to judge. see
+ * docs/decisions/2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md
+ * for the measurement that found the Claude 5 family withholding and the
+ * 4.5 family not.
  */
-export const MODEL = "claude-sonnet-5";
+export const MODEL = "claude-sonnet-4-5";
 
 /**
  * on every invocation, no exceptions.
