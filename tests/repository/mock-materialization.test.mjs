@@ -33,13 +33,16 @@
 // directory, not to edit its history.jsonc.
 
 import { spawnSync } from "node:child_process";
-import { readdir, rm } from "node:fs/promises";
+import { readdir, rm, stat } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 
 import { describe, expect, it, onTestFinished } from "vitest";
 
 import { materialize as materializeMock } from "../../tools/evaluation/src/mock-workspace.mjs";
 import { repoPath } from "../helpers/run.mjs";
+
+/** the two paths a mock's own working agreement occupies — see materialize()'s `agentsMd` option. */
+const AGENTS_MD_FILES = ["AGENTS.md", "CLAUDE.md"];
 
 /** every file under `root`, POSIX-style and relative, skipping `.git`. */
 async function listFiles(root, base = root) {
@@ -68,17 +71,46 @@ function gitLog(workspace) {
 }
 
 /**
- * materializes `mock` with `skills` installed, registers cleanup, and returns
- * a `{ result, workspace }` pair shaped like this suite's other spawn-based
- * helpers do: `result.code` is 0 on success and 2 on a materialization error
- * — mirroring the exit codes the deleted setup.mjs CLI used to report — with
- * the thrown error's message as `result.output`. That keeps the assertions
- * below, and the `toPassCleanly()` matcher they use, reading exactly as they
- * did when this called a spawned CLI.
+ * every path any commit in `workspace`'s history ever touched, deduped —
+ * used to confirm a withheld path was never named by a commit, not merely
+ * absent from the final tree.
  */
-async function materialize(mock, skills = []) {
+function gitCommittedFiles(workspace) {
+  const proc = spawnSync("git", ["log", "--name-only", "--pretty=format:"], {
+    cwd: workspace,
+    encoding: "utf8",
+  });
+  if (proc.status !== 0) throw new Error(proc.stderr || "git log --name-only failed");
+  return new Set(
+    proc.stdout
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean),
+  );
+}
+
+/**
+ * materializes `mock`, registers cleanup, and returns a `{ result, workspace }`
+ * pair shaped like this suite's other spawn-based helpers do: `result.code`
+ * is 0 on success and 2 on a materialization error — mirroring the exit
+ * codes the deleted setup.mjs CLI used to report — with the thrown error's
+ * message as `result.output`. That keeps the assertions below, and the
+ * `toPassCleanly()` matcher they use, reading exactly as they did when this
+ * called a spawned CLI.
+ *
+ * @param {string} mock
+ * @param {{ skills?: string[], agentsMd?: boolean }} [options] `agentsMd` is
+ *   omitted rather than passed as `undefined` when not given, so a case that
+ *   wants the default keeps exercising materialize()'s own default rather
+ *   than this helper's.
+ */
+async function materialize(mock, { skills = [], agentsMd } = {}) {
   try {
-    const workspace = await materializeMock({ mock, skills });
+    const workspace = await materializeMock({
+      mock,
+      skills,
+      ...(agentsMd === undefined ? {} : { agentsMd }),
+    });
     onTestFinished(() => rm(workspace, { recursive: true, force: true }));
     return { result: { code: 0, output: "" }, workspace };
   } catch (error) {
@@ -138,7 +170,7 @@ describe("every mock under tools/evaluation/mocks/", () => {
   it.each(mocks)(
     "leaves nothing for git to report once a skill is installed: %s",
     async (mock) => {
-      const { result, workspace } = await materialize(mock, ["unit-testing"]);
+      const { result, workspace } = await materialize(mock, { skills: ["unit-testing"] });
 
       expect(
         result,
@@ -150,4 +182,73 @@ describe("every mock under tools/evaluation/mocks/", () => {
       ).toBe("");
     },
   );
+
+  // a `true` declaration claims a mock ships its working agreement — see
+  // scenario.schema.json's own agentsMd description — and nothing inside
+  // materialize() asserts that; this is the check that claim is checkable
+  // against, and where a mock added without either file would fail rather
+  // than pass quietly.
+  it.each(mocks)("ships an AGENTS.md and a CLAUDE.md, so agentsMd: true claims nothing missing: %s", async (mock) => {
+    for (const file of AGENTS_MD_FILES) {
+      await expect(
+        stat(repoPath(`tools/evaluation/mocks/${mock}/${file}`)),
+        `${mock} has no ${file}`,
+      ).resolves.toBeDefined();
+    }
+  });
+});
+
+describe("materialize()'s agentsMd option", () => {
+  it.each(mocks)("withholds the working agreement when declared false: %s", async (mock) => {
+    const { result, workspace } = await materialize(mock, { agentsMd: false });
+
+    expect(result, `${mock} does not satisfy the materializer's contract with agentsMd: false`).toPassCleanly();
+
+    const files = await listFiles(workspace);
+    for (const file of AGENTS_MD_FILES) {
+      expect(files, `${mock}'s workspace still ships ${file}`).not.toContain(file);
+    }
+
+    const committed = gitCommittedFiles(workspace);
+    for (const file of AGENTS_MD_FILES) {
+      expect(committed, `${mock}'s replayed history still names ${file}`).not.toContain(file);
+    }
+
+    expect(
+      spawnSync("git", ["status", "--porcelain"], { cwd: workspace, encoding: "utf8" }).stdout,
+      `${mock}'s workspace has something uncommitted after withholding the working agreement`,
+    ).toBe("");
+  });
+
+  it.each(mocks)(
+    "keeps the working agreement when declared true, identical to the default: %s",
+    async (mock) => {
+      const withDefault = await materialize(mock);
+      const withTrue = await materialize(mock, { agentsMd: true });
+
+      expect(withDefault.result, `${mock} does not materialize under the default option`).toPassCleanly();
+      expect(withTrue.result, `${mock} does not materialize with agentsMd: true`).toPassCleanly();
+
+      const filesDefault = await listFiles(withDefault.workspace);
+      const filesTrue = await listFiles(withTrue.workspace);
+      for (const file of AGENTS_MD_FILES) {
+        expect(filesTrue, `${mock}'s workspace is missing ${file} with agentsMd: true`).toContain(file);
+      }
+      expect(filesTrue, `${mock}'s agentsMd: true tree differs from its default one`).toEqual(filesDefault);
+      expect(
+        gitLog(withTrue.workspace),
+        `${mock}'s agentsMd: true history differs from its default one`,
+      ).toEqual(gitLog(withDefault.workspace));
+    },
+  );
+
+  it.each(mocks)("materializes reproducibly when declared false: %s", async (mock) => {
+    const first = await materialize(mock, { agentsMd: false });
+    const second = await materialize(mock, { agentsMd: false });
+
+    expect(first.result.code).toBe(0);
+    expect(second.result.code).toBe(0);
+    expect(await listFiles(second.workspace)).toEqual(await listFiles(first.workspace));
+    expect(gitLog(second.workspace)).toEqual(gitLog(first.workspace));
+  });
 });
