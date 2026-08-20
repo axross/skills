@@ -129,13 +129,19 @@
     {
       "message": "query options factories",
       "files": [
+        "src/queries/author/author-query.ts",
         "src/queries/sites/sites-query.ts",
+        "src/queries/revisions/revision-list-query.ts",
         "src/queries/posts/post-list-query.ts",
         "src/queries/posts/post-query.ts",
         "src/queries/posts/post-query-keys.test.ts",
         "src/queries/posts/post-save-mutation.ts",
         "src/queries/posts/post-publish-mutation.ts"
       ]
+    },
+    {
+      "message": "revisions screen",
+      "files": ["src/routes/RevisionsPage.tsx", "src/routes/RevisionsPage.module.css"]
     },
     {
       "message": "routes + shell",

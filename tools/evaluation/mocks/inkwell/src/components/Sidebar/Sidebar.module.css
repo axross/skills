@@ -55,7 +55,15 @@
   color: #1f2a44;
   font-size: 0.875rem;
   font-weight: 600;
+  text-decoration: none;
+}
+
+/* The weight carries the current section as well as the fill does, so the
+   two tiers below still read it once the label is gone and only the icon
+   is left to carry it. */
+.navItemCurrent {
   background: #e7e9ef;
+  font-weight: 700;
 }
 
 .navIcon {
@@ -66,16 +74,51 @@
   white-space: nowrap;
 }
 
+.author {
+  margin-top: auto;
+  border-top: 1px solid #dfe3ea;
+  padding-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.authorAvatar {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #dbe1ec;
+  color: #1f2a44;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authorName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1f2a44;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Below this width there isn't room for both the icon and the label —
-   the label drops and the icon alone still identifies the section. This
-   is driven by the sidebar's own box, never the viewport, so an embedding
-   page that gives the sidebar less room re-tiers it correctly too. */
+   the label drops and the icon alone still identifies the section. The
+   author's name goes with them, leaving the avatar. This is driven by the
+   sidebar's own box, never the viewport, so an embedding page that gives
+   the sidebar less room re-tiers it correctly too. */
 @container sidebar (width < 12rem) {
-  .navLabel {
+  .navLabel,
+  .authorName {
     display: none;
   }
 
-  .navItem {
+  .navItem,
+  .author {
     justify-content: center;
   }
 }

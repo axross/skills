@@ -106,3 +106,55 @@ describe("POST /sites/:siteSlug/posts/:postId/publish", () => {
     expect(rows[0]?.title).toBe("Hello");
   });
 });
+
+describe("GET /me", () => {
+  it("reports the author the session boundary forwarded, with how many sites they have", async () => {
+    const response = await app.request("/me", {
+      headers: { "x-forwarded-user": "author_42", "x-forwarded-user-name": "Ada Whitfield" },
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      id: "author_42",
+      name: "Ada Whitfield",
+      siteCount: 1,
+    });
+  });
+
+  it("falls back to the development author when nothing forwarded one", async () => {
+    const response = await app.request("/me");
+
+    const body = (await response.json()) as { id: string; name: string };
+    expect(body.id).toBe("author_dev");
+    expect(body.name).toBe("Local Developer");
+  });
+});
+
+describe("GET /sites/:siteSlug/revisions", () => {
+  it("lists a site's revisions newest first, each naming its post", async () => {
+    await db.insert(revisions).values([
+      { postId: 1, title: "Hello", body: "First post.", createdAt: "2026-08-01 09:00:00" },
+      { postId: 1, title: "Hello again", body: "Edited.", createdAt: "2026-08-09 17:45:00" },
+    ]);
+
+    const response = await app.request("/sites/acme/revisions");
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as Array<{ title: string; postTitle: string }>;
+    expect(body.map((revision) => revision.title)).toEqual(["Hello again", "Hello"]);
+    expect(body[0]?.postTitle).toBe("Hello");
+  });
+
+  it("returns an empty list for a site that has never published", async () => {
+    const response = await app.request("/sites/acme/revisions");
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+  });
+
+  it("404s for a site that does not exist", async () => {
+    const response = await app.request("/sites/nope/revisions");
+
+    expect(response.status).toBe(404);
+  });
+});

@@ -6,10 +6,11 @@ import { queryClient } from "./lib/queryClient";
 import { Layout } from "./routes/Layout";
 import { PostEditorPage } from "./routes/PostEditorPage";
 import { PostListPage } from "./routes/PostListPage";
+import { RevisionsPage } from "./routes/RevisionsPage";
 import { RootRedirect } from "./routes/RootRedirect";
 
-// Two routes, plus the root path that only ever redirects into the first
-// one — see AGENTS.md for why there's no third.
+// A section per sidebar entry, plus the post editor under the post list and
+// the root path that only ever redirects into the first of them.
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -20,6 +21,7 @@ export function App() {
               <Route path="/" element={<RootRedirect />} />
               <Route path="/sites/:siteSlug/posts" element={<PostListPage />} />
               <Route path="/sites/:siteSlug/posts/:postId" element={<PostEditorPage />} />
+              <Route path="/sites/:siteSlug/revisions" element={<RevisionsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
