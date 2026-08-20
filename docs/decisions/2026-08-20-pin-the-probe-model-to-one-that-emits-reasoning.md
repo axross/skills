@@ -20,26 +20,43 @@ open was whether the CLI could be made to emit the content at all.
 That was measured in this session, against the `claude` CLI version 2.1.237,
 by running one realistic edit task in a scratch workspace under each model
 and counting the `thinking` blocks the `--output-format stream-json` stream
-carried:
+carried. A pre-flight review of a first pass through this decision raised an
+untested candidate closer to the previous pin, so the table below adds two
+rows — `claude-opus-4-7` and `claude-sonnet-4-6` — to the original five:
 
 | Probe model                             | `thinking` blocks | non-empty | characters |
 | --------------------------------------- | ----------------- | --------- | ---------- |
 | `claude-sonnet-5` (the pin at the time) | 5                 | 0         | 0          |
 | `claude-opus-5`                         | 2                 | 0         | 0          |
+| `claude-opus-4-7`                       | 2                 | 0         | 0          |
+| `claude-opus-4-6`                       | 2                 | 2         | 2,356      |
+| `claude-sonnet-4-6`                     | 2                 | 2         | 1,291      |
 | `claude-sonnet-4-5-20250929`            | 2                 | 2         | 3,178      |
-| `claude-opus-4-5-20251101`              | 2                 | 2         | 2,556      |
 | `claude-haiku-4-5-20251001`             | 3                 | 3         | 3,018      |
 
 Every empty block was stored as `{"type":"thinking","thinking":"","signature":"…"}`,
 matching what issue #439 found across all 99 `thinking` blocks of the five
-probe artifacts above.
+probe artifacts read before this session.
 
 `--include-partial-messages` was tried on the same task under
 `claude-sonnet-5`. It emits 16 `thinking_delta` events whose `thinking` field
 is `""` and whose only payload is an `estimated_tokens` count, alongside
 `signature_delta` events carrying the signature. So no CLI flag recovers the
-content: it is withheld upstream of the CLI, and the split is by model
-generation — the Claude 5 family withholds, the 4.5 family does not.
+content: what a `thinking` block carries is governed by the request's
+`thinking.display` setting, not by anything the CLI's flags reach.
+`"summarized"` returns a readable summary of the agent's reasoning —
+never the raw chain of thought, which no model exposes on any display
+setting — and `"omitted"` leaves the field an empty string; the reasoning
+happens and is billed either way. The three empty rows above are every model
+in the table that defaults to `"omitted"`, and the four non-empty rows are
+every model that still defaults to `"summarized"`. The boundary sits at
+Claude Opus 4.7: `"omitted"` is the default from Opus 4.7 onward (Fable 5,
+Mythos 5, Opus 5, Opus 4.8, Opus 4.7, and Sonnet 5 among them), and
+`"summarized"` is the default on Opus 4.6, Sonnet 4.6, and earlier models.
+`claude --help` on CLI 2.1.237 exposes no way to set `thinking.display`, so
+the practical conclusion still holds — no CLI flag recovers the content —
+but the reason is that request setting, not a fixed property of a model
+generation.
 
 The reproducing command, run against a scratch directory holding one small
 `calc.mjs`:
@@ -65,15 +82,15 @@ measurement is superseded in practice.
 
 ## The decision
 
-**The probe model pins to `claude-sonnet-4-5` — the closest model to the
-previous pin that emits reasoning — so a `transcript` factor's judge is
+**The probe model pins to `claude-sonnet-4-6` — the newest model that still
+carries the `summarized` default — so a `transcript` factor's judge is
 handed the material its phase's definition claims.** The phase keeps its
 declared question; the material is made to match it, rather than the
 question being cut down to what the previous pin's material could support.
 `tools/evaluation/src/spawn.mjs`'s `MODEL` constant carries the pin, and
 `docs/specs/skill-evaluation.md`, "Three phases", states that the
-`transcript` question is answerable only while the pinned model emits
-reasoning content.
+`transcript` question is answerable only while the pinned model's requests
+carry a `thinking.display` setting that returns the reasoning.
 
 ## What was rejected
 
@@ -86,25 +103,40 @@ material.
 
 **Keep `claude-sonnet-5` and recover reasoning through a CLI flag.** Ruled
 out by the measurement, not by argument — `--include-partial-messages`
-yields zero characters of reasoning under that model, both in the general
-run above and in a check taken specifically against it.
+yields zero characters of reasoning under that model, and `claude --help`
+exposes no flag that sets `thinking.display`.
 
-**Pin `claude-opus-4-5`.** Emits reasoning, but costs more per probe across
-every scenario, condition, and repetition of a run that is already the
-instrument's dominant expense.
+**Pin `claude-sonnet-4-5`.** Emits reasoning, but is a generation further
+from the previous pin than `claude-sonnet-4-6` is. It was this decision's
+first choice, taken before a pre-flight review named `claude-sonnet-4-6` as
+an untested candidate closer to the previous pin and this session located
+the `thinking.display` boundary at Opus 4.7; once `claude-sonnet-4-6`
+measured as still carrying the `summarized` default, it superseded
+`claude-sonnet-4-5` as the closer, equally valid choice.
 
-**Pin `claude-haiku-4-5`.** Emits reasoning and is the cheapest of the three,
-but is the weakest probe agent, and is already the model most `reasoning`
-factors name as their judge — pinning it as the probe as well would collapse
-a distinction the instrument otherwise keeps.
+**Pin `claude-opus-4-6`.** Emits reasoning, but costs $5.00 per million
+input tokens and $25.00 per million output against `claude-sonnet-4-6`'s
+$3.00 and $15.00 — a difference that recurs across every scenario,
+condition, and repetition of a run that is already the instrument's
+dominant expense.
+
+**Pin `claude-haiku-4-5`.** Emits reasoning and is the cheapest alternative
+measured, but is the weakest probe agent, and is already the model most
+`reasoning` factors name as their judge — pinning it as the probe as well
+would collapse a distinction the instrument otherwise keeps.
 
 ## What it costs
 
 **The probe agent moves back one model generation.** A measurement taken
-under the new pin describes how a skill behaves under a 4.5-family agent,
+under the new pin describes how a skill behaves under a Sonnet 4.6 agent,
 while a project installing these skills is likely running a Claude 5 one —
 external validity is what buys the reasoning material, and the trade is
 recorded here rather than mitigated.
+
+**Per-probe cost is unchanged.** `claude-sonnet-4-6` is published at the
+same $3.00/$15.00 per million input/output tokens as `claude-sonnet-5`, with
+the same 1M context window, so the repin does not by itself raise what a
+probe costs.
 
 **A stored transcript grows.** It now carries reasoning text, which raises
 the token cost of every `reasoning` judgment taken over it, since

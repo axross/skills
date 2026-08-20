@@ -88,13 +88,16 @@ is testing.
   expectation — both what had to appear and what had to not.
 - **`transcript`** asks whether the agent reasoned as expected.
 
-**The `transcript` question is answerable only while the pinned probe model
-emits reasoning content into its stored transcript.** A model that returns a
-`thinking` block carrying a signature and no content leaves nothing for a
-`transcript` factor's judge to read, whatever the phase asks — this is a
-property of the model generation, not of the CLI or of this instrument, so
-repinning to a model that withholds it silently empties the phase rather than
-raising any error.
+**The `transcript` question is answerable only while the pinned probe model's
+requests carry a `thinking.display` setting that returns the reasoning.** A
+model whose requests default to `omitted` returns a `thinking` block carrying
+a signature and no content, leaving nothing for a `transcript` factor's judge
+to read, whatever the phase asks — even a `summarized` display returns only a
+summary of the agent's reasoning, never the raw chain of thought, which no
+model exposes. The default moved from `summarized` to `omitted` at Claude
+Opus 4.7, and the CLI offers no flag to override it, so repinning the probe
+model past that boundary silently empties the phase rather than raising any
+error.
 [`2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md`](../decisions/2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md)
 holds the measurement that found this and the model it settled on.
 

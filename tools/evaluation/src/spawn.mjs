@@ -21,12 +21,16 @@
  * carries reasoning content: the `transcript` evaluation phase reads that
  * transcript and asks whether the agent reasoned as expected, and a model
  * that returns a `thinking` block with a signature and no content leaves
- * that phase nothing to judge. see
+ * that phase nothing to judge. whether it does is governed by the
+ * request's `thinking.display` setting, which defaults to `omitted` from
+ * Claude Opus 4.7 onward and to `summarized` on every model before it; the
+ * CLI offers no flag to set that field, so the model pin is the only
+ * lever this instrument has. see
  * docs/decisions/2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md
- * for the measurement that found the Claude 5 family withholding and the
- * 4.5 family not.
+ * for the measurement that located the boundary and the model it settled
+ * on.
  */
-export const MODEL = "claude-sonnet-4-5";
+export const MODEL = "claude-sonnet-4-6";
 
 /**
  * on every invocation, no exceptions.
