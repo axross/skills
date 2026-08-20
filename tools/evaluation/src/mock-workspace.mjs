@@ -594,6 +594,13 @@ export async function materialize({
     }
 
     runGit(["init", "--quiet", "-b", "main"], workspace);
+    // these two lines set the identity a *probe's* own `git commit` runs
+    // under; a runner with no ambient git config fails it outright otherwise.
+    // the replay below is unaffected — commitEnv() pins GIT_AUTHOR_* /
+    // GIT_COMMITTER_* per commit, and env wins over config, so no replayed
+    // hash moves. See fc83b6c.
+    runGit(["config", "user.name", AUTHOR_NAME], workspace);
+    runGit(["config", "user.email", AUTHOR_EMAIL], workspace);
     commits.forEach((commit, index) => {
       // a commit a patch emptied is skipped and reported. `git commit` exits non-zero
       // on an empty staged set, so leaving it to `git` would abort materialization;
