@@ -32,8 +32,10 @@ independent question — the barred/undetermined boundary — deciding that an
 unreadable policy defaults to **undetermined**, never **barred**, and that "a
 policy that names the human's request as its own condition, in any wording,
 is the canonical undetermined case and is never classified barred." Neither
-half of that record is contradicted by what follows; the second half is
-narrowed, in the sense stated below.
+half of that record's _reasoning_ is contradicted by what follows — the
+mechanism it built stands, unchanged, and is restated below — but the second
+half's own unconditional sentence no longer holds everywhere, which is why
+that record is superseded by this one rather than left standing beside it.
 
 Moving the trigger to Phase 1 alone would fix the routing and worsen the
 timing: on an undetermined host, the run's first observable act would become
@@ -88,22 +90,37 @@ rests on; resting on the new route now requires quoting the mandate, the same
 way the existing routes name their policy text or their no-restricting-policy
 observation.
 
-**What this trades against the 2026-08-06 record.** That record's
-unreadable-policy mechanism is unchanged: a policy the run cannot read as
-unambiguously absolute still defaults to **undetermined**, never **barred**,
-and **barred** still requires positive evidence no request could lift. What
-changes is the record's characterization of a _readable_ request-conditioned
-policy as "the canonical undetermined case." That characterization held only
-because no route existed for such a policy to resolve any other way. Now one
-does: where a project's own working agreement already supplies the request
-the policy conditions on, the case resolves to **permitted** instead, and
-"undetermined" is reserved for where no such mandate reaches. The record's
-own language is narrowed on this one point, deliberately without the formal
-supersede mechanism [decision-records.md](../../skills/living-project-documentation/references/decision-records.md)
-defines: nothing in `2026-08-06-default-unreadable-delegation-policy-to-undetermined.md`
-is wrong as written for the case it was written against — a project with no
-standing delegation mandate still lands exactly where that record put it —
-and its own status stays `accepted`, not `superseded`.
+**The 2026-08-06 record is superseded by this one, not narrowed in place.**
+That record's unreadable-policy mechanism carries forward unchanged: a policy
+the run cannot read as unambiguously absolute still defaults to
+**undetermined**, never **barred**, and **barred** still requires positive
+evidence no request could lift — both restated above, in
+[subagent-delegation.md](../../skills/loop-engineering/references/subagent-delegation.md)
+as edited by this decision, and here in this record's own text, so the
+constraint survives the record that first stated it being superseded. What
+the standing-mandate route falsifies is one sentence of that record's own
+text: "a policy that names the human's request as its own condition, in any
+wording, is the canonical undetermined case and is never classified barred."
+That sentence is unconditional as written, and the standing-mandate route
+makes it false for every request-conditioned policy the route reaches — a
+project whose working agreement adopts this loop as its default change loop
+now resolves that same policy to **permitted**. Leaving the 2026-08-06 record
+`accepted`, with only this record's prose noting the narrowing, would leave a
+reader who opens that record on its own — with no reason to also find this
+one — still reading that sentence as a live, unconditional rule. A pre-flight
+review of an earlier revision of this plan raised exactly that: the plan had
+assumed the record could stay `accepted` on this reasoning, which is what
+this record now rejects.
+[decision-records.md](../../skills/living-project-documentation/references/decision-records.md)
+gives `status` exactly two values, `accepted` or `superseded`, and defines no
+third state for a record that is narrower than written — so narrowing it in
+place is not an option the convention offers. The 2026-08-06 record is
+therefore superseded: its `status` is flipped to `superseded` and its
+`superseded_by` names this file, and nothing else in it changes. Its
+reasoning stays exactly as written, including for the case it remains
+correct about — a project with no standing delegation mandate still lands
+exactly where that record put it — because a superseded record is replaced,
+never edited for substance.
 
 ## What was rejected
 
@@ -127,6 +144,15 @@ and its own status stays `accepted`, not `superseded`.
   `CLAUDE.md`.** Issue #245's parked proposal. A portable fix inside the
   distributable skill reaches every installing project; an entry-point line
   reaches only this one repository.
+- **Leave the 2026-08-06 record `accepted` and narrow it in prose only.** An
+  earlier revision of this plan assumed this route, on the reasoning that
+  nothing in that record is wrong for the case it was written against.
+  Rejected once a pre-flight review pointed out the record's own sentence is
+  unconditional as written: a reader who opens it alone still reads a claim
+  the standing-mandate route now makes false wherever that route reaches, and
+  [decision-records.md](../../skills/living-project-documentation/references/decision-records.md)
+  offers no status between `accepted` and `superseded` for a record that is
+  merely narrower than written.
 
 ## Consequences accepted
 
