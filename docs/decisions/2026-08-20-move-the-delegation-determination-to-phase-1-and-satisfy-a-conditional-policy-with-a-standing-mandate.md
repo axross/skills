@@ -70,9 +70,21 @@ carries the matching MUST-read — closing the second structural gap alongside
 the first, since that reference was reachable only from a decision Phase 1
 never asked the run to make either. Phase 2's existing obligation is restated
 rather than duplicated: it reuses the determination Phase 1 already
-established for a run that passed through Phase 1, and establishes it there
-only for a run that reached Phase 2 without passing through Phase 1 — a
-resume, or an open-pull-request target.
+established for a run that passed through Phase 1, and establishes it for any
+run that did not, before whichever comes first of that run's first
+project-file edit and its first delegated fix.
+
+That last clause is wider than "a run that reached Phase 2", and deliberately
+so. A first attempt at this change scoped the obligation to runs reaching
+Phase 2 and named an open-pull-request target as one of them. It is not one:
+Intake routes that target to the Phase 4 tail, so it reaches neither Phase 1
+nor Phase 2, and under that scoping no phase required the determination
+before a Phase 4 fix could be delegated — a **barred** policy could have been
+violated with no rule ever having asked. The obligation the earlier text
+replaced had reached that shape by accident, being anchored to "the first
+project-file edit, on every run"; narrowing it to a phase dropped the
+coverage. Anchoring it to a run's first spawn-licensing action instead of to
+a phase is what keeps every Intake shape covered.
 
 **A standing mandate satisfies a request-conditioned policy.**
 `subagent-delegation.md`'s **Permitted** branch gains a fourth route: a
