@@ -59,7 +59,7 @@ between 20 and 40 assistant events to diagnose.
 **The cap and the recorded `turns` are different quantities.** `probe-process.mjs`
 counts lines of the CLI's stream-json output whose `type` is `"assistant"`.
 `transcript/parse.mjs` records the `num_turns` the CLI's own `result` event
-reports. Across these five probes the first ran 1.58 to 1.64 times the second,
+reports. Across these five probes the first ran 1.54 to 1.71 times the second,
 so a reader checking a stored `turns` of 61 against a cap of 100 concludes a
 probe stopped well short of a limit that had in fact just killed it.
 
