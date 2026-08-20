@@ -2,7 +2,7 @@
 status: accepted
 ---
 
-# Settle model and effort for all three subagent roles
+# Pin the investigator at Sonnet with medium effort, and step implementer and reviewer down to high
 
 ## Context
 
