@@ -76,11 +76,33 @@ if (typeof transcript !== "string") {
 // `<type>[(scope)][!]: <description>`, the same shape Conventional Commits
 // v1.0.0 defines: a required `: ` separator with exactly one space, and a
 // scope, when present, in non-empty parentheses.
+//
+// the type is matched case-insensitively against the declared set below,
+// because that is what the contract being scored says: SKILL.md › Type —
+// "MUST treat types as case-insensitive in parsing but SHOULD write them
+// lowercase". The skill's own validator lower-cases before its membership
+// check and passes `Fix:` with a warning, so scoring it `false` here would
+// have this factor disagree with the very contract it exists to measure.
+// The SHOULD is deliberately not enforced: a factor is a boolean, and
+// failing a conforming header over a style preference would be a false
+// negative dressed as rigour.
 const HEADER_RE = /^([A-Za-z]+)(?:\(([^)]*)\))?(!)?: (.+)$/;
 
-// a `git commit` anywhere in a command, with or without leading `git` options
-// (`git -C dir commit`) and whatever precedes it in the line (`cd x && …`,
-// `FOO=bar git commit …`).
+// a `git commit` anywhere in a command, skipping leading `git` flag tokens
+// (`git --no-pager commit`) and whatever precedes it in the line
+// (`cd x && …`, `FOO=bar git commit …`).
+//
+// what this deliberately does NOT match is a `git` flag that takes its value
+// as a separate token — `git -C dir commit`, whose `dir` is not a flag, so
+// the alternation cannot step over it. That form is missed rather than read.
+// Widening the pattern to accept it was considered and rejected: the
+// scenario's completion-floor factor recognizes a commit by the literal
+// substring `git commit` (judgments/check-transcript-tool-input-mentions.mjs),
+// which misses that form too, and the two factors reading a transcript
+// differently is worse than both reading it narrowly — a floor reporting
+// "never committed" beside a header verdict of `true` is a contradictory
+// record, where two narrow readings at least agree. None of the 13 real
+// commits across the retired instrument's 224 transcripts uses it.
 const COMMIT_RE = /\bgit\s+(?:-\S+\s+)*commit\b/g;
 
 // the message flag, in any form git accepts: a short `-m`, a short cluster
@@ -185,7 +207,7 @@ let result = false;
 let reason;
 if (header === null) {
   reason = "it does not take the form `<type>[(scope)][!]: <description>`";
-} else if (!allowed.has(header[1])) {
+} else if (!allowed.has(header[1].toLowerCase())) {
   reason = `its type "${header[1]}" is not one of [${types.join(", ")}]`;
 } else if (header[2] !== undefined && header[2].trim() === "") {
   reason = "its scope is present but empty";

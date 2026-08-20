@@ -60,6 +60,11 @@ describe("a conforming header is credited", () => {
     ["a commit prefixed with author environment assignments", 'GIT_AUTHOR_NAME="A" GIT_AUTHOR_EMAIL="a@b.invalid" git commit -m "docs: note the fallback"'],
     ["a single-quoted message", "git commit -m 'refactor: lift locale parsing into shared'"],
     ["a breaking-change marker", 'git commit -m "feat(api)!: drop the legacy slug route"'],
+    // SKILL.md › Type: "MUST treat types as case-insensitive in parsing but
+    // SHOULD write them lowercase". The skill's own validator passes this with
+    // a warning, so a factor scoring conformance to that contract must too.
+    ["a type whose case differs from the declared set", 'git commit -m "Fix: show post titles rather than slugs"'],
+    ["an all-caps type", 'git commit -m "DOCS: note the locale fallback"'],
   ])("%s", async (_name, command) => {
     const { code, verdict, output } = await judge(bashTranscript(command));
 
