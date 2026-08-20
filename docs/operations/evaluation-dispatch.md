@@ -221,12 +221,13 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eig
   demonstrate.
 - [`give-every-screen-one-loading-and-error-treatment`](../../tools/evaluation/scenarios/give-every-screen-one-loading-and-error-treatment/)
   targets `react-component-development`, alongside `code-maintainability` and
-  `react-component-styling` as peers, against the three route components that
+  `react-component-styling` as peers, against the four route components that
   each hand-roll their own loading and error branches in three different
-  shapes. It carries a `discovery` factor and two `outcome` factors — one
-  checking the repetition landed in one new module both screens import, the
-  other checking that module still lets each screen say its own thing — and
-  no `transcript` factor.
+  shapes — its own `scenario.json` still says three, which is what there were
+  when it was declared. It carries a `discovery` factor and two `outcome`
+  factors — one checking the repetition landed in one new module both screens
+  import, the other checking that module still lets each screen say its own
+  thing — and no `transcript` factor.
 - [`sketch-a-screen-for-how-an-authors-posts-are-doing`](../../tools/evaluation/scenarios/sketch-a-screen-for-how-an-authors-posts-are-doing/)
   targets `wireframe-design`, alongside `high-fidelity-ui-design` and
   `react-component-styling` as peers, against a screen `inkwell` deliberately
