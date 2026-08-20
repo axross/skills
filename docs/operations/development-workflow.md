@@ -70,7 +70,10 @@ two named files: the things `implementer.md`, the writer, must never do are
 few and nameable, and it asks them in prose rather than closing them with a
 withdrawn tool; the things a reader needs are open-ended, which is why both
 readers — `reviewer.md` and `investigator.md` alike — still enforce their own
-short deny-list with tools instead. Neither restriction is complete, and the
+short deny-list with tools instead, the deny-a-short-set-rather-than-enumerate
+reasoning
+[`pre-flight-review.md`](../../skills/loop-engineering/references/pre-flight-review.md#defining-a-reader-of-your-own)
+states for a reader generally. Neither restriction is complete, and the
 file says so — `Bash` remains, so mutation is enforced against the editing
 tools and not against the shell, and reporting rather than publishing stays a
 rule it is asked to honor. Delete this file and the stage is skipped rather
@@ -101,7 +104,10 @@ rather than acting further on what it finds stays a rule it is asked to
 honor. It carries nothing else: the decision boundary, the escalation list, the
 verification obligation, and the return shape for one particular run all
 arrive per run in the task, so a definition restating them would only drift
-from it. It does not mention the loop at all, for the same reason
+from it. Why a definition stops there, and what belongs to the task
+instead, is the same host-neutral rule
+[`subagent-delegation.md`](../../skills/loop-engineering/references/subagent-delegation.md#defining-an-agent-of-your-own)
+states for any agent definition. It does not mention the loop at all, for the same reason
 `implementer.md` does not — the same file works for a caller that has never
 heard of `loop-engineering`. Delete the file and resolution falls back **per
 read** rather than as a whole stage entered or skipped: each large payload the
