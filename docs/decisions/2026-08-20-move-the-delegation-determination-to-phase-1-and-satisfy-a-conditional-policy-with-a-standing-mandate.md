@@ -59,23 +59,20 @@ satisfies such a clause.
 Two changes, made together because the second is what keeps the first from
 trading a routing bug for an earlier, worse-timed question.
 
-**The determination moves to Phase 1.** `SKILL.md`'s Phase 1 now carries a
-`**Guidelines:**` obligation establishing the harness-permission determination
-before the first Phase 1 investigation read a subagent could carry, on every
-run, landing on permitted, barred, or undetermined exactly as before; where a
-question is needed, the single per-run question covers every role the run may
-spawn, the investigator included, so no later executor resolution re-asks it.
-Phase 1's investigation bullet now routes a payload read only for one
-conclusion to `context-ownership.md`, and the same `**Guidelines:**` block
-carries the matching MUST-read — closing the second structural gap alongside
-the first, since that reference was reachable only from a decision Phase 1
-never asked the run to make either. Phase 2's existing obligation is restated
-rather than duplicated: it reuses the determination Phase 1 already
-established for a run that passed through Phase 1, and establishes it for any
-run that did not, before whichever comes first of that run's first
-project-file edit and its first delegated fix.
+**The determination moves to Phase 1.** It becomes an obligation of the
+planning phase, discharged before the first investigation read a subagent
+could have carried rather than at the Phase 2 edit boundary — so on a host
+that still needs a question, that question is asked once, covering every role
+the run may spawn, while the planning context it exists to protect is still
+unspent. Phase 1 also takes on **raising the investigator question at all**,
+which is the second half of the gap: the read obligation was never missing,
+it was reachable only through a decision Phase 1 never asked the run to make.
+So the obligation stays stated once, where it already lived, and Phase 1
+gains only the trigger. Phase 2's obligation is restated rather than
+duplicated, and re-anchored: from a phase to a run's first spawn-licensing
+action.
 
-That last clause is wider than "a run that reached Phase 2", and deliberately
+That re-anchoring is wider than "a run that reached Phase 2", and deliberately
 so. A first attempt at this change scoped the obligation to runs reaching
 Phase 2 and named an open-pull-request target as one of them. It is not one:
 Intake routes that target to the Phase 4 tail, so it reaches neither Phase 1
@@ -86,6 +83,13 @@ replaced had reached that shape by accident, being anchored to "the first
 project-file edit, on every run"; narrowing it to a phase dropped the
 coverage. Anchoring it to a run's first spawn-licensing action instead of to
 a phase is what keeps every Intake shape covered.
+
+`SKILL.md` is the authority on how all three of these rules are worded, and
+this record deliberately does not reproduce that wording. An earlier draft
+did, and went stale twice inside this change's own review rounds — once when
+the Phase 2 obligation was re-anchored, once when the Phase 1 bullet stopped
+restating a read obligation it did not need to restate. Describing what was
+decided, and leaving the rules to state themselves, is what stops a third.
 
 **A standing mandate satisfies a request-conditioned policy.**
 `subagent-delegation.md`'s **Permitted** branch gains a fourth route: a
