@@ -6,7 +6,7 @@
   "peerSkills": ["amplitude-instrumentation", "code-maintainability"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "The names we've given the things we record have drifted — they don't read like they came from the same place, and there's a fourth one coming. I'd like one rule for how a name is formed, one that would still make sense if we swapped the tool out, and the ones we already have brought in line with it."

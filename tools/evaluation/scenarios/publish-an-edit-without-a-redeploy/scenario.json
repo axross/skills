@@ -6,7 +6,7 @@
   "peerSkills": ["tanstack-query-development", "code-maintainability"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "When I fix a typo in a post, the site keeps showing the old text to readers until someone redeploys it. I'd like an edit to reach readers on its own, without a deploy every time."

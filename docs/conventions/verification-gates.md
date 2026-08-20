@@ -130,8 +130,12 @@ the condition's skills into it, and runs the model with `Bash`, `Edit`,
 `Glob`, `Grep`, `Read`, `Skill`, `TodoWrite`, and `Write` all permitted —
 full working access, because one probe's transcript, workspace diff, and
 skill invocations are what all three evaluation phases are judged from
-afterward. What bounds a probe is its declared turn cap (100 by default) —
-a runaway guard, not a budget control — rather than a restricted tool set.
+afterward. What bounds a probe is its declared turn cap — <!-- count:probe-turn-cap -->100<!-- /count -->
+assistant events by default, which is not the turn count a probe's own
+record stores — rather than a restricted tool set. It was put there as a
+runaway guard rather than as a budget control, and the one measurement
+that has tested that premise did not bear it out — see
+[`2026-08-20-read-a-truncated-probe-as-an-unfinished-measurement.md`](../decisions/2026-08-20-read-a-truncated-probe-as-an-unfinished-measurement.md).
 There is one probe shape, not the two the deleted instrument used, and
 nothing here evaluates a pull request's own changed text.
 

@@ -36,8 +36,10 @@ declares, applied by
 [`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs) after
 the mock is copied and **before** its history is replayed, so the workspace a
 model sees is clean and its history unremarkable. A patch that changes the
-file set maintains `history.jsonc` itself. The reasoning, and the
-alternatives it beat, are in
+file set carries an obligation to its mock's `history.jsonc`, stated in
+full — with the mechanism that enforces it — in [Where a Scenario's Patch
+Lives](../../../docs/conventions/directory-structure.md#where-a-scenarios-patch-lives).
+The reasoning, and the alternatives it beat, are in
 [`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
 
 The test for any candidate flaw is: _would a competent developer of this
@@ -63,6 +65,18 @@ naming the coverage that affordance exists for, not a scenario already
 declared. #392's step 4 authors the set, one slice at a time; an entry whose
 scenario is not yet written is a standing reason the mock is shaped as it is,
 and is why the shape survives until then.
+
+## A mock's own working agreement
+
+Every mock below ships an `AGENTS.md` (and a one-line `CLAUDE.md` pointing at
+it) describing the project in its own voice. A scenario's declared
+`harness.agentsMd` decides whether a probe's workspace carries either file:
+`true` keeps both, committed into the replayed history exactly as the mock
+ships them; `false` withholds both — from the materialized tree and from the
+history alike — so a probe measured under `false` runs with no working
+agreement in its workspace at all. A confounder an entry below attributes to
+a mock's `AGENTS.md` — `recall`'s convention note, chief among them — applies
+only to a scenario declaring `true`.
 
 ### `tsuzuri` — choices made for coverage
 

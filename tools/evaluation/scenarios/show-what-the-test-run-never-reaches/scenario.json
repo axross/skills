@@ -6,7 +6,7 @@
   "peerSkills": ["unit-testing", "quality-assurance"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "`npm test` prints a row of green ticks and I have stopped trusting it. Before I rewrite the locale matching under `shared/` I want to be able to run something that tells me how much of the code in there the tests actually exercise — and I want it honest about the files no test touches at all, because those are exactly the ones I am worried about. Make it something I can run again later rather than a one-off you paste into chat. Do not add any new tests yet; I want to see the gap first."

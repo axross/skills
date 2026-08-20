@@ -6,7 +6,7 @@
   "peerSkills": ["react-component-development", "high-fidelity-ui-design"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "The little banner that pops up after I save or publish always slides in with some motion. A couple of people on the team turn their OS's 'reduce motion' setting on because animation bothers them, and they've asked whether the toast could stop moving around for them specifically, without changing it for everyone else."

@@ -6,7 +6,7 @@
   "peerSkills": ["react-component-development", "code-maintainability"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "When I click Publish, I get a little banner telling me it worked (or didn't). When I click Save draft, nothing like that happens — the button just stops saying 'Saving…' and I'm left guessing whether it actually went through. Can you give saving a draft the same kind of confirmation publishing already gets?"

@@ -6,7 +6,7 @@
   "peerSkills": ["react-component-development", "application-security"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "We started sending learners links straight to a deck — the kind you tap in a message and it opens Recall on that deck. It works if you're already signed in. If you're signed out it asks you to sign in, which is fine, but once you're through you land on the deck list and have to go find the deck yourself. People keep tapping the link again thinking it didn't work."

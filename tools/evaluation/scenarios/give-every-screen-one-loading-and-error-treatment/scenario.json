@@ -6,7 +6,7 @@
   "peerSkills": ["code-maintainability", "react-component-styling"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Right now every screen in the console handles \"still loading\" and \"that didn't work\" in its own way — the post list prints one sentence, the editor replaces the whole screen with a different one, and opening the app shows nothing at all for a moment. None of them quite matches the others. We're adding a couple more screens soon and I'd rather each one didn't invent its own version of this all over again."

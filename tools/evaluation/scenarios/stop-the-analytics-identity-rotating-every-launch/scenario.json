@@ -6,7 +6,7 @@
   "peerSkills": ["software-instrumentation", "expo-app-development"],
   "patch": "patch.diff",
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Something's off with our usage numbers. The distinct-device count keeps climbing at roughly the same rate as app opens, so it looks like a lot more people are using the app than actually are. Learners who've been studying with us for months are showing up in the data as if they just started, and someone who's signed in ends up looking like a stranger again the next time they open the app. Can you dig into what's happening and get it fixed?"

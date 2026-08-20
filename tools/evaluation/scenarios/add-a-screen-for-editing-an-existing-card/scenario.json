@@ -10,7 +10,7 @@
   ],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "There's no way to fix a card once it's been added — if you typo the answer, your only option is to delete it and start over, which also throws away everything the app has learned about how well you know it. Can learners get a way to change a card that's already in a deck? This one goes straight to everyone, so it needs to be finished rather than a rough first pass."
