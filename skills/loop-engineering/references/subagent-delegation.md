@@ -59,7 +59,7 @@ Only the terminal step differs by role. [implementation-worker.md](./implementat
 
 ## Model and Effort Certainty
 
-Whether a subagent is _capable_ and which model it _runs_ are separate questions, and a harness may answer the second only partially. Reporting a configured value as a confirmed one turns an unverified assumption into a claim the human cannot audit. This classification governs every role the run spawns — the implementation worker and a pre-flight review worker alike.
+Whether a subagent is _capable_ and which model it _runs_ are separate questions, and a harness may answer the second only partially. Reporting a configured value as a confirmed one turns an unverified assumption into a claim the human cannot audit. This classification governs every role the run spawns — the implementation worker, a pre-flight review worker, and an investigator alike.
 
 Classify model and effort independently as:
 
@@ -104,7 +104,7 @@ Everything else belongs in the task. A definition that also carried the decision
 
 ## Writer Versus Reader
 
-Every role the loop spawns is one of two kinds. A writer edits the checkout and holds [the one lease](./writer-ownership-and-recovery.md#branch-and-writer-lease) the run tracks — no writer, the main actor, or one worker instance, never more than one at a time. A reader — the pre-flight reviewer today — writes nothing, so it does not enter that accounting at all: it holds no lease, displaces none, and is not the second implementation worker the lease rules forbid a run from spawning.
+Every role the loop spawns is one of two kinds. A writer edits the checkout and holds [the one lease](./writer-ownership-and-recovery.md#branch-and-writer-lease) the run tracks — no writer, the main actor, or one worker instance, never more than one at a time. A reader — the pre-flight reviewer and the investigator today — writes nothing, so it does not enter that accounting at all: it holds no lease, displaces none, and is not the second implementation worker the lease rules forbid a run from spawning.
 
 A reader still never runs concurrently with a writer. The two kinds are not interchangeable at runtime: a role that spawns while a writer is still working races it exactly as a second writer would, whatever that role reads or returns.
 

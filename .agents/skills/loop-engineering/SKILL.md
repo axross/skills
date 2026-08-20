@@ -135,7 +135,7 @@ Determine, from the conversation and the current repository state, which kind of
 
 See [resuming-and-handoff.md](./references/resuming-and-handoff.md) for:
 
-- the three-way resolution precedence for a bare "continue" — in-session resume, taking over a handoff package (only where the project ships a session-handoff skill), or ask
+- the four-way resolution precedence for a bare "continue" — in-session resume, taking over a handoff package (only where the project ships a session-handoff skill), resuming a fresh session from the plan-approval gate alone, or ask
 - reconstructing state on an in-session resume and resuming the one pending step
 - reconstructing a delegated run whose worker the harness can no longer produce, before spawning another
 - locating a handoff package, verifying its preconditions, and taking it over in a fresh session

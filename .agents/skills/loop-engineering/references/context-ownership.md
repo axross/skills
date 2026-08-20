@@ -4,7 +4,7 @@ Apply this reference when the main actor decides whether to read something itsel
 
 ## The Investigator Role
 
-An investigator is defined by nothing except what it is given to read and what it returns. It has no capability set of its own to qualify by, no exclusion criterion, and no fourth resolution step: it is a reader in exactly the sense [subagent-delegation.md](./subagent-delegation.md#writer-versus-reader) already states — it writes nothing, holds no lease, and displaces nothing — and every rule that reference states for a reader governs it without restatement here. Resolving one follows the same shared precedence as any other role; where none resolves, the main actor reads the payload itself, the same way it would any other read it owns. That is a per-read fallback, not a stage entered or skipped as a whole the way [pre-flight-review.md](./pre-flight-review.md) is.
+An investigator is defined by nothing except what it is given to read and what it returns. It has no capability set of its own to qualify by, no exclusion criterion, and no fourth resolution step: it is a reader in exactly the sense [subagent-delegation.md](./subagent-delegation.md#writer-versus-reader) already states, and every rule that reference states for a reader governs it without restatement here. Resolving one follows the same shared precedence as any other role; where none resolves, the main actor reads the payload itself, the same way it would any other read it owns. That is a per-read fallback, not a stage entered or skipped as a whole the way [pre-flight-review.md](./pre-flight-review.md) is.
 
 ## The Boundary and the Return Contract
 
