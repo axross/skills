@@ -160,6 +160,8 @@
 
 **Loaded skill set** — the skills an **agent runtime** reported loading for one **evaluation probe**.
 
+**Tool surface** — the tools an **agent runtime** reported holding for one **evaluation probe**, which is not the same thing as the tools the instrument declared it should hold; both are recorded with the probe, because the two can disagree without either one saying so.
+
 **Library skill** — a loaded skill belonging to this library's **skill corpus**.
 
 **Foreign skill** — a loaded skill the environment injected, which no available flag removes without also removing the workspace's own.
