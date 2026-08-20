@@ -10,6 +10,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { fakeClaudeEnv } from "./helpers/fake-cli.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
+import { ALLOWED_TOOLS, DISALLOWED_TOOLS } from "../../tools/evaluation/src/probe-process.mjs";
 import { reconstructWorkspace } from "../../tools/evaluation/src/reconstruct.mjs";
 import { runProbe } from "../../tools/evaluation/src/probe-runner.mjs";
 import { loadScenario } from "../../tools/evaluation/src/scenario.mjs";
@@ -94,6 +95,73 @@ describe("runProbe", () => {
       expect(written).toBe('it("captures even when committed", () => {});\n');
     } finally {
       await rm(workspace, { recursive: true, force: true });
+    }
+  });
+
+  // the drift this records was found by hand, in a stored artifact days
+  // from expiry: the instrument declared a tool the CLI no longer had, and
+  // nothing compared the declaration against the `tools` array the parse
+  // already read. these cases are that comparison, on the probe record.
+  it("records the reported tool surface alongside the declarations it was compared against", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv();
+
+    const recorded = await runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env });
+
+    const tools = recorded.metadata.runtime.tools;
+    expect(tools.reported).toEqual(ALLOWED_TOOLS);
+    expect(tools.allowed).toEqual(ALLOWED_TOOLS);
+    expect(tools.disallowed).toEqual(DISALLOWED_TOOLS);
+    expect(tools.disagreements).toEqual({
+      allowedNotSurfaced: [],
+      deniedButSurfaced: [],
+      undeclared: [],
+    });
+  });
+
+  it("records a disagreement and warns about it, without failing the probe", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv({ FAKE_CLAUDE_TOOLS: "Bash,Read,ToolSearch,WebFetch" });
+    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+    try {
+      const recorded = await runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env });
+
+      const { disagreements } = recorded.metadata.runtime.tools;
+      expect(disagreements.deniedButSurfaced).toEqual(["WebFetch"]);
+      expect(disagreements.undeclared).toEqual(["ToolSearch"]);
+      expect(disagreements.allowedNotSurfaced).toContain("Write");
+
+      // the probe record is intact — a tool-surface disagreement is a fact
+      // about the CLI, never a reason to lose a paid run.
+      expect(recorded.transcript).toContain('"type":"result"');
+      expect(typeof recorded.diff).toBe("string");
+
+      const warnings = stderrSpy.mock.calls.map(([text]) => text).filter(Boolean);
+      expect(warnings.some((line) => line.includes("denied but reported available: WebFetch"))).toBe(true);
+      expect(
+        warnings.some((line) => line.includes("reported available but declared by neither list: ToolSearch")),
+      ).toBe(true);
+    } finally {
+      stderrSpy.mockRestore();
+    }
+  });
+
+  it("records no comparison, and warns about nothing, when the CLI reported no tool surface", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv({ FAKE_CLAUDE_OMIT_TOOLS: "1" });
+    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+    try {
+      const recorded = await runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env });
+
+      expect(recorded.metadata.runtime.tools.reported).toBeNull();
+      expect(recorded.metadata.runtime.tools.disagreements).toBeNull();
+
+      const warnings = stderrSpy.mock.calls.map(([text]) => text).filter(Boolean);
+      expect(warnings.some((line) => line.includes("tool surface"))).toBe(false);
+    } finally {
+      stderrSpy.mockRestore();
     }
   });
 

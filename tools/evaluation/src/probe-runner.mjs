@@ -19,9 +19,16 @@ import { captureWorkspaceDiff } from "./capture.mjs";
 import { redactTranscript, stripCredentials } from "./credentials.mjs";
 import { treeDigest } from "./fingerprint.mjs";
 import { materialize } from "./mock-workspace.mjs";
-import { buildProbeArgv, DEFAULT_TURN_CAP, runProbeProcess } from "./probe-process.mjs";
+import {
+  ALLOWED_TOOLS,
+  buildProbeArgv,
+  DEFAULT_TURN_CAP,
+  DISALLOWED_TOOLS,
+  runProbeProcess,
+} from "./probe-process.mjs";
 import { MODEL } from "./spawn.mjs";
 import { skillsForCondition } from "./scenario.mjs";
+import { compareToolSurface, describeToolSurface } from "./tool-surface.mjs";
 import { parseTranscript, readBehaviour } from "./transcript/index.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -101,6 +108,18 @@ export async function runProbe({
 
     const diff = captureWorkspaceDiff(workspace, { baseCommit: commit });
 
+    const toolSurface = compareToolSurface({
+      reported: parsed.availableTools,
+      allowed: ALLOWED_TOOLS,
+      disallowed: DISALLOWED_TOOLS,
+    });
+    // written where the cleanup warning below is written, so a dispatch log
+    // names the drift on the probe that hit it. the record under `runtime`
+    // is what survives the run; this is what someone watching it sees.
+    for (const line of describeToolSurface(toolSurface)) {
+      process.stderr.write(`  warning: tool surface — ${line}\n`);
+    }
+
     const metadata = {
       scenario: scenario.id,
       condition,
@@ -113,6 +132,12 @@ export async function runProbe({
         os: process.platform,
         instrumentCommit: instrumentCommit(),
         project: { mock: scenario.mock, tree: projectTree, commit },
+        tools: {
+          reported: parsed.availableTools,
+          allowed: ALLOWED_TOOLS,
+          disallowed: DISALLOWED_TOOLS,
+          disagreements: toolSurface,
+        },
       },
       harness: {
         skills: skillDigests,
