@@ -25,7 +25,7 @@ See [verification-evidence.md](./references/verification-evidence.md) for:
 
 **Guidelines:**
 
-- MUST read [verification-evidence.md](./references/verification-evidence.md) before ruling on whether a change's stated evidence covers each surface it touches, before accepting the reason given for a skipped required check, and before treating a green check as evidence for a behavior nothing else covers.
+- MUST read [verification-evidence.md](./references/verification-evidence.md) before accepting `tests pass` or `tested manually` without the command or route behind it, before accepting the reason given for a skipped required check, before treating a green check as evidence for a behavior nothing else covers, and before ruling on whether a fix for a Critical or Major finding was verified a second time.
 
 ## Lint and Format Gate
 
