@@ -72,6 +72,11 @@ const INSTALLED_SKILLS_ROOT = join(REPO_ROOT, ".claude", "skills");
 const HISTORY_FILE = "history.jsonc";
 const DEFAULT_MOCK = "tsuzuri";
 
+// the mock's own working agreement — see materialize()'s `agentsMd` option.
+// named once so the tree-removal and the history-filtering below can never
+// name the pair differently.
+const AGENTS_MD_FILES = ["AGENTS.md", "CLAUDE.md"];
+
 // pinned commit identity — see this file's header for why these are
 // constants rather than read from the environment. named for this
 // instrument (docs/specs/skill-evaluation.md), not for a deleted one.
@@ -433,13 +438,59 @@ function commitEnv(index) {
 }
 
 /**
+ * removes the mock's own `AGENTS.md` and `CLAUDE.md` from the copied,
+ * already-patched tree — the tree half of withholding the working agreement
+ * a `false` `agentsMd` declares. the history half (dropping the same two
+ * paths from every commit's `files` list) is done separately, against the
+ * already-parsed `commits`, since that is the only point either file exists
+ * as data rather than as a path on disk.
+ *
+ * `force: true` rather than asserting the file was there to remove: a mock
+ * that ships neither file is not this function's problem to catch —
+ * tests/repository/mock-materialization.test.mjs asserts every real mock
+ * ships both, which is checkable, where a runtime guard here would be a
+ * branch no test could reach without adding a fixture mock to the tree (see
+ * this instrument's own decision record for why).
+ *
+ * @param {string} workspace the copied-and-patched, not-yet-replayed tree
+ */
+async function withholdAgentsMdFromTree(workspace) {
+  for (const file of AGENTS_MD_FILES) {
+    await rm(join(workspace, file), { force: true });
+  }
+}
+
+/**
+ * drops `AGENTS.md` and `CLAUDE.md` from every commit's `files` list — the
+ * history half of withholding the working agreement, matching what
+ * {@link withholdAgentsMdFromTree} already removed from the tree. a commit
+ * left naming only the working agreement becomes an empty-`files` commit,
+ * which `materialize`'s own replay loop already skips with a note on
+ * stderr — no new branch needed here for that case.
+ *
+ * @param {Array<{ message: string, files: string[] }>} commits
+ * @returns {Array<{ message: string, files: string[] }>} a new array; `commits` is untouched
+ */
+function withholdAgentsMdFromHistory(commits) {
+  return commits.map((commit) => ({
+    message: commit.message,
+    files: commit.files.filter((file) => !AGENTS_MD_FILES.includes(file)),
+  }));
+}
+
+/**
  * expands `tools/evaluation/mocks/<mock>` into a fresh temporary directory:
  * every file the mock ships, with the case's patch applied if it declares
  * one, replayed as a real Git history that matches the patched
  * history.jsonc commit for commit, plus the requested skills copied (as real
  * files — see this file's header) into `.claude/skills/`.
  *
- * @param {{ mock?: string, skills?: string[], install?: boolean, patch?: string|null }} [options]
+ * @param {{ mock?: string, skills?: string[], install?: boolean, patch?: string|null, agentsMd?: boolean }} [options]
+ *   `agentsMd` defaults to `true`, which reproduces what this function did
+ *   before the option existed: the mock's own `AGENTS.md` and `CLAUDE.md`
+ *   stay in the tree and in the replayed history. `false` withholds both —
+ *   from the tree and from the history alike — so neither reaches the
+ *   workspace and neither is committed.
  * @returns {Promise<string>} the materialized workspace's absolute path
  * @throws {Error} when the mock directory, its history.jsonc, a declared patch,
  *   or a named installed skill is missing, when the patch does not apply, when
@@ -454,6 +505,7 @@ export async function materialize({
   skills = [],
   install = false,
   patch = null,
+  agentsMd = true,
 } = {}) {
   const mockDir = join(MOCKS_ROOT, mock);
   await assertDirectory(
@@ -496,6 +548,13 @@ export async function materialize({
 
     if (patchPath !== null) applyPatch(workspace, patchPath);
 
+    // sits after the patch and before the tree/history bijection check below,
+    // so a patch stays free to touch AGENTS.md — this step removes it
+    // regardless of whether the patch left it alone or edited it — and so the
+    // check sees a tree and a history that already agree on the working
+    // agreement's absence.
+    if (!agentsMd) await withholdAgentsMdFromTree(workspace);
+
     // read from the workspace rather than from the mock, so what governs the
     // replay is the history as the patch left it.
     const workspaceHistory = join(workspace, HISTORY_FILE);
@@ -508,8 +567,9 @@ export async function materialize({
           `${patchPath === null ? "" : `, or the patch at ${patchPath} removed it`}.`,
       );
     }
-    const commits = parseHistory(historyRaw);
+    let commits = parseHistory(historyRaw);
     await rm(workspaceHistory);
+    if (!agentsMd) commits = withholdAgentsMdFromHistory(commits);
 
     // history.jsonc and the copied tree must name exactly the same files, or replaying
     // it would leave files uncommitted or try to `git add` something never copied. a

@@ -9,7 +9,7 @@
   ],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Readers keep emailing in typos and factual mistakes they find on posts, and about half of those emails end up getting lost somewhere and never acted on. The site should let a reader submit a correction directly instead. Before anyone writes a line of code for it, the whole thing needs to be written down somewhere so whoever ends up building it isn't left guessing what it's supposed to do."

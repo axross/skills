@@ -40,7 +40,15 @@
 //
 // A stream line that does not parse as JSON is skipped rather than treated
 // as a failure: a truncated final line is ordinary, not corrupt (see
-// tools/evaluation/src/transcript/events.mjs's own header).
+// tools/evaluation/src/transcript/events.mjs's own header). A stream in
+// which NO line parses is a different fact: it is a shape this script did
+// not expect and cannot judge, so it exits non-zero rather than reporting
+// the empty citation set as a `false`. A transcript with no content at all
+// is distinguished from that, and exits non-zero under its own reason: the
+// probe produced no stream to judge. What is neither of those — a stream
+// that parses but carries no citation that resolves — is an agent that
+// cited nothing, which is a legitimate `false` rather than a failed
+// judgment.
 //
 // usage: node check-transcript-cites-changed-lines.mjs <context.json>
 
@@ -77,15 +85,19 @@ if (typeof transcript !== "string") {
 // every assistant text block, concatenated — never a tool_use input and
 // never a tool result.
 const assistantTextParts = [];
+let sawAnyContent = false;
+let parsedAnyLine = false;
 for (const line of transcript.split("\n")) {
   const text = line.trim();
   if (text === "") continue;
+  sawAnyContent = true;
   let event;
   try {
     event = JSON.parse(text);
   } catch {
     continue;
   }
+  parsedAnyLine = true;
   if (event?.type !== "assistant") continue;
   const content = event.message?.content;
   if (!Array.isArray(content)) continue;
@@ -95,6 +107,20 @@ for (const line of transcript.split("\n")) {
     }
   }
 }
+
+if (!sawAnyContent) {
+  fail(
+    "context.material.transcript carries no content — this script expects the probe's stream-json stdout " +
+      "(probe-runner.mjs), and a transcript with nothing in it is a probe that produced no stream to judge.",
+  );
+}
+if (!parsedAnyLine) {
+  fail(
+    "no line of context.material.transcript parsed as JSON — this script expects the probe's stream-json " +
+      "stdout (probe-runner.mjs), and cannot tell what the agent itself cited from a stream in another shape.",
+  );
+}
+
 const assistantText = assistantTextParts.join("\n");
 
 // a repo-relative path (at least one "/" and a file extension) followed by

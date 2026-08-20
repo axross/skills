@@ -129,11 +129,15 @@ the workspace to route and to work, exactly as it would for a real request.
 the condition's skills into it, and runs the model with the tools it needs
 to open that workspace and change it, because one probe's transcript,
 workspace diff, and skill invocations are what all three evaluation phases
-are judged from afterward. Two things bound a probe: its declared turn cap
-(100 by default) — a runaway guard, not a budget control — and a denied
-tool set that keeps a probe's effect attributable to the skill under test.
-What that set denies, and what every probe records about the surface the
-CLI actually gave it, are in [Evaluation
+are judged from afterward. Two things bound a probe. Its declared turn cap
+— <!-- count:probe-turn-cap -->100<!-- /count --> assistant events by
+default, which is not the turn count a probe's own record stores — was put
+there as a runaway guard rather than as a budget control, and the one
+measurement that has tested that premise did not bear it out; see
+[`2026-08-20-read-a-truncated-probe-as-an-unfinished-measurement.md`](../decisions/2026-08-20-read-a-truncated-probe-as-an-unfinished-measurement.md).
+And a denied tool set keeps a probe's effect attributable to the skill
+under test; what that set denies, and what every probe records about the
+surface the CLI actually gave it, are in [Evaluation
 Dispatch](../operations/evaluation-dispatch.md) rather than restated here,
 so the two cannot drift apart. There is one probe shape, not the two the
 deleted instrument used, and nothing here evaluates a pull request's own

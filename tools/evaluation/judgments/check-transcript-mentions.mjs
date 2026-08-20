@@ -22,9 +22,13 @@
 // a line that does not parse as JSON is skipped rather than fatal — a
 // truncated final line is ordinary, and transcript/events.mjs's own reader
 // treats it the same way. A stream in which NO line parses is a shape this
-// script did not expect and cannot judge, so it exits non-zero; a stream
-// that parses but carries no assistant text is an agent that said nothing,
-// which is a legitimate `false` rather than a failed judgment.
+// script did not expect and cannot judge, so it exits non-zero; a
+// transcript with no content at all exits non-zero under its own reason,
+// because a probe that produced no stream is a different fact from one
+// whose stream is in another shape, and the evidence a reader gets is the
+// only place that difference can show. A stream that parses but carries no
+// assistant text is an agent that said nothing, which is a legitimate
+// `false` rather than a failed judgment.
 //
 // usage: node check-transcript-mentions.mjs <context.json>
 
@@ -61,11 +65,13 @@ if (typeof transcript !== "string") {
 /** the text blocks of every `assistant` event, in order — the agent's own words, never a tool's output. */
 function assistantText(stream) {
   const said = [];
+  let sawAnyContent = false;
   let parsedAnyLine = false;
 
   for (const line of stream.split("\n")) {
     const text = line.trim();
     if (text === "") continue;
+    sawAnyContent = true;
 
     let event;
     try {
@@ -83,10 +89,16 @@ function assistantText(stream) {
     }
   }
 
-  return { said, parsedAnyLine };
+  return { said, sawAnyContent, parsedAnyLine };
 }
 
-const { said, parsedAnyLine } = assistantText(transcript);
+const { said, sawAnyContent, parsedAnyLine } = assistantText(transcript);
+if (!sawAnyContent) {
+  fail(
+    "context.material.transcript carries no content — this script expects the probe's stream-json stdout " +
+      "(probe-runner.mjs), and a transcript with nothing in it is a probe that produced no stream to judge.",
+  );
+}
 if (!parsedAnyLine) {
   fail(
     "no line of context.material.transcript parsed as JSON — this script expects the probe's stream-json " +

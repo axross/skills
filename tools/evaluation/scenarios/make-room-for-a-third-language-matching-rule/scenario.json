@@ -6,7 +6,7 @@
   "peerSkills": ["code-review", "unit-testing"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "There's a third, looser way of matching a reader's language coming later. Looking at the module that does this matching today to work out where that third rule would even go, and then adding it, looks like more work than it should be. Get the module into a shape where adding that next rule will be easy, without changing what it does today."
