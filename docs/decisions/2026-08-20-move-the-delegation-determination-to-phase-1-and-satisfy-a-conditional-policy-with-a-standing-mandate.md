@@ -48,8 +48,9 @@ the standing explicit ask." A policy reading "do not call the subagent tool
 unless the user requested it" has the identical shape, and the loop already
 mandates delegating wherever a candidate qualifies — Executor Resolution
 takes the first qualifying candidate and forbids ambiguity from forcing
-fallback, and the pre-flight review stage "runs whenever a compatible review
-worker resolves; the run does not choose to skip it." The mandate the
+fallback, and the pre-flight review stage runs whenever implementation was
+delegated and a compatible review worker resolves, with the run not choosing
+to skip it once both conditions hold. The mandate the
 argument needs already existed; what was missing was the sentence saying it
 satisfies such a clause.
 
