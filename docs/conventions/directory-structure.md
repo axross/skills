@@ -155,8 +155,8 @@ replaces was caught in the first place.
 ## `.claude/agents/` Is the Only Home for an Agent Definition
 
 An agent definition — `.claude/agents/implementer.md`,
-`.claude/agents/reviewer.md` — is not a skill, so `npx skills` does not carry
-it and it is never installed, symlinked, or listed in `skills-lock.json`. Only
-Claude Code is configured today;
-[#218](https://github.com/axross/skills/issues/218) tracks the Codex side for
-both.
+`.claude/agents/reviewer.md`, `.claude/agents/investigator.md` — is not a
+skill, so `npx skills` does not carry it and it is never installed,
+symlinked, or listed in `skills-lock.json`. Only Claude Code is configured
+today; [#218](https://github.com/axross/skills/issues/218) tracks the Codex
+side for all three.

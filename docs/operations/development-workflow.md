@@ -59,19 +59,51 @@ the issue, any artifact the plan points at, and the documentation behind a
 factual claim. A reviewer missing one of those does not fail to start; it
 runs, cannot check what it cannot reach, and returns a report short by exactly
 those checks — and an under-equipped review reads exactly like a clean one.
-So the asymmetry between the two agent definitions sits in both what each
-denies and how: the things `implementer.md` must never do are few and
-nameable, and it asks them in prose rather than closing them with a withdrawn
-tool; the things a reader needs are open-ended, which is why `reviewer.md`
-still enforces its own short deny-list with tools instead. Neither restriction
-is complete, and the file says so — `Bash` remains, so mutation is enforced
-against the editing tools and not against the shell, and reporting rather than
-publishing stays a rule it is asked to honor. Delete this file and the stage
-is skipped rather than performed by the main actor, which is what keeps it
-from degrading into self-review.
+So the asymmetry sits between the writer and its readers rather than between
+two named files: the things `implementer.md`, the writer, must never do are
+few and nameable, and it asks them in prose rather than closing them with a
+withdrawn tool; the things a reader needs are open-ended, which is why both
+readers — `reviewer.md` and `investigator.md` alike — still enforce their own
+short deny-list with tools instead. Neither restriction is complete, and the
+file says so — `Bash` remains, so mutation is enforced against the editing
+tools and not against the shell, and reporting rather than publishing stays a
+rule it is asked to honor. Delete this file and the stage is skipped rather
+than performed by the main actor, which is what keeps it from degrading into
+self-review.
+
+## The Investigator
+
+`.claude/agents/investigator.md` pins `model: sonnet` with `effort: medium`,
+for the role
+[context-ownership.md](../../skills/loop-engineering/references/context-ownership.md)
+defines: a reader handed a large payload and asked to return a conclusion and
+a locator rather than the payload itself. The 1M-token context window is what
+bounds how large a payload the role can actually be handed — the one
+dimension a role defined by being handed large payloads cannot trade away for
+a cheaper model — which is why the file pins it over a model with a smaller
+window. `medium` rather than `low` follows from the same reason the role is
+delegated at all: the main actor cannot audit a conclusion's quality without
+re-reading the payload that delegating was meant to keep out of its own
+context, so the effort spent reaching that conclusion is not where this
+repository looked to save. Like `implementer.md`, it states the delivery
+boundary in its own body rather than closing every channel by withdrawing a
+tool: a general-purpose shell remains, because reading requires one, so
+mutation is enforced against the editing tools it denies — `Edit`, `Write`,
+`NotebookEdit`, `Agent` — and not against the shell, and reporting rather than
+acting on what it finds beyond the answer stays a rule it is asked to honor.
+It carries nothing else: the decision boundary, the escalation list, the
+verification obligation, and the return shape for one particular run all
+arrive per run in the task, so a definition restating them would only drift
+from it. It does not mention the loop at all, for the same reason
+`implementer.md` does not — the same file works for a caller that has never
+heard of `loop-engineering`. Delete the file and resolution falls back **per
+read** rather than as a whole stage entered or skipped: each large payload the
+main actor would have sent to an investigator is instead read directly into
+its own context, one read at a time — unlike deleting `reviewer.md`, which
+skips a stage rather than narrowing per read.
 
 [Directory Structure](../conventions/directory-structure.md) covers why
-`.claude/agents/` is the only home for either file.
+`.claude/agents/` is the only home for all three.
 
 ## Working Without an Agent
 
