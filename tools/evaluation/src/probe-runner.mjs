@@ -73,6 +73,7 @@ export async function runProbe({
     skills,
     patch: scenario.patch === null ? null : resolve(scenario.dir, scenario.patch),
     install: false,
+    agentsMd: scenario.harness.agentsMd,
   });
 
   try {

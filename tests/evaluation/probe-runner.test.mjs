@@ -10,6 +10,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { fakeClaudeEnv } from "./helpers/fake-cli.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
+import { treeDigest } from "../../tools/evaluation/src/fingerprint.mjs";
+import { materialize as materializeMock } from "../../tools/evaluation/src/mock-workspace.mjs";
 import { reconstructWorkspace } from "../../tools/evaluation/src/reconstruct.mjs";
 import { runProbe } from "../../tools/evaluation/src/probe-runner.mjs";
 import { loadScenario } from "../../tools/evaluation/src/scenario.mjs";
@@ -147,6 +149,74 @@ describe("runProbe", () => {
     } finally {
       cleanup.restore();
       stderrSpy.mockRestore();
+    }
+  });
+
+  // #417: mock-workspace.mjs never received harness.agentsMd, so every
+  // probe ran with the mock's working agreement in its workspace regardless
+  // of the value stored beside it. This confirms the value now reaches the
+  // materialized tree itself — through what the workspace actually
+  // contains, via its content digest, not through a spy on the call.
+  it("carries the scenario's declared agentsMd into the materialized workspace's tree digest", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    expect(scenario.harness.agentsMd).toBe(true);
+
+    const withAgentsMd = await runProbe({
+      scenario,
+      condition: "skill-absent",
+      repetition: 1,
+      apiKeyEnv: await fakeClaudeEnv(),
+    });
+    const withoutAgentsMd = await runProbe({
+      scenario: { ...scenario, harness: { ...scenario.harness, agentsMd: false } },
+      condition: "skill-absent",
+      repetition: 1,
+      apiKeyEnv: await fakeClaudeEnv(),
+    });
+
+    expect(withAgentsMd.metadata.harness.agentsMd).toBe(true);
+    expect(withoutAgentsMd.metadata.harness.agentsMd).toBe(false);
+    expect(withoutAgentsMd.metadata.runtime.project.tree).not.toBe(
+      withAgentsMd.metadata.runtime.project.tree,
+    );
+
+    // the `true` digest matches materialize()'s own default — the value this
+    // scenario's declaration now carries — so it is the correct digest, not
+    // merely a digest that differs from the other run's.
+    const reference = await materializeMock({ mock: scenario.mock });
+    try {
+      expect(withAgentsMd.metadata.runtime.project.tree).toBe(await treeDigest(reference));
+    } finally {
+      await rm(reference, { recursive: true, force: true });
+    }
+  });
+
+  // both callers that materialize a workspace — the probe run and the
+  // reconstruction a stored measurement is judged against — pass the
+  // scenario's own harness.agentsMd through, so they must materialize
+  // alike under the same declaration. exercised under `false` rather than
+  // this scenario's own `true`, so the assertion is not vacuously true of
+  // materialize()'s default.
+  it("materializes the same tree reconstructWorkspace does, under the same declared agentsMd", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const withoutAgentsMd = { ...scenario, harness: { ...scenario.harness, agentsMd: false } };
+
+    const probed = await runProbe({
+      scenario: withoutAgentsMd,
+      condition: "skill-absent",
+      repetition: 1,
+      apiKeyEnv: await fakeClaudeEnv(),
+    });
+
+    const reconstructed = await reconstructWorkspace({
+      scenario: withoutAgentsMd,
+      condition: "skill-absent",
+      diffText: "",
+    });
+    try {
+      expect(await treeDigest(reconstructed)).toBe(probed.metadata.runtime.project.tree);
+    } finally {
+      await rm(reconstructed, { recursive: true, force: true });
     }
   });
 
