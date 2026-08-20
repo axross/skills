@@ -165,6 +165,7 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
 - **The commit history is inconsistent in style**, for the same reason
   `tsuzuri`'s is: a tidy log would let a control run copy the convention
   out of context and erase the effect of any skill that teaches it. The
+  [`show-real-titles-in-the-post-list-and-commit-it`](../scenarios/show-real-titles-in-the-post-list-and-commit-it/)
   scenario that reads a mixed log is declared against `tsuzuri`, so what this
   entry buys here is that a probe moving between mocks meets the same shape —
   a clean log in one of the three would be a convention to copy the moment a
@@ -266,9 +267,11 @@ resolves, and its four checks pass in a materialized copy.
 
 - **The commit history is inconsistent in style**, for the same reason
   `tsuzuri`'s is: a tidy log would let a control run copy the
-  convention out of context. As with `inkwell`, the scenario that reads one is
-  declared against `tsuzuri`; keeping this log mixed too is what stops a
-  commit asked of this mock later from having a clean convention to copy.
+  convention out of context. As with `inkwell`, the
+  [`show-real-titles-in-the-post-list-and-commit-it`](../scenarios/show-real-titles-in-the-post-list-and-commit-it/)
+  scenario that reads one is declared against `tsuzuri`; keeping this log
+  mixed too is what stops a commit asked of this mock later from having a
+  clean convention to copy.
 - **Sign-in is a local stub against no backend.** It accepts any
   well-formed email address and issues a local account id, persisted on the
   device — there's no account service behind it. A probe workspace has no
