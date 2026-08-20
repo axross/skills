@@ -401,12 +401,13 @@ describe("report-obligation-burden.mjs", () => {
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
       //
-      // both grew here: loop-engineering gained two Phase 1 `**Guidelines:**`
-      // bullets (the harness-permission determination and the
-      // context-ownership.md read obligation) at the floor, and
-      // subagent-delegation.md's standing-mandate recording requirement at
-      // the ceiling — two obligations at each tier, +1,374 floor bytes and
-      // +2,259 ceiling bytes from the new prose.
+      // both grew by the same 2 here, and from the same source:
+      // loop-engineering's Phase 1 gained two `**Guidelines:**` bullets — the
+      // harness-permission determination and the context-ownership.md read
+      // obligation. subagent-delegation.md's standing-mandate recording
+      // requirement moved no count at all, because it widened an existing
+      // bullet rather than adding one; it shows up in the ceiling's token
+      // growth (+2,259 bytes against the floor's +1,374) and nowhere else.
       expect.soft(totals.floorObligations).toBe(51);
       expect.soft(totals.floorTokens).toBe(10_776);
       expect.soft(totals.ceilingObligations).toBe(484);
@@ -456,9 +457,10 @@ describe("report-obligation-burden.mjs", () => {
       // the floor grew by 2 here because loop-engineering's Phase 1 gained
       // two `**Guidelines:**` bullets — establishing the harness-permission
       // determination before the first Phase 1 investigation read, and the
-      // MUST-read for context-ownership.md; the ceiling grew by the same 2
-      // from subagent-delegation.md's standing-mandate recording obligation
-      // on top of that.
+      // MUST-read for context-ownership.md. the ceiling grew by the same 2
+      // and by nothing further: subagent-delegation.md's standing-mandate
+      // recording requirement widened a bullet that was already counted, so
+      // it moved the ceiling's tokens without moving its obligation count.
       expect.soft(tiers[2].floorObligations).toBe(51);
       expect.soft(tiers[2].floorTokens).toBe(10_776);
       expect.soft(tiers[2].ceilingObligations).toBe(484);
