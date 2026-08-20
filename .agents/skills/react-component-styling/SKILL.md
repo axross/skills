@@ -1,6 +1,6 @@
 ---
 name: react-component-styling
-description: Writing, reviewing, or refactoring the styles of a React component on web or mobile native — a CSS Module, a Unistyles `StyleSheet.create`, a theme or token file, or global styles. Triggers on "styling", "CSS", "theme", "design token", "dark mode", "container query", "breakpoint", "responsive", "touch target", "hover on mobile", "safe area", "style prop", "className", "colour gamut", "P3", "reduced motion", or a surface wrong at some width, pointer type, or colour scheme. For design rationale — hierarchy, contrast targets, motion taste — use a high-fidelity UI design capability instead.
+description: Writing, reviewing, or refactoring the styles of a React component on web or mobile native — a CSS Module, a Unistyles `StyleSheet.create`, a theme or token file, or global styles. Triggers on "styling", "CSS", "theme", "design token", "dark mode", "container query", "breakpoint", "responsive", "touch target", "hover on mobile", "safe area", "style prop", "className", "colour gamut", "P3", "@supports", "browser support", "Baseline", "fallback", "reduced motion", or a surface wrong at some width, pointer type, or colour scheme. For design rationale — hierarchy, contrast targets, motion taste — use a high-fidelity UI design capability instead.
 user-invocable: false
 ---
 
@@ -71,6 +71,20 @@ See [adaptive-styling.md](./references/adaptive-styling.md) for:
 - gating hover styles on the primary pointer, and why that gate differs from the one used for sizing
 - sizing an interactive target from the pointer type, on both axes, and expanding a hit area without moving the visual
 - print styles, and writing direction-agnostic styles for right-to-left layouts
+
+## Feature Support and Fallbacks
+
+See [feature-support.md](./references/feature-support.md) for:
+
+- deciding a guard from the feature's interoperability across the project's own browser support matrix, rather than from its format or its age
+- the reachability test that separates a live fallback from dead code, and the outward direction it runs in
+- a block-gating feature such as `@scope` as a one-time adoption decision rather than a per-use guard
+- `@supports` for what the browser understands against `@media` for what the environment has
+- interoperability and consequence as the two axes a guard answers separately
+
+**Guidelines:**
+
+- MUST read [feature-support.md](./references/feature-support.md) before authoring, keeping, or removing a fallback for a web platform feature, and before adopting one that gates its own block.
 
 ## Style Property Order
 
