@@ -126,14 +126,18 @@ scenario declares a mock project and a task stated in the words of whoever
 has the problem — no path, no library, no vendor — so the model has to open
 the workspace to route and to work, exactly as it would for a real request.
 `probe.mjs` materializes that project as a real Git repository, installs
-the condition's skills into it, and runs the model with `Bash`, `Edit`,
-`Glob`, `Grep`, `Read`, `Skill`, `TodoWrite`, and `Write` all permitted —
-full working access, because one probe's transcript, workspace diff, and
-skill invocations are what all three evaluation phases are judged from
-afterward. What bounds a probe is its declared turn cap (100 by default) —
-a runaway guard, not a budget control — rather than a restricted tool set.
-There is one probe shape, not the two the deleted instrument used, and
-nothing here evaluates a pull request's own changed text.
+the condition's skills into it, and runs the model with the tools it needs
+to open that workspace and change it, because one probe's transcript,
+workspace diff, and skill invocations are what all three evaluation phases
+are judged from afterward. Two things bound a probe: its declared turn cap
+(100 by default) — a runaway guard, not a budget control — and a denied
+tool set that keeps a probe's effect attributable to the skill under test.
+What that set denies, and what every probe records about the surface the
+CLI actually gave it, are in [Evaluation
+Dispatch](../operations/evaluation-dispatch.md) rather than restated here,
+so the two cannot drift apart. There is one probe shape, not the two the
+deleted instrument used, and nothing here evaluates a pull request's own
+changed text.
 
 **Spending is bound by refusal rather than by exhaustion, and a refusal is
 a finding rather than a prompt to raise the limit.** A run refuses before
