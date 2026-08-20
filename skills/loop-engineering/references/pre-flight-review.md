@@ -54,7 +54,7 @@ The three non-diff parts do not vary the way the diff does. [A Fresh Reviewer Ea
 
 ## Run State Is Not Input
 
-The package the input contract above builds is scoped to the diff, the merge-base policy, and the plan — but a reader that can reach GitHub directly, which [Defining a Reader of Your Own](#defining-a-reader-of-your-own) requires it be able to do, can still land on a run-state block the package never included: this run's own status block, or one belonging to a different issue or pull request a link leads it into. What such a block carries is a run judging itself — phase, round count, an open question, or, per [Ledger Durability](#ledger-durability), a durable finding entry — never the change under review, and reading it as evidence is exactly the anchoring this stage exists to avoid.
+The package the input contract above builds is scoped to the merge-base policy, the plan, and the diff — but a reader that can reach GitHub directly, which [Defining a Reader of Your Own](#defining-a-reader-of-your-own) requires it be able to do, can still land on a run-state block the package never included: this run's own status block, or one belonging to a different issue or pull request a link leads it into. What such a block carries is a run judging itself — phase, round count, an open question, or, per [Ledger Durability](#ledger-durability), a durable finding entry — never the change under review, and reading it as evidence is exactly the anchoring this stage exists to avoid.
 
 **Guidelines:**
 
