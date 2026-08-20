@@ -94,12 +94,12 @@
     "react-component-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0ef5cdc6172245abb3bf2839b44e7d40042cd0ad8fa3ae41484f49f8be41e7ca"
+      "computedHash": "07efc2acf908dac73b9d2c0e6cd217fed14a3d9db6015932bfc8b88a30cfaa4b"
     },
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "18c3d9507915e787c29d890186d538fbce41564eb2e8df9e3c5e94737bb87558"
+      "computedHash": "919de30206abc5a6fb5cfaa35c63ec390b2be74ec4a03a75d816c4e889a18b03"
     },
     "sentry-instrumentation": {
       "source": "./skills",
