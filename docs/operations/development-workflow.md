@@ -26,21 +26,24 @@ it stops, continue the session and tell it to.
 
 ## Implementation Runs in a Subagent
 
-`.claude/agents/implementer.md` pins a lower-cost model and effort — a worker
-that inherited the session's own would run at the main actor's cost, which
-defeats the point — and states the delivery boundary in its own body rather
-than closing it by withdrawing a tool: commits stay local, and pushing,
-publishing, and anything else that speaks outward belongs to whoever asked, a
-rule the file asks the worker to honor rather than one the host enforces. It
-carries nothing else: the decision boundary, the verification obligation, the
-commit rules, and the receipt shape all arrive per run in the task package, so
-a definition restating them would only drift from it. It does not mention the
-loop at all, which is the point — it says what an implementation agent is and
-what it may not decide, so the same file works for a caller that has never
-heard of `loop-engineering` and is worth copying into a project that runs its
-subagents some other way. What it leaves out, and why, is explained
-host-neutrally in
-[`implementation-worker.md`](../../skills/loop-engineering/references/implementation-worker.md).
+`.claude/agents/implementer.md` pins a lower-cost model and effort — a
+secondary benefit of delegating rather than the reason for it, which
+[`subagent-delegation.md`](../../skills/loop-engineering/references/subagent-delegation.md#why-the-loop-delegates)
+states as context separation: a worker that inherited the session's own model
+would still run at the main actor's cost, forfeiting that secondary saving
+without anything reporting it. It also states the delivery boundary in its
+own body rather than closing it by withdrawing a tool: commits stay local, and
+pushing, publishing, and anything else that speaks outward belongs to whoever
+asked, a rule the file asks the worker to honor rather than one the host
+enforces. It carries nothing else: the decision boundary, the verification
+obligation, the commit rules, and the receipt shape all arrive per run in the
+task package, so a definition restating them would only drift from it. It does
+not mention the loop at all, which is the point — it says what an
+implementation agent is and what it may not decide, so the same file works for
+a caller that has never heard of `loop-engineering` and is worth copying into
+a project that runs its subagents some other way. What it leaves out, and why,
+is explained host-neutrally in
+[`subagent-delegation.md`](../../skills/loop-engineering/references/subagent-delegation.md#defining-an-agent-of-your-own).
 Delete the file and the loop keeps delegating — to a generic
 implementation-capable agent at the session's inherited model — rather than
 returning to single-agent execution, with no gate weakened. Single-agent
