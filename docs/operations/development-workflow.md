@@ -86,22 +86,18 @@ self-review.
 for the role
 [context-ownership.md](../../skills/loop-engineering/references/context-ownership.md)
 defines: a reader handed a large payload and asked to return a conclusion and
-a locator rather than the payload itself. The 1M-token context window is what
-bounds how large a payload the role can actually be handed — the one
-dimension a role defined by being handed large payloads cannot trade away for
-a cheaper model — which is why the file pins it over a model with a smaller
-window. `medium` rather than `low` follows from the same reason the role is
-delegated at all: the main actor cannot audit a conclusion's quality without
-re-reading the payload that delegating was meant to keep out of its own
-context, so the effort spent reaching that conclusion is not where this
-repository looked to save. Like `reviewer.md`, it denies mutation and
-spawning another agent with `disallowedTools` — `Edit`, `Write`,
-`NotebookEdit`, `Agent` — and states the rest of the boundary in its own body
-rather than closing it with a withdrawn tool: a general-purpose shell
-remains, because reading requires one, so mutation is enforced against the
-editing tools and not against the shell, and returning only the answer
-rather than acting further on what it finds stays a rule it is asked to
-honor. It carries nothing else: the decision boundary, the escalation list, the
+a locator rather than the payload itself. Why those two values rather than a
+cheaper pair is the decision record's comparison to make, and the pointer
+above reaches it: what a large context window buys a role defined by being
+handed large payloads, and why the effort dial was not where this repository
+looked to save. Like `reviewer.md`, it denies mutation and spawning another
+agent with `disallowedTools` — `Edit`, `Write`, `NotebookEdit`, `Agent` — and
+states the rest of the boundary in its own body rather than closing it with a
+withdrawn tool: a general-purpose shell remains, because reading requires
+one, so mutation is enforced against the editing tools and not against the
+shell, and returning only the answer rather than acting further on what it
+finds stays a rule it is asked to honor. It carries nothing else: the
+decision boundary, the escalation list, the
 verification obligation, and the return shape for one particular run all
 arrive per run in the task, so a definition restating them would only drift
 from it. Why a definition stops there, and what belongs to the task
