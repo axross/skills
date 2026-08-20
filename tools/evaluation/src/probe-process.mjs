@@ -26,15 +26,73 @@ import { MODEL, SETTING_SOURCES } from "./spawn.mjs";
 export const DEFAULT_TURN_CAP = 100;
 
 /**
- * tools this instrument allows and denies on every probe, regardless of
- * scenario. `Agent` and `Task` are both denied because a probe's own effect
- * has to be attributable to the skill under test, not to a subagent this
- * instrument did not situate; `WebFetch`/`WebSearch` because a probe
- * workspace has no network to reach out over; `NotebookEdit` because no mock
- * ships a notebook for it to touch.
+ * what `--allowed-tools` names. the flag is additive, never subtractive:
+ * measured against CLI 2.1.237 by reading the `system`/`init` event's own
+ * `tools` array, naming a tool the CLI defers surfaces it, naming one the
+ * CLI does not have does nothing at all, and a name in `DISALLOWED_TOOLS`
+ * wins over the same name here. so this list does not bound a probe — its
+ * one real effect is putting `Glob` and `Grep` in front of one, which is
+ * why it is still passed. `TodoWrite` used to sit here and allowed nothing;
+ * see tool-surface.mjs, which is what now reports such a name rather than
+ * leaving it to be found by hand.
  */
-export const ALLOWED_TOOLS = ["Bash", "Edit", "Glob", "Grep", "Read", "Skill", "TodoWrite", "Write"];
-export const DISALLOWED_TOOLS = ["Agent", "NotebookEdit", "Task", "WebFetch", "WebSearch"];
+export const ALLOWED_TOOLS = ["Bash", "Edit", "Glob", "Grep", "Read", "Skill", "Write"];
+
+/**
+ * what `--disallowed-tools` names — the instrument's only real bound on a
+ * probe. a tool is denied when it delegates the probe's work to another
+ * agent, when it reaches outside the probe workspace, or when it blocks
+ * waiting for a human `NONINTERACTIVE_BRIEF` has already said is not there.
+ * the first of those is #392's reasoning, that a probe's own effect has to
+ * be attributable to the skill under test rather than to a subagent this
+ * instrument did not situate; it reaches the `Task*` family and `Workflow`
+ * for exactly the reason it reached `Agent` and `Task`. `NotebookEdit` is
+ * denied for its own older reason: no mock ships a notebook to touch.
+ *
+ * `ToolSearch` is deliberately left reachable. a probe has already used it,
+ * everything behind it worth denying is denied by name here, and it is how
+ * a probe reaches a deferred tool `ALLOWED_TOOLS` does not surface.
+ *
+ * a name here that the running CLI does not expose is kept rather than
+ * pruned, unlike a dead name in `ALLOWED_TOOLS`. a dead allowance claims the
+ * probe holds something it does not; a dead denial asserts nothing about
+ * this CLI and still covers an environment where the tool exists — `Task`,
+ * and `RemoteTrigger`, which a GitHub Actions runner reported and this
+ * repository's own container does not.
+ */
+export const DISALLOWED_TOOLS = [
+  "Agent",
+  "Artifact",
+  "CronCreate",
+  "CronDelete",
+  "CronList",
+  "DesignSync",
+  "ListAgents",
+  "ListConnectors",
+  "NotebookEdit",
+  "PushNotification",
+  "ReadNotifications",
+  "RemoteTrigger",
+  "ScheduleWakeup",
+  "SearchMcpRegistry",
+  "SearchPlugins",
+  "SendMessage",
+  "SendUserFile",
+  "ShowOnboardingRolePicker",
+  "SuggestConnectors",
+  "SuggestPluginInstall",
+  "SuggestSkills",
+  "Task",
+  "TaskCreate",
+  "TaskGet",
+  "TaskList",
+  "TaskOutput",
+  "TaskStop",
+  "TaskUpdate",
+  "WebFetch",
+  "WebSearch",
+  "Workflow",
+];
 
 /**
  * appended to every probe's system prompt. a probe runs unattended — nothing

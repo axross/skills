@@ -33,6 +33,7 @@ function readUsage(usage) {
  *   truncated: boolean,
  *   cost: number|null,
  *   loadedSkills: string[]|null,
+ *   availableTools: string[]|null,
  *   model: string|null,
  *   runtimeVersion: string|null,
  *   finalAssistantText: string|null,
@@ -49,6 +50,7 @@ export function parseTranscript(stdout) {
   let truncated = false;
   let cost = null;
   let loadedSkills = null;
+  let availableTools = null;
   let model = null;
   let runtimeVersion = null;
   // overwritten on every assistant event, never merged with an earlier one, so only the
@@ -73,6 +75,12 @@ export function parseTranscript(stdout) {
       // built-in commands and would over-report a loaded set by roughly double.
       if (Array.isArray(event.skills)) {
         loadedSkills ??= event.skills.filter((name) => typeof name === "string");
+      }
+      // the CLI's own report of what the session holds, which is not the
+      // same thing as what this instrument declared — see tool-surface.mjs,
+      // which is where the two are compared.
+      if (Array.isArray(event.tools)) {
+        availableTools ??= event.tools.filter((name) => typeof name === "string");
       }
       // not every CLI version puts its version on the init event.
       if (typeof event.version === "string") runtimeVersion ??= event.version;
@@ -103,6 +111,7 @@ export function parseTranscript(stdout) {
     truncated,
     cost,
     loadedSkills,
+    availableTools,
     model,
     runtimeVersion,
     finalAssistantText,

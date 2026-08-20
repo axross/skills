@@ -14,6 +14,8 @@ import { fileURLToPath } from "node:url";
 
 import { onTestFinished } from "vitest";
 
+import { ALLOWED_TOOLS } from "../../../tools/evaluation/src/probe-process.mjs";
+
 const FAKE_CLAUDE_SOURCE = join(dirname(fileURLToPath(import.meta.url)), "fake-claude.mjs");
 
 /**
@@ -44,5 +46,13 @@ export async function fakeClaudeBinDir() {
  */
 export async function fakeClaudeEnv(overrides = {}) {
   const binDir = await fakeClaudeBinDir();
-  return { ...process.env, PATH: `${binDir}:${process.env.PATH}`, ...overrides };
+  return {
+    ...process.env,
+    PATH: `${binDir}:${process.env.PATH}`,
+    // the surface a probe's own declarations agree with, so a test that is
+    // not about the tool surface produces no disagreement; fake-claude.mjs
+    // cannot import it itself, since it runs from a temporary directory.
+    FAKE_CLAUDE_TOOLS: ALLOWED_TOOLS.join(","),
+    ...overrides,
+  };
 }
