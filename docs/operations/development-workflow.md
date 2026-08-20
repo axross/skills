@@ -49,6 +49,12 @@ implementation-capable agent at the session's inherited model — rather than
 returning to single-agent execution, with no gate weakened. Single-agent
 execution is what a host exposing no capable agent at all produces.
 
+[`2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md`](../decisions/2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md)
+is the decision behind every model and effort value pinned across this
+section and the ones below it: the vendor comparison the investigator's
+shape rests on, and why this file and `reviewer.md` moved off `xhigh` on
+the maintainer's judgment rather than a measured one.
+
 ## The Pre-Flight Review
 
 `.claude/agents/reviewer.md` denies two things — editing, and spawning another
@@ -59,19 +65,54 @@ the issue, any artifact the plan points at, and the documentation behind a
 factual claim. A reviewer missing one of those does not fail to start; it
 runs, cannot check what it cannot reach, and returns a report short by exactly
 those checks — and an under-equipped review reads exactly like a clean one.
-So the asymmetry between the two agent definitions sits in both what each
-denies and how: the things `implementer.md` must never do are few and
-nameable, and it asks them in prose rather than closing them with a withdrawn
-tool; the things a reader needs are open-ended, which is why `reviewer.md`
-still enforces its own short deny-list with tools instead. Neither restriction
-is complete, and the file says so — `Bash` remains, so mutation is enforced
-against the editing tools and not against the shell, and reporting rather than
-publishing stays a rule it is asked to honor. Delete this file and the stage
-is skipped rather than performed by the main actor, which is what keeps it
-from degrading into self-review.
+So the asymmetry sits between the writer and its readers rather than between
+two named files: the things `implementer.md`, the writer, must never do are
+few and nameable, and it asks them in prose rather than closing them with a
+withdrawn tool; the things a reader needs are open-ended, which is why both
+readers — `reviewer.md` and `investigator.md` alike — still enforce their own
+short deny-list with tools instead, the deny-a-short-set-rather-than-enumerate
+reasoning
+[`pre-flight-review.md`](../../skills/loop-engineering/references/pre-flight-review.md#defining-a-reader-of-your-own)
+states for a reader generally. Neither restriction is complete, and the
+file says so — `Bash` remains, so mutation is enforced against the editing
+tools and not against the shell, and reporting rather than publishing stays a
+rule it is asked to honor. Delete this file and the stage is skipped rather
+than performed by the main actor, which is what keeps it from degrading into
+self-review.
+
+## The Investigator
+
+`.claude/agents/investigator.md` pins `model: sonnet` with `effort: medium`,
+for the role
+[context-ownership.md](../../skills/loop-engineering/references/context-ownership.md)
+defines: a reader handed a large payload and asked to return a conclusion and
+a locator rather than the payload itself. Why those two values rather than a
+cheaper pair is the decision record's comparison to make, and the pointer
+above reaches it: what a large context window buys a role defined by being
+handed large payloads, and why the effort dial was not where this repository
+looked to save. Like `reviewer.md`, it denies mutation and spawning another
+agent with `disallowedTools` — `Edit`, `Write`, `NotebookEdit`, `Agent` — and
+states the rest of the boundary in its own body rather than closing it with a
+withdrawn tool: a general-purpose shell remains, because reading requires
+one, so mutation is enforced against the editing tools and not against the
+shell, and returning only the answer rather than acting further on what it
+finds stays a rule it is asked to honor. It carries nothing else: the
+decision boundary, the escalation list, the
+verification obligation, and the return shape for one particular run all
+arrive per run in the task, so a definition restating them would only drift
+from it. Why a definition stops there, and what belongs to the task
+instead, is the same host-neutral rule
+[`subagent-delegation.md`](../../skills/loop-engineering/references/subagent-delegation.md#defining-an-agent-of-your-own)
+states for any agent definition. It does not mention the loop at all, for the same reason
+`implementer.md` does not — the same file works for a caller that has never
+heard of `loop-engineering`. Delete the file and resolution falls back **per
+read** rather than as a whole stage entered or skipped: each large payload the
+main actor would have sent to an investigator is instead read directly into
+its own context, one read at a time — unlike deleting `reviewer.md`, which
+skips a stage rather than narrowing per read.
 
 [Directory Structure](../conventions/directory-structure.md) covers why
-`.claude/agents/` is the only home for either file.
+`.claude/agents/` is the only home for an agent definition.
 
 ## Working Without an Agent
 
