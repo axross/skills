@@ -3,20 +3,22 @@
 ## What this project is
 
 A small hosted CMS. An author signs in — session handling lives outside this
-cut of the product — and manages one or more customer sites from the same
-account. Each site has its own posts; opening a post gives you a full-page
-editor with a title, a body, a draft save, and a publish action. Publishing
-snapshots the post into a revision and calls the site's deploy hook so the
-static build actually goes out.
+cut of the product, so there's no sign-in screen here and the API reads who
+the author is from what the session boundary forwards — and manages one or
+more customer sites from the same account. Each site has its own posts;
+opening a post gives you a full-page editor with a title, a body, a draft
+save, and a publish action. Publishing snapshots the post into a revision and
+calls the site's deploy hook so the static build actually goes out.
 
-There's no dashboard, no settings page, and no onboarding flow yet. The
-sidebar's "Posts" entry is the only section that exists — a second one is
-easy to add once there's a second thing worth building.
+The sidebar carries two sections, Posts and Revisions, and shows which author
+is signed in underneath them. There's no dashboard, no settings page, and no
+onboarding flow yet.
 
 ## How the code is organized
 
-`src/` is the SPA: `routes/` holds the two real screens (a per-site post list
-and the post editor) plus the shell they render inside, `components/` holds
+`src/` is the SPA: `routes/` holds the three real screens (a per-site post
+list, the post editor, and that site's revision history) plus the shell they
+render inside, `components/` holds
 what's reusable across more than one of them, `lib/` is where a cross-cutting
 concern — the API client, the query client, consent, analytics — gets exactly
 one home, and `queries/` holds the TanStack Query option factories, one
@@ -62,3 +64,6 @@ editor tells the author which case they're in, rather than pretending publish
 either fully succeeded or fully failed. `docs/deploy-hooks.md` has the retry
 policy and the reasoning behind it; read it before changing
 `server/deploy-hook.ts` or the publish route that calls it.
+
+The revision written by step one is what the Revisions screen reads back, so
+a change to what publish snapshots changes what that screen shows.

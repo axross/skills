@@ -12,6 +12,11 @@ interface Events {
 }
 
 let initialized = false;
+// The shell can learn who the author is before the visitor has answered the
+// consent banner, and React runs the shell's effects before the provider's.
+// Holding the author here rather than dropping it means the identify still
+// happens, and still only once the SDK has actually started.
+let pendingAuthor: AuthorProfile | null = null;
 
 export function initAnalytics(): void {
   if (initialized) return;
@@ -26,6 +31,12 @@ export function initAnalytics(): void {
 
   amplitude.init(apiKey, { autocapture: false });
   initialized = true;
+
+  if (pendingAuthor) {
+    const author = pendingAuthor;
+    pendingAuthor = null;
+    identifyAuthor(author);
+  }
 }
 
 export function trackEvent<Name extends keyof Events>(name: Name, properties: Events[Name]): void {
@@ -43,12 +54,15 @@ export interface AuthorProfile {
   readonly siteCount: number;
 }
 
-// No caller yet: session handling lives outside this cut of the product, so
-// nothing in the SPA knows who the author is. This is where the sign-in flow
-// hands them over when it lands, which is why it is written and tested now
-// rather than left to be invented under time pressure later.
+// Called from the shell once the visitor has accepted analytics and the
+// author has resolved — see routes/Layout.tsx. Nothing here checks consent:
+// the SDK is only ever started from lib/consent.tsx, so an author handed over
+// before that is held above rather than sent.
 export function identifyAuthor(author: AuthorProfile): void {
-  if (!initialized) return;
+  if (!initialized) {
+    pendingAuthor = author;
+    return;
+  }
   amplitude.setUserId(author.id);
   const identify = new amplitude.Identify();
   identify.set("name", author.name);

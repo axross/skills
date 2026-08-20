@@ -28,12 +28,15 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": API_PROXY_TARGET,
+      // The API mounts its routes at the root — `/sites`, not `/api/sites` —
+      // so the prefix the browser needs to hit the proxy at all has to come
+      // back off before the request is forwarded.
+      "/api": { target: API_PROXY_TARGET, rewrite: (path) => path.replace(/^\/api/, "") },
     },
   },
   preview: {
     proxy: {
-      "/api": API_PROXY_TARGET,
+      "/api": { target: API_PROXY_TARGET, rewrite: (path) => path.replace(/^\/api/, "") },
     },
   },
 });

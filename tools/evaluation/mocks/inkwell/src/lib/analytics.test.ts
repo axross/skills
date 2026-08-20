@@ -24,6 +24,26 @@ describe("analytics", () => {
     expect(amplitude.track).not.toHaveBeenCalled();
   });
 
+  // Whether the SDK has started is module state, and every other case here
+  // shares one copy of it. This one needs a copy that has never started, so it
+  // takes a fresh module — and a matching fresh copy of the mock, since
+  // resetting the registry re-runs the factory above.
+  it("sends nothing for an author handed over before analytics started, then identifies on start", async () => {
+    vi.resetModules();
+    const analytics = await import("./analytics");
+    const sdk = await import("@amplitude/analytics-browser");
+
+    analytics.identifyAuthor({ id: "author_1", name: "Ada", siteCount: 3 });
+
+    expect(sdk.setUserId).not.toHaveBeenCalled();
+    expect(sdk.identify).not.toHaveBeenCalled();
+
+    analytics.initAnalytics();
+
+    expect(sdk.setUserId).toHaveBeenCalledWith("author_1");
+    expect(sdk.identify).toHaveBeenCalledTimes(1);
+  });
+
   it("initializes once with the configured key", () => {
     initAnalytics();
     initAnalytics();

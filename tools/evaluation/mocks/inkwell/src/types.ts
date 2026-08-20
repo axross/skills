@@ -5,6 +5,12 @@ export interface Site {
   readonly deployHookUrl: string;
 }
 
+export interface Author {
+  readonly id: string;
+  readonly name: string;
+  readonly siteCount: number;
+}
+
 export type PostStatus = "draft" | "published";
 
 export interface Post {
@@ -26,4 +32,13 @@ export interface SavePostInput {
 export interface PublishResult {
   readonly post: Post;
   readonly deployTriggered: boolean;
+}
+
+/** A snapshot of what a post said when it was published, with the post it belongs to. */
+export interface Revision {
+  readonly id: number;
+  readonly postId: number;
+  readonly postTitle: string;
+  readonly title: string;
+  readonly createdAt: string;
 }
