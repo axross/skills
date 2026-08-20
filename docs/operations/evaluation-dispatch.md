@@ -124,11 +124,49 @@ With no `--scenario`, a run expands every scenario under
 condition times every repetition — and, absent `--dry-run`, runs each probe
 for real: materializing the scenario's mock project as a real Git
 repository, installing the condition's skills into it, and spawning the
-`claude` CLI on the scenario's task with `Bash`, `Edit`, `Glob`, `Grep`,
-`Read`, `Skill`, `TodoWrite`, and `Write` all permitted. A probe is told in
-its own system prompt that it runs unattended, and it runs until it
-finishes or until it has produced 100 assistant turns, whichever comes
-first.
+`claude` CLI on the scenario's task. A probe is told in its own system
+prompt that it runs unattended, and it runs until it finishes or until it
+has produced 100 assistant turns, whichever comes first.
+
+## What Bounds a Probe's Tool Surface
+
+`tools/evaluation/src/probe-process.mjs` passes both `--allowed-tools` and
+`--disallowed-tools`, and only the second of them bounds anything. The first
+is **additive**: naming a tool the CLI defers surfaces it, naming one the
+CLI does not have does nothing at all, and a name appearing in both lists is
+denied. So `ALLOWED_TOOLS` — `Bash`, `Edit`, `Glob`, `Grep`, `Read`,
+`Skill`, `Write` — is passed for one real effect, putting `Glob` and `Grep`
+in front of a probe, and MUST NOT be read as the set of tools a probe holds.
+
+`DISALLOWED_TOOLS` is the bound. A tool is denied when it delegates the
+probe's work to another agent, when it reaches outside the probe workspace,
+when it blocks waiting for a human the probe's own system prompt has
+already said is not there, or — `NotebookEdit`'s own case — when no mock
+ships anything for it to touch. `ToolSearch` is deliberately left reachable.
+
+Everything else the CLI exposes is reachable by a probe and named by
+neither list, which is the state a reader has to keep in mind: the
+declarations state intent, and the record below states fact.
+
+**Every probe records what the CLI reported, and the run says where the two
+disagree.** `parseTranscript` reads the `system`/`init` event's own `tools`
+array — the CLI's report of what that session held — and
+`tools/evaluation/src/tool-surface.mjs` compares it against both
+declarations. The result lands under `metadata.json`'s
+`runtime.tools`, alongside the two declarations it was compared against, and
+any non-empty disagreement is written to the run's standard error as a
+warning naming the tools:
+
+- an allowance the CLI did not surface — a name that allows nothing, which
+  is what `TodoWrite` was until [#440](https://github.com/axross/skills/issues/440);
+- a denial the CLI surfaced anyway — a bound that did not take;
+- a surfaced tool neither list names.
+
+A disagreement is reported, never enforced: it is a fact about the CLI a
+probe ran under, and a probe that hits one still writes all four of its
+files. A transcript carrying no `tools` array at all — an older CLI —
+records `null` for both the reported surface and the comparison, which is
+deliberately distinct from reporting an empty one.
 
 `--dry-run` walks the same matrix-and-admission path with the spawn
 stubbed out: it prints the matrix and the admission outcome and exits

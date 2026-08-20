@@ -248,6 +248,14 @@ other.
 [`2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md`](../decisions/2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md)
 is the decision that gave a reasoning judge its one route and put it here.
 
+**The tool surface a probe ran under is deliberately not among them**, though
+each probe records it. Two measurements taken under different tool surfaces
+are therefore still read against each other, and a reader who wants to know
+whether the surface moved between them reads each probe's own record rather
+than being told by a refused comparison.
+[`2026-08-20-keep-the-probe-tool-surface-out-of-the-condition-fingerprint.md`](../decisions/2026-08-20-keep-the-probe-tool-surface-out-of-the-condition-fingerprint.md)
+is the decision that kept it out, and names what it trades away.
+
 ## Measured, declared, and derived
 
 What one measurement holds is kept in three kinds, because they answer

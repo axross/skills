@@ -10,6 +10,18 @@
 // (default 0), which is what gives a turn-cap test room to observe the kill
 // before every line has already been written.
 //
+// FAKE_CLAUDE_TOOLS is a comma-separated `tools` array for the init event —
+// the CLI's own report of what the session holds, which tool-surface.mjs
+// compares the instrument's declarations against. fake-cli.mjs's
+// `fakeClaudeEnv` supplies exactly what probe-process.mjs allows, so an
+// ordinary test sees no disagreement; override it to drive one.
+// FAKE_CLAUDE_OMIT_TOOLS, set to anything, drops the `tools` key entirely,
+// standing in for a CLI old enough not to report a surface at all — which
+// is a different case from reporting an empty one.
+//
+// this file is copied into a temporary directory and run from there, so it
+// imports nothing relative; the default list reaches it through the env.
+//
 // FAKE_CLAUDE_COMMIT_FILE is opt-in, and separate from the transcript
 // entirely: when set, this writes a file at that path (workspace-relative,
 // since `runProbeProcess` spawns this with `cwd: workspace`) and commits it
@@ -27,6 +39,8 @@ const delayMs = Number(process.env.FAKE_CLAUDE_TURN_DELAY_MS ?? 0);
 const invokesSkill = process.env.FAKE_CLAUDE_INVOKE_SKILL ?? "";
 const commitFile = process.env.FAKE_CLAUDE_COMMIT_FILE ?? "";
 const commitContent = process.env.FAKE_CLAUDE_COMMIT_CONTENT ?? "fake claude committed this\n";
+const reportedTools = (process.env.FAKE_CLAUDE_TOOLS ?? "").split(",").filter(Boolean);
+const omitTools = process.env.FAKE_CLAUDE_OMIT_TOOLS !== undefined;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -66,6 +80,7 @@ async function main() {
       model: "claude-sonnet-5-20260215",
       version: "2.1.233",
       skills: invokesSkill ? [invokesSkill] : [],
+      ...(omitTools ? {} : { tools: reportedTools }),
     })}\n`,
   );
 
