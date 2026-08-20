@@ -71,6 +71,15 @@ and is why the shape survives until then.
   reference this mock is modelled on has a uniformly clean history, and a mock
   imitating that would let a control run copy the convention out of context —
   erasing the effect of any skill that teaches it.
+  [`show-real-titles-in-the-post-list-and-commit-it`](../scenarios/show-real-titles-in-the-post-list-and-commit-it/)
+  is the scenario this serves: it asks a model for a small fix and for the
+  commit that carries it, and judges the header that commit ends up with. The
+  mixed log is what that scenario's control arm has to read, and #421 is where
+  the affordance stopped being an argument — across the 224 probe transcripts
+  of the retired instrument, 34 ran `git log`, so a probe really does read the
+  history it is working in. No mock states a commit-message convention in
+  prose, here or in `AGENTS.md`, which leaves this log the only place a
+  convention could be copied from.
 - **`shared/blog-post-slug.spec.ts` is a mixed-quality suite**: three cases
   named after the implementation, one asserting a constant's value rather than
   the behaviour it produces, thinner edge coverage than the module deserves,
@@ -141,7 +150,11 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
 
 - **The commit history is inconsistent in style**, for the same reason
   `tsuzuri`'s is: a tidy log would let a control run copy the convention
-  out of context and erase the effect of any skill that teaches it.
+  out of context and erase the effect of any skill that teaches it. The
+  scenario that reads a mixed log is declared against `tsuzuri`, so what this
+  entry buys here is that a probe moving between mocks meets the same shape —
+  a clean log in one of the three would be a convention to copy the moment a
+  later scenario asks this mock for a commit.
 - **The publish toast's animation carries no `prefers-reduced-motion` guard.**
   [`respect-reduced-motion-in-the-publish-toast`](../scenarios/respect-reduced-motion-in-the-publish-toast/)
   asks a model to add one. This is a gap the project has rather than one
@@ -239,7 +252,9 @@ resolves, and its four checks pass in a materialized copy.
 
 - **The commit history is inconsistent in style**, for the same reason
   `tsuzuri`'s is: a tidy log would let a control run copy the
-  convention out of context.
+  convention out of context. As with `inkwell`, the scenario that reads one is
+  declared against `tsuzuri`; keeping this log mixed too is what stops a
+  commit asked of this mock later from having a clean convention to copy.
 - **Sign-in is a local stub against no backend.** It accepts any
   well-formed email address and issues a local account id, persisted on the
   device — there's no account service behind it. A probe workspace has no

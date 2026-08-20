@@ -1,0 +1,66 @@
+{
+  "id": "show-real-titles-in-the-post-list-and-commit-it",
+  "description": "conventional-commits is measured on the one artefact it acts on — a commit message the probe writes itself — which nothing else in this instrument reaches. capture.mjs diffs content against the commit a probe started from, deliberately, so a probe that committed its work is captured identically to one that did not; a message therefore never reaches an outcome factor, and this scenario declares no outcome phase. It does reach a transcript factor, because `git commit -m \"…\"` is a Bash call and the transcript stores every tool_use block's input verbatim. The task is an ordinary want on tsuzuri's home page — the post list renders each post's slug where its title belongs, while every post already carries a title on its translations — with the commit asked for in the owner's own words and no element of the header contract named. It has to be asked for: across the 224 probe transcripts of the retired instrument, only 13 (5.8%) committed unprompted, so a scenario leaving the commit to chance would spend both arms to measure nothing. peerSkills puts github-operation and loop-engineering in the choice set as the plausible commit-side picks, and next-app-development as the work-side one, so the set does not itself announce that the commit is the point. Two limits are accepted rather than hidden. Showing a title means resolving which translation to show, so the probe reaches shared/resolve-translation.ts and meets draft-notes, whose translations list is empty — turns spent on work three other scenarios already own, tolerable only because check-discovery.mjs asks whether the target was invoked at all rather than first or alone. And tsuzuri's own AGENTS.md, which reaches the probe in both conditions, asks for a plan and a pull request before a change lands; it says nothing about message form, so it cannot supply the convention, but it may make a probe branch before committing, which capture.mjs captures identically. What keeps the measurement honest is that no mock states a commit-message convention in prose at all: the only signal available to a control run is git log, which is why all three mocks carry a deliberately mixed history.",
+  "mock": "tsuzuri",
+  "targetSkills": ["conventional-commits"],
+  "peerSkills": [
+    "next-app-development",
+    "github-operation",
+    "loop-engineering"
+  ],
+  "patch": null,
+  "harness": {
+    "agentsMd": false
+  },
+  "task": {
+    "prompt": "The post list on my home page shows each post's URL name rather than the title I actually gave it, so readers get a string of hyphens where a sentence should be. Show the title instead. Commit it when you're done — I'll push it in the morning."
+  },
+  "factors": [
+    {
+      "id": "reaches-for-conventional-commits",
+      "phase": "discovery",
+      "description": "The prompt asks for a small reader-facing fix and for it to be committed, in the words of whoever owns the blog, naming no skill and no element of the header contract. An agent that reaches for conventional-commits here is finding it from the situation — with github-operation (which owns how an agent operates a repository at all, commits included) and loop-engineering (a 'drive this change to done' reading of the same ask) sitting right there as the commit-side competitors, and next-app-development as the pick the work itself pulls toward. The judgment asks whether the skill was invoked at all, not whether it was invoked first or alone, which is what lets the work-side pull cost turns without costing the verdict.",
+      "judgment": {
+        "method": "script",
+        "script": "../../judgments/check-discovery.mjs",
+        "input": { "skill": "conventional-commits" }
+      }
+    },
+    {
+      "id": "commits-the-work-before-it-stops",
+      "phase": "transcript",
+      "description": "The completion floor. Everything this scenario measures depends on a commit existing, and a probe that ran out of turns on the locale work — or read the project's own AGENTS.md as asking it to open a pull request instead — leaves nothing for the header factor to judge. Declaring that floor as its own factor is what keeps 'the probe never committed' distinguishable in the stored record from 'the probe committed badly', rather than collapsing both into one false on the factor below. This reads a tool call's own input rather than the probe's prose, so an agent that only described committing does not satisfy it.",
+      "judgment": {
+        "method": "script",
+        "script": "../../judgments/check-transcript-tool-input-mentions.mjs",
+        "input": {
+          "anyOf": ["git commit"]
+        }
+      }
+    },
+    {
+      "id": "writes-a-conforming-commit-header",
+      "phase": "transcript",
+      "description": "conventional-commits' own header contract is `<type>[optional scope][!]: <description>`, with a fixed set of allowed types. This is the one thing the skill teaches that a script can decide outright, so it is judged by script rather than by a reasoning judge, and the allowed type set is declared here in the factor's own input rather than left inside the script — it is part of the stored record that way, and a measurement's meaning does not move when the skill's prose does. The script deliberately does not spawn the validator the skill itself ships, for the same reason. Where a probe committed more than once, the last readable message is judged: a probe that wrote WIP and then corrected itself is the skill working, not failing. This is not a free factor for a control run — of the 13 unprompted commits in the retired instrument's 224 transcripts, 3 already carried a conforming header with conventional-commits installed in none of them, so the control arm starts near a quarter rather than at zero.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-commit-header-conforms.mjs",
+        "input": {
+          "types": [
+            "feat",
+            "fix",
+            "build",
+            "chore",
+            "ci",
+            "docs",
+            "style",
+            "refactor",
+            "perf",
+            "test",
+            "revert"
+          ]
+        }
+      }
+    }
+  ]
+}

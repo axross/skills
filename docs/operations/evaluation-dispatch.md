@@ -205,7 +205,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eight<!-- /count --> scenarios are declared today: thirteen against `inkwell`, eleven against `tsuzuri`, and four against `recall`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-nine<!-- /count --> scenarios are declared today: thirteen against `inkwell`, twelve against `tsuzuri`, and four against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -357,6 +357,23 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eig
   `blog-post-slug.spec.ts` demonstrates only the opposite half of, or not at
   all: naming a callable subject with `()`, and grouping a shared condition
   under its own `describe("when ...")` block.
+- [`show-real-titles-in-the-post-list-and-commit-it`](../../tools/evaluation/scenarios/show-real-titles-in-the-post-list-and-commit-it/)
+  targets `conventional-commits` against `tsuzuri`, alongside
+  `next-app-development`, `github-operation`, and `loop-engineering` as peers,
+  on a small reader-facing want — the home page's post list renders each post's
+  slug where its title belongs — with the commit that carries it asked for in
+  the owner's own words. It carries a `discovery` factor and two `transcript`
+  factors, both judged by script (that a commit was made at all, then that its
+  header conforms), and declares no `outcome` phase: `capture.mjs` compares
+  content against the commit a probe started from, so a commit message reaches
+  no diff. It is the only scenario whose artefact is a commit message, and so
+  the first to claim the commit-history entries all three mocks carry in
+  [`mocks/README.md`](../../tools/evaluation/mocks/README.md). Two limits
+  are recorded in its own `scenario.json` rather than left for review: the work
+  reaches `shared/resolve-translation.ts`, which three other scenarios already
+  own, so it costs turns the measurement is not about; and `tsuzuri`'s own
+  `AGENTS.md` asks for a plan and a pull request before a change lands, which
+  may make a probe branch before committing — captured identically either way.
 - [`show-what-the-test-run-never-reaches`](../../tools/evaluation/scenarios/show-what-the-test-run-never-reaches/)
   targets `jest-testing` against `tsuzuri`, alongside `unit-testing` and
   `quality-assurance` as peers, and asks for real coverage visibility rather
@@ -415,16 +432,16 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eig
   component as one of the two to read for how it is done — an accepted limit
   recorded at this scenario's plan gate rather than found in review.
 
-Together the twenty-eight exercise every path through the three scripts above:
+Together the twenty-nine exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
 probe or the offline check under `tests/repository/` ever sees it, scenarios spread across three
 different mock projects, and — across the three scenarios that target a
 document-authoring skill (`technical-document-authoring`,
 `living-project-documentation`, and `product-requirement-document-authoring`)
-— an artefact that is prose rather than code. Eleven carry at least one
-`transcript` factor — sixteen transcript factors in total, eight judged by
-reasoning and eight by script. Of the seventeen that carry none, three state
+— an artefact that is prose rather than code. Twelve carry at least one
+`transcript` factor — eighteen transcript factors in total, eight judged by
+reasoning and ten by script. Of the seventeen that carry none, three state
 their reason in their own `scenario.json`. Authoring further scenarios against
 `inkwell`'s, `tsuzuri`'s, and `recall`'s remaining catalogued subjects, and against this
 repository's other mocks, is separate, later work; this document describes what

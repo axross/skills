@@ -534,6 +534,20 @@ export async function materialize({
     }
 
     runGit(["init", "--quiet", "-b", "main"], workspace);
+    // the replay below pins its own identity per commit through commitEnv(), so
+    // this config is not what the replayed history is authored with — `git`'s
+    // GIT_AUTHOR_* / GIT_COMMITTER_* env wins over config, and the replayed
+    // hashes are unchanged by these two lines. it is written for the probe
+    // instead: the CLI this instrument spawns runs its own `git` in here, with
+    // whatever ambient config the runner happens to have, and a runner with
+    // none at all (an ordinary CI image) fails a probe's first `git commit`
+    // outright — `Author identity unknown`. a probe can recover by configuring
+    // git itself, and some have, but the turns that costs land on whichever
+    // condition happened to try committing, which is noise on any factor that
+    // turns on a commit existing. the same pinned constants are used, so a
+    // probe's own commit is authored exactly as the history it sits on top of.
+    runGit(["config", "user.name", AUTHOR_NAME], workspace);
+    runGit(["config", "user.email", AUTHOR_EMAIL], workspace);
     commits.forEach((commit, index) => {
       // a commit a patch emptied is skipped and reported. `git commit` exits non-zero
       // on an empty staged set, so leaving it to `git` would abort materialization;
