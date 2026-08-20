@@ -1,10 +1,14 @@
 # Subagent Delegation
 
-Apply this reference for every subagent the loop spawns — [implementation-worker.md](./implementation-worker.md)'s implementation worker and [pre-flight-review.md](./pre-flight-review.md)'s review reader today, and any further role a project adds. It owns what all of them share; each role's own reference states only what is particular to that role, and links back here for the rest.
+Apply this reference for every subagent the loop spawns — [implementation-worker.md](./implementation-worker.md)'s implementation worker, [pre-flight-review.md](./pre-flight-review.md)'s review reader, and [context-ownership.md](./context-ownership.md)'s investigator today, and any further role a project adds. It owns what all of them share; each role's own reference states only what is particular to that role, and links back here for the rest.
 
 ## Why the Loop Delegates
 
-The main actor is the only long-lived actor, and stays so whether or not a phase or stage is delegated. A subagent is a bounded execution actor for one phase of one plan revision — never a second loop driver. Delegating lets a project pin, through that subagent's own definition, the model and reasoning effort it runs at; a harness that instead defaults a definition to inheriting the session's own settings runs the subagent at the main actor's cost, and the saving delegation is meant to buy disappears without anything reporting it.
+The main actor is the only long-lived actor, and stays so whether or not a phase or stage is delegated. A subagent is a bounded execution actor for one phase of one plan revision — never a second loop driver.
+
+The loop delegates for context separation, and each role separates a different context from the main actor's own: an implementation worker so it does not inherit Phase 1's accumulated planning context; a pre-flight review reader so it does not inherit the implementer's reasoning state; [context-ownership.md](./context-ownership.md)'s investigator so a large payload it is sent to read never enters the main actor's context at all. What differs between the roles is only what each may touch — the reason for separating is the same across all three, and a further role a project adds states its own context reason the same way.
+
+Delegating also lets a project pin, through a subagent's own definition, the model and reasoning effort it runs at — a secondary benefit, not the reason itself. A harness that instead defaults a definition to inheriting the session's own settings runs the subagent at the main actor's cost, and that saving disappears without anything reporting it; the context separation above holds either way, because it comes from the subagent being a distinct actor, not from what it costs to run.
 
 ## Harness Permission Determination
 

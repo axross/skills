@@ -119,6 +119,16 @@ See [writer-ownership-and-recovery.md](./references/writer-ownership-and-recover
 
 - MUST read [writer-ownership-and-recovery.md](./references/writer-ownership-and-recovery.md) before granting, reclaiming, or recovering the writer lease, and before classifying a worker escalation as clarification or plan revision.
 
+See [context-ownership.md](./references/context-ownership.md) for:
+
+- which reads stay in the main actor's own context, and which go to an investigator instead
+- the investigator role, defined by nothing but what it is given to read and what it returns
+- the return contract that keeps an investigator from handing back source text in place of a conclusion
+
+**Guidelines:**
+
+- MUST read [context-ownership.md](./references/context-ownership.md) before deciding whether to read a large payload itself or hand it to an investigator, and before reading back what an investigator returns.
+
 ## Intake — Identify the Unit of Work
 
 Determine, from the conversation and the current repository state, which kind of target you are delivering, then enter the matching phase.
