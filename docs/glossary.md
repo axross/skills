@@ -68,6 +68,8 @@
 
 **Independent review** — the review of a change performed by a separate session under a bot identity distinct from the operator, so a change's author never certifies it. It is the authoritative review of an agent's own work.
 
+**Plan amendment** — a plan, at its own approval gate, changing a different issue's already-approved plan, distinct from a plan revising its own run's plan under its own revision identity. The amending plan's own approval carries the amendment's approval under three stated conditions, and falls back to a separate approval against the amended plan's own revision identity otherwise.
+
 **Pre-flight review** — an advisory review by a second worker before the pull request opens, run whenever implementation was delegated and a compatible reader resolves. It buys a reader free of the implementer's reasoning state, and is never reported as the **independent review**.
 
 **Posted review** — a review published on a pull request rather than delivered in-session, and narrower in its severity vocabulary than one delivered in-session is.

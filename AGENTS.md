@@ -22,6 +22,7 @@ distinguishes, so a session does not have to open the index for one of these.
 | A merge gate, a reporting tool, or a scheduled audit                                       | [docs/conventions/verification-gates.md](./docs/conventions/verification-gates.md)   |
 | A number stated in prose                                                                   | [docs/conventions/marked-counts.md](./docs/conventions/marked-counts.md)             |
 | What a distributable skill may contain, or a dependency-governed surface                   | [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md)     |
+| A decision settled while building, and where it must land                                  | [docs/conventions/decision-placement.md](./docs/conventions/decision-placement.md)   |
 | The change loop, the implementer or reviewer agent, branch governance                      | [docs/operations/development-workflow.md](./docs/operations/development-workflow.md) |
 | Installing or refreshing a skill                                                           | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
 | How an agent session starts, its hooks, or its telemetry                                   | [docs/operations/agent-sessions.md](./docs/operations/agent-sessions.md)             |
