@@ -49,6 +49,12 @@ implementation-capable agent at the session's inherited model — rather than
 returning to single-agent execution, with no gate weakened. Single-agent
 execution is what a host exposing no capable agent at all produces.
 
+[`2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md`](../decisions/2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md)
+is the decision behind every model and effort value pinned across this
+section and the ones below it: the vendor comparison the investigator's
+shape rests on, and why this file and `reviewer.md` moving off `xhigh` is
+the maintainer's judgment rather than a measured one.
+
 ## The Pre-Flight Review
 
 `.claude/agents/reviewer.md` denies two things — editing, and spawning another
