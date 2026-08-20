@@ -33,6 +33,9 @@ uses none of them.
 - [conventions/skill-portability.md](./conventions/skill-portability.md) —
   what a distributable skill may not contain here, and the dependencies whose
   docs are consulted before a change.
+- [conventions/decision-placement.md](./conventions/decision-placement.md) —
+  where a decision settled while a change is being built has to reach a
+  durable document, and the ordered test for which one.
 
 ## Operations
 

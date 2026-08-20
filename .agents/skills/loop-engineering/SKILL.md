@@ -166,12 +166,13 @@ See [plan-document.md](./references/plan-document.md) for:
 - the canonical plan structure and each section's craft
 - writing acceptance criteria as a plain, checkable bullet list
 - the canonical plan content's boundary, the revision identity approval binds to, and the one normalization applied before comparing
+- the amendment disposition for a plan that changes another issue's already-approved plan, the three conditions under which its own approval carries the amendment's, and the separate-approval fallback
 - archiving the original description in a marked comment, and never composing a body from a sanitized read of one
 - presenting and recording visual-change presentation options
 
 **Guidelines:**
 
-- MUST read [plan-document.md](./references/plan-document.md) before writing or revising the plan in the issue body, and before comparing a plan revision's identity.
+- MUST read [plan-document.md](./references/plan-document.md) before writing or revising the plan in the issue body, before comparing a plan revision's identity, and before writing a plan that amends another issue's already-approved plan.
 
 Then step through the phase:
 
