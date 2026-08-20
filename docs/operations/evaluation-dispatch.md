@@ -140,8 +140,9 @@ in front of a probe, and MUST NOT be read as the set of tools a probe holds.
 
 `DISALLOWED_TOOLS` is the bound. A tool is denied when it delegates the
 probe's work to another agent, when it reaches outside the probe workspace,
-or when it blocks waiting for a human the probe's own system prompt has
-already said is not there. `ToolSearch` is deliberately left reachable.
+when it blocks waiting for a human the probe's own system prompt has
+already said is not there, or — `NotebookEdit`'s own case — when no mock
+ships anything for it to touch. `ToolSearch` is deliberately left reachable.
 
 Everything else the CLI exposes is reachable by a probe and named by
 neither list, which is the state a reader has to keep in mind: the
