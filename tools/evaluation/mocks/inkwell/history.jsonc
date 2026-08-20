@@ -158,6 +158,10 @@
       ]
     },
     {
+      "message": "cover the shell's identify call",
+      "files": ["src/routes/Layout.browser.test.tsx"]
+    },
+    {
       "message": "ci: add workflow",
       "files": [".github/workflows/ci.yml"]
     },
