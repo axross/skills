@@ -159,4 +159,4 @@ An agent definition — `.claude/agents/implementer.md`,
 skill, so `npx skills` does not carry it and it is never installed,
 symlinked, or listed in `skills-lock.json`. Only Claude Code is configured
 today; [#218](https://github.com/axross/skills/issues/218) tracks the Codex
-side for all three.
+side for each of them.

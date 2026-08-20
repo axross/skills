@@ -104,7 +104,7 @@ its own context, one read at a time — unlike deleting `reviewer.md`, which
 skips a stage rather than narrowing per read.
 
 [Directory Structure](../conventions/directory-structure.md) covers why
-`.claude/agents/` is the only home for all three.
+`.claude/agents/` is the only home for an agent definition.
 
 ## Working Without an Agent
 

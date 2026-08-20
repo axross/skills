@@ -22,7 +22,7 @@ an investigator — the payload never entering the main actor's context —
 survives an inherited model, while the secondary benefit is exactly what an
 investigator exists to maximise.
 
-With a third role arriving, what tier each of this repository's three
+With the investigator role arriving, what tier each of this repository's
 subagent roles runs at became one decision rather than two: `implementer`
 and `reviewer` already ran at `effort: xhigh`, and the new investigator
 needed a model and effort chosen from the same comparison.
@@ -91,8 +91,8 @@ quality this role has no cheap way to verify.
   cheap way to verify.
 - **No investigator definition, relying on a generic reader.** Resolution
   succeeds and nothing breaks. Rejected: it forfeits the model-and-effort pin
-  silently, which for this role is the largest of the three forfeits a
-  missing definition in this repository could produce.
+  silently, which for this role is the largest such forfeit a missing
+  definition in this repository could produce.
 - **Leaving `implementer` and `reviewer` at `xhigh`.** A legitimate outcome
   of this decision — no evidence in this repository supports moving either.
   Rejected by the maintainer's own judgment at the clarify gate, not by any
@@ -100,11 +100,10 @@ quality this role has no cheap way to verify.
 
 ## Consequences
 
-Every one of this repository's three subagent roles now states a
-deliberately chosen model and effort, rather than one role inheriting the
-session's own settings by omission. `docs/operations/development-workflow.md`
-and `docs/conventions/directory-structure.md` name and reason about all
-three.
+Every one of this repository's subagent roles now states a deliberately
+chosen model and effort, rather than one role inheriting the session's own
+settings by omission. `docs/operations/development-workflow.md` and
+`docs/conventions/directory-structure.md` name and reason about each one.
 
 What this record does not license: it is not evidence that either move — the
 investigator's shape, or the `implementer`/`reviewer` effort drop — saves
