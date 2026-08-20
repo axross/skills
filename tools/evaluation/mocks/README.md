@@ -153,11 +153,13 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   one would hand a control run the very convention
   [`give-the-empty-post-list-a-real-empty-state`](../scenarios/give-the-empty-post-list-a-real-empty-state/)
   asks about.
-- **Three route components each hand-roll their own loading and error
-  branches, in three different shapes.** `PostListPage.tsx` renders them
-  inline, `PostEditorPage.tsx` early-returns instead, and `RootRedirect.tsx`
-  early-returns too but renders nothing at all while pending. Nothing in
-  `src/components/` is a shared state surface.
+- **Four route components each hand-roll their own loading and error
+  branches, in three different shapes.** `PostListPage.tsx` and
+  `RevisionsPage.tsx` render them inline, `PostEditorPage.tsx` early-returns
+  instead, and `RootRedirect.tsx` early-returns too but renders nothing at all
+  while pending. Nothing in `src/components/` is a shared state surface. The
+  scenario below was declared while there were three of them, and its own
+  description still says so.
   [`give-every-screen-one-loading-and-error-treatment`](../scenarios/give-every-screen-one-loading-and-error-treatment/)
   asks a model to pull that repeated concern onto one place both screens
   use. A mock that already shared this handling would hand a control run
@@ -171,12 +173,19 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   three fire from a real call site: a name that existed only in the event
   type would leave the _exercised_ convention perfectly consistent, which is
   the opposite of what is wanted here.
-- **`identifyAuthor` in `src/lib/analytics.ts` has no caller yet.** It is
-  written, exported and tested, and nothing invokes it, because session
-  handling lives outside this cut of the product and nothing in the SPA knows
-  who the author is — `AGENTS.md` says so in the project's own voice. One
-  scenario asks which `Identify` operator a user property should use, and it
-  needs a concrete `.set()` call site to point at rather than a live one.
+- **The author the SPA identifies to Amplitude is resolved at the session
+  boundary rather than by a sign-in screen.** `GET /me` reads
+  `x-forwarded-user` and `x-forwarded-user-name` from whatever fronts the
+  console and falls back to a development author when nothing does, which is
+  what an app behind an authenticating proxy ordinarily looks like and is
+  consistent with `AGENTS.md`'s own statement that session handling lives
+  outside this cut. `identifyAuthor` is called from the shell once consent has
+  been granted, so
+  [`keep-a-running-count-of-an-authors-visits`](../scenarios/keep-a-running-count-of-an-authors-visits/)
+  still has the two concrete `.set()` calls it points at — that scenario's own
+  task prompt describes the wrapper as still waiting for sign-in, which was
+  true when it was written and is the one thing #310 left behind for its own
+  change to correct.
 - **`getPostSaveMutationOptions` writes the saved post into the detail cache
   and never invalidates the site's post list**, so a draft save leaves the
   title and timestamp on the list page stale until something else refetches
@@ -201,7 +210,7 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   `src/components/` — `Button`, `Card`, `ConsentBanner`, and `Sidebar` — each
   ship a `.browser.test.tsx`.
 - **There is no dashboard, settings page, onboarding flow, or sign-in
-  screen.**
+  screen.** The sidebar's two sections are Posts and Revisions.
   [`sketch-a-screen-for-how-an-authors-posts-are-doing`](../scenarios/sketch-a-screen-for-how-an-authors-posts-are-doing/)
   asks a model to sketch the first of those, the author performance
   dashboard. The new-author onboarding path is a genuinely different
@@ -221,8 +230,16 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   scenarios that need tokens are hosted there.
 - **The API trusts its caller.** There is no authentication or authorisation in
   front of the Hono routes, because the console is assumed to be served behind
-  the same session boundary the SPA assumes. That is a real product-cut
+  the same session boundary the SPA assumes — `GET /me` reports whoever that
+  boundary forwarded, without verifying it. That is a real product-cut
   boundary rather than an oversight, and no scenario here measures it.
+
+- **The seed writes sites and posts but no revisions**, so a fresh database
+  lands the Revisions screen on its empty state until something is published.
+  `server/db/queries.test.ts` asserts that a rolled-back publish leaves
+  `revisions` empty against a seeded database, and seeding revisions would
+  force that assertion looser. A product that writes history only when history
+  happens is also the honest shape.
 - **`npm run lint` reports one warning and exits 0** —
   `react-refresh/only-export-components`, where `src/lib/consent.tsx` exports a
   provider and its hook from one file. Splitting a context across three files
