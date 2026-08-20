@@ -73,36 +73,17 @@ if (typeof transcript !== "string") {
   fail("context.material.transcript must be a string — this script judges the transcript phase alone.");
 }
 
-// `<type>[(scope)][!]: <description>`, the same shape Conventional Commits
-// v1.0.0 defines: a required `: ` separator with exactly one space, and a
-// scope, when present, in non-empty parentheses.
-//
-// the type is matched case-insensitively against the declared set below,
-// because that is what the contract being scored says: SKILL.md › Type —
-// "MUST treat types as case-insensitive in parsing but SHOULD write them
-// lowercase". The skill's own validator lower-cases before its membership
-// check and passes `Fix:` with a warning, so scoring it `false` here would
-// have this factor disagree with the very contract it exists to measure.
-// The SHOULD is deliberately not enforced: a factor is a boolean, and
-// failing a conforming header over a style preference would be a false
-// negative dressed as rigour.
+// `<type>[(scope)][!]: <description>`, per Conventional Commits v1.0.0. The
+// type is matched case-insensitively, as SKILL.md › Type requires in parsing;
+// its lowercase SHOULD is not enforced — a factor is a boolean, and failing a
+// conforming header over style is a false negative. See 0362002.
 const HEADER_RE = /^([A-Za-z]+)(?:\(([^)]*)\))?(!)?: (.+)$/;
 
-// a `git commit` anywhere in a command, skipping leading `git` flag tokens
-// (`git --no-pager commit`) and whatever precedes it in the line
-// (`cd x && …`, `FOO=bar git commit …`).
-//
-// what this deliberately does NOT match is a `git` flag that takes its value
-// as a separate token — `git -C dir commit`, whose `dir` is not a flag, so
-// the alternation cannot step over it. That form is missed rather than read.
-// Widening the pattern to accept it was considered and rejected: the
-// scenario's completion-floor factor recognizes a commit by the literal
-// substring `git commit` (judgments/check-transcript-tool-input-mentions.mjs),
-// which misses that form too, and the two factors reading a transcript
-// differently is worse than both reading it narrowly — a floor reporting
-// "never committed" beside a header verdict of `true` is a contradictory
-// record, where two narrow readings at least agree. None of the 13 real
-// commits across the retired instrument's 224 transcripts uses it.
+// a `git commit` anywhere in a command, skipping leading `git` flags and
+// whatever precedes it (`cd x && …`, `FOO=bar git commit …`).
+// `git -C dir commit` is not matched — `dir` is no flag, so the alternation
+// stops there. Narrow to agree with the completion floor, which misses that
+// form too. See 0362002.
 const COMMIT_RE = /\bgit\s+(?:-\S+\s+)*commit\b/g;
 
 // the message flag, in any form git accepts: a short `-m`, a short cluster
@@ -142,13 +123,10 @@ function subjectFrom(rest) {
   return null;
 }
 
-// every tool_use block's own input, read the same way
-// tools/evaluation/src/transcript/events.mjs's toolUseBlocks does and
-// re-read here rather than imported, because a judgment script is spawned as
-// its own process rather than imported (factor-judgment.mjs's
-// runScriptJudgment) and stays runnable on its own. A stream line that does
-// not parse as JSON is skipped rather than treated as a failure: a truncated
-// final line is ordinary, not corrupt.
+// every tool_use block's own input, read as transcript/events.mjs's
+// toolUseBlocks does and re-read here rather than imported: a judgment script
+// is spawned as its own process, so it stays runnable on its own. A line that
+// does not parse as JSON is skipped — a truncated final one is ordinary.
 const commands = [];
 for (const line of transcript.split("\n")) {
   const text = line.trim();
