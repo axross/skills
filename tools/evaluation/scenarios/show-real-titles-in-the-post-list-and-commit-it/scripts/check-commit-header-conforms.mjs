@@ -21,13 +21,13 @@
 // Why this does not spawn skills/conventional-commits/scripts/check-commit-message.mjs,
 // which validates the same header: that would make the judgment a moving
 // target. If the skill's allowed types or separator rules ever broaden,
-// every measurement already stored would silently change meaning — and
-// #392 settled that a changed judge is a new measurement rather than an
-// update. The type set lives in this factor's declared `input`, where it is
-// part of the stored record, and the grammar lives below, where a change to
-// it shows up in this file's own diff. It is also a narrower claim than the
-// validator makes: this judges the header alone, never the body separation
-// or the footers the validator also checks.
+// every measurement already stored would silently change meaning, and a
+// changed judge is a new measurement rather than an update. The type set
+// lives in this factor's declared `input`, where it is part of the stored
+// record, and the grammar lives below, where a change to it shows up in
+// this file's own diff. It is also a narrower claim than the validator
+// makes: this judges the header alone, never the body separation or the
+// footers the validator also checks.
 //
 // Which commit is judged, when a probe made several: the last one whose
 // message this can read. A probe that wrote "WIP" and then corrected itself
