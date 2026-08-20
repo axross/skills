@@ -400,10 +400,17 @@ describe("report-obligation-burden.mjs", () => {
       // when a change moves them, the fix is to re-run the reporter against
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
-      expect.soft(totals.floorObligations).toBe(49);
-      expect.soft(totals.floorTokens).toBe(10_487);
-      expect.soft(totals.ceilingObligations).toBe(482);
-      expect.soft(totals.ceilingTokens).toBe(51_155);
+      //
+      // both grew here: loop-engineering gained two Phase 1 `**Guidelines:**`
+      // bullets (the harness-permission determination and the
+      // context-ownership.md read obligation) at the floor, and
+      // subagent-delegation.md's standing-mandate recording requirement at
+      // the ceiling — two obligations at each tier, +1,374 floor bytes and
+      // +2,259 ceiling bytes from the new prose.
+      expect.soft(totals.floorObligations).toBe(51);
+      expect.soft(totals.floorTokens).toBe(10_776);
+      expect.soft(totals.ceilingObligations).toBe(484);
+      expect.soft(totals.ceilingTokens).toBe(51_629);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -446,16 +453,16 @@ describe("report-obligation-burden.mjs", () => {
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
       //
-      // the ceiling grew by 4 here because loop-engineering's
-      // plan-document.md gained the Plan Amendment section's four MUST
-      // bullets; the floor's token count grew too, from the one SKILL.md
-      // read-obligation sentence that widened to name the same case, but the
-      // floor's obligation count did not move — that sentence was already
-      // counted, widened or not.
-      expect.soft(tiers[2].floorObligations).toBe(49);
-      expect.soft(tiers[2].floorTokens).toBe(10_487);
-      expect.soft(tiers[2].ceilingObligations).toBe(482);
-      expect.soft(tiers[2].ceilingTokens).toBe(51_155);
+      // the floor grew by 2 here because loop-engineering's Phase 1 gained
+      // two `**Guidelines:**` bullets — establishing the harness-permission
+      // determination before the first Phase 1 investigation read, and the
+      // MUST-read for context-ownership.md; the ceiling grew by the same 2
+      // from subagent-delegation.md's standing-mandate recording obligation
+      // on top of that.
+      expect.soft(tiers[2].floorObligations).toBe(51);
+      expect.soft(tiers[2].floorTokens).toBe(10_776);
+      expect.soft(tiers[2].ceilingObligations).toBe(484);
+      expect.soft(tiers[2].ceilingTokens).toBe(51_629);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -482,8 +489,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(482);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(482);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(484);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(484);
     });
 
     it("prints no tier block without --mandated", async () => {
