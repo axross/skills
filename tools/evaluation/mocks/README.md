@@ -66,6 +66,18 @@ declared. #392's step 4 authors the set, one slice at a time; an entry whose
 scenario is not yet written is a standing reason the mock is shaped as it is,
 and is why the shape survives until then.
 
+## A mock's own working agreement
+
+Every mock below ships an `AGENTS.md` (and a one-line `CLAUDE.md` pointing at
+it) describing the project in its own voice. A scenario's declared
+`harness.agentsMd` decides whether a probe's workspace carries either file:
+`true` keeps both, committed into the replayed history exactly as the mock
+ships them; `false` withholds both — from the materialized tree and from the
+history alike — so a probe measured under `false` runs with no working
+agreement in its workspace at all. A confounder an entry below attributes to
+a mock's `AGENTS.md` — `recall`'s convention note, chief among them — applies
+only to a scenario declaring `true`.
+
 ### `tsuzuri` — choices made for coverage
 
 - **The commit history is inconsistent in style.** `history.jsonc` mixes

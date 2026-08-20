@@ -63,6 +63,26 @@ describe("reconstructWorkspace", () => {
     expect(original).not.toContain("invalidateQueries");
   });
 
+  it("withholds the mock's working agreement when the scenario declares agentsMd: false", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    expect(scenario.harness.agentsMd).toBe(true);
+
+    const withAgentsMd = await cleanedUp(
+      await reconstructWorkspace({ scenario, condition: "skill-present", diffText: "" }),
+    );
+    const withoutAgentsMd = await cleanedUp(
+      await reconstructWorkspace({
+        scenario: { ...scenario, harness: { ...scenario.harness, agentsMd: false } },
+        condition: "skill-present",
+        diffText: "",
+      }),
+    );
+
+    await expect(readFile(join(withAgentsMd, "AGENTS.md"), "utf8")).resolves.toBeTruthy();
+    await expect(readFile(join(withoutAgentsMd, "AGENTS.md"), "utf8")).rejects.toThrow();
+    await expect(readFile(join(withoutAgentsMd, "CLAUDE.md"), "utf8")).rejects.toThrow();
+  });
+
   it("throws when the stored diff does not apply cleanly", async () => {
     const scenario = await loadScenario(SCENARIO_DIR);
     const bogusDiff = [

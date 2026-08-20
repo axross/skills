@@ -6,7 +6,7 @@
   "peerSkills": ["high-fidelity-ui-design", "react-component-styling"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Authors keep asking how their posts are doing — how many are published, how many are still drafts, that kind of thing. There's nowhere in the product that shows them any of it. Before anybody starts building it, I want to see what a screen like that would actually hold and how it'd be arranged, while it's still cheap to change my mind. Leave whatever you come up with somewhere in the project so I can look at it."

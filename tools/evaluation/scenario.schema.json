@@ -71,7 +71,7 @@
       "properties": {
         "agentsMd": {
           "type": "boolean",
-          "description": "\"harness.agentsMd\" must be a boolean, saying whether the mock's own AGENTS.md is meant to reach the probe."
+          "description": "\"harness.agentsMd\" must be a boolean. true keeps the mock's own AGENTS.md and its one-line CLAUDE.md in the materialized workspace and committed into the replayed history, exactly as the mock ships them; false withholds both from the workspace and from the history, so the probe runs with neither."
         }
       },
       "description": "\"harness\" must be an object declaring the non-skill harness the probe runs under."

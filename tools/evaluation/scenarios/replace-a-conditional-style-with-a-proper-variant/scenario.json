@@ -6,7 +6,7 @@
   "peerSkills": ["react-component-development", "high-fidelity-ui-design"],
   "patch": "patch.diff",
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Our buttons stay bright with their light-mode colours no matter what — even when the rest of the screen has followed the phone into dark mode, the buttons look like they're stuck in daytime. The outline that shows up when one of them is focused has the same problem. Can you get the buttons to actually follow the theme like everything else does?"

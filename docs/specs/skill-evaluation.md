@@ -77,6 +77,15 @@ is the decision this follows from, and
 authoring convention — where the file lives, how it is regenerated, and what
 it must not do.
 
+**`harness.agentsMd` decides whether the mock's own working agreement is in
+the workspace a probe opens.** `true` keeps the mock's `AGENTS.md` and its
+one-line `CLAUDE.md` in the materialized tree, committed into the replayed
+history exactly as the mock ships them; `false` withholds both — from the
+tree and from the history alike — so nothing beyond the task prompt and the
+installed skills directs the probe.
+[`2026-08-20-declare-agentsmd-true-to-keep-scenarios-comparable.md`](../decisions/2026-08-20-declare-agentsmd-true-to-keep-scenarios-comparable.md)
+records why every scenario declared here carries `true`.
+
 ## Three phases
 
 A scenario declares whichever of three **evaluation phases** apply to what it

@@ -6,7 +6,7 @@
   "peerSkills": ["unit-testing", "next-app-development"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Our browser tests only ever look at the home page. The post pages are the whole point of the site — they are where the multi-language behaviour actually happens — and nothing checks them at all. Every release I am just hoping. Can you fix that?"

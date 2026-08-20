@@ -6,7 +6,7 @@
   "peerSkills": ["quality-assurance", "unit-testing"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "I've just cloned this. What do I have to run and pass before I put a change up?"

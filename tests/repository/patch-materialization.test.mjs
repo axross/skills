@@ -77,7 +77,11 @@ async function fileHashes(root, base = root) {
 async function materializeScenario(scenario, { withPatch }) {
   const patch = withPatch && scenario.patch !== null ? resolve(scenario.dir, scenario.patch) : null;
   try {
-    const workspace = await materializeMock({ mock: scenario.mock, patch });
+    // agentsMd threaded from the scenario's own declaration, the same way
+    // probe-runner.mjs and reconstruct.mjs do, so a scenario declaring
+    // `false` is compared against a workspace withholding the working
+    // agreement rather than against materialize()'s `true` default.
+    const workspace = await materializeMock({ mock: scenario.mock, patch, agentsMd: scenario.harness.agentsMd });
     onTestFinished(() => rm(workspace, { recursive: true, force: true }));
     return { result: { code: 0, output: "" }, workspace };
   } catch (error) {

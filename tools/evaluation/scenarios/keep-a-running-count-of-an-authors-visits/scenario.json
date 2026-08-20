@@ -6,7 +6,7 @@
   "peerSkills": ["software-instrumentation", "sentry-instrumentation"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "We already have the piece that hands our analytics who an author is, ready for when sign-in lands — it records a couple of things about them today. Alongside those, I want a running count of how many times we've seen that person: one that keeps climbing every time it runs, rather than one that only ever shows today's number."

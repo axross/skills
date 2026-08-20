@@ -10,7 +10,7 @@
   ],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Right now a visitor just gets whichever language their browser asks for, and there's no way for them to say \"actually, show me this one in English\". I'd like readers to be able to choose. I haven't worked out what that should look like though — where the control lives, what happens when someone picks a language a post was never translated into, whether the choice sticks when they open the next post. Can you take this one from here?"

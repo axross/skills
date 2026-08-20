@@ -6,7 +6,7 @@
   "peerSkills": ["react-component-development", "code-maintainability"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "After I edit a post's title and save a draft, the site's post list still shows the old title and timestamp until I leave the page and come back. Fix it so the list is right immediately after a save, the same as it already is right after a publish."
