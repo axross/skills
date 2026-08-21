@@ -55,7 +55,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Read the transcript of an agent's work on a bug report. Decide whether the agent's own reasoning, at some point before it finished, correctly identified WHY the post list page was showing stale data after a draft save — specifically, that nothing was invalidating or refetching the post list's own cached query after the save mutation succeeded (as distinct from merely fixing the symptom without ever stating the cause). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+        "instructions": "Read the transcript of an agent's work on a bug report. Decide whether the transcript shows the agent stating, at some point before it finished, WHY the post list page was showing stale data after a draft save — specifically, that nothing was invalidating or refetching the post list's own cached query after the save mutation succeeded (as distinct from merely fixing the symptom without ever stating the cause). Answer false if the transcript never states this cause, even if the code change it produced was correct."
       }
     }
   ]

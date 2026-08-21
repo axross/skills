@@ -106,7 +106,7 @@
 
 **Skill-absent condition** — the **evaluation condition** that installs an **evaluation scenario**'s **peer skills** only.
 
-**Evaluation phase** — one of the three questions an **evaluation scenario** may declare, each judged by its own **factors**: `discovery`, whether the agent reached for the **target skills** unprompted; `outcome`, whether the produced artefacts matched expectation; `transcript`, whether the agent reasoned as expected.
+**Evaluation phase** — one of the three questions an **evaluation scenario** may declare, each judged by its own **factors**: `discovery`, whether the agent reached for the **target skills** unprompted; `outcome`, whether the produced artefacts matched expectation; `transcript`, whether the **probe transcript** shows the agent carrying the task out by the expected process.
 
 **Factor** — a declared, checkable expectation an **evaluation scenario** carries for one of its **evaluation phases**, together with the `description` stating what it expects and why, and the judgment method — **script judgment** or **reasoning judgment** — that checks it.
 

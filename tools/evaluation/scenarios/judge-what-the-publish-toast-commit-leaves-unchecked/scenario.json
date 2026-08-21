@@ -44,7 +44,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Read the transcript of an agent's work answering what a sign-off on one specific commit would be taking on trust. That commit added PublishToast.tsx and PublishToast.module.css — a visual, animated toast component. Decide whether the agent's own reasoning names, at some point, that this component ships with no test of its own, in contrast to its sibling components (Button, Card, ConsentBanner, Sidebar), which each have a .browser.test.tsx of their own — and states what risk or exposure that gap leaves, as distinct from a generic caution to 'add tests' with no specific gap named. Answer false if the transcript never names this specific gap, even if it raises other genuine concerns."
+        "instructions": "Read the transcript of an agent's work answering what a sign-off on one specific commit would be taking on trust. That commit added PublishToast.tsx and PublishToast.module.css — a visual, animated toast component. Decide whether the transcript shows the agent stating, at some point, that this component ships with no test of its own, in contrast to its sibling components (Button, Card, ConsentBanner, Sidebar), which each have a .browser.test.tsx of their own — and stating what risk or exposure that gap leaves, as distinct from a generic caution to 'add tests' with no specific gap named. Answer false if the transcript never names this specific gap, even if it raises other genuine concerns."
       }
     }
   ]

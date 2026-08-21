@@ -68,7 +68,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Read the transcript of an agent's work reviewing one specific commit that added an app's routes and shell (src/App.tsx, src/main.tsx, src/routes/Layout.tsx, src/routes/Layout.module.css, src/routes/RootRedirect.tsx, src/routes/PostListPage.tsx, src/routes/PostListPage.module.css, src/routes/PostEditorPage.tsx, src/routes/PostEditorPage.module.css). Decide whether the agent's own reasoning names at least one concrete, real defect actually present in that commit's code, and states the risk it carries, as distinct from a style preference, a suggestion outside the commit's own diff, or a generic caution with no specific defect named. Answer false if the transcript names no such concrete defect, even if its prose sounds thorough."
+        "instructions": "Read the transcript of an agent's work reviewing one specific commit that added an app's routes and shell (src/App.tsx, src/main.tsx, src/routes/Layout.tsx, src/routes/Layout.module.css, src/routes/RootRedirect.tsx, src/routes/PostListPage.tsx, src/routes/PostListPage.module.css, src/routes/PostEditorPage.tsx, src/routes/PostEditorPage.module.css). Decide whether the transcript shows the agent naming at least one concrete, real defect actually present in that commit's code, and stating the risk it carries, as distinct from a style preference, a suggestion outside the commit's own diff, or a generic caution with no specific defect named. Answer false if the transcript names no such concrete defect, even if its prose sounds thorough."
       }
     }
   ]

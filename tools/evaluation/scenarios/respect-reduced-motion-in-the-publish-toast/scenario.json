@@ -51,11 +51,11 @@
     {
       "id": "names-the-motion-preference-as-the-reason",
       "phase": "transcript",
-      "description": "A correct guard can still be produced by an agent that copied a snippet without ever registering why it belongs there. This factor asks whether the transcript, at some point, names the actual reason for the change — that some visitors have a motion preference the toast should honour — as distinct from a plausible-looking media query applied without that reasoning ever appearing.",
+      "description": "A correct guard can still be produced by an agent that copied a snippet without ever registering why it belongs there. This factor asks whether the transcript, at some point, names the actual reason for the change — that some visitors have a motion preference the toast should honour — as distinct from a plausible-looking media query applied without that ever being stated.",
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Read the transcript of an agent's work on a request about a UI toast's motion. Decide whether the agent's own reasoning, at some point before it finished, names the visitor's own reduced-motion preference (however phrased — 'prefers-reduced-motion', 'reduce motion', an accessibility or comfort preference for less animation) as the reason for adding a guard around the toast's animation, as distinct from producing a correct `prefers-reduced-motion` media query without ever stating why it belongs there. Answer false if the transcript never states this reasoning, even if the code change it produced was correct."
+        "instructions": "Read the transcript of an agent's work on a request about a UI toast's motion. Decide whether the transcript shows the agent naming, at some point before it finished, the visitor's own reduced-motion preference (however phrased — 'prefers-reduced-motion', 'reduce motion', an accessibility or comfort preference for less animation) as the reason for adding a guard around the toast's animation, as distinct from producing a correct `prefers-reduced-motion` media query without ever stating why it belongs there. Answer false if the transcript never states this reason, even if the code change it produced was correct."
       }
     }
   ]
