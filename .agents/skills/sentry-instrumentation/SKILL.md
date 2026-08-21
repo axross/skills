@@ -1,6 +1,6 @@
 ---
 name: sentry-instrumentation
-description: A change touching Sentry — `Sentry.init`, `@sentry/react`, `@sentry/nextjs`, `@sentry/react-native`, `withSentryConfig`, `getSentryExpoConfig`, a DSN, an auth token, source maps, `sendDefaultPii`, `tracesSampleRate`, `replaysOnErrorSampleRate`, `enableLogs`, `beforeSend`, `captureException`, `onRequestError`, a tunnel route, a release, or an unsymbolicated stack trace. For log levels, catch placement, and which failures are worth capturing at all, use a software instrumentation capability instead. The vendor layer — SDK choice, identity, source maps, data-collection posture, sampling, and per-platform init. Lookup-first on versions.
+description: Wiring or reviewing a Sentry integration — the vendor layer, covering SDK choice, init, identity, source maps, sampling, and data-collection posture for a project that already knows what it wants captured. Triggers on `Sentry.init`, `@sentry/nextjs`, `@sentry/react-native`, `withSentryConfig`, `getSentryExpoConfig`, a DSN, an auth token, `sendDefaultPii`, `tracesSampleRate`, `replaysOnErrorSampleRate`, `beforeSend`, `onRequestError`, a tunnel route, session replay, cron monitors, or an unsymbolicated stack trace. For log levels, catch placement, and which failures are worth capturing at all, use a software instrumentation capability. Lookup-first on versions.
 user-invocable: false
 ---
 

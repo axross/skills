@@ -1,6 +1,6 @@
 ---
 name: high-fidelity-ui-design
-description: Designing, building, or reviewing a high-fidelity user-facing surface with real colors, type, spacing, and states — "visual design", "design tokens", "dark mode", "theme", "contrast", "a11y", "typography", "spacing scale", "touch target", "focus state", "interaction states", "loading state", "make it production-ready". For low-fidelity regions-and-flow wireframes, use a wireframe or breadboard approach instead. Covers semantic tokens and dark mode, visual hierarchy, the 8px grid, type scales, WCAG contrast, complete state sets, focus, and motion.
+description: Designing, building, or reviewing a high-fidelity user-facing surface with real colors, type, spacing, and states — the visual design system behind a production-ready surface, and the rationale behind each decision in it. Triggers on "visual design", "design tokens", "dark mode", "theme", "contrast", "a11y", "typography", "spacing scale", "touch target", "focus state", "interaction states", "make it production-ready". For low-fidelity regions-and-flow wireframes, use a wireframe or breadboard approach; for the stylesheet that implements the design, a React component styling capability. Covers semantic tokens, visual hierarchy, the 8px grid, type scales, WCAG contrast, complete state sets, focus, and motion.
 user-invocable: false
 ---
 
