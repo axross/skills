@@ -400,10 +400,19 @@ describe("report-obligation-burden.mjs", () => {
       // when a change moves them, the fix is to re-run the reporter against
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
-      expect.soft(totals.floorObligations).toBe(49);
-      expect.soft(totals.floorTokens).toBe(10_488);
-      expect.soft(totals.ceilingObligations).toBe(482);
-      expect.soft(totals.ceilingTokens).toBe(51_155);
+      //
+      // both grew by the same 2 here, and from the same source:
+      // loop-engineering's Phase 1 gained two `**Guidelines:**` bullets. what
+      // each of them says is SKILL.md's business, not this comment's — naming
+      // it here is what made this block stale twice already.
+      // subagent-delegation.md's standing-mandate recording
+      // requirement moved no count at all, because it widened an existing
+      // bullet rather than adding one; it shows up in the ceiling's token
+      // growth (+3,028 bytes against the floor's +1,996) and nowhere else.
+      expect.soft(totals.floorObligations).toBe(51);
+      expect.soft(totals.floorTokens).toBe(10_907);
+      expect.soft(totals.ceilingObligations).toBe(484);
+      expect.soft(totals.ceilingTokens).toBe(51_791);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -424,7 +433,9 @@ describe("report-obligation-burden.mjs", () => {
       // much, and in which dimension.
       //
       // tier 1 — `professional-behavior`, the only genuinely unconditional
-      // member.
+      // member. its tokens moved without its obligation count moving, because
+      // the four-slot description rewrite changed frontmatter bytes and no
+      // requirement bullet; the same is true of tier 2's `software-development`.
       expect.soft(tiers[0].floorObligations).toBe(10);
       expect.soft(tiers[0].floorTokens).toBe(2_020);
       expect.soft(tiers[0].ceilingObligations).toBe(133);
@@ -446,16 +457,15 @@ describe("report-obligation-burden.mjs", () => {
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
       //
-      // the ceiling grew by 4 here because loop-engineering's
-      // plan-document.md gained the Plan Amendment section's four MUST
-      // bullets; the floor's token count grew too, from the one SKILL.md
-      // read-obligation sentence that widened to name the same case, but the
-      // floor's obligation count did not move — that sentence was already
-      // counted, widened or not.
-      expect.soft(tiers[2].floorObligations).toBe(49);
-      expect.soft(tiers[2].floorTokens).toBe(10_488);
-      expect.soft(tiers[2].ceilingObligations).toBe(482);
-      expect.soft(tiers[2].ceilingTokens).toBe(51_155);
+      // the floor grew by 2 here because loop-engineering's Phase 1 gained
+      // two `**Guidelines:**` bullets. the ceiling grew by the same 2
+      // and by nothing further: subagent-delegation.md's standing-mandate
+      // recording requirement widened a bullet that was already counted, so
+      // it moved the ceiling's tokens without moving its obligation count.
+      expect.soft(tiers[2].floorObligations).toBe(51);
+      expect.soft(tiers[2].floorTokens).toBe(10_907);
+      expect.soft(tiers[2].ceilingObligations).toBe(484);
+      expect.soft(tiers[2].ceilingTokens).toBe(51_791);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -482,8 +492,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(482);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(482);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(484);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(484);
     });
 
     it("prints no tier block without --mandated", async () => {
