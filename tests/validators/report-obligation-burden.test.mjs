@@ -407,11 +407,11 @@ describe("report-obligation-burden.mjs", () => {
       // obligation. subagent-delegation.md's standing-mandate recording
       // requirement moved no count at all, because it widened an existing
       // bullet rather than adding one; it shows up in the ceiling's token
-      // growth (+3,306 bytes against the floor's +2,274) and nowhere else.
+      // growth (+3,025 bytes against the floor's +1,993) and nowhere else.
       expect.soft(totals.floorObligations).toBe(51);
-      expect.soft(totals.floorTokens).toBe(10_965);
+      expect.soft(totals.floorTokens).toBe(10_906);
       expect.soft(totals.ceilingObligations).toBe(484);
-      expect.soft(totals.ceilingTokens).toBe(51_849);
+      expect.soft(totals.ceilingTokens).toBe(51_790);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -462,9 +462,9 @@ describe("report-obligation-burden.mjs", () => {
       // recording requirement widened a bullet that was already counted, so
       // it moved the ceiling's tokens without moving its obligation count.
       expect.soft(tiers[2].floorObligations).toBe(51);
-      expect.soft(tiers[2].floorTokens).toBe(10_965);
+      expect.soft(tiers[2].floorTokens).toBe(10_906);
       expect.soft(tiers[2].ceilingObligations).toBe(484);
-      expect.soft(tiers[2].ceilingTokens).toBe(51_849);
+      expect.soft(tiers[2].ceilingTokens).toBe(51_790);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
