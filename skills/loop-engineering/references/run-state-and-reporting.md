@@ -29,7 +29,7 @@ Where the pre-flight review runs, its round number and waiting state join that l
 
 - MUST NOT duplicate the commit list into the status block; Git history and the completion receipt stay authoritative for individual commits.
 - MUST keep opaque worker identifiers, transcript paths, and other ephemeral harness details in session state rather than writing them to GitHub.
-- MUST treat a status-block entry that names no determination as invalid; the delegation-permission field carries one of the three results — permitted, barred, or undetermined — together with the policy text quoted or the no-restricting-policy observation from [subagent-delegation.md](./subagent-delegation.md#harness-permission-determination).
+- MUST treat a status-block entry that names no determination as invalid; the delegation-permission field carries one of the three results — permitted, barred, or undetermined — together with whichever of that determination's grounds it rests on, quoted or observed as [subagent-delegation.md](./subagent-delegation.md#harness-permission-determination) requires. That reference owns the set of grounds; read it there rather than from a list here, which would drift the next time it gains one.
 
 ## Reporting a Delegated Run
 

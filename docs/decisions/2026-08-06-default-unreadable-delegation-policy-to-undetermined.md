@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 2026-08-20-move-the-delegation-determination-to-phase-1-and-satisfy-a-conditional-policy-with-a-standing-mandate.md
 ---
 
 # Default an unreadable delegation policy to undetermined
