@@ -1,6 +1,6 @@
 ---
 name: tanstack-query-development
-description: Writing or reviewing anything that reads or writes server state through TanStack Query — "useQuery", "useMutation", "queryOptions", "queryKey", "staleTime", "gcTime", "invalidateQueries", "setQueryData", "optimistic update", "infinite scroll", "prefetch", "QueryClient", "dehydrate", a stale list after a write, a colliding cache entry, or a refetch that fires too often or never. For a component's own composition, props, and state use a React component development capability; for routing and rendering the matching app-framework one. The v5 server-state layer — option factories, query keys, cache lifetime, mutations and invalidation, and testing.
+description: Writing or reviewing anything that reads or writes server state through TanStack Query — the v5 server-state layer, owning cache identity, refetch timing, invalidation, and how a failure surfaces. Triggers on "useQuery", "useMutation", "queryOptions", "queryKey", "staleTime", "invalidateQueries", "setQueryData", "optimistic update", "infinite scroll", "QueryClient", a stale list after a write, a colliding cache entry, or a refetch that fires too often or never. For a component's own composition, props, and state use a React component development capability; for routing and rendering the matching app-framework one.
 user-invocable: false
 ---
 

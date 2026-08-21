@@ -433,19 +433,21 @@ describe("report-obligation-burden.mjs", () => {
       // much, and in which dimension.
       //
       // tier 1 — `professional-behavior`, the only genuinely unconditional
-      // member.
+      // member. its tokens moved without its obligation count moving, because
+      // the four-slot description rewrite changed frontmatter bytes and no
+      // requirement bullet; the same is true of tier 2's `software-development`.
       expect.soft(tiers[0].floorObligations).toBe(10);
-      expect.soft(tiers[0].floorTokens).toBe(2_014);
+      expect.soft(tiers[0].floorTokens).toBe(2_020);
       expect.soft(tiers[0].ceilingObligations).toBe(133);
-      expect.soft(tiers[0].ceilingTokens).toBe(10_145);
+      expect.soft(tiers[0].ceilingTokens).toBe(10_151);
 
       // tier 2 — plus `software-development`, whose reference gained a
       // comment-scope test and a TODO unfinished-code condition — both add
       // obligation bullets, which is why this tier's ceiling grew.
       expect.soft(tiers[1].floorObligations).toBe(15);
-      expect.soft(tiers[1].floorTokens).toBe(3_367);
+      expect.soft(tiers[1].floorTokens).toBe(3_387);
       expect.soft(tiers[1].ceilingObligations).toBe(246);
-      expect.soft(tiers[1].ceilingTokens).toBe(19_670);
+      expect.soft(tiers[1].ceilingTokens).toBe(19_691);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //

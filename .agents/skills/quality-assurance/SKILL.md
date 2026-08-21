@@ -1,6 +1,6 @@
 ---
 name: quality-assurance
-description: Reviewing whether a change carries adequate verification evidence — "is this verified", "did this break anything", "were the required checks run". The reviewer's QA pass on top of the development verification rules. Covers requiring command evidence for the format and lint gate, treating a change to the gate's own configuration as a risk to the gate itself, matching manual checks to the changed output surfaces, mapping skipped checks to residual risk, demanding second-pass verification after severe findings, and asking whether a check that passed was ever capable of failing.
+description: Reviewing whether a change carries adequate verification evidence — "is this verified", "did this break anything", "were the required checks run". The reviewer's QA pass on top of the development verification rules, judging the evidence a change offers rather than re-deriving the rule behind it. Covers requiring command evidence for the format and lint gate, treating a change to the gate's own configuration as a risk to the gate itself, matching manual checks to the changed output surfaces, mapping a skipped check to residual risk, and asking whether a check that passed was ever capable of failing.
 user-invocable: false
 ---
 

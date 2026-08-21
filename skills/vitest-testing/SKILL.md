@@ -1,6 +1,6 @@
 ---
 name: vitest-testing
-description: A change touching Vitest — `vitest.config`, `defineConfig` from `vitest/config`, `vi.mock`, `vi.fn`, `vi.spyOn`, `vi.useFakeTimers`, `expect.poll`, `toMatchInlineSnapshot`, `test.extend`, `describe.concurrent`, `projects`, `pool`, `isolate`, `--coverage`, `browser.instances`, `toMatchScreenshot`, `*.test-d.ts`, `import.meta.vitest`, a `vitest run` invocation, or a config key Vitest 4 silently ignores. For what to assert and how a spec is shaped, use a unit-testing capability; for journeys and server lifecycle, an end-to-end one. The 4.x runner layer, lookup-first where the option surface moved from v3.
+description: Working on Vitest itself — the 4.x runner layer rather than the tests' content, covering config, the `vi` API, pools, coverage, and Browser Mode, plus driving it without hanging a session. Triggers on `vitest.config`, `vi.mock`, `vi.useFakeTimers`, `expect.poll`, `toMatchInlineSnapshot`, `test.extend`, `projects`, `pool`, `browser.instances`, `toMatchScreenshot`, `*.test-d.ts`, `import.meta.vitest`, or a config key Vitest 4 silently ignores. For what to assert and how a spec is shaped, use a unit-testing capability; for journeys and server lifecycle, an end-to-end one. Lookup-first where the option surface moved from v3.
 user-invocable: false
 ---
 

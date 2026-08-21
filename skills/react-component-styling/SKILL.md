@@ -1,6 +1,6 @@
 ---
 name: react-component-styling
-description: Writing, reviewing, or refactoring the styles of a React component on web or mobile native — a CSS Module, a Unistyles `StyleSheet.create`, a theme or token file, or global styles. Triggers on "styling", "CSS", "theme", "design token", "dark mode", "container query", "breakpoint", "responsive", "touch target", "hover on mobile", "safe area", "style prop", "className", "colour gamut", "P3", "@supports", "browser support", "Baseline", "fallback", "reduced motion", or a surface wrong at some width, pointer type, or colour scheme. For design rationale — hierarchy, contrast targets, motion taste — use a high-fidelity UI design capability instead.
+description: Writing, reviewing, or refactoring the styles of a React component on web or mobile native — the implementation mechanics of tokens, responsiveness, adaptive states, and platform stylesheets. Triggers on a CSS Module, a Unistyles `StyleSheet.create`, a theme or token file, global styles, "dark mode", "container query", "breakpoint", "responsive", "touch target", "hover on mobile", "safe area", "className", "colour gamut", "P3", "@supports", "Baseline", "reduced motion", or a surface wrong at some width, pointer type, or colour scheme. For design rationale — hierarchy, contrast targets, motion taste — use a high-fidelity UI design capability instead.
 user-invocable: false
 ---
 

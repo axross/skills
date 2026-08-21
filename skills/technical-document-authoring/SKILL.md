@@ -1,6 +1,6 @@
 ---
 name: technical-document-authoring
-description: Drafting, structuring, editing, or reviewing a technical document — a design doc, RFC, ADR, runbook, README, API reference, changelog, or post-mortem. Triggers on "make this clearer", "how should I structure this", "is this readable", "too wordy", "passive voice", "hard to follow", "tighten this prose". While authoring, each rule is a practice to uphold; while reviewing, a finding to raise against the draft. Covers naming the reader, the four Divio document types, leading with the answer, sentence-level style, choosing between prose and tables, and a plain-English vocabulary ceiling. Self-contained.
+description: Drafting, structuring, editing, or reviewing a technical document — a design doc, RFC, ADR, runbook, README, API reference, changelog, or post-mortem — and the sentence-level craft that makes any of them readable. Triggers on "make this clearer", "how should I structure this", "is this readable", "too wordy", "passive voice", "hard to follow", "tighten this prose". Not for non-software writing — marketing copy, blog posts, talks, fiction, academic papers outside software — nor for a spec's section skeleton, which a PRD capability owns. Covers naming the reader, the four Divio document types, leading with the answer, and a plain-English vocabulary ceiling. Self-contained.
 user-invocable: false
 ---
 

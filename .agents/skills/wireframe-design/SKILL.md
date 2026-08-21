@@ -1,6 +1,6 @@
 ---
 name: wireframe-design
-description: Producing a low-fidelity wireframe, breadboard, or wireflow of any client-app UI, mobile or web — sketching screens, breadboarding a flow, comparing layout options, annotating intent, or the wireframe round of a design review. Not for high-fidelity real-token mockups with brand color, type, and spacing; that is a separate activity a high-fidelity UI design capability owns. Regions, hierarchy, and flow, never brand color or final type. Ships a self-contained theme-aware HTML kit with device canvases, a grey component library, screen archetypes, an annotation vocabulary, and a validator.
+description: Producing a low-fidelity wireframe, breadboard, or wireflow of any client-app UI, mobile or web — regions, hierarchy, and flow settled before anything commits to brand color or final type. Triggers on sketching screens, breadboarding a flow, comparing layout options, annotating intent, or the wireframe round of a design review. Not for high-fidelity real-token mockups with brand color, type, and spacing; that is a separate activity a high-fidelity UI design capability owns. Ships a self-contained theme-aware HTML kit with device canvases, a grey component library, screen archetypes, an annotation vocabulary, and a validator.
 user-invocable: false
 ---
 

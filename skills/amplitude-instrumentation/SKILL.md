@@ -1,6 +1,6 @@
 ---
 name: amplitude-instrumentation
-description: A task touching Amplitude specifically — "@amplitude/analytics-browser", "@amplitude/unified", "amplitude.init", "amplitude.track", "setUserId", "autocapture", "defaultTracking", "session replay", "Ampli", "tracking plan", "insert_id", "MTU", "serverZone", "identityStorage", "Amplitude MCP", or an Amplitude API key. For vendor-neutral event naming or what-to-track questions, use a software-instrumentation capability instead. The vendor mechanism — SDKs, init, identity and sessions, track and Identify, autocapture, tracking plans, consent, replay, ingestion, and cost.
+description: Wiring or reviewing an Amplitude integration — the vendor layer, covering SDK init, identity and sessions, autocapture, tracking plans, consent, replay, ingestion, and cost. Triggers on `@amplitude/analytics-browser`, `@amplitude/unified`, `amplitude.init`, `amplitude.track`, `setUserId`, `autocapture`, `defaultTracking`, `Ampli`, `insert_id`, `MTU`, `serverZone`, `identityStorage`, session replay `sampleRate`, or an Amplitude API key. For vendor-neutral event naming or what-to-track questions, use a software-instrumentation capability instead.
 user-invocable: false
 ---
 
