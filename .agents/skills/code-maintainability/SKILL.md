@@ -1,6 +1,6 @@
 ---
 name: code-maintainability
-description: Writing, refactoring, or reviewing code for maintainability or design — "readable", "too long", "refactor", "abstraction", "cohesion", "magic number", "dead code", "what should this be called", or "should this live elsewhere". Cohesion as the test of what belongs in one unit, naming and file organization with a fallback identifier vocabulary, route-local versus shared abstraction boundaries, complexity and readability limits, self-explanatory implementation, magic-number and dead-code discipline, scope control, and SOLID/DRY/KISS/YAGNI judgment. While authoring, each concern is a practice to uphold; while reviewing, a finding to raise against the diff.
+description: Writing, refactoring, or reviewing code for maintainability or design — keeping what you change readable, cohesive, and cheap to change next time. Triggers on "readable", "too long", "refactor", "abstraction", "cohesion", "magic number", "dead code", "what should this be called", or "should this live elsewhere". While authoring, each concern is a practice to uphold; while reviewing, a finding to raise against the diff. Covers cohesion as the test of what belongs in one unit, naming and file organization, abstraction boundaries, complexity limits, dead code, and SOLID/DRY/KISS/YAGNI judgment.
 user-invocable: false
 ---
 
@@ -67,3 +67,7 @@ See [scope-discipline.md](./references/scope-discipline.md) for:
 - Keeping the change matched to its stated goal — no drive-by refactors, per the project's development conventions
 - Flagging pre-existing problems separately instead of bundling them into this change
 - Justifying a new abstraction with two or more concrete call sites (YAGNI), and consolidating repeated logic only when it is truly the same concern (DRY without coupling unrelated callers)
+
+**Guidelines:**
+
+- MUST read [scope-discipline.md](./references/scope-discipline.md) before adding a new helper, prop, configuration option, or generic type parameter, before extracting or consolidating duplicated logic, and before touching a file the change's stated goal does not name.

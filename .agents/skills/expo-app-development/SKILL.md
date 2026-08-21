@@ -1,6 +1,6 @@
 ---
 name: expo-app-development
-description: Working on an Expo app's framework layer — routes, app config, config plugins, permissions, safe areas, assets, on-device storage, testing, SDK upgrades, or shipping a build or update. Triggers on "expo-router", "prebuild", "CNG", "EXPO_PUBLIC_", "splash screen", "deep link", "expo-updates", "runtime version", "EAS", "expo-doctor". For a component's composition, state, or styling, use the React component capabilities instead. Covers the routes-only `app/` directory, Router notation, Continuous Native Generation, secret boundaries, startup order, and over-the-air updates.
+description: Working on an Expo app's framework layer — the shell around the components, covering routes, app config, config plugins, permissions, safe areas, assets, on-device storage, testing, SDK upgrades, and shipping a build or update. Triggers on "expo-router", "prebuild", "CNG", "EXPO_PUBLIC_", "splash screen", "deep link", "expo-updates", "runtime version", "EAS", "expo-doctor". For a component's composition, state, or styling, use the React component capabilities. Derives no rules for `+api.ts` API routes, web or server output, native module authoring, brownfield integration, DOM components, or App Clips.
 user-invocable: false
 ---
 

@@ -18,7 +18,14 @@ npm run dev # in another
 
 The dev server proxies `/api` to the API at `http://localhost:8787` — see
 `vite.config.ts`. The API seeds a few demo sites and posts on first run
-against an empty database.
+against an empty database. It seeds no revisions: one is written the first
+time you publish something, which is also the first thing the Revisions
+screen has to show.
+
+`GET /api/me` reports the signed-in author. In a real deploy that comes from
+whatever fronts the console — it forwards the author as `x-forwarded-user`
+and `x-forwarded-user-name` — and locally, with nothing in front of the API,
+it falls back to a development author so the console still knows who you are.
 
 ## Commands
 
@@ -38,8 +45,9 @@ against an empty database.
 
 ## Layout
 
-- `src/routes/` — the two real screens (`PostListPage`, `PostEditorPage`) and
-  the `Layout` shell they render inside, which owns the persistent sidebar.
+- `src/routes/` — the three real screens (`PostListPage`, `PostEditorPage`,
+  `RevisionsPage`) and the `Layout` shell they render inside, which owns the
+  persistent sidebar and identifies the signed-in author to analytics.
 - `src/components/` — reusable pieces: `Card`, `Button`, `Sidebar`,
   `ConsentBanner`, `PublishToast`.
 - `src/lib/` — the API client, the TanStack Query client, consent state, and

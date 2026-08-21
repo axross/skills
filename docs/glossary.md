@@ -68,6 +68,8 @@
 
 **Independent review** — the review of a change performed by a separate session under a bot identity distinct from the operator, so a change's author never certifies it. It is the authoritative review of an agent's own work.
 
+**Plan amendment** — a plan, at its own approval gate, changing a different issue's already-approved plan, distinct from a plan revising its own run's plan under its own revision identity. The amending plan's own approval carries the amendment's approval under three stated conditions, and falls back to a separate approval against the amended plan's own revision identity otherwise.
+
 **Pre-flight review** — an advisory review by a second worker before the pull request opens, run whenever implementation was delegated and a compatible reader resolves. It buys a reader free of the implementer's reasoning state, and is never reported as the **independent review**.
 
 **Posted review** — a review published on a pull request rather than delivered in-session, and narrower in its severity vocabulary than one delivered in-session is.
@@ -122,7 +124,7 @@
 
 **Evaluation probe** — one run of an **evaluation scenario** under one **evaluation condition**, against the real CLI.
 
-**Turn cap** — the ceiling on how many turns one **evaluation probe** may take, set as a runaway guard rather than a budget control.
+**Turn cap** — the ceiling on how many assistant events one **evaluation probe** may produce before the instrument kills it, set as a runaway guard rather than a budget control. What it counts is the **agent runtime**'s streamed assistant events, not the turn count a **probe record** stores alongside them: in the one measurement where both were recorded, the former ran about 1.6 times the latter.
 
 **Repetition** — one of several **evaluation probes** run under the same **evaluation scenario** and **evaluation condition**, with no fixed order among them.
 
@@ -159,6 +161,8 @@
 **Fixture confounder** — something in a **mock project** that already demonstrates the convention an evaluation is trying to detect, so a **skill-absent condition** can reach it from context.
 
 **Loaded skill set** — the skills an **agent runtime** reported loading for one **evaluation probe**.
+
+**Tool surface** — the tools an **agent runtime** reported holding for one **evaluation probe**, which is not the same thing as the tools the instrument declared it should hold; both are recorded with the probe, because the two can disagree without either one saying so.
 
 **Library skill** — a loaded skill belonging to this library's **skill corpus**.
 

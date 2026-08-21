@@ -127,3 +127,26 @@ export async function writeFileIn(root, relativePath, content) {
   await writeFile(path, content, "utf8");
   return path;
 }
+
+/**
+ * a `stream-json` transcript in which each of `commands` was run by its own
+ * `Bash` tool call, one assistant turn each — the smallest material a
+ * transcript-phase judgment script reads.
+ *
+ * this is a string rather than a file: a transcript-phase factor is handed
+ * the transcript itself (tools/evaluation/src/factor-judgment.mjs's
+ * materialFor), so it goes into the context file, never into the workspace.
+ *
+ * @param {...string} commands
+ * @returns {string}
+ */
+export function bashTranscript(...commands) {
+  return `${commands
+    .map((command) =>
+      JSON.stringify({
+        type: "assistant",
+        message: { content: [{ type: "tool_use", name: "Bash", input: { command } }] },
+      }),
+    )
+    .join("\n")}\n`;
+}

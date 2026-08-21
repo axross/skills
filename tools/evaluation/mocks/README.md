@@ -36,8 +36,10 @@ declares, applied by
 [`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs) after
 the mock is copied and **before** its history is replayed, so the workspace a
 model sees is clean and its history unremarkable. A patch that changes the
-file set maintains `history.jsonc` itself. The reasoning, and the
-alternatives it beat, are in
+file set carries an obligation to its mock's `history.jsonc`, stated in
+full — with the mechanism that enforces it — in [Where a Scenario's Patch
+Lives](../../../docs/conventions/directory-structure.md#where-a-scenarios-patch-lives).
+The reasoning, and the alternatives it beat, are in
 [`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
 
 The test for any candidate flaw is: _would a competent developer of this
@@ -64,6 +66,18 @@ declared. #392's step 4 authors the set, one slice at a time; an entry whose
 scenario is not yet written is a standing reason the mock is shaped as it is,
 and is why the shape survives until then.
 
+## A mock's own working agreement
+
+Every mock below ships an `AGENTS.md` (and a one-line `CLAUDE.md` pointing at
+it) describing the project in its own voice. A scenario's declared
+`harness.agentsMd` decides whether a probe's workspace carries either file:
+`true` keeps both, committed into the replayed history exactly as the mock
+ships them; `false` withholds both — from the materialized tree and from the
+history alike — so a probe measured under `false` runs with no working
+agreement in its workspace at all. A confounder an entry below attributes to
+a mock's `AGENTS.md` — `recall`'s convention note, chief among them — applies
+only to a scenario declaring `true`.
+
 ### `tsuzuri` — choices made for coverage
 
 - **The commit history is inconsistent in style.** `history.jsonc` mixes
@@ -71,6 +85,15 @@ and is why the shape survives until then.
   reference this mock is modelled on has a uniformly clean history, and a mock
   imitating that would let a control run copy the convention out of context —
   erasing the effect of any skill that teaches it.
+  [`show-real-titles-in-the-post-list-and-commit-it`](../scenarios/show-real-titles-in-the-post-list-and-commit-it/)
+  is the scenario this serves: it asks a model for a small fix and for the
+  commit that carries it, and judges the header that commit ends up with. The
+  mixed log is what that scenario's control arm has to read, and #421 is where
+  the affordance stopped being an argument — across the 224 probe transcripts
+  of the retired instrument, 34 ran `git log`, so a probe really does read the
+  history it is working in. No mock states a commit-message convention in
+  prose, here or in `AGENTS.md`, which leaves this log the only place a
+  convention could be copied from.
 - **`shared/blog-post-slug.spec.ts` is a mixed-quality suite**: three cases
   named after the implementation, one asserting a constant's value rather than
   the behaviour it produces, thinner edge coverage than the module deserves,
@@ -141,7 +164,12 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
 
 - **The commit history is inconsistent in style**, for the same reason
   `tsuzuri`'s is: a tidy log would let a control run copy the convention
-  out of context and erase the effect of any skill that teaches it.
+  out of context and erase the effect of any skill that teaches it. The
+  [`show-real-titles-in-the-post-list-and-commit-it`](../scenarios/show-real-titles-in-the-post-list-and-commit-it/)
+  scenario that reads a mixed log is declared against `tsuzuri`, so what this
+  entry buys here is that a probe moving between mocks meets the same shape —
+  a clean log in one of the three would be a convention to copy the moment a
+  later scenario asks this mock for a commit.
 - **The publish toast's animation carries no `prefers-reduced-motion` guard.**
   [`respect-reduced-motion-in-the-publish-toast`](../scenarios/respect-reduced-motion-in-the-publish-toast/)
   asks a model to add one. This is a gap the project has rather than one
@@ -153,11 +181,13 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   one would hand a control run the very convention
   [`give-the-empty-post-list-a-real-empty-state`](../scenarios/give-the-empty-post-list-a-real-empty-state/)
   asks about.
-- **Three route components each hand-roll their own loading and error
-  branches, in three different shapes.** `PostListPage.tsx` renders them
-  inline, `PostEditorPage.tsx` early-returns instead, and `RootRedirect.tsx`
-  early-returns too but renders nothing at all while pending. Nothing in
-  `src/components/` is a shared state surface.
+- **Four route components each hand-roll their own loading and error
+  branches, in three different shapes.** `PostListPage.tsx` and
+  `RevisionsPage.tsx` render them inline, `PostEditorPage.tsx` early-returns
+  instead, and `RootRedirect.tsx` early-returns too but renders nothing at all
+  while pending. Nothing in `src/components/` is a shared state surface. The
+  scenario below was declared while there were three of them, and its own
+  description still says so.
   [`give-every-screen-one-loading-and-error-treatment`](../scenarios/give-every-screen-one-loading-and-error-treatment/)
   asks a model to pull that repeated concern onto one place both screens
   use. A mock that already shared this handling would hand a control run
@@ -171,12 +201,19 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   three fire from a real call site: a name that existed only in the event
   type would leave the _exercised_ convention perfectly consistent, which is
   the opposite of what is wanted here.
-- **`identifyAuthor` in `src/lib/analytics.ts` has no caller yet.** It is
-  written, exported and tested, and nothing invokes it, because session
-  handling lives outside this cut of the product and nothing in the SPA knows
-  who the author is — `AGENTS.md` says so in the project's own voice. One
-  scenario asks which `Identify` operator a user property should use, and it
-  needs a concrete `.set()` call site to point at rather than a live one.
+- **The author the SPA identifies to Amplitude is resolved at the session
+  boundary rather than by a sign-in screen.** `GET /me` reads
+  `x-forwarded-user` and `x-forwarded-user-name` from whatever fronts the
+  console and falls back to a development author when nothing does, which is
+  what an app behind an authenticating proxy ordinarily looks like and is
+  consistent with `AGENTS.md`'s own statement that session handling lives
+  outside this cut. `identifyAuthor` is called from the shell once consent has
+  been granted, so
+  [`keep-a-running-count-of-an-authors-visits`](../scenarios/keep-a-running-count-of-an-authors-visits/)
+  still has the two concrete `.set()` calls it points at — that scenario's own
+  task prompt describes the wrapper as still waiting for sign-in, which was
+  true when it was written and is the one thing #310 left behind for its own
+  change to correct.
 - **`getPostSaveMutationOptions` writes the saved post into the detail cache
   and never invalidates the site's post list**, so a draft save leaves the
   title and timestamp on the list page stale until something else refetches
@@ -201,7 +238,7 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   `src/components/` — `Button`, `Card`, `ConsentBanner`, and `Sidebar` — each
   ship a `.browser.test.tsx`.
 - **There is no dashboard, settings page, onboarding flow, or sign-in
-  screen.**
+  screen.** The sidebar's two sections are Posts and Revisions.
   [`sketch-a-screen-for-how-an-authors-posts-are-doing`](../scenarios/sketch-a-screen-for-how-an-authors-posts-are-doing/)
   asks a model to sketch the first of those, the author performance
   dashboard. The new-author onboarding path is a genuinely different
@@ -221,8 +258,16 @@ real dependencies, and `npm run test:e2e` builds the app, serves it, and drives 
   scenarios that need tokens are hosted there.
 - **The API trusts its caller.** There is no authentication or authorisation in
   front of the Hono routes, because the console is assumed to be served behind
-  the same session boundary the SPA assumes. That is a real product-cut
+  the same session boundary the SPA assumes — `GET /me` reports whoever that
+  boundary forwarded, without verifying it. That is a real product-cut
   boundary rather than an oversight, and no scenario here measures it.
+
+- **The seed writes sites and posts but no revisions**, so a fresh database
+  lands the Revisions screen on its empty state until something is published.
+  `server/db/queries.test.ts` asserts that a rolled-back publish leaves
+  `revisions` empty against a seeded database, and seeding revisions would
+  force that assertion looser. A product that writes history only when history
+  happens is also the honest shape.
 - **`npm run lint` reports one warning and exits 0** —
   `react-refresh/only-export-components`, where `src/lib/consent.tsx` exports a
   provider and its hook from one file. Splitting a context across three files
@@ -239,7 +284,11 @@ resolves, and its four checks pass in a materialized copy.
 
 - **The commit history is inconsistent in style**, for the same reason
   `tsuzuri`'s is: a tidy log would let a control run copy the
-  convention out of context.
+  convention out of context. As with `inkwell`, the
+  [`show-real-titles-in-the-post-list-and-commit-it`](../scenarios/show-real-titles-in-the-post-list-and-commit-it/)
+  scenario that reads one is declared against `tsuzuri`; keeping this log
+  mixed too is what stops a commit asked of this mock later from having a
+  clean convention to copy.
 - **Sign-in is a local stub against no backend.** It accepts any
   well-formed email address and issues a local account id, persisted on the
   device — there's no account service behind it. A probe workspace has no

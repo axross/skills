@@ -1,6 +1,6 @@
 ---
 name: next-app-development
-description: Writing or reviewing a Next.js App Router change — "app router", "server component", "use client", "use cache", "server action", "route handler", "proxy", "middleware", "generateMetadata", "revalidateTag", "next/image", "next.config", "instrumentation", "cacheComponents", a hydration or serialization error, or a route rendering dynamically when it should be static. For a component's own composition, props, and state use a React component development capability; for CSS and themes a React component styling one. The version 16 framework layer; Pages Router out of scope.
+description: Writing or reviewing a Next.js App Router change — the version 16 framework layer, covering routing, rendering, caching, mutations, and deployment. Triggers on "app router", "server component", "use client", "use cache", "server action", "route handler", "proxy.ts", "middleware", "generateMetadata", "revalidateTag", "next/image", "next.config", "instrumentation", "cacheComponents", an auth interrupt, a hydration or serialization error, or a route rendering dynamically when it should be static. For a component's own composition, props, and state use a React component development capability; for CSS and themes a React component styling one. Pages Router out of scope.
 user-invocable: false
 ---
 

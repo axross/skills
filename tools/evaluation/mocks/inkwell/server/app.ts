@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { rootLogger } from "../shared/logger";
 import type { Db } from "./db/client";
@@ -6,6 +6,8 @@ import { posts, revisions, sites } from "./db/schema";
 import { triggerDeployHook } from "./deploy-hook";
 
 const logger = rootLogger.child("api");
+
+const DEVELOPMENT_AUTHOR = { id: "author_dev", name: "Local Developer" };
 
 interface SavePostBody {
   readonly title?: unknown;
@@ -29,6 +31,20 @@ export function createApp(db: Db) {
 
   app.get("/health", (c) => c.json({ status: "ok" }));
 
+  // Whatever fronts the console authenticates the author and forwards who
+  // they are; this app never sees a credential. Running the API on its own —
+  // `npm run dev:api`, or a test — there is no proxy in front of it, so the
+  // development author below stands in rather than the route failing.
+  app.get("/me", async (c) => {
+    const [counted] = await db.select({ sites: count() }).from(sites);
+
+    return c.json({
+      id: c.req.header("x-forwarded-user") ?? DEVELOPMENT_AUTHOR.id,
+      name: c.req.header("x-forwarded-user-name") ?? DEVELOPMENT_AUTHOR.name,
+      siteCount: counted?.sites ?? 0,
+    });
+  });
+
   app.get("/sites", async (c) => {
     const rows = await db.select().from(sites);
     return c.json(rows);
@@ -50,6 +66,31 @@ export function createApp(db: Db) {
     if (!post) return c.json({ error: "Post not found." }, 404);
 
     return c.json(post);
+  });
+
+  // Every publish writes a revision; this is where an author reads them back.
+  // The post's current title comes along so the screen can group snapshots
+  // under the post they belong to without a request per row. Ordering falls
+  // back to the id because `created_at` only resolves to the second, and two
+  // publishes within the same second are ordinary.
+  app.get("/sites/:siteSlug/revisions", async (c) => {
+    const site = await findSiteBySlug(db, c.req.param("siteSlug"));
+    if (!site) return c.json({ error: "Site not found." }, 404);
+
+    const rows = await db
+      .select({
+        id: revisions.id,
+        postId: revisions.postId,
+        postTitle: posts.title,
+        title: revisions.title,
+        createdAt: revisions.createdAt,
+      })
+      .from(revisions)
+      .innerJoin(posts, eq(revisions.postId, posts.id))
+      .where(eq(posts.siteId, site.id))
+      .orderBy(desc(revisions.createdAt), desc(revisions.id));
+
+    return c.json(rows);
   });
 
   app.put("/sites/:siteSlug/posts/:postId", async (c) => {

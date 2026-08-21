@@ -44,6 +44,53 @@ describe("buildProbeArgv", () => {
     expect(argv).toEqual(expect.arrayContaining(["--permission-mode", "bypassPermissions"]));
   });
 
+  it("names no tool the CLI does not have — an allowance that allows nothing", () => {
+    // `--allowed-tools` is additive: naming a tool the CLI lacks does
+    // nothing at all, so a dead name here is silently inert rather than an
+    // error. `TodoWrite` sat here for exactly that reason until the CLI's
+    // own reported surface was read against it.
+    expect(ALLOWED_TOOLS).not.toContain("TodoWrite");
+  });
+
+  it("denies every tool that would delegate a probe's own work to another agent", () => {
+    // #392's reasoning — a probe's effect has to be attributable to the
+    // skill under test — reaches the whole task family, not only the two
+    // names it was originally written against.
+    expect(DISALLOWED_TOOLS).toEqual(
+      expect.arrayContaining([
+        "Agent",
+        "Task",
+        "TaskCreate",
+        "TaskGet",
+        "TaskList",
+        "TaskOutput",
+        "TaskStop",
+        "TaskUpdate",
+        "Workflow",
+      ]),
+    );
+  });
+
+  it("denies every tool that would reach outside the probe workspace", () => {
+    expect(DISALLOWED_TOOLS).toEqual(
+      expect.arrayContaining([
+        "Artifact",
+        "CronCreate",
+        "PushNotification",
+        "RemoteTrigger",
+        "ScheduleWakeup",
+        "SendMessage",
+        "SendUserFile",
+        "WebFetch",
+        "WebSearch",
+      ]),
+    );
+  });
+
+  it("leaves ToolSearch reachable, since everything worth denying behind it is denied by name", () => {
+    expect(DISALLOWED_TOOLS).not.toContain("ToolSearch");
+  });
+
   it("never emits a flag this environment's CLI does not recognize", () => {
     // `claude --help`, read before this module was written: no `--max-turns`
     // flag exists today. this asserts the negative so a future re-add of one

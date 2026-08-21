@@ -6,7 +6,7 @@
   "peerSkills": ["react-component-development", "high-fidelity-ui-design"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "When a site doesn't have any posts yet, the page just shows one plain sentence with nothing else around it — it looks broken, like something failed to load, rather than like an empty site waiting for its first post. Can you give that moment some real visual presence?"

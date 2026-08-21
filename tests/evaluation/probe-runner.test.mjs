@@ -10,6 +10,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import { fakeClaudeEnv } from "./helpers/fake-cli.mjs";
 import { plantCleanupFailure } from "./helpers/planted-cleanup-failure.mjs";
+import { treeDigest } from "../../tools/evaluation/src/fingerprint.mjs";
+import { materialize as materializeMock } from "../../tools/evaluation/src/mock-workspace.mjs";
+import { ALLOWED_TOOLS, DISALLOWED_TOOLS } from "../../tools/evaluation/src/probe-process.mjs";
 import { reconstructWorkspace } from "../../tools/evaluation/src/reconstruct.mjs";
 import { runProbe } from "../../tools/evaluation/src/probe-runner.mjs";
 import { loadScenario } from "../../tools/evaluation/src/scenario.mjs";
@@ -97,6 +100,73 @@ describe("runProbe", () => {
     }
   });
 
+  // the drift this records was found by hand, in a stored artifact days
+  // from expiry: the instrument declared a tool the CLI no longer had, and
+  // nothing compared the declaration against the `tools` array the parse
+  // already read. these cases are that comparison, on the probe record.
+  it("records the reported tool surface alongside the declarations it was compared against", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv();
+
+    const recorded = await runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env });
+
+    const tools = recorded.metadata.runtime.tools;
+    expect(tools.reported).toEqual(ALLOWED_TOOLS);
+    expect(tools.allowed).toEqual(ALLOWED_TOOLS);
+    expect(tools.disallowed).toEqual(DISALLOWED_TOOLS);
+    expect(tools.disagreements).toEqual({
+      allowedNotSurfaced: [],
+      deniedButSurfaced: [],
+      undeclared: [],
+    });
+  });
+
+  it("records a disagreement and warns about it, without failing the probe", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv({ FAKE_CLAUDE_TOOLS: "Bash,Read,ToolSearch,WebFetch" });
+    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+    try {
+      const recorded = await runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env });
+
+      const { disagreements } = recorded.metadata.runtime.tools;
+      expect(disagreements.deniedButSurfaced).toEqual(["WebFetch"]);
+      expect(disagreements.undeclared).toEqual(["ToolSearch"]);
+      expect(disagreements.allowedNotSurfaced).toContain("Write");
+
+      // the probe record is intact — a tool-surface disagreement is a fact
+      // about the CLI, never a reason to lose a paid run.
+      expect(recorded.transcript).toContain('"type":"result"');
+      expect(typeof recorded.diff).toBe("string");
+
+      const warnings = stderrSpy.mock.calls.map(([text]) => text).filter(Boolean);
+      expect(warnings.some((line) => line.includes("denied but reported available: WebFetch"))).toBe(true);
+      expect(
+        warnings.some((line) => line.includes("reported available but declared by neither list: ToolSearch")),
+      ).toBe(true);
+    } finally {
+      stderrSpy.mockRestore();
+    }
+  });
+
+  it("records no comparison, and warns about nothing, when the CLI reported no tool surface", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const env = await fakeClaudeEnv({ FAKE_CLAUDE_OMIT_TOOLS: "1" });
+    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+    try {
+      const recorded = await runProbe({ scenario, condition: "skill-absent", repetition: 1, apiKeyEnv: env });
+
+      expect(recorded.metadata.runtime.tools.reported).toBeNull();
+      expect(recorded.metadata.runtime.tools.disagreements).toBeNull();
+
+      const warnings = stderrSpy.mock.calls.map(([text]) => text).filter(Boolean);
+      expect(warnings.some((line) => line.includes("tool surface"))).toBe(false);
+    } finally {
+      stderrSpy.mockRestore();
+    }
+  });
+
   it("installs only peer skills under the skill-absent condition", async () => {
     const scenario = await loadScenario(SCENARIO_DIR);
     const env = await fakeClaudeEnv();
@@ -147,6 +217,74 @@ describe("runProbe", () => {
     } finally {
       cleanup.restore();
       stderrSpy.mockRestore();
+    }
+  });
+
+  // #417: mock-workspace.mjs never received harness.agentsMd, so every
+  // probe ran with the mock's working agreement in its workspace regardless
+  // of the value stored beside it. This confirms the value now reaches the
+  // materialized tree itself — through what the workspace actually
+  // contains, via its content digest, not through a spy on the call.
+  it("carries the scenario's declared agentsMd into the materialized workspace's tree digest", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    expect(scenario.harness.agentsMd).toBe(true);
+
+    const withAgentsMd = await runProbe({
+      scenario,
+      condition: "skill-absent",
+      repetition: 1,
+      apiKeyEnv: await fakeClaudeEnv(),
+    });
+    const withoutAgentsMd = await runProbe({
+      scenario: { ...scenario, harness: { ...scenario.harness, agentsMd: false } },
+      condition: "skill-absent",
+      repetition: 1,
+      apiKeyEnv: await fakeClaudeEnv(),
+    });
+
+    expect(withAgentsMd.metadata.harness.agentsMd).toBe(true);
+    expect(withoutAgentsMd.metadata.harness.agentsMd).toBe(false);
+    expect(withoutAgentsMd.metadata.runtime.project.tree).not.toBe(
+      withAgentsMd.metadata.runtime.project.tree,
+    );
+
+    // the `true` digest matches materialize()'s own default — the value this
+    // scenario's declaration now carries — so it is the correct digest, not
+    // merely a digest that differs from the other run's.
+    const reference = await materializeMock({ mock: scenario.mock });
+    try {
+      expect(withAgentsMd.metadata.runtime.project.tree).toBe(await treeDigest(reference));
+    } finally {
+      await rm(reference, { recursive: true, force: true });
+    }
+  });
+
+  // both callers that materialize a workspace — the probe run and the
+  // reconstruction a stored measurement is judged against — pass the
+  // scenario's own harness.agentsMd through, so they must materialize
+  // alike under the same declaration. exercised under `false` rather than
+  // this scenario's own `true`, so the assertion is not vacuously true of
+  // materialize()'s default.
+  it("materializes the same tree reconstructWorkspace does, under the same declared agentsMd", async () => {
+    const scenario = await loadScenario(SCENARIO_DIR);
+    const withoutAgentsMd = { ...scenario, harness: { ...scenario.harness, agentsMd: false } };
+
+    const probed = await runProbe({
+      scenario: withoutAgentsMd,
+      condition: "skill-absent",
+      repetition: 1,
+      apiKeyEnv: await fakeClaudeEnv(),
+    });
+
+    const reconstructed = await reconstructWorkspace({
+      scenario: withoutAgentsMd,
+      condition: "skill-absent",
+      diffText: "",
+    });
+    try {
+      expect(await treeDigest(reconstructed)).toBe(probed.metadata.runtime.project.tree);
+    } finally {
+      await rm(reconstructed, { recursive: true, force: true });
     }
   });
 

@@ -6,7 +6,7 @@
   "peerSkills": ["zod-schema", "next-app-development"],
   "patch": null,
   "harness": {
-    "agentsMd": false
+    "agentsMd": true
   },
   "task": {
     "prompt": "Readers keep emailing me typo corrections and little notes about my posts. I'd rather they could leave a short note on the post page itself. Nothing elaborate — but let them put a word in italics or drop in a link if they want to."

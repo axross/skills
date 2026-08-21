@@ -1,6 +1,6 @@
 ---
 name: react-component-development
-description: Building or reviewing a React component — "props", "spread props", "compound component", "variant prop", "empty state", "error state", "skeleton", "data-testid", "testID", "extract a hook", "useEffect", "where state lives", "memo", "virtualize", "FlatList", or a surface that re-renders or scrolls badly. For styling — CSS Modules, Unistyles, tokens — use a React component styling capability instead. Composition, props contracts, extracted logic, state, memoization, loading and error surfaces, testability, and list virtualization, on web and mobile native alike.
+description: Building or reviewing a React component — how one is put together, from composition and props contracts through extracted logic, state, memoization, and testability, on web and mobile native alike. Triggers on "props", "spread props", "compound component", "variant prop", "empty state", "error state", "skeleton", "data-testid", "testID", "extract a hook", "useEffect", "where state lives", "memo", "virtualize", "FlatList", or a surface that re-renders or scrolls badly. For styling — CSS Modules, Unistyles, tokens — use a React component styling capability; for server state, a TanStack Query one.
 user-invocable: false
 ---
 

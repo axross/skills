@@ -13,10 +13,15 @@
 // never the reconstructed-workspace machinery under tools/evaluation/src/ —
 // and asserts the two things every one of these branches must now do:
 // `{"result": false, "evidence": …}` on stdout, and a zero exit. Two of the
-// eleven rows below are two shapes of the same table condition
-// (confirm-a-draft-save-like-a-publish-does's check-function-contains.mjs
-// errors on either marker going missing), so eleven rows cover the nine
-// conditions the issue's own table names.
+// eleven rows that opened this table are two shapes of the same table
+// condition (confirm-a-draft-save-like-a-publish-does's
+// check-function-contains.mjs errors on either marker going missing), so
+// eleven rows cover the nine conditions the issue's own table names.
+//
+// a scenario script authored later brings its own rows into the same two
+// tables rather than starting a table of its own — the contract they assert
+// is the script contract, not one change's follow-up list, and a new script
+// that got the line wrong is exactly what this file should catch.
 //
 // ERROR_CONDITIONS is the other half of the same claim: a genuine error path
 // this change deliberately leaves alone — the material itself absent, or a
@@ -34,7 +39,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
+import { bashTranscript, tempDir, writeFileIn } from "../helpers/fixtures.mjs";
 import { runScript } from "../helpers/run.mjs";
 
 const VITEST_CONFIG_BROWSER_ONLY = `export default {
@@ -91,6 +96,26 @@ async function runScenarioScript({ scenario, script, workspace = {}, context = {
 
 /** @type {FalseCondition[]} */
 const FALSE_CONDITIONS = [
+  {
+    name: "show-real-titles-in-the-post-list-and-commit-it / check-commit-header-conforms.mjs: the probe ran shell commands but never committed",
+    scenario: "show-real-titles-in-the-post-list-and-commit-it",
+    script: "check-commit-header-conforms.mjs",
+    context: {
+      input: { types: ["feat", "fix"] },
+      material: { transcript: bashTranscript("npm test", "git status") },
+    },
+    evidence: /no `git commit` appears/,
+  },
+  {
+    name: "show-real-titles-in-the-post-list-and-commit-it / check-commit-header-conforms.mjs: the commit header does not take the Conventional Commits form",
+    scenario: "show-real-titles-in-the-post-list-and-commit-it",
+    script: "check-commit-header-conforms.mjs",
+    context: {
+      input: { types: ["feat", "fix"] },
+      material: { transcript: bashTranscript('git commit -m "WIP"') },
+    },
+    evidence: /"WIP".*does not take the form/,
+  },
   {
     name: 'document-a-rollback-someone-can-follow / check-rollback-lead-in.mjs: the "Rolling back" section carries no ordered list to introduce',
     scenario: "document-a-rollback-someone-can-follow",
@@ -257,6 +282,17 @@ describe("a scenario script reports false, not an error, when its material is th
 
 /** @type {ErrorCondition[]} */
 const ERROR_CONDITIONS = [
+  {
+    name: "show-real-titles-in-the-post-list-and-commit-it / check-commit-header-conforms.mjs: the only commit passes its message somewhere the tool input does not carry",
+    scenario: "show-real-titles-in-the-post-list-and-commit-it",
+    script: "check-commit-header-conforms.mjs",
+    context: {
+      input: { types: ["feat", "fix"] },
+      material: {
+        transcript: bashTranscript("git commit -F /tmp/message.txt"),
+      },
+    },
+  },
   {
     name: "document-a-rollback-someone-can-follow / check-rollback-lead-in.mjs: docs/deployment.md itself is missing from the workspace",
     scenario: "document-a-rollback-someone-can-follow",

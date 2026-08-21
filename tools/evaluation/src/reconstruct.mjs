@@ -65,6 +65,7 @@ export async function reconstructWorkspace({ scenario, condition, diffText }) {
     skills: skillsForCondition(scenario, condition),
     patch: scenario.patch === null ? null : resolve(scenario.dir, scenario.patch),
     install: false,
+    agentsMd: scenario.harness.agentsMd,
   });
   applyStoredDiff(workspace, diffText);
   return workspace;

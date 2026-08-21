@@ -1,6 +1,6 @@
 ---
 name: zod-schema
-description: A change touching Zod — `z.object`, `z.infer`, `safeParse`, `z.codec`, `z.coerce`, `z.brand`, `z.discriminatedUnion`, `.refine`, `.transform`, `zodResolver`, `z.toJSONSchema`, `ZodError`, a schema module, a validation boundary, or an unvalidated `fetch` or `JSON.parse` result. For which inputs are untrusted at all, use an application-security capability. Modelling a type schema with Zod 4, decoding and encoding across a boundary, and enforcing validation where untrusted data enters. Covers the one-parse boundary, schema-derived types, codecs, coercion traps, error shape, and what a passing parse still does not make safe.
+description: Modelling data with Zod and enforcing validation where untrusted data enters — the schema layer, from one parse at the boundary to the type every caller downstream reads. Triggers on `z.object`, `z.infer`, `safeParse`, `z.codec`, `z.coerce`, `z.brand`, `z.discriminatedUnion`, `.refine`, `.transform`, `zodResolver`, `z.toJSONSchema`, `ZodError`, a schema module, or an unvalidated `fetch` or `JSON.parse` result. For whether an input is untrusted at all, use an application-security capability; for where the parse hook lives, the framework's own. Covers codecs, coercion traps, and what a passing parse still does not make safe.
 user-invocable: false
 ---
 

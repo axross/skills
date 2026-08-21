@@ -1,4 +1,4 @@
-import type { Post, PublishResult, SavePostInput, Site } from "../types";
+import type { Author, Post, PublishResult, Revision, SavePostInput, Site } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
@@ -27,7 +27,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  getAuthor: () => request<Author>("/me"),
   listSites: () => request<Site[]>("/sites"),
+  listRevisions: (siteSlug: string) => request<Revision[]>(`/sites/${siteSlug}/revisions`),
   listPosts: (siteSlug: string) => request<Post[]>(`/sites/${siteSlug}/posts`),
   getPost: (siteSlug: string, postId: number) =>
     request<Post>(`/sites/${siteSlug}/posts/${postId}`),

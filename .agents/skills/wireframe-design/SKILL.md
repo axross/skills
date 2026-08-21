@@ -1,6 +1,6 @@
 ---
 name: wireframe-design
-description: Producing a low-fidelity wireframe, breadboard, or wireflow of any client-app UI, mobile or web — sketching screens, breadboarding a flow, comparing layout options, annotating intent, or the wireframe round of a design review. Not for high-fidelity real-token mockups with brand color, type, and spacing; that is a separate activity a high-fidelity UI design capability owns. Regions, hierarchy, and flow, never brand color or final type. Ships a self-contained theme-aware HTML kit with device canvases, a grey component library, screen archetypes, an annotation vocabulary, and a validator.
+description: Producing a low-fidelity wireframe, breadboard, or wireflow of any client-app UI, mobile or web — regions, hierarchy, and flow settled before anything commits to brand color or final type. Triggers on sketching screens, breadboarding a flow, comparing layout options, annotating intent, or the wireframe round of a design review. Not for high-fidelity real-token mockups with brand color, type, and spacing; that is a separate activity a high-fidelity UI design capability owns. Ships a self-contained theme-aware HTML kit with device canvases, a grey component library, screen archetypes, an annotation vocabulary, and a validator.
 user-invocable: false
 ---
 
@@ -178,3 +178,11 @@ See [responsive-and-platform.md](./references/responsive-and-platform.md) for:
 
 - wireframing mobile-first at real device scale and thumb reach
 - setting breakpoints from content and adapting navigation per platform
+
+**Guidelines:**
+
+- MUST read [fidelity-and-intent.md](./references/fidelity-and-intent.md) before choosing how rough or finished a round should be, and before judging whether a set of screens is solved enough to put in front of a reviewer.
+- MUST read [process-and-collaboration.md](./references/process-and-collaboration.md) before deciding how many alternatives to produce, what to declare out of scope, or when to put a round in front of collaborators or users.
+- MUST read [structure-and-content.md](./references/structure-and-content.md) before laying out a screen's regions and hierarchy, before choosing spacing over an enclosure to group them, and before filling a placeholder with copy.
+- MUST read [flow-and-annotation.md](./references/flow-and-annotation.md) before connecting screens into a flow, and before adding a callout that states intent rather than UI.
+- MUST read [responsive-and-platform.md](./references/responsive-and-platform.md) before wireframing a second viewport width, setting a breakpoint, or adapting a navigation pattern to a platform.

@@ -124,11 +124,49 @@ With no `--scenario`, a run expands every scenario under
 condition times every repetition — and, absent `--dry-run`, runs each probe
 for real: materializing the scenario's mock project as a real Git
 repository, installing the condition's skills into it, and spawning the
-`claude` CLI on the scenario's task with `Bash`, `Edit`, `Glob`, `Grep`,
-`Read`, `Skill`, `TodoWrite`, and `Write` all permitted. A probe is told in
-its own system prompt that it runs unattended, and it runs until it
-finishes or until it has produced 100 assistant turns, whichever comes
-first.
+`claude` CLI on the scenario's task. A probe is told in its own system
+prompt that it runs unattended, and it runs until it finishes or until it
+has produced 100 assistant turns, whichever comes first.
+
+## What Bounds a Probe's Tool Surface
+
+`tools/evaluation/src/probe-process.mjs` passes both `--allowed-tools` and
+`--disallowed-tools`, and only the second of them bounds anything. The first
+is **additive**: naming a tool the CLI defers surfaces it, naming one the
+CLI does not have does nothing at all, and a name appearing in both lists is
+denied. So `ALLOWED_TOOLS` — `Bash`, `Edit`, `Glob`, `Grep`, `Read`,
+`Skill`, `Write` — is passed for one real effect, putting `Glob` and `Grep`
+in front of a probe, and MUST NOT be read as the set of tools a probe holds.
+
+`DISALLOWED_TOOLS` is the bound. A tool is denied when it delegates the
+probe's work to another agent, when it reaches outside the probe workspace,
+when it blocks waiting for a human the probe's own system prompt has
+already said is not there, or — `NotebookEdit`'s own case — when no mock
+ships anything for it to touch. `ToolSearch` is deliberately left reachable.
+
+Everything else the CLI exposes is reachable by a probe and named by
+neither list, which is the state a reader has to keep in mind: the
+declarations state intent, and the record below states fact.
+
+**Every probe records what the CLI reported, and the run says where the two
+disagree.** `parseTranscript` reads the `system`/`init` event's own `tools`
+array — the CLI's report of what that session held — and
+`tools/evaluation/src/tool-surface.mjs` compares it against both
+declarations. The result lands under `metadata.json`'s
+`runtime.tools`, alongside the two declarations it was compared against, and
+any non-empty disagreement is written to the run's standard error as a
+warning naming the tools:
+
+- an allowance the CLI did not surface — a name that allows nothing, which
+  is what `TodoWrite` was until [#440](https://github.com/axross/skills/issues/440);
+- a denial the CLI surfaced anyway — a bound that did not take;
+- a surfaced tool neither list names.
+
+A disagreement is reported, never enforced: it is a fact about the CLI a
+probe ran under, and a probe that hits one still writes all four of its
+files. A transcript carrying no `tools` array at all — an older CLI —
+records `null` for both the reported surface and the comparison, which is
+deliberately distinct from reporting an empty one.
 
 `--dry-run` walks the same matrix-and-admission path with the spawn
 stubbed out: it prints the matrix and the admission outcome and exits
@@ -205,7 +243,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 
 ## The Declared Scenario Set
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eight<!-- /count --> scenarios are declared today: thirteen against `inkwell`, eleven against `tsuzuri`, and four against `recall`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-nine<!-- /count --> scenarios are declared today: thirteen against `inkwell`, twelve against `tsuzuri`, and four against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -221,12 +259,13 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eig
   demonstrate.
 - [`give-every-screen-one-loading-and-error-treatment`](../../tools/evaluation/scenarios/give-every-screen-one-loading-and-error-treatment/)
   targets `react-component-development`, alongside `code-maintainability` and
-  `react-component-styling` as peers, against the three route components that
+  `react-component-styling` as peers, against the four route components that
   each hand-roll their own loading and error branches in three different
-  shapes. It carries a `discovery` factor and two `outcome` factors — one
-  checking the repetition landed in one new module both screens import, the
-  other checking that module still lets each screen say its own thing — and
-  no `transcript` factor.
+  shapes — its own `scenario.json` still says three, which is what there were
+  when it was declared. It carries a `discovery` factor and two `outcome`
+  factors — one checking the repetition landed in one new module both screens
+  import, the other checking that module still lets each screen say its own
+  thing — and no `transcript` factor.
 - [`sketch-a-screen-for-how-an-authors-posts-are-doing`](../../tools/evaluation/scenarios/sketch-a-screen-for-how-an-authors-posts-are-doing/)
   targets `wireframe-design`, alongside `high-fidelity-ui-design` and
   `react-component-styling` as peers, against a screen `inkwell` deliberately
@@ -357,6 +396,23 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eig
   `blog-post-slug.spec.ts` demonstrates only the opposite half of, or not at
   all: naming a callable subject with `()`, and grouping a shared condition
   under its own `describe("when ...")` block.
+- [`show-real-titles-in-the-post-list-and-commit-it`](../../tools/evaluation/scenarios/show-real-titles-in-the-post-list-and-commit-it/)
+  targets `conventional-commits` against `tsuzuri`, alongside
+  `next-app-development`, `github-operation`, and `loop-engineering` as peers,
+  on a small reader-facing want — the home page's post list renders each post's
+  slug where its title belongs — with the commit that carries it asked for in
+  the owner's own words. It carries a `discovery` factor and two `transcript`
+  factors, both judged by script (that a commit was made at all, then that its
+  header conforms), and declares no `outcome` phase: `capture.mjs` compares
+  content against the commit a probe started from, so a commit message reaches
+  no diff. It is the only scenario whose artefact is a commit message, and so
+  the first to claim the commit-history entries all three mocks carry in
+  [`mocks/README.md`](../../tools/evaluation/mocks/README.md). Two limits
+  are recorded in its own `scenario.json` rather than left for review: the work
+  reaches `shared/resolve-translation.ts`, which three other scenarios already
+  own, so it costs turns the measurement is not about; and `tsuzuri`'s own
+  `AGENTS.md` asks for a plan and a pull request before a change lands, which
+  may make a probe branch before committing — captured identically either way.
 - [`show-what-the-test-run-never-reaches`](../../tools/evaluation/scenarios/show-what-the-test-run-never-reaches/)
   targets `jest-testing` against `tsuzuri`, alongside `unit-testing` and
   `quality-assurance` as peers, and asks for real coverage visibility rather
@@ -415,16 +471,16 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-eig
   component as one of the two to read for how it is done — an accepted limit
   recorded at this scenario's plan gate rather than found in review.
 
-Together the twenty-eight exercise every path through the three scripts above:
+Together the twenty-nine exercise every path through the three scripts above:
 every phase, both judgment methods, a scenario that omits a phase entirely, one
 that declares a single phase alone, a scenario whose mock is patched before a
 probe or the offline check under `tests/repository/` ever sees it, scenarios spread across three
 different mock projects, and — across the three scenarios that target a
 document-authoring skill (`technical-document-authoring`,
 `living-project-documentation`, and `product-requirement-document-authoring`)
-— an artefact that is prose rather than code. Eleven carry at least one
-`transcript` factor — sixteen transcript factors in total, eight judged by
-reasoning and eight by script. Of the seventeen that carry none, three state
+— an artefact that is prose rather than code. Twelve carry at least one
+`transcript` factor — eighteen transcript factors in total, eight judged by
+reasoning and ten by script. Of the seventeen that carry none, three state
 their reason in their own `scenario.json`. Authoring further scenarios against
 `inkwell`'s, `tsuzuri`'s, and `recall`'s remaining catalogued subjects, and against this
 repository's other mocks, is separate, later work; this document describes what

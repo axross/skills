@@ -77,6 +77,15 @@ is the decision this follows from, and
 authoring convention — where the file lives, how it is regenerated, and what
 it must not do.
 
+**`harness.agentsMd` decides whether the mock's own working agreement is in
+the workspace a probe opens.** `true` keeps the mock's `AGENTS.md` and its
+one-line `CLAUDE.md` in the materialized tree, committed into the replayed
+history exactly as the mock ships them; `false` withholds both — from the
+tree and from the history alike — so nothing beyond the task prompt and the
+installed skills directs the probe.
+[`2026-08-20-declare-agentsmd-true-to-keep-scenarios-comparable.md`](../decisions/2026-08-20-declare-agentsmd-true-to-keep-scenarios-comparable.md)
+records why every scenario declared here carries `true`.
+
 ## Three phases
 
 A scenario declares whichever of three **evaluation phases** apply to what it
@@ -251,6 +260,14 @@ old one — the two results sit side by side rather than one replacing the
 other.
 [`2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md`](../decisions/2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md)
 is the decision that gave a reasoning judge its one route and put it here.
+
+**The tool surface a probe ran under is deliberately not among them**, though
+each probe records it. Two measurements taken under different tool surfaces
+are therefore still read against each other, and a reader who wants to know
+whether the surface moved between them reads each probe's own record rather
+than being told by a refused comparison.
+[`2026-08-20-keep-the-probe-tool-surface-out-of-the-condition-fingerprint.md`](../decisions/2026-08-20-keep-the-probe-tool-surface-out-of-the-condition-fingerprint.md)
+is the decision that kept it out, and names what it trades away.
 
 ## Measured, declared, and derived
 
