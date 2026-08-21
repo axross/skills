@@ -401,7 +401,7 @@ describe("report-obligation-burden.mjs", () => {
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
       expect.soft(totals.floorObligations).toBe(49);
-      expect.soft(totals.floorTokens).toBe(10_487);
+      expect.soft(totals.floorTokens).toBe(10_488);
       expect.soft(totals.ceilingObligations).toBe(482);
       expect.soft(totals.ceilingTokens).toBe(51_155);
     });
@@ -426,17 +426,17 @@ describe("report-obligation-burden.mjs", () => {
       // tier 1 — `professional-behavior`, the only genuinely unconditional
       // member.
       expect.soft(tiers[0].floorObligations).toBe(10);
-      expect.soft(tiers[0].floorTokens).toBe(2_014);
+      expect.soft(tiers[0].floorTokens).toBe(2_020);
       expect.soft(tiers[0].ceilingObligations).toBe(133);
-      expect.soft(tiers[0].ceilingTokens).toBe(10_145);
+      expect.soft(tiers[0].ceilingTokens).toBe(10_151);
 
       // tier 2 — plus `software-development`, whose reference gained a
       // comment-scope test and a TODO unfinished-code condition — both add
       // obligation bullets, which is why this tier's ceiling grew.
       expect.soft(tiers[1].floorObligations).toBe(15);
-      expect.soft(tiers[1].floorTokens).toBe(3_367);
+      expect.soft(tiers[1].floorTokens).toBe(3_387);
       expect.soft(tiers[1].ceilingObligations).toBe(246);
-      expect.soft(tiers[1].ceilingTokens).toBe(19_670);
+      expect.soft(tiers[1].ceilingTokens).toBe(19_691);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //
@@ -453,7 +453,7 @@ describe("report-obligation-burden.mjs", () => {
       // floor's obligation count did not move — that sentence was already
       // counted, widened or not.
       expect.soft(tiers[2].floorObligations).toBe(49);
-      expect.soft(tiers[2].floorTokens).toBe(10_487);
+      expect.soft(tiers[2].floorTokens).toBe(10_488);
       expect.soft(tiers[2].ceilingObligations).toBe(482);
       expect.soft(tiers[2].ceilingTokens).toBe(51_155);
 

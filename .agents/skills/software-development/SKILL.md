@@ -1,6 +1,6 @@
 ---
 name: software-development
-description: Every task that touches a project — implementing, refactoring, running a project command, or writing a pull request body — even when the request never mentions formatting, linting, comments, dependencies, docs, or descriptions. Also when you need to know how to run one of the project's operations (tests, dev server, build, lint, deploy) and must find it documented or ask. Not for a session that touches nothing, where the conduct baseline applies instead. The baseline discipline — the format/lint loop, scoped change management, risk-surface mapping, and contributor docs.
+description: Every task that touches a project — implementing, refactoring, running a project command, or writing a pull request body. The baseline discipline underneath the specialised skills — keep the change scoped, run the format and lint loop, map what the change puts at risk, and find out how the project is actually run. Applies even when the request never mentions formatting, linting, comments, dependencies, docs, or descriptions, and when you need one of the project's operations — tests, dev server, build, lint, deploy — and must find it documented or ask. Not for a session that touches nothing, where the conduct baseline applies instead.
 user-invocable: false
 ---
 
