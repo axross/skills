@@ -51,7 +51,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Read the transcript of an agent's work on a request about a post editor's Save draft button. Decide whether the agent's own reasoning, at some point before it finished, correctly identifies WHY the save action needed a fix — specifically, that saving a draft currently gives the author no confirmation that it worked, unlike publishing, which already shows a banner (as distinct from merely adding a toast call without ever stating that this was the gap). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+        "instructions": "Read the transcript of an agent's work on a request about a post editor's Save draft button. Decide whether the transcript shows the agent stating, at some point before it finished, WHY the save action needed a fix — specifically, that saving a draft currently gives the author no confirmation that it worked, unlike publishing, which already shows a banner (as distinct from merely adding a toast call without ever stating that this was the gap). Answer false if the transcript never states this cause, even if the code change it produced was correct."
       }
     }
   ]

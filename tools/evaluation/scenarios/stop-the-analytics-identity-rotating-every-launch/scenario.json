@@ -77,11 +77,11 @@
     {
       "id": "names-the-startup-reset-as-the-cause",
       "phase": "transcript",
-      "description": "A correct diff can still be produced by an agent that deleted the startup call because it 'looked out of place' without ever registering why it was wrong. This factor asks whether the agent's own reasoning names the actual cause — that clearing the analytics identity on every launch is what rotates it — as distinct from a transcript that only describes removing a line.",
+      "description": "A correct diff can still be produced by an agent that deleted the startup call because it 'looked out of place' without ever registering why it was wrong. This factor asks whether the transcript shows the agent naming the actual cause — that clearing the analytics identity on every launch is what rotates it — as distinct from a transcript that only describes removing a line.",
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Read the transcript of an agent's work on a product-analytics report. Decide whether the agent's own reasoning, at some point before it finished, correctly identified WHY distinct-device counts were climbing and signed-in learners kept losing their identity — specifically, that an analytics identity-reset call was running on every app launch, which rotates the device and user identity each time (as distinct from merely removing a line because it looked wrong, without ever stating that clearing the identity on every launch is what caused the symptom). Answer false if the transcript never states this cause, even if the code change it produced was correct."
+        "instructions": "Read the transcript of an agent's work on a product-analytics report. Decide whether the transcript shows the agent stating, at some point before it finished, WHY distinct-device counts were climbing and signed-in learners kept losing their identity — specifically, that an analytics identity-reset call was running on every app launch, which rotates the device and user identity each time (as distinct from merely removing a line because it looked wrong, without ever stating that clearing the identity on every launch is what caused the symptom). Answer false if the transcript never states this cause, even if the code change it produced was correct."
       }
     }
   ]
