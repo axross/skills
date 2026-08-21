@@ -1,6 +1,6 @@
 ---
 name: jest-testing
-description: A change touching Jest itself — a Jest config, `testMatch`, `@jest/globals`, `jest.fn`, `jest.spyOn`, `jest.mock`, `unstable_mockModule`, `useFakeTimers`, `toMatchSnapshot`, `moduleNameMapper`, `transformIgnorePatterns`, `setupFilesAfterEnv`, `next/jest`, `jest-expo`, a `--runInBand` or `--detectOpenHandles` run, or `Cannot use import statement outside a module`. For what is worth testing and the unit-versus-e2e call, use a unit-testing capability; for browser or device suites, an end-to-end-testing one. Baseline Jest 30.4.2.
+description: Working on Jest itself — the runner layer rather than the tests' content, covering its config, API, CLI, and transform and isolation mechanics. Triggers on a Jest config, `jest.fn`, `jest.spyOn`, `jest.mock`, `unstable_mockModule`, `useFakeTimers`, `toMatchSnapshot`, `moduleNameMapper`, `transformIgnorePatterns`, `next/jest`, `jest-expo`, a `--runInBand` or `--detectOpenHandles` run, or `Cannot use import statement outside a module`. For what is worth testing and the unit-versus-e2e call, use a unit-testing capability; for browser or device suites, an end-to-end-testing one. Baseline Jest 30.4.2.
 user-invocable: false
 ---
 

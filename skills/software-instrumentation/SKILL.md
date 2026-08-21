@@ -1,6 +1,6 @@
 ---
 name: software-instrumentation
-description: Writing, reviewing, or modifying code that logs, throws, catches, reports an error, tracks a product event, identifies a user, or configures a logger, error tracker, tracing, or analytics tool — including a request naming only "logging", "log level", "capture exception", "error boundary", "breadcrumb", "trace sampling", "metrics", "cardinality", "analytics", "event name", "event schema", "identify", "reset on logout", "cookie consent", or an unhandled exception. The three telemetry signals plus the error handling that makes them actionable, and product-event tracking end to end. Names roles rather than SDKs, so a vendor capability supplies the mechanics.
+description: Deciding what a system should report about itself, independent of the SDK that carries it out — the vendor-neutral layer over logs, metrics, traces, error handling, and product events. Triggers on code that logs, throws, catches, reports an error, tracks an event, or identifies a user, and on "log level", "capture exception", "error boundary", "breadcrumb", "trace sampling", "cardinality", "event name", "identify", "reset on logout", or "cookie consent". For which package to install, which option controls collection, or source maps and build-time tokens, use the installed vendor's own capability. Covers try/catch placement, metric cardinality, and event naming through consent.
 user-invocable: false
 ---
 

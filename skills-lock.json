@@ -39,7 +39,7 @@
     "end-to-end-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "f5f0f4f13b7f90091c21fb1e185cdf32e4bf0726b3801535a26b179347d526cf"
+      "computedHash": "18303da8438400e9b514f4ab93bbfc343b6d577dd802e0e5bc70f1a0a212c1fc"
     },
     "expo-app-development": {
       "source": "./skills",
@@ -59,7 +59,7 @@
     "jest-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "1210ee0238b9d551fdac23da577f42139c8e45f8245df7908dad7f06d7b749d3"
+      "computedHash": "7f2773cfeead4dcd4eec43f9458efcbb6b1efd098461609c6d149d8cd1458b72"
     },
     "living-project-documentation": {
       "source": "./skills",
@@ -114,12 +114,12 @@
     "software-instrumentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "f54bdf7b8b75aa83ae6116442912806a660ad9f479e181a455281a3f4dc8495d"
+      "computedHash": "b7db47a3a73759425467c8ad8fe133a771f4770ff9036089839a9e84ab43561c"
     },
     "tanstack-query-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5d65cc44f6441c82623c33c8bef19987b038c68b752c551e7e51d33e910ae0b3"
+      "computedHash": "ef8d2a4f1d5ef919ec960270e34ff39b64249b1bc2b9c2269a5ef8fd02bf4172"
     },
     "technical-document-authoring": {
       "source": "./skills",
@@ -129,12 +129,12 @@
     "unit-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5487a4823d89e323f51045f77546a134855b4de69d230f0673307f526c36d46f"
+      "computedHash": "50a88494659014bfd59a9a4625723e752a29505e33802aa0a33625fb9ab483fc"
     },
     "vitest-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6d3133b8bd756b28bd0f0b826b14e3828108b560bd0fc5d5bc1b979251054a2b"
+      "computedHash": "8c46d73c8f3f1b6f2e8f937f854db1b1e8997ca26807fb14f7e1a28bd3fe2d40"
     },
     "wireframe-design": {
       "source": "./skills",
@@ -144,7 +144,7 @@
     "zod-schema": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "4b84cdac79c5849706bf4c4c54b62ca3dc2b3619fb0ce0417b440911553b8113"
+      "computedHash": "87cbd1add615d1fe343db4581c904ab8bc277f385ba38b4cdb121e41b84ee4d3"
     }
   }
 }

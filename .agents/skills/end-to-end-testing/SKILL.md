@@ -1,6 +1,6 @@
 ---
 name: end-to-end-testing
-description: Writing, reviewing, refactoring, or running end-to-end tests, or verifying a change through the e2e suite — including a prompt naming only snapshots, test IDs, selectors or locators, polling and waiting, flaky tests, scenario coverage, a runner (Playwright, Cypress, Maestro, Detox, WebdriverIO, Vitest), or a failing e2e run. Tests that drive the whole system as a real user or client does. Covers layout and naming, the test-id then role then copy locator hierarchy, poll-not-sleep waiting, server lifecycle, no live network, and a scenario catalog.
+description: Writing, reviewing, refactoring, or running end-to-end tests, or verifying a change through the e2e suite — whole-system checks that drive a running build the way a real user or client does. Triggers on snapshots, test IDs, selectors or locators, polling and waiting, flaky tests, scenario coverage, a runner (Playwright, Cypress, Maestro, Detox, WebdriverIO, Vitest), or a failing e2e run. For a test that mocks its dependencies to isolate one unit, use a unit-testing capability; for the runner's own config and reporters, that runner's own. Covers the test-id then role then copy locator hierarchy, poll-not-sleep waiting, and server lifecycle.
 user-invocable: false
 ---
 
