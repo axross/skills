@@ -50,8 +50,11 @@ See [frontmatter-and-naming.md](./references/frontmatter-and-naming.md) for:
 See [description-writing.md](./references/description-writing.md) for:
 
 - drafting, trimming, or auditing the `description` field against its byte cap
-- ordering a `description` so the routing decision survives a host's listing truncation
+- the four-slot contract — trigger, identity, boundary, coverage — and why only the last may be sacrificed to a host's listing truncation
+- fusing the trigger and the identity into one opening clause, and the two half-clauses that fail on their own: a bare token list, and "The ability to …"
+- stating the surfaces a skill refuses to serve, alongside the hand-offs that route a competing skill away
 - adding likely user phrasings and symptom-based triggers without over-broadening the skill
+- the ~640-byte corpus mean the target names, and why it is a centre of gravity rather than a per-skill ceiling
 
 ## Body Content Style
 
