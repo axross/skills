@@ -1,6 +1,6 @@
 ---
 name: code-maintainability
-description: Writing, refactoring, or reviewing code for maintainability or design — "readable", "too long", "refactor", "abstraction", "cohesion", "magic number", "dead code", "what should this be called", or "should this live elsewhere". Cohesion as the test of what belongs in one unit, naming and file organization with a fallback identifier vocabulary, route-local versus shared abstraction boundaries, complexity and readability limits, self-explanatory implementation, magic-number and dead-code discipline, scope control, and SOLID/DRY/KISS/YAGNI judgment. While authoring, each concern is a practice to uphold; while reviewing, a finding to raise against the diff.
+description: Writing, refactoring, or reviewing code for maintainability or design — keeping what you change readable, cohesive, and cheap to change next time. Triggers on "readable", "too long", "refactor", "abstraction", "cohesion", "magic number", "dead code", "what should this be called", or "should this live elsewhere". While authoring, each concern is a practice to uphold; while reviewing, a finding to raise against the diff. Covers cohesion as the test of what belongs in one unit, naming and file organization, abstraction boundaries, complexity limits, dead code, and SOLID/DRY/KISS/YAGNI judgment.
 user-invocable: false
 ---
 

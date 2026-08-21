@@ -1,6 +1,6 @@
 ---
 name: agent-skill-management
-description: Deciding whether material belongs in a skill at all, or in the project's own documentation instead, before deciding its tier; adding, editing, renaming, moving, or removing an agent skill in a project that keeps skills in two tiers; a `git status` showing installed copies or `skills-lock.json` out of sync with their source; or a skill you loaded turning out to be wrong, outdated, or missing a rule — including mid-task, and including when its upstream is one you do not own. The skill-or-document question, the storage and install model, the drift check, and how to route a defect found in an installed skill.
+description: Deciding whether material belongs in a skill at all or in the project's own documentation, and then which tier it lives in — the storage, install, and drift model for a project keeping skills in two tiers. Triggers on adding, editing, renaming, moving, or removing an agent skill; a `git status` showing installed copies or `skills-lock.json` out of sync with their source; and a skill you loaded turning out to be wrong, outdated, or missing a rule, including mid-task and including when its upstream is one you do not own. Covers the skill-or-document question, `npx skills` install and refresh, the drift check, and how to route a defect found in an installed skill.
 user-invocable: false
 ---
 

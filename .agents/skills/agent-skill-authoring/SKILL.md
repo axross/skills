@@ -1,6 +1,6 @@
 ---
 name: agent-skill-authoring
-description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, or running the structure validators. Triggers on "add a skill", "split this skill", "audit skills", "recast this skill as a capability", and any change to a `SKILL.md` or its `references/`. The authoring rules for the agentskills.io format — capability framing, discovery metadata that survives a host's listing truncation, section anatomy, progressive disclosure, cross-references, and three bundled validators, one per kind of edit.
+description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — the authoring rules for the agentskills.io format, and the validators that enforce them. Triggers on drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, "add a skill", "split this skill", "audit skills", "recast this skill as a capability", and any change to a `SKILL.md` or its `references/`. Covers capability framing, discovery metadata that survives a host's listing truncation, section anatomy, progressive disclosure, cross-references, and three bundled validators, one per kind of edit.
 user-invocable: false
 ---
 

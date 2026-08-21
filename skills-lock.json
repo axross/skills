@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "2c0f1a97edf8180afe85e80326dfa1419ef615df8ed24f1a4c3e808bd7e76727"
+      "computedHash": "68ecd82715e6f6b3c8dc0db63c5f25679509bf7c2c08a940c1eb209f8161fef9"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "fe5f84d80d1837ed50e207bbb2969744e9ca27a803f04a0492ffdf7edc96c98b"
+      "computedHash": "262be1636cd3f0cede7f43ec025ddac5fb6b4103b4c128a62e286b18f8918a46"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -19,12 +19,12 @@
     "application-security": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6f08bd602a0999d516e6bdf4fced781cec799ee4e79f54ce965d23bd3f63958d"
+      "computedHash": "5dfc93de4eabc0a5af5ddda7cc16996fecc3c6a5ac91e1e178d8f8dd0da12bd2"
     },
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "78c98594a00132b8831102db98fd7917874e04b70819daee287cbbb3fcd211df"
+      "computedHash": "85fdd473fe7688eef314e4bdbe47c7630137965eacb288c7601705d16b680be0"
     },
     "code-review": {
       "source": "./skills",
@@ -64,7 +64,7 @@
     "living-project-documentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6d1cd7e6f3bdf244bc7034e3cb1f68b2d1a07517f61ae99c284354d573a02620"
+      "computedHash": "6f6f989e4143a139c7a0ff962299f5d050945ffdcd98756e36bcb36883d5410f"
     },
     "loop-engineering": {
       "source": "./skills",
@@ -124,7 +124,7 @@
     "technical-document-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "a4eba2adc0234cb9ec0c2871b9a78ba1d2494ff3fedad235c6e6d1b4e79121ee"
+      "computedHash": "f2e48f86036000952673ad5d76599c1951404fdefc811c2c7fb18a48645f97a1"
     },
     "unit-testing": {
       "source": "./skills",
