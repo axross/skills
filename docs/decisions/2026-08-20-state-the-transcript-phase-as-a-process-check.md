@@ -134,6 +134,20 @@ that; what moved is the account of where a judge is to find it, so a later
 measurement of one of these factors stays comparable in substance to what
 it was written to check before this change.
 
+## What this closes elsewhere
+
+`2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md` reads the
+empty `thinking` blocks the way this issue first did, and names its own
+reconsideration trigger as this issue being resolved and a stored
+transcript starting to carry real reasoning. That trigger is closed rather
+than pending: this issue is resolved, and the second half of the condition
+can never be met — no reachable configuration adds a chain of thought to a
+stored transcript. What that record decided is untouched, because it rests
+on the non-interactive brief the instrument appends rather than on what a
+`transcript` factor could read; the record itself stays exactly as written,
+since a decision is replaced by a new record and never by editing an old
+one's substance.
+
 ## What was measured versus what was read
 
 The seven-row table above, the `--include-partial-messages` result, and the
