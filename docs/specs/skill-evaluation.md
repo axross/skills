@@ -95,20 +95,24 @@ is testing.
   unprompted, with `peerSkills` competing for the same prompt.
 - **`outcome`** asks whether the artefacts the agent produced matched
   expectation — both what had to appear and what had to not.
-- **`transcript`** asks whether the agent reasoned as expected.
+- **`transcript`** asks whether the run's transcript shows the agent carrying
+  the task out by the expected process — the material it consulted, the
+  steps it took, and what it stated along the way.
 
-**The `transcript` question is answerable only while the pinned probe model's
-requests carry a `thinking.display` setting that returns the reasoning.** A
-model whose requests default to `omitted` returns a `thinking` block carrying
-a signature and no content, leaving nothing for a `transcript` factor's judge
-to read, whatever the phase asks — even a `summarized` display returns only a
-summary of the agent's reasoning, never the raw chain of thought, which no
-model exposes. The default moved from `summarized` to `omitted` at Claude
-Opus 4.7, and the CLI offers no flag to override it, so repinning the probe
-model past that boundary silently empties the phase rather than raising any
-error.
-[`2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md`](../decisions/2026-08-20-pin-the-probe-model-to-one-that-emits-reasoning.md)
-holds the measurement that found this and the model it settled on.
+**The stored transcript carries the run's execution process, never the
+agent's private reasoning.** It holds every tool call with its input, every
+file read, every command run, every skill invoked, the assistant's own text,
+and the order all of it happened in — but no configuration reachable from
+this instrument adds a chain of thought on top of that: a `thinking` block's
+content is governed by the request's `thinking.display` setting, which the
+CLI offers no flag to set, and even its `summarized` value returns a summary
+of the reasoning written for display, never the reasoning itself, which no
+model exposes at any setting. A `transcript` factor is therefore written
+against what the transcript observably contains — the material consulted,
+the steps taken, what the agent stated in its own words — never against
+reasoning it has no way to carry.
+[`2026-08-20-state-the-transcript-phase-as-a-process-check.md`](../decisions/2026-08-20-state-the-transcript-phase-as-a-process-check.md)
+holds the measurement behind this.
 
 A scenario whose skill leaves no trace an outcome or a transcript phase could
 read — because its surface is not the working tree, or because holding it
@@ -159,6 +163,10 @@ judgment** runs a deterministic script against that reconstructed workspace; a
 material its factor's phase permits and report a verdict. Either way, the
 judgment is the factor's own: nothing about a factor's declaration says in
 advance which method will turn out to answer it better.
+
+**A `transcript`-phase reasoning judgment is asked of `claude-haiku-4-5`.**
+Every `transcript` factor judged by `reasoning` already declares it; a new
+one follows the same choice rather than picking a judge of its own.
 
 **Every factor result is `true`, `false`, or an error carrying its reason.**
 A judgment that could not be made is not a judgment that came out false, and
