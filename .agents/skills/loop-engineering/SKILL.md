@@ -272,7 +272,7 @@ An autonomous run has no natural stopping point: a review that keeps finding new
 
 **Guidelines:**
 
-- MUST cap the address↔review loop at **8** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
+- MUST cap the address↔review loop at **4** rounds; on non-convergence, record what still fails in the status block, state the summary in the turn output, and end the turn.
 - MUST cap autonomous waiting at the awaited work's own declared timeout plus a margin wherever one is observable — a workflow's `timeout-minutes`, or whatever ceiling the platform states — and at **2 hours** where none is, going dormant rather than waiting indefinitely; reset the budget when a check produces a result and a new push starts a fresh run.
 - MUST cap delegated execution at one initial attempt plus **2** retries per approved plan revision and task phase, and recover in single-agent mode rather than spawning a fourth worker.
 - MUST cap the pre-flight implement↔review loop at one initial implementation plus **3** autonomous rounds, then ask the human once per further round; this is a pre-pull-request cap and is distinct from the address↔review cap above.
