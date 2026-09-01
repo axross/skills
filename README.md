@@ -82,6 +82,11 @@ which. See [`SKILL.md`](./skills/professional-behavior/SKILL.md).
 
 ### Delivering a change
 
+These five skills span one change's whole path from a vague request to a
+merged pull request — writing the spec, running the plan-build-review loop
+that carries it there, and the commit and GitHub conventions the result has
+to meet.
+
 #### `loop-engineering`
 
 Runs a whole change for you — plan, build, verify, fix — pausing for your
@@ -160,6 +165,10 @@ See [`SKILL.md`](./skills/technical-document-authoring/SKILL.md).
 
 ### Reviewing a change
 
+Two different questions about the same diff: `code-review` judges whether
+the change itself is correct and well-designed, while `quality-assurance`
+judges whether the verification behind it is adequate.
+
 #### `code-review`
 
 Reads a diff the way a reviewer would and reports only what holds up: ranked
@@ -173,6 +182,10 @@ which checks ran, which were skipped, and what risk that leaves. See
 [`SKILL.md`](./skills/quality-assurance/SKILL.md).
 
 ### Writing code that lasts
+
+Three lenses to run over code once it works: keeping it cheap to change
+later, safe against input and dependencies you do not control, and legible
+once it is running in production.
 
 #### `code-maintainability`
 
@@ -194,6 +207,10 @@ level, errors caught where they can be handled, and events worth tracking.
 See [`SKILL.md`](./skills/software-instrumentation/SKILL.md).
 
 ### Testing
+
+`unit-testing` and `end-to-end-testing` decide what is worth testing and at
+what grain; `jest-testing` and `vitest-testing` are the runner mechanics
+underneath either one, on Jest and Vitest respectively.
 
 #### `unit-testing`
 
@@ -221,6 +238,9 @@ it without hanging on watch mode. See
 [`SKILL.md`](./skills/vitest-testing/SKILL.md).
 
 ### Designing a UI
+
+Four skills follow one interface from grey-box layout through a real visual
+design system to the component and stylesheet that implement it in React.
 
 #### `wireframe-design`
 
@@ -301,6 +321,11 @@ what a passing parse still does not make safe. See
 [`SKILL.md`](./skills/zod-schema/SKILL.md).
 
 ### Authoring skills
+
+`agent-skill-authoring` writes a skill's content so an agent actually finds
+and follows it; `agent-skill-management` decides where that skill lives, how
+it is installed and refreshed, and what to do when one you do not own needs
+a fix.
 
 #### `agent-skill-authoring`
 
