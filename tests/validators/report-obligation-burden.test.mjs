@@ -401,21 +401,20 @@ describe("report-obligation-burden.mjs", () => {
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
       //
-      // this revision corrected waiting-and-dormancy.md's classification and
-      // trimmed a restated rule from it, without touching SKILL.md. the
-      // RFC-2119 bullet count in that reference is net unchanged — one
-      // section gained a bullet, another lost one — so neither obligation
-      // count moved: the floor stays exactly where it was because SKILL.md
-      // itself carries no edit, and the ceiling's own obligation count stays
-      // put alongside it. Only the ceiling's byte and token figures grew,
-      // because the corrected prose — the split between ending the turn and
-      // asking inline, and the genuine-dormancy paragraph — is longer than
-      // what it replaced. What any individual bullet says is those files'
-      // business, not this comment's.
+      // this revision corrected one guideline in independent-review.md's
+      // addressing-mechanics block, whose non-convergence clause read "go
+      // dormant" where the Termination Guard's own round-cap bullet says "end
+      // the turn" for that same wait — without touching SKILL.md and without
+      // adding or removing a bullet. Neither obligation count moved: the
+      // floor stays exactly where it was because SKILL.md itself carries no
+      // edit, and the ceiling's own obligation count stays put alongside it
+      // because the guideline is reworded, not added or removed. Only the
+      // ceiling's byte and token figures grew, by the two bytes "end the
+      // turn" carries over "go dormant".
       expect.soft(totals.floorObligations).toBe(52);
       expect.soft(totals.floorTokens).toBe(11_155);
       expect.soft(totals.ceilingObligations).toBe(505);
-      expect.soft(totals.ceilingTokens).toBe(56_784);
+      expect.soft(totals.ceilingTokens).toBe(56_785);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -461,13 +460,14 @@ describe("report-obligation-burden.mjs", () => {
       // neither.
       //
       // only the ceiling's tokens moved here, for the same reason the
-      // mandated-set assertions above give: this revision's net bullet count
-      // is unchanged, so both obligation counts hold, and the floor's tokens
-      // hold too since SKILL.md carries no edit.
+      // mandated-set assertions above give: this revision reworded one
+      // guideline without adding or removing a bullet, so both obligation
+      // counts hold, and the floor's tokens hold too since SKILL.md carries
+      // no edit.
       expect.soft(tiers[2].floorObligations).toBe(52);
       expect.soft(tiers[2].floorTokens).toBe(11_155);
       expect.soft(tiers[2].ceilingObligations).toBe(505);
-      expect.soft(tiers[2].ceilingTokens).toBe(56_784);
+      expect.soft(tiers[2].ceilingTokens).toBe(56_785);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
