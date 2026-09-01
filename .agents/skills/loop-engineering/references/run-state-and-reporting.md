@@ -1,30 +1,6 @@
 # Run State and Reporting
 
-Apply this reference when recording the run's durable state, and when the run reaches convergence and reports back. It expands the [Run State and Reporting](../SKILL.md) section in the parent skill.
-
-## Why a Report-Only Turn Costs the Same as an Acting One
-
-Elaborates the turn-boundary rule the parent section states: the reasoning behind it, the worked line separating a forbidden turn from each of its three exceptions, and both boundaries in full.
-
-A run is billed per turn, and what a turn costs is set by how large its context is, not by what the turn does — a turn that emits one paragraph and calls no tool costs about the same as a turn that reads a file, edits it, and runs the test suite. When the run has not stopped — the next request already knows what it wants and arrives regardless — a text-only turn has produced nothing an acting turn would not also have produced, at the same price; it has only delayed the action by one turn's worth of cost. In an interactive terminal a human watching the stream might read that paragraph as it appears, but in a cloud or mobile session the turn's text has no reader until the run stops and a summary is wanted, so the report bought nothing and merely cost.
-
-### The Forbidden Turn Against Each Exception
-
-The rule turns on one question: does the run stop after this turn? A text-only turn that answers no — the work continues, the next request already follows — is the forbidden case: nothing needed the pause, so the turn's whole product is cost with nothing to show for it. Each of the three exceptions answers yes, and that is what earns it the exception:
-
-- **Ending the turn at a gate.** The plan-approval gate and an escalated stuck machine event both stop the run on a human decision nothing else can supply. The action the turn's observation justifies is stopping — no tool call substitutes for waiting on a decision only the human can make, so the turn's product being text is not a shortfall; it is the correct shape for that turn.
-- **Recording state before going dormant.** Once a dormancy cap is reached, the run persists what a resumed session cannot otherwise reconstruct — phase, waiting state, open questions — before it stops. The state write is the action; the turn ending afterward is not a separate report bolted onto the front of a turn that still had work to do, since going dormant is itself the point the run stops.
-- **The completion report.** The run has reached ready or non-convergence and has nothing further to do this turn; the report is the deliverable the run was building toward, not a preamble to one.
-
-A forbidden turn shares none of this shape: it reports, calls no tool, and the very next turn goes on to do the thing the report described. Nothing structural required the split, so the split bought nothing.
-
-### The Asynchronous-Wait Boundary
-
-A progress note posted while CI, the independent review, or a delegated worker's run is still outstanding sits outside the rule entirely, and deliberately so. That turn is not deferring a next step — no action is due until the awaited event resolves, so there is nothing the turn could have done instead of reporting. Suppressing it would not recover any cost, since the run still waits either way; it would only take away the one place a human on a cloud or mobile session can see that the run is alive and what it is doing while nothing else does. The rule leaves this band alone on purpose — read the prohibition as reaching forward to the turn that has a next step and stops short of taking it, never as reaching backward to cover a note written while the run waits on something else.
-
-### The Prose-Beside-a-Tool-Call Boundary
-
-The rule forbids breaking a turn in two — ending one turn on text alone and picking the action back up in the next — not writing an explanation in the same turn that also acts. A turn that states why it is about to edit a file, then edits it, has not produced a report-only turn; it has produced one turn that both explains and acts, which is exactly what the rule asks for. Nothing here is a word budget, a cap on tool calls per turn, or a prohibition on explanation — a turn may carry as much reasoning as it needs, as long as the action that reasoning justifies is not left for the turn after it.
+Apply this reference when recording the run's durable state, when the run reaches convergence and reports back, and when deciding whether a turn that only reports may end there or must carry its next step in the same turn. It expands the [Run State and Reporting](../SKILL.md) section in the parent skill.
 
 ## GitHub as Lightweight State
 
@@ -79,3 +55,27 @@ When a run flips its pull request to ready, that same chat turn doubles as a **v
 - MUST judge whether the change is human-observable first. Write the brief only when the change alters something a human can see or operate — a route, a rendered surface, a command, an admin view. For a purely internal change (build, refactor, non-visible logic) with nothing to walk through, say so in one line and stop.
 - MUST spell out what to exercise and how, derived from the plan's acceptance criteria and the changed surfaces: the specific routes, pages, or commands to open, and the states to exercise (loading, empty, error, responsive widths, theme, locale) where they apply.
 - SHOULD hand over a per-PR preview URL when the project deploys one — sourced from the newest preview-deploy comment and verified against the branch-head SHA, never constructed from memory. When there is no usable preview, give the local verification steps instead; never fabricate a URL.
+
+## Why a Report-Only Turn Costs the Same as an Acting One
+
+Elaborates the turn-boundary rule the parent section states: the reasoning behind it, the worked line separating a forbidden turn from each of its three exceptions, and both boundaries in full.
+
+A run is billed per turn, and what a turn costs is set by how large its context is, not by what the turn does — a turn that emits one paragraph and calls no tool costs about the same as a turn that reads a file, edits it, and runs the test suite. When the run has not stopped — the next request already knows what it wants and arrives regardless — a text-only turn has produced nothing an acting turn would not also have produced, at the same price; it has only delayed the action by one turn's worth of cost. In an interactive terminal a human watching the stream might read that paragraph as it appears, but in a cloud or mobile session the turn's text has no reader until the run stops and a summary is wanted, so the report bought nothing and merely cost.
+
+### The Forbidden Turn Against Each Exception
+
+The rule turns on one question: does the run stop after this turn? A text-only turn that answers no — the work continues, the next request already follows — is the forbidden case: nothing needed the pause, so the turn's whole product is cost with nothing to show for it. Each of the three exceptions answers yes, and that is what earns it the exception:
+
+- **Ending the turn at a gate.** The plan-approval gate and an escalated stuck machine event both stop the run on a human decision nothing else can supply. The action the turn's observation justifies is stopping — no tool call substitutes for waiting on a decision only the human can make, so the turn's product being text is not a shortfall; it is the correct shape for that turn.
+- **Recording state before going dormant.** Once a dormancy cap is reached, the run persists what a resumed session cannot otherwise reconstruct — phase, waiting state, open questions — before it stops. The state write is the action; the turn ending afterward is not a separate report bolted onto the front of a turn that still had work to do, since going dormant is itself the point the run stops.
+- **The completion report.** The run has reached ready or non-convergence and has nothing further to do this turn; the report is the deliverable the run was building toward, not a preamble to one.
+
+A forbidden turn shares none of this shape: it reports, calls no tool, and the very next turn goes on to do the thing the report described. Nothing structural required the split, so the split bought nothing.
+
+### The Asynchronous-Wait Boundary
+
+A progress note posted while CI, the independent review, or a delegated worker's run is still outstanding sits outside the rule entirely, and deliberately so. That turn is not deferring a next step — no action is due until the awaited event resolves, so there is nothing the turn could have done instead of reporting. Suppressing it would not recover any cost, since the run still waits either way; it would only take away the one place a human on a cloud or mobile session can see that the run is alive and what it is doing while nothing else does. The rule leaves this band alone on purpose — read the prohibition as reaching forward to the turn that has a next step and stops short of taking it, never as reaching backward to cover a note written while the run waits on something else.
+
+### The Prose-Beside-a-Tool-Call Boundary
+
+The rule forbids breaking a turn in two — ending one turn on text alone and picking the action back up in the next — not writing an explanation in the same turn that also acts. A turn that states why it is about to edit a file, then edits it, has not produced a report-only turn; it has produced one turn that both explains and acts, which is exactly what the rule asks for. Nothing here is a word budget, a cap on tool calls per turn, or a prohibition on explanation — a turn may carry as much reasoning as it needs, as long as the action that reasoning justifies is not left for the turn after it.

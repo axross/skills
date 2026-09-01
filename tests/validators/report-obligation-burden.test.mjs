@@ -401,20 +401,20 @@ describe("report-obligation-burden.mjs", () => {
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
       //
-      // this revision stated the turn-boundary rule (an observation and the
-      // action it justifies belong in the same turn) directly in SKILL.md's
-      // Run State and Reporting section, under the unconditional-scope
-      // carve-out, rather than behind a reference pointer — its condition is
-      // every turn the loop governs, so a pointer would fire on every turn.
-      // the floor grew by the four RFC-2119 bullets that statement adds to
-      // SKILL.md; the ceiling grew by that same four, since the elaboration
-      // the reference gained carries no `**Guidelines:**` block of its own.
-      // what any of them says is those files' business, not this comment's
-      // — naming it here is what made this block stale twice already.
+      // this round is a pre-flight fix on the turn-boundary rule's prose:
+      // moving the Why a Report-Only Turn Costs the Same as an Acting One
+      // reference section to the file's end so its position matches SKILL.md's
+      // routing order, extending that reference's own intro line to name the
+      // topic it now covers, and adding a short lead-in in SKILL.md marking
+      // the second Guidelines block as the rule itself rather than more read
+      // obligations. none of that adds or removes an RFC-2119 bullet, so the
+      // obligation counts hold; only the token figures move, since prose grew.
+      // what any of it says is those files' business, not this comment's —
+      // naming it here is what made this block stale before.
       expect.soft(totals.floorObligations).toBe(56);
-      expect.soft(totals.floorTokens).toBe(11_552);
+      expect.soft(totals.floorTokens).toBe(11_600);
       expect.soft(totals.ceilingObligations).toBe(520);
-      expect.soft(totals.ceilingTokens).toBe(60_022);
+      expect.soft(totals.ceilingTokens).toBe(60_093);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -459,13 +459,13 @@ describe("report-obligation-burden.mjs", () => {
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
       //
-      // the floor gained the turn-boundary rule's four SKILL.md bullets and
-      // the ceiling gained the same four — see the mandated-set assertions
-      // above for why.
+      // neither obligation count moved this round — see the mandated-set
+      // assertions above for why; only the token figures grew, from the
+      // prose this round added.
       expect.soft(tiers[2].floorObligations).toBe(56);
-      expect.soft(tiers[2].floorTokens).toBe(11_552);
+      expect.soft(tiers[2].floorTokens).toBe(11_600);
       expect.soft(tiers[2].ceilingObligations).toBe(520);
-      expect.soft(tiers[2].ceilingTokens).toBe(60_022);
+      expect.soft(tiers[2].ceilingTokens).toBe(60_093);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

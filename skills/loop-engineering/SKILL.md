@@ -280,7 +280,7 @@ See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 
 - MUST read [run-state-and-reporting.md](./references/run-state-and-reporting.md) before writing or reading the status block, and before composing a completion summary or the ready-to-merge handoff.
 
-An observation and the action it justifies belong in the same turn. A turn that carries text and calls no tool is not a turn taken while the work continues — the run has not stopped, so reporting first and acting next merely splits one turn's cost across two turns instead of doing the work in the one that already had it.
+What follows is the rule itself, not a further reading obligation: it binds every turn this loop takes rather than some narrower situation, so it stands here directly instead of behind a pointer an agent might not yet have opened. An observation and the action it justifies belong in the same turn. A turn that carries text and calls no tool is not a turn taken while the work continues — the run has not stopped, so reporting first and acting next merely splits one turn's cost across two turns instead of doing the work in the one that already had it.
 
 **Guidelines:**
 
