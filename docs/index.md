@@ -44,7 +44,8 @@ uses none of them.
 - [operations/agent-skills.md](./operations/agent-skills.md) — installing and
   refreshing a skill, and confirming both hosts loaded it.
 - [operations/agent-sessions.md](./operations/agent-sessions.md) — how a
-  session starts here, its hooks, and its telemetry tagging.
+  session starts here, its hooks, its telemetry tagging, and the
+  environment variables recommended for cutting a session's cost.
 - [operations/code-review.md](./operations/code-review.md) — running
   `@claude review` on a pull request.
 - [operations/evaluation-dispatch.md](./operations/evaluation-dispatch.md) —
