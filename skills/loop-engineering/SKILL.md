@@ -20,7 +20,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 You are the only long-lived actor, and stay so even when implementation is delegated: Code + Verify and mechanical fixes MAY run in one bounded worker at a time where the harness exposes a qualifying one, and in you where it does not. Delegation changes who edits, never what must be approved, verified, or independently reviewed (see [Delegated Implementation](#delegated-implementation)).
 
-Advance the work as far as you can autonomously within each phase, and stop the turn whenever the next step needs a human, so an idle run consumes nothing. A stopped run is resumed by one of three triggers:
+Advance the work as far as you can autonomously within each phase, and stop the turn whenever the next step needs a human — ending the turn this way costs nothing until they return. Going dormant to wait on a machine event is a different outcome, priced differently; the two are not one class, and [waiting-and-dormancy.md](./references/waiting-and-dormancy.md) below states why. A stopped run is resumed by one of three triggers:
 
 - **A machine event that completes on its own** — CI, or the independent review this flow requests. Take the event where the harness delivers it into the session, and keep a scheduled self-wake as the backstop for the transitions delivery does not carry (in Claude Code, a pull-request activity subscription alongside `send_later`; in Codex, its own equivalents, and where a harness provides neither, end the turn instead of waiting) — see [Phase 3](#phase-3--request-independent-review); only when a machine event is _stuck_ do you record state, end the turn, and wait for the human.
 - **The mandatory plan-approval gate** — after the plan is written the run **always** stops for the human to verify it before any implementation (see [Phase 1](#phase-1--plan)). Record the plan in the issue, mark the status block `awaiting plan approval`, and end the turn.
@@ -37,6 +37,17 @@ Advance the work as far as you can autonomously within each phase, and stop the 
 - MUST treat the running session as the primary state store; write durable status to GitHub only as a recovery breadcrumb (see [Run State and Reporting](#run-state-and-reporting)), not as the mechanism of record.
 - MUST keep each externally observable step idempotent, so a resume re-reads state and continues rather than duplicating work.
 - MUST keep judgment, human interaction, approval, GitHub delivery, and merge readiness with you whether or not implementation is delegated; a worker never becomes a second loop driver, and single-agent execution weakens no gate.
+
+See [waiting-and-dormancy.md](./references/waiting-and-dormancy.md) for:
+
+- the three-tier cache-cost model behind every wait, and how to measure your own project's boundary
+- choosing between polling inside that boundary and collapsing into a single dormancy, given as a derivation rather than a fixed interval
+- the ten waiting places in this loop, classified as a human wait, a machine wait, or permanent dormancy
+- why ending a turn and going dormant carry opposite costs
+
+**Guidelines:**
+
+- MUST read [waiting-and-dormancy.md](./references/waiting-and-dormancy.md) before choosing how to wait at any point this loop stops — a human gate, a delegated worker, a machine event, or the CI-and-review tail.
 
 ## Asking the Human
 
@@ -277,5 +288,5 @@ An autonomous run has no natural stopping point: a review that keeps finding new
 - MUST cap delegated execution at one initial attempt plus **2** retries per approved plan revision and task phase, and recover in single-agent mode rather than spawning a fourth worker.
 - MUST cap the pre-flight implement↔review loop at one initial implementation plus **3** autonomous rounds, then ask the human once per further round; this is a pre-pull-request cap and is distinct from the address↔review cap above.
 - MUST NOT cap the [Phase 1](#phase-1--plan) clarify-before-building gate with a question budget — unlike the loops above, it is deliberately uncapped.
-- MUST end the turn (never loop-block) whenever waiting on a human — the plan-approval gate, a stuck machine event, or a dormancy cap.
+- MUST end the turn (never loop-block) whenever waiting on a human — the plan-approval gate, or a stuck machine event escalated to one — and MUST go dormant, a different outcome with a different cost, once the dormancy cap above is reached rather than treating that cap as one more case of waiting on a human; see [waiting-and-dormancy.md](./references/waiting-and-dormancy.md).
 - MUST keep edits to the smallest surface that satisfies the acceptance criteria, never push to the default branch, and never merge the pull request.

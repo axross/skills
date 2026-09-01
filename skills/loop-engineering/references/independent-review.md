@@ -19,7 +19,7 @@ The flip out of draft turns on **three** conditions: green CI, a clean independe
 - MUST resolve the waiting mechanism before the first wake: subscribe where the harness delivers pull-request activity, and schedule a self-wake where it provides one. Where it provides neither, end the turn and wait for the human to resume.
 - MUST keep that self-wake scheduled wherever the harness provides one, even while a subscription is active, and record in the status block when only delivery is available.
 - SHOULD derive each wake from the pending checks' own completion profiles as above, measuring them from the project's recent runs rather than carrying another project's figures over.
-- SHOULD NOT tune a wake to the harness's prompt-cache TTL: it is a property of the session rather than of the awaited work, and on a harness whose cache outlives the wait it separates no two intervals.
+- MUST consult [waiting-and-dormancy.md](./waiting-and-dormancy.md) for how the wake interval derived above interacts with the harness's prompt-cache TTL, and let that reference's mechanism choice — poll inside the boundary, or collapse to a single dormancy — decide the wait's shape rather than tuning the interval by feel.
 - MUST flip the pull request to ready once all three conditions above hold and not before, then update the status block, deliver the Ready-to-Merge Handoff in the turn output, and end the turn.
 - MUST, on review findings or red CI, enter the addressing mechanics below; on only some checks resolved, keep waiting for the rest.
 - MUST stop waiting at the dormancy cap in the skill's Termination Guard and go dormant with a status-block note rather than wait indefinitely.
