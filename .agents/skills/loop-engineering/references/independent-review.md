@@ -19,7 +19,7 @@ The flip out of draft turns on **three** conditions: green CI, a clean independe
 - MUST resolve the waiting mechanism before the first wake: subscribe where the harness delivers pull-request activity, and schedule a self-wake where it provides one. Where it provides neither, end the turn and wait for the human to resume.
 - MUST keep that self-wake scheduled wherever the harness provides one, even while a subscription is active, and record in the status block when only delivery is available.
 - SHOULD derive each wake from the pending checks' own completion profiles as above, measuring them from the project's recent runs rather than carrying another project's figures over.
-- SHOULD NOT tune a wake to the harness's prompt-cache TTL: it is a property of the session rather than of the awaited work, and on a harness whose cache outlives the wait it separates no two intervals.
+- MUST consult [waiting-and-dormancy.md](./waiting-and-dormancy.md) for how the wake interval derived above interacts with the harness's prompt-cache TTL, and let that reference's mechanism choice — poll inside the boundary, or collapse to a single dormancy — decide the wait's shape rather than tuning the interval by feel.
 - MUST flip the pull request to ready once all three conditions above hold and not before, then update the status block, deliver the Ready-to-Merge Handoff in the turn output, and end the turn.
 - MUST, on review findings or red CI, enter the addressing mechanics below; on only some checks resolved, keep waiting for the rest.
 - MUST stop waiting at the dormancy cap in the skill's Termination Guard and go dormant with a status-block note rather than wait indefinitely.
@@ -32,7 +32,7 @@ When the independent review's comments land, read them (their author is the revi
 
 - MUST address and resolve each blocking finding (whatever the posted-review policy marks merge-blocking) and every unmet acceptance criterion, pushing fixes to the same branch and re-running the relevant verification after each batch.
 - MUST, for every review comment a commit resolves, reply on that comment's thread with a marked comment — the project's agent-comment marker line, then a line beginning **`Resolved in <short-hash>`** (the 7-character hash of the fixing commit) and a summary sized per [Resolution Reply Length](#resolution-reply-length) below — then resolve the thread. Reference the same hash on each comment one commit resolves.
-- MUST re-request review by posting the review trigger phrase again after a batch of fixes, and repeat up to the round cap in the skill's Termination Guard; on non-convergence, record what still fails and go dormant.
+- MUST re-request review by posting the review trigger phrase again after a batch of fixes, and repeat up to the round cap in the skill's Termination Guard; on non-convergence, record what still fails and end the turn.
 - MUST escalate through the question UI when a finding or human comment is ambiguous or needs a product or architecture decision, rather than guessing.
 - MUST NOT gate the ready flip on your own assessment — only the three conditions stated above flip draft→ready.
 

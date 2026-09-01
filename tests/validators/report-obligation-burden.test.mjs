@@ -401,16 +401,18 @@ describe("report-obligation-burden.mjs", () => {
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
       //
-      // the ceiling grew by 11 here, from two of loop-engineering's
-      // references gaining `**Guidelines:**` bullets. what any of them says
-      // is those files' business, not this comment's — naming it here is
-      // what made this block stale twice already. the floor's obligation
-      // count did not move, but its tokens did: a SKILL.md edit moved bytes
-      // without adding an obligation bullet.
-      expect.soft(totals.floorObligations).toBe(51);
-      expect.soft(totals.floorTokens).toBe(10_977);
-      expect.soft(totals.ceilingObligations).toBe(500);
-      expect.soft(totals.ceilingTokens).toBe(54_506);
+      // this revision collected the loop's waiting doctrine into a new
+      // waiting-and-dormancy.md reference. the floor grew by one obligation
+      // because routing to a reference obliges SKILL.md to carry a
+      // `**Guidelines:**` MUST-read bullet in its own body, which is what
+      // the floor counts; the ceiling grew by that same bullet plus the 15
+      // RFC-2119 bullets the new reference adds. what any of them says is
+      // those files' business, not this comment's — naming it here is what
+      // made this block stale twice already.
+      expect.soft(totals.floorObligations).toBe(52);
+      expect.soft(totals.floorTokens).toBe(11_230);
+      expect.soft(totals.ceilingObligations).toBe(516);
+      expect.soft(totals.ceilingTokens).toBe(58_839);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -455,13 +457,13 @@ describe("report-obligation-burden.mjs", () => {
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
       //
-      // the ceiling grew by 11 here; the floor's obligation count did not
-      // move, but its tokens did — see the mandated-set assertions above
-      // for why.
-      expect.soft(tiers[2].floorObligations).toBe(51);
-      expect.soft(tiers[2].floorTokens).toBe(10_977);
-      expect.soft(tiers[2].ceilingObligations).toBe(500);
-      expect.soft(tiers[2].ceilingTokens).toBe(54_506);
+      // the floor gained the one SKILL.md routing bullet and the ceiling
+      // gained that bullet plus the new reference's own — see the
+      // mandated-set assertions above for why.
+      expect.soft(tiers[2].floorObligations).toBe(52);
+      expect.soft(tiers[2].floorTokens).toBe(11_230);
+      expect.soft(tiers[2].ceilingObligations).toBe(516);
+      expect.soft(tiers[2].ceilingTokens).toBe(58_839);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -488,8 +490,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(500);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(500);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(516);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(516);
     });
 
     it("prints no tier block without --mandated", async () => {
