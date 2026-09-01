@@ -31,7 +31,7 @@ When the independent review's comments land, read them (their author is the revi
 **Guidelines:**
 
 - MUST address and resolve each blocking finding (whatever the posted-review policy marks merge-blocking) and every unmet acceptance criterion, pushing fixes to the same branch and re-running the relevant verification after each batch.
-- MUST, for every review comment a commit resolves, reply on that comment's thread with a marked comment — the project's agent-comment marker line, then a line beginning **`Resolved in <short-hash>`** (the 7-character hash of the fixing commit) and a one-sentence summary — then resolve the thread. Reference the same hash on each comment one commit resolves.
+- MUST, for every review comment a commit resolves, reply on that comment's thread with a marked comment — the project's agent-comment marker line, then a line beginning **`Resolved in <short-hash>`** (the 7-character hash of the fixing commit) and a summary sized per [Resolution Reply Length](#resolution-reply-length) below — then resolve the thread. Reference the same hash on each comment one commit resolves.
 - MUST re-request review by posting the review trigger phrase again after a batch of fixes, and repeat up to the round cap in the skill's Termination Guard; on non-convergence, record what still fails and go dormant.
 - MUST escalate through the question UI when a finding or human comment is ambiguous or needs a product or architecture decision, rather than guessing.
 - MUST NOT gate the ready flip on your own assessment — only the three conditions stated above flip draft→ready.
