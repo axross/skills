@@ -82,8 +82,8 @@ which. See [`SKILL.md`](./skills/professional-behavior/SKILL.md).
 
 ### Delivering a change
 
-These five skills span one change's whole path from a vague request to a
-merged pull request — writing the spec, running the plan-build-review loop
+These skills span one change's whole path from a vague request to a merged
+pull request — writing the spec, running the plan-build-review loop
 that carries it there, and the commit and GitHub conventions the result has
 to meet.
 
@@ -183,7 +183,7 @@ which checks ran, which were skipped, and what risk that leaves. See
 
 ### Writing code that lasts
 
-Three lenses to run over code once it works: keeping it cheap to change
+The lenses to run over code once it works: keeping it cheap to change
 later, safe against input and dependencies you do not control, and legible
 once it is running in production.
 
@@ -239,7 +239,7 @@ it without hanging on watch mode. See
 
 ### Designing a UI
 
-Four skills follow one interface from grey-box layout through a real visual
+These skills follow one interface from grey-box layout through a real visual
 design system to the component and stylesheet that implement it in React.
 
 #### `wireframe-design`
