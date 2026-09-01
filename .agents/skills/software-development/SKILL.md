@@ -25,7 +25,7 @@ See [independent-operations.md](./references/independent-operations.md) for:
 
 **Guidelines:**
 
-- MUST read [independent-operations.md](./references/independent-operations.md) before issuing a turn that could carry more than one operation, to check the dependency test against each candidate.
+- MUST read [independent-operations.md](./references/independent-operations.md) when it is not obvious whether a candidate operation depends on another's result, or when this rule appears to conflict with [change-management.md](./references/change-management.md)'s incremental-changes rule.
 
 What follows is the rule itself, not a further reading obligation: it binds every turn this skill governs rather than some narrower situation — a turn either has mutually independent operations available to issue together or it does not, and this rule is what decides which — so it stands here directly instead of behind a pointer that would fire on every turn regardless.
 

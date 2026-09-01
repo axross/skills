@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "99e4f347c8341b5c8139327bef81126bf4532b2abcffe9015da49fb08f56a335"
+      "computedHash": "4d8e285213b0276c7049cd1e257ac05c81f167b7b780c0294bc5cdaa87914661"
     },
     "software-instrumentation": {
       "source": "./skills",

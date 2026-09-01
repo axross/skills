@@ -411,9 +411,9 @@ describe("report-obligation-burden.mjs", () => {
       // obligations, floor and ceiling alike, while the token figures move
       // by more than that.
       expect.soft(totals.floorObligations).toBe(60);
-      expect.soft(totals.floorTokens).toBe(12_116);
+      expect.soft(totals.floorTokens).toBe(12_136);
       expect.soft(totals.ceilingObligations).toBe(524);
-      expect.soft(totals.ceilingTokens).toBe(61_608);
+      expect.soft(totals.ceilingTokens).toBe(61_628);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -447,9 +447,9 @@ describe("report-obligation-burden.mjs", () => {
       // `SKILL.md`, none in the new reference — which is why this tier's
       // floor and ceiling obligation counts both grew by four.
       expect.soft(tiers[1].floorObligations).toBe(19);
-      expect.soft(tiers[1].floorTokens).toBe(3_903);
+      expect.soft(tiers[1].floorTokens).toBe(3_923);
       expect.soft(tiers[1].ceilingObligations).toBe(250);
-      expect.soft(tiers[1].ceilingTokens).toBe(21_205);
+      expect.soft(tiers[1].ceilingTokens).toBe(21_225);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //
@@ -463,9 +463,9 @@ describe("report-obligation-burden.mjs", () => {
       // assertions above for why; the token figures grew alongside them,
       // from the prose this round added.
       expect.soft(tiers[2].floorObligations).toBe(60);
-      expect.soft(tiers[2].floorTokens).toBe(12_116);
+      expect.soft(tiers[2].floorTokens).toBe(12_136);
       expect.soft(tiers[2].ceilingObligations).toBe(524);
-      expect.soft(tiers[2].ceilingTokens).toBe(61_608);
+      expect.soft(tiers[2].ceilingTokens).toBe(61_628);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
