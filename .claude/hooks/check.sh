@@ -1,8 +1,13 @@
 #!/bin/bash
 
-# stop hook: before the task completes, run the linter and the relative-link
-# check whenever content changed in this session. failures block completion and
-# are reported back on stderr so the agent addresses them before finishing.
+# stop hook: before the task completes, run the checks that need an authoring
+# decision rather than a mechanical repair — the lint rules `--fix` cannot
+# resolve, and the relative-link check, whenever content changed in this
+# session. `PostToolUse`'s format.sh already repairs markdownlint's
+# mechanically-fixable violations as each file is written, so those never
+# reach this gate. See docs/operations/agent-sessions.md for the full
+# blocking/non-blocking classification. Failures here block completion and are
+# reported back on stderr so the agent addresses them before finishing.
 set -uo pipefail
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"

@@ -30,5 +30,16 @@ fi
 # without the toolchain provisioned).
 command -v npm >/dev/null 2>&1 || exit 0
 
+# repair markdownlint's mechanically-fixable violations before formatting. the
+# case-pattern below is the LINT_FIX_FILE_GLOB token, e.g. "*.md" — extend it
+# alongside CODE_FILE_GLOB above if this project lints more than Markdown. the
+# leading ":" marks the path as literal rather than a glob, since FILE_PATH is
+# already absolute; a residual violation `--fix` cannot repair is left in
+# place for the Stop hook to catch, so a non-zero exit here is tolerated
+# exactly like the format step below.
+case "$FILE_PATH" in
+  *.md) npm run lint:fix -- ":$FILE_PATH" >/dev/null 2>&1 || true ;;
+esac
+
 npm run format >/dev/null 2>&1 || true
 exit 0
