@@ -20,20 +20,20 @@ A third case fits neither of those. Sometimes fidelity is the requirement, but o
 | an investigator reads it      | Large material needed for one conclusion, not for its own text      | CI logs, long threads, wide searches across files or history, file trees, a dependency investigation      |
 | narrowed at the tool boundary | Fidelity is the requirement, but only part of the payload is wanted | a single failing assertion line, field selection on a structured response, a bounded line range of a file |
 
-Issue and pull-request bodies split the same way, but along the write/read axis rather than the size axis. A write never reads the stored body back at all, because it is composed fresh; a read that needs only a piece of what a body says is a conclusion, not the text, and goes to an investigator; a read that needs the body's own bytes stays with the main actor, narrowed to the part that matters.
+Issue and pull-request bodies split the same way, but along the write/read axis rather than the size axis. A write is composed from text the main actor authored, never from a sanitized read-back of the stored body — a bar on the channel, not on reading the body at all, since a write may still depend on a byte-faithful read of what is stored. A read that needs only a piece of what a body says is a conclusion, not the text, and goes to an investigator; a read that needs the body's own bytes stays with the main actor, narrowed to the part that matters.
 
-| Operation                                                     | Who                                                              | Why                                                                    |
-| ------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| write or rewrite a body                                       | main, composed from its own draft; never reads the old body back | the existing `github-conventions.md` rule                              |
-| pull acceptance criteria or decisions out of an existing body | an investigator, in `list` form                                  | the full text is not needed                                            |
-| read a status block byte-faithfully                           | main, but narrowed                                               | fidelity is the requirement, so no summarizing intermediary is allowed |
+| Operation                                                     | Who                                                                    | Why                                                                    |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| write or rewrite a body                                       | main, composed from text it authored, never from a sanitized read-back | the existing `plan-document.md` rule                                   |
+| pull acceptance criteria or decisions out of an existing body | an investigator, in `list` form                                        | the full text is not needed                                            |
+| read a status block byte-faithfully                           | main, but narrowed                                                     | fidelity is the requirement, so no summarizing intermediary is allowed |
 
 **Guidelines:**
 
 - MUST keep, in the main actor's own context, any read whose exact text is the object of the judgment being made — a body about to be written back, a plan revision under comparison, a diff under review — and the rules the main actor is itself obeying.
 - MUST hand any other large payload needed only for a conclusion, never for its own text, to an investigator instead of reading it directly wherever a qualifying investigator resolves, and read it directly otherwise.
 - MUST narrow the read at the tool boundary, rather than delegating it or reading it whole, wherever fidelity is the requirement but only part of the payload is wanted.
-- MUST compose an issue or pull-request body write from the main actor's own draft rather than reading the old body back; MUST route pulling acceptance criteria or decisions out of an existing body to an investigator in `list` form; and MUST keep a byte-faithful status-block read with the main actor, narrowed, rather than through a summarizing investigator.
+- MUST compose an issue or pull-request body write from text the main actor authored rather than from a sanitized read-back of the stored body, which bars that channel rather than a byte-faithful read the write itself depends on; MUST route pulling acceptance criteria or decisions out of an existing body to an investigator in `list` form; and MUST keep a byte-faithful status-block read with the main actor, narrowed, rather than through a summarizing investigator.
 
 ## The Investigator Task
 

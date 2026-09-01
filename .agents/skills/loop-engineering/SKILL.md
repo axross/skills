@@ -124,7 +124,7 @@ See [context-ownership.md](./references/context-ownership.md) for:
 - which reads stay in the main actor's own context, and which go to an investigator instead
 - the investigator role, defined by nothing but what it is given to read and what it returns
 - narrowing a read at the tool boundary, when exact bytes of only part of a payload are wanted, rather than delegating it or reading it whole
-- the investigator task protocol — its three inputs, its three output shapes, and why it gets no read budget
+- the investigator task protocol — target, question, and return shape as its three inputs; `verdict`, `list`, and `extract` as its three output shapes; and why it gets no read budget
 - the return contract that keeps an investigator from handing back source text in place of a conclusion
 
 **Guidelines:**

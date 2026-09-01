@@ -412,9 +412,9 @@ describe("report-obligation-burden.mjs", () => {
       // obligation, though its bytes grew, which is why the token figures
       // moved too.
       expect.soft(totals.floorObligations).toBe(51);
-      expect.soft(totals.floorTokens).toBe(10_962);
+      expect.soft(totals.floorTokens).toBe(10_977);
       expect.soft(totals.ceilingObligations).toBe(496);
-      expect.soft(totals.ceilingTokens).toBe(53_762);
+      expect.soft(totals.ceilingTokens).toBe(53_840);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -463,9 +463,9 @@ describe("report-obligation-burden.mjs", () => {
       // move, but its tokens did — see the mandated-set assertions above
       // for why.
       expect.soft(tiers[2].floorObligations).toBe(51);
-      expect.soft(tiers[2].floorTokens).toBe(10_962);
+      expect.soft(tiers[2].floorTokens).toBe(10_977);
       expect.soft(tiers[2].ceilingObligations).toBe(496);
-      expect.soft(tiers[2].ceilingTokens).toBe(53_762);
+      expect.soft(tiers[2].ceilingTokens).toBe(53_840);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
