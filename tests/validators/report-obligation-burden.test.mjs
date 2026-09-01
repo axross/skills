@@ -402,9 +402,10 @@ describe("report-obligation-burden.mjs", () => {
       // new one from a diff.
       //
       // the ceiling grew by 3 here: independent-review.md
-      // (loop-engineering's reference, not its SKILL.md body) gained a new
-      // "Resolution Reply Length" section with three `**Guidelines:**`
-      // bullets, so the floor is untouched.
+      // (loop-engineering's reference, not its SKILL.md body) gained three
+      // `**Guidelines:**` bullets, so the floor is untouched. what those
+      // bullets say is that file's business, not this comment's — restating
+      // it here is what made this block stale twice already.
       expect.soft(totals.floorObligations).toBe(51);
       expect.soft(totals.floorTokens).toBe(10_907);
       expect.soft(totals.ceilingObligations).toBe(487);
@@ -454,9 +455,7 @@ describe("report-obligation-burden.mjs", () => {
       // neither.
       //
       // the floor is unchanged; the ceiling grew by 3 for the same reason
-      // named in the mandated-set figures block above — independent-review.md
-      // gained a "Resolution Reply Length" section with three
-      // `**Guidelines:**` bullets.
+      // named in the mandated-set figures block above.
       expect.soft(tiers[2].floorObligations).toBe(51);
       expect.soft(tiers[2].floorTokens).toBe(10_907);
       expect.soft(tiers[2].ceilingObligations).toBe(487);
