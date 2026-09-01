@@ -54,6 +54,20 @@ to repair the moment the file is written, at no such cost):
   cannot confirm from local state alone whether a pull request already
   covers the pushed commits it is reminding about.
 
+`format.sh` passes the edited file to `markdownlint-cli2` as an ordinary
+glob argument rather than a literal path (its header comment says why), so
+a filename holding a glob metacharacter resolves through markdownlint-cli2's
+own glob library rather than matching itself outright. Verified against
+markdownlint-cli2 0.15.0: `[`, `!`, and `#` still match through the
+library's literal-path fallback, so the file gets fixed; `*` and `?` also
+match, but as a genuine wildcard, which can additionally match an unrelated
+sibling filename differing only at that one character; `{` does not match
+at all, so the file is left untouched. None of this weakens the gate —
+`npm run lint`'s repository-wide glob at `Stop` still catches any violation
+the fix pass missed, or introduced by fixing the wrong file. Re-verify this
+against markdownlint-cli2's glob resolver on a version upgrade, and again if
+`LINT_FIX_FILE_GLOB` is ever widened past `*.md`.
+
 ## Telemetry Tagging
 
 [`.claude/settings.json`](../../.claude/settings.json) carries an `env` block
