@@ -42,7 +42,7 @@ See [waiting-and-dormancy.md](./references/waiting-and-dormancy.md) for:
 
 - the three-tier cache-cost model behind every wait, and how to measure your own project's boundary
 - choosing between polling inside that boundary and collapsing into a single dormancy, given as a derivation rather than a fixed interval
-- the ten waiting places in this loop, classified as a human wait, a machine wait, or permanent dormancy
+- the ten waiting places in this loop, classified as a human wait or a machine wait, each with the mechanism that family uses
 - why ending a turn and going dormant carry opposite costs
 
 **Guidelines:**
