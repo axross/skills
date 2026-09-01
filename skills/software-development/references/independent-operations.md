@@ -34,14 +34,14 @@ operation it depends on — there is nothing yet to issue it with — and puttin
 it in the same turn as some other, unrelated operation does not change that;
 it still has to wait for the turn after the one whose result it needs.
 
-**Good Examples:**
+**Good Example:**
 
 > Three files whose paths are already known — a skill's `SKILL.md`, its
 > sibling reference, and the repository's contributing guide — read together
 > in one turn. Nothing about any of the three reads depends on what either of
 > the other two returns.
 
-**Bad Examples:**
+**Bad Example:**
 
 > A search across the repository for where a function is defined, paired in
 > the same turn with an attempt to open the file the search has not returned
