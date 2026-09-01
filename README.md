@@ -103,7 +103,7 @@ session rather than on it:
 - `CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000` — moves when auto-compaction
   fires. A long-running loop's context grows turn over turn; triggering
   compaction sooner keeps less of it in play on any given turn.
-- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=0` — stops prompt-suggestion
+- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` — stops prompt-suggestion
   generation, work done once per turn around a session rather than on it.
   The loop runs many turns to carry one change to a reviewed pull request,
   so that per-turn overhead recurs across the whole run in a way it would

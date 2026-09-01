@@ -96,7 +96,7 @@ here, cloud or local:
 - `CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000` — moves auto-compaction's trigger
   from a measured median of **784,287** tokens to **384,000**, which lowers
   the average main context from 354k. Estimated **−29%**.
-- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=0` — stops prompt-suggestion
+- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` — stops prompt-suggestion
   generation, which cost **$467 over 30 days (3.0%)**.
 
 Set them in the environment dialog at claude.ai/code for a cloud session, or
