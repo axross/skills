@@ -31,10 +31,20 @@ When the independent review's comments land, read them (their author is the revi
 **Guidelines:**
 
 - MUST address and resolve each blocking finding (whatever the posted-review policy marks merge-blocking) and every unmet acceptance criterion, pushing fixes to the same branch and re-running the relevant verification after each batch.
-- MUST, for every review comment a commit resolves, reply on that comment's thread with a marked comment — the project's agent-comment marker line, then a line beginning **`Resolved in <short-hash>`** (the 7-character hash of the fixing commit) and a one-sentence summary — then resolve the thread. Reference the same hash on each comment one commit resolves.
+- MUST, for every review comment a commit resolves, reply on that comment's thread with a marked comment — the project's agent-comment marker line, then a line beginning **`Resolved in <short-hash>`** (the 7-character hash of the fixing commit) and a summary sized per [Resolution Reply Length](#resolution-reply-length) below — then resolve the thread. Reference the same hash on each comment one commit resolves.
 - MUST re-request review by posting the review trigger phrase again after a batch of fixes, and repeat up to the round cap in the skill's Termination Guard; on non-convergence, record what still fails and go dormant.
 - MUST escalate through the question UI when a finding or human comment is ambiguous or needs a product or architecture decision, rather than guessing.
 - MUST NOT gate the ready flip on your own assessment — only the three conditions stated above flip draft→ready.
+
+## Resolution Reply Length
+
+The one-sentence summary in a resolution reply is a default, not a floor: for most fixes the hash and the diff at that commit already show what happened, and nothing more is needed. More is warranted only when the hash alone would leave the commenter unable to tell what happened from it — the fix diverges from what the comment proposed, the finding was addressed only in part, or the fix landed away from the line the comment anchors to, so the hash does not lead to it.
+
+**Guidelines:**
+
+- SHOULD keep the resolution reply to the marker line, the `Resolved in <short-hash>` line, and one sentence, by default.
+- SHOULD extend the reply past one sentence when the fix diverges from what the comment proposed, when the finding was addressed only in part, or when the fix landed away from the line the comment anchors to.
+- MUST NOT use that extra room to restate the finding, re-explain why it mattered, or recount verification the pull request already records.
 
 ## Keeping the Branch Mergeable
 
