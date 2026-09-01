@@ -274,10 +274,20 @@ See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 - which comments the run may author, and why the review trigger phrase appears in exactly one
 - the ready-to-merge brief: naming the issue, pull request, and review outcome, and what to exercise
 - judging a change human-observable, and handing over a preview URL without fabricating one
+- why a turn costs the same whether it acts or only reports, and the worked line separating a forbidden report-only turn from each of its three exceptions and both boundaries
 
 **Guidelines:**
 
 - MUST read [run-state-and-reporting.md](./references/run-state-and-reporting.md) before writing or reading the status block, and before composing a completion summary or the ready-to-merge handoff.
+
+An observation and the action it justifies belong in the same turn. A turn that carries text and calls no tool is not a turn taken while the work continues — the run has not stopped, so reporting first and acting next merely splits one turn's cost across two turns instead of doing the work in the one that already had it.
+
+**Guidelines:**
+
+- MUST act, in the same turn, on any observation that has a next step while the run continues — do not end a turn that reports and calls no tool when there is more to do.
+- MUST treat exactly three cases as exceptions to that rule rather than violations of it: ending the turn at a required human gate (the plan-approval gate, or a machine event escalated to one — see [Execution Model](#execution-model)); recording state before going dormant (see [Termination Guard](#termination-guard)); and the completion report that closes the run.
+- MUST NOT apply this rule to a progress note posted while an asynchronous machine event is still outstanding — CI, the independent review, or a delegated worker's run — that turn is not deferring a next step, since none is due until the event resolves.
+- MUST NOT read this rule as barring reasoning alongside a tool call: it forbids splitting one turn into a text-only turn followed by the turn that acts, not writing prose in the same turn that also calls a tool.
 
 ## Termination Guard
 

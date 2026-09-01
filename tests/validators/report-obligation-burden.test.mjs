@@ -401,18 +401,20 @@ describe("report-obligation-burden.mjs", () => {
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
       //
-      // this revision collected the loop's waiting doctrine into a new
-      // waiting-and-dormancy.md reference. the floor grew by one obligation
-      // because routing to a reference obliges SKILL.md to carry a
-      // `**Guidelines:**` MUST-read bullet in its own body, which is what
-      // the floor counts; the ceiling grew by that same bullet plus the 15
-      // RFC-2119 bullets the new reference adds. what any of them says is
-      // those files' business, not this comment's — naming it here is what
-      // made this block stale twice already.
-      expect.soft(totals.floorObligations).toBe(52);
-      expect.soft(totals.floorTokens).toBe(11_230);
-      expect.soft(totals.ceilingObligations).toBe(516);
-      expect.soft(totals.ceilingTokens).toBe(58_839);
+      // this revision stated the turn-boundary rule (an observation and the
+      // action it justifies belong in the same turn) directly in SKILL.md's
+      // Run State and Reporting section, under the unconditional-scope
+      // carve-out, rather than behind a reference pointer — its condition is
+      // every turn the loop governs, so a pointer would fire on every turn.
+      // the floor grew by the four RFC-2119 bullets that statement adds to
+      // SKILL.md; the ceiling grew by that same four, since the elaboration
+      // the reference gained carries no `**Guidelines:**` block of its own.
+      // what any of them says is those files' business, not this comment's
+      // — naming it here is what made this block stale twice already.
+      expect.soft(totals.floorObligations).toBe(56);
+      expect.soft(totals.floorTokens).toBe(11_552);
+      expect.soft(totals.ceilingObligations).toBe(520);
+      expect.soft(totals.ceilingTokens).toBe(60_022);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -457,13 +459,13 @@ describe("report-obligation-burden.mjs", () => {
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
       //
-      // the floor gained the one SKILL.md routing bullet and the ceiling
-      // gained that bullet plus the new reference's own — see the
-      // mandated-set assertions above for why.
-      expect.soft(tiers[2].floorObligations).toBe(52);
-      expect.soft(tiers[2].floorTokens).toBe(11_230);
-      expect.soft(tiers[2].ceilingObligations).toBe(516);
-      expect.soft(tiers[2].ceilingTokens).toBe(58_839);
+      // the floor gained the turn-boundary rule's four SKILL.md bullets and
+      // the ceiling gained the same four — see the mandated-set assertions
+      // above for why.
+      expect.soft(tiers[2].floorObligations).toBe(56);
+      expect.soft(tiers[2].floorTokens).toBe(11_552);
+      expect.soft(tiers[2].ceilingObligations).toBe(520);
+      expect.soft(tiers[2].ceilingTokens).toBe(60_022);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -490,8 +492,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(516);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(516);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(520);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(520);
     });
 
     it("prints no tier block without --mandated", async () => {
