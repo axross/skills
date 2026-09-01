@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "350aa07b54c3163ad3aea1bea1846ab4aef98be27e36dce4ffc7b4ef634521f8"
+      "computedHash": "d2f428661a608cfcd48e9e3a2538346e8033af17d86611764e66943b8820f97c"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c294e2f1f7793d9a13f1bc6a36d25d1b7f9adee73934d379670ccf6836ef8f91"
+      "computedHash": "0314dc4b22d74158f3d4ea854fb0b68c2006e03d492287e8a5ab17f2b3b28e84"
     },
     "next-app-development": {
       "source": "./skills",

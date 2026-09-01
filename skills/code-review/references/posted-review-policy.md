@@ -55,6 +55,23 @@ A posted review is two shapes and no more: inline comments anchored to the diff,
 - MUST report every finding; the same nit repeated across the diff MAY share one inline comment that lists each occurrence, and nothing is summarized away — the tally counts every finding.
 - MUST post the review as a plain **comment**, never as a formal approving or change-requesting review, when the reviewer is advisory and does not gate merges.
 
+## Summary Scope
+
+A finding that can be anchored to a diff line already has a home: the inline comment on that line. Restating it in the summary says the same thing twice, and the second copy is the one that outlives the round — it sits in the thread and frames the next round's reviewer before they see the diff. The anchor is the test: a finding with a line to attach to lives inline and only inline; the summary carries what an inline comment cannot.
+
+What the summary keeps:
+
+- The one-line tally that opens it.
+- What changed since the previous round, and therefore what this round looked at.
+- Anything that could not be checked, and why.
+- A finding that attaches to no single line — an unmet or unverifiable acceptance criterion is the standing case, since what is missing has no line to anchor to.
+
+**Guidelines:**
+
+- MUST NOT restate in the summary a finding an inline comment already explains.
+- MUST NOT restate in the summary a finding a previous round already resolved.
+- MUST NOT re-list, past the first round, the full set of checks re-run; state only what changed since the previous round.
+
 ## Running a Reviewer Safely in CI
 
 An automated reviewer triggered from pull-request activity is an attack surface: an untrusted contributor's branch must never gain the reviewer's privileges. These properties keep an automated reviewer safe, independent of any specific CI system.
