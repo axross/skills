@@ -19,7 +19,7 @@ Reconstructing state and resuming the one pending step on an actual resume is [r
 
 When the run delegates implementation, the state that matters on a resume grows: which mode the run is in, who wrote last, and how far the current attempt got. Session state carries the detail; the status block carries only what a fresh session cannot re-derive.
 
-Session state should hold the execution mode (delegated, single-agent, or recovering), the worker-resolution source (explicit, custom, built-in, or none), implementation status, the current plan revision and task phase, the attempt number, the writer owner, any opaque continuation handle, model and effort certainty, and the reason for a fallback or recovery.
+Session state should hold the execution mode (delegated, single-agent, or recovering), the worker-resolution source (explicit, custom, built-in, or none), implementation status, the current plan revision and task phase, the attempt number, the writer owner, any opaque continuation handle, model and effort certainty, the reason for a fallback or recovery, and the reason for any start-time model override of a role's pinned model.
 
 The status block adds only durable recovery information: execution mode, implementation status, the approved plan revision, the latest coherent implementation HEAD where available, phase, review round, waiting state, any open question, and the delegation-permission determination together with any answer the human gave it.
 
@@ -37,7 +37,7 @@ Execution detail belongs inside the existing report, not beside it. A separate a
 
 **Guidelines:**
 
-- MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; the delegation-permission determination and, where a question was put, the human's answer; model and effort as verified, declared, or unknown for every role the run spawned, including a pre-flight review worker where the stage ran; the fallback or recovery reason; any skipped or unavailable verification; and residual worker or routing risk.
+- MUST fold into the completion summary and the ready-to-merge handoff: whether the run was delegated, fell back to single-agent, or recovered; the worker-resolution source; the delegation-permission determination and, where a question was put, the human's answer; model and effort as verified, declared, or unknown for every role the run spawned, including a pre-flight review worker where the stage ran; the fallback or recovery reason; the reason for any start-time model override of a role's pinned model; any skipped or unavailable verification; and residual worker or routing risk.
 - MUST NOT duplicate that information into a separate verbose activity log.
 - MUST report a review worker's disclosure that it read run state — its own status block or another run's — while judging the diff (see [pre-flight-review.md](./pre-flight-review.md)'s Run State Is Not Input), so an exposure the write/clear pairing failed to prevent does not go unrecorded.
 
