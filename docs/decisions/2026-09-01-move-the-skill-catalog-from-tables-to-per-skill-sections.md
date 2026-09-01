@@ -31,7 +31,7 @@ note can occupy for any skill without inventing a second document or a
 skill-notes appendix — `loop-engineering`'s section carries one today, and a
 skill that later needs a similar note has the same place to put it.
 
-[2026-08-10-keep-conventions-and-operations-in-docs-rather-than-readme.md](./2026-08-10-keep-conventions-and-operations-in-docs-rather-than-readme.md)
+`2026-08-10-keep-conventions-and-operations-in-docs-rather-than-readme.md`
 moved this repository's own conventions and operations out of `README.md` on
 the reasoning that a long run of prose makes a reader after one fact read
 past everything else to find it — and that reasoning argues against growing
