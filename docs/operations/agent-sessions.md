@@ -16,11 +16,15 @@ pair MUST be kept in step when either changes.
 
 The opt-in format-on-edit and check-before-stop hooks materialize from
 [`.claude/settings.local-example.json`](../../.claude/settings.local-example.json)
-in a Claude Code cloud session. Format-on-edit is not wired for Codex, because
-`format.sh` reads the edited path from a Claude Code payload field that a
-Codex session does not send — so a Codex session keeps the blocking behaviour
-described below for every check the `PostToolUse` hook would otherwise have
-repaired first.
+in a Claude Code cloud session. Format-on-edit fires only for a file changed
+through the `Edit`, `Write`, or `MultiEdit` tools — the `PostToolUse`
+matcher's scope, which this repository deliberately does not widen — so a
+file changed another way, such as a Bash heredoc or `sed -i`, reaches `Stop`
+uncorrected like any file in a Codex session, where format-on-edit isn't wired
+at all because `format.sh` reads the edited path from a Claude Code payload
+field a Codex session never sends. Either way, that file keeps the blocking
+behaviour described below for every check the `PostToolUse` hook would
+otherwise have repaired first.
 
 A blocking `Stop` check is expensive in a way a `PostToolUse` repair is not: it
 fires only after the agent believes the task is finished, so a failure there
@@ -32,14 +36,16 @@ to repair the moment the file is written, at no such cost):
 
 - **`npm run lint`, the violations `--fix` repairs** (trailing spaces,
   multiple blank lines, missing blank lines around a list, and the rest
-  `markdownlint-cli2 --fix` can resolve on its own) — **non-blocking.**
-  `format.sh` repairs these on `PostToolUse` as each Markdown file is
-  written, so they never reach `Stop`.
+  `markdownlint-cli2 --fix` can resolve on its own) — **non-blocking, when
+  `format.sh` gets to a file first.** `format.sh` repairs these on
+  `PostToolUse` as each Markdown file is written, so they reach `Stop` only
+  when the edit fell outside its reach, per the caveat above.
 - **`npm run lint`, the violations `--fix` cannot repair** (a duplicate
   heading, more than one top-level heading, an empty link, and similarly
   structural findings) — **blocking.** The correct repair is an authoring
   decision — which heading to rename, what the link should point to — that
-  only the agent's own turn can make.
+  only the agent's own turn can make. `check.sh` never attempts one itself;
+  its header comment says why.
 - **`node ./skills/agent-skill-authoring/scripts/check-links.mjs`** —
   **blocking.** A broken relative link has no mechanical repair; its correct
   target is a judgement call the same way an unrepairable lint violation is.

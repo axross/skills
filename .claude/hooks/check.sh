@@ -4,8 +4,14 @@
 # decision rather than a mechanical repair — the lint rules `--fix` cannot
 # resolve, and the relative-link check, whenever content changed in this
 # session. `PostToolUse`'s format.sh already repairs markdownlint's
-# mechanically-fixable violations as each file is written, so those never
-# reach this gate. See docs/operations/agent-sessions.md for the full
+# mechanically-fixable violations for a file edited through `Edit`, `Write`,
+# or `MultiEdit`, so those usually never reach this gate; a file changed
+# another way (a Bash heredoc, `sed -i`, or a Codex session, where
+# format-on-edit isn't wired) still lands here uncorrected. This hook never
+# repairs anything itself, by design rather than oversight: a fix applied here
+# can land in the working tree after the agent has already committed and
+# pushed, so the pushed commit would keep the violation while the hook reports
+# success. See docs/operations/agent-sessions.md for the full
 # blocking/non-blocking classification. Failures here block completion and are
 # reported back on stderr so the agent addresses them before finishing.
 set -uo pipefail
