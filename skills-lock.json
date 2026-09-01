@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "52182d6788cc935aa285e1bb76c493a5208e09300544b204dd087daff399d404"
+      "computedHash": "fcde39bcccf4ddedcf0d747f4efc29ce4f11c69649a0932b0bd15b85366d8a07"
     },
     "next-app-development": {
       "source": "./skills",
