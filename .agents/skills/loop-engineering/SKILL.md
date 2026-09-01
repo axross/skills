@@ -123,11 +123,13 @@ See [context-ownership.md](./references/context-ownership.md) for:
 
 - which reads stay in the main actor's own context, and which go to an investigator instead
 - the investigator role, defined by nothing but what it is given to read and what it returns
+- narrowing a read at the tool boundary, when exact bytes of only part of a payload are wanted, rather than delegating it or reading it whole
+- the investigator task protocol — target, question, and return shape as its three inputs; `verdict`, `list`, and `extract` as its three output shapes; and why it gets no read budget
 - the return contract that keeps an investigator from handing back source text in place of a conclusion
 
 **Guidelines:**
 
-- MUST read [context-ownership.md](./references/context-ownership.md) before deciding whether to read a large payload itself or hand it to an investigator, and before reading back what an investigator returns.
+- MUST read [context-ownership.md](./references/context-ownership.md) before deciding whether to read a large payload itself or hand it to an investigator, before tasking an investigator, and before reading back what an investigator returns.
 
 ## Intake — Identify the Unit of Work
 
@@ -178,7 +180,7 @@ See [plan-document.md](./references/plan-document.md) for:
 
 Then step through the phase:
 
-- Read the issue (or the tracking issue) and its full thread, classify the work — UI-bearing, implementation-only, exploratory, or mixed — and investigate the smallest useful code and documentation context before proposing a plan. Consult every project skill whose routing condition matches the surface, and research current external docs when behavior depends on a fast-moving framework or platform the project uses. Where a read is wide only for one conclusion — a broad code search, a long thread, a file tree merely being located in — route it per [context-ownership.md](./references/context-ownership.md#the-boundary-and-the-return-contract) rather than carrying it into your own context directly.
+- Read the issue (or the tracking issue) and its full thread, classify the work — UI-bearing, implementation-only, exploratory, or mixed — and investigate the smallest useful code and documentation context before proposing a plan. Consult every project skill whose routing condition matches the surface, and research current external docs when behavior depends on a fast-moving framework or platform the project uses. Where a read is wide only for one conclusion — a broad code search, a long thread, a file tree merely being located in — route it per [context-ownership.md](./references/context-ownership.md#the-boundary) rather than carrying it into your own context directly.
 - **Clarify before building — required gate.** Investigation resolves _how_ to build; it does not resolve _what the product should do_. Before finalizing the plan, list every open item the spec leaves and sort each one:
   - **Settle-and-note** — a fact the environment can answer: code, project conventions, documentation, or the output of a command. Resolve it by investigation and record the choice as a stated assumption in the plan.
   - **Must-ask** — a decision needing human judgment: a product outcome, a UX or interaction choice, a scope boundary or non-goal, empty/error/edge-case behavior, a data-model or persistence/migration decision, a trade-off between competing goods, or anything privacy-, platform-, security-, or compatibility-sensitive the issue does not pin down.
