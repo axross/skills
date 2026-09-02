@@ -1,6 +1,6 @@
 # Review Tone
 
-Apply these rules broadly: the constructive-language, stating-the-why, style-and-preference, and assumption rules below govern every review the agent emits, posted output included. One section — Acknowledging Strengths — states a narrower scope of its own. Tone is not decoration — it decides whether a finding gets acted on or argued with.
+Apply these rules broadly: every section below governs every review the agent emits, posted output included, except Acknowledging Strengths, which states a narrower scope of its own. Tone is not decoration — it decides whether a finding gets acted on or argued with.
 
 ## Constructive Language
 
@@ -24,7 +24,7 @@ An author weighing whether to act on a finding needs to see the cost of leaving 
 
 ## Acknowledging Strengths
 
-This section binds the **internal review report** — the report a human sits down to read end to end — and not a posted review's summary, whose closed allowlist has no room for a line that is neither a finding nor a gap. A report that lists only faults reads as an attack and leaves the author no signal about what is working and worth preserving; that argument is about a human reader working through the full report, which the summary's reader — the agent driving the change, re-reading on every wake — is not. A posted review's summary carries no Strengths item.
+This section binds the **internal review report** — the report a human sits down to read end to end — and not a posted review's summary, whose closed allowlist has no room for a line that is neither a finding nor a gap. A report that lists only faults reads as an attack and leaves the author no signal about what is working and worth preserving; that argument is about a human reader working through the full report, and a posted summary — read again every round, and, where an agent drives the change, re-entering that agent's context on every wake — is not that. A posted review's summary carries no Strengths item.
 
 **Guidelines:**
 

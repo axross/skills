@@ -63,7 +63,7 @@ A posted review is one submission of the platform's review mechanism — the one
 
 ## Summary Scope
 
-The summary is read by the agent driving the change: it enters that agent's context, is re-read on every wake, and is paid for again each time — so every line in it that is not a finding or a gap carries a repeated cost and no information. That scarcity is also what a reader can hold a summary to: a summary that characterizes something as a defect while no inline comment carries it is either a finding left unanchored or a finding reported twice, once inline and once in the summary — and both are defects in the review itself, not a matter of taste.
+The summary is read again on every round it stays open, and, where an agent drives the change, re-enters that agent's context on every wake — so every line in it that is not a finding or a gap is paid for repeatedly and carries no information. That scarcity is also what a reader can hold a summary to: a summary that characterizes something as a defect while no inline comment carries it is either a finding left unanchored or a finding reported twice, once inline and once in the summary — and both are defects in the review itself, not a matter of taste.
 
 What the summary keeps, exhaustively:
 
@@ -75,7 +75,7 @@ What the summary keeps, exhaustively:
 
 - MUST NOT put anything in the summary outside the three entries above; a finding an inline comment already explains and a finding a previous round already resolved both fall outside them, so neither is restated in the summary.
 - MAY carry, as the list's single exception, a per-round enumeration a host policy mandates — a standing requirement rather than a re-listing habit, carried in full every round, with each entry held to one line naming the item, its outcome, and, where the entry is a finding, a pointer to the inline comment that carries it.
-- MUST give a defect named in the summary a corresponding inline comment, unless the summary states why the finding has no line to anchor to.
+- MUST NOT name in the summary a defect that also carries an inline comment; the only defect the summary may name is one with no line to anchor to, and it MUST state why.
 - MUST NOT narrate process in the summary — which files were opened, which checks ran and passed, which of the author's figures were independently re-derived — since a check that passed and produced no finding is already reported by the tally, and by nothing else.
 - MUST NOT restate in the summary a requirement the project's own standing policy already carries; the reader of the review is subject to that policy too.
 
