@@ -23,8 +23,7 @@ On a change that adds content, this lens also asks what should be **cut**, not o
 
 **Guidelines:**
 
-- MUST, for a change that adds content, ask what should be cut on every review and record the answer in the internal review report — a positive answer with what and why, a null answer as an explicit "nothing"; do not let the question go unanswered.
-- MUST NOT write a null "nothing to cut" answer into a posted review's summary; a positive answer is a finding and is reported inline like any other, anchored to the added content.
+- MUST, for a change that adds content, ask what should be cut on every review and record the answer in the internal review report — a positive answer with what and why, a null answer as an explicit "nothing" — but never write that null answer into a posted review's summary; a positive answer there is a finding, reported inline like any other and anchored to the added content.
 - MUST flag a name that misdescribes what a value or function does, and identifier or file names that break the surrounding directory's established convention.
 - MUST flag dead code introduced by the change — unused imports and variables, unreachable branches, and commented-out blocks.
 - MUST flag a comment that only restates the code it sits beside; the fix is deleting the comment, not rewording it.
