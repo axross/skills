@@ -30,6 +30,19 @@ Keeping those mechanics out is what lets this document stay stable when the impl
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
+## Beneficiary Framing
+
+See [beneficiary-framing.md](./references/beneficiary-framing.md) for:
+
+- describing every section of a specification as the change its beneficiary observes, and naming who the beneficiary is
+- why naming a file, line number, or function name in a specification makes the document subordinate to the work it judges
+- the exception for a path or identifier that is itself an acceptance criterion
+- raising the abstraction level of a requirement without lowering its concreteness
+
+**Guidelines:**
+
+- MUST read [beneficiary-framing.md](./references/beneficiary-framing.md) before drafting or reviewing any section of a specification, since every section-specific reference below assumes this document-wide rule rather than restating it.
+
 ## Summary, Todo, and Background Framing
 
 See [problem-and-scope.md](./references/problem-and-scope.md) for:
