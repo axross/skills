@@ -45,7 +45,7 @@ See [beneficiary-framing.md](./references/beneficiary-framing.md) for:
 
 What follows is the rule itself, not a further reading obligation: this skill's whole scope is drafting or reviewing a specification's sections, so the rule binds every one of them rather than some narrower situation, and stands here directly instead of behind a pointer an agent might not yet have opened.
 
-A specification describes the change its **beneficiary** observes, not the file, function, module, line, component, internal algorithm, or other implementation vehicle that produces it. The beneficiary is whoever the change is for: the end user for an application feature, the developer for a development-environment improvement.
+A specification describes the change its **beneficiary** observes, not the file, function, line, component, internal algorithm, or other implementation vehicle that produces it — a module- or service-level ownership statement, the kind System design's own guidance calls for, is not such a vehicle. The beneficiary is whoever the change is for: the end user for an application feature, the developer for a development-environment improvement.
 
 **Guidelines:**
 

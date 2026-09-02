@@ -44,7 +44,7 @@ Todo tells the reader what will be changed or created without duplicating what t
 **Guidelines:**
 
 - MUST place Todo immediately after Summary and write actionable deliverables or change surfaces as ordinary bullets, not task-list checkboxes.
-- MUST keep file, function, internal algorithm, completed-behavior, acceptance, and verification detail out of Todo.
+- MUST keep completed-behavior, acceptance, and verification detail out of Todo — Todo's own scope boundary, distinct from [Beneficiary Framing](#beneficiary-framing) above, which already governs naming a file, function, or other implementation detail in any section, Todo included.
 - MUST keep Todo fixed after plan approval rather than updating it as an implementation-progress tracker.
 
 ## Acceptance Criteria
