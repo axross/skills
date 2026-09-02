@@ -99,10 +99,11 @@ repository's own fixed lens list:
 - MUST run all three mandatory checks on every review and raise a finding for
   each miss.
 - MUST walk all five subtractive lenses above on every review of a
-  content-adding change; a finding under one lens discharges none of the
-  others, and each such finding is reported like any other finding — anchored
-  inline and counted in the tally — with nothing written about a lens that
-  found nothing.
+  content-adding change, recording each lens's outcome in the internal
+  review report; a finding under one lens discharges none of the others,
+  and each such finding is reported like any other finding — anchored
+  inline and counted in the tally — with nothing written in a posted
+  summary about a lens that found nothing.
 - MUST give each finding a severity label, `file:line` evidence, and a concrete
   fix, per
   [Code Review](.claude/skills/code-review/SKILL.md).
