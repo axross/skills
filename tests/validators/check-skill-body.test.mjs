@@ -112,6 +112,200 @@ describe("check-skill-body.mjs", () => {
 
   });
 
+  describe("fence — an unterminated fenced block", () => {
+    it("fails and hides a genuine violation past the unclosed fence", async () => {
+      // the case this rule exists to catch: without it, everything from the
+      // fence opener onward — including the routing-block violation below —
+      // is silently unread by every check here, and the run reports PASS.
+      const root = await tempDir();
+      const dir = await writeSkill(root, "unterminated-fence", {
+        body: [
+          "# Unterminated Fence",
+          "",
+          "Prose for the fixture.",
+          "",
+          "## Topic",
+          "",
+          "An example that never closes:",
+          "",
+          "```markdown",
+          "unterminated content that never closes",
+          "",
+          "## Topic",
+          "",
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+          "- MUST also do something unrelated to reading the reference.",
+          "",
+        ].join("\n"),
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toReportFailure(
+        /fence: SKILL\.md:\d+ fenced block opened here is never closed/,
+      );
+      // the routing-block violation two lines below the fence opener is real
+      // Markdown, but it sits past the unterminated fence — unreadable, and
+      // this rule's whole point is that nothing here should have found it.
+      expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+  });
+
+  describe("routing-block — the guidelines block a routing list introduces", () => {
+    /** a SKILL.md body with one `## Topic` section, `lines` after its intro prose. */
+    const withTopic = (...lines) =>
+      [
+        "# Routing Block",
+        "",
+        "Prose for the fixture.",
+        "",
+        "## Topic",
+        "",
+        "Prose introducing the reference.",
+        "",
+        ...lines,
+        "",
+      ].join("\n");
+
+    it("accepts a guidelines block that carries only read obligations", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "read-obligations-only", {
+        body: withTopic(
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+        ),
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+
+    it("accepts a routing list with no guidelines block at all", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "no-guidelines-block", {
+        body: withTopic(
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+        ),
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+
+    it("accepts a rule in its own guidelines block before the routing list", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "rule-before-routing", {
+        body: withTopic(
+          "**Guidelines:**",
+          "",
+          "- MUST hold this rule before deciding what to open.",
+          "",
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+        ),
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+
+    it("accepts a rule in a guidelines block separated from the routing list's by a paragraph", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "rule-after-paragraph", {
+        body: withTopic(
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+          "",
+          "This rule stays in the body because the reader needs it on every turn, not only once the reference is open.",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST hold this rule regardless of whether the reference was opened.",
+        ),
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+
+    it("does not treat an illustrative routing list inside a fenced block as real", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "fenced-routing-list", {
+        body: withTopic(
+          "An example of the shape this rule rejects:",
+          "",
+          "```markdown",
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+          "- MUST do something that is not a read obligation.",
+          "```",
+        ),
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+
+    it("reports a non-read-obligation bullet in a routing list's guidelines block", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "folded-in-rule", {
+        body: withTopic(
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+          "- MUST also do something unrelated to reading the reference.",
+        ),
+      });
+
+      expectFailure(
+        dir,
+        /routing-block: SKILL\.md:\d+ guidelines block introduced by a routing list carries a bullet that is not a read obligation: "MUST also do something/,
+      );
+    });
+  });
+
   describe("exit 1 — each implemented failure class", () => {
 
     it("reports a section heading that abuts its guidelines block", async () => {
