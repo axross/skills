@@ -20,8 +20,8 @@ A System design section answers "what talks to what, who owns which piece of sta
 
 - MUST describe data flow as named entities moving between processes and stores, and state which module or service owns each piece of shared state and how other modules may read or mutate it.
 - SHOULD add a diagram or a clarifying code snippet whenever it communicates the structure or mechanism better than prose; SHOULD open with the high-level shape before component detail.
-- MUST keep snippets illustrative — the shape of a key, a signature, a transition table — rather than pre-writing the implementation the coding phase will produce.
-- MUST NOT prescribe file layout or routing — the module- or service-level boundary from the bullet above is this section's own level of description; file layout and routing sit one level further down, per [beneficiary-framing.md](./beneficiary-framing.md).
+- MUST keep snippets illustrative — the shape of a key, a signature, a transition table — rather than pre-writing the implementation the coding phase will produce; this is the narrower, section-specific form of the illustrative-snippet exception [Beneficiary Framing](../SKILL.md#beneficiary-framing) states, worked through examples in [beneficiary-framing.md § The System Design Illustrative-Snippet Exception](./beneficiary-framing.md#the-system-design-illustrative-snippet-exception).
+- MUST NOT prescribe file layout or routing — the module- or service-level boundary from the bullet above is this section's own level of description; file layout and routing sit one level further down, per [Beneficiary Framing](../SKILL.md#beneficiary-framing).
 
 ## Alternatives Considered
 
@@ -42,4 +42,4 @@ The document's top-level **Non-functional requirements** section carries the tec
 - MUST state non-functional requirements (performance, scale, security, reliability) as short, measurable targets, per [problem-and-scope.md › Concrete, Checkable Language](./problem-and-scope.md#concrete-checkable-language); MUST omit the section with a stated reason when the change has no meaningful non-functional surface.
 - SHOULD scope each non-functional requirement to the specific component it constrains rather than declaring it for the whole system.
 - SHOULD treat the section as a considered checklist — security, privacy, performance, failure behavior — answering only the ones the change genuinely touches.
-- MUST NOT restate the implementation mechanism used to satisfy a constraint (e.g., "use Redis with a 5-minute TTL"), per [beneficiary-framing.md](./beneficiary-framing.md); the constraint is the target, and the technique — if significant — belongs in Alternatives considered above.
+- MUST NOT restate the implementation mechanism used to satisfy a constraint (e.g., "use Redis with a 5-minute TTL"), per [Beneficiary Framing](../SKILL.md#beneficiary-framing); the constraint is the target, and the technique — if significant — belongs in Alternatives considered above.
