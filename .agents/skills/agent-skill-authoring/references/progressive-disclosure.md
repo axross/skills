@@ -4,9 +4,7 @@ Apply this reference when deciding whether to split a `SKILL.md` into reference 
 
 ## The Role Contract
 
-A `SKILL.md` carries exactly three things: what capability this is, the rules that apply unconditionally within it, and the routing that says which reference to read when. Every other normative statement — the detail behind a MUST or SHOULD, procedures, tables, examples — goes in a reference.
-
-The test for keeping a rule in the body is whether the reader needs it **before the routing decision**, not whether the rule is important. `loop-engineering`'s Execution Model is the worked example: the rule that the mandatory plan-approval gate outranks a harness instruction telling the run to just implement and push is worthless unless it applies before the run decides what to read, so it correctly stays in the body rather than moving behind a reference pointer. The contract is not a mandate to empty every body — only a rule the reader needs before choosing what to open passes this test; a rule the reader needs only once they have already opened a particular reference belongs there instead, sorted by the load-bearing test below.
+`SKILL.md` states the contract itself — the three things a body carries, and the "needed before the routing decision" test for keeping a rule in it — as a rule, which is where a contract belongs; this section elaborates it rather than repeating it.
 
 This test subsumes, rather than competes with, the load-bearing test and the unconditional-scope carve-out `SKILL.md` already states. A rule that fails the carve-out — one whose triggering condition is narrower than "every turn within the skill's scope" — is also a rule the reader does not need before every routing decision, so it moves to a reference regardless of how important it is. The two tests agree on every case in this corpus; the role contract is the frame that explains why they agree, not a third, competing rule.
 

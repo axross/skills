@@ -13,7 +13,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { FENCE_RE, scanLines } from "./commonmark.mjs";
+import { FENCE_RE, scanLines, unterminatedFenceLine } from "./commonmark.mjs";
 import {
   GUIDELINES_RE,
   RFC2119_RE,
@@ -94,6 +94,26 @@ const VERSION_PIN_RES = [
 ];
 
 /**
+ * an unclosed fenced block: fatal, not advisory, because of what it does to
+ * every other check here. `scanLines` (and every walk built on it —
+ * `scanGuidelines` included) treats an unterminated fence as open for the
+ * rest of the document, so every line after it is silently dropped from
+ * every check below, this file's own routing-block rule included. A `SKILL.md`
+ * that would otherwise fail the build instead reports PASS, which is worse
+ * than reporting nothing: it is a merge gate a malformed document defeats
+ * rather than trips. `check-links.mjs` treats the same condition as a WARN,
+ * because its own contract already tolerates reading less than the whole
+ * file; this command's does not.
+ */
+function unterminatedFenceFailures(body, file, offset) {
+  const at = unterminatedFenceLine(body);
+  if (at === null) return [];
+  return [
+    `fence: ${file}:${at + offset} fenced block opened here is never closed — every check below this line was skipped, since nothing after an unterminated fence can be read as prose.`,
+  ];
+}
+
+/**
  * sections that state requirements without demonstrating the topic first: a
  * `##`+ heading separated from its `**Guidelines:**` block by nothing but blank
  * lines. any other line — including a fence opener — is the demonstration.
@@ -149,6 +169,13 @@ function guidelineKeywordFailures(body, file, offset) {
  * corpus already use. Recognized structurally — the word right after the
  * keyword, and a link into `./references/` somewhere in the bullet — rather
  * than by testing for the substring "read" anywhere in the text.
+ *
+ * the word is matched literally, not against every RFC-2119-adjacent synonym
+ * a bullet could use ("REQUIRED reading of …" and the like) — a deliberate
+ * narrowing, not an oversight. every one of the corpus's 58 read obligations
+ * already writes `read`, and broadening the match to catch a synonym that
+ * does not exist yet would also admit looser phrasings this rule exists to
+ * reject; tighten this only against a real bullet the corpus actually needs.
  *
  * @param {string} rule the bullet's trimmed text
  * @param {string} keyword the RFC-2119 keyword `rule` opens with
@@ -480,6 +507,7 @@ async function check(dir) {
   const { documents } = await skillDocuments(dir, body, offset);
 
   for (const { file, body: text, offset: at } of documents) {
+    failures.push(...unterminatedFenceFailures(text, file, at));
     failures.push(...sectionIntroFailures(text, file, at));
     failures.push(...guidelineKeywordFailures(text, file, at));
     if (file === "SKILL.md") failures.push(...routingBlockFailures(text, file, at));
@@ -494,15 +522,16 @@ async function check(dir) {
 const USAGE = `Usage: check-skill-body.mjs <skill-dir | skill-root> [more paths…]
 
 Check the document-body rules across a skill's SKILL.md and every
-references/*.md: a section that states requirements with nothing demonstrating
-the topic first, and a guidelines bullet that does not open with an RFC-2119
-keyword. In SKILL.md only, also check that the \`**Guidelines:**\` block a
-routing list introduces carries read obligations — \`MUST read [file.md](...)
-before …\` — and nothing else; an ordinary rule folded in among them is a
-failure, naming the file, the line, and the offending bullet. Advisories cover
-size, section length, bullet placement, stale label and fence style, hedging,
-and a version claim with nothing to check it against. Run it after editing
-prose.
+references/*.md: an unclosed fenced block (fatal — every check below it is
+silently skipped otherwise), a section that states requirements with nothing
+demonstrating the topic first, and a guidelines bullet that does not open with
+an RFC-2119 keyword. In SKILL.md only, also check that the \`**Guidelines:**\`
+block a routing list introduces carries read obligations — \`MUST read
+[file.md](...) before …\` — and nothing else; an ordinary rule folded in
+among them is a failure, naming the file, the line, and the offending bullet.
+Advisories cover size, section length, bullet placement, stale label and
+fence style, hedging, and a version claim with nothing to check it against.
+Run it after editing prose.
 
 A <path> is either a skill directory (one holding SKILL.md) or a directory whose
 immediate subdirectories are skills. A symlinked entry is followed.

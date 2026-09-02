@@ -112,6 +112,51 @@ describe("check-skill-body.mjs", () => {
 
   });
 
+  describe("fence — an unterminated fenced block", () => {
+    it("fails and hides a genuine violation past the unclosed fence", async () => {
+      // the case this rule exists to catch: without it, everything from the
+      // fence opener onward — including the routing-block violation below —
+      // is silently unread by every check here, and the run reports PASS.
+      const root = await tempDir();
+      const dir = await writeSkill(root, "unterminated-fence", {
+        body: [
+          "# Unterminated Fence",
+          "",
+          "Prose for the fixture.",
+          "",
+          "## Topic",
+          "",
+          "An example that never closes:",
+          "",
+          "```markdown",
+          "unterminated content that never closes",
+          "",
+          "## Topic",
+          "",
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+          "- MUST also do something unrelated to reading the reference.",
+          "",
+        ].join("\n"),
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toReportFailure(
+        /fence: SKILL\.md:\d+ fenced block opened here is never closed/,
+      );
+      // the routing-block violation two lines below the fence opener is real
+      // Markdown, but it sits past the unterminated fence — unreadable, and
+      // this rule's whole point is that nothing here should have found it.
+      expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+  });
+
   describe("routing-block — the guidelines block a routing list introduces", () => {
     /** a SKILL.md body with one `## Topic` section, `lines` after its intro prose. */
     const withTopic = (...lines) =>
