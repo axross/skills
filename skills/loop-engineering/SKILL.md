@@ -174,6 +174,11 @@ See [resuming-and-handoff.md](./references/resuming-and-handoff.md) for:
 
 Turn the target into a buildable specification recorded in the issue. Two gates stop the run for the human before Code, in order: the clarify-before-building gate, then the plan-approval gate.
 
+**Guidelines:**
+
+- MUST establish the harness-permission determination from [Delegated Implementation](#delegated-implementation) before the first Phase 1 investigation read a subagent could carry, on every run and regardless of whether a policy statement was noticed, landing on permitted, barred, or undetermined; where that determination needs a question, the single per-run question covers every role the run may spawn, the investigator included, so no later executor resolution re-asks it.
+- MUST settle where a wide investigation read lands before making it, as the investigation step below directs, rather than letting the question surface once the payload is already in your own context.
+
 See [plan-document.md](./references/plan-document.md) for:
 
 - writing the plan as the change its beneficiary observes, who that beneficiary is, and the two exceptions — a path or identifier that is itself an acceptance criterion, and an illustrative System design snippet
@@ -187,8 +192,6 @@ See [plan-document.md](./references/plan-document.md) for:
 **Guidelines:**
 
 - MUST read [plan-document.md](./references/plan-document.md) before writing or revising the plan in the issue body, before comparing a plan revision's identity, and before writing a plan that amends another issue's already-approved plan.
-- MUST establish the harness-permission determination from [Delegated Implementation](#delegated-implementation) before the first Phase 1 investigation read a subagent could carry, on every run and regardless of whether a policy statement was noticed, landing on permitted, barred, or undetermined; where that determination needs a question, the single per-run question covers every role the run may spawn, the investigator included, so no later executor resolution re-asks it.
-- MUST settle where a wide investigation read lands before making it, as the investigation step below directs, rather than letting the question surface once the payload is already in your own context.
 
 Then step through the phase:
 
@@ -217,6 +220,10 @@ Then step through the phase:
 - **Reviewer-mode self-check.** Before opening the pull request, stop editing, reread the request, inspect `git status` and `git diff`, and review only the produced diff as if another author wrote it — fixing obvious Critical/Major issues. A delegated worker performs this on its own diff and reports it in the receipt; you then run the completion-evidence check against repository state rather than repeating the full review. Either way this is a self-check to avoid trivial hand-backs, NOT the authoritative review; that is the independent reviewer in Phase 3.
 - **Pre-flight review — advisory.** Where implementation was delegated and the harness exposes a second worker that qualifies as a reader, one review-only worker judges the diff before the pull request opens, driving an implement→review loop until every finding it raises reaches a terminal state. It buys a reviewer that does not carry the implementer's reasoning state — as far as the reference's own write/clear pairing holds, never outright — and nothing else; it is not the independent review and never reported as one. With no compatible review worker the stage is skipped and the run continues from the self-check above.
 
+**Guidelines:**
+
+- MUST reuse the harness-permission determination [Phase 1](#phase-1--plan) already established for a run that passed through Phase 1, rather than establishing it again, and MUST establish it — regardless of whether a policy statement was noticed, landing on permitted, barred, or undetermined — for any run that did not pass through Phase 1, before whichever comes first of that run's first project-file edit and its first delegated fix. An open-pull-request target is such a run and reaches neither this phase nor Phase 1: [Intake](#intake--identify-the-unit-of-work) routes it to the [Phase 4](#phase-4--address) tail, where a delegated fix is the first action a spawn licenses.
+
 See [pre-flight-review.md](./references/pre-flight-review.md) for:
 
 - the input contract that excludes the implementer's receipt
@@ -229,7 +236,6 @@ See [pre-flight-review.md](./references/pre-flight-review.md) for:
 **Guidelines:**
 
 - MUST read [pre-flight-review.md](./references/pre-flight-review.md) before resolving, running, or reading back a pre-flight review worker.
-- MUST reuse the harness-permission determination [Phase 1](#phase-1--plan) already established for a run that passed through Phase 1, rather than establishing it again, and MUST establish it — regardless of whether a policy statement was noticed, landing on permitted, barred, or undetermined — for any run that did not pass through Phase 1, before whichever comes first of that run's first project-file edit and its first delegated fix. An open-pull-request target is such a run and reaches neither this phase nor Phase 1: [Intake](#intake--identify-the-unit-of-work) routes it to the [Phase 4](#phase-4--address) tail, where a delegated fix is the first action a spawn licenses.
 
 ## Phase 3 — Request Independent Review
 

@@ -14,7 +14,12 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { FENCE_RE, scanLines } from "./commonmark.mjs";
-import { GUIDELINES_RE, scanGuidelines } from "./guidelines.mjs";
+import {
+  GUIDELINES_RE,
+  RFC2119_RE,
+  ROUTING_LINE_RE,
+  scanGuidelines,
+} from "./guidelines.mjs";
 import {
   runCli,
   siblingHelp,
@@ -134,6 +139,150 @@ function guidelineKeywordFailures(body, file, offset) {
       `guidelines: ${file}:${event.line + offset} bullet does not open with an RFC-2119 keyword: "${event.rule.slice(0, 60)}…"`,
     );
   }
+  return failures;
+}
+
+/**
+ * a read obligation: an RFC-2119 bullet whose keyword is followed immediately
+ * by "read" and a link to a reference file — `MUST read
+ * [name.md](./references/name.md) before …`, the shape 58 bullets across the
+ * corpus already use. Recognized structurally — the word right after the
+ * keyword, and a link into `./references/` somewhere in the bullet — rather
+ * than by testing for the substring "read" anywhere in the text.
+ *
+ * @param {string} rule the bullet's trimmed text
+ * @param {string} keyword the RFC-2119 keyword `rule` opens with
+ * @returns {boolean}
+ */
+function isReadObligation(rule, keyword) {
+  const rest = rule.slice(keyword.length).trimStart();
+  return (
+    /^read\b/i.test(rest) &&
+    /\[[^\]]+\.md\]\(\.\/references\/[^)]+\)/.test(rule)
+  );
+}
+
+/**
+ * the `**Guidelines:**` block a routing list introduces — SKILL.md only,
+ * since a routing list is a SKILL.md construct — must carry read obligations
+ * and nothing else. This is the contract `progressive-disclosure.md` states:
+ * a body-resident rule may stand before a routing list, or after it behind a
+ * paragraph explaining why, but never folded in among the list's own read
+ * obligations, where a reader looking for "what do I open, and when" would
+ * find a requirement instead.
+ *
+ * the routing list's own boundary — the `See […](./references/…) for:` line
+ * — is shared from guidelines.mjs's `ROUTING_LINE_RE`, the same one
+ * check-skill-references.mjs's `routingBullets` keys on, so the two
+ * validators cannot disagree about where a routing list starts. Finding
+ * which `**Guidelines:**` block (if any) that list introduces — no
+ * intervening `#` heading, no intervening prose paragraph, where a blank
+ * line, a routing bullet, and an indented continuation are none of them
+ * prose — is this rule's own, since only check-skill-body.mjs asks it.
+ *
+ * a fenced block encountered while looking for that guidelines block is
+ * skipped rather than treated as the prose that would rule one out — the same
+ * choice guidelines.mjs's own block-boundary makes, for the same reason: an
+ * author interleaving an illustrative fence should not silently stop this
+ * rule from reaching the block after it.
+ *
+ * @param {string} body
+ * @param {string} file
+ * @param {number} offset
+ * @returns {string[]}
+ */
+function routingBlockFailures(body, file, offset) {
+  const failures = [];
+  const lines = [...scanLines(body)];
+
+  let i = 0;
+  while (i < lines.length) {
+    const { text, fence } = lines[i];
+    if (fence || !ROUTING_LINE_RE.test(text)) {
+      i += 1;
+      continue;
+    }
+
+    // walk past the routing list itself: bullets, and the blank lead-in gap
+    // before the first one. anything else — including a blank line once
+    // bullets have started — ends it.
+    let j = i + 1;
+    let seenBullet = false;
+    while (j < lines.length) {
+      const cur = lines[j];
+      if (cur.fence) {
+        j += 1;
+        continue;
+      }
+      if (/^#{1,6}\s+/.test(cur.text)) break;
+      if (/^-\s+/.test(cur.text)) {
+        seenBullet = true;
+        j += 1;
+        continue;
+      }
+      if (cur.text.trim() === "" && !seenBullet) {
+        j += 1;
+        continue;
+      }
+      break;
+    }
+
+    // from there, look for the `**Guidelines:**` block this list introduces.
+    let k = j;
+    let blockIndex = null;
+    while (k < lines.length) {
+      const cur = lines[k];
+      if (cur.fence) {
+        k += 1;
+        continue;
+      }
+      if (cur.text.trim() === "" || /^-\s+/.test(cur.text) || /^\s/.test(cur.text)) {
+        k += 1;
+        continue;
+      }
+      if (/^#{1,6}\s+/.test(cur.text)) break; // no block introduced
+      if (GUIDELINES_RE.test(cur.text)) blockIndex = k;
+      break; // either the block found, or a prose paragraph ruling one out
+    }
+
+    if (blockIndex === null) {
+      i = j;
+      continue;
+    }
+
+    let m = blockIndex + 1;
+    while (m < lines.length) {
+      const cur = lines[m];
+      if (cur.fence) {
+        m += 1;
+        continue;
+      }
+      if (/^#{1,6}\s+/.test(cur.text)) break;
+      if (cur.text.trim() === "" || GUIDELINES_RE.test(cur.text)) {
+        m += 1;
+        continue;
+      }
+      const bullet = cur.text.match(/^-\s+(.*)$/);
+      if (bullet) {
+        const rule = bullet[1].trim();
+        const keyword = rule.match(RFC2119_RE);
+        if (keyword && !isReadObligation(rule, keyword[0])) {
+          failures.push(
+            `routing-block: ${file}:${cur.line + offset} guidelines block introduced by a routing list carries a bullet that is not a read obligation: "${rule.slice(0, 60)}…"`,
+          );
+        }
+        m += 1;
+        continue;
+      }
+      if (/^\s/.test(cur.text)) {
+        m += 1;
+        continue;
+      }
+      break;
+    }
+    i = m;
+  }
+
   return failures;
 }
 
@@ -333,6 +482,7 @@ async function check(dir) {
   for (const { file, body: text, offset: at } of documents) {
     failures.push(...sectionIntroFailures(text, file, at));
     failures.push(...guidelineKeywordFailures(text, file, at));
+    if (file === "SKILL.md") failures.push(...routingBlockFailures(text, file, at));
     warnings.push(...guidelineStructureWarnings(text, file, at));
     warnings.push(...staleStyleWarnings(text, file, at));
     warnings.push(...citationWarnings(text, file, at));
@@ -346,9 +496,13 @@ const USAGE = `Usage: check-skill-body.mjs <skill-dir | skill-root> [more paths�
 Check the document-body rules across a skill's SKILL.md and every
 references/*.md: a section that states requirements with nothing demonstrating
 the topic first, and a guidelines bullet that does not open with an RFC-2119
-keyword. Advisories cover size, section length, bullet placement, stale label
-and fence style, hedging, and a version claim with nothing to check it against.
-Run it after editing prose.
+keyword. In SKILL.md only, also check that the \`**Guidelines:**\` block a
+routing list introduces carries read obligations — \`MUST read [file.md](...)
+before …\` — and nothing else; an ordinary rule folded in among them is a
+failure, naming the file, the line, and the offending bullet. Advisories cover
+size, section length, bullet placement, stale label and fence style, hedging,
+and a version claim with nothing to check it against. Run it after editing
+prose.
 
 A <path> is either a skill directory (one holding SKILL.md) or a directory whose
 immediate subdirectories are skills. A symlinked entry is followed.

@@ -155,6 +155,42 @@ describe("repository gates have teeth", () => {
     expect(result).toReportFailure(/`description` is missing or empty/);
   });
 
+  // the frontmatter gate's case above proves a malformed skill fails; this
+  // proves the body gate's own rule still has teeth — a routing list whose
+  // guidelines block folds in a rule that is not a read obligation, the
+  // defect the routing-block rule exists to catch.
+  it("the skill-body gate fails on a routing list's guidelines block carrying a non-read rule", async () => {
+    const { script, args } = gate("skill-body");
+    const root = await tempDir();
+    const body = [
+      "# Folded Rule",
+      "",
+      "Prose for the fixture.",
+      "",
+      "## Topic",
+      "",
+      "Prose introducing the reference.",
+      "",
+      "See [topic.md](./references/topic.md) for:",
+      "",
+      "- what the reference covers",
+      "",
+      "**Guidelines:**",
+      "",
+      "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+      "- MUST also do something unrelated to reading the reference.",
+      "",
+    ].join("\n");
+    await writeSkill(`${root}/skills`, "folded-rule", { body });
+    await writeSkill(`${root}/.agents/skills`, "folded-rule", { body });
+
+    const result = runScript(script, args, { cwd: root });
+
+    expect(result).toReportFailure(
+      /routing-block: SKILL\.md:\d+ guidelines block introduced by a routing list carries a bullet that is not a read obligation/,
+    );
+  });
+
   it("the installed-copies gate fails on a hand-edited installed copy", async () => {
     const { script } = gate("installed-copies");
     const source = await tempDir();
