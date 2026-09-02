@@ -54,7 +54,7 @@ distinguishes, so a session does not have to open the index for one of these.
 
 ## Code Review Rules
 
-Rules for reviewing a change to this repository. Formatting, linting, and the structural checks stay in CI — do not report what `npm run check` already fails on. [REVIEW.md](./REVIEW.md) owns the full policy, including the severity floors and the complete do-not-report list; what follows is the subset a reviewer most often has to catch by reading.
+Rules for reviewing a change to this repository. Formatting, linting, and the structural checks stay in CI — do not report what `npm run check` already fails on. [REVIEW.md](./REVIEW.md) owns this repository's own review policy — its severity floors and its complete do-not-report list — while the review methodology lives in the [`code-review`](./skills/code-review/SKILL.md) skill; what follows is the subset a reviewer most often has to catch by reading.
 
 ### Skill discovery metadata
 

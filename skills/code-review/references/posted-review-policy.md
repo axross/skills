@@ -37,12 +37,16 @@ A posted review is strict: it runs a fixed set of checks every time and raises a
 
 ## Do Not Report
 
-Findings the project's CI already enforces mechanically are noise in a posted review: CI blocks the merge regardless, so restating them spends the author's attention without adding a gate. This exclusion governs posted output only — internal self-review still flags these.
+Findings a project's CI already enforces mechanically are noise in a posted review: CI blocks the merge regardless, so restating them spends the author's attention without adding a gate. This exclusion governs posted output only — internal self-review still flags these.
+
+A do-not-report list earns its silence one check at a time, never as a category. Build or adopt one as an **enumerated** list of specific mechanical checks, never a generalized clause such as "anything CI enforces" — a blanket clause silently widens every time a check joins CI, removing categories from the reviewer's scope without anyone deciding to. Each entry MUST be **coextensive** with the finding it excludes: the mechanical check and the finding it silences are the same thing, so confirming the check ran is confirming the finding does not apply. A check that is only a **narrow proxy** for a broader prose rule — for example a check that verifies presence, naming, or a length cap while the rule it stands in for also governs meaning or content — does not meet that test, and silences the reviewer on nothing beyond exactly what it checks; the broader rule stays fully in scope and keeps being reported.
 
 **Guidelines:**
 
-- MUST NOT post a finding for anything the project's CI already enforces (for example its lint, type-check, and test gates), even where a severity floor would otherwise rate it Critical.
+- MUST NOT post a finding for a check named on the host project's do-not-report list, when that list is enumerated and each entry is coextensive with the finding it excludes.
 - MUST NOT post style findings on lockfiles or generated files.
+- MUST NOT adopt, or fall back to, a blanket exclusion of "anything CI enforces" in place of an enumerated list; add an entry only when a specific new check is coextensive with the category it would silence.
+- MUST keep reporting a finding whose only mechanical check is a narrow proxy for a broader prose rule; a partial check never removes the prose rule from the reviewer's scope.
 - MUST still apply these same checks in internal self-review, where CI is not a substitute.
 
 ## Reporting Shape

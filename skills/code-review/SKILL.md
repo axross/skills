@@ -25,6 +25,7 @@ See [scoping.md](./references/scoping.md) for:
 - performing the reviewer-mode reset and establishing scope from `git status` / `git diff` / a PR diff
 - distinguishing in-scope (the diff) from out-of-scope (pre-existing) code
 - reading the full file and every caller/callee around a changed hunk
+- checking a change's boundary claims — the neighbours it names as owners — against what those neighbours actually state, not only against the diff
 - handling untracked files, an empty or unclear diff, and generated / tool-managed files
 
 ## Severity Classification
@@ -41,7 +42,7 @@ See [severity.md](./references/severity.md) for:
 See [review-lenses.md](./references/review-lenses.md) for:
 
 - the correctness lens: logic errors, edge cases, error and async handling, contract changes
-- the maintainability lens: naming, organization, abstraction boundaries, complexity, dead code, scope discipline
+- the maintainability lens: naming, organization, abstraction boundaries, complexity, dead code, scope discipline, and naming what a content-adding change should cut
 - the security and privacy lens: secrets, input validation, access control, injection, SSRF, auth, data exposure, supply chain
 - the testing and verification lens: coverage, stable test hooks, snapshots, flakiness, manual checks
 - the performance and reliability lens: data-access cost, concurrency, caching, asset and bundle weight, failure modes
@@ -54,6 +55,7 @@ See [evidence-and-reporting.md](./references/evidence-and-reporting.md) for:
 - diff-style (`-`/`+`) fix snippets for every Critical and Major finding
 - the exact review-report section order, from Summary through Recommended Actions
 - what counts as evidence versus assertion, and how to mark findings the reviewer could not verify
+- what the author's own account of a change — a verification table, self-authored acceptance criteria, a disclosed figure — does and does not establish
 
 ## Review Tone
 
@@ -79,5 +81,5 @@ See [posted-review-policy.md](./references/posted-review-policy.md) for:
 
 - when a review is _posted_ to a pull request (a CI reviewer or a managed review product) rather than kept as internal self-review
 - collapsing the internal four-tier triage to a two-label Important / Nit report with a one-line tally
-- running the repository's mandatory checks and honoring its do-not-report exclusions
+- running the repository's mandatory checks and honoring its do-not-report exclusions, built as an enumerated list of checks each coextensive with the finding it silences, never a blanket "anything CI enforces" clause
 - keeping a posted review advisory: comment-only, never an approving or blocking formal review
