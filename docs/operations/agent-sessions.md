@@ -1,8 +1,9 @@
 # Agent Sessions
 
 How a Claude Code or Codex session starts in this repository, the hooks that
-run during one, and the one setting that cannot be verified from inside a
-session at all.
+run during one, the one setting that cannot be verified from inside a session
+at all, and the environment variables recommended for cutting a session's
+cost.
 
 ## The Session-Start Hook
 
@@ -85,3 +86,29 @@ $OTEL_RESOURCE_ATTRIBUTES` inside a session prints nothing even when the
 exporter holds the value. Confirm it in the metrics backend instead, against a
 session started **after** the change — an already-running session read its
 configuration at startup.
+
+## Recommended Environment Variables
+
+Two environment variables account for the largest reductions found in this
+repository's own cost analysis, and are worth setting for any session run
+here, cloud or local:
+
+- `CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000` — moves auto-compaction's trigger
+  from a measured median of **784,287** tokens to **384,000**, which lowers
+  the average main context from 354k. Estimated **−29%**.
+- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` — stops prompt-suggestion
+  generation, which cost **$467 over 30 days (3.0%)**.
+
+Set them in the environment dialog at claude.ai/code for a cloud session, or
+in `~/.claude/settings.json` for a local one. `~/.claude/settings.json` does
+**not** reach a cloud session — its scope stops at your own machine.
+
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is not a substitute for the first variable:
+Claude Code on the web sets it itself, and its value overrides whatever is
+added to the environment.
+
+Neither variable belongs in a committed settings file — a cost-saving
+behavior one contributor wants is not something to impose on another. See the
+`Claude Code — Cost Structure` dashboard at
+<https://axross.grafana.net/d/claude-code-cost-structure> for where this
+effect is read.

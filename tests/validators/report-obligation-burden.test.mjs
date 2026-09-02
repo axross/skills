@@ -401,23 +401,34 @@ describe("report-obligation-burden.mjs", () => {
       // the merged base and update the pinned value here, not to compute a
       // new one from a diff.
       //
-      // this round gives `loop-engineering`'s plan-document.md reference its
-      // own Beneficiary Framing section: two new RFC-2119 bullets, both in
-      // the reference rather than SKILL.md, plus a new routing bullet in
-      // SKILL.md's own "See plan-document.md for:" list — a descriptive
-      // bullet, not a Guidelines one, so it adds bytes without adding an
-      // obligation. that is why floor obligations hold at 60 while floor
-      // tokens still move, and why ceiling obligations move by exactly two.
+      // two branches moved these figures independently, and the merge
+      // combines both additions rather than deduplicating them:
       //
-      // a later round reworded plan-document.md's Todo bullet in place (one
-      // existing MUST bullet, trimmed and repointed at Beneficiary Framing
-      // rather than replaced or added) — no obligation count moved, only
-      // ceiling tokens, by the handful of bytes the reword's net length
-      // changed.
+      // ours gave `loop-engineering`'s plan-document.md reference its own
+      // Beneficiary Framing section (two new RFC-2119 bullets, both in the
+      // reference rather than SKILL.md) plus a routing bullet in SKILL.md's
+      // own "See plan-document.md for:" list — a descriptive bullet, not a
+      // Guidelines one, so it adds floor bytes without a floor obligation —
+      // and later reworded plan-document.md's Todo bullet in place (no
+      // obligation count moved, only a handful of ceiling-token bytes).
+      //
+      // `main` independently added a CI-and-review-tail teardown rule to
+      // the same skill's references/independent-review.md: one prose
+      // paragraph plus two new RFC-2119 bullets, with no bullet touching
+      // SKILL.md itself.
+      //
+      // both land in `loop-engineering`'s references/*.md, so both are
+      // ceiling-only: the floor, read from SKILL.md bodies alone, carries
+      // only our own SKILL.md routing-bullet bytes. the ceiling obligation
+      // count carries both additions together — four more than the pre-round
+      // base, not two — and the ceiling token count carries both sides'
+      // prose. figures re-derived by running the reporter against the
+      // merged tree, per this file's own header comment, rather than summed
+      // by hand from either side.
       expect.soft(totals.floorObligations).toBe(60);
       expect.soft(totals.floorTokens).toBe(12_171);
-      expect.soft(totals.ceilingObligations).toBe(526);
-      expect.soft(totals.ceilingTokens).toBe(62_023);
+      expect.soft(totals.ceilingObligations).toBe(528);
+      expect.soft(totals.ceilingTokens).toBe(62_436);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -446,7 +457,8 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[0].ceilingObligations).toBe(133);
       expect.soft(tiers[0].ceilingTokens).toBe(10_151);
 
-      // tier 2 — plus `software-development`, untouched this round.
+      // tier 2 — plus `software-development`, untouched by either branch:
+      // neither its floor nor its ceiling moved.
       expect.soft(tiers[1].floorObligations).toBe(19);
       expect.soft(tiers[1].floorTokens).toBe(3_923);
       expect.soft(tiers[1].ceilingObligations).toBe(250);
@@ -460,12 +472,14 @@ describe("report-obligation-burden.mjs", () => {
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
       //
-      // only ceiling tokens moved this round — see the mandated-set
-      // assertions above for why; obligation counts are unchanged.
+      // both branches' additions land here — see the mandated-set
+      // assertions above for the combined accounting; the floor carries only
+      // our own SKILL.md routing-bullet bytes, since `main`'s addition is
+      // reference-only.
       expect.soft(tiers[2].floorObligations).toBe(60);
       expect.soft(tiers[2].floorTokens).toBe(12_171);
-      expect.soft(tiers[2].ceilingObligations).toBe(526);
-      expect.soft(tiers[2].ceilingTokens).toBe(62_023);
+      expect.soft(tiers[2].ceilingObligations).toBe(528);
+      expect.soft(tiers[2].ceilingTokens).toBe(62_436);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -492,8 +506,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(526);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(526);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(528);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(528);
     });
 
     it("prints no tier block without --mandated", async () => {

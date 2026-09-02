@@ -459,7 +459,7 @@ async function countDocumentedValidators() {
 export const CLAIMS = {
   "distributable-skills": {
     owner: "the directories under skills/ that hold a SKILL.md",
-    note: "the skill catalog lists these one row at a time, so a new skill needs a row there too",
+    note: "the skill catalog lists these one section at a time, so a new skill needs a section there too",
     derive: async () => (await distributableSkillDirs()).length,
   },
 
