@@ -430,17 +430,31 @@ describe("report-obligation-burden.mjs", () => {
       // merged tree, per this file's own header comment, rather than summed
       // by hand from either side.
       //
-      // a later round added a "Who the Description Is For" section to
+      // a later change (the SKILL.md routing-block rule, issue #517) reshaped
+      // two of `loop-engineering`'s Guidelines blocks so each routing list's
+      // own block carries only its read obligation, moving the block's other
+      // rules into a block of their own before the routing list. no bullet
+      // moved skill or reference, so neither obligation count changed — the
+      // extra `**Guidelines:**` label and blank lines, split out of a block
+      // that used to carry both, add 36 bytes to `loop-engineering`'s
+      // SKILL.md alone (no reference file moved).
+      //
+      // `main` independently added a "Who the Description Is For" section to
       // `software-development`'s pull-request-descriptions.md reference: six
       // new Guidelines bullets there, plus one descriptive routing bullet in
       // SKILL.md's own "See pull-request-descriptions.md for:" list — again
       // a descriptive bullet, not a Guidelines one, so it moves floor bytes
-      // without a floor obligation. six more ceiling obligations and both
-      // sides' token counts, no floor obligation moved.
+      // without a floor obligation.
+      //
+      // so the merged ceiling obligation count carries `main`'s six and none
+      // of ours, the floor obligation count carries neither, and both token
+      // totals carry both sides' bytes. figures re-derived by running the
+      // reporter against the merged tree, per this file's own header comment,
+      // rather than summed by hand from either side.
       expect.soft(totals.floorObligations).toBe(60);
-      expect.soft(totals.floorTokens).toBe(12_209);
+      expect.soft(totals.floorTokens).toBe(12_217);
       expect.soft(totals.ceilingObligations).toBe(534);
-      expect.soft(totals.ceilingTokens).toBe(63_569);
+      expect.soft(totals.ceilingTokens).toBe(63_576);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -493,9 +507,9 @@ describe("report-obligation-burden.mjs", () => {
       // our own SKILL.md routing-bullet bytes, since `main`'s addition is
       // reference-only.
       expect.soft(tiers[2].floorObligations).toBe(60);
-      expect.soft(tiers[2].floorTokens).toBe(12_209);
+      expect.soft(tiers[2].floorTokens).toBe(12_217);
       expect.soft(tiers[2].ceilingObligations).toBe(534);
-      expect.soft(tiers[2].ceilingTokens).toBe(63_569);
+      expect.soft(tiers[2].ceilingTokens).toBe(63_576);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
