@@ -51,30 +51,34 @@ A do-not-report list earns its silence one check at a time, never as a category.
 
 ## Reporting Shape
 
-A posted review is two shapes and no more: inline comments anchored to the diff, and one summary comment that opens with a tally. Scattering findings across separate top-level comments makes the review hard to read and hard to resolve.
+A posted review is one submission of the platform's review mechanism — the one that can carry diff-anchored comments — never a set of loose thread comments standing in for it. An anchored comment exists only inside a review submission, so the container has to be chosen before the diff is read, not after the finding count is known; a round with no findings uses the same container as a round with many, or an empty review and a review whose findings were lost become indistinguishable from the outside. Scattering findings across separate top-level comments makes the review hard to read and hard to resolve.
 
 **Guidelines:**
 
-- MUST anchor each finding as an inline comment on the relevant diff line, and post one summary comment opening with a one-line tally (e.g., `2 important, 7 nits`).
+- MUST post the whole review as one submission of the platform's review mechanism able to carry diff-anchored comments, chosen before the diff is read and never replaced by loose thread comments.
+- MUST anchor each finding that has a diff line as an inline comment on that line, and post exactly one summary comment opening with a one-line tally (e.g., `2 important, 7 nits`).
 - MUST report every finding; the same nit repeated across the diff MAY share one inline comment that lists each occurrence, and nothing is summarized away — the tally counts every finding.
-- MUST post the review as a plain **comment**, never as a formal approving or change-requesting review, when the reviewer is advisory and does not gate merges.
+- MUST set the submission's verdict to non-gating when the reviewer is advisory and does not gate merges; this is a decision about the verdict alone, and a non-gating verdict is never a reason to fall back to a looser container.
+- MUST post a review with no findings through the same container, with a zero tally and no inline comments.
 
 ## Summary Scope
 
-A finding that can be anchored to a diff line already has a home: the inline comment on that line. Restating it in the summary says the same thing twice, and the second copy is the one that outlives the round — it sits in the thread and frames the next round's reviewer before they see the diff. The anchor is the test: a finding with a line to attach to lives inline and only inline; the summary carries what an inline comment cannot.
+The summary is read by the agent driving the change: it enters that agent's context, is re-read on every wake, and is paid for again each time — so every line in it that is not a finding or a gap carries a repeated cost and no information. That scarcity is also what a reader can hold a summary to: a summary that characterizes something as a defect while no inline comment carries it is either a finding left unanchored or a finding reported twice, once inline and once in the summary — and both are defects in the review itself, not a matter of taste.
 
-What the summary keeps:
+What the summary keeps, exhaustively:
 
 - The tally [Reporting Shape](#reporting-shape) requires the summary to open with.
-- What changed since the previous round, and therefore what this round looked at.
 - Anything that could not be checked, and why.
-- A finding that attaches to no single line — an unmet or unverifiable acceptance criterion is the standing case, since what is missing has no line to anchor to.
+- A finding that attaches to no single line, and why it has none — an unmet or unverifiable acceptance criterion is the standing case, since what is missing has no line to anchor to.
 
 **Guidelines:**
 
+- MUST NOT put anything in the summary outside the three entries above, except a per-round enumeration a host policy mandates — a standing requirement rather than a re-listing habit, carried in full every round, with each entry held to one line naming the item, its outcome, and, where the entry is a finding, a pointer to the inline comment that carries it.
+- MUST give a defect named in the summary a corresponding inline comment, unless the summary states why the finding has no line to anchor to.
+- MUST NOT narrate process in the summary — which files were opened, which checks ran and passed, which of the author's figures were independently re-derived — since a check that passed and produced no finding is already reported by the tally, and by nothing else.
+- MUST NOT restate in the summary a requirement the project's own standing policy already carries; the reader of the review is subject to that policy too.
 - MUST NOT restate in the summary a finding an inline comment already explains.
 - MUST NOT restate in the summary a finding a previous round already resolved.
-- MUST NOT re-list, past the first round, the full set of checks re-run; state only what changed since the previous round — except an enumeration a host policy mandates in every summary, which is not a re-listing habit but a standing requirement, and is carried in full each round regardless.
 
 ## Running a Reviewer Safely in CI
 
