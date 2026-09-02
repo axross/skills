@@ -165,17 +165,18 @@ function guidelineKeywordFailures(body, file, offset) {
 /**
  * a read obligation: an RFC-2119 bullet whose keyword is followed immediately
  * by "read" and a link to a reference file — `MUST read
- * [name.md](./references/name.md) before …`, the shape 58 bullets across the
- * corpus already use. Recognized structurally — the word right after the
- * keyword, and a link into `./references/` somewhere in the bullet — rather
- * than by testing for the substring "read" anywhere in the text.
+ * [name.md](./references/name.md) before …`, the shape every genuine read
+ * obligation across the corpus already takes. Recognized structurally — the
+ * word right after the keyword, and a link into `./references/` somewhere in
+ * the bullet — rather than by testing for the substring "read" anywhere in
+ * the text.
  *
  * the word is matched literally, not against every RFC-2119-adjacent synonym
  * a bullet could use ("REQUIRED reading of …" and the like) — a deliberate
- * narrowing, not an oversight. every one of the corpus's 58 read obligations
- * already writes `read`, and broadening the match to catch a synonym that
- * does not exist yet would also admit looser phrasings this rule exists to
- * reject; tighten this only against a real bullet the corpus actually needs.
+ * narrowing, not an oversight. every read obligation in the corpus already
+ * writes `read`, and broadening the match to catch a synonym that does not
+ * exist yet would also admit looser phrasings this rule exists to reject;
+ * tighten this only against a real bullet the corpus actually needs.
  *
  * @param {string} rule the bullet's trimmed text
  * @param {string} keyword the RFC-2119 keyword `rule` opens with
