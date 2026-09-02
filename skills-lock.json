@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "ef9563dd73159e7e04b0f01651c65dd4127d26b8e9bd87813509a916e0c7aba4"
+      "computedHash": "b0df76856befc5ccb48665ee042a96175f9afa68d9313479cc4bbb9b0398ce49"
     },
     "conventional-commits": {
       "source": "./skills",
