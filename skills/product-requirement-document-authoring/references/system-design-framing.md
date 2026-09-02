@@ -21,7 +21,7 @@ A System design section answers "what talks to what, who owns which piece of sta
 - MUST describe data flow as named entities moving between processes and stores, and state which module or service owns each piece of shared state and how other modules may read or mutate it.
 - SHOULD add a diagram or a clarifying code snippet whenever it communicates the structure or mechanism better than prose; SHOULD open with the high-level shape before component detail.
 - MUST keep snippets illustrative — the shape of a key, a signature, a transition table — rather than pre-writing the implementation the coding phase will produce; this is the narrower, section-specific form of the illustrative-snippet exception [Beneficiary Framing](../SKILL.md#beneficiary-framing) states, worked through examples in [beneficiary-framing.md § The System Design Illustrative-Snippet Exception](./beneficiary-framing.md#the-system-design-illustrative-snippet-exception).
-- MUST NOT prescribe file layout or routing — the module- or service-level boundary from the bullet above is this section's own level of description; file layout and routing sit one level further down, per [Beneficiary Framing](../SKILL.md#beneficiary-framing).
+- MUST NOT prescribe file layout or routing — the module- or service-level boundary the data-flow guideline above states is this section's own level of description; file layout and routing sit one level further down, per [Beneficiary Framing](../SKILL.md#beneficiary-framing).
 
 ## Alternatives Considered
 

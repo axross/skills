@@ -1,6 +1,6 @@
 # Beneficiary Framing
 
-Elaborates the rule [SKILL.md § Beneficiary Framing](../SKILL.md#beneficiary-framing) states directly, under this skill's own unconditional-scope carve-out: the reasoning behind it, the two exceptions worked through examples, and why raising abstraction does not lower concreteness. Apply this reference before invoking either exception, or when the reasoning behind the rule itself is in question. Todo, Functional requirements, UI design, System design, Acceptance criteria, and the template's own placeholders all draw the rule from that one statement rather than restating it here.
+Elaborates the rule [SKILL.md § Beneficiary Framing](../SKILL.md#beneficiary-framing) states directly, under this skill's own unconditional-scope carve-out: the reasoning behind it, the two exceptions worked through examples, and why raising abstraction does not lower concreteness. Apply this reference before invoking either exception, or when the reasoning behind the rule itself is in question. Todo, Functional requirements, UI design, System design, Non-functional requirements, and the template's own placeholders all draw the rule from that one statement rather than restating it here.
 
 ## Why Naming Implementation Details Subordinates the Document
 
