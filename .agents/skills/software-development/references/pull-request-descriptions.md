@@ -20,7 +20,7 @@ This is not the rule that governs a plan or an issue body, which are written fro
 
 **Good Example:**
 
-> Two tabs waking from sleep both saw an expired token and raced to refresh it; the loser's refresh invalidated the winner's new token and logged the user out. Start in `src/session/refresh.ts` — it now serializes refreshes through a single in-flight promise instead of locking storage. The rest of the diff follows from that: the mutex is exported once (`index.ts`) so both call sites share it, and the new test in `refresh.test.ts` drives the race directly.
+> Two tabs waking from sleep both saw an expired token and raced to refresh it; the loser's refresh invalidated the winner's new token and logged the user out. Start in `src/session/refresh.ts` — it serializes refreshes through a single in-flight promise rather than locking storage, which is the decision worth arguing with. The rest of the diff follows from that choice.
 
 **Guidelines:**
 
