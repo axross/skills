@@ -176,7 +176,7 @@ Turn the target into a buildable specification recorded in the issue. Two gates 
 
 See [plan-document.md](./references/plan-document.md) for:
 
-- writing the plan as the change its beneficiary observes, who that beneficiary is, and the exception for a path or identifier that is itself an acceptance criterion
+- writing the plan as the change its beneficiary observes, who that beneficiary is, and the two exceptions — a path or identifier that is itself an acceptance criterion, and an illustrative System design snippet
 - the canonical plan structure and each section's craft
 - writing acceptance criteria as a plain, checkable bullet list
 - the canonical plan content's boundary, the revision identity approval binds to, and the one normalization applied before comparing
