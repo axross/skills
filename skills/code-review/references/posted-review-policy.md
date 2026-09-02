@@ -61,7 +61,7 @@ A finding that can be anchored to a diff line already has a home: the inline com
 
 What the summary keeps:
 
-- The one-line tally that opens it.
+- The tally [Reporting Shape](#reporting-shape) requires the summary to open with.
 - What changed since the previous round, and therefore what this round looked at.
 - Anything that could not be checked, and why.
 - A finding that attaches to no single line — an unmet or unverifiable acceptance criterion is the standing case, since what is missing has no line to anchor to.
@@ -70,7 +70,7 @@ What the summary keeps:
 
 - MUST NOT restate in the summary a finding an inline comment already explains.
 - MUST NOT restate in the summary a finding a previous round already resolved.
-- MUST NOT re-list, past the first round, the full set of checks re-run; state only what changed since the previous round.
+- MUST NOT re-list, past the first round, the full set of checks re-run; state only what changed since the previous round — except an enumeration a host policy mandates in every summary, which is not a re-listing habit but a standing requirement, and is carried in full each round regardless.
 
 ## Running a Reviewer Safely in CI
 
