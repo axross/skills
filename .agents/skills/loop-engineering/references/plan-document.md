@@ -1,6 +1,17 @@
 # Plan Document
 
-Apply this reference when writing the Phase 1 plan into the issue body. A plan states **what** is needed and **how completion is verified**, not how it is built. This structure is self-contained; when the host project ships its own product-requirement guideline, defer to it for section craft and use this as the fallback.
+Apply this reference when writing the Phase 1 plan into the issue body. A plan states **what** is needed and **how completion is verified**, not how it is built. This reference is self-contained: it carries the plan's own abstraction-level rule below, so the loop stays installable and usable where the host project ships no richer guideline for it.
+
+## Beneficiary Framing
+
+A plan is written as the change its **beneficiary** observes, not as the implementation that produces it — no file name, line number, or function name, in any of its sections. The beneficiary is whoever the change is for: the end user when the plan is for an application feature, the developer when the plan is for a development-environment improvement.
+
+A plan that names an implementation detail has to be revised whenever the implementation shifts, which makes the plan subordinate to the work it is supposed to judge. The exception is narrow: where a path or an identifier **is** itself an acceptance criterion — a rule that must live in a particular file, an exported name that is part of the contract — naming it is correct, not a violation. Writing at the beneficiary's altitude raises the plan's abstraction level without lowering its concreteness: an observable outcome is a stronger requirement than an implementation step, not a vaguer one.
+
+**Guidelines:**
+
+- MUST write every section of the plan as the change its beneficiary observes, naming who the beneficiary is for the change at hand, never a file name, line number, or function name, except where a path or identifier is itself an acceptance criterion.
+- MUST load the project's product-requirement capability, where the host project ships one, before writing or revising the plan, and follow its fuller treatment of this rule for section craft; proceed on this reference alone where the project ships no such capability.
 
 ## Canonical Structure
 
