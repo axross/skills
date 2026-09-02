@@ -408,10 +408,16 @@ describe("report-obligation-burden.mjs", () => {
       // bullet, not a Guidelines one, so it adds bytes without adding an
       // obligation. that is why floor obligations hold at 60 while floor
       // tokens still move, and why ceiling obligations move by exactly two.
+      //
+      // a later round reworded plan-document.md's Todo bullet in place (one
+      // existing MUST bullet, trimmed and repointed at Beneficiary Framing
+      // rather than replaced or added) — no obligation count moved, only
+      // ceiling tokens, by the handful of bytes the reword's net length
+      // changed.
       expect.soft(totals.floorObligations).toBe(60);
       expect.soft(totals.floorTokens).toBe(12_171);
       expect.soft(totals.ceilingObligations).toBe(526);
-      expect.soft(totals.ceilingTokens).toBe(61_988);
+      expect.soft(totals.ceilingTokens).toBe(62_023);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -454,13 +460,12 @@ describe("report-obligation-burden.mjs", () => {
       // textual conflict and reddens `main` on arrival — move both, or
       // neither.
       //
-      // only the ceiling obligation count moved this round — see the
-      // mandated-set assertions above for why; the token figures grew
-      // alongside it, from the prose this round added.
+      // only ceiling tokens moved this round — see the mandated-set
+      // assertions above for why; obligation counts are unchanged.
       expect.soft(tiers[2].floorObligations).toBe(60);
       expect.soft(tiers[2].floorTokens).toBe(12_171);
       expect.soft(tiers[2].ceilingObligations).toBe(526);
-      expect.soft(tiers[2].ceilingTokens).toBe(61_988);
+      expect.soft(tiers[2].ceilingTokens).toBe(62_023);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
