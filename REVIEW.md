@@ -74,7 +74,8 @@ repository's own fixed lens list:
 - **Acceptance criteria** — the linked issue is the one named by the pull
   request body's `Closes #<n>`. Verify the diff against **every** acceptance
   criterion there; each one unmet, or unconfirmable from the diff, is an
-  **Important** finding named explicitly in the summary. If the pull request
+  **Important** finding — anchored inline where it attaches to a diff line,
+  and carried by the summary's no-line entry otherwise. If the pull request
   links no issue, say so in the summary.
 - **Subtractive pass** — on every content-adding change, walk this fixed lens
   list:

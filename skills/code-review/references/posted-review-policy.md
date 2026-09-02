@@ -32,7 +32,7 @@ A posted review is strict: it runs a fixed set of checks every time and raises a
 **Guidelines:**
 
 - MUST verify the change against every project rule that matches the changed files and raise an Important finding for each violated hard rule, citing the rule.
-- MUST verify the diff against every acceptance criterion of the linked issue, name each unmet or unverifiable one as Important in the summary, and state plainly when the pull request links no issue.
+- MUST verify the diff against every acceptance criterion of the linked issue and raise an Important finding for each one unmet or unverifiable — anchored inline where it attaches to a diff line, and carried by the summary's no-line entry otherwise — and state plainly when the pull request links no issue.
 - MUST give each finding a label, `file:line` evidence, and a concrete fix, exactly as an internal finding.
 
 ## Do Not Report
