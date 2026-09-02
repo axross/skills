@@ -26,7 +26,7 @@ _(See problem-and-scope.md → Summary.)_
 - <Another thing to change or create, without completed behavior or verification
   detail.>
   _(Static after plan approval; not a progress checklist. See problem-and-scope.md →
-  Todo and beneficiary-framing.md.)_
+  Todo and SKILL.md → Beneficiary Framing.)_
 
 ## Background
 
