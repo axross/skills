@@ -62,7 +62,7 @@ See [evidence-and-reporting.md](./references/evidence-and-reporting.md) for:
 See [tone.md](./references/tone.md) for:
 
 - addressing the code, not the author, and stating the concrete risk behind each finding
-- acknowledging real strengths without inflating trivial ones
+- acknowledging real strengths without inflating trivial ones, an obligation the internal review report carries and a posted review's summary does not
 - keeping style and preference out of blocking severities
 - flagging assumptions explicitly and leaving human-authored copy to its authors
 
