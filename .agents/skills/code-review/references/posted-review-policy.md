@@ -73,10 +73,10 @@ What the summary keeps, exhaustively:
 
 **Guidelines:**
 
-- MUST NOT put anything in the summary outside the three entries above; a finding an inline comment already explains and a finding a previous round already resolved both fall outside them, so neither is restated in the summary.
-- MAY carry, as the list's single exception, a per-round enumeration a host policy mandates — a standing requirement rather than a re-listing habit, carried in full every round, with each entry held to one line naming the item, its outcome, and, where the entry is a finding, a pointer to the inline comment that carries it.
-- MUST NOT name in the summary a defect that also carries an inline comment, except through the host-mandated enumeration's one-line pointer above; outside that enumeration, the only defect the summary may name is one with no line to anchor to, and it MUST state why.
-- MUST NOT narrate process in the summary — which files were opened, which checks ran and passed, which of the author's figures were independently re-derived — since a check that passed and produced no finding is already reported by the tally, and by nothing else.
+- MAY carry, as the summary's one exception to every prohibition below, a per-round enumeration a host policy mandates — a standing requirement rather than a re-listing habit, carried in full every round, with each entry held to one line naming the item and its outcome: an explicit "nothing" when the item found nothing, or a pointer to the item's inline comment when it found something. An entry that names an item, records a null outcome, states a positive outcome, or points at an inline comment satisfies the enumeration without violating any guideline below.
+- MUST NOT put anything in the summary outside the three entries above and the enumeration above; a finding an inline comment already explains and a finding a previous round already resolved both fall outside them, so neither is restated in the summary.
+- MUST NOT name in the summary a defect that also carries an inline comment; outside the enumeration above, the only defect the summary may name is one with no line to anchor to, and it MUST state why.
+- MUST NOT narrate process in the summary — which files were opened, which checks ran and passed, which of the author's figures were independently re-derived — since a check that passed and produced no finding is reported by the tally alone, or, where a host policy mandates the enumeration above, by that entry's one line, and by nothing else.
 - MUST NOT restate in the summary a requirement the project's own standing policy already carries; the reader of the review is subject to that policy too.
 
 ## Running a Reviewer Safely in CI
