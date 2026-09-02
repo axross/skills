@@ -17,26 +17,20 @@ through.
 
 ## Severity Vocabulary for Posted Reviews
 
-A posted review uses exactly two labels. The internal Critical/Major/Minor/Nit
-triage and the Approve / Request-Changes verdict vocabulary stay out of posted
-output — they exist for self-review, not for the pull-request thread.
-
-- **Important** — MUST be addressed before merge: a finding that breaks
-  behavior, corrupts persisted state, leaks data, regresses accessibility,
-  violates a MUST rule of a matching skill (discovered by its
-  `description`), or leaves an acceptance criterion unmet or
-  unverifiable from the diff.
-- **Nit** — safe to defer: style, naming, and refactoring suggestions.
+A posted review uses the two-label vocabulary — Important and Nit — from
+[Code Review](.claude/skills/code-review/SKILL.md)'s
+[Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
+section, replacing the internal Critical/Major/Minor/Nit triage and the
+Approve/Request-Changes verdict for posted output. In this repository a "hard
+project rule" — the skill's trigger for labeling a finding Important — is any
+MUST rule of a skill whose discovery condition (`description`) matches the
+changed files.
 
 **Guidelines:**
 
-- MUST label every posted finding exactly **Important** or **Nit** — no other
-  labels appear in a posted review.
-- MUST label as Important every violated MUST rule of a matching
-  skill, every acceptance criterion that is unmet or cannot
-  be confirmed from the diff, and every mandatory-check miss that breaks a hard
-  requirement.
-- MUST label style, naming, and refactoring suggestions Nit at most.
+- MUST label as Important a violation of a MUST rule belonging to any skill
+  whose `description` matches the changed files, citing the skill and the
+  rule.
 
 ## Repository Severity Floors
 
@@ -63,27 +57,27 @@ remains onto the Important/Nit labels above.
 
 ## Mandatory Checks
 
-Run all three checks on every review and raise a finding for each miss — they
-are not skippable. Grade each miss by its real impact: a miss that breaks a hard
-requirement is **Important**, a gap that does not is a **Nit**. Cite the owning
-skill in the finding.
+Run all three checks below on every review and raise a finding for each
+miss — they are not skippable. The first two are this repository's specifics
+for the mandatory checks in
+[Code Review](.claude/skills/code-review/SKILL.md)'s
+[Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
+section; the third makes the subtractive principle in
+[What to Flag: Review Lenses](.claude/skills/code-review/SKILL.md#what-to-flag-review-lenses)'s
+maintainability lens mandatory and unconditional here, walking this
+repository's own fixed lens list:
 
-- **Skill conformance** — verify the change conforms to **every** skill whose
-  discovery condition (`description`) matches the
-  changed files, and flag any deviation from a skill's stated rule, citing the
-  skill and the rule. A violated skill **MUST** rule is Important.
-- **Acceptance criteria** — verify the diff against **every** acceptance
-  criterion in the linked issue (the pull request body's `Closes #<n>`), when
-  the pull request links one. Each criterion that is unmet, or that cannot be
-  confirmed from the diff, is an **Important** finding named explicitly in the
-  summary. If the pull request links no issue, say so in the summary.
-- **Subtractive pass** — on a change that adds content, say what should be
-  **cut** and why. The other two checks ask whether what is present is correct;
-  only this one can see what should not be present at all. Silence here is a
-  claim rather than a default: every review of a content-adding change walks
-  each lens below in its summary and records either a finding or an explicit
-  "checked, none". Finding something under one lens discharges none of the
-  others.
+- **Skill conformance** — the "project rule" the skill's mandatory checks
+  require verifying against is, in this repository, **every skill** whose
+  discovery condition (`description`) matches the changed files. Flag any
+  deviation from a skill's stated rule, citing the skill and the rule.
+- **Acceptance criteria** — the linked issue is the one named by the pull
+  request body's `Closes #<n>`. Verify the diff against **every** acceptance
+  criterion there; each one unmet, or unconfirmable from the diff, is an
+  **Important** finding named explicitly in the summary. If the pull request
+  links no issue, say so in the summary.
+- **Subtractive pass** — on every content-adding change, walk this fixed lens
+  list:
   1. **Duplicated judgment** — a rule the change states that a tool-agnostic
      neighbour already owns.
   2. **Reproduced upstream** — vendor documentation copied in where a link plus
@@ -103,85 +97,34 @@ skill in the finding.
 
 - MUST run all three mandatory checks on every review and raise a finding for
   each miss.
-- MUST enumerate every subtractive lens in the summary of any review of a
-  content-adding change, recording a finding or an explicit "checked, none"
-  against each; a review lacking that enumeration is invalid whatever it
-  reported, and a finding under one lens discharges none of the others.
+- MUST enumerate every one of the five subtractive lenses above in the summary
+  of any review of a content-adding change, recording a finding or an explicit
+  "checked, none" against each; a review lacking that enumeration is invalid
+  whatever it reported, and a finding under one lens discharges none of the
+  others.
 - MUST give each finding a severity label, `file:line` evidence, and a concrete
   fix, per
   [Code Review](.claude/skills/code-review/SKILL.md).
 
 ## Reading Beyond the Diff
 
-A change that adds or edits a skill makes claims about its own boundaries — the
-neighbours it names as owners, the rules it says it defers to rather than
-restates. Those claims are checkable only against the neighbour's text, which by
-construction is not in the diff. A review confined to changed files can confirm
-that a deferral was written; it cannot confirm the deferral is true, and it
-cannot see the sections that should have had one and do not.
-
-**Guidelines:**
-
-- MUST open every skill the change's own boundary text names as an owner, and
-  compare the change against what that owner actually states, section by
-  section.
-- MUST additionally open any skill whose declared scope overlaps the change's
-  topic, whether or not the change names it; a change that duplicates without
-  deferring names no owner to follow, and is the case this check most needs to
-  reach.
-- MUST treat a file being outside the diff as no exemption from reading it;
-  opening a neighbour is the cost of checking a boundary claim, not extra
-  scope.
-- MUST NOT generalize from one compliant instance to the whole change — a
-  single correct deferral is evidence about that section and no other.
-- MUST report a duplicated rule as a finding even where the change cites the
-  owner, whenever the citation sits beside a restatement instead of replacing
-  it.
-
-## What Is Not Evidence
-
-The author's own account of a change cannot corroborate it. A verification
-table, a criteria checklist, and a disclosed figure are all products of the same
-loop that produced the diff, so agreement between them and the change is
-self-consistency, not correctness. A review that re-runs the author's checks and
-confirms the author's numbers has audited the arithmetic, not the change.
-
-Self-authored acceptance criteria carry a specific blind spot worth naming.
-Criteria asserting that something is **present** are monotone in content: adding
-text can satisfy them but never violate them. A change can therefore meet every
-criterion and still be substantially duplication and bloat.
-
-**Guidelines:**
-
-- MUST NOT treat the pull request body's verification table as evidence of
-  correctness; that the diff matches the numbers in the description is a
-  consistency check the author already ran.
-- MUST NOT treat "all acceptance criteria met" as sufficient when the criteria
-  were authored in the same loop as the change; search separately for what
-  presence-only criteria cannot detect — duplication, bloat, and content that
-  should have been cut.
-- MUST compare the actual against any expected numeric band stated in a linked
-  issue or plan, and raise a finding when it falls outside; the author having
-  disclosed the miss does not discharge it.
-- MUST treat a fired tripwire as a finding wherever the expectation was
-  recorded — a band that lived only in issue prose still binds the review.
-- SHOULD re-derive a figure the review relies on rather than quoting the
-  author's, and say so in the summary when it could not be re-derived.
+[Code Review](.claude/skills/code-review/SKILL.md)'s
+[Review Scoping](.claude/skills/code-review/SKILL.md#review-scoping) section
+(see [scoping.md](.claude/skills/code-review/references/scoping.md)'s Boundary
+Claims section) requires checking every boundary claim a change makes against
+the neighbour it names — opening owners and scope-overlapping neighbours
+alike, with a file's being outside the diff no exemption. In this repository
+the units it governs are skills and their reference files, and the boundary
+text is the deferral prose: a routing bullet's "See `x.md` for:" list, or a
+sentence citing another skill instead of restating its rule.
 
 ## Do Not Report
 
-Findings the project's CI already enforces mechanically are noise in a posted
-review — CI blocks the merge regardless, so restating them costs the author's
-attention without adding a gate. This exclusion governs **posted** reviews
-only; internal self-review triage still flags these findings.
-
-The list is **enumerated, not generalized**, and deliberately so: a blanket
-"anything CI enforces" silently widens every time a check joins
-[`merge-checks.yaml`](.github/workflows/merge-checks.yaml), removing categories
-from this reviewer's scope without anyone deciding to. Each entry below names a
-check that is **coextensive** with the finding it excludes — the mechanical
-check and the finding are the same thing. A check that is only a narrow proxy
-for a broader prose rule does **not** silence the reviewer on that rule.
+[Code Review](.claude/skills/code-review/SKILL.md)'s
+[Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
+section requires a posted review's do-not-report list to be enumerated rather
+than generalized, with each entry coextensive with the finding it excludes.
+This is that list for this repository:
 
 - The format and lint checks run by the project's merge-checks workflow.
 - Relative-link integrity — a relative Markdown link whose target file does not
@@ -238,28 +181,21 @@ not mistaken for CI-covered:
 
 **Guidelines:**
 
-- MUST NOT report, in a posted review, any finding on the do-not-report list
-  above.
-- MUST keep reporting a finding whose CI check is only a narrow proxy for a
-  broader rule, including the two rows named above; a partial mechanical check
-  never removes a prose rule from this reviewer's scope.
-- MUST add an entry to the list above only when a new CI check is coextensive
-  with the category it would silence, and MUST NOT restore a blanket
-  "anything CI enforces" clause in its place.
+- MUST keep reporting the two rows named above (malformed frontmatter and a
+  missing or wrong `user-invocable`) as findings, per
+  [Code Review](.claude/skills/code-review/SKILL.md)'s narrow-proxy rule; they
+  are not covered by the do-not-report list above, however similar the
+  underlying checks look.
 
 ## Reporting
 
-Anchor each finding as an inline comment on the diff, and post one summary that
-opens with a one-line tally (e.g. `2 important, 7 nits`). There is no nit cap
-and nothing is summarized away — the tally counts every finding.
+[Code Review](.claude/skills/code-review/SKILL.md)'s
+[Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
+section owns the reporting shape — inline comments anchored to the diff, one
+summary comment opening with a tally, nothing summarized away.
 
 **Guidelines:**
 
-- MUST report **every** finding; the same nit repeated across the diff MAY
-  share one inline comment that lists each occurrence.
-- MUST keep reporting to two shapes — inline comments for the findings, one
-  comment for the summary — and MUST NOT scatter individual findings across
-  separate top-level conversation comments.
 - MUST post any pull-request review as a **COMMENT**-type review — never
   APPROVE or REQUEST_CHANGES — per the project's GitHub-operation
   conventions; this reviewer is advisory and does not gate merges.
