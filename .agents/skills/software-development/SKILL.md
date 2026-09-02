@@ -104,6 +104,7 @@ The commit-message header format — its allowed types, scope and description co
 
 See [pull-request-descriptions.md](./references/pull-request-descriptions.md) for:
 
+- who the description is written for — the developer about to read the diff — and the roughly 200-word ceiling that follows from it
 - what a pull request body contains, and why the "why" leads
 - reproducing the repository's pull request template in an API-authored body
 - issue linking, verification evidence, risk disclosure, and reviewer guidance
