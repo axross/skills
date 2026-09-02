@@ -410,9 +410,11 @@ describe("report-obligation-burden.mjs", () => {
       // own "See plan-document.md for:" list — a descriptive bullet, not a
       // Guidelines one, so it adds floor bytes without a floor obligation —
       // and later reworded plan-document.md's Todo bullet in place, widened
-      // its Beneficiary Framing rule to a second exception, and extended the
-      // SKILL.md routing bullet to name both (no obligation count moved by
-      // any of those, only floor- and ceiling-token bytes).
+      // its Beneficiary Framing rule to a second exception and then to the
+      // fuller forbidden-noun list its sibling capability states, and
+      // extended the SKILL.md routing bullet to name both exceptions (no
+      // obligation count moved by any of those, only floor- and
+      // ceiling-token bytes).
       //
       // `main` independently added a CI-and-review-tail teardown rule to
       // the same skill's references/independent-review.md: one prose
@@ -430,7 +432,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(totals.floorObligations).toBe(60);
       expect.soft(totals.floorTokens).toBe(12_181);
       expect.soft(totals.ceilingObligations).toBe(528);
-      expect.soft(totals.ceilingTokens).toBe(62_554);
+      expect.soft(totals.ceilingTokens).toBe(62_597);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -481,7 +483,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(60);
       expect.soft(tiers[2].floorTokens).toBe(12_181);
       expect.soft(tiers[2].ceilingObligations).toBe(528);
-      expect.soft(tiers[2].ceilingTokens).toBe(62_554);
+      expect.soft(tiers[2].ceilingTokens).toBe(62_597);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
