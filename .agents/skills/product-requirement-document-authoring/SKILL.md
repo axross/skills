@@ -23,7 +23,7 @@ This skill owns one canonical document structure, in this order. **Required** se
 This skill deliberately does not own everything a spec touches. It owns the document structure, problem framing, scope boundaries, requirement and criteria craft, and the spec-level framing of the UI design and System design sections — how to _describe_ what a change must do and how it is verified. It does not own the implementation mechanics behind those descriptions:
 
 - **UI component structure, styling, and markup.** The spec states hierarchy, states, accessibility, and responsive intent; how the interface is built stays with your project's own UI and component conventions.
-- **Data-flow implementation, routing, and module placement.** The spec states the system-design decision; how it is wired stays with your project's own architecture and structure conventions.
+- **Data-flow implementation, routing, and a module's placement in the file tree.** The spec states the system-design decision — including which module or service owns a piece of shared state — while how it is wired, and where it physically sits, stays with your project's own architecture and structure conventions.
 - **Test-writing mechanics (naming, structure, fixtures, locators).** The spec _names_ the coverage and verification steps that make it checkable; how the tests are written stays with your project's own testing conventions.
 
 Keeping those mechanics out is what lets this document stay stable when the implementation approach changes, and keeps review focused on outcomes.
