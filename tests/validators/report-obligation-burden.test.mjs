@@ -451,10 +451,23 @@ describe("report-obligation-burden.mjs", () => {
       // totals carry both sides' bytes. figures re-derived by running the
       // reporter against the merged tree, per this file's own header comment,
       // rather than summed by hand from either side.
+      //
+      // a later round rewrote `loop-engineering`'s references/pre-flight-review.md
+      // Review Package section: the "review policy and skills read at the
+      // merge base" instruction — ambiguous about how a subagent locates
+      // "skills," and unsafe to resolve by hard-naming a companion skill's
+      // file path, since a project may install `loop-engineering` without
+      // one — became a self-contained baseline review directive plus generic
+      // language for the installing project's own review-policy and
+      // working-agreement files. Two Guidelines bullets were net added (five
+      // became seven: the two rewritten bullets stayed one each, and two new
+      // MUST NOT / MAY bullets were introduced), all in the reference rather
+      // than SKILL.md, so this is ceiling-only again — the floor is
+      // unchanged.
       expect.soft(totals.floorObligations).toBe(60);
       expect.soft(totals.floorTokens).toBe(12_217);
-      expect.soft(totals.ceilingObligations).toBe(534);
-      expect.soft(totals.ceilingTokens).toBe(63_576);
+      expect.soft(totals.ceilingObligations).toBe(536);
+      expect.soft(totals.ceilingTokens).toBe(64_217);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -508,8 +521,8 @@ describe("report-obligation-burden.mjs", () => {
       // reference-only.
       expect.soft(tiers[2].floorObligations).toBe(60);
       expect.soft(tiers[2].floorTokens).toBe(12_217);
-      expect.soft(tiers[2].ceilingObligations).toBe(534);
-      expect.soft(tiers[2].ceilingTokens).toBe(63_576);
+      expect.soft(tiers[2].ceilingObligations).toBe(536);
+      expect.soft(tiers[2].ceilingTokens).toBe(64_217);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -536,8 +549,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(534);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(534);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(536);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(536);
     });
 
     it("prints no tier block without --mandated", async () => {
