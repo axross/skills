@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+read_node_major() {
+  python3 - <<'PY'
+import json
+import re
+
+with open("package.json", encoding="utf-8") as package_file:
+    node_major = json.load(package_file).get("engines", {}).get("node")
+
+if not isinstance(node_major, str) or re.fullmatch(r"[0-9]+", node_major) is None:
+    raise SystemExit("package.json engines.node must be an exact numeric major")
+
+print(node_major)
+PY
+}
+
+NODE_MAJOR="$(read_node_major)"
+readonly NODE_MAJOR
+
 step() {
   local label="$1"
   shift
@@ -29,9 +47,9 @@ install_mise() (
 
 configure_toolchain() {
   mkdir -p "$(dirname "$MISE_GLOBAL_CONFIG_FILE")"
-  cat >"$MISE_GLOBAL_CONFIG_FILE" <<'EOF'
+  cat >"$MISE_GLOBAL_CONFIG_FILE" <<EOF
 [tools]
-node = "26"
+node = "$NODE_MAJOR"
 EOF
 
   "$HOME/.local/bin/mise" install --yes
@@ -55,13 +73,13 @@ EOF
 
 restore_dependencies() {
   local fingerprint marker
-  fingerprint="$(sha256sum package-lock.json | cut -d' ' -f1)-node26"
+  fingerprint="$(sha256sum package-lock.json | cut -d' ' -f1)-node${NODE_MAJOR}"
   marker="node_modules/.skills-npm-install-${fingerprint}"
   if [[ ! -f "$marker" ]]; then
     npm install
     touch "$marker"
   else
-    echo "package-lock.json is already restored for Node 26; skipping npm install"
+    echo "package-lock.json is already restored for Node ${NODE_MAJOR}; skipping npm install"
   fi
 }
 
@@ -69,8 +87,8 @@ verify_toolchain() {
   local node_version npm_version
   node_version="$(node --version)"
   npm_version="$(npm --version)"
-  [[ "$node_version" == v26.* ]] || {
-    echo "Node version mismatch: expected v26.x, actual: $node_version" >&2
+  [[ "$node_version" == "v${NODE_MAJOR}."* ]] || {
+    echo "Node version mismatch: expected v${NODE_MAJOR}.x, actual: $node_version" >&2
     return 1
   }
   [[ -n "$npm_version" ]] || {
@@ -83,7 +101,7 @@ verify_toolchain() {
 mkdir -p "$HOME/.local/bin"
 export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/skills.toml"
 step "Install mise" install_mise
-step "Configure Node 26" configure_toolchain
+step "Configure Node ${NODE_MAJOR}" configure_toolchain
 export PATH="$HOME/.local/bin:$PATH"
 eval "$(mise env -s bash)"
 step "Persist the toolchain for login shells" persist_login_environment
