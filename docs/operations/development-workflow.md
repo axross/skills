@@ -1,133 +1,91 @@
 # Development Workflow
 
-How a change gets from a stated intent to a merged pull request in this
-repository, and how the loop that drives it is wired here specifically.
-[loop-engineering](../../skills/loop-engineering/SKILL.md) owns the change
-loop itself — its stages, where it stops, and what it caps; this document
-covers only what nothing outside this repository could know: which agent
-definitions carry out which stage, and the sweep that backs the loop from
-outside any one session.
+How a maintainer carries a change through this repository's required gates.
+[Loop Engineering](../../skills/loop-engineering/SKILL.md) owns phase meaning
+and evidence contracts; this document records the repository's choices and
+the configured actors. Host instructions and tool usage conditions govern
+execution, not the names of those actors.
 
 ## The Change Loop
 
-Development here is agent-assisted via Claude Code. The working agreement
-lives in `CLAUDE.md` and routes to the detailed skills under `skills/`. Every
-change goes through the same loop — **plan → approve → code → verify →
-independent review → address → ready** — and `loop-engineering` runs
-**model-invoked**: there is no slash command. Name the work and it drives that
-work to a merge-ready pull request in one continuing session, stopping
-wherever a decision is a human's to make.
+Every change MUST retain the repository's issue, recorded plan, human plan
+approval, verified implementation, draft pull request, independent review,
+addressing, and ready gates. A read-only question, investigation, or review
+does not enter them. Name an issue, a pull request, or a free-form change to
+start; resume at the recorded pending phase rather than starting again.
 
-## Kicking It Off
+The source skill now separates those gates from orchestration. The
+[migration map](./loop-migration.md) records the baseline and all moved topics;
+it is not evidence that the later host and entry integrations have shipped.
+The rationale replaces the old standing-mandate interpretation in
+[the authority decision](../decisions/2026-09-07-separate-loop-contracts-from-host-authority.md).
 
-Kick it off by naming what to deliver — "deliver issue #42", "pick up PR 57",
-or a description of the change with no issue behind it yet. To carry on after
-it stops, continue the session and tell it to.
+## Configured Actors
 
-## Implementation Runs in a Subagent
+The Claude Code definitions remain under `.claude/agents/`:
 
-`.claude/agents/implementer.md` pins a lower-cost model and effort — a
-secondary benefit of delegating rather than the reason for it, which
-[`subagent-delegation.md`](../../skills/loop-engineering/references/subagent-delegation.md#why-the-loop-delegates)
-states as context separation: a worker that inherited the session's own model
-would still run at the main actor's cost, forfeiting that secondary saving
-without anything reporting it. It also states the delivery boundary in its
-own body rather than closing it by withdrawing a tool: commits stay local, and
-pushing, publishing, and anything else that speaks outward belongs to whoever
-asked, a rule the file asks the worker to honor rather than one the host
-enforces. It carries nothing else: the decision boundary, the verification
-obligation, the commit rules, and the receipt shape all arrive per run in the
-task package, so a definition restating them would only drift from it. It does
-not mention the loop at all, which is the point — it says what an
-implementation agent is and what it may not decide, so the same file works for
-a caller that has never heard of `loop-engineering` and is worth copying into
-a project that runs its subagents some other way. What it leaves out, and why,
-is explained host-neutrally in
-[`subagent-delegation.md`](../../skills/loop-engineering/references/subagent-delegation.md#defining-an-agent-of-your-own).
-Delete the file and the loop keeps delegating — to a generic
-implementation-capable agent at the session's inherited model — rather than
-returning to single-agent execution, with no gate weakened. Single-agent
-execution is what a host exposing no capable agent at all produces.
+- `implementer.md` supplies the implementation-capable actor and its declared
+  model and effort. Local results return to the parent; publication is not
+  delegated merely by choosing this actor.
+- `reviewer.md` supplies the advisory pre-flight reader. Its tool denial
+  covers editing tools and nested spawning, not every possible shell write.
+- `investigator.md` supplies a reader for bounded investigation questions.
+  It is not required for an exact local lookup or when the host prohibits
+  that delegation purpose.
 
-[`2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md`](../decisions/2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md)
-is the decision behind every model and effort value pinned across this
-section and the ones below it: the vendor comparison the investigator's
-shape rests on, and why this file and `reviewer.md` moved off `xhigh` on
-the maintainer's judgment rather than a measured one.
+The pinning rationale remains in
+[the model decision](../decisions/2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md).
+These are configured candidates, not a portable ranking or permission grant.
+A session MUST check actual permitted capabilities before using one. Parent
+implementation is valid when delegation is inappropriate or unavailable;
+mandatory verification and external review remain unchanged.
 
-## The Pre-Flight Review
+The project's advisory review still applies after delegated implementation
+when a compatible reader is permitted. Its findings and round limits follow
+[the pre-flight contract](../../skills/loop-engineering/references/pre-flight-review.md).
+If a host does not permit that reader, record the skipped advisory stage rather
+than relabeling parent self-review or waiving the external review.
 
-`.claude/agents/reviewer.md` denies two things — editing, and spawning another
-agent — and nothing else. The obvious move is to give a reviewer a short list
-of permitted tools, since its job sounds narrow. It is not: judging a change
-means confirming what was asked and not only what was written, which reaches
-the issue, any artifact the plan points at, and the documentation behind a
-factual claim. A reviewer missing one of those does not fail to start; it
-runs, cannot check what it cannot reach, and returns a report short by exactly
-those checks — and an under-equipped review reads exactly like a clean one.
-So the asymmetry sits between the writer and its readers rather than between
-two named files: the things `implementer.md`, the writer, must never do are
-few and nameable, and it asks them in prose rather than closing them with a
-withdrawn tool; the things a reader needs are open-ended, which is why both
-readers — `reviewer.md` and `investigator.md` alike — still enforce their own
-short deny-list with tools instead, the deny-a-short-set-rather-than-enumerate
-reasoning
-[`pre-flight-review.md`](../../skills/loop-engineering/references/pre-flight-review.md#defining-a-reader-of-your-own)
-states for a reader generally. Neither restriction is complete, and the
-file says so — `Bash` remains, so mutation is enforced against the editing
-tools and not against the shell, and reporting rather than publishing stays a
-rule it is asked to honor. Delete this file and the stage is skipped rather
-than performed by the main actor, which is what keeps it from degrading into
-self-review.
+## GitHub Delivery During Migration
 
-## The Investigator
+Until the dedicated delivery integration is adopted, this repository retains
+its existing representation: a first-element `<!-- loop-engineering` HTML
+comment ending with `-->` in the issue before a PR exists, then in the PR.
+It carries the phase, approved revision and approval evidence, review round,
+waiting state, open question, execution status and durable recovery information
+defined by [the state contract](../../skills/loop-engineering/references/run-state-and-reporting.md).
+Ephemeral worker handles stay in the session. A stale issue-side block is not
+the authoritative state after a PR exists.
 
-`.claude/agents/investigator.md` pins `model: sonnet` with `effort: medium`,
-for the role
-[context-ownership.md](../../skills/loop-engineering/references/context-ownership.md)
-defines: a reader handed a large payload and asked to return a conclusion and
-a locator rather than the payload itself. Why those two values rather than a
-cheaper pair is the decision record's comparison to make, and the pointer
-above reaches it: what a large context window buys a role defined by being
-handed large payloads, and why the effort dial was not where this repository
-looked to save. Like `reviewer.md`, it denies mutation and spawning another
-agent with `disallowedTools` — `Edit`, `Write`, `NotebookEdit`, `Agent` — and
-states the rest of the boundary in its own body rather than closing it with a
-withdrawn tool: a general-purpose shell remains, because reading requires
-one, so mutation is enforced against the editing tools and not against the
-shell, and returning only the answer rather than acting further on what it
-finds stays a rule it is asked to honor. It carries nothing else: the
-decision boundary, the escalation list, the
-verification obligation, and the return shape for one particular run all
-arrive per run in the task, so a definition restating them would only drift
-from it. Why a definition stops there, and what belongs to the task
-instead, is the same host-neutral rule
-[`subagent-delegation.md`](../../skills/loop-engineering/references/subagent-delegation.md#defining-an-agent-of-your-own)
-states for any agent definition. It does not mention the loop at all, for the same reason
-`implementer.md` does not — the same file works for a caller that has never
-heard of `loop-engineering`. Delete the file and resolution falls back **per
-read** rather than as a whole stage entered or skipped: each large payload the
-main actor would have sent to an investigator is instead read directly into
-its own context, one read at a time — unlike deleting `reviewer.md`, which
-skips a stage rather than narrowing per read.
+Body reads and writes MUST follow
+[GitHub Operation](../../skills/github-operation/SKILL.md)'s fidelity rules.
+Read the full stored body before replacing it; a sanitized or narrowed read
+cannot reconstruct omitted content. New comments begin with `<!-- ai-agent -->`.
+Plan activity targets the issue; review replies target the PR's finding thread.
+Keep status in the block and the conversation, not separate attention comments.
+Preserve the original issue description inline or in a marked archival comment.
 
-[Directory Structure](../conventions/directory-structure.md) covers why
-`.claude/agents/` is the only home for an agent definition.
+Use [the PR template](../../.github/pull_request_template.md), link the issue,
+keep the PR draft, and follow [Code Review](./code-review.md) for the independent
+review trigger. The trigger occurs only in its dedicated marked comment.
+Resolution replies identify the fixing commit with `Resolved in <short-hash>`
+and normally one sentence, then resolve the corresponding thread. These
+repository conventions are not required storage or text formats for consumers
+of the portable skill.
 
 ## Working Without an Agent
 
-Working without an agent does not lower the bar: branch, implement, run the
-checks in [`README.md`'s commands table](../../README.md), open a pull request
-following [the template](../../.github/pull_request_template.md), and get it
-reviewed before merge.
+Working without an agent does not lower the bar: branch, implement, run
+[README's checks](../../README.md#commands), open a pull request following the
+template, and obtain review before merge. Agents likewise MUST use a branch
+outside the default branch, preserve pushed history, and leave merging to the
+human. `claude/` is the namespace observed by the sweep below; a namespace
+never authorizes a push.
 
 ## The Branch-Governance Sweep
 
-One check backs the loop from outside any session:
 [`branch-governance-audit.yaml`](../../.github/workflows/branch-governance-audit.yaml)
-sweeps hourly and flags any `claude/` branch pushed ahead of the default
-branch with no open pull request — work delivered outside the loop, and so
-never independently reviewed. It is deliberately a scheduled sweep rather than
-a push-triggered gate, because implementation legitimately pushes before the
-pull request opens; a grace window skips a branch whose latest commit is
-still fresh.
+sweeps hourly and flags a `claude/` branch ahead of the default branch with no
+open pull request. It is scheduled rather than push-triggered because
+implementation legitimately pushes before opening its pull request; a grace
+window skips a branch whose latest commit is still fresh.

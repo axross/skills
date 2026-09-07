@@ -41,6 +41,8 @@ uses none of them.
 
 - [operations/development-workflow.md](./operations/development-workflow.md)
   — how a change gets from a stated intent to a merged pull request.
+- [operations/loop-migration.md](./operations/loop-migration.md) — the portable
+  loop's source-topic map, preserved safeguards, and host/delivery handoffs.
 - [operations/agent-skills.md](./operations/agent-skills.md) — installing and
   refreshing a skill, and confirming both hosts loaded it.
 - [operations/agent-sessions.md](./operations/agent-sessions.md) — how a

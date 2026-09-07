@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 2026-09-07-separate-loop-contracts-from-host-authority.md
 ---
 
 # Move the delegation determination to Phase 1 and satisfy a conditional policy with a standing mandate
