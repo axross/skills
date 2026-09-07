@@ -1,6 +1,6 @@
 ---
 name: agent-skill-authoring
-description: Creating, refining, splitting, renaming, or auditing an agent skill — portable content boundaries and agentskills.io authoring. Triggers on `SKILL.md`, frontmatter, `description`, "where does this rule belong", "split this skill", and "audit skill portability". Skill management owns installation and active loading; project policy and host guidance own gates and execution. Covers capability framing, judgment versus mechanism, standard metadata versus host extensions, conditional references, a portability checklist, and structural validators.
+description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — portable content boundaries and agentskills.io authoring. Triggers on `SKILL.md`, frontmatter, `description`, "where does this rule belong", "split this skill", "recast this skill as a capability", and "audit skill portability". Skill management owns installation and active loading; project policy and host guidance own gates and execution. Covers capability framing, judgment versus mechanism, standard metadata versus host extensions, conditional references, a portability checklist, and structural validators.
 user-invocable: false
 ---
 

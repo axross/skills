@@ -45,6 +45,8 @@ Inside a double-quoted value only YAML's own escapes are legal: `\0`, `\a`, `\b`
 
 ## Invocation-Control and Discovery Fields
 
+Two archetypes describe how a skill is used: a **guideline skill** supplies reference rules consulted during work; a **workflow entry-point skill** supplies a runnable workflow a human launches. These terms describe purpose, not required metadata.
+
 The [Claude Code skill reference](https://code.claude.com/docs/en/skills#frontmatter-reference) documents optional controls such as `user-invocable`, `disable-model-invocation`, `argument-hint`, `arguments`, and `when_to_use`. These are host extensions, not portable Agent Skills requirements. A guideline skill can remain model-discoverable without declaring a slash-command policy.
 
 When a project selects Claude Code invocation controls, `user-invocable: false` hides a skill from its slash menu and prevents direct slash invocation. `disable-model-invocation: true` prevents automatic loading instead. These controls affect different callers; neither follows merely from calling a skill a guideline or a workflow. Consult the host reference for defaults and argument substitution rather than applying these controls to another host by analogy.
