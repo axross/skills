@@ -72,13 +72,14 @@ See [clarifying-interview.md](./references/clarifying-interview.md) for:
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
-- putting a decision through the harness's dedicated question tool instead of into prose
+- the question content handed to the host or parent, with delivery mechanics left to the host
 - framing a decision as concrete options, each with its consequence and the default marked
+- returning unresolved questions and partial results without inventing answers or approval
 - when two decisions may share one prompt, and when they must be asked in dependency order
 
 **Guidelines:**
 
-- MUST read [asking-the-human.md](./references/asking-the-human.md) before putting a decision to the human, whether as a single mid-task question or as part of a clarifying interview.
+- MUST read [asking-the-human.md](./references/asking-the-human.md) before putting a decision to the human or returning an unresolved human decision to a parent, whether as a single mid-task question or as part of a clarifying interview.
 
 ## External Research
 
