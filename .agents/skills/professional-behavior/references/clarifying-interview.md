@@ -2,7 +2,7 @@
 
 Apply this reference once the triage has separated the items you may settle from the decisions the human owns, and you are holding at least one of the latter. It covers what to do with that bucket. It is one continuous conversation, not a form to fill in: each answer changes which questions are still worth asking, so the question set is derived as you go rather than fixed up front.
 
-How each question actually reaches the human — the channel, the option framing, and whether two questions may share a single prompt — is owned by [asking-the-human.md](./asking-the-human.md); dependency, established below, is what its one-decision-per-prompt rule keys on.
+The question's content, option framing, and whether two questions may share a single prompt are owned by [asking-the-human.md](./asking-the-human.md); dependency, established below, is what its one-decision-per-prompt rule keys on. The active host owns delivery. An interview may span executions: a child without a question route returns the unresolved question and partial results to its parent under that reference's contract rather than assuming it can conduct the entire conversation itself.
 
 ## Walking the Decision Tree
 
