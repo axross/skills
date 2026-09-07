@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+step() {
+  local label="$1"
+  shift
+  echo "==> ${label}"
+  time "$@"
+}
+
+install_mise() (
+  local version='2026.9.1'
+  local expected_sha256='c98423c8470d6dc416d9f7036d0646d8ef5ae92ad9186907f8fcc84cbe7db4ea'
+  local mise_path="$HOME/.local/bin/mise"
+  local download
+
+  if [[ -x "$mise_path" && "$($mise_path --version)" == "${version} "* ]]; then
+    return
+  fi
+
+  download="$(mktemp)"
+  trap 'rm -f -- "$download"' EXIT
+  curl -fsSL \
+    "https://github.com/jdx/mise/releases/download/v${version}/mise-v${version}-linux-x64" \
+    -o "$download"
+  printf '%s  %s\n' "$expected_sha256" "$download" | sha256sum --check --status
+  install -m 0755 "$download" "$mise_path"
+)
+
+configure_toolchain() {
+  mkdir -p "$(dirname "$MISE_GLOBAL_CONFIG_FILE")"
+  cat >"$MISE_GLOBAL_CONFIG_FILE" <<'EOF'
+[tools]
+node = "26"
+EOF
+
+  "$HOME/.local/bin/mise" install --yes
+}
+
+persist_login_environment() {
+  local marker='# skills Amp orb toolchain'
+  touch "$HOME/.bash_profile"
+  if ! grep -Fqx "$marker" "$HOME/.bash_profile"; then
+    cat >>"$HOME/.bash_profile" <<'EOF'
+
+# skills Amp orb toolchain
+export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/skills.toml"
+export PATH="$HOME/.local/bin:$PATH"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
+EOF
+  fi
+}
+
+restore_dependencies() {
+  local fingerprint marker
+  fingerprint="$(sha256sum package-lock.json | cut -d' ' -f1)-node26"
+  marker="node_modules/.skills-npm-install-${fingerprint}"
+  if [[ ! -f "$marker" ]]; then
+    npm install
+    touch "$marker"
+  else
+    echo "package-lock.json is already restored for Node 26; skipping npm install"
+  fi
+}
+
+verify_toolchain() {
+  local node_version npm_version
+  node_version="$(node --version)"
+  npm_version="$(npm --version)"
+  [[ "$node_version" == v26.* ]] || {
+    echo "Node version mismatch: expected v26.x, actual: $node_version" >&2
+    return 1
+  }
+  [[ -n "$npm_version" ]] || {
+    echo "npm is unavailable" >&2
+    return 1
+  }
+  echo "Node ${node_version} and npm ${npm_version} are available"
+}
+
+mkdir -p "$HOME/.local/bin"
+export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/skills.toml"
+step "Install mise" install_mise
+step "Configure Node 26" configure_toolchain
+export PATH="$HOME/.local/bin:$PATH"
+eval "$(mise env -s bash)"
+step "Persist the toolchain for login shells" persist_login_environment
+step "Restore JavaScript dependencies" restore_dependencies
+step "Verify the provisioned toolchain" verify_toolchain
