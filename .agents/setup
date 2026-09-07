@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+readonly REPO_ROOT
+cd "$REPO_ROOT"
+
+read_node_major() {
+  python3 - <<'PY'
+import json
+import re
+
+with open("package.json", encoding="utf-8") as package_file:
+    node_major = json.load(package_file).get("engines", {}).get("node")
+
+if not isinstance(node_major, str) or re.fullmatch(r"[0-9]+", node_major) is None:
+    raise SystemExit("package.json engines.node must be an exact numeric major")
+
+print(node_major)
+PY
+}
+
+NODE_MAJOR="$(read_node_major)"
+readonly NODE_MAJOR
+
+step() {
+  local label="$1"
+  shift
+  echo "==> ${label}"
+  time "$@"
+}
+
+install_mise() (
+  local version='2026.9.1'
+  local expected_sha256='c98423c8470d6dc416d9f7036d0646d8ef5ae92ad9186907f8fcc84cbe7db4ea'
+  local mise_path="$HOME/.local/bin/mise"
+  local download
+
+  if [[ -x "$mise_path" && "$($mise_path --version)" == "${version} "* ]]; then
+    return
+  fi
+
+  download="$(mktemp)"
+  trap 'rm -f -- "$download"' EXIT
+  curl -fsSL \
+    "https://github.com/jdx/mise/releases/download/v${version}/mise-v${version}-linux-x64" \
+    -o "$download"
+  printf '%s  %s\n' "$expected_sha256" "$download" | sha256sum --check --status
+  install -m 0755 "$download" "$mise_path"
+)
+
+configure_toolchain() {
+  mkdir -p "$(dirname "$MISE_GLOBAL_CONFIG_FILE")"
+  cat >"$MISE_GLOBAL_CONFIG_FILE" <<EOF
+[tools]
+node = "$NODE_MAJOR"
+EOF
+
+  "$HOME/.local/bin/mise" install --yes
+}
+
+persist_login_environment() {
+  local marker='# skills Amp orb toolchain'
+  local end_marker='# end skills Amp orb toolchain'
+  local profile="$HOME/.bash_profile"
+  local rewritten
+  local has_end=0
+
+  touch "$profile"
+  grep -Fqx "$end_marker" "$profile" && has_end=1
+  rewritten="$(mktemp)"
+  awk -v marker="$marker" -v end_marker="$end_marker" -v has_end="$has_end" '
+    $0 == marker { dropping = 1; next }
+    dropping && ((has_end && $0 == end_marker) || (!has_end && $0 == "fi")) {
+      dropping = 0
+      next
+    }
+    !dropping { print }
+  ' "$profile" >"$rewritten"
+  mv -- "$rewritten" "$profile"
+
+  cat >>"$profile" <<EOF
+
+$marker
+case "\$PWD" in
+  "$REPO_ROOT"|"$REPO_ROOT"/*)
+    export MISE_GLOBAL_CONFIG_FILE="\$HOME/.config/mise/skills.toml"
+    export PATH="\$HOME/.local/bin:\$PATH"
+    if command -v mise >/dev/null 2>&1; then
+      eval "\$(mise activate bash)"
+    fi
+    ;;
+esac
+$end_marker
+EOF
+}
+
+restore_dependencies() {
+  local fingerprint marker
+  fingerprint="$(sha256sum package-lock.json | cut -d' ' -f1)-node${NODE_MAJOR}"
+  marker="node_modules/.skills-npm-install-${fingerprint}"
+  if [[ ! -f "$marker" ]]; then
+    npm install
+    touch "$marker"
+  else
+    echo "package-lock.json is already restored for Node ${NODE_MAJOR}; skipping npm install"
+  fi
+}
+
+verify_toolchain() {
+  local node_version npm_version
+  node_version="$(node --version)"
+  npm_version="$(npm --version)"
+  [[ "$node_version" == "v${NODE_MAJOR}."* ]] || {
+    echo "Node version mismatch: expected v${NODE_MAJOR}.x, actual: $node_version" >&2
+    return 1
+  }
+  [[ -n "$npm_version" ]] || {
+    echo "npm is unavailable" >&2
+    return 1
+  }
+  echo "Node ${node_version} and npm ${npm_version} are available"
+}
+
+mkdir -p "$HOME/.local/bin"
+export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/skills.toml"
+step "Install mise" install_mise
+step "Configure Node ${NODE_MAJOR}" configure_toolchain
+export PATH="$HOME/.local/bin:$PATH"
+eval "$(mise env -s bash)"
+step "Persist the toolchain for login shells" persist_login_environment
+step "Restore JavaScript dependencies" restore_dependencies
+step "Verify the provisioned toolchain" verify_toolchain

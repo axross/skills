@@ -1,17 +1,42 @@
 # Agent Sessions
 
-How a Claude Code or Codex session starts in this repository, the hooks that
-run during one, the one setting that cannot be verified from inside a session
-at all, and the environment variables recommended for cutting a session's
-cost.
+How an Amp orb provisions this repository, how a Claude Code or Codex session
+starts after provisioning, the hooks that run during one, the one setting that
+cannot be verified from inside a session at all, and the environment variables
+recommended for cutting a session's cost.
+
+## Amp orb provisioning
+
+The executable [`.agents/setup`](../../.agents/setup) provisions a fresh or
+stale Amp orb before the host starts an agent session. It installs the pinned
+mise v2026.9.1 Linux x64 binary after verifying its SHA-256 checksum, then uses
+an orb-local `~/.config/mise/skills.toml` to install Node 26. The checked-in
+`package.json` remains the repository's Node version source of truth; no second
+toolchain pin is committed.
+
+Setup records the repository-scoped mise configuration and activation in
+`~/.bash_profile`, once, so later login shells started in this repository use
+the provisioned Node toolchain. It runs the documented `npm install` command to
+restore dependencies. A marker derived from `package-lock.json` and the Node
+major skips that install on an unchanged warm filesystem, while setup still
+checks Node and npm before it exits.
+
+The repository has no `.agents/resume` because waking an orb requires no
+authentication, connection, or service repair. It has no `.amp/services.yaml`
+because the repository runs no long-lived development service. Add either
+lifecycle file only when the repository acquires the corresponding need.
 
 ## The Session-Start Hook
 
-In a Claude Code cloud session, `.claude/hooks/session-start.sh` installs
-dependencies, activating a Node version manager first if one is present. A
-Codex session runs the same session-start and check scripts through
+After orb provisioning, a Claude Code cloud session runs
+`.claude/hooks/session-start.sh`. The hook activates a Node version manager when
+one is present, materializes host-local settings and an optional environment
+file, and runs `npm install` as a fallback for sessions outside a provisioned
+orb. A Codex session runs the same session-start and check scripts through
 `.codex/hooks.json` — the two shell scripts are wired for both hosts, and the
-pair MUST be kept in step when either changes.
+pair MUST be kept in step when either changes. Orb setup does not replace these
+host-specific responsibilities, and the session-start hook is not Amp's
+toolchain-provisioning entry point.
 
 ## The Opt-In Quality Hooks
 
