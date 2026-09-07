@@ -1,6 +1,6 @@
 ---
 name: agent-skill-authoring
-description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — the authoring rules for the agentskills.io format, and the validators that enforce them. Triggers on drafting a `SKILL.md`, editing frontmatter, tightening a `description`, deciding where a new rule belongs, "add a skill", "split this skill", "audit skills", "recast this skill as a capability", and any change to a `SKILL.md` or its `references/`. Covers capability framing, discovery metadata that survives a host's listing truncation, section anatomy, progressive disclosure, cross-references, and three bundled validators, one per kind of edit.
+description: Creating, refining, splitting, renaming, or auditing an agent skill — portable content boundaries and agentskills.io authoring. Triggers on `SKILL.md`, frontmatter, `description`, "where does this rule belong", "split this skill", and "audit skill portability". Skill management owns installation and active loading; project policy and host guidance own gates and execution. Covers capability framing, judgment versus mechanism, standard metadata versus host extensions, conditional references, a portability checklist, and structural validators.
 user-invocable: false
 ---
 
@@ -24,8 +24,14 @@ See [scoping-and-mece.md](./references/scoping-and-mece.md) for:
 
 - choosing a coherent skill boundary, skill name, split, consolidation, or source-of-truth location
 - checking overlap with neighboring skills before adding new guidance
+- separating portable judgment and workflow meaning from project policy, host execution, and skill distribution
+- classifying mixed paragraphs and references before migrating their detailed rules
 - classifying every section as mechanism or judgment when a vendor- or runner-specific skill sits beneath a tool-agnostic owner
 - using section length and topic growth as signals for restructuring
+
+**Guidelines:**
+
+- MUST read [scoping-and-mece.md](./references/scoping-and-mece.md) before assigning a rule's owner or migrating content between capabilities, project policy, and host guidance.
 
 ## Capability Framing
 
@@ -41,9 +47,13 @@ See [capability-framing.md](./references/capability-framing.md) for:
 See [frontmatter-and-naming.md](./references/frontmatter-and-naming.md) for:
 
 - creating or editing discovery-critical `SKILL.md` frontmatter
-- setting the invocation-control fields (`argument-hint`, `arguments`, `user-invocable`, `disable-model-invocation`) by skill archetype — guideline skill vs workflow entry point
+- distinguishing standard required and optional metadata from host-specific invocation controls
 - choosing the skill directory name and keeping it aligned with the `name` field
-- porting or preserving host-project harness fields
+- assessing host-project harness fields against the selected host and distribution path
+
+**Guidelines:**
+
+- MUST read [frontmatter-and-naming.md](./references/frontmatter-and-naming.md) before editing metadata or judging whether a host extension is required or supported.
 
 ## Description Writing
 
@@ -67,7 +77,7 @@ See [body-content-style.md](./references/body-content-style.md) for:
 
 ## Progressive Disclosure
 
-A `SKILL.md` carries exactly three things: what capability this is, the rules that apply unconditionally within it, and the routing that says which reference to read when. Every other normative statement — the detail behind a MUST or SHOULD, procedures, tables, examples — goes in a reference. The test for keeping a rule in the body is whether the reader needs it **before the routing decision**, not whether the rule is important: `loop-engineering`'s Execution Model, which lets the mandatory plan-approval gate outrank a harness instruction telling the run to just implement and push, is worthless unless it applies before the run decides what to read, so it correctly stays in the body. This contract is itself needed before the routing decision it governs, which is why it is stated here rather than left behind the pointer below — the same reason the load-bearing test just after it is stated directly rather than deferred.
+A `SKILL.md` carries exactly three things: what capability this is, the rules that apply unconditionally within it, and the routing that says which reference to read when. Every other normative statement — the detail behind a MUST or SHOULD, procedures, tables, examples — goes in a reference. The test for keeping a rule in the body is whether the reader needs it **before the routing decision**, not whether the rule is important: a change-loop capability's distinction between read-only work and a change must be available before the reader chooses an implementation reference. This contract is itself needed before the routing decision it governs, which is why it is stated here rather than left behind the pointer below — the same reason the load-bearing test just after it is stated directly rather than deferred.
 
 A rule is **load-bearing** when an agent that loads `SKILL.md` and opens no reference would produce wrong output for want of it — held before the work starts, not looked up once the reader already knows the question exists. That test still sorts a skill's material, but its consequence is a conditional read obligation rather than a relocation: a load-bearing rule's own statement stays in its reference, and `SKILL.md` carries an RFC-2119 obligation to read that reference before the work its rule governs. A reference nobody is told to read never gets read; a `SKILL.md` that states every rule directly cannot be tree-shaken by the sessions that will never touch most of them. This test is itself load-bearing for a skill's author, so it is stated here as a rule rather than left behind the pointer below.
 
@@ -102,6 +112,11 @@ See [cross-referencing.md](./references/cross-referencing.md) for:
 - adding, renaming, moving, deleting, or linking skills and reference files
 - choosing one source of truth instead of copying detailed rules across skills
 - using topic-based cross-skill references, verifying intra-skill relative links, and keeping skill discovery current (plus any written index a host maintains)
+- routing only to applicable owners and hosts, including when an optional owner or project host document is absent
+
+**Guidelines:**
+
+- MUST read [cross-referencing.md](./references/cross-referencing.md) before adding or changing a cross-owner route.
 
 ## Project Skill Archetypes
 
@@ -120,3 +135,8 @@ See [audit-checklist.md](./references/audit-checklist.md) for:
 - running the bundled link-freshness audit (`scripts/link-freshness/check.mjs`) on a schedule to catch a cited vendor URL that has gone 404, why only a confirmed-dead link fails it, and why a `pull_request` trigger on it is a request-forgery primitive
 - checking inventory, skill discovery, section anatomy, RFC-2119 bullets, topic-based cross-skill references, and relative links
 - identifying overlap, stale assumptions, orphan references, and missing source-of-truth links
+- applying the ownership and portability checklist without expanding a bounded change into a library-wide migration
+
+**Guidelines:**
+
+- MUST read [audit-checklist.md](./references/audit-checklist.md) when reviewing a skill's ownership boundaries or metadata portability.
