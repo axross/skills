@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "2b74ad667302eeaa2d85b45712c15fdbe1a603d81a0a2a5d82d469c239c5c1e5"
+      "computedHash": "c806c9b0a718cdb5798308fbc74cb15a7f6dca6956c397822086fd48b5e0c5f0"
     },
     "agent-skill-management": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "3db8e1b4e1ccd89bfb408a338949494571177ac4b3698ba3d6b9d7259f11147d"
+      "computedHash": "2b2162729c91fbae3d1b6f67e01b7a1a862d72cb0072b8bbb07e92a7722dc326"
     },
     "quality-assurance": {
       "source": "./skills",
