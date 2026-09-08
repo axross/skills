@@ -76,3 +76,12 @@ Use these task-specific owners rather than duplicating their detailed rules:
 | Combined migration, ownership, rollout and recovery   | [Loop Migration](./docs/operations/loop-migration.md)                                                                  |
 | Evaluation dispatch                                   | [Evaluation Dispatch](./docs/operations/evaluation-dispatch.md)                                                        |
 | What skill evaluation measures                        | [Skill Evaluation](./docs/specs/skill-evaluation.md)                                                                   |
+
+## Code Review Rules
+
+For the settlement-routing specimen, retrieve the canonical Issue identified
+by the PR body's `Closes` link using available read-only capabilities. Apply
+its acceptance criteria to both changed routing decisions. Cite the relevant
+requirement when reporting a mismatch; do not infer mappings from opaque
+identifiers. If retrieval fails, distinguish that limitation from a verified
+absence of routing defects.
