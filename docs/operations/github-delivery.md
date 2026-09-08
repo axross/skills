@@ -25,7 +25,7 @@ verbatim inline or in a marked archival comment. An inline archive SHOULD use a
 collapsed `<details>` section after the plan; an archival comment MUST be
 verified before removing the original from the body, with its URL retained in
 the issue. Archive and state placement follow
-[Loop's plan-identity boundary](../../skills/loop-engineering/references/plan-document.md#plan-revision-identity).
+[Loop's plan-identity boundary](../../skills/loop-engineering/references/plan-document.md).
 
 ## Encode recoverable state in the body
 
@@ -35,7 +35,7 @@ status in this block and in the conversation, not in separate attention
 comments. Ephemeral worker handles stay in the session, not in GitHub.
 
 The block carries ordinary labeled text, not a new machine schema. Map the
-[semantic run state](../../skills/loop-engineering/references/run-state-and-reporting.md#semantic-run-state)
+[semantic run state](../../skills/loop-engineering/references/run-state-and-reporting.md)
 into these fields, including conditional evidence only when relevant:
 
 | Contract information | Stored representation                                                                          |
@@ -50,7 +50,7 @@ into these fields, including conditional evidence only when relevant:
 | Recovery             | Partial effects and object IDs, unknown effects, remaining processes and retrievable materials |
 
 Loop owns the conditions under which finding details persist, including
-[advisory-review parks](../../skills/loop-engineering/references/pre-flight-review.md#durable-parks).
+[advisory-review parks](../../skills/loop-engineering/references/pre-flight-review.md).
 This representation MUST NOT expand that ledger's durability or replace
 lost evidence with a claim of success. Record only process information needed
 for recovery, without credentials or transient worker handles.
@@ -107,7 +107,7 @@ thread after posting the reply. Keep fuller reasoning only where the fix needs
 it; the finding thread, not an unrelated issue comment, is the evidence target.
 
 The PR stays draft until Loop's
-[readiness evaluation](../../skills/loop-engineering/references/independent-review.md#ready-gate)
+[readiness evaluation](../../skills/loop-engineering/references/independent-review.md)
 succeeds. Publish an authorized ready transition only with that evidence, and
 leave merging to the human under Development Workflow. If a policy-compliant
 independent review cannot be established, record the actual unmet gate on the

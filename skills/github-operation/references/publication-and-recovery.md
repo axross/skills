@@ -46,7 +46,6 @@ Use these distinctions when reporting and deciding the next action:
 - MUST inspect actual target state after a lost response, connection failure, or partial result before retrying a potentially non-idempotent write.
 - MUST preserve known object IDs, intended content, confirmed effects, and unknown effects in the result; let project delivery choose where recovery evidence persists.
 - MUST NOT repeat creation, publication, or a trigger merely to obtain a cleaner response. If the effect is confirmed, continue from that object; if it remains unknown, report the unresolved outcome.
-- MUST NOT switch credentials because a request failed; the absence and functional-limitation exceptions remain governed by [channel-selection.md](./channel-selection.md).
 - MUST respect the active host's recovery constraints and any applicable change-loop retry limits rather than creating a separate retry budget here.
 
 ## Preserve Review and History Boundaries

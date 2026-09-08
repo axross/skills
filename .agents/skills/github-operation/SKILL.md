@@ -1,6 +1,6 @@
 ---
 name: github-operation
-description: Reading or writing GitHub from inside an agent session that shares one connected operator identity — any issue, pull request, comment, label, review, or branch operation, not only end-to-end change loops. The operating model that keeps those writes safe and attributable when the agent has no identity of its own. Covers the default sanctioned tool channel and the default-deny rule for every other route, marking agent comments so they are not re-read as human input, routing each write to the right number across the shared issue/pull-request numbering space, recovering stored bytes when a read is not byte-faithful, why a squash merge makes the title permanent history, and never force-pushing without approval.
+description: Reading or writing GitHub from an agent session sharing one connected operator identity — any issue, pull request, comment, label, review, or branch operation. For plan storage, issue/PR association, state encoding, marker selection, evidence destinations, reviewer configuration, and draft/ready publication, use the project's delivery guidance; for state meaning and readiness, use its change-loop practices. Covers channel qualification, bounded authenticated fallback, operator/bot attribution, target identification, authorization, stored-body fidelity, read-back, partial and unknown outcomes, COMMENT reviews, and append-only history.
 user-invocable: false
 ---
 
