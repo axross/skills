@@ -165,9 +165,8 @@ cannot settle the outcome, keep it `outcome-unknown` and report the needed acces
 Recover the approval revision, attempts, pending result and remaining processes
 through Loop's [recovery contract](../../skills/loop-engineering/references/resuming-and-handoff.md).
 GitHub state storage and independent-review invocation remain in
-[development workflow](./development-workflow.md) and
-[code review operations](./code-review.md), pending the dedicated delivery work
-in [#547](https://github.com/axross/skills/issues/547). No local specialist call
+[GitHub Delivery](./github-delivery.md) and
+[code review operations](./code-review.md). No local specialist call
 substitutes for the mandatory external review.
 
 ## Keep host operations separate
@@ -179,10 +178,9 @@ repository currently has no development server. Do not create one to exercise
 an execution guide.
 
 [Agent skills](./agent-skills.md) owns installation and refresh. Active source
-and content verification belongs to [#549](https://github.com/axross/skills/issues/549),
-not to this guide; a reload or successful install alone is not evidence of which
-content an actor loaded. Combined entry routing remains
-[#551](https://github.com/axross/skills/issues/551).
+and content verification follows its Amp procedure, not this guide; a reload or
+successful install alone is not evidence of which content an actor loaded.
+[Loop Migration](./loop-migration.md) records combined entry verification.
 
 Claude Code and Codex consume the same semantic assignments and results, but
 their operational APIs are not Amp aliases. Their configured actors remain in

@@ -14,13 +14,22 @@ addressing, and ready gates. A read-only question, investigation, or review
 does not enter them. Name an issue, a pull request, or a free-form change to
 start; resume at the recorded pending phase rather than starting again.
 
-The source skill now separates those gates from orchestration. The
-[migration map](./loop-migration.md) records the baseline and all moved topics;
-[Amp execution](./amp-execution.md) maps assignments to the current permitted
-host tools. Combined entry integration remains separate work; the guide alone
-does not establish whole-host compatibility.
+These gates apply to every change, without a size threshold or self-approval
+shortcut, including headless sessions. If authorization or a permitted route
+is missing, record the unmet gate rather than waiving it. At completion, MUST
+identify the tracking issue, pull request when one exists, and independent
+review outcome; an absent PR or review is an unmet gate, not a clean result.
+
+The [migration map](./loop-migration.md) records topic ownership, rollout and
+combined verification. [AGENTS.md](../../AGENTS.md) routes sessions to the
+common capabilities and conditional host guides. Routing is not proof that
+every host path has been exercised.
 The rationale replaces the old standing-mandate interpretation in
 [the authority decision](../decisions/2026-09-07-separate-loop-contracts-from-host-authority.md).
+
+Changes to review/CI infrastructure, skill discovery and cross-skill routing,
+secret handling, dependency/supply-chain surfaces, and large cross-skill
+refactors SHOULD receive human review in addition to independent review.
 
 ## Configured Actors
 
@@ -55,7 +64,7 @@ When storing or publishing change-loop records, follow
 state-block representation, issue-to-PR handover, marker selection, and evidence
 destinations. [GitHub Operation](../../skills/github-operation/SKILL.md) owns
 portable access and outcome verification. This section's anchor remains for
-earlier migration references; host and entry integration are separate work.
+earlier migration references; it does not duplicate delivery mechanics.
 
 ## Working Without an Agent
 

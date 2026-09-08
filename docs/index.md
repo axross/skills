@@ -46,7 +46,8 @@ uses none of them.
 - [operations/amp-execution.md](./operations/amp-execution.md) — qualifying Amp
   executors, transferring materials, waiting, and recovering uncertain effects.
 - [operations/loop-migration.md](./operations/loop-migration.md) — the portable
-  loop's source-topic map, preserved safeguards, and host/delivery handoffs.
+  loop's topic ownership, preserved safeguards, combined acceptance matrix,
+  and staged entry rollout and recovery.
 - [operations/agent-skills.md](./operations/agent-skills.md) — installing and
   refreshing a skill, checking discovery in Claude Code and Codex, and verifying
   active source and content or diagnosing loading failures in Amp.
