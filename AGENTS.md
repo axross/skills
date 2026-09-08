@@ -10,10 +10,9 @@ host-specific skill libraries.
 
 ## Response Approach
 
-Apply the following routes within higher-priority host instructions and current
-tool usage conditions. Repository policy grants no blanket authorization for
-external operations and cannot override a host restriction. Preserve valid user
-authorization within its original scope when applying these routes:
+For host authority and scoped authorization, see
+[Loop Engineering](./skills/loop-engineering/SKILL.md). Load capabilities by
+task rather than importing every change gate into read-only work:
 
 - MUST load [Professional Behavior](./skills/professional-behavior/SKILL.md)
   first in every session, including read-only questions and investigations.

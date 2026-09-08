@@ -365,10 +365,12 @@ workflow.
 ## Contributing
 
 Development here is agent-assisted via
-[Claude Code](https://claude.com/claude-code), working through this
+[Claude Code](https://claude.com/claude-code), Codex, or Amp, working through this
 repository's own change loop; see
 [`docs/operations/development-workflow.md`](./docs/operations/development-workflow.md)
-for the loop's stages and how it is wired here.
+for the loop's stages and how it is wired here. The
+[combined migration matrix](./docs/operations/loop-migration.md#combined-acceptance-matrix)
+distinguishes static contract checks from actual host execution evidence.
 
 ### Local setup
 
@@ -382,14 +384,14 @@ reinstalling if it is distributable; see
 [`docs/operations/agent-skills.md`](./docs/operations/agent-skills.md) for
 that procedure and
 [`docs/operations/agent-sessions.md`](./docs/operations/agent-sessions.md)
-for how a Claude Code or Codex session starts here. The terms this repository
+for Amp orb provisioning and Claude Code/Codex session startup. The terms this repository
 uses and the decisions that constrain it live in [`docs/`](./docs/index.md),
 which is checked by the same suite.
 
 | Area              | Tool                                                                                  |
 | ----------------- | ------------------------------------------------------------------------------------- |
 | Language          | Markdown (with occasional JavaScript for scripting)                                   |
-| Runtimes          | Claude Code and Codex                                                                 |
+| Runtimes          | Claude Code, Codex, and Amp                                                           |
 | Node              | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file` |
 | Package manager   | npm                                                                                   |
 | Formatting        | Prettier                                                                              |
