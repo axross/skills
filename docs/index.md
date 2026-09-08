@@ -48,7 +48,8 @@ uses none of them.
 - [operations/loop-migration.md](./operations/loop-migration.md) — the portable
   loop's source-topic map, preserved safeguards, and host/delivery handoffs.
 - [operations/agent-skills.md](./operations/agent-skills.md) — installing and
-  refreshing a skill, and confirming both hosts loaded it.
+  refreshing a skill, checking discovery in Claude Code and Codex, and verifying
+  active source and content or diagnosing loading failures in Amp.
 - [operations/agent-sessions.md](./operations/agent-sessions.md) — how a
   session's Amp orb is provisioned, how the session starts, its hooks, its
   telemetry tagging, and the environment variables recommended for cutting a

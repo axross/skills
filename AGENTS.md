@@ -25,7 +25,7 @@ distinguishes, so a session does not have to open the index for one of these.
 | A decision settled while building, and where it must land                                  | [docs/conventions/decision-placement.md](./docs/conventions/decision-placement.md)   |
 | The change loop, the implementer or reviewer agent, branch governance                      | [docs/operations/development-workflow.md](./docs/operations/development-workflow.md) |
 | GitHub plan/state storage, issue-to-PR handover, or delivery publication                   | [docs/operations/github-delivery.md](./docs/operations/github-delivery.md)           |
-| Installing or refreshing a skill                                                           | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
+| Skill install/refresh; Codex/Claude Code discovery; Amp active-load verification/diagnosis | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
 | How an agent session starts, its hooks, or its telemetry                                   | [docs/operations/agent-sessions.md](./docs/operations/agent-sessions.md)             |
 | Running `@claude review`                                                                   | [docs/operations/code-review.md](./docs/operations/code-review.md)                   |
 | Dispatching a skill discovery or effect evaluation                                         | [docs/operations/evaluation-dispatch.md](./docs/operations/evaluation-dispatch.md)   |

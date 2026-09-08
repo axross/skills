@@ -1,12 +1,12 @@
 ---
 name: agent-skill-management
-description: Deciding whether material belongs in a skill at all or in the project's own documentation, and then which tier it lives in — the storage, install, and drift model for a project keeping skills in two tiers. Triggers on adding, editing, renaming, moving, or removing an agent skill; a `git status` showing installed copies or `skills-lock.json` out of sync with their source; and a skill you loaded turning out to be wrong, outdated, or missing a rule, including mid-task and including when its upstream is one you do not own. Covers the skill-or-document question, `npx skills` install and refresh, the drift check, and how to route a defect found in an installed skill.
+description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing skill installation and active loading. Triggers on adding, editing, renaming, moving, or removing a skill; installed-copy or lockfile drift; same-name collisions, missing discovery, stale loaded content, or a loaded skill with a defective rule. Metadata authoring belongs to skill-authoring practices; host-specific reload and source-inspection commands belong to project operations. Covers source ownership, targeted installation, drift checks, and separate discovery and active-loading evidence.
 user-invocable: false
 ---
 
 # Agent Skill Management
 
-Use this capability whenever you add, edit, rename, move, or remove an agent skill in a project that holds its skills in two tiers. **Distributable** skills — portable capabilities other projects can install — are authored in a source directory (conventionally `skills/`, the source of truth) and **installed** into the skill root (the directory the agent actually loads — `.claude/skills/` for Claude Code, `.agents/skills/` for Codex and several others) with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); a `skills-lock.json` file records what was installed. **Repository-local** skills — capabilities that encode a single project's own process and have to fire while a surface is being edited, never a document the project's own instructions could route to on demand — are committed directly under the skill root and are never touched by the CLI.
+Use this capability to manage agent skills in a two-tier project, or to verify and diagnose their discovery and active loading. Management includes adding, editing, renaming, moving, and removing skills. **Distributable** skills — portable capabilities other projects can install — are authored in a source directory (conventionally `skills/`, the source of truth) and **installed** into the skill root (the directory the agent actually loads — `.claude/skills/` for Claude Code, `.agents/skills/` for Codex and several others) with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); a `skills-lock.json` file records what was installed. **Repository-local** skills — capabilities that encode a single project's own process and have to fire while a surface is being edited, never a document the project's own instructions could route to on demand — are committed directly under the skill root and are never touched by the CLI.
 
 Discovery is what routes to a skill in either tier: each skill advertises when it applies through its own `description`, so no written index is required. Some hosts maintain one anyway (e.g. an `AGENTS.md` table), which then becomes a second record to keep current.
 
@@ -99,6 +99,18 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
 - SHOULD run `npx skills add` from the repository root so `./skills` resolves and `skills-lock.json` is written there.
 - SHOULD confirm the install summary lists every expected skill as `copied` before committing — the check that catches a run which matched nothing and installed nothing.
 - SHOULD retry with an explicit version specifier (`npx --yes skills@latest …`) when `npx skills` aborts with `could not determine executable to run`; the plain form above stays canonical, and the specifier is a fallback for environments where `npx` cannot resolve the bare package name.
+
+## Discovery and Active Loading
+
+See [active-loading.md](./references/active-loading.md) for:
+
+- installation, source agreement, discovery, and active content as separate observations
+- same-name precedence, stale sessions, and unavailable source evidence
+- diagnosis before an authorized installation change
+
+**Guidelines:**
+
+- MUST read [active-loading.md](./references/active-loading.md) when verifying a skill installation or refresh, or diagnosing missing discovery or unexpected loaded content.
 
 ## Proposing a Change to an Installed Skill
 
