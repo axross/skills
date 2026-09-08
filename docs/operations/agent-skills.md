@@ -87,9 +87,8 @@ After an authorized refresh, verify the intended skill in the active thread:
    refreshes server-managed skills. Running `amp skills list` in a shell does
    **not** reload the thread.
 4. Invoke the intended skill with the thread's skill-loading tool. Compare the
-   returned base directory and body with the expected source and passage. For
-   this change, check for `Discovery and Active Loading` and its route to
-   `references/active-loading.md`; open that reference when applying its rules.
+   returned base directory and body with the expected source and distinguishing
+   passage recorded in step 1 for this refresh.
 5. Evaluate the returned evidence using the management model linked above.
 
 When the result is missing or unexpected, diagnose before changing files:
