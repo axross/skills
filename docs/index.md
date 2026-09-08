@@ -41,6 +41,8 @@ uses none of them.
 
 - [operations/development-workflow.md](./operations/development-workflow.md)
   — how a change gets from a stated intent to a merged pull request.
+- [operations/github-delivery.md](./operations/github-delivery.md) — plan and
+  state storage, issue-to-PR handover, comment markers, and evidence routing.
 - [operations/amp-execution.md](./operations/amp-execution.md) — qualifying Amp
   executors, transferring materials, waiting, and recovering uncertain effects.
 - [operations/loop-migration.md](./operations/loop-migration.md) — the portable
