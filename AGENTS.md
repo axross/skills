@@ -76,3 +76,15 @@ Use these task-specific owners rather than duplicating their detailed rules:
 | Combined migration, ownership, rollout and recovery   | [Loop Migration](./docs/operations/loop-migration.md)                                                                  |
 | Evaluation dispatch                                   | [Evaluation Dispatch](./docs/operations/evaluation-dispatch.md)                                                        |
 | What skill evaluation measures                        | [Skill Evaluation](./docs/specs/skill-evaluation.md)                                                                   |
+
+## Code Review Rules
+
+For the settlement-routing specimen, apply contract `ffa0781a`:
+
+- `ffa0781a-R1`: Every settlement for cohort `a29958bc` must select ledger `d4276db5`.
+- `ffa0781a-R2`: Every settlement for cohort `7d9439e6` must select ledger `e59168e2`.
+
+These are independent obligations. All listed ledger identifiers are valid, but
+the receiving ledger determines which beneficiary receives the settlement in
+this model. Selecting another valid ledger misdirects the cohort's funds; no
+downstream correction is assumed. Check both decisions against these requirements.
