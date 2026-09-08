@@ -21,8 +21,9 @@ The tables use these receiving owners:
 
 - **Loop**: the linked source reference owns the retained semantics now.
 - **Host**: current host instructions and published tool contracts own execution
-  now; [#550](https://github.com/axross/skills/issues/550) owns repository-specific
-  guidance. Removed universal mechanisms are not dormant requirements.
+  now; [Amp execution](./amp-execution.md) supplies repository-specific guidance
+  and bounded scenarios from [#550](https://github.com/axross/skills/issues/550).
+  Removed universal mechanisms are not dormant requirements.
 - **Delivery**: [development workflow](./development-workflow.md#github-delivery-during-migration)
   retains this repository's existing storage/routing convention;
   [#547](https://github.com/axross/skills/issues/547) owns its dedicated integration.
