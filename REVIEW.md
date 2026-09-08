@@ -110,6 +110,20 @@ repository's own fixed lens list:
 
 ## Reading Beyond the Diff
 
+The former entry-file review reminders route to their existing detailed owners:
+
+- When skill scope changes, compare `description` with the new body and state
+  in the pull request whether discovery still routes correctly.
+- For gate-set changes, check all four records named by
+  [Verification Gates](docs/conventions/verification-gates.md).
+- For generated skill changes, follow
+  [Agent Skills](docs/operations/agent-skills.md); source and installed copies
+  belong in the same change, not hand-edited installations.
+- For scheduled link audits, apply Verification Gates' schedule-only and
+  read-only-token requirements.
+- For numbers in prose, apply [Marked Counts](docs/conventions/marked-counts.md).
+  Verify an unmarked changed count by hand rather than assuming CI checks it.
+
 [Code Review](.claude/skills/code-review/SKILL.md)'s
 [Review Scoping](.claude/skills/code-review/SKILL.md#review-scoping) section
 (see [scoping.md](.claude/skills/code-review/references/scoping.md)'s Boundary

@@ -10,7 +10,9 @@ accepted review corrections are in [#553](https://github.com/axross/skills/issue
 
 ## Ownership and migration status
 
-The portable contracts are implemented here; whole-host compatibility is not.
+The portable contracts and entry routing are integrated here; this is not a
+claim of live coverage for every supported host. The combined matrix below
+separates static contract checks from actual execution evidence.
 The source and generated installations move together. Consumers need no
 repository-specific adapter to apply the contracts: they use the host's
 published permitted tools, or report the exact unavailable capability or
@@ -191,6 +193,111 @@ the linked owners before accepting the boundary:
 | PR creation succeeds, assignment is ignored, then verification cannot read draft status | Report creation as confirmed, assignment as unmet, and draft status as unknown. Keep the object ID and do not recreate the PR.                       |
 | Review request is stored but no policy-compliant independent result is available        | Delivery records the unmet review gate and stays draft; no unrelated fix is made a new acceptance criterion.                                         |
 
-This integration does not implement #550's host execution guide or #551's
-combined-host verification. Local structural checks and these walkthroughs
-cannot certify either host behavior or the mandatory independent review.
+These GitHub walkthroughs cover the delivery boundary. The combined integration
+below consumes it alongside the host guide; neither structural checks nor
+walkthroughs certify the mandatory independent review.
+
+## Combined entry integration
+
+The integration baseline is
+[`f7b4dfb`](https://github.com/axross/skills/commit/f7b4dfbf54338c372af7a418efd6bfe6f51e873a).
+It contains all component changes, but still has the old runtime-precedence
+paragraph in `AGENTS.md`. The entry switch removes that contradiction without
+changing the source contracts or review-output policy. The component revisions
+and their receiving surfaces are:
+
+| Issue | Merged revision | Surface consumed by entry integration                                            |
+| ----- | --------------- | -------------------------------------------------------------------------------- |
+| #545  | `bbfdcd8`       | Loop phase, handoff, recovery, finding and limit contracts; Development Workflow |
+| #546  | `4020bfc`       | Professional Behavior's question content and parent-return boundary              |
+| #547  | `5bf6ee2`       | GitHub Operation's access contracts and GitHub Delivery's storage                |
+| #548  | `aff3879`       | Authoring's portable-content, metadata and conditional-reference boundaries      |
+| #549  | `f7b4dfb`       | Management's active-loading evidence and Agent Skills' host procedures           |
+| #550  | `a99c837`       | Amp Execution's current-tool, workspace, wait and recovery guidance              |
+
+The source maps above remain the detailed Loop and GitHub inventory. The
+following map completes the entry and component topics without duplicating
+their rules:
+
+| Previous topic                                                                                              | Preserved owner or explicit exclusion                                                                                 |
+| ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| AGENTS project overview, commands and tooling                                                               | README; entry retains library identity and command routing                                                            |
+| AGENTS baseline skills, read-only/change split and domain loading                                           | Entry's Response Approach; Professional Behavior, Software Development and Loop own details                           |
+| AGENTS unconditional runtime priority, standing publication ask, old Execution Model reference              | Removed; current host authority and scoped authorization replace the claim, not the gates                             |
+| AGENTS mandatory gates, no size threshold, headless operation, completion evidence and extra human scrutiny | Development Workflow; Loop owns approval, review, recovery and caps                                                   |
+| AGENTS routing table, index and dependency documentation reads                                              | Entry routes by task; existing conventions and operations remain detailed owners                                      |
+| AGENTS concrete questions and reporting craft                                                               | Professional Behavior; no weaker interview or reporting rule introduced                                               |
+| AGENTS discovery, gate-set, generated-root, scheduled-audit and count review reminders                      | REVIEW's Reading Beyond the Diff routes to existing owners; severity and output policy unchanged                      |
+| AGENTS skill maintenance status                                                                             | Entry retains the completion report requirement; Agent Skills owns procedure                                          |
+| CLAUDE shared agreement import                                                                              | `@AGENTS.md` retained; no second change policy                                                                        |
+| CLAUDE symlink count, metadata and session details                                                          | Agent Skills, Skill Portability and Agent Sessions respectively; entry retains links                                  |
+| Conduct question transport and interview references (#546)                                                  | Professional Behavior owns decisions and question content; host owns delivery, failures and one-shot return mechanics |
+| Authoring scoping, cross-references, metadata and audit (#548)                                              | Agent Skill Authoring; no mandatory host API, project path or circular dependency in portable content                 |
+| Management discovery versus active source/body evidence (#549)                                              | Agent Skill Management's active-loading reference; Agent Skills owns concrete host inspection                         |
+| Host executor, tools, materials, concurrency, questions, waiting, failure and operations (#550)             | Amp Execution; configured Claude actors remain in Development Workflow, startup/hooks in Agent Sessions               |
+| Downstream juicio, question strictness, review vocabulary, CI/hooks and #539                                | Excluded, not fixed and not new acceptance prerequisites; a genuinely unmet gate still blocks readiness               |
+
+## Stage rollout and recover existing work
+
+Apply the stages in order when adopting or recovering this integration:
+
+1. Record the checkout, source and installed revisions, uncommitted material,
+   current policy, and existing approved plans. Use the original baseline above
+   for the old-topic inventory and the integration baseline for component
+   availability; issue closure alone is insufficient.
+2. Confirm the source contracts and project adapters at the recorded revisions.
+   Compare each moved topic with its receiving owner before removing text.
+3. Regenerate only approved changed skills through [Agent Skills](./agent-skills.md),
+   inspect the generated diff and lockfile, and check source agreement. If
+   sources did not change, verify agreement without a bulk reinstall. Missing
+   upstream material blocks the switch; do not patch installed copies instead.
+4. Switch entry routing, remove replaced details, and correct indexes and stale
+   pending-integration references as one reviewable change. Preserve the
+   Claude/Codex configuration rather than converting it into Amp APIs.
+5. Run the combined matrix and README's checks. Record evidence by host and
+   material revision; publish only through the approved delivery route, without
+   describing an untested path as supported by execution evidence.
+6. Recover an in-flight run from its actual approved plan, files, processes and
+   issue/PR state under [Loop recovery](../../skills/loop-engineering/references/resuming-and-handoff.md).
+   Preserve the original plan bytes and approval identity. A readable old
+   record remains evidence; a missing or ambiguous field requires reconstruction
+   from verifiable results, not invented approval or a reset to planning.
+
+If a switch is incomplete, stop dependent work and retain its partial materials
+and last verified stage in GitHub Delivery's state block. Repair through a new
+reviewed change, not history rewriting or a hand-edited installation. A rollback
+must not revive the obsolete host-priority claim. Use only currently permitted
+operations while awaiting repair or authorization; never rerun an uncertain
+external effect merely to reconstruct the record.
+
+## Combined acceptance matrix
+
+This matrix records static walkthroughs of the integrated entry and receiving
+contracts. **Static** means the stated concrete input was compared with those
+documents, not that a child, fault, or another host was executed. Delivery
+evidence records actual commands and host runs separately at the tested revision.
+The shared gate decision is the same in Amp, Claude Code and Codex; the mechanism
+must still be qualified in each actual session.
+
+| Input                                                                       | Observed contract result                                                                                           | Evidence class / remaining execution gap                                             |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Ask where commands are documented; no change requested                      | Entry selects conduct/development and README, not issue/plan/PR gates                                              | Static; ordinary Amp reads are observable in the implementation thread               |
+| Approved docs change in Amp; no suitable delegation purpose                 | Entry → Workflow → Loop permits parent implementation with unchanged checks and external review                    | Static plus this change's parent execution; publication/review remain separate gates |
+| Same change in Claude Code or Codex                                         | Shared entry selects the same gates; Claude import and existing startup/configuration remain                       | Static only; fresh Claude/Codex session runs unavailable in this Amp session         |
+| One-shot child needs an undecided product choice                            | Conduct supplies question content; Amp guide returns partial results to parent, no live-resume assumption          | Static; no child decision-return run claimed                                         |
+| Shared checkout has a writer and a formatter                                | Amp guide treats both as writers and prevents overlapping edits                                                    | Static; no concurrent-writer test claimed                                            |
+| Separate review checkout has same HEAD but lacks an uncommitted file        | Handoff preflight fails until the actual material is transferred and checked                                       | Static; no separate-checkout transfer test claimed                                   |
+| Child lacks the required image                                              | Material contract returns unavailable, not a prose-based clean review                                              | Static; missing-image execution not performed                                        |
+| Tool absent, purpose forbidden, permission absent, or response lost         | Contracts distinguish unavailable, authorization-waiting and outcome-unknown; current host decides permitted route | Static; no fault injection or prohibited tool call                                   |
+| Review pending without monitoring approval                                  | Amp guide forbids inventing a schedule; use a permitted wait or return recovery information                        | Static; no schedule created for verification                                         |
+| Write response lost after possible success                                  | GitHub and Loop recovery inspect stored effect and actual processes before retry                                   | Static; no external failure injected                                                 |
+| Plan changes while child is running                                         | Old approval/result is stale; recover partial work and issue a fresh approved assignment                           | Static; no live interruption performed                                               |
+| Advisory reviewer unavailable or external reviewer missing                  | Workflow discloses advisory gap; external gate remains unmet and draft cannot become ready                         | Static; local self-review is not independent review                                  |
+| Install succeeds but another same-name source wins, or loaded body is stale | Management requires selected source and body evidence separately from disk agreement                               | Static; collision/stale-body injection unavailable without an isolated host run      |
+| Compatibility discovery disabled or source hidden                           | Agent Skills diagnoses the actual candidate; no extra root, unavailable evidence is not a pass                     | Static; global settings not changed for a test                                       |
+| Old topics, numeric limits, findings and approval histories compared        | Maps and safeguard table retain owners and exclusions; no source contract changes in entry integration             | Static plus source/install and diff checks in delivery evidence                      |
+
+Live failure-case and cross-host gaps remain residual risks, not passes. The
+matrix neither creates new CI requirements nor substitutes for independent
+review. Unrelated defects stay separate; report the actual blocked gate if one
+prevents completion.

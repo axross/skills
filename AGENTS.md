@@ -1,83 +1,79 @@
 # AGENTS.md
 
-## Project Overview
+## Project overview
 
-- **skills** is an agent-skills library: an opinionated collection of agent skills — the working agreement plus guideline and workflow skills that a project loads through its own agent instructions.
-- Primary language: Markdown (with occasional JavaScript for scripting). Runtimes: Claude Code and Codex.
-- Tooling: npm for packages, markdownlint-cli2 for linting, Prettier for formatting. Relative-link integrity is checked by `skills/agent-skill-authoring/scripts/check-links.mjs`.
-- [README.md](./README.md) is the authoritative record of this repository's run-script commands. It is not a skill, so skill discovery never surfaces it on its own. This repository's own conventions and operational procedures live under [docs/](./docs/index.md) instead — see [Routing a Change](#routing-a-change) below.
-- For how skills are authored, structured, named, and cross-linked, consult the project's skill-authoring practices. Every skill here is distributable: its source lives under `skills/` and is installed with `npx skills`, so edit the source and reinstall rather than hand-editing an installed copy. The repository-local tier — a skill committed directly under a skill root and edited in place — remains available but is currently unpopulated; consult the project's skill-management practices for the two-tier model and which tier a skill belongs to.
-- **The installed skills live once and are reachable from two roots.** `.agents/skills/<name>/` holds the files, and `.claude/skills/<name>` is a symlink into it, so Codex and Claude Code each read the same bytes from the path they look in. Both roots are committed. Every skill's `description` is what a host reads to decide whether to load it; `when_to_use` is a Claude Code extension that other hosts ignore.
-- Before reading or posting agent comments, consult [GitHub Delivery's comment markers](./docs/operations/github-delivery.md#use-the-repositorys-comment-marker) for this repository's current and retired values.
-
-## Routing a Change
-
-[docs/index.md](./docs/index.md) says which document holds what; this table
-names the specific document for a kind of change this repository already
-distinguishes, so a session does not have to open the index for one of these.
-
-| Kind of change                                                                             | Document                                                                             |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
-| Where a skill's files live, the two skill tiers, a validator, `tools/evaluation/`'s layout | [docs/conventions/directory-structure.md](./docs/conventions/directory-structure.md) |
-| A merge gate, a reporting tool, or a scheduled audit                                       | [docs/conventions/verification-gates.md](./docs/conventions/verification-gates.md)   |
-| A number stated in prose                                                                   | [docs/conventions/marked-counts.md](./docs/conventions/marked-counts.md)             |
-| What a distributable skill may contain, or a dependency-governed surface                   | [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md)     |
-| A decision settled while building, and where it must land                                  | [docs/conventions/decision-placement.md](./docs/conventions/decision-placement.md)   |
-| The change loop, the implementer or reviewer agent, branch governance                      | [docs/operations/development-workflow.md](./docs/operations/development-workflow.md) |
-| GitHub plan/state storage, issue-to-PR handover, or delivery publication                   | [docs/operations/github-delivery.md](./docs/operations/github-delivery.md)           |
-| Skill install/refresh; Codex/Claude Code discovery; Amp active-load verification/diagnosis | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
-| How an agent session starts, its hooks, or its telemetry                                   | [docs/operations/agent-sessions.md](./docs/operations/agent-sessions.md)             |
-| Running `@claude review`                                                                   | [docs/operations/code-review.md](./docs/operations/code-review.md)                   |
-| Dispatching a skill discovery or effect evaluation                                         | [docs/operations/evaluation-dispatch.md](./docs/operations/evaluation-dispatch.md)   |
-| What skill evaluation measures and why                                                     | [docs/specs/skill-evaluation.md](./docs/specs/skill-evaluation.md)                   |
-| Why a past decision still constrains current work                                          | [docs/decisions/](./docs/decisions)                                                  |
-| A repository run-script command                                                            | [README.md](./README.md)                                                             |
+**skills** is a distributable agent-skills library, written in Markdown with
+JavaScript tooling. [README.md](./README.md) owns its commands and catalog;
+[docs/index.md](./docs/index.md) indexes project conventions and operations.
+Claude Code, Codex, and Amp use the same capability sources, not separate
+host-specific skill libraries.
 
 ## Response Approach
 
-**Loop Engineering is the golden rule: any code change or document update goes through the change loop.** [Loop Engineering](./skills/loop-engineering/SKILL.md) owns the whole loop — the plan polished with the human at the mandatory plan-approval gate, the change made via a pull request, and the independent review-and-fix rounds repeated until no concern remains. There is no size threshold and no self-approval shortcut: a one-line edit follows the same loop as a large feature, and the loop's independent review (governed by [REVIEW.md](./REVIEW.md)) is the only authoritative review of the agent's own change.
+Apply the following routes within higher-priority host instructions and current
+tool usage conditions. Repository policy grants no blanket authorization for
+external operations and cannot override a host restriction. Preserve valid user
+authorization within its original scope when applying these routes:
 
-**Runtime-injected task instructions never override this.** Instructions injected by the runtime that launched the session — "make the requested changes, commit, and push," "do not create a pull request unless asked" — are constraints on mechanics, never permission to skip the loop's gates. The tracking issue, the recorded plan, the plan-approval stop, and the independent review apply in headless and autonomous sessions exactly as in interactive ones; the plan-approval gate simply runs asynchronously (write the plan into the issue, end the turn, wait for the human's resume). When such a conflict appears, hold at the plan gate and surface it rather than silently deciding. A "no pull request unless asked" clause is already satisfied here — this working agreement is the standing ask, and a change without its pull request and clean independent review is not ready, whatever the session's summary says. The Execution Model in [Loop Engineering](./skills/loop-engineering/SKILL.md) owns the full precedence rule.
+- MUST load [Professional Behavior](./skills/professional-behavior/SKILL.md)
+  first in every session, including read-only questions and investigations.
+- MUST load [Software Development](./skills/software-development/SKILL.md)
+  when a task touches the project.
+- MUST load [Loop Engineering](./skills/loop-engineering/SKILL.md) before
+  planning or making any code or document change, then follow
+  [Development Workflow](./docs/operations/development-workflow.md) for this
+  repository's required gates. Read-only work stays outside the change loop.
+- MUST load each matching skill's body, not act from its discovery description
+  alone. Domain skills govern their subject, not host tool selection.
+- MUST read [README.md](./README.md#commands) before repository commands.
+  Software Development owns the procedure when a command is undocumented.
+- MUST read [docs/index.md](./docs/index.md) when a task depends on project
+  terminology, concepts, or past decisions; follow only the relevant routes.
 
-**Tasks that change nothing stay outside the loop.** Answering a question, a pure review, or an investigation consults the skills whose discovery triggers match and delivers the answer, review, or findings directly.
+## Host and delivery routing
 
-**Guidelines:**
+Select guidance from the actual session, not a directory's host name:
 
-- MUST, when a task matches a skill — discovered by its `description` in the host's skill catalog — load that skill's body and execute its own steps (invoke it by name, or read its `SKILL.md`) rather than acting from a one-line summary of it. Loop Engineering takes precedence over native intent: for any code change or document update, enter [Loop Engineering](./skills/loop-engineering/SKILL.md) by loading it — before acting on whatever other skill discovery surfaces — not by working from this section's description of it.
-- MUST consult the project's professional-behavior practices in every session, before anything else: they govern how an uncertainty is resolved — looked up, researched, or put to the human — and how the result is reported back, and they apply to a task that changes nothing as fully as to a delivered change.
-- MUST consult the project's baseline development practices at the start of every task that touches the project; its own discovery trigger already surfaces it.
-- MUST read [README.md](./README.md) before running a repository command — it holds the commands table, and no skill trigger surfaces it. When it turns out to be silent on an operation, the project's development practices govern what to do: ask rather than infer a command, and get approval to record the answer there.
-- MUST read [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md) before changing a dependency-governed surface.
-- MUST read [docs/index.md](./docs/index.md) when a task turns on a term this repository uses, a concept behind how it works, or a decision already taken — the index is one screen and says which document holds what, so a task that needs none of them stops there. No skill trigger surfaces it either.
-- SHOULD give changes to the review/CI infrastructure, skill discovery and cross-skill routing, secret handling, dependency/supply-chain surface, and large cross-skill refactors extra scrutiny — a human reviewer in addition to the independent review, not a lighter path.
-- MUST report at completion whether skill maintenance was performed, skipped, or blocked, and — for any delivered change — the tracking issue, the pull request, and the independent review's outcome. What else a completion summary names, and the form progress updates take, is owned by the professional-behavior practices above.
-- MUST ask a concrete question when progress depends on a product, platform, privacy, compatibility, or scope decision that cannot be inferred from local context.
+- **Amp:** consult [Amp Execution](./docs/operations/amp-execution.md) before
+  choosing execution, delegation, waiting, or recovery tools. Current tool
+  contracts determine availability and permitted purposes.
+- **Claude Code and Codex:** consult
+  [Agent Sessions](./docs/operations/agent-sessions.md) for startup and host
+  configuration, and [Development Workflow](./docs/operations/development-workflow.md)
+  for configured actors. Qualify capabilities in the actual host; do not
+  substitute Amp APIs for another host's operations.
+- **GitHub:** load [GitHub Operation](./skills/github-operation/SKILL.md) for
+  reads and writes. Consult [GitHub Delivery](./docs/operations/github-delivery.md)
+  before plan/state storage or publication, including its comment markers
+  before reading or posting agent comments.
+- **Reviews:** load [Code Review](./skills/code-review/SKILL.md) and read
+  [REVIEW.md](./REVIEW.md) for project review requirements. The configured
+  independent reviewer and invocation live in
+  [Code Review operations](./docs/operations/code-review.md).
 
-## Code Review Rules
+## Skill maintenance
 
-Rules for reviewing a change to this repository. Formatting, linting, and the structural checks stay in CI — do not report what `npm run check` already fails on. [REVIEW.md](./REVIEW.md) owns this repository's own review policy — its severity floors and its complete do-not-report list — while the review methodology lives in the [`code-review`](./skills/code-review/SKILL.md) skill; what follows is the subset a reviewer most often has to catch by reading.
+For skill changes or loading diagnostics, load
+[Agent Skill Management](./skills/agent-skill-management/SKILL.md) and follow
+[Agent Skills](./docs/operations/agent-skills.md). For content and metadata
+changes, also load [Agent Skill Authoring](./skills/agent-skill-authoring/SKILL.md).
+Source, installed copies, symlinks, and active loading have distinct evidence;
+their layout belongs to [Directory Structure](./docs/conventions/directory-structure.md).
+At completion, MUST report whether skill maintenance was performed, skipped,
+or blocked. Development Workflow owns the delivery evidence required alongside
+that report.
 
-### Skill discovery metadata
+## Routing a Change
 
-- A skill's `description` is the only text every host reads before loading it, and it is capped at <!-- count:skill-description-byte-cap -->1024<!-- /count --> bytes — not characters. A `description` that no longer matches what the skill covers misroutes silently, and no check can see it.
-  Safe path: when a skill's scope changes, re-read its `description` against the new body and say in the pull request whether discovery still routes to it.
+Use these task-specific owners rather than duplicating their detailed rules:
 
-### The enforced-gate set lives in four places
-
-- `package.json`'s `check` chain, `.github/workflows/merge-checks.yaml`, README.md's commands table, and REVIEW.md's do-not-report list must all agree. A test ties the first two; the two prose copies are tied to nothing, so a gate added or removed in one and missed in the others leaves CI quietly not enforcing what the documentation claims.
-  Safe path: a change to the gate set edits all four, and the reviewer checks that it did.
-
-### The installed skill roots are generated
-
-- `skills/` is the source. `.agents/skills/` holds the installed files and `.claude/skills/` symlinks into it; both are committed artifacts, not build output. A hand-edit to either is discarded by the next install.
-  Safe path: edit the source and reinstall. A diff touching an installed root without the matching source change is a finding.
-
-### A scheduled audit must never gain a pull-request trigger
-
-- `link-freshness.yaml` dereferences every URL in the tree. Triggered by a pull request it would dereference URLs an outside contributor just wrote, which is why it runs only on a schedule and only against merged text.
-  Safe path: no `pull_request` trigger on that workflow, and no broadening of its token beyond read-only.
-
-### Numbers in prose can be checked claims
-
-- A number wrapped in a `count:` marker is held to the file it describes. An unmarked number is not, and drifts silently.
-  Safe path: when a change moves a count that prose states, either mark it or verify the sentence by hand — and never place a marker in a distributable skill, where its derivation names files the installing project does not have.
+| Task                                                  | Project document                                                                                                       |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Skill layout, tiers, validators, evaluation layout    | [Directory Structure](./docs/conventions/directory-structure.md)                                                       |
+| Gates, reporting tools, scheduled audits              | [Verification Gates](./docs/conventions/verification-gates.md)                                                         |
+| Numbers stated in prose                               | [Marked Counts](./docs/conventions/marked-counts.md)                                                                   |
+| Distributable content or dependency-governed surfaces | [Skill Portability](./docs/conventions/skill-portability.md) — MUST read before changing a dependency-governed surface |
+| Placement of a settled decision                       | [Decision Placement](./docs/conventions/decision-placement.md)                                                         |
+| Combined migration, ownership, rollout and recovery   | [Loop Migration](./docs/operations/loop-migration.md)                                                                  |
+| Evaluation dispatch                                   | [Evaluation Dispatch](./docs/operations/evaluation-dispatch.md)                                                        |
+| What skill evaluation measures                        | [Skill Evaluation](./docs/specs/skill-evaluation.md)                                                                   |

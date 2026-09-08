@@ -12,8 +12,11 @@ the other.
 
 ## The Description Byte Cap and Codex's Truncation
 
-Codex reads a skill's `name` and `description` and nothing else — see
-`CLAUDE.md` for why no skill here carries a `when_to_use`. Codex refuses to
+Every skill here carries Claude Code's `user-invocable` extension, but none
+carries `when_to_use`: a trigger placed only in that extension would be
+invisible to other hosts. The shared discovery trigger lives in `description`.
+
+Codex reads a skill's `name` and `description` and nothing else. Codex refuses to
 load a skill whose `description`
 exceeds 1,024 bytes, and
 [`check-skill-frontmatter.mjs`](../../skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs)
