@@ -16,7 +16,9 @@ start; resume at the recorded pending phase rather than starting again.
 
 The source skill now separates those gates from orchestration. The
 [migration map](./loop-migration.md) records the baseline and all moved topics;
-it is not evidence that the later host and entry integrations have shipped.
+[Amp execution](./amp-execution.md) maps assignments to the current permitted
+host tools. Combined entry integration remains separate work; the guide alone
+does not establish whole-host compatibility.
 The rationale replaces the old standing-mandate interpretation in
 [the authority decision](../decisions/2026-09-07-separate-loop-contracts-from-host-authority.md).
 
@@ -48,30 +50,12 @@ than relabeling parent self-review or waiving the external review.
 
 ## GitHub Delivery During Migration
 
-Until the dedicated delivery integration is adopted, this repository retains
-its existing representation: a first-element `<!-- loop-engineering` HTML
-comment ending with `-->` in the issue before a PR exists, then in the PR.
-It carries the phase, approved revision and approval evidence, review round,
-waiting state, open question, execution status and durable recovery information
-defined by [the state contract](../../skills/loop-engineering/references/run-state-and-reporting.md).
-Ephemeral worker handles stay in the session. A stale issue-side block is not
-the authoritative state after a PR exists.
-
-Body reads and writes MUST follow
-[GitHub Operation](../../skills/github-operation/SKILL.md)'s fidelity rules.
-Read the full stored body before replacing it; a sanitized or narrowed read
-cannot reconstruct omitted content. New comments begin with `<!-- ai-agent -->`.
-Plan activity targets the issue; review replies target the PR's finding thread.
-Keep status in the block and the conversation, not separate attention comments.
-Preserve the original issue description inline or in a marked archival comment.
-
-Use [the PR template](../../.github/pull_request_template.md), link the issue,
-keep the PR draft, and follow [Code Review](./code-review.md) for the independent
-review trigger. The trigger occurs only in its dedicated marked comment.
-Resolution replies identify the fixing commit with `Resolved in <short-hash>`
-and normally one sentence, then resolve the corresponding thread. These
-repository conventions are not required storage or text formats for consumers
-of the portable skill.
+When storing or publishing change-loop records, follow
+[GitHub Delivery](./github-delivery.md). It owns this repository's plan location,
+state-block representation, issue-to-PR handover, marker selection, and evidence
+destinations. [GitHub Operation](../../skills/github-operation/SKILL.md) owns
+portable access and outcome verification. This section's anchor remains for
+earlier migration references; host and entry integration are separate work.
 
 ## Working Without an Agent
 

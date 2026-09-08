@@ -8,7 +8,7 @@
 - [README.md](./README.md) is the authoritative record of this repository's run-script commands. It is not a skill, so skill discovery never surfaces it on its own. This repository's own conventions and operational procedures live under [docs/](./docs/index.md) instead — see [Routing a Change](#routing-a-change) below.
 - For how skills are authored, structured, named, and cross-linked, consult the project's skill-authoring practices. Every skill here is distributable: its source lives under `skills/` and is installed with `npx skills`, so edit the source and reinstall rather than hand-editing an installed copy. The repository-local tier — a skill committed directly under a skill root and edited in place — remains available but is currently unpopulated; consult the project's skill-management practices for the two-tier model and which tier a skill belongs to.
 - **The installed skills live once and are reachable from two roots.** `.agents/skills/<name>/` holds the files, and `.claude/skills/<name>` is a symlink into it, so Codex and Claude Code each read the same bytes from the path they look in. Both roots are committed. Every skill's `description` is what a host reads to decide whether to load it; `when_to_use` is a Claude Code extension that other hosts ignore.
-- This repository's fixed agent-comment marker is `<!-- ai-agent -->`. `<!-- claude-code -->` is its retired predecessor: still read as agent output on issues and pull requests that predate the switch, never used for a new comment.
+- Before reading or posting agent comments, consult [GitHub Delivery's comment markers](./docs/operations/github-delivery.md#use-the-repositorys-comment-marker) for this repository's current and retired values.
 
 ## Routing a Change
 
@@ -24,6 +24,7 @@ distinguishes, so a session does not have to open the index for one of these.
 | What a distributable skill may contain, or a dependency-governed surface                   | [docs/conventions/skill-portability.md](./docs/conventions/skill-portability.md)     |
 | A decision settled while building, and where it must land                                  | [docs/conventions/decision-placement.md](./docs/conventions/decision-placement.md)   |
 | The change loop, the implementer or reviewer agent, branch governance                      | [docs/operations/development-workflow.md](./docs/operations/development-workflow.md) |
+| GitHub plan/state storage, issue-to-PR handover, or delivery publication                   | [docs/operations/github-delivery.md](./docs/operations/github-delivery.md)           |
 | Skill install/refresh; Codex/Claude Code discovery; Amp active-load verification/diagnosis | [docs/operations/agent-skills.md](./docs/operations/agent-skills.md)                 |
 | How an agent session starts, its hooks, or its telemetry                                   | [docs/operations/agent-sessions.md](./docs/operations/agent-sessions.md)             |
 | Running `@claude review`                                                                   | [docs/operations/code-review.md](./docs/operations/code-review.md)                   |

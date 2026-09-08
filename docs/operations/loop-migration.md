@@ -21,12 +21,14 @@ The tables use these receiving owners:
 
 - **Loop**: the linked source reference owns the retained semantics now.
 - **Host**: current host instructions and published tool contracts own execution
-  now; [#550](https://github.com/axross/skills/issues/550) owns repository-specific
-  guidance. Removed universal mechanisms are not dormant requirements.
-- **Delivery**: [development workflow](./development-workflow.md#github-delivery-during-migration)
-  retains this repository's existing storage/routing convention;
-  [#547](https://github.com/axross/skills/issues/547) owns its dedicated integration.
-  [GitHub Operation](../../skills/github-operation/SKILL.md) owns access and fidelity.
+  now; [Amp execution](./amp-execution.md) supplies repository-specific guidance
+  and bounded scenarios from [#550](https://github.com/axross/skills/issues/550).
+  Removed universal mechanisms are not dormant requirements.
+- **Delivery**: [GitHub Delivery](./github-delivery.md) owns this repository's
+  storage and publication procedure, separated in
+  [#547](https://github.com/axross/skills/issues/547).
+  [GitHub Operation](../../skills/github-operation/SKILL.md) owns portable access,
+  fidelity, and operation outcomes.
 - **Conduct**: [Professional Behavior](../../skills/professional-behavior/SKILL.md)
   owns question content, attribution, and reporting; its transport split is
   [#546](https://github.com/axross/skills/issues/546).
@@ -137,3 +139,58 @@ to the PR's verification evidence. Structural passes prove source consistency,
 not that a host obeys prose. The separate integration issue consumes this map
 and the actual merged contract revision rather than assuming issue closure is
 proof of compatible installed content.
+
+## GitHub boundary integration
+
+The GitHub integration consumes the Loop contracts above without changing their
+state meanings or limits. The following map covers the GitHub Operation topics
+and project delivery text present at the start of #547. Generated skill copies
+follow their source rather than becoming another detailed owner:
+
+| Previous topic                                                                                     | Disposition and detailed owner                                                                                                                                                                                                                                                             |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GitHub Operation introduction and Untrusted Content                                                | Retained in the [skill entry](../../skills/github-operation/SKILL.md); host restrictions, untrusted input, and the default channel apply to every operation.                                                                                                                               |
+| The Sanctioned Channel: Default Route; When Another Route Is Permitted; What a Raw Route May Carry | Split between the entry's default and [channel qualification](../../skills/github-operation/references/channel-selection.md); no new raw-route permissions.                                                                                                                                |
+| Agent-vs-Human Comments                                                                            | [Identity and targets](../../skills/github-operation/references/identity-and-targets.md) retains attribution and trigger isolation; marker values are project-owned.                                                                                                                       |
+| Issue vs. Pull Request Are Distinct Targets                                                        | Portable object/endpoint distinction stays in identity and targets; project plan/review destinations move to GitHub Delivery.                                                                                                                                                              |
+| Assigning What the Session Creates                                                                 | Identity and targets retains API limits and read-back; identity lookup follows the qualified authenticated channel.                                                                                                                                                                        |
+| Editing an Existing Body; Obtaining Stored Bytes                                                   | [Body integrity](../../skills/github-operation/references/body-integrity.md) retains full-body preservation, sanitization limits, candidate reads, and exact comparisons.                                                                                                                  |
+| Branch, Draft, and Review-Event Conventions                                                        | Split: portable COMMENT-only and no-default-branch protections in [publication and recovery](../../skills/github-operation/references/publication-and-recovery.md); draft publication and archive placement in GitHub Delivery; project branch/merge choices stay in Development Workflow. |
+| Pull Request Titles and Descriptions                                                               | Publication and recovery retains API/template and squash-title consequences; prose craft defers to its specialist owners; GitHub Delivery selects this repository's template and issue link.                                                                                               |
+| Preserve History — No Amend or Force-Push                                                          | Publication and recovery retains append-only commits and authorization exceptions subject to host rules.                                                                                                                                                                                   |
+| Development Workflow: GitHub Delivery During Migration                                             | Detailed storage/routing moves to [GitHub Delivery](./github-delivery.md); old heading remains a routing anchor.                                                                                                                                                                           |
+| AGENTS.md marker values                                                                            | Move to GitHub Delivery; the entry routes there before comment reads or writes.                                                                                                                                                                                                            |
+| Loop run-state, approval, recovery, and readiness                                                  | Unchanged semantic owner; GitHub Delivery maps fields and evidence locations, including conditional finding durability.                                                                                                                                                                    |
+| Code Review configuration; REVIEW.md severity/output policy                                        | Retained in their existing owners; no trigger, permission, or unrelated defect repair.                                                                                                                                                                                                     |
+
+The split also adds a portable operation-outcome contract. It distinguishes
+authorization waits, prohibited purposes, confirmed failures, partial effects,
+and unknown outcomes without defining another Loop phase or retry budget.
+The portable skill keeps a short draft/human-merge fallback only for consumers
+without project delivery conventions; this repository's concrete procedure has
+one owner in GitHub Delivery.
+The updated discovery description still selects GitHub reads and writes;
+conditional references now separate transport, attribution, body edits, and
+publication. No new host guide or mandatory adapter is introduced.
+
+### GitHub boundary walkthroughs
+
+These are static, concrete walkthroughs for the integration, not claims of
+live failure injection or completed external review. Compare each input with
+the linked owners before accepting the boundary:
+
+| Input                                                                                   | Expected result and owner                                                                                                                            |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No GitHub tool; authenticated CLI available for an authorized issue edit                | Channel qualification permits the high-level alternative after identity, target, fidelity, and read-back checks. No host-name inference.             |
+| Sanctioned tool times out while posting a comment; CLI also available                   | Publication and recovery inspects the original effect; channel selection forbids switching credentials because of the timeout. No duplicate comment. |
+| Present channel has no review operation, or host prohibits the purpose                  | Channel selection reports unavailable capability or prohibition; user authorization does not turn either into a permitted tool use.                  |
+| Draft review-trigger text exists, but only local implementation is authorized           | Publication and recovery returns authorization-waiting; no comment or workflow starts.                                                               |
+| Sanitized body lacks its HTML block and turns `&#x27;` into an apostrophe               | Body integrity rejects a replacement or identity claim from that read. Legibility decoding cannot reconstruct stored bytes.                          |
+| Issue 40 tracks PR 41; assign PR 41 through an issues endpoint                          | Identity and targets selects 41 and verifies its assignees; project plan amendments still target issue 40.                                           |
+| PR 41 exists after a lost create response; issue 40 still points at itself              | Recovery inspects the existing PR and continues handover from it. GitHub Delivery makes PR-side run state authoritative, without creating PR 42.     |
+| PR creation succeeds, assignment is ignored, then verification cannot read draft status | Report creation as confirmed, assignment as unmet, and draft status as unknown. Keep the object ID and do not recreate the PR.                       |
+| Review request is stored but no policy-compliant independent result is available        | Delivery records the unmet review gate and stays draft; no unrelated fix is made a new acceptance criterion.                                         |
+
+This integration does not implement #550's host execution guide or #551's
+combined-host verification. Local structural checks and these walkthroughs
+cannot certify either host behavior or the mandatory independent review.
