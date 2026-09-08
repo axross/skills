@@ -1,7 +1,8 @@
 # Agent Skills
 
-Installing and refreshing a skill in this repository, and verifying its active
-source and content. [Directory Structure](../conventions/directory-structure.md)
+Installing and refreshing a skill in this repository, checking discovery in
+Codex and Claude Code, and verifying active source and content in Amp.
+[Directory Structure](../conventions/directory-structure.md)
 covers where the source and the two installed roots live;
 [agent-skill-management](../../skills/agent-skill-management/SKILL.md) covers
 the general lifecycle and evidence model these host procedures apply.
@@ -47,7 +48,7 @@ added or removed with it; the installed-copy check
 (`skills/agent-skill-management/scripts/check-installed-copies.mjs`) fails on
 either half being missed on its own.
 
-## Verify discovery and active loading
+## Check discovery in Codex and Claude Code
 
 Apply [the management evidence model](../../skills/agent-skill-management/references/active-loading.md)
 using the current host's inspection route. Codex and Claude Code expose these
@@ -56,6 +57,10 @@ discovery checks in a fresh session:
 - **Codex** — run `/skills` and inspect the listing and any context-budget
   warnings, not only names.
 - **Claude Code** — run `/context` and inspect the skills listed there.
+
+These are discovery-only procedures. This document does not provide tested
+active-load inspection steps for Codex or Claude Code; the active-load
+procedure below applies to Amp.
 
 ## Verify Amp's selected source and content
 
@@ -104,6 +109,10 @@ When the result is missing or unexpected, diagnose before changing files:
   this library's installation.
 
 ## Exercise failure cases without changing global skills
+
+Run this matrix when changing the host integration or the loading evidence
+model. An ordinary skill-content refresh uses the applicable host procedure
+above and does not require this matrix.
 
 Use an isolated test installation and distinct body passages to distinguish
 the expected and unexpected sources. Do not edit personal/global skills or

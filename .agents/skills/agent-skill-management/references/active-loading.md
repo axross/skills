@@ -7,7 +7,8 @@ rather than treating a successful command as proof of every later step.
 
 ## Separate the observations
 
-Record each result with the evidence that supports it:
+First identify the skill's tier. For a distributable skill, record each result
+with the evidence that supports it:
 
 | Observation      | Evidence                                                              | Does not prove                     |
 | ---------------- | --------------------------------------------------------------------- | ---------------------------------- |
@@ -16,9 +17,16 @@ Record each result with the evidence that supports it:
 | Discovery        | Active host catalog and reported origin                               | That the body was loaded           |
 | Active loading   | Host load result identifying the selected source and expected content | Another session's state            |
 
+For a repository-local skill, the committed skill root is the editable source.
+Record its path and intended content revision directly. Installation and
+source-to-installed-copy agreement are not applicable: there is no installer,
+separate generated copy, or lockfile entry to check. Discovery and active
+loading still need the host evidence in the table; a committed file alone
+does not prove that the host selected it.
+
 **Guidelines:**
 
-- MUST report these observations separately, naming failed, unavailable, or untested stages rather than collapsing them into installation success.
+- MUST report these observations separately, naming failed, unavailable, untested, or tier-inapplicable stages rather than collapsing them into installation success.
 - MUST identify the intended source and content revision before comparing them with the host's selected source. Resolve symlinks when two paths may name the same files.
 - MUST use the current session's available host evidence; a shell inventory or another executor's tools do not establish this session's active state.
 - MUST use the host's supported reload or fresh-session route after an authorized refresh, then load the skill and inspect its reported source and expected body content. A matching name or description alone is insufficient.
@@ -42,5 +50,5 @@ and the distinction between standard fields and host extensions.
 - MUST inspect same-name candidates and the host's current precedence before concluding which source wins; never infer priority from a directory's name.
 - MUST distinguish disabled compatibility discovery from missing files, broken symlinks, inaccessible sources, invalid metadata, and same-name masking. Report the observed cause or the evidence still missing.
 - MUST NOT add a duplicate skill tree or change personal/global skills or compatibility settings merely to make discovery succeed. Diagnose first and obtain authorization for the required change.
-- MUST route content defects to editable source, regenerate only the intended managed skills, and inspect generated roots and lockfile changes. Never repair an installed copy by hand.
+- MUST route content defects to editable source. For distributable skills, regenerate only the intended managed skills and inspect generated roots and lockfile changes; never repair an installed copy by hand. For repository-local skills, edit the committed skill root directly without installing it or creating a lockfile entry.
 - MUST keep host-specific reload commands and extension handling out of universal installation requirements. A host's unsupported extension is not by itself evidence that another host's installation should change.

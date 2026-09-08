@@ -1,6 +1,6 @@
 ---
 name: agent-skill-management
-description: Installing, refreshing, and verifying the active source and content of agent skills in a two-tier project. Triggers on adding, editing, renaming, moving, or removing a skill; installed-copy or lockfile drift; same-name collisions, missing discovery, stale loaded content, or a loaded skill with a defective rule. Metadata authoring belongs to skill-authoring practices; host-specific reload and source-inspection commands belong to project operations. Covers the skill-or-document decision, source ownership, targeted installation, drift checks, and separate discovery and active-loading evidence.
+description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing skill installation and active loading. Triggers on adding, editing, renaming, moving, or removing a skill; installed-copy or lockfile drift; same-name collisions, missing discovery, stale loaded content, or a loaded skill with a defective rule. Metadata authoring belongs to skill-authoring practices; host-specific reload and source-inspection commands belong to project operations. Covers source ownership, targeted installation, drift checks, and separate discovery and active-loading evidence.
 user-invocable: false
 ---
 
