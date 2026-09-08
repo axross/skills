@@ -1,11 +1,10 @@
 # Agent Skills
 
-Installing and refreshing a skill in this repository, and confirming the
-install actually took. [Directory Structure](../conventions/directory-structure.md)
+Installing and refreshing a skill in this repository, and verifying its active
+source and content. [Directory Structure](../conventions/directory-structure.md)
 covers where the source and the two installed roots live;
 [agent-skill-management](../../skills/agent-skill-management/SKILL.md) covers
-the general install, lockfile, and refresh model this procedure is an instance
-of.
+the general lifecycle and evidence model these host procedures apply.
 
 ## Installing and Refreshing
 
@@ -48,21 +47,15 @@ added or removed with it; the installed-copy check
 (`skills/agent-skill-management/scripts/check-installed-copies.mjs`) fails on
 either half being missed on its own.
 
-## Confirming Both Hosts Loaded Them
+## Verify discovery and active loading
 
-The suite checks files, not a running host's selection or loaded body. Report
-installation, source agreement, discovery, and active loading separately using
-[the management evidence model](../../skills/agent-skill-management/references/active-loading.md).
-The existing hosts retain their discovery checks in a fresh session:
+Apply [the management evidence model](../../skills/agent-skill-management/references/active-loading.md)
+using the current host's inspection route. Codex and Claude Code expose these
+discovery checks in a fresh session:
 
 - **Codex** — run `/skills` and inspect the listing and any context-budget
   warnings, not only names.
 - **Claude Code** — run `/context` and inspect the skills listed there.
-
-Neither listing alone proves the selected source or loaded content. Invoke the
-intended skill and inspect whatever source and body evidence that host exposes.
-If that evidence is unavailable, report active loading as unverified; do not
-infer it from a passing file comparison. Report hosts not exercised as untested.
 
 ## Verify Amp's selected source and content
 
@@ -70,12 +63,8 @@ These operations follow [Amp's skill documentation](https://ampcode.com/docs/cus
 checked on 2026-09-08. Recheck the current session's tool contracts when using
 them; a child session need not expose the parent's tools.
 
-Amp's documented first-match order is local global roots
-(`~/.config/agents/skills/`, `~/.agents/skills/`, `~/.config/amp/skills/`),
-project and searched-parent `.agents/skills/`, then Claude-compatible locations,
-configured `amp.skills.path` directories, built-ins, personal repository skills,
-and workspace repository skills. Consult the linked documentation for the full
-order when diagnosing a collision. A local global skill can mask this project.
+Consult the linked documentation for Amp's current precedence when diagnosing
+a collision. A local global skill can mask this project.
 The `.claude/skills/` name is not a compatibility defect; this repository's
 links resolve to the existing `.agents/skills/` content.
 
@@ -96,10 +85,7 @@ After an authorized refresh, verify the intended skill in the active thread:
    returned base directory and body with the expected source and passage. For
    this change, check for `Discovery and Active Loading` and its route to
    `references/active-loading.md`; open that reference when applying its rules.
-5. Report the four observations and evidence. An unexpected source is a
-   mismatch even if installation passed. A stale body is not a successful
-   refresh. If source or body is not exposed, report verification unavailable
-   and the risk of an unexpected or stale active skill.
+5. Evaluate the returned evidence using the management model linked above.
 
 When the result is missing or unexpected, diagnose before changing files:
 

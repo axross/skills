@@ -324,8 +324,8 @@ what a passing parse still does not make safe. See
 
 `agent-skill-authoring` writes a skill's content so an agent actually finds
 and follows it; `agent-skill-management` decides where that skill lives, how
-it is installed and refreshed, and what to do when one you do not own needs
-a fix.
+it is installed and refreshed, how to verify its active source and content,
+and what to do when one you do not own needs a fix.
 
 #### `agent-skill-authoring`
 
@@ -336,9 +336,10 @@ audit that catches a cited vendor URL going 404. See
 
 #### `agent-skill-management`
 
-Where a skill's source belongs, how it gets installed and refreshed, a
-check that fails when an installed copy drifts from it, and what to do when
-you want to change one you do not own. See
+Where a skill's source belongs, how it gets installed and refreshed, and how
+to distinguish file drift from unexpected active content. Covers same-name
+collisions and missing discovery, plus what to do when you want to change a
+skill you do not own. See
 [`SKILL.md`](./skills/agent-skill-management/SKILL.md).
 
 ## How this library evaluates its skills
