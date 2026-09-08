@@ -380,7 +380,7 @@ distinguishes static contract checks from actual host execution evidence.
 
 There is no dev server — authoring a skill means editing Markdown under
 [`skills/`](./skills) (or a skill root for a repository-local skill) and
-reinstalling if it is distributable; see
+reinstalling the skill if it is distributable; see
 [`docs/operations/agent-skills.md`](./docs/operations/agent-skills.md) for
 that procedure and
 [`docs/operations/agent-sessions.md`](./docs/operations/agent-sessions.md)
