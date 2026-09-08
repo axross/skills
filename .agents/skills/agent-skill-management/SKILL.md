@@ -1,6 +1,6 @@
 ---
 name: agent-skill-management
-description: Deciding whether material belongs in a skill at all or in the project's own documentation, and then which tier it lives in — the storage, install, and drift model for a project keeping skills in two tiers. Triggers on adding, editing, renaming, moving, or removing an agent skill; a `git status` showing installed copies or `skills-lock.json` out of sync with their source; and a skill you loaded turning out to be wrong, outdated, or missing a rule, including mid-task and including when its upstream is one you do not own. Covers the skill-or-document question, `npx skills` install and refresh, the drift check, and how to route a defect found in an installed skill.
+description: Installing, refreshing, and verifying the active source and content of agent skills in a two-tier project. Triggers on adding, editing, renaming, moving, or removing a skill; installed-copy or lockfile drift; same-name collisions, missing discovery, stale loaded content, or a loaded skill with a defective rule. Covers the skill-or-document decision, source ownership, targeted installation, drift checks, and separate discovery and active-loading evidence. Metadata authoring belongs to skill-authoring practices; host-specific reload and source-inspection commands belong to project operations.
 user-invocable: false
 ---
 
@@ -99,6 +99,18 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
 - SHOULD run `npx skills add` from the repository root so `./skills` resolves and `skills-lock.json` is written there.
 - SHOULD confirm the install summary lists every expected skill as `copied` before committing — the check that catches a run which matched nothing and installed nothing.
 - SHOULD retry with an explicit version specifier (`npx --yes skills@latest …`) when `npx skills` aborts with `could not determine executable to run`; the plain form above stays canonical, and the specifier is a fallback for environments where `npx` cannot resolve the bare package name.
+
+## Discovery and Active Loading
+
+See [active-loading.md](./references/active-loading.md) for:
+
+- installation, source agreement, discovery, and active content as separate observations
+- same-name precedence, stale sessions, and unavailable source evidence
+- diagnosis before an authorized installation change
+
+**Guidelines:**
+
+- MUST read [active-loading.md](./references/active-loading.md) when verifying a skill installation or refresh, or diagnosing missing discovery or unexpected loaded content.
 
 ## Proposing a Change to an Installed Skill
 
