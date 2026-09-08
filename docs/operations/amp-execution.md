@@ -143,10 +143,9 @@ shutdown follows the service lifecycle, not process-pattern killing.
 
 The [migration safeguards](./loop-migration.md) retain the retry and round
 limits. Loop's [independent-review contract](../../skills/loop-engineering/references/independent-review.md)
-retains the declared timeout plus margin, or two-hour fallback, and its reset
-conditions. At the bound, stop autonomous waiting and preserve recovery evidence;
-cleanup MUST use a permitted mechanism, or report the still-running process.
-Do not reinterpret that bound as permission to kill an otherwise healthy process.
+owns the waiting policy. In Amp, cleanup MUST use a permitted mechanism, or
+report the still-running process; reaching a Loop bound does not authorize
+`shell_command_kill` on an otherwise healthy process.
 
 Scheduling requires the user's explicit monitoring, scheduling, or later-follow-up
 request and the `building-schedules` skill before schedule tools. A wait cap,
