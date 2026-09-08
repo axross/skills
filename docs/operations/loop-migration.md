@@ -21,8 +21,9 @@ The tables use these receiving owners:
 
 - **Loop**: the linked source reference owns the retained semantics now.
 - **Host**: current host instructions and published tool contracts own execution
-  now; [#550](https://github.com/axross/skills/issues/550) owns repository-specific
-  guidance. Removed universal mechanisms are not dormant requirements.
+  now; [Amp execution](./amp-execution.md) supplies repository-specific guidance
+  and bounded scenarios from [#550](https://github.com/axross/skills/issues/550).
+  Removed universal mechanisms are not dormant requirements.
 - **Delivery**: [GitHub Delivery](./github-delivery.md) owns this repository's
   storage and publication procedure, separated in
   [#547](https://github.com/axross/skills/issues/547).
@@ -168,7 +169,7 @@ and unknown outcomes without defining another Loop phase or retry budget.
 The portable skill keeps a short draft/human-merge fallback only for consumers
 without project delivery conventions; this repository's concrete procedure has
 one owner in GitHub Delivery.
-The unchanged discovery description still selects GitHub reads and writes;
+The updated discovery description still selects GitHub reads and writes;
 conditional references now separate transport, attribution, body edits, and
 publication. No new host guide or mandatory adapter is introduced.
 

@@ -16,7 +16,9 @@ start; resume at the recorded pending phase rather than starting again.
 
 The source skill now separates those gates from orchestration. The
 [migration map](./loop-migration.md) records the baseline and all moved topics;
-it is not evidence that the later host and entry integrations have shipped.
+[Amp execution](./amp-execution.md) maps assignments to the current permitted
+host tools. Combined entry integration remains separate work; the guide alone
+does not establish whole-host compatibility.
 The rationale replaces the old standing-mandate interpretation in
 [the authority decision](../decisions/2026-09-07-separate-loop-contracts-from-host-authority.md).
 
