@@ -28,7 +28,7 @@ Every change advances against current evidence, never a claim inherited from an 
 
 See [phase-progression.md](./references/phase-progression.md) for:
 
-- intake, default gates, and the evidence needed for each transition
+- intake, default gates, available-next-action progression, and legitimate stops
 - project policy, independent review, and blocked delivery
 
 **Guidelines:**
@@ -87,7 +87,7 @@ See [pre-flight-review.md](./references/pre-flight-review.md) for:
 See [independent-review.md](./references/independent-review.md) for:
 
 - mandatory external independence, fresh review rounds, and the four-round address cap
-- timeout and ready conditions
+- conflict remediation, affected verification, timeout, and ready conditions
 
 **Guidelines:**
 

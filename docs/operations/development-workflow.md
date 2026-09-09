@@ -105,6 +105,17 @@ outside the default branch, preserve pushed history, and leave merging to the
 human. `claude/` is the namespace observed by the sweep below; a namespace
 never authorizes a push.
 
+## Keep the Topic Branch Mergeable
+
+When the base branch moves and a topic branch conflicts, merge the current base
+into the topic branch and record any resolution in a new commit. Do not rebase,
+amend, reset away, or force-push published history as conflict recovery.
+
+After the merge, follow Loop Engineering's
+[mergeability and conflict-remediation contract](../../skills/loop-engineering/references/independent-review.md#mergeability-and-conflict-remediation)
+for judgment escalation, affected verification and fresh review. Code Review
+owns the selected provider's snapshot semantics.
+
 ## The Branch-Governance Sweep
 
 [`branch-governance-audit.yaml`](../../.github/workflows/branch-governance-audit.yaml)

@@ -13,6 +13,21 @@ A named issue enters planning; an existing pull request enters recovery and addr
 - MUST surface an authorization or capability blocker when a required delivery operation cannot be performed; never silently replace a mandatory target or gate with an easier one.
 - MUST use the default independent-review arrangement where project policy is silent: a separate session on separate infrastructure, under a bot identity distinct from the connected operator. A review produced inside the authoring session is self-review, regardless of its name.
 
+## Advance or Stop
+
+A completed phase is evidence for the next transition, not a reason to return
+control to the human. Loop owns whether work advances; the host owns the tool,
+wait, or return mechanism that realizes that outcome.
+
+**Guidelines:**
+
+- MUST enter the next required phase or perform its next action without asking for another instruction when current evidence establishes its prerequisites, a permitted route can perform it, and every effect that requires human authorization is covered by a matching operation grant.
+- MUST continue independent available work when another action is blocked by a required human decision, an unmatched operation grant, an unavailable capability or required input, an unsafe failed or outcome-unknown effect, or an outstanding machine result; stop only the work that depends on that blocker.
+- MUST stop the run only when no required action remains available because of one of those blockers, or when an applicable execution or review bound, non-convergence, or completion applies; record the specific result state and resumable next action.
+- MUST end the turn for a human wait; for an actual pending machine result, use only a permitted wait mechanism within the applicable bound and distinguish a progress note from deferring an already available action.
+- MUST preserve the phase, attempts, review round, grants, material revision, and pending or unknown effects across interruption so recovery resumes one established transition rather than restarting or skipping ahead.
+- MUST NOT treat evidence that the ready gate is satisfied as authorization to publish a ready transition, merge, schedule, or perform any other unnamed effect.
+
 ## Execute and Verify
 
 The approval binds the outcome; the assignment binds the execution. Parent and child implementations carry the same verification burden. The project's software-development and specialist capabilities own how to implement and test, and its code-review and QA capabilities own diff judgment and evidence adequacy.
