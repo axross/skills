@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "repository",
+    "pull_request",
+    "issue_number",
+    "snapshot",
+    "findings",
+    "blocked_reason"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["clean", "findings", "blocked"]
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 200
+    },
+    "pull_request": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "issue_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "snapshot": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "priority",
+          "path",
+          "line_start",
+          "line_end",
+          "title",
+          "observed",
+          "requirement_ref"
+        ],
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["P0", "P1", "P2", "P3"]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "observed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 600
+          },
+          "requirement_ref": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64
+          }
+        }
+      }
+    },
+    "blocked_reason": {
+      "type": ["string", "null"],
+      "enum": [
+        null,
+        "insufficient-static-context",
+        "requirements-ambiguous",
+        "patch-unreadable"
+      ]
+    }
+  }
+}
