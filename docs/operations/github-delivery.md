@@ -62,7 +62,7 @@ or process observations and requirement identifiers or locators onto that
 surface. Do not quote, summarize or paraphrase Issue requirements. Link to the
 permitted substantive record when one exists, and report when the projection
 cannot carry enough context. The projection is recovery evidence, not canonical
-criteria or input to an advisory or external reviewer.
+criteria or a replacement for fresh advisory or external-review input.
 
 For a status-only read, extract from the first opening token through its closing
 token and stop; do not bring the plan and archive into context merely to read
