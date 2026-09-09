@@ -237,6 +237,10 @@ describe("Codex Action review policy integration", () => {
     expect(delivery).toMatch(
       /publisher failure also leaves the\s+model result/u,
     );
+    expect(operation).toContain("change-loop operation-grant scope");
+    expect(operation).not.toMatch(
+      /grant's operations, target, route, lifetime/u,
+    );
     expect(operation).toContain("still-valid grant authorizes another attempt");
     expect(migration).toContain("Grant covers draft publication");
     expect(migration).toContain("Compound grant names draft updates");
