@@ -107,8 +107,9 @@ See [resuming-and-handoff.md](./references/resuming-and-handoff.md) for:
 See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 
 - semantic run state independent of storage format
+- scoped operation grants across phases and sessions
 - evidence and ready-to-merge reporting
 
 **Guidelines:**
 
-- MUST read [run-state-and-reporting.md](./references/run-state-and-reporting.md) before persisting run state or reporting completion.
+- MUST read [run-state-and-reporting.md](./references/run-state-and-reporting.md) before evaluating or persisting an operation grant, persisting run state, or reporting completion.
