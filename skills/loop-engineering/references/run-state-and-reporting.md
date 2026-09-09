@@ -4,13 +4,14 @@ Apply this reference when persisting recoverable state or reporting a phase resu
 
 ## Semantic Run State
 
-Durable state is whatever a fresh executor cannot safely derive: target, phase, approved plan revision and approval evidence, scoped operation grants, assignments and attempts, latest results, checks, review round, open findings at their permitted durability, unresolved decisions or authorization, actual revision and uncommitted state, remaining processes, and unknown external effects.
+Durable state is whatever a fresh executor cannot safely derive: target, phase, approved plan revision and approval evidence, scoped operation grants, assignments and attempts, latest results, self-review evidence, checks, review round, open findings at their permitted durability, unresolved decisions or authorization, actual revision and uncommitted state, remaining processes, and unknown external effects.
 
 **Guidelines:**
 
 - MUST persist only through a currently permitted project mechanism and preserve append-only history.
 - MUST NOT require an HTML status block, a particular service, a local path, or a byte-extraction command in the portable core.
 - MUST keep evidence locators and revision identities sufficient to detect stale state.
+- MUST preserve the substantive self-review outcome, unresolved findings, and limitations in permitted internal handoffs. When a persistence surface prohibits requirement-derived text, project only code or process observations and requirement locators onto that surface; the projection replaces neither the plan nor fresh review input.
 
 ## Scoped Operation Grants
 

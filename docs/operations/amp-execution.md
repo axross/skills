@@ -102,10 +102,14 @@ Use a staging destination and avoid overwriting local work without checking it.
 Transfer patches or other revision material explicitly when needed; forwarding
 image paths or attachments also requires the destination to confirm access.
 
-Before integration, compare the result's plan/material revision with the
-assignment, inspect actual contents and commits, account for deletions and
-uncommitted changes, and run the affected checks in the destination checkout.
-Neither a completion message nor a downloaded file proves integrated correctness.
+Before integration, compare the result's plan and material revision with the
+assignment. Compare its self-review target, policy, outcome, unresolved findings
+and limitations with the returned commits, files or patch. Then inspect the
+actual contents, account for deletions and uncommitted changes, and run the
+affected checks in the destination checkout. Missing, stale or mismatched
+self-review evidence is not clean. Changes made during integration require a
+current parent self-review of the integrated diff. Neither a completion message
+nor a downloaded file proves integrated correctness.
 
 ## Coordinate writers and late results
 

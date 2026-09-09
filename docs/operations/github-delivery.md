@@ -38,17 +38,17 @@ The block carries ordinary labeled text, not a new machine schema. Map the
 [semantic run state](../../skills/loop-engineering/references/run-state-and-reporting.md)
 into these fields, including conditional evidence only when relevant:
 
-| Contract information | Stored representation                                                                          |
-| -------------------- | ---------------------------------------------------------------------------------------------- |
-| Target and phase     | Issue/PR locators, branch, phase                                                               |
-| Approval             | Canonical plan locator, revision identity, approval evidence                                   |
-| Authorization        | Operation targets, route/lifetime, human evidence, limits and exclusions                       |
-| Execution            | Assignment scope and revision, execution mode/status, attempt count, latest result locator     |
-| Actual material      | Commit/revision, uncommitted files or retrievable diff, evidence locators                      |
-| Verification         | Commands and outcomes, skipped checks and residual risk, CI/check locators                     |
-| Review               | Round, route, trigger/run/result identities and permitted durable findings                     |
-| Waiting              | Waiting state, unresolved question or authorization, next action                               |
-| Recovery             | Partial effects and object IDs, unknown effects, remaining processes and retrievable materials |
+| Contract information | Stored representation                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target and phase     | Issue/PR locators, branch, phase                                                                                                              |
+| Approval             | Canonical plan locator, revision identity, approval evidence                                                                                  |
+| Authorization        | Operation targets, route/lifetime, human evidence, limits and exclusions                                                                      |
+| Execution            | Assignment scope and revision, execution mode/status, attempt count, self-review status and permitted evidence locator, latest result locator |
+| Actual material      | Commit/revision, uncommitted files or retrievable diff, evidence locators                                                                     |
+| Verification         | Commands and outcomes, skipped checks and residual risk, CI/check locators                                                                    |
+| Review               | Round, route, trigger/run/result identities and permitted durable findings                                                                    |
+| Waiting              | Waiting state, unresolved question or authorization, next action                                                                              |
+| Recovery             | Partial effects and object IDs, unknown effects, remaining processes and retrievable materials                                                |
 
 Keep `Approval` and `Authorization` separate. Each authorization record is a
 compact prose entry, not a new schema: name the repository, branch and PR;
@@ -72,14 +72,23 @@ and actor, workflow run ID and attempt, reviewed snapshot, sanitized result
 locator and the last observed stage. Put partial or unknown effects in
 `Recovery`. Neither entry carries Issue text, a sidecar path as a durable
 retrieval promise, credentials, raw API/model output or rejected output.
-These field-specific least-data constraints do not remove substantive material
-from a permitted internal plan or handoff that Loop requires.
+These field-specific least-data constraints do not remove other substantive
+material from a permitted internal plan or handoff that Loop requires.
 
 Loop owns the conditions under which finding details persist, including
 [advisory-review parks](../../skills/loop-engineering/references/pre-flight-review.md).
 This representation MUST NOT expand that ledger's durability or replace
 lost evidence with a claim of success. Record only process information needed
 for recovery, without credentials or transient worker handles.
+
+Keep the substantive executor self-review outcome, unresolved findings and
+limitations in a permitted internal handoff. When the selected reviewer contract
+restricts Issue-derived text on the current delivery surface, project only code
+or process observations and requirement identifiers or locators onto that
+surface. Do not quote, summarize or paraphrase Issue requirements. Link to the
+permitted substantive record when one exists, and report when the projection
+cannot carry enough context. The projection is recovery evidence, not canonical
+criteria or a replacement for fresh advisory or external-review input.
 
 For a status-only read, extract from the first opening token through its closing
 token and stop; do not bring the plan and archive into context merely to read

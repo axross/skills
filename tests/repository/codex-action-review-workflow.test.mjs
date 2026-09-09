@@ -233,7 +233,7 @@ describe("Codex Action review policy integration", () => {
     expect(delivery).toContain("| Authorization");
     expect(delivery).toContain("API-billed model execution");
     expect(delivery).toContain("remaining requests through");
-    expect(delivery).toContain("do not remove substantive material");
+    expect(delivery).toMatch(/do not remove other substantive\s+material/u);
     expect(delivery).toMatch(
       /publisher failure also leaves the\s+model result/u,
     );
