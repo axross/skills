@@ -68,14 +68,19 @@ than infer it from a role name.
 ## Qualify the advisory reader
 
 At the advisory checkpoint selected by
-[Development workflow](./development-workflow.md), qualify a fresh review
-context against its permitted purpose, access to the stable source and
-uncommitted diff, current policy, approved plan and required materials, and a
-usable return channel. A route name alone proves none of these. Use only
-mechanisms whose current contracts permit routine read-only review; do not
-substitute Task, Oracle or another specialist when its purpose excludes that
-review. Freeze competing writers before supplying the actual target under the
-Loop review contract.
+[Development workflow](./development-workflow.md), verify that a fresh review
+context has the following qualifications:
+
+- a permitted purpose
+- access to the stable source and uncommitted diff
+- the current policy
+- the approved plan and required materials
+- a usable return channel
+
+A route name alone proves none of these. Use only mechanisms whose current
+contracts permit routine read-only review; do not substitute Task, Oracle or
+another specialist when its purpose excludes that review. Freeze competing
+writers before supplying the actual target under the Loop review contract.
 
 If no route qualifies, record whether the cause is a missing capability,
 prohibited purpose or missing material and identify the failed qualification.

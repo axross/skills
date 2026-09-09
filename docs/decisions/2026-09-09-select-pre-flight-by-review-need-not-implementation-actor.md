@@ -22,15 +22,11 @@ before draft delivery.
 
 ## The decision
 
-The implementation actor no longer determines pre-flight applicability. Every
-verified initial implementation reaches the checkpoint before its first push
-and draft pull request. A compatible fresh reader runs the review when the host
-permits one and all required material is available.
-
-When no reader qualifies, the run records the exact unavailable or prohibited
-reason instead of reporting a clean review. That advisory gap does not waive
-external review or authorize publication, but it does not by itself prevent a
-separately authorized draft from proceeding.
+We removed the implementation-actor condition because fresh review has the same
+value after direct and delegated implementation. We retained the
+reader-qualification condition because forcing review through an unavailable or
+prohibited route would create a capability-dependent stall and encourage
+relabeling self-review.
 
 The host continues to select and qualify the actual reader mechanism. The
 portable loop and project policy define the checkpoint and evidence, not a
