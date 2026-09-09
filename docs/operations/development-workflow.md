@@ -51,11 +51,19 @@ A session MUST check actual permitted capabilities before using one. Parent
 implementation is valid when delegation is inappropriate or unavailable;
 mandatory verification and external review remain unchanged.
 
-The project's advisory review still applies after delegated implementation
-when a compatible reader is permitted. Its findings and round limits follow
+The project's advisory review applies after every verified initial
+implementation, whether the parent or a child implemented it, before the first
+branch push and draft pull request. A compatible fresh reader must be permitted
+and available; its findings and round limits follow
 [the pre-flight contract](../../skills/loop-engineering/references/pre-flight-review.md).
-If a host does not permit that reader, record the skipped advisory stage rather
-than relabeling parent self-review or waiving the external review.
+If no reader qualifies, record the exact unavailable or prohibited reason and
+the resulting delivery restriction. This outcome is not a clean review, does
+not waive external review, and does not authorize publication. A separately
+authorized draft may proceed with the advisory gap recorded and remains draft.
+
+Recovery before the first push resumes the pending pre-flight checkpoint. Once
+the draft pull request exists, later fixes follow the external addressing and
+fresh-review loop; resuming that loop does not replay the initial checkpoint.
 
 ## Select the external review route
 
