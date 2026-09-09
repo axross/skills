@@ -28,6 +28,7 @@ A child's `complete` result closes only its assignment. The parent still owns ph
 
 **Guidelines:**
 
-- MUST compare the result with actual changed files, uncommitted state, commits, checks, processes, and the approved revision before accepting it.
+- MUST compare the result, including its self-review material, policy, outcome, findings, and limitations, with actual changed files, uncommitted state, commits, checks, processes, and the approved revision before accepting it.
+- MUST NOT accept missing, outdated, or mismatched required self-review evidence as clean; integration changes require current parent self-review evidence against the integrated diff.
 - MUST inspect the integrated result rather than treating a receipt as proof that the whole change is ready.
 - MUST issue a fresh assignment after a plan revision; a clarification that does not change the plan may continue under the current assignment.
