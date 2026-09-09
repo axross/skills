@@ -70,7 +70,7 @@
 
 **Plan amendment** — a plan, at its own approval gate, changing a different issue's already-approved plan, distinct from a plan revising its own run's plan under its own revision identity. The amending plan's own approval carries the amendment's approval under three stated conditions, and falls back to a separate approval against the amended plan's own revision identity otherwise.
 
-**Pre-flight review** — an advisory review by a second worker before the pull request opens, run whenever implementation was delegated and a compatible reader resolves. It buys a reader free of the implementer's reasoning state, and is never reported as the **independent review**.
+**Pre-flight review** — an advisory review in the **change loop**, performed by a fresh reader whose context is free of the implementer's reasoning state. It is distinct from, and is never reported as, the **independent review**.
 
 **Posted review** — a review published on a pull request rather than delivered in-session, and narrower in its severity vocabulary than one delivered in-session is.
 

@@ -65,6 +65,31 @@ explicit selection prescribed by `create_thread`. Record observable requested
 and returned metadata, and mark an unobservable model or effort unknown rather
 than infer it from a role name.
 
+## Qualify the advisory reader
+
+At the advisory checkpoint selected by
+[Development workflow](./development-workflow.md), verify that a fresh review
+context has the following qualifications:
+
+- a permitted purpose
+- access to the stable source and uncommitted diff
+- the current policy
+- the approved plan and required materials
+- a usable return channel
+
+A route name alone proves none of these. Use only mechanisms whose current
+contracts permit routine read-only review; do not substitute Task, Oracle or
+another specialist when its purpose excludes that review. Freeze competing
+writers before supplying the actual target under the Loop review contract.
+
+If no route qualifies, record whether the cause is a missing capability,
+prohibited purpose or missing material and identify the failed qualification.
+Return that result under the
+[Loop handoff contracts](../../skills/loop-engineering/references/implementation-package.md);
+Development Workflow owns the delivery restriction, and
+[Loop recovery](../../skills/loop-engineering/references/resuming-and-handoff.md)
+owns which checkpoint resumes.
+
 ## Return questions from one-shot work
 
 Task receives the supplied prompt, not the parent's conversation. Its final
@@ -202,17 +227,18 @@ simulation MUST NOT be labeled an actual host execution. Run safe representative
 cases only when tool purposes permit them; do not manufacture external effects,
 schedule requests, unavailable APIs or expensive modes to prove prose.
 
-| Case                                                           | Required observation                                                                                         |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Parent implements an approved docs change                      | No forced delegation; checks and external review still required.                                             |
-| Eligible Task independently inspects a fixed material revision | Final evidence identifies that revision; an unresolved decision returns to the parent without live dialogue. |
-| Two writers share a checkout                                   | Overlapping edits, formatter and Git mutations wait for ownership; no concurrent overwrite.                  |
-| Separate thread reviews an uncommitted file                    | HEAD alone fails preflight; transfer the file, verify its content identity, retrieve and inspect the result. |
-| Required image or tool unavailable                             | Non-complete result identifies missing access; prose is not visual verification.                             |
-| Review pending without monitoring authorization                | No schedule created; use a permitted wait or return recovery information.                                    |
-| Lost response after a write                                    | Inspect stored bytes and process state before any retry.                                                     |
-| Plan changes before a child returns                            | Old result does not satisfy new approval; recover and audit it first.                                        |
-| Existing host or advisory reviewer unavailable                 | Report the untested path; mandatory external review remains unmet until obtained.                            |
+| Case                                                           | Required observation                                                                                                        |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Parent or child implements an approved change                  | Both reach the same advisory checkpoint before initial publication; implementation itself is not forced into another actor. |
+| Eligible Task independently inspects a fixed material revision | Final evidence identifies that revision; an unresolved decision returns to the parent without live dialogue.                |
+| Two writers share a checkout                                   | Overlapping edits, formatter and Git mutations wait for ownership; no concurrent overwrite.                                 |
+| Separate thread reviews an uncommitted file                    | HEAD alone fails preflight; transfer the file, verify its content identity, retrieve and inspect the result.                |
+| Required image or tool unavailable                             | Non-complete result identifies missing access; prose is not visual verification.                                            |
+| No permitted fresh advisory reader                             | Record the failed qualification and advisory gap; separately authorized draft delivery may proceed, but never as clean.     |
+| Review pending without monitoring authorization                | No schedule created; use a permitted wait or return recovery information.                                                   |
+| Lost response after a write                                    | Inspect stored bytes and process state before any retry.                                                                    |
+| Plan changes before a child returns                            | Old result does not satisfy new approval; recover and audit it first.                                                       |
+| Existing host or mandatory external reviewer unavailable       | Report the untested path; mandatory external review remains unmet until obtained.                                           |
 
 Run the documented format, lint and aggregate checks in
 [README](../../README.md) after edits. The aggregate suite includes the docs

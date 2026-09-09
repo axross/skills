@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 2026-09-09-select-pre-flight-by-review-need-not-implementation-actor.md
 ---
 
 # Run the pre-flight review whenever a reader qualifies
