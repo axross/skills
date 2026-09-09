@@ -23,6 +23,20 @@ Address every blocking finding and unmet acceptance criterion, preserving findin
 - MUST rerun affected verification after fixes and obtain a fresh review of the resulting content.
 - MUST surface ambiguous product or architecture findings to the human rather than guessing.
 
+## Mergeability and Conflict Remediation
+
+Mergeability is a ready-gate prerequisite and a transition to remediation when
+it fails. The project chooses how its branch incorporates the base; Loop keeps
+the distinction between mechanical repair and a decision that changes intent.
+
+**Guidelines:**
+
+- MUST restore the delivery target to a mergeable state under project branch policy before treating the ready gate as satisfied.
+- MUST resolve mechanical conflicts within the approved scope, including independent or adjacent edits and reproducible generated artifacts, but return intentional competing changes to the human when reconciling them requires product or architecture judgment; a resulting plan change follows plan revision and reapproval.
+- MUST rerun the verification required by every surface touched while incorporating the base or resolving conflicts, and record the resulting evidence.
+- MUST request fresh independent review after known conflict-resolution or other material-fix changes, record the material the reviewer actually covered, and never claim an earlier review covered those edits.
+- MUST NOT turn that operational re-review rule into universal exact-head equality, automatic invalidation on every concurrent update, or a material-bound operation grant when the selected provider and project policy explicitly accept a completion race.
+
 ## External Round Cap
 
 The post-delivery address/review loop allows **4** rounds. After non-convergence, record unresolved findings and checks and return a decision-waiting result.

@@ -65,6 +65,26 @@ explicit selection prescribed by `create_thread`. Record observable requested
 and returned metadata, and mark an unobservable model or effort unknown rather
 than infer it from a role name.
 
+## Advance the available transition
+
+After observing a phase result, apply Loop's available-next-action and
+legitimate-stop contract before ending the current turn. When current evidence,
+required input, a permitted route, and any required recovered operation grant
+support the next action, invoke its Amp tool and verify the result rather than
+returning a progress-only report. Use the purpose routes below for the action and
+[Wait for the right result](#wait-for-the-right-result) for an actual pending
+machine event.
+
+For the Codex Action route, apply this progression to each distinct stage in
+[Code Review](./code-review.md): exact-command admission, workflow start,
+context preparation, model completion, validation, sanitized publication, and
+correlated summary. A no-op or denied trigger, unavailable sidecar or merge
+snapshot, blocked control surface, model or validator failure, withheld output,
+publisher failure, or old mutable summary is not a clean review. Continue from
+the last verified stage through the qualified GitHub route without replacing
+the selected reviewer or posting a duplicate trigger. Readiness evidence still
+does not authorize publishing a ready transition.
+
 ## Qualify the advisory reader
 
 At the advisory checkpoint selected by
@@ -238,6 +258,9 @@ schedule requests, unavailable APIs or expensive modes to prove prose.
 | Review pending without monitoring authorization                | No schedule created; use a permitted wait or return recovery information.                                                   |
 | Lost response after a write                                    | Inspect stored bytes and process state before any retry.                                                                    |
 | Plan changes before a child returns                            | Old result does not satisfy new approval; recover and audit it first.                                                       |
+| Codex trigger exists but validation or publication fails       | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                      |
+| Base integration produces only mechanical conflicts            | Resolve them append-only, rerun affected checks, and request review of the resulting material.                              |
+| Conflicting edits express different intended behavior          | Return the decision to the human; do not guess or rewrite history.                                                          |
 | Existing host or mandatory external reviewer unavailable       | Report the untested path; mandatory external review remains unmet until obtained.                                           |
 
 Run the documented format, lint and aggregate checks in
