@@ -198,4 +198,48 @@ describe("Codex Action review policy integration", () => {
       /comment ID, actor,\s+workflow run ID, and run attempt/u,
     );
   });
+
+  it("keeps operation grants scoped across recovery and Action retries", async () => {
+    const [delivery, loopState, resumption, operation, migration] =
+      await Promise.all([
+        readFile(repoPath("docs/operations/github-delivery.md"), "utf8"),
+        readFile(
+          repoPath(
+            "skills/loop-engineering/references/run-state-and-reporting.md",
+          ),
+          "utf8",
+        ),
+        readFile(
+          repoPath(
+            "skills/loop-engineering/references/resuming-and-handoff.md",
+          ),
+          "utf8",
+        ),
+        readFile(
+          repoPath(
+            "skills/github-operation/references/publication-and-recovery.md",
+          ),
+          "utf8",
+        ),
+        readFile(repoPath("docs/operations/loop-migration.md"), "utf8"),
+      ]);
+
+    expect(loopState).toContain("## Scoped Operation Grants");
+    expect(loopState).toContain("carry a matching grant forward");
+    expect(loopState).toMatch(
+      /MUST NOT bind a grant to an exact material revision/u,
+    );
+    expect(resumption).toContain("every proposed resumed effect");
+    expect(delivery).toContain("| Authorization");
+    expect(delivery).toContain("API-billed model execution");
+    expect(delivery).toContain("remaining requests through");
+    expect(delivery).toContain("do not remove substantive material");
+    expect(delivery).toMatch(
+      /publisher failure also leaves the\s+model result/u,
+    );
+    expect(operation).toContain("still-valid grant authorizes another attempt");
+    expect(migration).toContain("Grant covers draft publication");
+    expect(migration).toContain("Compound grant names draft updates");
+    expect(migration).toContain("Mutable bot summary identifies an older");
+  });
 });

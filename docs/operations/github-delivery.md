@@ -42,12 +42,38 @@ into these fields, including conditional evidence only when relevant:
 | -------------------- | ---------------------------------------------------------------------------------------------- |
 | Target and phase     | Issue/PR locators, branch, phase                                                               |
 | Approval             | Canonical plan locator, revision identity, approval evidence                                   |
+| Authorization        | Operation targets, route/lifetime, human evidence, limits and exclusions                       |
 | Execution            | Assignment scope and revision, execution mode/status, attempt count, latest result locator     |
 | Actual material      | Commit/revision, uncommitted files or retrievable diff, evidence locators                      |
 | Verification         | Commands and outcomes, skipped checks and residual risk, CI/check locators                     |
-| Review               | Round, result locator, open finding IDs/severities/citations when durable storage is permitted |
+| Review               | Round, route, trigger/run/result identities and permitted durable findings                     |
 | Waiting              | Waiting state, unresolved question or authorization, next action                               |
 | Recovery             | Partial effects and object IDs, unknown effects, remaining processes and retrievable materials |
+
+Keep `Approval` and `Authorization` separate. Each authorization record is a
+compact prose entry, not a new schema: name the repository, branch and PR;
+permitted operations; human-evidence locator; provider route and lifetime;
+limits; and exclusions. Compare all of those fields before using a recovered
+grant. A session or phase change does not expire a matching grant, while a
+changed PR, route, lifetime, limit or operation requires authorization only for
+the difference. Do not add an exact-head field: reviewed-snapshot and material
+currency evidence stays separate from authorization scope.
+
+For a Codex Action request, the authorization record MUST name the exact trigger
+and its Issue-body context access, API-billed model execution and sanitized bot
+publication. Its limit says either one request or the remaining requests through
+Loop's four-round external cap. That work-item grant does not include secret or
+variable creation, workflow enablement, bot allowlisting, fork/private policy,
+spend or retention settings, production qualification, ready transition, merge,
+release, deployment or scheduling unless the human separately names the effect.
+
+The `Review` entry records only safe correlation metadata: trigger comment ID
+and actor, workflow run ID and attempt, reviewed snapshot, sanitized result
+locator and the last observed stage. Put partial or unknown effects in
+`Recovery`. Neither entry carries Issue text, a sidecar path as a durable
+retrieval promise, credentials, raw API/model output or rejected output.
+These field-specific least-data constraints do not remove substantive material
+from a permitted internal plan or handoff that Loop requires.
 
 Loop owns the conditions under which finding details persist, including
 [advisory-review parks](../../skills/loop-engineering/references/pre-flight-review.md).
@@ -116,6 +142,23 @@ leave merging to the human under Development Workflow. If a policy-compliant
 independent review cannot be established, record the actual unmet gate on the
 PR and keep it draft. An unrelated review defect is neither a new acceptance
 criterion nor permission to weaken review policy.
+
+## Recover Codex Action review effects
+
+Before posting another exact Codex command, correlate the authenticated trigger
+comment, workflow run and attempt, reviewed snapshot, and bot-owned sanitized
+result using [Code Review](./code-review.md)'s provider identities. Keep the
+stages distinct: a stored trigger with no started run is not completion, a
+failed run can have no result comment, and a mutable summary tied to an older
+run does not complete the current request. A publisher failure also leaves the
+model result and published-result stages different.
+
+Discovery and correlation establish what happened; they do not authorize a
+retry. Post another trigger only when the intended effect is confirmed absent,
+the prior outcome is no longer unknown, and the recovered authorization still
+covers another request within its limit. Otherwise continue from the correlated
+object or report the exact failed, partial, outcome-unknown, or
+authorization-waiting state.
 
 ## Use the repository's comment marker
 
