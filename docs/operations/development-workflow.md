@@ -57,6 +57,26 @@ when a compatible reader is permitted. Its findings and round limits follow
 If a host does not permit that reader, record the skipped advisory stage rather
 than relabeling parent self-review or waiving the external review.
 
+## Select the external review route
+
+[Code Review](./code-review.md) owns the two configured external routes. The
+retained Claude route reviews ordinary and review-control changes through
+`@claude review`. The disabled Codex Action route reviews only static,
+non-control changes through the exact `/codex-action-review` command after its
+production qualification and enablement.
+
+Before requesting review, the current state MUST record the selected route,
+its scope, and when that selection expires. A host switch MUST recover that
+selection rather than replacing it with the new host's default. A failed or
+blocked Codex run grants no automatic fallback to Claude. If the selected route
+is unavailable and no human explicitly replaces it, record the unmet
+independent-review gate.
+
+Codex blocks any change to its control graph before model execution. Such a
+change, including the initial workflow bootstrap, MUST use the existing Claude
+route. If Claude is unavailable, self-review and local checks do not satisfy
+the independent-review gate.
+
 ## GitHub Delivery During Migration
 
 When storing or publishing change-loop records, follow

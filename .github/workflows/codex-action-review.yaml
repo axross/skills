@@ -1,0 +1,118 @@
+name: Codex Action Issue-sidecar Review
+
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: codex-action-review-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  review:
+    name: Static review and validation
+    if: >-
+      vars.CODEX_ACTION_REVIEW_ENABLED == 'true' &&
+      vars.CODEX_ACTION_REVIEW_MODEL != '' &&
+      github.event.issue.pull_request &&
+      github.event.comment.body == '/codex-action-review' &&
+      (((github.event.comment.author_association == 'OWNER' ||
+         github.event.comment.author_association == 'MEMBER' ||
+         github.event.comment.author_association == 'COLLABORATOR') &&
+        !endsWith(github.actor, '[bot]')) ||
+       (vars.CODEX_ACTION_REVIEW_ALLOWED_BOT != '' &&
+        github.actor == vars.CODEX_ACTION_REVIEW_ALLOWED_BOT))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    outputs:
+      control_sha: ${{ steps.trusted-checkout.outputs.commit }}
+      payload: ${{ steps.validate.outputs.payload }}
+    env:
+      PR_CHECKOUT: ${{ github.workspace }}/pr-merge
+      REVIEW_DIRECTORY: ${{ runner.temp }}/codex-action-review-${{ github.run_id }}-${{ github.run_attempt }}
+      TRUSTED_CHECKOUT: ${{ github.workspace }}/trusted-control
+    steps:
+      - name: Checkout trusted default-branch controls
+        id: trusted-checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: trusted-control
+          persist-credentials: false
+
+      - name: Checkout the pull-request merge snapshot
+        id: pr-checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: pr-merge
+          ref: refs/pull/${{ github.event.issue.number }}/merge
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Prepare trusted static review inputs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          PR_SNAPSHOT_SHA: ${{ steps.pr-checkout.outputs.commit }}
+          TRIGGER_ACTOR: ${{ github.actor }}
+          TRIGGER_COMMENT_ID: ${{ github.event.comment.id }}
+        run: node "${TRUSTED_CHECKOUT}/.github/codex-action-review/prepare-context.mjs"
+
+      - name: Review the static snapshot
+        uses: openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e # v1.12
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          codex-version: "0.138.0"
+          model: ${{ vars.CODEX_ACTION_REVIEW_MODEL }}
+          effort: high
+          prompt-file: ${{ env.REVIEW_DIRECTORY }}/prompt.txt
+          output-file: ${{ env.REVIEW_DIRECTORY }}/raw-result.json
+          output-schema-file: ${{ env.TRUSTED_CHECKOUT }}/.github/codex-action-review/review.schema.json
+          working-directory: ${{ env.REVIEW_DIRECTORY }}
+          codex-home: ${{ env.REVIEW_DIRECTORY }}/codex-home
+          permission-profile: ":read-only"
+          safety-strategy: drop-sudo
+          codex-args: '["--ephemeral"]'
+          allow-bot-users: ${{ vars.CODEX_ACTION_REVIEW_ALLOWED_BOT }}
+
+      - name: Validate and sanitize the review result
+        id: validate
+        env:
+          RESULT_FILE: ${{ env.REVIEW_DIRECTORY }}/raw-result.json
+          REVIEW_CONTEXT_FILE: ${{ env.REVIEW_DIRECTORY }}/review-context.json
+          REQUIREMENTS_SIDECAR_FILE: ${{ env.REVIEW_DIRECTORY }}/requirements.sidecar
+        run: node "${TRUSTED_CHECKOUT}/.github/codex-action-review/validate-result.mjs"
+
+      - name: Remove private review inputs
+        if: always()
+        run: node "${TRUSTED_CHECKOUT}/.github/codex-action-review/cleanup.mjs"
+
+  publish:
+    name: Publish sanitized result
+    needs: review
+    if: needs.review.result == 'success' && needs.review.outputs.payload != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout trusted publisher
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: trusted-publisher
+          ref: ${{ needs.review.outputs.control_sha }}
+          persist-credentials: false
+
+      - name: Create or update the bot-owned review summary
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          SANITIZED_PAYLOAD: ${{ needs.review.outputs.payload }}
+          TRIGGER_ACTOR: ${{ github.actor }}
+          TRIGGER_COMMENT_ID: ${{ github.event.comment.id }}
+        run: node "${GITHUB_WORKSPACE}/trusted-publisher/.github/codex-action-review/publish-result.mjs"

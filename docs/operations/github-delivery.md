@@ -92,7 +92,7 @@ Use the following destinations after resolving the target under GitHub Operation
 | Plan, plan questions, amendments                                  | Tracking issue                                                                  |
 | Current run state                                                 | Issue before PR creation; PR afterward                                          |
 | Verification commands, outcomes, acceptance status, residual risk | PR **Verification** and applicable risk sections; state block links to evidence |
-| Independent review request                                        | Dedicated marked comment on the PR                                              |
+| Independent review request                                        | Dedicated marked comment, except the exact Codex command described below        |
 | Fix evidence and finding reply                                    | The finding's PR review thread                                                  |
 | Draft/ready status and PR metadata                                | The PR, never the tracking issue                                                |
 
@@ -105,6 +105,9 @@ Finding replies MUST identify the fixing commit with `Resolved in <short-hash>`
 (link the commit), normally followed by one sentence. Resolve the corresponding
 thread after posting the reply. Keep fuller reasoning only where the fix needs
 it; the finding thread, not an unrelated issue comment, is the evidence target.
+The Codex Action summary has no inline finding threads, so record each
+observation's fix or explicit dismissal in the current review state and use the
+next correlated summary as rerun evidence.
 
 The PR stays draft until Loop's
 [readiness evaluation](../../skills/loop-engineering/references/independent-review.md)
@@ -121,6 +124,14 @@ Recognize the retired `<!-- claude-code -->` marker as agent output on historica
 issues and PRs, but never use it for a new comment. GitHub Operation owns the
 attribution test and trigger-isolation rule; these are the repository's marker
 values, not a second attribution policy.
+
+The sole exception is the Codex Action command channel. Its entire comment body
+MUST equal `/codex-action-review`, so the request intentionally carries no
+agent marker. Attribute that request through its GitHub comment ID, actor,
+workflow run ID, and run attempt. The publisher's separate result comment MUST
+use `<!-- codex-action-issue-sidecar-review -->` and MUST be owned by
+`github-actions[bot]`. This exception does not apply to status comments, other
+automation commands, or ordinary agent output.
 
 When external writes are not authorized or no permitted route can perform them,
 return prepared content and the exact blocked operation to the human. Do not
