@@ -64,6 +64,8 @@ authorized draft may proceed with the advisory gap recorded and remains draft.
 Recovery before the first push resumes the pending pre-flight checkpoint. Once
 the draft pull request exists, later fixes follow the external addressing and
 fresh-review loop; resuming that loop does not replay the initial checkpoint.
+[The actor-independent pre-flight decision](../decisions/2026-09-09-select-pre-flight-by-review-need-not-implementation-actor.md)
+records why these stages remain separate.
 
 ## Select the external review route
 

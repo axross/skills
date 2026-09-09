@@ -30,9 +30,7 @@ permits one and all required material is available.
 When no reader qualifies, the run records the exact unavailable or prohibited
 reason instead of reporting a clean review. That advisory gap does not waive
 external review or authorize publication, but it does not by itself prevent a
-separately authorized draft from proceeding. Recovery resumes the checkpoint
-only while initial publication remains pending; later delivered fixes stay in
-the external addressing and review loop.
+separately authorized draft from proceeding.
 
 The host continues to select and qualify the actual reader mechanism. The
 portable loop and project policy define the checkpoint and evidence, not a

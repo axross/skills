@@ -469,9 +469,6 @@ describe("report-obligation-burden.mjs", () => {
       // are also ceiling-only; these values are the reporter's measured result.
       // issue #545 separates portable loop contracts from host mechanics;
       // these values are the reporter's new measured corpus, not estimates.
-      // actor-independent pre-flight widens one existing loop-engineering
-      // reference obligation without adding a bullet, moving only the ceiling
-      // token total by 22.
       expect.soft(totals.floorObligations).toBe(33);
       expect.soft(totals.floorTokens).toBe(5_301);
       expect.soft(totals.ceilingObligations).toBe(408);
