@@ -39,6 +39,18 @@ Persisting full review reasoning can anchor a fresh reviewer. The session keeps 
 - MUST keep round and waiting state durable throughout the stage, not only at a park. Never persist resolved findings, claims, suggested fixes, dispositions, or reasons in that recovery subset.
 - MUST re-run review where no recoverable ledger exists, including an interruption between parks; missing entries never establish completion.
 
+## Deferred Handoff
+
+An informed decline ends the advisory round without erasing its remaining risks. Its substantive handoff is a terminal human record, not the narrow recovery subset kept while a review may resume.
+
+**Guidelines:**
+
+- MUST retain each deferred finding's ID, severity, citation, claim, suggested fix, `deferred` disposition, decision reason, and supporting evidence, together with the advisory round, reviewed material identity, and human-decision evidence.
+- MUST make that substantive record accessible to the human through a permitted project mechanism and identify it as handoff evidence, not canonical requirements or review input.
+- MUST NOT provide the substantive handoff, its findings, or its dispositions as input to a later fresh advisory review or use it as replacement input for mandatory external review. A publicly readable record does not promise reviewer invisibility.
+- MUST keep delivery incomplete when the substantive handoff cannot be persisted or published, report the missing effect, and preserve the full ledger in the current permitted internal handoff rather than reducing it to the durable-park subset.
+- MUST report a missing substantive record after interruption as unavailable evidence and preserve only verified decision and process facts. Never reconstruct lost finding substance or treat the gap as permission for a new review round; any new finding set follows the ordinary round and informed-decision rules.
+
 ## Round Cap
 
 The autonomous pre-flight envelope is the initial implementation plus **3** review/fix rounds. Each round's execution has its own initial-plus-two retry budget.
@@ -46,5 +58,5 @@ The autonomous pre-flight envelope is the initial implementation plus **3** revi
 **Guidelines:**
 
 - MUST ask the human once for each additional round, disclosing the count and severities of open findings and naming every open Critical or Major.
-- MUST mark all still-open findings `deferred` and keep the delivered change in draft when the informed human declines another round.
+- MUST mark all still-open findings `deferred`, preserve them through the substantive handoff, and keep the delivered change in draft when the informed human declines another round.
 - MUST NOT treat this cap as permission to schedule work or as a replacement for external independent review.
