@@ -474,9 +474,9 @@ describe("report-obligation-burden.mjs", () => {
       // seven Guidelines bullets, so ceiling obligations move by seven. these
       // values are the reporter's new measured corpus, not estimates.
       expect.soft(totals.floorObligations).toBe(33);
-      expect.soft(totals.floorTokens).toBe(5_334);
-      expect.soft(totals.ceilingObligations).toBe(426);
-      expect.soft(totals.ceilingTokens).toBe(31_898);
+      expect.soft(totals.floorTokens).toBe(5_339);
+      expect.soft(totals.ceilingObligations).toBe(431);
+      expect.soft(totals.ceilingTokens).toBe(32_221);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -529,9 +529,9 @@ describe("report-obligation-burden.mjs", () => {
       // our own SKILL.md routing-bullet bytes, since `main`'s addition is
       // reference-only.
       expect.soft(tiers[2].floorObligations).toBe(33);
-      expect.soft(tiers[2].floorTokens).toBe(5_334);
-      expect.soft(tiers[2].ceilingObligations).toBe(426);
-      expect.soft(tiers[2].ceilingTokens).toBe(31_898);
+      expect.soft(tiers[2].floorTokens).toBe(5_339);
+      expect.soft(tiers[2].ceilingObligations).toBe(431);
+      expect.soft(tiers[2].ceilingTokens).toBe(32_221);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -558,8 +558,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(426);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(426);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(431);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(431);
     });
 
     it("prints no tier block without --mandated", async () => {

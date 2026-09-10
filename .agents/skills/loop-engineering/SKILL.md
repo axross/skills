@@ -77,7 +77,7 @@ See [writer-ownership-and-recovery.md](./references/writer-ownership-and-recover
 
 See [pre-flight-review.md](./references/pre-flight-review.md) for:
 
-- advisory review findings, terminal states, dismissal authority, and durable parks
+- advisory review findings, terminal states, deferred human handoffs, dismissal authority, and durable parks
 - the initial implementation plus three autonomous review/fix rounds
 
 **Guidelines:**

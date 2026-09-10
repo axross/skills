@@ -90,6 +90,24 @@ permitted substantive record when one exists, and report when the projection
 cannot carry enough context. The projection is recovery evidence, not canonical
 criteria or a replacement for fresh advisory or external-review input.
 
+## Publish deferred pre-flight handoffs
+
+An informed decline produces a substantive terminal handoff as well as a safe
+delivery projection. They remain separate because the draft pull request (PR)
+is one of the Codex Action design's restricted surfaces, while the Action reads
+the tracking Issue body rather than its comments.
+
+**Guidelines:**
+
+- MUST publish one `<!-- ai-agent -->` tracking-Issue comment for each informed decline when that effect is authorized. Identify it as deferred pre-flight handoff evidence, not canonical requirements or review input.
+- MUST retain in that comment the advisory round and reviewed material identity; each finding's ID, severity, code citation, substance, suggested fix and `deferred` disposition; the decision reason and supporting evidence; and locators for the human decision and canonical Issue.
+- MUST preserve corrections to a substantive handoff in later marked comments rather than overwriting the evidence the human received.
+- MUST put only the publication-safe projection in the draft PR's **Risks and breaking changes** section and compact handoff status and locators in its state block. For each finding, retain the ID, severity, code citation, code-observed risk, `deferred` state, valid requirement identifier or locator, substantive-record locator and human-decision locator.
+- MUST build the projection only from code observations, process facts and valid locators. Never quote, summarize or paraphrase Issue text or expected behavior; when the safe fields cannot convey the risk or a valid locator is unavailable, publish only the available locators and limitation rather than inventing a safe paraphrase.
+- MUST NOT use the Codex Action result marker or impersonate its bot for this handoff, feed the tracking-Issue comment to a fresh advisory assignment, or treat the comment as replacement Action input. Public readability does not imply reviewer invisibility.
+- MUST treat the Issue comment and PR updates as separate effects under the recovered operation grant. Without authorization, retain the full ledger in the current permitted internal handoff, report its substance and the exact blocked effects to the human, and keep delivery incomplete; an orb-local artifact is not a durable substitute.
+- MUST route missing substantive handoff evidence through Loop's [Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff) recovery contract; Delivery adds only verified GitHub process and decision locators and blocked publication effects.
+
 For a status-only read, extract from the first opening token through its closing
 token and stop; do not bring the plan and archive into context merely to read
 the state. A missing or truncated block requires a faithful read, not an
@@ -126,6 +144,7 @@ Use the following destinations after resolving the target under GitHub Operation
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | Plan, plan questions, amendments                                  | Tracking issue                                                                  |
 | Current run state                                                 | Issue before PR creation; PR afterward                                          |
+| Substantive deferred pre-flight handoff                           | Marked tracking-Issue comment                                                   |
 | Verification commands, outcomes, acceptance status, residual risk | PR **Verification** and applicable risk sections; state block links to evidence |
 | Independent review request                                        | Dedicated marked comment, except the exact Codex command described below        |
 | Fix evidence and finding reply                                    | The finding's PR review thread                                                  |

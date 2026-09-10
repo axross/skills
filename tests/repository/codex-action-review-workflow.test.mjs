@@ -16,6 +16,14 @@ function jobBlock(workflow, name, nextName) {
   return workflow.slice(start, end);
 }
 
+function tableRow(markdown, input) {
+  const row = markdown
+    .split("\n")
+    .find((line) => line.startsWith(`| ${input}`));
+  if (!row) throw new Error(`missing walkthrough row: ${input}`);
+  return row;
+}
+
 describe("Codex Action review admission", () => {
   it("uses only issue_comment created events and exact command equality", async () => {
     const workflow = await readWorkflow();
@@ -245,5 +253,162 @@ describe("Codex Action review policy integration", () => {
     expect(migration).toContain("Grant covers draft publication");
     expect(migration).toContain("Compound grant names draft updates");
     expect(migration).toContain("Mutable bot summary identifies an older");
+  });
+
+  it("retains terminal handoff substance without turning it into later review input", async () => {
+    const [preflight, migration] = await Promise.all([
+      readFile(
+        repoPath(
+          "skills/loop-engineering/references/pre-flight-review.md",
+        ),
+        "utf8",
+      ),
+      readFile(repoPath("docs/operations/loop-migration.md"), "utf8"),
+    ]);
+    const handoff = preflight.slice(
+      preflight.indexOf("## Deferred Handoff"),
+      preflight.indexOf("## Round Cap"),
+    );
+
+    expect(handoff).toMatch(
+      /deferred finding's ID, severity, citation, claim, suggested fix/u,
+    );
+    expect(handoff).toMatch(/decision reason, and supporting evidence/u);
+    expect(handoff).toMatch(
+      /advisory round, reviewed material identity, and human-decision evidence/u,
+    );
+    expect(handoff).toMatch(
+      /MUST NOT provide the substantive handoff, its findings, or its dispositions as input to a later fresh advisory review or use it as replacement input for mandatory external review/u,
+    );
+    expect(handoff).toMatch(
+      /MUST report a missing substantive record after interruption as unavailable evidence and preserve only verified decision and process facts/u,
+    );
+    expect(handoff).toMatch(
+      /Never reconstruct lost finding substance or treat the gap as permission for a new review round/u,
+    );
+    expect(migration).toContain("| Deferred handoff");
+    const missingEvidence = tableRow(
+      migration,
+      "Substantive handoff evidence is missing after interruption",
+    );
+    expect(missingEvidence).toMatch(
+      /report unavailable evidence, preserve verified facts/u,
+    );
+    expect(missingEvidence).toMatch(
+      /do not reconstruct finding substance, and do not infer permission for a new round/u,
+    );
+    expect(missingEvidence).not.toMatch(/(?:complete|success)/u);
+  });
+
+  it("keeps authorized Issue publication separate from PR projection and unpublished delivery", async () => {
+    const delivery = await readFile(
+      repoPath("docs/operations/github-delivery.md"),
+      "utf8",
+    );
+    const handoff = delivery.slice(
+      delivery.indexOf("## Publish deferred pre-flight handoffs"),
+      delivery.indexOf("For a status-only read"),
+    );
+
+    expect(handoff).toMatch(
+      /MUST publish one `<!-- ai-agent -->` tracking-Issue comment for each informed decline when that effect is authorized/u,
+    );
+    expect(handoff).toMatch(/MUST retain in that comment the advisory round/u);
+    expect(handoff).toMatch(
+      /MUST put only the publication-safe projection in the draft PR's \*\*Risks and breaking changes\*\* section/u,
+    );
+    expect(handoff).toMatch(
+      /MUST treat the Issue comment and PR updates as separate effects/u,
+    );
+    expect(handoff).toMatch(
+      /Without authorization, retain the full ledger in the current permitted internal handoff/u,
+    );
+    expect(handoff).toMatch(/report its substance and the exact blocked effects/u);
+    expect(handoff).toMatch(/keep delivery incomplete/u);
+
+    const migration = await readFile(
+      repoPath("docs/operations/loop-migration.md"),
+      "utf8",
+    );
+    const bothEffects = tableRow(
+      migration,
+      "Human declines another advisory round; both publication effects authorized",
+    );
+    expect(bothEffects).toMatch(/Remaining findings become deferred/u);
+    expect(bothEffects).toMatch(
+      /a marked Issue comment preserves the substantive handoff/u,
+    );
+    expect(bothEffects).toMatch(/draft PR carries only its safe projection/u);
+    expect(bothEffects).not.toMatch(/(?:become|mark(?:ed)?) fixed/u);
+
+    const issueOnly = tableRow(
+      migration,
+      "Issue-comment publication is authorized but PR update is not",
+    );
+    expect(issueOnly).toMatch(/Publish the marked substantive handoff/u);
+    expect(issueOnly).toMatch(
+      /report the blocked PR projection and keep delivery incomplete/u,
+    );
+    expect(issueOnly).toMatch(/the two effects do not share authorization/u);
+    expect(issueOnly).not.toMatch(/publish the PR projection/iu);
+
+    const neitherEffect = tableRow(
+      migration,
+      "Neither deferred-handoff publication effect is authorized",
+    );
+    expect(neitherEffect).toMatch(/Preserve the full internal handoff/u);
+    expect(neitherEffect).toMatch(
+      /report its substance and both blocked effects, and keep delivery incomplete/u,
+    );
+    expect(neitherEffect).toMatch(
+      /an orb-local artifact is not a durable substitute/u,
+    );
+    expect(neitherEffect).not.toMatch(/delivery (?:is )?complete\b/u);
+  });
+
+  it("withholds unsafe projections and routes lost evidence to Loop recovery", async () => {
+    const delivery = await readFile(
+      repoPath("docs/operations/github-delivery.md"),
+      "utf8",
+    );
+    const handoff = delivery.slice(
+      delivery.indexOf("## Publish deferred pre-flight handoffs"),
+      delivery.indexOf("For a status-only read"),
+    );
+
+    expect(handoff).toMatch(
+      /Never quote, summarize or paraphrase Issue text or expected behavior/u,
+    );
+    expect(handoff).toMatch(/or a valid locator is unavailable/u);
+    expect(handoff).toMatch(/publish only the available locators and limitation/u);
+    expect(handoff).toMatch(/MUST NOT use the Codex Action result marker/u);
+    expect(handoff).toMatch(/feed the tracking-Issue comment to a fresh advisory assignment/u);
+    expect(handoff).toMatch(/treat the comment as replacement Action input/u);
+    expect(handoff).toMatch(/Public readability does not imply reviewer invisibility/u);
+    expect(handoff).toMatch(/an orb-local artifact is not a durable substitute/u);
+    expect(handoff).toContain(
+      "[Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff)",
+    );
+    expect(handoff).not.toMatch(/reconstruct lost finding substance/u);
+    expect(handoff).not.toMatch(/permission for a new review round/u);
+
+    const migration = await readFile(
+      repoPath("docs/operations/loop-migration.md"),
+      "utf8",
+    );
+    const unsafeProjection = tableRow(
+      migration,
+      "Substantive canary `violet-otter`; PR projection repeats it or paraphrases it as `purple-mustelid`",
+    );
+    expect(unsafeProjection).toMatch(/Withhold both unsafe forms/u);
+    expect(unsafeProjection).toMatch(
+      /use only code\/process observations and valid locators/u,
+    );
+    expect(unsafeProjection).toMatch(
+      /report the limitation when no valid locator is available/u,
+    );
+    expect(unsafeProjection.split("|")[2]).not.toMatch(
+      /violet-otter|purple-mustelid/u,
+    );
   });
 });
