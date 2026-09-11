@@ -1,15 +1,23 @@
 # Claude Code Execution
 
-Maintainers running this repository in Claude Code use this reference to pick
-the instrument for a step whose _meaning_ another owner already fixed. It maps
-the portable contracts onto Claude Code operations; it grants no tool access and
-replaces no tool definition. [Development Workflow](./development-workflow.md)
+Maintainers running this repository in Claude Code — and, for the instruments
+the two share, in Codex — use this reference to pick the instrument for a step
+whose _meaning_ another owner already fixed. It maps the portable contracts onto
+those hosts' operations; it grants no tool access and replaces no tool
+definition. [Development Workflow](./development-workflow.md)
 owns this repository's gates, [Loop Engineering](../../skills/loop-engineering/SKILL.md)
 owns transitions and evidence, [Professional Behavior](../../skills/professional-behavior/SKILL.md)
 owns decisions and question content, and [CLAUDE.md](../../CLAUDE.md) owns what
 happens when an injected prompt disagrees with those gates.
 [Amp Execution](./amp-execution.md) is the counterpart for Amp; neither file's
 tool names carry over to the other host.
+
+**Codex reads this file too, for the instruments it shares.** A Codex session
+takes the same portable contracts and the same repository gates, and this file
+notes Codex's own tool name wherever it is the one that differs. Where a
+section names a Claude Code tool with no Codex note beside it, that instrument
+has not been established for Codex: qualify it from the actual session and
+report the missing capability rather than calling a Claude Code tool by name.
 
 The names below were checked on 2026-09-11 against a Claude Code session's own
 tool surface in this repository. A session MUST recheck its actual tools and
@@ -21,35 +29,37 @@ the missing capability rather than substituting a mechanism the contract forbids
 
 ## Ask the human through the question tool
 
-[Asking the Human](../../skills/professional-behavior/references/asking-the-human.md)
-owns which decisions reach the human, how they are framed, and the rule that a
-decision written into prose was never asked. This section supplies only the
-instrument.
+[Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
+owns the rules — which decisions reach the human, how they are framed, when
+prose is the route, and what to do with a prompt that closed or errored. This
+section supplies only the instrument that carries them.
 
-Claude Code's dedicated question mechanism is **`AskUserQuestion`**. It renders
-the options as a selectable choice and returns the answer inline, so the run
-continues in the same turn. It is the default route for a decision with options,
-not a fallback reached after some other channel failed.
+The dedicated question mechanism is **`AskUserQuestion`** in Claude Code and
+**`request_user_input`** in Codex. Either renders the options as a selectable
+choice and returns the answer inline, so the run continues in the same turn.
 
-- Judge its availability from the session's actual tool list. Do not conclude it
-  is absent because the session is headless, remote, or cloud-hosted.
-- On a closed, cancelled, or errored prompt, show the decision in plain text —
-  background, the question, the numbered options, the recommended default — then
-  call `AskUserQuestion` again with the same options in the same order and hold
-  for the answer. A transient permission-stream closure and a genuinely
-  unattended run return the same error, so the error alone does not distinguish
-  them.
+- Judge availability from the session's actual tool list. Do not conclude the
+  mechanism is absent because the session is headless, remote, or cloud-hosted.
+  A transient permission-stream closure and a genuinely unattended run return
+  the same error, which is why the rule on re-presenting keys on the error
+  rather than on a guess about the environment.
+- Re-present through the same mechanism, with the same options in the same
+  order, as that rule requires.
 - The plan-approval gate is not one of these. It is a whole plan the human reads
   at their own pace, so it ends the turn and waits for a resume.
 - `EnterPlanMode` and `ExitPlanMode` write a local plan file. Neither satisfies
   the plan-approval gate, because the artifact the human approves is the plan
-  recorded in the tracking issue.
+  recorded in the tracking issue. Codex's equivalent local plan mode, where its
+  session exposes one, does not satisfy it either.
 
 ## Wait for CI and the independent review
 
-[Independent Review and Readiness](../../skills/loop-engineering/references/independent-review.md)
-owns the waiting bound, the ready gate, and the rule that a human wait is never
-polled. This section supplies the instrument and the teardown.
+[Waiting Bound](../../skills/loop-engineering/references/independent-review.md#waiting-bound)
+owns the rules: the bound itself, resolving which mechanism the session has
+before the first wake, recording when only one is available, scoping a
+mechanism to this tail, and tearing down at each of its three stops. This
+section says which mechanisms exist here and how each is cancelled, and states
+none of those rules again.
 
 Two mechanisms can report that a machine event finished, and they are not
 interchangeable. Resolve which of them this session actually has **before the
@@ -60,36 +70,31 @@ first wake**:
 | Pull-request activity delivered into the session | Review comments and failing checks, at no cost while nothing happens | The _success_ transitions — checks going green, a push landing, a conflict clearing — arrive late or not at all |
 | A scheduled self-wake back into the same session | A wake at a time this run chooses, surviving container reclaim       | Nothing; it is the backstop, and the whole mechanism where no activity delivery exists                          |
 
-Because green checks are one of the ready-gate conditions, delivery alone can
-leave a finished change waiting indefinitely. Keep a self-wake scheduled
-wherever the session provides one, even while activity delivery is active, and
-record in the run state when only delivery is available — a success transition
-missed there strands the run rather than merely delaying it.
+The second column is why the reference requires a mechanism to be resolved
+before the first wake rather than after: green checks are one of the ready-gate
+conditions, and activity delivery is the one mechanism that does not reliably
+carry them. That is the concrete reason a scheduled wake stays armed here even
+while delivery is active, and the concrete thing the reference's
+record-when-only-one-is-available rule is recording.
 
-- Derive each wake from the checks still pending rather than from a fixed ladder:
-  place the first just past where the fastest pending check should already have
-  decided, then step across the slowest pending check's typical-to-maximum band,
-  then treat a check still pending beyond that band as anomalous rather than as
-  more of the same wait. Measure that band from this project's own recent runs.
-- Prefer one wake timed at the expected resolution over several short polls. A
-  run that checks repeatedly across a long wait pays to rebuild its context each
-  time and learns nothing sooner.
-- Where the session provides neither mechanism, end the turn and wait for the
-  human rather than blocking.
-- **Tear down whatever was armed, in the same turn as the stop.** Cancel the
-  scheduled self-wake and end the activity subscription at each of the three
-  stops: the ready transition, non-convergence at the round cap, and the waiting
-  bound. This holds with no exception, including where follow-up work on the same
-  change is already anticipated. A mechanism left armed past the tail wakes the
-  session for every unrelated event that still fires — a base-branch push, a bot
-  comment, a check re-run — and buys nothing toward what comes next.
-- Never arm either mechanism to catch a human's comment on a pull request the
-  tail has already finished with. Such a comment reaches the run through the
-  human's own resume.
+Picking the interval, where a scheduler exists: place the first wake just past
+where the fastest pending check should already have decided, then step across
+the slowest pending check's typical-to-maximum band, then treat a check still
+pending past that band as anomalous rather than as more of the same wait.
+Measure that band from this repository's own recent runs rather than carrying a
+figure over. One wake timed at the expected resolution beats several short
+polls, because each resume across a long gap pays to rebuild the session's
+context and learns nothing sooner.
 
-Scheduling tools are for this tail. Do not read a waiting bound, a review
-request, or the existence of a scheduler as authorization to create a recurring
-schedule; that needs the human's own request.
+Cancelling, which is what the reference's teardown rule needs from this file:
+cancel a scheduled wake through whichever scheduling tool armed it, and end a
+pull-request activity subscription through the tool that opened it. Where the
+session provides neither mechanism there is nothing to arm or cancel — end the
+turn and wait for the human rather than blocking.
+
+Creating a _recurring_ schedule is a separate matter from arming this tail's
+wake, and needs the human's own request. Neither a waiting bound, a review
+request, nor the presence of a scheduler supplies it.
 
 ## Choose the working location before touching files
 

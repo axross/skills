@@ -474,24 +474,28 @@ describe("report-obligation-burden.mjs", () => {
       // seven Guidelines bullets, so ceiling obligations move by seven. these
       // values are the reporter's new measured corpus, not estimates.
       // issue #587 restores ten rules the Amp restructuring left unowned and
-      // relocates the host-precedence claim into `CLAUDE.md`. Its floor moves
-      // in both dimensions for the first time in a while: `loop-engineering`'s
-      // SKILL.md takes back the four-bullet turn-boundary rule under the
-      // unconditional-scope carve-out, which is why floor obligations move by
-      // four rather than only floor bytes. The ceiling moves by twenty-seven —
-      // three in `professional-behavior`'s asking-the-human.md (four bullets
-      // added for the question-route policy, one merged away) and twenty-four
-      // across `loop-engineering`'s references: seven for read routing and the
-      // investigator return contract, five for model-and-effort certainty and
-      // the settled-arrangement record, four carried by SKILL.md's own
-      // carve-out bullets, three for the pre-flight reproduction accounting,
-      // three for the visual-approval ladder, and two for the wait-mechanism
-      // resolution and teardown. Figures re-derived by running the reporter
-      // against this tree, per this file's own header comment.
-      expect.soft(totals.floorObligations).toBe(37);
-      expect.soft(totals.floorTokens).toBe(6_018);
-      expect.soft(totals.ceilingObligations).toBe(458);
-      expect.soft(totals.ceilingTokens).toBe(35_387);
+      // relocates the host-precedence claim into `CLAUDE.md`. Its floor moves in
+      // both dimensions, which is unusual: `loop-engineering`'s SKILL.md takes
+      // back the four-bullet turn-boundary rule under the unconditional-scope
+      // carve-out, and gives up two Phase Progression bullets its own pre-flight
+      // review found were already stated in the references that govern them — so
+      // floor obligations move by two, not four, and floor tokens still rise
+      // because the carve-out's justification prose outweighs the two bullets
+      // removed. The ceiling moves by twenty-three: three in
+      // `professional-behavior`'s asking-the-human.md (four bullets added for
+      // the question-route policy, one merged away) and twenty across
+      // `loop-engineering` — five net in subagent-delegation.md (seven added for
+      // read routing and the investigator return contract, two removed as
+      // duplicates of SKILL.md's carve-out), five for model-and-effort certainty
+      // and the settled-arrangement record, three for the pre-flight
+      // reproduction accounting, three for the visual-approval ladder, two for
+      // the wait-mechanism resolution and teardown, and two net from SKILL.md
+      // itself. Figures re-derived by running the reporter against this tree,
+      // per this file's own header comment.
+      expect.soft(totals.floorObligations).toBe(35);
+      expect.soft(totals.floorTokens).toBe(6_039);
+      expect.soft(totals.ceilingObligations).toBe(454);
+      expect.soft(totals.ceilingTokens).toBe(35_409);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -543,10 +547,10 @@ describe("report-obligation-burden.mjs", () => {
       // assertions above for the combined accounting; the floor carries only
       // our own SKILL.md routing-bullet bytes, since `main`'s addition is
       // reference-only.
-      expect.soft(tiers[2].floorObligations).toBe(37);
-      expect.soft(tiers[2].floorTokens).toBe(6_018);
-      expect.soft(tiers[2].ceilingObligations).toBe(458);
-      expect.soft(tiers[2].ceilingTokens).toBe(35_387);
+      expect.soft(tiers[2].floorObligations).toBe(35);
+      expect.soft(tiers[2].floorTokens).toBe(6_039);
+      expect.soft(tiers[2].ceilingObligations).toBe(454);
+      expect.soft(tiers[2].ceilingTokens).toBe(35_409);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -573,8 +577,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(458);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(458);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(454);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(454);
     });
 
     it("prints no tier block without --mandated", async () => {

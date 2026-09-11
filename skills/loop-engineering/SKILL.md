@@ -18,15 +18,15 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 Every change advances against current evidence, never a claim inherited from an earlier phase.
 
-The five rules below stand in this file rather than behind a pointer, under the unconditional-scope carve-out an authoring capability's progressive-disclosure rules state. Each is unconditional within this skill's scope rather than merely broad: every change this skill governs has exactly one plan gate to clear, one read-only-or-not determination at intake, one executor to settle, one set of grants to keep apart from that approval, and one revision identity that every later phase is measured against. A pointer to any of them would fire on every run, costing a read while shaking nothing a direct statement here does not already shake.
+The three rules below stand in this file rather than behind a pointer, under the unconditional-scope carve-out an authoring capability's progressive-disclosure rules state, and each is stated only here. Each is unconditional within this skill's scope rather than merely broad, and each is needed before the reader can decide what to open: whether this is change work at all, who will execute it, and what an approval does and does not authorize. A pointer to any of the three would fire on every run, costing a read while shaking nothing a direct statement here does not already shake — and the executor rule in particular has nowhere else to land, since the reference that elaborates delegation is skipped precisely by the parent-only run that most needs to be told parent execution weakens no gate.
+
+Every other phase rule lives in the reference that governs it, including the plan gate and the staleness that follows a changed revision: [plan-document.md](./references/plan-document.md) states both, and the obligation below to read it fires whenever a plan is written, approved, revised, or compared.
 
 **Guidelines:**
 
-- MUST stop before implementation until every product, scope, privacy, security, platform, compatibility, persistence, and migration ambiguity is either resolved in the plan or put to the human, and the resulting plan revision is approved.
 - MUST treat read-only work as outside the change gates unless it produces a project change.
 - MUST select execution using only currently permitted capabilities and any project host guide; parent execution is valid and weakens no gate when delegation is unavailable, disallowed, or inappropriate.
 - MUST distinguish plan approval, operation authorization, execution capability, and permitted tool use. Carry forward valid authorization within its original scope, but never infer a broader grant from tool availability, project policy, plan approval, or a previous operation.
-- MUST invalidate stale approval, assignments, results, and reviews when the plan or target revision they identify changes.
 
 See [phase-progression.md](./references/phase-progression.md) for:
 

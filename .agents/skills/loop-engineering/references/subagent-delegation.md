@@ -4,12 +4,10 @@ Apply this reference when choosing who or what executes an assignment. The loop 
 
 ## Executor Selection
 
-Direct parent execution is a first-class path. Delegation is useful only when a permitted current capability improves isolation or focus without losing required material fidelity.
+Direct parent execution is a first-class path. Delegation is useful only when a permitted current capability improves isolation or focus without losing required material fidelity. That much — use only what the session permits, and execute in the parent where delegation is unavailable, disallowed, or inappropriate — is stated in [SKILL.md](../SKILL.md) under its carve-out and is not restated here; what follows is what applies once delegation is actually on the table.
 
 **Guidelines:**
 
-- MUST use only execution capabilities actually available and permitted in the current session, consulting a project host guide when one exists.
-- MUST execute in the parent when delegation is disallowed, inappropriate, or unavailable; this weakens no approval, verification, or review gate.
 - MUST NOT require a universal actor ranking, role name, model, tool, separate checkout, live conversation, or resumable child.
 - MUST report missing capability as `unavailable` and missing authorization as `authorization-waiting`.
 
