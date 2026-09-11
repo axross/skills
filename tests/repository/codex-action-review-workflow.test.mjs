@@ -352,6 +352,28 @@ describe("Codex Action review policy integration", () => {
     expect(issueOnly).toMatch(/the two effects do not share authorization/u);
     expect(issueOnly).not.toMatch(/publish the PR projection/iu);
 
+    const prOnly = tableRow(
+      migration,
+      "PR update is authorized but Issue-comment publication is not",
+    );
+    expect(prOnly).toMatch(/Publish the safe PR projection only/u);
+    expect(prOnly).toMatch(/retain the full ledger in the internal handoff/u);
+    expect(prOnly).toMatch(
+      /report the unpublished substantive comment as the blocked effect and keep delivery incomplete/u,
+    );
+    expect(prOnly).toMatch(
+      /where no valid substantive-record locator exists, disclose that limitation instead of inventing one/u,
+    );
+    expect(prOnly).not.toMatch(
+      /publish(?:es|ing)? the (?:marked )?substantive/iu,
+    );
+    expect(prOnly).not.toMatch(/blocked PR (?:projection|update)/u);
+    expect(prOnly).not.toMatch(
+      /block(?:s|ing|ed)? (?:every|both|all) effect/iu,
+    );
+    expect(prOnly).not.toMatch(/delivery (?:is )?complete\b/u);
+    expect(prOnly).not.toMatch(/https?:\/\//u);
+
     const neitherEffect = tableRow(
       migration,
       "Neither deferred-handoff publication effect is authorized",
