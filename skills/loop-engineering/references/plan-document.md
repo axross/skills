@@ -36,9 +36,12 @@ Approval of an amending plan carries approval of its write to another approved p
 
 ## Visual Change Options
 
-Visual direction is part of plan approval, not an implied implementation choice.
+Visual direction is part of plan approval, not an implied implementation choice. A visual change is settled over one or more **rounds**, each approved on its own rather than bundled: a low-fidelity round settles regions, layout, and hierarchy, and a high-fidelity round confirms the concrete look against what that first round fixed. Climbing the ladder in that order is what keeps a layout objection from arriving after the colour, type, and spacing work has already been built on it.
 
 **Guidelines:**
 
-- MUST present two to four distinct visual options and obtain approval of the final design round before implementation.
+- MUST present two to four distinct visual options in each round, and obtain the human's approval of that round before opening the next.
+- MUST NOT begin implementation until the final design round recorded against the plan is approved; a plan with no visual change proceeds on plan approval alone.
+- MUST record the approved option as the design source of truth against the plan, and reference it from the delivery target so a reviewer can compare the build against it.
 - MUST preserve visual artifacts at visual fidelity; prose describing an image is not the approved image.
+- SHOULD publish each round as an artifact the human can actually view, and follow the project's own wireframe and high-fidelity design capabilities for each round's craft wherever it ships them.

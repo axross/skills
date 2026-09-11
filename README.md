@@ -55,9 +55,29 @@ land as real directories instead of links.
 `description` and load it when a task matches, so nothing else is
 required. But discovery makes a skill _available_, not _binding_ — if you want
 one to govern how work happens rather than merely inform it, say so in your own
-agent instructions. This repository's [`CLAUDE.md`](./CLAUDE.md) is a worked
-example: it makes `loop-engineering` the mandatory change loop for every change,
-rather than one option among several.
+agent instructions. This repository is a worked example:
+[`AGENTS.md`](./AGENTS.md) makes `loop-engineering` the mandatory change loop for
+every change rather than one option among several, and
+[`CLAUDE.md`](./CLAUDE.md) adds the one thing a host-neutral file cannot carry —
+see below.
+
+**Say what outranks your runtime's own framing.** A host frames the session's
+task in its own words before it reads your instructions: "make the requested
+changes, commit, and push", "do not create a pull request unless the user
+explicitly asks", "do not spawn subagents unless the user requested it". None of
+these skills answers that framing, deliberately — a skill cannot inspect the
+host it is loaded into, so `loop-engineering` states its gates and says nothing
+about which instruction wins. **That statement is yours to write**, in the entry
+file of the host doing the injecting: `CLAUDE.md` for Claude Code, the
+equivalent elsewhere. Name the forms you have actually observed, say that the
+loaded skills' gates outrank them, and keep the exception clear of a tool's own
+usage conditions — those are a permission boundary rather than a framing, and an
+operation they forbid stays unavailable.
+[This repository's `CLAUDE.md`](./CLAUDE.md) is that file, and
+[the decision behind it](./docs/decisions/2026-09-11-place-runtime-precedence-in-the-host-entry-file.md)
+records why it lives there rather than in the skill. Skip it and a session that
+reads "do not create a pull request unless asked" has nothing telling it your
+working agreement already is that ask.
 
 ## Skill catalog
 

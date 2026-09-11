@@ -45,6 +45,10 @@ uses none of them.
   state storage, issue-to-PR handover, comment markers, and evidence routing.
 - [operations/amp-execution.md](./operations/amp-execution.md) — qualifying Amp
   executors, transferring materials, waiting, and recovering uncertain effects.
+- [operations/claude-code-execution.md](./operations/claude-code-execution.md) —
+  Claude Code's question tool, the CI-and-review wait and its teardown, the
+  worktree rule for a shared working tree, the investigator actor, and how model
+  and effort certainty is read here.
 - [operations/loop-migration.md](./operations/loop-migration.md) — the portable
   loop's topic ownership, preserved safeguards, combined acceptance matrix,
   and staged entry rollout and recovery.

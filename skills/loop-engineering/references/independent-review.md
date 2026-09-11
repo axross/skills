@@ -55,7 +55,9 @@ Waiting is host execution, not loop semantics. The semantic bound remains the aw
 - MUST report a still-pending result as partial or unavailable when the bound expires.
 - MUST NOT require polling, subscriptions, schedulers, cache-TTL measurements, or a particular resume mechanism.
 - MUST NOT infer scheduling permission from the existence of this bound.
-- MUST stop autonomous waiting at that bound, preserving recovery evidence; human waits end the turn and are never polled. Any permitted wait mechanism is scoped to this tail and ends at readiness, non-convergence, or the waiting bound rather than watching for later human comments.
+- MUST stop autonomous waiting at that bound, preserving recovery evidence; human waits end the turn and are never polled.
+- MUST resolve which wait mechanism the session actually has before the first wake, rather than tuning an interval against a mechanism it turns out not to expose, and record when only one of delivery and a scheduled wake is available — a success transition missed by delivery alone strands the run rather than merely delaying it.
+- MUST scope any permitted wait mechanism to this tail, and MUST tear down every mechanism it armed in the same turn as the stop, at each of the three stops: the ready transition, non-convergence at the round cap, and the waiting bound. This holds with no exception, including where follow-up work on the same change is already anticipated — a mechanism left armed past the tail wakes the run on unrelated activity it can do nothing with, and never on the later human comment a resume carries instead.
 
 ## Ready Gate
 

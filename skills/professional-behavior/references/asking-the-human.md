@@ -1,6 +1,6 @@
 # Asking the Human
 
-Apply this reference whenever you are about to put a decision to the human or return it to a parent — a single question mid-task, or every question in a clarifying interview. The triage decides _that_ a decision is theirs, and [clarifying-interview.md](./clarifying-interview.md) decides _which_ questions to ask and in what order; this covers the question's content and decision ownership, not its delivery tools. The question itself, its options, and their consequences are written in the language the human's most recent message set; see [reporting.md](./reporting.md#response-language) for the term-handling rule and its edge cases.
+Apply this reference whenever you are about to put a decision to the human or return it to a parent — a single question mid-task, or every question in a clarifying interview. The triage decides _that_ a decision is theirs, and [clarifying-interview.md](./clarifying-interview.md) decides _which_ questions to ask and in what order; this covers the question's content, who owns the decision, and which kind of route it goes through — never which tool a given runtime names for that route. The question itself, its options, and their consequences are written in the language the human's most recent message set; see [reporting.md](./reporting.md#response-language) for the term-handling rule and its edge cases.
 
 ## Presenting a Decision
 
@@ -24,9 +24,22 @@ The same content can reach a human directly or travel through a parent. A parent
 - MUST NOT bury a decision in prose, in a document section, or in a question appended to the end of a summary — a decision the human has to find is one you took for them.
 - MUST NOT silently assume an answer, and MUST NOT record a decision you made on the human's behalf as a stated assumption, per [uncertainty-triage.md](./uncertainty-triage.md).
 
-## Delivery and Unresolved Questions
+## Choosing the Route
 
-The active host owns channel selection, response timing, child communication, and operational recovery. Its current tools and usage conditions determine what can run; this reference requires neither a particular tool nor a project-specific adapter document. A missing or failed delivery route changes how a question is returned, never who owns the decision.
+A runtime that provides a **dedicated question mechanism** — one that renders the options as a choice the human acts on and returns the answer inline, so the work continues in the same turn — makes the question unmissable in a way prose cannot. The same decision written into a paragraph is indistinguishable from commentary: it gets read past, and the work proceeds on whatever you would have chosen anyway. That is the failure this section exists to prevent, and it looks diligent from the inside, because the decision was written down somewhere.
+
+So the route is chosen by what the session actually exposes, never by what a host is assumed to provide. Which mechanism a given runtime offers, and how it is invoked, belongs to that runtime's own operations guidance rather than here; this reference requires no particular tool and no project-specific adapter document. A missing or failed route changes how a question is returned, never who owns the decision.
+
+**Guidelines:**
+
+- MUST put a decision the triage assigned to the human through the runtime's dedicated question mechanism wherever the session exposes one, judged from the tools actually available rather than assumed from the host or the mode, and MUST NOT skip it in the expectation that it is absent.
+- MUST put the same options into the turn output and stop, rather than deciding, only where the session exposes no such mechanism at all; where the runtime offers no dedicated mechanism but some more interruptive channel, use that rather than treating its absence as licence to decide.
+- MUST re-present a prompt that was closed, cancelled, errored, or left unanswered — showing the decision in plain text first, then asking again with the same options in the same order — rather than routing around the human or reporting the work as blocked. A transient stream closure and a genuinely headless run return the same error, so the error alone does not tell them apart.
+- MUST read a bare answer token on a later turn — an option number, a label, or free-form text — as answering the still-open question, reconciled against the options you presented, rather than as a new instruction or a reason to restart.
+
+## Returning a Question You Cannot Ask
+
+A question does not stop being the human's to answer because the actor holding it has no way to reach them. What changes is the direction it travels: back to whoever asked, together with what was already established, so the parent can put it to the human and the work resumes from evidence rather than from a guess.
 
 **Example:**
 
@@ -34,10 +47,9 @@ The active host owns channel selection, response timing, child communication, an
 
 **Guidelines:**
 
-- MUST use the active host's permitted delivery route for a human question; a parent without a dedicated question tool can ask clearly in the conversation and stop dependent work while awaiting the answer.
 - MUST return the question and any partial results to the parent when a child cannot ask, identifying what remains unresolved and blocked rather than assuming live communication or resumability.
 - MUST have the parent integrate returned findings and present unresolved human decisions to the human, without treating the child's recommendation as an answer.
-- MUST keep dependent work blocked when delivery fails, is unavailable, or has an unknown outcome; report the limitation and leave the decision unresolved unless an actual answer is established. The host owns retry and recovery operations.
+- MUST keep dependent work blocked when delivery fails, is unavailable, or has an unknown outcome; report the limitation and leave the decision unresolved unless an actual answer is established.
 - MUST NOT fabricate an answer, attribute an unmade decision to the human, or treat silence, failed delivery, or inability to communicate as approval.
 - MUST leave plan-approval revision and stop/resume semantics to the change-loop capability; ordinary question delivery or an answer to a narrower question does not substitute for that gate or grant new external-operation authorization.
 

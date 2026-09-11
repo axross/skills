@@ -108,12 +108,30 @@ the tracking Issue body rather than its comments.
 - MUST treat the Issue comment and PR updates as separate effects under the recovered operation grant. Without authorization, retain the full ledger in the current permitted internal handoff, report its substance and the exact blocked effects to the human, and keep delivery incomplete; an orb-local artifact is not a durable substitute.
 - MUST route missing substantive handoff evidence through Loop's [Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff) recovery contract; Delivery adds only verified GitHub process and decision locators and blocked publication effects.
 
+### Extract the state block without reading the whole body
+
 For a status-only read, extract from the first opening token through its closing
 token and stop; do not bring the plan and archive into context merely to read
 the state. A missing or truncated block requires a faithful read, not an
-assumption that no run exists. For any replacement, use the full-body procedure
-in [GitHub Operation's body-integrity reference](../../skills/github-operation/references/body-integrity.md).
-Bounded extraction is never the input for a whole-body write.
+assumption that no run exists.
+
+The extraction has to be **non-greedy and newline-crossing**, and it has to take
+the _first_ match. Because `loop-engineering` is also a skill name, the token
+recurs legitimately in the prose of any body whose plan discusses the loop — so
+it is the block's first-element position, not the token alone, that identifies
+it. Where the established byte-faithful route is a command line built on jq's
+`match` filter, the form that holds is
+`match("(?s)<!-- loop-engineering.*?-->")`, with `(?s)` written as an inline
+group inside the pattern rather than passed as a separate flag argument. That
+spelling is jq's; an engine expressing the same mode as a flag on the pattern,
+such as JavaScript's `s`, needs it there instead.
+
+**Guidelines:**
+
+- MUST NOT extract the block with a line-range selection such as `sed -n '/<!-- loop-engineering/,/-->/p'`. A range does not close on the line that opened it, so a single-line block runs the selection on to the next `-->` elsewhere in the body and returns unrelated text with no error raised. It works for exactly as long as the block stays multi-line, and fails silently the first time it does not.
+- MUST fall back to the full stored body when a narrowed read returns nothing, rather than concluding from that alone that the body carries no state — the body may predate the token, or the route may have degraded.
+- MUST read the whole stored body, never the narrowed block, on a turn that will write the body back and cannot compose the new body from text the run itself authored. A body write replaces the body entire, and a narrowed read cannot reconstruct what it never read. Bounded extraction serves only the read-only case, such as a resume recovering phase and waiting state.
+- MUST use the full-body procedure in [GitHub Operation's body-integrity reference](../../skills/github-operation/references/body-integrity.md) for any replacement; bounded extraction is never the input for a whole-body write.
 
 ## Hand state over to the pull request
 
