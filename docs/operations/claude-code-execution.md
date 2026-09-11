@@ -132,9 +132,9 @@ This section names the actors.
   shell remains, because reading requires one.
 - A built-in read-only search agent covers a broad fan-out across many files or
   naming conventions where no project definition is needed.
-- Narrow at the tool call, rather than delegating, when fidelity is the
-  requirement and only part of a payload is wanted: an offset-and-limit read, a
-  field selection on a structured response, a bounded grep.
+- The narrowing the reference's third row calls for is done with an
+  offset-and-limit read, a field selection on a structured response, or a
+  bounded grep — these are the calls that serve it here.
 - The configured actor is not required for an exact lookup the parent can make in
   one call, and is unavailable where the session exposes no `Agent` tool. Either
   way the parent reads the payload itself, one read at a time. This is a

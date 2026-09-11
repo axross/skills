@@ -121,10 +121,12 @@ It MUST NOT assume a live parent answer or same-instance resumption.
 [Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
 owns which route a question takes: a runtime's dedicated question mechanism
 wherever the session exposes one, and the conversation only where it exposes
-none. Establish which applies from this session's own tool surface rather than
-from the host's name. Where none exists, the parent presents the question in the
-conversation and stops dependent work — the conversation is then the route, not
-a licence to record the question and proceed on the recommendation.
+none. This guide names no dedicated question mechanism for Amp, so the
+conversation is the route here unless a session establishes one from its own
+tool surface — which is where that is settled, never from the host's name.
+Taking the conversation means the parent presents the question there and stops
+dependent work; it is not a licence to record the question and proceed on the
+recommendation.
 
 After an answer, use a fresh assignment if more one-shot work is warranted. A
 changed approval target follows Loop's reapproval rules; a child's
