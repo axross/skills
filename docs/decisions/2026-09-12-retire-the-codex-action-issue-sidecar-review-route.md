@@ -93,6 +93,5 @@ request reads them. A project that later needs a reviewer it can withhold
 requirements from will have to build that again, and this record is the account
 of what the build was for.
 
-Two external routes remain, so an unavailable route still leaves the
-independent-review gate unmet with nothing to fall back to — the
-no-automatic-fallback rule predates this change and is unaffected by it.
+Two external routes remain, and the rule against falling back from one to the
+other predates this change and is unaffected by it.

@@ -182,8 +182,9 @@ Use the following destinations after resolving the target under GitHub Operation
 | Fix evidence and finding reply            | The finding's PR review thread                                           |
 | Draft/ready status and PR metadata        | The PR, never the tracking issue                                         |
 
-[Code Review](./code-review.md) owns the configured CI reviewer, exact invocation,
-eligibility, and setup. [REVIEW.md](../../REVIEW.md) owns severity and output
+[Code Review](./code-review.md) owns both configured reviewers, each one's exact
+invocation, eligibility, and setup — one of them runs here in CI and the other
+does not. [REVIEW.md](../../REVIEW.md) owns severity and output
 policy. Delivery MUST use that invocation only when the review request is
 authorized; preparing its comment does not publish it.
 
