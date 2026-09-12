@@ -12,6 +12,8 @@ The assignment, not this skill, states the workspace arrangement. Concurrent wri
 - MUST prevent competing writes to the same surface unless explicit isolation and integration make them safe.
 - MUST account for write-capable background processes before transferring responsibility or accepting completion.
 - MUST NOT require a shared checkout, worktree, branch prefix, or commit creation unless project policy or the assignment requires it.
+- MUST triage a permission request a delegated executor raises by what it asks for: apply the current host permission policy to an approved-scope operation the assignment already covers; deny an out-of-scope or destructive one and ask that executor for a safe alternative; and return a product, security, privacy, or platform decision to the human instead of answering it on their behalf.
+- MUST surface a required human authorization rather than manufacturing one, and leave writing responsibility with the executor while its request is pending.
 - MUST verify actual workspace identity before writing: shared workspaces require coordination; separated workspaces require explicit material transfer, retrieval, integration, and verification. A message is not a file transfer, and a behavioral ownership contract is not an enforced lock.
 
 ## Changed Plan and Decisions

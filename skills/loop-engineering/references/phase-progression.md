@@ -11,6 +11,7 @@ A named issue enters planning; an existing pull request enters recovery and addr
 - MUST identify the change target and applicable project policy before planning; by default anchor a new change in a tracking issue before planning or edits, and reconstruct an existing pull request rather than restarting it.
 - MUST record the plan in that durable target before requesting approval; a private local plan-mode artifact alone does not satisfy this gate.
 - MUST surface an authorization or capability blocker when a required delivery operation cannot be performed; never silently replace a mandatory target or gate with an easier one.
+- MUST defer to a host project's own more-specific change-loop capability wherever it ships one: that capability owns the loop there and this one does not run beside it, which is a different thing from the project policy above that merely chooses this loop's gates.
 - MUST use the default independent-review arrangement where project policy is silent: a separate session on separate infrastructure, under a bot identity distinct from the connected operator. A review produced inside the authoring session is self-review, regardless of its name.
 
 ## Advance or Stop

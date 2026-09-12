@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Driving a code change or document update through an approved plan → execution → verification → independent review loop, including resuming or recovering an in-progress run. Owns phase progression, approval revision, evidence, finding state, and recovery meaning—not host execution APIs or delivery storage. Project policy chooses gates and branch rules. Not for read-only questions, investigations, or reviews that change nothing.
+description: Driving a code change or document update through an approved plan → execution → verification → independent review loop, including resuming or recovering an in-progress run. Owns phase progression, approval revision, evidence, finding state, and recovery meaning—not host execution APIs or delivery storage. Project policy chooses gates and branch rules. Defer to a host project's own more-specific change-loop capability where it ships one. Not for read-only questions, investigations, or reviews that change nothing.
 user-invocable: false
 ---
 
