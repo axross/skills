@@ -506,10 +506,25 @@ describe("report-obligation-burden.mjs", () => {
       // folded into an existing implementation-package.md bullet rather than
       // added beside it, so it moves no figure either, and the secret-handling
       // rule landed in `github-operation`, which is not in the mandated set.
+      // issue #594 carries the acceptance criteria a review is checked against
+      // onto the delivery target itself. Floor obligations again do not move —
+      // every rule lands in a reference — while floor tokens rise by the four
+      // bytes a reworded `software-development` routing bullet takes. The
+      // ceiling moves by five, measured against this branch's own base
+      // rather than against an earlier draft of it: three in
+      // `software-development`, where pull-request-descriptions.md trades one
+      // verification bullet for three criteria bullets and Template Usage
+      // gains one; and two in `loop-engineering`, one in plan-document.md for
+      // the projection's staleness and one net in phase-progression.md's
+      // Deliver and Address, which still gains a bullet overall even after
+      // the reviewer's-source rule was folded into the projection rule to
+      // hold that section at its bullet target. The rules added to `code-review`, `quality-assurance`,
+      // `REVIEW.md` and this repository's own documents are outside the
+      // mandated set and move nothing here.
       expect.soft(totals.floorObligations).toBe(35);
-      expect.soft(totals.floorTokens).toBe(6_087);
-      expect.soft(totals.ceilingObligations).toBe(458);
-      expect.soft(totals.ceilingTokens).toBe(35_924);
+      expect.soft(totals.floorTokens).toBe(6_091);
+      expect.soft(totals.ceilingObligations).toBe(463);
+      expect.soft(totals.ceilingTokens).toBe(36_819);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -545,9 +560,9 @@ describe("report-obligation-burden.mjs", () => {
       // figures (six new reference obligations), but not its floor
       // obligation count.
       expect.soft(tiers[1].floorObligations).toBe(19);
-      expect.soft(tiers[1].floorTokens).toBe(4_042);
-      expect.soft(tiers[1].ceilingObligations).toBe(264);
-      expect.soft(tiers[1].ceilingTokens).toBe(23_072);
+      expect.soft(tiers[1].floorTokens).toBe(4_046);
+      expect.soft(tiers[1].ceilingObligations).toBe(267);
+      expect.soft(tiers[1].ceilingTokens).toBe(23_676);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //
@@ -562,9 +577,9 @@ describe("report-obligation-burden.mjs", () => {
       // our own SKILL.md routing-bullet bytes, since `main`'s addition is
       // reference-only.
       expect.soft(tiers[2].floorObligations).toBe(35);
-      expect.soft(tiers[2].floorTokens).toBe(6_087);
-      expect.soft(tiers[2].ceilingObligations).toBe(458);
-      expect.soft(tiers[2].ceilingTokens).toBe(35_924);
+      expect.soft(tiers[2].floorTokens).toBe(6_091);
+      expect.soft(tiers[2].ceilingObligations).toBe(463);
+      expect.soft(tiers[2].ceilingTokens).toBe(36_819);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -591,8 +606,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(458);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(458);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(463);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(463);
     });
 
     it("prints no tier block without --mandated", async () => {

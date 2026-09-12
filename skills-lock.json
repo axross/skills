@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "66934faec06995d7a223632033c4bbc56b8ac4cdc0c9a313c78b49d50eec17dc"
+      "computedHash": "d11eb18422ef0a38083487bb05c6f4b9502ef7f8080104a4b99acc5b2c103c4d"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "d0b64fae14a95cc53e9505115527e0d623523e19057c2cdd30ffa25a28d619ed"
+      "computedHash": "b8945b39c5ecf169b7aef2a20ff3ba4a6f788cea815c8c427a765bbd2bc379ec"
     },
     "next-app-development": {
       "source": "./skills",
@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "9336a90f449cdbcb2d9ab42d1cce70d77c53ca527e3f933fff44407d9f36690c"
+      "computedHash": "b34ad09c8e4d8a134aa0aa8bc14d7032eac41230563952af0fea40093a630178"
     },
     "react-component-development": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5c06c9137c8cecfe041a05fe1cc0332540c2ef8b9329e373a2530b8614f2c88b"
+      "computedHash": "c46c2a72cd85f44904b0a2e0ac55d672ddf4798fabef580b2788f46ac44536be"
     },
     "software-instrumentation": {
       "source": "./skills",

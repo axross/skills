@@ -30,21 +30,38 @@ is no related issue, say so here instead of deleting the section.
 
 Closes #
 
-## Verification
+## Acceptance criteria
 
 <!--
-Evidence, not assertion: the commands run and their observed results, manual
-checks performed, and any required check that was skipped and why. When the
-linked issue lists acceptance criteria, state each criterion's status. For
-user-visible changes, add before/after screenshots or a recording.
+Every acceptance criterion a reviewer can confirm or refute from this diff,
+quoted verbatim from the approved plan, each with its status — met, not met,
+or unverifiable. Then the number of criteria not carried here, a link to the
+issue that holds them, and the plan revision this was copied from, as that
+issue's state block records it.
+
+Reviewers work from this section alone; they are not expected to open the
+issue. Do not restate a criterion in your own words — a softened criterion is
+invisible to someone who cannot compare it against the original.
+
+Put manual checks and before/after screenshots or recordings here too, beside
+the criteria they bear on.
+
+Do NOT list the commands you ran and what they printed. The repository's
+checks report that independently, and the session report is where that
+belongs.
+
+Keep this section even when no criterion can be settled from the diff, saying
+so here instead of deleting it — reviewers otherwise cannot tell "nothing a
+diff can check" from "nobody wrote them down".
 -->
 
 ## Risks and breaking changes
 
 <!--
 Breaking changes (what breaks, who is affected, the migration path), risky
-areas to scrutinize, and rollback notes. Delete this section if there are
-none.
+areas to scrutinize, and rollback notes. Name every required check that was
+skipped, why, and the residual risk it leaves. Delete this section only if
+there are none of these.
 -->
 
 ## Notes for reviewers
