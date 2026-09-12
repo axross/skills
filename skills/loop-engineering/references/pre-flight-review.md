@@ -6,14 +6,14 @@ Apply this reference when project policy selects an advisory review before deliv
 
 The case for reviewing outside the authoring context is usually stated as one property. It is several, they separate, and none of them is recovered outright — which is why this stage can be worth running and still not replace the external review. Stating the accounting is what keeps "we already reviewed it" from being read as the external gate having been met.
 
-| Property                                                                     | External review | This stage                                                                              |
-| ---------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------- |
-| **Context independence** — no memory of its own decisions or its own plan    | yes             | **partly** — recovered only as far as the fresh-context and durable-park rules hold     |
-| **Input independence** — reviews the diff, not the author's account of it    | yes             | **partly** — recovered by fixing the input source and excluding the receipt             |
-| **Verdict independence** — the reviewed party cannot suppress a finding      | yes             | **partly** — recovered for Critical and Major by the dismissal split                    |
-| **Absence visibility** — a review that never ran is externally observable    | yes             | **no** — a stage never entered leaves no gap to notice                                  |
-| **Policy-source independence** — the policy is not the one this change edits | yes             | **partly** — recovered by the changed-policy inspection trigger and the external review |
-| **Environment independence**                                                 | yes             | **no** — shares the workspace, uncommitted state included                               |
+| Property                                                                     | External review | This stage                                                                                                                                                                             |
+| ---------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Context independence** — no memory of its own decisions or its own plan    | yes             | **partly** — recovered only as far as the fresh-context and durable-park rules hold                                                                                                    |
+| **Input independence** — reviews the diff, not the author's account of it    | yes             | **partly** — recovered by fixing the input source and excluding the receipt                                                                                                            |
+| **Verdict independence** — the reviewed party cannot suppress a finding      | yes             | **partly** — recovered for Critical and Major by the dismissal split                                                                                                                   |
+| **Absence visibility** — a review that never ran is externally observable    | yes             | **no** — a stage never entered leaves no gap to notice                                                                                                                                 |
+| **Policy-source independence** — the policy is not the one this change edits | yes             | **partly** — recovered by [the targeted-diff inspection a changed review-policy surface triggers](./writer-ownership-and-recovery.md#append-only-recovery), and by the external review |
+| **Environment independence**                                                 | yes             | **no** — shares the workspace, uncommitted state included                                                                                                                              |
 
 Absence visibility is the one no arrangement here recovers at all, because the reviewed party holds the report. It is an accepted limit, and it is the reason the external review stays exactly as it is rather than being relaxed once this stage runs.
 

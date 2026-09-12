@@ -34,15 +34,29 @@ owns the rules — which decisions reach the human, how they are framed, when
 prose is the route, and what to do with a prompt that closed or errored. This
 section supplies only the instrument that carries them.
 
-The dedicated question mechanism is **`AskUserQuestion`** in Claude Code and
-**`request_user_input`** in Codex. Either renders the options as a selectable
-choice and returns the answer inline, so the run continues in the same turn.
+Claude Code's dedicated question mechanism is **`AskUserQuestion`**. It renders
+the options as a selectable choice and returns the answer inline, so the run
+continues in the same turn.
+
+Codex's counterpart is named **`request_user_input`**, which is the name this
+repository has used for it. Nothing here establishes its behaviour: the tool
+surface checked above was Claude Code's, so whether a Codex session exposes
+this tool at all, under what mode or flag, and whether an unanswered prompt
+blocks or resolves on its own are all things that session must establish for
+itself. Until it has, treat the mechanism as unqualified rather than
+equivalent to `AskUserQuestion`.
 
 - Judge availability from the session's actual tool list. Do not conclude the
   mechanism is absent because the session is headless, remote, or cloud-hosted.
   A transient permission-stream closure and a genuinely unattended run return
   the same error, which is why the rule on re-presenting keys on the error
   rather than on a guess about the environment.
+- Establish that an answer came from the human before acting on it. A prompt
+  that resolved without a human-authored answer — timed out, auto-dismissed,
+  cancelled — is unanswered, and re-presenting it is what the rule requires;
+  treating it as an answer is the fabrication
+  [Asking the Human](../../skills/professional-behavior/references/asking-the-human.md)
+  forbids outright.
 - Re-present through the same mechanism, with the same options in the same
   order, as that rule requires.
 - The plan-approval gate is not one of these. It is a whole plan the human reads
@@ -121,9 +135,10 @@ policy for Claude Code.
 
 ## Route a read, and task an investigator
 
-[Read Routing and the Investigator Return Contract](../../skills/loop-engineering/references/subagent-delegation.md#read-routing)
-own which reads leave the parent's context and what an investigation returns.
-This section names the actors.
+[Read Routing](../../skills/loop-engineering/references/subagent-delegation.md#read-routing)
+owns which reads leave the parent's context, and
+[The Investigator Return Contract](../../skills/loop-engineering/references/subagent-delegation.md#the-investigator-return-contract)
+owns what an investigation hands back. This section names the actors.
 
 - `.claude/agents/investigator.md` is the configured reader for a bounded
   investigation question, invoked through the `Agent` tool as
