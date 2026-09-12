@@ -49,6 +49,10 @@ the criteria they bear on.
 Do NOT list the commands you ran and what they printed. The repository's
 checks report that independently, and the session report is where that
 belongs.
+
+Keep this section even when no criterion can be settled from the diff, saying
+so here instead of deleting it — reviewers otherwise cannot tell "nothing a
+diff can check" from "nobody wrote them down".
 -->
 
 ## Risks and breaking changes
