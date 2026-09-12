@@ -2,6 +2,15 @@
 
 Apply this reference before a GitHub write, retry, or outcome report. Preparing text is local work; publishing it changes shared state. The route and the authorization both have to support that effect.
 
+## Keep Secrets Out of What You Publish
+
+Everything composed here lands somewhere durable and, on a public repository, somewhere anyone can read. A body, a comment, a title, a review, and a commit message are all that surface, and a credential that reaches any of them is exposed from that moment — deleting it afterwards does not undo the exposure, because the edit history and every mirror already carry it.
+
+**Guidelines:**
+
+- MUST keep secrets, tokens, credentials, and internal hostnames out of every body, comment, title, review, and commit message you compose. Name such a value rather than reproducing it — the variable it is read from, the store it lives in — so the text stays useful without carrying the value.
+- MUST treat finding such a value already present in material you read as a reason to report it, never as licence to republish it in what you write.
+
 ## Check Authorization for the Effect
 
 A plan approval binds implementation scope, not every external operation a workflow describes. A permitted tool can still lack authorization for the particular target or purpose. Conversely, a host-prohibited purpose is not merely waiting for the human to approve it.

@@ -20,6 +20,11 @@ amendment, and approval activity stays on that issue even after a pull request
 in the state block; a conversation approval can be linked rather than reposted
 as though the agent were the human.
 
+Refine the issue title to name the concrete deliverable in the same write that
+records the plan. The title a free-form request or an early investigation
+arrived under rarely survives planning intact, and it is what every later
+reader of a list, a link, or a notification sees instead of the plan body.
+
 When replacing an original description with a plan, preserve that description
 verbatim inline or in a marked archival comment. An inline archive SHOULD use a
 collapsed `<details>` section after the plan; an archival comment MUST be
@@ -175,8 +180,13 @@ authorized; preparing its comment does not publish it.
 
 Finding replies MUST identify the fixing commit with `Resolved in <short-hash>`
 (link the commit), normally followed by one sentence. Resolve the corresponding
-thread after posting the reply. Keep fuller reasoning only where the fix needs
-it; the finding thread, not an unrelated issue comment, is the evidence target.
+thread after posting the reply. Keep fuller reasoning only for a fix whose hash
+alone would leave the commenter unable to tell what happened — the fix diverges
+from what the comment proposed, the finding was addressed only in part, or the
+fix landed away from the line the comment anchors to. That extra room MUST NOT
+be spent restating the finding, re-explaining why it mattered, or recounting
+verification the pull request already records. The finding thread, not an
+unrelated issue comment, is the evidence target.
 The Codex Action summary has no inline finding threads, so record each
 observation's fix or explicit dismissal in the current review state and use the
 next correlated summary as rerun evidence.

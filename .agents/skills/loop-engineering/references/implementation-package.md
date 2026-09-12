@@ -49,7 +49,7 @@ A writing result carries compact self-review evidence for the parent's completio
 - MUST use a non-complete result state when required self-review is missing or could not cover the assigned material; a verification pass does not imply a clean self-review.
 - MUST distinguish a needed decision from needed authorization, unavailable capability, known failure, and unknown effect.
 - MUST NOT call a child result whole-change completion; the parent compares it with actual files and the integrated result.
-- MUST include failure stage, failed operation, partial results, skipped checks, acceptance evidence, and whether continuation is safe for a non-complete result. State whether unavailability comes from missing capability or a prohibited purpose; do not relabel a prohibition as permission merely awaiting confirmation.
+- MUST include failure stage, failed operation, partial results, skipped checks, acceptance evidence, and whether continuation is safe for a non-complete result. State whether unavailability comes from missing capability or a prohibited purpose; do not relabel a prohibition as permission merely awaiting confirmation, and never report a denied permission as verification that passed — an executor that still cannot run required verification once a safe alternative has been tried returns a non-complete result rather than silently narrowing scope or claiming success.
 - MUST return an unresolved decision or authorization to the parent without assuming live communication or same-instance resumption. A new request carries the complete current contract and retained partial results.
 
 ## Review Result
