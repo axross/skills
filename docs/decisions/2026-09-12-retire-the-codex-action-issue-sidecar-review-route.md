@@ -39,14 +39,23 @@ not have executed even with its variables set and its qualification done.
 
 ## Decision
 
-Retire it. The workflow, its five trusted helpers, and the four test files
-holding them to their contract are deleted, and `@claude review` is the one
-external review route. What the route's existence had shaped elsewhere is
+Retire the workflow. It, its five trusted helpers, and the four test files
+holding them to their contract are deleted.
+
+What is retired is a workflow, not Codex as a reviewer. `@codex review` is a
+different mechanism that shares only a vendor's name: the Codex GitHub
+integration, answering as `chatgpt-codex-connector[bot]`, configured outside
+this repository and needing nothing in it. It is in live use here and is what a
+Codex or Amp session requests. Both routes survive, and a session still picks
+between them by its host.
+
+What the deleted route's existence had shaped elsewhere is
 unwound with it: `REVIEW.md` loses its provider-specific output exception,
 `github-delivery.md` loses the Codex authorization record, the marker exception
 for a comment body that had to equal `/codex-action-review` exactly, and the
 recovery procedure for correlating a trigger against a run against a mutable
-summary.
+summary. `REVIEW.md`'s exception described the Action's sanitized output, not
+Codex's: the connector posts an ordinary review and needs no exception.
 
 The deferred pre-flight handoff's two-record shape goes with it, and
 `github-delivery.md` states what replaces it. It is named here only because the
@@ -73,13 +82,17 @@ apply to them.
 
 ## Consequences accepted
 
-There is one external reviewer, so an unavailable Claude route leaves the
-independent-review gate unmet with nothing to fall back to. That was already
-true — `development-workflow.md` forbade automatic fallback, and the Codex
-route was never enabled — but the retirement removes the option of enabling one
-without building it again.
+What is given up is a review _shape_, not a second provider. The Action would
+have produced a static, sanitized review — findings carrying a priority, a path
+and line range, and a requirement identifier, with no quoted expectation and no
+proposed fix — and, more to the point, a review that never handed the project's
+requirements to the provider at all. That confidentiality posture is gone.
+Carrying acceptance criteria on the pull request already gave it up: the
+criteria are published in the repository now, so a reviewer reading the pull
+request reads them. A project that later needs a reviewer it can withhold
+requirements from will have to build that again, and this record is the account
+of what the build was for.
 
-A second provider's independent perspective is given up, along with the
-static-analysis review shape the route would have produced. Reinstating either
-means a new decision and a new build; this record is the account of what that
-build was for.
+Two external routes remain, so an unavailable route still leaves the
+independent-review gate unmet with nothing to fall back to — the
+no-automatic-fallback rule predates this change and is unaffected by it.

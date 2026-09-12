@@ -1,8 +1,19 @@
 # Code Review
 
-This repository's one external review route is the Claude pull-request
-reviewer. [`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
+This repository has two external review routes, and a session picks between
+them by the host it runs in rather than by the change in front of it. Both
+reviewers work from the pull request, so neither is narrower in what it may
+review. [`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
 contract; this document owns invocation, setup, and failure handling.
+
+| Session host | Trigger          | Answers as                     | Runs from                                                               |
+| ------------ | ---------------- | ------------------------------ | ----------------------------------------------------------------------- |
+| Claude Code  | `@claude review` | `claude[bot]`                  | [`claude-review.yaml`](../../.github/workflows/claude-review.yaml) here |
+| Codex, Amp   | `@codex review`  | `chatgpt-codex-connector[bot]` | The Codex GitHub integration, configured outside this repository        |
+
+A route that fails or is unavailable grants no automatic fallback to the other.
+If the route the session's host selects cannot be obtained and no human
+explicitly replaces it, record the unmet independent-review gate.
 
 ## Run the Claude reviewer
 
@@ -30,14 +41,33 @@ Optional telemetry requires both the
 unset, the workflow disables telemetry. Scope the ingestion token to writing
 metrics and logs only because the reviewer has broad `Bash` access.
 
-## Review changes to the review arrangement through the same route
+## Run the Codex reviewer
+
+Comment `@codex review` on a pull request. The Codex GitHub integration answers
+as `chatgpt-codex-connector[bot]`, posting a summary comment carrying the
+`<!-- codex-pull-request-review-summary -->` marker, with its findings as an
+ordinary pull-request review.
+
+Nothing in this repository runs it. The route is added to the organization or
+repository from Codex's own settings, which means enabling, disabling, or
+reconfiguring it is not a change to this tree and leaves no trace in it. A
+review that never arrives is a question for those settings before it is a
+question for anything here.
+
+Codex's documented hook for repository-specific review rules is a
+`## Code Review Rules` section in the `AGENTS.md` nearest the code. This
+repository carries no such section, so the Codex reviewer reaches
+[`REVIEW.md`](../../REVIEW.md) through
+[`AGENTS.md`](../../AGENTS.md)'s ordinary review routing instead of through
+that hook. That is a known gap rather than an oversight: it is worth revisiting
+if a Codex review is ever observed missing a rule `REVIEW.md` states.
+
+## Review a change to the review arrangement through the session's own route
 
 A change to this document, to [`REVIEW.md`](../../REVIEW.md), to
 [`claude-review.yaml`](../../.github/workflows/claude-review.yaml), or to the
-skills it routes to is still reviewed through `@claude review`. A proposed
-change cannot certify itself, and this route reviews a pull request's diff
-rather than executing what that diff proposes, so it judges such a change from
-outside it.
-
-If the Claude route is unavailable, the independent-review gate remains unmet.
-Do not relabel a local self-review as independent review.
+skills either route reads is reviewed the same way anything else is: through
+whichever route the session's host selects. Neither reviewer executes what the
+diff proposes — each reads a pull request — so a proposed change to the review
+arrangement is judged from outside itself either way, and no route needs to
+stand aside for a change that governs it.

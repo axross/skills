@@ -4,7 +4,10 @@ Review **policy** for this repository — the highest-priority, review-only
 instructions. Every reviewer entry point reads this file: a managed review
 product (e.g. Claude Code's managed Code Review) natively, and the CI
 reviewer ([`claude-review.yaml`](.github/workflows/claude-review.yaml)) via a
-system-prompt bootstrap. This file overrides reviewer defaults and
+system-prompt bootstrap. The Codex reviewer, which a Codex or Amp session
+requests with `@codex review`, reaches it through
+[AGENTS.md](AGENTS.md)'s review routing. This file overrides reviewer defaults
+and
 complements the review
 **methodology** in
 [Code Review](.claude/skills/code-review/SKILL.md); where

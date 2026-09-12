@@ -75,9 +75,10 @@ returning a progress-only report. Use the purpose routes below for the action an
 [Wait for the right result](#wait-for-the-right-result) for an actual pending
 machine event.
 
-Apply the same progression to each distinct stage of an external review in
-[Code Review](./code-review.md): trigger admission, workflow start, model
-completion, and published result. A denied or no-op trigger, a failed run, and
+An Amp session requests external review with `@codex review`, per
+[Code Review](./code-review.md). Apply the same progression to each distinct
+stage of that review: trigger admission, run start, model completion, and
+published result. A denied or no-op trigger, a failed run, and
 a result belonging to an older run are each a stage that has not completed, not
 a clean review. Continue from the last verified stage through the qualified
 GitHub route rather than posting a duplicate trigger. Readiness evidence still

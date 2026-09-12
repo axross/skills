@@ -59,8 +59,8 @@ uses none of them.
   session's Amp orb is provisioned, how the session starts, its hooks, its
   telemetry tagging, and the environment variables recommended for cutting a
   session's cost.
-- [operations/code-review.md](./operations/code-review.md) — invoking,
-  configuring, and recovering this repository's one external review route.
+- [operations/code-review.md](./operations/code-review.md) — the two external
+  review routes, which session host selects each, and their setup.
 - [operations/evaluation-dispatch.md](./operations/evaluation-dispatch.md) —
   running the evaluation instrument, by hand or through its one dispatch
   workflow, against this repository's declared scenarios.

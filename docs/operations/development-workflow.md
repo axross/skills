@@ -72,17 +72,18 @@ fresh-review loop; resuming that loop does not replay the initial checkpoint.
 [The actor-independent pre-flight decision](../decisions/2026-09-09-select-pre-flight-by-review-need-not-implementation-actor.md)
 records why these stages remain separate.
 
-## Request the external review
+## Select the external review route
 
-[Code Review](./code-review.md) owns this repository's one external route:
-`@claude review`, which reviews every change, including a change to the review
-arrangement itself. There is no route to select between, so the current state
-records no selection, scope, or expiry for one — it still names the reviewer a
-given result came from, which [GitHub Delivery](./github-delivery.md)'s `Review`
-entry owns.
+[Code Review](./code-review.md) owns both external routes, and the selection
+follows the session's host rather than the change: a Claude Code session
+requests `@claude review`, a Codex or Amp session requests `@codex review`.
+Both reviewers work from the pull request, so neither route is restricted to a
+narrower class of change than the other.
 
-If that route is unavailable and no human explicitly replaces it, record the
-unmet independent-review gate. Self-review and local checks do not satisfy it.
+A failed or unavailable route grants no automatic fallback to the other. If the
+route the session's host selects is unavailable and no human explicitly replaces
+it, record the unmet independent-review gate. Self-review and local checks do
+not satisfy it.
 
 ## GitHub Delivery During Migration
 
