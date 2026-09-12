@@ -118,11 +118,22 @@ call. A Task encountering an unresolved human decision MUST return the question,
 verified findings, partial changes, blocked work and any remaining processes.
 It MUST NOT assume a live parent answer or same-instance resumption.
 
-The parent presents the question in the conversation when no dedicated question
-tool exists, and stops dependent work. After an answer, use a fresh assignment
-if more one-shot work is warranted. A changed approval target follows Loop's
-reapproval rules; a child's recommendation is not the human's answer. A failed
-question delivery leaves the decision unresolved, not approved.
+[Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
+owns which route a question takes: a runtime's dedicated question mechanism
+wherever the session exposes one, and where none does, the turn output as the
+floor with a more interruptive channel preferred over it where the runtime
+offers one. This guide names no dedicated question mechanism for Amp and no
+channel more interruptive than the conversation, so the conversation is the
+route here unless a session establishes otherwise from its own tool surface —
+which is where that is settled, never from the host's name.
+Taking the conversation means the parent presents the question there and stops
+dependent work; it is not a licence to record the question and proceed on the
+recommendation.
+
+After an answer, use a fresh assignment if more one-shot work is warranted. A
+changed approval target follows Loop's reapproval rules; a child's
+recommendation is not the human's answer. A failed question delivery leaves the
+decision unresolved, not approved.
 
 ## Establish thread materials and workspace
 

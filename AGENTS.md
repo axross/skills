@@ -10,9 +10,12 @@ host-specific skill libraries.
 
 ## Response Approach
 
-For host authority and scoped authorization, see
-[Loop Engineering](./skills/loop-engineering/SKILL.md). Load capabilities by
-task rather than importing every change gate into read-only work:
+For scoped authorization, see
+[Loop Engineering](./skills/loop-engineering/SKILL.md). Where an instruction
+the launching runtime injected and this agreement disagree, the precedence is
+stated in that host's own entry file rather than in any skill — for Claude
+Code, [CLAUDE.md](./CLAUDE.md). Load capabilities by task rather than
+importing every change gate into read-only work:
 
 - MUST load [Professional Behavior](./skills/professional-behavior/SKILL.md)
   first in every session, including read-only questions and investigations.
@@ -37,10 +40,15 @@ Select guidance from the actual session, not a directory's host name:
   choosing execution, delegation, waiting, or recovery tools. Current tool
   contracts determine availability and permitted purposes.
 - **Claude Code and Codex:** consult
-  [Agent Sessions](./docs/operations/agent-sessions.md) for startup and host
-  configuration, and [Development Workflow](./docs/operations/development-workflow.md)
-  for configured actors. Qualify capabilities in the actual host; do not
-  substitute Amp APIs for another host's operations.
+  [Claude Code Execution](./docs/operations/claude-code-execution.md) before
+  choosing a question, waiting, working-tree, delegation, or investigation
+  instrument, [Agent Sessions](./docs/operations/agent-sessions.md) for startup
+  and host configuration, [Development Workflow](./docs/operations/development-workflow.md)
+  for configured actors, and
+  [Agent Skills](./docs/operations/agent-skills.md) with
+  [Skill Portability](./docs/conventions/skill-portability.md) for the
+  symlinked skill root and the metadata each host reads. Qualify capabilities
+  in the actual host; do not substitute Amp APIs for another host's operations.
 - **GitHub:** load [GitHub Operation](./skills/github-operation/SKILL.md) for
   reads and writes. Consult [GitHub Delivery](./docs/operations/github-delivery.md)
   before plan/state storage or publication, including its comment markers

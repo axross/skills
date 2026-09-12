@@ -3,8 +3,12 @@
 How a maintainer carries a change through this repository's required gates.
 [Loop Engineering](../../skills/loop-engineering/SKILL.md) owns phase meaning
 and evidence contracts; this document records the repository's choices and
-the configured actors. Host instructions and tool usage conditions govern
-execution, not the names of those actors.
+the configured actors. Naming an actor here does not make it available or
+permitted — a session qualifies each against what it actually exposes, through
+[Claude Code Execution](./claude-code-execution.md) or
+[Amp Execution](./amp-execution.md). Where an instruction the launching runtime
+injected disagrees with the gates below, that host's own entry file settles it:
+for Claude Code, [CLAUDE.md](../../CLAUDE.md).
 
 ## The Change Loop
 
@@ -24,8 +28,9 @@ The [migration map](./loop-migration.md) records topic ownership, rollout and
 combined verification. [AGENTS.md](../../AGENTS.md) routes sessions to the
 common capabilities and conditional host guides. Routing is not proof that
 every host path has been exercised.
-The rationale replaces the old standing-mandate interpretation in
-[the authority decision](../decisions/2026-09-07-separate-loop-contracts-from-host-authority.md).
+Where the precedence between an injected instruction and these gates is stated,
+and why it moved out of the skills, is
+[the precedence-placement decision](../decisions/2026-09-11-place-runtime-precedence-in-the-host-entry-file.md).
 
 Changes to review/CI infrastructure, skill discovery and cross-skill routing,
 secret handling, dependency/supply-chain surfaces, and large cross-skill

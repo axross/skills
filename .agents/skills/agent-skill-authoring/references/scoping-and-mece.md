@@ -61,7 +61,7 @@ For example, asking which decision a human must make belongs to conduct; deliver
 - MUST split a mixed paragraph into separately owned statements rather than moving the whole paragraph under a new filename.
 - MUST keep specialist responsibilities distinct; a change loop coordinates their results rather than absorbing requirements, development, review, QA, or domain rules.
 - MUST NOT turn a project's gate choices or a host's execution instructions into universal prerequisites for a portable capability.
-- MUST keep host guidance within the active host's higher-priority instructions and permitted tool uses; project policy does not grant permissions those contracts withhold.
+- MUST keep host guidance within the tool usage conditions the active host actually enforces; project policy does not grant a permission those conditions withhold. Which instruction wins where an injected task framing and a project mandate disagree is not a portable capability's to state — that belongs in the entry file of the host doing the injecting, the only document positioned to see both.
 - MUST consult skill-management practices when deciding whether material needs skill discovery at all or belongs in project documentation, and when distributing or confirming the loaded source of a skill.
 
 ## Classify Before Migrating

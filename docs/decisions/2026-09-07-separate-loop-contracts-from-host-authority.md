@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: 2026-09-11-place-runtime-precedence-in-the-host-entry-file.md
 ---
 
 # Separate loop contracts from host authority

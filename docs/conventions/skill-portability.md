@@ -10,6 +10,35 @@ this repository's own answer: which of its configuration surfaces a skill's
 portability actually depends on, and which host reads less of a skill than
 the other.
 
+## What a Skill Deliberately Does Not Carry
+
+A distributable skill is not only barred from naming this repository's files —
+it is also barred from asserting things about a host it cannot inspect. The
+case this repository has actually hit is precedence: no skill here states
+whether an instruction the launching runtime injected outranks a project
+mandate, because a skill loaded into an unknown host cannot see either side of
+that comparison.
+
+The consequence is real and worth stating rather than leaving implicit. An
+installing project receives the gates — a human-approved plan before edits,
+required verification, mandatory independent review, a ready state only after
+convergence — and receives nothing saying that a runtime framing the task as
+"just commit and push" does not lower them. That statement is the installing
+project's to write, in the entry file of its own host;
+[README.md](../../README.md#getting-started) tells a consumer so, this
+repository's [`CLAUDE.md`](../../CLAUDE.md) is the worked example, and
+[the precedence-placement decision](../decisions/2026-09-11-place-runtime-precedence-in-the-host-entry-file.md)
+records why it lives there.
+
+The general form: where a rule needs to compare something inside the skill
+against something only the host knows, the skill states its own side and the
+host's entry file or operations guidance states the comparison. A per-host
+instrument — a question tool, a wait mechanism, a delegation actor — follows the
+same split, which is why
+[Claude Code Execution](../operations/claude-code-execution.md) and
+[Amp Execution](../operations/amp-execution.md) exist beside the skills rather
+than inside them.
+
 ## The Description Byte Cap and Codex's Truncation
 
 Every skill here carries Claude Code's `user-invocable` extension, but none

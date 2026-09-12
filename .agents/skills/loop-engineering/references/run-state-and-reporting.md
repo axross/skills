@@ -4,13 +4,14 @@ Apply this reference when persisting recoverable state or reporting a phase resu
 
 ## Semantic Run State
 
-Durable state is whatever a fresh executor cannot safely derive: target, phase, approved plan revision and approval evidence, scoped operation grants, assignments and attempts, latest results, self-review evidence, checks, review round, open findings at their permitted durability, unresolved decisions or authorization, actual revision and uncommitted state, remaining processes, and unknown external effects.
+Durable state is whatever a fresh executor cannot safely derive: target, phase, approved plan revision and approval evidence, scoped operation grants, assignments and attempts, latest results, self-review evidence, checks, review round, open findings at their permitted durability, unresolved decisions or authorization, the execution arrangement and how it was settled, actual revision and uncommitted state, remaining processes, and unknown external effects.
 
 **Guidelines:**
 
 - MUST persist only through a currently permitted project mechanism and preserve append-only history.
 - MUST NOT require an HTML status block, a particular service, a local path, or a byte-extraction command in the portable core.
 - MUST keep evidence locators and revision identities sufficient to detect stale state.
+- MUST record how the execution arrangement was settled, not only which one ran: what the determination rested on, quoted where it rests on a stated condition and recorded as an observation where it rests on none, and whether a question was ever put to the human. A record naming no grounds is incomplete, and recording a decline the human never gave claims an answer nobody made.
 - MUST preserve the substantive self-review outcome, unresolved findings, and limitations in permitted internal handoffs. When a persistence surface prohibits requirement-derived text, project only code or process observations and requirement locators onto that surface; the projection replaces neither the plan nor fresh review input.
 
 ## Scoped Operation Grants
@@ -35,6 +36,21 @@ Report the result state—complete, partial, decision-waiting, authorization-wai
 - MUST report the approved revision, changed files or delivered content, verification evidence, review evidence, unresolved work, residual risk, remaining processes, and blockers where relevant.
 - MUST distinguish skipped, unavailable, denied, failed, and unknown work.
 - MUST NOT report child completion, self-review, or missing evidence as whole-change readiness.
+
+## Model and Effort Certainty
+
+Whether an actor is _capable_ and which model it _ran_ are separate questions, and a host may answer the second only partially. Reporting a configured value as a confirmed one turns an unverified assumption into a claim the human cannot audit, so each is classified rather than asserted:
+
+- `verified` — a runtime, transcript, or telemetry reading confirms the actual value
+- `declared` — configuration or a spawn argument states the value, but what ran could not be independently confirmed
+- `unknown` — the session exposes too little to say
+
+**Guidelines:**
+
+- MUST classify model and effort with one of those three values, independently of each other, for every role the run delegates to, and MUST NOT report a `declared` value as `verified`.
+- MUST treat a spawn-time model argument that overrides an actor definition's pinned value as discarding that pin, and MUST NOT report the pinned value as what that run used — it is not even `declared` for that run. Record the override and its reason.
+- MUST NOT require a runtime-verified value before delegating; a stricter policy than this belongs to a project or host that wants it.
+- MUST fold the classification into the completion report for every role the run delegated to, rather than into a separate activity log beside it.
 
 ## Ready-to-Merge Handoff
 
