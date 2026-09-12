@@ -64,6 +64,7 @@ See [body-integrity.md](./references/body-integrity.md) for:
 
 See [publication-and-recovery.md](./references/publication-and-recovery.md) for:
 
+- keeping a secret, token, credential, or internal hostname out of a composed body, comment, title, review, or commit message
 - authorization for the particular write, separate from drafting or plan approval
 - read-back, partial failure, and lost-response recovery without duplicate writes
 - COMMENT-type reviews, API-authored pull requests, and append-only branch history
