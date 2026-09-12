@@ -72,7 +72,7 @@ See [clarifying-interview.md](./references/clarifying-interview.md) for:
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
-- using the runtime's dedicated question mechanism wherever the session exposes one, and why prose is the route only where none exists
+- using the runtime's dedicated question mechanism wherever the session exposes one, and what the route is where none exists — the turn output as the floor, a more interruptive channel over it where the runtime offers one
 - re-presenting a prompt that closed or errored, and reading a bare answer token as answering the still-open question
 - framing a decision as concrete options, each with its consequence and the default marked
 - returning a question you cannot ask to whoever asked, with its partial results, inventing neither an answer nor an approval

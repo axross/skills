@@ -120,10 +120,12 @@ It MUST NOT assume a live parent answer or same-instance resumption.
 
 [Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
 owns which route a question takes: a runtime's dedicated question mechanism
-wherever the session exposes one, and the conversation only where it exposes
-none. This guide names no dedicated question mechanism for Amp, so the
-conversation is the route here unless a session establishes one from its own
-tool surface — which is where that is settled, never from the host's name.
+wherever the session exposes one, and where none does, the turn output as the
+floor with a more interruptive channel preferred over it where the runtime
+offers one. This guide names no dedicated question mechanism for Amp and no
+channel more interruptive than the conversation, so the conversation is the
+route here unless a session establishes otherwise from its own tool surface —
+which is where that is settled, never from the host's name.
 Taking the conversation means the parent presents the question there and stops
 dependent work; it is not a licence to record the question and proceed on the
 recommendation.

@@ -51,6 +51,10 @@ equivalent to `AskUserQuestion`.
   A transient permission-stream closure and a genuinely unattended run return
   the same error, which is why the rule on re-presenting keys on the error
   rather than on a guess about the environment.
+- Where `AskUserQuestion` is genuinely absent, the turn output is the route.
+  This guide names no Claude Code channel more interruptive than it, so the
+  reference's preference for one has nothing to select here — a session that
+  finds such a channel establishes it from its own tool surface.
 - Establish that an answer came from the human before acting on it. A prompt
   that resolved without a human-authored answer — timed out, auto-dismissed,
   cancelled — is unanswered, and re-presenting it is what the rule requires;
