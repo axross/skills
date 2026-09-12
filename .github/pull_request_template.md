@@ -35,8 +35,9 @@ Closes #
 <!--
 Every acceptance criterion a reviewer can confirm or refute from this diff,
 quoted verbatim from the approved plan, each with its status — met, not met,
-or unverifiable. Then the number of criteria not carried here and a link to
-the plan that holds them.
+or unverifiable. Then the number of criteria not carried here, a link to the
+issue that holds them, and the plan revision this was copied from — the
+`plan-revision` field of that issue's state block.
 
 Reviewers work from this section alone; they are not expected to open the
 issue. Do not restate a criterion in your own words — a softened criterion is

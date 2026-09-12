@@ -510,18 +510,20 @@ describe("report-obligation-burden.mjs", () => {
       // onto the delivery target itself. Floor obligations again do not move —
       // every rule lands in a reference — while floor tokens rise by the four
       // bytes a reworded `software-development` routing bullet takes. The
-      // ceiling moves by six: three in `software-development`, where
+      // ceiling moves by five: four in `software-development`, where
       // pull-request-descriptions.md trades one verification bullet for three
-      // criteria bullets and Template Usage gains one; and three in
-      // `loop-engineering`, two in phase-progression.md for the projection and
-      // the reviewer's source and one in plan-document.md for the projection's
-      // staleness. The rules added to `code-review`, `quality-assurance`,
+      // criteria bullets and Template Usage gains one; and one in
+      // `loop-engineering`, in plan-document.md for the projection's
+      // staleness. phase-progression.md's own projection rule moves nothing:
+      // it rewrites an existing bullet rather than adding one, the
+      // reviewer's-source rule having been folded into it to hold that
+      // section at its bullet target. The rules added to `code-review`, `quality-assurance`,
       // `REVIEW.md` and this repository's own documents are outside the
       // mandated set and move nothing here.
       expect.soft(totals.floorObligations).toBe(35);
       expect.soft(totals.floorTokens).toBe(6_091);
-      expect.soft(totals.ceilingObligations).toBe(464);
-      expect.soft(totals.ceilingTokens).toBe(36_746);
+      expect.soft(totals.ceilingObligations).toBe(463);
+      expect.soft(totals.ceilingTokens).toBe(36_800);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -559,7 +561,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].floorObligations).toBe(19);
       expect.soft(tiers[1].floorTokens).toBe(4_046);
       expect.soft(tiers[1].ceilingObligations).toBe(267);
-      expect.soft(tiers[1].ceilingTokens).toBe(23_608);
+      expect.soft(tiers[1].ceilingTokens).toBe(23_676);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //
@@ -575,8 +577,8 @@ describe("report-obligation-burden.mjs", () => {
       // reference-only.
       expect.soft(tiers[2].floorObligations).toBe(35);
       expect.soft(tiers[2].floorTokens).toBe(6_091);
-      expect.soft(tiers[2].ceilingObligations).toBe(464);
-      expect.soft(tiers[2].ceilingTokens).toBe(36_746);
+      expect.soft(tiers[2].ceilingObligations).toBe(463);
+      expect.soft(tiers[2].ceilingTokens).toBe(36_800);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -603,8 +605,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(464);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(464);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(463);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(463);
     });
 
     it("prints no tier block without --mandated", async () => {

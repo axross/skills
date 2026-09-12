@@ -66,7 +66,7 @@ The template owns the body's skeleton; the rules here own what has to reach the 
 - MUST add a section for a required item the template has no home for, rather than omitting the item; the template's shape yields to what a reviewer needs, and only in that direction.
 - MUST fill each kept section with real content or delete the section; MUST NOT leave an empty heading, placeholder text, or an unchecked prompt in the submitted body.
 - SHOULD delete the template's instructional HTML comments once their section is filled; they never render, but they clutter the raw body that agents and API consumers read.
-- MUST keep the Related issues section even when no issue exists, stating that explicitly instead of deleting it — reviewers otherwise cannot tell "no issue" from "forgot to link".
+- MUST keep the Related issues and acceptance-criteria sections even when neither an issue nor a diff-verifiable criterion exists, stating that explicitly instead of deleting them — reviewers otherwise cannot tell "no issue" from "forgot to link", or "no criterion a diff can settle" from a projection nobody wrote.
 
 ## Issue Linking
 
@@ -90,12 +90,12 @@ The skipped-check rule below reads much like one a code-review capability states
 
 **Guidelines:**
 
-- MUST carry the change's acceptance criteria in the body: every criterion a reviewer can confirm or refute from the diff, quoted verbatim from the approved plan, each with its status; plus the number of criteria not carried and a locator for the plan that holds them. The posted review verifies the diff against what the body carries, so a criterion left out of it is a criterion nobody checks.
+- MUST carry the change's acceptance criteria in the body: every criterion a reviewer can confirm or refute from the diff, quoted verbatim from the approved plan, each with its status; plus the number of criteria not carried, a locator for the plan that holds them, and the plan revision they were copied from, so a later reader can tell a current projection from one the plan has moved past. The posted review verifies the diff against what the body carries, so a criterion left out of it is a criterion nobody checks.
 - MUST NOT make that obligation conditional on the reviewer being able to reach the plan. A reviewer holding no credential for the project's tracker is the case the body exists to serve.
 - MUST place the criteria under whichever template section covers acceptance or verification, and under an `## Acceptance criteria` heading where the template covers neither.
-- MUST name every required check that was skipped and why, under the template's risk section; a skipped check is residual risk, not silence.
+- MUST name every required check that was skipped and why, under the template's risk section, per [verification.md](./verification.md); a skipped check is residual risk, not silence.
 - SHOULD include before/after screenshots or a recording for any user-visible change, beside the criteria they bear on.
-- MUST NOT put a transcript of verification commands and their observed results in the body. Reporting what ran and what it produced is owed to the human in the session, per [verification.md](./verification.md), and on the body it restates what the project's own checks already report against the change.
+- MUST NOT put a transcript of verification commands and their observed results in the body. Reporting what ran and what it produced is owed to the human in the session, under whatever reporting practices the project holds you to, and on the body it restates what the project's own checks already report against the change.
 
 ## Risk Disclosure
 
