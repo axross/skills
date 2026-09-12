@@ -72,25 +72,17 @@ fresh-review loop; resuming that loop does not replay the initial checkpoint.
 [The actor-independent pre-flight decision](../decisions/2026-09-09-select-pre-flight-by-review-need-not-implementation-actor.md)
 records why these stages remain separate.
 
-## Select the external review route
+## Request the external review
 
-[Code Review](./code-review.md) owns the two configured external routes. The
-retained Claude route reviews ordinary and review-control changes through
-`@claude review`. The disabled Codex Action route reviews only static,
-non-control changes through the exact `/codex-action-review` command after its
-production qualification and enablement.
+[Code Review](./code-review.md) owns this repository's one external route:
+`@claude review`, which reviews every change, including a change to the review
+arrangement itself. There is no route to select between, so the current state
+records no selection, scope, or expiry for one — it still names the reviewer a
+given result came from, which [GitHub Delivery](./github-delivery.md)'s `Review`
+entry owns.
 
-Before requesting review, the current state MUST record the selected route,
-its scope, and when that selection expires. A host switch MUST recover that
-selection rather than replacing it with the new host's default. A failed or
-blocked Codex run grants no automatic fallback to Claude. If the selected route
-is unavailable and no human explicitly replaces it, record the unmet
-independent-review gate.
-
-Codex blocks any change to its control graph before model execution. Such a
-change, including the initial workflow bootstrap, MUST use the existing Claude
-route. If Claude is unavailable, self-review and local checks do not satisfy
-the independent-review gate.
+If that route is unavailable and no human explicitly replaces it, record the
+unmet independent-review gate. Self-review and local checks do not satisfy it.
 
 ## GitHub Delivery During Migration
 
