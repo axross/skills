@@ -493,9 +493,9 @@ describe("report-obligation-burden.mjs", () => {
       // itself. Figures re-derived by running the reporter against this tree,
       // per this file's own header comment.
       expect.soft(totals.floorObligations).toBe(35);
-      expect.soft(totals.floorTokens).toBe(6_039);
+      expect.soft(totals.floorTokens).toBe(6_050);
       expect.soft(totals.ceilingObligations).toBe(454);
-      expect.soft(totals.ceilingTokens).toBe(35_409);
+      expect.soft(totals.ceilingTokens).toBe(35_420);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -548,9 +548,9 @@ describe("report-obligation-burden.mjs", () => {
       // our own SKILL.md routing-bullet bytes, since `main`'s addition is
       // reference-only.
       expect.soft(tiers[2].floorObligations).toBe(35);
-      expect.soft(tiers[2].floorTokens).toBe(6_039);
+      expect.soft(tiers[2].floorTokens).toBe(6_050);
       expect.soft(tiers[2].ceilingObligations).toBe(454);
-      expect.soft(tiers[2].ceilingTokens).toBe(35_409);
+      expect.soft(tiers[2].ceilingTokens).toBe(35_420);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

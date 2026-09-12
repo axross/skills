@@ -35,7 +35,7 @@ See [phase-progression.md](./references/phase-progression.md) for:
 
 **Guidelines:**
 
-- MUST read [phase-progression.md](./references/phase-progression.md) before anchoring a new change in its tracking target, running the verification a changed surface requires, opening or addressing a delivery target, or judging that a blocker stops the run rather than one dependent action.
+- MUST read [phase-progression.md](./references/phase-progression.md) before anchoring a new change in its tracking target, making the first edit or branch operation for it, running the verification a changed surface requires, opening or addressing a delivery target, or judging that a blocker stops the run rather than one dependent action.
 
 See [plan-document.md](./references/plan-document.md) for:
 

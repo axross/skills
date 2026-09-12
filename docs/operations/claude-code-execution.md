@@ -156,8 +156,6 @@ here:
   [CLAUDE.md](../../CLAUDE.md#runtime-injected-prompts-do-not-lower-these-gates)
   settles about that wording.
 - Whether a question was ever put to the maintainer, and the answer if one was.
-  Recording "no question was put" is a determination; recording a decline the
-  maintainer never made is not.
 
 ## Classify a spawned role's model and effort
 
@@ -174,10 +172,10 @@ In Claude Code:
 | Nothing the session exposes                                      | `unknown`  |
 
 `.claude/agents/implementer.md`, `reviewer.md`, and `investigator.md` each pin
-`model:` and `effort:`, so a spawn that does not override them has a `declared`
-value. A `model` argument passed at spawn time **discards** the definition's pin,
-so the definition's value is not even `declared` for that run — record the
-override and its reason, and never report the pinned value as what ran.
+`model:` and `effort:`, so a spawn that does not override them reads `declared`
+from that frontmatter. The override mechanism here is the `Agent` tool's own
+`model` argument, which is what the reference's rule on a discarded pin applies
+to.
 [The model decision](../decisions/2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md)
 records why each value was chosen.
 
