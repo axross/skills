@@ -27,10 +27,15 @@ quoted verbatim from the approved plan. A reviewer with the pull request has
 the requirements, and the elaborate machinery for handing them over privately
 is guarding text published two sections above the diff.
 
-The route had also never run. It was gated behind `CODEX_ACTION_REVIEW_ENABLED`
-and a model variable, neither set, and its own documentation required a live
-production qualification — logs, canaries, fork and private-repository
-behaviour, retention, spend, bot policy — that never happened.
+The route had also never run, for a reason worth recording before the file
+carrying it disappears. Beyond the `CODEX_ACTION_REVIEW_ENABLED` and model
+variables it was gated behind, and the live production qualification its own
+documentation required and never received, the workflow file was **invalid**.
+Its review job set `REVIEW_DIRECTORY: ${{ runner.temp }}/…` in a job-level
+`env:` block, and GitHub Actions does not expose the `runner` context at job
+scope. Every one of its 26 recorded runs therefore ended `failure` with zero
+jobs started, annotated `Unrecognized named-value: 'runner'`. The route could
+not have executed even with its variables set and its qualification done.
 
 ## Decision
 
@@ -43,12 +48,10 @@ for a comment body that had to equal `/codex-action-review` exactly, and the
 recovery procedure for correlating a trigger against a run against a mutable
 summary.
 
-One consequence is worth naming on its own, because it is a simplification
-rather than a deletion. The deferred pre-flight handoff was split in two — a
-substantive record on the tracking Issue, a redacted projection on the pull
-request — solely because the pull request was a surface the Issue's
-requirements must not reach. With no such surface, the substantive record goes
-on the pull request, where the human reading the change already is.
+The deferred pre-flight handoff's two-record shape goes with it, and
+`github-delivery.md` states what replaces it. It is named here only because the
+shape looks like a deliberate safeguard being removed, and was not: it was a
+consequence of this route, and it outlived nothing else.
 
 ## Alternatives rejected
 
