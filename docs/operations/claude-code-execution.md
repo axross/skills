@@ -57,8 +57,6 @@ equivalent to `AskUserQuestion`.
   treating it as an answer is the fabrication
   [Asking the Human](../../skills/professional-behavior/references/asking-the-human.md)
   forbids outright.
-- Re-present through the same mechanism, with the same options in the same
-  order, as that rule requires.
 - The plan-approval gate is not one of these. It is a whole plan the human reads
   at their own pace, so it ends the turn and waits for a resume.
 - `EnterPlanMode` and `ExitPlanMode` write a local plan file. Neither satisfies
