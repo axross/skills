@@ -13,9 +13,10 @@ complements the review
 the two differ about what a posted review reports, this file wins (see that
 skill's [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews) section).
 
-This is a **strict** review: run every mandatory check below, verify the linked
-issue's acceptance criteria, and report every finding — do not wave anything
-through.
+This is a **strict** review: run every mandatory check below, verify the
+acceptance criteria the pull request body carries, and report every finding —
+do not wave anything through. The criteria a review is measured against are on
+the pull request itself; no reviewer here opens the tracking issue to find them.
 
 ## Severity Vocabulary for Posted Reviews
 
@@ -106,12 +107,14 @@ repository's own fixed lens list:
   require verifying against is, in this repository, **every skill** whose
   discovery condition (`description`) matches the changed files. Flag any
   deviation from a skill's stated rule, citing the skill and the rule.
-- **Acceptance criteria** — the linked issue is the one named by the pull
-  request body's `Closes #<n>`. Verify the diff against **every** acceptance
-  criterion there; each one unmet, or unconfirmable from the diff, is an
+- **Acceptance criteria** — the pull request body carries them, under its
+  **Acceptance criteria** section. Verify the diff against **every** criterion
+  stated there; each one unmet, or unconfirmable from the diff, is an
   **Important** finding — anchored inline where it attaches to a diff line,
-  and carried by the summary's no-line entry otherwise. If the pull request
-  links no issue, say so in the summary.
+  and carried by the summary's no-line entry otherwise. Do not resolve
+  `Closes #<n>` to find them, and do not treat a criterion's absence from the
+  body as a reason to go looking: a body stating no acceptance criteria is
+  itself an **Important** finding.
 - **Subtractive pass** — on every content-adding change, walk this fixed lens
   list:
   1. **Duplicated judgment** — a rule the change states that a tool-agnostic

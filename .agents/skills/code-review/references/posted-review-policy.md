@@ -29,10 +29,13 @@ A posted review uses exactly two labels, so the author can sort must-fix from ni
 
 A posted review is strict: it runs a fixed set of checks every time and raises a finding for each miss, rather than reviewing only what happens to catch the eye.
 
+The acceptance criteria those checks run against are the ones the pull request body carries. A posted reviewer often cannot open the tracker the criteria were planned in — it may hold no credential for it, or the tracker may sit outside the forge entirely — and a check that silently degrades whenever that happens is not a mandatory check. Reading the body is a capability every posted reviewer has.
+
 **Guidelines:**
 
 - MUST verify the change against every project rule that matches the changed files and raise an Important finding for each violated hard rule, citing the rule.
-- MUST verify the diff against every acceptance criterion of the linked issue and raise an Important finding for each one unmet or unverifiable — anchored inline where it attaches to a diff line, and carried by the summary's no-line entry otherwise — and state plainly when the pull request links no issue.
+- MUST verify the diff against every acceptance criterion stated in the pull request body and raise an Important finding for each one unmet or unverifiable — anchored inline where it attaches to a diff line, and carried by the summary's no-line entry otherwise.
+- MUST raise an Important finding when the body states no acceptance criteria at all, naming the omission rather than reviewing as though the change had none; a linked issue does not excuse it, and the review does not stall waiting for one.
 - MUST give each finding a label, `file:line` evidence, and a concrete fix, exactly as an internal finding.
 
 ## Do Not Report

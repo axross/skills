@@ -107,7 +107,7 @@ See [pull-request-descriptions.md](./references/pull-request-descriptions.md) fo
 - who the description is written for — the developer about to read the diff — and the roughly 200-word ceiling that follows from it
 - what a pull request body contains, and why the "why" leads
 - reproducing the repository's pull request template in an API-authored body
-- issue linking, verification evidence, risk disclosure, and reviewer guidance
+- issue linking, the acceptance criteria the body carries, risk disclosure, and reviewer guidance
 - keeping the description current across review rounds
 
 ## Topic-Specific Skills

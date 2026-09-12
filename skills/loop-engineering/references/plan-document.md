@@ -23,6 +23,7 @@ The canonical plan content begins at the first plan section heading and runs thr
 - MUST derive an immutable identity from canonical plan content, bind approval to it, and carry it in every assignment and result governed by that plan. Read-only work outside the change loop uses its material revision instead.
 - MUST NOT use a whole-record update timestamp as plan identity or apply whitespace, line-ending, case, Unicode, or any normalization beyond HTML character-reference decoding.
 - MUST invalidate approval and stale execution or review results when canonical content changes, and stop before editing on an identity mismatch.
+- MUST name the revision that any projection of the plan's acceptance criteria onto a delivery target was taken from, regenerate that projection when canonical content changes, and treat a projection naming a superseded revision as stale rather than as evidence of what was approved.
 - MUST establish a byte-faithful read before comparing or rewriting stored content; a degraded read is not evidence that a plan or approval disappeared. Distinguish changed content from degraded transport before proceeding.
 
 ## Plan Amendment

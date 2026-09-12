@@ -147,7 +147,11 @@ records or recreating an existing PR after interruption:
    target if found rather than creating another.
 2. Prepare the PR with the current state block, a pointer to the issue's plan
    and approved revision, and [the repository's PR template](../../.github/pull_request_template.md).
-   Put `Closes #<issue-number>` in its **Related issues** section.
+   Put `Closes #<issue-number>` in its **Related issues** section, and the
+   approved plan's diff-verifiable acceptance criteria, quoted verbatim with
+   their status, in its **Acceptance criteria** section. Reviewers here work
+   from the PR alone, so a criterion missing from that section is a criterion
+   nobody checks.
 3. Publish the PR in draft and verify its actual body, head branch/revision,
    linked issue, and draft status through the qualified route.
 4. Point the issue's state block at the verified PR. From that point, update
@@ -163,15 +167,18 @@ writes before continuing this handover.
 
 Use the following destinations after resolving the target under GitHub Operation:
 
-| Content or operation                                              | Destination                                                                     |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Plan, plan questions, amendments                                  | Tracking issue                                                                  |
-| Current run state                                                 | Issue before PR creation; PR afterward                                          |
-| Substantive deferred pre-flight handoff                           | Marked tracking-Issue comment                                                   |
-| Verification commands, outcomes, acceptance status, residual risk | PR **Verification** and applicable risk sections; state block links to evidence |
-| Independent review request                                        | Dedicated marked comment, except the exact Codex command described below        |
-| Fix evidence and finding reply                                    | The finding's PR review thread                                                  |
-| Draft/ready status and PR metadata                                | The PR, never the tracking issue                                                |
+| Content or operation                      | Destination                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------------ |
+| Plan, plan questions, amendments          | Tracking issue                                                           |
+| Current run state                         | Issue before PR creation; PR afterward                                   |
+| Substantive deferred pre-flight handoff   | Marked tracking-Issue comment                                            |
+| Acceptance criteria and their status      | PR **Acceptance criteria**, quoted verbatim from the approved plan       |
+| Manual checks and before/after visuals    | PR **Acceptance criteria**, beside the criteria they bear on             |
+| Skipped required checks and residual risk | PR **Risks and breaking changes**                                        |
+| Verification commands and their outcomes  | The session report; the state block keeps the evidence locators          |
+| Independent review request                | Dedicated marked comment, except the exact Codex command described below |
+| Fix evidence and finding reply            | The finding's PR review thread                                           |
+| Draft/ready status and PR metadata        | The PR, never the tracking issue                                         |
 
 [Code Review](./code-review.md) owns the configured CI reviewer, exact invocation,
 eligibility, and setup. [REVIEW.md](../../REVIEW.md) owns severity and output

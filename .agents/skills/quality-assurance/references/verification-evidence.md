@@ -28,9 +28,11 @@ not just claimed tested?}
 
 A review should connect each changed surface to the command, manual check, or reasoning that covers it.
 
+Evidence is whatever actually establishes the check ran, and the change's own description is only one place it can live. The project's automated checks report against the change independently of its author, which makes them the stronger evidence of the two; an author's report in the session is the weaker but still admissible one. What the description does **not** carry is not thereby unverified — reaching for the description first, and reading its silence as absence, turns a formatting preference into a finding.
+
 **Guidelines:**
 
-- MUST require evidence that the project's format and lint commands ran after code or documentation edits.
+- MUST require evidence that the project's format and lint commands ran after code or documentation edits, accepting the project's own reported check results or the author's report of the run, and MUST NOT treat the change description's silence as evidence that they did not.
 - MUST require manual evidence for changed output surfaces listed in [manual-verification.md](./manual-verification.md).
 - MUST map skipped required checks to a concrete reason and residual risk.
 - MUST require a second-pass verification statement after fixing any finding the project's review severity tiers rank as Critical or Major.
