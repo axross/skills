@@ -75,14 +75,13 @@ returning a progress-only report. Use the purpose routes below for the action an
 [Wait for the right result](#wait-for-the-right-result) for an actual pending
 machine event.
 
-For the Codex Action route, apply this progression to each distinct stage in
-[Code Review](./code-review.md): exact-command admission, workflow start,
-context preparation, model completion, validation, sanitized publication, and
-correlated summary. A no-op or denied trigger, unavailable sidecar or merge
-snapshot, blocked control surface, model or validator failure, withheld output,
-publisher failure, or old mutable summary is not a clean review. Continue from
-the last verified stage through the qualified GitHub route without replacing
-the selected reviewer or posting a duplicate trigger. Readiness evidence still
+An Amp session requests external review with `@codex review`, per
+[Code Review](./code-review.md). Apply the same progression to each distinct
+stage of that review: trigger admission, run start, model completion, and
+published result. A denied or no-op trigger, a failed run, and
+a result belonging to an older run are each a stage that has not completed, not
+a clean review. Continue from the last verified stage through the qualified
+GitHub route rather than posting a duplicate trigger. Readiness evidence still
 does not authorize publishing a ready transition.
 
 ## Qualify the advisory reader
@@ -269,7 +268,7 @@ schedule requests, unavailable APIs or expensive modes to prove prose.
 | Review pending without monitoring authorization                | No schedule created; use a permitted wait or return recovery information.                                                   |
 | Lost response after a write                                    | Inspect stored bytes and process state before any retry.                                                                    |
 | Plan changes before a child returns                            | Old result does not satisfy new approval; recover and audit it first.                                                       |
-| Codex trigger exists but validation or publication fails       | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                      |
+| Review trigger exists but the run or its result does not land  | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                      |
 | Base integration produces only mechanical conflicts            | Resolve them append-only, rerun affected checks, and request review of the resulting material.                              |
 | Conflicting edits express different intended behavior          | Return the decision to the human; do not guess or rewrite history.                                                          |
 | Existing host or mandatory external reviewer unavailable       | Report the untested path; mandatory external review remains unmet until obtained.                                           |

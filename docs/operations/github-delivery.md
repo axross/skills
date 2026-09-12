@@ -64,19 +64,18 @@ changed PR, route, lifetime, limit or operation requires authorization only for
 the difference. Do not add an exact-head field: reviewed-snapshot and material
 currency evidence stays separate from authorization scope.
 
-For a Codex Action request, the authorization record MUST name the exact trigger
-and its Issue-body context access, API-billed model execution and sanitized bot
-publication. Its limit says either one request or the remaining requests through
+For an external review request, the authorization record MUST name the exact
+trigger and its limit — either one request or the remaining requests through
 Loop's four-round external cap. That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
-spend or retention settings, production qualification, ready transition, merge,
-release, deployment or scheduling unless the human separately names the effect.
+spend or retention settings, ready transition, merge, release, deployment or
+scheduling unless the human separately names the effect.
 
 The `Review` entry records only safe correlation metadata: trigger comment ID
 and actor, workflow run ID and attempt, reviewed snapshot, sanitized result
 locator and the last observed stage. Put partial or unknown effects in
-`Recovery`. Neither entry carries Issue text, a sidecar path as a durable
-retrieval promise, credentials, raw API/model output or rejected output.
+`Recovery`. Neither entry carries Issue text, credentials, raw API/model output
+or rejected output.
 These field-specific least-data constraints do not remove other substantive
 material from a permitted internal plan or handoff that Loop requires.
 
@@ -87,30 +86,32 @@ lost evidence with a claim of success. Record only process information needed
 for recovery, without credentials or transient worker handles.
 
 Keep the substantive executor self-review outcome, unresolved findings and
-limitations in a permitted internal handoff. When the selected reviewer contract
-restricts Issue-derived text on the current delivery surface, project only code
-or process observations and requirement identifiers or locators onto that
-surface. Do not quote, summarize or paraphrase Issue requirements. Link to the
-permitted substantive record when one exists, and report when the projection
-cannot carry enough context. The projection is recovery evidence, not canonical
-criteria or a replacement for fresh advisory or external-review input.
+limitations in a permitted internal handoff, and link the delivery target to
+that record. What lands on the delivery target is recovery evidence, not a
+replacement for fresh advisory or external-review input; the acceptance criteria
+the review is checked against are the projection this document routes to the
+PR's **Acceptance criteria** section, which is a different thing from a
+self-review handoff.
 
 ## Publish deferred pre-flight handoffs
 
-An informed decline produces a substantive terminal handoff as well as a safe
-delivery projection. They remain separate because the draft pull request (PR)
-is one of the Codex Action design's restricted surfaces, while the Action reads
-the tracking Issue body rather than its comments.
+An informed decline ends an advisory round with risks still open, and Loop's
+[Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff)
+contract requires that record to reach the human. It goes on the delivery
+target. This repository used to split it in two — a substantive record on the
+tracking Issue and a redacted projection on the pull request — because the
+review route then under consideration read the Issue and treated the pull
+request as a surface its requirements must not reach. No route here imposes
+that now, and one record the human can read beats two neither is complete.
 
 **Guidelines:**
 
-- MUST publish one `<!-- ai-agent -->` tracking-Issue comment for each informed decline when that effect is authorized. Identify it as deferred pre-flight handoff evidence, not canonical requirements or review input.
-- MUST retain in that comment the advisory round and reviewed material identity; each finding's ID, severity, code citation, substance, suggested fix and `deferred` disposition; the decision reason and supporting evidence; and locators for the human decision and canonical Issue.
-- MUST preserve corrections to a substantive handoff in later marked comments rather than overwriting the evidence the human received.
-- MUST put only the publication-safe projection in the draft PR's **Risks and breaking changes** section and compact handoff status and locators in its state block. For each finding, retain the ID, severity, code citation, code-observed risk, `deferred` state, valid requirement identifier or locator, substantive-record locator and human-decision locator.
-- MUST build the projection only from code observations, process facts and valid locators. Never quote, summarize or paraphrase Issue text or expected behavior; when the safe fields cannot convey the risk or a valid locator is unavailable, publish only the available locators and limitation rather than inventing a safe paraphrase.
-- MUST NOT use the Codex Action result marker or impersonate its bot for this handoff, feed the tracking-Issue comment to a fresh advisory assignment, or treat the comment as replacement Action input. Public readability does not imply reviewer invisibility.
-- MUST treat the Issue comment and PR updates as separate effects under the recovered operation grant. Without authorization, retain the full ledger in the current permitted internal handoff, report its substance and the exact blocked effects to the human, and keep delivery incomplete; an orb-local artifact is not a durable substitute.
+- MUST publish one `<!-- ai-agent -->` PR comment for each informed decline when that effect is authorized, identifying it as deferred pre-flight handoff evidence rather than canonical requirements or review input.
+- MUST retain in that comment the advisory round and reviewed material identity; each finding's ID, severity, citation, substance, suggested fix and `deferred` disposition; the decision reason and supporting evidence; and locators for the human decision and the tracking Issue.
+- MUST preserve corrections in later marked comments rather than overwriting the evidence the human already received.
+- MUST keep compact handoff status and locators in the PR's state block, so a resumed run finds the record without reading every comment.
+- MUST treat publication as an effect under the recovered operation grant. Without authorization, retain the full ledger in the current permitted internal handoff, report its substance and the exact blocked effect to the human, and keep delivery incomplete; an orb-local artifact is not a durable substitute.
+- MUST NOT feed the comment to a fresh advisory assignment or treat it as replacement input for mandatory external review; public readability does not imply reviewer invisibility.
 - MUST route missing substantive handoff evidence through Loop's [Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff) recovery contract; Delivery adds only verified GitHub process and decision locators and blocked publication effects.
 
 ### Extract the state block without reading the whole body
@@ -172,17 +173,18 @@ Use the following destinations after resolving the target under GitHub Operation
 | ----------------------------------------- | ------------------------------------------------------------------------ |
 | Plan, plan questions, amendments          | Tracking issue                                                           |
 | Current run state                         | Issue before PR creation; PR afterward                                   |
-| Substantive deferred pre-flight handoff   | Marked tracking-Issue comment                                            |
+| Substantive deferred pre-flight handoff   | Marked PR comment; locators in the state block                           |
 | Acceptance criteria and their status      | PR **Acceptance criteria**, quoted verbatim, naming the plan revision    |
 | Manual checks and before/after visuals    | PR **Acceptance criteria**, beside the criteria they bear on             |
 | Skipped required checks and residual risk | PR **Risks and breaking changes**                                        |
 | Verification commands and their outcomes  | The session report; the state block keeps the evidence locators          |
-| Independent review request                | Dedicated marked comment, except the exact Codex command described below |
+| Independent review request                | Dedicated marked PR comment carrying the trigger phrase and nothing else |
 | Fix evidence and finding reply            | The finding's PR review thread                                           |
 | Draft/ready status and PR metadata        | The PR, never the tracking issue                                         |
 
-[Code Review](./code-review.md) owns the configured CI reviewer, exact invocation,
-eligibility, and setup. [REVIEW.md](../../REVIEW.md) owns severity and output
+[Code Review](./code-review.md) owns both configured reviewers, each one's exact
+invocation, eligibility, and setup — one of them runs here in CI and the other
+does not. [REVIEW.md](../../REVIEW.md) owns severity and output
 policy. Delivery MUST use that invocation only when the review request is
 authorized; preparing its comment does not publish it.
 
@@ -195,9 +197,9 @@ fix landed away from the line the comment anchors to. That extra room MUST NOT
 be spent restating the finding, re-explaining why it mattered, or recounting
 verification the pull request already records. The finding thread, not an
 unrelated issue comment, is the evidence target.
-The Codex Action summary has no inline finding threads, so record each
-observation's fix or explicit dismissal in the current review state and use the
-next correlated summary as rerun evidence.
+A finding the reviewer raises in its summary rather than on a diff line has no
+thread to reply on; record its fix or explicit dismissal in the current review
+state and use the next review's summary as rerun evidence.
 
 The PR stays draft until Loop's
 [readiness evaluation](../../skills/loop-engineering/references/independent-review.md)
@@ -207,23 +209,6 @@ independent review cannot be established, record the actual unmet gate on the
 PR and keep it draft. An unrelated review defect is neither a new acceptance
 criterion nor permission to weaken review policy.
 
-## Recover Codex Action review effects
-
-Before posting another exact Codex command, correlate the authenticated trigger
-comment, workflow run and attempt, reviewed snapshot, and bot-owned sanitized
-result using [Code Review](./code-review.md)'s provider identities. Keep the
-stages distinct: a stored trigger with no started run is not completion, a
-failed run can have no result comment, and a mutable summary tied to an older
-run does not complete the current request. A publisher failure also leaves the
-model result and published-result stages different.
-
-Discovery and correlation establish what happened; they do not authorize a
-retry. Post another trigger only when the intended effect is confirmed absent,
-the prior outcome is no longer unknown, and the recovered authorization still
-covers another request within its limit. Otherwise continue from the correlated
-object or report the exact failed, partial, outcome-unknown, or
-authorization-waiting state.
-
 ## Use the repository's comment marker
 
 This repository's fixed marker for new agent comments is `<!-- ai-agent -->`.
@@ -231,14 +216,6 @@ Recognize the retired `<!-- claude-code -->` marker as agent output on historica
 issues and PRs, but never use it for a new comment. GitHub Operation owns the
 attribution test and trigger-isolation rule; these are the repository's marker
 values, not a second attribution policy.
-
-The sole exception is the Codex Action command channel. Its entire comment body
-MUST equal `/codex-action-review`, so the request intentionally carries no
-agent marker. Attribute that request through its GitHub comment ID, actor,
-workflow run ID, and run attempt. The publisher's separate result comment MUST
-use `<!-- codex-action-issue-sidecar-review -->` and MUST be owned by
-`github-actions[bot]`. This exception does not apply to status comments, other
-automation commands, or ordinary agent output.
 
 When external writes are not authorized or no permitted route can perform them,
 return prepared content and the exact blocked operation to the human. Do not

@@ -4,9 +4,10 @@ Review **policy** for this repository — the highest-priority, review-only
 instructions. Every reviewer entry point reads this file: a managed review
 product (e.g. Claude Code's managed Code Review) natively, and the CI
 reviewer ([`claude-review.yaml`](.github/workflows/claude-review.yaml)) via a
-system-prompt bootstrap. The Codex Action reviewer
-([`codex-action-review.yaml`](.github/workflows/codex-action-review.yaml)) reads
-the trusted default-branch copy. This file overrides reviewer defaults and
+system-prompt bootstrap. The Codex reviewer, which a Codex or Amp session
+requests with `@codex review`, reaches it through
+[AGENTS.md](AGENTS.md)'s review routing. This file overrides reviewer defaults
+and
 complements the review
 **methodology** in
 [Code Review](.claude/skills/code-review/SKILL.md); where
@@ -34,39 +35,6 @@ changed files.
 - MUST label as Important a violation of a MUST rule belonging to any skill
   whose `description` matches the changed files, citing the skill and the
   rule.
-
-## Codex Action Output Exception
-
-The Codex Action reviewer runs the same mandatory checks but publishes a
-sanitized top-level summary instead of Claude's Important/Nit inline-review
-container. This provider-specific exception overrides the posted-output shape
-elsewhere in this file only for
-[`codex-action-review.yaml`](.github/workflows/codex-action-review.yaml).
-
-Codex assigns P0–P3 directly from observed impact rather than translating the
-Important/Nit or internal Critical/Major/Minor/Nit vocabularies:
-
-- **P0** — the observed behavior can cause widespread outage, irreversible
-  data loss, or a critical security compromise.
-- **P1** — the observed behavior is a serious correctness or security defect
-  that should be fixed before merge.
-- **P2** — the observed behavior is a localized correctness or maintainability
-  defect worth fixing in the change.
-- **P3** — the observed behavior is a low-impact defect or improvement.
-
-Each Codex finding MUST contain only its P0–P3 priority, changed path and line
-range, short title, code-observed behavior, and a validated requirement ID or
-sidecar line locator. It MUST NOT copy, summarize, or paraphrase requirement
-prose. It MUST NOT include an Issue-derived expectation or a proposed fix.
-These omissions replace the ordinary Important/Nit label and concrete-fix
-requirements; they do not waive any mandatory review lens.
-
-Until an approved priority threshold changes this conservative policy, every
-`findings` or `blocked` Codex result is non-clean and cannot satisfy readiness.
-A `clean` result means zero findings for the named snapshot. It satisfies the
-external-review outcome only after the route is enabled and independently
-production-qualified. Do not map P2 to Nit or infer a readiness threshold from
-another provider's vocabulary.
 
 ## Repository Severity Floors
 
@@ -142,10 +110,8 @@ repository's own fixed lens list:
   and each such finding is reported like any other finding — anchored
   inline and counted in the tally — with nothing written in a posted
   summary about a lens that found nothing.
-- MUST give each Claude finding a severity label, `file:line` evidence, and a
-  concrete fix, per [Code Review](.claude/skills/code-review/SKILL.md). The
-  [Codex Action output exception](#codex-action-output-exception) defines that
-  provider's narrower fields.
+- MUST give each finding a severity label, `file:line` evidence, and a
+  concrete fix, per [Code Review](.claude/skills/code-review/SKILL.md).
 
 ## Reading Beyond the Diff
 
@@ -252,15 +218,10 @@ not mistaken for CI-covered:
 [Code Review](.claude/skills/code-review/SKILL.md)'s
 [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
 section owns the reporting shape — inline comments anchored to the diff, one
-summary comment opening with a tally, nothing summarized away. The Codex Action
-exception instead uses one fixed, sanitized top-level summary and no inline
-comments.
+summary comment opening with a tally, nothing summarized away.
 
 **Guidelines:**
 
 - MUST post any pull-request review as a **COMMENT**-type review — never
   APPROVE or REQUEST_CHANGES — per the project's GitHub-operation
   conventions; this reviewer is advisory and does not gate merges.
-- MUST publish Codex Action output as its bot-owned Issue comment rather than a
-  formal pull-request review. A `findings` or `blocked` summary remains
-  non-clean under the conservative policy above.

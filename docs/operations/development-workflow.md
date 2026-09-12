@@ -74,23 +74,16 @@ records why these stages remain separate.
 
 ## Select the external review route
 
-[Code Review](./code-review.md) owns the two configured external routes. The
-retained Claude route reviews ordinary and review-control changes through
-`@claude review`. The disabled Codex Action route reviews only static,
-non-control changes through the exact `/codex-action-review` command after its
-production qualification and enablement.
+[Code Review](./code-review.md) owns both external routes, and the selection
+follows the session's host rather than the change: a Claude Code session
+requests `@claude review`, a Codex or Amp session requests `@codex review`.
+Both reviewers work from the pull request, so neither route is restricted to a
+narrower class of change than the other.
 
-Before requesting review, the current state MUST record the selected route,
-its scope, and when that selection expires. A host switch MUST recover that
-selection rather than replacing it with the new host's default. A failed or
-blocked Codex run grants no automatic fallback to Claude. If the selected route
-is unavailable and no human explicitly replaces it, record the unmet
-independent-review gate.
-
-Codex blocks any change to its control graph before model execution. Such a
-change, including the initial workflow bootstrap, MUST use the existing Claude
-route. If Claude is unavailable, self-review and local checks do not satisfy
-the independent-review gate.
+A failed or unavailable route grants no automatic fallback to the other. If the
+route the session's host selects is unavailable and no human explicitly replaces
+it, record the unmet independent-review gate. Self-review and local checks do
+not satisfy it.
 
 ## GitHub Delivery During Migration
 
