@@ -510,20 +510,21 @@ describe("report-obligation-burden.mjs", () => {
       // onto the delivery target itself. Floor obligations again do not move —
       // every rule lands in a reference — while floor tokens rise by the four
       // bytes a reworded `software-development` routing bullet takes. The
-      // ceiling moves by five: four in `software-development`, where
-      // pull-request-descriptions.md trades one verification bullet for three
-      // criteria bullets and Template Usage gains one; and one in
-      // `loop-engineering`, in plan-document.md for the projection's
-      // staleness. phase-progression.md's own projection rule moves nothing:
-      // it rewrites an existing bullet rather than adding one, the
-      // reviewer's-source rule having been folded into it to hold that
-      // section at its bullet target. The rules added to `code-review`, `quality-assurance`,
+      // ceiling moves by five, measured against this branch's own base
+      // rather than against an earlier draft of it: three in
+      // `software-development`, where pull-request-descriptions.md trades one
+      // verification bullet for three criteria bullets and Template Usage
+      // gains one; and two in `loop-engineering`, one in plan-document.md for
+      // the projection's staleness and one net in phase-progression.md's
+      // Deliver and Address, which still gains a bullet overall even after
+      // the reviewer's-source rule was folded into the projection rule to
+      // hold that section at its bullet target. The rules added to `code-review`, `quality-assurance`,
       // `REVIEW.md` and this repository's own documents are outside the
       // mandated set and move nothing here.
       expect.soft(totals.floorObligations).toBe(35);
       expect.soft(totals.floorTokens).toBe(6_091);
       expect.soft(totals.ceilingObligations).toBe(463);
-      expect.soft(totals.ceilingTokens).toBe(36_800);
+      expect.soft(totals.ceilingTokens).toBe(36_838);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -578,7 +579,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(35);
       expect.soft(tiers[2].floorTokens).toBe(6_091);
       expect.soft(tiers[2].ceilingObligations).toBe(463);
-      expect.soft(tiers[2].ceilingTokens).toBe(36_800);
+      expect.soft(tiers[2].ceilingTokens).toBe(36_838);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

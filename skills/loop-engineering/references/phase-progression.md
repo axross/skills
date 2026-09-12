@@ -43,7 +43,7 @@ The approval binds the outcome; the assignment binds the execution. Parent and c
 
 ## Deliver and Address
 
-Delivery defaults to a draft target linked to its tracking target. Delivery owns its template, assignment, comment routing, trigger and persistence representation; the loop owns whether the evidence permits progress.
+Delivery defaults to a draft target linked to its tracking target. Delivery owns its template, assignment, comment routing, trigger and persistence representation; the loop owns whether the evidence permits progress. A reviewer that cannot reach the tracking target reviews against the delivery target's own projection of the criteria, rather than treating what it could not read as unreviewable.
 
 **Guidelines:**
 
