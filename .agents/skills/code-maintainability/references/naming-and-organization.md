@@ -87,13 +87,11 @@ A project with an established convention has already answered these questions, a
 
 ### Domain Meaning
 
-A general word asked to carry a domain-specific meaning collides with the plain word every reader already knows. A living-project-documentation capability's glossary guidance states the fuller principle for choosing a term — the pricing between a term that visibly does not compose and one that composes to something nearly right, and the per-axis table of near-misses that follows it — and this section carries the same principle to a code identifier without repeating that development. Where that capability is not installed, the guidelines below still hold on their own.
+A general word asked to carry a domain-specific meaning collides with the plain word every reader already knows. A living-project-documentation capability's glossary guidance owns the principle for choosing such a term — the pricing between a term that visibly does not compose and one that composes to something nearly right, and the per-axis table of near-misses that follows it — and this section defers to it rather than restating it. Where that capability is not installed, the test below still flags the same names; only the reasoning for choosing the exact replacement word lives upstream.
 
 **Guidelines:**
 
-- MUST take the qualifier that closes the gap when a new identifier's word means something wider, narrower, or merely adjacent to the domain concept it is meant to name; a bare word already meaning exactly that stays bare.
 - MUST apply this test to a name in question: read it alone, with no other code in view — does it tell you which domain concept it names? If not, and the identifier is not scoped to one function or one component, it needs a compound. Without a project glossary, this test rests more on reviewer judgment, since it checks against no definition that exists outside the code.
 - MUST leave a general word alone where an identifier's own scope already disambiguates it — a local variable, a private helper, or a style key used only inside the one function or component that declares it.
-- MUST prefer, where no candidate composes exactly, the term a reader can see they do not know over one they will mistake for a word they do.
 - MUST NOT let one word name both a collection and its own constituent (a list called `Runouts` alongside a single element called `Runout` is fine; the same bare word standing for both is the finding).
 - MUST NOT defer this section to an established project vocabulary the way the parent guideline that matches a new identifier's casing and pattern to its neighborhood does; a pervasive but wrong term is the defect that neighborhood consistency does not excuse, and this section's rule outranks that parent guideline where the two disagree on one identifier.
