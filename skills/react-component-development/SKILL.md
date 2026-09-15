@@ -80,6 +80,7 @@ See [memoization.md](./references/memoization.md) for:
 
 - establishing whether the project auto-memoizes at build time before adding any by hand
 - the narrow set of cases where `memo`, `useCallback`, and `useMemo` pay for themselves
+- where a `memo` wrap goes, and why a comparator needs a closed props type before it can be checked
 - why an unstable callback or object identity defeats a memoized child
 - keeping a dependency list complete, and why an incomplete one returns stale values
 - the nested-component-definition mistake that remounts a subtree regardless of memoization

@@ -33,6 +33,63 @@ Everything else — a scalar comparison, a string concatenation, a component ren
 - MUST NOT memoize a cheap scalar derivation; the comparison costs more than recomputing it.
 - MUST NOT reach for memoization as a first response to a slow surface — find what actually re-renders, and prefer moving state closer to where it is used.
 
+## Where the Wrap Goes
+
+`memo` takes two arguments, and settling the first says nothing about the second. A custom comparator _replaces_ the default shallow compare rather than extending it, so every prop it does not name stops being compared at all — and nothing in `memo`'s type obliges it to name any. Where the props type follows [props.md](./props.md) and extends the root rendered element's own props, it is **open**: a comparator reading two of its dozens of props type-checks cleanly, and no tool reports the rest.
+
+Placement is what fixes that, because the fix is closing the props type and only a call site can close one. A call site knows exactly what it passes; a definition site cannot enumerate its callers. So the wrap goes where the type can be closed, and the comparator is written as a per-prop record over that closed type rather than as a boolean expression over an open one. The familiar `export default memo(Component)` is a definition-site wrap, and stays available only to a component whose props are all static.
+
+**Example:**
+
+```tsx
+// at the call site, close the type to exactly what this caller passes
+type RowProps = {
+  item: Item;
+  selected: boolean;
+  subtitle?: string;
+  onPress: (id: string) => void;
+};
+
+const Row = (props: RowProps) => <ListRow {...props} />;
+
+// `-?` is what makes the record exhaustive. without it an optional prop such as
+// `subtitle` may be left out with no diagnostic at all, which is the silent
+// omission this shape exists to catch.
+type Comparators<P> = { [K in keyof P]-?: (a: P[K], b: P[K]) => boolean };
+
+function propsAreEqual<P extends object>(comparators: Comparators<P>) {
+  // walked once here, not on every comparison
+  const keys = Object.keys(comparators) as (keyof P)[];
+  return (prev: P, next: P) =>
+    keys.every(<K extends keyof P>(key: K) =>
+      comparators[key](prev[key], next[key]),
+    );
+}
+
+const MemoRow = memo(
+  Row,
+  propsAreEqual<RowProps>({
+    item: (a, b) => a.id === b.id && a.revision === b.revision,
+    selected: Object.is,
+    subtitle: Object.is,
+    // excluded: the caller holds onPress in useCallback, so a new identity here
+    // carries no new behaviour. a reader sees a stale handler only if that
+    // useCallback is dropped, which the caller-side rule already forbids.
+    onPress: () => true,
+  }),
+);
+```
+
+**Guidelines:**
+
+- MAY wrap a component at its definition site when every prop it takes is static — a primitive, a boolean, a data attribute, or `style` where this project's conventions make it static.
+- MUST wrap every other component at the call site: one taking a callback, an object, an array, `children`, or a render prop. A virtualized list's row is this case rather than the one above, since a row takes both a callback and an item object (see [virtualization.md](./virtualization.md)).
+- MUST settle which prop kinds count as static once per project rather than per component, since a definition site cannot enumerate its callers and only a claim about all of them supports the permission above. The determination is conservative: one component receiving computed values for a prop kind makes that kind non-static project-wide.
+- MUST NOT write a custom comparator as a boolean expression over an open props type. Close the type at the call site and express the comparator as an exhaustive per-prop record, so a prop left out of the comparison is a compile error; write an excluded prop explicitly, and say in its comment what stale value the exclusion admits and when a reader could observe it.
+- MUST stabilise what the caller passes before wrapping — a wrap over props that never carry a stable identity only adds comparison cost.
+- SHOULD hoist the record's key list out of the comparison, since a helper that rebuilds it on every comparison pays that cost on every render the wrap was added to save.
+- SHOULD treat a shared component wrapped at several call sites as a known limit: the record may be re-derived at each, and nothing here prescribes a shared source of truth for it.
+
 ## Keeping a Memo Honest
 
 A memo is a cache, and a cache with a wrong key returns stale data. The dependency list is that key, so an incomplete one does not merely under-optimize — it produces a value that disagrees with the props and state it was derived from.
