@@ -24,7 +24,7 @@ An operation grant records actual human authorization for one or more concrete e
 - MUST name an automation trigger's intended downstream effects, including billed execution, protected-context access or publication where applicable, before treating those effects as part of the grant.
 - MUST compare every proposed effect with the recovered target, operation, route, lifetime, limits and exclusions; carry a matching grant forward across phases, sessions and executors, and ask only for an absent or expanded effect.
 - MUST treat a changed target, route, expired lifetime, exhausted limit or missing evidence as authorization-waiting for the unmatched effect, without blocking independent effects covered by another valid grant.
-- MUST NOT infer setup, secrets, settings, production enablement, readiness publication, merge, release, deployment or scheduling authority from a grant that does not name that effect.
+- MUST NOT infer setup, secrets, settings, production enablement, merge, release, deployment or scheduling authority from a grant that does not name that effect. Readiness publication is not one of these grant-gated effects: [independent-review.md](./independent-review.md)'s ready gate, once satisfied, is its own sufficient warrant.
 - MUST NOT bind a grant to an exact material revision unless the human explicitly made that revision part of its scope; material currency and review validity remain separate evidence questions.
 
 ## Phase Reporting

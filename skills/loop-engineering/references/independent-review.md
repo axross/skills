@@ -65,5 +65,6 @@ A change is ready only when all required checks are green, mandatory independent
 
 **Guidelines:**
 
+- MUST publish the ready transition as soon as every condition above is satisfied; the gate itself is sufficient warrant for that one effect and needs no separate operation grant. This authority does not extend to merge, release, deployment, scheduling, or any other unnamed effect, which stay with the human under project policy.
 - MUST keep the change not ready while any condition above is unknown, unavailable, stale, or failed.
 - MUST re-enter review when later human feedback changes delivered content.

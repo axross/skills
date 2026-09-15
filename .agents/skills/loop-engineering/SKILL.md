@@ -93,7 +93,7 @@ See [independent-review.md](./references/independent-review.md) for:
 
 **Guidelines:**
 
-- MUST read [independent-review.md](./references/independent-review.md) before requesting, addressing, or evaluating an independent review.
+- MUST read [independent-review.md](./references/independent-review.md) before requesting, addressing, or evaluating an independent review, or publishing the ready transition.
 
 ## Resume and Reporting
 

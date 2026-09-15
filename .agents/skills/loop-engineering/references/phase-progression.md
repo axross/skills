@@ -27,7 +27,7 @@ wait, or return mechanism that realizes that outcome.
 - MUST stop the run only when no required action remains available because of one of those blockers, or when an applicable execution or review bound, non-convergence, or completion applies; record the specific result state and resumable next action.
 - MUST end the turn for a human wait; for an actual pending machine result, use only a permitted wait mechanism within the applicable bound. The turn-boundary rule separating a progress note from a deferred available action is stated in [SKILL.md](../SKILL.md) under its carve-out, and is not restated here.
 - MUST preserve the phase, attempts, review round, grants, material revision, and pending or unknown effects across interruption so recovery resumes one established transition rather than restarting or skipping ahead.
-- MUST NOT treat evidence that the ready gate is satisfied as authorization to publish a ready transition, merge, schedule, or perform any other unnamed effect.
+- MUST NOT treat evidence that the ready gate is satisfied as authorization to merge, schedule, or perform any other unnamed effect. Publishing the ready transition itself is governed by [independent-review.md](./independent-review.md)'s ready gate, not by this operation-grant rule: once that gate is satisfied, publishing is the required next action rather than a blocked one.
 
 ## Execute and Verify
 
@@ -52,5 +52,5 @@ Delivery defaults to a draft target linked to its tracking target. Delivery owns
 - MUST address blocking findings and unmet acceptance criteria on the same delivery target, correlate every fixed finding with its fixing commit, rerun affected checks, and obtain fresh review after fixes.
 - MUST preserve human decisions already settled in the plan rather than re-offering them as open choices to a reviewer.
 - MUST keep mandatory review marked unmet when it cannot be obtained; no self-check, advisory review, or unavailable reviewer certifies readiness.
-- MUST move to ready only after [independent-review.md](./independent-review.md)'s ready gate, report the evidence, and leave merging to the human under the default policy.
+- MUST move to ready as soon as [independent-review.md](./independent-review.md)'s ready gate is satisfied, report the evidence, and leave merging to the human under the default policy.
 - MUST return to addressing after later human feedback, restoring draft status when necessary and requiring fresh review of changed content.
