@@ -4,8 +4,7 @@
 // derived file goes through.
 //
 // there is one instrument now, not two readings each with their own data
-// root — see
-// docs/decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md.
+// root — see docs/specs/skill-evaluation.md.
 // the old dataRootFor(reading) resolved a
 // per-reading root keyed on a reading's name ("discovery" or "effect");
 // nothing here reads a reading's name any more, because there is no second

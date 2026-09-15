@@ -71,8 +71,11 @@ naturally have arrives instead as a unified diff the scenario declares —
 applied after the mock is copied and before its recorded history replays over
 it, so the workspace a model opens is clean and its history unremarkable.
 `patch` is `null` for a scenario whose mock already has what it needs.
-[`2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md)
-is the decision this follows from, and
+A mock ships sound and every defect arrives this way, because defects shipped
+in the mock itself accumulate into a project nobody wrote, read as a fixture to
+the model that opens them, demonstrate the very convention a scenario means to
+ask for, and make one scenario's subject into noise in every other scenario
+against that mock.
 [Directory Structure](../conventions/directory-structure.md) states the
 authoring convention — where the file lives, how it is regenerated, and what
 it must not do.
@@ -83,8 +86,11 @@ one-line `CLAUDE.md` in the materialized tree, committed into the replayed
 history exactly as the mock ships them; `false` withholds both — from the
 tree and from the history alike — so nothing beyond the task prompt and the
 installed skills directs the probe.
-[`2026-08-20-declare-agentsmd-true-to-keep-scenarios-comparable.md`](../decisions/2026-08-20-declare-agentsmd-true-to-keep-scenarios-comparable.md)
-records why every scenario declared here carries `true`.
+Every scenario declared here carries `true`, because that is the condition
+every probe already ran under before the option existed: declaring it leaves
+every materialized tree, every replayed commit hash, and every stored
+`runtime.project.tree` digest byte-identical, so no measurement taken earlier
+loses comparability with a later run of the same scenario.
 
 ## Three phases
 
@@ -111,13 +117,29 @@ model exposes at any setting. A `transcript` factor is therefore written
 against what the transcript observably contains — the material consulted,
 the steps taken, what the agent stated in its own words — never against
 reasoning it has no way to carry.
-[`2026-08-20-state-the-transcript-phase-as-a-process-check.md`](../decisions/2026-08-20-state-the-transcript-phase-as-a-process-check.md)
-holds the measurement behind this.
 
 A scenario whose skill leaves no trace an outcome or a transcript phase could
 read — because its surface is not the working tree, or because holding it
 changes only what the agent says along the way — declares discovery alone
 rather than declaring a phase with nothing to check.
+
+**A skill that governs how an agent works rather than what it builds is
+measurable by the discovery phase alone, and only where a peer set genuinely
+competes for the same prompt.** Three harness conditions leave nothing else to
+read: the non-interactive brief appended to every probe's system prompt tells
+it that a question is a dead end and that it should decide for itself, which
+countermands a plan-approval gate before the skill carrying that gate is
+loaded; a mock's own working agreement already states conventions such a skill
+would assert, so a factor asserting them would be reading the fixture; and a
+stored transcript carries no reasoning, only the assistant's terse narration
+and its tool calls. Where a conduct skill's own description claims ground no
+other skill in this library contests, it is out of this instrument's range
+altogether, because a discovery factor with no plausible competitor passes by
+construction rather than by finding anything — `professional-behavior` is the
+worked case, and its absence from every scenario is that reading rather than
+an oversight. All of this is contingent on the harness: if the brief stops
+pre-empting the gate, or a stored transcript starts carrying real reasoning,
+the range is re-argued from that evidence rather than inherited from this.
 
 What a factor's judge is shown is decided by the phase its factor belongs to
 — a factor carries no kind of its own; its phase is what bounds the material
@@ -131,11 +153,24 @@ A discovery-phase task is written the way the problem's own owner would state
 it, never in the tracked skill's own vocabulary — the situation this practice
 means to measure is whether the skill's description reaches a reader with a
 problem, not whether a prompt and a description share words.
-[`2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md`](../decisions/2026-08-09-ask-discovery-prompts-as-problems-inside-a-real-project.md)
-is the decision that constrains this, and it costs something real: a prompt
-asking in the tracked skill's own words routes on vocabulary rather than on a
-situation, and the more of that cost a scenario's author is willing to pay,
-the harder — and the more informative — the discovery phase becomes.
+It costs something real: a prompt asking in the tracked skill's own words
+routes on vocabulary rather than on a situation, and the more of that cost a
+scenario's author is willing to pay, the harder — and the more informative —
+the discovery phase becomes.
+
+**A proposal to add problem vocabulary to a `description` is argued on whether
+it helps a real project's reader act on that description, never on whether it
+moves the discovery score.** Arguing it the other way re-creates the same
+circularity one level down: the fixture's prompt stops carrying its own answer
+and the corpus's description carries it instead, for every prompt near that
+vocabulary rather than only the one a measurement happened to sample. The size
+of the effect was measured once, over two cases at six repeats per wording.
+Replacing a situated prompt with one matching `high-fidelity-ui-design`'s own
+words moved it from 0/6 to 6/6, two-sided Fisher exact p = 0.0022; the same
+move on `tanstack-query-development` reached 2/6, p = 0.455, indistinguishable
+from chance at that sample size. The two pairs disagree, which is why nothing
+corpus-wide follows from either, and the artifact holding that run has since
+expired — the two results above are what survives it.
 
 ## The factor
 
@@ -249,9 +284,9 @@ scenario whose conditions match — rather than against a stored baseline.
 There is no baseline to compare against instead: a result is a change because
 the previous measurement is still on disk, not because a separate document
 says which one counts as current.
-[`2026-08-09-compare-a-measurement-against-its-predecessor-not-a-baseline.md`](../decisions/2026-08-09-compare-a-measurement-against-its-predecessor-not-a-baseline.md)
-is the decision that removed the baseline this replaced; nothing about the
-model in this document reopens it.
+There is no stored baseline to fall behind, and none is reintroduced: a
+baseline is a second record of what a measurement already holds, and it goes
+stale in exactly the way the measurements themselves do not.
 
 **A reasoning judge's model, the full prompt it was given, and the route that
 asked it are all part of what makes two measurements comparable**, exactly as
@@ -266,16 +301,14 @@ stored measurement with a different reasoning judge, a different prompt, or a
 different route is therefore a new measurement, never a silent update to the
 old one — the two results sit side by side rather than one replacing the
 other.
-[`2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md`](../decisions/2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md)
-is the decision that gave a reasoning judge its one route and put it here.
-
 **The tool surface a probe ran under is deliberately not among them**, though
 each probe records it. Two measurements taken under different tool surfaces
 are therefore still read against each other, and a reader who wants to know
 whether the surface moved between them reads each probe's own record rather
 than being told by a refused comparison.
-[`2026-08-20-keep-the-probe-tool-surface-out-of-the-condition-fingerprint.md`](../decisions/2026-08-20-keep-the-probe-tool-surface-out-of-the-condition-fingerprint.md)
-is the decision that kept it out, and names what it trades away.
+What that trades away is the one case the fingerprint would have caught for
+free: a surface that moved between two measurements is visible only to a
+reader who opens both probes' records and compares them.
 
 ## Measured, declared, and derived
 

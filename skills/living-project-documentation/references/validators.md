@@ -9,10 +9,10 @@ Each command answers one question, tied to one kind of change the author just
 made. None is a general "check the docs" pass, because a general pass makes an
 author who touched one spec read findings about everything else.
 
-| Run it after                  | Command                        | Reports                                                                                                         |
-| ----------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| Adding or removing a document | `check-index.mjs`      | a document not listed in `index.md`    |
-| Editing any document          | `check-references.mjs` | a relative link that does not resolve  |
+| Run it after                  | Command                | Reports                                  |
+| ----------------------------- | ---------------------- | ---------------------------------------- |
+| Adding or removing a document | `check-index.mjs`      | a document not listed in `index.md`      |
+| Editing any document          | `check-references.mjs` | a relative link that does not resolve    |
 | Adding or renaming a spec     | `check-glossary.mjs`   | a spec with no matching glossary heading |
 
 ```bash

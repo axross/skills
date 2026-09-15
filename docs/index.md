@@ -3,10 +3,9 @@
 This repository's own documentation, alongside its README. Which body answers
 which question: **what does this library measure, and why?** → `specs/`.
 **What must a change satisfy?** → `conventions/`. **How is something run or
-released?** → `operations/`. `decisions/` sits beside all three and holds why
-a constraint exists, for the constraints whose reasoning cannot be recovered
-from the code. The vocabulary all four bodies use is in
-[glossary.md](./glossary.md).
+released?** → `operations/`. Each body carries the reasoning behind its own
+constraints, in the prose beside them. The vocabulary all three bodies use is
+in [glossary.md](./glossary.md).
 
 Documents under `conventions/` and `operations/` use MUST, MUST NOT, SHOULD,
 SHOULD NOT, and MAY as [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html)
@@ -35,7 +34,8 @@ uses none of them.
   docs are consulted before a change.
 - [conventions/decision-placement.md](./conventions/decision-placement.md) —
   where a decision settled while a change is being built has to reach a
-  durable document, and the ordered test for which one.
+  durable document, the ordered test for which one, and which body receives
+  what.
 
 ## Operations
 
@@ -64,13 +64,6 @@ uses none of them.
 - [operations/evaluation-dispatch.md](./operations/evaluation-dispatch.md) —
   running the evaluation instrument, by hand or through its one dispatch
   workflow, against this repository's declared scenarios.
-
-## Decisions
-
-- [decisions/](./decisions) — why a constraint exists, and what was traded
-  away. Each record is named for the decision it holds and dated the day it
-  was made; a decision is replaced by a new record rather than by editing the
-  old one.
 
 For what this library is, how to install a skill, and how to operate this
 repository day to day, see [`README.md`](../README.md).

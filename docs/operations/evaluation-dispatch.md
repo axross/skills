@@ -187,11 +187,10 @@ same as opening the pull request that would carry it.
 
 A run refuses before spawning anything when its exact probe count exceeds
 the `--limit` it was given — never by projecting a dollar figure. That
-replaces a cost estimate rather than tightening one:
-[`2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md`](../decisions/2026-08-15-rebuild-skill-evaluation-around-scenarios-and-factors.md)
-is the decision that rejected estimating cost before a dispatch, because
-the deleted instrument's own projection was wrong often enough that the
-limit it fed was not a limit. `--limit` is optional; a run given none is
+replaces a cost estimate rather than tightening one: the deleted instrument
+projected a dollar figure before a dispatch, and its projection was wrong
+often enough that the limit it fed was not a limit, where a probe count is
+exact before anything is spawned. `--limit` is optional; a run given none is
 admitted unconditionally, and a run over its limit is refused with a
 message naming both the count and the limit.
 
@@ -220,9 +219,10 @@ environment; without either, that factor's own result is recorded as an
 error — never as `false`, and never by aborting any other factor's
 judgment — so the script still completes end to end with no credential
 present at all, which is how this repository's own test suite exercises it.
-Each probe's judged factors are written to its own `factors.json`.
-[`2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md`](../decisions/2026-08-19-route-the-reasoning-judge-through-the-claude-code-cli.md)
-is the decision behind asking through the CLI rather than over HTTP.
+Each probe's judged factors are written to its own `factors.json`. A reasoning
+judge is asked through the CLI rather than over HTTP, and that route is part of
+what makes two measurements comparable — see
+[Skill Evaluation](../specs/skill-evaluation.md).
 
 ## Deriving the Summary: `derive.mjs`
 
@@ -358,7 +358,7 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->twenty-nin
   `next-app-development` as peers. It declares a `discovery` factor judged by
   script and nothing else, because the other two phases cannot be judged
   honestly for a skill that governs how an agent works — see
-  [`docs/decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md`](../decisions/2026-08-17-measure-agent-conduct-skills-by-discovery-alone.md).
+  [Skill Evaluation](../specs/skill-evaluation.md).
 
 - [`document-a-rollback-someone-can-follow`](../../tools/evaluation/scenarios/document-a-rollback-someone-can-follow/)
   targets `technical-document-authoring` against `docs/deployment.md`'s

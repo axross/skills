@@ -69,18 +69,18 @@ invents its code conventions.
 | What the code's layout and conventions are                     | The project's own repository-structure conventions |
 
 A project that keeps either under `docs/` anyway — in `conventions/` or
-`operations/`, beside `specs/` and `decisions/` — has this capability's own
+`operations/`, beside `specs/` — has this capability's own
 rules for the **shape** that content takes, even though the content itself is
 still decided elsewhere: see
 [Conventions and Operations](#conventions-and-operations).
 
 ## The Three Modes
 
-| Mode          | When                                     | What happens                                                                                                                                                                |
-| ------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Consult**   | Before writing a plan                    | Read the index, open the one or two documents the task touches, follow their dependency and decision links, and name in the plan which documents the change will invalidate |
+| Mode          | When                                     | What happens                                                                                                                                                                    |
+| ------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Consult**   | Before writing a plan                    | Read the index, open the one or two documents the task touches, follow their dependency and decision links, and name in the plan which documents the change will invalidate     |
 | **Upkeep**    | In the same change that alters behaviour | Correct what the change invalidated — restate facts, write a newly settled constraint into the document that governs it, add a spec for new behaviour, repoint stale references |
-| **Bootstrap** | A project with no `docs/` adopted yet    | Detect whatever convention already exists and follow it; propose the default shape only where there is none                                                                 |
+| **Bootstrap** | A project with no `docs/` adopted yet    | Detect whatever convention already exists and follow it; propose the default shape only where there is none                                                                     |
 
 **Guidelines:**
 

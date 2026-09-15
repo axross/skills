@@ -78,7 +78,7 @@ never by default — each of the four below states its own.
 
 ## The Three Reporting Tools
 
-This repository ships the <!-- count:first-reporting-tool-ordinal -->fifteenth<!-- /count -->, the <!-- count:second-reporting-tool-ordinal -->sixteenth<!-- /count -->, and the <!-- count:third-reporting-tool-ordinal -->seventeenth<!-- /count --> scripts that report instead of judging. None belongs to a gate, an npm script, or a
+This repository ships the <!-- count:first-reporting-tool-ordinal -->thirteenth<!-- /count -->, the <!-- count:second-reporting-tool-ordinal -->fourteenth<!-- /count -->, and the <!-- count:third-reporting-tool-ordinal -->fifteenth<!-- /count --> scripts that report instead of judging. None belongs to a gate, an npm script, or a
 hook, and `tests/repository/reporting-tools.test.mjs` keeps all three out of
 the enforced set on purpose, so wiring any of them into a gate has to be a
 deliberate act that breaks a test first.
@@ -133,8 +133,17 @@ are judged from afterward. Two things bound a probe. Its declared turn cap
 — <!-- count:probe-turn-cap -->100<!-- /count --> assistant events by
 default, which is not the turn count a probe's own record stores — was put
 there as a runaway guard rather than as a budget control, and the one
-measurement that has tested that premise did not bear it out; see
-[`2026-08-20-read-a-truncated-probe-as-an-unfinished-measurement.md`](../decisions/2026-08-20-read-a-truncated-probe-as-an-unfinished-measurement.md).
+measurement that has tested that premise did not bear it out: each of the
+three probes it truncated had finished editing the files its task was about
+early and spent the rest of its budget trying to look at the result, against a
+real fault in the workspace — a dev server whose proxy did not serve the route
+the frontend asked for. The repetition in those stretches was retry with
+variation, not a probe grinding on a check that had already passed. **A probe
+the cap truncates is therefore read as an unfinished measurement rather than
+as a runaway**: its stored remains under-describe what it did, and scaffolding
+it never reached the point of reverting is not evidence about the skill under
+test. What the cap should be, and whether a turn count is the right thing to
+stop on at all, stay open questions that reading does not prejudge.
 And a denied tool set keeps a probe's effect attributable to the skill
 under test; what that set denies, and what every probe records about the
 surface the CLI actually gave it, are in [Evaluation

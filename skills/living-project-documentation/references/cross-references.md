@@ -15,13 +15,13 @@ already free.
 
 One test, applied to every reference `docs/` can contain:
 
-| Reference                  | Does structure already encode it?                               | Verdict                                                  |
-| -------------------------- | --------------------------------------------------------------- | -------------------------------------------------------- |
-| `index.md` → each document | No — reachability lives nowhere else                            | **Link.** This is how the index invariant is implemented |
-| `glossary.md` → `specs/`   | Yes — the heading a term sits under names its spec              | No link                                                  |
-| Within `glossary.md`       | The file is small enough to read whole                          | No link; bold marks a defined term                       |
-| `specs/` → `specs/`        | No — a dependency between domains is written nowhere else       | **Link**, for a genuine dependency                       |
-| A constraint → its reason  | Yes — the reason is the prose beside the constraint             | No link                                                  |
+| Reference                  | Does structure already encode it?                         | Verdict                                                  |
+| -------------------------- | --------------------------------------------------------- | -------------------------------------------------------- |
+| `index.md` → each document | No — reachability lives nowhere else                      | **Link.** This is how the index invariant is implemented |
+| `glossary.md` → `specs/`   | Yes — the heading a term sits under names its spec        | No link                                                  |
+| Within `glossary.md`       | The file is small enough to read whole                    | No link; bold marks a defined term                       |
+| `specs/` → `specs/`        | No — a dependency between domains is written nowhere else | **Link**, for a genuine dependency                       |
+| A constraint → its reason  | Yes — the reason is the prose beside the constraint       | No link                                                  |
 
 One case earns a link that the index does not already carry, and it is the one
 the structure genuinely cannot express: a dependency between domains appears in
@@ -84,10 +84,10 @@ Once `docs/` also holds `conventions/` or `operations/` —
 a link can point into either without changing the rule that decides whether
 one belongs.
 
-| Reference                                     | Does structure already encode it? | Verdict                                                                                                          |
-| --------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `specs/` → `conventions/` or `operations/`    | —                                 | Governed by [The Rule](#the-rule) alone; this capability adds no dependency condition for a body it does not own |
-| `conventions/` ↔ `operations/`                | —                                 | Governed by [The Rule](#the-rule) alone, the same way                                                            |
+| Reference                                  | Does structure already encode it? | Verdict                                                                                                          |
+| ------------------------------------------ | --------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `specs/` → `conventions/` or `operations/` | —                                 | Governed by [The Rule](#the-rule) alone; this capability adds no dependency condition for a body it does not own |
+| `conventions/` ↔ `operations/`             | —                                 | Governed by [The Rule](#the-rule) alone, the same way                                                            |
 
 **Guidelines:**
 
