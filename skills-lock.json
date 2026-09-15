@@ -94,12 +94,12 @@
     "react-component-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "cc8977796b3b226f53c1d5847e229b76c7e0cd50db1a90d9733f67cb49a63fcc"
+      "computedHash": "133a93f2bd1cb16c62d3838f4456ca0f54c272a38a122a3333d4248fe1a81e8b"
     },
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "414815dbd761e2e22636bd0b9148b0308be1c688c72368a50e846510a9d9f668"
+      "computedHash": "7c0dd535d245cb4f8e374400a4bead5412d3aef53ba19d605f4f4827686a2949"
     },
     "sentry-instrumentation": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c46c2a72cd85f44904b0a2e0ac55d672ddf4798fabef580b2788f46ac44536be"
+      "computedHash": "7d126d1db54163bc7b204567b4df32a9607b0107f617be8947ef1b306399e5ab"
     },
     "software-instrumentation": {
       "source": "./skills",

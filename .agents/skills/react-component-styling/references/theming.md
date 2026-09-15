@@ -31,6 +31,8 @@ A project declares these families. Values are the project's; the shapes are not 
 
 Family, size, line height, and weight are not independent choices: a heading family at a caption size is a mistake no caller should be able to make by accident. Bundling them into one named role removes the combination from the caller's hands, and on mobile native it is the only shape that works — there is no cascade, so the four values have to arrive together.
 
+Which field carries weight is not fixed, though: it follows from how the family makes weight addressable, and that is a property of the family, not of any one role. A family whose extra weights stay inside the four RIBBI faces (Regular/Italic/Bold/BoldItalic), or a web custom-property quad, is addressable by number. A family whose extra weights get their own OpenType `name` table entry is addressable only per face — the face name itself carries the weight, and a role built on it declares no separate number.
+
 **Example — the shape on mobile native:**
 
 ```ts
@@ -79,12 +81,32 @@ const styles = StyleSheet.create((theme) => ({
 }
 ```
 
+**Example — a family addressable only per face:**
+
+A family with more weights than the four RIBBI faces (Avenir Next and JetBrains Mono both do) folds each extra weight into its own `name` table family string. A role built on one of those weights reads a face token and declares no numeric weight:
+
+```ts
+const typography = {
+  title: {
+    fontFamily: fonts.headingDemiBold, // resolves to "Avenir Next Demi Bold"
+    fontSize: 20,
+    lineHeight: 26,
+    // no fontWeight — the face already carries it
+  },
+} as const;
+```
+
 **Guidelines:**
 
 - MUST declare typography as named text roles that bundle family, size, line height, and weight, and MUST apply a role whole rather than picking values out of it.
 - MUST NOT inline a numeric `fontSize` or `font-size` in a component. Every size a project uses is a text role; a size with no role is a missing token, not an exception.
 - MUST pair a font family with its feature settings wherever the project declares them, since setting one without the other produces glyph mismatches between surfaces.
+- MUST classify a family once — as addressable by number when every face in use shares the OpenType `name` table's ID 1, or addressable only per face when any face in use does not — and apply that one classification to every role of the family, never per role.
+- MUST NOT pair a numeric `fontWeight` with a face whose name already carries the weight; a number beside an already-weighted face invites the platform to synthesise a heavier style on top of it.
+- MUST declare a face name that carries weight as a token the role reads, never the raw face-name string held directly in the role.
+- MUST classify a family by reading its raw `name` table — ID 1 against ID 16/17, per the [OpenType `name` table specification](https://learn.microsoft.com/en-us/typography/opentype/spec/name) — not by a tool that merges both records into one shared-looking family. A self-hosted web font never meets the per-face condition, since `@font-face` declares `font-family` and `font-weight` directly and ID 1 is never consulted.
 - SHOULD name roles for their content (`title`, `body`, `label`, `caption`, `code`), not their size (`lg`, `sm`), so a retune does not rename them.
+- SHOULD classify a family the same way on every platform a project ships once any platform requires the per-face form, rather than addressing the same family two different ways.
 - MAY add a role rather than stretch an existing one when a surface genuinely needs a new pairing — a new role is a design decision, but it is a cheaper one than a one-off literal.
 
 ## Spacing, Radius, and Border Width

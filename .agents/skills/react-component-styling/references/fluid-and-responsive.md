@@ -43,6 +43,7 @@ The rule is: **scalar tokens track the viewport; layout tracks the container.** 
 - MUST use container-relative units (`cqw`, `cqi`, `cqb`) for a size measured against the component's own container rather than the window.
 - MUST use the dynamic viewport units (`dvh`, `dvi`, `svh`, `lvh`) rather than `vh` for full-viewport sizing, so mobile browser chrome does not clip the surface.
 - SHOULD prefer `stretch` over a percentage to fill a parent axis, falling back to `100%` where the parent context requires it.
+- MUST confirm the containing block has a definite size in that axis before relying on a percentage `block-size`/`height` to fill it — against an indefinite containing block (a parent with no explicit height) the percentage resolves to `auto` instead, silently doing nothing.
 
 ## Container-Driven Tiering
 
