@@ -30,7 +30,7 @@ See [naming-and-organization.md](./references/naming-and-organization.md) for:
 
 **Guidelines:**
 
-- MUST read [naming-and-organization.md](./references/naming-and-organization.md) before naming a file, placing a module in a directory tier, adding a route's co-located sibling files, or naming an identifier that no project convention, owning capability, or platform API already governs.
+- MUST read [naming-and-organization.md](./references/naming-and-organization.md) before naming a file, placing a module in a directory tier, adding a route's co-located sibling files, naming an identifier that no project convention, owning capability, or platform API already governs, or naming an identifier at risk of an undisambiguated domain-specific meaning — including one an established project convention already covers.
 
 ## Abstraction Boundaries
 
