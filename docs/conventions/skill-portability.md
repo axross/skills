@@ -25,10 +25,12 @@ required verification, mandatory independent review, a ready state only after
 convergence — and receives nothing saying that a runtime framing the task as
 "just commit and push" does not lower them. That statement is the installing
 project's to write, in the entry file of its own host;
-[README.md](../../README.md#getting-started) tells a consumer so, this
-repository's [`CLAUDE.md`](../../CLAUDE.md) is the worked example, and
-[the precedence-placement decision](../decisions/2026-09-11-place-runtime-precedence-in-the-host-entry-file.md)
-records why it lives there.
+[README.md](../../README.md#getting-started) tells a consumer so, and this
+repository's [`CLAUDE.md`](../../CLAUDE.md) is the worked example. It lives
+there rather than in a skill because the entry file of the host doing the
+injecting is the only document positioned to see both sides of the comparison;
+a skill stating the precedence would be asserting something about a host it
+cannot see, in every project that installs it.
 
 The general form: where a rule needs to compare something inside the skill
 against something only the host knows, the skill states its own side and the
@@ -72,6 +74,32 @@ docs before editing one, per Fast-Moving Dependencies below:
 - `.markdownlint-cli2.jsonc`, `.prettierrc.json`, and `.prettierignore` — a
   change here changes what every Markdown file in the repository is checked
   and formatted against, skills included.
+
+## Adding a Dependency
+
+A dependency added here is a supply-chain decision before it is a technical
+one — which is why [AGENTS.md](../../AGENTS.md) singles this surface out for a
+human reviewer in addition to the independent review. The validators a skill
+bundles import nothing at all, so the dependency list holds tools a
+contributor runs rather than code the library imports at runtime, and anything
+joining it is weighed on what it drags in rather than on how well known it is.
+
+The one runtime dependency this repository has taken is the worked example.
+`@cfworker/json-schema`, pinned at 4.1.1, validates a scenario against
+`tools/evaluation/scenario.schema.json`: no transitive dependencies, native
+ESM, draft 2020-12 including the two keywords that schema actually leans on.
+`ajv` — the ecosystem's standard, and the better-known answer — was rejected
+because it brings four transitive packages and is CommonJS, both paid
+permanently to buy compilation speed that matters to a service validating on
+every request and not to a validator run once per process over fewer than
+thirty documents. Writing an evaluator by hand was rejected too: it would
+have meant maintaining a partial implementation of a published specification,
+when the point of writing standard JSON Schema is that a tool outside this
+repository reads the same file the same way. What that trades away is reach —
+a defect in the smaller package is likelier to be found here first than
+already fixed upstream — bounded by a validator that runs offline, over files
+this repository authors, gating no deployment, and swappable at one import
+and one `validate` call because the schema itself is standard.
 
 ## Fast-Moving Dependencies
 

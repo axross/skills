@@ -40,7 +40,7 @@ file set carries an obligation to its mock's `history.jsonc`, stated in
 full — with the mechanism that enforces it — in [Where a Scenario's Patch
 Lives](../../../docs/conventions/directory-structure.md#where-a-scenarios-patch-lives).
 The reasoning, and the alternatives it beat, are in
-[`docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md`](../../../docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md).
+[Skill Evaluation](../../../docs/specs/skill-evaluation.md).
 
 The test for any candidate flaw is: _would a competent developer of this
 project have done it this way, for their own reasons?_ A realistic project has

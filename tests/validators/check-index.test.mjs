@@ -37,37 +37,20 @@ describe("check-index.mjs", () => {
     );
   });
 
-  it("reports a decision log the index never links", async () => {
+  it("reports a document under any body the index does not list", async () => {
+    // every body is checked the same way: there is no exempt directory, which
+    // is what the removal of the decision log left behind.
     const docs = await writeDocs(await tempDir(), {
-      "decisions/2026-07-02-use-a-queue.md": "---\nstatus: accepted\n---\n",
+      "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
+      "notes.md": "# Notes\n",
+      "conventions/testing.md": "# Testing\n",
+      "operations/deployment.md": "# Deployment\n",
     });
 
-    expect(checkIndex(docs)).toReportFailure(/decisions\/ is not linked from index\.md/);
-  });
+    const result = checkIndex(docs);
 
-  it("reports a decision record the index links individually", async () => {
-    // the log stays reachable through such a link, so a bare "can I get there?"
-    // test accepts it — and it is the one shape an append-only log must not
-    // take, since index.md is the file read unconditionally.
-    const docs = await writeDocs(await tempDir(), {
-      "index.md": "# Docs\n\n- [Use a queue](./decisions/2026-07-02-use-a-queue.md) — scheduling\n",
-      "decisions/2026-07-02-use-a-queue.md": "---\nstatus: accepted\n---\n",
-      "decisions/2026-08-01-shard-the-queue.md": "---\nstatus: accepted\n---\n",
-    });
-
-    expect(checkIndex(docs)).toReportFailure(
-      /over-indexed: index\.md links decisions\/2026-07-02-use-a-queue\.md individually/,
-    );
-  });
-
-  it("does not require an individual decision record to be indexed", async () => {
-    const docs = await writeDocs(await tempDir(), {
-      "index.md": "# Docs\n\n- [Decisions](./decisions/) — the log\n",
-      "decisions/2026-07-02-use-a-queue.md": "---\nstatus: accepted\n---\n",
-      "decisions/2026-08-01-shard-the-queue.md": "---\nstatus: accepted\n---\n",
-    });
-
-    expect(checkIndex(docs)).toPassCleanly();
+    expect(result).toReportFailure(/unindexed: conventions\/testing\.md/);
+    expect(result.stdout).toMatch(/unindexed: operations\/deployment\.md/);
   });
 
   it("exits 0 on a directory that has no index.md", async () => {
@@ -91,6 +74,6 @@ describe("check-index.mjs", () => {
     const result = checkIndex("--help");
 
     expect(result).toPassCleanly();
-    expect(result.stdout).toMatch(/check-decision-supersede\.mjs/);
+    expect(result.stdout).toMatch(/check-glossary\.mjs/);
   });
 });

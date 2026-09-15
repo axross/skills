@@ -29,8 +29,8 @@ The tables use these receiving owners:
   [#587](https://github.com/axross/skills/issues/587). Removed universal
   mechanisms are not dormant requirements. Where an injected instruction and a
   project gate disagree, that host's own entry file settles it rather than this
-  ownership column; see
-  [the precedence-placement decision](../decisions/2026-09-11-place-runtime-precedence-in-the-host-entry-file.md).
+  ownership column — the entry file is the only document positioned to see both
+  sides, which is why no skill here states that precedence.
 - **Delivery**: [GitHub Delivery](./github-delivery.md) owns this repository's
   storage and publication procedure, separated in
   [#547](https://github.com/axross/skills/issues/547).

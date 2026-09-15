@@ -47,9 +47,8 @@
 // accumulate, contradict each other, and demonstrate to the model the very
 // convention the case asks it to apply. so a mock ships sound and a case
 // declares a patch, applied here. tools/evaluation/mocks/README.md states
-// the principle and
-// docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md
-// records why the alternatives lost.
+// the principle, and docs/specs/skill-evaluation.md says why a defect ships
+// this way rather than inside the mock.
 //
 // skills are installed with `dereference: true`, and that is load-bearing, not
 // a detail. the skills CLI installs either real directories or symlinks back

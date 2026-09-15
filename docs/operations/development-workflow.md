@@ -8,7 +8,11 @@ permitted — a session qualifies each against what it actually exposes, through
 [Claude Code Execution](./claude-code-execution.md) or
 [Amp Execution](./amp-execution.md). Where an instruction the launching runtime
 injected disagrees with the gates below, that host's own entry file settles it:
-for Claude Code, [CLAUDE.md](../../CLAUDE.md).
+for Claude Code, [CLAUDE.md](../../CLAUDE.md). The precedence is stated there
+rather than in any skill because the entry file is the only document
+positioned to see both the injected instruction and these gates — a skill
+stating it would be asserting something about a host it cannot see, in every
+project that installs it.
 
 ## The Change Loop
 
@@ -28,9 +32,6 @@ The [migration map](./loop-migration.md) records topic ownership, rollout and
 combined verification. [AGENTS.md](../../AGENTS.md) routes sessions to the
 common capabilities and conditional host guides. Routing is not proof that
 every host path has been exercised.
-Where the precedence between an injected instruction and these gates is stated,
-and why it moved out of the skills, is
-[the precedence-placement decision](../decisions/2026-09-11-place-runtime-precedence-in-the-host-entry-file.md).
 
 Changes to review/CI infrastructure, skill discovery and cross-skill routing,
 secret handling, dependency/supply-chain surfaces, and large cross-skill
@@ -49,8 +50,28 @@ The Claude Code definitions remain under `.claude/agents/`:
   It is not required for an exact local lookup or when the host prohibits
   that delegation purpose.
 
-The pinning rationale remains in
-[the model decision](../decisions/2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md).
+Each of these exists to keep some context out of the main actor's own: the
+implementer so it does not inherit the planning phase's accumulated context,
+the reviewer so it does not inherit the implementer's reasoning state, and the
+investigator so a large payload never enters the main actor's context at all.
+Pinning a cheaper model or effort through a definition is a secondary benefit
+rather than the reason — context separation holds by construction whatever
+model a subagent runs, while a cost saving depends on a counterfactual no
+single run can observe. Nothing here reports what delegation saved, or how
+many findings the independent review caught that the advisory round missed;
+neither figure is computable from what a run can see, and a rule requiring one
+would report a compliance it never had.
+
+`investigator.md` pins Sonnet at `effort: medium`, and `implementer.md` and
+`reviewer.md` run at `effort: high`. Sonnet rather than a smaller model,
+because being handed large payloads is the whole of the investigator's role
+and a narrower context window would bind hardest at exactly the case the role
+exists for; `medium` rather than `low`, because its output is a judgment the
+main actor cannot check without re-reading the payload it delegated away to
+avoid. The implementer's and reviewer's step down from `xhigh` to `high` is
+the maintainer's own judgment call, taken against no measurement either way,
+and is reported as `declared` rather than as measured or verified.
+
 These are configured candidates, not a portable ranking or permission grant.
 A session MUST check actual permitted capabilities before using one. Parent
 implementation is valid when delegation is inappropriate or unavailable;
@@ -58,8 +79,12 @@ mandatory verification and external review remain unchanged.
 
 The project's advisory review applies after every verified initial
 implementation, whether the parent or a child implemented it, before the first
-branch push and draft pull request. A compatible fresh reader must be permitted
-and available; its findings and round limits follow
+branch push and draft pull request. Who implemented does not select it —
+fresh review is worth the same after a direct implementation as after a
+delegated one — and the one condition that does is whether a reader qualifies,
+because a stage conditional on a reader that may be prohibited or absent
+would either stall the run or invite self-review under another name. A
+compatible fresh reader must be permitted and available; its findings and round limits follow
 [the pre-flight contract](../../skills/loop-engineering/references/pre-flight-review.md).
 If no reader qualifies, record the exact unavailable or prohibited reason and
 the resulting delivery restriction. This outcome is not a clean review, does
@@ -69,8 +94,6 @@ authorized draft may proceed with the advisory gap recorded and remains draft.
 Recovery before the first push resumes the pending pre-flight checkpoint. Once
 the draft pull request exists, later fixes follow the external addressing and
 fresh-review loop; resuming that loop does not replay the initial checkpoint.
-[The actor-independent pre-flight decision](../decisions/2026-09-09-select-pre-flight-by-review-need-not-implementation-actor.md)
-records why these stages remain separate.
 
 ## Select the external review route
 

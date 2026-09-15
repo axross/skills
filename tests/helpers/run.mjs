@@ -40,10 +40,6 @@ export const SCRIPTS = {
   checkReferences:
     "skills/living-project-documentation/scripts/check-references.mjs",
   checkGlossary: "skills/living-project-documentation/scripts/check-glossary.mjs",
-  checkDecisionNaming:
-    "skills/living-project-documentation/scripts/check-decision-naming.mjs",
-  checkDecisionSupersede:
-    "skills/living-project-documentation/scripts/check-decision-supersede.mjs",
   checkInstalledCopies:
     "skills/agent-skill-management/scripts/check-installed-copies.mjs",
   linkFreshness:

@@ -1,11 +1,10 @@
 // every scenario under tools/evaluation/scenarios/ that declares a patch,
 // materialized twice — once with its patch applied, once without — and held
-// to the bound
-// docs/decisions/2026-08-08-ship-mocks-sound-and-patch-in-defects-per-case.md
-// promised when it accepted the cost of a patch at all: "every declared
-// patch is applied against its mock offline, before any dispatch, so a
-// rotted patch fails in the test suite rather than in a run that has
-// already spent money reaching it."
+// to the bound that makes a patch worth its cost at all: every declared patch
+// is applied against its mock offline, before any dispatch, so a rotted patch
+// fails in the test suite rather than in a run that has already spent money
+// reaching it (docs/conventions/directory-structure.md, "Where a Scenario's
+// Patch Lives").
 //
 // this is generic over scenarios and mocks on purpose, and names neither: a
 // third patch-declaring scenario is picked up here with no edit, the same
@@ -15,8 +14,8 @@
 // failure here — unlike mock-materialization.test.mjs's own "is a non-empty
 // set" guard, this file has no companion assertion that the walk is
 // non-vacuous, because a patch is optional by this repository's own design
-// (the decision above) and the tree shipped with none for two years before
-// this file existed.
+// (a patch is optional by design) and the tree shipped with none for two
+// years before this file existed.
 //
 // the patched materialization succeeding is the primary assertion, and it
 // carries three checks for free because tools/evaluation/src/mock-workspace.mjs's

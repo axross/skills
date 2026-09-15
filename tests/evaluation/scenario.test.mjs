@@ -523,9 +523,8 @@ describe("skillsForCondition", () => {
 // does not describe its interior: the instrument copies it verbatim into the
 // context file, and each script validates its own arguments where it uses
 // them. what the schema still says is that the bag is an object and that no
-// key inside it, at any depth, names a budget — the no-budget rule from
-// docs/decisions/2026-08-18-validate-scenarios-with-a-zero-dependency-validator.md,
-// which no script checks itself.
+// key inside it, at any depth, names a budget — the no-budget rule the schema
+// carries because no script checks it itself.
 describe("a script judgment's input", () => {
   const withInput = (input) =>
     validScenario({

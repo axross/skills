@@ -193,8 +193,9 @@ In Claude Code:
 from that frontmatter. The override mechanism here is the `Agent` tool's own
 `model` argument, which is what the reference's rule on a discarded pin applies
 to.
-[The model decision](../decisions/2026-08-20-pin-the-investigator-at-sonnet-medium-and-step-implementer-and-reviewer-to-high.md)
-records why each value was chosen.
+[Development Workflow](./development-workflow.md) states
+why each value was chosen, and that the step down from `xhigh` for two of the
+three was a judgment call rather than a measurement.
 
 ## Keep host operations separate
 
