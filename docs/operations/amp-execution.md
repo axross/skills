@@ -81,8 +81,11 @@ stage of that review: trigger admission, run start, model completion, and
 published result. A denied or no-op trigger, a failed run, and
 a result belonging to an older run are each a stage that has not completed, not
 a clean review. Continue from the last verified stage through the qualified
-GitHub route rather than posting a duplicate trigger. Readiness evidence still
-does not authorize publishing a ready transition.
+GitHub route rather than posting a duplicate trigger. Once
+[Loop's Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate)
+is satisfied, that satisfaction is itself sufficient warrant to publish the
+ready transition — no separate operation grant is required for that one
+effect.
 
 ## Qualify the advisory reader
 

@@ -68,8 +68,11 @@ For an external review request, the authorization record MUST name the exact
 trigger and its limit — either one request or the remaining requests through
 Loop's four-round external cap. That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
-spend or retention settings, ready transition, merge, release, deployment or
-scheduling unless the human separately names the effect.
+spend or retention settings, merge, release, deployment or scheduling unless
+the human separately names the effect. Readiness publication is not one of
+these grant-gated effects: Loop's
+[Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate),
+once satisfied, is its own sufficient warrant for that one effect.
 
 The `Review` entry records only safe correlation metadata: trigger comment ID
 and actor, workflow run ID and attempt, reviewed snapshot, sanitized result
@@ -203,7 +206,7 @@ state and use the next review's summary as rerun evidence.
 
 The PR stays draft until Loop's
 [readiness evaluation](../../skills/loop-engineering/references/independent-review.md)
-succeeds. Publish an authorized ready transition only with that evidence, and
+succeeds. Publish the ready transition once that evidence is satisfied, and
 leave merging to the human under Development Workflow. If a policy-compliant
 independent review cannot be established, record the actual unmet gate on the
 PR and keep it draft. An unrelated review defect is neither a new acceptance
