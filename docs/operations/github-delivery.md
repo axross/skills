@@ -68,8 +68,11 @@ For an external review request, the authorization record MUST name the exact
 trigger and its limit — either one request or the remaining requests through
 Loop's four-round external cap. That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
-spend or retention settings, ready transition, merge, release, deployment or
-scheduling unless the human separately names the effect.
+spend or retention settings, merge, release, deployment or scheduling unless
+the human separately names the effect. Readiness publication is not one of
+these grant-gated effects: Loop's
+[Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate),
+once satisfied, is its own sufficient warrant for that one effect.
 
 The `Review` entry records only safe correlation metadata: trigger comment ID
 and actor, workflow run ID and attempt, reviewed snapshot, sanitized result
