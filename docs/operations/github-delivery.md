@@ -206,7 +206,7 @@ state and use the next review's summary as rerun evidence.
 
 The PR stays draft until Loop's
 [readiness evaluation](../../skills/loop-engineering/references/independent-review.md)
-succeeds. Publish an authorized ready transition only with that evidence, and
+succeeds. Publish the ready transition once that evidence is satisfied, and
 leave merging to the human under Development Workflow. If a policy-compliant
 independent review cannot be established, record the actual unmet gate on the
 PR and keep it draft. An unrelated review defect is neither a new acceptance
