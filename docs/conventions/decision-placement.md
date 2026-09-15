@@ -80,12 +80,14 @@ and that is a judgment call left as one: no check can decide it.
 `docs/conventions/` or `docs/operations/`, never in `README.md`.** Both bodies
 give a rule a document format — stated once next to its reasoning, its
 strength readable from its own sentence, under a heading a reviewer can cite —
-where the run of bold lead-in paragraphs `README.md` once carried held nothing
-apart from anything else, so a reader after one fact read past everything to
-find it. A second informally-organized tree such as a `CONTRIBUTING.md` is
-rejected: this repository has one `docs/` tree with an index and a glossary,
-and a second buys nothing but a second decision, at every future write, about
-which tree a paragraph belongs to. Keeping a `README.md` copy beside the
+where the run of bold lead-in paragraphs `README.md` once carried was not a
+format at all: nothing stopped one paragraph from restating what an earlier one
+already said, and a rule sat wherever a previous edit happened to leave it, so
+a reader after one fact read past everything else to find it. A second
+informally-organized tree such as a `CONTRIBUTING.md` is rejected: this
+repository has one `docs/` tree with an index and a glossary, and a second
+buys nothing but a second decision, at every future write, about which tree a
+paragraph belongs to. Keeping a `README.md` copy beside the
 `docs/` one is rejected for the same reason the duplication rule gives — two
 homes for one fact drift the moment either is edited alone. `README.md` keeps
 what a reader of the library needs on first contact: positioning, getting

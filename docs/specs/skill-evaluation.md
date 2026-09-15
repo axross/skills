@@ -306,9 +306,10 @@ each probe records it. Two measurements taken under different tool surfaces
 are therefore still read against each other, and a reader who wants to know
 whether the surface moved between them reads each probe's own record rather
 than being told by a refused comparison.
-What that trades away is the one case the fingerprint would have caught for
-free: a surface that moved between two measurements is visible only to a
-reader who opens both probes' records and compares them.
+What that trades away is a warning nothing issues, and the reading holds only
+while a tool surface difference stays usually irrelevant: if a scenario is ever
+declared whose factors turn on a tool a probe can or cannot reach, the question
+is re-argued from that scenario rather than inherited from here.
 
 ## Measured, declared, and derived
 

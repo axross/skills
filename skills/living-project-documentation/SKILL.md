@@ -121,7 +121,7 @@ See [conventions-and-operations.md](./references/conventions-and-operations.md) 
 - how a constraint settled about a convention or a procedure lands in the document it governs, exactly as a product constraint lands in its spec
 - the same-change upkeep obligation for a convention or a procedure a change alters
 - the SHOULD, not MUST, on routing a contributor or an agent to a specific document from an always-loaded instruction file
-- which of the five validators see a document under either body and which do not
+- which of the three validators see a document under either body and which do not
 
 ## Cross-References
 
