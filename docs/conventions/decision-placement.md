@@ -32,9 +32,12 @@ by whoever happens to be writing the plan.
 
 1. **Beside the thing it governs.** A decision MUST land here first, ahead of
    the step below, when it is a standing fact about the project rather than an
-   instruction for one lineage alone — in the spec, convention, or operations
-   document a later reader of that thing already opens, written in the present
-   tense with the reasoning that makes it legible in the prose beside it.
+   instruction for one lineage alone. Which document receives it, and in what
+   form it is written there, is
+   [living-project-documentation](../../skills/living-project-documentation/SKILL.md)'s
+   rule rather than this one's; what this step adds is the ordering, and what
+   this repository adds is the narrowing under "Which Document Receives It"
+   below.
 2. **Into the umbrella plan, by amendment.** Failing that, a decision MUST
    land in the umbrella plan a later step opens from, written in with the
    amendment mechanism
