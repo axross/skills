@@ -261,28 +261,4 @@ describe("repository gates have teeth", () => {
     );
   });
 
-  it("the decision-naming gate fails on a non-conforming record filename", async () => {
-    const { script, args } = gate("decision-naming");
-    const root = await tempDir();
-    await writeDocs(root, {
-      "decisions/use_a_queue.md": "---\nstatus: accepted\n---\n\n# Use a queue\n",
-    });
-
-    const result = runScript(script, args, { cwd: root });
-
-    expect(result).toReportFailure(/filename: decisions\/use_a_queue\.md/);
-  });
-
-  it("the decision-supersede gate fails on a record superseded by nothing", async () => {
-    const { script, args } = gate("decision-supersede");
-    const root = await tempDir();
-    await writeDocs(root, {
-      "decisions/2026-07-02-use-a-queue.md":
-        "---\nstatus: superseded\n---\n\n# Use a queue\n",
-    });
-
-    const result = runScript(script, args, { cwd: root });
-
-    expect(result).toReportFailure(/is superseded but names no superseded_by/);
-  });
 });

@@ -20,8 +20,8 @@ describe("check-references.mjs", () => {
   it("exits 0 when every relative link resolves", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n- [Jobs](./specs/jobs.md) — scheduling\n",
-      "specs/jobs.md": "# Jobs\n\nSee [the log](../decisions/).\n",
-      "decisions/2026-07-02-use-a-queue.md": "---\nstatus: accepted\n---\n",
+      "specs/jobs.md": "# Jobs\n\nSee [the rules](../conventions/testing.md).\n",
+      "conventions/testing.md": "# Testing\n",
     });
 
     expect(checkReferences(docs)).toPassCleanly();

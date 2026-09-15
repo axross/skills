@@ -135,10 +135,10 @@ export const GATES = [
     args: ["skills", ".claude/skills"],
     passes: /All \d+ distributable skill\(s\) match their installed copies\./,
   },
-  // the five checks living-project-documentation bundles, run over this
-  // repository's own corpus. they are deliberately five commands rather than
-  // one: each answers for one kind of edit, so an author who wrote a decision
-  // record is not made to read findings about the glossary.
+  // the three checks living-project-documentation bundles, run over this
+  // repository's own corpus. they are deliberately three commands rather than
+  // one: each answers for one kind of edit, so an author who added a document
+  // is not made to read findings about the glossary.
   //
   // each names `docs` rather than leaning on the same default, so the argument
   // is visible here alongside every other gate's — and so a teeth case can
@@ -167,18 +167,6 @@ export const GATES = [
     script: SCRIPTS.checkGlossary,
     args: ["docs"],
     passes: /Every spec has a heading in glossary\.md \(\d+ checked\)\./,
-  },
-  {
-    name: "decision-naming",
-    script: SCRIPTS.checkDecisionNaming,
-    args: ["docs"],
-    passes: /Every decision filename conforms \(\d+ checked\)\./,
-  },
-  {
-    name: "decision-supersede",
-    script: SCRIPTS.checkDecisionSupersede,
-    args: ["docs"],
-    passes: /The supersede chain is sound and nothing cites replaced rationale/,
   },
 ];
 
