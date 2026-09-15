@@ -26,6 +26,7 @@ See [naming-and-organization.md](./references/naming-and-organization.md) for:
 - Following the project's own routing convention, if it defines one, and co-locating a route's required sibling files (props/types, not-found, social-image)
 - Matching identifier names and casing to the conventions in and around the changed file
 - The fallback identifier vocabulary for a name nothing else governs, and how it yields to a project convention, an owning capability, or a platform/host API the value crosses into
+- Reaching a living-project-documentation capability's closest-composing naming principle from a code identifier at risk of the same semantic degradation, its locality carve-out, and what still holds when that capability is absent
 
 **Guidelines:**
 
