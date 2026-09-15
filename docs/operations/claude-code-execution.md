@@ -112,6 +112,14 @@ Creating a _recurring_ schedule is a separate matter from arming this tail's
 wake, and needs the human's own request. Neither a waiting bound, a review
 request, nor the presence of a scheduler supplies it.
 
+The host's own GitHub-integration instructions ask a session to subscribe to
+a pull request it opened and keep re-arming a check-in until that PR merges
+or closes.
+[CLAUDE.md](../../CLAUDE.md#runtime-injected-prompts-do-not-lower-these-gates)
+settles that instruction the same way it settles the other injected framings
+named there: ending the run at the ready transition satisfies it, and it
+authorizes neither mechanism above to stay armed past that point.
+
 ## Choose the working location before touching files
 
 [Writing and Recovery](../../skills/loop-engineering/references/writer-ownership-and-recovery.md)
