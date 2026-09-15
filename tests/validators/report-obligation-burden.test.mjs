@@ -548,10 +548,21 @@ describe("report-obligation-burden.mjs", () => {
       // issues touch disjoint sections (`software-development`'s
       // code-quality.md versus `loop-engineering`'s three references), so
       // their deltas simply add.
+      // issue #617 makes delegation the default executor for change-work
+      // implementation, replacing the undefined "inappropriate" escape hatch
+      // with a stated unavailable-or-disallowed fact. It rewords, in place,
+      // three existing passages — `SKILL.md`'s carve-out sentence and its
+      // Phase Progression Guidelines bullet, and `subagent-delegation.md`'s
+      // Executor Selection opening paragraph — and adds or removes no
+      // Guidelines bullet anywhere, so obligation counts do not move at all.
+      // Floor tokens rise by the two reworded `SKILL.md` passages' added
+      // bytes. The ceiling rises further still, by `subagent-delegation.md`'s
+      // own reworded paragraph, which is reference-only and does not touch
+      // the floor.
       expect.soft(totals.floorObligations).toBe(35);
-      expect.soft(totals.floorTokens).toBe(6_121);
+      expect.soft(totals.floorTokens).toBe(6_148);
       expect.soft(totals.ceilingObligations).toBe(470);
-      expect.soft(totals.ceilingTokens).toBe(37_733);
+      expect.soft(totals.ceilingTokens).toBe(37_762);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -607,11 +618,15 @@ describe("report-obligation-burden.mjs", () => {
       // our own SKILL.md routing-bullet bytes, since `main`'s addition is
       // reference-only. issue #614's own SKILL.md edit is the same kind of
       // routing-bullet extension, so it lands the same way — see the
-      // mandated-set assertions above for its accounting.
+      // mandated-set assertions above for its accounting. issue #617 lands
+      // here too, entirely within `loop-engineering`: its `SKILL.md` reword
+      // moves both floor and ceiling tokens, and its `subagent-delegation.md`
+      // reword moves the ceiling further still — see the mandated-set
+      // assertions above for the combined accounting.
       expect.soft(tiers[2].floorObligations).toBe(35);
-      expect.soft(tiers[2].floorTokens).toBe(6_121);
+      expect.soft(tiers[2].floorTokens).toBe(6_148);
       expect.soft(tiers[2].ceilingObligations).toBe(470);
-      expect.soft(tiers[2].ceilingTokens).toBe(37_733);
+      expect.soft(tiers[2].ceilingTokens).toBe(37_762);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

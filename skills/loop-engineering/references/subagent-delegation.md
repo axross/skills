@@ -4,7 +4,7 @@ Apply this reference when choosing who or what executes an assignment. The loop 
 
 ## Executor Selection
 
-Direct parent execution is a first-class path. Delegation is useful only when a permitted current capability improves isolation or focus without losing required material fidelity. That much — use only what the session permits, and execute in the parent where delegation is unavailable, disallowed, or inappropriate — is stated in [SKILL.md](../SKILL.md) under its carve-out and is not restated here; what follows is what applies once delegation is actually on the table.
+Delegation to a subagent is the default choice for change-work execution. Direct parent execution is the fallback, valid only where delegation is unavailable through currently permitted tools or disallowed by host policy. That much — use only what the session permits, and execute in the parent only in that fallback case — is stated in [SKILL.md](../SKILL.md) under its carve-out and is not restated here; what follows is what applies once delegation is actually on the table.
 
 **Guidelines:**
 
