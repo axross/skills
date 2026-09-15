@@ -77,7 +77,7 @@ Split the list into a **wrapper** and a **row**. The wrapper owns the list conta
 
 - MUST export the row component separately from the list wrapper, so a test can render one row in isolation.
 - MUST supply an explicit key extractor built on the item's stable identifier rather than on its position alone; a composite that carries the index alongside the id is acceptable, an index by itself is not, because reordering then reuses the wrong row state.
-- MUST memoize the row, the separator, and the section header components under manual memoization, since the list re-creates their elements on every scroll-driven render; check the project's regime first (see [memoization.md](./memoization.md)).
+- MUST memoize the row, the separator, and the section header components under manual memoization, since the list re-creates their elements on every scroll-driven render; check the project's regime first (see [memoization.md](./memoization.md), which also settles where that wrap goes).
 - MUST NOT define the render callback's component inline in the callback body; an inline component remounts every row on each render and defeats memoization.
 - SHOULD let the wrapper accept and forward the underlying list's props, so a caller sets refresh, end-reached, and scroll behavior without the wrapper enumerating each one (see [props.md](./props.md)).
 - SHOULD keep the empty branch out of the list itself and select it alongside the other states (see [component-states.md](./component-states.md)).
