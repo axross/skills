@@ -73,9 +73,10 @@ the maintainer's own judgment call, taken against no measurement either way,
 and is reported as `declared` rather than as measured or verified.
 
 These are configured candidates, not a portable ranking or permission grant.
-A session MUST check actual permitted capabilities before using one. Parent
-implementation is valid when delegation is inappropriate or unavailable;
-mandatory verification and external review remain unchanged.
+A session MUST check actual permitted capabilities before using one.
+Delegating to the matching configured actor is the default; parent
+implementation is valid only when delegation is unavailable or disallowed,
+and mandatory verification and external review remain unchanged.
 
 The project's advisory review applies after every verified initial
 implementation, whether the parent or a child implemented it, before the first

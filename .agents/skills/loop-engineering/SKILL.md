@@ -10,7 +10,7 @@ Drive one change from intake to ready through **plan → approve → execute →
 
 Project policy owns which gates apply, reviewer independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence. Where an instruction the launching runtime injected disagrees with a project mandate, this skill states no precedence between them: that belongs in the entry file of the host doing the injecting, which is the only document positioned to see both.
 
-Read-only work that changes nothing does not enter change gates. For change work, the parent may implement directly; delegation is valid only through currently permitted tools. This never makes the parent its own independent reviewer. No actor ranking, named model, scheduler, shared checkout, or live-resume mechanism is required.
+Read-only work that changes nothing does not enter change gates. For change work, delegation to a subagent is the default; the parent executes directly only where delegation is unavailable through currently permitted tools or disallowed by host policy. This never makes the parent its own independent reviewer. No actor ranking, named model, scheduler, shared checkout, or live-resume mechanism is required.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
@@ -25,7 +25,7 @@ Every other phase rule lives in the reference that governs it, including the pla
 **Guidelines:**
 
 - MUST treat read-only work as outside the change gates unless it produces a project change.
-- MUST select execution using only currently permitted capabilities and any project host guide; parent execution is valid and weakens no gate when delegation is unavailable, disallowed, or inappropriate.
+- MUST select execution using only currently permitted capabilities and any project host guide, delegating to a subagent as the default choice for change work; parent execution is valid and weakens no gate only when delegation is unavailable or disallowed.
 - MUST distinguish plan approval, operation authorization, execution capability, and permitted tool use. Carry forward valid authorization within its original scope, but never infer a broader grant from tool availability, project policy, plan approval, or a previous operation.
 
 See [phase-progression.md](./references/phase-progression.md) for:
