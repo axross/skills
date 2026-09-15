@@ -10,11 +10,11 @@ Order is a readability contract, not decoration. A reader scanning an unfamiliar
 
 Write declarations in this order, skipping any group the block does not use. The same order applies to a CSS rule and to a mobile-native style object.
 
-1. **Positioning** — `position`, `inset-*`, `z-index`
-2. **Layout container** — `display`, `container`, `grid-template-*`, `flex-direction`, `flex-wrap`, `align-items`, `justify-content`, `place-*`, `gap` / `row-gap` / `column-gap`
-3. **Placement in the parent** — `grid-area`, `grid-column`, `align-self`, `justify-self`, `flex`, `order`
-4. **Size** — `inline-size` / `width`, `block-size` / `height`, `min-*`, `max-*`, `aspect-ratio`
-5. **Spacing** — `margin-*`, `padding-*`
+1. **Positioning** — `position`, `inset-*`, `z-index` — referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition.
+2. **Layout container** — `display`, `container`, `grid-template-*`, `flex-direction`, `flex-wrap`, `align-items`, `justify-content`, `place-items` / `place-content`, `gap` / `row-gap` / `column-gap`
+3. **Placement in the parent** — `grid-area`, `grid-column`, `grid-row`, `align-self`, `justify-self`, `place-self`, `flex`, `order` — referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition.
+4. **Size** — `inline-size` / `width`, `block-size` / `height`, `min-*`, `max-*`, `aspect-ratio` — referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition, except `aspect-ratio`.
+5. **Spacing** — `margin-*`, `padding-*` — `margin-*` referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition.
 6. **Background and colour** — `background-*`, `color`
 7. **Border and shape** — `border-*`, `border-radius`
 8. **Typography** — `font-*`, `line-height`, `letter-spacing`, `text-*`, `white-space`, `word-break`, `tab-size`
