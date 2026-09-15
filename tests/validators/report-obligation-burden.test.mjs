@@ -531,10 +531,27 @@ describe("report-obligation-burden.mjs", () => {
       // move; floor tokens rise by the routing bullet's extra bytes. The
       // ceiling moves by six, all in `software-development`: the six new
       // Guidelines bullets the new section carries.
+      // issue #614 makes Ready Gate satisfaction sufficient warrant for the
+      // ready transition, instead of a blocked operation-grant effect. Floor
+      // obligations do not move: the one `SKILL.md` edit extends an existing
+      // `independent-review.md` routing bullet's trigger list — "or
+      // publishing the ready transition" — rather than adding a new bullet,
+      // so only floor tokens rise, by that bullet's added bytes. The ceiling
+      // moves by one: a new Guidelines bullet in `independent-review.md`'s
+      // Ready Gate states the gate is itself sufficient warrant to publish
+      // the transition. The accompanying edits in `phase-progression.md`
+      // (narrowing the Advance-or-Stop prohibition and turning Deliver and
+      // Address's "only after" into "as soon as") and `run-state-and-reporting.md`
+      // (dropping readiness publication from the operation-grant list) reword
+      // existing bullets rather than adding new ones, so they move ceiling
+      // tokens without moving the ceiling obligation count further. The two
+      // issues touch disjoint sections (`software-development`'s
+      // code-quality.md versus `loop-engineering`'s three references), so
+      // their deltas simply add.
       expect.soft(totals.floorObligations).toBe(35);
-      expect.soft(totals.floorTokens).toBe(6_113);
-      expect.soft(totals.ceilingObligations).toBe(469);
-      expect.soft(totals.ceilingTokens).toBe(37_576);
+      expect.soft(totals.floorTokens).toBe(6_121);
+      expect.soft(totals.ceilingObligations).toBe(470);
+      expect.soft(totals.ceilingTokens).toBe(37_733);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -588,11 +605,13 @@ describe("report-obligation-burden.mjs", () => {
       // both branches' additions land here — see the mandated-set
       // assertions above for the combined accounting; the floor carries only
       // our own SKILL.md routing-bullet bytes, since `main`'s addition is
-      // reference-only.
+      // reference-only. issue #614's own SKILL.md edit is the same kind of
+      // routing-bullet extension, so it lands the same way — see the
+      // mandated-set assertions above for its accounting.
       expect.soft(tiers[2].floorObligations).toBe(35);
-      expect.soft(tiers[2].floorTokens).toBe(6_113);
-      expect.soft(tiers[2].ceilingObligations).toBe(469);
-      expect.soft(tiers[2].ceilingTokens).toBe(37_576);
+      expect.soft(tiers[2].floorTokens).toBe(6_121);
+      expect.soft(tiers[2].ceilingObligations).toBe(470);
+      expect.soft(tiers[2].ceilingTokens).toBe(37_733);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -619,8 +638,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(469);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(469);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(470);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(470);
     });
 
     it("prints no tier block without --mandated", async () => {
