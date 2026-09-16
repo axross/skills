@@ -24,7 +24,7 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "4d3fb1847c9931f22523e92e0a7d782b885f524e46e72dcf6efc6bac36d8153c"
+      "computedHash": "4bc64f2998c8bb7fefed26c265eac00b360762015c742adf179cca82a5445784"
     },
     "code-review": {
       "source": "./skills",
