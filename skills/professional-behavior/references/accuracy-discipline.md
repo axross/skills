@@ -80,7 +80,7 @@ An observation does not settle every interpretation of it. A build can pass whil
 
 - **Build:** "The dependency belongs across this boundary" and "the bundler accepts it, but the target runtime cannot use it" both fit a successful build. Exercise the actual target path against its expected contract; another build alone cannot distinguish them.
 - **Name:** "The route label also names the screen's concept" and "the route labels navigation while the screen represents a different concept" can both fit one file. Compare the purposes and ownership of the affected screens, not just the route names. If those meanings coincide, sharing the name is correct.
-- **Test:** "The handler supplies this request value" and "the test merely reads back the value it put into its own request" both fit a passing self-constructed request test. Invoke the handler and assert its output against an expectation derived independently of that request.
+- **Test:** "The handler sets this header from policy" and "the test only reads back the header it put into its own request" both fit a test that supplies the expected value. Send a request without the header (or with a different sentinel) through the handler and assert the returned header equals the policy's independently specified value.
 
 An isolated obvious edit does not need this comparison. Nor should you invent a rival after inspecting the relevant boundary and finding none. This rule checks the factual inference supporting a choice; when the remaining difference is a product, scope, or risk trade-off, [uncertainty triage](./uncertainty-triage.md) leaves that decision with the human.
 
