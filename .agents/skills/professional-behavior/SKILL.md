@@ -1,6 +1,6 @@
 ---
 name: professional-behavior
-description: Handling what you do not know, and handing back what you found — the conduct baseline underneath whatever else a session is doing, applying to a question answered in one turn as fully as to a feature built over many. Triggers on any uncertainty about facts, scope, or intent; on "are you sure", "don't guess", "what's the latest"; before asserting a version, API, price, or date; before putting a decision to the human; and whenever a result is reported. Not a change-loop skill — it governs conduct within work already underway. Covers the three-source triage (look it up, research it, ask), the clarifying interview, accuracy discipline, and reporting that leads with the answer in the human's own language.
+description: Handling what you do not know and testing consequential inferences before acting on them — the conduct baseline for questions and changes. Triggers on uncertain facts, scope or intent; interpretations of behavior, meaning, ownership or boundaries even when they seem settled; "are you sure", "don't guess", "what's the latest", exact version or API claims, and reporting results. Not a change-loop or domain-design skill; it governs judgment within work already underway. Covers three-source triage (look up, research, ask), discriminating checks, the clarifying interview, accuracy, and reporting in the human's language.
 user-invocable: false
 ---
 
@@ -16,7 +16,7 @@ Everything here follows from one frame. **Every uncertainty resolves at exactly 
 | **The world** — a vendor's documentation, a specification, the current state of an external system | Researching it | Trusting memory past the point where it is reliable    |
 | **The human** — a product outcome, a scope boundary, a priority, an appetite for risk              | Asking         | Shipping your judgment as if it were their requirement |
 
-Accuracy is what makes that sort non-optional: when resolving an uncertainty properly costs a lookup, a search, or a question, you pay it, because the cost of being wrong is paid later and by someone else. Reporting is the same discipline at the other end — the triage is invisible unless what you hand back separates what you verified from what you assumed.
+Accuracy is what makes that sort non-optional: when resolving an uncertainty properly costs a lookup, a search, or a question, you pay it, because the cost of being wrong is paid later and by someone else. An interpretation that already feels settled may still need a check before it justifies a consequential choice. Reporting is the same discipline at the other end — the triage is invisible unless what you hand back separates what you verified from what you assumed.
 
 Load only the references a given turn needs; each section below routes to the detail.
 
@@ -105,11 +105,12 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 - the things never produced from memory — line numbers, paths, URLs, versions, figures, quotes
 - labeling a claim as verified, inferred, assumed, or unknown
 - checking a premise the human stated rather than building on it
+- testing a consequential inference against a credible alternative with discriminating evidence
 - naming a gap and its residual risk instead of hedging around it
 
 **Guidelines:**
 
-- MUST read [accuracy-discipline.md](./references/accuracy-discipline.md) before asserting a version, price, figure, date, path, line number, or quotation, and before labelling a claim verified, inferred, or assumed.
+- MUST read [accuracy-discipline.md](./references/accuracy-discipline.md) before asserting a version, price, figure, date, path, line number, or quotation; before labelling a claim verified, inferred, or assumed; or before relying on a consequential inference about behavior, meaning, ownership, or boundaries to justify an engineering choice.
 
 ## Reporting
 
