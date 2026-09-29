@@ -22,7 +22,7 @@ wait, or return mechanism that realizes that outcome.
 
 **Guidelines:**
 
-- MUST enter the next required phase or perform its next action without asking for another instruction when current evidence establishes its prerequisites, a permitted route can perform it, and every effect that requires human authorization is covered by a matching operation grant.
+- MUST enter the next required phase or perform its next action without asking for another instruction when current evidence establishes its prerequisites, a permitted route can perform it, and every effect that requires human authorization is covered by a matching operation grant. A matching standing grant recorded in project guidance satisfies that condition both before and after plan approval, though it never substitutes for the approval itself.
 - MUST continue independent available work when another action is blocked by a required human decision, an unmatched operation grant, an unavailable capability or required input, an unsafe failed or outcome-unknown effect, or an outstanding machine result; stop only the work that depends on that blocker.
 - MUST stop the run only when no required action remains available because of one of those blockers, or when an applicable execution or review bound, non-convergence, or completion applies; record the specific result state and resumable next action.
 - MUST end the turn for a human wait; for an actual pending machine result, use only a permitted wait mechanism within the applicable bound. The turn-boundary rule separating a progress note from a deferred available action is stated in [SKILL.md](../SKILL.md) under its carve-out, and is not restated here.

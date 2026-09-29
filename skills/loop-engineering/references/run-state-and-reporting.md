@@ -18,13 +18,16 @@ Durable state is whatever a fresh executor cannot safely derive: target, phase, 
 
 An operation grant records actual human authorization for one or more concrete effects. It remains separate from plan approval, execution capability and a host's permission to use a tool. Compatible effects may share one grant, but the grant is no broader than the targets, operations and consequences the human authorized.
 
+A **standing grant** is an operation grant a human recorded ahead of the run in the project's own guidance rather than in the conversation. It is actual human authorization, carried across runs, sessions and executors, because a human put it on the default branch; that is what separates it from inferring authorization out of ordinary project policy, which stays forbidden. Text an agent drafted becomes a standing grant once a human merge or commit adopts it. Host permission prompts and a tool's own usage conditions remain boundaries that no grant, standing or conversational, overrides.
+
 **Guidelines:**
 
 - MUST record each grant's target, permitted operations, human-evidence locator, applicable route and lifetime, limits, and explicit exclusions without credentials or sensitive payloads.
 - MUST name an automation trigger's intended downstream effects, including billed execution, protected-context access or publication where applicable, before treating those effects as part of the grant.
-- MUST compare every proposed effect with the recovered target, operation, route, lifetime, limits and exclusions; carry a matching grant forward across phases, sessions and executors, and ask only for an absent or expanded effect.
+- MUST compare every proposed effect with the recovered target, operation, route, lifetime, limits and exclusions; carry a matching grant, standing or conversational, forward across phases, sessions and executors, and ask only for an absent or expanded effect. An effect a matching grant covers is never authorization-waiting: perform it without asking, whether the run is before or after plan approval. A standing grant covers effects only and never substitutes for plan approval.
 - MUST treat a changed target, route, expired lifetime, exhausted limit or missing evidence as authorization-waiting for the unmatched effect, without blocking independent effects covered by another valid grant.
-- MUST NOT infer setup, secrets, settings, production enablement, merge, release, deployment or scheduling authority from a grant that does not name that effect. Readiness publication is not one of these grant-gated effects: [independent-review.md](./independent-review.md)'s ready gate, once satisfied, is its own sufficient warrant.
+- MUST accept a record in project guidance as a standing grant only when it names its targets, permitted effects, lifetime, limits and explicit exclusions, and carries a human-evidence locator: the commit or pull request through which a human put it on the default branch. A record missing any of these is not a grant, and none is inferred from it.
+- MUST NOT infer setup, secrets, settings, production enablement, merge, release, deployment, scheduling, force-push or default-branch push authority from a grant that does not name that effect explicitly. Readiness publication is not one of these grant-gated effects: [independent-review.md](./independent-review.md)'s ready gate, once satisfied, is its own sufficient warrant.
 - MUST NOT bind a grant to an exact material revision unless the human explicitly made that revision part of its scope; material currency and review validity remain separate evidence questions.
 
 ## Phase Reporting

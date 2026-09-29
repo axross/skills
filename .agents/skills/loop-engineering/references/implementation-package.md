@@ -4,7 +4,7 @@ Apply these contracts whenever work or judgment crosses an actor, session, proce
 
 ## Approval Target
 
-Approval identifies the exact plan artifact and revision the human considered, the approval evidence, and any decisions incorporated into it. Approval authorizes implementation against that revision; it does not authorize publication, tool use, scheduling, or any other effect.
+Approval identifies the exact plan artifact and revision the human considered, the approval evidence, and any decisions incorporated into it. Approval authorizes implementation against that revision; it does not authorize publication, tool use, scheduling, or any other effect. Each of those needs an operation grant, which may be a standing grant recorded in project guidance.
 
 **Guidelines:**
 
