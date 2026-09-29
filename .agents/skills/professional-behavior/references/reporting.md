@@ -4,7 +4,7 @@ Apply this reference whenever you hand something back — an answer, a set of fi
 
 ## Response Language
 
-`SKILL.md`'s Response Language section states the rule, so this reference elaborates it rather than repeating it: what a kept English term looks like next to a mistranslated one, the exempt tokens worked through, and the cases the rule's own bullets do not reach.
+`SKILL.md`'s Response Language section states the rule, so this reference elaborates it rather than repeating it: what a kept English term looks like next to a mistranslated one, the exempt tokens worked through, and the cases the rule's own bullets leave to judgment — the events, artifacts, corrections, and resumed sessions that put pressure on the language between one human message and the next.
 
 **Good Example:**
 
@@ -16,17 +16,33 @@ Apply this reference whenever you hand something back — an answer, a set of fi
 
 The exemption is narrower than the term-handling clause: an identifier, a command, a path, or a product name is never transliterated, whether or not translating it would confuse anyone. An identifier such as `isLoading`, a command such as `git rebase`, a path such as `src/index.ts`, and a product name such as "GitHub" all stay exactly as written in a reply of any language, because rendering any of them into the target script would stop them being the string a reader could copy, run, open, or search for.
 
-Three cases sit outside what the rule itself decides:
+These cases sit outside what the rule itself decides:
 
 - **No language signal.** A message that carries no language of its own — a bare "ok" or "continue", a pasted URL, a raw stack trace — does not reset anything. The reply keeps the language the last message that did carry a signal set.
 - **Explicit override.** The human asking for a specific language, or the project's own entry-point files fixing one, replaces the default outright rather than sitting beside it as an exception to note each time.
 - **Quoted material.** An error string, a log line, a file's contents, and a command are reproduced exactly as they occur, never translated, whatever language surrounds them.
+- **Injected events.** Hook feedback, a subagent's hand-back, a notification, a scheduled check-in, and tool output are produced by software or by another agent, usually in the project's working language, and none of them is the human speaking. A turn one of them starts has no human message of its own, so the reply looks past the event to the last message a human wrote, however many events have arrived since. Relaying what a subagent found is still a human-facing reply: the finding is rendered in the human's language, and anything quoted from the report stays exact.
+- **Same-turn artifact.** A pull request body, an issue comment, or a commit message written a moment ago keeps the project's working language, and having just written it is what pulls the next sentence into that language. The completion report about it — what it says, where it lives, what remains — belongs to the human-facing surface and goes in the human's language. A title or line quoted from the artifact is quoted material and stays as written.
+- **Correction.** A human who points out that a reply came in the wrong language has named a failure, not a one-off preference, and the language they wrote the correction in is the reply language from that turn on. Later events, later artifacts, and a long stretch of work without a human message do not lapse it; only a later human message that is written in another language or asks for one does.
+- **Resume and compaction.** The skill's body may no longer be in context after either, and a summary is written by the agent, often in the working language, so it says nothing reliable about the human's. The language is re-derived from messages the human wrote that are still visible, never from the summary's own wording or from tool output describing the session. Where none survives, there is nothing yet to hold, and the first human message after the resume sets it.
+
+**Good Example:**
+
+> The human has written only Japanese. The agent has just written an English pull request body, and a hook then reports "lint failed" in English. The next progress note reads "PR本文を書き終えました。lintが失敗したので、修正します。" — the body stays English, the note stays Japanese, and the hook's English changed nothing about who is reading.
+
+**Bad Example:**
+
+> The same progress note reads "The PR body is written; lint failed, fixing now." — the English body and the English hook message set the language, though no human message asked for English.
 
 **Guidelines:**
 
-- MUST treat a message carrying no language signal as leaving the language the prior signal-carrying message set, rather than resetting to a default.
+- MUST treat a message carrying no language signal, and any run of injected events, as leaving the language the prior signal-carrying message set, rather than resetting to a default, and MUST NOT read an event's own language as evidence that the human changed theirs.
 - MUST switch to a language the human explicitly requests, or one the project's own entry-point files fix, immediately and without treating the switch as needing to be re-justified on later turns.
 - MUST reproduce quoted material — an error string, a log line, a file's contents, a command — exactly as it occurs, never translated.
+- MUST write the report of a same-turn artifact in the human's language while leaving the artifact itself in the project's working language.
+- MUST apply a language correction from the turn it arrives, using the language it was written in, and MUST keep it in force until a later human message sets another language.
+- SHOULD re-derive the language after a resume or compaction from the human's own visible messages rather than from a summary or from tool output.
+- MAY use a short language reminder that a host re-injects on each prompt and after a resume as a cue to run the check; it supports these rules but does not replace them, since they hold on a host that injects nothing.
 
 ## Lead With the Answer
 
