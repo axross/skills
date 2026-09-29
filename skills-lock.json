@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "9aed6a11f21c30528dcfc15655ad40fe2ea97e505b0850fbafee94436e5ef1b1"
+      "computedHash": "e2d5f9c0b4fe88bf0f336d2cad96ff4fb416f502b7b06e1bb7435effdec8d9e2"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c461e2ac13308f2e2f6107ec9f2785c9519ab2d84a699ddd28cf9a3710c37ade"
+      "computedHash": "8f619ac10bec53b8be375204e71b444b4c11d25a58c613773374cf918b4446dc"
     },
     "next-app-development": {
       "source": "./skills",
