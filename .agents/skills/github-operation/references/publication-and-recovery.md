@@ -48,7 +48,7 @@ Use these distinctions when reporting and deciding the next action:
 | -------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------- |
 | No permitted channel for the operation                               | Unavailable capability         | Name the missing operation and stop dependent work               |
 | Host forbids the purpose                                             | Unavailable due to prohibition | Do not substitute another route                                  |
-| Operation is permitted but no grant, standing or not, covers it      | Authorization-waiting          | Ask for that effect, without executing it                        |
+| Operation is permitted but no operation grant covers it              | Authorization-waiting          | Ask for that effect, without executing it                        |
 | Request definitively failed without its intended effect              | Failed                         | Report the failure; retry only under current recovery limits     |
 | Some requested effects are verified, others failed or are unverified | Partial                        | Retain completed object IDs and identify each outstanding effect |
 | A write may have succeeded but cannot be established                 | Outcome-unknown                | Inspect actual stored state before considering another write     |
