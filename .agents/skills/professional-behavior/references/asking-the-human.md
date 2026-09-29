@@ -57,7 +57,7 @@ A question does not stop being the human's to answer because the actor holding i
 
 ## Decisions in One Prompt
 
-Batching questions is safe only between decisions that do not touch, regardless of the delivery route. When one answer would delete another question, narrow its options, or change what it means, asking both at once yields an answer to a question that no longer exists — and the human cannot tell you so, because they answered what you showed them. Between decisions that do not touch, batching is not merely safe but the point: every decision whose prerequisites are settled goes to the human together, as one round, so they answer once instead of once per decision.
+Batching questions is safe only between decisions that do not touch, regardless of the delivery route. When one answer would delete another question, narrow its options, or change what it means, asking both at once yields an answer to a question that no longer exists — and the human cannot tell you so, because they answered what you showed them. Between decisions that do not touch, batching is not merely safe but the point: the independent decisions of a round share a prompt, so the human answers once instead of once per decision. Which decisions make up a round, and how the next round is derived, is owned by [clarifying-interview.md](./clarifying-interview.md#walking-the-decision-tree).
 
 > Asking _"is this surface public or authenticated?"_ alongside _"what does a stranger see when the list is empty?"_ gets an answer to the second that the first may have just invalidated. Asked in rounds, the second waits for the first's answer and then either becomes "what does a signed-in user with no data see?" or disappears. Asking the first alongside _"how long is exported data kept?"_ costs nothing, because no answer to either touches the other.
 
@@ -66,5 +66,4 @@ A delivery mechanism that caps how many questions one prompt carries may split a
 **Guidelines:**
 
 - MUST NOT put two decisions in one prompt when the answer to one would change, prune, or reframe the other; hold the dependent one for a later round, in dependency order.
-- MUST carry a round's independent decisions in the same prompt, or in consecutive prompts only where a delivery cap requires it, per [clarifying-interview.md](./clarifying-interview.md).
-- MUST re-derive the next round from the answers to the current one, rather than sending later rounds composed before those answers arrived, per [clarifying-interview.md](./clarifying-interview.md).
+- MUST carry a round's independent decisions in the same prompt, or in consecutive prompts only where a delivery cap requires it; the round's composition and recomputation follow [clarifying-interview.md](./clarifying-interview.md#walking-the-decision-tree).

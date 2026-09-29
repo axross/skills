@@ -66,7 +66,7 @@ Not every session owes the human questions. What decides is whether the request 
 
 This cuts both ways. A one-line change resting on an unmade product decision earns an interview; a request to explain what a function does earns none, however complex the function. Manufacturing questions to appear thorough is the same failure as skipping them to appear fast.
 
-The sort judges every decision the work depends on, whether or not the request raised it, so an unraised decision the work depends on is a genuine open decision: noticing one owes the interview. Once an interview is owed, it presses on the work rather than only collecting what the request visibly left open. That is the stress-testing practice in [clarifying-interview.md](./clarifying-interview.md#stress-testing-the-work). It applies to every owed interview, not only those the human invokes by name, and it presses further within an interview the sort owes; it never manufactures one where the work depends on nothing left open.
+The sort covers each decision you meet, whether or not the request raised it, so an unraised decision the work depends on that you notice while sorting is a genuine open decision and owes the interview. Looking for unraised decisions on purpose is not part of the sort: that active search is the stress test, which runs inside an interview already owed, per [clarifying-interview.md](./clarifying-interview.md#stress-testing-the-work).
 
 **Guidelines:**
 

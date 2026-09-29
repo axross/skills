@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "23872b4da80ca6f5b62ede608c9273284b00509e831a79471277b2136c6ea8d9"
+      "computedHash": "7caf14efdbda661392902fa02b3d6e14c654c2cb1583ff89df56944f9f907e24"
     },
     "quality-assurance": {
       "source": "./skills",
