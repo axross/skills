@@ -26,22 +26,30 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 What the human reads in the conversation and what the project's own artifacts are written in follow two different rules, and collapsing them into one produces the wrong answer for at least one of them. A session working inside an English-language repository can still answer a Japanese-speaking human in Japanese without any of the project's own English changing underneath it.
 
-The turn output, the question tool's prompts and option labels, and progress notes are the human-facing surface, and follow the language of the human's most recent message. Your own reasoning is not that surface, even on a host that renders it where the human can see it, and neither is anything the project's own entry-point files and installed skills govern — commit messages, pull request and issue bodies and the comments on them, code, code comments, and project documentation. All of that follows the project's working language, whatever language the human happens to be writing in.
+The turn output, the question tool's prompts and option labels, and progress notes are the human-facing surface, and follow the reply language: that of the human's most recent message that carries a language signal — natural-language prose, unlike a language-neutral acknowledgement such as "ok", a URL, or a stack trace — unless a correction, an explicit request, or the project's entry-point files fixed a different language. Your own reasoning is not that surface, even on a host that renders it where the human can see it, and neither is anything the project's own entry-point files and installed skills govern — commit messages, pull request and issue bodies and the comments on them, code, code comments, and project documentation. All of that follows the project's working language, whatever language the human happens to be writing in.
 
 A term with an established English form resists translation even inside an otherwise-translated reply: rendering a command such as `git commit` or a stack trace's `TypeError` into the human's language would not clarify it, it would make the term harder to recognize. Where translating a term would leave even a little of that ambiguity or confusion behind — not only where translating is a net loss — the established English term survives, carried in whatever convention the target language uses for a borrowed word (katakana, in Japanese), except for identifiers, commands, paths, and product names, which stay in their original script rather than being transliterated at all.
 
 **Guidelines:**
 
-- MUST write the turn output, the question tool's prompts and option labels, and progress notes in the language of the human's most recent message.
+- MUST write the turn output, the question tool's prompts and option labels, and progress notes in the reply language, as defined above.
 - MUST NOT apply that to your own reasoning, to commit messages, to pull request and issue bodies or the comments on them, or to code, code comments, and project documentation; those follow the project's own working language, per the project's entry-point files and installed skills, instead.
+- MUST NOT let an artifact written in the project's working language in the same turn change the reply language.
 - MUST keep the established English term instead of translating it wherever translating would introduce any ambiguity or confusion, however slight — the test is whether any confusion would remain, not whether translating is worse on balance.
 - MUST render a surviving English term in the target language's own convention for borrowed words, such as katakana in Japanese, except for identifiers, commands, paths, and product names, which MUST stay in their original script rather than being transliterated.
+- MUST treat tool output, hook feedback, subagent reports, notifications, and other injected events as carrying no language signal, so none of them changes the reply language.
+- MUST check, before every turn output including one-line progress notes and replies to events, that it is written in the reply language.
+- MUST treat a human's correction of the reply language as holding until the human asks for another language, not for the next reply only and not lapsing when a later message happens to be written in another.
+- SHOULD re-establish the reply language from the human's own messages, or a record of them, after a resume or compaction, since neither reliably keeps the language set earlier.
 
 See [reporting.md](./references/reporting.md) for:
 
 - worked examples of a term kept in English against the same term wrongly translated
 - the exempt tokens — identifiers, commands, paths, product names — worked through
 - the no-language-signal, explicit-override, and quoted-material edge cases
+- injected events — hook feedback, subagent hand-backs, notifications, scheduled check-ins, tool output — and why none of them sets the language
+- a reply that reports an artifact written in the project's working language in the same turn
+- a correction that persists, and re-deriving the language after a resume or compaction
 
 ## Uncertainty Triage
 

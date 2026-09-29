@@ -1,6 +1,6 @@
 # Asking the Human
 
-Apply this reference whenever you are about to put a decision to the human or return it to a parent — a single question mid-task, or every question in a clarifying interview. The triage decides _that_ a decision is theirs, and [clarifying-interview.md](./clarifying-interview.md) decides _which_ questions to ask and in which round; this covers the question's content, who owns the decision, and which kind of route it goes through — never which tool a given runtime names for that route. The question itself, its options, and their consequences are written in the language the human's most recent message set; see [reporting.md](./reporting.md#response-language) for the term-handling rule and its edge cases.
+Apply this reference whenever you are about to put a decision to the human or return it to a parent — a single question mid-task, or every question in a clarifying interview. The triage decides _that_ a decision is theirs, and [clarifying-interview.md](./clarifying-interview.md) decides _which_ questions to ask and in which round; this covers the question's content, who owns the decision, and which kind of route it goes through — never which tool a given runtime names for that route. The question itself, its options, and their consequences are written in the reply language that `SKILL.md`'s Response Language defines; see [reporting.md](./reporting.md#response-language) for the term-handling rule and its edge cases.
 
 ## Presenting a Decision
 
@@ -53,6 +53,7 @@ A question does not stop being the human's to answer because the actor holding i
 - MUST have the parent integrate returned findings and present unresolved human decisions to the human, without treating the child's recommendation as an answer.
 - MUST keep dependent work blocked when delivery fails, is unavailable, or has an unknown outcome; report the limitation and leave the decision unresolved unless an actual answer is established.
 - MUST NOT fabricate an answer, attribute an unmade decision to the human, or treat silence, failed delivery, or inability to communicate as approval.
+- MUST NOT put to the human, as an open item, an effect already covered by a valid operation grant as the change-loop capability defines one.
 - MUST leave plan-approval revision and stop/resume semantics to the change-loop capability; ordinary question delivery or an answer to a narrower question does not substitute for that gate or grant new external-operation authorization.
 
 ## Decisions in One Prompt
