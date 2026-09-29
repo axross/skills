@@ -26,7 +26,7 @@ Every other phase rule lives in the reference that governs it, including the pla
 
 - MUST treat read-only work as outside the change gates unless it produces a project change.
 - MUST select execution using only currently permitted capabilities and any project host guide, delegating to a subagent as the default choice for change work; parent execution is valid and weakens no gate only when delegation is unavailable or disallowed.
-- MUST distinguish plan approval, operation authorization, execution capability, and permitted tool use. Carry forward valid authorization within its original scope, including a standing grant a human adopted into project guidance, which is actual authorization; but never infer a grant, or a broader one, from tool availability, project policy that records none, plan approval, or a previous operation.
+- MUST distinguish plan approval, operation authorization, execution capability, and permitted tool use. Carry forward valid authorization within its original scope, including a verified standing grant a human adopted into project guidance, which is actual authorization; but never infer a grant, or a broader one, from tool availability, project policy that records none, plan approval, or a previous operation.
 
 See [phase-progression.md](./references/phase-progression.md) for:
 

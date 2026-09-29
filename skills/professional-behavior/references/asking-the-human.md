@@ -52,7 +52,7 @@ A question does not stop being the human's to answer because the actor holding i
 - MUST have the parent integrate returned findings and present unresolved human decisions to the human, without treating the child's recommendation as an answer.
 - MUST keep dependent work blocked when delivery fails, is unavailable, or has an unknown outcome; report the limitation and leave the decision unresolved unless an actual answer is established.
 - MUST NOT fabricate an answer, attribute an unmade decision to the human, or treat silence, failed delivery, or inability to communicate as approval.
-- MUST NOT put an effect already covered by a recorded operation grant, conversational or standing, to the human as an open item; ask only for an absent or expanded effect.
+- MUST NOT put to the human, as an open item, an effect already covered by a valid operation grant as the change-loop capability defines one.
 - MUST leave plan-approval revision and stop/resume semantics to the change-loop capability; ordinary question delivery or an answer to a narrower question does not substitute for that gate or grant new external-operation authorization.
 
 ## One Decision Per Prompt
