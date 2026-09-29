@@ -580,11 +580,13 @@ describe("report-obligation-burden.mjs", () => {
       // owns it; the MAY on independent decisions became a MUST and moves
       // nothing), and two in uncertainty-triage.md (the Lookups Still Running
       // bullets; the owed interview points at the stress test in prose, which
-      // moves no count).
+      // moves no count). Against base f8391b0, the change as a whole adds 61
+      // floor tokens (6,196 to 6,257) and 1,564 ceiling tokens (38,343 to
+      // 39,907).
       expect.soft(totals.floorObligations).toBe(35);
       expect.soft(totals.floorTokens).toBe(6_257);
       expect.soft(totals.ceilingObligations).toBe(482);
-      expect.soft(totals.ceilingTokens).toBe(39_934);
+      expect.soft(totals.ceilingTokens).toBe(39_907);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -614,7 +616,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[0].floorObligations).toBe(10);
       expect.soft(tiers[0].floorTokens).toBe(2_221);
       expect.soft(tiers[0].ceilingObligations).toBe(153);
-      expect.soft(tiers[0].ceilingTokens).toBe(13_198);
+      expect.soft(tiers[0].ceilingTokens).toBe(13_171);
 
       // tier 2 — plus `software-development`. untouched by either branch
       // above; a later round added the "Who the Description Is For" section
@@ -630,7 +632,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].floorObligations).toBe(19);
       expect.soft(tiers[1].floorTokens).toBe(4_178);
       expect.soft(tiers[1].ceilingObligations).toBe(285);
-      expect.soft(tiers[1].ceilingTokens).toBe(26_605);
+      expect.soft(tiers[1].ceilingTokens).toBe(26_578);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //
@@ -653,7 +655,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(35);
       expect.soft(tiers[2].floorTokens).toBe(6_257);
       expect.soft(tiers[2].ceilingObligations).toBe(482);
-      expect.soft(tiers[2].ceilingTokens).toBe(39_934);
+      expect.soft(tiers[2].ceilingTokens).toBe(39_907);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
