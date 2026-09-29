@@ -49,16 +49,30 @@ A first sort is a hypothesis. When the chosen source does not produce an answer,
 - SHOULD escalate a world item that current sources answer inconsistently to the human rather than picking the more convincing source, per the stop condition in [external-research.md](./external-research.md).
 - MUST NOT let a failed lookup quietly become an assumption; either the source answered it or it moves to a different source.
 
+## Lookups Still Running
+
+Sorting an item to the environment or the world starts an investigation; it does not stop the interview. A human question is held back only by what it depends on, and a running lookup is an unsettled prerequisite exactly as an open upstream decision is — for the questions downstream of its result, and for no others.
+
+> The current pagination is being read out of the repository while the human's appetite for a breaking response-shape change is open. Whether to break the shape does not depend on what the read finds, so it is asked now. Which default page size to offer, needed only if pagination turns out to be absent, waits for the read.
+
+**Guidelines:**
+
+- MUST hold back only the human questions whose options, relevance, or existence depend on a lookup still running, and ask the rest of the frontier now rather than waiting for the investigation to finish, per [clarifying-interview.md](./clarifying-interview.md#walking-the-decision-tree).
+- MUST NOT fill the wait with a guess: a question downstream of a running lookup stays unasked until the source answers it or fails and the item is re-sorted, per [Re-Sorting](#re-sorting).
+
 ## Whether an Interview Is Owed
 
 Not every session owes the human questions. What decides is whether the request leaves a genuine decision open — not the size of the work, not how long the session has run, and not whether an artifact is being produced.
 
 This cuts both ways. A one-line change resting on an unmade product decision earns an interview; a request to explain what a function does earns none, however complex the function. Manufacturing questions to appear thorough is the same failure as skipping them to appear fast.
 
+Once an interview is owed, it presses on the work rather than only collecting what the request visibly left open. That is the stress-testing practice in [clarifying-interview.md](./clarifying-interview.md#stress-testing-the-work), and it applies to every owed interview, not only those the human invokes by name.
+
 **Guidelines:**
 
 - MUST run the clarifying interview whenever at least one genuine decision is open, whatever the task is — a question, an investigation, a review, or a build.
 - MUST ask nothing when the sort leaves no human items; a request that decides everything it depends on earns zero questions.
+- MUST stress-test the work in every interview this section owes, whatever the task and without a trigger phrase, per [clarifying-interview.md](./clarifying-interview.md#stress-testing-the-work); that pressing never manufactures an interview the sort did not owe.
 - MUST NOT scale the interview to the size of the expected output; the count of open decisions sets its depth.
 - MUST NOT invent a decision to ask about, or split one decision into several prompts, to appear thorough.
 - SHOULD ask a question you expect to be answered "obviously yes" whenever the opposite answer would change the work; a cheap confirmation beats a silent assumption.

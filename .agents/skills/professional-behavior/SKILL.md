@@ -50,6 +50,7 @@ See [uncertainty-triage.md](./references/uncertainty-triage.md) for:
 - deciding which of the three sources answers an open item before acting on it
 - recognizing each source's characteristic failure and the cost it carries
 - re-sorting an item when the source you chose turns out not to answer it
+- holding back only the questions downstream of a lookup still running
 - deciding whether a session owes the human an interview at all
 
 **Guidelines:**
@@ -60,9 +61,10 @@ See [uncertainty-triage.md](./references/uncertainty-triage.md) for:
 
 See [clarifying-interview.md](./references/clarifying-interview.md) for:
 
-- walking the decision tree so each answer reshapes what is still worth asking
+- asking the settled frontier of the decision tree in rounds, so each round's answers reshape what is still worth asking
+- stress-testing the work for unraised decisions, contradictions, and failure modes in every owed interview
 - how deep the interview goes, and why it does not scale down with the size of the work
-- confirming the shared understanding before acting on it
+- confirming the shared understanding, every self-settled item included, before acting on it
 
 **Guidelines:**
 
@@ -74,9 +76,9 @@ See [asking-the-human.md](./references/asking-the-human.md) for:
 
 - using the runtime's dedicated question mechanism wherever the session exposes one, and what the route is where none exists — the turn output as the floor, a more interruptive channel over it where the runtime offers one
 - re-presenting a prompt that closed or errored, and reading a bare answer token as answering the still-open question
-- framing a decision as concrete options, each with its consequence and the default marked
+- framing a decision as concrete options, each with its consequence and the default marked with its reason and evidence
 - returning a question you cannot ask to whoever asked, with its partial results, inventing neither an answer nor an approval
-- when two decisions may share one prompt, and when they must be asked in dependency order
+- which decisions go in one round's prompts, and which wait for a later round in dependency order
 
 **Guidelines:**
 

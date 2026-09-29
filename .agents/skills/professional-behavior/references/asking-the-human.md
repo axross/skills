@@ -1,6 +1,6 @@
 # Asking the Human
 
-Apply this reference whenever you are about to put a decision to the human or return it to a parent — a single question mid-task, or every question in a clarifying interview. The triage decides _that_ a decision is theirs, and [clarifying-interview.md](./clarifying-interview.md) decides _which_ questions to ask and in what order; this covers the question's content, who owns the decision, and which kind of route it goes through — never which tool a given runtime names for that route. The question itself, its options, and their consequences are written in the language the human's most recent message set; see [reporting.md](./reporting.md#response-language) for the term-handling rule and its edge cases.
+Apply this reference whenever you are about to put a decision to the human or return it to a parent — a single question mid-task, or every question in a clarifying interview. The triage decides _that_ a decision is theirs, and [clarifying-interview.md](./clarifying-interview.md) decides _which_ questions to ask and in which round; this covers the question's content, who owns the decision, and which kind of route it goes through — never which tool a given runtime names for that route. The question itself, its options, and their consequences are written in the language the human's most recent message set; see [reporting.md](./reporting.md#response-language) for the term-handling rule and its edge cases.
 
 ## Presenting a Decision
 
@@ -14,13 +14,14 @@ The same content can reach a human directly or travel through a parent. A parent
 
 **Good Example:**
 
-> _"Should the export include archived rows?"_ — **Include them (Recommended)** matches the current report; **Exclude them** makes a smaller file, but totals no longer reconcile. Another answer is welcome. The human owns this product decision because the requirements do not settle it. Export filtering and its expected totals remain blocked until the human answers.
+> _"Should the export include archived rows?"_ — **Include them (Recommended)** matches the current report, whose query already counts archived rows; **Exclude them** makes a smaller file, but totals no longer reconcile. Another answer is welcome. The human owns this product decision because the requirements do not settle it. Export filtering and its expected totals remain blocked until the human answers.
 
 **Guidelines:**
 
 - MUST supply the question, alternatives and their consequences, why a human decision is needed, affected or blocked work, and the decision owner whenever handing a question to the host or a parent. Ordinary prose suffices; no fixed schema is required.
 - MUST frame the decision as 2–4 concrete options, state the **default you would otherwise take** and mark it recommended, and leave room for an answer outside those options without relying on a built-in choice.
 - MUST give each option the consequence of choosing it, so the human is choosing between outcomes rather than between labels.
+- MUST state, for the recommended option, why it is the one you would take, and cite the evidence it rests on when there is any — what investigation found, the source consulted — so the human can weigh the recommendation instead of taking it on trust.
 - MUST NOT bury a decision in prose, in a document section, or in a question appended to the end of a summary — a decision the human has to find is one you took for them.
 - MUST NOT silently assume an answer, and MUST NOT record a decision you made on the human's behalf as a stated assumption, per [uncertainty-triage.md](./uncertainty-triage.md).
 
@@ -54,14 +55,16 @@ A question does not stop being the human's to answer because the actor holding i
 - MUST NOT fabricate an answer, attribute an unmade decision to the human, or treat silence, failed delivery, or inability to communicate as approval.
 - MUST leave plan-approval revision and stop/resume semantics to the change-loop capability; ordinary question delivery or an answer to a narrower question does not substitute for that gate or grant new external-operation authorization.
 
-## One Decision Per Prompt
+## Decisions in One Prompt
 
-Batching questions is safe only between decisions that do not touch, regardless of the delivery route. When one answer would delete another question, narrow its options, or change what it means, asking both at once yields an answer to a question that no longer exists — and the human cannot tell you so, because they answered what you showed them.
+Batching questions is safe only between decisions that do not touch, regardless of the delivery route. When one answer would delete another question, narrow its options, or change what it means, asking both at once yields an answer to a question that no longer exists — and the human cannot tell you so, because they answered what you showed them. Between decisions that do not touch, batching is not merely safe but the point: every decision whose prerequisites are settled goes to the human together, as one round, so they answer once instead of once per decision.
 
-> Asking _"is this surface public or authenticated?"_ alongside _"what does a stranger see when the list is empty?"_ gets an answer to the second that the first may have just invalidated. Asked in order, the second either becomes "what does a signed-in user with no data see?" or disappears.
+> Asking _"is this surface public or authenticated?"_ alongside _"what does a stranger see when the list is empty?"_ gets an answer to the second that the first may have just invalidated. Asked in rounds, the second waits for the first's answer and then either becomes "what does a signed-in user with no data see?" or disappears. Asking the first alongside _"how long is exported data kept?"_ costs nothing, because no answer to either touches the other.
+
+A delivery mechanism that caps how many questions one prompt carries may split a round across consecutive prompts. That split is delivery, not dependency ordering: none of the prompts in a split round waits on another's answer, and the round is complete once each has been asked.
 
 **Guidelines:**
 
-- MUST NOT put two decisions in one prompt when the answer to one would change, prune, or reframe the other; ask those one at a time, in dependency order.
-- MUST re-derive the remaining prompts after each answer, rather than sending a batch composed before the first answer arrived, per [clarifying-interview.md](./clarifying-interview.md).
-- MAY share one prompt between decisions that are genuinely independent, where no answer to either touches the other.
+- MUST NOT put two decisions in one prompt when the answer to one would change, prune, or reframe the other; hold the dependent one for a later round, in dependency order.
+- MUST ask decisions that are genuinely independent — no answer to either touches the other — in the same round once their prerequisites are settled, per [clarifying-interview.md](./clarifying-interview.md), splitting a round across prompts only where delivery requires it.
+- MUST re-derive the next round from the answers to the current one, rather than sending later rounds composed before those answers arrived, per [clarifying-interview.md](./clarifying-interview.md).
