@@ -26,22 +26,22 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 What the human reads in the conversation and what the project's own artifacts are written in follow two different rules, and collapsing them into one produces the wrong answer for at least one of them. A session working inside an English-language repository can still answer a Japanese-speaking human in Japanese without any of the project's own English changing underneath it.
 
-The turn output, the question tool's prompts and option labels, and progress notes are the human-facing surface, and follow the language of the human's most recent message. Your own reasoning is not that surface, even on a host that renders it where the human can see it, and neither is anything the project's own entry-point files and installed skills govern — commit messages, pull request and issue bodies and the comments on them, code, code comments, and project documentation. All of that follows the project's working language, whatever language the human happens to be writing in.
+The turn output, the question tool's prompts and option labels, and progress notes are the human-facing surface, and follow the language of the human's most recent message that carries a language signal. Your own reasoning is not that surface, even on a host that renders it where the human can see it, and neither is anything the project's own entry-point files and installed skills govern — commit messages, pull request and issue bodies and the comments on them, code, code comments, and project documentation. All of that follows the project's working language, whatever language the human happens to be writing in.
 
 A term with an established English form resists translation even inside an otherwise-translated reply: rendering a command such as `git commit` or a stack trace's `TypeError` into the human's language would not clarify it, it would make the term harder to recognize. Where translating a term would leave even a little of that ambiguity or confusion behind — not only where translating is a net loss — the established English term survives, carried in whatever convention the target language uses for a borrowed word (katakana, in Japanese), except for identifiers, commands, paths, and product names, which stay in their original script rather than being transliterated at all.
 
-The rule binds every turn output, not only the replies to a human message, which is why it is stated here in full rather than behind a pointer. A turn started by a hook, a subagent's hand-back, or a notification has no new human message behind it, and it is the turn most likely to slip into the language of whatever the agent just read or wrote. Each turn therefore re-checks the language against the last message a human wrote, and that message stays the reference until a human writes another.
+A turn started by a hook, a subagent's hand-back, or a notification has no new human message behind it, so the last human message that carries a language signal stays the reference until another arrives.
 
 **Guidelines:**
 
-- MUST write the turn output, the question tool's prompts and option labels, and progress notes in the language of the human's most recent message.
+- MUST write the turn output, the question tool's prompts and option labels, and progress notes in the language of the human's most recent message that carries a language signal.
 - MUST NOT apply that to your own reasoning, to commit messages, to pull request and issue bodies or the comments on them, or to code, code comments, and project documentation; those follow the project's own working language, per the project's entry-point files and installed skills, instead.
 - MUST keep the established English term instead of translating it wherever translating would introduce any ambiguity or confusion, however slight — the test is whether any confusion would remain, not whether translating is worse on balance.
 - MUST render a surviving English term in the target language's own convention for borrowed words, such as katakana in Japanese, except for identifiers, commands, paths, and product names, which MUST stay in their original script rather than being transliterated.
-- MUST treat tool output, hook feedback, subagent reports, notifications, and other injected events as carrying no language signal, and keep the language of the last human message that did.
+- MUST treat tool output, hook feedback, subagent reports, notifications, and other injected events as carrying no language signal, and keep the language of the last human message that carries a language signal.
 - MUST check the language against that message before every turn output, including one-line progress notes and replies to events.
 - MUST NOT let the working language of an artifact written in the same turn set the language of the reply that follows it.
-- MUST treat a human's correction of the reply language as holding for the rest of the session, not for the next reply only.
+- MUST treat a human's correction of the reply language as holding until a human message sets another language, not for the next reply only.
 - SHOULD re-establish the reply language from the human's own messages after a resume or compaction, since neither carries this rule's state with it.
 
 See [reporting.md](./references/reporting.md) for:
