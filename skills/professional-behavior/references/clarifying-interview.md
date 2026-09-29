@@ -26,15 +26,15 @@ An interview that only collects what the request visibly left open misses what i
 
 > The request settles "cache the list for five minutes" and the human's answers so far say the list is per-user. Pressing surfaces an unraised decision — whether a user who edits an item sees the edit immediately — and a failure mode of the chosen direction: a stale list after a write. Both change what gets built, so both are asked. A probe about what happens on a leap-second would not change the work under any answer, so it is not asked.
 
-What keeps pressing from turning into padding is the boundary that already governs the whole interview: a probe counts only when a different answer would change the work. It ranges over an interview the triage already owes and never creates one; a request that decides everything it depends on still earns zero questions, per [uncertainty-triage.md](./uncertainty-triage.md#whether-an-interview-is-owed).
+What keeps pressing from turning into padding is the boundary that already governs the whole interview: a probe counts only when a different answer would change the work. It presses within an interview the triage owes and never manufactures one; a request that decides everything the work depends on, raised or not, still earns zero questions, per [uncertainty-triage.md](./uncertainty-triage.md#whether-an-interview-is-owed).
 
 **Guidelines:**
 
 - MUST stress-test the work in every interview the triage owes, unasked and with no trigger phrase from the human; the posture is the interview's default, not a mode the human invokes.
-- MUST enumerate the decisions the work depends on that the request never raised, and put each to the human as a frontier question; noticing an unraised decision is not settling it.
-- MUST point out a contradiction between a new answer and an earlier one, or between an answer and what investigation found, naming both sides and the evidence, and put it to the human as a question; a contradiction between answers reopens only the affected branch.
+- MUST enumerate the decisions the work depends on that the request never raised, put each one the triage sorts to the human to them as a frontier question, and settle the rest by investigation, listing them in the restatement per [Confirming Shared Understanding](#confirming-shared-understanding); noticing an unraised decision is not settling it.
+- MUST point out a contradiction between a new answer and an earlier one, or between an answer and what investigation found, naming both sides and the evidence, and put it to the human as a question.
 - MUST probe the failure modes and edge cases of the direction being chosen, asking the ones whose handling turns on the human's judgment and settling the rest by investigation.
-- MUST count a probe only when a different answer would change the work, and MUST NOT invent a decision or split one into several prompts to look rigorous.
+- MUST count a probe only when a different answer would change the work; the ban on inventing a decision to look rigorous is stated in [uncertainty-triage.md](./uncertainty-triage.md#whether-an-interview-is-owed).
 
 ## Exhaustive by Default
 
@@ -51,13 +51,13 @@ It does not scale down for a small-looking piece of work. The cost of an unasked
 
 ## Confirming Shared Understanding
 
-The gate clears on the human's confirmation, not on your judgment that you have asked enough. Restating what you now believe is the cheapest place to catch a misread: correcting a three-bullet restatement costs a moment, while correcting finished work costs a careful read to find where the misunderstanding was laundered into detail.
+The gate clears on the human's confirmation, not on your judgment that you have asked enough. Restating what you now believe is the cheapest place to catch a misread: correcting a short restatement costs a moment, while correcting finished work costs a careful read to find where the misunderstanding was laundered into detail.
 
-The restatement is not the work. It is short enough to check at a glance — what is being done, each decision and the answer it got, every item you settled yourself, and what is explicitly out of scope. It comes before the work is produced, so that whatever gate reviews that work reviews something whose premise the human has already agreed to.
+The restatement is not the work. It is short enough to check at a glance — what is being done, each decision and the answer it got, every open item you settled yourself, and what is explicitly out of scope. It comes before the work is produced, so that whatever gate reviews that work reviews something whose premise the human has already agreed to.
 
 **Guidelines:**
 
-- MUST restate the shared understanding compactly once the tree is walked — the scope, each decision and its answer, every item you settled yourself, and the explicit non-goals — and put it to the human for a confirm-or-adjust before acting on it.
-- MUST list every item you settled yourself, not only the ones that would be expensive to have wrong — each lookup result, inference, and probe you resolved without asking, with what settled it — so nothing reaches the work as a silent assumption and a bad lookup fails here rather than downstream.
-- MUST keep the restatement short enough to verify at a glance, one line per item; it checks alignment and is not a draft of the work.
+- MUST restate the shared understanding compactly once the tree is walked — the scope, each decision and its answer, every open item you settled yourself, and the explicit non-goals — and put it to the human for a confirm-or-adjust before acting on it.
+- MUST list every open item you settled yourself, not only the ones that would be expensive to have wrong — each one the triage sorted to the environment or the world whose answer shaped the work, whether a lookup result, an inference, or a probe resolved without asking, with what settled it — so nothing reaches the work as a silent assumption and a bad lookup fails here rather than downstream; a file read along the way that shaped no answer is not an item.
+- MUST keep the restatement short enough to verify at a glance: one line per item, or one line for related items grouped together where separate lines would swamp the check; it checks alignment and is not a draft of the work.
 - MUST treat an adjustment as reopening the affected branch — ask what the correction newly exposes, then re-confirm — rather than proceeding on a patched understanding.

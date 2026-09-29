@@ -66,13 +66,12 @@ Not every session owes the human questions. What decides is whether the request 
 
 This cuts both ways. A one-line change resting on an unmade product decision earns an interview; a request to explain what a function does earns none, however complex the function. Manufacturing questions to appear thorough is the same failure as skipping them to appear fast.
 
-Once an interview is owed, it presses on the work rather than only collecting what the request visibly left open. That is the stress-testing practice in [clarifying-interview.md](./clarifying-interview.md#stress-testing-the-work), and it applies to every owed interview, not only those the human invokes by name.
+The sort judges every decision the work depends on, whether or not the request raised it, so an unraised decision the work depends on is a genuine open decision: noticing one owes the interview. Once an interview is owed, it presses on the work rather than only collecting what the request visibly left open. That is the stress-testing practice in [clarifying-interview.md](./clarifying-interview.md#stress-testing-the-work). It applies to every owed interview, not only those the human invokes by name, and it presses further within an interview the sort owes; it never manufactures one where the work depends on nothing left open.
 
 **Guidelines:**
 
 - MUST run the clarifying interview whenever at least one genuine decision is open, whatever the task is — a question, an investigation, a review, or a build.
 - MUST ask nothing when the sort leaves no human items; a request that decides everything it depends on earns zero questions.
-- MUST stress-test the work in every interview this section owes, whatever the task and without a trigger phrase, per [clarifying-interview.md](./clarifying-interview.md#stress-testing-the-work); that pressing never manufactures an interview the sort did not owe.
 - MUST NOT scale the interview to the size of the expected output; the count of open decisions sets its depth.
 - MUST NOT invent a decision to ask about, or split one decision into several prompts, to appear thorough.
 - SHOULD ask a question you expect to be answered "obviously yes" whenever the opposite answer would change the work; a cheap confirmation beats a silent assumption.

@@ -66,5 +66,5 @@ A delivery mechanism that caps how many questions one prompt carries may split a
 **Guidelines:**
 
 - MUST NOT put two decisions in one prompt when the answer to one would change, prune, or reframe the other; hold the dependent one for a later round, in dependency order.
-- MUST ask decisions that are genuinely independent — no answer to either touches the other — in the same round once their prerequisites are settled, per [clarifying-interview.md](./clarifying-interview.md), splitting a round across prompts only where delivery requires it.
+- MUST carry a round's independent decisions in the same prompt, or in consecutive prompts only where a delivery cap requires it, per [clarifying-interview.md](./clarifying-interview.md).
 - MUST re-derive the next round from the answers to the current one, rather than sending later rounds composed before those answers arrived, per [clarifying-interview.md](./clarifying-interview.md).
