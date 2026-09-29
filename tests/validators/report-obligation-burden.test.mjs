@@ -562,10 +562,16 @@ describe("report-obligation-burden.mjs", () => {
       // The professional-behavior inference rule adds three reference
       // obligations and widens the existing SKILL.md read condition. Its
       // discovery rewrite changes floor tokens, not floor obligations.
-      expect.soft(totals.floorObligations).toBe(35);
-      expect.soft(totals.floorTokens).toBe(6_196);
-      expect.soft(totals.ceilingObligations).toBe(473);
-      expect.soft(totals.ceilingTokens).toBe(38_343);
+      // The professional-behavior response-language rule adds five SKILL.md
+      // obligations to the floor and four reference obligations to the
+      // ceiling, nine in all. Its `reporting.md` folds the injected-event
+      // rule into an existing bullet rather than adding one beside it, so
+      // that fold moves no count. The rules stay in SKILL.md rather than
+      // behind a read obligation, so the floor tokens rise by their bytes.
+      expect.soft(totals.floorObligations).toBe(40);
+      expect.soft(totals.floorTokens).toBe(6_521);
+      expect.soft(totals.ceilingObligations).toBe(482);
+      expect.soft(totals.ceilingTokens).toBe(39_392);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -590,10 +596,10 @@ describe("report-obligation-burden.mjs", () => {
       // the four-slot description rewrite changed frontmatter bytes and no
       // requirement bullet; the same is true of tier 2's `software-development`.
       // The inference rule now adds three reference obligations in tier 1.
-      expect.soft(tiers[0].floorObligations).toBe(10);
-      expect.soft(tiers[0].floorTokens).toBe(2_159);
-      expect.soft(tiers[0].ceilingObligations).toBe(144);
-      expect.soft(tiers[0].ceilingTokens).toBe(11_608);
+      expect.soft(tiers[0].floorObligations).toBe(15);
+      expect.soft(tiers[0].floorTokens).toBe(2_484);
+      expect.soft(tiers[0].ceilingObligations).toBe(153);
+      expect.soft(tiers[0].ceilingTokens).toBe(12_657);
 
       // tier 2 — plus `software-development`. untouched by either branch
       // above; a later round added the "Who the Description Is For" section
@@ -604,10 +610,10 @@ describe("report-obligation-burden.mjs", () => {
       // moves the same tier the same way again: floor tokens rise for the
       // reworded routing bullet, floor obligations do not move, and the
       // ceiling gains the new section's six Guidelines bullets.
-      expect.soft(tiers[1].floorObligations).toBe(19);
-      expect.soft(tiers[1].floorTokens).toBe(4_117);
-      expect.soft(tiers[1].ceilingObligations).toBe(276);
-      expect.soft(tiers[1].ceilingTokens).toBe(25_015);
+      expect.soft(tiers[1].floorObligations).toBe(24);
+      expect.soft(tiers[1].floorTokens).toBe(4_442);
+      expect.soft(tiers[1].ceilingObligations).toBe(285);
+      expect.soft(tiers[1].ceilingTokens).toBe(26_064);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //
@@ -627,10 +633,10 @@ describe("report-obligation-burden.mjs", () => {
       // moves both floor and ceiling tokens, and its `subagent-delegation.md`
       // reword moves the ceiling further still — see the mandated-set
       // assertions above for the combined accounting.
-      expect.soft(tiers[2].floorObligations).toBe(35);
-      expect.soft(tiers[2].floorTokens).toBe(6_196);
-      expect.soft(tiers[2].ceilingObligations).toBe(473);
-      expect.soft(tiers[2].ceilingTokens).toBe(38_343);
+      expect.soft(tiers[2].floorObligations).toBe(40);
+      expect.soft(tiers[2].floorTokens).toBe(6_521);
+      expect.soft(tiers[2].ceilingObligations).toBe(482);
+      expect.soft(tiers[2].ceilingTokens).toBe(39_392);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -657,8 +663,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(473);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(473);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(482);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(482);
     });
 
     it("prints no tier block without --mandated", async () => {
