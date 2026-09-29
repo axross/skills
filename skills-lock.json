@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "654339d29236fc427c09dda38e68cd2ebf3b7a32d5c5b5c90e0bf0914f6155c7"
+      "computedHash": "e3ccbd13994df852c1eeffd86ea5f0fd2ce73541672ea3231a77d63dee7efc53"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0e3adf9a602c99595443040a3f3681201df4ffe439acabe99255232009adb4ef"
+      "computedHash": "5587452c593a0084466eb088528f09409590a1977598b84a9ecf40f9eb7e5901"
     },
     "next-app-development": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "f6a804ef7b7e9391df29f825428ff1966d25342ad5d920f6919101e2cfffbc78"
+      "computedHash": "7d1e2541657fc1e28eeb879e8083220ece9766e1f1950efb2fd2ca8153bd26c5"
     },
     "quality-assurance": {
       "source": "./skills",

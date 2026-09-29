@@ -26,7 +26,7 @@ Every other phase rule lives in the reference that governs it, including the pla
 
 - MUST treat read-only work as outside the change gates unless it produces a project change.
 - MUST select execution using only currently permitted capabilities and any project host guide, delegating to a subagent as the default choice for change work; parent execution is valid and weakens no gate only when delegation is unavailable or disallowed.
-- MUST distinguish plan approval, operation authorization, execution capability, and permitted tool use. Carry forward valid authorization within its original scope, but never infer a broader grant from tool availability, project policy, plan approval, or a previous operation.
+- MUST distinguish plan approval, operation authorization, execution capability, and permitted tool use. Carry forward valid authorization within its original scope, including a verified standing grant a human adopted into project guidance, which is actual authorization; but never infer a grant, or a broader one, from tool availability, project policy that records none, plan approval, or a previous operation.
 
 See [phase-progression.md](./references/phase-progression.md) for:
 
@@ -114,7 +114,7 @@ See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 
 **Guidelines:**
 
-- MUST read [run-state-and-reporting.md](./references/run-state-and-reporting.md) before persisting recoverable state, evaluating a recovered operation grant against a proposed effect, writing the ready-to-merge brief, or reporting what model and effort a spawned role ran at.
+- MUST read [run-state-and-reporting.md](./references/run-state-and-reporting.md) before persisting recoverable state, evaluating a recovered or standing operation grant against a proposed effect, writing the ready-to-merge brief, or reporting what model and effort a spawned role ran at.
 
 What follows is the rule itself, not a further reading obligation. It binds every turn this loop takes rather than some narrower situation, so it stands here under the same unconditional-scope carve-out [Phase Progression](#phase-progression) invokes, instead of behind a pointer an agent might not yet have opened. An observation and the action it justifies belong in the same turn. A turn that carries text and calls no tool is not a turn taken while the work continues — the run has not stopped, so reporting first and acting next merely splits one turn's cost across two turns instead of doing the work in the one that already had it.
 
