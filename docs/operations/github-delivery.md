@@ -192,14 +192,15 @@ policy. Delivery MUST use that invocation only when the review request is
 authorized; preparing its comment does not publish it.
 
 Finding replies follow the disposition established under Loop's
-[external addressing contract](../../skills/loop-engineering/references/independent-review.md#addressing-findings):
+[external addressing contract](../../skills/loop-engineering/references/independent-review.md#addressing-findings).
+That contract owns classification and terminality; this procedure supplies the
+reply format and destination:
 
-- Fixed: MUST identify the real fixing commit with `Resolved in <short-hash>`
+- Fixed: MUST identify the fixing commit with `Resolved in <short-hash>`
   (link the commit), normally followed by one sentence.
-- Human-dismissed: MUST link the actual authorized human decision and record its
-  rationale, explicitly stating "dismissed, not fixed" without inventing a commit.
-- Outstanding: MUST retain the remaining action or risk for deferred, undecided,
-  or partial work; a partial-fix reply does not automatically authorize closure.
+- Human-dismissed: MUST link the decision and its rationale, with the wording
+  "dismissed, not fixed".
+- Outstanding: MUST state the remaining action or risk.
 
 For a terminal disposition, MUST verify the required reply and complete granted,
 eligible corresponding thread closure through

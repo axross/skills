@@ -599,8 +599,7 @@ describe("report-obligation-burden.mjs", () => {
       // owns it; the MAY on independent decisions became a MUST and moves
       // nothing), and two in uncertainty-triage.md (the Lookups Still Running
       // bullets; the owed interview points at the stress test in prose, which
-      // moves no count). Merged onto #628 and the response-language rule, it moves
-      // the ceiling from 480 to 489 obligations; floor obligations stay at 40.
+      // moves no count).
       expect.soft(totals.floorObligations).toBe(40);
       expect.soft(totals.floorTokens).toBe(6_620);
       expect.soft(totals.ceilingObligations).toBe(498);
