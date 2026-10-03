@@ -191,18 +191,34 @@ does not. [REVIEW.md](../../REVIEW.md) owns severity and output
 policy. Delivery MUST use that invocation only when the review request is
 authorized; preparing its comment does not publish it.
 
-Finding replies MUST identify the fixing commit with `Resolved in <short-hash>`
-(link the commit), normally followed by one sentence. Resolve the corresponding
-thread after posting the reply. Keep fuller reasoning only for a fix whose hash
-alone would leave the commenter unable to tell what happened — the fix diverges
-from what the comment proposed, the finding was addressed only in part, or the
-fix landed away from the line the comment anchors to. That extra room MUST NOT
-be spent restating the finding, re-explaining why it mattered, or recounting
-verification the pull request already records. The finding thread, not an
-unrelated issue comment, is the evidence target.
+Finding replies follow the disposition established under Loop's
+[external addressing contract](../../skills/loop-engineering/references/independent-review.md#addressing-findings).
+That contract owns classification and terminality; this procedure supplies the
+reply format and destination:
+
+- Fixed: MUST identify the fixing commit with `Resolved in <short-hash>`
+  (link the commit), normally followed by one sentence.
+- Human-dismissed: MUST link the decision and its rationale, with the wording
+  "dismissed, not fixed".
+- Outstanding: MUST state the remaining action or risk.
+
+For a terminal disposition, MUST verify the required reply and complete granted,
+eligible corresponding thread closure through
+[GitHub Operation](../../skills/github-operation/references/publication-and-recovery.md#verify-review-conversation-effects-separately).
+When a route is unavailable or closure fails, MUST record the exact blocked
+effect and retain verified reply evidence as partial delivery, not completed
+GitHub delivery or a reason to duplicate the reply.
+
+Keep fuller reasoning only when the disposition evidence alone would leave the
+commenter unable to tell what happened, such as a fix diverging from the proposed
+change or landing away from the anchored line. That extra room MUST NOT be spent
+restating the finding, re-explaining why it mattered, or recounting verification
+the pull request already records. The finding thread, not an unrelated issue
+comment, is the evidence target.
 A finding the reviewer raises in its summary rather than on a diff line has no
-thread to reply on; record its fix or explicit dismissal in the current review
-state and use the next review's summary as rerun evidence.
+thread to reply on; retain its disposition and evidence in the current review
+state. Use a required fresh review's summary as rerun evidence, not as a reason
+to invent a fixing commit or request a round solely for outcome bookkeeping.
 
 The PR stays draft until Loop's
 [readiness evaluation](../../skills/loop-engineering/references/independent-review.md)

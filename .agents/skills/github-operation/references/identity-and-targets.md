@@ -24,8 +24,17 @@ Project delivery decides where plans, state, and review evidence belong. This re
 
 - MUST identify the repository, operation, and target kind before a write; resolve a bare number to issue or pull request rather than guessing from a link between them.
 - MUST send changes to an issue's own body or metadata to that issue, and changes to a pull request's body, metadata, draft status, or review to that pull request.
-- MUST identify the actual comment or review thread when editing or replying to it; an issue/PR number alone is not that object's identity.
+- MUST identify the actual comment or review thread when editing, replying to, or resolving it; an issue/PR number alone is not that object's identity.
 - MUST preserve unrelated labels when an authorized label operation replaces the whole list. GitHub's set-labels semantics replace, rather than append to, that list.
+
+### Match Closure to Current Discussion
+
+A correct thread identifier does not prove that an earlier disposition covers the thread's current discussion. Closing a thread marks its outstanding matters resolved, including substantive content added since the original finding.
+
+**Guidelines:**
+
+- MUST establish the repository, pull request, thread, and relevant finding relationship before closure, and inspect the current substantive discussion to confirm the authorized disposition covers all outstanding matters closure would mark resolved.
+- MUST reassess that coverage after reopening, new substantive content, or a changed human decision; do not automatically re-resolve or assume every original grant has expired.
 
 ## Verify Assignment Separately From Creation
 
