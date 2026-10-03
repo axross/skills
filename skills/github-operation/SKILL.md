@@ -31,6 +31,7 @@ See [channel-selection.md](./references/channel-selection.md) for:
 - qualifying an authenticated alternative when the sanctioned channel is absent or functionally limited
 - distinguishing a missing operation from a transient invocation failure
 - the consequence-based default-deny boundary for raw REST and GraphQL
+- the narrow addressed-thread resolution exception and necessary downstream-effect evidence
 
 **Guidelines:**
 
@@ -42,6 +43,7 @@ See [identity-and-targets.md](./references/identity-and-targets.md) for:
 
 - shared-operator comments versus a separate bot identity
 - issue and pull-request numbers versus the endpoint family carrying an operation
+- matching conversation closure to the actual thread and current substantive discussion
 - assignment identity and silently ignored assignees
 
 **Guidelines:**
@@ -67,6 +69,7 @@ See [publication-and-recovery.md](./references/publication-and-recovery.md) for:
 - keeping a secret, token, credential, or internal hostname out of a composed body, comment, title, review, or commit message
 - authorization for the particular write, separate from drafting or plan approval
 - read-back, partial failure, and lost-response recovery without duplicate writes
+- verifying disposition replies and conversation closure as separate effects
 - COMMENT-type reviews, API-authored pull requests, and append-only branch history
 
 **Guidelines:**
