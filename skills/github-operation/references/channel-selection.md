@@ -26,7 +26,7 @@ An authentication failure, timeout, rate limit, or 5xx is neither property. It i
 
 A raw REST or GraphQL call is not authorized merely because a high-level command is unavailable. Some harnesses normally restrict GraphQL operations while serving REST reads. Establish that functional limitation rather than relabeling any high-level error as one.
 
-The following consequences keep a raw operation denied, except for the bounded conversation-resolution condition in [Qualify Addressed-Thread Resolution](#qualify-addressed-thread-resolution):
+The following consequences keep a raw operation denied, except for the bounded addressed-thread closure effects in [Qualify Addressed-Thread Resolution](#qualify-addressed-thread-resolution):
 
 | Property                     | Examples                                                               |
 | ---------------------------- | ---------------------------------------------------------------------- |
@@ -44,15 +44,15 @@ The following consequences keep a raw operation denied, except for the bounded c
 
 ## Qualify Addressed-Thread Resolution
 
-Closing a substantively addressed review conversation can satisfy a conversation-resolution merge condition. Completing that granted condition differs from creating a review verdict, changing protection, or concealing an outstanding finding. This exception removes only that condition-based denial, not the other raw-operation boundaries.
+Closing a substantively addressed review conversation updates the intended thread's resolved state, makes that state visible under the PR's existing access controls, and can satisfy a conversation-resolution merge condition. This exception permits only those inherent closure effects, including the granted condition, not additional outward-facing or costly effects, access expansion, a review verdict, protection changes, or concealing an outstanding finding.
 
 **Guidelines:**
 
 - SHOULD prefer an eligible authenticated high-level resolution operation when one exists.
 - MAY qualify raw resolution of a specific, substantively addressed review thread when the channel-selection rules above permit the alternative, the actual host/tool permits the operation, identity and target are established, and a valid grant covers resolution and its material downstream effects.
 - MUST establish disposition through the change-loop owner's authority contract where present; otherwise require an actual human closure decision covering the outstanding matters. A sufficiently specific human instruction can supply both that decision and the operation grant; do not invent a second approval. A generic instruction to handle review does not establish an informed dismissal.
-- MUST NOT deny that resolution solely because it satisfies the granted conversation-resolution condition, or require privileged protection reads solely to prove that no such condition effect exists.
-- MUST keep every other raw-disqualifying consequence denied even when authorized. Resolution causing an irreversible automatic merge is outside this exception; assess any separately eligible high-level route independently and never infer merge authority from a resolution grant.
+- MUST NOT deny that resolution solely because it updates the intended thread's resolved state and makes it visible under existing access controls, or satisfies the granted conversation-resolution condition. Do not require privileged protection reads solely to prove that no such inherent effect exists.
+- MUST keep every other raw-disqualifying consequence, including additional outward-facing or costly downstream effects, denied even when authorized. Resolution causing an irreversible automatic merge is outside this exception; assess any separately eligible high-level route independently and never infer merge authority from a resolution grant.
 - MUST preserve the existing present-sanctioned-channel missing-operation restriction, host prohibitions, permission prompts, and route/credential boundaries. This exception covers resolving only, not reopening, review dismissal, verdict creation, protection changes, fabricated checks, or bypassing an outstanding finding.
 
 ### Assess Material Downstream Effects
