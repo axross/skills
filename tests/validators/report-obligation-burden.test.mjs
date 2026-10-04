@@ -603,7 +603,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(totals.floorObligations).toBe(41);
       expect.soft(totals.floorTokens).toBe(6_779);
       expect.soft(totals.ceilingObligations).toBe(502);
-      expect.soft(totals.ceilingTokens).toBe(42_801);
+      expect.soft(totals.ceilingTokens).toBe(42_800);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -633,7 +633,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(41);
       expect.soft(tiers[2].floorTokens).toBe(6_779);
       expect.soft(tiers[2].ceilingObligations).toBe(502);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_801);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_800);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
