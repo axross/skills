@@ -126,6 +126,7 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 
 See [reporting.md](./references/reporting.md) for:
 
+- deciding whether a report is owed, separately from requirements on its presentation
 - leading with the answer, and what belongs after it
 - choosing between a table, a list, prose, and a citation — and when not to tabulate
 - writing for the surface the reader is actually on
@@ -135,4 +136,4 @@ See [reporting.md](./references/reporting.md) for:
 
 **Guidelines:**
 
-- MUST read [reporting.md](./references/reporting.md) before writing a completion summary, before reporting the outcome of a command or check that ran, and before shaping a reply longer than a short paragraph into a table, a list, or sectioned prose.
+- MUST read [reporting.md](./references/reporting.md) before deciding whether an incoming agent or machine result requires a conversational report, before writing a completion summary, before reporting the outcome of a command or check that ran, and before shaping a reply longer than a short paragraph into a table, a list, or sectioned prose.
