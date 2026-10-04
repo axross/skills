@@ -89,6 +89,8 @@ See [pre-flight-review.md](./references/pre-flight-review.md) for:
 See [independent-review.md](./references/independent-review.md) for:
 
 - mandatory external independence, fresh review rounds, and the four-round address cap
+- external fixed, human-dismissed, and outstanding dispositions without rewriting reviewer history
+- convergence distinct from conversation closure, including substantive metadata changes
 - conflict remediation, affected verification, timeout, and ready conditions
 
 **Guidelines:**
