@@ -53,10 +53,16 @@ Select guidance from the actual session, not a directory's host name:
   reads and writes. Consult [GitHub Delivery](./docs/operations/github-delivery.md)
   before plan/state storage or publication, including its comment markers
   before reading or posting agent comments.
-- **Reviews:** load [Code Review](./skills/code-review/SKILL.md) and read
-  [REVIEW.md](./REVIEW.md) for project review requirements. The configured
-  independent reviewer and invocation live in
-  [Code Review operations](./docs/operations/code-review.md).
+
+## Code Review Rules
+
+For every review, MUST read [REVIEW.md](./REVIEW.md) for the required project
+checks and posted-report contract, and load
+[Code Review](./skills/code-review/SKILL.md) for methodology. Where their
+posted-report instructions differ, REVIEW.md governs. Consult
+[Code Review operations](./docs/operations/code-review.md) for the selected
+provider's invocation and policy-delivery qualification; routing alone does
+not establish provider consumption or compliant output.
 
 ## Skill maintenance
 

@@ -60,7 +60,7 @@ uses none of them.
   telemetry tagging, and the environment variables recommended for cutting a
   session's cost.
 - [operations/code-review.md](./operations/code-review.md) — the two external
-  review routes, which session host selects each, and their setup.
+  review routes, host selection, setup, and policy-delivery/output qualification.
 - [operations/evaluation-dispatch.md](./operations/evaluation-dispatch.md) —
   running the evaluation instrument, by hand or through its one dispatch
   workflow, against this repository's declared scenarios.

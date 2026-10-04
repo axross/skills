@@ -1,18 +1,18 @@
 # Review Instructions
 
-Review **policy** for this repository — the highest-priority, review-only
-instructions. Every reviewer entry point reads this file: a managed review
-product (e.g. Claude Code's managed Code Review) natively, and the CI
-reviewer ([`claude-review.yaml`](.github/workflows/claude-review.yaml)) via a
-system-prompt bootstrap. The Codex reviewer, which a Codex or Amp session
-requests with `@codex review`, reaches it through
-[AGENTS.md](AGENTS.md)'s review routing. This file overrides reviewer defaults
-and
-complements the review
-**methodology** in
-[Code Review](.claude/skills/code-review/SKILL.md); where
-the two differ about what a posted review reports, this file wins (see that
+This file defines the required repository review **policy**, complementing the
+**methodology** in [Code Review](.claude/skills/code-review/SKILL.md). Where the
+two differ about what a posted review reports, this file wins (see that
 skill's [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews) section).
+
+The CI reviewer ([`claude-review.yaml`](.github/workflows/claude-review.yaml))
+routes to this file via its system-prompt bootstrap.
+[AGENTS.md](AGENTS.md)'s Code Review Rules directs repository reviewers,
+including Codex, here. These entry points state the required behavior; they do
+not prove that a hosted provider loaded the file or can replace its native
+report format. [Code Review operations](docs/operations/code-review.md) owns
+qualification of policy delivery and published output. Unverified capability
+does not relax the policy below.
 
 This is a **strict** review: run every mandatory check below, verify the
 acceptance criteria the pull request body carries, and report every finding —
