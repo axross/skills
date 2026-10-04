@@ -59,9 +59,12 @@ identifies `## Code Review Rules` in `AGENTS.md` as its repository-rules hook.
 The root [`AGENTS.md`](../../AGENTS.md) uses that heading to route to
 [`REVIEW.md`](../../REVIEW.md) and the existing methodology, rather than copy
 their checks. A resolvable route is not evidence that the connector traversed
-it. The provider documents a serious-issue-focused native report, not guaranteed
-support for this repository's custom output contract. Treat that capability as
-unqualified until an authorized live review demonstrates it.
+it. The provider documents a native P0/P1-only report. That filter conflicts
+with this repository's all-findings contract, independently of custom labels
+and format. Keep the contract gate unmet unless permitted provider evidence
+demonstrates lower-priority reporting and the retained report shape. A quiet
+review alone cannot qualify a capability that could suppress required findings;
+historical P2/P3 output likewise does not establish the current filter setting.
 
 ## Qualify Codex policy delivery
 
