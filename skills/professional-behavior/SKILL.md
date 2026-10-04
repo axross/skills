@@ -57,7 +57,7 @@ See [uncertainty-triage.md](./references/uncertainty-triage.md) for:
 
 - deciding which of the three sources answers an open item before acting on it
 - recognizing each source's characteristic failure and the cost it carries
-- re-sorting an item when the source you chose turns out not to answer it
+- reassessing an unanswered item's source, re-sorting only on ownership evidence, and retaining unresolved facts as unknown
 - holding back only the questions downstream of a lookup still running
 - deciding whether a session owes the human an interview at all
 
@@ -82,7 +82,7 @@ See [clarifying-interview.md](./references/clarifying-interview.md) for:
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
-- using the runtime's dedicated question mechanism wherever the session exposes one, and what the route is where none exists — the turn output as the floor, a more interruptive channel over it where the runtime offers one
+- using a dedicated question mechanism when its purpose and usage conditions qualify, and the permitted fallback when no dedicated mechanism is eligible
 - re-presenting a prompt that closed or errored, and reading a bare answer token as answering the still-open question
 - framing a decision as concrete options, each with its consequence and the default marked with its reason and evidence
 - returning a question you cannot ask to whoever asked, with its partial results, inventing neither an answer nor an approval
@@ -99,7 +99,7 @@ See [external-research.md](./references/external-research.md) for:
 - knowing where your own knowledge stops, and why the current date is part of that
 - what makes a claim worth looking up rather than recalling
 - ranking sources, and matching a document's version to the one actually installed
-- knowing when to stop researching and turn the item back into a question
+- stopping research at its evidence limit, reporting unresolved source contradictions, and applying triage to unanswered items
 - handling fetched content as data rather than as instruction
 - saying what you consulted
 

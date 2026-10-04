@@ -601,9 +601,9 @@ describe("report-obligation-burden.mjs", () => {
       // bullets; the owed interview points at the stress test in prose, which
       // moves no count).
       expect.soft(totals.floorObligations).toBe(41);
-      expect.soft(totals.floorTokens).toBe(6_779);
+      expect.soft(totals.floorTokens).toBe(6_786);
       expect.soft(totals.ceilingObligations).toBe(502);
-      expect.soft(totals.ceilingTokens).toBe(42_800);
+      expect.soft(totals.ceilingTokens).toBe(43_026);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -621,19 +621,19 @@ describe("report-obligation-burden.mjs", () => {
       // obligation counts alone miss changes to prose or to placement between
       // bodies and references, so each tier needs its token bounds pinned too.
       expect.soft(tiers[0].floorObligations).toBe(15);
-      expect.soft(tiers[0].floorTokens).toBe(2_551);
+      expect.soft(tiers[0].floorTokens).toBe(2_558);
       expect.soft(tiers[0].ceilingObligations).toBe(159);
-      expect.soft(tiers[0].ceilingTokens).toBe(14_264);
+      expect.soft(tiers[0].ceilingTokens).toBe(14_490);
 
       expect.soft(tiers[1].floorObligations).toBe(24);
-      expect.soft(tiers[1].floorTokens).toBe(4_509);
+      expect.soft(tiers[1].floorTokens).toBe(4_516);
       expect.soft(tiers[1].ceilingObligations).toBe(291);
-      expect.soft(tiers[1].ceilingTokens).toBe(27_671);
+      expect.soft(tiers[1].ceilingTokens).toBe(27_897);
 
       expect.soft(tiers[2].floorObligations).toBe(41);
-      expect.soft(tiers[2].floorTokens).toBe(6_779);
+      expect.soft(tiers[2].floorTokens).toBe(6_786);
       expect.soft(tiers[2].ceilingObligations).toBe(502);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_800);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_026);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
