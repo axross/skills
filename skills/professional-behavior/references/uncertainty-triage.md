@@ -46,7 +46,7 @@ A first sort is a hypothesis. Re-sort when evidence shows that another source ow
 
 - MUST reassess an item's owning source after an unanswered lookup, and re-sort only when evidence shows that another source owns the answer; do not guess or search indefinitely.
 - MUST distinguish an absent decision from an unperformed, unavailable, or inconclusive factual lookup. Keep the latter unresolved under its proper source, name the missing evidence and any blocker, and ask only the separate scope or risk decision the human owns.
-- SHOULD escalate a world item that current sources answer inconsistently to the human rather than picking the more convincing source, per the stop condition in [external-research.md](./external-research.md).
+- SHOULD apply [Knowing When to Stop](./external-research.md#knowing-when-to-stop) to a world item that current sources answer inconsistently.
 - MUST NOT let a failed lookup become an assumption or an automatic human decision: the fact is answered, re-sorted on evidence, or explicitly remains unknown.
 
 ## Lookups Still Running

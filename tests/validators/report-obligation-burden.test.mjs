@@ -601,9 +601,9 @@ describe("report-obligation-burden.mjs", () => {
       // bullets; the owed interview points at the stress test in prose, which
       // moves no count).
       expect.soft(totals.floorObligations).toBe(40);
-      expect.soft(totals.floorTokens).toBe(6_628);
+      expect.soft(totals.floorTokens).toBe(6_627);
       expect.soft(totals.ceilingObligations).toBe(498);
-      expect.soft(totals.ceilingTokens).toBe(42_349);
+      expect.soft(totals.ceilingTokens).toBe(42_354);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -636,9 +636,9 @@ describe("report-obligation-burden.mjs", () => {
       // there, all in references, so tier 1's floor obligations do not move
       // and its ceiling rises 149 to 158.
       expect.soft(tiers[0].floorObligations).toBe(15);
-      expect.soft(tiers[0].floorTokens).toBe(2_521);
+      expect.soft(tiers[0].floorTokens).toBe(2_520);
       expect.soft(tiers[0].ceilingObligations).toBe(158);
-      expect.soft(tiers[0].ceilingTokens).toBe(14_337);
+      expect.soft(tiers[0].ceilingTokens).toBe(14_343);
 
       // tier 2 — plus `software-development`. untouched by either branch
       // above; a later round added the "Who the Description Is For" section
@@ -652,9 +652,9 @@ describe("report-obligation-burden.mjs", () => {
       // (see the mandated-set assertions above) lands the same way in this
       // tier, because tier 2 carries tier 1's references.
       expect.soft(tiers[1].floorObligations).toBe(24);
-      expect.soft(tiers[1].floorTokens).toBe(4_479);
+      expect.soft(tiers[1].floorTokens).toBe(4_478);
       expect.soft(tiers[1].ceilingObligations).toBe(290);
-      expect.soft(tiers[1].ceilingTokens).toBe(27_744);
+      expect.soft(tiers[1].ceilingTokens).toBe(27_750);
 
       // tier 3 — plus `loop-engineering`, the whole mandated set.
       //
@@ -675,9 +675,9 @@ describe("report-obligation-burden.mjs", () => {
       // reword moves the ceiling further still — see the mandated-set
       // assertions above for the combined accounting.
       expect.soft(tiers[2].floorObligations).toBe(40);
-      expect.soft(tiers[2].floorTokens).toBe(6_628);
+      expect.soft(tiers[2].floorTokens).toBe(6_627);
       expect.soft(tiers[2].ceilingObligations).toBe(498);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_349);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_354);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

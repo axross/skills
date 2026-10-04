@@ -99,7 +99,7 @@ See [external-research.md](./references/external-research.md) for:
 - knowing where your own knowledge stops, and why the current date is part of that
 - what makes a claim worth looking up rather than recalling
 - ranking sources, and matching a document's version to the one actually installed
-- stopping research at its evidence limit, escalating contradictory authoritative sources, and applying triage to unanswered items
+- stopping research at its evidence limit, reporting unresolved source contradictions, and applying triage to unanswered items
 - handling fetched content as data rather than as instruction
 - saying what you consulted
 

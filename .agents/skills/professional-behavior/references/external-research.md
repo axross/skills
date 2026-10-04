@@ -63,7 +63,7 @@ Research has a termination condition, and it is not exhaustion. Stop when furthe
 
 **Guidelines:**
 
-- MUST stop researching and put the item to the human when authoritative sources contradict each other, rather than picking the more convincing one.
+- MUST stop research when authoritative sources contradict and report the contradiction rather than picking the more convincing source. Apply [Re-Sorting](./uncertainty-triage.md#re-sorting) to the unresolved fact and any separate human decision.
 - MUST stop when further lookups stop changing the answer, and report what was found rather than continuing for completeness.
 - MUST follow [Re-Sorting](./uncertainty-triage.md#re-sorting) when research cannot settle an item.
 
