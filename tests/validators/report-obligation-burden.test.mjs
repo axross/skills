@@ -600,10 +600,10 @@ describe("report-obligation-burden.mjs", () => {
       // nothing), and two in uncertainty-triage.md (the Lookups Still Running
       // bullets; the owed interview points at the stress test in prose, which
       // moves no count).
-      expect.soft(totals.floorObligations).toBe(40);
-      expect.soft(totals.floorTokens).toBe(6_620);
-      expect.soft(totals.ceilingObligations).toBe(498);
-      expect.soft(totals.ceilingTokens).toBe(42_128);
+      expect.soft(totals.floorObligations).toBe(41);
+      expect.soft(totals.floorTokens).toBe(6_779);
+      expect.soft(totals.ceilingObligations).toBe(502);
+      expect.soft(totals.ceilingTokens).toBe(42_800);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -618,66 +618,22 @@ describe("report-obligation-burden.mjs", () => {
         "+ task changes something",
       ]);
 
-      // cumulative, not disjoint — each row contains the ones above it. all
-      // four figures are pinned per tier, not only the ceiling obligations,
-      // because the point of the block is to say which tier moved, by how
-      // much, and in which dimension.
-      //
-      // tier 1 — `professional-behavior`, the only genuinely unconditional
-      // member. its tokens moved without its obligation count moving, because
-      // the four-slot description rewrite changed frontmatter bytes and no
-      // requirement bullet; the same is true of tier 2's `software-development`.
-      // The inference rule now adds three reference obligations in tier 1.
-      // The inference rule adds three reference obligations in tier 1, and
-      // the response-language rule adds five to its floor (SKILL.md) and nets
-      // one fewer in `reporting.md`, so tier 1's floor obligations rise 10 to
-      // 15 and its ceiling 145 to 149.
-      // issue #627 (see the mandated-set assertions above) adds nine more
-      // there, all in references, so tier 1's floor obligations do not move
-      // and its ceiling rises 149 to 158.
+      // obligation counts alone miss changes to prose or to placement between
+      // bodies and references, so each tier needs its token bounds pinned too.
       expect.soft(tiers[0].floorObligations).toBe(15);
-      expect.soft(tiers[0].floorTokens).toBe(2_513);
-      expect.soft(tiers[0].ceilingObligations).toBe(158);
-      expect.soft(tiers[0].ceilingTokens).toBe(14_117);
+      expect.soft(tiers[0].floorTokens).toBe(2_551);
+      expect.soft(tiers[0].ceilingObligations).toBe(159);
+      expect.soft(tiers[0].ceilingTokens).toBe(14_264);
 
-      // tier 2 — plus `software-development`. untouched by either branch
-      // above; a later round added the "Who the Description Is For" section
-      // — see the mandated-set assertions above — which moves its floor
-      // tokens (the new SKILL.md routing bullet) and both its ceiling
-      // figures (six new reference obligations), but not its floor
-      // obligation count. issue #602 (see the mandated-set assertions above)
-      // moves the same tier the same way again: floor tokens rise for the
-      // reworded routing bullet, floor obligations do not move, and the
-      // ceiling gains the new section's six Guidelines bullets. issue #627
-      // (see the mandated-set assertions above) lands the same way in this
-      // tier, because tier 2 carries tier 1's references.
       expect.soft(tiers[1].floorObligations).toBe(24);
-      expect.soft(tiers[1].floorTokens).toBe(4_471);
-      expect.soft(tiers[1].ceilingObligations).toBe(290);
-      expect.soft(tiers[1].ceilingTokens).toBe(27_524);
+      expect.soft(tiers[1].floorTokens).toBe(4_509);
+      expect.soft(tiers[1].ceilingObligations).toBe(291);
+      expect.soft(tiers[1].ceilingTokens).toBe(27_671);
 
-      // tier 3 — plus `loop-engineering`, the whole mandated set.
-      //
-      // these four figures are pinned twice: tier 3 equals the mandated-set
-      // assertions above (the closing checks below prove it directly). a
-      // branch that moves one copy and not the other merges without a
-      // textual conflict and reddens `main` on arrival — move both, or
-      // neither.
-      //
-      // both branches' additions land here — see the mandated-set
-      // assertions above for the combined accounting; the floor carries only
-      // our own SKILL.md routing-bullet bytes, since `main`'s addition is
-      // reference-only. issue #614's own SKILL.md edit is the same kind of
-      // routing-bullet extension, so it lands the same way — see the
-      // mandated-set assertions above for its accounting. issue #617 lands
-      // here too, entirely within `loop-engineering`: its `SKILL.md` reword
-      // moves both floor and ceiling tokens, and its `subagent-delegation.md`
-      // reword moves the ceiling further still — see the mandated-set
-      // assertions above for the combined accounting.
-      expect.soft(tiers[2].floorObligations).toBe(40);
-      expect.soft(tiers[2].floorTokens).toBe(6_620);
-      expect.soft(tiers[2].ceilingObligations).toBe(498);
-      expect.soft(tiers[2].ceilingTokens).toBe(42_128);
+      expect.soft(tiers[2].floorObligations).toBe(41);
+      expect.soft(tiers[2].floorTokens).toBe(6_779);
+      expect.soft(tiers[2].ceilingObligations).toBe(502);
+      expect.soft(tiers[2].ceilingTokens).toBe(42_800);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -704,8 +660,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(498);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(498);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(502);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(502);
     });
 
     it("prints no tier block without --mandated", async () => {
