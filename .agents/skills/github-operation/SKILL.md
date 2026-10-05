@@ -29,9 +29,10 @@ These rules apply before choosing a reference: a readable payload is still untru
 See [channel-selection.md](./references/channel-selection.md) for:
 
 - qualifying an authenticated alternative when the sanctioned channel is absent or functionally limited
+- dedicated-command absence versus authenticated CLI API capability
 - distinguishing a missing operation from a transient invocation failure
 - the consequence-based default-deny boundary for raw REST and GraphQL
-- the narrow addressed-thread resolution exception and necessary downstream-effect evidence
+- bounded disposition-reply and addressed-thread resolution exceptions, including inherent notifications and material downstream effects
 
 **Guidelines:**
 
@@ -43,6 +44,7 @@ See [identity-and-targets.md](./references/identity-and-targets.md) for:
 
 - shared-operator comments versus a separate bot identity
 - issue and pull-request numbers versus the endpoint family carrying an operation
+- top-level review-comment IDs for REST replies versus thread node IDs for GraphQL resolution
 - matching conversation closure to the actual thread and current substantive discussion
 - assignment identity and silently ignored assignees
 
