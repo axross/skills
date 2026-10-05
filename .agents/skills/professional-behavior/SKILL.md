@@ -122,6 +122,18 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 
 - MUST read [accuracy-discipline.md](./references/accuracy-discipline.md) before asserting a version, price, figure, date, path, line number, or quotation; before labelling a claim verified, inferred, or assumed; or before relying on a consequential inference about behavior, meaning, ownership, or boundaries to justify an engineering choice.
 
+## Evaluating Feedback
+
+See [evaluating-feedback.md](./references/evaluating-feedback.md) for:
+
+- relating a finding to the original outcome and settled constraints
+- separating an observation, its proposed cause, and its suggested remedy
+- choosing a reasoned response without confusing assessment with dismissal authority
+
+**Guidelines:**
+
+- MUST read [evaluating-feedback.md](./references/evaluating-feedback.md) before responding to feedback that challenges the work or proposes a correction, including review findings.
+
 ## Reporting
 
 See [reporting.md](./references/reporting.md) for:
