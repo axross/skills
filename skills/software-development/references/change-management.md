@@ -16,7 +16,13 @@ Unrequested changes enlarge the review surface and the blast radius of a task, m
 
 A review fix is another implementation decision, not an instruction to patch the cited line. [SRE troubleshooting](https://sre.google/sre-book/effective-troubleshooting/) starts with expected and observed behavior and tests explanations; [refactoring workflows](https://martinfowler.com/articles/workflowsOfRefactoring/fallback.html) keep preparatory, behavior-preserving changes separate from behavior changes. The aim is the smallest coherent correction that satisfies the task, not the fewest edited lines or a speculative redesign.
 
-When interpreting feedback or resolving uncertain intent, consult the project's conduct practices for feedback judgment where present. Without them, separate the observation, explanation, and suggestion, check their factual premises, and return unresolved human tradeoffs rather than treating a proposed fix as a new requirement. Detailed design choices remain with the applicable maintainability and domain practices where present; their absence is not a reason to introduce speculative abstractions.
+When interpreting feedback or resolving uncertain intent, consult the project's conduct practices for feedback judgment where present. Without conduct practices for feedback judgment, use the following steps:
+
+1. Separate the observation, explanation, and suggestion.
+2. Check the factual premises of each.
+3. Return unresolved human tradeoffs rather than treating a proposed fix as a new requirement.
+
+Detailed design choices remain with the applicable maintainability and domain practices where present; their absence is not a reason to introduce speculative abstractions.
 
 **Examples:**
 
