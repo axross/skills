@@ -45,6 +45,8 @@ The approval binds the outcome; the assignment binds the execution. Parent and c
 
 Delivery defaults to a draft target linked to its tracking target. Delivery owns its template, assignment, comment routing, trigger and persistence representation; the loop owns whether the evidence permits progress.
 
+When the approved evidence destination is the delivery body itself, a fragment link to evidence embedded in that body qualifies once publication makes the linked evidence accessible. This avoids needing the target's identifier before draft creation without accepting missing evidence. Verify the published link and stored evidence before readiness.
+
 **Guidelines:**
 
 - MUST open delivery in draft by default and include the approved scope, the acceptance-criteria projection below, every skipped required check with its residual risk, and recovery information; request the project's required independent review through a permitted route.
