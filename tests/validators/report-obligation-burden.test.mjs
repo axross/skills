@@ -600,10 +600,14 @@ describe("report-obligation-burden.mjs", () => {
       // nothing), and two in uncertainty-triage.md (the Lookups Still Running
       // bullets; the owed interview points at the stress test in prose, which
       // moves no count).
+      // the ceiling includes three external-verification planning rules and
+      // three posted-review completion rules in loop references, not the floor.
+      // token bounds cover prose and routing too, not only obligation deltas;
+      // code-review is outside this mandated set.
       expect.soft(totals.floorObligations).toBe(41);
       expect.soft(totals.floorTokens).toBe(6_842);
       expect.soft(totals.ceilingObligations).toBe(508);
-      expect.soft(totals.ceilingTokens).toBe(43_847);
+      expect.soft(totals.ceilingTokens).toBe(43_966);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -633,7 +637,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(41);
       expect.soft(tiers[2].floorTokens).toBe(6_842);
       expect.soft(tiers[2].ceilingObligations).toBe(508);
-      expect.soft(tiers[2].ceilingTokens).toBe(43_847);
+      expect.soft(tiers[2].ceilingTokens).toBe(43_966);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

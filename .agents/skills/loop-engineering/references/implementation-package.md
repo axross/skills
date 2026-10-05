@@ -56,12 +56,14 @@ A writing result carries compact self-review evidence for the current loop drive
 
 ## Review Result
 
-A review result identifies the reviewed source, target revision or content identifier, actual diff and files, policy applied, evidence inspected, and every finding. A clean result is valid only when all required materials were available.
+An internal review handoff identifies the reviewed source, target revision or content identifier, actual diff and files, policy applied, evidence inspected, and every finding. A clean result is valid only when all required materials were available.
+
+For a posted independent review, [Review Completion Evidence](./independent-review.md#review-completion-evidence) owns completion instead. The loop driver records observable request/result correlation metadata; that record is not a demand for the reviewer to enumerate passed checks or assert policy consumption. Unobserved inspection details are not the same as missing required review material.
 
 **Guidelines:**
 
 - MUST give every finding a stable identifier, severity, precise citation, claim, and suggested correction.
-- MUST use the same seven result states as execution, with missing evidence producing `unavailable` or another non-complete state rather than zero findings.
+- MUST use the same seven result states as execution when classifying a review result, with missing required review material or explicitly unchecked required scope producing `unavailable` or another non-complete state rather than zero findings; assess posted independent-review completion under the reference above.
 
 ## Recovery
 
