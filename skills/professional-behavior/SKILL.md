@@ -1,6 +1,6 @@
 ---
 name: professional-behavior
-description: Handling what you do not know and testing consequential inferences before acting on them — the conduct baseline for questions and changes. Triggers on uncertain facts, scope or intent; interpretations of behavior, meaning, ownership or boundaries even when they seem settled; "are you sure", "don't guess", "what's the latest", exact version or API claims, and reporting results. Not a change-loop skill; it governs judgment within work already underway. Covers three-source triage (look up, research, ask), discriminating checks, the clarifying interview, accuracy, and reporting in the human's language.
+description: Handling what you do not know, evaluating review feedback, and testing consequential inferences before acting on them — the conduct baseline for questions and changes. Triggers on review findings or proposed corrections; uncertain facts, scope or intent; interpretations of behavior, meaning, ownership or boundaries even when they seem settled; "are you sure", "don't guess", "what's the latest", exact version or API claims, and reporting results. Not a change-loop skill; it governs judgment within work already underway. Covers three-source triage (look up, research, ask), discriminating checks, the clarifying interview, accuracy, feedback judgment, and reporting in the human's language.
 user-invocable: false
 ---
 
