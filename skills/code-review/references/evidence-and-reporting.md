@@ -84,6 +84,8 @@ Self-authored acceptance criteria carry a specific blind spot worth naming. Crit
 
 An issue the reviewer could not actually confirm can send the author chasing a non-bug when it is presented with full confidence.
 
+This uncertainty rule applies to otherwise reportable suspected defects. It does not turn an acceptance criterion excluded by the [review lenses](./review-lenses.md)' code-inspection boundary into a reduced-severity finding.
+
 **Guidelines:**
 
 - MUST mark a finding "needs verification" and lower its severity by one step when it cannot be confirmed without running code (e.g., a performance claim with no measurement).

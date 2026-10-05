@@ -16,14 +16,14 @@ The internal review (the four-tier report in evidence-and-reporting.md) is the r
 
 A posted review uses exactly two labels, so the author can sort must-fix from nice-to-have at a glance.
 
-- **Important** — must be addressed before merge: a finding that breaks behavior, corrupts persisted state, leaks data, regresses accessibility, violates a hard project rule, or leaves an acceptance criterion unmet or unverifiable from the diff.
+- **Important** — must be addressed before merge: a finding that breaks behavior, corrupts persisted state, leaks data, regresses accessibility, violates a hard project rule, or demonstrates an acceptance-criteria violation under the [review lenses](./review-lenses.md).
 - **Nit** — safe to defer: style, naming, and refactoring suggestions.
 
 **Guidelines:**
 
 - MUST label every posted finding exactly **Important** or **Nit** — no other labels appear.
 - MUST map every internal Critical or Major to Important, and every internal Minor or Nit to Nit.
-- MUST label as Important any acceptance criterion the diff leaves unmet or that cannot be confirmed from the diff.
+- MUST label as Important any reportable acceptance-criteria violation under the review lenses' Acceptance Criteria boundary.
 
 ## Mandatory Checks
 
@@ -34,8 +34,9 @@ The acceptance criteria those checks run against are the ones the pull request b
 **Guidelines:**
 
 - MUST verify the change against every project rule that matches the changed files and raise an Important finding for each violated hard rule, citing the rule.
-- MUST verify the diff against every acceptance criterion stated in the pull request body and raise an Important finding for each one unmet or unverifiable — anchored inline where it attaches to a diff line, and carried by the summary's no-line entry otherwise.
+- MUST assess every acceptance criterion stated in the pull request body under the review lenses' Acceptance Criteria boundary and raise an Important finding for each reportable violation — anchored inline where it attaches to a diff line, and carried by the summary's no-line entry otherwise.
 - MUST raise an Important finding when the body states no acceptance criteria at all, naming the omission rather than reviewing as though the change had none; a linked issue does not excuse it, and the review does not stall waiting for one.
+- MUST perform the review lenses' Refactoring Opportunities examination on changed code.
 - MUST give each finding a label, `file:line` evidence, and a concrete fix, exactly as an internal finding.
 
 ## Do Not Report
@@ -71,8 +72,10 @@ The summary is read again on every round it stays open, and, where an agent driv
 What the summary keeps, exhaustively:
 
 - The tally [Reporting Shape](#reporting-shape) requires the summary to open with.
-- Anything that could not be checked, and why.
-- A finding that attaches to no single line, and why it has none — an unmet or unverifiable acceptance criterion is the standing case, since what is missing has no line to anchor to.
+- Required review material or scope that could not be checked, and why.
+- A finding that attaches to no single line, and why it has none — an absent acceptance-criteria section is the standing case, since what is missing has no line to anchor to.
+
+Passed criteria, applied skills and successful refactoring checks need no affirmative enumeration. Findings and explicit limitations carry the review's actionable output; silence about a passed item does not prove which rules the reviewer consumed or which checks ran. A criterion outside the code-inspection boundary is not, by itself, unchecked required review scope.
 
 **Guidelines:**
 

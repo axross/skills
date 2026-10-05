@@ -13,6 +13,18 @@ The author cannot certify its own work. Independence must come from the reviewer
 - MUST request a fresh independent review after every fix batch using the project's independent-review input policy; the advisory stage's private ledger restrictions do not redefine the external review's policy.
 - MUST treat missing required review material as a non-complete review result, never as a clean verdict.
 
+## Review Completion Evidence
+
+A posted independent-review result, not a service's Completed label, establishes completion. The result must be identifiable against the reviewed material and satisfy the project's retained review contract. Unflagged items can satisfy the review gate without a positive checklist; accepting that outcome accepts the risk of unreported reviewer omissions, not proof that every rule was consumed or every check ran.
+
+Keep policy availability, observable provider input, execution completion and published output separate. An inaccessible input remains unknown. Missing affirmative assertions alone do not invalidate an otherwise completed review; an explicit limitation or a known provider-contract violation still does.
+
+**Guidelines:**
+
+- MUST correlate the posted reviewer-origin result with the request and reviewed material, including the acceptance-criteria projection.
+- MUST accept unflagged items in an identifiable completed independent review as satisfied for the review gate without requiring affirmative per-check assertions or requesting another round solely to obtain them.
+- MUST keep the review gate unresolved when no identifiable posted result exists, required material or scope is explicitly reported unchecked, or a known retained provider capability or output-contract requirement is unmet.
+
 ## Addressing Findings
 
 Address every blocking finding and unmet acceptance criterion, preserving finding identity and evidence between rounds. A finding that changes the approved plan returns the run to plan revision and fresh approval.
@@ -67,6 +79,8 @@ Waiting is host execution, not loop semantics. The semantic bound remains the aw
 ## Ready Gate
 
 A change is ready only when all required checks are green, mandatory independent review has converged, the implemented plan revision is still approved, all required evidence is present, and the delivery target is mergeable under project policy. Convergence means a valid, completed independent review whose findings are fixed or dismissed by an authorized human under project policy, with no remaining blocking findings or unmet approved criteria. It does not rewrite the original review as a zero-finding verdict.
+
+Review completion follows the evidence boundary above. Reviewer silence cannot discharge contributor verification or the publication and delivery projection of designated out-of-tree evidence under [phase-progression.md](./phase-progression.md).
 
 Recording an existing authorized disposition, its evidence locators, or verified conversation state is administrative recording, not a substantive change to the delivered material. This distinction avoids recursive review of review-outcome bookkeeping without exempting changes to decision content.
 

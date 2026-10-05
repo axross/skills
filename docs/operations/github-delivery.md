@@ -152,11 +152,13 @@ records or recreating an existing PR after interruption:
 2. Prepare the PR with the current state block, a pointer to the issue's plan
    and approved revision, and [the repository's PR template](../../.github/pull_request_template.md).
    Put `Closes #<issue-number>` in its **Related issues** section, and the
-   approved plan's diff-verifiable acceptance criteria, quoted verbatim with
-   their status and the plan revision they were copied from, in its
-   **Acceptance criteria** section. Reviewers here work from the PR alone, so a
-   criterion missing from that section is a criterion nobody checks, and a
-   projection naming a superseded revision is stale rather than approved.
+   approved plan's diff-verifiable and designated out-of-tree acceptance
+   criteria, quoted verbatim with their status and the plan revision they were
+   copied from, in its **Acceptance criteria** section. Follow
+   [Loop Engineering's projection contract](../../skills/loop-engineering/references/phase-progression.md)
+   for the external-evidence links and omitted-criterion count. Reviewers work
+   from the PR alone; contributors remain responsible for external verification.
+   A projection naming a superseded revision is stale rather than approved.
 3. Publish the PR in draft and verify its actual body, head branch/revision,
    linked issue, and draft status through the qualified route.
 4. Point the issue's state block at the verified PR. From that point, update

@@ -14,9 +14,9 @@ report format. [Code Review operations](docs/operations/code-review.md) owns
 qualification of policy delivery and published output. Unverified capability
 does not relax the policy below.
 
-This is a **strict** review: run every mandatory check below, verify the
-acceptance criteria the pull request body carries, and report every finding —
-do not wave anything through. The criteria a review is measured against are on
+This is a **strict** review: run every mandatory check below, assess the
+acceptance criteria the pull request body carries within the scope below, and
+report every finding. The criteria a review is measured against are on
 the pull request itself; no reviewer here opens the tracking issue to find them.
 
 ## Severity Vocabulary for Posted Reviews
@@ -28,7 +28,7 @@ section, replacing the internal Critical/Major/Minor/Nit triage and the
 Approve/Request-Changes verdict for posted output. In this repository a "hard
 project rule" — the skill's trigger for labeling a finding Important — is any
 MUST rule of a skill whose discovery condition (`description`) matches the
-changed files.
+changed files, subject to Code Review's acceptance-criteria finding boundary.
 
 **Guidelines:**
 
@@ -61,12 +61,13 @@ remains onto the Important/Nit labels above.
 
 ## Mandatory Checks
 
-Run all three checks below on every review and raise a finding for each
-miss — they are not skippable. The first two are this repository's specifics
+Run every check below on every review and raise findings within its scope —
+the checks are not skippable. The first two are this repository's specifics
 for the mandatory checks in
 [Code Review](.claude/skills/code-review/SKILL.md)'s
 [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
-section; the third makes the subtractive principle in
+section; the refactoring check uses its review lenses, and the subtractive pass
+makes the subtractive principle in
 [What to Flag: Review Lenses](.claude/skills/code-review/SKILL.md#what-to-flag-review-lenses)'s
 maintainability lens mandatory and unconditional here, walking this
 repository's own fixed lens list:
@@ -76,13 +77,14 @@ repository's own fixed lens list:
   discovery condition (`description`) matches the changed files. Flag any
   deviation from a skill's stated rule, citing the skill and the rule.
 - **Acceptance criteria** — the pull request body carries them, under its
-  **Acceptance criteria** section. Verify the diff against **every** criterion
-  stated there; each one unmet, or unconfirmable from the diff, is an
-  **Important** finding — anchored inline where it attaches to a diff line,
-  and carried by the summary's no-line entry otherwise. Do not resolve
-  `Closes #<n>` to find them, and do not treat a criterion's absence from the
-  body as a reason to go looking: a body stating no acceptance criteria is
-  itself an **Important** finding.
+  **Acceptance criteria** section. Apply the
+  [review lenses](.claude/skills/code-review/references/review-lenses.md)'
+  Acceptance Criteria boundary: report code-demonstrable violations as
+  **Important**, anchored inline where possible or in the summary's no-line
+  entry otherwise. Do not resolve `Closes #<n>` to find criteria; a body stating
+  no acceptance criteria remains an **Important** finding.
+- **Refactoring opportunities** — apply the review lenses' scoped examination
+  of changed code under the existing evidence and severity rules.
 - **Subtractive pass** — on every content-adding change, walk this fixed lens
   list:
   1. **Duplicated judgment** — a rule the change states that a tool-agnostic
@@ -102,8 +104,8 @@ repository's own fixed lens list:
 
 **Guidelines:**
 
-- MUST run all three mandatory checks on every review and raise a finding for
-  each miss.
+- MUST run every mandatory check above on every review and report findings
+  within its scope.
 - MUST walk all five subtractive lenses above on every review of a
   content-adding change, recording each lens's outcome in the internal
   review report; a finding under one lens discharges none of the others,
@@ -212,7 +214,11 @@ not mistaken for CI-covered:
 [Code Review](.claude/skills/code-review/SKILL.md)'s
 [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
 section owns the reporting shape — inline comments anchored to the diff, one
-summary comment opening with a tally, nothing summarized away.
+summary comment opening with a tally, findings and explicit limitations without
+affirmative enumeration of successful checks. Independent-review completion
+and readiness follow
+[Loop Engineering](skills/loop-engineering/references/independent-review.md);
+reviewer silence does not waive contributor verification or evidence obligations.
 
 **Guidelines:**
 
