@@ -157,13 +157,13 @@ function* routingBullets(body) {
 
   for (const { line, text } of extractProse(body, { preserveFenceBoundaries: true }).lines) {
     const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
-    if (FENCE_RE.test(text)) {
+    if (FENCE_RE.test(source[line - 1]) && FENCE_RE.test(text)) {
       if (listIndent === 0 || indent < listIndent) inRouting = false;
       paragraphBreak = true;
       continue;
     }
 
-    const heading = text.match(/^ {0,3}#{1,6}(?:[ \t]+(.*)|$)/);
+    const heading = /^ {0,3}#{1,6}(?:[ \t]|$)/.test(source[line - 1]) && text.match(/^ {0,3}#{1,6}(?:[ \t]+(.*)|$)/);
     if (heading && (!inRouting || listIndent === 0 || indent < listIndent)) {
       section = (heading[1] ?? "").trim();
       inRouting = false;
@@ -181,7 +181,7 @@ function* routingBullets(body) {
       paragraphBreak = true;
       continue;
     }
-    if (/^ {0,3}(?:>|\d{1,9}[.)](?:[ \t]|$))/.test(text) && (listIndent === 0 || indent < listIndent)) {
+    if (/^ {0,3}(?:>|\d{1,9}[.)](?:[ \t]|$))/.test(source[line - 1]) && (listIndent === 0 || indent < listIndent)) {
       inRouting = false;
       continue;
     }

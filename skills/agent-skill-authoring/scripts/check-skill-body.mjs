@@ -238,7 +238,7 @@ function routingBlockFailures(body, file, offset) {
         continue;
       }
     }
-    const block = text.match(/^( {0,3})(?:#{1,6}(?:[ \t]|$)|>|\d{1,9}[.)](?:[ \t]|$))/);
+    const block = source[line - 1].match(/^( {0,3})(?:#{1,6}(?:[ \t]|$)|>|\d{1,9}[.)](?:[ \t]|$))/);
     if (block && (!seenBullet || block[1].length < listIndent)) {
       inRouting = false;
       continue;

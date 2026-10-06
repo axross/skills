@@ -30,6 +30,12 @@ describe.each(["\n", "\r\n"])("routing Guidelines boundaries with %j endings", (
     ["list-contained heading", ["  ## Nested"], 1],
     ["independent paragraph", ["", " independent"], 0],
     ["list-contained paragraph", ["", "  nested"], 1],
+    ["code-leading lazy heading-like text", ["`example` ## still continuation"], 1],
+    ["code-leading lazy quote-like text", ["`example` > still continuation"], 1],
+    ["code-leading lazy ordered-item-like text", ["`example` 1. still continuation"], 1],
+    ["hash-leading lazy inline code", ["#`example` ## still continuation"], 1],
+    ["code-leading lazy fence-like text", ["`example` ```still continuation"], 1],
+    ["independent code-leading paragraph", ["", "`example` ## independent"], 0],
     ["literal unequal backticks", ["", "``x`"], 0],
     ["matched inline example", ["", "``x``"], 1],
   ])("classifies %s before the Guidelines label", async (name, separator, code) => {
