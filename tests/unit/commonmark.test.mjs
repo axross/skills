@@ -169,6 +169,45 @@ describe("commonmark.mjs", () => {
       ]);
     });
 
+    it("can preserve real fence boundaries without exposing examples or comments", () => {
+      const body = [
+        "before `code`",
+        "  ````markdown <!-- illustrative opener",
+        "```ts",
+        "<!--",
+        "```",
+        "~~~",
+        "````not-a-closer",
+        "````",
+        "<!--",
+        "~~~markdown",
+        "hidden",
+        "~~~",
+        "-->",
+        "after",
+      ].join("\r\n");
+
+      const { lines, unterminatedFenceAt } = extractProse(body, { preserveFenceBoundaries: true });
+
+      expect(lines).toEqual([
+        { line: 1, text: "before " },
+        { line: 2, text: "  ````" },
+        { line: 3, text: "" },
+        { line: 4, text: "" },
+        { line: 5, text: "" },
+        { line: 6, text: "" },
+        { line: 7, text: "" },
+        { line: 8, text: "````" },
+        { line: 9, text: "" },
+        { line: 10, text: "" },
+        { line: 11, text: "" },
+        { line: 12, text: "" },
+        { line: 13, text: "" },
+        { line: 14, text: "after" },
+      ]);
+      expect(unterminatedFenceAt).toBeNull();
+    });
+
     it("blanks an inline code span but keeps the prose around it", () => {
       expect(textOf("Write `[x](./y.md)` in prose.")).toEqual(["Write  in prose."]);
     });

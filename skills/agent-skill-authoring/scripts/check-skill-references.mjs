@@ -13,7 +13,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-import { extractProse, scanLines } from "./commonmark.mjs";
+import { extractProse, FENCE_RE, scanLines } from "./commonmark.mjs";
 import { RFC2119_RE, ROUTING_LINE_RE } from "./guidelines.mjs";
 import {
   isDir,
@@ -126,6 +126,13 @@ function documentLinks(body) {
   return links;
 }
 
+function columnWidth(prefix) {
+  return [...prefix].reduce(
+    (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
+    0,
+  );
+}
+
 /**
  * every routing bullet in a SKILL.md, with the section heading above it.
  *
@@ -152,8 +159,15 @@ function* routingBullets(body) {
   const source = body.replace(/\r/g, "").split("\n");
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
+  let listIndent = 0;
 
-  for (const { line, text } of extractProse(body).lines) {
+  for (const { line, text } of extractProse(body, { preserveFenceBoundaries: true }).lines) {
+    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
+    if (FENCE_RE.test(text)) {
+      if (listIndent === 0 || indent < listIndent) inRouting = false;
+      continue;
+    }
+
     const heading = text.match(/^#{2,}\s+(.*)$/);
     if (heading) {
       section = heading[1].trim();
@@ -162,13 +176,20 @@ function* routingBullets(body) {
     }
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
+      listIndent = 0;
       continue;
     }
     if (!inRouting) continue;
 
-    const bullet = text.match(/^\s*-\s+(.*)$/);
+    const bullet = text.match(/^(\s*-)(\s+)(.*)$/);
     if (bullet) {
-      yield { line, section, rule: source[line - 1].replace(/^\s*-\s+/, "").trim() };
+      const rule = source[line - 1].replace(/^\s*-\s+/, "").trim();
+      if (listIndent === 0 || indent < listIndent) {
+        const markerWidth = columnWidth(bullet[1]);
+        const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
+        listIndent = markerWidth + (padding > 4 || rule === "" ? 1 : padding);
+      }
+      yield { line, section, rule };
       continue;
     }
     // loose-list blanks, blanked examples and indented continuations do not end
