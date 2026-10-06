@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b34ad09c8e4d8a134aa0aa8bc14d7032eac41230563952af0fea40093a630178"
+      "computedHash": "61b39f9ba79679440e1fee00de9a01df22791658fdfa8fd808b193edbd863ad9"
     },
     "react-component-development": {
       "source": "./skills",

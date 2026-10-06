@@ -6,7 +6,7 @@ user-invocable: false
 
 # Quality Assurance
 
-Use this capability to judge whether a change has been adequately verified before merge. This is the reviewer's lens — flag missing evidence and link to the developer-facing rule rather than re-deriving it.
+Use this capability to judge whether a change has been adequately verified before merge. This is the reviewer's lens — flag missing evidence within the applicable review finding scope and link to the developer-facing rule rather than re-deriving it.
 
 The severity labels used throughout (Critical, Major, Minor) are owned by the project's review severity model; consult it for each tier's definition, fixed floors, and verdict mapping.
 
@@ -16,6 +16,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 See [verification-evidence.md](./references/verification-evidence.md) for:
 
+- Review finding scope before evidence adequacy, without waiving contributor verification
 - Commands run, exit status, and relevant output
 - The evidence-adequacy decision flow from changed surface to covered-or-flag
 - Whether a result was ever capable of coming out differently, and the fixture and harness failures that make a green or red check carry no information
@@ -25,7 +26,7 @@ See [verification-evidence.md](./references/verification-evidence.md) for:
 
 **Guidelines:**
 
-- MUST read [verification-evidence.md](./references/verification-evidence.md) before accepting `tests pass` or `tested manually` without the command or route behind it, before accepting the reason given for a skipped required check, before treating a green check as evidence for a behavior nothing else covers, and before ruling on whether a fix for a Critical or Major finding was verified a second time.
+- MUST read [verification-evidence.md](./references/verification-evidence.md) before turning missing verification into a finding, before accepting `tests pass` or `tested manually` without the command or route behind it, before accepting the reason given for a skipped required check, before treating a green check as evidence for a behavior nothing else covers, and before ruling on whether a fix for a Critical or Major finding was verified a second time.
 
 ## Lint and Format Gate
 
