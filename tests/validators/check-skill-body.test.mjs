@@ -367,14 +367,19 @@ describe("check-skill-body.mjs", () => {
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
     });
 
-    it("accepts a substantive block after an interrupting block quote", async () => {
+    it.each([
+      ["- ", ""],
+      ["- ", " "],
+      ["-   ", "   "],
+      ["-\t", "   "],
+    ])("accepts a substantive block after a quote outside the %j list item at indentation %j", async (marker, indent) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "rule-after-blockquote", {
         body: withTopic(
           `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
-          "- when topic detail is needed",
-          "> This rule stays in the body because it applies on every turn.",
+          `${marker}when topic detail is needed`,
+          `${indent}> This rule stays in the body because it applies on every turn.`,
           "",
           "**Guidelines:**",
           "",
@@ -385,20 +390,73 @@ describe("check-skill-body.mjs", () => {
       expect(checkSkill(dir)).toPassCleanly();
     });
 
-    it("rejects a routing block after a nested block quote", async () => {
+    it.each([
+      ["- ", "  "],
+      ["-  ", "   "],
+    ])("rejects a routing block after a quote nested under %j at indentation %j", async (marker, indent) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "nested-blockquote-routing", {
         body: withTopic(
           `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
-          "- when topic detail is needed",
-          "  > An example of the selection condition.",
+          `${marker}when topic detail is needed`,
+          `${indent}> An example of the selection condition.`,
           "",
           "**Guidelines:**",
         ),
       });
 
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each([
+      ["single-line", "[unused-reference]: https://example.com"],
+      ["angle destination and title", '[unused-reference]: <https://example.com/a b> "a title"'],
+      ["balanced destination", "[unused-reference]: https://example.com/a(b(c))"],
+      ["escaped label", '[escaped\\]label]: /topic "a title"'],
+      ["multiline destination", "[unused-reference]:\nhttps://example.com"],
+      ["multiline title", '[unused-reference]: /topic\n"title\ncontinued"'],
+      ["multiline label", "[unused\nreference]: /topic"],
+      ["consecutive definitions", "[first]: /one\n[second]: /two"],
+    ])("rejects a routing block after a %s link-reference definition", async (name, definition) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "invisible-definition-routing", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "",
+          definition,
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each([
+      ["missing destination", "[unused-reference]:"],
+      ["unbalanced destination", "[unused-reference]: /topic(unclosed"],
+      ["trailing prose", '[unused-reference]: /topic "title" visible explanation'],
+      ["visible text after a valid definition", '[unused-reference]: /topic\n"title" visible explanation'],
+    ])("accepts a substantive block after %s rather than hiding visible prose", async (name, paragraph) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "visible-definition-like-paragraph", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "",
+          paragraph,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
     });
 
     it("accepts a substantive block in a new section after routing", async () => {

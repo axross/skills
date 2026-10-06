@@ -161,10 +161,39 @@ function guidelineKeywordFailures(body, file, offset) {
   return failures;
 }
 
+/** the source-line span of a valid link-reference definition, or zero. */
+function linkDefinitionLineCount(source) {
+  const definition = source.match(/^ {0,3}\[((?:\\[^\n]|[^\[\]\\]){1,999})\]:[ \t]*(?:\n[ \t]*)?(<(?:\\[^\n]|[^<>\\\n])*>|(?:\\[^\s]|[^\s<>\\\x00-\x1f\x7f])+)/);
+  if (!definition || !/\S/.test(definition[1]) || /\n[ \t]*\n/.test(definition[1])) return 0;
+
+  if (!definition[2].startsWith("<")) {
+    let depth = 0;
+    for (let index = 0; index < definition[2].length; index += 1) {
+      const character = definition[2][index];
+      if (character === "\\") {
+        index += 1;
+        continue;
+      }
+      if (character === "(") depth += 1;
+      if (character === ")") depth -= 1;
+      if (depth < 0) return 0;
+    }
+    if (depth !== 0) return 0;
+  }
+
+  let length = definition[0].length;
+  const tail = source.slice(length);
+  const title = tail.match(/^(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)("(?:\\[^\n]|[^"\\])*"|'(?:\\[^\n]|[^'\\])*'|\((?:\\[^\n]|[^()\\])*\))[ \t]*(?=\n|$)/);
+  if (title && !/\n[ \t]*\n/.test(title[1])) length += title[0].length;
+  else if (!/^[ \t]*(?:\n|$)/.test(tail)) return 0;
+
+  return 1 + (source.slice(0, length).match(/\n/g) ?? []).length;
+}
+
 /**
  * reject a Guidelines label introduced by reference routing in SKILL.md.
  * prose or a heading separates a substantive block from routing; blanks,
- * list continuations, HTML comments, and fenced examples do not.
+ * list continuations, HTML comments, link definitions, and fenced examples do not.
  *
  * @param {string} body
  * @param {string} file
@@ -173,15 +202,20 @@ function guidelineKeywordFailures(body, file, offset) {
  */
 function routingBlockFailures(body, file, offset) {
   const failures = [];
+  const source = body.replace(/\r/g, "").split("\n");
+  const lines = extractProse(body).lines;
   let inRouting = false;
   let seenBullet = false;
   let paragraphBreak = false;
+  let listIndent = 0;
 
-  for (const { line, text } of extractProse(body).lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const { line, text } = lines[index];
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
       seenBullet = false;
       paragraphBreak = false;
+      listIndent = 0;
       continue;
     }
     if (!inRouting) continue;
@@ -196,12 +230,32 @@ function routingBlockFailures(body, file, offset) {
       paragraphBreak = true;
       continue;
     }
+    if ((!seenBullet || paragraphBreak) && /^ {0,3}\[/.test(text)) {
+      // keep definition URLs in the shared extractor for the link audit.
+      const count = linkDefinitionLineCount(source.slice(index).join("\n"));
+      if (count > 0) {
+        index += count - 1;
+        continue;
+      }
+    }
+    const quote = text.match(/^( {0,3})>/);
+    if (quote && (!seenBullet || quote[1].length < listIndent)) {
+      inRouting = false;
+      continue;
+    }
     if (/^\s/.test(text) || /^-\s+/.test(text)) {
-      if (/^-\s+/.test(text)) seenBullet = true;
+      const bullet = text.match(/^-[ \t]+/);
+      if (bullet) {
+        seenBullet = true;
+        listIndent = [...bullet[0]].reduce(
+          (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
+          0,
+        );
+      }
       paragraphBreak = false;
       continue;
     }
-    if (seenBullet && !paragraphBreak && !/^(?:#{1,6}\s+|>)/.test(text)) continue;
+    if (seenBullet && !paragraphBreak && !/^#{1,6}\s+/.test(text)) continue;
     inRouting = false;
   }
 
