@@ -126,6 +126,13 @@ function documentLinks(body) {
   return links;
 }
 
+function columnWidth(prefix) {
+  return [...prefix].reduce(
+    (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
+    0,
+  );
+}
+
 /**
  * every routing bullet in a SKILL.md, with the section heading above it.
  *
@@ -152,10 +159,12 @@ function* routingBullets(body) {
   const source = body.replace(/\r/g, "").split("\n");
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
+  let listIndent = 0;
 
   for (const { line, text } of extractProse(body, { preserveFenceBoundaries: true }).lines) {
+    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
     if (FENCE_RE.test(text)) {
-      if (!/^\s/.test(source[line - 1])) inRouting = false;
+      if (listIndent === 0 || indent < listIndent) inRouting = false;
       continue;
     }
 
@@ -167,12 +176,14 @@ function* routingBullets(body) {
     }
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
+      listIndent = 0;
       continue;
     }
     if (!inRouting) continue;
 
-    const bullet = text.match(/^\s*-\s+(.*)$/);
+    const bullet = text.match(/^(\s*-\s+)(.*)$/);
     if (bullet) {
+      if (listIndent === 0 || indent < listIndent) listIndent = columnWidth(bullet[1]);
       yield { line, section, rule: source[line - 1].replace(/^\s*-\s+/, "").trim() };
       continue;
     }

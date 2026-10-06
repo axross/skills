@@ -186,11 +186,15 @@ describe("check-skill-references.mjs", () => {
     it.each([
       ["top-level backtick", "```markdown", "```"],
       ["top-level tilde", "~~~markdown", "~~~"],
+      ["one-space backtick", " ```markdown", " ```"],
+      ["one-space tilde", " ~~~markdown", " ~~~"],
+      ["wider item padding", "   ```markdown", "   ```", "-   choosing the first topic"],
+      ["tab-padded item", "   ```markdown", "   ```", "- \tchoosing the first topic"],
       ["indented backtick opener", "  ```markdown", "```"],
       ["indented tilde opener", "  ~~~markdown", "~~~"],
       ["indented backtick closer", "```markdown", "  ```"],
       ["indented tilde closer", "~~~markdown", "  ~~~"],
-    ])("ends routing at a fence with a %s boundary", async (name, opener, closer) => {
+    ])("ends routing at a fence with a %s boundary", async (name, opener, closer, item = "- choosing the first topic") => {
       const root = await tempDir();
       const dir = await writeSkill(root, "top-level-fence", {
         body: [
@@ -200,7 +204,7 @@ describe("check-skill-references.mjs", () => {
           "",
           "See [topic.md](./references/topic.md) for:",
           "",
-          "- choosing the first topic",
+          item,
           "",
           opener,
           "  - MUST ignore this illustrative rule.",
@@ -262,9 +266,12 @@ describe("check-skill-references.mjs", () => {
       ["wrapped", ["  with a wrapped continuation"]],
       ["backtick", ["", "  ```markdown", "  - MUST ignore this illustrative rule.", "  ```", ""]],
       ["tilde", ["", "  ~~~markdown", "  - MUST ignore this illustrative rule.", "  ~~~", ""]],
+      ["nested list", ["  - choosing a nested topic", "", "  ```markdown", "  - MUST ignore this illustrative rule.", "  ```", ""]],
+      ["wider item padding", ["", "    ```markdown", "    - MUST ignore this illustrative rule.", "    ```", ""], "-   choosing the first topic"],
+      ["tab-indented", ["", " \t```markdown", " \t- MUST ignore this illustrative rule.", " \t```", ""], "- \tchoosing the first topic"],
       ["nested fence", ["", "  ````markdown", "```markdown", "- MUST ignore this illustrative rule.", "```", "~~~", "````not-a-closer", "  ````", ""]],
       ["commented fence", ["", "<!--", "```markdown", "- MUST ignore this illustrative rule.", "```", "-->", ""]],
-    ])("checks routing bullets after a %s example or continuation", async (name, example) => {
+    ])("checks routing bullets after a %s example or continuation", async (name, example, item = "- choosing the first topic") => {
       const root = await tempDir();
       for (const rule of ["MUST reject this actual routing rule.", "choosing the next topic"]) {
         const dir = await writeSkill(root, `${name}-${rule.startsWith("MUST") ? "normative" : "descriptive"}`, {
@@ -275,7 +282,7 @@ describe("check-skill-references.mjs", () => {
             "",
             "See [topic.md](./references/topic.md) for:",
             "",
-            "- choosing the first topic",
+            item,
             ...example,
             `- ${rule}`,
             "",
