@@ -181,9 +181,13 @@ function* routingBullets(body) {
     }
     if (!inRouting) continue;
 
-    const bullet = text.match(/^(\s*-\s+)(.*)$/);
+    const bullet = text.match(/^(\s*-)(\s+)(.*)$/);
     if (bullet) {
-      if (listIndent === 0 || indent < listIndent) listIndent = columnWidth(bullet[1]);
+      if (listIndent === 0 || indent < listIndent) {
+        const markerWidth = columnWidth(bullet[1]);
+        const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
+        listIndent = markerWidth + (padding > 4 ? 1 : padding);
+      }
       yield { line, section, rule: source[line - 1].replace(/^\s*-\s+/, "").trim() };
       continue;
     }
