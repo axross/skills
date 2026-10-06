@@ -45,6 +45,19 @@ export function isThematicBreak(line, listIndent) {
     (indent <= 3 || (listIndent > 0 && indent >= listIndent && indent <= listIndent + 3));
 }
 
+const HTML_BLOCK_RE = /^<(?:\/?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)(?=[\s/>]|$)|(?:script|pre|style|textarea)(?=[\s>]|$))/i;
+
+/** block starts at the margin or inside a list, respecting paragraph laziness. */
+export function startsBlock(line, listIndent = 0, paragraphOpen = true) {
+  const prefix = line.match(/^[ \t]*/)[0];
+  const indent = columnWidth(prefix);
+  if (indent > 3 && !(listIndent > 0 && indent >= listIndent && indent <= listIndent + 3)) return false;
+  const content = line.slice(prefix.length);
+  return /^(?:#{1,6}(?:[ \t]|$)|>|[-+*][ \t]+\S|1[.)][ \t]+\S)/.test(content) ||
+    (!paragraphOpen && /^(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)/.test(content)) ||
+    HTML_BLOCK_RE.test(content) || /^<(?:\?|![A-Z]|!\[CDATA\[)/.test(content);
+}
+
 /**
  * per CommonMark, a fence closes only on a marker of the same character, at
  * least as long as the opener, carrying no info string. that is what lets a
@@ -156,11 +169,11 @@ export function unterminatedFenceLine(body) {
  * inline code uses maximal, equal-length backtick strings. differing runs can
  * occur inside the span; unmatched strings remain literal prose.
  */
-const CODE_SPAN_RE = /(?<!`)(`+)(?!`)[^\n]*?(?<!`)\1(?!`)/g;
+const CODE_SPAN_RE = /(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g;
 
 /** blank inline examples without hiding unmatched literal backtick strings. */
 export function stripCodeSpans(text) {
-  return text.replace(CODE_SPAN_RE, "");
+  return text.replace(CODE_SPAN_RE, newlinesOf);
 }
 
 /** the width of source indentation or list-marker padding in tab-stop columns. */
@@ -251,12 +264,48 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
   const source = body.replace(/\r/g, "");
   const { lines, fenceBoundaries, unterminatedAt } = scanDocument(source);
 
-  // scanDocument omits fenced content entirely and marks each opening fence, so
-  // a line it does not yield is blanked here by absence.
   const byLine = [];
+  let paragraph = [];
+  let listIndent = 0;
+  const flush = () => {
+    const prose = stripCodeSpans(paragraph.map(({ text }) => text).join("\n")).split("\n");
+    paragraph.forEach(({ line }, index) => { byLine[line] = prose[index]; });
+    paragraph = [];
+  };
+
   for (const { line, text, fence } of lines) {
-    byLine[line] = fence ? "" : stripCodeSpans(text);
+    const previous = paragraph.at(-1);
+    const quote = text.match(/^(?: {0,3}>[ \t]?)+/)?.[0] ?? "";
+    const previousQuote = paragraph[0]?.text.match(/^(?: {0,3}>[ \t]?)+/)?.[0] ?? "";
+    const content = text.slice(quote.length);
+    const bullet = content.match(/^([ \t]*(?:[-+*]|\d{1,9}[.)]))([ \t]+|$)(.*)$/);
+    const itemIndent = columnWidth(content.match(/^[ \t]*/)[0]);
+    const newItem = bullet && listIndent > 0 && itemIndent < listIndent;
+    const boundary = startsBlock(content, listIndent, paragraph.length > 0) || newItem ||
+      (quote && quote.replace(/[^>]/g, "").length !== previousQuote.replace(/[^>]/g, "").length);
+    const heading = /^[ \t]*#{1,6}(?:[ \t]|$)/.test(content) && startsBlock(content, listIndent);
+    const thematic = isThematicBreak(content, listIndent);
+    const setext = paragraph.length > 0 && /^ {0,3}(?:=+|-+)[ \t]*$/.test(content);
+    if (fence || content.trim() === "" || (previous && line !== previous.line + 1) || boundary || thematic || setext) flush();
+    if (fence) continue;
+    if (content.trim() === "") {
+      byLine[line] = text;
+      continue;
+    }
+    if (thematic || setext) {
+      byLine[line] = text;
+      continue;
+    }
+
+    if (bullet && paragraph.length === 0) {
+      const markerWidth = columnWidth(bullet[1]);
+      const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
+      listIndent = markerWidth + (padding > 4 ? 1 : padding);
+    }
+    paragraph.push({ line, text });
+    if (heading) flush();
   }
+  flush();
   if (preserveFenceBoundaries) {
     for (const { line, text } of fenceBoundaries) byLine[line] = text;
   }

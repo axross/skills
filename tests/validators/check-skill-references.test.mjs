@@ -29,6 +29,24 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     ["under-indented heading", [" ## Independent"], 0],
     ["empty ATX heading", [" #"], 0],
     ["list-contained heading", ["  ## Nested"], 1],
+    ["paragraph after contained heading", ["  ## Nested", "independent"], 0],
+    ["paragraph after deeper contained heading", ["    ## Nested", "independent"], 0],
+    ["paragraph still contained after heading", ["  ## Nested", "  nested"], 1],
+    ["independent plus item", ["+ independent"], 0],
+    ["independent asterisk item", ["* independent"], 0],
+    ["contained plus item", ["  + nested"], 1],
+    ["contained asterisk item", ["  * nested"], 1],
+    ["independent HTML block", ["<div>", "independent", "</div>"], 0],
+    ["independent raw HTML", ["<script>", "example", "</script>"], 0],
+    ["independent processing instruction", ["<?instruction ?>"], 0],
+    ["independent declaration", ["<!DOCTYPE html>"], 0],
+    ["independent CDATA", ["<![CDATA[example]]>"], 0],
+    ["contained HTML block", ["  <div>", "  nested", "  </div>"], 1],
+    ["non-interrupting inline HTML", ["<span>continued</span>"], 1],
+    ["non-interrupting lowercase declaration", ["<!doctype html>"], 1],
+    ["multiline routing example", ["", "``", "See [topic.md](./references/topic.md) for:", "``"], 1],
+    ["code-leading plus-like continuation", ["`example` + continued"], 1],
+    ["code-leading HTML-like continuation", ["`example` <div>continued</div>"], 1],
     ["under-indented quote", [" > Independent"], 0],
     ["list-contained quote", ["  > Nested"], 1],
     ["under-indented ordered item", [" 1. Independent"], 0],
@@ -86,6 +104,23 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     const root = await tempDir();
     const dir = await writeSkill(root, "literal-link", {
       raw: ["---", "name: literal-link", "description: Exercises links.", "---", "", "# Literal Link", "", text, ""].join(eol),
+    });
+    const result = checkSkill(dir);
+    expect(result).toExitWith(code);
+    expect(result.output).toMatch(report);
+  });
+
+  it.each([
+    ["multiline code", ["before ``", "[gone](#missing)", "`` after"], 0, /^PASS {2}/m],
+    ["multiline comment example", ["before ``", "<!--", "`` after", "", "[gone](#missing)", "-->"], 1, /anchors: SKILL\.md:12 link "#missing"/],
+    ["separate paragraphs", ["before ``", "", "[gone](#missing)", "`` after"], 1, /anchors: SKILL\.md:10 link "#missing"/],
+    ["independent heading", ["before ``", "## Independent", "[gone](#missing)", "`` after"], 1, /anchors: SKILL\.md:10 link "#missing"/],
+    ["separate list items", ["- before ``", "- [gone](#missing)", "  `` after"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["fenced boundary", ["before ``", "~~~", "hidden", "~~~", "[gone](#missing)", "`` after"], 1, /anchors: SKILL\.md:12 link "#missing"/],
+  ])("uses shared inline boundaries for %s", async (name, lines, code, report) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "wrapped-link", {
+      raw: ["---", "name: wrapped-link", "description: Exercises wrapped links.", "---", "", "# Wrapped Link", "", ...lines, ""].join(eol),
     });
     const result = checkSkill(dir);
     expect(result).toExitWith(code);

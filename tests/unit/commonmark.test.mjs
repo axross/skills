@@ -212,24 +212,43 @@ describe("commonmark.mjs", () => {
       expect(textOf("Write `[x](./y.md)` in prose.")).toEqual(["Write  in prose."]);
     });
 
-    it.each(["\n", "\r\n"])("matches whole equal-length backtick runs with %j endings", (eol) => {
-      const source = ["``x`", "`x``", "``x", "``x`y``", "`x``y`", "`x``y``", "before `` `` after", "after"].join(eol);
-      expect(extractProse(source).lines).toEqual([
-        { line: 1, text: "``x`" },
-        { line: 2, text: "`x``" },
-        { line: 3, text: "``x" },
-        { line: 4, text: "" },
-        { line: 5, text: "" },
-        { line: 6, text: "`x" },
-        { line: 7, text: "before  after" },
-        { line: 8, text: "after" },
-      ]);
+    describe.each(["\n", "\r\n"])("multiline inline blocks with %j endings", (eol) => {
+      it.each([
+        ["wrapped example", ["before ``", "[fake](./missing.md) ` shorter", "`` after"], ["before ", "", " after"]],
+        ["quoted opener", ["before ``", "<!--", "`` after", "[real](./real.md)", "-->"], ["before ", "", " after", "[real](./real.md)", "-->"]],
+        ["unmatched runs", ["before ``", "[real](./real.md)", "` after"], ["before ``", "[real](./real.md)", "` after"]],
+        ["different paragraphs", ["before ``", "", "[real](./real.md)", "`` after"], ["before ``", "", "[real](./real.md)", "`` after"]],
+        ["heading boundary", ["before ``", "## Next", "[real](./real.md)", "`` after"], ["before ``", "## Next", "[real](./real.md)", "`` after"]],
+        ["heading inline boundary", ["## Heading ``", "[real](./real.md)", "`` after"], ["## Heading ``", "[real](./real.md)", "`` after"]],
+        ["list items", ["- before ``", "- [real](./real.md)", "  `` after"], ["- before ``", "- [real](./real.md)", "  `` after"]],
+        ["ordered list items", ["1. before ``", "2. [real](./real.md)", "   `` after"], ["1. before ``", "2. [real](./real.md)", "   `` after"]],
+        ["list continuation", ["- before ``", "  [fake](./missing.md)", "  `` after"], ["- before ", "", " after"]],
+        ["quote continuation", ["> before ``", "> [fake](./missing.md)", ">`` after"], ["> before ", "", " after"]],
+        ["quote paragraphs", ["> before ``", ">", "> [real](./real.md)", "> `` after"], ["> before ``", ">", "> [real](./real.md)", "> `` after"]],
+        ["quote heading", ["> before ``", "> ## Next", "> [real](./real.md)", "> `` after"], ["> before ``", "> ## Next", "> [real](./real.md)", "> `` after"]],
+        ["fence boundary", ["before ``", "~~~", "hidden", "~~~", "[real](./real.md)", "`` after"], ["before ``", "", "", "", "[real](./real.md)", "`` after"]],
+        ["HTML boundary", ["before ``", "<div>", "[real](./real.md)", "`` after"], ["before ``", "<div>", "[real](./real.md)", "`` after"]],
+        ["inline HTML continuation", ["before ``", "<span>example</span>", "`` after"], ["before ", "", " after"]],
+        ["setext boundary", ["before ``", "===", "[real](./real.md)", "`` after"], ["before ``", "===", "[real](./real.md)", "`` after"]],
+      ])("preserves prose and source lines for %s", (name, source, expected) => {
+        expect(extractProse(source.join(eol)).lines).toEqual(expected.map((text, index) => ({ line: index + 1, text })));
+      });
+    });
+
+    describe.each(["\n", "\r\n"])("whole backtick runs with %j endings", (eol) => {
+      it.each([
+        ["``x`", "``x`"], ["`x``", "`x``"], ["``x", "``x"],
+        ["``x`y``", ""], ["`x``y`", ""], ["`x``y``", "`x"],
+        ["before `` `` after", "before  after"],
+      ])("matches only equal maximal runs in %j", (source, expected) => {
+        expect(textOf([source, "", "after"].join(eol))).toEqual([expected, "", "after"]);
+      });
     });
 
     describe.each(["\n", "\r\n"])("comment boundaries with %j endings", (eol) => {
       it.each([
-        ["unequal literal runs", ["before ``<!--`", "hidden [x](./missing.md)", "--> after", "``[real](./real.md)`"], [
-          "before ``", "", " after", "``[real](./real.md)`",
+        ["unequal literal runs", ["before ``<!--`", "hidden [x](./missing.md)", "--> after", "", "``[real](./real.md)`"], [
+          "before ``", "", " after", "", "``[real](./real.md)`",
         ]],
         ["matched code containing a shorter run", ["before ``<!--`quoted``", "[real](./real.md)", "--> after"], [
           "before ", "[real](./real.md)", "--> after",

@@ -88,6 +88,22 @@ describe("check-links.mjs", () => {
       expect(result).toExitWith(code);
       expect(result.output).toMatch(report);
     });
+
+    it.each([
+      ["multiline example", ["before ``", "[fake](./missing.md)", "`` after"], 0, /links OK \(0 links/],
+      ["quoted opener", ["before ``", "<!--", "`` after", "", "[real](./missing.md)", "-->"], 1, /source\.md -> \.\/missing\.md/],
+      ["unmatched opener", ["before ``", "[real](./missing.md)", "` after"], 1, /source\.md -> \.\/missing\.md/],
+      ["paragraph boundary", ["before ``", "", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
+      ["heading boundary", ["before ``", "## Next", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
+      ["list boundary", ["- before ``", "- [real](./missing.md)", "  `` after"], 1, /source\.md -> \.\/missing\.md/],
+      ["fence boundary", ["before ``", "~~~", "hidden", "~~~", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
+    ])("checks the distinguishing link result for %s", async (name, lines, code, report) => {
+      const root = await tempDir();
+      await writeFileIn(root, "source.md", ["# Links", "", ...lines, ""].join(eol));
+      const result = checkLinks(root);
+      expect(result).toExitWith(code);
+      expect(result.output).toMatch(report);
+    });
   });
 
   // the mirror image of the three cases above: text that only looks like it

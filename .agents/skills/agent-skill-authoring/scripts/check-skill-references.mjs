@@ -13,7 +13,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-import { columnWidth, extractProse, FENCE_RE, isThematicBreak, scanLines, stripCodeSpans } from "./commonmark.mjs";
+import { columnWidth, extractProse, FENCE_RE, isThematicBreak, scanLines, startsBlock } from "./commonmark.mjs";
 import { RFC2119_RE, ROUTING_LINE_RE } from "./guidelines.mjs";
 import {
   isDir,
@@ -115,10 +115,8 @@ function headingAnchors(source) {
 function documentLinks(body) {
   const links = [];
 
-  for (const { line, text, fence } of scanLines(body)) {
-    if (fence) continue;
-    const prose = stripCodeSpans(text);
-    for (const match of prose.matchAll(/\]\(([^)\s]+)\)/g)) {
+  for (const { line, text } of extractProse(body).lines) {
+    for (const match of text.matchAll(/\]\(([^)\s]+)\)/g)) {
       if (EXTERNAL_TARGET_RE.test(match[1])) continue;
       links.push({ line, target: match[1] });
     }
@@ -163,10 +161,13 @@ function* routingBullets(body) {
       continue;
     }
 
-    const heading = /^ {0,3}#{1,6}(?:[ \t]|$)/.test(source[line - 1]) && text.match(/^ {0,3}#{1,6}(?:[ \t]+(.*)|$)/);
-    if (heading && (!inRouting || listIndent === 0 || indent < listIndent)) {
-      section = (heading[1] ?? "").trim();
-      inRouting = false;
+    const heading = startsBlock(source[line - 1], listIndent) && text.match(/^[ \t]*#{1,6}(?:[ \t]+(.*)|$)/);
+    if (heading) {
+      if (!inRouting || listIndent === 0 || indent < listIndent) {
+        section = (heading[1] ?? "").trim();
+        inRouting = false;
+      }
+      paragraphBreak = true;
       continue;
     }
     if (ROUTING_LINE_RE.test(text)) {
@@ -186,7 +187,7 @@ function* routingBullets(body) {
       paragraphBreak = true;
       continue;
     }
-    const block = /^ {0,3}(?:>|\d{1,9}[.)](?:[ \t]|$))/.test(source[line - 1]);
+    const block = startsBlock(source[line - 1], listIndent, false) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
     if (block && (listIndent === 0 || indent < listIndent)) {
       inRouting = false;
       continue;

@@ -89,15 +89,15 @@ describe("extractUrls", () => {
 
     it.each(["\n", "\r\n"])("keeps literal unequal-run citations and ignores matched code with %j endings", (eol) => {
       const source = [
-        "``[literal](https://example.com/literal)`",
-        "``[hidden](https://example.com/hidden)``",
-        "``a`[also-hidden](https://example.com/also-hidden)``",
+        "``[literal](https://example.com/literal)`", "",
+        "``[hidden](https://example.com/hidden)``", "",
+        "``a`[also-hidden](https://example.com/also-hidden)``", "",
         "``<!--`", "https://example.com/comment", "-->",
         "https://example.com/after",
       ].join(eol);
       expect(extractUrls(source)).toEqual([
         { url: "https://example.com/literal", line: 1 },
-        { url: "https://example.com/after", line: 7 },
+        { url: "https://example.com/after", line: 10 },
       ]);
     });
 
@@ -105,6 +105,18 @@ describe("extractUrls", () => {
       expect(urlsIn("<!-- parked: https://example.com/never-probed -->\nText.\n")).toEqual(
         [],
       );
+    });
+
+    it.each(["\n", "\r\n"])("keeps URL source lines after multiline examples with %j endings", (eol) => {
+      const source = [
+        "before ``", "https://example.com/example <!--", "`` after",
+        "https://example.com/real", "-->", "",
+        "before ``", "", "https://example.com/literal", "`` after",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/real", line: 4 },
+        { url: "https://example.com/literal", line: 9 },
+      ]);
     });
 
     it("ignores a URL inside a multi-line HTML comment", () => {

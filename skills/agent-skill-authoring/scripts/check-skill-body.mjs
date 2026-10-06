@@ -13,7 +13,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { columnWidth, extractProse, FENCE_RE, isThematicBreak, scanLines, unterminatedFenceLine } from "./commonmark.mjs";
+import { columnWidth, extractProse, FENCE_RE, isThematicBreak, scanLines, startsBlock, unterminatedFenceLine } from "./commonmark.mjs";
 import {
   GUIDELINES_RE,
   ROUTING_LINE_RE,
@@ -244,9 +244,15 @@ function routingBlockFailures(body, file, offset) {
       paragraphBreak = true;
       continue;
     }
-    const block = source[line - 1].match(/^( {0,3})(?:#{1,6}(?:[ \t]|$)|>|\d{1,9}[.)](?:[ \t]|$))/);
-    if (block && (!seenBullet || indent < listIndent)) {
-      inRouting = false;
+    const block = startsBlock(source[line - 1], listIndent, false) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
+    if (block) {
+      if (!seenBullet || indent < listIndent) inRouting = false;
+      if (/^[ \t]*#{1,6}(?:[ \t]|$)/.test(source[line - 1])) {
+        paragraphBreak = true;
+        continue;
+      }
+    }
+    if (!inRouting) {
       continue;
     }
     const bullet = source[line - 1].match(/^([ \t]*-)([ \t]+|$)(.*)$/);
