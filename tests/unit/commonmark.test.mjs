@@ -226,13 +226,17 @@ describe("commonmark.mjs", () => {
       ]);
     });
 
-    it.each(["\n", "\r\n"])("retains comment boundaries inside unequal literal runs with %j endings", (eol) => {
-      expect(textOf(["before ``<!--`", "hidden [x](./missing.md)", "--> after", "``[real](./real.md)`"].join(eol))).toEqual([
-        "before ``", "", " after", "``[real](./real.md)`",
-      ]);
-      expect(textOf(["before ``<!--`quoted``", "[real](./real.md)", "--> after"].join(eol))).toEqual([
-        "before ", "[real](./real.md)", "--> after",
-      ]);
+    describe.each(["\n", "\r\n"])("comment boundaries with %j endings", (eol) => {
+      it.each([
+        ["unequal literal runs", ["before ``<!--`", "hidden [x](./missing.md)", "--> after", "``[real](./real.md)`"], [
+          "before ``", "", " after", "``[real](./real.md)`",
+        ]],
+        ["matched code containing a shorter run", ["before ``<!--`quoted``", "[real](./real.md)", "--> after"], [
+          "before ", "[real](./real.md)", "--> after",
+        ]],
+      ])("preserves the expected prose around %s", (name, source, expected) => {
+        expect(textOf(source.join(eol))).toEqual(expected);
+      });
     });
 
     it("blanks an HTML comment", () => {

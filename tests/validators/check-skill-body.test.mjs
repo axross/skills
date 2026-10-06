@@ -50,7 +50,10 @@ describe.each(["\n", "\r\n"])("routing Guidelines boundaries with %j endings", (
     ["independent code-leading paragraph", ["", "`example` ## independent"], 0],
     ["literal unequal backticks", ["", "``x`"], 0],
     ["matched inline example", ["", "``x``"], 1],
-  ])("classifies %s before the Guidelines label", async (name, separator, code) => {
+  ].map(([name, separator, code]) => [name, separator, code, [
+    /^PASS {2}/m,
+    /routing-block: SKILL\.md:\d+ reference routing must not introduce/,
+  ][code]]))("classifies %s before the Guidelines label", async (name, separator, code, report) => {
     const root = await tempDir();
     const dir = await writeSkill(root, "routing-boundary", {
       raw: [
@@ -61,8 +64,8 @@ describe.each(["\n", "\r\n"])("routing Guidelines boundaries with %j endings", (
       ].join(eol),
     });
     const result = checkSkill(dir);
-    if (code === 0) expect(result).toPassCleanly();
-    else expect(result).toReportFailure(/routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    expect(result).toExitWith(code);
+    expect(result.output).toMatch(report);
   });
 });
 
@@ -456,23 +459,24 @@ describe("check-skill-body.mjs", () => {
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
     });
 
-    it.each(["\n", "\r\n"].flatMap(eol => [0, 1, 2, 3].map(indent => [eol, indent])))("distinguishes lazy continuation from a new paragraph with %j endings and %i item spaces", async (eol, indent) => {
+    it.each(["\n", "\r\n"].flatMap(eol => [0, 1, 2, 3].flatMap(indent => [
+      [eol, indent, "lazy continuation", [], 1, /routing-block: SKILL\.md:15 reference routing must not introduce/],
+      [eol, indent, "independent paragraph", [""], 0, /^PASS {2}/m],
+    ])))("classifies %j endings, %i item spaces and %s", async (eol, indent, name, separator, code, report) => {
       const root = await tempDir();
-      for (const separated of [false, true]) {
-        const dir = await writeSkill(root, "indented-lazy-routing", {
-          raw: [
-            "---", "name: indented-lazy-routing", "description: Exercises routing boundaries.", "---", "",
-            "# Routing", "", "## Scope", "",
-            `See [topic.md](./references/topic.md) ${leadIn}`, "",
-            `${" ".repeat(indent)}- condition`,
-            ...(separated ? [""] : []),
-            "continued", "", "**Guidelines:**", "", "- MUST preserve output.", "",
-          ].join(eol),
-        });
-        const result = checkSkill(dir);
-        if (separated) expect(result).toPassCleanly();
-        else expect(result).toReportFailure(/routing-block: SKILL\.md:15 reference routing must not introduce/);
-      }
+      const dir = await writeSkill(root, "indented-lazy-routing", {
+        raw: [
+          "---", "name: indented-lazy-routing", "description: Exercises routing boundaries.", "---", "",
+          "# Routing", "", "## Scope", "",
+          `See [topic.md](./references/topic.md) ${leadIn}`, "",
+          `${" ".repeat(indent)}- condition`,
+          ...separator,
+          "continued", "", "**Guidelines:**", "", "- MUST preserve output.", "",
+        ].join(eol),
+      });
+      const result = checkSkill(dir);
+      expect(result).toExitWith(code);
+      expect(result.output).toMatch(report);
     });
 
     it.each(["1. A separate procedure.", " 2) A separate procedure.", "999999999. A separate procedure.", "1."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {

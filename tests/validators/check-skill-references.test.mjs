@@ -59,7 +59,10 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     ["unmatched backticks", ["", "``x"], 0],
     ["matched inline example", ["", "``x``"], 1],
     ["different-length run inside code", ["", "``x`y``"], 1],
-  ])("classifies %s without losing the following requirement", async (name, separator, code) => {
+  ].map(([name, separator, code]) => [name, separator, code, [
+    /^PASS {2}/m,
+    /routing: section "Scope" has a routing bullet starting with an RFC-2119 keyword/,
+  ][code]]))("classifies %s without losing the following requirement", async (name, separator, code, report) => {
     const root = await tempDir();
     const dir = await writeSkill(root, "routing-boundary", {
       raw: [
@@ -71,22 +74,22 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
       references: { "topic.md": ["# Topic", "", "Detail.", ""].join(eol) },
     });
     const result = checkSkill(dir);
-    if (code === 0) expect(result).toPassCleanly();
-    else expect(result).toReportFailure(/routing: section "Scope" has a routing bullet starting with an RFC-2119 keyword/);
+    expect(result).toExitWith(code);
+    expect(result.output).toMatch(report);
   });
 
   it.each([
-    ["unequal", "``[gone](#missing)`", 1],
-    ["equal", "``[gone](#missing)``", 0],
-    ["internal single run", "``x`[gone](#missing)``", 0],
-  ])("checks literal %s backticks without checking actual code links", async (name, text, code) => {
+    ["unequal", "``[gone](#missing)`", 1, /anchors: SKILL\.md:8 link "#missing" resolves to no heading/],
+    ["equal", "``[gone](#missing)``", 0, /^PASS {2}/m],
+    ["internal single run", "``x`[gone](#missing)``", 0, /^PASS {2}/m],
+  ])("checks literal %s backticks without checking actual code links", async (name, text, code, report) => {
     const root = await tempDir();
     const dir = await writeSkill(root, "literal-link", {
       raw: ["---", "name: literal-link", "description: Exercises links.", "---", "", "# Literal Link", "", text, ""].join(eol),
     });
     const result = checkSkill(dir);
-    if (code === 0) expect(result).toPassCleanly();
-    else expect(result).toReportFailure(/anchors: SKILL\.md:8 link "#missing" resolves to no heading/);
+    expect(result).toExitWith(code);
+    expect(result.output).toMatch(report);
   });
 });
 

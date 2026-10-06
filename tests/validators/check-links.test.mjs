@@ -75,19 +75,19 @@ describe("check-links.mjs", () => {
     expect(checkLinks(root)).toPassCleanly();
   });
 
-  it.each(["\n", "\r\n"])("checks unmatched literal links but ignores equal-run code with %j endings", async (eol) => {
-    const root = await tempDir();
-    for (const [text, broken] of [
-      ["``[x](./missing.md)`", true],
-      ["`[x](./missing.md)``", true],
-      ["``[x](./missing.md)``", false],
-      ["``a`[x](./missing.md)``", false],
-    ]) {
+  describe.each(["\n", "\r\n"])("literal code links with %j endings", (eol) => {
+    it.each([
+      ["``[x](./missing.md)`", 1, /source\.md -> \.\/missing\.md/],
+      ["`[x](./missing.md)``", 1, /source\.md -> \.\/missing\.md/],
+      ["``[x](./missing.md)``", 0, /links OK/],
+      ["``a`[x](./missing.md)``", 0, /links OK/],
+    ])("reports the expected link result for %j", async (text, code, report) => {
+      const root = await tempDir();
       await writeFileIn(root, "source.md", ["# Links", "", text, ""].join(eol));
       const result = checkLinks(root);
-      if (broken) expect(result).toReportFailure(/source\.md -> \.\/missing\.md/);
-      else expect(result).toPassCleanly();
-    }
+      expect(result).toExitWith(code);
+      expect(result.output).toMatch(report);
+    });
   });
 
   // the mirror image of the three cases above: text that only looks like it
