@@ -174,10 +174,14 @@ function guidelineKeywordFailures(body, file, offset) {
 function routingBlockFailures(body, file, offset) {
   const failures = [];
   let inRouting = false;
+  let seenBullet = false;
+  let paragraphBreak = false;
 
   for (const { line, text } of extractProse(body).lines) {
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
+      seenBullet = false;
+      paragraphBreak = false;
       continue;
     }
     if (!inRouting) continue;
@@ -188,7 +192,16 @@ function routingBlockFailures(body, file, offset) {
       inRouting = false;
       continue;
     }
-    if (text.trim() === "" || /^\s/.test(text) || /^-\s+/.test(text)) continue;
+    if (text.trim() === "") {
+      paragraphBreak = true;
+      continue;
+    }
+    if (/^\s/.test(text) || /^-\s+/.test(text)) {
+      if (/^-\s+/.test(text)) seenBullet = true;
+      paragraphBreak = false;
+      continue;
+    }
+    if (seenBullet && !paragraphBreak && !/^#{1,6}\s+/.test(text)) continue;
     inRouting = false;
   }
 

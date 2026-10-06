@@ -13,7 +13,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-import { scanLines } from "./commonmark.mjs";
+import { extractProse, scanLines } from "./commonmark.mjs";
 import { RFC2119_RE, ROUTING_LINE_RE } from "./guidelines.mjs";
 import {
   isDir,
@@ -149,13 +149,12 @@ function documentLinks(body) {
  *   within `body`; `rule` is the bullet's trimmed text.
  */
 function* routingBullets(body) {
+  const source = body.split("\n");
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
   let seenBullet = false; // a routing bullet has appeared since the See line
 
-  for (const { line, text, fence } of scanLines(body)) {
-    if (fence) continue;
-
+  for (const { line, text } of extractProse(body).lines) {
     const heading = text.match(/^#{2,}\s+(.*)$/);
     if (heading) {
       section = heading[1].trim();
@@ -173,7 +172,7 @@ function* routingBullets(body) {
     const bullet = text.match(/^\s*-\s+(.*)$/);
     if (bullet) {
       seenBullet = true;
-      yield { line, section, rule: bullet[1].trim() };
+      yield { line, section, rule: source[line - 1].replace(/^\s*-\s+/, "").trim() };
       continue;
     }
     // a blank line before the first bullet is the lead-in gap; any other line,

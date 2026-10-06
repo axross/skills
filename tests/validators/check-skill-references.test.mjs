@@ -163,6 +163,26 @@ describe("check-skill-references.mjs", () => {
       expect(checkSkill(dir)).toPassCleanly();
     });
 
+    it.each(["for:", "when:", "when"])("ignores a routing example with See ... %s inside an HTML comment", async (leadIn) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "commented-routing-example", {
+        body: [
+          "# Commented Routing Example",
+          "",
+          "<!--",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- MUST not turn this hidden example into a routing failure.",
+          "-->",
+          "",
+          "Actual prose outside the comment.",
+          "",
+        ].join("\n"),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
   });
 
   describe("exit 1 — each implemented failure class", () => {

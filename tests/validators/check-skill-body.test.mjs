@@ -351,6 +351,22 @@ describe("check-skill-body.mjs", () => {
       expect(result.stdout.match(/routing-block:/g)).toHaveLength(1);
     });
 
+    it("rejects a block after an unindented lazy list continuation", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "lazy-routing-continuation", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- the first condition and",
+          "its unindented continuation",
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
     it("accepts a substantive block in a new section after routing", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "rule-after-heading", {
@@ -358,7 +374,7 @@ describe("check-skill-body.mjs", () => {
           `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- what the reference covers",
-          "",
+          "including this lazy continuation",
           "## Always Applicable",
           "",
           "This rule applies regardless of the reference selection.",
