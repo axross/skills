@@ -310,7 +310,7 @@ describe("check-skill-body.mjs", () => {
       expect(result.stdout).not.toMatch(/routing-block:/);
     });
 
-    it("accepts a substantive guidelines block separated from routing by a paragraph", async () => {
+    it.each(["This rule", "`process.exit`", "``process.exit``"])("accepts a substantive guidelines block separated from routing by a paragraph beginning with %s", async (opening) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "rule-after-paragraph", {
         body: withTopic(
@@ -318,7 +318,7 @@ describe("check-skill-body.mjs", () => {
           "",
           "- what the reference covers",
           "",
-          "This rule stays in the body because the reader needs it on every turn, not only once the reference is open.",
+          `${opening} stays in the body because the reader needs it on every turn, not only once the reference is open.`,
           "",
           "**Guidelines:**",
           "",
@@ -330,6 +330,23 @@ describe("check-skill-body.mjs", () => {
 
       expect(result).toPassCleanly();
       expect(result.stdout).not.toMatch(/routing-block:/);
+    });
+
+    it("rejects a routing block after an indented inline-code continuation", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "inline-routing-continuation", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- what the reference covers",
+          "",
+          "  `process.exit` is detail within the list item, not separating prose.",
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
     });
 
     it("does not treat an illustrative routing list inside a fenced block as real", async () => {
