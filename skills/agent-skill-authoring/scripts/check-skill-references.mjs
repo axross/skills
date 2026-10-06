@@ -13,7 +13,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-import { columnWidth, extractProse, FENCE_RE, isThematicBreak, scanLines, startsBlock } from "./commonmark.mjs";
+import { closesParagraph, columnWidth, extractProse, FENCE_RE, htmlBlockEnd, isThematicBreak, scanLines, startsBlock } from "./commonmark.mjs";
 import { RFC2119_RE, ROUTING_LINE_RE } from "./guidelines.mjs";
 import {
   isDir,
@@ -152,8 +152,14 @@ function* routingBullets(body) {
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
   let listIndent = 0;
   let paragraphBreak = false;
+  let htmlEnd = null;
 
   for (const { line, text } of extractProse(body, { preserveFenceBoundaries: true }).lines) {
+    if (htmlEnd) {
+      if (htmlEnd.test(source[line - 1])) htmlEnd = null;
+      paragraphBreak = true;
+      continue;
+    }
     const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
     if (FENCE_RE.test(source[line - 1]) && FENCE_RE.test(text)) {
       if (listIndent === 0 || indent < listIndent) inRouting = false;
@@ -187,10 +193,19 @@ function* routingBullets(body) {
       paragraphBreak = true;
       continue;
     }
-    const block = startsBlock(source[line - 1], listIndent, false) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
-    if (block && (listIndent === 0 || indent < listIndent)) {
-      inRouting = false;
-      continue;
+    const ordered = /^[ \t]*\d{1,9}[.)](?:[ \t]|$)/.test(source[line - 1]);
+    const block = startsBlock(source[line - 1], listIndent, !paragraphBreak && !ordered) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
+    if (block) {
+      if (listIndent === 0 || indent < listIndent) {
+        inRouting = false;
+        continue;
+      }
+      if (closesParagraph(source[line - 1])) {
+        htmlEnd = htmlBlockEnd(source[line - 1].trimStart());
+        if (htmlEnd?.test(source[line - 1])) htmlEnd = null;
+        paragraphBreak = true;
+        continue;
+      }
     }
     const bullet = source[line - 1].match(/^([ \t]*-)([ \t]+|$)(.*)$/);
     if (bullet) {
@@ -200,7 +215,7 @@ function* routingBullets(body) {
         const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
         listIndent = markerWidth + (padding > 4 || rule === "" ? 1 : padding);
       }
-      paragraphBreak = false;
+      paragraphBreak = rule === "";
       yield { line, section, rule };
       continue;
     }

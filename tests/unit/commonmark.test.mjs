@@ -229,6 +229,13 @@ describe("commonmark.mjs", () => {
         ["fence boundary", ["before ``", "~~~", "hidden", "~~~", "[real](./real.md)", "`` after"], ["before ``", "", "", "", "[real](./real.md)", "`` after"]],
         ["HTML boundary", ["before ``", "<div>", "[real](./real.md)", "`` after"], ["before ``", "<div>", "[real](./real.md)", "`` after"]],
         ["inline HTML continuation", ["before ``", "<span>example</span>", "`` after"], ["before ", "", " after"]],
+        ["closed raw HTML", ["<script>``</script>", "[real](./real.md) ``"], ["<script>``</script>", "[real](./real.md) ``"]],
+        ["multiline raw HTML", ["<pre>``", "raw", "</pre>", "[real](./real.md) ``"], ["<pre>``", "raw", "</pre>", "[real](./real.md) ``"]],
+        ["raw HTML closing different tag", ["<script>``", "</style>", "[real](./real.md) ``"], ["<script>``", "</style>", "[real](./real.md) ``"]],
+        ["processing instruction", ["<? `` ?>", "[real](./real.md) ``"], ["<? `` ?>", "[real](./real.md) ``"]],
+        ["declaration", ["<!DOCTYPE `` >", "[real](./real.md) ``"], ["<!DOCTYPE `` >", "[real](./real.md) ``"]],
+        ["CDATA", ["<![CDATA[ `` ]]>", "[real](./real.md) ``"], ["<![CDATA[ `` ]]>", "[real](./real.md) ``"]],
+        ["inline paragraph after HTML", ["<script>``</script>", "before ``", "[fake](./missing.md)", "`` after"], ["<script>``</script>", "before ", "", " after"]],
         ["setext boundary", ["before ``", "===", "[real](./real.md)", "`` after"], ["before ``", "===", "[real](./real.md)", "`` after"]],
       ])("preserves prose and source lines for %s", (name, source, expected) => {
         expect(extractProse(source.join(eol)).lines).toEqual(expected.map((text, index) => ({ line: index + 1, text })));

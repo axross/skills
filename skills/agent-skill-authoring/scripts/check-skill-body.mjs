@@ -13,7 +13,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { columnWidth, extractProse, FENCE_RE, isThematicBreak, scanLines, startsBlock, unterminatedFenceLine } from "./commonmark.mjs";
+import { closesParagraph, columnWidth, extractProse, FENCE_RE, htmlBlockEnd, isThematicBreak, scanLines, startsBlock, unterminatedFenceLine } from "./commonmark.mjs";
 import {
   GUIDELINES_RE,
   ROUTING_LINE_RE,
@@ -208,9 +208,15 @@ function routingBlockFailures(body, file, offset) {
   let seenBullet = false;
   let paragraphBreak = false;
   let listIndent = 0;
+  let htmlEnd = null;
 
   for (let index = 0; index < lines.length; index += 1) {
     const { line, text } = lines[index];
+    if (htmlEnd) {
+      if (htmlEnd.test(source[line - 1])) htmlEnd = null;
+      paragraphBreak = true;
+      continue;
+    }
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
       seenBullet = false;
@@ -244,10 +250,13 @@ function routingBlockFailures(body, file, offset) {
       paragraphBreak = true;
       continue;
     }
-    const block = startsBlock(source[line - 1], listIndent, false) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
+    const ordered = /^[ \t]*\d{1,9}[.)](?:[ \t]|$)/.test(source[line - 1]);
+    const block = startsBlock(source[line - 1], listIndent, !paragraphBreak && !ordered) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
     if (block) {
       if (!seenBullet || indent < listIndent) inRouting = false;
-      if (/^[ \t]*#{1,6}(?:[ \t]|$)/.test(source[line - 1])) {
+      if (closesParagraph(source[line - 1])) {
+        htmlEnd = htmlBlockEnd(source[line - 1].trimStart());
+        if (htmlEnd?.test(source[line - 1])) htmlEnd = null;
         paragraphBreak = true;
         continue;
       }
@@ -263,7 +272,7 @@ function routingBlockFailures(body, file, offset) {
         listIndent = markerWidth + (padding > 4 || bullet[3].trim() === "" ? 1 : padding);
       }
       seenBullet = true;
-      paragraphBreak = false;
+      paragraphBreak = bullet[3].trim() === "";
       continue;
     }
     if (seenBullet ? indent >= listIndent : indent > 0) {

@@ -97,6 +97,8 @@ describe("check-links.mjs", () => {
       ["heading boundary", ["before ``", "## Next", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
       ["list boundary", ["- before ``", "- [real](./missing.md)", "  `` after"], 1, /source\.md -> \.\/missing\.md/],
       ["fence boundary", ["before ``", "~~~", "hidden", "~~~", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
+      ["closed HTML boundary", ["<script>``</script>", "[real](./missing.md) ``"], 1, /source\.md -> \.\/missing\.md/],
+      ["multiline HTML boundary", ["<script>``", "</script>", "[real](./missing.md) ``"], 1, /source\.md -> \.\/missing\.md/],
     ])("checks the distinguishing link result for %s", async (name, lines, code, report) => {
       const root = await tempDir();
       await writeFileIn(root, "source.md", ["# Links", "", ...lines, ""].join(eol));

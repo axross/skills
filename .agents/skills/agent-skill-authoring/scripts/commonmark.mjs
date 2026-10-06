@@ -47,6 +47,22 @@ export function isThematicBreak(line, listIndent) {
 
 const HTML_BLOCK_RE = /^<(?:\/?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)(?=[\s/>]|$)|(?:script|pre|style|textarea)(?=[\s>]|$))/i;
 
+/** HTML-block terminators; comments retain the extractor's last-pass policy. */
+export function htmlBlockEnd(content) {
+  if (/^<(?:script|pre|style|textarea)(?=[\s>]|$)/i.test(content)) return /<\/(?:script|pre|style|textarea)>/i;
+  if (/^<\?/.test(content)) return /\?>/;
+  if (/^<!\[CDATA\[/.test(content)) return /\]\]>/;
+  if (/^<![A-Z]/.test(content)) return />/;
+  return HTML_BLOCK_RE.test(content) ? /^[ \t]*$/ : null;
+}
+
+/** block starts without a paragraph that could receive lazy continuation. */
+export function closesParagraph(line) {
+  const content = line.trimStart();
+  return /^(?:#{1,6}(?:[ \t]|$)|(?:>[ \t]*)+$|(?:[-+*]|\d{1,9}[.)])[ \t]*$)/.test(content) ||
+    htmlBlockEnd(content) !== null;
+}
+
 /** block starts at the margin or inside a list, respecting paragraph laziness. */
 export function startsBlock(line, listIndent = 0, paragraphOpen = true) {
   const prefix = line.match(/^[ \t]*/)[0];
@@ -55,7 +71,7 @@ export function startsBlock(line, listIndent = 0, paragraphOpen = true) {
   const content = line.slice(prefix.length);
   return /^(?:#{1,6}(?:[ \t]|$)|>|[-+*][ \t]+\S|1[.)][ \t]+\S)/.test(content) ||
     (!paragraphOpen && /^(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)/.test(content)) ||
-    HTML_BLOCK_RE.test(content) || /^<(?:\?|![A-Z]|!\[CDATA\[)/.test(content);
+    htmlBlockEnd(content) !== null;
 }
 
 /**
@@ -267,6 +283,7 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
   const byLine = [];
   let paragraph = [];
   let listIndent = 0;
+  let htmlEnd = null;
   const flush = () => {
     const prose = stripCodeSpans(paragraph.map(({ text }) => text).join("\n")).split("\n");
     paragraph.forEach(({ line }, index) => { byLine[line] = prose[index]; });
@@ -278,6 +295,13 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
     const quote = text.match(/^(?: {0,3}>[ \t]?)+/)?.[0] ?? "";
     const previousQuote = paragraph[0]?.text.match(/^(?: {0,3}>[ \t]?)+/)?.[0] ?? "";
     const content = text.slice(quote.length);
+    if (!htmlEnd && !fence && startsBlock(content, listIndent, paragraph.length > 0)) htmlEnd = htmlBlockEnd(content.trimStart());
+    if (htmlEnd) {
+      flush();
+      byLine[line] = text;
+      if (htmlEnd.test(content)) htmlEnd = null;
+      continue;
+    }
     const bullet = content.match(/^([ \t]*(?:[-+*]|\d{1,9}[.)]))([ \t]+|$)(.*)$/);
     const itemIndent = columnWidth(content.match(/^[ \t]*/)[0]);
     const newItem = bullet && listIndent > 0 && itemIndent < listIndent;
