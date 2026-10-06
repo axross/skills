@@ -15,15 +15,15 @@ The author cannot certify its own work. Independence must come from the reviewer
 
 ## Review Completion Evidence
 
-A posted independent-review result, not a service's Completed label, establishes completion. The result must be identifiable against the reviewed material and satisfy the project's retained review contract. Unflagged items can satisfy the review gate without a positive checklist; accepting that outcome accepts the risk of unreported reviewer omissions, not proof that every rule was consumed or every check ran.
+A posted independent-review result, not a service's Completed label, establishes completion. The result must be identifiable against the reviewed material and satisfy the project's adopted review arrangement, including any explicitly accepted native presentation and reporting scope. Unflagged items can satisfy the review gate without a positive checklist; accepting that outcome accepts the risk of unreported reviewer omissions, not proof that every rule was consumed or every check ran.
 
-Keep policy availability, observable provider input, execution completion and published output separate. An inaccessible input remains unknown. Missing affirmative assertions alone do not invalidate an otherwise completed review; an explicit limitation or a known provider-contract violation still does.
+Keep policy availability, observable provider input, execution completion and published output separate. An inaccessible input remains unknown. Missing affirmative assertions alone do not invalidate an otherwise completed review. An accepted reporting filter is not an explicit unchecked-material limitation; actual violations of the adopted completion contract still block.
 
 **Guidelines:**
 
 - MUST correlate the posted reviewer-origin result with the request and reviewed material, including the acceptance-criteria projection.
 - MUST accept unflagged items in an identifiable completed independent review as satisfied for the review gate without requiring affirmative per-check assertions or requesting another round solely to obtain them.
-- MUST keep the review gate unresolved when no identifiable posted result exists, required material or scope is explicitly reported unchecked, or a known retained provider capability or output-contract requirement is unmet.
+- MUST keep the review gate unresolved when no identifiable posted result exists, required material or scope is explicitly reported unchecked, or a known requirement of the adopted completion contract is unmet; do not reintroduce presentation or reporting-scope defaults the project explicitly replaced.
 
 ## Addressing Findings
 

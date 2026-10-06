@@ -62,7 +62,7 @@ For a posted independent review, [Review Completion Evidence](./independent-revi
 
 **Guidelines:**
 
-- MUST give every finding a stable identifier, severity, precise citation, claim, and suggested correction.
+- MUST give every internal handoff finding a stable identifier, severity, precise citation, claim, and suggested correction; preserve posted independent findings in their project's adopted form rather than imposing this handoff shape.
 - MUST use the same seven result states as execution when classifying a review result, with missing required review material or explicitly unchecked required scope producing `unavailable` or another non-complete state rather than zero findings; assess posted independent-review completion under the reference above.
 
 ## Recovery
