@@ -116,6 +116,10 @@ See [verification-strategy.md](./references/verification-strategy.md) for:
 - naming the verification gates your project's changed surface requires
 - naming the test coverage to add or update
 
+**Guidelines:**
+
+- MUST read [verification-strategy.md](./references/verification-strategy.md) before drafting or reviewing a Verification strategy section or a criterion requiring external verification.
+
 ## Plan Document Template
 
 See [template.md](./references/template.md) for:

@@ -79,7 +79,7 @@
     "product-requirement-document-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "a91f2ccfb45bebb6aa94ed7d9743b7f4d84408d46574ec102a378aba63af9657"
+      "computedHash": "b417f087751684625cc7b6712cfb5fcfd5b5dd6f179b89241b973f975ad3f42f"
     },
     "professional-behavior": {
       "source": "./skills",
@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "61b39f9ba79679440e1fee00de9a01df22791658fdfa8fd808b193edbd863ad9"
+      "computedHash": "d37ff0b59afc09e221cb58e2551dff76e80fda30ab7b745104efe4631a7ddd50"
     },
     "react-component-development": {
       "source": "./skills",

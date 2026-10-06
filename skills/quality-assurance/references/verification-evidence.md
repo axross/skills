@@ -10,7 +10,6 @@ Evidence adequacy and review finding scope are separate decisions. Code-review p
 
 - MUST, when code-review practices are available, apply their finding-scope boundaries before turning missing verification into a QA finding; consult their acceptance-criteria code-inspection boundary when the proposed finding depends only on absent external-verification confirmation or evidence.
 - MUST use this reference's evidence rules under the project's review policy when no code-review owner is available; absence of that optional owner creates no additional exclusion.
-- MUST keep missing or inadequate contributor evidence recorded as such even when it is outside review finding scope; excluding a finding does not establish verification or waive required evidence.
 
 ## Evidence-Adequacy Decision Flow
 
