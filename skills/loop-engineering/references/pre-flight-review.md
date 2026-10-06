@@ -40,6 +40,8 @@ Review the actual target revision and uncommitted diff, not an implementation re
 
 The ledger preserves findings through translation and recovery. Each finding has an ID, severity, citation, claim, suggested fix, disposition, and reason.
 
+The driver's interpretation and remedy selection follow [finding-response.md](./finding-response.md). The suggested fix remains part of the finding's record even when a justified correction uses a different remedy; the authority below still determines its disposition.
+
 **Guidelines:**
 
 - MUST preserve each finding's ID, severity, and citation without omission or regrading.

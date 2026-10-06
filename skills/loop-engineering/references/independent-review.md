@@ -17,6 +17,8 @@ The author cannot certify its own work. Independence must come from the reviewer
 
 Address every blocking finding and unmet acceptance criterion, preserving finding identity and evidence between rounds. A finding that changes the approved plan returns the run to plan revision and fresh approval.
 
+The driver's interpretation and remedy selection follow [finding-response.md](./finding-response.md). That shared author-side practice does not import advisory dismissal authority or replace the external review's input and evidence policy.
+
 **Guidelines:**
 
 - MUST preserve finding IDs, original severities and citations, reviewer result, and dispositions under the posted-review policy; distinguish them from delivery state and current readiness.

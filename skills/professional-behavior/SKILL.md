@@ -1,6 +1,6 @@
 ---
 name: professional-behavior
-description: Handling what you do not know and testing consequential inferences before acting on them — the conduct baseline for questions and changes. Triggers on uncertain facts, scope or intent; interpretations of behavior, meaning, ownership or boundaries even when they seem settled; "are you sure", "don't guess", "what's the latest", exact version or API claims, and reporting results. Not a change-loop skill; it governs judgment within work already underway. Covers three-source triage (look up, research, ask), discriminating checks, the clarifying interview, accuracy, and reporting in the human's language.
+description: Handling what you do not know, evaluating review feedback, and testing consequential inferences before acting on them — the conduct baseline for questions and changes. Triggers on review findings or proposed corrections; uncertain facts, scope or intent; interpretations of behavior, meaning, ownership or boundaries even when they seem settled; "are you sure", "don't guess", "what's the latest", exact version or API claims, and reporting results. Not a change-loop skill; it governs judgment within work already underway. Covers three-source triage (look up, research, ask), discriminating checks, the clarifying interview, accuracy, feedback judgment, and reporting in the human's language.
 user-invocable: false
 ---
 
@@ -121,6 +121,18 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 **Guidelines:**
 
 - MUST read [accuracy-discipline.md](./references/accuracy-discipline.md) before asserting a version, price, figure, date, path, line number, or quotation; before labelling a claim verified, inferred, or assumed; or before relying on a consequential inference about behavior, meaning, ownership, or boundaries to justify an engineering choice.
+
+## Evaluating Feedback
+
+See [evaluating-feedback.md](./references/evaluating-feedback.md) for:
+
+- relating a finding to the original outcome and settled constraints
+- separating an observation, its proposed cause, and its suggested remedy
+- choosing a reasoned response without confusing assessment with dismissal authority
+
+**Guidelines:**
+
+- MUST read [evaluating-feedback.md](./references/evaluating-feedback.md) before responding to feedback that challenges the work or proposes a correction, including review findings.
 
 ## Reporting
 
