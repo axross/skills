@@ -199,7 +199,7 @@ describe("check-skill-references.mjs", () => {
       );
     });
 
-    it.each(["for:", "when:", "when"])("reports a normative routing bullet after See ... %s", async (leadIn) => {
+    it.each(["for:", "when:", "when"].flatMap(leadIn => [0, 1, 2, 3].map(spaces => [leadIn, spaces])))("reports a normative routing bullet after See ... %s with %i leading spaces", async (leadIn, spaces) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "normative-routing", {
         body: [
@@ -207,7 +207,7 @@ describe("check-skill-references.mjs", () => {
           "",
           "## Some Topic",
           "",
-          `See [topic.md](./references/topic.md) ${leadIn}`,
+          `${" ".repeat(spaces)}See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- MUST never appear in a routing bullet",
           "",

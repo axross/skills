@@ -238,8 +238,8 @@ function routingBlockFailures(body, file, offset) {
         continue;
       }
     }
-    const quote = text.match(/^( {0,3})>/);
-    if (quote && (!seenBullet || quote[1].length < listIndent)) {
+    const block = text.match(/^( {0,3})(?:>|\d{1,9}[.)](?:[ \t]|$))/);
+    if (block && (!seenBullet || block[1].length < listIndent)) {
       inRouting = false;
       continue;
     }

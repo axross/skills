@@ -53,7 +53,7 @@ export const GUIDELINES_RE = /^\*\*Guidelines:\*\*\s*$/;
  * keeps the two from disagreeing about where a routing list starts, the same
  * reason `GUIDELINES_RE` above is shared rather than duplicated.
  */
-export const ROUTING_LINE_RE = /^See \[[^\]]+\.md\]\(\.\/references\/[^)]+\) (?:for:|when\b)/;
+export const ROUTING_LINE_RE = /^ {0,3}See \[[^\]]+\.md\]\(\.\/references\/[^)]+\) (?:for:|when\b)/;
 
 /**
  * walk a document's guideline structure once, yielding an event per heading and

@@ -194,6 +194,36 @@ describe("check-skill-body.mjs", () => {
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce a `\*\*Guidelines:\*\*` block/);
     });
 
+    it.each([1, 2, 3])("rejects a routing block with %i spaces before its lead-in", async (spaces) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "indented-routing", {
+        body: withTopic(
+          `${" ".repeat(spaces)}See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it("does not treat a four-space-indented code example as routing", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "indented-code-example", {
+        body: withTopic(
+          `    See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
     it.each([
       ["single-line", "<!-- reference selection note -->"],
       ["multiline", "<!--\nreference selection note\n-->"],
@@ -359,6 +389,40 @@ describe("check-skill-body.mjs", () => {
           "",
           "- the first condition and",
           "its unindented continuation",
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each(["1. A separate procedure.", " 2) A separate procedure.", "999999999. A separate procedure.", "1."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "rule-after-ordered-list", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          item,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
+    it.each(["  1. A nested selection condition.", "1000000000. A number, not a marker.", "1.Not an ordered-list marker."])("rejects a routing block after the non-interrupting continuation %j", async (continuation) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "ordered-like-routing-continuation", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          continuation,
           "",
           "**Guidelines:**",
         ),
