@@ -13,7 +13,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-import { columnWidth, extractProse, FENCE_RE, scanLines, stripCodeSpans } from "./commonmark.mjs";
+import { columnWidth, extractProse, FENCE_RE, isThematicBreak, scanLines, stripCodeSpans } from "./commonmark.mjs";
 import { RFC2119_RE, ROUTING_LINE_RE } from "./guidelines.mjs";
 import {
   isDir,
@@ -181,7 +181,13 @@ function* routingBullets(body) {
       paragraphBreak = true;
       continue;
     }
-    if (/^ {0,3}(?:>|\d{1,9}[.)](?:[ \t]|$))/.test(source[line - 1]) && (listIndent === 0 || indent < listIndent)) {
+    if (isThematicBreak(source[line - 1], listIndent)) {
+      if (listIndent === 0 || indent < listIndent) inRouting = false;
+      paragraphBreak = true;
+      continue;
+    }
+    const block = /^ {0,3}(?:>|\d{1,9}[.)](?:[ \t]|$))/.test(source[line - 1]);
+    if (block && (listIndent === 0 || indent < listIndent)) {
       inRouting = false;
       continue;
     }

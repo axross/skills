@@ -38,6 +38,13 @@
  */
 export const FENCE_RE = /^[ \t]*(`{3,}|~{3,})(.*)$/;
 
+/** thematic-break syntax at the document margin or within the current list. */
+export function isThematicBreak(line, listIndent) {
+  const indent = columnWidth(line.match(/^[ \t]*/)[0]);
+  return /^[ \t]*(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$/.test(line) &&
+    (indent <= 3 || (listIndent > 0 && indent >= listIndent && indent <= listIndent + 3));
+}
+
 /**
  * per CommonMark, a fence closes only on a marker of the same character, at
  * least as long as the opener, carrying no info string. that is what lets a
