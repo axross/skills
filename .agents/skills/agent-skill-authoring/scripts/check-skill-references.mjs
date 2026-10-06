@@ -183,12 +183,13 @@ function* routingBullets(body) {
 
     const bullet = text.match(/^(\s*-)(\s+)(.*)$/);
     if (bullet) {
+      const rule = source[line - 1].replace(/^\s*-\s+/, "").trim();
       if (listIndent === 0 || indent < listIndent) {
         const markerWidth = columnWidth(bullet[1]);
         const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
-        listIndent = markerWidth + (padding > 4 ? 1 : padding);
+        listIndent = markerWidth + (padding > 4 || rule === "" ? 1 : padding);
       }
-      yield { line, section, rule: source[line - 1].replace(/^\s*-\s+/, "").trim() };
+      yield { line, section, rule };
       continue;
     }
     // loose-list blanks, blanked examples and indented continuations do not end
