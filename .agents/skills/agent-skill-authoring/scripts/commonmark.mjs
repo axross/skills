@@ -70,6 +70,7 @@ export function closesFence(marker, char, length) {
  * @param {string} body
  * @returns {{
  *   lines: Array<{ line: number, text: string, fence: boolean }>,
+ *   fenceBoundaries: Array<{ line: number, text: string }>,
  *   unterminatedAt: number | null,
  * }} `lines` holds every line outside a fence plus each fence's opening line
  *   marked `fence: true`; `unterminatedAt` is the 1-based line of a fence still
@@ -80,13 +81,18 @@ function scanDocument(body) {
   let fenceLength = 0; // and its length — a closer must be at least this long
   let fenceOpenedAt = 0;
   const lines = [];
+  const fenceBoundaries = [];
   const source = body.split("\n");
 
   for (let index = 0; index < source.length; index += 1) {
     const text = source[index];
     const marker = text.match(FENCE_RE);
+    const boundary = marker ? { line: index + 1, text: text.slice(0, text.length - marker[2].length) } : null;
     if (fenceChar !== null) {
-      if (closesFence(marker, fenceChar, fenceLength)) fenceChar = null;
+      if (closesFence(marker, fenceChar, fenceLength)) {
+        fenceChar = null;
+        fenceBoundaries.push(boundary);
+      }
       continue;
     }
     if (marker) {
@@ -94,12 +100,13 @@ function scanDocument(body) {
       fenceLength = marker[1].length;
       fenceOpenedAt = index + 1;
       lines.push({ line: index + 1, text, fence: true });
+      fenceBoundaries.push(boundary);
       continue;
     }
     lines.push({ line: index + 1, text, fence: false });
   }
 
-  return { lines, unterminatedAt: fenceChar === null ? null : fenceOpenedAt };
+  return { lines, fenceBoundaries, unterminatedAt: fenceChar === null ? null : fenceOpenedAt };
 }
 
 /**
@@ -210,6 +217,9 @@ function stripHtmlComments(content) {
  *
  * @param {string} body raw file content; `\r` is normalised away here so no
  *   caller has to remember to
+ * @param {{ preserveFenceBoundaries?: boolean }} [options] keep actual opening
+ *   and closing markers with their indentation for block-boundary checks; info
+ *   strings, fenced content and HTML comments remain blanked.
  * @returns {{
  *   lines: Array<{ line: number, text: string }>,
  *   unterminatedFenceAt: number | null,
@@ -218,15 +228,18 @@ function stripHtmlComments(content) {
  *   file, or null. both come from a single walk, so a caller can never observe
  *   the two disagreeing.
  */
-export function extractProse(body) {
+export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
   const source = body.replace(/\r/g, "");
-  const { lines, unterminatedAt } = scanDocument(source);
+  const { lines, fenceBoundaries, unterminatedAt } = scanDocument(source);
 
   // scanDocument omits fenced content entirely and marks each opening fence, so
   // a line it does not yield is blanked here by absence.
   const byLine = [];
   for (const { line, text, fence } of lines) {
     byLine[line] = fence ? "" : text.replace(CODE_SPAN_RE, "");
+  }
+  if (preserveFenceBoundaries) {
+    for (const { line, text } of fenceBoundaries) byLine[line] = text;
   }
 
   const lineCount = source.split("\n").length;

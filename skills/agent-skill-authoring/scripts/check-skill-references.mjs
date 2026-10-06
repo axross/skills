@@ -13,7 +13,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-import { extractProse, scanLines } from "./commonmark.mjs";
+import { extractProse, FENCE_RE, scanLines } from "./commonmark.mjs";
 import { RFC2119_RE, ROUTING_LINE_RE } from "./guidelines.mjs";
 import {
   isDir,
@@ -153,7 +153,12 @@ function* routingBullets(body) {
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
 
-  for (const { line, text } of extractProse(body).lines) {
+  for (const { line, text } of extractProse(body, { preserveFenceBoundaries: true }).lines) {
+    if (FENCE_RE.test(text)) {
+      if (!/^\s/.test(source[line - 1])) inRouting = false;
+      continue;
+    }
+
     const heading = text.match(/^#{2,}\s+(.*)$/);
     if (heading) {
       section = heading[1].trim();

@@ -183,6 +183,42 @@ describe("check-skill-references.mjs", () => {
       expect(checkSkill(dir)).toPassCleanly();
     });
 
+    it.each([
+      ["top-level backtick", "```markdown", "```"],
+      ["top-level tilde", "~~~markdown", "~~~"],
+      ["indented backtick opener", "  ```markdown", "```"],
+      ["indented tilde opener", "  ~~~markdown", "~~~"],
+      ["indented backtick closer", "```markdown", "  ```"],
+      ["indented tilde closer", "~~~markdown", "  ~~~"],
+    ])("ends routing at a fence with a %s boundary", async (name, opener, closer) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "top-level-fence", {
+        body: [
+          "# Routing Boundary",
+          "",
+          "## Some Topic",
+          "",
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- choosing the first topic",
+          "",
+          opener,
+          "  - MUST ignore this illustrative rule.",
+          closer,
+          "",
+          "- MUST preserve this independent substantive rule.",
+          "- choosing the options",
+          "",
+        ].join("\n"),
+        references: { "topic.md": "# Topic\n\nDetail.\n" },
+      });
+
+      const result = checkSkill(dir);
+
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/routing:/);
+    });
+
   });
 
   describe("exit 1 — each implemented failure class", () => {
@@ -226,6 +262,8 @@ describe("check-skill-references.mjs", () => {
       ["wrapped", ["  with a wrapped continuation"]],
       ["backtick", ["", "  ```markdown", "  - MUST ignore this illustrative rule.", "  ```", ""]],
       ["tilde", ["", "  ~~~markdown", "  - MUST ignore this illustrative rule.", "  ~~~", ""]],
+      ["nested fence", ["", "  ````markdown", "```markdown", "- MUST ignore this illustrative rule.", "```", "~~~", "````not-a-closer", "  ````", ""]],
+      ["commented fence", ["", "<!--", "```markdown", "- MUST ignore this illustrative rule.", "```", "-->", ""]],
     ])("checks routing bullets after a %s example or continuation", async (name, example) => {
       const root = await tempDir();
       for (const rule of ["MUST reject this actual routing rule.", "choosing the next topic"]) {
