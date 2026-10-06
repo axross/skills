@@ -31,24 +31,16 @@ See [style-composition.md](./references/style-composition.md) for:
 - pairing one style module per component, and sharing a component instead of sharing a stylesheet
 - sizing a child from its parent, and the "appearance here, size there" split
 
-**Guidelines:**
-
-- MUST read [style-composition.md](./references/style-composition.md) before adding a `className` or `style` prop to a component, before overriding a child's styles from its consumer, and before setting a property on a component's own root element.
-
 ## Design Tokens and Theming
 
 See [theming.md](./references/theming.md) for:
 
-- the token families a project declares, and the shape of each
+- adding or renaming a token, the token families a project declares, and the shape of each
 - composite named text roles, and why family, size, leading, and weight travel together
 - px-keyed spacing steps, the named radius and border-width tiers, and the hairline step
 - duration and role-named easing tokens
-- snapping a value to the nearest step, and the closed list of literals that stay legal
+- writing a literal colour, spacing, radius, border-width, type, duration, or easing value, snapping it to the nearest step, and the closed list of literals that stay legal
 - reading a token outside a stylesheet — icon colour and size, navigator options, animated values
-
-**Guidelines:**
-
-- MUST read [theming.md](./references/theming.md) before writing a literal value for colour, spacing, radius, border width, type, duration, or easing, before adding or renaming a token, and before reading a token outside a stylesheet.
 
 ## Colour and Gamut
 
@@ -60,10 +52,6 @@ See [color-and-gamut.md](./references/color-and-gamut.md) for:
 - preferring a wide-gamut colour format, deciding whether it needs an sRGB fallback from the project's support matrix rather than from the format, and which of `@supports` and `@media (color-gamut:)` answers which question
 - the colour-space reality on mobile native, and what it means for parity with web
 
-**Guidelines:**
-
-- MUST read [color-and-gamut.md](./references/color-and-gamut.md) before picking a ramp step or semantic colour role, before adding a per-scheme override, and before authoring a colour outside the sRGB gamut.
-
 ## Fluid and Responsive Sizing
 
 See [fluid-and-responsive.md](./references/fluid-and-responsive.md) for:
@@ -73,10 +61,6 @@ See [fluid-and-responsive.md](./references/fluid-and-responsive.md) for:
 - tiering a surface against its own container rather than the viewport, and propagating the tier to descendants
 - declaring breakpoints, and what belongs at a breakpoint versus in proportional sizing
 - measuring a parent on mobile native and feeding the measurement into a style
-
-**Guidelines:**
-
-- MUST read [fluid-and-responsive.md](./references/fluid-and-responsive.md) before writing a `clamp()` or a viewport- or container-relative unit, before declaring a breakpoint or tiering a surface against its container, and before feeding a measured parent size into a style on mobile native.
 
 ## Adaptive Styling
 
@@ -88,79 +72,56 @@ See [adaptive-styling.md](./references/adaptive-styling.md) for:
 - sizing an interactive target from the pointer type, on both axes, and expanding a hit area without moving the visual
 - print styles, and writing direction-agnostic styles for right-to-left layouts
 
-**Guidelines:**
-
-- MUST read [adaptive-styling.md](./references/adaptive-styling.md) before adding a media query, a `:hover` or pointer-conditional rule, a reduced-motion branch, a print style, or a directional property that a right-to-left layout would mirror, and before sizing an interactive target or expanding its hit area.
-
 ## Feature Support and Fallbacks
 
 See [feature-support.md](./references/feature-support.md) for:
 
+- authoring, keeping, or removing a fallback for a web platform feature
 - deciding a guard from the feature's interoperability across the project's own browser support matrix, rather than from its format or its age
 - the reachability test that separates a live fallback from dead code, and the outward direction it runs in
 - a block-gating feature such as `@scope` as a one-time adoption decision rather than a per-use guard
 - `@supports` for what the browser understands against `@media` for what the environment has
 - interoperability and consequence as the two axes a guard answers separately
 
-**Guidelines:**
-
-- MUST read [feature-support.md](./references/feature-support.md) before authoring, keeping, or removing a fallback for a web platform feature, and before adopting one that gates its own block.
-
 ## Style Property Order
 
 See [style-property-order.md](./references/style-property-order.md) for:
 
-- the property group order inside a single style block
+- writing or reviewing the property group order inside a single style block
 - where custom properties, nested at-rules, and pseudo-selector blocks sit
-- the order of composed styles — base, variant, state, animated, consumer
-
-**Guidelines:**
-
-- MUST read [style-property-order.md](./references/style-property-order.md) before writing or reviewing the order of declarations inside a style block, or the order of styles composed into one element.
+- writing or reviewing the order of composed styles — base, variant, state, animated, consumer
 
 ## Global Styles
 
 See [global-styles.md](./references/global-styles.md) for:
 
-- what belongs in global styles and what does not
+- adding a rule to a global stylesheet, and what belongs in global styles versus a component
 - weakening global styles so a component can override them without a specificity fight
-- cascade-layer order on web
-- the colour-scheme declaration, scrollbar, and selection styling
+- declaring or reordering cascade layers on web
+- setting the colour-scheme declaration, scrollbar, and selection styling
 - the mobile-native equivalents of a global stylesheet
-
-**Guidelines:**
-
-- MUST read [global-styles.md](./references/global-styles.md) before adding a rule to a global stylesheet, before declaring or reordering a cascade layer, and before setting the colour-scheme, scrollbar, or selection styling.
 
 ## CSS Modules (web)
 
 See [css-modules.md](./references/css-modules.md) for:
 
-- the module skeleton — cascade layer, scope, and the zero-specificity scope root
+- creating a `.module.css` file with the module skeleton — cascade layer, scope, and the zero-specificity scope root
 - keyframes placement and animation naming
 - propagating style context to descendants through custom properties
 - size-based styling with container queries and container-relative units
 - styling a third-party component through its state attributes, and the one narrow case for `!important`
 - scroll-driven animation, modern units, and logical properties
 
-**Guidelines:**
-
-- MUST read [css-modules.md](./references/css-modules.md) before creating a `.module.css` file, before adding keyframes, a container query, or a custom property a descendant reads, and before reaching for `!important` or styling a third-party component through its state attributes.
-
 ## Unistyles (mobile native)
 
 See [unistyles.md](./references/unistyles.md) for:
 
-- the stylesheet signature, theme configuration, and adaptive themes
+- writing a `StyleSheet.create` call with the stylesheet signature, theme configuration, and adaptive themes
 - safe-area-aware styling with the mini runtime
 - choosing between variants and dynamic functions
 - parent-size-aware styling from a measured layout
 - reading the theme outside a stylesheet
 - platform-forked style files, and the navigation-cloning caveat that silently drops styles
-
-**Guidelines:**
-
-- MUST read [unistyles.md](./references/unistyles.md) before writing a `StyleSheet.create` call, before choosing between a variant and a dynamic function, before styling around a safe area, and before forking a style file per platform or passing styles through a navigator.
 
 ## Verifying a Styling Change
 

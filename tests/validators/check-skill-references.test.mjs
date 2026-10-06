@@ -161,7 +161,7 @@ describe("check-skill-references.mjs", () => {
       );
     });
 
-    it("reports a routing bullet that opens with an RFC-2119 keyword", async () => {
+    it.each(["for:", "when:", "when"])("reports a normative routing bullet after See ... %s", async (leadIn) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "normative-routing", {
         body: [
@@ -169,7 +169,7 @@ describe("check-skill-references.mjs", () => {
           "",
           "## Some Topic",
           "",
-          "See [topic.md](./references/topic.md) for:",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- MUST never appear in a routing bullet",
           "",

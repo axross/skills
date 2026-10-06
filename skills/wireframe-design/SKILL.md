@@ -154,13 +154,13 @@ See [fidelity-and-intent.md](./references/fidelity-and-intent.md) for:
 
 - matching fidelity (interactivity, polish, scope, content) to the question you are answering
 - keeping the aesthetic deliberately rough so reviewers critique structure, not pixels
-- reaching 'rough but solved' and holding every screen at the same finish level
+- judging whether a set of screens is 'rough but solved' enough for a reviewer, and holding every screen at the same finish level
 
 See [process-and-collaboration.md](./references/process-and-collaboration.md) for:
 
-- testing rough versions before code and generating multiple alternatives before converging
+- deciding how many alternatives to produce before converging, and testing rough versions before code
 - declaring what is out of scope and involving cross-functional collaborators early
-- using progressive fidelity to manage stakeholder feedback and signal how settled the thinking is
+- deciding when to put a round in front of collaborators or users, using progressive fidelity to manage feedback and signal how settled the thinking is
 
 See [structure-and-content.md](./references/structure-and-content.md) for:
 
@@ -176,13 +176,5 @@ See [flow-and-annotation.md](./references/flow-and-annotation.md) for:
 
 See [responsive-and-platform.md](./references/responsive-and-platform.md) for:
 
-- wireframing mobile-first at real device scale and thumb reach
+- wireframing mobile-first at real device scale and thumb reach, then adding a second viewport width
 - setting breakpoints from content and adapting navigation per platform
-
-**Guidelines:**
-
-- MUST read [fidelity-and-intent.md](./references/fidelity-and-intent.md) before choosing how rough or finished a round should be, and before judging whether a set of screens is solved enough to put in front of a reviewer.
-- MUST read [process-and-collaboration.md](./references/process-and-collaboration.md) before deciding how many alternatives to produce, what to declare out of scope, or when to put a round in front of collaborators or users.
-- MUST read [structure-and-content.md](./references/structure-and-content.md) before laying out a screen's regions and hierarchy, before choosing spacing over an enclosure to group them, and before filling a placeholder with copy.
-- MUST read [flow-and-annotation.md](./references/flow-and-annotation.md) before connecting screens into a flow, and before adding a callout that states intent rather than UI.
-- MUST read [responsive-and-platform.md](./references/responsive-and-platform.md) before wireframing a second viewport width, setting a breakpoint, or adapting a navigation pattern to a platform.

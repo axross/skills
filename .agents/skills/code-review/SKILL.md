@@ -90,7 +90,3 @@ See [posted-review-policy.md](./references/posted-review-policy.md) for:
 - running the repository's mandatory checks and honoring its do-not-report exclusions, built as an enumerated list of checks each coextensive with the finding it silences, never a blanket "anything CI enforces" clause
 - posting the whole review as one submission of the platform's review mechanism able to carry diff-anchored comments, chosen before the diff is read, with the submission's verdict kept non-gating for an advisory reviewer as a separate decision that never falls back to a looser container
 - keeping the summary to a closed three-entry allowlist — the tally, what could not be checked, and a finding with no line to anchor to — with one exception for a host-mandated per-round enumeration
-
-**Guidelines:**
-
-- MUST read [posted-review-policy.md](./references/posted-review-policy.md) before preparing a posted review.

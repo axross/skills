@@ -165,9 +165,8 @@ This is that list for this repository:
   length exceeds <!-- count:skill-description-byte-cap -->1024<!-- /count -->
   **bytes**; a `references/*.md` file that no `SKILL.md` links; a
   routing-section bullet opening with an RFC-2119 keyword; in a `SKILL.md`, a
-  `**Guidelines:**` block that a routing list introduces carrying an
-  RFC-2119 bullet that is not a read obligation — an ordinary rule folded in
-  among a reference's read obligations; and an unclosed fenced block in a
+  `**Guidelines:**` block introduced by reference routing, even when empty
+  or containing only read obligations; and an unclosed fenced block in a
   `SKILL.md` or a `references/*.md` file, which hides everything after it
   from every other check.
 - The `docs/` checks `check-index.mjs` and `check-glossary.mjs` enforce, over
