@@ -13,7 +13,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { extractProse, FENCE_RE, scanLines, unterminatedFenceLine } from "./commonmark.mjs";
+import { columnWidth, extractProse, FENCE_RE, scanLines, unterminatedFenceLine } from "./commonmark.mjs";
 import {
   GUIDELINES_RE,
   ROUTING_LINE_RE,
@@ -238,24 +238,28 @@ function routingBlockFailures(body, file, offset) {
         continue;
       }
     }
-    const block = text.match(/^( {0,3})(?:>|\d{1,9}[.)](?:[ \t]|$))/);
+    const block = text.match(/^( {0,3})(?:#{1,6}(?:[ \t]|$)|>|\d{1,9}[.)](?:[ \t]|$))/);
     if (block && (!seenBullet || block[1].length < listIndent)) {
       inRouting = false;
       continue;
     }
-    if (/^\s/.test(source[line - 1]) || /^-\s+/.test(text)) {
-      const bullet = text.match(/^-[ \t]+/);
-      if (bullet) {
-        seenBullet = true;
-        listIndent = [...bullet[0]].reduce(
-          (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
-          0,
-        );
+    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
+    const bullet = source[line - 1].match(/^([ \t]*-)([ \t]+|$)(.*)$/);
+    if (bullet && (seenBullet || indent <= 3)) {
+      if (!seenBullet || indent < listIndent) {
+        const markerWidth = columnWidth(bullet[1]);
+        const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
+        listIndent = markerWidth + (padding > 4 || bullet[3].trim() === "" ? 1 : padding);
       }
+      seenBullet = true;
       paragraphBreak = false;
       continue;
     }
-    if (seenBullet && !paragraphBreak && !/^#{1,6}\s+/.test(text)) continue;
+    if (seenBullet ? indent >= listIndent : indent > 0) {
+      paragraphBreak = false;
+      continue;
+    }
+    if (seenBullet && !paragraphBreak) continue;
     inRouting = false;
   }
 

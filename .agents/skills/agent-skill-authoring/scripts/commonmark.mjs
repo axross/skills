@@ -146,11 +146,23 @@ export function unterminatedFenceLine(body) {
 }
 
 /**
- * an inline code span: a run of backticks, at least one character that is not a
- * backtick, then a closing run. text inside one is being shown, not used — a
- * link or a comment opener written there is an example, not the real thing.
+ * inline code uses maximal, equal-length backtick strings. differing runs can
+ * occur inside the span; unmatched strings remain literal prose.
  */
-const CODE_SPAN_RE = /`+[^`]+`+/g;
+const CODE_SPAN_RE = /(?<!`)(`+)(?!`)[^\n]*?(?<!`)\1(?!`)/g;
+
+/** blank inline examples without hiding unmatched literal backtick strings. */
+export function stripCodeSpans(text) {
+  return text.replace(CODE_SPAN_RE, "");
+}
+
+/** the width of source indentation or list-marker padding in tab-stop columns. */
+export function columnWidth(prefix) {
+  return [...prefix].reduce(
+    (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
+    0,
+  );
+}
 
 /**
  * a string of just the newlines in `text`, so a removed span leaves the lines
@@ -236,7 +248,7 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
   // a line it does not yield is blanked here by absence.
   const byLine = [];
   for (const { line, text, fence } of lines) {
-    byLine[line] = fence ? "" : text.replace(CODE_SPAN_RE, "");
+    byLine[line] = fence ? "" : stripCodeSpans(text);
   }
   if (preserveFenceBoundaries) {
     for (const { line, text } of fenceBoundaries) byLine[line] = text;

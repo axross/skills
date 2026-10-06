@@ -87,6 +87,20 @@ describe("extractUrls", () => {
       );
     });
 
+    it.each(["\n", "\r\n"])("keeps literal unequal-run citations and ignores matched code with %j endings", (eol) => {
+      const source = [
+        "``[literal](https://example.com/literal)`",
+        "``[hidden](https://example.com/hidden)``",
+        "``a`[also-hidden](https://example.com/also-hidden)``",
+        "``<!--`", "https://example.com/comment", "-->",
+        "https://example.com/after",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/literal", line: 1 },
+        { url: "https://example.com/after", line: 7 },
+      ]);
+    });
+
     it("ignores a URL inside an HTML comment", () => {
       expect(urlsIn("<!-- parked: https://example.com/never-probed -->\nText.\n")).toEqual(
         [],

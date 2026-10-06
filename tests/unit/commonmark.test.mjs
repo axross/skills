@@ -212,6 +212,29 @@ describe("commonmark.mjs", () => {
       expect(textOf("Write `[x](./y.md)` in prose.")).toEqual(["Write  in prose."]);
     });
 
+    it.each(["\n", "\r\n"])("matches whole equal-length backtick runs with %j endings", (eol) => {
+      const source = ["``x`", "`x``", "``x", "``x`y``", "`x``y`", "`x``y``", "before `` `` after", "after"].join(eol);
+      expect(extractProse(source).lines).toEqual([
+        { line: 1, text: "``x`" },
+        { line: 2, text: "`x``" },
+        { line: 3, text: "``x" },
+        { line: 4, text: "" },
+        { line: 5, text: "" },
+        { line: 6, text: "`x" },
+        { line: 7, text: "before  after" },
+        { line: 8, text: "after" },
+      ]);
+    });
+
+    it.each(["\n", "\r\n"])("retains comment boundaries inside unequal literal runs with %j endings", (eol) => {
+      expect(textOf(["before ``<!--`", "hidden [x](./missing.md)", "--> after", "``[real](./real.md)`"].join(eol))).toEqual([
+        "before ``", "", " after", "``[real](./real.md)`",
+      ]);
+      expect(textOf(["before ``<!--`quoted``", "[real](./real.md)", "--> after"].join(eol))).toEqual([
+        "before ", "[real](./real.md)", "--> after",
+      ]);
+    });
+
     it("blanks an HTML comment", () => {
       expect(textOf("<!-- parked -->after")).toEqual(["after"]);
     });

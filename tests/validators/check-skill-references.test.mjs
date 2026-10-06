@@ -24,6 +24,54 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkSkill = validator(SCRIPTS.checkSkillReferences);
 
+describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (eol) => {
+  it.each([
+    ["under-indented heading", [" ## Independent"], 0],
+    ["empty ATX heading", [" #"], 0],
+    ["list-contained heading", ["  ## Nested"], 1],
+    ["under-indented quote", [" > Independent"], 0],
+    ["list-contained quote", ["  > Nested"], 1],
+    ["under-indented ordered item", [" 1. Independent"], 0],
+    ["list-contained ordered item", ["  1. Nested"], 1],
+    ["under-indented paragraph", ["", " independent"], 0],
+    ["list-contained paragraph", ["", "  nested"], 1],
+    ["unindented lazy continuation", ["continued"], 1],
+    ["under-indented lazy continuation", [" continued"], 1],
+    ["unequal backticks", ["", "``x`"], 0],
+    ["unmatched backticks", ["", "``x"], 0],
+    ["matched inline example", ["", "``x``"], 1],
+    ["different-length run inside code", ["", "``x`y``"], 1],
+  ])("classifies %s without losing the following requirement", async (name, separator, code) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "routing-boundary", {
+      raw: [
+        "---", "name: routing-boundary", "description: Exercises routing boundaries.", "---", "",
+        "# Routing", "", "## Scope", "",
+        "See [topic.md](./references/topic.md) for:", "", "- condition",
+        ...separator, "", "- MUST preserve output.", "",
+      ].join(eol),
+      references: { "topic.md": ["# Topic", "", "Detail.", ""].join(eol) },
+    });
+    const result = checkSkill(dir);
+    if (code === 0) expect(result).toPassCleanly();
+    else expect(result).toReportFailure(/routing: section "Scope" has a routing bullet starting with an RFC-2119 keyword/);
+  });
+
+  it.each([
+    ["unequal", "``[gone](#missing)`", 1],
+    ["equal", "``[gone](#missing)``", 0],
+    ["internal single run", "``x`[gone](#missing)``", 0],
+  ])("checks literal %s backticks without checking actual code links", async (name, text, code) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "literal-link", {
+      raw: ["---", "name: literal-link", "description: Exercises links.", "---", "", "# Literal Link", "", text, ""].join(eol),
+    });
+    const result = checkSkill(dir);
+    if (code === 0) expect(result).toPassCleanly();
+    else expect(result).toReportFailure(/anchors: SKILL\.md:8 link "#missing" resolves to no heading/);
+  });
+});
+
 /**
  * assert that a fixture fails with exit 1 and reports `expected`.
  *

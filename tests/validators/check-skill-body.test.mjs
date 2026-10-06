@@ -24,6 +24,30 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkSkill = validator(SCRIPTS.checkSkillBody);
 
+describe.each(["\n", "\r\n"])("routing Guidelines boundaries with %j endings", (eol) => {
+  it.each([
+    ["independent heading", [" ## Independent"], 0],
+    ["list-contained heading", ["  ## Nested"], 1],
+    ["independent paragraph", ["", " independent"], 0],
+    ["list-contained paragraph", ["", "  nested"], 1],
+    ["literal unequal backticks", ["", "``x`"], 0],
+    ["matched inline example", ["", "``x``"], 1],
+  ])("classifies %s before the Guidelines label", async (name, separator, code) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "routing-boundary", {
+      raw: [
+        "---", "name: routing-boundary", "description: Exercises routing boundaries.", "---", "",
+        "# Routing", "", "## Scope", "",
+        "See [topic.md](./references/topic.md) for:", "", "- condition",
+        ...separator, "", "**Guidelines:**", "", "- MUST preserve output.", "",
+      ].join(eol),
+    });
+    const result = checkSkill(dir);
+    if (code === 0) expect(result).toPassCleanly();
+    else expect(result).toReportFailure(/routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+  });
+});
+
 /**
  * assert that a fixture fails with exit 1 and reports `expected`.
  *
@@ -412,6 +436,25 @@ describe("check-skill-body.mjs", () => {
       });
 
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each(["\n", "\r\n"].flatMap(eol => [0, 1, 2, 3].map(indent => [eol, indent])))("distinguishes lazy continuation from a new paragraph with %j endings and %i item spaces", async (eol, indent) => {
+      const root = await tempDir();
+      for (const separated of [false, true]) {
+        const dir = await writeSkill(root, "indented-lazy-routing", {
+          raw: [
+            "---", "name: indented-lazy-routing", "description: Exercises routing boundaries.", "---", "",
+            "# Routing", "", "## Scope", "",
+            `See [topic.md](./references/topic.md) ${leadIn}`, "",
+            `${" ".repeat(indent)}- condition`,
+            ...(separated ? [""] : []),
+            "continued", "", "**Guidelines:**", "", "- MUST preserve output.", "",
+          ].join(eol),
+        });
+        const result = checkSkill(dir);
+        if (separated) expect(result).toPassCleanly();
+        else expect(result).toReportFailure(/routing-block: SKILL\.md:15 reference routing must not introduce/);
+      }
     });
 
     it.each(["1. A separate procedure.", " 2) A separate procedure.", "999999999. A separate procedure.", "1."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {

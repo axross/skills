@@ -75,6 +75,21 @@ describe("check-links.mjs", () => {
     expect(checkLinks(root)).toPassCleanly();
   });
 
+  it.each(["\n", "\r\n"])("checks unmatched literal links but ignores equal-run code with %j endings", async (eol) => {
+    const root = await tempDir();
+    for (const [text, broken] of [
+      ["``[x](./missing.md)`", true],
+      ["`[x](./missing.md)``", true],
+      ["``[x](./missing.md)``", false],
+      ["``a`[x](./missing.md)``", false],
+    ]) {
+      await writeFileIn(root, "source.md", ["# Links", "", text, ""].join(eol));
+      const result = checkLinks(root);
+      if (broken) expect(result).toReportFailure(/source\.md -> \.\/missing\.md/);
+      else expect(result).toPassCleanly();
+    }
+  });
+
   // the mirror image of the three cases above: text that only looks like it
   // opens a comment must not hide the real links after it. commonmark.mjs's
   // extractProse owns the ordering that decides this; these two drive the CLI,
