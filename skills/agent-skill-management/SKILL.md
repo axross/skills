@@ -104,13 +104,9 @@ A distributable skill is authored under `skills/<name>/SKILL.md` (with its `refe
 
 See [active-loading.md](./references/active-loading.md) for:
 
-- installation, source agreement, discovery, and active content as separate observations
-- same-name precedence, stale sessions, and unavailable source evidence
+- verifying an installation or refresh through separate observations of installation, source agreement, discovery, and active content
+- diagnosing missing discovery or unexpected loaded content, including same-name precedence, stale sessions, and unavailable source evidence
 - diagnosis before an authorized installation change
-
-**Guidelines:**
-
-- MUST read [active-loading.md](./references/active-loading.md) when verifying a skill installation or refresh, or diagnosing missing discovery or unexpected loaded content.
 
 ## Proposing a Change to an Installed Skill
 

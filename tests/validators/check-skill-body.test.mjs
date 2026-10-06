@@ -157,7 +157,7 @@ describe("check-skill-body.mjs", () => {
     });
   });
 
-  describe("routing-block — the guidelines block a routing list introduces", () => {
+  describe.each(["for:", "when:", "when"])("routing-block after See ... %s", (leadIn) => {
     /** a SKILL.md body with one `## Topic` section, `lines` after its intro prose. */
     const withTopic = (...lines) =>
       [
@@ -173,13 +173,69 @@ describe("check-skill-body.mjs", () => {
         "",
       ].join("\n");
 
-    it("accepts a guidelines block that carries only read obligations", async () => {
+    it.each([
+      ["read-only", ["- MUST read [topic.md](./references/topic.md) before doing the narrow thing."]],
+      ["mixed-rule", ["- MUST read [topic.md](./references/topic.md) before doing the narrow thing.", "- MUST also do something unrelated to reading the reference."]],
+      ["empty", []],
+    ])("rejects a %s routing guidelines block", async (name, rules) => {
       const root = await tempDir();
-      const dir = await writeSkill(root, "read-obligations-only", {
+      const dir = await writeSkill(root, `${name}-routing-block`, {
         body: withTopic(
-          "See [topic.md](./references/topic.md) for:",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- what the reference covers",
+          "",
+          "**Guidelines:**",
+          "",
+          ...rules,
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce a `\*\*Guidelines:\*\*` block/);
+    });
+
+    it.each([1, 2, 3])("rejects a routing block with %i spaces before its lead-in", async (spaces) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "indented-routing", {
+        body: withTopic(
+          `${" ".repeat(spaces)}See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it("does not treat a four-space-indented code example as routing", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "indented-code-example", {
+        body: withTopic(
+          `    See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
+    it.each([
+      ["single-line", "<!-- reference selection note -->"],
+      ["multiline", "<!--\nreference selection note\n-->"],
+    ])("rejects a routing guidelines block after a %s HTML comment", async (name, comment) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, `${name}-comment-routing`, {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- what the reference covers",
+          "",
+          comment,
           "",
           "**Guidelines:**",
           "",
@@ -187,20 +243,45 @@ describe("check-skill-body.mjs", () => {
         ),
       });
 
-      const result = checkSkill(dir);
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
 
-      expect(result).toPassCleanly();
-      expect(result.stdout).not.toMatch(/routing-block:/);
+    it("accepts a substantive block after an inline-code routing example", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "inline-routing-example", {
+        body: withTopic(
+          `Use \`See [topic.md](./references/topic.md) ${leadIn} needed\` as the inline form.`,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
     });
 
     it("accepts a routing list with no guidelines block at all", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "no-guidelines-block", {
         body: withTopic(
-          "See [topic.md](./references/topic.md) for:",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- what the reference covers",
         ),
+        references: {
+          "topic.md": [
+            "# Topic",
+            "",
+            `See [detail.md](./references/detail.md) ${leadIn}`,
+            "",
+            "- the supporting detail",
+            "",
+            "**Guidelines:**",
+            "",
+            "- MUST read the detail before applying this rule.",
+          ].join("\n"),
+        },
       });
 
       const result = checkSkill(dir);
@@ -217,13 +298,9 @@ describe("check-skill-body.mjs", () => {
           "",
           "- MUST hold this rule before deciding what to open.",
           "",
-          "See [topic.md](./references/topic.md) for:",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- what the reference covers",
-          "",
-          "**Guidelines:**",
-          "",
-          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
         ),
       });
 
@@ -233,17 +310,13 @@ describe("check-skill-body.mjs", () => {
       expect(result.stdout).not.toMatch(/routing-block:/);
     });
 
-    it("accepts a rule in a guidelines block separated from the routing list's by a paragraph", async () => {
+    it("accepts a substantive guidelines block separated from routing by a paragraph", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "rule-after-paragraph", {
         body: withTopic(
-          "See [topic.md](./references/topic.md) for:",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- what the reference covers",
-          "",
-          "**Guidelines:**",
-          "",
-          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
           "",
           "This rule stays in the body because the reader needs it on every turn, not only once the reference is open.",
           "",
@@ -266,7 +339,7 @@ describe("check-skill-body.mjs", () => {
           "An example of the shape this rule rejects:",
           "",
           "```markdown",
-          "See [topic.md](./references/topic.md) for:",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- what the reference covers",
           "",
@@ -284,25 +357,191 @@ describe("check-skill-body.mjs", () => {
       expect(result.stdout).not.toMatch(/routing-block:/);
     });
 
-    it("reports a non-read-obligation bullet in a routing list's guidelines block", async () => {
+    it("rejects a block after nested bullets, continuations and an intervening fenced example", async () => {
       const root = await tempDir();
-      const dir = await writeSkill(root, "folded-in-rule", {
+      const dir = await writeSkill(root, "continued-routing", {
         body: withTopic(
-          "See [topic.md](./references/topic.md) for:",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- what the reference covers",
+          "  with a wrapped continuation",
+          "  - a nested situation",
+          "",
+          "```markdown",
+          "**Guidelines:**",
+          "- MUST ignore this fenced example.",
+          "```",
           "",
           "**Guidelines:**",
-          "",
-          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
-          "- MUST also do something unrelated to reading the reference.",
         ),
       });
 
-      expectFailure(
-        dir,
-        /routing-block: SKILL\.md:\d+ guidelines block introduced by a routing list carries a bullet that is not a read obligation: "MUST also do something/,
-      );
+      const result = checkSkill(dir);
+      expect(result).toReportFailure(/routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+      expect(result.stdout.match(/routing-block:/g)).toHaveLength(1);
+    });
+
+    it("rejects a block after an unindented lazy list continuation", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "lazy-routing-continuation", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- the first condition and",
+          "its unindented continuation",
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each(["1. A separate procedure.", " 2) A separate procedure.", "999999999. A separate procedure.", "1."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "rule-after-ordered-list", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          item,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
+    it.each(["  1. A nested selection condition.", "1000000000. A number, not a marker.", "1.Not an ordered-list marker."])("rejects a routing block after the non-interrupting continuation %j", async (continuation) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "ordered-like-routing-continuation", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          continuation,
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each([
+      ["- ", ""],
+      ["- ", " "],
+      ["-   ", "   "],
+      ["-\t", "   "],
+    ])("accepts a substantive block after a quote outside the %j list item at indentation %j", async (marker, indent) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "rule-after-blockquote", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          `${marker}when topic detail is needed`,
+          `${indent}> This rule stays in the body because it applies on every turn.`,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
+    it.each([
+      ["- ", "  "],
+      ["-  ", "   "],
+    ])("rejects a routing block after a quote nested under %j at indentation %j", async (marker, indent) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "nested-blockquote-routing", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          `${marker}when topic detail is needed`,
+          `${indent}> An example of the selection condition.`,
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each([
+      ["single-line", "[unused-reference]: https://example.com"],
+      ["angle destination and title", '[unused-reference]: <https://example.com/a b> "a title"'],
+      ["balanced destination", "[unused-reference]: https://example.com/a(b(c))"],
+      ["escaped label", '[escaped\\]label]: /topic "a title"'],
+      ["multiline destination", "[unused-reference]:\nhttps://example.com"],
+      ["multiline title", '[unused-reference]: /topic\n"title\ncontinued"'],
+      ["multiline label", "[unused\nreference]: /topic"],
+      ["consecutive definitions", "[first]: /one\n[second]: /two"],
+    ])("rejects a routing block after a %s link-reference definition", async (name, definition) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "invisible-definition-routing", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "",
+          definition,
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it.each([
+      ["missing destination", "[unused-reference]:"],
+      ["unbalanced destination", "[unused-reference]: /topic(unclosed"],
+      ["trailing prose", '[unused-reference]: /topic "title" visible explanation'],
+      ["visible text after a valid definition", '[unused-reference]: /topic\n"title" visible explanation'],
+    ])("accepts a substantive block after %s rather than hiding visible prose", async (name, paragraph) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "visible-definition-like-paragraph", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "",
+          paragraph,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
+    it("accepts a substantive block in a new section after routing", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "rule-after-heading", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- what the reference covers",
+          "including this lazy continuation",
+          "## Always Applicable",
+          "",
+          "This rule applies regardless of the reference selection.",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
     });
   });
 

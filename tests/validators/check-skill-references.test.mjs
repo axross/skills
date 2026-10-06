@@ -145,6 +145,44 @@ describe("check-skill-references.mjs", () => {
       expect(result.stdout).not.toMatch(/^\s+- anchors:/m);
     });
 
+    it.each(["for:", "when:", "when"])("does not treat an inline See ... %s example as routing", async (leadIn) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "inline-routing-example", {
+        body: [
+          "# Inline Routing Example",
+          "",
+          "## Some Topic",
+          "",
+          `Use \`See [topic.md](./references/topic.md) ${leadIn} needed\` as the inline form.`,
+          "",
+          "- MUST preserve this substantive rule.",
+          "",
+        ].join("\n"),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
+    it.each(["for:", "when:", "when"])("ignores a routing example with See ... %s inside an HTML comment", async (leadIn) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "commented-routing-example", {
+        body: [
+          "# Commented Routing Example",
+          "",
+          "<!--",
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- MUST not turn this hidden example into a routing failure.",
+          "-->",
+          "",
+          "Actual prose outside the comment.",
+          "",
+        ].join("\n"),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
   });
 
   describe("exit 1 — each implemented failure class", () => {
@@ -161,7 +199,7 @@ describe("check-skill-references.mjs", () => {
       );
     });
 
-    it("reports a routing bullet that opens with an RFC-2119 keyword", async () => {
+    it.each(["for:", "when:", "when"].flatMap(leadIn => [0, 1, 2, 3].map(spaces => [leadIn, spaces])))("reports a normative routing bullet after See ... %s with %i leading spaces", async (leadIn, spaces) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "normative-routing", {
         body: [
@@ -169,7 +207,7 @@ describe("check-skill-references.mjs", () => {
           "",
           "## Some Topic",
           "",
-          "See [topic.md](./references/topic.md) for:",
+          `${" ".repeat(spaces)}See [topic.md](./references/topic.md) ${leadIn}`,
           "",
           "- MUST never appear in a routing bullet",
           "",

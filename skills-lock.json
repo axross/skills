@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "bfde329efcf55bf6315ddb346f85ec164fed8fba42eb17eee806c86151536b1b"
+      "computedHash": "567e13b71ae5021cd6020b3498732d9188c0b1711f36a7c15cce053cc3c47b69"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "e5972c36f0dd0e46ebfae1c2e7041687a81e6d01487d4afe840ba66999b37dcb"
+      "computedHash": "a236dce1e2932b007a687d1b03d84a68fe79e6b023bd571269da9000e4596831"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -24,12 +24,12 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "e47584be3948faab01248481faef41c0fd7b70caa0cc6b34152a10e17e03524f"
+      "computedHash": "0e58836b09fba0219eb0bd29ae605611f5b6f7a06211d27a421a6e3fe2bb6537"
     },
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "7d8051a27f8c36bc0a94724f4d0723d1e67d765a9d382e455e111d45140f9e0b"
+      "computedHash": "18022241ad2fc68bf06d8b7ca4588ec1014439234a41ecac9c9a0cc1caddf1e2"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -39,7 +39,7 @@
     "end-to-end-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "18303da8438400e9b514f4ab93bbfc343b6d577dd802e0e5bc70f1a0a212c1fc"
+      "computedHash": "5388a2f7d6427f98f1a565a7e0efd4371f3be8b4b8a13c1184e863d609ae6fc1"
     },
     "expo-app-development": {
       "source": "./skills",
@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "a1439225245574843e506b0b57e553af78cd30daab005f1b2daef62837bbdd61"
+      "computedHash": "013054dc1e630bf7d8402ce6f63ec32478514e89606d9709bcd630aeb13e72e1"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "83a391182ff9f23aa32fe0c59c9d7b23630190fa165f6aa3e61f7ab98bef5943"
+      "computedHash": "8dcf6475ff20da56da486ca12636142247e38cb58e2aa3a0b75ac0fef1b76a04"
     },
     "next-app-development": {
       "source": "./skills",
@@ -79,17 +79,17 @@
     "product-requirement-document-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b417f087751684625cc7b6712cfb5fcfd5b5dd6f179b89241b973f975ad3f42f"
+      "computedHash": "db2afd4d5862b1c93f9cabaf5a6baaaf5eeaf48b4c7c27f452564b1a6176bde4"
     },
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "09d692fd44f21a23cba15fd3dd518801798e031e7c48b83589c30efa4f012754"
+      "computedHash": "36f290d9b41ee5dd96ec4abbb4c414f30d146e062dd1f242cce7e7bd24718686"
     },
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "d37ff0b59afc09e221cb58e2551dff76e80fda30ab7b745104efe4631a7ddd50"
+      "computedHash": "6820cfa28c766df1cff3d7259cca1c6269cd952d5ab4d832fcb98bcde464305a"
     },
     "react-component-development": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "7c0dd535d245cb4f8e374400a4bead5412d3aef53ba19d605f4f4827686a2949"
+      "computedHash": "9531d84c0e6f570ba2a814d9077fb978c56e9036d390aaf580c5f7a293b950df"
     },
     "sentry-instrumentation": {
       "source": "./skills",
@@ -109,12 +109,12 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "bfaca6deb294b687009335075f9fadaf5722294c0ce2c183f2103fb594d4b6a1"
+      "computedHash": "cc7691c1cf57352f9cc1de4a442f735a6530017779e906645036bf9180a0161d"
     },
     "software-instrumentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b7db47a3a73759425467c8ad8fe133a771f4770ff9036089839a9e84ab43561c"
+      "computedHash": "94032e103901ad351116365c1f3b444aa3f32c0a1f4b0dfb7bec5b00a2d3b86d"
     },
     "tanstack-query-development": {
       "source": "./skills",
@@ -124,7 +124,7 @@
     "technical-document-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "f2e48f86036000952673ad5d76599c1951404fdefc811c2c7fb18a48645f97a1"
+      "computedHash": "7d976d4801cfc39923a34f512a5978a6d313f274aa254a3bc7e0591062151284"
     },
     "unit-testing": {
       "source": "./skills",
@@ -139,7 +139,7 @@
     "wireframe-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c20c851bb2f2923ba4aa21aa97f825a51d6c25191e4e46ed23e05a47fe82815e"
+      "computedHash": "64da46b7e8ea95c2d43f4b68a8d3d067b73f32a7c655aa5d6b42c90d3b93b056"
     },
     "zod-schema": {
       "source": "./skills",
