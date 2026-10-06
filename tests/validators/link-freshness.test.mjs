@@ -119,6 +119,23 @@ describe("extractUrls", () => {
       ]);
     });
 
+    it.each(["\n", "\r\n"])("keeps real URLs outside code, HTML and definition tokens with %j endings", (eol) => {
+      const source = [
+        "    example ``", "https://example.com/indented ``", "",
+        "before ``", "<!-- comment -->", "https://example.com/comment ``", "",
+        '<span title="``">text</span>', "https://example.com/attribute ``", "",
+        "> <script>", "`https://example.com/hidden`", "",
+        "[id]: https://example.com/definition``", "https://example.com/paragraph ``",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/indented", line: 2 },
+        { url: "https://example.com/comment", line: 6 },
+        { url: "https://example.com/attribute", line: 9 },
+        { url: "https://example.com/definition", line: 14 },
+        { url: "https://example.com/paragraph", line: 15 },
+      ]);
+    });
+
     it("ignores a URL inside a multi-line HTML comment", () => {
       const source = [
         "<!--",

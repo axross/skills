@@ -50,6 +50,7 @@ const HTML_BLOCK_RE = /^<(?:\/?(?:address|article|aside|base|basefont|blockquote
 /** HTML-block terminators; comments retain the extractor's last-pass policy. */
 export function htmlBlockEnd(content) {
   if (/^<(?:script|pre|style|textarea)(?=[\s>]|$)/i.test(content)) return /<\/(?:script|pre|style|textarea)>/i;
+  if (/^<!--/.test(content)) return /-->/;
   if (/^<\?/.test(content)) return /\?>/;
   if (/^<!\[CDATA\[/.test(content)) return /\]\]>/;
   if (/^<![A-Z]/.test(content)) return />/;
@@ -57,9 +58,10 @@ export function htmlBlockEnd(content) {
 }
 
 /** block starts without a paragraph that could receive lazy continuation. */
-export function closesParagraph(line) {
+export function closesParagraph(line, listIndent = 0) {
   const content = line.trimStart();
-  return /^(?:#{1,6}(?:[ \t]|$)|(?:>[ \t]*)+$|(?:[-+*]|\d{1,9}[.)])[ \t]*$)/.test(content) ||
+  return columnWidth(line.match(/^[ \t]*/)[0]) >= listIndent + 4 ||
+    /^(?:#{1,6}(?:[ \t]|$)|(?:>[ \t]*)+$|(?:[-+*]|\d{1,9}[.)])[ \t]*$)/.test(content) ||
     htmlBlockEnd(content) !== null;
 }
 
@@ -67,6 +69,7 @@ export function closesParagraph(line) {
 export function startsBlock(line, listIndent = 0, paragraphOpen = true) {
   const prefix = line.match(/^[ \t]*/)[0];
   const indent = columnWidth(prefix);
+  if (!paragraphOpen && indent >= listIndent + 4 && line.trim() !== "") return true;
   if (indent > 3 && !(listIndent > 0 && indent >= listIndent && indent <= listIndent + 3)) return false;
   const content = line.slice(prefix.length);
   return /^(?:#{1,6}(?:[ \t]|$)|>|[-+*][ \t]+\S|1[.)][ \t]+\S)/.test(content) ||
@@ -186,10 +189,12 @@ export function unterminatedFenceLine(body) {
  * occur inside the span; unmatched strings remain literal prose.
  */
 const CODE_SPAN_RE = /(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g;
+const RAW_HTML_RE = /<(?:[A-Za-z][A-Za-z0-9-]*(?:(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \t]*(?:\n[ \t]*)?=[ \t]*(?:\n[ \t]*)?(?:[^ \t\n\r"'=<>`]+|'[^']*'|"[^"]*"))?)*[ \t]*(?:\n[ \t]*)?\/?>|\/[A-Za-z][A-Za-z0-9-]*[ \t]*(?:\n[ \t]*)?>|!--(?:>|->|[\s\S]*?-->)|\?[\s\S]*?\?>|![A-Za-z][^>]*>|!\[CDATA\[[\s\S]*?\]\]>)/;
+const INLINE_TOKEN_RE = new RegExp(`${CODE_SPAN_RE.source}|${RAW_HTML_RE.source}`, "g");
 
 /** blank inline examples without hiding unmatched literal backtick strings. */
 export function stripCodeSpans(text) {
-  return text.replace(CODE_SPAN_RE, newlinesOf);
+  return text.replace(INLINE_TOKEN_RE, (token) => token.startsWith("`") ? newlinesOf(token) : token);
 }
 
 /** the width of source indentation or list-marker padding in tab-stop columns. */
@@ -198,6 +203,35 @@ export function columnWidth(prefix) {
     (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
     0,
   );
+}
+
+/** the source-line span of a valid link-reference definition, or zero. */
+export function linkDefinitionLineCount(source) {
+  const definition = source.match(/^ {0,3}\[((?:\\[^\n]|[^\[\]\\]){1,999})\]:[ \t]*(?:\n[ \t]*)?(<(?:\\[^\n]|[^<>\\\n])*>|(?:\\[^\s]|[^\s<>\\\x00-\x1f\x7f])+)/);
+  if (!definition || !/\S/.test(definition[1]) || /\n[ \t]*\n/.test(definition[1])) return 0;
+
+  if (!definition[2].startsWith("<")) {
+    let depth = 0;
+    for (let index = 0; index < definition[2].length; index += 1) {
+      const character = definition[2][index];
+      if (character === "\\") {
+        index += 1;
+        continue;
+      }
+      if (character === "(") depth += 1;
+      if (character === ")") depth -= 1;
+      if (depth < 0) return 0;
+    }
+    if (depth !== 0) return 0;
+  }
+
+  let length = definition[0].length;
+  const tail = source.slice(length);
+  const title = tail.match(/^(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)("(?:\\[^\n]|[^"\\])*"|'(?:\\[^\n]|[^'\\])*'|\((?:\\[^\n]|[^()\\])*\))[ \t]*(?=\n|$)/);
+  if (title && !/\n[ \t]*\n/.test(title[1])) length += title[0].length;
+  else if (!/^[ \t]*(?:\n|$)/.test(tail)) return 0;
+
+  return 1 + (source.slice(0, length).match(/\n/g) ?? []).length;
 }
 
 /**
@@ -278,32 +312,62 @@ function stripHtmlComments(content) {
  */
 export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
   const source = body.replace(/\r/g, "");
+  const sourceLines = source.split("\n");
   const { lines, fenceBoundaries, unterminatedAt } = scanDocument(source);
 
   const byLine = [];
   let paragraph = [];
   let listIndent = 0;
   let htmlEnd = null;
+  let htmlQuoteDepth = 0;
+  let htmlListIndent = 0;
   const flush = () => {
     const prose = stripCodeSpans(paragraph.map(({ text }) => text).join("\n")).split("\n");
     paragraph.forEach(({ line }, index) => { byLine[line] = prose[index]; });
     paragraph = [];
   };
 
-  for (const { line, text, fence } of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const { line, text, fence } = lines[index];
     const previous = paragraph.at(-1);
     const quote = text.match(/^(?: {0,3}>[ \t]?)+/)?.[0] ?? "";
     const previousQuote = paragraph[0]?.text.match(/^(?: {0,3}>[ \t]?)+/)?.[0] ?? "";
     const content = text.slice(quote.length);
-    if (!htmlEnd && !fence && startsBlock(content, listIndent, paragraph.length > 0)) htmlEnd = htmlBlockEnd(content.trimStart());
+    const quoteDepth = quote.replace(/[^>]/g, "").length;
+    const itemIndent = columnWidth(content.match(/^[ \t]*/)[0]);
+    if (htmlEnd && (quoteDepth < htmlQuoteDepth || (content.trim() !== "" && itemIndent < htmlListIndent))) htmlEnd = null;
+    if (!htmlEnd && paragraph.length === 0 && content.trim() !== "" && itemIndent < listIndent) listIndent = 0;
+    const indented = !fence && !htmlEnd && paragraph.length === 0 && itemIndent >= listIndent + 4;
+    if (indented) {
+      byLine[line] = stripCodeSpans(text);
+      continue;
+    }
+    if (!htmlEnd && !fence && startsBlock(content, listIndent, paragraph.length > 0)) {
+      htmlEnd = htmlBlockEnd(content.trimStart());
+      htmlQuoteDepth = quoteDepth;
+      htmlListIndent = listIndent;
+    }
     if (htmlEnd) {
       flush();
       byLine[line] = text;
       if (htmlEnd.test(content)) htmlEnd = null;
       continue;
     }
+    if (!fence && paragraph.length === 0 && content.trimStart().startsWith("[")) {
+      const count = linkDefinitionLineCount([
+        content.trimStart(),
+        ...sourceLines.slice(line).map((text) => text.replace(/^(?: {0,3}>[ \t]?)+/, "")),
+      ].join("\n"));
+      if (count > 0) {
+        while (index < lines.length && lines[index].line < line + count) {
+          if (!lines[index].fence) byLine[lines[index].line] = lines[index].text;
+          index += 1;
+        }
+        index -= 1;
+        continue;
+      }
+    }
     const bullet = content.match(/^([ \t]*(?:[-+*]|\d{1,9}[.)]))([ \t]+|$)(.*)$/);
-    const itemIndent = columnWidth(content.match(/^[ \t]*/)[0]);
     const newItem = bullet && listIndent > 0 && itemIndent < listIndent;
     const boundary = startsBlock(content, listIndent, paragraph.length > 0) || newItem ||
       (quote && quote.replace(/[^>]/g, "").length !== previousQuote.replace(/[^>]/g, "").length);
@@ -334,9 +398,8 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
     for (const { line, text } of fenceBoundaries) byLine[line] = text;
   }
 
-  const lineCount = source.split("\n").length;
   const blanked = Array.from(
-    { length: lineCount },
+    { length: sourceLines.length },
     (_, index) => byLine[index + 1] ?? "",
   ).join("\n");
 

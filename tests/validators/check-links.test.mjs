@@ -91,7 +91,7 @@ describe("check-links.mjs", () => {
 
     it.each([
       ["multiline example", ["before ``", "[fake](./missing.md)", "`` after"], 0, /links OK \(0 links/],
-      ["quoted opener", ["before ``", "<!--", "`` after", "", "[real](./missing.md)", "-->"], 1, /source\.md -> \.\/missing\.md/],
+      ["quoted opener", ["before ``", "literal <!--", "`` after", "", "[real](./missing.md)", "-->"], 1, /source\.md -> \.\/missing\.md/],
       ["unmatched opener", ["before ``", "[real](./missing.md)", "` after"], 1, /source\.md -> \.\/missing\.md/],
       ["paragraph boundary", ["before ``", "", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
       ["heading boundary", ["before ``", "## Next", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
@@ -99,6 +99,11 @@ describe("check-links.mjs", () => {
       ["fence boundary", ["before ``", "~~~", "hidden", "~~~", "[real](./missing.md)", "`` after"], 1, /source\.md -> \.\/missing\.md/],
       ["closed HTML boundary", ["<script>``</script>", "[real](./missing.md) ``"], 1, /source\.md -> \.\/missing\.md/],
       ["multiline HTML boundary", ["<script>``", "</script>", "[real](./missing.md) ``"], 1, /source\.md -> \.\/missing\.md/],
+      ["indented code boundary", ["    example ``", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["actual comment boundary", ["before ``", "<!-- comment -->", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["raw HTML attribute", ['<span title="``">text</span>', "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["HTML container ends", ["> <script>", "`[fake](./missing.md)`"], 0, /links OK \(0 links/],
+      ["completed reference definition", ["[id]: /target``", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
     ])("checks the distinguishing link result for %s", async (name, lines, code, report) => {
       const root = await tempDir();
       await writeFileIn(root, "source.md", ["# Links", "", ...lines, ""].join(eol));

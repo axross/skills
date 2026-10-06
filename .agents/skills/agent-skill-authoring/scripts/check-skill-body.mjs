@@ -13,7 +13,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { closesParagraph, columnWidth, extractProse, FENCE_RE, htmlBlockEnd, isThematicBreak, scanLines, startsBlock, unterminatedFenceLine } from "./commonmark.mjs";
+import { closesParagraph, columnWidth, extractProse, FENCE_RE, htmlBlockEnd, isThematicBreak, linkDefinitionLineCount, scanLines, startsBlock, unterminatedFenceLine } from "./commonmark.mjs";
 import {
   GUIDELINES_RE,
   ROUTING_LINE_RE,
@@ -161,35 +161,6 @@ function guidelineKeywordFailures(body, file, offset) {
   return failures;
 }
 
-/** the source-line span of a valid link-reference definition, or zero. */
-function linkDefinitionLineCount(source) {
-  const definition = source.match(/^ {0,3}\[((?:\\[^\n]|[^\[\]\\]){1,999})\]:[ \t]*(?:\n[ \t]*)?(<(?:\\[^\n]|[^<>\\\n])*>|(?:\\[^\s]|[^\s<>\\\x00-\x1f\x7f])+)/);
-  if (!definition || !/\S/.test(definition[1]) || /\n[ \t]*\n/.test(definition[1])) return 0;
-
-  if (!definition[2].startsWith("<")) {
-    let depth = 0;
-    for (let index = 0; index < definition[2].length; index += 1) {
-      const character = definition[2][index];
-      if (character === "\\") {
-        index += 1;
-        continue;
-      }
-      if (character === "(") depth += 1;
-      if (character === ")") depth -= 1;
-      if (depth < 0) return 0;
-    }
-    if (depth !== 0) return 0;
-  }
-
-  let length = definition[0].length;
-  const tail = source.slice(length);
-  const title = tail.match(/^(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)("(?:\\[^\n]|[^"\\])*"|'(?:\\[^\n]|[^'\\])*'|\((?:\\[^\n]|[^()\\])*\))[ \t]*(?=\n|$)/);
-  if (title && !/\n[ \t]*\n/.test(title[1])) length += title[0].length;
-  else if (!/^[ \t]*(?:\n|$)/.test(tail)) return 0;
-
-  return 1 + (source.slice(0, length).match(/\n/g) ?? []).length;
-}
-
 /**
  * reject a Guidelines label introduced by reference routing in SKILL.md.
  * prose or a heading separates a substantive block from routing; blanks,
@@ -254,8 +225,8 @@ function routingBlockFailures(body, file, offset) {
     const block = startsBlock(source[line - 1], listIndent, !paragraphBreak && !ordered) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
     if (block) {
       if (!seenBullet || indent < listIndent) inRouting = false;
-      if (closesParagraph(source[line - 1])) {
-        htmlEnd = htmlBlockEnd(source[line - 1].trimStart());
+      if (closesParagraph(source[line - 1], listIndent)) {
+        htmlEnd = indent < listIndent + 4 ? htmlBlockEnd(source[line - 1].trimStart()) : null;
         if (htmlEnd?.test(source[line - 1])) htmlEnd = null;
         paragraphBreak = true;
         continue;

@@ -200,8 +200,8 @@ function* routingBullets(body) {
         inRouting = false;
         continue;
       }
-      if (closesParagraph(source[line - 1])) {
-        htmlEnd = htmlBlockEnd(source[line - 1].trimStart());
+      if (closesParagraph(source[line - 1], listIndent)) {
+        htmlEnd = indent < listIndent + 4 ? htmlBlockEnd(source[line - 1].trimStart()) : null;
         if (htmlEnd?.test(source[line - 1])) htmlEnd = null;
         paragraphBreak = true;
         continue;

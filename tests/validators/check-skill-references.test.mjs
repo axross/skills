@@ -47,6 +47,10 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     ["paragraph after multiline contained HTML", ["  <script>", "  raw", "  </script>", "independent"], 0],
     ["contained paragraph after HTML", ["  <script>", "  raw", "  </script>", "  nested"], 1],
     ["paragraph after separated contained HTML", ["  <div>", "  raw", "  </div>", "", "independent"], 0],
+    ["paragraph after indented code", ["", "      example", "independent"], 0],
+    ["paragraph after tab-indented code", ["", "  \t  example", "independent"], 0],
+    ["indented code cannot interrupt paragraph", ["      example", "continued"], 1],
+    ["contained paragraph after indented code", ["", "      example", "  nested"], 1],
     ["lazy paragraph after nonempty quote", ["  > nested", "continued"], 1],
     ["lazy paragraph after nonempty list", ["  + nested", "continued"], 1],
     ["contained plus item", ["  + nested"], 1],
@@ -127,13 +131,18 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
 
   it.each([
     ["multiline code", ["before ``", "[gone](#missing)", "`` after"], 0, /^PASS {2}/m],
-    ["multiline comment example", ["before ``", "<!--", "`` after", "", "[gone](#missing)", "-->"], 1, /anchors: SKILL\.md:12 link "#missing"/],
+    ["multiline comment example", ["before ``", "literal <!--", "`` after", "", "[gone](#missing)", "-->"], 1, /anchors: SKILL\.md:12 link "#missing"/],
     ["separate paragraphs", ["before ``", "", "[gone](#missing)", "`` after"], 1, /anchors: SKILL\.md:10 link "#missing"/],
     ["independent heading", ["before ``", "## Independent", "[gone](#missing)", "`` after"], 1, /anchors: SKILL\.md:10 link "#missing"/],
     ["separate list items", ["- before ``", "- [gone](#missing)", "  `` after"], 1, /anchors: SKILL\.md:9 link "#missing"/],
     ["fenced boundary", ["before ``", "~~~", "hidden", "~~~", "[gone](#missing)", "`` after"], 1, /anchors: SKILL\.md:12 link "#missing"/],
     ["closed HTML block", ["<script>``</script>", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
     ["multiline HTML block", ["<script>``", "</script>", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:10 link "#missing"/],
+    ["indented code boundary", ["    example ``", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["actual comment boundary", ["before ``", "<!-- comment -->", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:10 link "#missing"/],
+    ["raw HTML attribute", ['<span title="``">text</span>', "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["HTML container ends", ["> <script>", "`[gone](#missing)`"], 0, /^PASS {2}/m],
+    ["completed reference definition", ["[id]: /target``", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
   ])("uses shared inline boundaries for %s", async (name, lines, code, report) => {
     const root = await tempDir();
     const dir = await writeSkill(root, "wrapped-link", {
