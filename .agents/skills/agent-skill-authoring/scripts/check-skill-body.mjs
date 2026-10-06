@@ -201,7 +201,7 @@ function routingBlockFailures(body, file, offset) {
       paragraphBreak = false;
       continue;
     }
-    if (seenBullet && !paragraphBreak && !/^#{1,6}\s+/.test(text)) continue;
+    if (seenBullet && !paragraphBreak && !/^(?:#{1,6}\s+|>)/.test(text)) continue;
     inRouting = false;
   }
 

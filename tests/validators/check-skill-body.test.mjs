@@ -367,6 +367,40 @@ describe("check-skill-body.mjs", () => {
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
     });
 
+    it("accepts a substantive block after an interrupting block quote", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "rule-after-blockquote", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "> This rule stays in the body because it applies on every turn.",
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
+    it("rejects a routing block after a nested block quote", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "nested-blockquote-routing", {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- when topic detail is needed",
+          "  > An example of the selection condition.",
+          "",
+          "**Guidelines:**",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
     it("accepts a substantive block in a new section after routing", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "rule-after-heading", {
