@@ -34,10 +34,16 @@ Closes #
 
 <!--
 Every acceptance criterion a reviewer can confirm or refute from this diff,
-quoted verbatim from the approved plan, each with its status — met, not met,
-or unverifiable. Then the number of criteria not carried here, a link to the
-issue that holds them, and the plan revision this was copied from, as that
-issue's state block records it.
+and every criterion the approved plan designates for out-of-tree verification,
+quoted verbatim including its designation, each with its status — met, not met,
+unverifiable, or pending evidence. Include a published evidence link beside
+each designated criterion unless its approved destination requires creating
+this draft first; in that case, record the approved destination and pending
+status. Follow the publication sequence in
+.claude/skills/loop-engineering/references/phase-progression.md (Deliver and
+Address) to publish and verify the evidence link before readiness. Then the
+number of criteria not carried here, a link to the issue that holds them, and
+the plan revision this was copied from, as that issue's state block records it.
 
 Reviewers work from this section alone; they are not expected to open the
 issue. Do not restate a criterion in your own words — a softened criterion is

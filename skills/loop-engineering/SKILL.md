@@ -43,6 +43,7 @@ See [phase-progression.md](./references/phase-progression.md) for:
 See [plan-document.md](./references/plan-document.md) for:
 
 - the canonical plan sections and approval target
+- agreeing necessary out-of-tree verification and its evidence destination during planning
 - revision identity, amendment approval, and visual choices
 
 **Guidelines:**
@@ -102,6 +103,7 @@ See [pre-flight-review.md](./references/pre-flight-review.md) for:
 See [independent-review.md](./references/independent-review.md) for:
 
 - mandatory external independence, fresh review rounds, and the four-round address cap
+- identifiable posted completion without affirmative per-check assertions, distinct from explicit limitations and contributor evidence
 - external fixed, human-dismissed, and outstanding dispositions without rewriting reviewer history
 - convergence distinct from conversation closure, including substantive metadata changes
 - conflict remediation, affected verification, timeout, and ready conditions

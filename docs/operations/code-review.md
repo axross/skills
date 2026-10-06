@@ -95,26 +95,30 @@ For a representative authorized draft review, maintainers MUST:
    the returned review and comments with the request and reviewed commit.
    Preserve each run stage observable on GitHub. A previous run's output,
    successful CI or trigger reaction alone is not a completed review.
-3. Inspect original output against every required REVIEW.md check and
-   posted-report rule, following its methodology references. Record conformance
-   for each requirement separately; do not translate priorities or manufacture
-   a compliant tally.
+3. Inspect original findings, explicit limitations and posted-report conformance
+   against REVIEW.md, following its methodology references. Apply
+   [Loop Engineering's review-completion boundary](../../skills/loop-engineering/references/independent-review.md)
+   rather than requiring affirmative assertions for every successful check.
+   Do not translate priorities or manufacture a compliant tally.
 4. Record actual provider input and configuration only when exposed by permitted
    read-only provider evidence. Distinguish assembled input from references
    actually loaded, including the policy revision used. Mark inaccessible fields
    unknown. Protect sensitive input; restrict public evidence to Delivery's
    correlation metadata.
-5. Keep failed output conformance or unavailable required propagation evidence
-   as an unmet gate on the draft. Return the specific missing evidence or policy
-   decision to the Owner before changing policy or the external control plane.
-   Neither a completed run nor another work item's human acceptance
-   supplies a permanent exception.
+5. Keep failed output conformance, known provider capability conflicts and
+   explicit missing-material or unchecked-scope reports as unmet gates on the
+   draft. Unknown provider input alone does not establish such a failure or
+   require a positive coverage audit. Return a blocker the applicable recovery
+   phase cannot resolve to the Owner before changing policy or the external
+   control plane. Neither a completed run nor another work item's human
+   acceptance supplies an exception to the retained output contract.
 
 Use discriminating evidence when safe and authorized:
 
 - A real consequential hard-rule miss or opposing applicable guidance tests
   rule selection.
-- An unmet, missing or no-line PR criterion tests criterion coverage and placement.
+- A code-demonstrable violation, absent criteria section or no-line PR finding
+  tests criterion scope and placement.
 - A no-findings round tests the required empty report.
 
 Inspect each against the retained contract, not merely the presence of a review

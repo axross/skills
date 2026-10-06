@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "d11eb18422ef0a38083487bb05c6f4b9502ef7f8080104a4b99acc5b2c103c4d"
+      "computedHash": "7d8051a27f8c36bc0a94724f4d0723d1e67d765a9d382e455e111d45140f9e0b"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "4daabd0d47fbb62051ebae5fb412281ab4e8181681f7ffc441887d4df8023579"
+      "computedHash": "83a391182ff9f23aa32fe0c59c9d7b23630190fa165f6aa3e61f7ab98bef5943"
     },
     "next-app-development": {
       "source": "./skills",
@@ -79,7 +79,7 @@
     "product-requirement-document-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "02b8770e9b8dcf6d94f92702ca155c67bc6e325af40da9d260a74d17c6814cef"
+      "computedHash": "b417f087751684625cc7b6712cfb5fcfd5b5dd6f179b89241b973f975ad3f42f"
     },
     "professional-behavior": {
       "source": "./skills",
@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b34ad09c8e4d8a134aa0aa8bc14d7032eac41230563952af0fea40093a630178"
+      "computedHash": "d37ff0b59afc09e221cb58e2551dff76e80fda30ab7b745104efe4631a7ddd50"
     },
     "react-component-development": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "434ae9e1ead158ed6adbb4c3f6a06892b676d46757b38c863a66f3d1a7771b87"
+      "computedHash": "bfaca6deb294b687009335075f9fadaf5722294c0ce2c183f2103fb594d4b6a1"
     },
     "software-instrumentation": {
       "source": "./skills",

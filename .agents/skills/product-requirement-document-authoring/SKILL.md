@@ -111,10 +111,14 @@ See [acceptance-criteria.md](./references/acceptance-criteria.md) for:
 
 See [verification-strategy.md](./references/verification-strategy.md) for:
 
-- writing the ordered verification steps that show the work is done
+- writing the ordered verification steps that show the work is done, including the method and evidence mapping for criterion designations owned by the project's change loop
 - steps-to-reproduce for bug work, before and after the fix
 - naming the verification gates your project's changed surface requires
 - naming the test coverage to add or update
+
+**Guidelines:**
+
+- MUST read [verification-strategy.md](./references/verification-strategy.md) before drafting or reviewing a Verification strategy section or a criterion requiring external verification.
 
 ## Plan Document Template
 

@@ -87,6 +87,7 @@ describe("CommonMark fence parsing", () => {
         root,
         "[example](./definitely-missing.md)",
       );
+      await writeFileIn(root, "review-lenses.md", "# Review Lenses\n");
 
       expect(checkLinks(root)).toPassCleanly();
     });
