@@ -4,7 +4,7 @@ Apply this reference when qualifying a GitHub channel or handling a failure. A r
 
 ## Qualify an Authenticated Route
 
-The sanctioned channel is the harness's GitHub tool channel: for example, GitHub MCP in a configured Claude Code session. Neither the name Amp nor the absence of MCP establishes what other routes work. A permitted alternative is an authenticated, high-level route the session already provides, such as a GitHub CLI operation.
+The sanctioned channel is the harness's GitHub tool channel: for example, GitHub MCP in a configured Claude Code session. Neither the name Amp nor the absence of MCP establishes what other routes work. A candidate alternative is an authenticated route the session already provides, such as a GitHub CLI operation.
 
 Two channel properties can justify an alternative:
 
@@ -15,7 +15,7 @@ An authentication failure, timeout, rate limit, or 5xx is neither property. It i
 
 **Guidelines:**
 
-- MAY select another authenticated, high-level route only when the sanctioned channel is absent or has an established normal-operation limitation for the requested operation.
+- MAY select another authenticated route only when the sanctioned channel is absent or has an established normal-operation limitation for the requested operation; any raw route MUST also satisfy [raw-operation qualification](#keep-raw-operations-default-deny).
 - MUST establish the alternative's presence and authenticated identity without printing credentials; keep tokens out of commands, logs, and output.
 - MUST qualify the route's operation, target, required fidelity, and verification capability under the current host restrictions and least permission needed.
 - MUST NOT use an alternative to reach an operation a present sanctioned channel does not expose, or to bypass a prohibited purpose.
