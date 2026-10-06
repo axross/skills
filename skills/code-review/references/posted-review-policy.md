@@ -2,15 +2,24 @@
 
 Apply this reference when the review's output is **posted** to a pull request — by an automated CI reviewer or a managed review product — rather than kept as an internal self-review report. A posted review is read by the change's author and teammates, so it trades the internal four-tier vocabulary for a tighter, lower-noise shape. When these rules conflict with the internal report format, the posted rules win for posted output only; the internal triage still runs underneath.
 
+## Project-Adopted Review Arrangements
+
+The presentation and all-findings reporting rules below are defaults for authored reports. A project may explicitly accept a managed review's native labels, container, summary and reporting scope instead. That choice accepts the risk of unreported omissions; it does not prove exhaustive inspection, waive substantive review checks or establish readiness by itself.
+
+**Guidelines:**
+
+- MUST apply an explicitly adopted project arrangement instead of conflicting default presentation or all-findings reporting rules, including the labels used in Mandatory Checks; absent that arrangement, apply the defaults below.
+- MUST preserve original posted findings, severities and citations without manufacturing a tally, relabeling them or demanding reformatting solely to satisfy the defaults.
+- MUST distinguish an accepted reporting filter from an explicit statement that required review material or scope was not checked; the filter alone is not such a limitation.
+
 ## Posted vs Internal
 
 The internal review (the four-tier report in evidence-and-reporting.md) is the reviewer's own working triage. The posted review is a communication to the author. The same findings drive both, but they are labeled and grouped differently.
 
 **Guidelines:**
 
-- MUST keep using the internal Critical/Major/Minor/Nit triage and the Approve / Approve with Nits / Request Changes verdict to _decide_ what to report; they never appear in posted output.
-- MUST switch to the posted shape below whenever the review is written to a pull-request thread rather than returned as a self-review report.
-- SHOULD adopt any repository-provided posted-review policy on top of these defaults, and let that policy win where it is stricter or more specific.
+- MUST keep using the internal Critical/Major/Minor/Nit triage and the Approve / Approve with Nits / Request Changes verdict in internal self-review and authored-report triage; the default posted output does not carry them.
+- MUST use the posted defaults below when writing to a pull-request thread without an explicitly adopted alternative arrangement.
 
 ## Two-Label Severity
 

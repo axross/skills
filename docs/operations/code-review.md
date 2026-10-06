@@ -44,9 +44,11 @@ metrics and logs only because the reviewer has broad `Bash` access.
 ## Run the Codex reviewer
 
 Comment `@codex review` on a pull request. The Codex GitHub integration answers
-as `chatgpt-codex-connector[bot]`, posting a summary comment carrying the
-`<!-- codex-pull-request-review-summary -->` marker, with its findings as an
-ordinary pull-request review.
+as `chatgpt-codex-connector[bot]`. Its mutable activity comment carries the
+`<!-- codex-pull-request-review-summary -->` marker; that comment's Completed
+status is not itself a posted reviewer result. Inspect the separate published
+review or no-findings bot comment and correlate it with the request and
+reviewed material.
 
 Nothing in this repository runs it. The route is added to the organization or
 repository from Codex's own settings, which means enabling, disabling, or
@@ -59,12 +61,14 @@ identifies `## Code Review Rules` in `AGENTS.md` as its repository-rules hook.
 The root [`AGENTS.md`](../../AGENTS.md) uses that heading to route to
 [`REVIEW.md`](../../REVIEW.md) and the existing methodology, rather than copy
 their checks. A resolvable route is not evidence that the connector traversed
-it. The provider documents a native P0/P1-only report. That filter conflicts
-with this repository's all-findings contract, independently of custom labels
-and format. Keep the contract gate unmet unless permitted provider evidence
-demonstrates lower-priority reporting and the retained report shape. A quiet
-review alone cannot qualify a capability that could suppress required findings;
-historical P2/P3 output likewise does not establish the current filter setting.
+it. The provider documents a native P0/P1-only report (see
+[Codex with GitHub](https://learn.chatgpt.com/codex/third-party/github), checked
+2026-10-06). REVIEW.md explicitly accepts native presentation and reporting
+scope. Neither that documented filter nor absent lower-priority completeness
+proof blocks this route. This acceptance does not establish the connector's
+current configuration or exhaustive coverage; historical P2/P3 output likewise
+does not establish the current filter setting. Any actual finding still needs
+disposition under Loop and Delivery.
 
 ## Qualify Codex policy delivery
 
@@ -73,7 +77,7 @@ Qualification separates four observations:
 - The source is available.
 - The provider loaded the input, when observable.
 - Execution completed.
-- The published result conforms.
+- An identifiable reviewer-origin result was published under the adopted arrangement.
 
 None implies the next. A finding citing a rule proves awareness of that rule,
 not traversal of every required reference or check.
@@ -95,23 +99,25 @@ For a representative authorized draft review, maintainers MUST:
    the returned review and comments with the request and reviewed commit.
    Preserve each run stage observable on GitHub. A previous run's output,
    successful CI or trigger reaction alone is not a completed review.
-3. Inspect original findings, explicit limitations and posted-report conformance
-   against REVIEW.md, following its methodology references. Apply
+3. Inspect original findings, explicit limitations and result correlation
+   against REVIEW.md's adopted arrangement. Apply
    [Loop Engineering's review-completion boundary](../../skills/loop-engineering/references/independent-review.md)
-   rather than requiring affirmative assertions for every successful check.
-   Do not translate priorities or manufacture a compliant tally.
+   rather than requiring affirmative assertions for every successful check,
+   custom labels, a formal review object, a zero tally or a boilerplate-free
+   summary. Do not translate priorities or manufacture a compliant tally.
 4. Record actual provider input and configuration only when exposed by permitted
    read-only provider evidence. Distinguish assembled input from references
    actually loaded, including the policy revision used. Mark inaccessible fields
    unknown. Protect sensitive input; restrict public evidence to Delivery's
    correlation metadata.
-5. Keep failed output conformance, known provider capability conflicts and
-   explicit missing-material or unchecked-scope reports as unmet gates on the
-   draft. Unknown provider input alone does not establish such a failure or
-   require a positive coverage audit. Return a blocker the applicable recovery
-   phase cannot resolve to the Owner before changing policy or the external
-   control plane. Neither a completed run nor another work item's human
-   acceptance supplies an exception to the retained output contract.
+5. Keep missing or uncorrelated results, explicit missing-material or
+   unchecked-required-scope reports, and concrete violations of the adopted
+   completion contract as unmet gates on the draft. An accepted reporting
+   filter is not such a limitation. Unknown provider input alone does not
+   establish failure or require a positive coverage audit. Return a blocker the
+   applicable recovery phase cannot resolve to the Owner before changing policy
+   or the external control plane. Completion is not convergence: unresolved
+   findings and other readiness conditions still follow Loop and Delivery.
 
 Use discriminating evidence when safe and authorized:
 
@@ -119,9 +125,10 @@ Use discriminating evidence when safe and authorized:
   rule selection.
 - A code-demonstrable violation, absent criteria section or no-line PR finding
   tests criterion scope and placement.
-- A no-findings round tests the required empty report.
+- A no-findings round tests reviewer-origin completion and material correlation,
+  not a required empty formal review or tally.
 
-Inspect each against the retained contract, not merely the presence of a review
+Inspect each against the adopted contract, not merely the presence of a review
 or a thumbs-up. Mark cases unexecuted/unqualified when the necessary evidence
 cannot be obtained within authorization. Do not introduce production defects or
 fabricate findings. Extra test PRs and review effects need their own authorization.

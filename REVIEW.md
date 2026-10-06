@@ -11,17 +11,43 @@ routes to this file via its system-prompt bootstrap.
 including Codex, here. These entry points state the required behavior; they do
 not prove that a hosted provider loaded the file or can replace its native
 report format. [Code Review operations](docs/operations/code-review.md) owns
-qualification of policy delivery and published output. Unverified capability
-does not relax the policy below.
+qualification of policy delivery and published output. Unobserved provider
+input remains unknown, not proof of policy consumption or a failed review.
 
 This is a **strict** review: run every mandatory check below, assess the
 acceptance criteria the pull request body carries within the scope below, and
-report every finding. The criteria a review is measured against are on
-the pull request itself; no reviewer here opens the tracking issue to find them.
+report findings under the adopted arrangement below. The pull request itself
+carries the criteria; no reviewer here opens the tracking issue to find them.
+
+## Adopted Review Arrangements
+
+Substantive review checks apply to both routes. Presentation and reporting
+scope follow these explicitly adopted arrangements, overriding conflicting
+defaults throughout this file and Code Review's posted-review policy:
+
+- **Codex** — accept native priorities, review comments and no-findings bot
+  comments, summaries and provider boilerplate. No Important/Nit conversion,
+  formal review object, zero tally, affirmative check-by-check assertions or
+  proof of lower-priority completeness is required. The documented
+  high-priority reporting filter is accepted, not an unchecked-material
+  limitation. Preserve any actual finding, including P2/P3, with its original
+  identity, priority and citations; native acceptance never dismisses it.
+- **Claude** — accept the existing workflow's diff-anchored comments plus a
+  standalone summary rather than requiring one formal review submission.
+  Important/Nit labels, all-findings reporting, the tally and summary-scope
+  defaults remain applicable.
+
+Accepting native scope accepts unreported omissions, not proof that every
+instruction was consumed or every criterion checked. An identifiable posted
+reviewer-origin result correlated with the request and reviewed material is
+still required. Explicit unchecked required material, outstanding findings,
+fresh-review requirements, contributor evidence and all other readiness gates
+remain governed by
+[Loop Engineering](skills/loop-engineering/references/independent-review.md).
 
 ## Severity Vocabulary for Posted Reviews
 
-A posted review uses the two-label vocabulary — Important and Nit — from
+The default posted vocabulary — Important and Nit — comes from
 [Code Review](.claude/skills/code-review/SKILL.md)'s
 [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
 section, replacing the internal Critical/Major/Minor/Nit triage and the
@@ -41,9 +67,9 @@ changed files, subject to Code Review's acceptance-criteria finding boundary.
 On top of the generic severity floors in
 [Code Review](.claude/skills/code-review/SKILL.md), this Markdown-skills
 repository fixes minimum severities for its own recurring defect classes. These
-govern **internal** self-review triage; a posted review still suppresses any row
-the [Do Not Report](#do-not-report) list excludes as CI-enforced, and maps what
-remains onto the Important/Nit labels above.
+govern **internal** self-review triage. Default posted reporting suppresses rows
+the [Do Not Report](#do-not-report) list excludes as CI-enforced, and maps the
+remaining findings onto the Important/Nit labels above.
 
 | Category                                                                                                  | Minimum severity |
 | --------------------------------------------------------------------------------------------------------- | ---------------- |
@@ -212,15 +238,16 @@ not mistaken for CI-covered:
 
 [Code Review](.claude/skills/code-review/SKILL.md)'s
 [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-ci-reviews)
-section owns the reporting shape — inline comments anchored to the diff, one
-summary comment opening with a tally, findings and explicit limitations without
-affirmative enumeration of successful checks. Independent-review completion
-and readiness follow
+section owns default reporting, subject to the
+[adopted arrangements](#adopted-review-arrangements) above. Completion and
+readiness follow
 [Loop Engineering](skills/loop-engineering/references/independent-review.md);
 reviewer silence does not waive contributor verification or evidence obligations.
 
 **Guidelines:**
 
-- MUST post any pull-request review as a **COMMENT**-type review — never
+- MUST use **COMMENT** when submitting a formal pull-request review — never
   APPROVE or REQUEST_CHANGES — per the project's GitHub-operation
-  conventions; this reviewer is advisory and does not gate merges.
+  conventions; the external reviewer is advisory and does not gate merges.
+  This verdict rule does not require a formal review object where the adopted
+  arrangement uses comments.

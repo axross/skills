@@ -80,7 +80,7 @@ See [independent-review.md](./references/independent-review.md) for:
 
 - requesting, addressing, or evaluating an independent review, or publishing the ready transition
 - mandatory external independence, fresh review rounds, and the four-round address cap
-- identifiable posted completion without affirmative per-check assertions, distinct from explicit limitations and contributor evidence
+- identifiable posted completion under the project's adopted presentation and reporting scope, without affirmative per-check assertions, distinct from explicit limitations and contributor evidence
 - external fixed, human-dismissed, and outstanding dispositions without rewriting reviewer history
 - convergence distinct from conversation closure, including substantive metadata changes
 - conflict remediation, affected verification, timeout, and ready conditions
