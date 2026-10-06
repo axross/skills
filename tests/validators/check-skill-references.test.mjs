@@ -221,6 +221,66 @@ describe("check-skill-references.mjs", () => {
       );
     });
 
+    it.each([
+      ["unfenced", []],
+      ["wrapped", ["  with a wrapped continuation"]],
+      ["backtick", ["", "  ```markdown", "  - MUST ignore this illustrative rule.", "  ```", ""]],
+      ["tilde", ["", "  ~~~markdown", "  - MUST ignore this illustrative rule.", "  ~~~", ""]],
+    ])("checks routing bullets after a %s example or continuation", async (name, example) => {
+      const root = await tempDir();
+      for (const rule of ["MUST reject this actual routing rule.", "choosing the next topic"]) {
+        const dir = await writeSkill(root, `${name}-${rule.startsWith("MUST") ? "normative" : "descriptive"}`, {
+          body: [
+            "# Routing Examples",
+            "",
+            "## Some Topic",
+            "",
+            "See [topic.md](./references/topic.md) for:",
+            "",
+            "- choosing the first topic",
+            ...example,
+            `- ${rule}`,
+            "",
+          ].join("\n"),
+          references: { "topic.md": "# Topic\n\nDetail.\n" },
+        });
+
+        const result = checkSkill(dir);
+        if (rule.startsWith("MUST")) {
+          expect(result).toReportFailure(/routing: section "Some Topic" has a routing bullet starting with an RFC-2119 keyword/);
+          expect(result.stdout.match(/routing: section/g)).toHaveLength(1);
+        } else {
+          expect(result).toPassCleanly();
+          expect(result.stdout).not.toMatch(/routing:/);
+        }
+      }
+    });
+
+    it.each(["This rule", "`process.exit`"])("leaves substantive rules after separating prose beginning with %s alone", async (opening) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "separate-rule", {
+        body: [
+          "# Separate Rule",
+          "",
+          "See [topic.md](./references/topic.md) for:",
+          "",
+          "- choosing the topic",
+          "",
+          `${opening} belongs in the body rather than behind a pointer.`,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+          "",
+        ].join("\n"),
+        references: { "topic.md": "# Topic\n\nDetail.\n" },
+      });
+
+      const result = checkSkill(dir);
+      expect(result).toPassCleanly();
+      expect(result.stdout).not.toMatch(/routing:/);
+    });
+
     it("reports a relative link that escapes the skill directory", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "escaping-link", {

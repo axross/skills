@@ -243,7 +243,7 @@ function routingBlockFailures(body, file, offset) {
       inRouting = false;
       continue;
     }
-    if (/^\s/.test(text) || /^-\s+/.test(text)) {
+    if (/^\s/.test(source[line - 1]) || /^-\s+/.test(text)) {
       const bullet = text.match(/^-[ \t]+/);
       if (bullet) {
         seenBullet = true;

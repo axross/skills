@@ -129,7 +129,7 @@ function documentLinks(body) {
 /**
  * every routing bullet in a SKILL.md, with the section heading above it.
  *
- * only the contiguous bullet list immediately following a
+ * only the bullet list immediately following a
  * `See […](./references/…) for:` line is a routing list; a later
  * `**Guidelines:**` block in the same section (as a self-contained workflow
  * skill may carry) is left alone.
@@ -149,35 +149,31 @@ function documentLinks(body) {
  *   within `body`; `rule` is the bullet's trimmed text.
  */
 function* routingBullets(body) {
-  const source = body.split("\n");
+  const source = body.replace(/\r/g, "").split("\n");
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
-  let seenBullet = false; // a routing bullet has appeared since the See line
 
   for (const { line, text } of extractProse(body).lines) {
     const heading = text.match(/^#{2,}\s+(.*)$/);
     if (heading) {
       section = heading[1].trim();
       inRouting = false;
-      seenBullet = false;
       continue;
     }
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
-      seenBullet = false;
       continue;
     }
     if (!inRouting) continue;
 
     const bullet = text.match(/^\s*-\s+(.*)$/);
     if (bullet) {
-      seenBullet = true;
       yield { line, section, rule: source[line - 1].replace(/^\s*-\s+/, "").trim() };
       continue;
     }
-    // a blank line before the first bullet is the lead-in gap; any other line,
-    // or a blank line after the bullets, ends the routing list.
-    if (text.trim() === "" && !seenBullet) continue;
+    // loose-list blanks, blanked examples and indented continuations do not end
+    // routing. source indentation avoids treating inline-code removal as indent.
+    if (text.trim() === "" || /^\s/.test(source[line - 1])) continue;
     inRouting = false;
   }
 }
