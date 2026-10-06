@@ -13,7 +13,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { FENCE_RE, scanLines, unterminatedFenceLine } from "./commonmark.mjs";
+import { extractProse, FENCE_RE, scanLines, unterminatedFenceLine } from "./commonmark.mjs";
 import {
   GUIDELINES_RE,
   ROUTING_LINE_RE,
@@ -164,7 +164,7 @@ function guidelineKeywordFailures(body, file, offset) {
 /**
  * reject a Guidelines label introduced by reference routing in SKILL.md.
  * prose or a heading separates a substantive block from routing; blanks,
- * list continuations, and fenced examples do not.
+ * list continuations, HTML comments, and fenced examples do not.
  *
  * @param {string} body
  * @param {string} file
@@ -175,8 +175,7 @@ function routingBlockFailures(body, file, offset) {
   const failures = [];
   let inRouting = false;
 
-  for (const { line, text, fence } of scanLines(body)) {
-    if (fence) continue;
+  for (const { line, text } of extractProse(body).lines) {
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
       continue;

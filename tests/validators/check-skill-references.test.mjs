@@ -145,6 +145,24 @@ describe("check-skill-references.mjs", () => {
       expect(result.stdout).not.toMatch(/^\s+- anchors:/m);
     });
 
+    it.each(["for:", "when:", "when"])("does not treat an inline See ... %s example as routing", async (leadIn) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "inline-routing-example", {
+        body: [
+          "# Inline Routing Example",
+          "",
+          "## Some Topic",
+          "",
+          `Use \`See [topic.md](./references/topic.md) ${leadIn} needed\` as the inline form.`,
+          "",
+          "- MUST preserve this substantive rule.",
+          "",
+        ].join("\n"),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
   });
 
   describe("exit 1 — each implemented failure class", () => {

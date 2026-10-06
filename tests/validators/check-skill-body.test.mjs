@@ -194,6 +194,43 @@ describe("check-skill-body.mjs", () => {
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce a `\*\*Guidelines:\*\*` block/);
     });
 
+    it.each([
+      ["single-line", "<!-- reference selection note -->"],
+      ["multiline", "<!--\nreference selection note\n-->"],
+    ])("rejects a routing guidelines block after a %s HTML comment", async (name, comment) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, `${name}-comment-routing`, {
+        body: withTopic(
+          `See [topic.md](./references/topic.md) ${leadIn}`,
+          "",
+          "- what the reference covers",
+          "",
+          comment,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST read [topic.md](./references/topic.md) before doing the narrow thing.",
+        ),
+      });
+
+      expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
+    });
+
+    it("accepts a substantive block after an inline-code routing example", async () => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "inline-routing-example", {
+        body: withTopic(
+          `Use \`See [topic.md](./references/topic.md) ${leadIn} needed\` as the inline form.`,
+          "",
+          "**Guidelines:**",
+          "",
+          "- MUST preserve this substantive rule.",
+        ),
+      });
+
+      expect(checkSkill(dir)).toPassCleanly();
+    });
+
     it("accepts a routing list with no guidelines block at all", async () => {
       const root = await tempDir();
       const dir = await writeSkill(root, "no-guidelines-block", {
