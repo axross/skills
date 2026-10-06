@@ -604,10 +604,10 @@ describe("report-obligation-burden.mjs", () => {
       // three posted-review completion rules in loop references, not the floor.
       // token bounds cover prose and routing too, not only obligation deltas;
       // code-review is outside this mandated set.
-      expect.soft(totals.floorObligations).toBe(41);
-      expect.soft(totals.floorTokens).toBe(6_842);
-      expect.soft(totals.ceilingObligations).toBe(508);
-      expect.soft(totals.ceilingTokens).toBe(44_146);
+      expect.soft(totals.floorObligations).toBe(45);
+      expect.soft(totals.floorTokens).toBe(7_199);
+      expect.soft(totals.ceilingObligations).toBe(529);
+      expect.soft(totals.ceilingTokens).toBe(47_095);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -624,20 +624,20 @@ describe("report-obligation-burden.mjs", () => {
 
       // obligation counts alone miss changes to prose or to placement between
       // bodies and references, so each tier needs its token bounds pinned too.
-      expect.soft(tiers[0].floorObligations).toBe(15);
-      expect.soft(tiers[0].floorTokens).toBe(2_558);
-      expect.soft(tiers[0].ceilingObligations).toBe(159);
-      expect.soft(tiers[0].ceilingTokens).toBe(14_490);
+      expect.soft(tiers[0].floorObligations).toBe(16);
+      expect.soft(tiers[0].floorTokens).toBe(2_687);
+      expect.soft(tiers[0].ceilingObligations).toBe(167);
+      expect.soft(tiers[0].ceilingTokens).toBe(15_523);
 
-      expect.soft(tiers[1].floorObligations).toBe(24);
-      expect.soft(tiers[1].floorTokens).toBe(4_524);
-      expect.soft(tiers[1].ceilingObligations).toBe(291);
-      expect.soft(tiers[1].ceilingTokens).toBe(28_072);
+      expect.soft(tiers[1].floorObligations).toBe(27);
+      expect.soft(tiers[1].floorTokens).toBe(4_780);
+      expect.soft(tiers[1].ceilingObligations).toBe(308);
+      expect.soft(tiers[1].ceilingTokens).toBe(30_236);
 
-      expect.soft(tiers[2].floorObligations).toBe(41);
-      expect.soft(tiers[2].floorTokens).toBe(6_842);
-      expect.soft(tiers[2].ceilingObligations).toBe(508);
-      expect.soft(tiers[2].ceilingTokens).toBe(44_146);
+      expect.soft(tiers[2].floorObligations).toBe(45);
+      expect.soft(tiers[2].floorTokens).toBe(7_199);
+      expect.soft(tiers[2].ceilingObligations).toBe(529);
+      expect.soft(tiers[2].ceilingTokens).toBe(47_095);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -664,8 +664,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(508);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(508);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(529);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(529);
     });
 
     it("prints no tier block without --mandated", async () => {

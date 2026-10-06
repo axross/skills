@@ -81,6 +81,16 @@ See [writer-ownership-and-recovery.md](./references/writer-ownership-and-recover
 
 ## Review and Readiness
 
+See [finding-response.md](./references/finding-response.md) for:
+
+- author-side feedback judgment and causal correction selection in both review stages
+- the bounded response practice when conduct or development capabilities are absent
+- response reasoning distinct from finding disposition and fresh-review input
+
+**Guidelines:**
+
+- MUST read [finding-response.md](./references/finding-response.md) before choosing a response to an advisory pre-flight or independent-review finding.
+
 See [pre-flight-review.md](./references/pre-flight-review.md) for:
 
 - advisory review findings, terminal states, deferred human handoffs, dismissal authority, and durable parks

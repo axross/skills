@@ -53,9 +53,15 @@ See [code-quality.md](./references/code-quality.md) for:
 See [change-management.md](./references/change-management.md) for:
 
 - staying within the scope of the task
+- tracing a correction to its evidenced cause and owner instead of patching symptoms
+- selecting a coherent remedy, including shared causes and temporary mitigation
 - making incremental, independently verifiable changes
 - following existing patterns before introducing new ones
 - weighing whether to add a dependency
+
+**Guidelines:**
+
+- MUST read [change-management.md](./references/change-management.md) before implementing a defect correction, addressing a review finding, or refactoring behavior.
 
 ## Project Documentation
 
@@ -88,6 +94,11 @@ See [verification.md](./references/verification.md) for:
 
 - mapping changed files to the output surfaces they put at risk before choosing a verification path
 - the manual verification steps that confirm a change before it is called done, and why a passing gate is not one of them
+- checking that a correction achieves the intended outcome without sacrificing required behavior
+
+**Guidelines:**
+
+- MUST read [verification.md](./references/verification.md) before choosing verification for a defect correction or review-driven change.
 
 ## Current External Documentation
 

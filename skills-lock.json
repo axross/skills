@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "911b3014811f3c7063e261253d58bdfbfb831c04e94ac81304d6c52840101c85"
+      "computedHash": "83a391182ff9f23aa32fe0c59c9d7b23630190fa165f6aa3e61f7ab98bef5943"
     },
     "next-app-development": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "37deefdac7dd99d34c6202138ba824504a7c05fbba2b53baf5a120137909fb6e"
+      "computedHash": "09d692fd44f21a23cba15fd3dd518801798e031e7c48b83589c30efa4f012754"
     },
     "quality-assurance": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "05f95bfbb70ed4b2d4b4a6b5ed13ec3b39b06f4d392eed7356a21e3d38ec4481"
+      "computedHash": "bfaca6deb294b687009335075f9fadaf5722294c0ce2c183f2103fb594d4b6a1"
     },
     "software-instrumentation": {
       "source": "./skills",
