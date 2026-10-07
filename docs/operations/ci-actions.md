@@ -51,8 +51,12 @@ Maintainers MUST follow this sequence for an action update:
    action together, retaining the exact release tag as a trailing YAML comment.
 4. Run the documented format, lint and aggregate checks in
    [README](../../README.md#commands). The existing suite's action-pin check is
-   offline: it rejects mutable repository refs, short SHAs and missing release
-   labels, but cannot authenticate the label-to-commit mapping.
+   offline: it parses workflow mappings using the existing Markdown toolchain's
+   YAML parser and compares remote job/step references with labeled block-style
+   `uses` entries. Quoted keys and scalar values are accepted; other forms that
+   cannot be matched to their release comment fail closed rather than disappear
+   from inspection. It rejects mutable refs, short SHAs and missing labels, but
+   cannot authenticate the label-to-commit mapping.
 5. Publish through the approved draft-PR and external-review route, inspect actual
    PR checks, and leave merge to the human. Scheduled and issue-comment workflows
    do not exercise a proposed pin merely because that PR's checks pass; their
