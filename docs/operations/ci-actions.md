@@ -54,14 +54,15 @@ trailing YAML comment on each SHA reference.
 
 Run the documented format, lint and aggregate checks in
 [README](../../README.md#commands). The reference-policy check is offline: it
-accepts major, minor and exact version tags within each trusted action's selected
+accepts major and exact version tags within each trusted action's selected
 major, or full SHAs with release labels. An approved major upgrade MUST update
 the test's accepted major alongside this inventory and the workflows.
 It checks actual job/step entries, including
 quoted keys and values, not unrelated environment keys. For SHA references it
 requires a block-style `uses` entry so each release comment stays at its own
-mapping location. It rejects other tags, branches, short SHAs and unlabeled
-SHAs, but cannot authenticate publisher trust or label-to-commit mapping.
+mapping location. It rejects minor-only tags such as `v4.4`, other tags, branches,
+short SHAs and unlabeled SHAs. It cannot establish ref existence, publisher trust
+or label-to-commit mapping; version references are literal refs, not ranges.
 
 Publish through the approved draft-PR and external-review route, inspect actual
 PR checks, and leave merge to the human. Scheduled and issue-comment workflows

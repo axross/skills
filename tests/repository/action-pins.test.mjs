@@ -9,7 +9,7 @@ const { load: parseYaml } = createRequire(
   import.meta.resolve("markdownlint-cli2"),
 )("js-yaml");
 const TRUSTED_VERSION_TAG =
-  /^(?:actions\/(?:checkout|setup-node|upload-artifact|download-artifact)@v4|actions\/github-script@v7|anthropics\/claude-code-action@v1)(?:\.(?:0|[1-9]\d*)){0,2}$/;
+  /^(?:actions\/(?:checkout|setup-node|upload-artifact|download-artifact)@v4|actions\/github-script@v7|anthropics\/claude-code-action@v1)(?:\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))?$/;
 const PIN_WITH_RELEASE =
   /^[\w.-]+\/[\w./-]+@[a-f0-9]{40}\s+#\s+v\d+\.\d+\.\d+\S*$/;
 
@@ -54,8 +54,8 @@ describe("CI action references", () => {
 
   it.each([
     "actions/checkout@v4",
-    "actions/checkout@v4.4",
-    "actions/checkout@v4.0",
+    "actions/checkout@v4.4.0",
+    "actions/checkout@v4.0.0",
     "actions/checkout@v4.10.0",
     "actions/setup-node@v4.4.0",
     "actions/upload-artifact@v4",
@@ -148,6 +148,8 @@ describe("CI action references", () => {
     "actions/checkout@main",
     "anthropics/claude-code-action@main # v1.0.244",
     "actions/checkout@v4.1.2.3",
+    "actions/checkout@v4.4",
+    "actions/checkout@v4.0",
     "actions/checkout@v4.04",
     "actions/checkout@v4.01.002",
     "actions/checkout@v4.0.01",
