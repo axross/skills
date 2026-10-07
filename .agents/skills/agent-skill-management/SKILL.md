@@ -112,7 +112,7 @@ See [active-loading.md](./references/active-loading.md) for:
 
 See [installed-rule-changes.md](./references/installed-rule-changes.md) for:
 
-- routing a wrong, outdated, or missing installed rule to its installation-source repository
+- routing a wrong, outdated, or missing loaded rule to its actual source according to skill tier
 - distinguishing additive local conventions, approved bounded deviations, and unadopted upstream proposals
 - checking human adoption, host priority, scope, and reassessment without requiring a dedicated register
 - correcting an owned source under applicable change gates or publishing an authorized third-party request
