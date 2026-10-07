@@ -23,7 +23,7 @@ import { gate, GATES } from "./gates.mjs";
 
 /**
  * the npm scripts a shell command invokes. `npm test` is npm's own shorthand
- * for `npm run test`, so it normalizes to the same name; `npm install` names no
+ * for `npm run test`, so it normalizes to the same name; `npm ci` names no
  * script and is ignored.
  * @param {string} command
  * @returns {Set<string>}
@@ -92,7 +92,29 @@ describe("enforced-gate consistency", () => {
       expect(
         command,
         `workflow step "${command}" bypasses the npm scripts the check chain is compared against`,
-      ).toMatch(/^npm\s+(run\s+[\w:-]+|test|install)$/);
+      ).toMatch(/^npm\s+(run\s+[\w:-]+|test|ci)$/);
+    }
+  });
+
+  it("prepares each cold CI job with a frozen install before its gate", async () => {
+    const workflow = await readWorkflow();
+    const jobs = workflow
+      .split("\njobs:\n")[1]
+      .split(/^  [\w-]+:\s*$/m)
+      .slice(1);
+
+    expect(jobs).toHaveLength(3);
+    for (const job of jobs) {
+      const commands = workflowRunCommands(job);
+      expect(commands[0], "each cold job must install before checking").toBe(
+        "npm ci",
+      );
+      expect(commands.filter((command) => command === "npm ci")).toHaveLength(
+        1,
+      );
+      expect(
+        commands.slice(1).flatMap((command) => [...npmScriptsIn(command)]),
+      ).toHaveLength(1);
     }
   });
 
