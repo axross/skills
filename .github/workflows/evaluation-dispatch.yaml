@@ -214,6 +214,9 @@ jobs:
   probe:
     name: Probe ${{ matrix.scenarioId }} ${{ matrix.condition }} #${{ matrix.repetition }}
     needs: plan
+    env:
+      PROBE_MATRIX: ${{ needs.plan.outputs.probe-matrix }}
+      JUDGMENT_MATRIX: ${{ needs.plan.outputs.judgment-matrix }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     # this job spawns a model with Bash and the editing tools; it must never
@@ -267,23 +270,32 @@ jobs:
           fi
           node tools/evaluation/probe.mjs "${args[@]}"
 
-      # always() uploads whatever a failed probe wrote. if-no-files-found:
-      # warn, not error — a dry-run or early-failed cell legitimately uploads
-      # nothing. the path already carries
-      # <measurementDirName>/<condition>-<repetition>/, so merge-multiple over
-      # probe-* reconstructs the tree with nothing extra here.
+      # failed probes can still own useful, incomplete observations.
+      - name: Package the probe record
+        if: always() && inputs.dry-run == false
+        env:
+          CELL: ${{ toJSON(matrix) }}
+        run: >-
+          node tools/evaluation/artifacts.mjs pack-probe
+          --input "${RUNNER_TEMP}/probe-out"
+          --out "${RUNNER_TEMP}/probe-bundle/record.json"
+          --selector "${CELL}"
+
       - name: Upload the probe record
-        if: always()
+        if: always() && inputs.dry-run == false
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: probe-${{ matrix.scenarioId }}-${{ matrix.condition }}-${{ matrix.repetition }}
-          path: ${{ runner.temp }}/probe-out/
+          path: ${{ runner.temp }}/probe-bundle/record.json
           if-no-files-found: warn
           retention-days: 7
 
   evaluate:
     name: Evaluate ${{ matrix.scenarioId }}
     needs: [plan, probe]
+    env:
+      PROBE_MATRIX: ${{ needs.plan.outputs.probe-matrix }}
+      JUDGMENT_MATRIX: ${{ needs.plan.outputs.judgment-matrix }}
     # always(), not the default skip-if-a-dependency-failed: probe's overall
     # result is 'failure' the moment any one cell fails, even with
     # fail-fast:false — but a different scenario's probes may have completed
@@ -314,17 +326,21 @@ jobs:
       - name: Install the Claude Code CLI
         run: npm install --global @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
 
-      # downloads every probe-* artifact, not only this scenario's, into one
-      # scratch root, then addresses by the exact directory name its matrix
-      # entry carries — an artifact-name glob (probe-<scenarioId>-*) mismatches
-      # when one id prefixes another's. the extra bytes cost nothing this
-      # corpus's size can't afford.
+      # exact matrix ownership, not a scenario-prefix glob, selects records.
       - name: Download this dispatch's probe records
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: probe-*
-          merge-multiple: true
-          path: ${{ runner.temp }}/measurement
+          merge-multiple: false
+          path: ${{ runner.temp }}/probe-downloads
+
+      - name: Admit this scenario's probe records
+        run: >-
+          node tools/evaluation/artifacts.mjs admit
+          --input "${RUNNER_TEMP}/probe-downloads"
+          --out "${RUNNER_TEMP}/measurement"
+          --report "${RUNNER_TEMP}/probe-admission.json"
+          --scenario "${{ matrix.scenarioId }}"
 
       # the only secret this job holds, and the same one `probe` already
       # authenticates with: the Messages API this job used to call directly
@@ -335,21 +351,31 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: node tools/evaluation/evaluate.mjs "${{ runner.temp }}/measurement/${{ matrix.measurementDirName }}"
 
-      # the whole reconstructed measurement directory, factors.json included
-      # — not only what changed — so `land`'s later download lines up with
-      # every probe-* artifact's own internal path (see the comment there).
+      - name: Package this scenario's judgments
+        if: always()
+        env:
+          SCENARIO: ${{ toJSON(matrix) }}
+        run: >-
+          node tools/evaluation/artifacts.mjs pack-judged
+          --input "${RUNNER_TEMP}/measurement"
+          --out "${RUNNER_TEMP}/judged-bundle/record.json"
+          --selector "${SCENARIO}"
+
       - name: Upload the judged measurement
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: judged-${{ matrix.scenarioId }}
-          path: ${{ runner.temp }}/measurement/
+          path: ${{ runner.temp }}/judged-bundle/record.json
           if-no-files-found: warn
           retention-days: 7
 
   land:
     name: Land the measurement
     needs: [plan, probe, evaluate]
+    env:
+      PROBE_MATRIX: ${{ needs.plan.outputs.probe-matrix }}
+      JUDGMENT_MATRIX: ${{ needs.plan.outputs.judgment-matrix }}
     # same reasoning as `evaluate`'s `if:`: this job assembles whatever
     # exists, even when a probe or a judgment failed partway — that data cost
     # money and is not re-acquired for free by refusing to land it.
@@ -374,42 +400,30 @@ jobs:
       - name: Dependency installation
         run: npm ci
 
-      # probe-* lands first, judged-* overlays factors.json after — an unjudged
-      # scenario still lands, not discarded. download-artifact@v4 takes no
-      # if-no-artifacts-found input, and a zero-match pattern exits 0 rather
-      # than throwing, so the real check for a zero-artifact dispatch is
-      # "Confirm there is something to land" below.
+      # keep collision evidence in scratch; no archive extracts into the repo.
       - name: Assemble this dispatch's probe records
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: probe-*
-          merge-multiple: true
-          path: tools/evaluation/measurements
+          merge-multiple: false
+          path: ${{ runner.temp }}/probe-downloads
 
       - name: Assemble this dispatch's judged measurements
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: judged-*
-          merge-multiple: true
-          path: tools/evaluation/measurements
+          merge-multiple: false
+          path: ${{ runner.temp }}/judged-downloads
 
-      # every probe cell failing (or a dry run reaching this job in error)
-      # would otherwise surface only as git commit's own opaque failure, steps
-      # and a full npm run check later, under set -e: nothing staged is nothing
-      # to commit. caught here instead, immediately, naming what actually
-      # happened.
-      - name: Confirm there is something to land
-        run: |
-          if [ -z "$(git status --porcelain tools/evaluation/measurements)" ]; then
-            echo "::error::Nothing was downloaded into tools/evaluation/measurements — every probe and evaluate cell in this dispatch produced no artifact. Nothing to land."
-            exit 1
-          fi
+      - name: Admit this dispatch's measurement data
+        run: >-
+          node tools/evaluation/artifacts.mjs admit
+          --input "${RUNNER_TEMP}/probe-downloads"
+          --judged "${RUNNER_TEMP}/judged-downloads"
+          --out tools/evaluation/measurements
+          --report "${RUNNER_TEMP}/admission.json"
 
-      # derives each measurement's summary.json, never failing the job on one
-      # it can't derive — an incomplete judgment (no factors.json) is still
-      # committed, derived tier absent, rather than discarding paid-for probes.
-      # every failure is recorded; the pull request body names which
-      # measurements it applies to.
+      # derive.mjs alone cannot detect absent planned repetitions.
       - name: Derive each measurement's summary
         id: derive
         env:
@@ -418,11 +432,11 @@ jobs:
           set -uo pipefail
           missing_file="${RUNNER_TEMP}/missing-derivation.txt"
           : > "${missing_file}"
-          mapfile -t dirs < <(jq -r '.[].measurementDirName' <<<"${JUDGMENT_MATRIX}")
+          mapfile -t dirs < <(jq -r '.scenarios[].measurementDirName' "${RUNNER_TEMP}/admission.json")
           for dir in "${dirs[@]}"; do
             path="tools/evaluation/measurements/${dir}"
-            if [ ! -d "${path}" ]; then
-              echo "::warning::${path} was never downloaded; its probe or evaluate cell produced nothing to derive from."
+            if ! jq -e --arg dir "${dir}" '.scenarios[] | select(.measurementDirName == $dir) | .complete' "${RUNNER_TEMP}/admission.json" > /dev/null; then
+              echo "::warning::${path} lacks planned material; retained without summary.json."
               echo "${dir}" >> "${missing_file}"
               continue
             fi
@@ -469,9 +483,13 @@ jobs:
           {
             echo "Measurement(s) from an evaluation dispatch of \`${DISPATCH_SCENARIO:-every declared scenario}\`."
             echo
+            echo "## Artifact admission"
+            echo
+            jq -r '.scenarios[] | "### " + .measurementDirName, (if .complete then "All planned records are available (not a success verdict)." else "Partial: planned records are missing." end), (.missingArtifacts[] | "- Missing artifact: `" + . + "`"), (.missingFiles[] | "- Missing file: `" + . + "`"), (.factorErrors[] | "- Factor error (not a verdict): `" + . + "`")' "${RUNNER_TEMP}/admission.json"
+            echo
             if [ -n "${MISSING_DERIVATION}" ]; then
               echo "**At least one measurement's derived tier (\`summary.json\`) is absent.**"
-              echo "Its judgment did not complete — the probes are committed anyway, because they"
+              echo "Planned material is missing or derivation failed — available records are committed because they"
               echo "already cost money and are not re-acquired for free:"
               echo
               while IFS= read -r dir; do
@@ -486,6 +504,7 @@ jobs:
             echo "these paths, and a run opened with \`GITHUB_TOKEN\` would be held for an"
             echo "approval nobody gives. The checks it would have run — \`npm run check\` — ran"
             echo "in the dispatch, before this branch was committed."
+            echo "These checks are not provenance evidence; admission checks consistency against the dispatch context."
             echo
             echo "---"
             echo "_Generated by [Claude Code](https://claude.ai/code)_"

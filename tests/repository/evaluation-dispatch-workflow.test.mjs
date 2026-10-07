@@ -31,7 +31,7 @@
 //   6. every job that DOES reference a model-credential secret declares
 //      `permissions: {}` — the least this repository can grant a job that
 //      spawns a model or feeds one a transcript.
-//   7. the instrument's three scripts (probe.mjs, evaluate.mjs, derive.mjs)
+//   7. the instrument's scripts, including artifact admission,
 //      are named by this workflow and by no other — so a second workflow
 //      cannot quietly grow a second, differently-permissioned entry point.
 //
@@ -51,11 +51,12 @@ const WORKFLOW_FILE = "evaluation-dispatch.yaml";
 /** the secrets that authenticate a model, never a repository write. */
 const MODEL_TOKEN_NEEDLES = ["secrets.CLAUDE_CODE_OAUTH_TOKEN", "secrets.ANTHROPIC_API_KEY"];
 
-/** the instrument's three scripts, by the exact path a workflow step invokes. */
+/** the instrument's entry points, by the exact path a workflow step invokes. */
 const INSTRUMENT_SCRIPTS = [
   "tools/evaluation/probe.mjs",
   "tools/evaluation/evaluate.mjs",
   "tools/evaluation/derive.mjs",
+  "tools/evaluation/artifacts.mjs",
 ];
 
 const readWorkflow = () => readFile(repoPath(".github/workflows", WORKFLOW_FILE), "utf8");
@@ -282,7 +283,7 @@ describe("every job holding a model token declares permissions: {}", () => {
   });
 });
 
-describe("the instrument's three scripts are wired into exactly this workflow", () => {
+describe("the instrument's scripts are wired into exactly this workflow", () => {
   it.each(INSTRUMENT_SCRIPTS)("names %s in evaluation-dispatch.yaml and no other workflow", async (script) => {
     const naming = [];
     for (const path of await filesUnder(repoPath(".github/workflows"))) {
@@ -296,5 +297,70 @@ describe("the instrument's three scripts are wired into exactly this workflow", 
     expect(naming.sort(), `${script} must be invoked by ${WORKFLOW_FILE} and by no other workflow`).toEqual([
       WORKFLOW_FILE,
     ]);
+  });
+});
+
+/**
+ * checks the declared normal exchange; static wiring is not a live Actions execution.
+ * @throws {Error} when a workflow drops namespace, admission ordering, or partial reporting
+ */
+function assertArtifactWiring(yaml) {
+  const jobs = jobBlocksOf(yaml);
+  for (const role of ["probe", "evaluate", "land"]) {
+    const env = blockAfter(jobs[role], 4, "env");
+    expect(env).toContain("PROBE_MATRIX: ${{ needs.plan.outputs.probe-matrix }}");
+    expect(env).toContain("JUDGMENT_MATRIX: ${{ needs.plan.outputs.judgment-matrix }}");
+  }
+  for (const job of [jobs.evaluate, jobs.land]) {
+    const downloads = job.split(/      - name:/).filter((step) => step.includes("uses: actions/download-artifact@"));
+    expect(downloads.length).toBeGreaterThan(0);
+    for (const step of downloads) {
+      expect(step).toContain("merge-multiple: false");
+      expect(step).toMatch(/path: \$\{\{ runner.temp \}\}\/\w+-downloads/);
+      expect(step).not.toMatch(/\b(?:run-id|repository|github-token):/);
+    }
+  }
+  for (const [job, role] of [[jobs.probe, "probe"], [jobs.evaluate, "judged"]]) {
+    expect(job).toContain(`artifacts.mjs pack-${role}`);
+    expect(job).toContain(`path: \${{ runner.temp }}/${role}-bundle/record.json`);
+    expect(job.indexOf(`artifacts.mjs pack-${role}`)).toBeLessThan(job.indexOf("uses: actions/upload-artifact@"));
+  }
+  const evaluateAdmission = jobs.evaluate.indexOf("artifacts.mjs admit");
+  expect(evaluateAdmission).toBeGreaterThan(0);
+  expect(evaluateAdmission).toBeLessThan(jobs.evaluate.indexOf("node tools/evaluation/evaluate.mjs"));
+  const admission = jobs.land.indexOf("artifacts.mjs admit");
+  expect(admission).toBeGreaterThan(0);
+  for (const sink of ["node tools/evaluation/derive.mjs", "npm run check", "git add", "git commit", "git push", "gh pr create"]) {
+    expect(admission).toBeLessThan(jobs.land.indexOf(sink));
+  }
+  expect(jobs.land).toContain("--out tools/evaluation/measurements");
+  expect(jobs.land).toContain("select(.measurementDirName == $dir) | .complete");
+  for (const field of ["missingArtifacts", "missingFiles", "factorErrors"]) expect(jobs.land).toContain(`.${field}[]`);
+}
+
+describe("evaluation artifact admission wiring", () => {
+  it("admits namespaced fixed bundles against the plan before judging or write-enabled sinks", async () => {
+    assertArtifactWiring(await readWorkflow());
+  });
+
+  it("detects missing evaluate admission even when land admission remains intact", async () => {
+    const yaml = await readWorkflow();
+    const jobs = jobBlocksOf(yaml);
+    const mutated = yaml.replace(jobs.evaluate, jobs.evaluate.replace("artifacts.mjs admit", "artifacts.mjs ignored"));
+    expect(jobBlocksOf(mutated).land).toBe(jobs.land);
+    expect(() => assertArtifactWiring(mutated)).toThrow();
+  });
+
+  it.each([
+    ["merged downloads", (yaml) => yaml.replaceAll("merge-multiple: false", "merge-multiple: true")],
+    ["tracked extraction", (yaml) => yaml.replaceAll("path: ${{ runner.temp }}/probe-downloads", "path: tools/evaluation/measurements")],
+    ["whole-tree upload", (yaml) => yaml.replace("path: ${{ runner.temp }}/judged-bundle/record.json", "path: ${{ runner.temp }}/measurement/")],
+    ["producer-derived matrix", (yaml) => yaml.replaceAll("PROBE_MATRIX: ${{ needs.plan.outputs.probe-matrix }}", "PROBE_MATRIX: downloaded")],
+    ["missing admission", (yaml) => yaml.replaceAll("artifacts.mjs admit", "artifacts.mjs ignored")],
+    ["subset derivation", (yaml) => yaml.replace("select(.measurementDirName == $dir) | .complete", "select(.measurementDirName == $dir) | true")],
+    ["missing partial report", (yaml) => yaml.replaceAll(".missingFiles[]", ".ignored[]")],
+  ])("detects %s instead of passing vacuously", async (_name, mutate) => {
+    const yaml = await readWorkflow();
+    expect(() => assertArtifactWiring(mutate(yaml))).toThrow();
   });
 });
