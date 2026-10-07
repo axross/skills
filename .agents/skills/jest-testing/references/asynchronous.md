@@ -105,6 +105,16 @@ A timeout is a symptom, not a diagnosis. The common causes are a promise that ne
 - SHOULD move a genuinely slow suite into its own project with its own `testTimeout` rather than raising the default for everything.
 - SHOULD check whether fake timers are active when an awaited timer never fires; see [fake-timers.md](./fake-timers.md).
 
+### Timeout Is Not Cancellation
+
+Source-checked against Jest 30.4.2: [Circus rejects its waiting promise on timeout](https://github.com/jestjs/jest/blob/v30.4.2/packages/jest-circus/src/utils.ts#L196-L311), but does not cancel the promise returned by the test body. [Execution then proceeds to `afterEach`](https://github.com/jestjs/jest/blob/v30.4.2/packages/jest-circus/src/run.ts#L234-L238). A body waiting on a deferred operation can resume after cleanup, write shared state and overlap the next case. Moving cleanup into a hook does not join that continuing body.
+
+**Guidelines:**
+
+- MUST distinguish the runner's timeout from cancellation and settlement of test-owned async work; arrange cancellation and bounded settlement, or supported execution isolation/termination, before reusing mutable test resources.
+- MUST NOT treat `afterEach`, timer restoration or clearing timers as proof that a timed-out async body has stopped.
+- SHOULD give test-owned operations a cancellable lifetime and settle them before the runner deadline; apply [bounded timer teardown](./fake-timers.md#bounded-teardown) for scheduled work, without assuming it stops unrelated promises.
+
 ## Unhandled Rejections
 
 Jest 30 gives the event loop an extra turn before attributing an unhandled rejection, which reduces both false reports and rejections attributed to the wrong case. The `waitForUnhandledRejections` option controls it and **defaults to `false`** — the name reads like a safety feature that is on, and it is not. Enabling it costs measurable time on a fast suite.

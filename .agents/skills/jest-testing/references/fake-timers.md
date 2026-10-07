@@ -36,6 +36,19 @@ Leaving fake timers installed leaks into whatever runs next in the same file —
 - MUST enable fake timers before the code that schedules a timer runs, not after.
 - SHOULD enable them globally via `fakeTimers.enableGlobally` when most of a project's suites need them, rather than per file.
 
+### Bounded Teardown
+
+Cancelling work and executing work are different outcomes. Unmounting might cancel a pending debounce while queuing a frame needed to stop an animation mapper. Running every pending timer can execute the debounce that should have been cancelled; clearing every timer can discard the required teardown frame.
+
+In Jest 30.4.2, [`advanceTimersToNextFrame()` advances all timers to the frame](https://github.com/jestjs/jest/blob/v30.4.2/website/versioned_docs/version-30.4/JestObjectAPI.md#L1102-L1108), not only frame callbacks. Other timers due within that interval can run too. `runOnlyPendingTimers()` also executes work; it is not cancellation or a selective cleanup API.
+
+**Guidelines:**
+
+- MUST stop new work and cancel owned debounce timers, pollers and other unwanted scheduled work before advancing the teardown clock.
+- MUST process required teardown callbacks or frames within an explicit step/time bound and confirm the teardown outcome before restoring real timers; do not merely clear the work needed to finish teardown.
+- MUST NOT use `runAllTimers` or a blanket pending-timer drain as a general cleanup recipe; cancel unrelated work before bounded advancement and fail when required teardown does not settle within the bound.
+- SHOULD verify both that the cancelled debounce stays unexecuted after advancement and that the necessary teardown frame actually runs.
+
 ## Choosing How Far to Advance
 
 | Call                           | Advances                                                 |

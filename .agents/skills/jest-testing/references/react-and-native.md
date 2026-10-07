@@ -62,8 +62,19 @@ The durable assertion is on what the component produced — the rendered output 
 **Guidelines:**
 
 - MUST NOT assert an exact render or callback count for a component whose invocation frequency React decides.
-- MUST assert rendered output or a user-visible effect rather than a sequence of callback arguments.
+- MUST assert rendered output or a caller-visible effect rather than a sequence of framework-driven callback arguments; a published terminal outcome's multiplicity is a component contract, not a render count.
 - SHOULD assert the settled state after advancing the clock, per [fake-timers.md](./fake-timers.md), rather than the intermediate calls that led to it.
+
+## Gesture Streams and Animation Frames
+
+Source-checked against RNGH 2.32.0: [`fireGestureHandler` normalizes a complete event stream](https://github.com/software-mansion/react-native-gesture-handler/blob/v2.32.0/packages/react-native-gesture-handler/src/jestUtils/jestUtils.ts#L284-L387). For a Pan, ACTIVE-only input gains BEGAN and END events. A test that intends to hold the gesture active has already ended it through this helper; omitted fields can also receive defaults rather than the intended coordinates. Inspect the installed version's helper before choosing how to deliver individual states; this is not an internal-emitter recipe.
+
+A Jest animation mock that immediately calls completion also removes the race interval. Requirements for preserving intermediate states or completion ordering, and the limits of synthetic evidence, belong to the unit-testing scope and public-contract practices.
+
+**Guidelines:**
+
+- MUST verify that the chosen gesture helper preserves the states and payloads the case intends to observe, rather than silently normalizing an incomplete interaction into completion.
+- MUST scope Jest/RNGH helper or mock recipes to the version and test environment actually verified.
 
 ## The Act Warning
 

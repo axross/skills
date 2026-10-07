@@ -59,7 +59,7 @@
     "jest-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "a947bb2df2c9c33ee945085bdfd3227d537a11f55de2bf46ac29c274c74ecc95"
+      "computedHash": "73b97b935f13584b1a146962a89a15ef956dc0171e3fe10bd5be5047178aa727"
     },
     "living-project-documentation": {
       "source": "./skills",
@@ -94,7 +94,7 @@
     "react-component-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "bb0318e5a9e24761e9692a66a846a2f5b98146449b867c99675e1087e9502867"
+      "computedHash": "8dd8c7a7a69776ea01cee38d8767dca10710e2a5e9dfbfb37d52777ae6f0aa42"
     },
     "react-component-styling": {
       "source": "./skills",
@@ -129,7 +129,7 @@
     "unit-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "50a88494659014bfd59a9a4625723e752a29505e33802aa0a33625fb9ab483fc"
+      "computedHash": "4b83ac6e7d73cafd962dc9a2e046aed11901274dc5de6a5fe0cf5f16044487ef"
     },
     "vitest-testing": {
       "source": "./skills",
