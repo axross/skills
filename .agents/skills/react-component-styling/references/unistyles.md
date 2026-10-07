@@ -115,6 +115,12 @@ const styles = StyleSheet.create((theme) => ({
 }));
 ```
 
+**Non-normative source caveat — Unistyles 3.3.0 native.** An uncalled dynamic entry has no captured result dependencies: the [native proxy](https://github.com/jpudysz/react-native-unistyles/blob/744f33205d63ba291e3aea979ea80f0c27b67c87/packages/unistyles/cxx/parser/Parser.cpp#L582-L615) invokes its stored function before parsing the returned dependency metadata. Babel generating that metadata is not the same as native code reading it.
+
+The outer stylesheet factory's JavaScript `length`, not the dynamic entry's argument count, [determines its native classification](https://github.com/jpudysz/react-native-unistyles/blob/744f33205d63ba291e3aea979ea80f0c27b67c87/packages/unistyles/cxx/core/StyleSheetRegistry.cpp#L15-L35). A one-argument theme factory is [selected on every `THEME` change](https://github.com/jpudysz/react-native-unistyles/blob/744f33205d63ba291e3aea979ea80f0c27b67c87/packages/unistyles/cxx/core/UnistylesRegistry.cpp#L200-L238), without a known matching dependency. A two-argument theme/runtime factory is dependency-gated; a known match in another entry can select the whole sheet. Empty dependencies in one entry alone do not exclude other refresh paths through affected linked nodes.
+
+If no applicable path refreshes that sheet, an uncalled entry can retain an old theme-capturing closure. Its first call after the theme change can use that closure before capturing dependencies; capture does not replay the missed event. A later matching update has a [closure-replacement path](https://github.com/jpudysz/react-native-unistyles/blob/744f33205d63ba291e3aea979ea80f0c27b67c87/packages/unistyles/cxx/parser/Parser.cpp#L285-L425), so permanent staleness does not follow. These are source-control-flow observations, not a reproduced native failure or verified on-device recovery. They establish no blanket ban, guaranteed remedy, safe version, or behavior on other releases or web; the dynamic-function rules below remain unchanged.
+
 **Guidelines:**
 
 - MUST express a closed set of options — a variant, an intent, a size, a boolean state — as variants and compound variants, not as a conditional style array or a chain of dynamic-function arguments.
