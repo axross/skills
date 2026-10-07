@@ -19,7 +19,7 @@
     "application-security": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "a76362cdd2d79ec8403710897be427053e0c0303acaa8fadfd05cf5871b0b0b1"
+      "computedHash": "f2148acd492cd864e947da8b20649655c8daa376aef99ec1321be51174fb7b38"
     },
     "code-maintainability": {
       "source": "./skills",
