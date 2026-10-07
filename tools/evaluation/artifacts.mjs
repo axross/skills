@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { admitBundles, dispatchContract, packBundle } from "./src/artifact-admission.mjs";
+import { admitBundles, dispatchContract, inspectPath, packBundle } from "./src/artifact-admission.mjs";
 import { canonicalJson } from "./src/layout.mjs";
 
 const USAGE = `Usage: artifacts.mjs <pack-probe|pack-judged|admit> --input <dir> --out <path>
@@ -59,6 +59,14 @@ async function main() {
         sourceCommit: process.env.GITHUB_SHA },
       probes: JSON.parse(process.env.PROBE_MATRIX), judgments: JSON.parse(process.env.JUDGMENT_MATRIX),
     });
+    if (options.command === "admit") {
+      const report = resolve(options.report);
+      const out = resolve(options.out);
+      if (report === out || [...contract.scenarios.values()].some((scenario) => {
+        const measurement = join(out, scenario.measurementDirName);
+        return report === measurement || report.startsWith(`${measurement}${sep}`);
+      })) throw new Error("Report path overlaps a planned measurement destination");
+    }
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 2;
@@ -66,6 +74,7 @@ async function main() {
   }
   const scenariosRoot = join(dirname(fileURLToPath(import.meta.url)), "scenarios");
   if (options.command === "admit") {
+    await inspectPath(resolve(options.report));
     const report = await admitBundles({ probesRoot: resolve(options.input), judgedRoot: options.judged && resolve(options.judged),
       out: resolve(options.out), contract, scenariosRoot, scenarioId: options.scenario });
     await writeFile(resolve(options.report), canonicalJson(report));

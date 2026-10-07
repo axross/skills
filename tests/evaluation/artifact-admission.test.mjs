@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { chmod, cp, mkdir, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -334,6 +334,52 @@ describe("artifacts.mjs", () => {
       await expect(readFile(out)).rejects.toMatchObject({ code: "ENOENT" });
       await expect(readFile(report)).rejects.toMatchObject({ code: "ENOENT" });
     }
+  });
+
+  it.each(["output root", "measurement root", "metadata", "relative output", "normalized report"])("refuses a report overlapping %s before copying data", async (kind) => {
+    const f = await dispatchFixture();
+    const cell = f.probes[0];
+    await download(f.probesRoot, await probeBundle(f));
+    const out = kind === "relative output" ? relative(process.cwd(), f.out) : f.out;
+    let report = join(f.out, pathOf(cell), "metadata.json");
+    if (kind === "output root") report = f.out;
+    if (kind === "measurement root") report = join(f.out, cell.measurementDirName);
+    if (kind === "normalized report") report = `${join(f.out, pathOf(cell))}/unused/../metadata.json`;
+    const result = cli(["admit", "--input", f.probesRoot, "--out", out, "--report", report], f);
+    expect(result.status, result.stderr).toBe(2);
+    expect(result.stderr).toContain("Report path overlaps a planned measurement destination");
+    expect(result.stdout).toBe("");
+    expect(await readdir(f.out)).toEqual([]);
+  });
+
+  it.each(["file", "ancestor"])("refuses a symlink report %s before it can alias newly admitted metadata", async (kind) => {
+    const f = await dispatchFixture();
+    const cell = f.probes[0];
+    await download(f.probesRoot, await probeBundle(f));
+    const link = join(f.root, "report-alias");
+    const metadata = join(f.out, pathOf(cell), "metadata.json");
+    await symlink(kind === "file" ? metadata : f.out, link);
+    const report = kind === "file" ? link : join(link, pathOf(cell), "metadata.json");
+    const result = cli(["admit", "--input", f.probesRoot, "--out", f.out, "--report", report], f);
+    expect(result.status, result.stderr).toBe(1);
+    expect(result.stderr).toContain("Not a regular file or directory");
+    expect(result.stdout).toBe("");
+    expect(await readdir(f.out)).toEqual([]);
+  });
+
+  it.each(["root", "prefix neighbor"])("replaces a regular %s report without altering admitted bytes", async (kind) => {
+    const f = await dispatchFixture();
+    const cell = f.probes[0];
+    const input = await producer(f, cell);
+    const expected = new Map();
+    for (const name of filenames) expected.set(name, await readFile(join(input, pathOf(cell), name), "utf8"));
+    await download(f.probesRoot, await packBundle({ ...f, kind: "probe", input, selector: cell, attempt: "1" }));
+    const reportPath = kind === "root" ? "admission.json" : `${cell.measurementDirName}-extra/report.json`;
+    const report = await writeFileIn(f.out, reportPath, "previous report");
+    const result = cli(["admit", "--input", f.probesRoot, "--out", f.out, "--report", report], f);
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(await readFile(report, "utf8"))).toMatchObject({ status: "partial", copiedFiles: 4 });
+    for (const [name, content] of expected) expect(await readFile(join(f.out, pathOf(cell), name), "utf8")).toBe(content);
   });
 
   it.each(["{", "null", "[]", '"task"'])("separates invalid selector %s invocation from malformed material without publishing either bundle", async (selector) => {

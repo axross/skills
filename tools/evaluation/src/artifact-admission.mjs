@@ -55,7 +55,7 @@ export function dispatchContract({ identity, probes, judgments }) {
  * missing paths are distinct from unsafe or unreadable paths, including ancestors.
  * @throws {Error} on links, special files, non-directory ancestors, or filesystem errors other than absence
  */
-async function inspectPath(path) {
+export async function inspectPath(path) {
   const parent = dirname(resolve(path));
   if (parent !== resolve(path)) {
     const parentStat = await inspectPath(parent);

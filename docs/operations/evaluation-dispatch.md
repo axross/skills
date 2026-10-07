@@ -146,6 +146,12 @@ The workflow supplies `GITHUB_REPOSITORY`, `GITHUB_RUN_ID`, `GITHUB_SHA`,
 supply the expected identity and matrices independently, not read them out of a
 bundle to bless that bundle. The selector is one exact matrix entry as JSON.
 
+Keep `--report` outside planned measurement directories; the CLI rejects
+overlaps before copying data. It also refuses report-path symlinks and special
+files, including unsafe ancestors. Existing regular reports outside those
+directories can be replaced, including a report alongside measurements under
+the output root.
+
 ```bash
 node tools/evaluation/artifacts.mjs pack-probe --input <probe-root> --out <bundle-dir>/record.json --selector '<cell-json>'
 node tools/evaluation/artifacts.mjs pack-judged --input <scenario-root> --out <bundle-dir>/record.json --selector '<scenario-json>'
