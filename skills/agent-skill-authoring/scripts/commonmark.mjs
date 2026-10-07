@@ -188,13 +188,14 @@ export function unterminatedFenceLine(body) {
  * inline code uses maximal, equal-length backtick strings. differing runs can
  * occur inside the span; unmatched strings remain literal prose.
  */
-const CODE_SPAN_RE = /(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g;
+const CODE_SPAN_RE = /(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/;
+const ESCAPE_RE = /\\[!-/:-@\[-`{-~]/;
 const RAW_HTML_RE = /<(?:[A-Za-z][A-Za-z0-9-]*(?:(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \t]*(?:\n[ \t]*)?=[ \t]*(?:\n[ \t]*)?(?:[^ \t\n\r"'=<>`]+|'[^']*'|"[^"]*"))?)*[ \t]*(?:\n[ \t]*)?\/?>|\/[A-Za-z][A-Za-z0-9-]*[ \t]*(?:\n[ \t]*)?>|!--(?:>|->|[\s\S]*?-->)|\?[\s\S]*?\?>|![A-Za-z][^>]*>|!\[CDATA\[[\s\S]*?\]\]>)/;
-const INLINE_TOKEN_RE = new RegExp(`${CODE_SPAN_RE.source}|${RAW_HTML_RE.source}`, "g");
+const INLINE_TOKEN_RE = new RegExp([ESCAPE_RE.source, CODE_SPAN_RE.source, RAW_HTML_RE.source, "`+"].join("|"), "g");
 
 /** blank inline examples without hiding unmatched literal backtick strings. */
 export function stripCodeSpans(text) {
-  return text.replace(INLINE_TOKEN_RE, (token) => token.startsWith("`") ? newlinesOf(token) : token);
+  return text.replace(INLINE_TOKEN_RE, (token, codeMarker) => codeMarker ? newlinesOf(token) : token);
 }
 
 /** the width of source indentation or list-marker padding in tab-stop columns. */
@@ -342,15 +343,28 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
       byLine[line] = stripCodeSpans(text);
       continue;
     }
-    if (!htmlEnd && !fence && startsBlock(content, listIndent, paragraph.length > 0)) {
-      htmlEnd = htmlBlockEnd(content.trimStart());
+    const bullet = content.match(/^([ \t]*(?:[-+*]|\d{1,9}[.)]))([ \t]+|$)(.*)$/);
+    const newItem = bullet && listIndent > 0 && itemIndent < listIndent;
+    const boundary = startsBlock(content, listIndent, paragraph.length > 0) || newItem ||
+      (quote && quote.replace(/[^>]/g, "").length !== previousQuote.replace(/[^>]/g, "").length);
+    let blockContent = content;
+    if (!htmlEnd && !fence && bullet && (boundary || paragraph.length === 0) && !isThematicBreak(content, listIndent)) {
+      flush();
+      const markerWidth = columnWidth(bullet[1]);
+      const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
+      listIndent = markerWidth + (padding > 4 ? 1 : padding);
+      blockContent = " ".repeat(padding > 4 ? padding - 1 : 0) + bullet[3];
+    }
+    const blockIndent = blockContent === content ? listIndent : 0;
+    if (!htmlEnd && !fence && columnWidth(blockContent.match(/^[ \t]*/)[0]) < blockIndent + 4 && startsBlock(blockContent, blockIndent, paragraph.length > 0)) {
+      htmlEnd = htmlBlockEnd(blockContent.trimStart());
       htmlQuoteDepth = quoteDepth;
       htmlListIndent = listIndent;
     }
     if (htmlEnd) {
       flush();
       byLine[line] = text;
-      if (htmlEnd.test(content)) htmlEnd = null;
+      if (htmlEnd.test(blockContent)) htmlEnd = null;
       continue;
     }
     if (!fence && paragraph.length === 0 && content.trimStart().startsWith("[")) {
@@ -367,10 +381,6 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
         continue;
       }
     }
-    const bullet = content.match(/^([ \t]*(?:[-+*]|\d{1,9}[.)]))([ \t]+|$)(.*)$/);
-    const newItem = bullet && listIndent > 0 && itemIndent < listIndent;
-    const boundary = startsBlock(content, listIndent, paragraph.length > 0) || newItem ||
-      (quote && quote.replace(/[^>]/g, "").length !== previousQuote.replace(/[^>]/g, "").length);
     const heading = /^[ \t]*#{1,6}(?:[ \t]|$)/.test(content) && startsBlock(content, listIndent);
     const thematic = isThematicBreak(content, listIndent);
     const setext = paragraph.length > 0 && /^ {0,3}(?:=+|-+)[ \t]*$/.test(content);
@@ -385,11 +395,6 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
       continue;
     }
 
-    if (bullet && paragraph.length === 0) {
-      const markerWidth = columnWidth(bullet[1]);
-      const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
-      listIndent = markerWidth + (padding > 4 ? 1 : padding);
-    }
     paragraph.push({ line, text });
     if (heading) flush();
   }

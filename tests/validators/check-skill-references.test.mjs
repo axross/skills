@@ -47,6 +47,9 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     ["paragraph after multiline contained HTML", ["  <script>", "  raw", "  </script>", "independent"], 0],
     ["contained paragraph after HTML", ["  <script>", "  raw", "  </script>", "  nested"], 1],
     ["paragraph after separated contained HTML", ["  <div>", "  raw", "  </div>", "", "independent"], 0],
+    ["paragraph exits unterminated contained HTML", ["  <div>", "independent"], 0],
+    ["paragraph exits unterminated contained raw HTML", ["  <script>", "independent"], 0],
+    ["paragraph remains within unterminated HTML", ["  <div>", "  nested"], 1],
     ["paragraph after indented code", ["", "      example", "independent"], 0],
     ["paragraph after tab-indented code", ["", "  \t  example", "independent"], 0],
     ["indented code cannot interrupt paragraph", ["      example", "continued"], 1],
@@ -143,6 +146,8 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     ["raw HTML attribute", ['<span title="``">text</span>', "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
     ["HTML container ends", ["> <script>", "`[gone](#missing)`"], 0, /^PASS {2}/m],
     ["completed reference definition", ["[id]: /target``", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["HTML first list child", ["- <script>``</script>", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["escaped code opener", ["before \\`", "[gone](#missing) \\`"], 1, /anchors: SKILL\.md:9 link "#missing"/],
   ])("uses shared inline boundaries for %s", async (name, lines, code, report) => {
     const root = await tempDir();
     const dir = await writeSkill(root, "wrapped-link", {

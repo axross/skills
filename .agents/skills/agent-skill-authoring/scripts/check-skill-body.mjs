@@ -183,6 +183,8 @@ function routingBlockFailures(body, file, offset) {
 
   for (let index = 0; index < lines.length; index += 1) {
     const { line, text } = lines[index];
+    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
+    if (htmlEnd && source[line - 1].trim() !== "" && indent < listIndent) htmlEnd = null;
     if (htmlEnd) {
       if (htmlEnd.test(source[line - 1])) htmlEnd = null;
       paragraphBreak = true;
@@ -215,7 +217,6 @@ function routingBlockFailures(body, file, offset) {
         continue;
       }
     }
-    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
     if (isThematicBreak(source[line - 1], listIndent)) {
       if (!seenBullet || indent < listIndent) inRouting = false;
       paragraphBreak = true;

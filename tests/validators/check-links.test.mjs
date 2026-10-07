@@ -104,6 +104,10 @@ describe("check-links.mjs", () => {
       ["raw HTML attribute", ['<span title="``">text</span>', "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
       ["HTML container ends", ["> <script>", "`[fake](./missing.md)`"], 0, /links OK \(0 links/],
       ["completed reference definition", ["[id]: /target``", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["HTML first list child", ["- <script>``</script>", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["escaped code opener", ["before \\`", "[real](./missing.md) \\`"], 1, /BROKEN LINKS \(1\)/],
+      ["escaped tick inside actual code", ["before `", "[fake](./missing.md) \\` after"], 0, /links OK \(0 links/],
+      ["different raw HTML closing tag", ["<script>", "</style>", "`[fake](./missing.md)`"], 0, /links OK \(0 links/],
     ])("checks the distinguishing link result for %s", async (name, lines, code, report) => {
       const root = await tempDir();
       await writeFileIn(root, "source.md", ["# Links", "", ...lines, ""].join(eol));

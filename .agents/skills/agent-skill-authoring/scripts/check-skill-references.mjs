@@ -155,12 +155,13 @@ function* routingBullets(body) {
   let htmlEnd = null;
 
   for (const { line, text } of extractProse(body, { preserveFenceBoundaries: true }).lines) {
+    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
+    if (htmlEnd && source[line - 1].trim() !== "" && indent < listIndent) htmlEnd = null;
     if (htmlEnd) {
       if (htmlEnd.test(source[line - 1])) htmlEnd = null;
       paragraphBreak = true;
       continue;
     }
-    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
     if (FENCE_RE.test(source[line - 1]) && FENCE_RE.test(text)) {
       if (listIndent === 0 || indent < listIndent) inRouting = false;
       paragraphBreak = true;

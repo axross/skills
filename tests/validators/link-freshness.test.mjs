@@ -147,6 +147,17 @@ describe("extractUrls", () => {
 
       expect(urlsIn(source)).toEqual(["https://example.com/real"]);
     });
+
+    it.each(["\n", "\r\n"])("keeps URL source lines after list-child HTML and escaped ticks with %j endings", (eol) => {
+      const source = [
+        "- <script>``</script>", "https://example.com/list-child ``", "",
+        "before \\`", "https://example.com/escaped \\`",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/list-child", line: 2 },
+        { url: "https://example.com/escaped", line: 5 },
+      ]);
+    });
   });
 
   describe("a comment opener that is only being quoted", () => {
