@@ -67,7 +67,9 @@ describe("cold and warm dependency installs", () => {
     expect(readFileSync(project.manifest, "utf8")).toBe(manifest);
     expect(readFileSync(project.lockfile, "utf8")).toBe(lockfile);
 
-    const sentinel = join(project.root, "node_modules", "warm-sentinel");
+    const cache = join(project.root, "node_modules", ".cache");
+    mkdirSync(cache);
+    const sentinel = join(cache, "warm-sentinel");
     writeFileSync(sentinel, "cached dependencies\n");
     const clean = project.npm("ci");
     expect(clean.status, clean.stderr).toBe(0);
@@ -80,8 +82,6 @@ describe("cold and warm dependency installs", () => {
     const project = await fixture();
     const installed = project.npm("ci");
     expect(installed.status, installed.stderr).toBe(0);
-    const sentinel = join(project.root, "node_modules", "warm-sentinel");
-    writeFileSync(sentinel, "cached dependencies\n");
     mkdirSync(join(project.root, "added-tool"));
     writeFileSync(
       join(project.root, "added-tool", "package.json"),
@@ -102,6 +102,10 @@ describe("cold and warm dependency installs", () => {
     expect(readFileSync(project.manifest, "utf8")).toBe(manifestBytes);
     expect(readFileSync(project.lockfile, "utf8")).toBe(lockfile);
 
+    const cache = join(project.root, "node_modules", ".cache");
+    mkdirSync(cache, { recursive: true });
+    const sentinel = join(cache, "warm-sentinel");
+    writeFileSync(sentinel, "cached dependencies\n");
     const warm = project.npm("install");
     expect(warm.status, warm.stderr).toBe(0);
     expect(readFileSync(sentinel, "utf8")).toBe("cached dependencies\n");
