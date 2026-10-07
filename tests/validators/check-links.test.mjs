@@ -108,6 +108,23 @@ describe("check-links.mjs", () => {
       ["escaped code opener", ["before \\`", "[real](./missing.md) \\`"], 1, /BROKEN LINKS \(1\)/],
       ["escaped tick inside actual code", ["before `", "[fake](./missing.md) \\` after"], 0, /links OK \(0 links/],
       ["different raw HTML closing tag", ["<script>", "</style>", "`[fake](./missing.md)`"], 0, /links OK \(0 links/],
+      ["bare link destination", ["[first](https://example.com/a``)", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["angled link destination", ["[first](<https://example.com/a``>)", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["double link title", ['[first](https://example.com/a "title ``")', "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["single link title", ["[first](https://example.com/a 'title ``')", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["multiline link title", ['[first](https://example.com/a "title ``', 'continued")', "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["URI autolink", ["<https://example.com/a``>", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["code opener in label", ["[first``](https://example.com/a)", "[fake](./missing.md) ``"], 0, /links OK \(0 links/],
+      ["invalid link destination", ["[first](https://example.com/a(``)", "[fake](./missing.md) ``"], 0, /links OK \(0 links/],
+      ["earlier code before link", ["before ``", "[first](https://example.com/a``)", "[real](./missing.md)"], 1, /BROKEN LINKS \(1\)/],
+      ["unordered reference definition", ["- [id]: /target``", "  [real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["ordered reference definition", ["1. [id]: /target``", "   [real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["quoted reference definition", ["> - [id]: /target``", ">   [real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["multiline contained title", ["- [id]: /target", '  "title ``', '  continued"', "  [real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["invalid contained definition", ["- [id]: /target(``", "  [fake](./missing.md) ``"], 0, /links OK \(0 links/],
+      ["lowercase declaration", ["before ``", "<!doctype html>", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["mixed declaration", ["before ``", "<!dOcTyPe html>", "[real](./missing.md) ``"], 1, /BROKEN LINKS \(1\)/],
+      ["nonletter declaration", ["before ``", "<!1 html>", "[fake](./missing.md) ``"], 0, /links OK \(0 links/],
     ])("checks the distinguishing link result for %s", async (name, lines, code, report) => {
       const root = await tempDir();
       await writeFileIn(root, "source.md", ["# Links", "", ...lines, ""].join(eol));

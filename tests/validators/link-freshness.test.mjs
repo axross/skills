@@ -119,6 +119,19 @@ describe("extractUrls", () => {
       ]);
     });
 
+    describe.each(["\n", "\r\n"])("link syntax URL lines with %j endings", (eol) => {
+      it.each([
+        ["inline destination", ["[first](https://example.com/a``)", "https://example.com/real ``"], [{ url: "https://example.com/a", line: 1 }, { url: "https://example.com/real", line: 2 }]],
+        ["multiline title", ['[first](/a "title ``', 'continued")', "https://example.com/real ``"], [{ url: "https://example.com/real", line: 3 }]],
+        ["URI autolink", ["<https://example.com/a``>", "https://example.com/real ``"], [{ url: "https://example.com/a", line: 1 }, { url: "https://example.com/real", line: 2 }]],
+        ["quoted multiline definition", ["> - [id]: /target", '>   "title ``', '>   continued"', ">   https://example.com/real ``"], [{ url: "https://example.com/real", line: 4 }]],
+        ["lowercase declaration", ["before ``", "<!doctype html>", "https://example.com/real ``"], [{ url: "https://example.com/real", line: 3 }]],
+        ["label code", ["[first``](/a)", "https://example.com/hidden ``"], []],
+      ])("preserves the distinguishing URLs for %s", (name, source, expected) => {
+        expect(extractUrls(source.join(eol))).toEqual(expected);
+      });
+    });
+
     it.each(["\n", "\r\n"])("keeps real URLs outside code, HTML and definition tokens with %j endings", (eol) => {
       const source = [
         "    example ``", "https://example.com/indented ``", "",

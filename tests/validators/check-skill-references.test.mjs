@@ -82,7 +82,10 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     ["independent CDATA", ["<![CDATA[example]]>"], 0],
     ["contained HTML block", ["  <div>", "  nested", "  </div>"], 1],
     ["non-interrupting inline HTML", ["<span>continued</span>"], 1],
-    ["non-interrupting lowercase declaration", ["<!doctype html>"], 1],
+    ["independent lowercase declaration", ["<!doctype html>"], 0],
+    ["independent mixed-case declaration", ["<!dOcTyPe html>"], 0],
+    ["contained lowercase declaration", ["  <!doctype html>", "  nested"], 1],
+    ["nonletter declaration lookalike", ["<!1 html>"], 1],
     ["multiline routing example", ["", "``", "See [topic.md](./references/topic.md) for:", "``"], 1],
     ["code-leading plus-like continuation", ["`example` + continued"], 1],
     ["code-leading HTML-like continuation", ["`example` <div>continued</div>"], 1],
@@ -165,6 +168,13 @@ describe.each(["\n", "\r\n"])("CommonMark routing boundaries with %j endings", (
     ["completed reference definition", ["[id]: /target``", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
     ["HTML first list child", ["- <script>``</script>", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
     ["escaped code opener", ["before \\`", "[gone](#missing) \\`"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["inline destination", ["[first](https://example.com/a``)", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["multiline inline title", ['[first](https://example.com/a "title ``', 'continued")', "[gone](#missing) ``"], 1, /anchors: SKILL\.md:10 link "#missing"/],
+    ["URI autolink", ["<https://example.com/a``>", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["unordered definition", ["- [id]: /target``", "  [gone](#missing) ``"], 1, /anchors: SKILL\.md:9 link "#missing"/],
+    ["quoted multiline definition", ["> - [id]: /target", '>   "title ``', '>   continued"', ">   [gone](#missing) ``"], 1, /anchors: SKILL\.md:11 link "#missing"/],
+    ["lowercase declaration", ["before ``", "<!doctype html>", "[gone](#missing) ``"], 1, /anchors: SKILL\.md:10 link "#missing"/],
+    ["label code precedence", ["[first``](https://example.com/a)", "[gone](#missing) ``"], 0, /^PASS {2}/m],
   ])("uses shared inline boundaries for %s", async (name, lines, code, report) => {
     const root = await tempDir();
     const dir = await writeSkill(root, "wrapped-link", {

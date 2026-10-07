@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "27a49ecfc97b993f593bc079c9e432eb36b0360d7bd50a9652d3757768824650"
+      "computedHash": "91fea1b1b93a4dd0673044fdfed08fbdd3a748e4ca46b4299aafb831ad103214"
     },
     "agent-skill-management": {
       "source": "./skills",

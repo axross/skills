@@ -53,7 +53,7 @@ export function htmlBlockEnd(content) {
   if (/^<!--/.test(content)) return /-->/;
   if (/^<\?/.test(content)) return /\?>/;
   if (/^<!\[CDATA\[/.test(content)) return /\]\]>/;
-  if (/^<![A-Z]/.test(content)) return />/;
+  if (/^<![A-Za-z]/.test(content)) return />/;
   return HTML_BLOCK_RE.test(content) ? /^[ \t]*$/ : null;
 }
 
@@ -191,11 +191,69 @@ export function unterminatedFenceLine(body) {
 const CODE_SPAN_RE = /(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/;
 const ESCAPE_RE = /\\[!-/:-@\[-`{-~]/;
 const RAW_HTML_RE = /<(?:[A-Za-z][A-Za-z0-9-]*(?:(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \t]*(?:\n[ \t]*)?=[ \t]*(?:\n[ \t]*)?(?:[^ \t\n\r"'=<>`]+|'[^']*'|"[^"]*"))?)*[ \t]*(?:\n[ \t]*)?\/?>|\/[A-Za-z][A-Za-z0-9-]*[ \t]*(?:\n[ \t]*)?>|!--(?:>|->|[\s\S]*?-->)|\?[\s\S]*?\?>|![A-Za-z][^>]*>|!\[CDATA\[[\s\S]*?\]\]>)/;
-const INLINE_TOKEN_RE = new RegExp([ESCAPE_RE.source, CODE_SPAN_RE.source, RAW_HTML_RE.source, "`+"].join("|"), "g");
+const AUTOLINK_RE = /<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\x00-\x20]*>/;
+const LINK_TITLE_RE = /(?:"(?:\\[^\n]|[^"\\])*"|'(?:\\[^\n]|[^'\\])*'|\((?:\\[^\n]|[^()\\])*\))/;
+const LINK_SPACE_RE = /^[ \t]*(?:\n[ \t]*)?/;
+const INLINE_TOKEN_RE = new RegExp([ESCAPE_RE.source, CODE_SPAN_RE.source, RAW_HTML_RE.source, AUTOLINK_RE.source, "`+", "\\[|\\]"].join("|"), "g");
+
+/** validated destination length, or -1; inline tails end at an unmatched ')'. */
+function linkDestinationLength(source, inline = false) {
+  if (source.startsWith("<")) return source.match(/^<(?:\\[^\n]|[^<>\\\n])*>/)?.[0].length ?? -1;
+  let depth = 0;
+  let index = 0;
+  for (; index < source.length; index += 1) {
+    const character = source[index];
+    if (/\s/.test(character)) break;
+    if (/[<>\x00-\x1f\x7f]/.test(character)) return -1;
+    if (character === "\\" && ESCAPE_RE.test(source.slice(index, index + 2))) {
+      index += 1;
+      continue;
+    }
+    if (character === "(") depth += 1;
+    if (character === ")") {
+      if (depth === 0) return inline ? index : -1;
+      depth -= 1;
+    }
+  }
+  return depth === 0 ? index : -1;
+}
+
+/** the complete '(destination title)' tail after an inline label, or zero. */
+function inlineLinkTailLength(source) {
+  if (!source.startsWith("(")) return 0;
+  let index = 1 + source.slice(1).match(LINK_SPACE_RE)[0].length;
+  const destinationLength = linkDestinationLength(source.slice(index), true);
+  if (destinationLength < 0) return 0;
+  index += destinationLength;
+  const space = source.slice(index).match(LINK_SPACE_RE)[0];
+  index += space.length;
+  if (source[index] === ")") return index + 1;
+  if (!space) return 0;
+  const title = source.slice(index).match(new RegExp(`^${LINK_TITLE_RE.source}`))?.[0];
+  if (!title || /\n[ \t]*\n/.test(title)) return 0;
+  index += title.length;
+  index += source.slice(index).match(LINK_SPACE_RE)[0].length;
+  return source[index] === ")" ? index + 1 : 0;
+}
 
 /** blank inline examples without hiding unmatched literal backtick strings. */
 export function stripCodeSpans(text) {
-  return text.replace(INLINE_TOKEN_RE, (token, codeMarker) => codeMarker ? newlinesOf(token) : token);
+  let stripped = "";
+  let copiedUntil = 0;
+  let labelDepth = 0;
+  INLINE_TOKEN_RE.lastIndex = 0;
+  let match;
+  while ((match = INLINE_TOKEN_RE.exec(text)) !== null) {
+    if (match[1]) {
+      stripped += text.slice(copiedUntil, match.index) + newlinesOf(match[0]);
+      copiedUntil = INLINE_TOKEN_RE.lastIndex;
+    } else if (match[0] === "[") labelDepth += 1;
+    else if (match[0] === "]" && labelDepth > 0) {
+      labelDepth -= 1;
+      INLINE_TOKEN_RE.lastIndex += inlineLinkTailLength(text.slice(INLINE_TOKEN_RE.lastIndex));
+    }
+  }
+  return stripped + text.slice(copiedUntil);
 }
 
 /** the width of source indentation or list-marker padding in tab-stop columns. */
@@ -210,25 +268,11 @@ export function columnWidth(prefix) {
 export function linkDefinitionLineCount(source) {
   const definition = source.match(/^ {0,3}\[((?:\\[^\n]|[^\[\]\\]){1,999})\]:[ \t]*(?:\n[ \t]*)?(<(?:\\[^\n]|[^<>\\\n])*>|(?:\\[^\s]|[^\s<>\\\x00-\x1f\x7f])+)/);
   if (!definition || !/\S/.test(definition[1]) || /\n[ \t]*\n/.test(definition[1])) return 0;
-
-  if (!definition[2].startsWith("<")) {
-    let depth = 0;
-    for (let index = 0; index < definition[2].length; index += 1) {
-      const character = definition[2][index];
-      if (character === "\\") {
-        index += 1;
-        continue;
-      }
-      if (character === "(") depth += 1;
-      if (character === ")") depth -= 1;
-      if (depth < 0) return 0;
-    }
-    if (depth !== 0) return 0;
-  }
+  if (linkDestinationLength(definition[2]) !== definition[2].length) return 0;
 
   let length = definition[0].length;
   const tail = source.slice(length);
-  const title = tail.match(/^(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)("(?:\\[^\n]|[^"\\])*"|'(?:\\[^\n]|[^'\\])*'|\((?:\\[^\n]|[^()\\])*\))[ \t]*(?=\n|$)/);
+  const title = tail.match(new RegExp(`^(?:[ \\t]+(?:\\n[ \\t]*)?|\\n[ \\t]*)(${LINK_TITLE_RE.source})[ \\t]*(?=\\n|$)`));
   if (title && !/\n[ \t]*\n/.test(title[1])) length += title[0].length;
   else if (!/^[ \t]*(?:\n|$)/.test(tail)) return 0;
 
@@ -367,11 +411,16 @@ export function extractProse(body, { preserveFenceBoundaries = false } = {}) {
       if (htmlEnd.test(blockContent)) htmlEnd = null;
       continue;
     }
-    if (!fence && paragraph.length === 0 && content.trimStart().startsWith("[")) {
-      const count = linkDefinitionLineCount([
-        content.trimStart(),
-        ...sourceLines.slice(line).map((text) => text.replace(/^(?: {0,3}>[ \t]?)+/, "")),
-      ].join("\n"));
+    if (!fence && paragraph.length === 0 && blockContent.trimStart().startsWith("[") && columnWidth(blockContent.match(/^[ \t]*/)[0]) < blockIndent + 4) {
+      const definitionLines = [blockContent.trimStart()];
+      for (const continuation of sourceLines.slice(line)) {
+        const continuationQuote = continuation.match(/^(?: {0,3}>[ \t]?)+/)?.[0] ?? "";
+        const continuationContent = continuation.slice(continuationQuote.length);
+        if (continuationQuote.replace(/[^>]/g, "").length !== quoteDepth ||
+          (continuationContent.trim() !== "" && columnWidth(continuationContent.match(/^[ \t]*/)[0]) < listIndent)) break;
+        definitionLines.push(continuationContent.trimStart());
+      }
+      const count = linkDefinitionLineCount(definitionLines.join("\n"));
       if (count > 0) {
         while (index < lines.length && lines[index].line < line + count) {
           if (!lines[index].fence) byLine[lines[index].line] = lines[index].text;
