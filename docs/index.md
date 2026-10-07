@@ -61,9 +61,9 @@ uses none of them.
   session's cost.
 - [operations/code-review.md](./operations/code-review.md) — the two external
   review routes, host selection, setup, and policy-delivery/output qualification.
-- [operations/ci-actions.md](./operations/ci-actions.md) — resolving action release
-  tags to commits, updating workflow pins, and separating static evidence from
-  live CI and downstream dependency trust.
+- [operations/ci-actions.md](./operations/ci-actions.md) — selecting trusted action
+  version tags or SHA pins, updating workflow references, and separating static
+  evidence from live CI and downstream dependency trust.
 - [operations/evaluation-dispatch.md](./operations/evaluation-dispatch.md) —
   running the evaluation instrument, by hand or through its one dispatch
   workflow, against this repository's declared scenarios.

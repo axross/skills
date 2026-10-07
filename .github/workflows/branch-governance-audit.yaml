@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Flag claude/* branches pushed with no open pull request
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        uses: actions/github-script@v7
         with:
           script: |
             const GRACE_MINUTES = 30; // skip branches whose latest commit is still within an active delivery
