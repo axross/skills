@@ -53,7 +53,7 @@ See [test-discovery.md](./references/test-discovery.md) for:
 - `testMatch` versus `testRegex`, and why setting both is a configuration error
 - colocated specs versus a `__tests__/` directory
 - separating a Jest suite from a Playwright suite by extension, so neither collects the other's files
-- `testPathIgnorePatterns` versus `modulePathIgnorePatterns` for a stale `dist/`
+- discovery ignores versus file-map exclusion, and why `modulePathIgnorePatterns` does not block every relative import
 - `--listTests`, and why `--passWithNoTests` turns the worst misconfiguration into a pass
 
 ## The Test API
@@ -142,6 +142,7 @@ See [snapshots.md](./references/snapshots.md) for:
 - `toThrowErrorMatchingInlineSnapshot` where an error message is part of the contract
 - property matchers for a generated id or timestamp, and fixing the clock before snapshotting a date
 - `-u` narrowed to specific tests, and `--ci` refusing to write a new snapshot
+- foreign-owned `.snap` files, resolved-path cleanup ignores, and why a narrowed test listing does not prove preservation
 - `no-large-snapshots` and `no-interpolation-in-snapshots`
 - `snapshotSerializers`, `snapshotResolver`, and `snapshotFormat`
 
