@@ -87,6 +87,7 @@ See [asynchronous.md](./references/asynchronous.md) for:
 - the missing `await` that makes a test pass asserting nothing, and `valid-expect` which catches it
 - `.rejects` and `expect.assertions(n)`, so a resolution cannot satisfy a rejection test
 - the 5000 ms default, and setting `testTimeout` at the narrowest scope that needs it
+- a timeout that rejects Jest's wait while the async body continues beyond `afterEach`
 - `waitForUnhandledRejections`, which defaults to `false` despite what its name suggests
 
 ## Mock Functions and Spies
@@ -129,6 +130,7 @@ See [fake-timers.md](./references/fake-timers.md) for:
 
 - `jest.useFakeTimers()`, `useRealTimers()`, and `fakeTimers.enableGlobally`
 - `advanceTimersByTime` versus `runOnlyPendingTimers` versus `runAllTimers`, and the `timerLimit` a self-rescheduling timer hits
+- cancelling owned work before bounded teardown-frame advancement, which can also execute other due timers
 - the `*Async` advance variants, needed whenever a timer callback resolves a promise
 - `doNotFake` to keep `performance` or `nextTick` real while faking the rest
 - `setSystemTime` and `now`, which move `Date` without running any timer
@@ -238,6 +240,7 @@ See [react-and-native.md](./references/react-and-native.md) for:
 - `jest-environment-jsdom` plus `@testing-library/jest-dom` registered in `setupFilesAfterEnv`
 - why `react-test-renderer` is deprecated in favour of a testing-library renderer
 - why `toHaveBeenCalledTimes(9)` on a render prop pins React's scheduling rather than the component's behavior
+- a gesture helper that completes intended intermediate input, and animation doubles that erase relevant frame ordering
 - what an `act(...)` warning is actually reporting, and awaiting the settled state instead of silencing it
 - layout, gestures, animation, and platform navigation, which neither jsdom nor the native environment can verify
 

@@ -7,6 +7,11 @@ covers where the source and the two installed roots live;
 [agent-skill-management](../../skills/agent-skill-management/SKILL.md) covers
 the general lifecycle and evidence model these host procedures apply.
 
+For an installed-rule finding or a bounded project exception, use management's
+[installed-rule change guidance](../../skills/agent-skill-management/references/installed-rule-changes.md).
+It distinguishes local conventions, approved deviations, and upstream proposals;
+this operation does not introduce a separate register or exception policy.
+
 ## Installing and Refreshing
 
 Regenerate `.agents/skills/` from the source under `skills/` with the

@@ -47,10 +47,61 @@ through the `Edit`, `Write`, or `MultiEdit` tools — the `PostToolUse`
 matcher's scope, which this repository deliberately does not widen — so a
 file changed another way, such as a Bash heredoc or `sed -i`, reaches `Stop`
 uncorrected like any file in a Codex session, where format-on-edit isn't wired
-at all because `format.sh` reads the edited path from a Claude Code payload
-field a Codex session never sends. Either way, that file keeps the blocking
-behaviour described below for every check the `PostToolUse` hook would
-otherwise have repaired first.
+at all. Amp also keeps explicit repair commands rather than an automatic
+repair plugin. The hook consumes Claude's absolute `tool_input.file_path`;
+an absent or unsupported payload is skipped, not inferred from another host's
+schema. The current [Claude hook reference](https://code.claude.com/docs/en/hooks#posttooluse)
+documents `Edit` and `Write` payloads; keeping `MultiEdit` in the existing matcher
+does not establish that a current host emits it. Files outside repair's reach
+keep the blocking behaviour below.
+
+Automatic repair is limited to the existing `.md` / `.js` trigger scope and
+an existing regular file. Both the original path and its canonical target must
+be inside the project and outside these protected trees:
+
+- Installed `.agents/skills` and `.claude/skills` aliases
+- Dependency trees and Git metadata
+- Mock projects
+
+A source-looking
+alias into installed material is excluded, as is an installed alias pointing
+back into source. An owned internal symlink can repair only its owned target.
+Repair skips paths that escape the project or cannot be safely resolved:
+
+- External symlinks
+- Traversal paths
+- Unresolved targets
+
+Resolution
+requires `realpath` with existing-path and NUL-output support (`-e` / `-z`);
+without it the best-effort hook skips repair rather than using a weaker guard.
+
+Both passes skip glob/control-sensitive names, including:
+
+- `*`
+- `?`
+- `{`
+- Bracket and extglob syntax
+- Backslashes and control characters
+
+Shell quoting alone
+does not make a Markdown glob literal. The lint pass therefore keeps an ordinary
+project-relative argument and suppresses configuration-added positive globs with
+`--no-globs`; it never uses the colon-literal form that bypasses root ignores.
+The formatter uses the installed Prettier CLI with only the selected file,
+not `npm run format`, whose embedded glob would still visit the repository if
+a filename were appended. Prettier exclusions are checked at both path
+identities: mocks and measurements receive no formatter writes. Mocks receive
+no lint repair either, while measurements remain eligible for Markdown lint
+repair. Ordinary names containing spaces and hand-authored evaluation files
+outside those excluded trees remain eligible. These checks establish selection,
+not a lock against other writers or hostile concurrent filesystem replacement.
+
+Manual whole-repository commands remain as documented in
+[README](../../README.md). A skipped or failed repair exits `0` and
+does not weaken the non-writing completion checks. Actual shell-hook fixtures
+exercise selection, exclusions and exit statuses; they are not evidence of
+live Claude/Codex startup or Amp automatic repair.
 
 A blocking `Stop` check is expensive in a way a `PostToolUse` repair is not: it
 fires only after the agent believes the task is finished, so a failure there
@@ -75,24 +126,16 @@ to repair the moment the file is written, at no such cost):
 - **`node ./skills/agent-skill-authoring/scripts/check-links.mjs`** —
   **blocking.** A broken relative link has no mechanical repair; its correct
   target is a judgement call the same way an unrepairable lint violation is.
-- **The change-in-flight reminder** — **already non-blocking.** It emits a
-  `systemMessage` and exits `0` rather than failing the hook, because it
-  cannot confirm from local state alone whether a pull request already
-  covers the pushed commits it is reminding about.
 
-`format.sh` passes the edited file to `markdownlint-cli2` as an ordinary
-glob argument rather than a literal path (its header comment says why), so
-a filename holding a glob metacharacter resolves through markdownlint-cli2's
-own glob library rather than matching itself outright. Verified against
-markdownlint-cli2 0.15.0: `[`, `!`, and `#` still match through the
-library's literal-path fallback, so the file gets fixed; `*` and `?` also
-match, but as a genuine wildcard, which can additionally match an unrelated
-sibling filename differing only at that one character; `{` does not match
-at all, so the file is left untouched. None of this weakens the gate —
-`npm run lint`'s repository-wide glob at `Stop` still catches any violation
-the fix pass missed, or introduced by fixing the wrong file. Re-verify this
-against markdownlint-cli2's glob resolver on a version upgrade, and again if
-`LINT_FIX_FILE_GLOB` is ever widened past `*.md`.
+`Stop` remains check-only: lint or relative-link failure reports on stderr and
+exits `2`, which [Claude's exit-code contract](https://code.claude.com/docs/en/hooks#exit-code-2)
+uses to block stopping. Successful checks, or no pending content under the
+existing Git change gate, exit `0`. There is no Git-only PR/review reminder and
+no replacement detector: local remote-tracking refs can be stale and cannot
+establish PR or review completion. A synchronous `systemMessage` is also
+user-facing, not an agent instruction. Delivery completion follows the
+[change loop's actual evidence](./development-workflow.md),
+not this quality hook's success.
 
 ## Telemetry Tagging
 

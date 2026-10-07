@@ -16,6 +16,10 @@ Server state is data another system owns. The client holds a copy, that copy goe
 
 The mistake worth naming: fetching into a store because the data is needed in two places. That buys sharing and pays for it with a hand-written cache — loading flags, staleness, refetching, and deduplication all reimplemented, usually incompletely.
 
+Network access is not the boundary. SQLite rows shared by two screens can belong here: the database owns the rows, each screen reads the same cached result, and a write can make that result stale, requiring invalidation and a reread. In contrast, a persisted theme preference stays client state when one store owns its reads and writes and no independent reader has a stale copy to refresh; persistence alone does not call for a query cache.
+
+Calling an operation "one-shot" does not decide either case. A cached read still belongs in a query, and a write to that shared data still belongs in a mutation, even if performed only once.
+
 **Guidelines:**
 
 - MUST express data a server owns as a query, not as a store slice or component state populated by a fetch.

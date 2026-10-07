@@ -1,26 +1,45 @@
 #!/bin/bash
 
-# posttooluse hook: formats the project after a content change so written files
-# stay consistent. fires on edit/write tools.
+# posttooluse repair is best-effort and limited to one owned file; unresolved
+# paths and glob-sensitive names stay for the non-writing completion checks.
 set -uo pipefail
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-# normalize away a trailing slash so the "$PROJECT_DIR"/*.md guard below
-# matches reliably regardless of how PROJECT_DIR was supplied.
 PROJECT_DIR="${PROJECT_DIR%/}"
 
-# read the edited file path from the tool payload on stdin.
-FILE_PATH="$(jq -r '.tool_input.file_path // empty' 2>/dev/null || true)"
+FILE_PATH="$(jq -er '.tool_input.file_path | select(type == "string" and length > 0) | select(explode | all(. >= 32 and . != 127))' 2>/dev/null)" || exit 0
 
-# only format when a source file the formatter understands changed; skip the
-# rest. the case-pattern below is the CODE_FILE_GLOB token, e.g.
-# "*.ts | *.tsx | *.js | *.css".
 case "$FILE_PATH" in
   *.md | *.js) ;;
   *) exit 0 ;;
 esac
 
-cd "$PROJECT_DIR"
+case "$FILE_PATH" in
+  "$PROJECT_DIR"/*) FILE_REL="${FILE_PATH#"$PROJECT_DIR"/}" ;;
+  *) exit 0 ;;
+esac
+
+IFS= read -r -d '' PROJECT_CANONICAL < <(realpath -ez -- "$PROJECT_DIR" 2>/dev/null) || exit 0
+IFS= read -r -d '' FILE_CANONICAL < <(realpath -ez -- "$FILE_PATH" 2>/dev/null) || exit 0
+[ -f "$FILE_CANONICAL" ] || exit 0
+case "$FILE_CANONICAL" in
+  "$PROJECT_CANONICAL"/*.md | "$PROJECT_CANONICAL"/*.js) CANONICAL_REL="${FILE_CANONICAL#"$PROJECT_CANONICAL"/}" ;;
+  *) exit 0 ;;
+esac
+
+# both identities matter: an installed alias may resolve into editable source,
+# and an ordinary-looking source alias may resolve into generated material.
+for REL in "$FILE_REL" "$CANONICAL_REL"; do
+  case "/$REL/" in
+    */../* | */./* | *//*) exit 0 ;;
+  esac
+  case "$REL" in
+    *'*'* | *'?'* | *'['* | *']'* | *'{'* | *'}'* | *'('* | *')'* | *'!'* | *'#'* | *':'* | *'\'* | *[[:cntrl:]]*) exit 0 ;;
+    .agents/skills/* | .claude/skills/* | .git/* | */.git/* | node_modules/* | */node_modules/* | tools/evaluation/mocks/*) exit 0 ;;
+  esac
+done
+
+cd "$PROJECT_CANONICAL" || exit 0
 
 # make the project's toolchain available if a version manager is installed
 # (e.g. mise, asdf, nvm, volta). adapt or remove to match the project.
@@ -33,18 +52,20 @@ fi
 # without the toolchain provisioned).
 command -v npm >/dev/null 2>&1 || exit 0
 
-# use a PROJECT_DIR-relative path, not ":$FILE_PATH" (bypasses
-# .markdownlint-cli2.jsonc's ignores, risking a tools/evaluation/mocks/
-# rewrite); also skips files outside the project root. *.md is the
-# LINT_FIX_FILE_GLOB token (cf. CODE_FILE_GLOB above); metacharacter
-# behavior: docs/operations/agent-sessions.md.
-case "$FILE_PATH" in
-  "$PROJECT_DIR"/*.md)
-    FILE_REL="${FILE_PATH#"$PROJECT_DIR"/}"
-    FILE_REL="${FILE_REL#/}"
-    npm run lint:fix -- "$FILE_REL" >/dev/null 2>&1 || true
+# ordinary globs preserve lint ignores; colon-literal input bypasses them.
+# --no-globs prevents configured positive globs from adding repair targets.
+case "$CANONICAL_REL" in
+  *.md)
+    npm run lint:fix -- --no-globs "./$CANONICAL_REL" >/dev/null 2>&1 || true
     ;;
 esac
 
-npm run format >/dev/null 2>&1 || true
+# the manual format script carries an all-files glob. use the installed CLI
+# instead, honoring formatter exclusions at both path identities.
+PRETTIER="./node_modules/.bin/prettier"
+if [ -x "$PRETTIER" ] &&
+  "$PRETTIER" --file-info "./$FILE_REL" 2>/dev/null | jq -e '.ignored == false' >/dev/null 2>&1 &&
+  "$PRETTIER" --file-info "./$CANONICAL_REL" 2>/dev/null | jq -e '.ignored == false' >/dev/null 2>&1; then
+  "$PRETTIER" --write "./$CANONICAL_REL" >/dev/null 2>&1 || true
+fi
 exit 0
