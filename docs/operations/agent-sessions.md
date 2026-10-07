@@ -59,18 +59,18 @@ Automatic repair is limited to the existing `.md` / `.js` trigger scope and
 an existing regular file. Both the original path and its canonical target must
 be inside the project and outside these protected trees:
 
-- Installed `.agents/skills` and `.claude/skills` aliases.
-- Dependency trees and Git metadata.
-- Mock projects.
+- Installed `.agents/skills` and `.claude/skills` aliases
+- Dependency trees and Git metadata
+- Mock projects
 
 A source-looking
 alias into installed material is excluded, as is an installed alias pointing
 back into source. An owned internal symlink can repair only its owned target.
 Repair skips paths that escape the project or cannot be safely resolved:
 
-- External symlinks.
-- Traversal paths.
-- Unresolved targets.
+- External symlinks
+- Traversal paths
+- Unresolved targets
 
 Resolution
 requires `realpath` with existing-path and NUL-output support (`-e` / `-z`);
@@ -78,11 +78,11 @@ without it the best-effort hook skips repair rather than using a weaker guard.
 
 Both passes skip glob/control-sensitive names, including:
 
-- `*`.
-- `?`.
-- `{`.
-- Bracket and extglob syntax.
-- Backslashes and control characters.
+- `*`
+- `?`
+- `{`
+- Bracket and extglob syntax
+- Backslashes and control characters
 
 Shell quoting alone
 does not make a Markdown glob literal. The lint pass therefore keeps an ordinary
