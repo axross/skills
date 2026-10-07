@@ -24,6 +24,111 @@ import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkSkill = validator(SCRIPTS.checkSkillBody);
 
+describe.each(["\n", "\r\n"])("routing Guidelines boundaries with %j endings", (eol) => {
+  it.each([
+    ["independent heading", [" ## Independent"], 0],
+    ["list-contained heading", ["  ## Nested"], 1],
+    ["paragraph after contained heading", ["  ## Nested", "independent"], 0],
+    ["paragraph after deeper contained heading", ["    ## Nested", "independent"], 0],
+    ["paragraph still contained after heading", ["  ## Nested", "  nested"], 1],
+    ["independent plus item", ["+ independent"], 0],
+    ["independent asterisk item", ["* independent"], 0],
+    ["empty plus continuation", ["+"], 1],
+    ["empty asterisk continuation", ["*"], 1],
+    ["separated empty plus item", ["", "+"], 0],
+    ["separated empty asterisk item", ["", "*"], 0],
+    ["non-one ordered continuation", ["2. continued"], 1],
+    ["non-one parenthesis continuation", ["2) continued"], 1],
+    ["zero ordered continuation", ["0. continued"], 1],
+    ["nine-digit ordered continuation", ["999999999) continued"], 1],
+    ["empty number-one continuation", ["1."], 1],
+    ["empty parenthesis continuation", ["1) \t"], 1],
+    ["independent number-one item", ["1. independent"], 0],
+    ["independent parenthesis item", ["1) independent"], 0],
+    ["leading-zero number-one item", ["01. independent"], 0],
+    ["nine-digit number-one item", ["000000001) independent"], 0],
+    ["separated non-one item", ["", "2. independent"], 0],
+    ["separated zero item", ["", "0) independent"], 0],
+    ["separated empty item", ["", "1."], 0],
+    ["contained ordered item", ["  1) nested"], 1],
+    ["separated contained non-one item", ["", "  2. nested"], 1],
+    ["malformed ordered lookalike", ["1.No marker"], 1],
+    ["overlong ordered lookalike", ["0000000001. No marker"], 1],
+    ["paragraph after empty contained quote", ["  >", "independent"], 0],
+    ["paragraph after empty contained list", ["", "  +", "independent"], 0],
+    ["paragraph after empty contained dash list", ["", "  -", "independent"], 0],
+    ["paragraph after contained declaration", ["  <!DOCTYPE html>", "independent"], 0],
+    ["paragraph after contained processing instruction", ["  <?instruction ?>", "independent"], 0],
+    ["paragraph after contained CDATA", ["  <![CDATA[example]]>", "independent"], 0],
+    ["paragraph after multiline contained HTML", ["  <script>", "  raw", "  </script>", "independent"], 0],
+    ["contained paragraph after HTML", ["  <script>", "  raw", "  </script>", "  nested"], 1],
+    ["paragraph after separated contained HTML", ["  <div>", "  raw", "  </div>", "", "independent"], 0],
+    ["paragraph exits unterminated contained HTML", ["  <div>", "independent"], 0],
+    ["paragraph exits unterminated contained raw HTML", ["  <script>", "independent"], 0],
+    ["paragraph remains within unterminated HTML", ["  <div>", "  nested"], 1],
+    ["paragraph after indented code", ["", "      example", "independent"], 0],
+    ["paragraph after tab-indented code", ["", "  \t  example", "independent"], 0],
+    ["indented code cannot interrupt paragraph", ["      example", "continued"], 1],
+    ["contained paragraph after indented code", ["", "      example", "  nested"], 1],
+    ["lazy paragraph after nonempty quote", ["  > nested", "continued"], 1],
+    ["lazy paragraph after nonempty list", ["  + nested", "continued"], 1],
+    ["contained plus item", ["  + nested"], 1],
+    ["contained asterisk item", ["  * nested"], 1],
+    ["independent HTML block", ["<div>", "independent", "</div>"], 0],
+    ["independent raw HTML", ["<script>", "example", "</script>"], 0],
+    ["independent processing instruction", ["<?instruction ?>"], 0],
+    ["independent declaration", ["<!DOCTYPE html>"], 0],
+    ["independent CDATA", ["<![CDATA[example]]>"], 0],
+    ["contained HTML block", ["  <div>", "  nested", "  </div>"], 1],
+    ["non-interrupting inline HTML", ["<span>continued</span>"], 1],
+    ["independent lowercase declaration", ["<!doctype html>"], 0],
+    ["independent mixed-case declaration", ["<!dOcTyPe html>"], 0],
+    ["contained lowercase declaration", ["  <!doctype html>", "  nested"], 1],
+    ["nonletter declaration lookalike", ["<!1 html>"], 1],
+    ["multiline routing example", ["", "``", "See [topic.md](./references/topic.md) for:", "``"], 1],
+    ["code-leading plus-like continuation", ["`example` + continued"], 1],
+    ["code-leading HTML-like continuation", ["`example` <div>continued</div>"], 1],
+    ["independent paragraph", ["", " independent"], 0],
+    ["list-contained paragraph", ["", "  nested"], 1],
+    ["independent asterisk thematic break", ["***"], 0],
+    ["independent dash thematic break", ["---"], 0],
+    ["independent underscore thematic break", ["_ _ _"], 0],
+    ["under-indented spaced thematic break", [" *\t* * "], 0],
+    ["list-contained thematic break", ["  ***"], 1],
+    ["paragraph after list-contained thematic break", ["  ***", "independent"], 0],
+    ["paragraph after deeper thematic break", ["    ***", "independent"], 0],
+    ["over-indented thematic-break-like continuation", ["      ***", "continued"], 1],
+    ["short thematic-break-like text", ["**"], 1],
+    ["mixed thematic-break-like text", ["*-*"], 1],
+    ["inline thematic-break example", ["`***`"], 1],
+    ["code-leading lazy thematic-break-like text", ["`example` ***"], 1],
+    ["code-leading lazy heading-like text", ["`example` ## still continuation"], 1],
+    ["code-leading lazy quote-like text", ["`example` > still continuation"], 1],
+    ["code-leading lazy ordered-item-like text", ["`example` 1. still continuation"], 1],
+    ["hash-leading lazy inline code", ["#`example` ## still continuation"], 1],
+    ["code-leading lazy fence-like text", ["`example` ```still continuation"], 1],
+    ["independent code-leading paragraph", ["", "`example` ## independent"], 0],
+    ["literal unequal backticks", ["", "``x`"], 0],
+    ["matched inline example", ["", "``x``"], 1],
+  ].map(([name, separator, code]) => [name, separator, code, [
+    /^PASS {2}/m,
+    new RegExp(`routing-block: SKILL\\.md:${14 + separator.length} reference routing must not introduce`),
+  ][code]]))("classifies %s before the Guidelines label", async (name, separator, code, report) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "routing-boundary", {
+      raw: [
+        "---", "name: routing-boundary", "description: Exercises routing boundaries.", "---", "",
+        "# Routing", "", "## Scope", "",
+        "See [topic.md](./references/topic.md) for:", "", "- condition",
+        ...separator, "", "**Guidelines:**", "", "- MUST preserve output.", "",
+      ].join(eol),
+    });
+    const result = checkSkill(dir);
+    expect(result).toExitWith(code);
+    expect(result.output).toMatch(report);
+  });
+});
+
 /**
  * assert that a fixture fails with exit 1 and reports `expected`.
  *
@@ -414,7 +519,27 @@ describe("check-skill-body.mjs", () => {
       expectFailure(dir, /routing-block: SKILL\.md:\d+ reference routing must not introduce/);
     });
 
-    it.each(["1. A separate procedure.", " 2) A separate procedure.", "999999999. A separate procedure.", "1."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {
+    it.each(["\n", "\r\n"].flatMap(eol => [0, 1, 2, 3].flatMap(indent => [
+      [eol, indent, "lazy continuation", [], 1, /routing-block: SKILL\.md:15 reference routing must not introduce/],
+      [eol, indent, "independent paragraph", [""], 0, /^PASS {2}/m],
+    ])))("classifies %j endings, %i item spaces and %s", async (eol, indent, name, separator, code, report) => {
+      const root = await tempDir();
+      const dir = await writeSkill(root, "indented-lazy-routing", {
+        raw: [
+          "---", "name: indented-lazy-routing", "description: Exercises routing boundaries.", "---", "",
+          "# Routing", "", "## Scope", "",
+          `See [topic.md](./references/topic.md) ${leadIn}`, "",
+          `${" ".repeat(indent)}- condition`,
+          ...separator,
+          "continued", "", "**Guidelines:**", "", "- MUST preserve output.", "",
+        ].join(eol),
+      });
+      const result = checkSkill(dir);
+      expect(result).toExitWith(code);
+      expect(result.output).toMatch(report);
+    });
+
+    it.each(["1. A separate procedure.", " 1) A separate procedure.", "000000001. A separate procedure."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "rule-after-ordered-list", {
         body: withTopic(
@@ -432,7 +557,7 @@ describe("check-skill-body.mjs", () => {
       expect(checkSkill(dir)).toPassCleanly();
     });
 
-    it.each(["  1. A nested selection condition.", "1000000000. A number, not a marker.", "1.Not an ordered-list marker."])("rejects a routing block after the non-interrupting continuation %j", async (continuation) => {
+    it.each(["  1. A nested selection condition.", "2) Still continuation.", "999999999. Still continuation.", "1.", "1000000000. A number, not a marker.", "1.Not an ordered-list marker."])("rejects a routing block after the non-interrupting continuation %j", async (continuation) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "ordered-like-routing-continuation", {
         body: withTopic(

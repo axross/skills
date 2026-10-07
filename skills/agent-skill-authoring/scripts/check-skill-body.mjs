@@ -13,7 +13,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { extractProse, FENCE_RE, scanLines, unterminatedFenceLine } from "./commonmark.mjs";
+import { closesParagraph, columnWidth, extractProse, FENCE_RE, htmlBlockEnd, isThematicBreak, linkDefinitionLineCount, scanLines, startsBlock, unterminatedFenceLine } from "./commonmark.mjs";
 import {
   GUIDELINES_RE,
   ROUTING_LINE_RE,
@@ -161,35 +161,6 @@ function guidelineKeywordFailures(body, file, offset) {
   return failures;
 }
 
-/** the source-line span of a valid link-reference definition, or zero. */
-function linkDefinitionLineCount(source) {
-  const definition = source.match(/^ {0,3}\[((?:\\[^\n]|[^\[\]\\]){1,999})\]:[ \t]*(?:\n[ \t]*)?(<(?:\\[^\n]|[^<>\\\n])*>|(?:\\[^\s]|[^\s<>\\\x00-\x1f\x7f])+)/);
-  if (!definition || !/\S/.test(definition[1]) || /\n[ \t]*\n/.test(definition[1])) return 0;
-
-  if (!definition[2].startsWith("<")) {
-    let depth = 0;
-    for (let index = 0; index < definition[2].length; index += 1) {
-      const character = definition[2][index];
-      if (character === "\\") {
-        index += 1;
-        continue;
-      }
-      if (character === "(") depth += 1;
-      if (character === ")") depth -= 1;
-      if (depth < 0) return 0;
-    }
-    if (depth !== 0) return 0;
-  }
-
-  let length = definition[0].length;
-  const tail = source.slice(length);
-  const title = tail.match(/^(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)("(?:\\[^\n]|[^"\\])*"|'(?:\\[^\n]|[^'\\])*'|\((?:\\[^\n]|[^()\\])*\))[ \t]*(?=\n|$)/);
-  if (title && !/\n[ \t]*\n/.test(title[1])) length += title[0].length;
-  else if (!/^[ \t]*(?:\n|$)/.test(tail)) return 0;
-
-  return 1 + (source.slice(0, length).match(/\n/g) ?? []).length;
-}
-
 /**
  * reject a Guidelines label introduced by reference routing in SKILL.md.
  * prose or a heading separates a substantive block from routing; blanks,
@@ -208,9 +179,17 @@ function routingBlockFailures(body, file, offset) {
   let seenBullet = false;
   let paragraphBreak = false;
   let listIndent = 0;
+  let htmlEnd = null;
 
   for (let index = 0; index < lines.length; index += 1) {
     const { line, text } = lines[index];
+    const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
+    if (htmlEnd && source[line - 1].trim() !== "" && indent < listIndent) htmlEnd = null;
+    if (htmlEnd) {
+      if (htmlEnd.test(source[line - 1])) htmlEnd = null;
+      paragraphBreak = true;
+      continue;
+    }
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
       seenBullet = false;
@@ -238,24 +217,40 @@ function routingBlockFailures(body, file, offset) {
         continue;
       }
     }
-    const block = text.match(/^( {0,3})(?:>|\d{1,9}[.)](?:[ \t]|$))/);
-    if (block && (!seenBullet || block[1].length < listIndent)) {
-      inRouting = false;
+    if (isThematicBreak(source[line - 1], listIndent)) {
+      if (!seenBullet || indent < listIndent) inRouting = false;
+      paragraphBreak = true;
       continue;
     }
-    if (/^\s/.test(source[line - 1]) || /^-\s+/.test(text)) {
-      const bullet = text.match(/^-[ \t]+/);
-      if (bullet) {
-        seenBullet = true;
-        listIndent = [...bullet[0]].reduce(
-          (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
-          0,
-        );
+    const block = startsBlock(source[line - 1], listIndent, !paragraphBreak) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
+    if (block) {
+      if (!seenBullet || indent < listIndent) inRouting = false;
+      if (closesParagraph(source[line - 1], listIndent)) {
+        htmlEnd = indent < listIndent + 4 ? htmlBlockEnd(source[line - 1].trimStart()) : null;
+        if (htmlEnd?.test(source[line - 1])) htmlEnd = null;
+        paragraphBreak = true;
+        continue;
       }
+    }
+    if (!inRouting) {
+      continue;
+    }
+    const bullet = source[line - 1].match(/^([ \t]*-)([ \t]+|$)(.*)$/);
+    if (bullet && (seenBullet || indent <= 3)) {
+      if (!seenBullet || indent < listIndent) {
+        const markerWidth = columnWidth(bullet[1]);
+        const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
+        listIndent = markerWidth + (padding > 4 || bullet[3].trim() === "" ? 1 : padding);
+      }
+      seenBullet = true;
+      paragraphBreak = bullet[3].trim() === "";
+      continue;
+    }
+    if (seenBullet ? indent >= listIndent : indent > 0) {
       paragraphBreak = false;
       continue;
     }
-    if (seenBullet && !paragraphBreak && !/^#{1,6}\s+/.test(text)) continue;
+    if (seenBullet && !paragraphBreak) continue;
     inRouting = false;
   }
 

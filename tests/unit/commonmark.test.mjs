@@ -212,6 +212,128 @@ describe("commonmark.mjs", () => {
       expect(textOf("Write `[x](./y.md)` in prose.")).toEqual(["Write  in prose."]);
     });
 
+    describe.each(["\n", "\r\n"])("link syntax boundaries with %j endings", (eol) => {
+      it.each([
+        ["bare destination", ["[first](https://example.com/a``)", "[real](./real.md) ``"], ["[first](https://example.com/a``)", "[real](./real.md) ``"]],
+        ["angled destination", ["[first](<https://example.com/a``>)", "[real](./real.md) ``"], ["[first](<https://example.com/a``>)", "[real](./real.md) ``"]],
+        ["balanced destination", ["[first](/a(b``))", "[real](./real.md) ``"], ["[first](/a(b``))", "[real](./real.md) ``"]],
+        ["double title", ['[first](/a "title ``")', "[real](./real.md) ``"], ['[first](/a "title ``")', "[real](./real.md) ``"]],
+        ["single title", ["[first](/a 'title ``')", "[real](./real.md) ``"], ["[first](/a 'title ``')", "[real](./real.md) ``"]],
+        ["parenthesis title", ["[first](/a (title ``))", "[real](./real.md) ``"], ["[first](/a (title ``))", "[real](./real.md) ``"]],
+        ["multiline title", ['[first](/a "title ``', 'continued")', "[real](./real.md) ``"], ['[first](/a "title ``', 'continued")', "[real](./real.md) ``"]],
+        ["URI autolink", ["<https://example.com/a``>", "[real](./real.md) ``"], ["<https://example.com/a``>", "[real](./real.md) ``"]],
+        ["nested label", ["[first [inner]](/a``)", "[real](./real.md) ``"], ["[first [inner]](/a``)", "[real](./real.md) ``"]],
+        ["label code", ["[first``](/a)", "[fake](./missing.md) ``"], ["[first", ""]],
+        ["completed label code", ["[first `example`](/a``)", "[real](./real.md) ``"], ["[first ](/a``)", "[real](./real.md) ``"]],
+        ["earlier opener", ["before ``", "[first](/a``)", "[real](./real.md)"], ["before ", ")", "[real](./real.md)"]],
+        ["invalid destination", ["[first](/a(``)", "[fake](./missing.md) ``"], ["[first](/a(", ""]],
+        ["unclosed title", ['[first](/a "title ``)', "[fake](./missing.md) ``"], ['[first](/a "title ', ""]],
+        ["escaped label opener", ["\\[first](/a``)", "[fake](./missing.md) ``"], ["\\[first](/a", ""]],
+        ["missing label opener", ["first](/a``)", "[fake](./missing.md) ``"], ["first](/a", ""]],
+        ["invalid autolink", ["<h:a``>", "[fake](./missing.md) ``"], ["<h:a", ""]],
+        ["unordered definition", ["- [id]: /target``", "  [real](./real.md) ``"], ["- [id]: /target``", "  [real](./real.md) ``"]],
+        ["ordered definition", ["1. [id]: /target``", "   [real](./real.md) ``"], ["1. [id]: /target``", "   [real](./real.md) ``"]],
+        ["quoted definition", ["> - [id]: /target``", ">   [real](./real.md) ``"], ["> - [id]: /target``", ">   [real](./real.md) ``"]],
+        ["multiline definition destination", ["- [id]:", "  /target``", "  [real](./real.md) ``"], ["- [id]:", "  /target``", "  [real](./real.md) ``"]],
+        ["multiline definition title", ["- [id]: /target", '  "title ``', '  continued"', "  [real](./real.md) ``"], ["- [id]: /target", '  "title ``', '  continued"', "  [real](./real.md) ``"]],
+        ["definition container exit", ["- [id]:", "``[fake](./missing.md)``"], ["- [id]:", ""]],
+        ["quoted definition container exit", ["> - [id]:", "``[fake](./missing.md)``"], ["> - [id]:", ""]],
+        ["invalid contained definition", ["- [id]: /target(``", "  [fake](./missing.md) ``"], ["- [id]: /target(", ""]],
+        ["definition in paragraph", ["- before ``", "  [id]: /target", "  [fake](./missing.md) ``"], ["- before ", "", ""]],
+        ["lowercase declaration", ["before ``", "<!doctype html>", "[real](./real.md) ``"], ["before ``", "<!doctype html>", "[real](./real.md) ``"]],
+        ["mixed declaration", ["before ``", "<!dOcTyPe html>", "[real](./real.md) ``"], ["before ``", "<!dOcTyPe html>", "[real](./real.md) ``"]],
+        ["nonletter declaration", ["before ``", "<!1 html>", "[fake](./missing.md) ``"], ["before ", "", ""]],
+      ])("preserves the distinguishing prose and lines for %s", (name, source, expected) => {
+        expect(extractProse(source.join(eol)).lines).toEqual(expected.map((text, index) => ({ line: index + 1, text })));
+      });
+    });
+
+    describe.each(["\n", "\r\n"])("multiline inline blocks with %j endings", (eol) => {
+      it.each([
+        ["wrapped example", ["before ``", "[fake](./missing.md) ` shorter", "`` after"], ["before ", "", " after"]],
+        ["quoted opener", ["before ``", "literal <!--", "`` after", "[real](./real.md)", "-->"], ["before ", "", " after", "[real](./real.md)", "-->"]],
+        ["unmatched runs", ["before ``", "[real](./real.md)", "` after"], ["before ``", "[real](./real.md)", "` after"]],
+        ["different paragraphs", ["before ``", "", "[real](./real.md)", "`` after"], ["before ``", "", "[real](./real.md)", "`` after"]],
+        ["heading boundary", ["before ``", "## Next", "[real](./real.md)", "`` after"], ["before ``", "## Next", "[real](./real.md)", "`` after"]],
+        ["heading inline boundary", ["## Heading ``", "[real](./real.md)", "`` after"], ["## Heading ``", "[real](./real.md)", "`` after"]],
+        ["list items", ["- before ``", "- [real](./real.md)", "  `` after"], ["- before ``", "- [real](./real.md)", "  `` after"]],
+        ["ordered list items", ["1. before ``", "2. [real](./real.md)", "   `` after"], ["1. before ``", "2. [real](./real.md)", "   `` after"]],
+        ["leading-zero ordered interruption", ["before ``", "01. [real](./real.md)", "`` after"], ["before ``", "01. [real](./real.md)", "`` after"]],
+        ["nine-digit ordered interruption", ["before ``", "000000001) [real](./real.md)", "`` after"], ["before ``", "000000001) [real](./real.md)", "`` after"]],
+        ["list continuation", ["- before ``", "  [fake](./missing.md)", "  `` after"], ["- before ", "", " after"]],
+        ["quote continuation", ["> before ``", "> [fake](./missing.md)", ">`` after"], ["> before ", "", " after"]],
+        ["quote paragraphs", ["> before ``", ">", "> [real](./real.md)", "> `` after"], ["> before ``", ">", "> [real](./real.md)", "> `` after"]],
+        ["quote heading", ["> before ``", "> ## Next", "> [real](./real.md)", "> `` after"], ["> before ``", "> ## Next", "> [real](./real.md)", "> `` after"]],
+        ["fence boundary", ["before ``", "~~~", "hidden", "~~~", "[real](./real.md)", "`` after"], ["before ``", "", "", "", "[real](./real.md)", "`` after"]],
+        ["HTML boundary", ["before ``", "<div>", "[real](./real.md)", "`` after"], ["before ``", "<div>", "[real](./real.md)", "`` after"]],
+        ["inline HTML continuation", ["before ``", "<span>example</span>", "`` after"], ["before ", "", " after"]],
+        ["closed raw HTML", ["<script>``</script>", "[real](./real.md) ``"], ["<script>``</script>", "[real](./real.md) ``"]],
+        ["multiline raw HTML", ["<pre>``", "raw", "</pre>", "[real](./real.md) ``"], ["<pre>``", "raw", "</pre>", "[real](./real.md) ``"]],
+        ["raw HTML closing different tag", ["<script>``", "</style>", "[real](./real.md) ``"], ["<script>``", "</style>", "[real](./real.md) ``"]],
+        ["HTML first list child", ["- <script>``</script>", "[real](./real.md) ``"], ["- <script>``</script>", "[real](./real.md) ``"]],
+        ["HTML first ordered child", ["1. <script>``</script>", "[real](./real.md) ``"], ["1. <script>``</script>", "[real](./real.md) ``"]],
+        ["HTML first child container ends", ["- <script>", "  `[real](./real.md)`", "`[fake](./missing.md)`"], ["- <script>", "  `[real](./real.md)`", ""]],
+        ["HTML first child in quote", ["> - <script>``</script>", "[real](./real.md) ``"], ["> - <script>``</script>", "[real](./real.md) ``"]],
+        ["indented first child is not HTML", ["-     <script>`[fake](./missing.md)`", "[real](./real.md)"], ["-     <script>", "[real](./real.md)"]],
+        ["HTML cannot unwrap lazy ordered text", ["before ``", "2. <script>example</script>", "`` after"], ["before ", "", " after"]],
+        ["escaped single runs", ["before \\`", "[real](./real.md) \\`"], ["before \\`", "[real](./real.md) \\`"]],
+        ["even backslashes before opener", ["before " + "\\".repeat(2) + "`", "[fake](./missing.md) ` after"], ["before " + "\\".repeat(2), " after"]],
+        ["escape inside code is literal", ["before `", "[fake](./missing.md) \\` after"], ["before ", " after"]],
+        ["escaped first tick leaves a delimiter", ["before \\``", "[fake](./missing.md) ` after"], ["before \\`", " after"]],
+        ["escaped tick leaves unmatched remainder", ["before \\``", "[real](./real.md) `` after"], ["before \\``", "[real](./real.md) `` after"]],
+        ["processing instruction", ["<? `` ?>", "[real](./real.md) ``"], ["<? `` ?>", "[real](./real.md) ``"]],
+        ["declaration", ["<!DOCTYPE `` >", "[real](./real.md) ``"], ["<!DOCTYPE `` >", "[real](./real.md) ``"]],
+        ["CDATA", ["<![CDATA[ `` ]]>", "[real](./real.md) ``"], ["<![CDATA[ `` ]]>", "[real](./real.md) ``"]],
+        ["inline paragraph after HTML", ["<script>``</script>", "before ``", "[fake](./missing.md)", "`` after"], ["<script>``</script>", "before ", "", " after"]],
+        ["setext boundary", ["before ``", "===", "[real](./real.md)", "`` after"], ["before ``", "===", "[real](./real.md)", "`` after"]],
+        ["indented code boundary", ["    example ``", "[real](./real.md) ``"], ["    example ``", "[real](./real.md) ``"]],
+        ["indented paragraph continuation", ["before ``", "    [fake](./missing.md)", "`` after"], ["before ", "", " after"]],
+        ["closed comment boundary", ["before ``", "<!-- comment -->", "[real](./real.md) ``"], ["before ``", "", "[real](./real.md) ``"]],
+        ["multiline comment boundary", ["before ``", "<!--", "hidden", "-->", "[real](./real.md) ``"], ["before ``", "", "", "", "[real](./real.md) ``"]],
+        ["double-quoted HTML attribute", ['<span title="``">text</span>', "[real](./real.md) ``"], ['<span title="``">text</span>', "[real](./real.md) ``"]],
+        ["single-quoted HTML attribute", ["<span title='``'>text</span>", "[real](./real.md) ``"], ["<span title='``'>text</span>", "[real](./real.md) ``"]],
+        ["multiline HTML attribute", ['<span title="``', '> text">inline</span>', "[real](./real.md) ``"], ['<span title="``', '> text">inline</span>', "[real](./real.md) ``"]],
+        ["invalid unquoted HTML attribute", ["<span title=``>text</span>", "[fake](./missing.md) ``"], ["<span title=", ""]],
+        ["HTML attribute inside earlier code", ["before ``", '<span title="``">text</span>', "[real](./real.md)"], ["before ", '">text</span>', "[real](./real.md)"]],
+        ["inline comment token", ["before <!-- `` --> [real](./real.md) ``"], ["before  [real](./real.md) ``"]],
+        ["HTML quote ends", ["> <script>", "`[fake](./missing.md)`"], ["> <script>", ""]],
+        ["HTML quote remains", ["> <script>", "> `[real](./real.md)`"], ["> <script>", "> `[real](./real.md)`"]],
+        ["HTML list ends", ["- item", "", "  <script>", "`[fake](./missing.md)`"], ["- item", "", "  <script>", ""]],
+        ["HTML list remains", ["- item", "", "  <script>", "  `[real](./real.md)`"], ["- item", "", "  <script>", "  `[real](./real.md)`"]],
+        ["completed definition", ["[id]: /target``", "[real](./real.md) ``"], ["[id]: /target``", "[real](./real.md) ``"]],
+        ["multiline definition title", ["[id]: /target", '"title ``', 'continued"', "[real](./real.md) ``"], ["[id]: /target", '"title ``', 'continued"', "[real](./real.md) ``"]],
+        ["definition retains fence approximation", ["[id]: /target", '"title', "```", "hidden", "```", 'ending"', "[real](./real.md)"], ["[id]: /target", '"title', "", "", "", 'ending"', "[real](./real.md)"]],
+        ["indented fence retains example policy", ["    ```", "hidden", "    ```", "[real](./real.md)"], ["", "", "", "[real](./real.md)"]],
+        ["invalid definition destination", ["[id]: /target(``", "[fake](./missing.md) ``"], ["[id]: /target(", ""]],
+        ["definition cannot interrupt paragraph", ["before ``", "[id]: /target", "[fake](./missing.md) ``"], ["before ", "", ""]],
+      ])("preserves prose and source lines for %s", (name, source, expected) => {
+        expect(extractProse(source.join(eol)).lines).toEqual(expected.map((text, index) => ({ line: index + 1, text })));
+      });
+    });
+
+    describe.each(["\n", "\r\n"])("whole backtick runs with %j endings", (eol) => {
+      it.each([
+        ["``x`", "``x`"], ["`x``", "`x``"], ["``x", "``x"],
+        ["``x`y``", ""], ["`x``y`", ""], ["`x``y``", "`x"],
+        ["before `` `` after", "before  after"],
+      ])("matches only equal maximal runs in %j", (source, expected) => {
+        expect(textOf([source, "", "after"].join(eol))).toEqual([expected, "", "after"]);
+      });
+    });
+
+    describe.each(["\n", "\r\n"])("comment boundaries with %j endings", (eol) => {
+      it.each([
+        ["unequal literal runs", ["before ``<!--`", "hidden [x](./missing.md)", "--> after", "", "``[real](./real.md)`"], [
+          "before ``", "", " after", "", "``[real](./real.md)`",
+        ]],
+        ["matched code containing a shorter run", ["before ``<!--`quoted``", "[real](./real.md)", "--> after"], [
+          "before ", "[real](./real.md)", "--> after",
+        ]],
+      ])("preserves the expected prose around %s", (name, source, expected) => {
+        expect(textOf(source.join(eol))).toEqual(expected);
+      });
+    });
+
     it("blanks an HTML comment", () => {
       expect(textOf("<!-- parked -->after")).toEqual(["after"]);
     });

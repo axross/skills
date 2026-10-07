@@ -87,10 +87,66 @@ describe("extractUrls", () => {
       );
     });
 
+    it.each(["\n", "\r\n"])("keeps literal unequal-run citations and ignores matched code with %j endings", (eol) => {
+      const source = [
+        "``[literal](https://example.com/literal)`", "",
+        "``[hidden](https://example.com/hidden)``", "",
+        "``a`[also-hidden](https://example.com/also-hidden)``", "",
+        "``<!--`", "https://example.com/comment", "-->",
+        "https://example.com/after",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/literal", line: 1 },
+        { url: "https://example.com/after", line: 10 },
+      ]);
+    });
+
     it("ignores a URL inside an HTML comment", () => {
       expect(urlsIn("<!-- parked: https://example.com/never-probed -->\nText.\n")).toEqual(
         [],
       );
+    });
+
+    it.each(["\n", "\r\n"])("keeps URL source lines after multiline examples with %j endings", (eol) => {
+      const source = [
+        "before ``", "https://example.com/example <!--", "`` after",
+        "https://example.com/real", "-->", "",
+        "before ``", "", "https://example.com/literal", "`` after",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/real", line: 4 },
+        { url: "https://example.com/literal", line: 9 },
+      ]);
+    });
+
+    describe.each(["\n", "\r\n"])("link syntax URL lines with %j endings", (eol) => {
+      it.each([
+        ["inline destination", ["[first](https://example.com/a``)", "https://example.com/real ``"], [{ url: "https://example.com/a", line: 1 }, { url: "https://example.com/real", line: 2 }]],
+        ["multiline title", ['[first](/a "title ``', 'continued")', "https://example.com/real ``"], [{ url: "https://example.com/real", line: 3 }]],
+        ["URI autolink", ["<https://example.com/a``>", "https://example.com/real ``"], [{ url: "https://example.com/a", line: 1 }, { url: "https://example.com/real", line: 2 }]],
+        ["quoted multiline definition", ["> - [id]: /target", '>   "title ``', '>   continued"', ">   https://example.com/real ``"], [{ url: "https://example.com/real", line: 4 }]],
+        ["lowercase declaration", ["before ``", "<!doctype html>", "https://example.com/real ``"], [{ url: "https://example.com/real", line: 3 }]],
+        ["label code", ["[first``](/a)", "https://example.com/hidden ``"], []],
+      ])("preserves the distinguishing URLs for %s", (name, source, expected) => {
+        expect(extractUrls(source.join(eol))).toEqual(expected);
+      });
+    });
+
+    it.each(["\n", "\r\n"])("keeps real URLs outside code, HTML and definition tokens with %j endings", (eol) => {
+      const source = [
+        "    example ``", "https://example.com/indented ``", "",
+        "before ``", "<!-- comment -->", "https://example.com/comment ``", "",
+        '<span title="``">text</span>', "https://example.com/attribute ``", "",
+        "> <script>", "`https://example.com/hidden`", "",
+        "[id]: https://example.com/definition``", "https://example.com/paragraph ``",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/indented", line: 2 },
+        { url: "https://example.com/comment", line: 6 },
+        { url: "https://example.com/attribute", line: 9 },
+        { url: "https://example.com/definition", line: 14 },
+        { url: "https://example.com/paragraph", line: 15 },
+      ]);
     });
 
     it("ignores a URL inside a multi-line HTML comment", () => {
@@ -103,6 +159,17 @@ describe("extractUrls", () => {
       ].join("\n");
 
       expect(urlsIn(source)).toEqual(["https://example.com/real"]);
+    });
+
+    it.each(["\n", "\r\n"])("keeps URL source lines after list-child HTML and escaped ticks with %j endings", (eol) => {
+      const source = [
+        "- <script>``</script>", "https://example.com/list-child ``", "",
+        "before \\`", "https://example.com/escaped \\`",
+      ].join(eol);
+      expect(extractUrls(source)).toEqual([
+        { url: "https://example.com/list-child", line: 2 },
+        { url: "https://example.com/escaped", line: 5 },
+      ]);
     });
   });
 

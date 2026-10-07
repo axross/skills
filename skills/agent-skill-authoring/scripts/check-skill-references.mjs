@@ -13,7 +13,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-import { extractProse, FENCE_RE, scanLines } from "./commonmark.mjs";
+import { closesParagraph, columnWidth, extractProse, FENCE_RE, htmlBlockEnd, isThematicBreak, scanLines, startsBlock } from "./commonmark.mjs";
 import { RFC2119_RE, ROUTING_LINE_RE } from "./guidelines.mjs";
 import {
   isDir,
@@ -115,22 +115,13 @@ function headingAnchors(source) {
 function documentLinks(body) {
   const links = [];
 
-  for (const { line, text, fence } of scanLines(body)) {
-    if (fence) continue;
-    const prose = text.replace(/`+[^`]+`+/g, "");
-    for (const match of prose.matchAll(/\]\(([^)\s]+)\)/g)) {
+  for (const { line, text } of extractProse(body).lines) {
+    for (const match of text.matchAll(/\]\(([^)\s]+)\)/g)) {
       if (EXTERNAL_TARGET_RE.test(match[1])) continue;
       links.push({ line, target: match[1] });
     }
   }
   return links;
-}
-
-function columnWidth(prefix) {
-  return [...prefix].reduce(
-    (column, character) => column + (character === "\t" ? 4 - column % 4 : 1),
-    0,
-  );
 }
 
 /**
@@ -160,41 +151,78 @@ function* routingBullets(body) {
   let section = "(top)";
   let inRouting = false; // inside the See…for: bullet list (or its lead-in gap)
   let listIndent = 0;
+  let paragraphBreak = false;
+  let htmlEnd = null;
 
   for (const { line, text } of extractProse(body, { preserveFenceBoundaries: true }).lines) {
     const indent = columnWidth(source[line - 1].match(/^[ \t]*/)[0]);
-    if (FENCE_RE.test(text)) {
+    if (htmlEnd && source[line - 1].trim() !== "" && indent < listIndent) htmlEnd = null;
+    if (htmlEnd) {
+      if (htmlEnd.test(source[line - 1])) htmlEnd = null;
+      paragraphBreak = true;
+      continue;
+    }
+    if (FENCE_RE.test(source[line - 1]) && FENCE_RE.test(text)) {
       if (listIndent === 0 || indent < listIndent) inRouting = false;
+      paragraphBreak = true;
       continue;
     }
 
-    const heading = text.match(/^#{2,}\s+(.*)$/);
+    const heading = startsBlock(source[line - 1], listIndent) && text.match(/^[ \t]*#{1,6}(?:[ \t]+(.*)|$)/);
     if (heading) {
-      section = heading[1].trim();
-      inRouting = false;
+      if (!inRouting || listIndent === 0 || indent < listIndent) {
+        section = (heading[1] ?? "").trim();
+        inRouting = false;
+      }
+      paragraphBreak = true;
       continue;
     }
     if (ROUTING_LINE_RE.test(text)) {
       inRouting = true;
       listIndent = 0;
+      paragraphBreak = false;
       continue;
     }
     if (!inRouting) continue;
 
-    const bullet = text.match(/^(\s*-)(\s+)(.*)$/);
+    if (text.trim() === "") {
+      paragraphBreak = true;
+      continue;
+    }
+    if (isThematicBreak(source[line - 1], listIndent)) {
+      if (listIndent === 0 || indent < listIndent) inRouting = false;
+      paragraphBreak = true;
+      continue;
+    }
+    const block = startsBlock(source[line - 1], listIndent, !paragraphBreak) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
+    if (block) {
+      if (listIndent === 0 || indent < listIndent) {
+        inRouting = false;
+        continue;
+      }
+      if (closesParagraph(source[line - 1], listIndent)) {
+        htmlEnd = indent < listIndent + 4 ? htmlBlockEnd(source[line - 1].trimStart()) : null;
+        if (htmlEnd?.test(source[line - 1])) htmlEnd = null;
+        paragraphBreak = true;
+        continue;
+      }
+    }
+    const bullet = source[line - 1].match(/^([ \t]*-)([ \t]+|$)(.*)$/);
     if (bullet) {
-      const rule = source[line - 1].replace(/^\s*-\s+/, "").trim();
+      const rule = bullet[3].trim();
       if (listIndent === 0 || indent < listIndent) {
         const markerWidth = columnWidth(bullet[1]);
         const padding = columnWidth(bullet[1] + bullet[2]) - markerWidth;
         listIndent = markerWidth + (padding > 4 || rule === "" ? 1 : padding);
       }
+      paragraphBreak = rule === "";
       yield { line, section, rule };
       continue;
     }
-    // loose-list blanks, blanked examples and indented continuations do not end
-    // routing. source indentation avoids treating inline-code removal as indent.
-    if (text.trim() === "" || /^\s/.test(source[line - 1])) continue;
+    if (listIndent > 0 && (indent >= listIndent || !paragraphBreak)) {
+      paragraphBreak = false;
+      continue;
+    }
     inRouting = false;
   }
 }
