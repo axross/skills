@@ -7,7 +7,8 @@ import { describe, expect, it } from "vitest";
 import { tempDir } from "../helpers/fixtures.mjs";
 import { repoPath } from "../helpers/run.mjs";
 
-const executable = (path, contents) => writeFileSync(path, contents, { mode: 0o755 });
+const executable = (path, contents) =>
+  writeFileSync(path, contents, { mode: 0o755 });
 
 const fixture = async ({ nodeEngine = "26", nodeVersion = "v26.1.0" } = {}) => {
   const root = await tempDir();
@@ -18,7 +19,10 @@ const fixture = async ({ nodeEngine = "26", nodeVersion = "v26.1.0" } = {}) => {
   mkdirSync(join(home, ".local", "bin"), { recursive: true });
   mkdirSync(bin, { recursive: true });
   cpSync(repoPath(".agents/setup"), join(workspace, ".agents", "setup"));
-  writeFileSync(join(workspace, "package.json"), JSON.stringify({ engines: { node: nodeEngine } }));
+  writeFileSync(
+    join(workspace, "package.json"),
+    JSON.stringify({ engines: { node: nodeEngine } }),
+  );
   writeFileSync(join(workspace, "package-lock.json"), "lock\n");
 
   executable(
@@ -56,7 +60,8 @@ echo '11.0.0'
 
 const npmCalls = (root) => {
   try {
-    return readFileSync(join(root, "npm-calls"), "utf8").trim().split("\n").length;
+    return readFileSync(join(root, "npm-calls"), "utf8").trim().split("\n")
+      .length;
   } catch {
     return 0;
   }
@@ -71,7 +76,10 @@ const sourceProfile = (setup, directory) =>
       "-c",
       `cd '${directory}'; source '${setup.home}/.bash_profile'; printf %s "\${SKILLS_MISE_ACTIVE:-}"`,
     ],
-    { encoding: "utf8", env: { ...process.env, HOME: setup.home, PATH: "/usr/bin:/bin" } },
+    {
+      encoding: "utf8",
+      env: { ...process.env, HOME: setup.home, PATH: "/usr/bin:/bin" },
+    },
   );
 
 describe(".agents/setup", () => {
@@ -81,10 +89,13 @@ describe(".agents/setup", () => {
     expect(cold.status, cold.stderr).toBe(0);
     expect(npmCalls(setup.root)).toBe(1);
 
+    const sentinel = join(setup.workspace, "node_modules", "warm-sentinel");
+    writeFileSync(sentinel, "cached dependencies\n");
     const warm = setup.run();
     expect(warm.status, warm.stderr).toBe(0);
     expect(warm.stdout).toMatch(/skipping npm install/);
     expect(npmCalls(setup.root)).toBe(1);
+    expect(readFileSync(sentinel, "utf8")).toBe("cached dependencies\n");
   });
 
   it("writes one repository-scoped profile block and migrates the legacy block", async () => {
@@ -110,15 +121,25 @@ describe(".agents/setup", () => {
     const setup = await fixture({ nodeEngine: ">=26" });
     const result = setup.run();
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toMatch(/engines\.node must be an exact numeric major/);
+    expect(result.stderr).toMatch(
+      /engines\.node must be an exact numeric major/,
+    );
     expect(npmCalls(setup.root)).toBe(0);
   });
 
   it("fails when the downloaded mise binary fails integrity verification", async () => {
     const setup = await fixture();
-    writeFileSync(join(setup.home, ".local", "bin", "mise"), "wrong", { mode: 0o644 });
-    executable(join(setup.bin, "curl"), "#!/bin/bash\nprintf bad > \"${@: -1}\"\n");
-    executable(join(setup.bin, "sha256sum"), "#!/bin/bash\n[[ \"$1\" != --check ]]\n");
+    writeFileSync(join(setup.home, ".local", "bin", "mise"), "wrong", {
+      mode: 0o644,
+    });
+    executable(
+      join(setup.bin, "curl"),
+      '#!/bin/bash\nprintf bad > "${@: -1}"\n',
+    );
+    executable(
+      join(setup.bin, "sha256sum"),
+      '#!/bin/bash\n[[ "$1" != --check ]]\n',
+    );
     const result = setup.run();
     expect(result.status).not.toBe(0);
     expect(npmCalls(setup.root)).toBe(0);
@@ -128,6 +149,8 @@ describe(".agents/setup", () => {
     const setup = await fixture({ nodeVersion: "v25.9.0" });
     const result = setup.run();
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toMatch(/Node version mismatch: expected v26\.x, actual: v25\.9\.0/);
+    expect(result.stderr).toMatch(
+      /Node version mismatch: expected v26\.x, actual: v25\.9\.0/,
+    );
   });
 });

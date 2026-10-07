@@ -60,7 +60,7 @@ jobs:
           node-version-file: package.json
           cache: npm
       - name: Dependency Installation
-        run: "npm install"
+        run: "npm ci"
       - name: Format Check
         run: "npm run format:check"
 
@@ -76,7 +76,7 @@ jobs:
           node-version-file: package.json
           cache: npm
       - name: Dependency Installation
-        run: "npm install"
+        run: "npm ci"
       - name: Lint
         run: "npm run lint"
 
@@ -92,6 +92,6 @@ jobs:
           node-version-file: package.json
           cache: npm
       - name: Dependency Installation
-        run: "npm install"
+        run: "npm ci"
       - name: Tests
         run: "npm test"

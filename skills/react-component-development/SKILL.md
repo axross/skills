@@ -39,6 +39,7 @@ See [props.md](./references/props.md) for:
 - destructuring props exactly one level deep and spreading the rest onto the root element
 - ordering the spread so a consumer can still override what the component set
 - naming handler props and their local handlers
+- documenting a published terminal outcome's meaning, timing and multiplicity without prescribing callback-only APIs
 - passing a whole model rather than flattened scalar fields
 - expressing variants as closed string unions instead of boolean props
 - supporting a controlled and an uncontrolled value from one component
@@ -70,6 +71,7 @@ See [state.md](./references/state.md) for:
 
 - working down the state-placement table from local state outward
 - keeping local state in the smallest component that owns it
+- separating keep-mounted interaction sessions from mount lifetime, including stale exit completion after reopen
 - sharing state through context by default, and what a context provider should expose
 - using the host project's store library when it has one, and exposing narrow selector hooks
 - recognizing state that belongs to a server-state layer rather than to the component
