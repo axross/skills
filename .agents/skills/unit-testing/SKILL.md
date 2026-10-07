@@ -23,6 +23,7 @@ See [testing-scope.md](./references/testing-scope.md) for:
 - deciding whether a behavior belongs in unit, integration, or e2e coverage, with a decision diagram
 - keeping pure helper tests small while routing browser, data-layer, and framework behavior to broader tests
 - recognizing when a unit test would be lower confidence than an integration or e2e check
+- preserving relevant intermediate states and completion ordering in frame-dependent test doubles, without native-evidence claims
 - public geometry/configuration checks when a renderer is unavailable, without replacement production UI or pixel-evidence claims
 
 ## Spec Structure and Naming

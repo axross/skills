@@ -69,13 +69,12 @@ The durable assertion is on what the component produced — the rendered output 
 
 Source-checked against RNGH 2.32.0: [`fireGestureHandler` normalizes a complete event stream](https://github.com/software-mansion/react-native-gesture-handler/blob/v2.32.0/packages/react-native-gesture-handler/src/jestUtils/jestUtils.ts#L284-L387). For a Pan, ACTIVE-only input gains BEGAN and END events. A test that intends to hold the gesture active has already ended it through this helper; omitted fields can also receive defaults rather than the intended coordinates. Inspect the installed version's helper before choosing how to deliver individual states; this is not an internal-emitter recipe.
 
-An animation double that immediately calls completion likewise erases the interval in which reopen, cancellation or another layout can occur. A held completion or explicitly advanced relevant frames can expose application ordering, but neither reproduces UI-thread scheduling, recognizer arbitration or rendered pixels. When deciding whether to inspect a public boundary or require rendering, follow the unit-testing scope and public-contract practices.
+A Jest animation mock that immediately calls completion also removes the race interval. Requirements for preserving intermediate states or completion ordering, and the limits of synthetic evidence, belong to the unit-testing scope and public-contract practices.
 
 **Guidelines:**
 
 - MUST verify that the chosen gesture helper preserves the states and payloads the case intends to observe, rather than silently normalizing an incomplete interaction into completion.
-- MUST preserve the relevant intermediate frame or completion ordering when testing a frame-dependent race; an immediate-completion double cannot establish that behavior.
-- MUST scope helper or mock recipes to the version and environment actually verified, and keep synthetic state/frame evidence separate from native recognition and rendering evidence.
+- MUST scope Jest/RNGH helper or mock recipes to the version and test environment actually verified.
 
 ## The Act Warning
 

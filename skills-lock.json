@@ -59,7 +59,7 @@
     "jest-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "a2a7acd2f55fde92dd53d9950058d3e60dc2ea77296e97974583ef4bc8563ad1"
+      "computedHash": "73b97b935f13584b1a146962a89a15ef956dc0171e3fe10bd5be5047178aa727"
     },
     "living-project-documentation": {
       "source": "./skills",
@@ -129,7 +129,7 @@
     "unit-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "1f4243fdaa59d0a998e049e0086769fd3cb66f95528fef4bf4bae2da9cbb04eb"
+      "computedHash": "4b83ac6e7d73cafd962dc9a2e046aed11901274dc5de6a5fe0cf5f16044487ef"
     },
     "vitest-testing": {
       "source": "./skills",

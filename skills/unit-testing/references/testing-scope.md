@@ -64,6 +64,14 @@ Components that accept callbacks or render children are easy to test badly becau
 - SHOULD test component behavior through rendered output and user-visible interaction when callbacks, providers, or browser behavior are involved.
 - SHOULD, when the unit under discussion is a component rather than a pure helper, defer to the project's end-to-end testing guidelines and to its own component or UI conventions where the project defines them.
 
+## Synthetic Interaction Evidence
+
+An animation fake that immediately calls completion removes the interval in which reopen, cancellation or another layout can occur. Holding the relevant completion or advancing relevant frames can expose application ordering, but neither reproduces UI-thread scheduling, recognizer arbitration or rendered pixels. The same evidence limit applies regardless of the test runner; use [the renderer-unavailable boundary](#when-the-renderer-is-unavailable) for public geometry/configuration checks.
+
+**Guidelines:**
+
+- MUST preserve the relevant intermediate states, frame or completion ordering in test doubles when testing a frame-dependent race; an immediate-completion double cannot establish that behavior.
+
 ## When the Renderer Is Unavailable
 
 A canvas or native drawing library may produce no pixels in the unit runner. An exported first-party geometry contract and the public configuration handed to that renderer can still be observed: for example, independent axes for a 200 × 80 surface or a project-promised clipping boundary. Those checks establish the application's calculation or configuration, not that the library drew it correctly. Rendered captions or other available output remain preferable for the behavior they expose.
