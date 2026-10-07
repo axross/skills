@@ -222,6 +222,8 @@ describe("commonmark.mjs", () => {
         ["heading inline boundary", ["## Heading ``", "[real](./real.md)", "`` after"], ["## Heading ``", "[real](./real.md)", "`` after"]],
         ["list items", ["- before ``", "- [real](./real.md)", "  `` after"], ["- before ``", "- [real](./real.md)", "  `` after"]],
         ["ordered list items", ["1. before ``", "2. [real](./real.md)", "   `` after"], ["1. before ``", "2. [real](./real.md)", "   `` after"]],
+        ["leading-zero ordered interruption", ["before ``", "01. [real](./real.md)", "`` after"], ["before ``", "01. [real](./real.md)", "`` after"]],
+        ["nine-digit ordered interruption", ["before ``", "000000001) [real](./real.md)", "`` after"], ["before ``", "000000001) [real](./real.md)", "`` after"]],
         ["list continuation", ["- before ``", "  [fake](./missing.md)", "  `` after"], ["- before ", "", " after"]],
         ["quote continuation", ["> before ``", "> [fake](./missing.md)", ">`` after"], ["> before ", "", " after"]],
         ["quote paragraphs", ["> before ``", ">", "> [real](./real.md)", "> `` after"], ["> before ``", ">", "> [real](./real.md)", "> `` after"]],

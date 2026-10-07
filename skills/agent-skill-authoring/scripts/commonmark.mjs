@@ -72,7 +72,7 @@ export function startsBlock(line, listIndent = 0, paragraphOpen = true) {
   if (!paragraphOpen && indent >= listIndent + 4 && line.trim() !== "") return true;
   if (indent > 3 && !(listIndent > 0 && indent >= listIndent && indent <= listIndent + 3)) return false;
   const content = line.slice(prefix.length);
-  return /^(?:#{1,6}(?:[ \t]|$)|>|[-+*][ \t]+\S|1[.)][ \t]+\S)/.test(content) ||
+  return /^(?:#{1,6}(?:[ \t]|$)|>|[-+*][ \t]+\S|0{0,8}1[.)][ \t]+\S)/.test(content) ||
     (!paragraphOpen && /^(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)/.test(content)) ||
     htmlBlockEnd(content) !== null;
 }

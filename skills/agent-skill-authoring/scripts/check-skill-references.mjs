@@ -194,8 +194,7 @@ function* routingBullets(body) {
       paragraphBreak = true;
       continue;
     }
-    const ordered = /^[ \t]*\d{1,9}[.)](?:[ \t]|$)/.test(source[line - 1]);
-    const block = startsBlock(source[line - 1], listIndent, !paragraphBreak && !ordered) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
+    const block = startsBlock(source[line - 1], listIndent, !paragraphBreak) && !/^[ \t]*-(?:[ \t]|$)/.test(source[line - 1]);
     if (block) {
       if (listIndent === 0 || indent < listIndent) {
         inRouting = false;

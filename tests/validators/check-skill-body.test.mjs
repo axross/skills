@@ -37,6 +37,23 @@ describe.each(["\n", "\r\n"])("routing Guidelines boundaries with %j endings", (
     ["empty asterisk continuation", ["*"], 1],
     ["separated empty plus item", ["", "+"], 0],
     ["separated empty asterisk item", ["", "*"], 0],
+    ["non-one ordered continuation", ["2. continued"], 1],
+    ["non-one parenthesis continuation", ["2) continued"], 1],
+    ["zero ordered continuation", ["0. continued"], 1],
+    ["nine-digit ordered continuation", ["999999999) continued"], 1],
+    ["empty number-one continuation", ["1."], 1],
+    ["empty parenthesis continuation", ["1) \t"], 1],
+    ["independent number-one item", ["1. independent"], 0],
+    ["independent parenthesis item", ["1) independent"], 0],
+    ["leading-zero number-one item", ["01. independent"], 0],
+    ["nine-digit number-one item", ["000000001) independent"], 0],
+    ["separated non-one item", ["", "2. independent"], 0],
+    ["separated zero item", ["", "0) independent"], 0],
+    ["separated empty item", ["", "1."], 0],
+    ["contained ordered item", ["  1) nested"], 1],
+    ["separated contained non-one item", ["", "  2. nested"], 1],
+    ["malformed ordered lookalike", ["1.No marker"], 1],
+    ["overlong ordered lookalike", ["0000000001. No marker"], 1],
     ["paragraph after empty contained quote", ["  >", "independent"], 0],
     ["paragraph after empty contained list", ["", "  +", "independent"], 0],
     ["paragraph after empty contained dash list", ["", "  -", "independent"], 0],
@@ -92,7 +109,7 @@ describe.each(["\n", "\r\n"])("routing Guidelines boundaries with %j endings", (
     ["matched inline example", ["", "``x``"], 1],
   ].map(([name, separator, code]) => [name, separator, code, [
     /^PASS {2}/m,
-    /routing-block: SKILL\.md:\d+ reference routing must not introduce/,
+    new RegExp(`routing-block: SKILL\\.md:${14 + separator.length} reference routing must not introduce`),
   ][code]]))("classifies %s before the Guidelines label", async (name, separator, code, report) => {
     const root = await tempDir();
     const dir = await writeSkill(root, "routing-boundary", {
@@ -519,7 +536,7 @@ describe("check-skill-body.mjs", () => {
       expect(result.output).toMatch(report);
     });
 
-    it.each(["1. A separate procedure.", " 2) A separate procedure.", "999999999. A separate procedure.", "1."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {
+    it.each(["1. A separate procedure.", " 1) A separate procedure.", "000000001. A separate procedure."])("accepts a substantive block after the interrupting ordered item %j", async (item) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "rule-after-ordered-list", {
         body: withTopic(
@@ -537,7 +554,7 @@ describe("check-skill-body.mjs", () => {
       expect(checkSkill(dir)).toPassCleanly();
     });
 
-    it.each(["  1. A nested selection condition.", "1000000000. A number, not a marker.", "1.Not an ordered-list marker."])("rejects a routing block after the non-interrupting continuation %j", async (continuation) => {
+    it.each(["  1. A nested selection condition.", "2) Still continuation.", "999999999. Still continuation.", "1.", "1000000000. A number, not a marker.", "1.Not an ordered-list marker."])("rejects a routing block after the non-interrupting continuation %j", async (continuation) => {
       const root = await tempDir();
       const dir = await writeSkill(root, "ordered-like-routing-continuation", {
         body: withTopic(
