@@ -8,19 +8,19 @@ Apply this reference when a component accepts a `className`, a `style`, or whate
 
 ## The Contract
 
-A component owns **what it looks like**; its consumer owns **where it sits and how big it is**. The styling prop is how the consumer exercises that half of the split, so it is not optional decoration — a component that renders a styled root and refuses the prop cannot be placed in a second layout without a fight.
+A component owns **what it looks like**; its consumer owns **where it sits and how much space the surrounding layout gives it**. The styling prop carries that control, including overrides of intrinsic size defaults. Detailed intrinsic and internal geometry decisions belong to the project's React component styling practices when those are installed; otherwise distinguish geometry needed for the component itself from placement chosen for its current layout.
 
 Three obligations, and all three are load-bearing:
 
 1. **Accept it.** Every component rendering a styled root takes the styling prop.
 2. **Never drop it.** Destructuring the prop and then failing to apply it breaks every caller silently — the type checker sees a prop that was consumed, and the layout is simply wrong at runtime.
-3. **Merge it last.** The consumer's value comes after the component's own, so it wins without an escalating specificity contest.
+3. **Merge it last.** Keep the consumer's value after the component's own and preserve the published placement and size control. Static composition order alone cannot guarantee priority over animated values.
 
 **Guidelines:**
 
 - MUST accept the host platform's styling prop on every component that renders a styled root element.
 - MUST apply the accepted value; a destructured styling prop that never reaches an element is a defect even though it type-checks.
-- MUST merge the consumer's value **last**, after the component's own styles and after any variant or state styles.
+- MUST merge the consumer's value **last**, after the component's own styles and after any variant or state styles, keeping published placement and size overrides effective; separate conflicting internal animation rather than relying on array order.
 - MUST NOT let the props spread overwrite the styling prop — destructure it out explicitly and merge it (see [props.md](./props.md)).
 - MUST keep the component's own root selector at zero specificity on web — the platform equivalent on native — so a single incoming value is enough to override it.
 
@@ -52,7 +52,9 @@ export function JobListItem({
 
 ## Merging Styles on Mobile Native
 
-Native styles compose as an **array**, evaluated left to right, with the consumer's value last. When a style-runtime library is in use, the array form is not a stylistic preference — it is the only form that preserves the binding the runtime updates through.
+Ordinary static native styles compose as an **array**, evaluated left to right, with the consumer's value last. When a binding-based style runtime is in use, preserve its binding with array composition rather than flattening its styles.
+
+Animation runtimes can give animated values priority over static entries regardless of array position, or resolve conflicting animations by update order. When that conflicts with promised consumer placement or size control, use an effective boundary that separates the conflicting property from internal animation. Do not forward both to the same animated root and assume that a later static style wins. An internal appearance animation with no such conflict needs no additional wrapper.
 
 **Example:**
 
@@ -69,7 +71,7 @@ export function Card({
 
 - MUST merge native styles with array syntax, placing the consumer's `style` last.
 - MUST NOT spread style objects together or flatten them into a single object when a style-runtime library is in use; both destroy the binding it updates through, and the style silently stops reacting to theme and runtime changes.
-- MUST place variant and state styles between the base style and the consumer's value, so the consumer still wins.
+- MUST place variant and state styles between the base style and the consumer's value, preserving static override order rather than claiming priority over runtime-controlled animated values.
 - MUST accept the platform's style-prop type for the root element rather than narrowing it to a plain object type, so a caller may pass an array or a resolved registry value.
 - SHOULD apply the same array-merge contract to a pressable's function form (`style={({ pressed }) => [ … ]}`), keeping the consumer's value last inside the returned array.
 

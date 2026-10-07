@@ -44,7 +44,7 @@
     "expo-app-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c35af667ee316ca60261b12bc81a8a967e4e8694f20b8983aacee0966cf55642"
+      "computedHash": "71987d658010b41b800c8f49b5df82bcd6388c637838b288ead9a896efa144cf"
     },
     "github-operation": {
       "source": "./skills",
@@ -94,12 +94,12 @@
     "react-component-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "133a93f2bd1cb16c62d3838f4456ca0f54c272a38a122a3333d4248fe1a81e8b"
+      "computedHash": "bb0318e5a9e24761e9692a66a846a2f5b98146449b867c99675e1087e9502867"
     },
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "9531d84c0e6f570ba2a814d9077fb978c56e9036d390aaf580c5f7a293b950df"
+      "computedHash": "b4fdd3a881bde4b509659a421614247a4802c59ff78750c62527583b70748cef"
     },
     "sentry-instrumentation": {
       "source": "./skills",

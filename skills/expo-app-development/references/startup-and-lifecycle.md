@@ -8,6 +8,8 @@ The entry module runs before the router mounts and before any component renders.
 
 Order within the module is real. The router entry is imported first; everything after it runs before the router's own render pass.
 
+The illustration below chooses System-mode adaptation under [Unistyles v3 theming](https://www.unistyl.es/v3/guides/theming/); it is not a universal startup theme policy. When the app supports explicit preferences, consult the React component styling capability's native theme-selection practices. If that capability is absent, follow the consuming project's theme policy and the installed style system's documentation rather than assuming adaptive startup or a Dark fallback.
+
 **Example:**
 
 ```ts

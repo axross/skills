@@ -129,6 +129,8 @@ Spacing steps carry their base pixel value in the name, because that number is t
 ```
 
 ```ts
+import { StyleSheet as NativeStyleSheet } from "react-native";
+
 const space = {
   x4: 4,
   x8: 8,
@@ -139,17 +141,19 @@ const space = {
   x48: 48,
 } as const;
 const borderWidth = {
-  hairline: StyleSheet.hairlineWidth,
+  hairline: NativeStyleSheet.hairlineWidth,
   base: 1,
   thick: 2,
 } as const;
 ```
 
+React Native defines [`hairlineWidth`](https://reactnative.dev/docs/stylesheet#hairlinewidth) as the platform's width of a thin line, which can vary by platform and density. It is neither a fixed cross-device width nor a guarantee of the physical minimum. This example reads a platform constant in a token module; it does not create a React Native stylesheet. [The Unistyles creation rule](./unistyles.md#the-stylesheet-signature) still governs stylesheet creation and updates.
+
 **Guidelines:**
 
 - MUST key spacing steps to their base pixel value on both platforms — `--space-16` on web, `theme.space.x16` on native.
 - MUST declare radius as a named tier and MUST NOT resolve a radius through the spacing scale, even where a step happens to match.
-- MUST declare border widths as their own named tier, with a `hairline` step that resolves to the platform's thinnest renderable line (`StyleSheet.hairlineWidth` on native, a sub-pixel length on web).
+- MUST declare border widths as their own named tier, with a `hairline` step that uses the platform-defined thin-line width on native (`NativeStyleSheet.hairlineWidth` in this example) and a project-defined thin-line length on web.
 - MUST NOT make a hairline, a border width, or a focus-ring dimension fluid; sub-pixel interpolation degrades border rendering and breaks a focus-ring specification.
 - SHOULD assign each radius step a role in the project's design system (chip, card, pill) so a surface picks by role rather than by eye.
 

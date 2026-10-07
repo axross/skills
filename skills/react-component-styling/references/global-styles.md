@@ -93,10 +93,12 @@ The colour-scheme declaration tells the browser which native form controls, scro
 
 Mobile native has no global stylesheet and no cascade, so the same responsibilities land in three different places: the theme configuration, the root layout component, and per-navigator options. The important consequence is that there is nothing to inherit from — a `Text` does not pick up a body font from an ancestor — so typography roles have to be applied per text element rather than declared once.
 
+App-wide theming follows the consuming application's preference policy, not an unconditional adaptive startup. When Unistyles is the style system, [Native Theme Selection](./unistyles.md#native-theme-selection) owns System adaptation and explicit preferences.
+
 **Guidelines:**
 
-- MUST configure adaptive theming once at the app entry point so the theme follows the OS colour scheme automatically.
-- MUST NOT branch on the colour scheme manually in a component; reading the scheme in JS bypasses the theming system and produces surfaces that do not update with it.
+- MUST configure app-wide theming once at the app entry point through the project's style system and its preference policy.
+- MUST theme components from the selected theme rather than independently branching on the device scheme, which can disagree with an explicit preference.
 - MUST apply a typography role to every text element rather than expecting inheritance, since there is none.
 - MUST theme navigator, tab-bar, header, and status-bar chrome from theme tokens at the layout level, since those surfaces are configured as options rather than styled as elements.
 - SHOULD keep app-wide visual defaults in the theme rather than in a shared wrapper component, so a screen that does not use the wrapper does not silently diverge.

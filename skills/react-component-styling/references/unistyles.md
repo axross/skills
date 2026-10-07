@@ -22,10 +22,25 @@ const styles = StyleSheet.create((theme, rt) => ({
 
 **Guidelines:**
 
-- MUST import `StyleSheet` from the Unistyles package, never from React Native, so styles participate in the theming and runtime update path. A lint rule that forbids the React Native import is the cheapest way to keep this true.
-- MUST configure themes and breakpoints once at the app entry point, with adaptive themes enabled so the theme follows the OS colour scheme.
+- MUST create Unistyles stylesheets with `StyleSheet` from the Unistyles package, not React Native, so styles participate in the theming and runtime update path.
+- MAY read a React Native platform constant in a narrowly justified constants-only token module, naming its source distinctly, as in [the hairline token example](./theming.md#spacing-radius-and-border-width). This permits neither React Native stylesheet creation in the Unistyles update path nor spreading or flattening Unistyles styles.
+- MUST configure themes and breakpoints once at the app entry point, selecting adaptive or explicit theme configuration under [Native Theme Selection](#native-theme-selection).
 - MUST take values from the `theme` argument rather than importing the palette module directly; a direct import bypasses the update path and freezes at the theme that was current when the module loaded.
-- MUST NOT read the colour scheme manually in a component; adaptive theming already handles it, and a manual branch produces surfaces that do not follow a scheme change.
+- MUST NOT branch on the device colour scheme in a styled component; read the selected theme through Unistyles so explicit preferences and runtime changes use the same update path.
+
+## Native Theme Selection
+
+[Unistyles v3 theming](https://www.unistyl.es/v3/guides/theming/) supports adaptive themes and explicit selection. An application's System preference follows the OS; explicit Light or Dark remains selected when the OS scheme changes. Theme policy belongs to the application, not to this capability.
+
+Disabled adaptation is an API precondition for `setTheme`, not evidence that consecutive disable-then-select calls are native-safe across v3. [Issue #1179](https://github.com/jpudysz/react-native-unistyles/issues/1179) reports iOS release crashes on 3.2.4 during theme transitions, including immediate disable-then-select calls. [Release 3.4.0](https://github.com/jpudysz/react-native-unistyles/releases/tag/v3.4.0) includes an associated lifetime fix, but [the fix PR](https://github.com/jpudysz/react-native-unistyles/pull/1266) explicitly did not verify that issue's original reproduction. Neither a universally safe minimum version nor a portable delay or workaround is established here.
+
+**Guidelines:**
+
+- MUST enable adaptive themes for System mode with the reserved `light` and `dark` themes registered; returning to System re-enables adaptation with `UnistylesRuntime.setAdaptiveThemes(true)`.
+- MUST select an explicit Light or Dark theme with `setTheme` only while adaptation is disabled; `UnistylesRuntime.setAdaptiveThemes(false)` satisfies that API precondition, not a native-safety guarantee.
+- MUST verify theme transitions against the consuming project's installed Unistyles version and native targets rather than treating consecutive calls as a universally safe recipe.
+- MUST NOT combine enabled `adaptiveThemes` and `initialTheme` configuration; those startup options are mutually exclusive.
+- MUST resolve an unset or invalid stored preference using the consuming application's fallback policy, not an assumed Dark default.
 
 ## Safe Areas
 
