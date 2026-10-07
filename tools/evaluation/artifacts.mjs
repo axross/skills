@@ -17,7 +17,7 @@ Exit codes: 0 admitted/packaged (may be partial), 1 refused or failed, 2 bad inv
 
 /**
  * invocation errors are distinct from refused material and failed effects.
- * @throws {Error} on absent, unknown, duplicate, or unpaired flags
+ * @throws {Error} on absent, unknown, irrelevant, duplicate, or unpaired flags
  */
 function optionsFrom(argv) {
   const [command, ...args] = argv;
@@ -33,13 +33,16 @@ function optionsFrom(argv) {
   }
   if (!options.input || !options.out ||
     (command === "admit" ? !options.report : !options.selector)) throw new Error(USAGE);
-  if (command !== "admit") options.selector = JSON.parse(options.selector);
+  if (command !== "admit") {
+    options.selector = JSON.parse(options.selector);
+    if (!options.selector || typeof options.selector !== "object" || Array.isArray(options.selector)) throw new Error(USAGE);
+  }
   return options;
 }
 
 /**
  * stdout success follows both data and report writes; partial effects are not success.
- * @throws {Error} on invalid dispatch context, refused material, or failed filesystem effects
+ * @throws {Error} on refused material or failed filesystem effects
  */
 async function main() {
   if (process.argv.includes("--help")) {
@@ -47,18 +50,20 @@ async function main() {
     return;
   }
   let options;
+  let contract;
   try {
     options = optionsFrom(process.argv.slice(2));
+    if (!/^[1-9]\d*$/.test(process.env.GITHUB_RUN_ATTEMPT)) throw new Error("Invalid dispatch attempt");
+    contract = dispatchContract({
+      identity: { repository: process.env.GITHUB_REPOSITORY, runId: process.env.GITHUB_RUN_ID,
+        sourceCommit: process.env.GITHUB_SHA },
+      probes: JSON.parse(process.env.PROBE_MATRIX), judgments: JSON.parse(process.env.JUDGMENT_MATRIX),
+    });
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 2;
     return;
   }
-  const contract = dispatchContract({
-    identity: { repository: process.env.GITHUB_REPOSITORY, runId: process.env.GITHUB_RUN_ID,
-      sourceCommit: process.env.GITHUB_SHA },
-    probes: JSON.parse(process.env.PROBE_MATRIX), judgments: JSON.parse(process.env.JUDGMENT_MATRIX),
-  });
   const scenariosRoot = join(dirname(fileURLToPath(import.meta.url)), "scenarios");
   if (options.command === "admit") {
     const report = await admitBundles({ probesRoot: resolve(options.input), judgedRoot: options.judged && resolve(options.judged),

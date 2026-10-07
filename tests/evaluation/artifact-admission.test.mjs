@@ -293,6 +293,30 @@ describe("admitBundles()", () => {
 });
 
 describe("artifacts.mjs", () => {
+  it.each([
+    ["missing probe matrix", { PROBE_MATRIX: undefined }],
+    ["missing judgment matrix", { JUDGMENT_MATRIX: undefined }],
+    ["malformed probe matrix", { PROBE_MATRIX: "{" }],
+    ["malformed judgment matrix", { JUDGMENT_MATRIX: "{" }],
+    ["invalid matrix shape", { PROBE_MATRIX: "null" }],
+    ["missing repository", { GITHUB_REPOSITORY: undefined }],
+    ["nonnumeric run ID", { GITHUB_RUN_ID: "not-a-run" }],
+    ["invalid source commit", { GITHUB_SHA: "short" }],
+    ["missing attempt", { GITHUB_RUN_ATTEMPT: undefined }],
+    ["zero attempt", { GITHUB_RUN_ATTEMPT: "0" }],
+    ["nonnumeric attempt", { GITHUB_RUN_ATTEMPT: "three" }],
+  ])("classifies %s as invocation failure before publishing measurements", async (_name, context) => {
+    const f = await dispatchFixture();
+    await download(f.probesRoot, await probeBundle(f));
+    const out = join(f.root, "unpublished");
+    const report = join(f.root, "report.json");
+    const result = cli(["admit", "--input", f.probesRoot, "--out", out, "--report", report], f, context);
+    expect(result.status, result.stderr).toBe(2);
+    expect(result.stdout).toBe("");
+    await expect(readFile(out)).rejects.toMatchObject({ code: "ENOENT" });
+    await expect(readFile(report)).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
   it.each(["admit", "pack-probe", "pack-judged"])("rejects irrelevant %s flags without publishing data or a report", async (command) => {
     const f = await dispatchFixture();
     const cell = f.probes[0];
@@ -312,13 +336,13 @@ describe("artifacts.mjs", () => {
     }
   });
 
-  it("separates malformed selector invocation from malformed material without publishing either bundle", async () => {
+  it.each(["{", "null", "[]", '"task"'])("separates invalid selector %s invocation from malformed material without publishing either bundle", async (selector) => {
     const f = await dispatchFixture();
     const cell = f.probes[0];
     const input = await producer(f, cell);
     const out = join(f.root, "record.json");
     const args = ["pack-probe", "--input", input, "--out", out, "--selector"];
-    const invocation = cli([...args, "{"], f);
+    const invocation = cli([...args, selector], f);
     expect(invocation.status).toBe(2);
     expect(invocation.stdout).toBe("");
     await expect(readFile(out)).rejects.toMatchObject({ code: "ENOENT" });
