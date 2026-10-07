@@ -459,6 +459,12 @@ contributors and agents alike.
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
+The evaluation dispatch also uses `node tools/evaluation/artifacts.mjs` to
+package `record.json` bundles and admit them before landing. Run
+`node tools/evaluation/artifacts.mjs --help` for its flags; expected context,
+selectors, partial outcomes and offline invocations are documented in
+[Evaluation Dispatch](./docs/operations/evaluation-dispatch.md#artifact-admission-artifactsmjs).
+
 Every command below runs from the source tier under [`skills/`](./skills) —
 what the suite itself invokes; the installed roots go stale mid-edit. See
 [`docs/conventions/directory-structure.md`](./docs/conventions/directory-structure.md)
