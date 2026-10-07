@@ -173,10 +173,10 @@ jobs:
       judgment-matrix: ${{ steps.matrix.outputs.judgment-matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: package.json
 
@@ -231,10 +231,10 @@ jobs:
         include: ${{ fromJSON(needs.plan.outputs.probe-matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: package.json
 
@@ -274,7 +274,7 @@ jobs:
       # probe-* reconstructs the tree with nothing extra here.
       - name: Upload the probe record
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: probe-${{ matrix.scenarioId }}-${{ matrix.condition }}-${{ matrix.repetition }}
           path: ${{ runner.temp }}/probe-out/
@@ -304,10 +304,10 @@ jobs:
         include: ${{ fromJSON(needs.plan.outputs.judgment-matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: package.json
 
@@ -320,7 +320,7 @@ jobs:
       # when one id prefixes another's. the extra bytes cost nothing this
       # corpus's size can't afford.
       - name: Download this dispatch's probe records
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: probe-*
           merge-multiple: true
@@ -340,7 +340,7 @@ jobs:
       # every probe-* artifact's own internal path (see the comment there).
       - name: Upload the judged measurement
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: judged-${{ matrix.scenarioId }}
           path: ${{ runner.temp }}/measurement/
@@ -363,10 +363,10 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: package.json
           cache: npm
@@ -380,14 +380,14 @@ jobs:
       # than throwing, so the real check for a zero-artifact dispatch is
       # "Confirm there is something to land" below.
       - name: Assemble this dispatch's probe records
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: probe-*
           merge-multiple: true
           path: tools/evaluation/measurements
 
       - name: Assemble this dispatch's judged measurements
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: judged-*
           merge-multiple: true
