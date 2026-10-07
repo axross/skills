@@ -102,7 +102,7 @@ jobs:
       # code never executes on the runner. the checkout supplies only
       # CLAUDE.md, REVIEW.md, and the project skills as trusted review context.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       # these CI resource attributes live outside the repo tree: a settings
       # file's env outranks the process environment, and claude-code-action
@@ -120,7 +120,7 @@ jobs:
           JSON
 
       - name: Claude Review
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@58985842b834ed26087302ba27d07bc24ca8697a # v1.0.244
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # the official code-review plugin posts only when invoked with
