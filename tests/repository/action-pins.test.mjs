@@ -9,7 +9,7 @@ const { load: parseYaml } = createRequire(
   import.meta.resolve("markdownlint-cli2"),
 )("js-yaml");
 const TRUSTED_VERSION_TAG =
-  /^(?:actions\/(?:checkout|setup-node|upload-artifact|download-artifact|github-script)|anthropics\/claude-code-action)@v\d+(?:\.\d+){0,2}$/;
+  /^(?:actions\/(?:checkout|setup-node|upload-artifact|download-artifact)@v4|actions\/github-script@v7|anthropics\/claude-code-action@v1)(?:\.\d+){0,2}$/;
 const PIN_WITH_RELEASE =
   /^[\w.-]+\/[\w./-]+@[a-f0-9]{40}\s+#\s+v\d+\.\d+\.\d+\S*$/;
 
@@ -54,6 +54,7 @@ describe("CI action references", () => {
 
   it.each([
     "actions/checkout@v4",
+    "actions/checkout@v4.4",
     "actions/setup-node@v4.4.0",
     "actions/upload-artifact@v4",
     "actions/download-artifact@v4",
@@ -137,6 +138,11 @@ describe("CI action references", () => {
     "actions-fork/checkout@v4",
     "anthropics/unlisted-action@v1",
     "someone/claude-code-action@v1",
+    "actions/checkout@v5",
+    "actions/checkout@v999",
+    "actions/setup-node@v3.4.0",
+    "actions/github-script@v4",
+    "anthropics/claude-code-action@v42",
     "actions/checkout@main",
     "anthropics/claude-code-action@main # v1.0.244",
     "actions/checkout@v4.1.2.3",
@@ -144,7 +150,7 @@ describe("CI action references", () => {
     "actions/checkout@v4/branch",
     "actions/checkout@11d5960 # v4.4.0",
     "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
-  ])("rejects an untrusted tag, invalid version, branch, or incomplete pin: %s", (value) => {
+  ])("rejects an untrusted tag, unapproved version, branch, or incomplete pin: %s", (value) => {
     expect(() =>
       checkActionPins(`jobs:\n  gate:\n    steps:\n      - uses: ${value}\n`),
     ).toThrow();

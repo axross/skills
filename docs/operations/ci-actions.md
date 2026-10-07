@@ -54,8 +54,10 @@ trailing YAML comment on each SHA reference.
 
 Run the documented format, lint and aggregate checks in
 [README](../../README.md#commands). The reference-policy check is offline: it
-accepts numeric major, minor and exact version tags for the trusted inventory,
-or full SHAs with release labels. It checks actual job/step entries, including
+accepts major, minor and exact version tags within each trusted action's selected
+major, or full SHAs with release labels. An approved major upgrade MUST update
+the test's accepted major alongside this inventory and the workflows.
+It checks actual job/step entries, including
 quoted keys and values, not unrelated environment keys. For SHA references it
 requires a block-style `uses` entry so each release comment stays at its own
 mapping location. It rejects other tags, branches, short SHAs and unlabeled
