@@ -52,11 +52,12 @@ Maintainers MUST follow this sequence for an action update:
 4. Run the documented format, lint and aggregate checks in
    [README](../../README.md#commands). The existing suite's action-pin check is
    offline: it parses workflow mappings using the existing Markdown toolchain's
-   YAML parser and compares remote job/step references with labeled block-style
-   `uses` entries. Quoted keys and scalar values are accepted; other forms that
-   cannot be matched to their release comment fail closed rather than disappear
-   from inspection. It rejects mutable refs, short SHAs and missing labels, but
-   cannot authenticate the label-to-commit mapping.
+   YAML parser, then reparses a checking-only copy carrying each block-style
+   `uses` entry's own release comment at the same mapping location. It checks
+   actual job/step entries, not unrelated environment keys. Quoted keys and scalar
+   values are accepted; unmatched forms fail closed rather than disappear from
+   inspection. It rejects mutable refs, short SHAs and missing labels, but cannot
+   authenticate the label-to-commit mapping.
 5. Publish through the approved draft-PR and external-review route, inspect actual
    PR checks, and leave merge to the human. Scheduled and issue-comment workflows
    do not exercise a proposed pin merely because that PR's checks pass; their
