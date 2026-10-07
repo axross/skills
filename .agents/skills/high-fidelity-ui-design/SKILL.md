@@ -49,6 +49,7 @@ See [interaction-states-and-feedback.md](./references/interaction-states-and-fee
 
 - sizing and spacing touch targets, and making interactive elements look interactive
 - designing complete, differentiated interaction states and preferring error surfacing over disabled controls
+- distinguishing web error association from native field-revisit information and failed-submit notification
 - writing clear error feedback and matching feedback to response-time thresholds
 
 ## Accessibility and Cognitive Load

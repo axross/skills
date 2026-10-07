@@ -54,7 +54,7 @@
     "high-fidelity-ui-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "2bda69a42572b455c0ba6e8b7f34137559cc878a221222cf66a95984a15c7bce"
+      "computedHash": "79f72b9df5e45866080e70ab8359245cc489fad7738873612bebbb63c1697721"
     },
     "jest-testing": {
       "source": "./skills",
