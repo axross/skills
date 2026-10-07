@@ -59,7 +59,7 @@
     "jest-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "7f2773cfeead4dcd4eec43f9458efcbb6b1efd098461609c6d149d8cd1458b72"
+      "computedHash": "a947bb2df2c9c33ee945085bdfd3227d537a11f55de2bf46ac29c274c74ecc95"
     },
     "living-project-documentation": {
       "source": "./skills",
