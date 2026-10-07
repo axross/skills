@@ -24,6 +24,19 @@ that a change did.
 folded inside `npm test` runs through it, so a small mismatch there breaks the
 verification gate outright rather than one test file.
 
+Cold merge-check jobs MUST prepare dependencies with `npm ci`, as the
+evaluation aggregation job already does. A manifest/lockfile mismatch fails
+instead of repairing the committed lockfile before verification. The existing
+`cache: npm` reuses downloaded package content, not an installed `node_modules`
+tree, so that cache does not weaken the frozen install. Gate-consistency also
+checks that each cold job installs before running its gate.
+
+Warm agent startup is a different boundary: SessionStart retains `npm install`
+for dependency reuse, and orb setup skips an unchanged warm restore. Replacing
+these with `npm ci` would discard cached `node_modules`, not improve the cold
+gate. [Agent Sessions](../operations/agent-sessions.md) owns those lifecycle
+paths; [README](../../README.md#commands) defines both dependency commands.
+
 ## The Measurement Pull Request's Exclusion
 
 `merge-checks.yaml`'s `pull_request` trigger excludes
