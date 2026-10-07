@@ -23,9 +23,11 @@ function optionsFrom(argv) {
   const [command, ...args] = argv;
   if (!["pack-probe", "pack-judged", "admit"].includes(command)) throw new Error(USAGE);
   const options = { command };
+  const allowed = command === "admit" ? ["input", "out", "judged", "report", "scenario"]
+    : ["input", "out", "selector"];
   for (let index = 0; index < args.length; index += 2) {
     const key = args[index]?.replace(/^--/, "");
-    if (!["input", "out", "selector", "judged", "report", "scenario"].includes(key) ||
+    if (!allowed.includes(key) ||
       !args[index].startsWith("--") || !args[index + 1] || key in options) throw new Error(USAGE);
     options[key] = args[index + 1];
   }

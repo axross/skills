@@ -293,6 +293,25 @@ describe("admitBundles()", () => {
 });
 
 describe("artifacts.mjs", () => {
+  it.each(["admit", "pack-probe", "pack-judged"])("rejects irrelevant %s flags without publishing data or a report", async (command) => {
+    const f = await dispatchFixture();
+    const cell = f.probes[0];
+    const input = command === "admit" ? f.probesRoot : await producer(f, cell);
+    if (command === "admit") await download(input, await probeBundle(f));
+    const out = join(f.root, "unpublished");
+    const report = join(f.root, "report.json");
+    const args = [command, "--input", input, "--out", out];
+    if (command === "admit") args.push("--report", report);
+    else args.push("--selector", JSON.stringify(command === "pack-probe" ? cell : f.judgments[0]));
+    for (const flag of command === "admit" ? ["--selector"] : ["--scenario", "--judged", "--report"]) {
+      const result = cli([...args, flag, "ignored"], f);
+      expect(result.status, result.stderr).toBe(2);
+      expect(result.stdout).toBe("");
+      await expect(readFile(out)).rejects.toMatchObject({ code: "ENOENT" });
+      await expect(readFile(report)).rejects.toMatchObject({ code: "ENOENT" });
+    }
+  });
+
   it("separates malformed selector invocation from malformed material without publishing either bundle", async () => {
     const f = await dispatchFixture();
     const cell = f.probes[0];
