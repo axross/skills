@@ -10,11 +10,11 @@ Order is a readability contract, not decoration. A reader scanning an unfamiliar
 
 Write declarations in this order, skipping any group the block does not use. The same order applies to a CSS rule and to a mobile-native style object.
 
-1. **Positioning** — `position`, `inset-*`, `z-index` — referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition.
+1. **Positioning** — `position`, `inset-*`, `z-index` — subject to [style-composition.md](./style-composition.md)'s root ownership test.
 2. **Layout container** — `display`, `container`, `grid-template-*`, `flex-direction`, `flex-wrap`, `align-items`, `justify-content`, `place-items` / `place-content`, `gap` / `row-gap` / `column-gap`
-3. **Placement in the parent** — `grid-area`, `grid-column`, `grid-row`, `align-self`, `justify-self`, `place-self`, `flex`, `order` — referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition.
-4. **Size** — `inline-size` / `width`, `block-size` / `height`, `min-*`, `max-*`, `aspect-ratio` — referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition, except `aspect-ratio`.
-5. **Spacing** — `margin-*`, `padding-*` — `margin-*` referenced normatively by [style-composition.md](./style-composition.md)'s root-placement prohibition.
+3. **Placement in the parent** — `grid-area`, `grid-column`, `grid-row`, `align-self`, `justify-self`, `place-self`, `flex`, `order` — subject to [style-composition.md](./style-composition.md)'s root ownership test.
+4. **Size** — `inline-size` / `width`, `block-size` / `height`, `min-*`, `max-*`, `aspect-ratio` — subject to [style-composition.md](./style-composition.md)'s root ownership test; `aspect-ratio` remains component-owned.
+5. **Spacing** — `margin-*`, `padding-*` — `margin-*` subject to [style-composition.md](./style-composition.md)'s root ownership test.
 6. **Background and colour** — `background-*`, `color`
 7. **Border and shape** — `border-*`, `border-radius`
 8. **Typography** — `font-*`, `line-height`, `letter-spacing`, `text-*`, `white-space`, `word-break`, `tab-size`
@@ -65,14 +65,21 @@ Write declarations in this order, skipping any group the block does not use. The
 
 ## Order of Composed Styles
 
-When several styles apply to one element, the array order **is** the precedence order — later wins. Ordering it consistently makes the precedence readable without tracing every entry.
+For ordinary static native styles, later array entries win conflicting properties. Keep composition order consistent for readability, but do not mistake it for every runtime's precedence rule.
+
+[Reanimated 4.x's animated-style remarks](https://docs.swmansion.com/react-native-reanimated/docs/core/useAnimatedStyle/#remarks) state that animated values override static values regardless of array position. Between animated styles, the most recently updated one wins, not the last array entry. A static consumer width placed after an animated width therefore cannot override it. Separate conflicting animation from consumer-owned control under [the composition contract](./style-composition.md#accepting-a-consumers-styles).
 
 Write them outermost-to-innermost: the invariant base, then the variant axes from structural to cosmetic, then compound cases, then transient state, then anything animated, and finally the consumer's own style.
 
 **Example:**
 
 ```tsx
-<Pressable
+import { Pressable } from "react-native";
+import Animated from "react-native-reanimated";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+<AnimatedPressable
   style={[
     styles.root,
     size === "sm" && styles.sizeSm,
@@ -84,13 +91,13 @@ Write them outermost-to-innermost: the invariant base, then the variant axes fro
     animatedStyle,
     style,
   ]}
-/>
+/>;
 ```
 
 **Guidelines:**
 
 - MUST compose in this order: base → size/shape variant → tone/intent variant → compound variant → transient state → animated style → consumer style.
-- MUST keep the consumer's style last, with nothing after it, so a caller's override always wins.
-- MUST place an animated style after every static style it may override and before the consumer's, so animation cannot fight the base and the caller still outranks both.
+- MUST keep the consumer's style last, with nothing after it, preserving ordinary static override order rather than promising priority over animated values.
+- MUST group animated styles after component-owned static styles and before the consumer's for readability; their runtime precedence is not determined by that position.
 - MUST NOT interleave the axes — all size entries together, all tone entries together — so a reader can see at a glance which axes exist.
 - SHOULD prefer the platform's declarative variant mechanism over a long conditional array when the axes are a closed set (see the Unistyles reference); the ordering rule then applies to whatever remains in the array.

@@ -2,11 +2,13 @@
 
 Apply this reference when deciding which styles live inside a component and which its consumer supplies, when accepting an incoming `className` or `style`, and when a repeated appearance tempts you to share a stylesheet.
 
-The governing idea is that a component owns **what it looks like** and its consumer owns **where it sits and how big it is**. A component that also sets its own position, margin, or size cannot be reused in a second layout without a fight, because the caller has to out-specify the component's own rules to move it. Splitting ownership at that seam is what makes a component composable.
+The governing idea is that a component owns **what it looks like** and its consumer owns **where it sits and how much space the surrounding layout gives it**. Intrinsic defaults and internal geometry belong to the component; contextual placement does not. Splitting ownership at that seam is what makes a component composable.
 
 ## The Ownership Split
 
 A component's own styles describe its interior: layout of its children, spacing between them, colour, typography, borders, radii, and its interaction states. Its consumer supplies the properties that only make sense relative to the surrounding layout.
+
+Property spelling alone does not decide ownership. A relative root that anchors its own badge differs from an offset that moves the component among siblings. A component's structural or state-owned paint order differs from arbitrary elevation above neighbouring components. An icon's overrideable intrinsic size differs from a width chosen for one screen layout. A portal host can own screen-level overlay geometry; an ordinary embedded component cannot claim that role merely because it renders overlay content. Zeroing a native control's framework-default margin is a neutral reset, not permission to impose surrounding spacing.
 
 **Example — the split across two files:**
 
@@ -34,10 +36,12 @@ A component's own styles describe its interior: layout of its children, spacing 
 
 **Guidelines:**
 
-- MUST NOT set, on a component's own root, any property that decides where it sits among its siblings or how much space it takes. On web that is everything in [style-property-order.md](./style-property-order.md)'s **Positioning** and **Placement in the parent** groups, its **Size** group except `aspect-ratio`, and `margin-*` from its **Spacing** group. A longhand, a logical property, or a platform spelling belongs to its group exactly as its shorthand does — `flex-grow` is prohibited wherever `flex` is. The **Layout container** group and `padding-*` are interior and stay with the component, as does `aspect-ratio`, which is part of what the component is rather than where a consumer puts it.
-- MUST NOT set the mobile-native equivalents on a component's own root: `position`, `top`/`left`/`right`/`bottom`/`start`/`end`, `zIndex`, `flex`/`flexGrow`/`flexShrink`/`flexBasis`, `alignSelf`, every `margin*` spelling including `marginHorizontal`, `marginVertical`, `marginStart` and `marginEnd`, and a chosen `width`, `height`, `minWidth`, `maxWidth`, `minHeight` or `maxHeight`. React Native implements no CSS Grid and no `order`, so the Placement-in-the-parent group's `grid-*`, `justify-self` and `order` members have no native counterpart; `aspectRatio` stays with the component as on web.
-- MAY set a full-fill value on the root — `width: stretch`, `inline-size: 100%`, or `flex: 1` on native, and any other spelling of the same claim (`width: -webkit-fill-available`) — and the same claim expressed as an upper bound, `max-inline-size: 100%` or `maxWidth: '100%'`. Each claims **the whole** of the space the consumer gave. A fraction of it is a chosen amount and stays prohibited: `50%`, `calc(50% + 10px)`, and `calc(100% - 32px)` all name an amount the consumer did not choose, however they are spelled. So does an absolute length (`320`, `20rem`) and a value resolved against anything other than the parent box — `100vw`, and equally `100dvh`, which resolves against the viewport rather than the parent.
-- MUST set every prohibited property from the consumer instead, passing it through the component's `className` (web) or `style` (native) prop.
+- MUST NOT set consumer-owned contextual placement or size on a component's own root, whether in a stylesheet, inline or animated declaration. On web, inspect [style-property-order.md](./style-property-order.md)'s **Positioning**, **Placement in the parent**, **Size** and `margin-*` **Spacing** properties for that purpose. Longhands, logical properties and shorthands follow the same ownership test. The **Layout container** group, `padding-*` and `aspect-ratio` describe the interior and stay with the component.
+- MUST apply the same ownership test to mobile-native `position`, edge offsets, `zIndex`, `flex`/`flexGrow`/`flexShrink`/`flexBasis`, `alignSelf`, every `margin*` spelling and width/height bounds. `aspectRatio` stays with the component as on web; spelling a contextual declaration differently does not change its owner.
+- MAY set a root property needed for justified intrinsic default geometry, an internal coordinate system, structural/state-owned paint order, overlay-host geometry or a neutral framework reset. These roles do not permit contextual sibling positioning or arbitrary elevation.
+- MUST keep intrinsic size defaults overrideable through the published styling prop and apply [the token and literal rules](./theming.md#snapping-to-the-scale); off-scale spacing does not become intrinsic geometry by being labelled a default.
+- MAY set a full-fill value on the root — `width: stretch`, `inline-size: 100%`, or `flex: 1` on native, and any other spelling of the same claim (`width: -webkit-fill-available`) — and the same claim expressed as an upper bound, `max-inline-size: 100%` or `maxWidth: '100%'`. Each claims **the whole** of the space the consumer gave. A fraction of it chosen for surrounding layout stays prohibited: `50%`, `calc(50% + 10px)` and `calc(100% - 32px)`. An absolute length (`320`, `20rem`) chosen for that layout, or a viewport-relative size on an embedded component (`100vw`, `100dvh`), is equally contextual; it is not an intrinsic default or overlay-host responsibility.
+- MUST set consumer-owned contextual properties from the consumer, passing them through the component's `className` (web) or `style` (native) prop.
 - MUST keep appearance in the component even when size lives outside it; a child that renders two roots (an image and a letter fallback) applies the consumer's size class to both so the roots stay interchangeable.
 - SHOULD state the split in a comment when a component's stylesheet conspicuously lacks a size, so the next reader does not "fix" it by adding one.
 
@@ -45,7 +49,9 @@ A component's own styles describe its interior: layout of its children, spacing 
 
 > **Twin section.** This section's three obligations — accept, never drop, merge last — and the override-versus-variant split in [When a Consumer Overrides](#when-a-consumer-overrides) are deliberately restated, in shorter form, by a React component development capability's styling-props reference, so that skill stands alone where this one is not installed. Both copies are maintained; a change to either belongs in the other, and a difference in what they **require** is a defect in whichever was edited alone, not a distinction to preserve. This copy owns the topic and governs wherever both are installed, naming the project's concrete tooling where the other names mechanisms generically.
 
-Every component that renders a styled root accepts the consumer's styles and merges them **last**, so the consumer wins without escalating specificity. What "last" means differs by platform, and on mobile native the merge form is load-bearing.
+Every component that renders a styled root accepts the consumer's styles and merges them **last**. Ordinary static native styles then give the caller precedence; web overrides also depend on the cascade and selector specificity. Array position does not outrank an animation runtime — see [composed-style precedence](./style-property-order.md#order-of-composed-styles).
+
+Internal animation may own an appearance property, but cannot defeat promised external placement or size control. A composition boundary is effective only when it separates the conflicting property: an outer placement surface and inner animated visual can do that, while forwarding both conflicting declarations to the same animated root cannot. Components without that conflict need no extra wrapper.
 
 **Example — web:**
 
@@ -72,7 +78,7 @@ export function Card({
 **Guidelines:**
 
 - MUST accept `className` on every web component that renders a styled root, and `style` on every mobile-native one.
-- MUST merge the incoming value **last** so it overrides the component's own styles.
+- MUST merge the incoming value **last** and keep the published consumer-controlled placement and size overrides effective; when internal animation conflicts, separate that control rather than promising that array order resolves it.
 - MUST NOT destructure the prop and then fail to apply it — a silently dropped `style` breaks the contract for every caller and is invisible at the type level.
 - MUST merge Unistyles styles with array syntax (`[styles.root, style]`) and MUST NOT spread them or pass them through `StyleSheet.flatten`; both destroy the binding Unistyles updates through, so the style silently stops reacting to theme and runtime changes ([Merging styles](https://www.unistyl.es/v3/guides/merging-styles/)).
 - MUST keep the component's own root selector at zero specificity on web (see the CSS Modules rules) so a single incoming class is enough to override it.

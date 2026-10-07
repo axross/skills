@@ -25,8 +25,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 See [style-composition.md](./references/style-composition.md) for:
 
-- separating the properties a component owns from the ones its consumer owns, and the root-element properties a component never sets
-- accepting and merging an incoming `className` or `style`, and the array-merge contract Unistyles requires
+- separating contextual consumer placement from intrinsic defaults, internal coordinates, structural/state paint order, overlay-host geometry and neutral root resets
+- accepting and merging an incoming `className` or `style`, binding-preserving Unistyles arrays, and effective consumer control when internal animation conflicts
 - deciding when a consumer overrides a child's styles rather than the child growing a prop
 - pairing one style module per component, and sharing a component instead of sharing a stylesheet
 - sizing a child from its parent, and the "appearance here, size there" split
@@ -37,7 +37,7 @@ See [theming.md](./references/theming.md) for:
 
 - adding or renaming a token, the token families a project declares, and the shape of each
 - composite named text roles, and why family, size, leading, and weight travel together
-- px-keyed spacing steps, the named radius and border-width tiers, and the hairline step
+- px-keyed spacing steps, named radius and border-width tiers, and a platform-defined native hairline constant rather than a stylesheet-creation API
 - duration and role-named easing tokens
 - writing a literal colour, spacing, radius, border-width, type, duration, or easing value, snapping it to the nearest step, and the closed list of literals that stay legal
 - reading a token outside a stylesheet — icon colour and size, navigator options, animated values
@@ -89,7 +89,7 @@ See [style-property-order.md](./references/style-property-order.md) for:
 
 - writing or reviewing the property group order inside a single style block
 - where custom properties, nested at-rules, and pseudo-selector blocks sit
-- writing or reviewing the order of composed styles — base, variant, state, animated, consumer
+- writing or reviewing composed-style order — base, variant, state, animated, consumer — without mistaking array order for Reanimated precedence
 
 ## Global Styles
 
@@ -116,7 +116,8 @@ See [css-modules.md](./references/css-modules.md) for:
 
 See [unistyles.md](./references/unistyles.md) for:
 
-- writing a `StyleSheet.create` call with the stylesheet signature, theme configuration, and adaptive themes
+- writing a Unistyles `StyleSheet.create` call versus a narrowly justified React Native constants-only token read
+- configuring native System adaptation versus explicit Light/Dark selection, mutually exclusive adaptive/initial settings, and product-owned fallback policy
 - safe-area-aware styling with the mini runtime
 - choosing between variants and dynamic functions
 - parent-size-aware styling from a measured layout
