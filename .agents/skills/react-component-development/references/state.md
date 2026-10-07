@@ -31,6 +31,23 @@ Most state never needs to leave the component rendering its control. Keeping it 
 - SHOULD colocate a state variable with the handler that updates it, so a reader sees both without scrolling.
 - MUST NOT lift local state into a shared store to avoid passing one prop; a store entry is app-lifetime state, and a prop is not.
 
+### Keep-Mounted Interaction Sessions
+
+A sheet can stay mounted through closing and reopening while each opening starts a new interaction. Mount-scoped cleanup alone cannot protect the new draft or outcome from the previous interaction's delayed exit callback. Session start, close request, terminal outcome and exit completion need not be the same event.
+
+**Counterexample:**
+
+> A closing → B open → B closing → A completion → B completion. A's completion must not clear B's draft, finish B's exit or report B's outcome. Checking only an `isClosing` flag fails because B is already closing when A completes.
+
+Whether A's superseded outcome is still notified or discarded is a product contract. Neither choice allows it to mutate B. Competing submit/dismiss requests and repeated close requests likewise need a defined terminal-outcome contract, not assumptions about React's callback frequency.
+
+**Guidelines:**
+
+- MUST distinguish an interaction's lifetime from mount lifetime when a component stays mounted across interactions; define what starts or replaces a session and what finishes it.
+- MUST associate deferred completion with the interaction it belongs to, so a stale completion cannot finish or change a newer session, even when that newer session is closing.
+- MUST define whether superseded outcomes are notified or discarded and how competing terminal requests avoid duplicate or contradictory outcomes within one session.
+- SHOULD verify rapid reopen and both submit/dismiss orderings through the caller-visible session contract, including old completion while the new session is open and while it is closing.
+
 ## Shared State Through Context
 
 A context provider is the default sharing mechanism. Its value should be a stable object, so consumers do not re-render on every provider render.

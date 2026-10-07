@@ -94,6 +94,16 @@ One file often holds several handlers, and a screen with three `onPress` callbac
 - MUST alias a prop on receipt when the local name should differ from the published one — capitalizing a component-typed prop (`icon: Icon`) so it renders as an element, or disambiguating a value from its wrapper.
 - SHOULD name a prop for what it _is_ to the consumer, not for how the component uses it internally.
 
+### Published Interaction Outcomes
+
+A caller can rely on a component's terminal outcome without relying on its internal callback sequence. For example, a submit notification might mean accepted input or completed exit; an `onClose` might report a request rather than settlement. Name and document the distinction the caller actually needs. For keep-mounted closing/reopening and superseded outcomes, apply [the session-lifetime contract](./state.md#keep-mounted-interaction-sessions).
+
+**Guidelines:**
+
+- MUST document the meaning, timing and multiplicity of a terminal outcome when the component publishes one, distinguishing it from ongoing value changes and close requests.
+- MUST NOT infer an exactly-once guarantee across process restarts from a component's per-session outcome contract.
+- MAY express the contract with existing handler props or returned results; it requires neither callback-only APIs nor reason enums, and does not prohibit `onChange` or `onClose`.
+
 ## Whole-Model Props
 
 Pass the **whole model**. A component that takes `job` rather than `jobId`, `jobTitle`, `jobSalary`, and `jobPostedAt` does not need a new prop and a new call-site edit every time it renders one more field, and its type stays anchored to the domain model instead of drifting into a parallel copy of it.
