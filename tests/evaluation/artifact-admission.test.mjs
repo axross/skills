@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { admitBundles, dispatchContract, packBundle } from "../../tools/evaluation/src/artifact-admission.mjs";
+import { loadAllScenarios } from "../../tools/evaluation/src/scenario.mjs";
 import { tempDir, writeFileIn } from "../helpers/fixtures.mjs";
 import { repoPath } from "../helpers/run.mjs";
 
@@ -87,6 +88,43 @@ function cli(args, f, extraEnv = {}) {
   delete env.ANTHROPIC_API_KEY;
   return spawnSync(process.execPath, [repoPath("tools/evaluation/artifacts.mjs"), ...args], { env, encoding: "utf8" });
 }
+
+describe("dispatchContract()", () => {
+  it("admits schema-valid underscore and Unicode/space scenario IDs with exact measured bytes and judgments", async () => {
+    const ids = ["task_one", "task 一"];
+    const f = await dispatchFixture(ids);
+    const template = JSON.parse(await readFile(repoPath("tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save/scenario.json"), "utf8"));
+    for (const id of ids) {
+      await writeFileIn(f.scenariosRoot, `${id}/scenario.json`, JSON.stringify({ ...template, id,
+        factors: [{ ...template.factors.find((factor) => factor.judgment.method === "script"),
+          id: "changed", phase: "outcome" }] }));
+    }
+    expect((await loadAllScenarios(f.scenariosRoot)).map((scenario) => scenario.id).sort()).toEqual([...ids].sort());
+    const expected = new Map();
+    for (const cell of f.probes) {
+      const input = await producer(f, cell);
+      const bundle = await packBundle({ ...f, kind: "probe", input, selector: cell, attempt: "1" });
+      await download(f.probesRoot, bundle);
+      for (const name of filenames) {
+        const path = `${pathOf(cell)}/${name}`;
+        expected.set(path, await readFile(join(input, path), "utf8"));
+      }
+    }
+    for (const scenario of f.judgments) await download(f.judgedRoot, judgedBundle(f, scenario));
+    expect((await admitBundles(f)).status).toBe("complete");
+    for (const [path, content] of expected) expect(await readFile(join(f.out, path), "utf8")).toBe(content);
+  });
+
+  it.each(["../task", "/task", ".", "..", "task\0name"])("refuses unsafe matrix segment %j", async (id) => {
+    const f = await dispatchFixture();
+    for (const key of ["scenarioId", "measurementId"]) {
+      const scenario = { ...f.judgments[0], [key]: id };
+      scenario.measurementDirName = `${scenario.scenarioId}-${scenario.measurementId}`;
+      expect(() => dispatchContract({ identity, judgments: [scenario], probes: [{ ...f.probes[0], ...scenario }] }))
+        .toThrow("Invalid or duplicate judgment matrix entry");
+    }
+  });
+});
 
 describe("packBundle()", () => {
   it("packages only one cell and keeps failed, truncated, empty-patch observations verbatim", async () => {
@@ -255,6 +293,24 @@ describe("admitBundles()", () => {
 });
 
 describe("artifacts.mjs", () => {
+  it("separates malformed selector invocation from malformed material without publishing either bundle", async () => {
+    const f = await dispatchFixture();
+    const cell = f.probes[0];
+    const input = await producer(f, cell);
+    const out = join(f.root, "record.json");
+    const args = ["pack-probe", "--input", input, "--out", out, "--selector"];
+    const invocation = cli([...args, "{"], f);
+    expect(invocation.status).toBe(2);
+    expect(invocation.stdout).toBe("");
+    await expect(readFile(out)).rejects.toMatchObject({ code: "ENOENT" });
+    await writeFile(join(input, pathOf(cell), "metadata.json"), "{");
+    const material = cli([...args, JSON.stringify(cell)], f);
+    expect(material.status).toBe(1);
+    expect(material.stderr).toContain("Artifact admission failed:");
+    expect(material.stdout).toBe("");
+    await expect(readFile(out)).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
   it("runs packaging, admission, offline judging, judged packaging and complete/partial landing with an earlier attempt", async () => {
     const id = "quiet-the-stale-post-list-after-a-draft-save";
     const f = await dispatchFixture([id]);

@@ -31,6 +31,7 @@ function optionsFrom(argv) {
   }
   if (!options.input || !options.out ||
     (command === "admit" ? !options.report : !options.selector)) throw new Error(USAGE);
+  if (command !== "admit") options.selector = JSON.parse(options.selector);
   return options;
 }
 
@@ -64,7 +65,7 @@ async function main() {
     process.stdout.write(`Admission ${report.status}: ${report.copiedFiles} files; report ${options.report}\n`);
   } else {
     const bundle = await packBundle({ kind: options.command === "pack-probe" ? "probe" : "judged",
-      input: resolve(options.input), selector: JSON.parse(options.selector), contract,
+      input: resolve(options.input), selector: options.selector, contract,
       attempt: process.env.GITHUB_RUN_ATTEMPT, scenariosRoot });
     await mkdir(dirname(resolve(options.out)), { recursive: true });
     await writeFile(resolve(options.out), canonicalJson(bundle), { flag: "wx" });

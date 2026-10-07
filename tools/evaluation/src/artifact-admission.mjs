@@ -1,5 +1,5 @@
 import { lstat, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 
 import { JUDGE_ROUTE } from "./judge.mjs";
 import { FACTORS_FILE, METADATA_FILE, INVOCATIONS_FILE, PROBE_MEASURED_FILES } from "./layout.mjs";
@@ -9,7 +9,8 @@ export const BUNDLE_FILE = "record.json";
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const text = (value) => typeof value === "string" && value.length > 0;
 const positiveInteger = (value) => Number.isSafeInteger(value) && value > 0;
-const segment = (value) => text(value) && /^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/.test(value);
+const segment = (value) => text(value) && value !== "." && value !== ".." &&
+  !value.includes("\0") && basename(value) === value;
 const cellPath = (cell) => `${cell.measurementDirName}/${cell.condition}-${cell.repetition}`;
 const probeName = (cell) => `probe-${cell.scenarioId}-${cell.condition}-${cell.repetition}`;
 const judgedName = (scenario) => `judged-${scenario.scenarioId}`;
