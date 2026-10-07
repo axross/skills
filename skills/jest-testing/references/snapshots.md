@@ -54,7 +54,7 @@ The alternative for a value embedded in a string is to normalise it before snaps
 
 ## Updating
 
-`--updateSnapshot` (`-u`) rewrites every failing snapshot. It combines with a name or path filter, which is the safe way to use it: rewriting the whole suite makes an unintended change indistinguishable from an intended one.
+`--updateSnapshot` (`-u`) rewrites failing snapshots and removes orphaned snapshot files. A name or path filter narrows which tests update their expectations, but does not by itself restrict orphan-file cleanup to those tests. Narrowing the update keeps intentional changes reviewable; ownership and cleanup boundaries still need checking.
 
 `--ci` refuses to write a **new** snapshot, failing instead. This matters because a new snapshot always passes on first run — without `--ci`, a test added in a pull request writes its snapshot during the pipeline and reports green regardless of whether the value is correct.
 
@@ -62,7 +62,20 @@ The alternative for a value embedded in a string is to normalise it before snaps
 
 - MUST run continuous integration with `--ci`, so a snapshot that was never reviewed cannot pass.
 - MUST narrow `-u` to the specific tests being updated rather than rewriting the whole suite.
-- SHOULD delete obsolete snapshots that Jest reports rather than leaving them, since they hide the removal of the test that owned them.
+- MUST confirm snapshot ownership before updating or deleting it; an obsolete report or a test listing alone is not proof that Jest owns the file.
+- SHOULD delete genuinely obsolete Jest-owned snapshots, since they hide the removal of the test that owned them; investigate unknown ownership instead of deleting on Jest's report alone.
+
+### Mixed Snapshot Owners
+
+Cleanup scans `.snap` files in Jest's file map, not just snapshots of discovered tests. With the default resolver, a foreign-owned `foreign/__snapshots__/engine.snap` maps to `foreign/engine`. If that test path does not exist, update-all cleanup can delete the snapshot even when `testMatch` selects only Jest tests elsewhere.
+
+Verified with isolated fixtures on Jest 29.7.0 and 30.4.2: cleanup checks `testPathIgnorePatterns` against the **resolved test path** before checking its existence ([29.7.0 source](https://github.com/jestjs/jest/blob/v29.7.0/packages/jest-snapshot/src/index.ts#L115-L146), [30.4.2 source](https://github.com/jestjs/jest/blob/v30.4.2/packages/jest-snapshot/src/index.ts#L117-L148)). A pattern matching that path preserves the foreign file; a nonmatching pattern does not. This check does not remove files from the map, and a custom `snapshotResolver` can change which path must match.
+
+`modulePathIgnorePatterns` instead removes matching files from the map, keeping them outside this cleanup scan, but also affects map-dependent module names. It is not a universal import barrier; see [test-discovery.md](./test-discovery.md#excluding-paths) for the resolution boundary. Choose the narrower protection that fits the actual layout rather than prescribing a file-map exclusion for every mixed-runner repository.
+
+**Guidelines:**
+
+- MUST verify a mixed-owner cleanup boundary with foreign snapshots' bytes and existence before and after the intended update, while confirming legitimate Jest-owned updates and obsolete removal still work; `--listTests` alone verifies discovery, not preservation.
 
 ## Enforcing Reviewability
 

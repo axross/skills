@@ -57,7 +57,11 @@ module.exports = {
 
 ## Excluding Paths
 
-`testPathIgnorePatterns` (default `["/node_modules/"]`) removes matched files from a run. `modulePathIgnorePatterns` goes further and makes matched paths unresolvable, which is what a stale build directory needs — otherwise Jest may resolve an import to `dist/` and test yesterday's output.
+`testPathIgnorePatterns` (default `["/node_modules/"]`) removes matching test paths from discovery, without excluding files from the file map. `modulePathIgnorePatterns` excludes matching paths from that map, affecting discovery and map-dependent module names, but is not a universal import barrier.
+
+Verified with isolated fixtures on Jest 29.7.0 and 30.4.2: a Haste module name stops resolving when its file is excluded, while an ordinary relative import of the same file still resolves. The separate paths are visible in the [29.7.0 runtime](https://github.com/jestjs/jest/blob/v29.7.0/packages/jest-runtime/src/index.ts#L342-L397) and [30.4.2 runtime](https://github.com/jestjs/jest/blob/v30.4.2/packages/jest-runtime/src/index.ts#L302-L357). For stale build output, verify that imports resolve the intended source rather than assuming this ignore blocks every import into `dist/`.
+
+Snapshot cleanup has its own resolved-test-path check; discovery separation alone does not establish snapshot ownership or protection. See [snapshots.md](./snapshots.md#mixed-snapshot-owners) when another runner owns `.snap` files in the same tree.
 
 **Guidelines:**
 
