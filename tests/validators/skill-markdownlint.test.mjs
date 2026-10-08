@@ -198,6 +198,25 @@ describe("explicit context and protected execution", () => {
     expect(unrelated).toMatchObject({ code: 0, findings: [], failures: [] });
   });
 
+  it.each(["exact-skill", "physical-skill", "exact-reference"])("preserves applicability when a skill and reference share bytes (%s)", async (selection) => {
+    const root = await tempDir();
+    const actual = await writeSkill(root, "a-skill", { frontmatter: { description: "42" } });
+    const collection = join(root, "collection");
+    await mkdir(collection);
+    const declared = join(collection, "a-skill");
+    await symlink(actual, declared);
+    const later = await writeSkill(collection, "z-skill");
+    await mkdir(join(later, "references"));
+    const borrowed = join(later, "references/borrowed.md");
+    await symlink(join(actual, "SKILL.md"), borrowed);
+    const file = selection === "exact-reference" ? borrowed : join(selection === "exact-skill" ? declared : actual, "SKILL.md");
+    const context = await createContext({ collections: [collection], files: [file] });
+    const result = await runValidation(context, { standardConfig: NO_STANDARD });
+    expect(result).toMatchObject({ code: selection === "exact-reference" ? 0 : 1, scope: "partial", failures: [] });
+    expect(result.documents).toEqual([selection === "exact-reference" ? borrowed : join(declared, "SKILL.md")]);
+    expect(result.findings.map((finding) => finding.ruleNames[0])).toEqual(selection === "exact-reference" ? [] : ["AS001"]);
+  });
+
   it("refuses a collection with a missing mandatory parent instead of validating its passing subset", async () => {
     const root = await tempDir();
     await writeSkill(root, "probe-skill");
@@ -221,14 +240,21 @@ describe("explicit context and protected execution", () => {
   });
 
   it("rejects invalid UTF-8, missing context and effective unreadability", async () => {
-    const dir = await writeSkill(await tempDir(), "probe-skill");
+    const root = await tempDir();
+    const dir = await writeSkill(root, "probe-skill");
     const path = join(dir, "SKILL.md");
     await writeFile(path, Buffer.from([0xff, 0xfe]));
     expect(runScript(CLI, ["--skill", dir]).code).toBe(2);
     await writeFile(path, "# Probe\n");
+    await chmod(root, 0o755);
+    await chmod(dir, 0o755);
+    const identity = process.getuid?.() === 0 ? { uid: 65534, gid: 65534 } : {};
+    const readable = spawnSync(process.execPath, [repoPath(CLI), "--skill", dir], { ...identity, encoding: "utf8" });
+    expect(readable.status, readable.stderr).toBe(1);
+    expect(readable.stdout).toMatch(/AS001/);
     await chmod(path, 0);
-    const unreadable = runScript(CLI, ["--skill", dir]);
-    expect(unreadable.code).toBe(2);
+    const unreadable = spawnSync(process.execPath, [repoPath(CLI), "--skill", dir], { ...identity, encoding: "utf8" });
+    expect(unreadable.status, unreadable.stderr).toBe(2);
     expect(unreadable.stderr).toMatch(/EACCES/);
     await chmod(path, 0o600);
     expect((await runValidation(null)).code).toBe(2);
@@ -426,8 +452,11 @@ describe("explicit context and protected execution", () => {
     expect(startup.stderr).toMatch(/Cannot find package/);
     expect(startup.stdout).toBe("");
 
-    const packed = spawnSync("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", root], { cwd: packageDir, encoding: "utf8" });
-    expect({ status: packed.status, stderr: packed.stderr }).toEqual({ status: 0, stderr: "" });
+    const advisory = await writeFileIn(root, "npm-advisory.mjs", 'process.emitWarning("fixture npm advisory");');
+    const npmEnv = { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ""} --import=${pathToFileURL(advisory).href}` };
+    const packed = spawnSync("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", root], { cwd: packageDir, encoding: "utf8", env: npmEnv });
+    expect(packed.status, packed.stderr).toBe(0);
+    expect(packed.stderr).toContain("fixture npm advisory");
     const archive = JSON.parse(packed.stdout)[0];
     expect(archive.files.map((file) => file.path).sort()).toEqual(["cli.mjs", "context.mjs", "package.json", "rules.mjs", "run.mjs"]);
     const consumer = join(root, "consumer");
@@ -453,8 +482,9 @@ describe("explicit context and protected execution", () => {
     }
     await writeFileIn(consumer, "package.json", JSON.stringify(manifest));
     await writeFileIn(consumer, "package-lock.json", JSON.stringify({ lockfileVersion: 3, requires: true, packages }));
-    const installed = spawnSync("npm", ["ci", "--offline", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd: consumer, encoding: "utf8" });
-    expect({ status: installed.status, stderr: installed.stderr }).toEqual({ status: 0, stderr: "" });
+    const installed = spawnSync("npm", ["ci", "--offline", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd: consumer, encoding: "utf8", env: npmEnv });
+    expect(installed.status, installed.stderr).toBe(0);
+    expect(installed.stderr).toContain("fixture npm advisory");
     const lock = JSON.parse(await readFile(join(consumer, "package-lock.json"), "utf8"));
     expect(lock.packages["node_modules/markdownlint-cli2"].version).toBe("0.23.3");
     expect(lock.packages["node_modules/markdownlint"].version).toBe("0.41.1");

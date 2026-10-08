@@ -55,7 +55,7 @@ export async function createContext({ skills = [], collections = [], files = [] 
       bodyOffset: block?.bodyOffset ?? 0,
       tokens: parser.parse(normalized.endsWith("\n") ? normalized : `${normalized}\n`, {}),
     });
-    identities.set(identity, path);
+    if (!identities.has(identity) || kind === "skill") identities.set(identity, path);
   }
 
   /** recursively inventory references, following directory symlinks but rejecting recursion cycles. */
@@ -85,7 +85,7 @@ export async function createContext({ skills = [], collections = [], files = [] 
   }
   const selected = [];
   for (const file of files.map(resolvePath)) {
-    const path = identities.get(await realpath(file)) ?? file;
+    const path = documents.has(file) ? file : identities.get(await realpath(file)) ?? file;
     selected.push(path);
     if (!documents.has(path)) {
       if (!path.endsWith(".md")) throw new Error(`Not a Markdown file: ${path}`);
