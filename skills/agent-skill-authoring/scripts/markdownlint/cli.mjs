@@ -25,17 +25,16 @@ try {
     const { createContext } = await import("./context.mjs");
     const { runValidation } = await import("./run.mjs");
     const standardConfig = values.config ? JSON.parse(await readFile(values.config, "utf8")) : undefined;
-    if (standardConfig !== undefined && (!standardConfig || typeof standardConfig !== "object" || Array.isArray(standardConfig))) {
-      throw new Error("Standard configuration must be a JSON rule object");
-    }
     const context = await createContext({ skills: values.skill, collections: values.collection, files: values.file });
     const result = await runValidation(context, { standardConfig, rules: values.rule });
     for (const finding of result.findings) {
       process.stdout.write(`${finding.path}:${finding.lineNumber} ${finding.severity ?? "error"} ${finding.ruleNames.join("/")} ${finding.errorDetail ?? finding.ruleDescription}\n`);
     }
     for (const failure of result.failures) process.stderr.write(`${failure}\n`);
-    process.stdout.write(`${result.scope}: ${result.documents.length} document(s); roots ${JSON.stringify(result.roots)}; rules ${result.rules.join(", ")}; exit ${result.code}\n`);
-    for (const path of result.documents) process.stdout.write(`Checked: ${path}\n`);
+    if (result.code !== 2) {
+      process.stdout.write(`${result.scope}: ${result.documents.length} document(s); roots ${JSON.stringify(result.roots)}; rules ${result.rules.join(", ")}; exit ${result.code}\n`);
+      for (const path of result.documents) process.stdout.write(`Checked: ${path}\n`);
+    }
     process.exitCode = result.code;
   }
 } catch (error) {

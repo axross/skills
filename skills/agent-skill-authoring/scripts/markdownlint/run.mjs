@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { basename, resolve } from "node:path";
+import { basename, posix, sep } from "node:path";
 
 import { main } from "markdownlint-cli2";
 import { lint } from "markdownlint-cli2/markdownlint/promise";
@@ -35,6 +35,9 @@ export async function runValidation(context, { standardConfig = { default: true 
   let ruleIds = [];
   const partial = Boolean(context?.partial || selectedRules);
   try {
+    if (!standardConfig || typeof standardConfig !== "object" || Array.isArray(standardConfig)) {
+      throw new Error("Standard configuration must be a JSON rule object");
+    }
     if (!(context?.documents instanceof Map)) throw new Error("Missing or invalid source context");
     documents = [...context.documents.keys()];
     if (!documents.length) throw new Error("Missing or empty source context");
@@ -51,6 +54,9 @@ export async function runValidation(context, { standardConfig = { default: true 
     for (const [path, errors] of Object.entries(standard)) {
       for (const error of errors) findings.push({ path, ...error });
     }
+    const directory = process.cwd();
+    const identities = new Map(documents.map((path) => [path.split(sep).join("/"), path]));
+    const formatterIdentities = new Map([...identities].map(([name, path]) => [posix.relative(directory.split(sep).join("/"), name), path]));
     const options = createConfiguration(context);
     const available = [...options.customRules, ...additionalRules];
     ruleIds = available.map((rule) => rule.names[0]);
@@ -64,11 +70,12 @@ export async function runValidation(context, { standardConfig = { default: true 
       ...rule,
       asynchronous: true,
       async function(params, onError) {
+        const name = identities.get(params.name);
         try {
-          await rule.function(params, onError);
-          completed.add(`${params.name}\0${rule.names[0]}`);
+          await rule.function({ ...params, name }, onError);
+          completed.add(`${name}\0${rule.names[0]}`);
         } catch (error) {
-          failures.push(`${rule.names[0]} runtime failure in ${params.name}: ${error?.message ?? error}`);
+          failures.push(`${rule.names[0]} runtime failure in ${name ?? params.name}: ${error?.message ?? error}`);
         }
       },
     }));
@@ -77,13 +84,16 @@ export async function runValidation(context, { standardConfig = { default: true 
       ...Object.fromEntries(ruleIds.map((id) => [id, ["AS001", "AS010"].includes(id) ? true : ruleConfig[id] ?? true])),
     };
     const diagnostics = [];
-    const directory = process.cwd();
     const code = await main({
       directory, argv: [], noGlobs: true, noImport: true,
-      fs: protectedFilesystem(), nonFileContents: strings, optionsOverride: {
+      fs: protectedFilesystem(), nonFileContents: Object.fromEntries([...identities].map(([name, path]) => [name, strings[path]])), optionsOverride: {
         ...options,
         outputFormatters: [[({ results }) => {
-          for (const error of results) findings.push({ ...error, path: resolve(directory, error.fileName) });
+          for (const error of results) {
+            const path = formatterIdentities.get(error.fileName);
+            if (!path) throw new Error(`Custom-rule diagnostic identity gap: ${error.fileName}`);
+            findings.push({ ...error, path });
+          }
         }]],
       },
       logMessage() {}, logError(message) { diagnostics.push(message); },

@@ -6,7 +6,7 @@ import MarkdownIt from "markdown-it";
 /** split only a leading, explicitly closed YAML block, retaining original offsets. */
 function frontmatter(raw) {
   const lines = raw.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g).filter(Boolean);
-  if (!/^---[ \t]*(?:\r\n|\r|\n)$/.test(lines[0] ?? "")) return null;
+  if (!/^\uFEFF?---[ \t]*(?:\r\n|\r|\n)$/.test(lines[0] ?? "")) return null;
   let end = lines.findIndex((line, i) => i > 0 && /^---[ \t]*(?:\r\n|\r|\n)?$/.test(line));
   if (end === -1) return null;
   const boundary = lines.slice(0, end + 1).join("").length;

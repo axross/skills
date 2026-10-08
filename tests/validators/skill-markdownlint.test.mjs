@@ -117,6 +117,43 @@ notes: &cycle [*cycle]
       expect.objectContaining({ ruleNames: ["AS010"], lineNumber: 8 }),
     ]));
   });
+
+  it.each(["\n", "\r\n"])("accepts one initial BOM without changing raw bytes or offsets (%j)", async (newline) => {
+    const root = await tempDir();
+    const raw = "\uFEFF" + ["---", "name: probe-skill", "description: text", "---", "# Probe", ""].join(newline);
+    const dir = await writeSkill(root, "probe-skill", { raw });
+    const context = await createContext({ skills: [dir] });
+    const document = context.documents.get(join(dir, "SKILL.md"));
+    expect(document.raw).toBe(raw);
+    expect(document.bytes.equals(Buffer.from(raw))).toBe(true);
+    expect(document.bodyOffset).toBe(4);
+    expect(await runValidation(context, { standardConfig: NO_STANDARD })).toMatchObject({ code: 0, findings: [], failures: [] });
+    const config = await writeFileIn(root, "standard.json", JSON.stringify(NO_STANDARD));
+    const result = runScript(CLI, ["--skill", dir, "--config", config]);
+    expect(result).toMatchObject({ code: 0, stderr: "" });
+    expect(result.stdout).toMatch(/W1-full: 1 document/);
+  });
+
+  it.each(["\n", "\r\n"])("retains scalar and fence violations after an initial BOM (%j)", async (newline) => {
+    const result = await check({ raw: "\uFEFF" + ["---", "name: probe-skill", "description: 42", "---", "", "# Probe", "", "~~~", "text"].join(newline) });
+    expect(result).toMatchObject({ code: 1, failures: [] });
+    expect(result.findings).toEqual([
+      expect.objectContaining({ ruleNames: ["AS001"], lineNumber: 3, errorDetail: expect.stringContaining("nonempty string") }),
+      expect.objectContaining({ ruleNames: ["AS010"], lineNumber: 8 }),
+    ]);
+  });
+
+  it.each([1021, 1022])("does not trim a BOM inside a required scalar (%i)", async (length) => {
+    const result = await check({ raw: `\uFEFF---\nname: probe-skill\ndescription: ${JSON.stringify("\uFEFF" + "a".repeat(length))}\n---\n# Probe\n` });
+    expect(result).toMatchObject({ code: length === 1021 ? 0 : 1, failures: [] });
+    if (length === 1022) expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS001"], lineNumber: 3, errorDetail: expect.stringContaining("1,024 decoded UTF-8 bytes") })]);
+  });
+
+  it.each(["\n\uFEFF", " \uFEFF", "\uFEFF\uFEFF"])("rejects a misplaced or repeated leading BOM (%j)", async (prefix) => {
+    const result = await check({ raw: `${prefix}---\nname: probe-skill\ndescription: text\n---\n# Probe\n` });
+    expect(result).toMatchObject({ code: 1, failures: [] });
+    expect(result.findings).toContainEqual(expect.objectContaining({ ruleNames: ["AS001"], lineNumber: 1, errorDetail: expect.stringContaining("Missing or unclosed") }));
+  });
 });
 
 describe("AS010", () => {
@@ -373,6 +410,20 @@ describe("explicit context and protected execution", () => {
     }
   });
 
+  it("preserves a POSIX literal-backslash filename through actual CLI2 and CLI findings", async () => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "probe-skill");
+    const path = await writeFileIn(dir, "references/back\\slash.md", "# Detail \n\n~~~\n");
+    const standardConfig = { default: false, MD009: true };
+    const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig });
+    expect(result).toMatchObject({ code: 1, failures: [] });
+    expect(result.findings.map((finding) => [finding.path, finding.ruleNames[0]])).toEqual([[path, "MD009"], [path, "AS010"]]);
+    const config = await writeFileIn(root, "standard.json", JSON.stringify(standardConfig));
+    const processResult = runScript(CLI, ["--skill", dir, "--config", config], { cwd: root });
+    expect(processResult.code).toBe(1);
+    for (const id of ["MD009", "AS010"]) expect(processResult.stdout.split("\n").find((line) => line.includes(`error ${id}`))?.startsWith(`${path}:`)).toBe(true);
+  });
+
   it("labels a rule-only selection partial and enforces mandatory severity despite ruleConfig", async () => {
     const dir = await writeSkill(await tempDir(), "probe-skill", { frontmatter: { name: "other-name" } });
     const context = await createContext({ skills: [dir] });
@@ -496,12 +547,34 @@ describe("explicit context and protected execution", () => {
     expect(result.failures.length).toBeGreaterThan(0);
   });
 
+  it.each([[null], [[]], [true], [false], [42], ["invalid"]])("rejects malformed standard configuration before custom execution through API and CLI (%j)", async (standardConfig) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "probe-skill");
+    let calls = 0;
+    const rule = { names: ["WITNESS"], tags: ["fixture"], description: "Execution witness", parser: "none", function() { calls++; } };
+    const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig, additionalRules: [rule] });
+    expect(result).toMatchObject({ code: 2, rules: [], findings: [] });
+    expect(result.failures.join("\n")).toMatch(/Standard configuration must be a JSON rule object/);
+    expect(calls).toBe(0);
+    const config = await writeFileIn(root, "invalid.json", JSON.stringify(standardConfig));
+    const processResult = runScript(CLI, ["--skill", dir, "--config", config]);
+    expect(processResult.code).toBe(2);
+    expect(processResult.stderr).toMatch(/Standard configuration must be a JSON rule object/);
+    expect(processResult.stdout).not.toMatch(/W1-full|Checked:/);
+  });
+
+  it.each([undefined, {}, { default: true }, { default: false }])("retains omitted and valid-object standard configurations (%j)", async (standardConfig) => {
+    const dir = await writeSkill(await tempDir(), "probe-skill", { raw: "---\nname: probe-skill\ndescription: text\n---\n# Probe\n" });
+    const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig });
+    expect(result).toMatchObject({ code: 0, findings: [], failures: [], rules: ["AS001", "AS010"] });
+  });
+
   it("runs the copied and packed distribution in a clean consumer with network access denied", async () => {
     const root = await tempDir();
     const copied = join(root, "copied-skill");
     await cp(repoPath("skills/agent-skill-authoring"), copied, { recursive: true });
     const packageDir = join(copied, "scripts/markdownlint");
-    const dir = await writeSkill(root, "probe-skill");
+    const dir = await writeSkill(root, "probe-skill", { raw: "\uFEFF---\r\nname: probe-skill\r\ndescription: text\r\n---\r\n# Probe\r\n" });
     const config = await writeFileIn(root, "standard.json", JSON.stringify(NO_STANDARD));
     const startup = spawnSync(process.execPath, [join(packageDir, "cli.mjs"), "--skill", dir], { cwd: root, encoding: "utf8" });
     expect(startup.status).toBe(2);
@@ -571,6 +644,8 @@ describe("explicit context and protected execution", () => {
       import {createContext} from 'agent-skill-markdownlint/context';
       import {runValidation} from 'agent-skill-markdownlint/run';
       const context=await createContext({skills:[process.argv[1]]});
+      const invalid=await runValidation(context,{standardConfig:[]});
+      if(invalid.code!==2||!invalid.failures.some(f=>f.includes('Standard configuration')))throw new Error('configuration outcome');
       const rule={names:['OFFLINEWARN'],tags:['fixture'],description:'Offline advisory',parser:'none',function(p,e){e({lineNumber:1,detail:'advisory'})}};
       const advisory=await runValidation(context,{standardConfig:{default:false},rules:['OFFLINEWARN'],additionalRules:[rule],ruleConfig:{OFFLINEWARN:{severity:'warning'}}});
       if(advisory.code!==0||advisory.findings[0].severity!=='warning')throw new Error('advisory outcome');

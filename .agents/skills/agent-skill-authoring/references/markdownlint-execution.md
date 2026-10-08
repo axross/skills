@@ -75,7 +75,8 @@ skill/reference kind; an unrelated file receives standard checks only.
 `partial`, never complete skill validation. `W1-full` means all selected root
 documents and AS001/AS010 plus the configured standard checks, not all
 structural requirements. Output lists roots, document identities, rule scope
-and the aggregate exit.
+and the aggregate exit for completed runs. Infrastructure failures emit
+diagnostics without a completion summary or `Checked` claims.
 
 The supported exit contract is:
 
@@ -98,6 +99,11 @@ standard rules default to enabled. Their options, warning severity and inline
 exceptions work through the public `markdownlint-cli2/markdownlint/promise`
 API. For example, `{"default": false, "MD009": {"br_spaces": 0}}` selects only
 the standard trailing-space check.
+
+The public runner and CLI reject null, arrays, booleans, numbers and strings
+with exit 2 before either rule pass. Omitted/undefined configuration retains
+the enabled default; explicit configuration must be a non-null, non-array
+object. This checks the existing object shape, not a separate deep schema.
 
 The helper deliberately does not inherit parent/local CLI2 configuration,
 globs, ignores, fixes or plugins. The mandatory custom pass hides configuration
@@ -150,8 +156,11 @@ cover unsaved editor buffers.
 `runValidation` accepts `additionalRules`, their explicit `ruleConfig`, and
 optional focused `rules`. It returns `code`, `scope`, `roots`, `documents`,
 `rules`, `findings` and `failures`. Standard and custom findings use the same
-absolute paths listed in `documents`; CLI2 formatter-relative names are resolved
-against the execution directory. Duplicate/unavailable identities, malformed
+absolute paths listed in `documents`. Native separators are translated only at
+the CLI2 input boundary; callbacks, coverage witnesses and POSIX-relative
+formatter names map back to the original document keys. A POSIX filename's
+literal backslashes are not separators. Windows path-dialect fixtures are
+simulations, not native Windows execution evidence. Duplicate/unavailable identities, malformed
 rules, runtime failures and disabled required execution fail rather than
 silently disappearing. Consumers supply extensions directly; the helper does
 not import configuration-discovered plugins.
@@ -159,7 +168,10 @@ not import configuration-discovered plugins.
 ## Interpret AS001 and AS010
 
 AS001 parses only a leading, explicitly closed `---` YAML block using YAML 1.2
-core, strict parsing and unique keys. The top level is a mapping. Required
+core, strict parsing and unique keys. One initial UTF-8 BOM immediately before
+the opener is accepted without altering captured bytes/raw; misplaced or
+repeated markers are not. BOMs inside scalars retain their decoded byte weight,
+and LF/CRLF offsets remain original. The top level is a mapping. Required
 `name` and `description` are nonempty decoded strings represented on one source
 line. Names are
 kebab-case, at most 64 characters, and match the owning directory. Descriptions
