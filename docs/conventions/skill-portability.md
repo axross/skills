@@ -13,33 +13,34 @@ the other.
 ## What a Skill Deliberately Does Not Carry
 
 A distributable skill is not only barred from naming this repository's files —
-it is also barred from asserting things about a host it cannot inspect. The
-case this repository has actually hit is precedence: no skill here states
-whether an instruction the launching runtime injected outranks a project
-mandate, because a skill loaded into an unknown host cannot see either side of
-that comparison.
+it is also barred from assigning a priority order to instructions in a host it
+cannot inspect. The active host's actual instruction hierarchy determines that
+order. Host entry guidance MUST explain how to apply that hierarchy, not claim
+authority to define or override it. A project's description of an instruction
+as generic framing does not lower its priority; its actual source and priority
+determine how a conflict is resolved.
 
-The consequence is real and worth stating rather than leaving implicit. An
-installing project receives the gates — a human-approved plan before edits,
+An installing project receives the gates — a human-approved plan before edits,
 required verification, mandatory independent review, a ready state only after
-convergence — and receives nothing saying that a runtime framing the task as
-"just commit and push" does not lower them. That statement is the installing
-project's to write, in the entry file of its own host;
-[README.md](../../README.md#getting-started) tells a consumer so, and this
-repository's [`CLAUDE.md`](../../CLAUDE.md) is the worked example. It lives
-there rather than in a skill because the entry file of the host doing the
-injecting is the only document positioned to see both sides of the comparison;
-a skill stating the precedence would be asserting something about a host it
-cannot see, in every project that installs it.
+convergence — within that hierarchy and the tool's usage conditions. Compatible
+gates remain applicable. A gate that cannot be satisfied without violating a
+higher-priority instruction or tool condition MUST be reported as unmet, not
+waived or resolved by declaring project policy superior. Placing a declaration
+in an entry file changes neither its authority nor the active host's rules.
 
-The general form: where a rule needs to compare something inside the skill
-against something only the host knows, the skill states its own side and the
-host's entry file or operations guidance states the comparison. A per-host
-instrument — a question tool, a wait mechanism, a delegation actor — follows the
-same split, which is why
+The skill states its own constraints; host entry or operations guidance explains
+their application using the actual host instructions. This keeps host-specific
+comparisons out of an installable skill without making the entry file an
+authority over the runtime. A per-host instrument — a question tool, a wait
+mechanism, a delegation actor — follows the same split, which is why
 [Claude Code Execution](../operations/claude-code-execution.md) and
 [Amp Execution](../operations/amp-execution.md) exist beside the skills rather
 than inside them.
+
+This repository's [`CLAUDE.md`](../../CLAUDE.md) and
+[session-start reminder](../../.claude/hooks/session-start.sh) still contain
+blanket project-over-runtime declarations. Their correction is separate and
+unresolved; they are not worked examples of this boundary.
 
 ## The Description Byte Cap and Codex's Truncation
 
