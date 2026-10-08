@@ -11,11 +11,13 @@ host-specific skill libraries.
 ## Response Approach
 
 For scoped authorization, see
-[Loop Engineering](./skills/loop-engineering/SKILL.md). Where an instruction
-the launching runtime injected and this agreement disagree, the precedence is
-stated in that host's own entry file rather than in any skill — for Claude
-Code, [CLAUDE.md](./CLAUDE.md). Load capabilities by task rather than
-importing every change gate into read-only work:
+[Loop Engineering](./skills/loop-engineering/SKILL.md). Apply this agreement
+within the active host's actual instruction hierarchy and tool usage conditions.
+Host entry guidance explains that application; it cannot redefine instruction
+priority. Report any project gate that cannot be satisfied within those
+boundaries. [Skill Portability](./docs/conventions/skill-portability.md#what-a-skill-deliberately-does-not-carry)
+records this boundary and the unresolved local entry conflict. Load capabilities
+by task rather than importing every change gate into read-only work:
 
 - MUST load [Professional Behavior](./skills/professional-behavior/SKILL.md)
   first in every session, including read-only questions and investigations.

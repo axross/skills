@@ -8,7 +8,9 @@ user-invocable: false
 
 Drive one change from intake to ready through **plan → approve → execute → verify → independent review → address → ready**. This skill defines what each phase means and what evidence crosses its boundaries. It does not authorize tools, publication, scheduling, or delegation, and it does not prescribe where durable state is stored.
 
-Project policy owns which gates apply, reviewer independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence. Where an instruction the launching runtime injected disagrees with a project mandate, this skill states no precedence between them: that belongs in the entry file of the host doing the injecting, which is the only document positioned to see both.
+Project policy owns which gates apply, reviewer independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence.
+
+This skill does not assign priority between runtime-injected instructions and project mandates. Host entry guidance explains how to apply the active host's actual instruction hierarchy; it cannot redefine that hierarchy. Resolve conflicts using each instruction's actual source and priority, respect tool usage conditions, and report any project gate that cannot be satisfied within those boundaries.
 
 The loop driver is the actor currently responsible for advancing a change against its approved plan and required evidence. When that driver delegates a contribution, it is the parent for that assignment. Launching a separately owned change does not make its launcher that change's driver. Receiving a result does not by itself transfer the loop, human decision authority, or operation grants.
 
