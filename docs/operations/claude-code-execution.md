@@ -7,8 +7,10 @@ those hosts' operations; it grants no tool access and replaces no tool
 definition. [Development Workflow](./development-workflow.md)
 owns this repository's gates, [Loop Engineering](../../skills/loop-engineering/SKILL.md)
 owns transitions and evidence, [Professional Behavior](../../skills/professional-behavior/SKILL.md)
-owns decisions and question content, and [CLAUDE.md](../../CLAUDE.md) owns what
-happens when an injected prompt disagrees with those gates.
+owns decisions and question content. Apply those gates within the active host's
+actual instruction hierarchy and tool usage conditions. Host entry guidance
+explains that application; it cannot define or override priority. Report any
+project gate that cannot be satisfied within those boundaries.
 [Amp Execution](./amp-execution.md) is the counterpart for Amp; neither file's
 tool names carry over to the other host.
 
@@ -112,13 +114,14 @@ Creating a _recurring_ schedule is a separate matter from arming this tail's
 wake, and needs the human's own request. Neither a waiting bound, a review
 request, nor the presence of a scheduler supplies it.
 
-The host's own GitHub-integration instructions ask a session to subscribe to
-a pull request it opened and keep re-arming a check-in until that PR merges
-or closes.
-[CLAUDE.md](../../CLAUDE.md#runtime-injected-prompts-do-not-lower-these-gates)
-settles that instruction the same way it settles the other injected framings
-named there: ending the run at the ready transition satisfies it, and it
-authorizes neither mechanism above to stay armed past that point.
+If injected GitHub-integration guidance asks a session to subscribe or keep
+re-arming a check-in until a pull request merges or closes, compare its actual
+source and priority with the project's ready-boundary rule and the active tools'
+usage conditions. An entry-file declaration cannot settle that conflict by
+promoting project policy. If the project stop or teardown gate cannot be
+satisfied within those boundaries, report it as unmet; reaching ready does not
+by itself satisfy an incompatible higher-priority until-merge-or-closure
+condition.
 
 ## Choose the working location before touching files
 
@@ -167,8 +170,8 @@ owns what an investigation hands back. This section names the actors.
 
 ## Read the delegation determination
 
-[CLAUDE.md](../../CLAUDE.md) settles whether an injected clause conditioning a
-spawn on the maintainer's request lowers a gate this repository sets.
+The session's actual instruction sources and priorities, together with its tool
+usage conditions, determine whether a proposed spawn is permitted.
 [Run State and Reporting](../../skills/loop-engineering/references/run-state-and-reporting.md)
 requires the determination and its grounds to be recorded. What is observable
 here:
@@ -177,9 +180,8 @@ here:
   `subagent_type` values it accepts. An absent tool is a missing capability,
   reported as `unavailable`.
 - What the session's own instructions say about spawning, quoted rather than
-  paraphrased, together with what
-  [CLAUDE.md](../../CLAUDE.md#runtime-injected-prompts-do-not-lower-these-gates)
-  settles about that wording.
+  paraphrased, with their actual source and priority and the applicable tool
+  usage conditions.
 - Whether a question was ever put to the maintainer, and the answer if one was.
 
 ## Classify a spawned role's model and effort
