@@ -124,7 +124,7 @@
     "technical-document-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "7d976d4801cfc39923a34f512a5978a6d313f274aa254a3bc7e0591062151284"
+      "computedHash": "a6e369fedad14012f287444b5d4744cef9cd571314e5b598da0e3e9427af413b"
     },
     "unit-testing": {
       "source": "./skills",
