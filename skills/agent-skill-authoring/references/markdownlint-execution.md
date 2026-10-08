@@ -17,6 +17,24 @@ and [yaml 2.8.2](https://www.npmjs.com/package/yaml/v/2.8.2).
 Later dependency versions are not qualified by this contract. The consumer's
 own Node or dependency policy may be stricter.
 
+This setup intentionally carries CLI2's complete runtime graph, including
+markdownlint's micromark parser and CLI2 configuration loaders. It is not a
+dependency-light replacement for the standard-library validators. The dependency
+choices preserve these boundaries:
+
+- CLI2 supplies the public custom-rule runner and warning-capable standard
+  configuration. The older CLI2/markdownlint pair lacks this warning contract;
+  markdownlint alone avoids runner dependencies but abandons this CLI2 foundation.
+- yaml supplies decoded scalars and a source-aware AST with no runtime
+  dependencies. Node built-ins or a hand-written scanner do not parse YAML 1.2;
+  [js-yaml's object loader](https://github.com/nodeca/js-yaml/blob/4.1.0/README.md#api)
+  does not supply the required scalar-style/source-range tree.
+- markdown-it reuses CLI2's exact parser version without a second installation.
+  [Micromark events](https://github.com/micromark/micromark/tree/4.0.2) are a viable,
+  already-transitive alternative, but need a different shared-context adapter and
+  closure qualification. Another parser adds a graph; hand-written scanning
+  recreates list/blockquote semantics. A fence token alone is not proof of closure.
+
 After installing or copying this skill, pack its bundled package and install
 the resulting archive from your consumer project. Substitute the absolute path
 to your copied skill; the archive is local, not a registry publication:
@@ -41,6 +59,14 @@ including directory symlinks, requires a readable `SKILL.md`. It recursively
 includes `references/**/*.md`; nested references stay visible for later rules.
 Empty collections, zero selected documents, missing parents, invalid UTF-8,
 read failures and reference-directory cycles fail preflight.
+
+Reference directories, including `references` itself, must resolve inside the
+canonical owning skill root. An external directory target fails preflight with
+exit 2 before its contents are read; a prefix-sharing sibling is still external.
+Internal directory links remain traversable, with cycle detection. Explicit
+skill/collection-root links and existing reference-file/focused-file aliases
+remain supported. This directory boundary is not a filesystem sandbox: file
+aliases may still target external files.
 
 `--file FILE` selects focused documents. Declared roots still undergo parent
 preflight before that selection. A file within their inventory retains its
@@ -123,7 +149,9 @@ cover unsaved editor buffers.
 
 `runValidation` accepts `additionalRules`, their explicit `ruleConfig`, and
 optional focused `rules`. It returns `code`, `scope`, `roots`, `documents`,
-`rules`, `findings` and `failures`. Duplicate/unavailable identities, malformed
+`rules`, `findings` and `failures`. Standard and custom findings use the same
+absolute paths listed in `documents`; CLI2 formatter-relative names are resolved
+against the execution directory. Duplicate/unavailable identities, malformed
 rules, runtime failures and disabled required execution fail rather than
 silently disappearing. Consumers supply extensions directly; the helper does
 not import configuration-discovered plugins.

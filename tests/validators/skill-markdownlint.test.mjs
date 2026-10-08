@@ -270,6 +270,45 @@ describe("explicit context and protected execution", () => {
     await expect(createContext({ skills: [dir] })).rejects.toThrow(/cycle/);
   });
 
+  it.each(["nested", "top-level", "prefix-sibling"])("rejects external reference directory targets before reading their contents (%s)", async (location) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "probe-skill");
+    const external = join(root, location === "prefix-sibling" ? "probe-skill-external" : "external");
+    await writeFileIn(external, "unrelated.md", Buffer.from([0xff]));
+    const link = location === "top-level" ? join(dir, "references") : join(dir, "references/linked");
+    if (location !== "top-level") await mkdir(join(dir, "references"));
+    await symlink(external, link);
+    await expect(createContext({ skills: [dir] })).rejects.toThrow(/Reference directory escapes skill root/);
+    const result = runScript(CLI, ["--skill", dir]);
+    expect(result.code).toBe(2);
+    expect(result.stderr).toMatch(/Reference directory escapes skill root/);
+    expect(result.stdout).not.toMatch(/W1-full|Checked:/);
+  });
+
+  it("follows internal reference directory links relative to a canonical aliased skill root", async () => {
+    const root = await tempDir();
+    const actual = await writeSkill(root, "probe-skill");
+    await writeFileIn(actual, "assets/nested/detail.md", "# Detail\n\n> ```\n>");
+    await mkdir(join(actual, "references"));
+    await symlink(join(actual, "assets"), join(actual, "references/internal"));
+    const aliasRoot = join(root, "aliases");
+    await mkdir(aliasRoot);
+    const declared = join(aliasRoot, "probe-skill");
+    await symlink(actual, declared);
+    const context = await createContext({ skills: [declared] });
+    const reference = join(declared, "references/internal/nested/detail.md");
+    expect([...context.documents.keys()]).toEqual([join(declared, "SKILL.md"), reference]);
+    expect(context.documents.get(reference).kind).toBe("reference");
+    const result = await runValidation(context, { standardConfig: NO_STANDARD });
+    expect(result).toMatchObject({ code: 1, failures: [] });
+    expect(result.findings.map((finding) => finding.ruleNames[0])).toEqual(["AS010"]);
+    const config = await writeFileIn(root, "standard.json", JSON.stringify(NO_STANDARD));
+    const processResult = runScript(CLI, ["--skill", declared, "--config", config]);
+    expect(processResult.code).toBe(1);
+    expect(processResult.stdout).toMatch(/AS010/);
+    expect(processResult.stdout).toMatch(/W1-full: 2 document/);
+  });
+
   it("ignores hostile inherited/local CLI2 configurations and inline mandatory suppression", async () => {
     const root = await tempDir();
     const dir = await writeSkill(root, "probe-skill", { raw: "---\nname: other-name\ndescription: text\n---\n<!-- markdownlint-disable AS001 AS010 -->\n~~~\n" });
@@ -315,6 +354,23 @@ describe("explicit context and protected execution", () => {
     const passed = runScript(CLI, ["--file", path, "--config", config]);
     expect(passed.code).toBe(0);
     expect(passed.stdout).toMatch(/partial: 1 document/);
+  });
+
+  it("returns a single document identity for standard and custom diagnostics", async () => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "probe-skill", { frontmatter: { description: "42" }, body: "# Probe \n\n~~~\n" });
+    const path = join(dir, "SKILL.md");
+    const standardConfig = { default: false, MD009: true };
+    const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig });
+    expect(result).toMatchObject({ code: 1, documents: [path], failures: [] });
+    expect(result.findings.map((finding) => finding.ruleNames[0]).sort()).toEqual(["AS001", "AS010", "MD009"]);
+    expect(result.findings.map((finding) => finding.path)).toEqual([path, path, path]);
+    const config = await writeFileIn(root, "standard.json", JSON.stringify(standardConfig));
+    const processResult = runScript(CLI, ["--skill", dir, "--config", config], { cwd: root });
+    expect(processResult.code).toBe(1);
+    for (const id of ["MD009", "AS001", "AS010"]) {
+      expect(processResult.stdout.split("\n").find((line) => line.includes(`error ${id}`))?.startsWith(`${path}:`)).toBe(true);
+    }
   });
 
   it("labels a rule-only selection partial and enforces mandatory severity despite ruleConfig", async () => {

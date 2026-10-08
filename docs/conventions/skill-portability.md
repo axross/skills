@@ -90,6 +90,22 @@ validation runs offline. The repository lockfile records the qualified graph.
 Anything joining that graph is weighed on what it drags in rather than on how
 well known it is.
 
+That exception accepts a heavyweight graph, not just three small imports. Against
+the established base, W1 grows the lock from 120 to 173 package records: 55 added
+and two removed. Excluding the local package/link and yaml leaves 52 new external
+transitive records; the clean consumer's locked runtime closure has 88 external
+records. The CLI2/markdownlint upgrade brings most of this weight through
+micromark and configuration loaders. Downgrading loses the qualified warning
+contract; using markdownlint without CLI2 abandons the approved runner foundation.
+The portable contract explains the YAML/parser alternatives. This cost requires
+reassessment on upgrades, not a claim that popularity or a lockfile makes it safe.
+
+The qualified runtime manifests declare no preinstall/install/postinstall hooks.
+The transitive get-east-asian-width package does carry a `prepublish` Node build
+hook; the consumer setup disables lifecycle scripts and needs no such build.
+Exact pins and offline validation do not remove that supply-chain surface. The
+Owner accepted the graph and disabled-hook boundary in the approved W1 plan.
+
 The evaluation instrument's runtime dependency is another worked example.
 `@cfworker/json-schema`, pinned at 4.1.1, validates a scenario against
 `tools/evaluation/scenario.schema.json`: no transitive dependencies, native

@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { basename } from "node:path";
+import { basename, resolve } from "node:path";
 
 import { main } from "markdownlint-cli2";
 import { lint } from "markdownlint-cli2/markdownlint/promise";
@@ -77,12 +77,13 @@ export async function runValidation(context, { standardConfig = { default: true 
       ...Object.fromEntries(ruleIds.map((id) => [id, ["AS001", "AS010"].includes(id) ? true : ruleConfig[id] ?? true])),
     };
     const diagnostics = [];
+    const directory = process.cwd();
     const code = await main({
-      directory: process.cwd(), argv: [], noGlobs: true, noImport: true,
+      directory, argv: [], noGlobs: true, noImport: true,
       fs: protectedFilesystem(), nonFileContents: strings, optionsOverride: {
         ...options,
         outputFormatters: [[({ results }) => {
-          for (const error of results) findings.push({ ...error, path: error.fileName });
+          for (const error of results) findings.push({ ...error, path: resolve(directory, error.fileName) });
         }]],
       },
       logMessage() {}, logError(message) { diagnostics.push(message); },

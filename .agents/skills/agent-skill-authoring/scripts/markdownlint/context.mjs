@@ -1,5 +1,5 @@
 import { readFile, readdir, realpath, stat } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 
 import MarkdownIt from "markdown-it";
 
@@ -20,7 +20,7 @@ function frontmatter(raw) {
 /**
  * capture explicit skill/collection inputs and optional focused files.
  * files inside declared roots select a partial document set; other files get standard checks only.
- * @throws on empty inputs, missing parents, unreadable files, invalid UTF-8 or directory cycles
+ * @throws on empty inputs, missing parents, unreadable files, invalid UTF-8, directory cycles or escaping reference directories
  */
 export async function createContext({ skills = [], collections = [], files = [] } = {}) {
   const roots = [...skills.map(resolvePath), ...collections.map(resolvePath)];
@@ -58,15 +58,19 @@ export async function createContext({ skills = [], collections = [], files = [] 
     if (!identities.has(identity) || kind === "skill") identities.set(identity, path);
   }
 
-  /** recursively inventory references, following directory symlinks but rejecting recursion cycles. */
-  async function references(dir, skillDir, ancestors = new Set()) {
+  /** follow internal directory links only; file aliases keep their explicit inventory kind. */
+  async function references(dir, skillDir, skillRoot, ancestors = new Set()) {
     const actual = await realpath(dir);
+    const target = relative(skillRoot, actual);
+    if (target === ".." || target.startsWith(`..${sep}`) || isAbsolute(target)) {
+      throw new Error(`Reference directory escapes skill root: ${dir}`);
+    }
     if (ancestors.has(actual)) throw new Error(`Reference directory cycle: ${dir}`);
     const next = new Set([...ancestors, actual]);
     for (const name of (await readdir(dir)).sort()) {
       const path = join(dir, name);
       const entry = await stat(path);
-      if (entry.isDirectory()) await references(path, skillDir, next);
+      if (entry.isDirectory()) await references(path, skillDir, skillRoot, next);
       else if (entry.isFile() && name.endsWith(".md")) await add(path, "reference", skillDir);
     }
   }
@@ -80,7 +84,7 @@ export async function createContext({ skills = [], collections = [], files = [] 
     catch (error) { if (error.code !== "ENOENT") throw error; }
     if (info) {
       if (!info.isDirectory()) throw new Error(`Not a references directory: ${refDir}`);
-      await references(refDir, dir);
+      await references(refDir, dir, await realpath(dir));
     }
   }
   const selected = [];
