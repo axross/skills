@@ -55,13 +55,16 @@ Use the following ownership map when a capability crosses these boundaries:
 
 For example, asking which decision a human must make belongs to conduct; delivering that question through a particular tool belongs to host execution. A handoff's required evidence belongs to the change loop; moving its files between workspaces belongs to host execution. Installation and confirmation of the loaded source belong to skill management, not to authoring a discovery description.
 
+Host entry guidance explains how the active host's instruction hierarchy applies to project policy; it does not define or override that hierarchy. An instruction's actual source and priority determine how a conflict is resolved, not a project's description of it as generic framing.
+
 **Guidelines:**
 
 - MUST classify cross-boundary content using the ownership map before placing its detailed rules.
 - MUST split a mixed paragraph into separately owned statements rather than moving the whole paragraph under a new filename.
 - MUST keep specialist responsibilities distinct; a change loop coordinates their results rather than absorbing requirements, development, review, QA, or domain rules.
 - MUST NOT turn a project's gate choices or a host's execution instructions into universal prerequisites for a portable capability.
-- MUST keep host guidance within the tool usage conditions the active host actually enforces; project policy does not grant a permission those conditions withhold. Which instruction wins where an injected task framing and a project mandate disagree is not a portable capability's to state — that belongs in the entry file of the host doing the injecting, the only document positioned to see both.
+- MUST keep host guidance within the active host's instruction hierarchy and tool usage conditions; project policy cannot give itself higher instruction priority or grant permissions those conditions withhold.
+- MUST make host-specific conflict guidance explain how to apply the actual hierarchy and report any project gate that cannot be satisfied within higher-priority instructions and tool conditions.
 - MUST consult skill-management practices when deciding whether material needs skill discovery at all or belongs in project documentation, and when distributing or confirming the loaded source of a skill.
 
 ## Classify Before Migrating

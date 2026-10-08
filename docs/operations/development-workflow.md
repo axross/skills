@@ -6,13 +6,13 @@ and evidence contracts; this document records the repository's choices and
 the configured actors. Naming an actor here does not make it available or
 permitted — a session qualifies each against what it actually exposes, through
 [Claude Code Execution](./claude-code-execution.md) or
-[Amp Execution](./amp-execution.md). Where an instruction the launching runtime
-injected disagrees with the gates below, that host's own entry file settles it:
-for Claude Code, [CLAUDE.md](../../CLAUDE.md). The precedence is stated there
-rather than in any skill because the entry file is the only document
-positioned to see both the injected instruction and these gates — a skill
-stating it would be asserting something about a host it cannot see, in every
-project that installs it.
+[Amp Execution](./amp-execution.md). Apply the gates below within the active
+host's actual instruction hierarchy and tool usage conditions. Host entry
+guidance explains that application; it does not define priority or promote
+project policy above higher-priority instructions. Resolve conflicts by actual
+instruction source and priority, and report any gate that cannot be satisfied
+within those boundaries. [Skill Portability](../conventions/skill-portability.md#what-a-skill-deliberately-does-not-carry)
+records the boundary and the unresolved local entry conflict.
 
 ## The Change Loop
 
