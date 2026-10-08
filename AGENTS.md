@@ -27,8 +27,6 @@ by task rather than importing every change gate into read-only work:
   planning or making any code or document change, then follow
   [Development Workflow](./docs/operations/development-workflow.md) for this
   repository's required gates. Read-only work stays outside the change loop.
-- MUST load each matching skill's body, not act from its discovery description
-  alone. Domain skills govern their subject, not host tool selection.
 - MUST read [README.md](./README.md#commands) before repository commands.
   Software Development owns the procedure when a command is undocumented.
 - MUST read [docs/index.md](./docs/index.md) when a task depends on project
@@ -77,18 +75,3 @@ their layout belongs to [Directory Structure](./docs/conventions/directory-struc
 At completion, MUST report whether skill maintenance was performed, skipped,
 or blocked. Development Workflow owns the delivery evidence required alongside
 that report.
-
-## Routing a Change
-
-Use these task-specific owners rather than duplicating their detailed rules:
-
-| Task                                                  | Project document                                                                                                       |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Skill layout, tiers, validators, evaluation layout    | [Directory Structure](./docs/conventions/directory-structure.md)                                                       |
-| Gates, reporting tools, scheduled audits              | [Verification Gates](./docs/conventions/verification-gates.md)                                                         |
-| Numbers stated in prose                               | [Marked Counts](./docs/conventions/marked-counts.md)                                                                   |
-| Distributable content or dependency-governed surfaces | [Skill Portability](./docs/conventions/skill-portability.md) — MUST read before changing a dependency-governed surface |
-| Placement of a settled decision                       | [Decision Placement](./docs/conventions/decision-placement.md)                                                         |
-| Combined migration, ownership, rollout and recovery   | [Loop Migration](./docs/operations/loop-migration.md)                                                                  |
-| Evaluation dispatch                                   | [Evaluation Dispatch](./docs/operations/evaluation-dispatch.md)                                                        |
-| What skill evaluation measures                        | [Skill Evaluation](./docs/specs/skill-evaluation.md)                                                                   |
