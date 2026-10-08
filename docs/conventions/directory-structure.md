@@ -76,6 +76,14 @@ with `--help` so a single check can run without the suite. Run it from the
 source tier under `skills/`, which is what the suite itself invokes; the
 installed roots go stale mid-edit.
 
+The private native-ESM package at
+`skills/agent-skill-authoring/scripts/markdownlint/` bundles the shared source
+context, protected CLI2 runner and AS001/AS010 rule exports. Its manifest and
+modules travel with the skill; consumers install its declared dependencies
+locally. [Protected Markdownlint Execution](../../skills/agent-skill-authoring/references/markdownlint-execution.md)
+owns that setup and scope. This foundation does not retire the existing
+structure validators or move their shared/report/network responsibilities.
+
 A validator earns its place when the defect it finds is **not visible in the
 text its author just wrote** — because it spans files, because it counts, or
 because it compares bytes. Four scripts that failed that test were removed

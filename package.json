@@ -13,7 +13,8 @@
   },
   "devDependencies": {
     "@cfworker/json-schema": "^4.1.1",
-    "markdownlint-cli2": "^0.15.0",
+    "agent-skill-markdownlint": "file:skills/agent-skill-authoring/scripts/markdownlint",
+    "markdownlint-cli2": "0.23.3",
     "prettier": "^3.4.2",
     "vitest": "^4.1.10"
   },

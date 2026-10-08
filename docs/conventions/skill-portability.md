@@ -79,12 +79,18 @@ docs before editing one, per Fast-Moving Dependencies below:
 
 A dependency added here is a supply-chain decision before it is a technical
 one — which is why [AGENTS.md](../../AGENTS.md) singles this surface out for a
-human reviewer in addition to the independent review. The validators a skill
-bundles import nothing at all, so the dependency list holds tools a
-contributor runs rather than code the library imports at runtime, and anything
-joining it is weighed on what it drags in rather than on how well known it is.
+human reviewer in addition to the independent review. Most bundled validators
+use only Node's standard library. The protected Markdownlint package is an
+explicit runtime-dependency exception: its portable
+[execution contract](../../skills/agent-skill-authoring/references/markdownlint-execution.md)
+pins CLI2, markdown-it and yaml and documents consumer installation. Its private
+package ships with the owning skill, not `node_modules` or author-checkout
+imports. Network access is needed only for dependency acquisition; subsequent
+validation runs offline. The repository lockfile records the qualified graph.
+Anything joining that graph is weighed on what it drags in rather than on how
+well known it is.
 
-The one runtime dependency this repository has taken is the worked example.
+The evaluation instrument's runtime dependency is another worked example.
 `@cfworker/json-schema`, pinned at 4.1.1, validates a scenario against
 `tools/evaluation/scenario.schema.json`: no transitive dependencies, native
 ESM, draft 2020-12 including the two keywords that schema actually leans on.
