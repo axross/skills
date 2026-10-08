@@ -38,11 +38,13 @@ export async function createContext({ skills = [], collections = [], files = [] 
     if (!count) throw new Error(`Empty skill collection: ${root}`);
   }
   const documents = new Map();
+  const identities = new Map();
   const parser = new MarkdownIt({ html: true });
 
   /** capture the bytes once; the parser-only newline prevents loss of empty final container lines. */
   async function add(path, kind, skillDir) {
     if (documents.has(path)) return;
+    const identity = await realpath(path);
     const bytes = await readFile(path);
     const raw = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
     const block = kind === "skill" ? frontmatter(raw) : null;
@@ -53,6 +55,7 @@ export async function createContext({ skills = [], collections = [], files = [] 
       bodyOffset: block?.bodyOffset ?? 0,
       tokens: parser.parse(normalized.endsWith("\n") ? normalized : `${normalized}\n`, {}),
     });
+    identities.set(identity, path);
   }
 
   /** recursively inventory references, following directory symlinks but rejecting recursion cycles. */
@@ -80,8 +83,10 @@ export async function createContext({ skills = [], collections = [], files = [] 
       await references(refDir, dir);
     }
   }
-  const selected = files.map(resolvePath);
-  for (const path of selected) {
+  const selected = [];
+  for (const file of files.map(resolvePath)) {
+    const path = identities.get(await realpath(file)) ?? file;
+    selected.push(path);
     if (!documents.has(path)) {
       if (!path.endsWith(".md")) throw new Error(`Not a Markdown file: ${path}`);
       await add(path, "markdown", null);

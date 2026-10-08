@@ -176,6 +176,28 @@ describe("explicit context and protected execution", () => {
     expect(result).toMatchObject({ code: 0, scope: "W1-full", findings: [], failures: [] });
   });
 
+  it.each(["SKILL.md", "references/detail.md"])("keeps declared applicability when focused %s uses a symlink target path", async (file) => {
+    const root = await tempDir();
+    const dir = await writeSkill(root, "probe-skill", { frontmatter: { name: "other-name" }, body: "> ```\n>" });
+    await writeFileIn(dir, "references/detail.md", "# Detail\n\n> ```\n>");
+    const collection = join(root, "collection");
+    await mkdir(collection);
+    const alias = join(collection, "probe-skill");
+    await symlink(dir, alias);
+    const context = await createContext({ collections: [collection], files: [join(dir, file)] });
+    const result = await runValidation(context, { standardConfig: NO_STANDARD });
+    expect(result).toMatchObject({ code: 1, scope: "partial", failures: [] });
+    expect(result.documents).toEqual([join(alias, file)]);
+    expect(result.findings.map((finding) => finding.ruleNames[0]).sort()).toEqual(file === "SKILL.md" ? ["AS001", "AS010"] : ["AS010"]);
+    const config = await writeFileIn(root, "standard.json", JSON.stringify(NO_STANDARD));
+    const processResult = runScript(CLI, ["--collection", collection, "--file", join(dir, file), "--config", config]);
+    expect(processResult.code).toBe(1);
+    expect(processResult.stdout).toMatch(/AS010/);
+    expect(processResult.stdout).toMatch(/partial:/);
+    const unrelated = await runValidation(await createContext({ files: [join(dir, file)] }), { standardConfig: NO_STANDARD });
+    expect(unrelated).toMatchObject({ code: 0, findings: [], failures: [] });
+  });
+
   it("refuses a collection with a missing mandatory parent instead of validating its passing subset", async () => {
     const root = await tempDir();
     await writeSkill(root, "probe-skill");
