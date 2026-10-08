@@ -77,6 +77,6 @@ See [product-event-tracking.md](./references/product-event-tracking.md) for:
 - The one module that owns the analytics SDK, and the typed event schema in front of it
 - Naming, adding, or renaming an event so it survives a redesign, and normalizing names and keys at one boundary
 - Event properties versus user properties, cardinality, and what never belongs in a payload
-- Emitting where the fact becomes true, including the failure path and the server-side case
+- Placing success-only facts and intent events, required outcome diagnosis, and the server-side case
 - Identity calls, reset on logout, session definitions, and consent-gated initialization
 - Asserting an event in tests, and migrating or retiring one without emptying a chart

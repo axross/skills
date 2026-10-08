@@ -114,7 +114,7 @@
     "software-instrumentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "94032e103901ad351116365c1f3b444aa3f32c0a1f4b0dfb7bec5b00a2d3b86d"
+      "computedHash": "384dde266505fa8452c8dd3acdd7d030929f7960843e3ba42bf49a0e8b9ee8b6"
     },
     "tanstack-query-development": {
       "source": "./skills",
