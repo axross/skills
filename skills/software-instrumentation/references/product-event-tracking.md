@@ -124,7 +124,7 @@ try {
 
 **Guidelines:**
 
-- MUST emit a completed-fact event after the operation succeeds, and an intent event where the intent occurs; never count an attempted operation as completed.
+- MUST place any emitted completed-fact event after the operation succeeds, and any emitted intent event where the intent occurs; never count an attempted operation as completed.
 - MUST establish the measurement purpose from the project's tracking plan, event catalogue, or measurement requirements before deciding whether failure outcomes are needed; clarify an unspecified purpose rather than assuming success-only measurement.
 - MUST record outcomes with reason classifications when the measurement requirements call for distinguishing abandonment from failure; being a funnel step alone does not impose that requirement.
 - MUST verify that an alternative signal used for required outcome diagnosis provides the needed flow association, reason distinctions, analysis population and time window, and collection coverage.
