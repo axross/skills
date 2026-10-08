@@ -410,8 +410,28 @@ describe("explicit context and protected execution", () => {
     expect(archive.files.map((file) => file.path).sort()).toEqual(["cli.mjs", "context.mjs", "package.json", "rules.mjs", "run.mjs"]);
     const consumer = join(root, "consumer");
     await mkdir(consumer);
-    await writeFileIn(consumer, "package.json", JSON.stringify({ private: true, type: "module" }));
-    const installed = spawnSync("npm", ["install", "--offline", "--ignore-scripts", "--no-audit", "--no-fund", join(root, archive.filename)], { cwd: consumer, encoding: "utf8" });
+    const manifest = { private: true, type: "module", dependencies: { "agent-skill-markdownlint": `file:${join(root, archive.filename)}` } };
+    const distributed = JSON.parse(await readFile(join(packageDir, "package.json"), "utf8"));
+    const repositoryLock = JSON.parse(await readFile(repoPath("package-lock.json"), "utf8"));
+    // npm ci populates tarballs, not necessarily registry metadata. Supply the locked
+    // runtime graph, never author node_modules or a source-directory link.
+    const packages = { "": manifest, "node_modules/agent-skill-markdownlint": { ...distributed, resolved: manifest.dependencies[distributed.name], integrity: archive.integrity } };
+    const pending = Object.keys(distributed.dependencies).map((name) => `node_modules/${name}`);
+    while (pending.length) {
+      const path = pending.pop();
+      if (packages[path]) continue;
+      const entry = { ...repositoryLock.packages[path] };
+      expect(entry.resolved).toMatch(/^https:\/\/registry\.npmjs\.org\//);
+      delete entry.dev;
+      packages[path] = entry;
+      for (const name of Object.keys(entry.dependencies ?? {})) {
+        const nested = `${path}/node_modules/${name}`;
+        pending.push(repositoryLock.packages[nested] ? nested : `node_modules/${name}`);
+      }
+    }
+    await writeFileIn(consumer, "package.json", JSON.stringify(manifest));
+    await writeFileIn(consumer, "package-lock.json", JSON.stringify({ lockfileVersion: 3, requires: true, packages }));
+    const installed = spawnSync("npm", ["ci", "--offline", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd: consumer, encoding: "utf8" });
     expect({ status: installed.status, stderr: installed.stderr }).toEqual({ status: 0, stderr: "" });
     const lock = JSON.parse(await readFile(join(consumer, "package-lock.json"), "utf8"));
     expect(lock.packages["node_modules/markdownlint-cli2"].version).toBe("0.23.3");
