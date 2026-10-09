@@ -25,8 +25,8 @@ function protectedFilesystem() {
 /**
  * execute standard and protected custom checks against one explicit snapshot set.
  * exits: 0 including advisories, 1 for violations, 2 for infrastructure/coverage failure.
- * additional custom rules and ruleConfig extend execution; mandatory AS001/AS010 stay enabled at error severity.
- * @returns {Promise<{code:number, scope:string, roots:string[], documents:string[], rules:string[], findings:object[], failures:string[]}>}
+ * additional custom rules and ruleConfig extend execution; mandatory AS001–AS010 stay enabled at error severity.
+ * @returns {Promise<{code:number, scope:string, roots:string[], documents:string[], rules:string[], findings:object[], failures:string[], auditMissingGuidelines:boolean}>}
  */
 export async function runValidation(context, { standardConfig = { default: true }, additionalRules = [], ruleConfig = {}, rules: selectedRules } = {}) {
   const findings = [];
@@ -58,6 +58,7 @@ export async function runValidation(context, { standardConfig = { default: true 
     const identities = new Map(documents.map((path) => [path.split(sep).join("/"), path]));
     const formatterIdentities = new Map([...identities].map(([name, path]) => [posix.relative(directory.split(sep).join("/"), name), path]));
     const options = createConfiguration(context);
+    const mandatory = new Set(options.customRules.map(rule => rule.names[0]));
     const available = [...options.customRules, ...additionalRules];
     ruleIds = available.map((rule) => rule.names[0]);
     if (new Set(ruleIds).size !== ruleIds.length) throw new Error("Duplicate custom rule identity");
@@ -81,7 +82,10 @@ export async function runValidation(context, { standardConfig = { default: true 
     }));
     options.config = {
       default: false,
-      ...Object.fromEntries(ruleIds.map((id) => [id, ["AS001", "AS010"].includes(id) ? true : ruleConfig[id] ?? true])),
+      ...Object.fromEntries(ruleIds.map((id) => {
+        if (!mandatory.has(id)) return [id, ruleConfig[id] ?? true];
+        return [id, id === "AS006" ? { auditMissingGuidelines: ruleConfig.AS006?.auditMissingGuidelines === true } : true];
+      })),
     };
     const diagnostics = [];
     const code = await main({
@@ -110,5 +114,6 @@ export async function runValidation(context, { standardConfig = { default: true 
   return {
     code: failures.length ? 2 : findings.some((finding) => finding.severity !== "warning") ? 1 : 0,
     scope: partial ? "partial" : "W1-full", roots: context?.roots ?? [], documents, rules: ruleIds, findings, failures,
+    auditMissingGuidelines: ruleIds.includes("AS006") && ruleConfig.AS006?.auditMissingGuidelines === true,
   };
 }
