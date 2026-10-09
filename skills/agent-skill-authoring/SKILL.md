@@ -121,3 +121,13 @@ See [audit-checklist.md](./references/audit-checklist.md) for:
 - checking inventory, skill discovery, section anatomy, RFC-2119 bullets, topic-based cross-skill references, and relative links
 - identifying overlap, stale assumptions, orphan references, and missing source-of-truth links
 - applying the ownership and portability checklist without expanding a bounded change into a library-wide migration
+
+## Protected Markdownlint Execution
+
+See [markdownlint-execution.md](./references/markdownlint-execution.md) for:
+
+- installing the bundled native-ESM package in a consumer project without author-checkout imports
+- declaring skill/collection roots, raw-source snapshots and focused partial checks
+- running AS001 actual YAML and AS010 explicit fence closure without inline, configuration or ignore suppression
+- distinguishing genuine advisories from loading/runtime failures and effective coverage gaps
+- extending shared rule/context execution while retaining the existing structure and network audits

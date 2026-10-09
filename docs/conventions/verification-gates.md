@@ -91,7 +91,7 @@ never by default — each of the four below states its own.
 
 ## The Three Reporting Tools
 
-This repository ships the <!-- count:first-reporting-tool-ordinal -->thirteenth<!-- /count -->, the <!-- count:second-reporting-tool-ordinal -->fourteenth<!-- /count -->, and the <!-- count:third-reporting-tool-ordinal -->fifteenth<!-- /count --> scripts that report instead of judging. None belongs to a gate, an npm script, or a
+This repository ships the <!-- count:first-reporting-tool-ordinal -->fourteenth<!-- /count -->, the <!-- count:second-reporting-tool-ordinal -->fifteenth<!-- /count -->, and the <!-- count:third-reporting-tool-ordinal -->sixteenth<!-- /count --> scripts that report instead of judging. None belongs to a gate, an npm script, or a
 hook, and `tests/repository/reporting-tools.test.mjs` keeps all three out of
 the enforced set on purpose, so wiring any of them into a gate has to be a
 deliberate act that breaks a test first.

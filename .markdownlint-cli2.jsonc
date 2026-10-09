@@ -19,10 +19,21 @@
     "MD031": false, // blanks around fences — Prettier governs fenced-block spacing
     "MD010": { "code_blocks": false } // hard tabs allowed inside code samples
   },
+  // the glossary example groups product and development vocabulary under H1s.
+  // markdownlint 0.41.1 now recognizes its initial HTML comment as non-content.
+  "overrides": [{
+    "filter": [
+      "skills/living-project-documentation/assets/docs-example/glossary.md",
+      ".agents/skills/living-project-documentation/assets/docs-example/glossary.md",
+      ".claude/skills/living-project-documentation/assets/docs-example/glossary.md"
+    ],
+    "config": { "MD025": false },
+    "combine": "merge"
+  }],
   // tools/evaluation/mocks/ ships self-contained projects with their own
   // linter, so this repository's gates skip them. these "ignores" entries
   // are globs, not gitignore patterns — a bare "mocks" only matches a
   // top-level entry, so the full path is required. verified against
-  // 0.15.0; re-check on a future minor.
+  // 0.23.3; re-check on a future minor.
   "ignores": ["node_modules", "tools/evaluation/mocks"]
 }

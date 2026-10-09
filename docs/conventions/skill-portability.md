@@ -80,12 +80,34 @@ docs before editing one, per Fast-Moving Dependencies below:
 
 A dependency added here is a supply-chain decision before it is a technical
 one — which is why [AGENTS.md](../../AGENTS.md) singles this surface out for a
-human reviewer in addition to the independent review. The validators a skill
-bundles import nothing at all, so the dependency list holds tools a
-contributor runs rather than code the library imports at runtime, and anything
-joining it is weighed on what it drags in rather than on how well known it is.
+human reviewer in addition to the independent review. Most bundled validators
+use only Node's standard library. The protected Markdownlint package is an
+explicit runtime-dependency exception: its portable
+[execution contract](../../skills/agent-skill-authoring/references/markdownlint-execution.md)
+pins CLI2, markdown-it and yaml and documents consumer installation. Its private
+package ships with the owning skill, not `node_modules` or author-checkout
+imports. Network access is needed only for dependency acquisition; subsequent
+validation runs offline. The repository lockfile records the qualified graph.
+Anything joining that graph is weighed on what it drags in rather than on how
+well known it is.
 
-The one runtime dependency this repository has taken is the worked example.
+That exception accepts a heavyweight graph, not just three small imports. Against
+the established base, W1 grows the lock from 120 to 173 package records: 55 added
+and two removed. Excluding the local package/link and yaml leaves 52 new external
+transitive records; the clean consumer's locked runtime closure has 88 external
+records. The CLI2/markdownlint upgrade brings most of this weight through
+micromark and configuration loaders. Downgrading loses the qualified warning
+contract; using markdownlint without CLI2 abandons the approved runner foundation.
+The portable contract explains the YAML/parser alternatives. This cost requires
+reassessment on upgrades, not a claim that popularity or a lockfile makes it safe.
+
+The qualified runtime manifests declare no preinstall/install/postinstall hooks.
+The transitive get-east-asian-width package does carry a `prepublish` Node build
+hook; the consumer setup disables lifecycle scripts and needs no such build.
+Exact pins and offline validation do not remove that supply-chain surface. The
+Owner accepted the graph and disabled-hook boundary in the approved W1 plan.
+
+The evaluation instrument's runtime dependency is another worked example.
 `@cfworker/json-schema`, pinned at 4.1.1, validates a scenario against
 `tools/evaluation/scenario.schema.json`: no transitive dependencies, native
 ESM, draft 2020-12 including the two keywords that schema actually leans on.

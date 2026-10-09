@@ -436,6 +436,18 @@ wide one — the `npm test` row says what it carries.
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
+The additional W1 foundation uses CLI2 0.23.3/markdownlint 0.41.1 and the private
+bundled package described in
+[Protected Markdownlint Execution](./skills/agent-skill-authoring/references/markdownlint-execution.md).
+Its AS001/AS010 checks and raw-source/preflight tests run in the fixture suite;
+they do not replace the existing repository lint or structure gates. Standard
+configuration for this helper is explicit, not inherited from CLI2 config.
+`npm test -- tests/validators/skill-markdownlint.test.mjs` runs its targeted
+regressions, including the copied/tarball distribution in a clean offline
+consumer using the locked runtime dependency graph. Repository dependency
+acquisition must have populated the npm tarball cache; cached registry metadata
+is not required.
+
 | Command                               | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | When to run it                                                                                                                    |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | `npm install`                         | Installs or updates the toolchain from `package.json`, reconciling `package-lock.json` when needed and reusing existing `node_modules`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | During local dependency development and warm agent setup/restoration.                                                             |
@@ -464,6 +476,11 @@ node skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs --help
 node skills/agent-skill-authoring/scripts/check-skill-body.mjs --help
 node skills/agent-skill-authoring/scripts/check-skill-references.mjs --help
 node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
+
+# W1 foundation only; not a substitute for the three structure checks above:
+node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --help
+# All standard rules default on; use --config for an explicit JSON rule object:
+node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --collection skills
 
 # Three more gate this repository's own docs/. They are one set,
 # deliberately not one command: each answers for one kind of change, so an
