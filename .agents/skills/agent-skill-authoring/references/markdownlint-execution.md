@@ -301,11 +301,13 @@ rule section or whether a demonstration teaches a rationale.
 
 ### Routing and example containers
 
-AS007 recognizes authored parent paragraphs beginning See with a local references
-link, or a local-reference lead-in ending for:/when: followed by a list. Ordinary
-supplementary links and prose cross-references do not acquire a route requirement.
-It checks the filename label and leading-dot ./references/ shape, not target
-existence, anchors, inventory or reference H1-to-filename agreement.
+AS007 recognizes authored parent paragraphs beginning See immediately followed by
+a filename-labelled local references link and an associated list, or a
+local-reference lead-in ending for:/when:. Ordinary supplementary links and prose
+cross-references, such as `See the discussion in [topic.md](./references/topic.md).`,
+do not acquire a route requirement. It checks the filename label and leading-dot
+./references/ shape, not target existence, anchors, inventory or reference
+H1-to-filename agreement.
 
 AS008 follows real parsed list/container relationships for -, * and +. Same-marker
 routing continues through valid multiline reference definitions and contained

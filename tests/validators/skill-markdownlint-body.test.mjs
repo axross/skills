@@ -134,6 +134,8 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   it.each([
     "| Input | Output |\n| --- | --- |\n| A | B |",
     "- a descriptive demonstration",
+    "- > a contained demonstration",
+    "- ```js\n  const result = 1;\n  ```",
     "> a demonstration",
     "```js\nconst result = 1;\n```",
     "    indented demonstration",
@@ -146,6 +148,20 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect((await check("AS006", body, { eol })).code).toBe(1);
   });
 
+  it.each(["-", "*", "+", "1."])("requires rendered content in a %s demonstration list", async (marker) => {
+    for (const content of [marker, marker + " <!-- invisible -->", marker + "\n    - <!-- invisible -->"]) {
+      const body = `## Rules\n\n${content}\n\n**Guidelines:**\n\n- MUST preserve output.\n`;
+      expect((await check("AS006", body, { eol })).code).toBe(1);
+      expect((await check("AS006", body.replace(content, marker + " a real demonstration"), { eol })).code).toBe(0);
+    }
+  });
+
+  it("does not count comments alone inside demonstration quotes", async () => {
+    const body = "## Rules\n\n> <!-- invisible -->\n\n**Guidelines:**\n\n- MUST preserve output.\n";
+    expect((await check("AS006", body, { eol })).code).toBe(1);
+    expect((await check("AS006", body.replace("<!-- invisible -->", "A real demonstration."), { eol })).code).toBe(0);
+  });
+
   it("audits only explicit authored rule lists, and only when enabled", async () => {
     const options = { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } };
     const rule = "# Fixture Skill\n\nExplanation.\n\n- MUST preserve output.\n";
@@ -155,6 +171,14 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
       expect((await check("AS006", `# Fixture Skill\n\n${literal}\n`, options)).code).toBe(0);
     }
     expect((await check("AS006", ROUTE + "- MUST preserve output.\n", options)).code).toBe(0);
+  });
+
+  it.each(["MUST", "SHALL NOT"])("rejects bare %s routing keywords without rejecting keyword-name illustrations", async (word) => {
+    const result = await check("AS008", ROUTE + `- ${word}\n`, { eol });
+    expect(result.code).toBe(1);
+    expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 11 })]);
+    expect((await check("AS008", ROUTE + `- \`${word}\` is a keyword.\n`, { eol })).code).toBe(0);
+    expect((await check("AS008", ROUTE + `- ${word} is a keyword.\n`, { eol })).code).toBe(0);
   });
 
   it.each(["-", "*", "+"])("checks later authored paragraphs in loose %s routing items but not examples or independent prose", async (marker) => {
@@ -210,6 +234,8 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     [ROUTE + "- <!-- invisible -->\n", 1],
     [ROUTE.replace("## Topic\n\n", "") + "- condition\n", 1],
     [ROUTE + "- condition\n\nFurther background: [topic](./references/topic.md).\n", 0],
+    ["## Topic\n\nSee the discussion in [topic.md](./references/topic.md).\n", 0],
+    ["## Topic\n\nSee the discussion in [topic.md](./references/topic.md).\n\n- supplementary detail\n", 0],
     ["> " + ROUTE.replaceAll("\n", "\n> ") + "- condition\n", 0],
   ])("limits AS007 to actual route candidates (%#)", async (body, code) => {
     expect((await check("AS007", body, { eol })).code).toBe(code);

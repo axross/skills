@@ -41,18 +41,28 @@ function label(node) {
 }
 
 /** a literal/quoted keyword is not an authored keyword opener. */
-function keyword(node, requireBody = false) {
+function keyword(node, { requireBody = false, excludeMentions = false } = {}) {
   if (node?.token.type !== "paragraph_open") return false;
   const tokens = inline(node).filter(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type) && (token.type !== "text" || token.content !== ""));
   if (tokens[0]?.type !== "text") return false;
   const match = text(tokens).trim().match(KEYWORD);
-  if (requireBody && match?.[2] && /^(?:(?:and|or)\s+(?:MUST|SHALL|SHOULD|MAY|REQUIRED|RECOMMENDED|OPTIONAL)\b|(?:is|means|denotes)\b)/.test(match[2])) return false;
+  if (excludeMentions && match?.[2] && /^(?:(?:and|or)\s+(?:MUST|SHALL|SHOULD|MAY|REQUIRED|RECOMMENDED|OPTIONAL)\b|(?:is|means|denotes)\b)/.test(match[2])) return false;
   return Boolean(match && (!requireBody || match[2]));
 }
 
 function list(node) { return ["bullet_list_open", "ordered_list_open"].includes(node.token.type); }
 function invisible(node) { return node.token.type === "html_block" && /^(?:\s*<!--[\s\S]*?-->)+\s*$/.test(node.token.content); }
 function firstParagraph(item) { return item.children.find(node => !invisible(node)); }
+
+/** find rendered content through parsed containers without counting comments. */
+function rendered(node) {
+  if (invisible(node)) return false;
+  if (node.token.type === "inline") {
+    const tokens = node.token.children ?? [];
+    return Boolean(text(tokens).trim() || tokens.some(token => token.type === "image" || token.type === "html_inline" && !/^<!--[\s\S]*-->$/.test(token.content)));
+  }
+  return node.children.length ? node.children.some(rendered) : Boolean(node.token.content?.trim());
+}
 
 /** retain rendered link labels alongside destinations for the recognition profiles. */
 function links(node) {
@@ -67,8 +77,8 @@ function links(node) {
 function routeCandidate(node, next) {
   if (node.token.type !== "paragraph_open") return false;
   const content = text(inline(node));
-  const local = links(node).some(link => /^(?:\.\/)?references\//.test(link.href));
-  return local && (/^See\s/.test(content) || (/(?:for|when):\s*$/.test(content) && next && list(next)));
+  const reference = links(node).find(link => /^(?:\.\/)?references\//.test(link.href));
+  return reference && (/(?:for|when):\s*$/.test(content) || (content.startsWith(`See ${reference.label} `) && next && list(next)));
 }
 
 /**
@@ -128,25 +138,25 @@ export function analyzeBody(document) {
         if (group) group.blocks.push(node);
         const inRoute = attached || Boolean(route);
         if (inRoute) {
-          for (const item of node.children) for (const child of item.children) if (keyword(child, true)) body.attached.push(child);
-        } else if (isRoot && !guidelines && !group && node.children.some(item => keyword(firstParagraph(item), true))) {
+          for (const item of node.children) for (const child of item.children) if (keyword(child, { excludeMentions: true })) body.attached.push(child);
+        } else if (isRoot && !guidelines && !group && node.children.some(item => keyword(firstParagraph(item), { requireBody: true, excludeMentions: true }))) {
           body.ruleLists.push(node);
         }
         if (!group) for (const item of node.children) visit(item.children, false, inRoute);
-        demonstration = true;
+        demonstration ||= rendered(node);
         continue;
       }
       if (node.token.type === "paragraph_open") {
         guidelines = route = null;
         if (group) group.blocks.push(node);
-        if (text(inline(node)).trim() || inline(node).some(token => token.type === "image" || token.type === "html_inline" && !/^<!--[\s\S]*-->$/.test(token.content))) demonstration = true;
+        demonstration ||= rendered(node);
         continue;
       }
       // an independent quote/fence is a boundary; a contained one is visited inside its list item.
       if (["blockquote_open", "fence", "code_block", "table_open", "html_block", "hr"].includes(node.token.type)) {
         route = null;
         if (group) group.blocks.push(node);
-        demonstration = true;
+        demonstration ||= node.token.type === "hr" || rendered(node);
       }
     }
   }
