@@ -650,6 +650,7 @@ describe("explicit context and protected execution", () => {
       ["AS006", W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->")],
       ["AS007", route.replace("topic.md]", "details]") + "- condition\n"],
       ["AS008", route + "- MUST preserve output.\n"],
+      ["AS008", route + "- condition\n\n  ### SHALL NOT discard output.\n"],
       ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n> Two.\n"],
     ];
     for (const entry of [cli, join(packageDir, "cli.mjs")]) {

@@ -239,6 +239,23 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect((await check("AS008", body.replace("  MUST", "MUST"), { eol })).code).toBe(0);
   });
 
+  it.each([
+    ["- ### MUST preserve output.\n", 11],
+    ["- condition\n\n  ### MUST preserve output.\n", 13],
+    ["* condition\n\n  #### MUST preserve output.\n", 13],
+    ["+ #### MUST preserve output.\n", 11],
+  ])("rejects authored routing headings but not descriptive, literal or illustrative headings (%#)", async (item, lineNumber) => {
+    const result = await check("AS008", ROUTE + item, { eol });
+    expect(result.code).toBe(1);
+    expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber })]);
+    for (const heading of ["### SHALL NOT discard output.", "### MUST", "### MUST, SHOULD, and MAY are keyword names.", "### Descriptive condition", "### `MUST` preserve output.", "> ### MUST preserve output.", "```markdown\n  ### MUST preserve output.\n  ```"]) {
+      const control = await check("AS008", ROUTE + item.replace(/#{3,4} MUST preserve output\./, heading), { eol });
+      expect(control.code).toBe(["### SHALL NOT discard output.", "### MUST"].includes(heading) ? 1 : 0);
+      if (control.code) expect(control.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber })]);
+    }
+    expect((await check("AS008", ROUTE + "- condition\n\n### MUST preserve output.\n", { eol })).code).toBe(0);
+  });
+
   it.each(["-", "*", "+"])("checks %s routing across invisible definitions and contained fences", async (marker) => {
     const body = ROUTE + `${marker} condition\n\n  \`\`\`\n  illustrative only\n  \`\`\`\n\n[label]:\n  https://example.com\n  "a title"\n\n${marker} MUST preserve output.\n`;
     const result = await check("AS008", body, { eol });

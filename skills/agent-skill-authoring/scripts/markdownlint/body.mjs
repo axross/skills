@@ -43,12 +43,12 @@ function label(node) {
 }
 
 /** a literal/quoted keyword is not an authored keyword opener. */
-function keyword(node, { requireBody = false, excludeMentions = false } = {}) {
+function keyword(node, { requireBody = false, excludeMentions = false, includeHeadings = false } = {}) {
   let content;
   if (node?.token.type === "html_block") {
     content = node.token.content.match(/^(?:\s*<!--[\s\S]*?-->)+\s*([\s\S]*)$/)?.[1].trim() ?? "";
   } else {
-    if (node?.token.type !== "paragraph_open") return false;
+    if (node?.token.type !== "paragraph_open" && !(includeHeadings && node?.token.type === "heading_open")) return false;
     const tokens = inline(node).filter(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type) && (token.type !== "text" || token.content !== "") && !(token.type === "html_inline" && /^<!--[\s\S]*-->$/.test(token.content)));
     if (tokens[0]?.type !== "text") return false;
     content = text(tokens).trim();
@@ -146,7 +146,7 @@ export function analyzeBody(document) {
         if (group) group.blocks.push(node);
         const inRoute = attached || Boolean(route);
         if (inRoute) {
-          for (const item of node.children) for (const child of item.children) if (keyword(child, { excludeMentions: true })) body.attached.push(child);
+          for (const item of node.children) for (const child of item.children) if (keyword(child, { excludeMentions: true, includeHeadings: true })) body.attached.push(child);
         } else if (isRoot && !guidelines && !group && node.children.some(item => keyword(firstParagraph(item), { requireBody: true, excludeMentions: true }))) {
           body.ruleLists.push(node);
         }
