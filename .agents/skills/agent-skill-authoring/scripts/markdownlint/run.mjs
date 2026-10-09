@@ -114,6 +114,6 @@ export async function runValidation(context, { standardConfig = { default: true 
   return {
     code: failures.length ? 2 : findings.some((finding) => finding.severity !== "warning") ? 1 : 0,
     scope: partial ? "partial" : "W1-full", roots: context?.roots ?? [], documents, rules: ruleIds, findings, failures,
-    auditMissingGuidelines: ruleIds.includes("AS006") && ruleConfig.AS006?.auditMissingGuidelines === true,
+    auditMissingGuidelines: ruleIds.includes("AS006") && ruleConfig?.AS006?.auditMissingGuidelines === true,
   };
 }

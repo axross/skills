@@ -82,6 +82,7 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     ["Guidelines:", 1], ["## Guidelines:", 1], ["**Guidelines:**", 0], ["__Guidelines:__", 0],
     ["**Guidelines:** An inline explanation.", 0],
     ["Good Examples:", 1], ["### Bad Example:", 1], ["**Good Examples:**", 0],
+    ["GoodExample:", 0], ["SnippetExample:", 0], ["Example:", 1],
     ["**Snippet example:** A single snippet.", 0], ["`Guidelines:`", 0],
     ["> Guidelines:", 0], ["```markdown\nGuidelines:\n```", 0],
   ])("assigns recognized label formatting to AS004 (%#)", async (label, code) => {
@@ -169,6 +170,10 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   it.each([
     [ROUTE + "- condition\n", 0],
     [ROUTE.replace("for:", "when:") + "* condition\n", 0],
+    [ROUTE.replace("for:", "when editing authentication") + "- condition\n", 1],
+    [ROUTE.replace("for:", "when") + "- condition\n", 1],
+    [ROUTE.replace("./references/topic.md", "./references/../topic.md") + "- condition\n", 1],
+    [ROUTE.replace("./references/topic.md", "./references/nested/topic.md") + "- condition\n", 1],
     [ROUTE.replace("topic.md]", "details]") + "- condition\n", 1],
     [ROUTE.replace("./references/", "references/") + "- condition\n", 1],
     [ROUTE.replace("See", "Read") + "- condition\n", 1],
@@ -184,7 +189,10 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
 
   it.each([
     ["**Good Example:**\n\n> One.\n\n> Two.", 1],
+    ["**Good  Example:**\n\n> One.\n\n> Two.", 1],
+    ["**Good\tExample:**\n\n> One.\n\n> Two.", 1],
     ["**Good Examples:**\n\n> One.\n\n> Two.", 0],
+    ["**Good  Examples:**\n\n> One.\n\n> Two.", 0],
     ["**Bad Example:**\n\n> One.\n>\n> Two.", 0],
     ["**Good Example:**\n\n```js\nconst one = 1;\n```", 0],
     ["**Good Examples:**\n\n```js\nconst one = 1;\n```\n\n```js\nconst two = 2;\n```", 1],
@@ -197,6 +205,13 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
 });
 
 describe("body rule integration", () => {
+  it("returns infrastructure exit 2 rather than rejecting for null rule configuration", async () => {
+    const dir = await writeSkill(await tempDir(), "fixture-skill", { body: "# Fixture Skill\n" });
+    const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig: { default: false }, ruleConfig: null });
+    expect(result).toMatchObject({ code: 2, auditMissingGuidelines: false });
+    expect(result.failures).toEqual(expect.arrayContaining([expect.stringMatching(/infrastructure failure/)]));
+  });
+
   it("keeps literal keywords and labels inside routing examples out of AS008", async () => {
     const body = ROUTE + '- condition\n\n  > MUST and MAY are keyword names.\n  > **Guidelines:**\n\n  ```markdown\n  - SHALL preserve output.\n  ```\n\n- MUST and SHOULD are keyword names.\n';
     expect((await check("AS008", body)).code).toBe(0);

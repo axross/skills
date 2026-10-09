@@ -1,6 +1,6 @@
 const KEYWORDS = ["MUST NOT", "SHALL NOT", "SHOULD NOT", "NOT RECOMMENDED", "MUST", "REQUIRED", "SHALL", "SHOULD", "RECOMMENDED", "MAY", "OPTIONAL"];
 const KEYWORD = new RegExp(`^(${KEYWORDS.join("|")})(?=$|\\s|[,;:])(?:[,;:]?\\s+(.+))?`);
-const LABEL = /^(Guidelines|(?:Good\/Bad|Good|Bad|Single Prose|Snippet|Decision-language|Implementation-language|Failure|Anti-Pattern)?\s*Examples?):(?:\s|$)/i;
+const LABEL = /^(Guidelines|(?:(?:Good\/Bad|Good|Bad|Single Prose|Snippet|Decision-language|Implementation-language|Failure|Anti-Pattern)\s+)?Examples?):(?:\s|$)/i;
 const SMALL_WORDS = new Set("a an and as at but by for from in of on or the to with".split(" "));
 const TITLE_TOKENS = { api: "API", cli: "CLI", json: "JSON", rfc: "RFC", ui: "UI", yaml: "YAML", next: "Next.js", tanstack: "TanStack" };
 
@@ -34,7 +34,7 @@ function label(node) {
   if (!match) return null;
   const end = tokens.findIndex(token => token.type === "strong_close");
   return {
-    name: match[1].trim().toLowerCase(),
+    name: match[1].trim().replace(/\s+/g, " ").toLowerCase(),
     bold: node.token.type === "paragraph_open" && tokens[0]?.type === "strong_open" && text(tokens.slice(1, end)).trim() === match[1] + ":",
     explanation: text(tokens).slice(match[0].trimEnd().length).trim(),
   };
@@ -213,11 +213,11 @@ export const bodyChecks = {
       const link = links(route.node);
       const target = link[0]?.href.split("#")[0];
       const topic = route.heading && route.heading.token.tag !== "h1";
-      const reference = link.length === 1 && /^\.\/references\/.+\.md$/.test(target) && link[0].label === target.split("/").at(-1);
+      const reference = link.length === 1 && /^\.\/references\/[^/]+\.md$/.test(target) && link[0].label === target.split("/").at(-1);
       const prefix = `See ${link[0]?.label} `;
-      const leadIn = content.startsWith(prefix) && /^(?:for:|when\b.*)$/.test(content.slice(prefix.length));
+      const leadIn = content.startsWith(prefix) && /^(?:for|when):$/.test(content.slice(prefix.length));
       const descriptiveList = route.lists.length && route.lists.every(node => node.token.type === "bullet_list_open" && node.children.length);
-      if (!topic || !reference || !leadIn || !descriptiveList) report(route.node, "Reference routes require a topic heading, See filename-labelled ./references/ link, for:/when lead-in and a nonempty unordered list");
+      if (!topic || !reference || !leadIn || !descriptiveList) report(route.node, "Reference routes require a topic heading, See filename-labelled ./references/ link, for:/when: lead-in and a nonempty unordered list");
     }
   },
   AS008(body, report) {
