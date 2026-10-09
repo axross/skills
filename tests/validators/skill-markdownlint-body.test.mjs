@@ -63,6 +63,9 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     [FULL.replace('"MUST"', '**"MUST"**'), 0],
     [COMPACT.replace('[RFC 2119]', '[RFC   2119]'), 0],
     [FULL.replace('[RFC 2119]', '[RFC\n  2119]'), 0],
+    [COMPACT.replace('RFC 2119 keywords', 'RFC ![](pixel.png)2119 keywords'), 1],
+    [FULL.replace('key words', 'key <span></span>words'), 1],
+    [COMPACT.replace('[RFC 2119]', '[RFC <span></span>2119]'), 1],
     [COMPACT.replace('[RFC 2119]', '[RFC 2118]'), 1],
     [FULL.replaceAll(', ', ' '), 1],
     [COMPACT.replace('www.rfc-editor.org/rfc/rfc2119.html', 'datatracker.ietf.org/doc/html/rfc2119'), 0],
@@ -89,9 +92,18 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     ["Good Examples:", 1], ["### Bad Example:", 1], ["**Good Examples:**", 0],
     ["GoodExample:", 0], ["SnippetExample:", 0], ["Example:", 1],
     ["**Snippet example:** A single snippet.", 0], ["`Guidelines:`", 0],
+    ["[`Guidelines:`](https://example.com)", 0],
+    ["**[`Guidelines:`](https://example.com)**", 0],
+    ["*[`Guidelines:`](https://example.com)*", 0],
+    ["[Guidelines:](https://example.com)", 1],
     ["> Guidelines:", 0], ["```markdown\nGuidelines:\n```", 0],
   ])("assigns recognized label formatting to AS004 (%#)", async (label, code) => {
     expect((await check("AS004", `# Fixture Skill\n\n${label}\n`, { eol })).code).toBe(code);
+  });
+
+  it("does not invent Guidelines anatomy from a bold linked code literal", async () => {
+    const body = "# Fixture Skill\n\n**[`Guidelines:`](https://example.com)**\n\n- MUST preserve output.\n";
+    expect((await check("AS006", body, { eol })).code).toBe(0);
   });
 
   it.each(["-", "*", "+", "1."])("checks main %s Guidelines, not nested explanatory items", async (marker) => {
@@ -160,6 +172,14 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     const body = "## Rules\n\n> <!-- invisible -->\n\n**Guidelines:**\n\n- MUST preserve output.\n";
     expect((await check("AS006", body, { eol })).code).toBe(1);
     expect((await check("AS006", body.replace("<!-- invisible -->", "A real demonstration."), { eol })).code).toBe(0);
+  });
+
+  it("does not count a thematic break alone as a demonstration", async () => {
+    const body = "## Rules\n\n---\n\n**Guidelines:**\n\n- MUST preserve output.\n";
+    const result = await check("AS006", body, { eol });
+    expect(result.code).toBe(1);
+    expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS006"], lineNumber: 11 })]);
+    expect((await check("AS006", body.replace("---", "A real demonstration.\n\n---"), { eol })).code).toBe(0);
   });
 
   it("audits only explicit authored rule lists, and only when enabled", async () => {

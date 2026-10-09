@@ -29,7 +29,8 @@ function text(tokens) {
 function label(node) {
   if (!["paragraph_open", "heading_open"].includes(node.token.type)) return null;
   const tokens = inline(node).filter(token => token.type !== "text" || token.content !== "");
-  if (tokens[0]?.type === "code_inline") return null;
+  const first = tokens.find(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type));
+  if (first?.type === "code_inline") return null;
   const match = text(tokens).match(LABEL);
   if (!match) return null;
   const end = tokens.findIndex(token => token.type === "strong_close");
@@ -156,7 +157,7 @@ export function analyzeBody(document) {
       if (["blockquote_open", "fence", "code_block", "table_open", "html_block", "hr"].includes(node.token.type)) {
         route = null;
         if (group) group.blocks.push(node);
-        demonstration ||= node.token.type === "hr" || rendered(node);
+        demonstration ||= rendered(node);
       }
     }
   }
@@ -172,7 +173,7 @@ function title(name) {
 /** recognize only the normalized full/compact RFC interpretation templates. */
 function declaration(node) {
   if (node.token.type !== "paragraph_open") return false;
-  if (inline(node).some(token => token.type === "code_inline")) return false;
+  if (inline(node).some(token => !["text", "softbreak", "hardbreak", "strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type))) return false;
   const content = text(inline(node)).replace(/\s+/g, " ").trim();
   const match = content.match(/^The (RFC 2119 keywords|key words (.+)) in this document are to be interpreted as described in RFC 2119\.$/);
   if (!match) return false;
