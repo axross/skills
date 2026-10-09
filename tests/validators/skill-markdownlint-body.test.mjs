@@ -38,6 +38,11 @@ describe("AS002 title profile", () => {
     ["review-of", "Review Of", 0],
     ["weekend-to-end", "Weekend to End", 0],
     ["rfc-2119-json-yaml-cli", "RFC 2119 JSON YAML CLI", 0],
+    ["fixture-skill", "[Fixture Skill](https://example.com)", 1],
+    ["fixture-skill", "![Fixture Skill](https://example.com/image.png)", 1],
+    ["fixture-skill", "<span>Fixture Skill</span>", 1],
+    ["fixture-skill", "`Fixture Skill`", 1],
+    ["fixture-skill", "**Fixture** _Skill_", 0],
   ])("renders %s as %s", async (name, title, code) => {
     const result = await check("AS002", `# ${title}\n`, { name });
     expect(result.code).toBe(code);
@@ -109,6 +114,16 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect((await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } })).code).toBe(1);
   });
 
+  it.each(["-", "*", "+"])("classifies %s items after invisible leading comments without skipping rendered blocks", async (marker) => {
+    const item = `${marker} <!-- invisible -->\n\n  MUST preserve output.\n`;
+    const bare = "# Fixture Skill\n\nRationale.\n\n" + item;
+    const rules = "# Fixture Skill\n\nRationale.\n\n**Guidelines:**\n\n" + item;
+    expect((await check("AS005", rules, { eol })).code).toBe(0);
+    expect((await check("AS003", bare, { eol })).code).toBe(1);
+    expect((await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } })).code).toBe(1);
+    expect((await check("AS005", rules.replace("<!-- invisible -->", "visible explanation"), { eol })).code).toBe(1);
+  });
+
   it.each([1, 2, 3, 4, 5, 6])("requires a local demonstration at H%i", async (depth) => {
     const heading = "#".repeat(depth) + " Rules";
     const body = `${heading}\n\n<!-- invisible -->\n\n**Guidelines:**\n\n- MUST preserve output.\n`;
@@ -140,6 +155,17 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
       expect((await check("AS006", `# Fixture Skill\n\n${literal}\n`, options)).code).toBe(0);
     }
     expect((await check("AS006", ROUTE + "- MUST preserve output.\n", options)).code).toBe(0);
+  });
+
+  it.each(["-", "*", "+"])("checks later authored paragraphs in loose %s routing items but not examples or independent prose", async (marker) => {
+    const body = ROUTE + `${marker} condition\n\n  MUST preserve output.\n`;
+    const result = await check("AS008", body, { eol });
+    expect(result.code).toBe(1);
+    expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 13 })]);
+    for (const paragraph of ["> MUST preserve output.", "```markdown\n  MUST preserve output.\n  ```", "`MUST` is a keyword."]) {
+      expect((await check("AS008", body.replace("MUST preserve output.", paragraph), { eol })).code).toBe(0);
+    }
+    expect((await check("AS008", body.replace("  MUST", "MUST"), { eol })).code).toBe(0);
   });
 
   it.each(["-", "*", "+"])("checks %s routing across invisible definitions and contained fences", async (marker) => {
@@ -180,6 +206,8 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     [ROUTE.replace("See", "Read") + "<!-- invisible -->\n\n- condition\n", 1],
     [ROUTE + "1. condition\n", 1],
     [ROUTE, 1],
+    [ROUTE + "-\n", 1],
+    [ROUTE + "- <!-- invisible -->\n", 1],
     [ROUTE.replace("## Topic\n\n", "") + "- condition\n", 1],
     [ROUTE + "- condition\n\nFurther background: [topic](./references/topic.md).\n", 0],
     ["> " + ROUTE.replaceAll("\n", "\n> ") + "- condition\n", 0],

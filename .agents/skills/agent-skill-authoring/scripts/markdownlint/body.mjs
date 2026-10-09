@@ -52,7 +52,7 @@ function keyword(node, requireBody = false) {
 
 function list(node) { return ["bullet_list_open", "ordered_list_open"].includes(node.token.type); }
 function invisible(node) { return node.token.type === "html_block" && /^(?:\s*<!--[\s\S]*?-->)+\s*$/.test(node.token.content); }
-function firstParagraph(item) { return item.children[0]; }
+function firstParagraph(item) { return item.children.find(node => !invisible(node)); }
 
 /** retain rendered link labels alongside destinations for the recognition profiles. */
 function links(node) {
@@ -128,7 +128,7 @@ export function analyzeBody(document) {
         if (group) group.blocks.push(node);
         const inRoute = attached || Boolean(route);
         if (inRoute) {
-          for (const item of node.children) if (keyword(firstParagraph(item), true)) body.attached.push(firstParagraph(item));
+          for (const item of node.children) for (const child of item.children) if (keyword(child, true)) body.attached.push(child);
         } else if (isRoot && !guidelines && !group && node.children.some(item => keyword(firstParagraph(item), true))) {
           body.ruleLists.push(node);
         }
@@ -181,7 +181,8 @@ export const bodyChecks = {
     if (!name) return;
     const heading = body.root.find(node => node.token.type === "heading_open" && node.token.tag === "h1");
     const expected = title(name);
-    if (!heading || text(inline(heading)).trim() !== expected) report(heading, `Expected root H1 title: ${expected}`);
+    const tokens = heading ? inline(heading) : [];
+    if (!heading || text(tokens).trim() !== expected || tokens.some(token => !["text", "strong_open", "strong_close", "em_open", "em_close", "softbreak", "hardbreak"].includes(token.type))) report(heading, `Expected root H1 title: ${expected}`);
   },
   /** declaration count/position applies only when the parent authors normative lists. */
   AS003(body, report) {
@@ -216,7 +217,7 @@ export const bodyChecks = {
       const reference = link.length === 1 && /^\.\/references\/[^/]+\.md$/.test(target) && link[0].label === target.split("/").at(-1);
       const prefix = `See ${link[0]?.label} `;
       const leadIn = content.startsWith(prefix) && /^(?:for|when):$/.test(content.slice(prefix.length));
-      const descriptiveList = route.lists.length && route.lists.every(node => node.token.type === "bullet_list_open" && node.children.length);
+      const descriptiveList = route.lists.length && route.lists.every(node => node.token.type === "bullet_list_open" && node.children.some(item => item.children.some(child => child.token.type === "paragraph_open" && text(inline(child)).trim())));
       if (!topic || !reference || !leadIn || !descriptiveList) report(route.node, "Reference routes require a topic heading, See filename-labelled ./references/ link, for:/when: lead-in and a nonempty unordered list");
     }
   },
