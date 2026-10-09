@@ -1,5 +1,6 @@
 const KEYWORDS = ["MUST NOT", "SHALL NOT", "SHOULD NOT", "NOT RECOMMENDED", "MUST", "REQUIRED", "SHALL", "SHOULD", "RECOMMENDED", "MAY", "OPTIONAL"];
 const KEYWORD = new RegExp(`^(${KEYWORDS.join("|")})(?=$|\\s|[,;:])(?:[,;:]?\\s+(.+))?`);
+const KEYWORD_MENTION = new RegExp(`^(?:${KEYWORDS.join("|")})(?:(?:,\\s*(?:(?:and|or)\\s+)?|\\s+(?:and|or)\\s+)(?:${KEYWORDS.join("|")}))*\\s+(?:is|are|means|denotes)\\b`);
 const LABEL = /^(Guidelines|(?:(?:Good\/Bad|Good|Bad|Single Prose|Snippet|Decision-language|Implementation-language|Failure|Anti-Pattern)\s+)?Examples?):(?:\s|$)/i;
 const SMALL_WORDS = new Set("a an and as at but by for from in of on or the to with".split(" "));
 const TITLE_TOKENS = { api: "API", cli: "CLI", json: "JSON", rfc: "RFC", ui: "UI", yaml: "YAML", next: "Next.js", tanstack: "TanStack" };
@@ -29,7 +30,7 @@ function text(tokens) {
 function label(node) {
   if (!["paragraph_open", "heading_open"].includes(node.token.type)) return null;
   const tokens = inline(node).filter(token => token.type !== "text" || token.content !== "");
-  const first = tokens.find(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type));
+  const first = tokens.find(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close", "html_inline"].includes(token.type));
   if (first?.type === "code_inline") return null;
   const match = text(tokens).match(LABEL);
   if (!match) return null;
@@ -43,11 +44,17 @@ function label(node) {
 
 /** a literal/quoted keyword is not an authored keyword opener. */
 function keyword(node, { requireBody = false, excludeMentions = false } = {}) {
-  if (node?.token.type !== "paragraph_open") return false;
-  const tokens = inline(node).filter(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type) && (token.type !== "text" || token.content !== ""));
-  if (tokens[0]?.type !== "text") return false;
-  const match = text(tokens).trim().match(KEYWORD);
-  if (excludeMentions && match?.[2] && /^(?:(?:and|or)\s+(?:MUST|SHALL|SHOULD|MAY|REQUIRED|RECOMMENDED|OPTIONAL)\b|(?:is|means|denotes)\b)/.test(match[2])) return false;
+  let content;
+  if (node?.token.type === "html_block") {
+    content = node.token.content.match(/^(?:\s*<!--[\s\S]*?-->)+\s*([\s\S]*)$/)?.[1].trim() ?? "";
+  } else {
+    if (node?.token.type !== "paragraph_open") return false;
+    const tokens = inline(node).filter(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type) && (token.type !== "text" || token.content !== "") && !(token.type === "html_inline" && /^<!--[\s\S]*-->$/.test(token.content)));
+    if (tokens[0]?.type !== "text") return false;
+    content = text(tokens).trim();
+  }
+  const match = content.match(KEYWORD);
+  if (excludeMentions && KEYWORD_MENTION.test(content)) return false;
   return Boolean(match && (!requireBody || match[2]));
 }
 

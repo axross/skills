@@ -95,14 +95,17 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     ["[`Guidelines:`](https://example.com)", 0],
     ["**[`Guidelines:`](https://example.com)**", 0],
     ["*[`Guidelines:`](https://example.com)*", 0],
+    ["<span>`Guidelines:`</span>", 0],
+    ["**<span>`Guidelines:`</span>**", 0],
+    ["<span>Guidelines:</span>", 1],
     ["[Guidelines:](https://example.com)", 1],
     ["> Guidelines:", 0], ["```markdown\nGuidelines:\n```", 0],
   ])("assigns recognized label formatting to AS004 (%#)", async (label, code) => {
     expect((await check("AS004", `# Fixture Skill\n\n${label}\n`, { eol })).code).toBe(code);
   });
 
-  it("does not invent Guidelines anatomy from a bold linked code literal", async () => {
-    const body = "# Fixture Skill\n\n**[`Guidelines:`](https://example.com)**\n\n- MUST preserve output.\n";
+  it.each(["**[`Guidelines:`](https://example.com)**", "**<span>`Guidelines:`</span>**"])("does not invent Guidelines anatomy from a wrapped code literal (%#)", async (literal) => {
+    const body = `# Fixture Skill\n\n${literal}\n\n- MUST preserve output.\n`;
     expect((await check("AS006", body, { eol })).code).toBe(0);
   });
 
@@ -126,14 +129,24 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect((await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } })).code).toBe(1);
   });
 
-  it.each(["-", "*", "+"])("classifies %s items after invisible leading comments without skipping rendered blocks", async (marker) => {
-    const item = `${marker} <!-- invisible -->\n\n  MUST preserve output.\n`;
-    const bare = "# Fixture Skill\n\nRationale.\n\n" + item;
-    const rules = "# Fixture Skill\n\nRationale.\n\n**Guidelines:**\n\n" + item;
-    expect((await check("AS005", rules, { eol })).code).toBe(0);
-    expect((await check("AS003", bare, { eol })).code).toBe(1);
-    expect((await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } })).code).toBe(1);
-    expect((await check("AS005", rules.replace("<!-- invisible -->", "visible explanation"), { eol })).code).toBe(1);
+  describe.each(["-", "*", "+", "1."])("%s items with leading comments", (marker) => {
+    it.each([
+      ["separate block", "<!-- invisible -->", `\n\n${" ".repeat(marker.length + 1)}`, 13],
+      ["same-line block", "<!-- invisible -->", " ", 11],
+      ["inline", "**<!-- invisible -->**", " ", 11],
+    ])("classifies %s comments without skipping rendered blocks", async (_kind, comment, separator, line) => {
+      const item = `${marker} ${comment}${separator}MUST preserve output.\n`;
+      const bare = "# Fixture Skill\n\nRationale.\n\n" + item;
+      const rules = "# Fixture Skill\n\nRationale.\n\n**Guidelines:**\n\n" + item;
+      expect((await check("AS005", rules, { eol })).code).toBe(0);
+      expect((await check("AS003", bare, { eol })).code).toBe(1);
+      expect((await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } })).code).toBe(1);
+      const routing = await check("AS008", ROUTE + item, { eol });
+      expect(routing.code).toBe(1);
+      expect(routing.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: line })]);
+      expect((await check("AS005", rules.replace("<!-- invisible -->", "visible explanation"), { eol })).code).toBe(1);
+      expect((await check("AS005", rules.replace("<!-- invisible -->", "<span>visible explanation</span>"), { eol })).code).toBe(1);
+    });
   });
 
   it.each([1, 2, 3, 4, 5, 6])("requires a local demonstration at H%i", async (depth) => {
@@ -191,6 +204,20 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
       expect((await check("AS006", `# Fixture Skill\n\n${literal}\n`, options)).code).toBe(0);
     }
     expect((await check("AS006", ROUTE + "- MUST preserve output.\n", options)).code).toBe(0);
+  });
+
+  it.each([
+    ["MUST, SHOULD, and MAY are keyword names.", 0],
+    ["RECOMMENDED and NOT RECOMMENDED are keyword names.", 0],
+    ["SHALL NOT or MUST NOT are keyword names.", 0],
+    ["MUST and MAY preserve output.", 1],
+    ["MUST, SHOULD, and MAY preserve output.", 1],
+    ["MUST NOT or SHALL NOT discard output.", 1],
+  ])("distinguishes complete keyword-name enumerations from directives (%#)", async (item, code) => {
+    const bare = `# Fixture Skill\n\n## Rules\n\nRationale.\n\n- ${item}\n`;
+    expect((await check("AS008", ROUTE + `- ${item}\n`, { eol })).code).toBe(code);
+    expect((await check("AS003", bare, { eol })).code).toBe(code);
+    expect((await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } })).code).toBe(code);
   });
 
   it.each(["MUST", "SHALL NOT"])("rejects bare %s routing keywords without rejecting keyword-name illustrations", async (word) => {
