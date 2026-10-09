@@ -436,13 +436,15 @@ wide one — the `npm test` row says what it carries.
 This table is the authoritative list of the repository's commands, for human
 contributors and agents alike.
 
-The additional W1 foundation uses CLI2 0.23.3/markdownlint 0.41.1 and the private
+The additional protected workflow uses CLI2 0.23.3/markdownlint 0.41.1 and the private
 bundled package described in
 [Protected Markdownlint Execution](./skills/agent-skill-authoring/references/markdownlint-execution.md).
-Its AS001/AS010 checks and raw-source/preflight tests run in the fixture suite;
+Its AS001–AS010 checks and raw-source/preflight tests run in the fixture suite;
 they do not replace the existing repository lint or structure gates. Standard
 configuration for this helper is explicit, not inherited from CLI2 config.
-`npm test -- tests/validators/skill-markdownlint.test.mjs` runs its targeted
+The compatible `W1-full` scope name does not mean complete epic conformance;
+actual rule IDs and the opt-in missing-Guidelines audit status describe coverage.
+`npm test -- tests/validators/skill-markdownlint` runs its targeted
 regressions, including the copied/tarball distribution in a clean offline
 consumer using the locked runtime dependency graph. Repository dependency
 acquisition must have populated the npm tarball cache; cached registry metadata
@@ -477,10 +479,12 @@ node skills/agent-skill-authoring/scripts/check-skill-body.mjs --help
 node skills/agent-skill-authoring/scripts/check-skill-references.mjs --help
 node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
 
-# W1 foundation only; not a substitute for the three structure checks above:
+# AS001–AS010 workflow; not a substitute for the three structure checks above:
 node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --help
 # All standard rules default on; use --config for an explicit JSON rule object:
 node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --collection skills
+# Optional explicit-list audit; default runs do not claim missing-label coverage:
+node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --collection skills --audit-missing-guidelines
 
 # Three more gate this repository's own docs/. They are one set,
 # deliberately not one command: each answers for one kind of change, so an

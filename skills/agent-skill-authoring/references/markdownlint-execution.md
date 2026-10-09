@@ -1,12 +1,12 @@
 # Protected Markdownlint Execution
 
 Use the bundled `scripts/markdownlint/` package for actual YAML frontmatter
-and explicit fence-closure checks. This file-based foundation covers AS001
-and AS010 plus standard Markdown rules; it does **not** replace the three
+and AS001–AS010 format checks, alongside standard Markdown rules. The body
+rules cover titles, RFC declarations, labels, Guidelines, section anatomy,
+reference routing and Good/Bad example containers. They do **not** replace the three
 structure validators in [audit-checklist.md](./audit-checklist.md), their
 shared/report responsibilities, or the separate network link-freshness audit.
-It supplies the source and execution contract for additional rules, not those
-rules themselves.
+A mechanical pass does not certify semantic quality or complete skill conformance.
 
 ## Install the bundled package
 
@@ -73,8 +73,11 @@ preflight before that selection. A file within their inventory retains its
 skill/reference kind; an unrelated file receives standard checks only.
 `--rule AS001` selects a focused custom-rule set. Both options label the run
 `partial`, never complete skill validation. `W1-full` means all selected root
-documents and AS001/AS010 plus the configured standard checks, not all
-structural requirements. Output lists roots, document identities, rule scope
+documents and mandatory AS001–AS010 plus the configured standard checks, not all
+epic or structural requirements. This historical scope name remains compatible
+with W1 consumers; inspect the actual rule IDs and audit scope instead of inferring
+coverage from its name. Output lists roots, document identities, rule scope,
+missing-Guidelines audit status
 and the aggregate exit for completed runs. Infrastructure failures emit
 diagnostics without a completion summary or `Checked` claims.
 
@@ -108,9 +111,13 @@ object. This checks the existing object shape, not a separate deep schema.
 The helper deliberately does not inherit parent/local CLI2 configuration,
 globs, ignores, fixes or plugins. The mandatory custom pass hides configuration
 discovery, supplies its rules directly, disables inline configuration and
-frontmatter removal, and forces AS001/AS010 on at error severity. A standard
+frontmatter removal, and forces AS001–AS010 on at error severity. A standard
 config setting `AS001: false`, an inline disable, or an inherited ignore cannot
 suppress those mandatory checks. No document is auto-fixed.
+
+Built-in `ruleConfig` false/warning settings cannot disable or downgrade these
+rules. AS006 accepts its `auditMissingGuidelines` option while remaining an error.
+Genuine extension rules retain their configured warning severity.
 
 CLI2 alone is not this guarantee: it converts rule exceptions to diagnostics,
 so a crashed warning rule can exit successfully, even with its diagnostic
@@ -155,7 +162,8 @@ cover unsaved editor buffers.
 
 `runValidation` accepts `additionalRules`, their explicit `ruleConfig`, and
 optional focused `rules`. It returns `code`, `scope`, `roots`, `documents`,
-`rules`, `findings` and `failures`. Standard and custom findings use the same
+`rules`, `findings`, `failures` and `auditMissingGuidelines`. The audit boolean
+is true only when AS006 is selected with its audit enabled. Standard and custom findings use the same
 absolute paths listed in `documents`. Native separators are translated only at
 the CLI2 input boundary; callbacks, coverage witnesses and POSIX-relative
 formatter names map back to the original document keys. A POSIX filename's
@@ -194,3 +202,130 @@ matching markers close; shorter/wrong markers and over-indented closers do not.
 Findings point to the original opener, including the frontmatter line offset.
 Fenced YAML examples are not document frontmatter, and unrelated Markdown does
 not receive skill rules.
+
+## Interpret AS002–AS009
+
+These profiles turn bounded source shapes into diagnostics at original LF/CRLF
+lines. Their provenance is the authoring guidance below; the profiles specify
+what the tool recognizes, not a replacement definition of good writing:
+
+| Rule  | Input                     | Format contract and owner                                                                                                                                                  |
+| ----- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AS002 | Parent SKILL              | First real root H1 matches the valid metadata name rendered as a title; [capability-framing.md](./capability-framing.md).                                                  |
+| AS003 | Normative parent SKILL    | Exactly one recognized RFC interpretation declaration as the final introductory paragraph; [body-content-style.md](./body-content-style.md).                               |
+| AS004 | Skills and references     | Recognized colon-bearing labels are bold paragraphs, not headings or plain text; Body Content Style.                                                                       |
+| AS005 | Explicit Guidelines lists | Main items begin with uppercase RFC keywords; Body Content Style.                                                                                                          |
+| AS006 | Skills and references     | Actual Guidelines have a rendered demonstration in their own section; Body Content Style and [audit-checklist.md](./audit-checklist.md). Missing-label auditing is opt-in. |
+| AS007 | Parent routes             | Topic heading below H1, See filename-labelled ./references/ link, for:/when lead-in and nonempty unordered list; [progressive-disclosure.md](./progressive-disclosure.md). |
+| AS008 | Parent routes             | No normative routing or attached Guidelines; the parent routing contract and Progressive Disclosure.                                                                       |
+| AS009 | Good/Bad groups           | Multiple independent examples use a plural label and one blockquote per example, including snippets; Body Content Style.                                                   |
+
+### Title and RFC recognition
+
+AS002 uses hyphen-delimited words, not an arbitrary title alias. Unknown words
+capitalize their first character; internal a/an/and/as/at/but/by/for/from/in/of/on/or/the/to/with
+remain lowercase, except at the start or end. Digits remain intact and `v2`
+becomes `V2`. The token map is api → API, cli → CLI, json → JSON, rfc → RFC,
+ui → UI, yaml → YAML, next → Next.js and tanstack → TanStack. The compounds
+end-to-end and high-fidelity become End-to-End and High-Fidelity. Thus
+`working-with-api-v2` becomes `Working with API V2`, and `review-of` becomes
+`Review Of`. Extra words or decorations fail; rendered inline emphasis is allowed.
+Invalid YAML or required scalars do not supply an invented title. MD025 owns
+additional H1s; AS002 checks the missing/mismatched first root title only.
+
+AS003 recognizes two interpretation templates:
+
+```markdown
+The key words <quoted keyword list> in this document are to be interpreted as described in <RFC link>.
+The RFC 2119 keywords in this document are to be interpreted as described in <RFC link>.
+```
+
+The full list contains MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD,
+SHOULD NOT, RECOMMENDED, MAY and OPTIONAL, once each in any order; adding
+NOT RECOMMENDED is allowed. Terms use straight or paired curly quotes and comma
+separators, with an optional final and/Oxford comma. Wrapping, whitespace and
+emphasis may differ. The RFC link label is `RFC 2119`; supported targets are
+the RFC Editor `/rfc/rfc2119` or `/rfc/rfc2119.html` and IETF Datatracker
+`/doc/html/rfc2119` pages over HTTP/HTTPS. No network lookup occurs.
+
+A normative parent has actual Guidelines items or explicit authored uppercase
+RFC-keyword main items outside routing and examples. References and non-normative
+parents have no universal declaration requirement. Recognized authored root
+paragraphs establish declaration count; comments and definitions do not affect
+position. The declaration is the final introductory paragraph before the first
+root H2, or before the first rule/label block when no H2 exists. Quoted/code
+declarations do not count. Missing, duplicate, misplaced or unrecognized text
+gets a format diagnostic, not a judgment that its meaning is false.
+
+### Labels, Guidelines and section anatomy
+
+The colon-bearing label vocabulary is Guidelines, Example(s), Good/Bad
+Example(s), Good Example(s), Bad Example(s), Single Prose Example(s), Snippet
+Example(s), Decision-language Example(s), Implementation-language Example(s),
+Failure Example(s) and Anti-Pattern Example(s), case-insensitively. Arbitrary
+colon-bearing prose is not a label. `**Guidelines:** Explanation.` and
+`__Guidelines:__ Explanation.` are both valid custom-rule forms. MD050 owns
+delimiter style. MD036 owns colonless emphasis-as-heading; AS004 does not
+duplicate that diagnosis. Formatting alone does not cascade into AS006/AS009.
+
+AS005 accepts MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT,
+RECOMMENDED, NOT RECOMMENDED, MAY and OPTIONAL. Uppercase openers may be followed
+by punctuation, as in `MUST, when applicable, ...`. Main unordered -, * and +
+items and ordered items are checked; nested explanatory lists are not. An
+authored heading or independent prose ends association with Guidelines, while
+invisible definitions/comments and interleaved illustrative fences do not hide
+later associated items.
+
+AS006 checks each actual Guidelines block at H1 through H6 in its authored
+container. It does not borrow a parent's demonstration for a deeper subsection.
+Prose, tables, lists, quotes, code, diagrams and inline label explanations can
+demonstrate; comments or definitions alone cannot. A malformed label remains
+AS004's formatting concern, not a second missing-label/anatomy error. An attached
+routing label belongs to AS008 even when empty or read-obligation-only.
+
+Missing-Guidelines auditing is **off by default**. Enable the bounded audit with
+`--audit-missing-guidelines`, or through the public runner:
+
+```javascript
+const result = await runValidation(context, {
+  ruleConfig: { AS006: { auditMissingGuidelines: true } },
+});
+```
+
+It checks root-level explicit lists with an unquoted/non-code uppercase RFC
+opener and body text outside a recognized Guidelines block. Nested explanation,
+recognized example groups, quotes/code and AS008-owned routing are excluded.
+Keyword literals and explicit keyword-name mentions are not directives. Audit-off
+is not full missing-label coverage, and neither profile infers every substantive
+rule section or whether a demonstration teaches a rationale.
+
+### Routing and example containers
+
+AS007 recognizes authored parent paragraphs beginning See immediately followed by
+a filename-labelled local references link and an associated list, or a
+local-reference lead-in ending for:/when:. Ordinary supplementary links and prose
+cross-references, such as `See the discussion in [topic.md](./references/topic.md).`,
+do not acquire a route requirement. It checks the filename label and leading-dot
+./references/ shape, not target existence, anchors, inventory or reference
+H1-to-filename agreement.
+
+AS008 follows real parsed list/container relationships for -, * and +. Same-marker
+routing continues through valid multiline reference definitions and contained
+fences, lazy/indented continuation or contained headings. A contained Guidelines
+label stays attached regardless of its contents. Root-level independent prose,
+headings, genuinely independent marker-changing lists and independent quote/code
+blocks remain boundaries; keyword illustrations do not manufacture normative
+items or separating prose. Invalid definition-like visible text retains its real
+block semantics. A parser's adoption alone proves none of these boundaries.
+
+AS009 counts independent direct blocks from a Good/Bad label to the next
+recognized label or authored heading. Paragraphs or fences nested within one
+blockquote remain one example. Multiple direct paragraphs or standalone fences
+need a plural label and separate quotes; one snippet may remain a standalone
+fence. AS004 owns bold formatting. This bounded count can flag explanatory prose
+left inside a recognized group; it cannot distinguish that prose's meaning or
+certify example quality. Single-prose formatting remains a SHOULD/review matter.
+
+These rules do not implement advisory AS201–AS203, retire legacy CLIs or migrate
+consumer gates. Existing corpus differences are migration evidence, not automatic
+permission to rewrite sibling skills or claim semantic conformance.

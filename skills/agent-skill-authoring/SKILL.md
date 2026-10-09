@@ -128,6 +128,7 @@ See [markdownlint-execution.md](./references/markdownlint-execution.md) for:
 
 - installing the bundled native-ESM package in a consumer project without author-checkout imports
 - declaring skill/collection roots, raw-source snapshots and focused partial checks
-- running AS001 actual YAML and AS010 explicit fence closure without inline, configuration or ignore suppression
+- running AS001–AS010 format checks without inline, configuration or ignore suppression
+- applying the title/RFC/label recognition profiles, parsed routing/example boundaries and opt-in missing-Guidelines audit
 - distinguishing genuine advisories from loading/runtime failures and effective coverage gaps
 - extending shared rule/context execution while retaining the existing structure and network audits

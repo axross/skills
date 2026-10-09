@@ -2,6 +2,8 @@ import { basename } from "node:path";
 
 import { isAlias, isMap, isScalar, LineCounter, parseDocument } from "yaml";
 
+import { analyzeBody, bodyChecks } from "./body.mjs";
+
 /** validate actual YAML and required discovery scalars without expanding alias graphs. */
 function frontmatter(document, onError) {
   const block = document.frontmatter;
@@ -13,7 +15,12 @@ function frontmatter(document, onError) {
   const yaml = parseDocument(block.source, {
     version: "1.2", schema: "core", strict: true, uniqueKeys: true, keepSourceTokens: true, lineCounter,
   });
-  const report = (detail, offset = 0) => onError({ lineNumber: lineCounter.linePos(offset).line + 1, detail });
+  let valid = true;
+  let name;
+  const report = (detail, offset = 0) => {
+    valid = false;
+    onError({ lineNumber: lineCounter.linePos(offset).line + 1, detail });
+  };
   if (yaml.errors.length) {
     for (const error of yaml.errors) report(`Invalid YAML (${error.code}): ${error.message.split("\n")[0]}`, error.pos[0]);
     return;
@@ -45,6 +52,7 @@ function frontmatter(document, onError) {
     }
     if (!value.value.trim()) { report(`${key}: must be a nonempty string`, offset); continue; }
     if (key === "name") {
+      name = value.value;
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(value.value)) report("name: must be kebab-case", offset);
       if (value.value.length > 64) report("name: exceeds 64 characters", offset);
       if (value.value !== basename(document.skillDir)) report(`name: does not match directory ${basename(document.skillDir)}`, offset);
@@ -52,6 +60,7 @@ function frontmatter(document, onError) {
       report("description: exceeds 1,024 decoded UTF-8 bytes", offset);
     }
   }
+  return valid ? name : undefined;
 }
 
 /** use untouched markdown-it maps under the context's terminal-newline invariant. */
@@ -70,25 +79,36 @@ function fences(document, onError) {
  * @throws during execution when a document has no explicit context
  */
 export function createRules(context) {
+  const bodies = new WeakMap();
   const rule = (id, description, check, applicable) => ({
     names: [id], tags: ["agent-skills"], description, parser: "none",
     function(params, onError) {
       const document = context?.documents?.get(params.name);
       if (!document) throw new Error(`Missing source context: ${params.name}`);
-      if (applicable(document)) check(document, onError);
+      if (applicable(document)) check(document, onError, params.config);
     },
   });
   return [
     rule("AS001", "Agent skill frontmatter", frontmatter, (doc) => doc.kind === "skill"),
+    ...Object.entries(bodyChecks).map(([id, check]) => rule(id, {
+      AS002: "Skill title", AS003: "RFC interpretation declaration", AS004: "Skill labels",
+      AS005: "Guidelines keyword", AS006: "Rule section anatomy", AS007: "Reference route shape",
+      AS008: "Reference route content", AS009: "Good/Bad example group",
+    }[id], (document, onError, options) => {
+      if (!bodies.has(document)) bodies.set(document, analyzeBody(document));
+      const report = (node, detail) => onError({ lineNumber: (node?.token.map?.[0] ?? 0) + document.bodyOffset + 1, detail });
+      check(bodies.get(document), report, options, id === "AS002" ? frontmatter(document, () => {}) : undefined);
+    }, (doc) => ["AS002", "AS003", "AS007", "AS008"].includes(id) ? doc.kind === "skill" : doc.kind !== "markdown")),
     rule("AS010", "Explicit fence closure", fences, (doc) => doc.kind !== "markdown"),
   ];
 }
 
 /** create the protected CLI2 options; these are not a guarantee without runner preflight and coverage. */
 export function createConfiguration(context) {
+  const customRules = createRules(context);
   return {
-    config: { default: false, AS001: true, AS010: true },
-    customRules: createRules(context), frontMatter: "(?!)", noInlineConfig: true,
+    config: { default: false, ...Object.fromEntries(customRules.map(rule => [rule.names[0], true])) },
+    customRules, frontMatter: "(?!)", noInlineConfig: true,
     fix: false, globs: [], ignores: [], gitignore: false, overrides: [], markdownItPlugins: [],
   };
 }
