@@ -226,6 +226,81 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect((await check("AS006", ROUTE + "- MUST preserve output.\n", options)).code).toBe(0);
   });
 
+  it.each(["-", "*", "+", "1."])("uses authored %s main-item headings for RFC and opt-in audit applicability", async (marker) => {
+    const prefix = "# Fixture Skill\n\nRationale.\n\n";
+    const item = `${marker} ### MUST preserve output.\n`;
+    const declaration = await check("AS003", prefix + item, { eol });
+    expect(declaration.code).toBe(1);
+    expect((await check("AS003", prefix + COMPACT + "\n\n" + item, { eol })).code).toBe(0);
+    expect((await check("AS006", prefix + item, { eol })).code).toBe(0);
+    const options = { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } };
+    const audit = await check("AS006", prefix + item, options);
+    expect(audit.code).toBe(1);
+    expect(audit.findings).toEqual([expect.objectContaining({ ruleNames: ["AS006"], lineNumber: 11 })]);
+    for (const content of ["### `MUST` preserve output.", "### MUST and MAY are keyword names.", "> ### MUST preserve output.", "condition\n\n    - ### MUST preserve output.", "```markdown\n    ### MUST preserve output.\n    ```"]) {
+      const control = prefix + `${marker} ${content}\n`;
+      expect((await check("AS003", control, { eol })).code).toBe(0);
+      expect((await check("AS006", control, options)).code).toBe(0);
+    }
+  });
+
+  it.each([
+    ['<img src="diagram.svg" alt="">', 0],
+    ['<svg><path d="M0 0 L1 1" /></svg>', 0],
+    ["![](diagram.svg)", 0],
+    ["<!-- invisible -->", 1],
+    ["**<!-- invisible -->**", 1],
+  ])("counts inline Guidelines demonstrations without fetching HTML or counting comments (%#)", async (suffix, code) => {
+    expect((await check("AS006", `## Rules\n\n**Guidelines:** ${suffix}\n\n- MUST preserve output.\n`, { eol })).code).toBe(code);
+  });
+
+  it.each(["Consumers MUST preserve output.", "Consumers SHALL NOT discard output.", "Consumers **SHOULD** preserve output."])("rejects non-leading routing terms in paragraphs, continuations and headings: %s", async (content) => {
+    for (const [item, lineNumber] of [[`- ${content}\n`, 11], [`* condition\n\n  ${content}\n`, 13], [`+ condition\n\n  ### ${content}\n`, 13]]) {
+      const result = await check("AS008", ROUTE + item, { eol });
+      expect(result.code).toBe(1);
+      expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber })]);
+    }
+    expect((await check("AS008", ROUTE + `- condition\n\n${content}\n`, { eol })).code).toBe(0);
+  });
+
+  it.each([
+    "Consumers `MUST` preserve output.",
+    'Consumers "MUST preserve output."',
+    "Consumers 'MUST preserve output.'",
+    "Consumers “MUST preserve output.”",
+    "Consumers ‘MUST preserve output.’",
+    "Consumers <!-- MUST preserve output. -->",
+    "<!-- first --> Consumers <!-- MUST preserve output. -->",
+    "<!-- first --> Consumers `MUST` preserve output.",
+    "<!-- first --> Consumers ``MUST ` preserve`` output.",
+    "<!-- first --> Consumers [`MUST`](https://example.com) preserve output.",
+    "Consumers MUST, SHOULD, and MAY are keyword names.",
+    "Consumers SHALL NOT or MUST NOT are keyword names.",
+    "Consumers OPTIONAL means a keyword name.",
+    "Consumers MUSTache and MUST_NOT preserve output.",
+    "Consumers must preserve output.",
+  ])("excludes literal/name spans without hiding a separate routing directive (%#)", async (content) => {
+    expect((await check("AS008", ROUTE + `- ${content}\n`, { eol })).code).toBe(0);
+    const result = await check("AS008", ROUTE + `- ${content} Consumers SHALL NOT discard output.\n`, { eol });
+    expect(result.code).toBe(1);
+    expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 11 })]);
+  });
+
+  it.each(["**<!-- invisible -->**", "_<!-- invisible -->_", "[**<!-- invisible -->**](https://example.com)"])("preserves associations across formatted comment-only paragraphs (%#)", async (comment) => {
+    const route = ROUTE + `- condition\n\n${comment}\n\n- Consumers MUST preserve output.\n`;
+    const routing = await check("AS008", route, { eol });
+    expect(routing.code).toBe(1);
+    expect(routing.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 15 })]);
+    expect((await check("AS008", route.replace(comment, "Independent rationale."), { eol })).code).toBe(0);
+    const guidelines = `## Rules\n\nRationale.\n\n**Guidelines:**\n\n- MUST preserve output.\n\n${comment}\n\n- not a keyword\n`;
+    const keyword = await check("AS005", guidelines, { eol });
+    expect(keyword.code).toBe(1);
+    expect(keyword.findings).toEqual([expect.objectContaining({ ruleNames: ["AS005"], lineNumber: 17 })]);
+    expect((await check("AS005", guidelines.replace(comment, "Independent rationale."), { eol })).code).toBe(0);
+    expect((await check("AS006", `## Rules\n\n${comment}\n\n**Guidelines:**\n\n- MUST preserve output.\n`, { eol })).code).toBe(1);
+    expect((await check("AS009", `**Good Example:**\n\n${comment}\n\n> One example.\n`, { eol })).code).toBe(0);
+  });
+
   it.each([
     ["MUST, SHOULD, and MAY are keyword names.", 0],
     ["RECOMMENDED and NOT RECOMMENDED are keyword names.", 0],

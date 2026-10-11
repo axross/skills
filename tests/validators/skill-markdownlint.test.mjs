@@ -652,6 +652,10 @@ describe("explicit context and protected execution", () => {
       ["AS007", route.replace("topic.md]", "details]") + "- condition\n"],
       ["AS008", route + "- MUST preserve output.\n"],
       ["AS008", route + "- condition\n\n  ### SHALL NOT discard output.\n"],
+      ["AS008", route + "- Consumers MUST preserve output.\n"],
+      ["AS008", route + "- condition\n\n**<!-- invisible -->**\n\n- Consumers SHALL NOT discard output.\n"],
+      ["AS003", "# Probe Skill\n\nRationale.\n\n- ### MUST preserve output.\n"],
+      ["AS005", W2_BODY + "\n**<!-- invisible -->**\n\n- not a keyword\n"],
       ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n> Two.\n"],
     ];
     for (const entry of [cli, join(packageDir, "cli.mjs")]) {
@@ -660,6 +664,17 @@ describe("explicit context and protected execution", () => {
         const violation = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
         expect({ status: violation.status, stderr: violation.stderr }, id).toEqual({ status: 1, stderr: "" });
         expect(violation.stdout).toMatch(new RegExp(`error ${id} `));
+      }
+      for (const body of [
+        W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <svg><path d="M0 0 L1 1" /></svg>'),
+        W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <img src="diagram.svg" alt="">'),
+        route + '- Consumers `MUST` and “SHALL NOT discard output.” illustrate terms. MUST and MAY are keyword names.\n',
+        route + '- a descriptive condition\n- <!-- first --> Consumers [`MUST`](https://example.com) and <!-- SHALL NOT discard output. --> illustrate terms.\n',
+      ]) {
+        await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n${body}`.replaceAll("\n", "\r\n"));
+        const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+        expect({ status: control.status, stderr: control.stderr }).toEqual({ status: 0, stderr: "" });
+        expect(control.stdout).not.toMatch(/error AS00[368]/);
       }
       await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\nRationale.\n\n**Guidelines:**\n\n- <!-- invisible -->\n");
       const empty = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });

@@ -255,7 +255,10 @@ the RFC Editor `/rfc/rfc2119` or `/rfc/rfc2119.html` and IETF Datatracker
 
 A normative parent has actual rendered Guidelines items or explicit authored uppercase
 RFC-keyword main items outside routing and examples. Empty/comment-only lists do
-not establish applicability; AS005 still diagnoses their main items. References and non-normative
+not establish applicability; AS005 still diagnoses their main items. The first
+rendered main-item paragraph or heading establishes explicit-list applicability:
+`- ### MUST preserve output.` qualifies, but quoted/code headings, keyword-name
+mentions and nested explanatory headings do not. References and non-normative
 parents have no universal declaration requirement. Recognized authored root
 paragraphs establish declaration count; comments and definitions do not affect
 position. The declaration is the final introductory paragraph before the first
@@ -285,7 +288,10 @@ later associated items.
 AS006 checks each actual Guidelines block at H1 through H6 in its authored
 container. It does not borrow a parent's demonstration for a deeper subsection.
 Prose, tables, lists, quotes, code, diagrams and inline label explanations can
-demonstrate; comments or definitions alone cannot. A malformed label remains
+demonstrate. Inline HTML images/SVG after a valid bold label also count as
+demonstration presence; comment-only suffixes do not. This checks no asset
+availability, browser visibility, HTML safety or instructional quality and fetches
+nothing. Comments or definitions alone cannot demonstrate. A malformed label remains
 AS004's formatting concern, not a second missing-label/anatomy error. An attached
 routing label belongs to AS008 even when empty or read-obligation-only.
 
@@ -298,8 +304,9 @@ const result = await runValidation(context, {
 });
 ```
 
-It checks root-level explicit lists with an unquoted/non-code uppercase RFC
-opener and body text outside a recognized Guidelines block. Nested explanation,
+It checks root-level explicit lists whose first rendered main-item paragraph or
+heading has an unquoted/non-code uppercase RFC opener and body text outside a
+recognized Guidelines block. Nested explanation,
 recognized example groups, quotes/code and AS008-owned routing are excluded.
 Keyword literals and explicit keyword-name mentions are not directives. Audit-off
 is not full missing-label coverage, and neither profile infers every substantive
@@ -323,6 +330,18 @@ headings, genuinely independent marker-changing lists and independent quote/code
 blocks remain boundaries; keyword illustrations do not manufacture normative
 items or separating prose. Invalid definition-like visible text retains its real
 block semantics. A parser's adoption alone proves none of these boundaries.
+
+Within a recognized route, every attached authored paragraph/continuation/heading
+is checked for uppercase whole-word RFC terms, including non-leading
+`Consumers SHALL NOT discard output.` Inline code, comments, paired straight/curly
+single/double-quoted spans and explicit keyword-name mentions do not contribute
+uses. Keyword-name enumerations followed by is/are/means/denotes are excluded
+independently: they do not hide a later separate directive. This bounded lexical
+profile does not infer obligation meaning or certify semantic conformance.
+
+Formatting-only comment paragraphs such as `**<!-- note -->**` preserve routing
+and Guidelines association, without counting as demonstrations or independent
+examples. Real prose, images and code literals remain substantive boundaries.
 
 AS009 counts independent direct blocks from a Good/Bad label to the next
 recognized label or authored heading. Paragraphs or fences nested within one

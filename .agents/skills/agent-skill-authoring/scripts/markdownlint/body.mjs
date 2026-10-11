@@ -1,9 +1,14 @@
+import MarkdownIt from "markdown-it";
+
 const KEYWORDS = ["MUST NOT", "SHALL NOT", "SHOULD NOT", "NOT RECOMMENDED", "MUST", "REQUIRED", "SHALL", "SHOULD", "RECOMMENDED", "MAY", "OPTIONAL"];
 const KEYWORD = new RegExp(`^(${KEYWORDS.join("|")})(?=$|\\s|[,;:])(?:[,;:]?\\s+(.+))?`);
 const KEYWORD_MENTION = new RegExp(`^(?:${KEYWORDS.join("|")})(?:(?:,\\s*(?:(?:and|or)\\s+)?|\\s+(?:and|or)\\s+)(?:${KEYWORDS.join("|")}))*\\s+(?:is|are|means|denotes)\\b`);
+const ROUTING_KEYWORD = new RegExp(`(?<![\\p{L}\\p{N}_])(?:${KEYWORDS.join("|")})(?![\\p{L}\\p{N}_])`, "u");
+const ROUTING_MENTION = new RegExp(`(?<![\\p{L}\\p{N}_])${KEYWORD_MENTION.source.slice(1)}`, "gu");
 const LABEL = /^(Guidelines|(?:(?:Good\/Bad|Good|Bad|Single Prose|Snippet|Decision-language|Implementation-language|Failure|Anti-Pattern)\s+)?Examples?):(?:\s|$)/i;
 const SMALL_WORDS = new Set("a an and as at but by for from in of on or the to with".split(" "));
 const TITLE_TOKENS = { api: "API", cli: "CLI", json: "JSON", rfc: "RFC", ui: "UI", yaml: "YAML", next: "Next.js", tanstack: "TanStack" };
+const parser = new MarkdownIt({ html: true });
 
 /** build block/container relationships from the already captured parser tokens. */
 function blockTree(tokens) {
@@ -26,6 +31,10 @@ function text(tokens) {
   return tokens.map(token => ["text", "code_inline"].includes(token.type) ? token.content : ["softbreak", "hardbreak"].includes(token.type) ? " " : token.type === "image" ? text(token.children ?? []) : "").join("");
 }
 
+function inlineRendered(tokens) {
+  return Boolean(text(tokens).trim() || tokens.some(token => token.type === "image" || token.type === "html_inline" && !/^<!--[\s\S]*-->$/.test(token.content)));
+}
+
 /** recognize bounded colon-bearing labels and retain their formatting separately. */
 function label(node) {
   if (!["paragraph_open", "heading_open"].includes(node.token.type)) return null;
@@ -35,23 +44,32 @@ function label(node) {
   const match = text(tokens).match(LABEL);
   if (!match) return null;
   const end = tokens.findIndex(token => token.type === "strong_close");
+  const bold = node.token.type === "paragraph_open" && tokens[0]?.type === "strong_open" && text(tokens.slice(1, end)).trim() === match[1] + ":";
+  const explanation = text(tokens).slice(match[0].trimEnd().length).trim();
   return {
     name: match[1].trim().replace(/\s+/g, " ").toLowerCase(),
-    bold: node.token.type === "paragraph_open" && tokens[0]?.type === "strong_open" && text(tokens.slice(1, end)).trim() === match[1] + ":",
-    explanation: text(tokens).slice(match[0].trimEnd().length).trim(),
+    bold,
+    explanation,
+    demonstration: Boolean(explanation) || bold && inlineRendered(tokens.slice(end + 1)),
   };
 }
 
 /** a literal/quoted keyword is not an authored keyword opener. */
-function keyword(node, { requireBody = false, excludeMentions = false, includeHeadings = false } = {}) {
-  let content;
+function keyword(node, { requireBody = false, excludeMentions = false, includeHeadings = false, anywhere = false } = {}) {
+  let tokens;
   if (node?.token.type === "html_block") {
-    content = node.token.content.match(/^(?:\s*<!--[\s\S]*?-->)+\s*([\s\S]*)$/)?.[1].trim() ?? "";
+    const content = node.token.content.match(/^(?:\s*<!--[\s\S]*?-->)+\s*([\s\S]*)$/)?.[1].trim() ?? "";
+    tokens = parser.parseInline(content, {})[0].children;
   } else {
     if (node?.token.type !== "paragraph_open" && !(includeHeadings && node?.token.type === "heading_open")) return false;
-    const tokens = inline(node).filter(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type) && (token.type !== "text" || token.content !== "") && !(token.type === "html_inline" && /^<!--[\s\S]*-->$/.test(token.content)));
-    if (tokens[0]?.type !== "text") return false;
-    content = text(tokens).trim();
+    tokens = inline(node);
+  }
+  tokens = tokens.filter(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type) && (token.type !== "text" || token.content !== "") && !(token.type === "html_inline" && /^<!--[\s\S]*-->$/.test(token.content)));
+  if (!anywhere && tokens[0]?.type !== "text") return false;
+  let content = anywhere ? tokens.map(token => token.type === "text" ? token.content : " ").join("") : text(tokens).trim();
+  if (anywhere) {
+    content = content.replace(/"[^"]*"|“[^”]*”|(?<![\p{L}\p{N}_])'[^']*'|‘[^’]*’/gu, " ").replace(ROUTING_MENTION, " ");
+    return ROUTING_KEYWORD.test(content);
   }
   const match = content.match(KEYWORD);
   if (excludeMentions && KEYWORD_MENTION.test(content)) return false;
@@ -59,16 +77,13 @@ function keyword(node, { requireBody = false, excludeMentions = false, includeHe
 }
 
 function list(node) { return ["bullet_list_open", "ordered_list_open"].includes(node.token.type); }
-function invisible(node) { return node.token.type === "html_block" && /^(?:\s*<!--[\s\S]*?-->)+\s*$/.test(node.token.content); }
+function invisible(node) { return node.token.type === "html_block" && /^(?:\s*<!--[\s\S]*?-->)+\s*$/.test(node.token.content) || node.token.type === "paragraph_open" && !node.children.some(rendered); }
 function firstParagraph(item) { return item.children.find(node => !invisible(node)); }
 
 /** find rendered content through parsed containers without counting comments. */
 function rendered(node) {
   if (invisible(node)) return false;
-  if (node.token.type === "inline") {
-    const tokens = node.token.children ?? [];
-    return Boolean(text(tokens).trim() || tokens.some(token => token.type === "image" || token.type === "html_inline" && !/^<!--[\s\S]*-->$/.test(token.content)));
-  }
+  if (node.token.type === "inline") return inlineRendered(node.token.children ?? []);
   return node.children.length ? node.children.some(rendered) : Boolean(node.token.content?.trim());
 }
 
@@ -112,7 +127,7 @@ export function analyzeBody(document) {
         group = null;
         guidelines = null;
         if (recognized.name === "guidelines") {
-          const entry = { node, ...recognized, demonstration: demonstration || Boolean(recognized.explanation), attached: attached || Boolean(route), lists: [] };
+          const entry = { node, ...recognized, demonstration: demonstration || recognized.demonstration, attached: attached || Boolean(route), lists: [] };
           body.guidelines.push(entry);
           guidelines = entry;
           if (entry.attached) body.attached.push(node);
@@ -121,7 +136,7 @@ export function analyzeBody(document) {
           group = { node, ...recognized, blocks: [] };
           body.groups.push(group);
         }
-        if (recognized.explanation) demonstration = true;
+        if (recognized.demonstration) demonstration = true;
         continue;
       }
       if (node.token.type === "heading_open") {
@@ -146,8 +161,8 @@ export function analyzeBody(document) {
         if (group) group.blocks.push(node);
         const inRoute = attached || Boolean(route);
         if (inRoute) {
-          for (const item of node.children) for (const child of item.children) if (keyword(child, { excludeMentions: true, includeHeadings: true })) body.attached.push(child);
-        } else if (isRoot && !guidelines && !group && node.children.some(item => keyword(firstParagraph(item), { requireBody: true, excludeMentions: true }))) {
+          for (const item of node.children) for (const child of item.children) if (keyword(child, { includeHeadings: true, anywhere: true })) body.attached.push(child);
+        } else if (isRoot && !guidelines && !group && node.children.some(item => keyword(firstParagraph(item), { requireBody: true, excludeMentions: true, includeHeadings: true }))) {
           body.ruleLists.push(node);
         }
         if (!group) for (const item of node.children) visit(item.children, false, inRoute);
