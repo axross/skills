@@ -104,7 +104,7 @@ API. For example, `{"default": false, "MD009": {"br_spaces": 0}}` selects only
 the standard trailing-space check.
 
 The public runner and CLI reject null, arrays, booleans, numbers and strings
-with exit 2 before either rule pass. Omitted/undefined configuration retains
+as standard configuration with exit 2 before either rule pass. Omitted/undefined configuration retains
 the enabled default; explicit configuration must be a non-null, non-array
 object. This checks the existing object shape, not a separate deep schema.
 
@@ -172,6 +172,10 @@ simulations, not native Windows execution evidence. Duplicate/unavailable identi
 rules, runtime failures and disabled required execution fail rather than
 silently disappearing. Consumers supply extensions directly; the helper does
 not import configuration-discovered plugins.
+
+Explicit outer `null` options are invalid: the Promise resolves to this result
+shape with code 2 and an invalid-options failure, rather than rejecting or
+running valid defaults. Omitted/undefined options retain the defaults.
 
 ## Interpret AS001 and AS010
 
@@ -244,12 +248,14 @@ The full list contains MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD,
 SHOULD NOT, RECOMMENDED, MAY and OPTIONAL, once each in any order; adding
 NOT RECOMMENDED is allowed. Terms use straight or paired curly quotes and comma
 separators, with an optional final and/Oxford comma. Wrapping, whitespace and
-emphasis may differ. The RFC link label is `RFC 2119`; supported targets are
+emphasis may differ. The sole RFC link follows `described in`, not the compact
+template's initial RFC 2119 occurrence. Its label is `RFC 2119`; supported targets are
 the RFC Editor `/rfc/rfc2119` or `/rfc/rfc2119.html` and IETF Datatracker
 `/doc/html/rfc2119` pages over HTTP/HTTPS. No network lookup occurs.
 
-A normative parent has actual Guidelines items or explicit authored uppercase
-RFC-keyword main items outside routing and examples. References and non-normative
+A normative parent has actual rendered Guidelines items or explicit authored uppercase
+RFC-keyword main items outside routing and examples. Empty/comment-only lists do
+not establish applicability; AS005 still diagnoses their main items. References and non-normative
 parents have no universal declaration requirement. Recognized authored root
 paragraphs establish declaration count; comments and definitions do not affect
 position. The declaration is the final introductory paragraph before the first

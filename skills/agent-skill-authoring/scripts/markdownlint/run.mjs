@@ -28,13 +28,18 @@ function protectedFilesystem() {
  * additional custom rules and ruleConfig extend execution; mandatory AS001–AS010 stay enabled at error severity.
  * @returns {Promise<{code:number, scope:string, roots:string[], documents:string[], rules:string[], findings:object[], failures:string[], auditMissingGuidelines:boolean}>}
  */
-export async function runValidation(context, { standardConfig = { default: true }, additionalRules = [], ruleConfig = {}, rules: selectedRules } = {}) {
+export async function runValidation(context, input = {}) {
   const findings = [];
   const failures = [];
   let documents = [];
   let ruleIds = [];
-  const partial = Boolean(context?.partial || selectedRules);
+  let ruleConfig;
+  let partial = Boolean(context?.partial);
   try {
+    if (input === null) throw new Error("Validation options must not be null");
+    let standardConfig, additionalRules, selectedRules;
+    ({ standardConfig = { default: true }, additionalRules = [], ruleConfig = {}, rules: selectedRules } = input);
+    partial ||= Boolean(selectedRules);
     if (!standardConfig || typeof standardConfig !== "object" || Array.isArray(standardConfig)) {
       throw new Error("Standard configuration must be a JSON rule object");
     }

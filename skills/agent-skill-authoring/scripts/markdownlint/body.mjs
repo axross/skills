@@ -180,12 +180,14 @@ function title(name) {
 /** recognize only the normalized full/compact RFC interpretation templates. */
 function declaration(node) {
   if (node.token.type !== "paragraph_open") return false;
-  if (inline(node).some(token => !["text", "softbreak", "hardbreak", "strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type))) return false;
-  const content = text(inline(node)).replace(/\s+/g, " ").trim();
+  const tokens = inline(node);
+  if (tokens.some(token => !["text", "softbreak", "hardbreak", "strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type))) return false;
+  const content = text(tokens).replace(/\s+/g, " ").trim();
   const match = content.match(/^The (RFC 2119 keywords|key words (.+)) in this document are to be interpreted as described in RFC 2119\.$/);
   if (!match) return false;
   const link = links(node);
   if (link.length !== 1 || link[0].label.replace(/\s+/g, " ").trim() !== "RFC 2119" || !/^https?:\/\/(?:www\.rfc-editor\.org\/rfc\/rfc2119(?:\.html)?|datatracker\.ietf\.org\/doc\/html\/rfc2119)\/?$/.test(link[0].href)) return false;
+  if (text(tokens.slice(tokens.findIndex(token => token.type === "link_close") + 1)).trim() !== ".") return false;
   if (!match[2]) return true;
   const terms = [...match[2].matchAll(/"([^"]+)"|“([^”]+)”/g)].map(term => term[1] ?? term[2]);
   const quoted = '(?:"[^"]+"|“[^”]+”)';
@@ -204,7 +206,7 @@ export const bodyChecks = {
   },
   /** declaration count/position applies only when the parent authors normative lists. */
   AS003(body, report) {
-    if (!body.ruleLists.length && !body.guidelines.some(entry => !entry.attached && entry.lists.some(node => node.children.length))) return;
+    if (!body.ruleLists.length && !body.guidelines.some(entry => !entry.attached && entry.lists.some(rendered))) return;
     const declarations = body.root.filter(declaration);
     const firstH2 = body.root.findIndex(node => node.token.type === "heading_open" && node.token.tag === "h2");
     const firstRules = body.root.findIndex(node => body.ruleLists.includes(node) || body.labels.some(entry => entry.node === node));

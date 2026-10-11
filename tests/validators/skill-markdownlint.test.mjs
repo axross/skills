@@ -645,6 +645,7 @@ describe("explicit context and protected execution", () => {
     const violations = [
       ["AS002", W2_BODY.replace("# Probe Skill", "# Wrong Title")],
       ["AS003", W2_BODY.replace(COMPACT, "Unrecognized declaration.")],
+      ["AS003", W2_BODY.replace(COMPACT, "The [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html) keywords in this document are to be interpreted as described in RFC 2119.")],
       ["AS004", W2_BODY.replace("**Guidelines:**", "Guidelines:")],
       ["AS005", W2_BODY.replace("SHALL", "shall")],
       ["AS006", W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->")],
@@ -660,6 +661,11 @@ describe("explicit context and protected execution", () => {
         expect({ status: violation.status, stderr: violation.stderr }, id).toEqual({ status: 1, stderr: "" });
         expect(violation.stdout).toMatch(new RegExp(`error ${id} `));
       }
+      await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\nRationale.\n\n**Guidelines:**\n\n- <!-- invisible -->\n");
+      const empty = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+      expect({ status: empty.status, stderr: empty.stderr }).toEqual({ status: 1, stderr: "" });
+      expect(empty.stdout).toMatch(/error AS005/);
+      expect(empty.stdout).not.toMatch(/error AS003/);
       await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\n${COMPACT}\n\n## Rules\n\nRationale.\n\n- MUST preserve output.\n`);
       const off = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
       expect({ status: off.status, stderr: off.stderr }).toEqual({ status: 0, stderr: "" });
@@ -679,6 +685,8 @@ describe("explicit context and protected execution", () => {
       import {createContext} from 'agent-skill-markdownlint/context';
       import {runValidation} from 'agent-skill-markdownlint/run';
       const context=await createContext({skills:[process.argv[1]]});
+      const nullOptions=await runValidation(context,null);
+      if(nullOptions.code!==2||nullOptions.findings.length||!nullOptions.failures.some(f=>/options.*null/i.test(f)))throw new Error('null options outcome');
       const invalid=await runValidation(context,{standardConfig:[]});
       if(invalid.code!==2||!invalid.failures.some(f=>f.includes('Standard configuration')))throw new Error('configuration outcome');
       const rule={names:['OFFLINEWARN'],tags:['fixture'],description:'Offline advisory',parser:'none',function(p,e){e({lineNumber:1,detail:'advisory'})}};

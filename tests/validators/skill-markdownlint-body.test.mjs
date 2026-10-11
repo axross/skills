@@ -63,6 +63,8 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     [FULL.replace('"MUST"', '**"MUST"**'), 0],
     [COMPACT.replace('[RFC 2119]', '[RFC   2119]'), 0],
     [FULL.replace('[RFC 2119]', '[RFC\n  2119]'), 0],
+    [COMPACT.replace('[RFC 2119]', '[**RFC 2119**]'), 0],
+    ['The [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html) keywords in this document are to be interpreted as described in RFC 2119.', 1],
     [COMPACT.replace('RFC 2119 keywords', 'RFC ![](pixel.png)2119 keywords'), 1],
     [FULL.replace('key words', 'key <span></span>words'), 1],
     [COMPACT.replace('[RFC 2119]', '[RFC <span></span>2119]'), 1],
@@ -84,6 +86,24 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   it("does not require declarations for illustrative/non-normative parents or references", async () => {
     const body = "# Fixture Skill\n\n> - MUST preserve output.\n\n```markdown\n**Guidelines:**\n- MUST preserve output.\n```\n";
     expect((await check("AS003", body, { eol })).code).toBe(0);
+  });
+
+  it.each(["-", "*", "+", "1."])("requires rendered %s Guidelines items for RFC applicability", async (marker) => {
+    const prefix = "# Fixture Skill\n\nRationale.\n\n**Guidelines:**\n\n";
+    expect((await check("AS003", prefix, { eol })).code).toBe(0);
+    for (const item of [marker, marker + " <!-- invisible -->", marker + " **<!-- invisible -->**", marker + "\n    - <!-- invisible -->"]) {
+      const body = prefix + item + "\n";
+      const declaration = await check("AS003", body, { eol });
+      expect(declaration.code).toBe(0);
+      expect(declaration.findings).toEqual([]);
+      const guideline = await check("AS005", body, { eol });
+      expect(guideline.code).toBe(1);
+      expect(guideline.findings).toEqual([expect.objectContaining({ ruleNames: ["AS005"], lineNumber: 13 })]);
+    }
+    for (const item of ["SHALL preserve output.", "A rendered item without a keyword."]) {
+      expect((await check("AS003", prefix + `${marker} <!-- invisible -->\n${marker} ${item}\n`, { eol })).code).toBe(1);
+    }
+    expect((await check("AS008", ROUTE + "- condition\n\n**Guidelines:**\n\n" + marker + " <!-- invisible -->\n", { eol })).code).toBe(1);
   });
 
   it.each([
@@ -323,6 +343,21 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
 });
 
 describe("body rule integration", () => {
+  it.each(["\n", "\r\n"])("returns structured exit 2 for outer-null options under %j without changing normal callers", async (eol) => {
+    const body = `# Fixture Skill\n\n${COMPACT.replace("described in [", "described in\n[")}\n\n${RULE_SECTION}`;
+    const dir = await writeSkill(await tempDir(), "fixture-skill", { raw: `---\nname: fixture-skill\ndescription: A body contract fixture.\n---\n\n${body}`.replaceAll("\n", eol) });
+    const context = await createContext({ skills: [dir] });
+    const result = await runValidation(context, null);
+    expect(result).toMatchObject({ code: 2, scope: "W1-full", auditMissingGuidelines: false, findings: [] });
+    expect(result.failures).toEqual([expect.stringMatching(/infrastructure failure.*options.*null/i)]);
+    expect((await runValidation(context)).code).toBe(0);
+    expect((await runValidation(context, undefined)).code).toBe(0);
+    expect((await runValidation(context, { standardConfig: { default: false } })).code).toBe(0);
+    const invalidConfig = await runValidation(context, { standardConfig: null });
+    expect(invalidConfig.code).toBe(2);
+    expect(invalidConfig.failures).toEqual([expect.stringMatching(/Standard configuration/)]);
+  });
+
   it("returns infrastructure exit 2 rather than rejecting for null rule configuration", async () => {
     const dir = await writeSkill(await tempDir(), "fixture-skill", { body: "# Fixture Skill\n" });
     const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig: { default: false }, ruleConfig: null });
