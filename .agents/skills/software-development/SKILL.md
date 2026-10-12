@@ -116,10 +116,8 @@ See [pull-request-descriptions.md](./references/pull-request-descriptions.md) fo
 
 ## Topic-Specific Skills
 
-A project may define its own topic skills — covering repository structure, a component or routing convention, or any authoring-domain rules. Consult those skills when a change touches the area they own, if they have been defined.
+See [topic-specific-skills.md](./references/topic-specific-skills.md) for:
 
-**Guidelines:**
-
-- MUST consult the matching topic skill when a change touches the area that skill owns.
-- SHOULD load only the references relevant to the changed files or requested behavior.
-- MUST defer detailed project rules to the owning topic skill instead of restating them here.
+- selecting applicable skills by affected responsibility before planning, explanation, implementation, verification or review
+- distinguishing bounded structural discovery from judgments that depend on full skill bodies and applicable references
+- reassessing selection before newly affected work, without treating the starting set as a ceiling

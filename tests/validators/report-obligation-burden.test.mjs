@@ -612,10 +612,10 @@ describe("report-obligation-burden.mjs", () => {
       // agrees with the reporter: 31,572 floor bytes and 221,833 ceiling bytes.
       // Clarifying Loop's host-entry authority boundary adds 155 body bytes,
       // not obligations.
-      expect.soft(totals.floorObligations).toBe(25);
-      expect.soft(totals.floorTokens).toBe(7_087);
-      expect.soft(totals.ceilingObligations).toBe(544);
-      expect.soft(totals.ceilingTokens).toBe(51_212);
+      expect.soft(totals.floorObligations).toBe(22);
+      expect.soft(totals.floorTokens).toBe(7_066);
+      expect.soft(totals.ceilingObligations).toBe(549);
+      expect.soft(totals.ceilingTokens).toBe(52_473);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -637,15 +637,15 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[0].ceilingObligations).toBe(181);
       expect.soft(tiers[0].ceilingTokens).toBe(17_105);
 
-      expect.soft(tiers[1].floorObligations).toBe(17);
-      expect.soft(tiers[1].floorTokens).toBe(4_738);
-      expect.soft(tiers[1].ceilingObligations).toBe(328);
-      expect.soft(tiers[1].ceilingTokens).toBe(33_340);
+      expect.soft(tiers[1].floorObligations).toBe(14);
+      expect.soft(tiers[1].floorTokens).toBe(4_717);
+      expect.soft(tiers[1].ceilingObligations).toBe(333);
+      expect.soft(tiers[1].ceilingTokens).toBe(34_601);
 
-      expect.soft(tiers[2].floorObligations).toBe(25);
-      expect.soft(tiers[2].floorTokens).toBe(7_087);
-      expect.soft(tiers[2].ceilingObligations).toBe(544);
-      expect.soft(tiers[2].ceilingTokens).toBe(51_212);
+      expect.soft(tiers[2].floorObligations).toBe(22);
+      expect.soft(tiers[2].floorTokens).toBe(7_066);
+      expect.soft(tiers[2].ceilingObligations).toBe(549);
+      expect.soft(tiers[2].ceilingTokens).toBe(52_473);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -672,8 +672,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(544);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(544);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(549);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(549);
     });
 
     it("prints no tier block without --mandated", async () => {
