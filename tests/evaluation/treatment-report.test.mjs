@@ -299,9 +299,11 @@ describe("computeTreatmentReport()", () => {
 
   it.each([
     ["parent-only", { route: "parent-only", coverage: "full" }, "unknown"],
-    ["stale", { coverage: "mismatch", delivery: "stale" }, "fail"],
-    ["truncated", { coverage: "partial", delivery: "truncated" }, "partial"],
-    ["mixed", { coverage: "mismatch", delivery: "mixed" }, "fail"],
+    ["stale", { coverage: "full", delivery: "stale" }, "fail"],
+    ["truncated", { coverage: "full", delivery: "truncated" }, "partial"],
+    ["mixed", { coverage: "full", delivery: "mixed" }, "fail"],
+    ["mismatch", { coverage: "mismatch" }, "fail"],
+    ["partial", { coverage: "partial" }, "partial"],
     ["unavailable", { availability: "unavailable", coverage: "unavailable" }, "unsupported"],
     ["unknown", { route: "unknown", coverage: "unknown" }, "unknown"],
   ])("retains %s acquisition separately from independently checked output", (_, details, status) => {

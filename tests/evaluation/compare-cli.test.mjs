@@ -86,6 +86,39 @@ describe("compare.mjs", () => {
     expect(result.stderr).not.toContain("private synthetic secret");
   });
 
+  it("rejects malformed UTF-8 inside an otherwise valid JSON string without exposing or changing inputs", async () => {
+    const fixture = treatmentFixture();
+    fixture.observations.records[0].locator = "private synthetic marker \uFFFD";
+    const { paths, bytes } = await storedInputs(fixture);
+    const malformed = Buffer.from(bytes[1]);
+    malformed[malformed.indexOf(Buffer.from("\uFFFD"))] = 0xff;
+    await writeFile(paths[1], malformed);
+
+    const result = runScript(CLI, paths);
+
+    expect(result.code).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("not valid JSON encoded as UTF-8");
+    expect(result.stderr).not.toContain("private synthetic marker");
+    expect(await Promise.all(paths.map((path) => readFile(path)))).toEqual([Buffer.from(bytes[0]), malformed]);
+  });
+
+  it("accepts a valid UTF-8 replacement character without changing input bytes", async () => {
+    const fixture = treatmentFixture();
+    fixture.observations.records[0].locator = "private synthetic marker \uFFFD";
+    const { paths, bytes } = await storedInputs(fixture);
+
+    const result = runScript(CLI, paths);
+
+    expect(result.code).toBe(0);
+    expect(result.stderr).toBe("");
+    const report = JSON.parse(result.stdout);
+    expect(report.cells[0].observation.locator).toBe("private synthetic marker \uFFFD");
+    expect(report.qualification.status).toBe("qualified");
+    expect(report.axes.conformity.effect).toBe(1);
+    expect(await Promise.all(paths.map((path) => readFile(path)))).toEqual(bytes.map((value) => Buffer.from(value)));
+  });
+
   it("fails unreadable inputs without a report", () => {
     const result = runScript(CLI, ["/missing/declaration.json", "/missing/observations.json"]);
     expect(result.code).toBe(1);
