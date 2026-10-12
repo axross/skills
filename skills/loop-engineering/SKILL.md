@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Driving a code change or document update through an approved plan → execution → verification → independent review loop, including resuming or recovering an in-progress run. Owns phase progression, approval revision, evidence, finding state, and recovery meaning—not host execution APIs or delivery storage. Project policy chooses gates and branch rules. Defer to a host project's own more-specific change-loop capability where it ships one. Not for read-only questions, investigations, or reviews that change nothing.
+description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including resuming or recovering a run. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, host execution APIs, or delivery storage. Conduct practices own non-code deliverable review; project policy chooses gates and branches. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
 user-invocable: false
 ---
 
@@ -8,7 +8,7 @@ user-invocable: false
 
 Drive one change from intake to ready through **plan → approve → execute → verify → independent review → address → ready**. This skill defines what each phase means and what evidence crosses its boundaries. It does not authorize tools, publication, scheduling, or delegation, and it does not prescribe where durable state is stored.
 
-Project policy owns which gates apply, reviewer independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence.
+Project policy owns which change-delivery gates apply, external code-review independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence.
 
 This skill does not assign priority between runtime-injected instructions and project mandates. Host entry guidance explains how to apply the active host's actual instruction hierarchy; it cannot redefine that hierarchy. Resolve conflicts using each instruction's actual source and priority, respect tool usage conditions, and report any project gate that cannot be satisfied within those boundaries.
 
@@ -45,6 +45,12 @@ See [plan-document.md](./references/plan-document.md) for:
 - the canonical plan sections and approval target
 - agreeing necessary out-of-tree verification and its evidence destination during planning
 - revision identity, amendment approval, and visual choices
+
+See [reviewing-phase-deliverables.md](./references/reviewing-phase-deliverables.md) for:
+
+- investigation conclusions before planning, plans before approval, and each low- then high-fidelity visual-option round before human selection or dependent work
+- current artifact and required-material identity, reusable unchanged reviews, and recovery of consumed rounds through existing handoff state
+- the conduct-owned completion boundary, the conditional absent-conduct fallback, and separation from implementation pre-flight and external code review
 
 ## Execution Handoffs
 
