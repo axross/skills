@@ -98,7 +98,9 @@ question answered, a review given, a change delivered — not only to changes.
 Keeps it honest about what it actually knows — looking things up instead of
 guessing, checking current sources instead of trusting memory, asking you
 instead of deciding for you, and reporting back so you can tell which is
-which. See [`SKILL.md`](./skills/professional-behavior/SKILL.md).
+which. Adds bounded author-independent review before investigation, plan, or
+design deliverables are handed back or relied on, including read-only work.
+See [`SKILL.md`](./skills/professional-behavior/SKILL.md).
 
 ### Delivering a change
 
@@ -110,8 +112,9 @@ to meet.
 #### `loop-engineering`
 
 Runs a whole change for you — plan, build, verify, fix — pausing for your
-sign-off before it writes any code, and handing the review to a separate
-session so it never approves itself. See
+sign-off before it writes any code. Places non-code deliverable review before
+research, plan, and design handoffs, then retains separate implementation
+pre-flight and external code review. See
 [`SKILL.md`](./skills/loop-engineering/SKILL.md).
 
 **Recommended settings for using this skill.** `loop-engineering` drives long,

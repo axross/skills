@@ -610,13 +610,12 @@ describe("report-obligation-burden.mjs", () => {
       // issue #652 rewords Loop's completion contract, handoff finding shape
       // and routing without adding obligations. An independent UTF-8 recount
       // agrees with the reporter: 31,572 floor bytes and 221,833 ceiling bytes.
-      // the mandated bodies contain 31,727 UTF-8 bytes; their references
-      // bring the ceiling to 222,745. both bounds include prose and routing,
-      // not only obligation bullets; the token proxy divides bytes by 4.76.
+      // independent UTF-8 sums are 33,384 floor bytes and 236,815 ceiling bytes;
+      // rounding each sum divided by 4.76 gives the token expectations below.
       expect.soft(totals.floorObligations).toBe(25);
-      expect.soft(totals.floorTokens).toBe(6_665);
-      expect.soft(totals.ceilingObligations).toBe(509);
-      expect.soft(totals.ceilingTokens).toBe(46_795);
+      expect.soft(totals.floorTokens).toBe(7_013);
+      expect.soft(totals.ceilingObligations).toBe(535);
+      expect.soft(totals.ceilingTokens).toBe(49_751);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -634,19 +633,19 @@ describe("report-obligation-burden.mjs", () => {
       // obligation counts alone miss changes to prose or to placement between
       // bodies and references, so each tier needs its token bounds pinned too.
       expect.soft(tiers[0].floorObligations).toBe(9);
-      expect.soft(tiers[0].floorTokens).toBe(2_463);
-      expect.soft(tiers[0].ceilingObligations).toBe(160);
-      expect.soft(tiers[0].ceilingTokens).toBe(15_299);
+      expect.soft(tiers[0].floorTokens).toBe(2_669);
+      expect.soft(tiers[0].ceilingObligations).toBe(181);
+      expect.soft(tiers[0].ceilingTokens).toBe(17_105);
 
       expect.soft(tiers[1].floorObligations).toBe(17);
-      expect.soft(tiers[1].floorTokens).toBe(4_458);
-      expect.soft(tiers[1].ceilingObligations).toBe(298);
-      expect.soft(tiers[1].ceilingTokens).toBe(29_914);
+      expect.soft(tiers[1].floorTokens).toBe(4_664);
+      expect.soft(tiers[1].ceilingObligations).toBe(319);
+      expect.soft(tiers[1].ceilingTokens).toBe(31_720);
 
       expect.soft(tiers[2].floorObligations).toBe(25);
-      expect.soft(tiers[2].floorTokens).toBe(6_665);
-      expect.soft(tiers[2].ceilingObligations).toBe(509);
-      expect.soft(tiers[2].ceilingTokens).toBe(46_795);
+      expect.soft(tiers[2].floorTokens).toBe(7_013);
+      expect.soft(tiers[2].ceilingObligations).toBe(535);
+      expect.soft(tiers[2].ceilingTokens).toBe(49_751);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -673,8 +672,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(509);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(509);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(535);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(535);
     });
 
     it("prints no tier block without --mandated", async () => {

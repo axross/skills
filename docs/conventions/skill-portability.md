@@ -28,6 +28,8 @@ higher-priority instruction or tool condition MUST be reported as unmet, not
 waived or resolved by declaring project policy superior. Placing a declaration
 in an entry file changes neither its authority nor the active host's rules.
 
+Non-code deliverable review belongs to conduct's output-quality practice, including read-only requests. It does not by itself enroll those requests in the change loop; eligible reviewer mechanisms still follow host guidance.
+
 The skill states its own constraints; host entry or operations guidance explains
 their application using the actual host instructions. This keeps host-specific
 comparisons out of an installable skill without making the entry file an
