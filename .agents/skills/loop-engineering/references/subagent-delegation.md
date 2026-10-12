@@ -42,6 +42,12 @@ An investigator earns its place only by returning what the caller needs next: a 
 
 An executor should fail before effects, not after them. Preflight checks the assignment's required reads, writes, commands, return path, and material fidelity against actual permitted capabilities.
 
+When preflight concerns applicable skill material in a controlled internal actor,
+consult the project's actor-local skill-acquisition practices, where present,
+for required versus observed material in that actor's current context. Without
+that owner, report the acquisition-assessment limit; the required access and
+judging-actor context rules here still apply.
+
 **Guidelines:**
 
 - MUST confirm access to every required material at its declared fidelity before execution; visual access means the image is actually rendered to the actor.

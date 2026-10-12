@@ -31,6 +31,12 @@ Writing assignments additionally name permitted paths or effects, protected chan
 
 Each required material declares one fidelity: **verbatim** for exact bytes, **visual** for an image the actor actually sees, or **prose** for a faithful meaning-preserving summary. Access available to a sender is not evidence that a recipient has access.
 
+For applicable skill material in controlled internal actors, consult the project's
+actor-local skill-acquisition practices, where present, when establishing
+required versus observed material and current-context completeness. Without that
+owner, retain the fidelity contract here and report the unperformed acquisition
+assessment rather than infer a recipient's acquisition from sender access.
+
 **Guidelines:**
 
 - MUST name each material's locator, revision, required states or frames, fidelity, and whether it is required.
@@ -43,6 +49,10 @@ Each required material declares one fidelity: **verbatim** for exact bytes, **vi
 An execution result uses exactly one state: **complete**, **partial**, **decision-waiting**, **authorization-waiting**, **unavailable**, **failed**, or **outcome-unknown**. A denied or missing capability is `unavailable`; an operation possible only after permission is `authorization-waiting`. `outcome-unknown` means an effect may have happened but cannot yet be established.
 
 A writing result carries compact self-review evidence for the current loop driver's completion check. It does not reproduce the assignment or plan, supply an advisory verdict, or certify independent review.
+
+Skill-material coverage reported under [Material Fidelity](#material-fidelity)
+is a separate observation, not another execution-result state or a replacement
+for the missing-required-material rule.
 
 **Guidelines:**
 

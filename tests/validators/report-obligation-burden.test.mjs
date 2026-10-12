@@ -610,13 +610,13 @@ describe("report-obligation-burden.mjs", () => {
       // issue #652 rewords Loop's completion contract, handoff finding shape
       // and routing without adding obligations. An independent UTF-8 recount
       // agrees with the reporter: 31,572 floor bytes and 221,833 ceiling bytes.
-      // Clarifying Loop's host-entry authority boundary adds 155 body bytes,
-      // not obligations. Independent UTF-8 sums are now 31,727 and 221,988;
-      // rounding each sum divided by 4.76 gives the token expectations below.
+      // the mandated bodies contain 31,727 UTF-8 bytes; their references
+      // bring the ceiling to 222,944. both bounds include prose and routing,
+      // not only obligation bullets; the token proxy divides bytes by 4.76.
       expect.soft(totals.floorObligations).toBe(25);
       expect.soft(totals.floorTokens).toBe(6_665);
       expect.soft(totals.ceilingObligations).toBe(509);
-      expect.soft(totals.ceilingTokens).toBe(46_636);
+      expect.soft(totals.ceilingTokens).toBe(46_837);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -646,7 +646,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(25);
       expect.soft(tiers[2].floorTokens).toBe(6_665);
       expect.soft(tiers[2].ceilingObligations).toBe(509);
-      expect.soft(tiers[2].ceilingTokens).toBe(46_636);
+      expect.soft(tiers[2].ceilingTokens).toBe(46_837);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

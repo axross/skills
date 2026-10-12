@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6f114ef3714d001eb606fdf22df9ffc1da4f76de0d3f6dda45d0e1a80aa7fa0b"
+      "computedHash": "d883127ea3e91070bbb40f8ca4548049229af90db0bb4743f3a9da40d500917d"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "bd5af952aa3fea0ecfc4b4a6b2fd743cedeef969a34a90b27e7222a1ccb668f1"
+      "computedHash": "d77da9fcee12ea0b7f7635eaa6834448a2150c00b661107f7fe94f551a3680a6"
     },
     "next-app-development": {
       "source": "./skills",

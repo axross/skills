@@ -1,12 +1,12 @@
 ---
 name: agent-skill-management
-description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing skill installation and active loading. Triggers on adding, editing, renaming, moving, or removing a skill; installed-copy or lockfile drift; same-name collisions, missing discovery, stale loaded content, or a loaded skill with a defective rule. Metadata authoring belongs to skill-authoring practices; host-specific reload and source-inspection commands belong to project operations. Covers source ownership, targeted installation, drift checks, and separate discovery and active-loading evidence.
+description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing installation, active loading and actor-local acquisition. Triggers on adding, editing, renaming, moving or removing skills; installed-copy or lockfile drift; same-name masking; stale, truncated or missing material; retained-context recovery; optional acquisition guards; a defective loaded rule. Metadata authoring belongs to skill-authoring practices; selection and output verification belong to development; host commands belong to project operations. Covers source ownership, targeted refresh, acquisition coverage, retention/recovery and safeguard qualification.
 user-invocable: false
 ---
 
 # Agent Skill Management
 
-Use this capability to manage agent skills in a two-tier project, or to verify and diagnose their discovery and active loading. Management includes adding, editing, renaming, moving, and removing skills. **Distributable** skills — portable capabilities other projects can install — are authored in a source directory (conventionally `skills/`, the source of truth) and **installed** into the skill root (the directory the agent actually loads — `.claude/skills/` for Claude Code, `.agents/skills/` for Codex and several others) with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); a `skills-lock.json` file records what was installed. **Repository-local** skills — capabilities that encode a single project's own process and have to fire while a surface is being edited, never a document the project's own instructions could route to on demand — are committed directly under the skill root and are never touched by the CLI.
+Use this capability to manage agent skills in a two-tier project, verify their discovery and active loading, or establish actor-local acquisition and qualify optional safeguards. Management includes adding, editing, renaming, moving, and removing skills. **Distributable** skills — portable capabilities other projects can install — are authored in a source directory (conventionally `skills/`, the source of truth) and **installed** into the skill root (the directory the agent actually loads — `.claude/skills/` for Claude Code, `.agents/skills/` for Codex and several others) with the [vercel-labs/skills](https://github.com/vercel-labs/skills) CLI (`npx skills`); a `skills-lock.json` file records what was installed. **Repository-local** skills — capabilities that encode a single project's own process and have to fire while a surface is being edited, never a document the project's own instructions could route to on demand — are committed directly under the skill root and are never touched by the CLI.
 
 Discovery is what routes to a skill in either tier: each skill advertises when it applies through its own `description`, so no written index is required. Some hosts maintain one anyway (e.g. an `AGENTS.md` table), which then becomes a second record to keep current.
 
@@ -107,6 +107,24 @@ See [active-loading.md](./references/active-loading.md) for:
 - verifying an installation or refresh through separate observations of installation, source agreement, discovery, and active content
 - diagnosing missing discovery or unexpected loaded content, including same-name precedence, stale sessions, and unavailable source evidence
 - diagnosis before an authorized installation change
+
+## Actor-local Acquisition and Recovery
+
+See [actor-local-acquisition.md](./references/actor-local-acquisition.md) for:
+
+- establishing complete applicable bodies and references in each controlled internal actor's current context
+- distinguishing native loading, direct acquisition and retained text, with full, partial, unknown, mismatch or unavailable coverage
+- correlating expected and observed material without inferring acquisition from a parent or reused assignment identifier
+- recovering truncation or lost retention from one verified revision, without redundant reads of complete retained text
+- separating acquisition from output verification and verification-evidence assessment, without adding external-review attestations
+
+## Optional Safeguard Qualification
+
+See [safeguard-qualification.md](./references/safeguard-qualification.md) for:
+
+- assessing optional audit and enforcement safeguards without introducing host APIs or project gates
+- qualifying actual actor/event/tool coverage, handler composition, executed inputs, targets and failure behavior
+- distinguishing effective refusal from ignored refusal, constant denial, blocked recovery and mutations never reached
 
 ## Proposing a Change to an Installed Skill
 
