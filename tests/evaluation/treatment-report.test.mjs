@@ -303,6 +303,32 @@ describe("computeTreatmentReport()", () => {
     expect(report.axes.conformity.populations.new).toMatchObject({ planned: 2, applicable: 2, observed: 1, states: { pass: 1, missing: 1 }, rate: null });
   });
 
+  it("counts every supported state and missing while conserving only applicable opportunities", () => {
+    const { declaration, observations } = treatmentFixture(10);
+    const candidateRecords = observations.records.filter((record) => record.treatment === "new");
+    ["pass", "fail", "failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"].forEach((status, index) => {
+      candidateRecords[index].results[2].status = status;
+    });
+    candidateRecords[8].results.splice(2, 1);
+    declaration.cells.filter((cell) => cell.repetition === 10).forEach((cell) => { cell.opportunities[2].applicable = false; });
+
+    const report = computeTreatmentReport(declaration, observations);
+    const population = report.axes.conformity.populations.new;
+    const output = report.opportunities.find((entry) => entry.id === "output");
+
+    expect(population).toEqual({
+      planned: 10, applicable: 9, inapplicable: 1, observed: 8, resolved: 2,
+      states: { pass: 1, fail: 1, failure: 1, partial: 1, unknown: 1, "approval-wait": 1, unsupported: 1, "not-reached": 1, missing: 1 },
+      rate: null, denominator: "all declared applicable opportunities",
+    });
+    expect(Object.values(population.states).reduce((sum, count) => sum + count, 0)).toBe(population.applicable);
+    expect(output.populations.new).toEqual(population);
+    expect(report.primaryComplete).toBe(false);
+    expect(report.axes.conformity.populations.old.rate).toBeNull();
+    expect(report.axes.conformity.effect).toBeNull();
+    expect(output.effect).toBeNull();
+  });
+
   it("reports no rate for a zero applicable population", () => {
     const { declaration, observations } = treatmentFixture();
     declaration.cells.forEach((cell) => { cell.opportunities[2].applicable = false; });
@@ -443,6 +469,9 @@ describe("computeTreatmentReport()", () => {
     expect(report.cells[1].status).toBe(status);
     expect(report.cells[1].opportunities[2].status).toBe(status);
     expect(report.cells[1].opportunities[0].status).toBe("pass");
+    expect(report.primaryComplete).toBe(false);
+    expect(report.axes.conformity.populations.new.states[status]).toBe(1);
+    expect(report.axes.conformity.populations.new.rate).toBeNull();
     expect(report.axes.conformity.effect).toBeNull();
   });
 
@@ -503,6 +532,8 @@ describe("computeTreatmentReport()", () => {
     ["duplicate observation", (fixture) => { fixture.observations.records.push(structuredClone(fixture.observations.records[0])); }, /duplicate/],
     ["unexpected observation", (fixture) => { fixture.observations.records[1].repetition = 9; }, /unexpected observed/],
     ["contradictory observation identity", (fixture) => { fixture.observations.records[1].condition = "skill-absent"; }, /contradictory/],
+    ["submitted missing observation status", (fixture) => { fixture.observations.records[1].status = "missing"; }, /invalid observed lifecycle\/status/],
+    ["submitted missing opportunity status", (fixture) => { fixture.observations.records[1].results[2].status = "missing"; }, /invalid opportunity status/],
     ["contradictory lifecycle", (fixture) => { fixture.observations.records[1].lifecycle = "planned"; }, /planned/],
     ["contradictory guard", (fixture) => { fixture.observations.records[1].results[3].details.writeOccurred = true; }, /contradictory/],
     ["duplicate result", (fixture) => { fixture.observations.records[1].results.push(structuredClone(fixture.observations.records[1].results[0])); }, /duplicate/],

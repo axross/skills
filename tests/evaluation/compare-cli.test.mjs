@@ -56,6 +56,21 @@ describe("compare.mjs", () => {
     expect(JSON.parse(result.stdout)).toMatchObject({ qualification: { status: "unknown" }, counts: { planned: 2, observedStarted: 1 }, primaryComplete: false });
   });
 
+  it("reports a confounded comparison with exit 0 and preserves both inputs byte-for-byte", async () => {
+    const fixture = treatmentFixture();
+    fixture.observations.records.at(-1).fixed.model = "vendor/different-probe-model";
+    const { paths, bytes } = await storedInputs(fixture);
+
+    const result = runScript(CLI, paths);
+
+    expect(result.code).toBe(0);
+    expect(result.stderr).toBe("");
+    const report = JSON.parse(result.stdout);
+    expect(report.qualification.status).toBe("confounded");
+    expect(report.axes.conformity.effect).toBeNull();
+    expect(await Promise.all(paths.map((path) => readFile(path)))).toEqual(bytes.map((value) => Buffer.from(value)));
+  });
+
   it("rejects duplicate cells with exit 1 and no partial report", async () => {
     const fixture = treatmentFixture();
     fixture.observations.records.push(structuredClone(fixture.observations.records[0]));

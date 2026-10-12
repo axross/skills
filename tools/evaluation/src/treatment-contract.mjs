@@ -1,7 +1,7 @@
 export const AXES = ["selection", "acquisition", "conformity", "guards"];
 export const MATERIAL_KINDS = ["skills", "guidance", "adapters"];
 export const FIXED_FIELDS = ["fixture", "outcome", "taskMaterial", "model", "profile", "harness"];
-const STATES = ["pass", "fail", "failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"];
+export const STATES = ["pass", "fail", "failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"];
 const SCORER_FIELDS = ["method", "rubric", "template", "script", "model", "route", "promptTemplate", "evidenceSlots"];
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const text = (value) => typeof value === "string" && value.length > 0;

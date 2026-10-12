@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 
 import { canonicalJson } from "./layout.mjs";
-import { AXES, FIXED_FIELDS, MATERIAL_KINDS, validateTreatmentInputs } from "./treatment-contract.mjs";
+import { AXES, FIXED_FIELDS, MATERIAL_KINDS, STATES, validateTreatmentInputs } from "./treatment-contract.mjs";
 
 const SCORER = ["method", "rubric", "template", "script", "model", "route", "evidenceSlots"];
 const resolved = (status) => ["pass", "fail"].includes(status);
@@ -128,7 +128,7 @@ function assessedStatus(opportunity, result) {
 /** counts the declared population; no surviving-record denominator is substituted. */
 function population(entries, isComplete, isQualified) {
   const applicable = entries.filter((entry) => entry.applicable);
-  const states = Object.fromEntries(["pass", "fail", "failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached", "missing"].map((state) => [state, applicable.filter((entry) => entry.status === state).length]));
+  const states = Object.fromEntries([...STATES, "missing"].map((state) => [state, applicable.filter((entry) => entry.status === state).length]));
   const isResolved = applicable.every((entry) => resolved(entry.status) && entry.qualification.status === "qualified");
   return {
     planned: entries.length,
