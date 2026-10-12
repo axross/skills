@@ -64,8 +64,9 @@ same outcome.
 ## Prevention and valid-edit controls
 
 A useful qualification distinguishes effective refusal from both ignored
-refusal and constant denial. These contrasting observations answer different
-questions:
+refusal and constant denial. A shell refusal paired with an unrelated successful
+patch cannot rule out constant denial on the shell route. These contrasting
+observations answer different questions:
 
 | Case                                                             | Necessary observation                                              | Limit                                              |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
@@ -82,6 +83,7 @@ can establish runtime prevention.
 **Guidelines:**
 
 - MUST demonstrate refusal preventing the intended mutation through actual target-state evidence, not merely a pre-edit event, refusal output or zero exit status.
+- MUST pair refusal with valid-edit and post-recovery mutation controls through the same actor, event, tool, target, configuration and effective handler composition, varying only the acquisition condition. Recovery reads still use their permitted read routes.
 - MUST exercise valid-edit controls and recovery under the same ordinary permission boundaries; do not disable permissions to make a guard appear effective or grant broader permissions to make its control pass.
 - MUST NOT count an unsupported route, an edit never reached, a prior permission denial or an unknown target effect as successful prevention.
 - MUST label static analysis, fixtures and walkthroughs separately from actual host execution, and bound any promotion to the scope and failure cases the evidence establishes.

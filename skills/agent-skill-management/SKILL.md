@@ -1,6 +1,6 @@
 ---
 name: agent-skill-management
-description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing installation, active loading and actor-local acquisition. Triggers on adding, editing, renaming, moving or removing skills; installed-copy or lockfile drift; same-name masking; stale, truncated or missing material; retained-context recovery; optional acquisition guards; a defective loaded rule. Metadata authoring belongs to skill-authoring practices; selection and output verification belong to development; host commands belong to project operations. Covers source ownership, targeted refresh, acquisition coverage, retention/recovery and safeguard qualification.
+description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing installation, active loading and actor-local acquisition. Triggers on adding, editing, renaming, moving or removing skills; installed-copy or lockfile drift; missing discovery; same-name masking; stale, truncated or missing material; retained-context recovery; optional acquisition guards; a defective loaded rule. Metadata authoring belongs to skill-authoring practices; selection and output verification belong to development; host commands belong to project operations. Covers source ownership, targeted refresh, acquisition coverage, retention/recovery and safeguard qualification.
 user-invocable: false
 ---
 
