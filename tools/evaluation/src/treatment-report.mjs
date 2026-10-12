@@ -197,7 +197,7 @@ export function computeTreatmentReport(declaration, observations) {
     const baseline = group.entries.filter((entry) => entry.treatment === declaration.baseline);
     const candidate = group.entries.filter((entry) => entry.treatment === declaration.candidate);
     const membership = baseline.length && candidate.length ? "common" : baseline.length ? "removed" : "added";
-    const groupDeficits = group.entries.flatMap((entry) => entry.report.qualification.deficits);
+    const groupDeficits = group.entries.filter((entry) => entry.opportunity.applicable || entry.report.observedStatus !== null).flatMap((entry) => entry.report.qualification.deficits);
     if (membership === "common") {
       const firstEntry = group.entries[0];
       const first = firstEntry.opportunity;

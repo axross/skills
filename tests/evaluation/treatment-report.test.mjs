@@ -120,9 +120,10 @@ describe("computeTreatmentReport()", () => {
     expect(observations.records[1].results[2].fullPrompt).toContain("private synthetic output new-1");
   });
 
-  it.each(["rubric", "template", "script", "model", "route"])("blocks the affected effect for a changed scorer %s, not the independent selection axis", (field) => {
-    const { declaration, observations } = withReasoningOutput(treatmentFixture());
-    observations.records[1].results[2].scorer[field] = "changed scorer";
+  it.each(["rubric", "template", "script", "model", "route"].flatMap((field) => [true, false].map((applicable) => ({ field, applicable }))))("blocks a changed scorer $field on applicability $applicable, not the independent selection axis", ({ field, applicable }) => {
+    const { declaration, observations } = withReasoningOutput(treatmentFixture(2));
+    declaration.cells.filter((cell) => cell.repetition === 2).forEach((cell) => { cell.opportunities[2].applicable = applicable; });
+    observations.records[3].results[2].scorer[field] = "changed scorer";
 
     const report = computeTreatmentReport(declaration, observations);
 
@@ -137,6 +138,23 @@ describe("computeTreatmentReport()", () => {
     observations.records[1].results[2].scorer.rubric = digest("new rubric");
 
     expect(computeTreatmentReport(declaration, observations).axes.conformity.effect).toBeNull();
+  });
+
+  it.each([
+    ["scorer", (opportunity) => { opportunity.scorer.rubric = digest("new rubric"); }],
+    ["dimension", (opportunity) => { opportunity.dimensions.obligation = "different-output"; }],
+  ])("blocks a declared %s mismatch on a missing inapplicable opportunity", (_, change) => {
+    const { declaration, observations } = treatmentFixture(2);
+    declaration.cells.filter((cell) => cell.repetition === 2).forEach((cell) => { cell.opportunities[2].applicable = false; });
+    observations.records.filter((record) => record.repetition === 2).forEach((record) => { record.results = record.results.filter((result) => result.id !== "output"); });
+    change(declaration.cells[3].opportunities[2]);
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.primaryComplete).toBe(true);
+    expect(report.opportunities.find((entry) => entry.id === "output").qualification.status).toBe("confounded");
+    expect(report.axes.conformity.effect).toBeNull();
+    expect(report.axes.selection.effect).toBe(0);
   });
 
   it.each([
@@ -303,6 +321,35 @@ describe("computeTreatmentReport()", () => {
     expect(report.axes.conformity.populations.new).toMatchObject({ planned: 2, applicable: 2, observed: 1, states: { pass: 1, missing: 1 }, rate: null });
   });
 
+  it("qualifies the applicable population when only inapplicable results are omitted", () => {
+    const { declaration, observations } = treatmentFixture(2);
+    declaration.cells.filter((cell) => cell.repetition === 2).forEach((cell) => { cell.opportunities[2].applicable = false; });
+    observations.records.filter((record) => record.repetition === 2).forEach((record) => { record.results = record.results.filter((result) => result.id !== "output"); });
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+    const output = report.opportunities.find((entry) => entry.id === "output");
+
+    expect(report.qualification.status).toBe("qualified");
+    expect(report.primaryComplete).toBe(true);
+    expect(report.counts).toEqual({ planned: 4, observedStarted: 4, observedCompleted: 4 });
+    expect(report.axes.conformity.populations.old).toMatchObject({ planned: 2, applicable: 1, inapplicable: 1, observed: 1, resolved: 1, states: { pass: 0, fail: 1, missing: 0 }, rate: 0 });
+    expect(report.axes.conformity.populations.new).toMatchObject({ planned: 2, applicable: 1, inapplicable: 1, observed: 1, resolved: 1, states: { pass: 1, fail: 0, missing: 0 }, rate: 1 });
+    expect(report.axes.conformity.effect).toBe(1);
+    expect(output.qualification).toEqual({ status: "qualified", deficits: [] });
+    expect(output.populations).toEqual(report.axes.conformity.populations);
+    expect(output.effect).toBe(1);
+    const missingOutput = expect.objectContaining({
+      applicable: false, observedStatus: null, status: "missing",
+      qualification: {
+        status: "unknown",
+        deficits: expect.arrayContaining([expect.objectContaining({ kind: "unknown", at: expect.stringContaining(".output.scorer.method"), reason: "missing identity" })]),
+      },
+    });
+    expect(report.cells.filter((cell) => cell.repetition === 2).map((cell) => cell.opportunities[2])).toEqual([missingOutput, missingOutput]);
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
+  });
+
   it("counts every supported state and missing while conserving only applicable opportunities", () => {
     const { declaration, observations } = treatmentFixture(10);
     const candidateRecords = observations.records.filter((record) => record.treatment === "new");
@@ -329,9 +376,10 @@ describe("computeTreatmentReport()", () => {
     expect(output.effect).toBeNull();
   });
 
-  it("reports no rate for a zero applicable population", () => {
+  it.each([true, false])("reports no rate for a zero applicable population with retained results %s", (hasInapplicableResults) => {
     const { declaration, observations } = treatmentFixture();
     declaration.cells.forEach((cell) => { cell.opportunities[2].applicable = false; });
+    observations.records.forEach((record) => { record.results = record.results.filter((result) => hasInapplicableResults || result.id !== "output"); });
 
     const report = computeTreatmentReport(declaration, observations);
 

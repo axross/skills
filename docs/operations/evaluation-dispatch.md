@@ -347,9 +347,9 @@ Neither exit 0 nor `qualified` means a live host or consumer adopted a rule.
 
 This version-1 interface belongs only to this instrument, not to installed
 skills. Unknown identities may be omitted or null; nonempty identities are
-opaque caller-supplied strings. Explicit empty material maps describe absence,
-whereas a missing inventory remains unknown. The following fields define the
-declaration:
+opaque caller-supplied strings except for the reasoning template and payload
+hashes described below. Explicit empty material maps describe absence, whereas
+a missing inventory remains unknown. The following fields define the declaration:
 
 | Field                    | Contents                                                                                                                                                       |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -374,9 +374,10 @@ table:
 The scorer carries `method` (`script` or `reasoning`), definition identities
 `rubric`, `template`, `script`, `model`, `route`, and `evidenceSlots` (unique
 slot names). Use an explicit `none` identity for inapplicable script/model
-fields. A reasoning scorer also carries the literal `promptTemplate`, whose
-SHA-256 identity is `template`; `{{slot}}` inserts that slot's payload. The
-declaration's evidence map names each expected slot source and, where fixed,
+fields. A reasoning scorer also carries the literal `promptTemplate`.
+Its `template` identity is the SHA-256 digest of that string's exact UTF-8
+bytes, formatted as `sha256:<lowercase hex>`. `{{slot}}` inserts that slot's
+payload. The declaration's evidence map names each expected slot source and, where fixed,
 content. Acquisition also needs expected required-content identities. Other
 slots can have varying output content while their sources remain fixed.
 
@@ -386,8 +387,10 @@ declaration ID and `records`. Each record identifies `id`, `locator`, `task`,
 `scope`, `lifecycle` (`planned`, `started`, `completed`), `status`, actual
 `fixed` and `materials`, and `results`. Results carry opportunity `id`,
 `status`, actual `scorer`, evidence slots and axis `details`. Evidence entries
-carry `source`, `content`, `locator` and optional `payload`. Reasoning results
-retain `fullPrompt` and all slot payloads in the observation input.
+carry `source`, `content`, `locator` and optional `payload`. For reasoning evidence,
+`content` is the SHA-256 digest of the `payload` string's exact UTF-8 bytes,
+formatted as `sha256:<lowercase hex>`. Reasoning results retain `fullPrompt`
+and all slot payloads in the immutable observation input.
 
 Statuses are `pass`, `fail`, `failure`, `partial`, `unknown`, `approval-wait`,
 `unsupported`, or `not-reached`. A planned record has unknown status and no
