@@ -21,9 +21,9 @@ A fragile obligation is an applicable requirement that a plausible implementatio
 
 **Guidelines:**
 
-- MUST identify fragile obligations for affected responsibilities and output surfaces before execution, with independently derived expected results and discriminating checks or necessary human-approval conditions.
+- MUST identify fragile obligations for affected responsibilities and output surfaces before execution, with independently derived expected results and discriminating checks, plus necessary human-approval conditions where applicable.
 - MUST keep every other applicable duty binding; the explicitly planned checks are a focused evidence set, not an exhaustive compliance score.
-- MUST record expected obligations and methods in the governing plan, separately from progress and observations in existing permitted run state or internal handoffs.
+- MUST record expected obligations and methods in the governing plan where one exists, or in existing permitted task state or internal handoffs otherwise, separately from progress and observations. This does not require a new plan artifact.
 
 When an expectation or method changes an approved plan, consult the project's change-loop plan-revision and append-only recovery practices where present. Without that optional owner, preserve the project's approval and amendment gates, keep observations separate from expectations, and report unresolved approval before dependent work. This reference defines no approval identity or storage format.
 
@@ -35,7 +35,7 @@ Manual verification is the first line of confirmation; the automated gate is the
 
 - MUST exercise or read the output surface a change produces, in the form its consumer receives it, before calling the change done — including a runnable script's observed behavior, where the skill owning that surface says how to confirm it.
 - MUST NOT call a change done on the strength of a passing format/lint gate alone; the gate does not judge whether the content is correct.
-- MUST report a required check that could not be run, naming the reason and the residual risk, instead of presenting the change as fully verified.
+- MUST report skipped, failed or insufficient required checks as limitations, naming the reason and residual risk rather than presenting them as successful conformity.
 
 ## Check the Current Integrated Output
 
@@ -62,7 +62,6 @@ A static inspection, a rendering and a native-device exercise observe different 
 - MUST identify the material revision, inspected obligation and scope, platform, check route, independent expected result, observed stage and actual result needed to interpret each claim, using existing permitted evidence destinations rather than a new schema.
 - MUST recheck affected claims after relevant integration changes; evidence for an earlier contribution is not current merely because that contribution was accepted.
 - MUST distinguish static inspection, rendering, native execution and external-review completion; none establishes an unobserved property or platform by implication.
-- MUST report skipped, failed or insufficient required checks as limitations, not successful conformity; a skip reason and residual risk do not change that result.
 
 When evidence sufficiency is in question, consult the project's verification-evidence assessment practices where present. Without that optional owner, retain these claim limits rather than invent a QA gate. When preparing fresh review input or assessing posted completion, consult the project's review and change-loop practices where present; contributor observations do not replace original material and requirements with an author verdict map, or require external reviewers to enumerate successful skill loads or checks.
 

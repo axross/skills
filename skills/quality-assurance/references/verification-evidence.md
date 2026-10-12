@@ -18,10 +18,10 @@ Walk every changed surface through this flow. A reasoned skip is accounted for b
 Apply the following decisions in order:
 
 1. Identify the claimed obligation and the current integrated material it concerns.
-2. Record any skipped required check as unverified, require its reason and residual risk, and take the next surface. Assess any reportable gap under Review Finding Scope.
-3. Require a named command, manual route or reasoned inspection with an observed result. Missing or failing required checks do not establish conformity.
+2. Record the property left unverified by a skipped required check, with its reason and residual risk. Continue assessing remaining checks and claims on the same surface; assess any reportable gap under Review Finding Scope.
+3. For each remaining check, require a named command, manual route or reasoned inspection with an observed result. Missing or failing required checks do not establish conformity.
 4. Assess relevance, currency and discriminatory power under the sections below. An unrelated, stale or insensitive result leaves the claim unverified, however green.
-5. Compare the observation with the independently derived expectation. Record an evidenced mismatch as an output violation subject to Review Finding Scope; otherwise call only the established property covered, then take the next surface.
+5. Compare the observation with the independently derived expectation. Record an evidenced mismatch as an output violation subject to Review Finding Scope; otherwise call only the established property covered. Repeat for remaining claims and checks before taking the next surface.
 
 ## Acquisition Is Not Conformity Evidence
 
