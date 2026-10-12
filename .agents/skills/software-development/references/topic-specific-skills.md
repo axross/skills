@@ -42,7 +42,7 @@ The starting set is not a ceiling. A task that begins with component padding can
 - MUST reassess selection when additional responsibilities become affected and acquire their governing material before judgments or edits in that area.
 - MUST NOT treat an initial selection or supplied material list as exhaustive after the affected responsibilities change.
 
-When reassessment changes a canonical plan, consult the project's change-loop approval and recovery practices where available. Without that optional capability, preserve any approval and amendment gates the project requires and report an unresolved approval before dependent work; acquiring another skill does not authorize a plan change.
+When reassessment changes a canonical plan, consult the project's change-loop approval and recovery practices where available. Without that optional capability, preserve any approval and amendment gates the project requires, report unresolved approval before dependent work, and treat execution or review results dependent on a superseded plan as stale until regenerated against the approved amended plan. Acquiring another skill does not authorize a plan change.
 
 ## Contrasting Examples
 

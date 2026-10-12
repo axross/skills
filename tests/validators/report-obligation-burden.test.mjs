@@ -607,16 +607,10 @@ describe("report-obligation-burden.mjs", () => {
       // descriptive-only routing removes 7, 3, and 10 read obligations from
       // the three bodies, leaving their references unchanged. floor bytes
       // fall from 34,267 to 31,510; ceiling bytes fall by the same 2,757.
-      // issue #652 rewords Loop's completion contract, handoff finding shape
-      // and routing without adding obligations. An independent UTF-8 recount
-      // agrees with the reporter: 31,572 floor bytes and 221,833 ceiling bytes.
-      // Clarifying Loop's host-entry authority boundary adds 155 body bytes,
-      // not obligations. Independent UTF-8 sums are now 31,727 and 221,988;
-      // rounding each sum divided by 4.76 gives the token expectations below.
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(6_645);
       expect.soft(totals.ceilingObligations).toBe(514);
-      expect.soft(totals.ceilingTokens).toBe(47_870);
+      expect.soft(totals.ceilingTokens).toBe(47_897);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -641,12 +635,12 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].floorObligations).toBe(14);
       expect.soft(tiers[1].floorTokens).toBe(4_437);
       expect.soft(tiers[1].ceilingObligations).toBe(303);
-      expect.soft(tiers[1].ceilingTokens).toBe(31_148);
+      expect.soft(tiers[1].ceilingTokens).toBe(31_174);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(6_645);
       expect.soft(tiers[2].ceilingObligations).toBe(514);
-      expect.soft(tiers[2].ceilingTokens).toBe(47_870);
+      expect.soft(tiers[2].ceilingTokens).toBe(47_897);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
