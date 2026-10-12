@@ -213,12 +213,12 @@ export function computeTreatmentReport(declaration, observations) {
       for (const slot of slots) {
         const sourceEntry = group.entries.find((entry) => entry.opportunity.evidence?.[slot]?.source != null);
         const expectedSource = sourceEntry?.opportunity.evidence[slot].source;
+        const followsTreatment = group.axis === "acquisition" && expectedSource != null && [...allowed.values()].some(({ kind, name }) =>
+          group.entries.every((entry) => entry.opportunity.evidence?.[slot]?.source == null ||
+            treatments.get(entry.treatment).materials?.[kind]?.[name]?.source === entry.opportunity.evidence[slot].source));
         for (const entry of group.entries) {
           const actualSource = entry.opportunity.evidence?.[slot]?.source;
-          const followsTreatment = group.axis === "acquisition" && expectedSource != null && actualSource != null && [...allowed.values()].some(({ kind, name }) =>
-            treatments.get(sourceEntry.treatment).materials?.[kind]?.[name]?.source === expectedSource &&
-            treatments.get(entry.treatment).materials?.[kind]?.[name]?.source === actualSource);
-          if (!followsTreatment) compareIdentity(expectedSource, actualSource, `${group.id}.evidence.${slot}.source`, groupDeficits);
+          if (!followsTreatment || actualSource == null) compareIdentity(expectedSource, actualSource, `${group.id}.evidence.${slot}.source`, groupDeficits);
         }
       }
       if (!isDeepStrictEqual(baseline.map((entry) => entry.repetition).sort(), candidate.map((entry) => entry.repetition).sort())) groupDeficits.push(deficit("unknown", group.id, "unbalanced common opportunity population"));

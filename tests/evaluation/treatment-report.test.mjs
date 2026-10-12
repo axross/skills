@@ -259,25 +259,76 @@ describe("computeTreatmentReport()", () => {
     expect(JSON.stringify({ declaration, observations })).toBe(before);
   });
 
-  it.each(["skills", "guidance", "adapters"])("allows acquisition sources to track the same named allowed %s material across treatments", (kind) => {
-    const { declaration, observations } = treatmentFixture();
+  it.each(["skills", "guidance", "adapters"].flatMap((kind) => [
+    { kind, order: "baseline first", indices: [0, 1, 2, 3] },
+    { kind, order: "candidate first", indices: [2, 3, 0, 1] },
+  ]))("allows acquisition sources to track one named allowed $kind material across repetitions with $order", ({ kind, indices }) => {
+    const { declaration, observations } = treatmentFixture(2);
     const name = kind === "skills" ? "target" : kind === "guidance" ? "policy" : "adapter";
     declaration.allowedDifferences = [{ kind, name }];
     declaration.treatments[1].materials.skills.target = structuredClone(declaration.treatments[0].materials.skills.target);
     declaration.treatments[0].materials[kind][name].source = "acquired-old";
     declaration.treatments[1].materials[kind][name].source = "acquired-new";
     declaration.cells.forEach((cell, index) => {
-      const material = declaration.treatments[index].materials[kind][name];
+      const treatment = declaration.treatments.find((entry) => entry.id === cell.treatment);
+      const material = treatment.materials[kind][name];
       cell.opportunities[1].evidence.output.source = material.source;
-      observations.records[index].materials = structuredClone(declaration.treatments[index].materials);
+      observations.records[index].materials = structuredClone(treatment.materials);
       observations.records[index].results[1].evidence.output.source = material.source;
+      observations.records[index].results[1].status = cell.treatment === "old" ? "fail" : "pass";
     });
+    declaration.cells = indices.map((index) => declaration.cells[index]);
 
     const report = computeTreatmentReport(declaration, observations);
+    const acquire = report.opportunities.find((entry) => entry.id === "acquire");
 
-    expect(report.opportunities.find((entry) => entry.id === "acquire").qualification.status).toBe("qualified");
-    expect(report.axes.acquisition.effect).toBe(0);
+    expect(acquire).toMatchObject({ qualification: { status: "qualified", deficits: [] }, effect: 1 });
+    expect(report.axes.acquisition.effect).toBe(1);
     expect(report.axes.conformity.effect).toBe(1);
+    expect(report.axes.selection.effect).toBe(0);
+  });
+
+  it.each(["skills", "guidance", "adapters"].flatMap((kind) => [
+    { order: "baseline first", indices: [0, 1, 2, 3] },
+    { order: "candidate first", indices: [2, 3, 0, 1] },
+  ].flatMap((order) => [
+    { kind, ...order, evidence: "complete sources", sources: ["shared-old", "shared-old", "target-new", "peer-new"], hasUnknown: false },
+    { kind, ...order, evidence: "missing baseline source", sources: [null, "shared-old", "target-new", "peer-new"], hasUnknown: true },
+  ])))("blocks mixed allowed $kind acquisition producers across repetitions with $order and $evidence", ({ kind, indices, sources, hasUnknown }) => {
+    const { declaration, observations } = treatmentFixture(2);
+    declaration.allowedDifferences = [{ kind, name: "target" }, { kind, name: "peer" }];
+    declaration.treatments[1].materials.skills.target = structuredClone(declaration.treatments[0].materials.skills.target);
+    declaration.treatments[0].materials[kind] = {
+      target: { source: "shared-old", content: digest("old target") },
+      peer: { source: "shared-old", content: digest("old peer") },
+    };
+    declaration.treatments[1].materials[kind] = {
+      target: { source: "target-new", content: digest("new target") },
+      peer: { source: "peer-new", content: digest("new peer") },
+    };
+    declaration.cells.forEach((cell, index) => {
+      const treatment = declaration.treatments.find((entry) => entry.id === cell.treatment);
+      cell.opportunities[1].evidence.output.source = sources[index];
+      observations.records[index].materials = structuredClone(treatment.materials);
+      observations.records[index].results[1].evidence.output.source = sources[index];
+      observations.records[index].results[1].status = cell.treatment === "old" ? "fail" : "pass";
+    });
+    declaration.cells = indices.map((index) => declaration.cells[index]);
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+    const acquire = report.opportunities.find((entry) => entry.id === "acquire");
+
+    expect(acquire).toMatchObject({ qualification: { status: "confounded" }, effect: null });
+    expect(acquire.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "confounded", at: "acquire.evidence.output.source" }));
+    expect(acquire.qualification.deficits.some((entry) => entry.kind === "unknown" && entry.at.includes(".evidence.output.source"))).toBe(hasUnknown);
+    expect(report.axes.acquisition.populations.old.rate).toBeNull();
+    expect(report.axes.acquisition.populations.new.rate).toBeNull();
+    expect(report.axes.acquisition.effect).toBeNull();
+    expect(report.axes.conformity.effect).toBe(1);
+    expect(report.axes.selection.effect).toBe(0);
+    expect(report.qualification.status).toBe("qualified");
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
   });
 
   it.each(["skills", "guidance", "adapters"])("keeps allowed %s acquisition sources unknown rather than confounded with a later candidate anchor", (kind) => {
