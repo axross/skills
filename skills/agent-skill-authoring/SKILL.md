@@ -1,12 +1,12 @@
 ---
 name: agent-skill-authoring
-description: Creating, refining, splitting, consolidating, renaming, or auditing an agent skill — portable content boundaries and agentskills.io authoring. Triggers on `SKILL.md`, frontmatter, `description`, "where does this rule belong", "split this skill", "recast this skill as a capability", and "audit skill portability". Skill management owns installation and active loading; project policy and host guidance own gates and execution. Covers capability framing, judgment versus mechanism, standard metadata versus host extensions, conditional references, a portability checklist, and structural validators.
+description: Creating, refining, splitting, consolidating, renaming, auditing, or designing adoption evaluations for agent skills — portable content boundaries and agentskills.io authoring. Triggers on `SKILL.md`, frontmatter, `description`, "where does this rule belong", "split this skill", "recast this skill as a capability", "audit skill portability", and "compare skill revisions". Skill management owns installation and active loading; project policy and host guidance own gates and execution; QA practices judge evidence sufficiency where present. Covers capability framing, judgment versus mechanism, conditional references, structural validators, and task/treatment/scorer/opportunity contracts.
 user-invocable: false
 ---
 
 # Agent Skill Authoring
 
-Use this capability whenever you create, refine, split, consolidate, rename, or audit an agent skill under the host project's skill root. It is what turns a durable convention into a well-formed, discoverable skill and keeps the skill tree coherent as it grows.
+Use this capability whenever you create, refine, split, consolidate, rename, or audit an agent skill, or design an evaluation of its adoption. It turns a durable convention into a well-formed, discoverable skill and gives authors comparison contracts for evaluating rule revisions without confusing evidence of different behaviors.
 
 Skills authored here follow the agentskills.io format. For the host project's active skill inventory and topic-to-skill routing, defer to each skill's own `description` discovery metadata and the directory listing under the skill root; where a host also maintains a written index (e.g. `AGENTS.md`), keep it in sync too.
 
@@ -110,6 +110,15 @@ See [project-skill-archetypes.md](./references/project-skill-archetypes.md) for:
 - creating the project-specific skills a scaffolding pass calls for: structure, component, and UI/design
 - the three-way ownership triangle and each archetype's skeleton, topics checklist, or table patterns
 - growing archetype skeletons with worked examples and mechanical boundary checks
+
+## Skill-Adoption Evaluation Design
+
+See [skill-adoption-evaluation.md](./references/skill-adoption-evaluation.md) for:
+
+- designing a skill-adoption evaluation or comparing intentional rule revisions before execution
+- freezing task, treatment, scorer, opportunity, and claim-scope contracts while keeping scorer answers out of actor material
+- separating natural tasks from boundary controls and retaining incomplete and zero-applicable populations
+- distinguishing synthetic report checks from live qualification and routing evidence sufficiency to QA practices when present
 
 ## Auditing and Validation
 
