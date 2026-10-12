@@ -77,6 +77,14 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     ["> " + COMPACT, 1],
     ["```markdown\n" + COMPACT + "\n```", 1],
     [COMPACT + "\n\nAnother introductory paragraph.", 1],
+    [COMPACT + "\n\n**<!-- invisible -->**", 0],
+    [COMPACT + "\n\n[**<!-- invisible -->**](https://example.com)", 0],
+    [COMPACT + "\n\n<span> </span>", 0],
+    [COMPACT + "\n\n*<span></span>*", 0],
+    [COMPACT + "\n\n<!-- invisible -->", 0],
+    [COMPACT + "\n\n[topic]: https://example.com", 0],
+    [COMPACT + "\n\n`introductory code`", 1],
+    [COMPACT + "\n\n![](diagram.svg)", 1],
   ])("recognizes declaration count, variants and position (%#)", async (declaration, code) => {
     const result = await check("AS003", `# Fixture Skill\n\n${declaration}\n\n${RULE_SECTION}`, { eol });
     expect(result.code).toBe(code);
@@ -315,6 +323,41 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     if (!code) expect(audit.findings).toEqual([expect.objectContaining({ ruleNames: ["AS006"], lineNumber: 11 })]);
   });
 
+  it.each([
+    ["MUST—preserve output.", 0, 1],
+    ["SHALL NOT!discard output.", 0, 1],
+    ["MAY.preserve output.", 0, 1],
+    ["REQUIRED?preserve output.", 0, 1],
+    ["SHOULD–preserve output.", 0, 1],
+    ["NOT RECOMMENDED／discard output.", 0, 1],
+    ["RECOMMENDED「preserve output」", 0, 1],
+    ["MU<span></span>ST—preserve output.", 0, 1],
+    ["MUST—`preserve`", 0, 1],
+    ["MUST—;:...", 0, 0],
+    ["MUST", 0, 0],
+    ["MUST_preserve", 1, 0],
+    ["MUST‿preserve", 1, 0],
+    ["MUST́preserve", 1, 0],
+    ["SHALL2preserve", 1, 0],
+    ["MUST+preserve", 1, 0],
+    ["MAY$preserve", 1, 0],
+    ["`MUST`—preserve output.", 1, 0],
+    ["“SHALL NOT—discard output.”", 1, 0],
+    ["MUST and MAY are keyword names.", 0, 0],
+  ])("applies the punctuation opener and nonempty-body profiles at public boundaries (%#)", async (content, guidelineCode, applicabilityCode) => {
+    const bare = `# Fixture Skill\n\nRationale.\n\n- ${content}\n`;
+    const guideline = await check("AS005", `# Fixture Skill\n\nRationale.\n\n**Guidelines:**\n\n- ${content}\n`, { eol });
+    expect(guideline.code).toBe(guidelineCode);
+    expect(guideline.findings).toEqual(guidelineCode ? [expect.objectContaining({ ruleNames: ["AS005"], lineNumber: 13 })] : []);
+    const declaration = await check("AS003", bare, { eol });
+    expect(declaration.code).toBe(applicabilityCode);
+    expect(declaration.findings).toEqual(applicabilityCode ? [expect.objectContaining({ ruleNames: ["AS003"], lineNumber: 11 })] : []);
+    expect((await check("AS006", bare, { eol })).code).toBe(0);
+    const audit = await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } });
+    expect(audit.code).toBe(applicabilityCode);
+    expect(audit.findings).toEqual(applicabilityCode ? [expect.objectContaining({ ruleNames: ["AS006"], lineNumber: 11 })] : []);
+  });
+
   it.each(["**<!-- invisible -->**", "_<!-- invisible -->_", "[**<!-- invisible -->**](https://example.com)", "<span></span>", "<div>\n </div>"])("preserves associations across non-content paragraphs and HTML blocks (%#)", async (comment) => {
     const route = ROUTE + `- condition\n\n${comment}\n\n- Consumers MUST preserve output.\n`;
     const routing = await check("AS008", route, { eol });
@@ -448,6 +491,13 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     ["**Bad Examples:**\n\n> ```js\n> const one = 1;\n> ```\n\n> ```js\n> const two = 2;\n> ```", 0],
     ["**Good Example:**\n\nOne.\n\nTwo.", 1],
     ["**Good Example:**\n\n> One.\n\n**Good Example:**\n\n> Two.", 0],
+    ["**Good Example:**\n\n---\n\n> One.", 0],
+    ["**Good Example:**\n\n> One.\n\n***", 0],
+    ["**Bad Example:**\n\n```js\nconst one = 1;\n```\n\n___", 0],
+    ["**Good Examples:**\n\n> One.\n\n---\n\n> Two.", 0],
+    ["**Good Example:**\n\n> One.\n\n---\n\n> Two.", 1],
+    ["**Bad Examples:**\n\n```js\nconst one = 1;\n```\n\n---\n\n```js\nconst two = 2;\n```", 1],
+    ["**Good Example:**\n\n> One.\n>\n> ---\n>\n> Two.", 0],
   ])("groups independent Good/Bad examples, not paragraphs within a quote (%#)", async (body, code) => {
     expect((await check("AS009", body, { eol })).code).toBe(code);
   });

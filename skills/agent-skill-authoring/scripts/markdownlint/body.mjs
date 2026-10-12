@@ -1,7 +1,7 @@
 import MarkdownIt from "markdown-it";
 
 const KEYWORDS = ["MUST NOT", "SHALL NOT", "SHOULD NOT", "NOT RECOMMENDED", "MUST", "REQUIRED", "SHALL", "SHOULD", "RECOMMENDED", "MAY", "OPTIONAL"];
-const KEYWORD = new RegExp(`^(${KEYWORDS.join("|")})(?=$|\\s|[,;:])(?:[,;:]?\\s+(.+))?`);
+const KEYWORD = new RegExp(`^(${KEYWORDS.join("|")})(?:(?:\\s|(?!\\p{Pc})\\p{P})+(.+)?|$)`, "u");
 const KEYWORD_MENTION = new RegExp(`^(?:${KEYWORDS.join("|")})(?:(?:,\\s*(?:(?:and|or)\\s+)?|\\s+(?:and|or)\\s+)(?:${KEYWORDS.join("|")}))*\\s+(?:is|are|means|denotes)\\b`);
 const ROUTING_KEYWORD = new RegExp(`(?<![\\p{L}\\p{N}_])(?:${KEYWORDS.join("|")})(?![\\p{L}\\p{N}_])`, "u");
 const ROUTING_MENTION = new RegExp(`(?<![\\p{L}\\p{N}_])${KEYWORD_MENTION.source.slice(1)}`, "gu");
@@ -185,7 +185,7 @@ export function analyzeBody(document) {
       // an independent quote/fence is a boundary; a contained one is visited inside its list item.
       if (["blockquote_open", "fence", "code_block", "table_open", "html_block", "hr"].includes(node.token.type)) {
         route = null;
-        if (group) group.blocks.push(node);
+        if (group && node.token.type !== "hr") group.blocks.push(node);
         demonstration ||= rendered(node);
       }
     }
@@ -233,7 +233,7 @@ export const bodyChecks = {
     const firstH2 = body.root.findIndex(node => node.token.type === "heading_open" && node.token.tag === "h2");
     const firstRules = body.root.findIndex(node => body.ruleLists.includes(node) || body.labels.some(entry => entry.node === node));
     const end = firstH2 !== -1 ? firstH2 : firstRules !== -1 ? firstRules : body.root.length;
-    const paragraphs = body.root.slice(0, end).filter(node => node.token.type === "paragraph_open");
+    const paragraphs = body.root.slice(0, end).filter(node => node.token.type === "paragraph_open" && !invisible(node));
     if (declarations.length !== 1 || declarations[0] !== paragraphs.at(-1)) report(declarations[1] ?? declarations[0] ?? body.root[end], "Require exactly one recognized RFC 2119 declaration as the final introductory paragraph");
   },
   AS004(body, report) {

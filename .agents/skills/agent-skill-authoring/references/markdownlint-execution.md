@@ -260,8 +260,10 @@ rendered main-item paragraph or heading establishes explicit-list applicability:
 `- ### MUST preserve output.` qualifies, but quoted/code headings, keyword-name
 mentions and nested explanatory headings do not. References and non-normative
 parents have no universal declaration requirement. Recognized authored root
-paragraphs establish declaration count; comments and definitions do not affect
-position. The declaration is the final introductory paragraph before the first
+paragraphs establish declaration count. Comments, definitions, formatted
+comment-only paragraphs and empty/whitespace HTML wrappers do not affect position.
+Real prose, inline code, Markdown images and opening img/svg elements remain
+content. The declaration is the final introductory paragraph before the first
 root H2, or before the first rule/label block when no H2 exists. Quoted/code
 declarations do not count. Missing, duplicate, misplaced or unrecognized text
 gets a format diagnostic, not a judgment that its meaning is false.
@@ -278,10 +280,20 @@ delimiter style. MD036 owns colonless emphasis-as-heading; AS004 does not
 duplicate that diagnosis. Formatting alone does not cascade into AS006/AS009.
 
 AS005 accepts MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT,
-RECOMMENDED, NOT RECOMMENDED, MAY and OPTIONAL. Uppercase openers may be followed
-by punctuation, as in `MUST, when applicable, ...`. Main unordered -, * and +
-items and ordered items are checked; nested explanatory lists are not. An
-authored heading or independent prose ends association with Guidelines, while
+RECOMMENDED, NOT RECOMMENDED, MAY and OPTIONAL. An uppercase opener ends at text
+end, whitespace or Unicode Punctuation excluding Connector_Punctuation (P excluding
+Pc). No following space is required: `MUST—preserve output.` and
+`SHALL NOT!discard output.` qualify. Connectors such as `_`, letters, digits,
+combining marks and symbols such as + or $ do not supply that boundary.
+AS003/AS006 explicit-list applicability uses the same opener profile. It skips
+accepted punctuation and whitespace before determining body content:
+`MUST—` satisfies AS005 but does not establish explicit-list applicability;
+nonempty inline code after a real opener still supplies body content. Actual
+rendered Guidelines items retain their separate AS003 applicability, and AS008's
+whole-word profile is unchanged.
+
+AS005 checks main unordered -, * and + items and ordered items, not nested
+explanatory lists. An authored heading or independent prose ends association with Guidelines, while
 invisible definitions/comments and interleaved illustrative fences do not hide
 later associated items.
 
@@ -378,6 +390,12 @@ need a plural label and separate quotes; one snippet may remain a standalone
 fence. AS004 owns bold formatting. This bounded count can flag explanatory prose
 left inside a recognized group; it cannot distinguish that prose's meaning or
 certify example quality. Single-prose formatting remains a SHOULD/review matter.
+
+Thematic breaks separate examples without adding an example or ending the group.
+One quote or standalone snippet with a break before or after remains valid under
+a singular label. Two quotes separated by a break still require a plural label.
+Contained breaks or code-literal breaks do not become direct examples, and the
+thematic break's routing-boundary role is unchanged.
 
 These rules do not implement advisory AS201–AS203, retire legacy CLIs or migrate
 consumer gates. Existing corpus differences are migration evidence, not automatic
