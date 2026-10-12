@@ -6,10 +6,13 @@ Apply this reference to investigation, planning, design, and comparable non-code
 
 A deliverable is an investigation conclusion, plan, design option set, or comparable synthesized output that a human or downstream actor will rely on. Its identity follows its requested purpose and substantive handoff, not its filename or number of constituent files. A visual-option set is one deliverable; low- and high-fidelity rounds are distinct deliverables. A working note is not yet a deliverable; a conclusion passed into further work is.
 
+This practice sets what must be checked before a non-code output is relied on, within the active instruction hierarchy and permitted tool purposes. It does not enroll read-only work in project delivery gates. Applicable host execution guidance owns actual reviewer selection.
+
 **Guidelines:**
 
 - MUST obtain advisory review of a deliverable before delivering it as the requested result or passing it into dependent work, whether the author is the main agent or a subagent and whether or not a change loop applies. A requested draft or option set is a result, not an exemption.
-- MUST use a subagent other than any agent that authored or revised the deliverable, with a fresh review context for every round. Different model names alone do not establish independence.
+- MUST use a reviewer other than any agent that authored or revised the deliverable, with a fresh review context for every round. Different model names alone do not establish independence.
+- SHOULD use a separate subagent as the default where eligible. Applicable host guidance selects the actor and mechanism; an equivalent separate non-author review context is valid only when it meets the same freshness and material-access requirements.
 - MUST apply the practice to requested investigation, planning, and design, and to their intermediate deliverables used by a subsequent phase.
 - MUST exclude routine status updates, clarification questions, verbatim source retrieval, private scratch work, and purely administrative review coordination or records. A substantive investigation, plan, or design output does not become exempt by being embedded in one of these forms.
 - MUST exclude ordinary review reports, their findings and suggested corrections, and responses assessing those findings; do not review the review. A separate investigation, plan, or design deliverable created beyond assessing the existing artifact remains subject to review. Applying corrections to the original artifact retains that artifact's existing budget and current-review requirement.

@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "bf80245fd250f8e9e774d9a8262688fbf14c44e1c7a59cf51901a759cee98f95"
+      "computedHash": "243d16c41c8e1c97887e9991a457a46d6efa02a71591948fd1a31e5cbca5e53e"
     },
     "agent-skill-management": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0917f53901ed652d74578cf24940d479a3b08150d0793b5f94c46f08412a2f00"
+      "computedHash": "21ead6eb52e2f4ada2d098cbf356e44b37cd25d607bda741b31d6c762e5808d6"
     },
     "next-app-development": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "ff0dfbe87880d3b6b5d1a355a9b09ce0074cba0907badd68928d0aca1e66e046"
+      "computedHash": "e948104355e4675bbd99e1e11f7a5c6db45380ed76c269a2c6ba9c595ff79a14"
     },
     "quality-assurance": {
       "source": "./skills",

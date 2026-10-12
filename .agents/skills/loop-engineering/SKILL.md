@@ -8,7 +8,7 @@ user-invocable: false
 
 Drive one change from intake to ready through **plan → approve → execute → verify → independent review → address → ready**. This skill defines what each phase means and what evidence crosses its boundaries. It does not authorize tools, publication, scheduling, or delegation, and it does not prescribe where durable state is stored.
 
-Project policy owns which gates apply, reviewer independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence.
+Project policy owns which change-delivery gates apply, external code-review independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence.
 
 This skill does not assign priority between runtime-injected instructions and project mandates. Host entry guidance explains how to apply the active host's actual instruction hierarchy; it cannot redefine that hierarchy. Resolve conflicts using each instruction's actual source and priority, respect tool usage conditions, and report any project gate that cannot be satisfied within those boundaries.
 

@@ -110,7 +110,7 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 See [reviewing-deliverables.md](./references/reviewing-deliverables.md) for:
 
 - delivering or relying on an investigation conclusion, plan, design option set, requested draft, or intermediate non-code result, inside or outside a change loop
-- author-independent fresh subagent review of the exact current artifact and required evidence, including visual states, without author receipts or prior findings
+- author-independent fresh review of the exact current artifact and required evidence, including visual states, without author receipts or prior findings, using an eligible separate subagent by default or an equivalent host-selected separate context
 - the three-round no-extension limit, consumed assessment requests, recovery, and unreviewed third-round corrections versus a clean third review
 - non-complete handoffs when review or verified remaining budget is unavailable, and the responsible agent's synthesis rather than transferred decision authority
 - distinguishing substantive outputs from ordinary review findings, status updates, and administrative coordination to avoid review recursion
