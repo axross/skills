@@ -36,8 +36,8 @@ async function main() {
         const decoded = value.toString("utf8");
         if (!Buffer.from(decoded).equals(value)) throw new Error("Invalid UTF-8");
         return JSON.parse(decoded);
-      } catch {
-        throw new Error(`${index === 0 ? "Declaration" : "Observations"} is not valid JSON encoded as UTF-8.`);
+      } catch (error) {
+        throw new Error(`${index === 0 ? "Declaration" : "Observations"} is not valid JSON encoded as UTF-8.`, { cause: error });
       }
     });
     const report = computeTreatmentReport(inputs[0], inputs[1]);

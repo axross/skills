@@ -9,7 +9,10 @@ import { digest, treatmentFixture, withReasoningOutput } from "./helpers/treatme
 
 const CLI = "tools/evaluation/compare.mjs";
 
-/** stores synthetic inputs separately, with no measured artifacts or live actors. */
+/**
+ * stores synthetic inputs separately, with no measured artifacts or live actors.
+ * @throws {Error} when temporary-directory creation or input writes fail
+ */
 async function storedInputs(fixture = treatmentFixture()) {
   const directory = await tempDir();
   const paths = [join(directory, "declaration.json"), join(directory, "observations.json")];
