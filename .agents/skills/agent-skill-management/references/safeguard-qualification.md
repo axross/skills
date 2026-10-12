@@ -67,13 +67,15 @@ worker or worktree shares the same handler. The relevant scope includes:
 An acquisition safeguard that blocks the reads needed to recover missing text
 cannot safely restore work. Failure behavior also depends on where an error or
 timeout occurs: before inspection, after a refusal, or after mutation are not the
-same outcome.
+same outcome. A latched failure can leave the route unusable even when ordinary
+refusal recovers, so each exercised failure needs its own recovery control.
 
 **Guidelines:**
 
 - MUST exercise malformed or missing inputs, unavailable evidence, handler failures and timeouts through the actual qualified route, recording whether mutation was reached and what happened.
-- MUST verify that permitted recovery reads remain usable before and after refusal, including reacquisition of missing ranges from one verified revision.
-- MUST distinguish known prevention, known mutation and unknown effects after a failure; inspect the actual target before retrying an uncertain operation.
+- MUST verify that permitted recovery reads remain usable before refusal, including reacquisition of missing ranges from one verified revision.
+- MUST follow refusal and every exercised failure case above with required recovery reads and an acquired-material valid mutation through the same actual qualified scope under ordinary permissions. Do not erase the event's history or substitute a fresh unaffected instance; blocked or unexercised recovery leaves that scope unqualified.
+- MUST distinguish known prevention, known mutation and unknown effects after a failure; inspect the actual target and settle unknown effects through permitted operations before retrying an uncertain operation.
 - MUST retain unqualified failure cases as audit observations or explicit limitations rather than claim that an error automatically prevented mutation.
 
 ## Prevention and valid-edit controls
@@ -83,13 +85,13 @@ refusal and constant denial. A shell refusal paired with an unrelated successful
 patch cannot rule out constant denial on the shell route. These contrasting
 observations answer different questions:
 
-| Case                                                             | Necessary observation                                              | Limit                                              |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
-| Required material missing; target mutation reaches the safeguard | Refusal takes effect and the target remains unchanged              | A refusal message alone is insufficient            |
-| Required material acquired; otherwise valid mutation             | The mutation proceeds under normal permissions                     | Constant denial fails this control                 |
-| Recovery after refusal                                           | Required reads succeed and a subsequent valid mutation can proceed | Preventing recovery is not successful protection   |
-| Operation denied before reaching the safeguard                   | The earlier denial and its cause are recorded                      | No safeguard prevention was exercised              |
-| Unsupported actor, event, tool or target                         | The unsupported scope is identified                                | Not a prevention success or proof of full coverage |
+| Case                                                             | Necessary observation                                                                  | Limit                                                      |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Required material missing; target mutation reaches the safeguard | Refusal prevents committed or externally observable mutation                           | Refusal and final baseline equality alone are insufficient |
+| Required material acquired; otherwise valid mutation             | The mutation proceeds under normal permissions                                         | Constant denial fails this control                         |
+| Recovery after refusal or an exercised failure                   | Required reads and an acquired-material valid mutation succeed without erasing history | A fresh unaffected instance cannot prove recovery          |
+| Operation denied before reaching the safeguard                   | The earlier denial and its cause are recorded                                          | No safeguard prevention was exercised                      |
+| Unsupported actor, event, tool or target                         | The unsupported scope is identified                                                    | Not a prevention success or proof of full coverage         |
 
 These are qualification criteria, not a report that any host passed them.
 Walkthroughs can check the intended contract; only authorized actual exercises
@@ -97,11 +99,14 @@ can establish runtime prevention.
 
 An unchanged target while delayed work is still running cannot distinguish
 effective refusal from a later write. Independently stopping that work
-establishes cleanup, not prevention by the safeguard.
+establishes cleanup, not prevention by the safeguard. A write followed by rollback
+is compensation, not prevention: other consumers may already have observed the
+transient change even when the final target matches its baseline.
 
 **Guidelines:**
 
-- MUST demonstrate refusal preventing the intended mutation from actual target-state evidence after the attempted mutation and any delayed or spawned work have settled; a pre-edit event, refusal output or zero exit status is insufficient. Verify any termination through permitted host operations; unsettled effects remain unknown.
+- MUST demonstrate refusal preventing the intended mutation with evidence excluding committed or externally observable transient mutation within the claimed target/effect scope. Inspect actual target state after delayed or spawned work settles; final baseline equality alone is insufficient. Verify any termination through permitted host operations; unsettled effects remain unknown.
+- MUST keep the affected prevention scope unqualified when permitted observations cannot exclude transient effects. Refusal output, successful exit, rollback and cleanup cannot establish prevention alone.
 - MUST pair refusal with valid-edit controls through the same qualified event, tool, configuration and effective handler composition, using [state and invocation-order controls](#control-state-and-invocation-order) for starting-state equivalence and actual actor/context/target correspondence. Recovery reads still use their permitted read routes.
 - MUST exercise valid-edit controls and recovery under the same ordinary permission boundaries; do not disable permissions to make a guard appear effective or grant broader permissions to make its control pass.
 - MUST NOT count an unsupported route, an edit never reached, a prior permission denial or an unknown target effect as successful prevention.
@@ -115,10 +120,18 @@ configuration does not hold internal state constant. Compare acquisition
 conditions from equivalent starting states, then check the real recovery path
 separately so a reset does not erase the refusal history being tested.
 
+A payload filter can also deny one command and allow another without consulting
+acquisition. Compare equivalent executed mutations, not merely matching routes.
+Necessary input variations must each cross both acquisition conditions rather
+than assigning a denied payload to missing material and an allowed one to
+acquired material.
+
 **Guidelines:**
 
 - MUST start missing-material and acquired-material comparisons from verified equivalent state unrelated to acquisition, including effective composed-handler state and target baseline. The default is a permitted reset of the same tested scope; matched isolated instances are an alternative only when relevant starting-state and scope equivalence are established independently of their outcomes.
 - MUST preserve each comparison's actual actor/current-context and target correspondence; matched instances do not establish another actor's acquisition or extend coverage to unexercised scopes.
+- MUST hold intended and executed mutation content and semantics equivalent across acquisition conditions, correlating inspected-to-executed transformations. Different disposable target identifiers require a target mapping established independently of outcomes; normalization must not discard mutation-relevant differences.
+- MUST exercise each necessary relevant command or payload variation with both acquisition conditions independently of invocation order; an input-only deny/allow filter cannot qualify from differently assigned payloads.
 - MUST repeat matched comparisons or counterbalance the acquisition conditions to distinguish acquisition-dependent results from invocation-position or history-dependent behavior. One missing-then-acquired sequence is insufficient.
-- MUST keep the affected scope unqualified in audit mode when relevant state equivalence or the order comparison cannot be established; matching configuration or outcomes alone is insufficient, and an unavailable reset does not authorize an invented host mechanism.
-- MUST separately verify the actual refusal-to-recovery path through the same actor, event, tool, target, configuration and effective handler composition under ordinary permissions: required recovery reads and a subsequent valid mutation must succeed without resetting away refusal history. Reset-based acquisition comparisons do not replace this recovery evidence.
+- MUST keep the affected scope unqualified in audit mode when relevant input or state equivalence or the order comparison cannot be established; matching configuration or outcomes alone is insufficient, and an unavailable reset does not authorize an invented host mechanism.
+- MUST check the actual post-event path separately under [failure and recovery behavior](#failure-and-recovery-behavior). Reset-based acquisition comparisons do not replace recovery evidence with the actual event history intact.
