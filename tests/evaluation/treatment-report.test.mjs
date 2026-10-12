@@ -141,6 +141,55 @@ describe("computeTreatmentReport()", () => {
   });
 
   it.each([
+    { missing: "scorer", remove: (entry) => { delete entry.scorer; } },
+    { missing: "rubric", remove: (entry) => { delete entry.scorer.rubric; } },
+  ].flatMap((scenario) => [
+    { ...scenario, order: "missing first", indices: [0, 1, 2, 3] },
+    { ...scenario, order: "changed first", indices: [3, 2, 1, 0] },
+  ]))("retains a known declared scorer conflict with a missing $missing and $order", ({ remove, indices }) => {
+    const { declaration, observations } = treatmentFixture(2);
+    remove(declaration.cells[0].opportunities[2]);
+    remove(observations.records[0].results[2]);
+    declaration.cells[3].opportunities[2].scorer.rubric = digest("different rubric");
+    observations.records[3].results[2].scorer.rubric = digest("different rubric");
+    declaration.cells = indices.map((index) => declaration.cells[index]);
+    observations.records = indices.map((index) => observations.records[index]);
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+    const output = report.opportunities.find((entry) => entry.id === "output");
+
+    expect(output.qualification.status).toBe("confounded");
+    expect(output.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "unknown", at: expect.stringContaining(".scorer.rubric") }));
+    expect(output.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "confounded", at: expect.stringContaining(".declaredScorer") }));
+    expect(output.effect).toBeNull();
+    expect(report.axes.conformity.populations.old.rate).toBeNull();
+    expect(report.axes.conformity.populations.new.rate).toBeNull();
+    expect(report.axes.conformity.effect).toBeNull();
+    expect(report.axes.selection.effect).toBe(0);
+    expect(report.axes.acquisition.effect).toBe(0);
+    expect(report.counts).toEqual({ planned: 4, observedStarted: 4, observedCompleted: 4 });
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
+  });
+
+  it.each(["rubric", "evidenceSlots"])("keeps a missing declared %s unknown when every known scorer identity agrees", (field) => {
+    const { declaration, observations } = treatmentFixture(2);
+    delete declaration.cells[0].opportunities[2].scorer[field];
+    delete observations.records[0].results[2].scorer[field];
+
+    const report = computeTreatmentReport(declaration, observations);
+    const output = report.opportunities.find((entry) => entry.id === "output");
+
+    expect(output.qualification.status).toBe("unknown");
+    expect(output.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "unknown", at: expect.stringContaining(`.declaredScorer.${field}`) }));
+    expect(output.qualification.deficits.some((entry) => entry.kind === "confounded")).toBe(false);
+    expect(output.effect).toBeNull();
+    expect(report.axes.conformity.effect).toBeNull();
+    expect(report.axes.selection.effect).toBe(0);
+    expect(report.axes.acquisition.effect).toBe(0);
+  });
+
+  it.each([
     ["scorer", (opportunity) => { opportunity.scorer.rubric = digest("new rubric"); }],
     ["dimension", (opportunity) => { opportunity.dimensions.obligation = "different-output"; }],
   ])("blocks a declared %s mismatch on a missing inapplicable opportunity", (_, change) => {
@@ -178,6 +227,38 @@ describe("computeTreatmentReport()", () => {
     expect(report.axes.selection.effect).toBe(0);
   });
 
+  it.each([
+    { missing: "source", remove: (entry) => { delete entry.evidence.output.source; } },
+    { missing: "scorer", remove: (entry) => { delete entry.scorer; } },
+    { missing: "evidence slots", remove: (entry) => { delete entry.scorer.evidenceSlots; } },
+  ].flatMap((scenario) => [
+    { ...scenario, order: "missing first", indices: [0, 1, 2, 3] },
+    { ...scenario, order: "changed first", indices: [3, 2, 1, 0] },
+  ]))("retains a known declared evidence-source conflict with a missing $missing and $order", ({ remove, indices }) => {
+    const { declaration, observations } = treatmentFixture(2);
+    remove(declaration.cells[0].opportunities[2]);
+    remove(observations.records[0].results[2]);
+    declaration.cells[3].opportunities[2].evidence.output.source = "different-evidence-producer";
+    observations.records[3].results[2].evidence.output.source = "different-evidence-producer";
+    declaration.cells = indices.map((index) => declaration.cells[index]);
+    observations.records = indices.map((index) => observations.records[index]);
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+    const output = report.opportunities.find((entry) => entry.id === "output");
+
+    expect(output.qualification.status).toBe("confounded");
+    expect(output.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "unknown" }));
+    expect(output.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "confounded", at: "output.evidence.output.source" }));
+    expect(output.effect).toBeNull();
+    expect(report.axes.conformity.populations.old.rate).toBeNull();
+    expect(report.axes.conformity.populations.new.rate).toBeNull();
+    expect(report.axes.conformity.effect).toBeNull();
+    expect(report.axes.selection.effect).toBe(0);
+    expect(report.axes.acquisition.effect).toBe(0);
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
+  });
+
   it.each(["skills", "guidance", "adapters"])("allows acquisition sources to track the same named allowed %s material across treatments", (kind) => {
     const { declaration, observations } = treatmentFixture();
     const name = kind === "skills" ? "target" : kind === "guidance" ? "policy" : "adapter";
@@ -197,6 +278,37 @@ describe("computeTreatmentReport()", () => {
     expect(report.opportunities.find((entry) => entry.id === "acquire").qualification.status).toBe("qualified");
     expect(report.axes.acquisition.effect).toBe(0);
     expect(report.axes.conformity.effect).toBe(1);
+  });
+
+  it.each(["skills", "guidance", "adapters"])("keeps allowed %s acquisition sources unknown rather than confounded with a later candidate anchor", (kind) => {
+    const { declaration, observations } = treatmentFixture(2);
+    const name = kind === "skills" ? "target" : kind === "guidance" ? "policy" : "adapter";
+    declaration.allowedDifferences = [{ kind, name }];
+    declaration.treatments[1].materials.skills.target = structuredClone(declaration.treatments[0].materials.skills.target);
+    declaration.treatments[0].materials[kind][name].source = "acquired-old";
+    declaration.treatments[1].materials[kind][name].source = "acquired-new";
+    declaration.cells.forEach((cell, index) => {
+      const treatment = declaration.treatments.find((entry) => entry.id === cell.treatment);
+      cell.opportunities[1].evidence.output.source = treatment.materials[kind][name].source;
+      observations.records[index].materials = structuredClone(treatment.materials);
+      observations.records[index].results[1].evidence.output.source = treatment.materials[kind][name].source;
+    });
+    delete declaration.cells[0].opportunities[1].evidence.output.source;
+    delete observations.records[0].results[1].evidence.output.source;
+    declaration.cells = [declaration.cells[0], declaration.cells[2], declaration.cells[1], declaration.cells[3]];
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+    const acquire = report.opportunities.find((entry) => entry.id === "acquire");
+
+    expect(acquire.qualification.status).toBe("unknown");
+    expect(acquire.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "unknown", at: expect.stringContaining(".evidence.output.source") }));
+    expect(acquire.qualification.deficits.some((entry) => entry.kind === "confounded")).toBe(false);
+    expect(acquire.effect).toBeNull();
+    expect(report.axes.acquisition.effect).toBeNull();
+    expect(report.axes.conformity.effect).toBe(1);
+    expect(report.axes.selection.effect).toBe(0);
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
   });
 
   it.each([1, 2])("blocks an unrelated acquisition source declared and observed in candidate repetition %s", (repetition) => {
@@ -432,6 +544,36 @@ describe("computeTreatmentReport()", () => {
     expect(report.axes.acquisition.populations.new.states[status]).toBe(1);
     expect(report.axes.conformity.effect).toBe(1);
     expect(report.guards[0].instrumentQualified).toBe(true);
+  });
+
+  it.each([
+    { delivery: "omitted", details: {}, status: "pass", rate: 1 },
+    { delivery: "current", details: { delivery: "current" }, status: "pass", rate: 1 },
+    { delivery: "unknown", details: { delivery: "unknown" }, status: "unknown", rate: null },
+    { delivery: "unknown with mismatch", details: { delivery: "unknown", coverage: "mismatch" }, status: "fail", rate: 0 },
+    { delivery: "unknown with partial coverage", details: { delivery: "unknown", coverage: "partial" }, status: "partial", rate: null },
+    { delivery: "stale with partial coverage", details: { delivery: "stale", coverage: "partial" }, status: "fail", rate: 0 },
+    { delivery: "mixed with partial coverage", details: { delivery: "mixed", coverage: "partial" }, status: "fail", rate: 0 },
+    { delivery: "truncated", details: { delivery: "truncated" }, status: "partial", rate: null },
+    { delivery: "truncated with mismatch", details: { delivery: "truncated", coverage: "mismatch" }, status: "fail", rate: 0 },
+  ])("assesses $delivery delivery as $status without changing independently checked conformity", ({ details, status, rate }) => {
+    const { declaration, observations } = treatmentFixture();
+    observations.records[0].results[1].status = "fail";
+    Object.assign(observations.records[1].results[1].details, details);
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+    const acquire = report.opportunities.find((entry) => entry.id === "acquire");
+
+    expect(report.cells[1].opportunities[1]).toMatchObject({ observedStatus: "pass", status, details });
+    expect(report.axes.acquisition.populations.new).toMatchObject({ planned: 1, applicable: 1, observed: 1, states: { [status]: 1 }, rate });
+    expect(report.axes.acquisition.effect).toBe(rate);
+    expect(acquire.populations).toEqual(report.axes.acquisition.populations);
+    expect(acquire.effect).toBe(rate);
+    expect(report.cells[1].opportunities[2].status).toBe("pass");
+    expect(report.axes.conformity.effect).toBe(1);
+    expect(report.axes.selection.effect).toBe(0);
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
   });
 
   it("does not pool different tasks' live and synthetic populations into an effect", () => {

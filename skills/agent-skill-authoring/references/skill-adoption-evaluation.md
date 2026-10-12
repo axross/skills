@@ -109,4 +109,3 @@ If no QA owner is available, report that evidence-sufficiency review is absent a
 - MUST route evidence-sufficiency judgment to the project's QA practices when present; without that owner, state the limitation rather than substitute unknown evidence for a pass.
 - MUST ground axis criteria in adopted domain contracts and identify any missing contract that limits a verdict; sibling proposals or messages are not adopted scoring revisions.
 - MUST retain synthetic/live provenance, supported scope, and unqualified claims in every report; source agreement, installation, or loading checks alone are not experimental adoption evidence.
-- MUST describe offline preparation as groundwork only: live consumer fixtures, host/worker/resume/audit qualification, the live matrix and its cost/effect budget, consumer adoption, and guard promotion remain deferred until separately settled and authorized.

@@ -114,6 +114,7 @@ function assessedStatus(opportunity, result) {
     if (!details.availability || details.availability === "unknown" || !details.route || ["unknown", "parent-only"].includes(details.route) || !details.coverage || details.coverage === "unknown") return "unknown";
     if (details.coverage === "mismatch" || ["stale", "mixed"].includes(details.delivery)) return "fail";
     if (details.coverage === "partial" || details.delivery === "truncated") return "partial";
+    if (details.delivery === "unknown") return "unknown";
     return "pass";
   }
   if (opportunity.axis !== "guards") return result.status;
@@ -199,16 +200,23 @@ export function computeTreatmentReport(declaration, observations) {
     const membership = baseline.length && candidate.length ? "common" : baseline.length ? "removed" : "added";
     const groupDeficits = group.entries.filter((entry) => entry.opportunity.applicable || entry.report.observedStatus !== null).flatMap((entry) => entry.report.qualification.deficits);
     if (membership === "common") {
-      const firstEntry = group.entries[0];
-      const first = firstEntry.opportunity;
+      const first = group.entries[0].opportunity;
+      const scorerFields = new Set([...SCORER, ...group.entries.flatMap((entry) => Object.keys(entry.opportunity.scorer ?? {}))]);
+      for (const field of scorerFields) {
+        const expected = group.entries.find((entry) => entry.opportunity.scorer?.[field] != null)?.opportunity.scorer[field];
+        for (const entry of group.entries) compareIdentity(expected, entry.opportunity.scorer?.[field], `${group.id}.declaredScorer.${field}`, groupDeficits);
+      }
       for (const entry of group.entries) {
-        compareIdentity(first.scorer, entry.opportunity.scorer, `${group.id}.declaredScorer`, groupDeficits);
         for (const dimension of Object.keys(first.dimensions)) compareIdentity(first.dimensions[dimension], entry.opportunity.dimensions[dimension], `${group.id}.${dimension}`, groupDeficits);
-        for (const slot of first.scorer?.evidenceSlots ?? []) {
-          const expectedSource = first.evidence?.[slot]?.source;
+      }
+      const slots = new Set(group.entries.flatMap((entry) => [...(entry.opportunity.scorer?.evidenceSlots ?? []), ...Object.keys(entry.opportunity.evidence ?? {})]));
+      for (const slot of slots) {
+        const sourceEntry = group.entries.find((entry) => entry.opportunity.evidence?.[slot]?.source != null);
+        const expectedSource = sourceEntry?.opportunity.evidence[slot].source;
+        for (const entry of group.entries) {
           const actualSource = entry.opportunity.evidence?.[slot]?.source;
           const followsTreatment = group.axis === "acquisition" && expectedSource != null && actualSource != null && [...allowed.values()].some(({ kind, name }) =>
-            treatments.get(firstEntry.treatment).materials?.[kind]?.[name]?.source === expectedSource &&
+            treatments.get(sourceEntry.treatment).materials?.[kind]?.[name]?.source === expectedSource &&
             treatments.get(entry.treatment).materials?.[kind]?.[name]?.source === actualSource);
           if (!followsTreatment) compareIdentity(expectedSource, actualSource, `${group.id}.evidence.${slot}.source`, groupDeficits);
         }
