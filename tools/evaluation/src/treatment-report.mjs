@@ -103,9 +103,11 @@ function assessedStatus(opportunity, result) {
   if (result.status !== "pass") return result.status;
   const details = result.details ?? {};
   if (opportunity.axis === "selection") {
-    if (details.invoked == null || details.timing == null || details.timing === "unknown") return "unknown";
+    if (details.invoked == null) return "unknown";
     if (!opportunity.applicable) return details.invoked ? "fail" : "pass";
-    return details.invoked && details.timing === "before-dependent-judgment" ? "pass" : "fail";
+    if (!details.invoked) return "fail";
+    if (details.timing == null || details.timing === "unknown") return "unknown";
+    return details.timing === "before-dependent-judgment" ? "pass" : "fail";
   }
   if (opportunity.axis === "acquisition") {
     if (details.availability === "unavailable" || details.coverage === "unavailable") return "unsupported";
@@ -197,12 +199,18 @@ export function computeTreatmentReport(declaration, observations) {
     const membership = baseline.length && candidate.length ? "common" : baseline.length ? "removed" : "added";
     const groupDeficits = group.entries.flatMap((entry) => entry.report.qualification.deficits);
     if (membership === "common") {
-      const first = group.entries[0].opportunity;
+      const firstEntry = group.entries[0];
+      const first = firstEntry.opportunity;
       for (const entry of group.entries) {
         compareIdentity(first.scorer, entry.opportunity.scorer, `${group.id}.declaredScorer`, groupDeficits);
         for (const dimension of Object.keys(first.dimensions)) compareIdentity(first.dimensions[dimension], entry.opportunity.dimensions[dimension], `${group.id}.${dimension}`, groupDeficits);
-        if (group.axis !== "acquisition") {
-          for (const slot of first.scorer?.evidenceSlots ?? []) compareIdentity(first.evidence?.[slot]?.source, entry.opportunity.evidence?.[slot]?.source, `${group.id}.evidence.${slot}.source`, groupDeficits);
+        for (const slot of first.scorer?.evidenceSlots ?? []) {
+          const expectedSource = first.evidence?.[slot]?.source;
+          const actualSource = entry.opportunity.evidence?.[slot]?.source;
+          const followsTreatment = group.axis === "acquisition" && expectedSource != null && actualSource != null && [...allowed.values()].some(({ kind, name }) =>
+            treatments.get(firstEntry.treatment).materials?.[kind]?.[name]?.source === expectedSource &&
+            treatments.get(entry.treatment).materials?.[kind]?.[name]?.source === actualSource);
+          if (!followsTreatment) compareIdentity(expectedSource, actualSource, `${group.id}.evidence.${slot}.source`, groupDeficits);
         }
       }
       if (!isDeepStrictEqual(baseline.map((entry) => entry.repetition).sort(), candidate.map((entry) => entry.repetition).sort())) groupDeficits.push(deficit("unknown", group.id, "unbalanced common opportunity population"));

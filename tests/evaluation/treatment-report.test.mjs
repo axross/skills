@@ -160,15 +160,56 @@ describe("computeTreatmentReport()", () => {
     expect(report.axes.selection.effect).toBe(0);
   });
 
-  it("allows acquisition sources to track the declared treatment material rather than fixing them across treatments", () => {
+  it.each(["skills", "guidance", "adapters"])("allows acquisition sources to track the same named allowed %s material across treatments", (kind) => {
     const { declaration, observations } = treatmentFixture();
-    declaration.cells[1].opportunities[1].evidence.output.source = "target-new";
-    observations.records[1].results[1].evidence.output.source = "target-new";
+    const name = kind === "skills" ? "target" : kind === "guidance" ? "policy" : "adapter";
+    declaration.allowedDifferences = [{ kind, name }];
+    declaration.treatments[1].materials.skills.target = structuredClone(declaration.treatments[0].materials.skills.target);
+    declaration.treatments[0].materials[kind][name].source = "acquired-old";
+    declaration.treatments[1].materials[kind][name].source = "acquired-new";
+    declaration.cells.forEach((cell, index) => {
+      const material = declaration.treatments[index].materials[kind][name];
+      cell.opportunities[1].evidence.output.source = material.source;
+      observations.records[index].materials = structuredClone(declaration.treatments[index].materials);
+      observations.records[index].results[1].evidence.output.source = material.source;
+    });
 
     const report = computeTreatmentReport(declaration, observations);
 
     expect(report.opportunities.find((entry) => entry.id === "acquire").qualification.status).toBe("qualified");
     expect(report.axes.acquisition.effect).toBe(0);
+    expect(report.axes.conformity.effect).toBe(1);
+  });
+
+  it.each([1, 2])("blocks an unrelated acquisition source declared and observed in candidate repetition %s", (repetition) => {
+    const { declaration, observations } = treatmentFixture(2);
+    const cell = declaration.cells.find((entry) => entry.treatment === "new" && entry.repetition === repetition);
+    const record = observations.records.find((entry) => entry.id === cell.observationId);
+    cell.opportunities[1].evidence.output.source = "unrelated-origin";
+    record.results[1].evidence.output.source = "unrelated-origin";
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.opportunities.find((entry) => entry.id === "acquire").qualification.status).toBe("confounded");
+    expect(report.axes.acquisition.effect).toBeNull();
+    expect(report.axes.acquisition.populations.new.rate).toBeNull();
+    expect(report.axes.conformity.effect).toBe(1);
+  });
+
+  it("does not match acquisition sources from two different allowed materials", () => {
+    const { declaration, observations } = treatmentFixture();
+    declaration.allowedDifferences.push({ kind: "skills", name: "peer" });
+    declaration.treatments[1].materials.skills.peer.source = "peer-new";
+    observations.records[1].materials.skills.peer.source = "peer-new";
+    declaration.cells[0].opportunities[1].evidence.output.source = "target-old";
+    observations.records[0].results[1].evidence.output.source = "target-old";
+    declaration.cells[1].opportunities[1].evidence.output.source = "peer-new";
+    observations.records[1].results[1].evidence.output.source = "peer-new";
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.opportunities.find((entry) => entry.id === "acquire").qualification.status).toBe("confounded");
+    expect(report.axes.acquisition.effect).toBeNull();
     expect(report.axes.conformity.effect).toBe(1);
   });
 
@@ -360,6 +401,36 @@ describe("computeTreatmentReport()", () => {
 
     expect(report.cells[1].opportunities[0].status).toBe("fail");
     expect(report.axes.selection.populations.new).toMatchObject({ applicable: 0, inapplicable: 1, rate: null });
+  });
+
+  it.each([
+    { applicable: false, details: { invoked: false }, status: "pass" },
+    { applicable: false, details: { invoked: false, timing: "unknown" }, status: "pass" },
+    { applicable: true, details: { invoked: false }, status: "fail" },
+    { applicable: true, details: { invoked: false, timing: "unknown" }, status: "fail" },
+    { applicable: true, details: { invoked: true, timing: "unknown" }, status: "unknown" },
+    { applicable: false, details: { timing: "unknown" }, status: "unknown" },
+  ])("assesses selection as $status for applicability $applicable with details $details", ({ applicable, details, status }) => {
+    const { declaration, observations } = treatmentFixture();
+    declaration.cells[1].opportunities[0].applicable = applicable;
+    observations.records[1].results[0].details = details;
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.cells[1].opportunities[0]).toMatchObject({ observedStatus: "pass", status });
+    expect(report.axes.conformity.effect).toBe(1);
+  });
+
+  it("retains selection approval waiting rather than reclassifying a non-invocation", () => {
+    const { declaration, observations } = treatmentFixture();
+    observations.records[1].results[0].status = "approval-wait";
+    observations.records[1].results[0].details = { invoked: false };
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.cells[1].opportunities[0].status).toBe("approval-wait");
+    expect(report.axes.selection.effect).toBeNull();
+    expect(report.axes.conformity.effect).toBe(1);
   });
 
   it.each(["failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"])("preserves %s and never reports an incomplete primary effect", (status) => {

@@ -340,7 +340,11 @@ on both sides. Scorer differences block the affected opportunity or axis rather
 than independent axes. A fixed scorer definition identifies its rubric, template
 or script, judge model, route and evidence slots. Non-acquisition slot sources
 stay fixed across treatments and repetitions; output content may vary.
-Acquisition evidence identities can follow the declared material variant.
+Acquisition slot sources stay fixed unless both compared sources match the
+respective treatment sources of the same named allowed material. Naming two
+unrelated sources in cell declarations does not make that change a treatment.
+Expected acquisition content remains separately declared for each cell; the
+report does not equate delivered-material content with one material's file hash.
 For reasoning, the report checks the actual full prompt against the fixed
 template rendered with those slots. Slot payloads and full prompts remain in
 the immutable inputs; the report
@@ -359,6 +363,9 @@ The report keeps four populations separate:
 The instrument preserves submitted non-pass states. A claimed pass lacking its
 axis evidence is not promoted: parent-only material stays acquisition-unknown,
 partial delivery stays partial, and an unreached edit stays not-reached.
+For selection, an observed non-invocation passes an inapplicable control and
+fails an applicable opportunity without needing invocation timing. Timing is
+required only for an applicable invocation; unknown invocation stays unknown.
 Domain criteria and applicability still come from adopted contracts; these
 fields are an offline report interface, not another domain-policy owner.
 
