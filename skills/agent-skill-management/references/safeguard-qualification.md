@@ -102,7 +102,23 @@ establishes cleanup, not prevention by the safeguard.
 **Guidelines:**
 
 - MUST demonstrate refusal preventing the intended mutation from actual target-state evidence after the attempted mutation and any delayed or spawned work have settled; a pre-edit event, refusal output or zero exit status is insufficient. Verify any termination through permitted host operations; unsettled effects remain unknown.
-- MUST pair refusal with valid-edit and post-recovery mutation controls through the same actor, event, tool, target, configuration and effective handler composition, varying only the acquisition condition. Recovery reads still use their permitted read routes.
+- MUST pair refusal with valid-edit controls through the same qualified event, tool, configuration and effective handler composition, using [state and invocation-order controls](#control-state-and-invocation-order) for starting-state equivalence and actual actor/context/target correspondence. Recovery reads still use their permitted read routes.
 - MUST exercise valid-edit controls and recovery under the same ordinary permission boundaries; do not disable permissions to make a guard appear effective or grant broader permissions to make its control pass.
 - MUST NOT count an unsupported route, an edit never reached, a prior permission denial or an unknown target effect as successful prevention.
 - MUST label static analysis, fixtures and walkthroughs separately from actual host execution, and bound any promotion to the scope and failure cases the evidence establishes.
+
+## Control state and invocation order
+
+A handler that denies its first invocation and allows later invocations can pass
+one missing-then-acquired sequence without inspecting acquisition. Matching
+configuration does not hold internal state constant. Compare acquisition
+conditions from equivalent starting states, then check the real recovery path
+separately so a reset does not erase the refusal history being tested.
+
+**Guidelines:**
+
+- MUST start missing-material and acquired-material comparisons from verified equivalent state unrelated to acquisition, including effective composed-handler state and target baseline. The default is a permitted reset of the same tested scope; matched isolated instances are an alternative only when relevant starting-state and scope equivalence are established independently of their outcomes.
+- MUST preserve each comparison's actual actor/current-context and target correspondence; matched instances do not establish another actor's acquisition or extend coverage to unexercised scopes.
+- MUST repeat matched comparisons or counterbalance the acquisition conditions to distinguish acquisition-dependent results from invocation-position or history-dependent behavior. One missing-then-acquired sequence is insufficient.
+- MUST keep the affected scope unqualified in audit mode when relevant state equivalence or the order comparison cannot be established; matching configuration or outcomes alone is insufficient, and an unavailable reset does not authorize an invented host mechanism.
+- MUST separately verify the actual refusal-to-recovery path through the same actor, event, tool, target, configuration and effective handler composition under ordinary permissions: required recovery reads and a subsequent valid mutation must succeed without resetting away refusal history. Reset-based acquisition comparisons do not replace this recovery evidence.
