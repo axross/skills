@@ -95,6 +95,19 @@ describe("computeTreatmentReport()", () => {
     expect(report.axes.conformity.effect).toBeNull();
   });
 
+  it.each(["provenance", "scope"])("retains a known %s conflict even when the first observation lacks that identity", (field) => {
+    const { declaration, observations } = treatmentFixture(2);
+    delete observations.records[0][field];
+    observations.records[3][field] = field === "provenance" ? "live" : "different observation scope";
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.qualification.status).toBe("confounded");
+    expect(report.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "unknown", at: expect.stringContaining(`.${field}`) }));
+    expect(report.qualification.deficits).toContainEqual(expect.objectContaining({ kind: "confounded", at: expect.stringContaining(`.${field}`) }));
+    expect(report.axes.conformity.effect).toBeNull();
+  });
+
   it("accepts varying evidence in declared slots while retaining full prompts only in the immutable input", () => {
     const { declaration, observations } = withReasoningOutput(treatmentFixture());
 

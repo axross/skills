@@ -149,6 +149,7 @@ export function computeTreatmentReport(declaration, observations) {
   const { tasks, treatments, cells, records, allowed } = validateTreatmentInputs(declaration, observations);
   const deficits = [];
   compareMaterials(treatments.get(declaration.baseline).materials, treatments.get(declaration.candidate).materials, "treatments", deficits, allowed);
+  const populationIdentities = Object.fromEntries(["provenance", "scope"].map((field) => [field, [...records.values()].find((record) => record[field] != null)?.[field]]));
   const cellReports = [];
   const groups = new Map();
   for (const [key, cell] of cells) {
@@ -163,10 +164,8 @@ export function computeTreatmentReport(declaration, observations) {
     const counterpart = cells.get(keyOf({ ...cell, treatment: cell.treatment === declaration.baseline ? declaration.candidate : declaration.baseline }));
     if (!counterpart) cellDeficits.push(deficit("unknown", at, "missing declared counterpart"));
     else compareIdentity(cell.condition, counterpart.condition, `${at}.condition`, cellDeficits);
-    const scopePeer = records.values().next().value;
-    if (record && scopePeer) {
-      compareIdentity(scopePeer.provenance, record.provenance, `${at}.provenance`, cellDeficits);
-      compareIdentity(scopePeer.scope, record.scope, `${at}.scope`, cellDeficits);
+    if (record) {
+      for (const [field, expected] of Object.entries(populationIdentities)) compareIdentity(expected, record[field], `${at}.${field}`, cellDeficits);
     }
     deficits.push(...cellDeficits);
     const results = new Map((record?.results ?? []).map((entry) => [entry.id, entry]));
