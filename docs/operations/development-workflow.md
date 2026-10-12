@@ -73,10 +73,14 @@ the maintainer's own judgment call, taken against no measurement either way,
 and is reported as `declared` rather than as measured or verified.
 
 These are configured candidates, not a portable ranking or permission grant.
-A session MUST check actual permitted capabilities before using one.
-Delegating to the matching configured actor is the default; parent
-implementation is valid only when delegation is unavailable or disallowed,
-and mandatory verification and external review remain unchanged.
+A Claude Code session uses the matching configured actor when that assignment
+qualifies under its actual permitted capabilities; parent implementation is the
+fallback when delegation is unavailable or disallowed. Amp roles and invocation
+conditions follow [Amp Execution](./amp-execution.md), not these Claude
+definitions. Apply Loop's [checkpoint qualification](../../skills/loop-engineering/references/subagent-delegation.md#checkpoint-qualification)
+separately to implementation delegation, phase-deliverable review, and
+implementation pre-flight; mandatory verification and external review remain
+unchanged.
 
 The project's advisory review applies after every verified initial
 implementation, whether the parent or a child implemented it, before the first
@@ -91,6 +95,8 @@ If no reader qualifies, record the exact unavailable or prohibited reason and
 the resulting delivery restriction. This outcome is not a clean review, does
 not waive external review, and does not authorize publication. A separately
 authorized draft may proceed with the advisory gap recorded and remains draft.
+That exception covers only implementation pre-flight, not artifact review or
+mandatory external review.
 
 Recovery before the first push resumes the pending pre-flight checkpoint. Once
 the draft pull request exists, later fixes follow the external addressing and

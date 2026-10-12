@@ -148,25 +148,25 @@ policy for Claude Code.
 
 ## Route a read, and task an investigator
 
-[Read Routing](../../skills/loop-engineering/references/subagent-delegation.md#read-routing)
-owns which reads leave the parent's context, and
-[The Investigator Return Contract](../../skills/loop-engineering/references/subagent-delegation.md#the-investigator-return-contract)
-owns what an investigation hands back. This section names the actors.
+Applicable host guidance owns general read routing. Loop retains
+[assignment and material-fidelity contracts](../../skills/loop-engineering/references/implementation-package.md),
+not an Investigator route. This section supplies Claude Code's configured
+actors; none of them is an Amp mapping or an established Codex capability:
 
-- `.claude/agents/investigator.md` is the configured reader for a bounded
+- [`.claude/agents/investigator.md`](../../.claude/agents/investigator.md) remains the configured reader for a bounded
   investigation question, invoked through the `Agent` tool as
-  `subagent_type: investigator`. Its definition denies editing and nested
+  `subagent_type: investigator`. Its definition owns the investigation's
+  return shape and denies editing tools and nested
   spawning, and states the rest of its boundary in prose; a general-purpose
   shell remains, because reading requires one.
 - A built-in read-only search agent covers a broad fan-out across many files or
   naming conventions where no project definition is needed.
-- The narrowing the reference's third row calls for is done with an
-  offset-and-limit read, a field selection on a structured response, or a
-  bounded grep — these are the calls that serve it here.
+- Direct tools supply exact lookups or bounded extracts through an
+  offset-and-limit read, field selection, or bounded grep.
 - The configured actor is not required for an exact lookup the parent can make in
-  one call, and is unavailable where the session exposes no `Agent` tool. Either
-  way the parent reads the payload itself, one read at a time. This is a
-  per-read fallback, not a stage skipped as a whole.
+  one call, and is unavailable where the session exposes no eligible `Agent`
+  route. Use the permitted direct read for that question instead; unavailability
+  for that assignment does not skip a Loop review checkpoint.
 
 ## Read the delegation determination
 
