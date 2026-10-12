@@ -49,7 +49,7 @@ For the bounds of an integrated-output claim, consult contributor-verification p
 
 **Guidelines:**
 
-- MUST reject unrelated, stale or insensitive results for the claimed property under Review Finding Scope.
+- MUST reject unrelated or stale results for the claimed property under Review Finding Scope.
 
 ## Evidence Required Before Completion
 
