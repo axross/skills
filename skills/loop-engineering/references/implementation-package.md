@@ -58,6 +58,8 @@ A writing result carries compact self-review evidence for the current loop drive
 
 An internal review handoff identifies the reviewed source, target revision or content identifier, actual diff and files, policy applied, evidence inspected, and every finding. A clean result is valid only when all required materials were available.
 
+For an investigation, plan, or design artifact review, [reviewing-phase-deliverables.md](./reviewing-phase-deliverables.md) binds this result to the current artifact and places it before phase reliance; the conduct practice owns the review method and budget.
+
 For a posted independent review, [Review Completion Evidence](./independent-review.md#review-completion-evidence) owns completion instead. The loop driver records observable request/result correlation metadata; that record is not a demand for the reviewer to enumerate passed checks or assert policy consumption. Unobserved inspection details are not the same as missing required review material.
 
 **Guidelines:**
