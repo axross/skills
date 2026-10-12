@@ -8,6 +8,7 @@ const ROUTING_MENTION = new RegExp(`(?<![\\p{L}\\p{N}_])${KEYWORD_MENTION.source
 const LABEL = /^(Guidelines|(?:(?:Good\/Bad|Good|Bad|Single Prose|Snippet|Decision-language|Implementation-language|Failure|Anti-Pattern)\s+)?Examples?):(?:\s|$)/i;
 const SMALL_WORDS = new Set("a an and as at but by for from in of on or the to with".split(" "));
 const TITLE_TOKENS = { api: "API", cli: "CLI", json: "JSON", rfc: "RFC", ui: "UI", yaml: "YAML", next: "Next.js", tanstack: "TanStack" };
+const TRANSPARENT_HTML = new Set("a b del em i ins mark s small span strong sub sup u".split(" "));
 const parser = new MarkdownIt({ html: true });
 
 /** build block/container relationships from the already captured parser tokens. */
@@ -32,7 +33,7 @@ function text(tokens) {
 }
 
 function inlineRendered(tokens) {
-  return Boolean(text(tokens).trim() || tokens.some(token => token.type === "image" || token.type === "html_inline" && !/^<!--[\s\S]*-->$/.test(token.content)));
+  return Boolean(text(tokens).trim() || tokens.some(token => token.type === "image" || token.type === "html_inline" && /^<(?:img|svg)(?=[\s/>])/i.test(token.content)));
 }
 
 /** recognize bounded colon-bearing labels and retain their formatting separately. */
@@ -64,26 +65,32 @@ function keyword(node, { requireBody = false, excludeMentions = false, includeHe
     if (node?.token.type !== "paragraph_open" && !(includeHeadings && node?.token.type === "heading_open")) return false;
     tokens = inline(node);
   }
-  tokens = tokens.filter(token => !["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type) && (token.type !== "text" || token.content !== "") && !(token.type === "html_inline" && /^<!--[\s\S]*-->$/.test(token.content)));
+  tokens = tokens.filter(token => {
+    if (["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type)) return false;
+    if (token.type === "text") return token.content !== "";
+    if (token.type !== "html_inline") return true;
+    const tag = token.content.match(/^<\/?([a-z][a-z0-9]*)(?=[\s/>])/i)?.[1].toLowerCase();
+    return !/^<!--[\s\S]*-->$/.test(token.content) && !TRANSPARENT_HTML.has(tag);
+  });
   if (!anywhere && tokens[0]?.type !== "text") return false;
-  let content = anywhere ? tokens.map(token => token.type === "text" ? token.content : " ").join("") : text(tokens).trim();
+  let content = tokens.map(token => token.type === "text" ? token.content : " ").join("").trim();
   if (anywhere) {
     content = content.replace(/"[^"]*"|“[^”]*”|(?<![\p{L}\p{N}_])'[^']*'|‘[^’]*’/gu, " ").replace(ROUTING_MENTION, " ");
     return ROUTING_KEYWORD.test(content);
   }
   const match = content.match(KEYWORD);
   if (excludeMentions && KEYWORD_MENTION.test(content)) return false;
-  return Boolean(match && (!requireBody || match[2]));
+  return Boolean(match && (!requireBody || match[2] || tokens.some(token => token.type === "code_inline" && token.content.trim())));
 }
 
 function list(node) { return ["bullet_list_open", "ordered_list_open"].includes(node.token.type); }
-function invisible(node) { return node.token.type === "html_block" && /^(?:\s*<!--[\s\S]*?-->)+\s*$/.test(node.token.content) || node.token.type === "paragraph_open" && !node.children.some(rendered); }
+function invisible(node) { return ["html_block", "paragraph_open"].includes(node.token.type) && !rendered(node); }
 function firstParagraph(item) { return item.children.find(node => !invisible(node)); }
 
 /** find rendered content through parsed containers without counting comments. */
 function rendered(node) {
-  if (invisible(node)) return false;
   if (node.token.type === "inline") return inlineRendered(node.token.children ?? []);
+  if (node.token.type === "html_block") return inlineRendered(parser.parseInline(node.token.content, {})[0].children);
   return node.children.length ? node.children.some(rendered) : Boolean(node.token.content?.trim());
 }
 
@@ -245,13 +252,14 @@ export const bodyChecks = {
   /** validate route serialization without resolving the reference destination. */
   AS007(body, report) {
     for (const route of body.routes) {
-      const content = text(inline(route.node));
+      const tokens = inline(route.node);
+      const content = text(tokens);
       const link = links(route.node);
       const target = link[0]?.href.split("#")[0];
       const topic = route.heading && route.heading.token.tag !== "h1";
       const reference = link.length === 1 && /^\.\/references\/[^/]+\.md$/.test(target) && link[0].label === target.split("/").at(-1);
       const prefix = `See ${link[0]?.label} `;
-      const leadIn = content.startsWith(prefix) && /^(?:for|when):$/.test(content.slice(prefix.length));
+      const leadIn = content.startsWith(prefix) && /^(?:for|when):$/.test(content.slice(prefix.length)) && tokens.every(token => token.type !== "image" && (token.type !== "html_inline" || /^<!--[\s\S]*-->$/.test(token.content)));
       const descriptiveList = route.lists.length && route.lists.every(node => node.token.type === "bullet_list_open" && node.children.some(item => item.children.some(child => child.token.type === "paragraph_open" && text(inline(child)).trim())));
       if (!topic || !reference || !leadIn || !descriptiveList) report(route.node, "Reference routes require a topic heading, See filename-labelled ./references/ link, for:/when: lead-in and a nonempty unordered list");
     }

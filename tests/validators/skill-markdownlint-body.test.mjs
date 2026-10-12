@@ -91,7 +91,7 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   it.each(["-", "*", "+", "1."])("requires rendered %s Guidelines items for RFC applicability", async (marker) => {
     const prefix = "# Fixture Skill\n\nRationale.\n\n**Guidelines:**\n\n";
     expect((await check("AS003", prefix, { eol })).code).toBe(0);
-    for (const item of [marker, marker + " <!-- invisible -->", marker + " **<!-- invisible -->**", marker + "\n    - <!-- invisible -->"]) {
+    for (const item of [marker, marker + " <!-- invisible -->", marker + " **<!-- invisible -->**", marker + " <span></span>", marker + " <div> </div>", marker + "\n    - <!-- invisible -->"]) {
       const body = prefix + item + "\n";
       const declaration = await check("AS003", body, { eol });
       expect(declaration.code).toBe(0);
@@ -248,13 +248,19 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     ['<img src="diagram.svg" alt="">', 0],
     ['<svg><path d="M0 0 L1 1" /></svg>', 0],
     ["![](diagram.svg)", 0],
+    ["<span></span>", 1],
+    ["<span> </span>", 1],
+    ['<span title="not content"></span>', 1],
+    ["</img></svg>", 1],
+    ["<span>A real explanation.</span>", 0],
+    ["`<span></span>`", 0],
     ["<!-- invisible -->", 1],
     ["**<!-- invisible -->**", 1],
   ])("counts inline Guidelines demonstrations without fetching HTML or counting comments (%#)", async (suffix, code) => {
     expect((await check("AS006", `## Rules\n\n**Guidelines:** ${suffix}\n\n- MUST preserve output.\n`, { eol })).code).toBe(code);
   });
 
-  it.each(["Consumers MUST preserve output.", "Consumers SHALL NOT discard output.", "Consumers **SHOULD** preserve output."])("rejects non-leading routing terms in paragraphs, continuations and headings: %s", async (content) => {
+  it.each(["Consumers MUST preserve output.", "Consumers SHALL NOT discard output.", "Consumers **SHOULD** preserve output.", "Consumers MU<span></span>ST preserve output.", "Consumers <span>MU</span>ST preserve output."])("rejects non-leading routing terms in paragraphs, continuations and headings: %s", async (content) => {
     for (const [item, lineNumber] of [[`- ${content}\n`, 11], [`* condition\n\n  ${content}\n`, 13], [`+ condition\n\n  ### ${content}\n`, 13]]) {
       const result = await check("AS008", ROUTE + item, { eol });
       expect(result.code).toBe(1);
@@ -279,6 +285,12 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     "Consumers OPTIONAL means a keyword name.",
     "Consumers MUSTache and MUST_NOT preserve output.",
     "Consumers must preserve output.",
+    'Consumers "MU<span></span>ST preserve output."',
+    "Consumers MU<span></span>ST and MAY are keyword names.",
+    "Consumers MU ST preserve output.",
+    "Consumers MU<br>ST preserve output.",
+    "Consumers MU<code></code>ST preserve output.",
+    "Consumers MU`S`T preserve output.",
   ])("excludes literal/name spans without hiding a separate routing directive (%#)", async (content) => {
     expect((await check("AS008", ROUTE + `- ${content}\n`, { eol })).code).toBe(0);
     const result = await check("AS008", ROUTE + `- ${content} Consumers SHALL NOT discard output.\n`, { eol });
@@ -286,16 +298,34 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 11 })]);
   });
 
-  it.each(["**<!-- invisible -->**", "_<!-- invisible -->_", "[**<!-- invisible -->**](https://example.com)"])("preserves associations across formatted comment-only paragraphs (%#)", async (comment) => {
+  it.each([
+    ["MU<span></span>ST preserve output.", 0],
+    ['<SPAN title="MAY">MU</SPAN>ST preserve output.', 0],
+    ["MU<mark><em></em></mark>ST preserve output.", 0],
+    ["MUST `preserve`", 0],
+    ["MU<br>ST preserve output.", 1],
+    ["MU`S`T preserve output.", 1],
+  ])("shares the authored keyword profile with Guidelines, RFC applicability and audit (%#)", async (content, code) => {
+    const bare = `# Fixture Skill\n\nRationale.\n\n- ${content}\n`;
+    expect((await check("AS005", `# Fixture Skill\n\nRationale.\n\n**Guidelines:**\n\n- ${content}\n`, { eol })).code).toBe(code);
+    expect((await check("AS003", bare, { eol })).code).toBe(1 - code);
+    expect((await check("AS006", bare, { eol })).code).toBe(0);
+    const audit = await check("AS006", bare, { eol, ruleConfig: { AS006: { auditMissingGuidelines: true } } });
+    expect(audit.code).toBe(1 - code);
+    if (!code) expect(audit.findings).toEqual([expect.objectContaining({ ruleNames: ["AS006"], lineNumber: 11 })]);
+  });
+
+  it.each(["**<!-- invisible -->**", "_<!-- invisible -->_", "[**<!-- invisible -->**](https://example.com)", "<span></span>", "<div>\n </div>"])("preserves associations across non-content paragraphs and HTML blocks (%#)", async (comment) => {
     const route = ROUTE + `- condition\n\n${comment}\n\n- Consumers MUST preserve output.\n`;
     const routing = await check("AS008", route, { eol });
     expect(routing.code).toBe(1);
-    expect(routing.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 15 })]);
+    const additionalLines = comment.split("\n").length - 1;
+    expect(routing.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 15 + additionalLines })]);
     expect((await check("AS008", route.replace(comment, "Independent rationale."), { eol })).code).toBe(0);
     const guidelines = `## Rules\n\nRationale.\n\n**Guidelines:**\n\n- MUST preserve output.\n\n${comment}\n\n- not a keyword\n`;
     const keyword = await check("AS005", guidelines, { eol });
     expect(keyword.code).toBe(1);
-    expect(keyword.findings).toEqual([expect.objectContaining({ ruleNames: ["AS005"], lineNumber: 17 })]);
+    expect(keyword.findings).toEqual([expect.objectContaining({ ruleNames: ["AS005"], lineNumber: 17 + additionalLines })]);
     expect((await check("AS005", guidelines.replace(comment, "Independent rationale."), { eol })).code).toBe(0);
     expect((await check("AS006", `## Rules\n\n${comment}\n\n**Guidelines:**\n\n- MUST preserve output.\n`, { eol })).code).toBe(1);
     expect((await check("AS009", `**Good Example:**\n\n${comment}\n\n> One example.\n`, { eol })).code).toBe(0);
@@ -379,6 +409,12 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   it.each([
     [ROUTE + "- condition\n", 0],
     [ROUTE.replace("for:", "when:") + "* condition\n", 0],
+    [ROUTE.replace("See ", "See ![](icon.svg)") + "- condition\n", 1],
+    [ROUTE.replace(" for:", " ![](icon.svg) for:") + "- condition\n", 1],
+    [ROUTE.replace("See ", "<span>See</span> ") + "- condition\n", 1],
+    [ROUTE.replace("See ", "See <img src='icon.svg'>") + "- condition\n", 1],
+    [ROUTE.replace("See ", "See <!-- invisible -->") + "- condition\n", 0],
+    [ROUTE.replace("See ", "**See** ").replace("[topic.md]", "[`topic.md`]") + "- condition\n", 0],
     [ROUTE.replace("for:", "when editing authentication") + "- condition\n", 1],
     [ROUTE.replace("for:", "when") + "- condition\n", 1],
     [ROUTE.replace("./references/topic.md", "./references/../topic.md") + "- condition\n", 1],

@@ -649,10 +649,13 @@ describe("explicit context and protected execution", () => {
       ["AS004", W2_BODY.replace("**Guidelines:**", "Guidelines:")],
       ["AS005", W2_BODY.replace("SHALL", "shall")],
       ["AS006", W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->")],
+      ["AS006", W2_BODY.replace("A demonstration of the rule.", "<span></span>")],
       ["AS007", route.replace("topic.md]", "details]") + "- condition\n"],
+      ["AS007", route.replace("See ", "See ![](icon.svg)") + "- condition\n"],
       ["AS008", route + "- MUST preserve output.\n"],
       ["AS008", route + "- condition\n\n  ### SHALL NOT discard output.\n"],
       ["AS008", route + "- Consumers MUST preserve output.\n"],
+      ["AS008", route + "- Consumers MU<span></span>ST preserve output.\n"],
       ["AS008", route + "- condition\n\n**<!-- invisible -->**\n\n- Consumers SHALL NOT discard output.\n"],
       ["AS003", "# Probe Skill\n\nRationale.\n\n- ### MUST preserve output.\n"],
       ["AS005", W2_BODY + "\n**<!-- invisible -->**\n\n- not a keyword\n"],
@@ -670,6 +673,8 @@ describe("explicit context and protected execution", () => {
         W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <img src="diagram.svg" alt="">'),
         route + '- Consumers `MUST` and “SHALL NOT discard output.” illustrate terms. MUST and MAY are keyword names.\n',
         route + '- a descriptive condition\n- <!-- first --> Consumers [`MUST`](https://example.com) and <!-- SHALL NOT discard output. --> illustrate terms.\n',
+        W2_BODY.replace("SHALL", "SH<span></span>ALL"),
+        route.replace("[topic.md]", "[`topic.md`]") + '- a descriptive condition\n- Consumers MU<br>ST preserve output.\n',
       ]) {
         await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n${body}`.replaceAll("\n", "\r\n"));
         const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });

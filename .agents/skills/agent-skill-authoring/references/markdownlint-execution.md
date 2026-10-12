@@ -254,7 +254,7 @@ the RFC Editor `/rfc/rfc2119` or `/rfc/rfc2119.html` and IETF Datatracker
 `/doc/html/rfc2119` pages over HTTP/HTTPS. No network lookup occurs.
 
 A normative parent has actual rendered Guidelines items or explicit authored uppercase
-RFC-keyword main items outside routing and examples. Empty/comment-only lists do
+RFC-keyword main items outside routing and examples. Empty/comment-only/empty-wrapper-only lists do
 not establish applicability; AS005 still diagnoses their main items. The first
 rendered main-item paragraph or heading establishes explicit-list applicability:
 `- ### MUST preserve output.` qualifies, but quoted/code headings, keyword-name
@@ -285,11 +285,28 @@ authored heading or independent prose ends association with Guidelines, while
 invisible definitions/comments and interleaved illustrative fences do not hide
 later associated items.
 
+The shared authored-keyword profile used by AS005, AS003/AS006 explicit-list
+applicability and AS008 treats only a, b, del, em, i, ins, mark, s, small, span,
+strong, sub, sup and u as transparent inline HTML wrappers. Parsed opening/closing
+tags contribute no characters; tag names are case-insensitive and attributes are
+not authored text. Thus `MU<span></span>ST` and `<span>MU</span>ST` both contain MUST.
+Intervening text, including real whitespace, stays intact. Markdown breaks/code
+and every HTML token outside that closed set retain a word boundary:
+`MU ST`, `MU<br>ST` and ``MU`S`T`` do not become MUST. Comments remain invisible,
+and existing quoted-span and keyword-name exclusions retain their separate roles.
+Inline code still supplies body content after a real keyword opener, as in
+``MUST `preserve` ``, without contributing keyword characters.
+This bounded profile does not interpret CSS, general HTML visibility or raw-HTML
+code/quotation semantics.
+
 AS006 checks each actual Guidelines block at H1 through H6 in its authored
 container. It does not borrow a parent's demonstration for a deeper subsection.
 Prose, tables, lists, quotes, code, diagrams and inline label explanations can
 demonstrate. Inline HTML images/SVG after a valid bold label also count as
-demonstration presence; comment-only suffixes do not. This checks no asset
+demonstration presence, restricted to opening img/svg elements, not arbitrary or
+lone closing tags. Empty/whitespace wrappers do not supply content, either after
+a label or in an independent inline/HTML block. Real prose, code and Markdown
+images remain content; attributes and comments alone do not. This checks no asset
 availability, browser visibility, HTML safety or instructional quality and fetches
 nothing. Comments or definitions alone cannot demonstrate. A malformed label remains
 AS004's formatting concern, not a second missing-label/anatomy error. An attached
@@ -322,6 +339,13 @@ do not acquire a route requirement. It checks the filename label and leading-dot
 ./references/ shape, not target existence, anchors, inventory or reference
 H1-to-filename agreement.
 
+An already recognized AS007 lead-in allows ordinary Markdown emphasis,
+code-formatted filename labels, wrapping and invisible HTML comments. It rejects
+images anywhere, even an empty-alt image before the link, and every raw HTML
+element, including formatting wrappers. Keeping token kinds prevents a text-only
+projection from silently erasing that decoration. This validates the existing
+candidate serialization; it does not broaden candidate detection.
+
 AS008 follows real parsed list/container relationships for -, * and +. Same-marker
 routing continues through valid multiline reference definitions and contained
 fences, lazy/indented continuation or contained headings. A contained Guidelines
@@ -333,15 +357,19 @@ block semantics. A parser's adoption alone proves none of these boundaries.
 
 Within a recognized route, every attached authored paragraph/continuation/heading
 is checked for uppercase whole-word RFC terms, including non-leading
-`Consumers SHALL NOT discard output.` Inline code, comments, paired straight/curly
+`Consumers SHALL NOT discard output.` The shared authored-keyword profile above
+also preserves words split across transparent HTML wrappers. Inline code,
+comments, paired straight/curly
 single/double-quoted spans and explicit keyword-name mentions do not contribute
 uses. Keyword-name enumerations followed by is/are/means/denotes are excluded
 independently: they do not hide a later separate directive. This bounded lexical
 profile does not infer obligation meaning or certify semantic conformance.
 
-Formatting-only comment paragraphs such as `**<!-- note -->**` preserve routing
-and Guidelines association, without counting as demonstrations or independent
-examples. Real prose, images and code literals remain substantive boundaries.
+Formatting-only comment paragraphs such as `**<!-- note -->**` and
+empty/whitespace-wrapper-only paragraphs or HTML blocks preserve routing and
+Guidelines association, without counting as demonstrations, rendered Guidelines
+items or independent examples. Real prose, images and code literals remain
+substantive boundaries.
 
 AS009 counts independent direct blocks from a Good/Bad label to the next
 recognized label or authored heading. Paragraphs or fences nested within one
