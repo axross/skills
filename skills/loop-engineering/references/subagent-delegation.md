@@ -51,6 +51,8 @@ An executor should fail before effects, not after them. Preflight checks the ass
 
 This boundary applies when an actor assigns a contribution and retains responsibility for the whole change. The contribution's `complete` result closes only that assignment; the responsible actor still verifies integrated evidence and advances the loop.
 
+Before accepting an investigation conclusion or using a returned plan or design in dependent work, apply [reviewing-phase-deliverables.md](./reviewing-phase-deliverables.md). Receiving the contribution alone does not establish current artifact review.
+
 **Guidelines:**
 
 - MUST compare the result, including its self-review material, policy, outcome, findings, and limitations, with actual changed files, uncommitted state, commits, checks, processes, and the approved revision before accepting it.
