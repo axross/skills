@@ -13,25 +13,45 @@ Evidence adequacy and review finding scope are separate decisions. Code-review p
 
 ## Evidence-Adequacy Decision Flow
 
-Walk every changed surface through this flow; the change's evidence is adequate only when each surface exits at "covered". Each flag is subject to [Review Finding Scope](#review-finding-scope); excluding it does not turn the surface into "covered". The severity of each reportable flag is assigned by the specific rule that covers it — the sections below and the project's review severity tiers.
+Walk every changed surface through this flow. A reasoned skip is accounted for but remains unverified; it does not exit at "covered." Each flag is subject to [Review Finding Scope](#review-finding-scope); excluding a finding does not make its evidence adequate. The specific rule and the project's review severity tiers assign severity to reportable flags.
 
-```mermaid
-flowchart TD
-  surface[Take the next changed surface] --> named{Evidence names a command,
-manual check, or reasoning
-that covers this surface?}
-  named -- "no" --> flag[Flag it at the severity
-the matching rule assigns]
-  named -- "skipped" --> reason{Skip reason and
-residual risk stated?}
-  reason -- "no" --> flag
-  reason -- "yes" --> covered[Surface covered —
-take the next one]
-  named -- "yes" --> result{Observed result stated,
-not just claimed tested?}
-  result -- "no" --> flag
-  result -- "yes" --> covered
-```
+Apply the following decisions in order:
+
+1. Identify the claimed obligation and the current integrated material it concerns.
+2. Record any skipped required check as unverified, require its reason and residual risk, and take the next surface. Assess any reportable gap under Review Finding Scope.
+3. Require a named command, manual route or reasoned inspection with an observed result. Missing or failing required checks do not establish conformity.
+4. Assess relevance, currency and discriminatory power under the sections below. An unrelated, stale or insensitive result leaves the claim unverified, however green.
+5. Compare the observation with the independently derived expectation. Record an evidenced mismatch as an output violation subject to Review Finding Scope; otherwise call only the established property covered, then take the next surface.
+
+## Acquisition Is Not Conformity Evidence
+
+Contributor output-verification practices own generating evidence against applicable rules and valid exceptions. This reference assesses that evidence, not whether an actor acquired its instructions. When those practices are available, consult them for a claim about integrated-output conformity; without them, keep the following limits rather than infer success from acquisition.
+
+Compare these independent observations:
+
+| Acquisition observation           | Output observation                                                          | Supported conclusion                                            |
+| --------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Complete applicable text acquired | An overrideable width of 160 remains 160 despite a consumer override of 240 | The override violation remains; acquisition does not excuse it. |
+| Acquisition unknown               | Effective consumer width independently verified as 240                      | This output property is verified; acquisition remains unknown.  |
+| Complete applicable text acquired | Only unrelated lint passes                                                  | No override or safe-area conformity is established.             |
+
+**Guidelines:**
+
+- MUST NOT accept a skill-load result, acquisition receipt or author acknowledgment alone as output-conformity evidence.
+- MUST NOT infer a concrete output violation from unknown acquisition alone, or general compliance from one independently verified output property.
+- MUST keep evidence sufficiency separate from exception validity, finding disposition and readiness; these observations do not discharge their owners' contracts.
+
+This assessment does not require posted independent reviewers to enumerate passed skill loads or checks. Fresh-review input and external completion remain under the applicable review and change-loop practices, not a positive-attestation checklist here.
+
+## Relevance and Currency
+
+A result answers a particular question at an observed material revision and stage. Static source inspection can establish an inspected branch, while rendering observes a surface and native execution observes a native target. A contribution's earlier result can stop describing the integrated change.
+
+**Guidelines:**
+
+- MUST assess the evidence against the claimed obligation and scope, material revision, platform, check route, independent expectation and observed stage; keep missing or unobserved dimensions unknown or unverified.
+- MUST reject earlier evidence for an affected claim after relevant integration changes until that claim is rechecked on the current material.
+- MUST NOT accept static or web results as a native-device exercise, or external-review completion as proof of every output obligation.
 
 ## Evidence Required Before Completion
 
@@ -43,7 +63,7 @@ Evidence is whatever actually establishes the check ran, and the change's own de
 
 - MUST require evidence that the project's format and lint commands ran after code or documentation edits, accepting the project's own reported check results or the author's report of the run, and MUST NOT treat the change description's silence as evidence that they did not.
 - MUST require manual evidence for changed output surfaces listed in [manual-verification.md](./manual-verification.md), without turning a gap excluded by Review Finding Scope into a finding.
-- MUST map skipped required checks to a concrete reason and residual risk.
+- MUST map skipped required checks to a concrete reason and residual risk, keeping them unverified rather than counted as successful conformity.
 - MUST require a second-pass verification statement after fixing any finding the project's review severity tiers rank as Critical or Major.
 
 ## A Result That Could Not Have Come Out Otherwise

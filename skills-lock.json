@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6820cfa28c766df1cff3d7259cca1c6269cd952d5ab4d832fcb98bcde464305a"
+      "computedHash": "c9179719dde8864fc2a891cc621621dbc3456665bfec7e067f116a7e4b984726"
     },
     "react-component-development": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "cc7691c1cf57352f9cc1de4a442f735a6530017779e906645036bf9180a0161d"
+      "computedHash": "1a7c5a9f2bab09a7784f79cfe3c6349133dfcb107a50a290ef5eee68cadef9d7"
     },
     "software-instrumentation": {
       "source": "./skills",
