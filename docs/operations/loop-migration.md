@@ -37,10 +37,18 @@ The tables use these receiving owners:
   [GitHub Operation](../../skills/github-operation/SKILL.md) owns portable access,
   fidelity, and operation outcomes.
 - **Conduct**: [Professional Behavior](../../skills/professional-behavior/SKILL.md)
-  owns question content, attribution, and reporting; its transport split is
+  owns question content, attribution, reporting, and non-code deliverable review; its transport split is
   [#546](https://github.com/axross/skills/issues/546).
 - **PRD**: [PRD Authoring](../../skills/product-requirement-document-authoring/SKILL.md)
   owns section craft, with a shorter standalone fallback in Loop.
+
+Conduct's [deliverable-review practice](../../skills/professional-behavior/references/reviewing-deliverables.md)
+also applies to standalone investigation, planning, and design without enrolling
+read-only work in change gates. Loop's [phase-deliverable integration](../../skills/loop-engineering/references/reviewing-phase-deliverables.md)
+places it before research, plan, and design reliance and carries its identity and
+consumed rounds through existing recovery state. These artifact reviews are
+separate from the implementation pre-flight and external-review safeguards below;
+their no-extension budget does not change either later stage's limits or ledger.
 
 [#551](https://github.com/axross/skills/issues/551) reconciles entry routing and
 combined operation. This change does not copy downstream juicio configuration,
@@ -143,6 +151,9 @@ claim actual Amp/Claude runs or downstream adapter coverage:
 | Input                                                                | Required result and controlling contract                                                                                                                          |
 | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Read-only question without a tracking issue                          | Answer without change gates; phase intake and read-only assignment.                                                                                               |
+| Requested investigation draft without a tracking issue               | Conduct requires author-independent review before the result or dependent use; no change gates or review of administrative coordination.                          |
+| Research conclusion, plan, low- then high-fidelity option set        | Phase-deliverable review precedes reliance or human selection; unchanged current review is reusable, and approval remains separate.                               |
+| Third artifact assessment is clean, corrected afterward, or lost     | Clean current review may finish; corrections remain unreviewed and non-complete; collect the same pending result, never request a fourth assessment.              |
 | Host forbids the proposed implementation delegation purpose          | Parent implements the approved change; a separately qualified fresh reader still performs pre-flight.                                                             |
 | One-shot child encounters a product decision                         | `decision-waiting` plus partial result; parent asks; no invented live resume API.                                                                                 |
 | Review in another workspace, same HEAD but missing uncommitted patch | Preflight returns non-complete until the actual diff/files arrive; HEAD is insufficient.                                                                          |

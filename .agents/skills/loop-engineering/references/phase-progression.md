@@ -2,6 +2,8 @@
 
 Apply this reference to a change, not a read-only question, investigation, or review. Project policy chooses gates; execution and delivery mechanisms realize them without changing their meaning. A missing adapter is not a missing contract: use the host's published, permitted tools directly, or identify the particular capability or authorization that prevents the next transition.
 
+When research, plan, or design output is about to cross a phase boundary, use [reviewing-phase-deliverables.md](./reviewing-phase-deliverables.md) for its review and completion boundary before dependent work.
+
 ## Intake and Defaults
 
 A named tracking target enters planning; an existing delivery target enters recovery and addressing. A free-form change first needs a durable tracking target. The tracking target is the project's own—an issue in the repository's forge by default, or whichever tracker project policy names instead—and the loop needs to know only that it is durable and holds the plan. These defaults preserve the loop's tracking target → plan → draft delivery path when a project supplies no more-specific change policy. They are not permission to make an external write.
