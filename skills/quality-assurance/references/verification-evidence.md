@@ -37,9 +37,7 @@ Compare these independent observations:
 
 **Guidelines:**
 
-- MUST NOT accept a skill-load result, acquisition receipt or author acknowledgment alone as output-conformity evidence.
-- MUST NOT infer a concrete output violation from unknown acquisition alone, or general compliance from one independently verified output property.
-- MUST keep evidence sufficiency separate from exception validity, finding disposition and readiness; these observations do not discharge their owners' contracts.
+- MUST consult contributor-verification practices, when available, for the generation and bounds of integrated-output evidence; without them, assess only independently observed properties, as illustrated above.
 
 This assessment does not require posted independent reviewers to enumerate passed skill loads or checks. Fresh-review input and external completion remain under the applicable review and change-loop practices, not a positive-attestation checklist here.
 
@@ -47,11 +45,11 @@ This assessment does not require posted independent reviewers to enumerate passe
 
 A result answers a particular question at an observed material revision and stage. Static source inspection can establish an inspected branch, while rendering observes a surface and native execution observes a native target. A contribution's earlier result can stop describing the integrated change.
 
+For the bounds of an integrated-output claim, consult contributor-verification practices when available. Without them, judge only observed properties of the inspected material and platform; unobserved dimensions stay unverified. QA assesses whether the supplied checks support that bounded claim.
+
 **Guidelines:**
 
-- MUST assess the evidence against the claimed obligation and scope, material revision, platform, check route, independent expectation and observed stage; keep missing or unobserved dimensions unknown or unverified.
-- MUST reject earlier evidence for an affected claim after relevant integration changes until that claim is rechecked on the current material.
-- MUST NOT accept static or web results as a native-device exercise, or external-review completion as proof of every output obligation.
+- MUST reject unrelated, stale or insensitive results for the claimed property under Review Finding Scope.
 
 ## Evidence Required Before Completion
 
