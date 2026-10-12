@@ -50,10 +50,6 @@ An execution result uses exactly one state: **complete**, **partial**, **decisio
 
 A writing result carries compact self-review evidence for the current loop driver's completion check. It does not reproduce the assignment or plan, supply an advisory verdict, or certify independent review.
 
-Skill-material coverage reported under [Material Fidelity](#material-fidelity)
-is a separate observation, not another execution-result state or a replacement
-for the missing-required-material rule.
-
 **Guidelines:**
 
 - MUST report the assignment and plan revision, materials actually read, changed and uncommitted files, commits or delivered artifacts, evidence and exact check results, unresolved work, residual risk, remaining processes, and actual workspace state where relevant.

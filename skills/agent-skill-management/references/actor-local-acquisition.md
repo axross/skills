@@ -3,9 +3,10 @@
 Use this reference to establish which applicable skill material a controlled
 internal actor has in its current context. It covers the loop driver,
 implementers, investigators and internal reviewers, not affirmative consumption
-attestations from posted independent reviewers. Selection belongs to development
-practices; installation and native host selection remain separate observations
-under [active-loading.md](./active-loading.md).
+attestations from posted independent reviewers. Selection follows the active
+task's development or review practices and applicable project policy;
+installation and native host selection remain separate observations under
+[active-loading.md](./active-loading.md).
 
 ## Required material in the actual actor
 
@@ -16,7 +17,7 @@ body and applicable references, not every citation recursively.
 
 **Guidelines:**
 
-- MUST establish the required skill material for the actual actor before work that depends on it, consulting the project's development skill-selection practices where present. Without that owner, follow applicable instructions and discovery evidence, and report unresolved applicability rather than inventing a selection policy.
+- MUST establish the required skill material for the actual actor before dependent work, consulting the active task's selection practices and applicable project policy where present, including review-specific requirements for internal reviewers. Without a selection owner, follow applicable instructions and discovery evidence, and report unresolved applicability rather than inventing a selection policy.
 - MUST treat an assignment's material list as a starting set, not an upper bound; reassess applicability when the actor's responsibility or required material changes before dependent judgment or editing.
 - MUST acquire each full applicable body and applicable reference in that actor's current context through a permitted route, or reuse fully retained current text under [Retention and recovery](#retention-and-recovery).
 - MUST NOT infer the actor's acquisition from a parent, previous worker or another session having loaded the same material. Reusing an assignment identifier does not establish that a fresh actor received it.
