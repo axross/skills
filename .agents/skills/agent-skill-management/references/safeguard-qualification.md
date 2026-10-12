@@ -14,9 +14,15 @@ refusal message does not establish that control. Acquisition claims still use
 [actor-local-acquisition.md](./actor-local-acquisition.md); an intermediate
 observation cannot prove final model delivery.
 
+Actual refusal needs a bounded qualification exercise before ordinary
+enforcement can be qualified. That exercise tests prevention without treating
+an unqualified safeguard as protection for routine work.
+
 **Guidelines:**
 
-- MUST begin an optional safeguard in audit mode until evidence qualifies its claimed prevention scope. Keep unqualified or unobserved scopes outside enforcement-success claims.
+- MUST begin an optional safeguard in audit mode and keep unqualified scopes there outside the bounded qualification exercises below. Keep unqualified or unobserved scopes outside enforcement-success claims.
+- MAY temporarily enable refusal for a qualification exercise separately authorized for specific actors, routes, targets and duration; that authorization does not permit broader enforcement.
+- MUST return unqualified scopes to audit mode when the qualification exercise ends; ordinary enforcement still requires qualified prevention evidence and applicable activation authorization.
 - MUST distinguish what the safeguard observed, what it attempted to refuse and what mutation it prevented; audit completion is not enforcement qualification.
 - MUST obtain applicable policy and authorization before activation or qualification effects. Qualification itself grants neither permission nor an exemption from normal tool permissions.
 - MUST report hidden final delivery or actor/context correspondence as unknown even when callback coverage is complete; do not transfer the parent's observations to a worker.
