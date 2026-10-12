@@ -27,6 +27,21 @@ an unqualified safeguard as protection for routine work.
 - MUST obtain applicable policy and authorization before activation or qualification effects. Qualification itself grants neither permission nor an exemption from normal tool permissions.
 - MUST report hidden final delivery or actor/context correspondence as unknown even when callback coverage is complete; do not transfer the parent's observations to a worker.
 
+## Containment and cleanup
+
+A refusal exercise must remain safe when the safeguard fails entirely. Naming a
+temporary path is not isolation if that path or a spawned operation can reach
+ordinary work. Cleanup cannot recover valuable data that an uncontained exercise
+destroys, and cleanup is not evidence that the safeguard prevented mutation.
+
+**Guidelines:**
+
+- MUST establish independent containment before any qualification mutation: use isolated disposable targets whose resolved paths and reachable effects cannot damage ordinary work or valuable shared data even if refusal fails entirely. Include symlink and worktree aliases and delayed or spawned effects in that boundary.
+- MUST establish the target baseline and cleanup conditions before the exercise, including permitted means to settle delayed or spawned work and restore the baseline or remove declared disposable targets.
+- MUST NOT begin mutation exercises when containment or safe cleanup cannot be established; retain that scope as unqualified in audit mode.
+- MUST settle delayed and spawned effects through permitted host operations before inspecting target state and verifying cleanup. Unsettled effects or unverified cleanup remain explicit limitations, not qualification success.
+- MUST verify that cleanup restores the recorded baseline or removes the declared disposable targets. Cleanup or independent termination does not establish safeguard prevention, and containment does not extend qualification to unexercised targets or worktrees.
+
 ## Scope and effective composition
 
 A prevention claim names the actual host configuration and the routes it covers.

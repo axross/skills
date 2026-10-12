@@ -1,6 +1,6 @@
 ---
 name: agent-skill-management
-description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing installation, active loading and actor-local acquisition. Triggers on adding, editing, renaming, moving or removing skills; installed-copy or lockfile drift; missing discovery; same-name masking; stale, truncated or missing material; retained-context recovery; optional acquisition guards; a defective loaded rule. Metadata authoring belongs to skill-authoring practices; selection and output verification belong to development; host commands belong to project operations. Covers source ownership, targeted refresh, acquisition coverage, retention/recovery and safeguard qualification.
+description: Deciding whether material belongs in a skill or project documentation, choosing its tier, and managing installation, active loading and actor-local acquisition. Triggers on adding, editing, renaming, moving or removing skills; installed-copy or lockfile drift; missing discovery; same-name masking; stale, truncated or missing material; retained-context recovery; optional acquisition guards; a defective loaded rule. Metadata authoring belongs to skill-authoring practices; selection and output assessment follow the active task's development or review practices; host commands belong to project operations. Covers source ownership, targeted refresh, acquisition coverage, retention/recovery and safeguard qualification.
 user-invocable: false
 ---
 
@@ -113,6 +113,7 @@ See [active-loading.md](./references/active-loading.md) for:
 See [actor-local-acquisition.md](./references/actor-local-acquisition.md) for:
 
 - establishing complete applicable bodies and references in each controlled internal actor's current context
+- applying task-sensitive development or internal-review selection and output-assessment ownership
 - distinguishing native loading, direct acquisition and retained text, with full, partial, unknown, mismatch or unavailable coverage
 - correlating expected and observed material without inferring acquisition from a parent or reused assignment identifier
 - recovering truncation or lost retention from one verified revision, without redundant reads of complete retained text
@@ -123,6 +124,7 @@ See [actor-local-acquisition.md](./references/actor-local-acquisition.md) for:
 See [safeguard-qualification.md](./references/safeguard-qualification.md) for:
 
 - assessing optional audit and enforcement safeguards without introducing host APIs or project gates
+- containing qualification mutations in disposable targets and verifying cleanup after effects settle
 - qualifying actual actor/event/tool coverage, handler composition, executed inputs, targets and failure behavior
 - distinguishing effective refusal from ignored refusal, constant denial, blocked recovery and mutations never reached
 

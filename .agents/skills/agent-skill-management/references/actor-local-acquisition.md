@@ -96,10 +96,13 @@ checklist of calls already made.
 
 Full acquisition does not prove that an output follows the supplied rules.
 Unknown acquisition does not by itself prove a concrete output violation.
-Those questions need their own observations.
+Those questions need their own observations and the active task's assessment
+owner. Contributor verification generates evidence; internal review judges the
+change; quality assurance judges whether that evidence is adequate.
 
 **Guidelines:**
 
-- MUST consult development output-verification practices, where present, when judging an integrated output against applicable rules and currently valid exceptions. If that owner is absent, name the unperformed assessment rather than infer conformity from acquisition.
-- MUST consult verification-evidence assessment practices, where present, when judging whether a check can distinguish correct from incorrect output. If that owner is absent, name the assessment limit rather than inventing a QA gate.
+- MUST consult development output-verification practices, where present, when performing contributor verification of an integrated output against applicable rules and currently valid exceptions. If that owner is absent, name the unperformed assessment rather than infer conformity from acquisition.
+- MUST consult code-review practices, where present, when a controlled internal reviewer assesses whether a change follows applicable rules and currently valid exceptions. Contributor verification does not replace that assessment. If that owner is absent, name the unperformed assessment rather than infer conformity from acquisition.
+- MUST consult verification-evidence assessment practices, where present, when judging evidence sufficiency, including whether a check can distinguish correct from incorrect output. If that owner is absent, name the assessment limit rather than inventing a QA gate.
 - MUST NOT turn internal acquisition correspondence or coverage into a demand for affirmative load or per-check attestations in posted independent-review completion; the applicable review-completion contract remains its owner.
