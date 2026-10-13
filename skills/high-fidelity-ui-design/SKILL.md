@@ -58,4 +58,5 @@ See [accessibility-and-cognitive-load.md](./references/accessibility-and-cogniti
 
 - providing a visible focus indicator with a logical focus order, and preference-aware motion
 - using native semantics and labels for assistive technology
+- checking [chart information equivalence](./references/accessibility-and-cognitive-load.md#provide-task-relevant-chart-information-beyond-identification) separately from identification
 - reducing cognitive load and investing in visual quality without masking usability
