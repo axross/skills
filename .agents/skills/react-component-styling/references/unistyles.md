@@ -131,6 +131,62 @@ If no applicable path refreshes that sheet, an uncalled entry can retain an old 
 - MUST repeat every option key in each style that declares the same variant group, using an empty object where a style has nothing to add, or the group's type becomes a mismatched union.
 - MUST pass only serializable arguments to a dynamic function; they cross into native code.
 
+## Resolve Shared Properties Before Selecting Variants
+
+Independent boolean variants become competing writers when they all assign `boxShadow`. Reordering those groups hides the decision in merge behaviour. Resolve the competing facts into one visual-state variant instead; leave axes that write different properties independent. A high-fidelity UI design capability owns which cues survive and the focus/disable policy, not Unistyles declaration order.
+
+**Example:**
+
+Given complete shadow-array tokens under `theme.shadows.field`, this field's `groove` is the sole internal writer of `boxShadow`; neither the base nor another variant supplies shadow fragments:
+
+```tsx
+const styles = StyleSheet.create((theme) => ({
+  frame: {
+    variants: {
+      groove: {
+        rest: { boxShadow: theme.shadows.field.rest },
+        focused: { boxShadow: theme.shadows.field.focused },
+        error: { boxShadow: theme.shadows.field.error },
+        disabled: { boxShadow: [] },
+        disabledError: { boxShadow: theme.shadows.field.disabledError },
+        default: { boxShadow: theme.shadows.field.rest },
+      },
+    },
+  },
+}));
+```
+
+Select one branch from the current facts:
+
+```tsx
+let groove: "disabledError" | "disabled" | "error" | "focused" | "rest";
+
+if (disabled && invalid) {
+  groove = "disabledError";
+} else if (disabled) {
+  groove = "disabled";
+} else if (invalid) {
+  groove = "error";
+} else if (focused) {
+  groove = "focused";
+} else {
+  groove = "rest";
+}
+styles.useVariants({ groove });
+```
+
+This example chooses error over focus for the groove only, not for a complete focus indicator or a general state priority. A separate focus treatment or a combined branch still follows the design's retained-cue contract. Explicit compound variants are another option when each matching case has a deliberate resolution, not an assumption that arrays always replace.
+
+Verified against [Unistyles 3.5.2](https://github.com/jpudysz/react-native-unistyles/releases/tag/v3.5.2) and the [compound-variant reference](https://www.unistyl.es/v3/references/compound-variants/): within one style entry, native merges base, selected variants, then matching compounds by [whole-property assignment](https://github.com/jpudysz/react-native-unistyles/blob/dd6bd4b32ffaf0936c78f2232a57f4352008f0a6/packages/unistyles/cxx/common/Helpers.h#L70-L76). Shared native/web code needs a parity check: web uses [recursive merging](https://github.com/jpudysz/react-native-unistyles/blob/dd6bd4b32ffaf0936c78f2232a57f4352008f0a6/packages/unistyles/src/web/variants.ts#L23-L49) through [deepMergeObjects](https://github.com/jpudysz/react-native-unistyles/blob/dd6bd4b32ffaf0936c78f2232a57f4352008f0a6/packages/unistyles/src/utils.ts#L3-L23). Overlapping array properties become numeric-key objects at that merge stage; a shorter or empty later array leaves earlier tail indices, rather than replacing the whole array or concatenating it. These source observations do not establish final rendering, JSX style-array precedence, or other releases' behaviour.
+
+The supplied [3.5.2 Jest mock](https://github.com/jpudysz/react-native-unistyles/blob/dd6bd4b32ffaf0936c78f2232a57f4352008f0a6/packages/unistyles/src/mocks.ts#L129-L149) removes `variants` and `compoundVariants`, and [useVariants is a no-op](https://github.com/jpudysz/react-native-unistyles/blob/dd6bd4b32ffaf0936c78f2232a57f4352008f0a6/packages/unistyles/src/mocks.ts#L256-L265), as the [testing guide](https://www.unistyl.es/v3/start/testing/) warns. A passing resolver or transition test proves semantic selection, not the shadow that real variants produce.
+
+**Guidelines:**
+
+- SHOULD give an indivisible conflicting property one resolved visual-state variant with complete values, keeping non-conflicting variant axes independent.
+- MUST specify the intended resolution when base, selected variants or matching compounds share a property, and check the consuming version's merge behaviour rather than relying on group order or an assumed array replacement.
+- MUST verify changed combinations and exits with real Unistyles variants on the supported native targets, and on web when styles are shared; check removal of earlier shadows, including transitions to shorter or empty values. Keep semantic tests separate from this rendering evidence rather than claiming the stripped mock verifies paint.
+
 ## Parent-Size Styling
 
 There are no container queries here. A component whose layout depends on its own width measures it and feeds the measurement into a dynamic function — the pattern, including the first-render `null` case, is in [fluid-and-responsive.md](./fluid-and-responsive.md).

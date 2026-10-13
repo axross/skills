@@ -77,6 +77,45 @@ Two states have traps of their own. The focus ring is an accessibility gate rath
 - MUST size the focus-ring token to at least 3:1 contrast against every surface it composites over — including accent-colored and elevated backgrounds — and MUST NOT reuse the hover color as the focus indicator.
 - MUST NOT gate the pressed state on navigation or network completion, and MUST render it within roughly 100ms of the tap as the immediate acknowledgment.
 
+## Resolve competing states and verify their exits
+
+Individual state samples miss collisions: an error border can replace a focus cue, or a disabled overlay can hide a loading label. Keep the underlying facts independent, then choose an owner for each shared visual property. A product can give error precedence for its field border without giving error precedence over focus everywhere. Actual keyboard focus still follows the [visible-focus requirements](./accessibility-and-cognitive-load.md#provide-a-visible-high-contrast-focus-indicator-and-a-logical-focus-order).
+
+Build a small conflict matrix from combinations the control can reach, not the full Cartesian product. Include a higher-order combination only when another active state changes the resolution. These are candidate rows, not a universal priority order:
+
+| Reachable combination                | Shared property or cue to resolve                                                         | Information that survives                                 |
+| ------------------------------------ | ----------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Focus + error                        | Border or shadow: one combined treatment, or error border plus separate focus indicator   | Current focus location and the error message              |
+| Selected + focus                     | Fill or outline: separate selection treatment from focus treatment                        | Selection remains identifiable when focus moves elsewhere |
+| Disabled + error                     | Opacity or border: an unavailable treatment that does not erase the error                 | Error context and the reason interaction is unavailable   |
+| Loading + disabled                   | Overlay or label: working feedback remains perceivable while repeat activation is blocked | Operation status, not merely a muted control              |
+| Loading or disabled + retained focus | Focus paint: resolve against actual focus and the control's focusability policy           | Visible focus when the control intentionally retains it   |
+
+[WAI-ARIA keyboard-interface practice](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/) distinguishes selection from focus and allows disabled items in some composite widgets to remain focusable. Clearing a stale local focus flag is therefore not a blanket disable-then-blur rule.
+
+State exits need their own expected results; a correct snapshot on entry does not prove cleanup:
+
+| Transition to exercise                              | Obsolete state to remove                                                                  | State to retain or recompute                                                                       |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Focus → disabled → enabled, without a blur callback | Local focus paint invalidated by disabling; it must not revive solely on re-enable        | Actual focus and any still-active error; intentionally retained focus follows the control's policy |
+| Error appears → error clears while still focused    | Error paint and obsolete error message                                                    | Focus indication, without requiring another focus event                                            |
+| Selected + focused → focus leaves                   | Focus paint on the old location                                                           | Selection under the control's selection model, including selection that persists after blur        |
+| Loading → success, failure, or cancellation         | Busy paint and repeat-activation blocking owned by that operation; obsolete pressed paint | Outcome feedback, selection, current focus, still-active errors, and independent disabling reasons |
+
+**Good Example:**
+
+> A field specifies focus + error with an error border and a distinct focus indicator. Clearing the error while focus remains restores the normal border without losing focus. A submission control removes its busy cue on every operation exit, but stays unavailable if a separate permission restriction still applies.
+
+**Bad Example:**
+
+> Reorder boolean styles until the error screenshot looks right, treat that order as a global state priority, and test only entry snapshots. Re-enabling revives an old focus shadow, while ending loading also clears selection and an unrelated disabling reason.
+
+**Guidelines:**
+
+- MUST specify reachable competing combinations with a shared-property owner and retained cues; keep non-conflicting axes independent rather than requiring all theoretical combinations.
+- MUST render the relevant conflict rows in both themes, checking retained cues against the individual-state and visible-focus requirements rather than treating one winning property as the whole state.
+- MUST verify the relevant exit transitions above against actual focus and still-active semantic state, removing only obsolete transient feedback rather than resetting every state together.
+
 ## Prefer clear error surfacing over silently disabled controls
 
 The common failure mode is the "silently disabled submit": a form whose button greys out until every field validates, with no indication of which field or rule is unmet. It is worst on long or multi-section forms where the offending field is scrolled out of view, and it compounds when the disabling logic itself is buggy — a whitespace-trimming or format mismatch leaves the button dead with no error to react to, and no affordance to trigger the feedback that would explain it. Users are left to reverse-engineer the requirement: re-entering fields in different formats, retrying, opening new tabs, often abandoning. You cannot even see it happening, because a disabled button fires no event to instrument ([usability pitfalls of disabled buttons](https://www.smashingmagazine.com/2021/08/frustrating-design-patterns-disabled-buttons/)).
