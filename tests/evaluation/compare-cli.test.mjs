@@ -86,6 +86,24 @@ describe("compare.mjs", () => {
     expect(result.stderr).toContain("duplicate");
   });
 
+  it.each([
+    { surface: "observation", locator: "stored/evidence.json?synthetic-query-marker", inputLocator: (observations) => observations.records[0] },
+    { surface: "evidence", locator: "//synthetic-userinfo-marker@example.test/evidence.json", inputLocator: (observations) => observations.records[0].results[2].evidence.output },
+  ])("refuses an unsafe $surface locator without exposing it or changing input bytes", async ({ locator, inputLocator }) => {
+    const fixture = treatmentFixture();
+    inputLocator(fixture.observations).locator = locator;
+    const { paths, bytes } = await storedInputs(fixture);
+
+    const result = runScript(CLI, paths);
+
+    expect(result.code).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("locator must not carry URL credentials or queries");
+    expect(result.output).not.toContain("synthetic-query-marker");
+    expect(result.output).not.toContain("synthetic-userinfo-marker");
+    expect(await Promise.all(paths.map((path) => readFile(path)))).toEqual(bytes.map((value) => Buffer.from(value)));
+  });
+
   it("rejects a shared declaration/observation file", async () => {
     const { paths } = await storedInputs();
     const result = runScript(CLI, [paths[0], paths[0]]);

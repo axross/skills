@@ -3,6 +3,7 @@ export const MATERIAL_KINDS = ["skills", "guidance", "adapters"];
 export const FIXED_FIELDS = ["fixture", "outcome", "taskMaterial", "model", "profile", "harness"];
 export const STATES = ["pass", "fail", "failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"];
 const SCORER_FIELDS = ["method", "rubric", "template", "script", "model", "route", "promptTemplate", "evidenceSlots"];
+const LOCATOR_PARSE_ORIGIN = "https://locator.invalid";
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const text = (value) => typeof value === "string" && value.length > 0;
 const cellKey = (cell) => JSON.stringify([cell.task, cell.treatment, cell.repetition]);
@@ -39,9 +40,11 @@ function identity(value, label, withEvidence = false) {
   if (withEvidence) {
     requireValue(value.locator == null || text(value.locator), `${label}.locator must be text or null`);
     requireValue(value.payload == null || typeof value.payload === "string", `${label}.payload must be text`);
-    if (text(value.locator) && URL.canParse(value.locator)) {
-      const url = new URL(value.locator);
-      requireValue(!url.search && !url.username && !url.password, `${label}.locator must not carry URL credentials or queries`);
+    if (text(value.locator)) {
+      const url = URL.parse(value.locator, LOCATOR_PARSE_ORIGIN);
+      requireValue(url !== null, `${label}.locator must be parseable`);
+      const hasQuery = url.href.split("#", 1)[0].includes("?");
+      requireValue(!hasQuery && !url.username && !url.password, `${label}.locator must not carry URL credentials or queries`);
     }
   }
 }

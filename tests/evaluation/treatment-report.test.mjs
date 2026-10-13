@@ -768,6 +768,63 @@ describe("computeTreatmentReport()", () => {
     expect(computeTreatmentReport(declaration, observations).guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringContaining("valid-edit") });
   });
 
+  describe.each([
+    { surface: "observation", inputLocator: (observations) => observations.records[0], reportLocator: (report) => report.cells[0].observation },
+    { surface: "evidence", inputLocator: (observations) => observations.records[0].results[2].evidence.output, reportLocator: (report) => report.cells[0].opportunities[2].evidence.output },
+  ])("when a $surface locator is supplied", ({ inputLocator, reportLocator }) => {
+    it.each([
+      "https://example.test/evidence.json?synthetic-query-marker",
+      "stored/evidence.json?synthetic-query-marker",
+      "/stored/evidence.json?synthetic-query-marker",
+      "?synthetic-query-marker",
+      "//example.test/evidence.json?synthetic-query-marker",
+      "//synthetic-userinfo-marker@example.test/evidence.json",
+      "https://:synthetic-password-marker@example.test/evidence.json",
+      "stored/evidence.json?#fragment",
+      "https://[invalid]/evidence.json?synthetic-query-marker",
+    ])("rejects unsafe locator %s with a contract error and no input mutation", (locator) => {
+      const { declaration, observations } = treatmentFixture();
+      inputLocator(observations).locator = locator;
+      const before = JSON.stringify({ declaration, observations });
+
+      expect(() => computeTreatmentReport(declaration, observations)).toThrow(/locator.*(?:credentials or queries|parseable)/);
+
+      expect(JSON.stringify({ declaration, observations })).toBe(before);
+    });
+
+    it.each([
+      "stored/evidence.json",
+      "/stored/evidence.json",
+      "//EXAMPLE.test/evidence.json",
+      "HTTPS://EXAMPLE.test:443/evidence.json",
+      "stored/evidence.json#section?fragment-text",
+      "https://example.test/evidence.json#?fragment-text",
+      "stored/evidence%3F%23%40.json",
+      "plain correlation text \uFFFD",
+    ])("preserves valid locator %s verbatim without changing inputs", (locator) => {
+      const { declaration, observations } = treatmentFixture();
+      inputLocator(observations).locator = locator;
+      const before = JSON.stringify({ declaration, observations });
+
+      const report = computeTreatmentReport(declaration, observations);
+
+      expect(reportLocator(report).locator).toBe(locator);
+      expect(report.qualification.status).toBe("qualified");
+      expect(report.axes.conformity.effect).toBe(1);
+      expect(JSON.stringify({ declaration, observations })).toBe(before);
+    });
+
+    it.each([undefined, null])("retains missing locator %s as unknown rather than rejecting it", (locator) => {
+      const { declaration, observations } = treatmentFixture();
+      inputLocator(observations).locator = locator;
+
+      const report = computeTreatmentReport(declaration, observations);
+
+      expect(reportLocator(report).locator).toBeNull();
+      expect(report.axes.conformity.effect).toBeNull();
+    });
+  });
+
   it.each([
     ["duplicate declaration", (fixture) => { fixture.declaration.cells.push(structuredClone(fixture.declaration.cells[0])); }, /duplicate/],
     ["duplicate observation", (fixture) => { fixture.observations.records.push(structuredClone(fixture.observations.records[0])); }, /duplicate/],
