@@ -109,6 +109,32 @@ const typography = {
 - SHOULD classify a family the same way on every platform a project ships once any platform requires the per-face form, rather than addressing the same family two different ways.
 - MAY add a role rather than stretch an existing one when a surface genuinely needs a new pairing — a new role is a design decision, but it is a cheaper one than a one-off literal.
 
+### Resolve roles for the effective language
+
+Build complete roles from the project's language/script font mapping at the theme boundary. Keep role names stable so components continue to apply `theme.typography.body` or the equivalent web role without local language branches. A language change can select a different face without changing the role's purpose; resolve that face's weight form and declared font features along with its size and leading.
+
+The effective language is the language the app uses for translations after applying its preference policy. Device language supplies an initial default when no explicit preference exists; a saved user choice takes precedence. A new user selection also takes precedence over an older initialization still in flight. A language-change listener does not establish that startup ordering by itself.
+
+Bindings can differ by purpose without splitting the bundle contract:
+
+| Role purpose                                       | Font binding                                         | Coverage condition                                                                                   |
+| -------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Translated body, caption, or chart label           | Language/script-specific face or fallback            | Translated text and supported mixed-script content                                                   |
+| Deliberately invariant metric or rank-pair symbols | Fixed purpose-specific face                          | Documented unchanged digit/symbol repertoire                                                         |
+| Localized numeric value or unit                    | Covered variant, separate semantic role, or fallback | Actual localized digits, separators, and unit text; not an assumption that all numbers are invariant |
+
+Define fallback at the token/platform boundary too. On web, provide the role's font-family stack and accurate content-language metadata for language-specific forms. On native, use the platform-supported face/fallback mechanism rather than assuming a web stack is portable. For known content in another language or script, supply the appropriate role variant or covered fallback; automatic per-string script detection is not required. A translation fallback alone says nothing about font glyph coverage.
+
+When choosing which roles can remain invariant or judging translated and large-text renders, consult the project's high-fidelity typography practices where present. Without them, check supported-script glyphs and fallback, long translations, and native accessibility text sizes for clipping or lost content.
+
+**Guidelines:**
+
+- MUST resolve translated text roles from the same effective language as the translations, accounting for known content-language/script differences through central variants or fallback rather than component-local font patches.
+- MUST apply a saved explicit language preference before treating device language as authoritative, and MUST prevent late device/preference initialization from overwriting a newer explicit user selection.
+- MUST rebuild affected complete roles when the effective language changes, preserving declared font features and each selected face's weight-addressing form; keep deliberately invariant bindings fixed rather than replacing every face with the prose font.
+- MUST update every affected appearance mapping, including inactive light/dark themes, without replacing unrelated theme tokens, so a later appearance change cannot restore stale language-dependent roles.
+- MUST define script-specific faces or platform-supported glyph fallback for the content each role accepts, including localized digits, units, and mixed-script strings.
+
 ## Spacing, Radius, and Border Width
 
 Spacing steps carry their base pixel value in the name, because that number is the anchor a reader needs — it is the small-screen floor of a fluid token (see [fluid-and-responsive.md](./fluid-and-responsive.md)) and the thing a design hand-off is specified in. Radius and border width take named tiers instead, because their steps are role-shaped: a chip, a card, and a pill differ in kind, not in amount.
