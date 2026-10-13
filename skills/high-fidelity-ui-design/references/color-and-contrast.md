@@ -29,6 +29,24 @@ The common failure mode is checking one representative screen in one theme again
 
 Sources: [Contrast and Color Accessibility — WebAIM](https://webaim.org/articles/contrast/) · [5 Visual Treatments that Improve Accessibility — Nielsen Norman Group](https://www.nngroup.com/articles/visual-treatments-accessibility/) · [Color — Human Interface Guidelines — Apple](https://developer.apple.com/design/human-interface-guidelines/color)
 
+### Verify effective colors, not token structure
+
+An alpha token's existence or a matching role path across themes proves structure, not the rendered color or its contrast. Even an independent check that a tint reaches its target color says nothing about the foreground drawn on it. Select pairs from actual usage, not the cross-product of a palette; the relevant background is behind the text, or adjacent to the required control indicator, in that state.
+
+A toolbar label over a translucent header needs separate cases on a page and on a card when their grounds differ. A shared token name alone cannot justify combining cases with different resolved stacks or contrast requirements. When resolving those colors requires alpha composition, consult the component-styling capability's backdrop and compositing mechanics.
+
+Default to a contrast calculation on the effective colors obtained from the styles and their resolved backdrop. Composite translucent foregrounds too, then apply the contrast method's luminance conversion; that conversion does not choose the renderer's compositing space. Check the actual render when group opacity, filters, blending or color conversion exceed the calculation's assumptions. For text, use the source foreground color with those effects resolved, not antialiased glyph-edge pixels ([SC 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)).
+
+Images and gradients need the least-contrasting relevant regions behind the content, not an average background color ([G18](https://www.w3.org/WAI/WCAG22/Techniques/general/G18)). A few samples cannot prove contrast over future unknown content. Use an opaque backing or a scrim whose composited background range is demonstrably bounded when a guarantee is needed; translucency or blur alone is not that guarantee.
+
+**Guidelines:**
+
+- MUST select contrast pairs from text and visual information actually needed to identify or operate the UI, preserving distinct states and resolved backdrops rather than treating all token combinations as equally relevant.
+- MUST record each checked foreground/background/state pair with its effective colors and resolved layer stack. Keep its contrast result with the calculation assumptions and applicable floor; token presence, role-path parity and target-color matching are not substitutes.
+- MUST distinguish a color-match tolerance from a contrast threshold; acceptable approximation to a target cannot turn a below-floor ratio into a pass.
+- MUST disclose the coverage limits of checks over variable or unknown backgrounds; finite samples establish only the sampled cases unless the background range is bounded and verified.
+- MUST report product-approved low-contrast deviations separately from compliant pairs; approval does not create a WCAG exemption or justify a claim of full conformance.
+
 ## Never encode meaning in color alone
 
 Color-only encoding is the defect that survives every review conducted in full color on a good screen — which is every review. The concrete how-to is to build each status, validation, selection, and interactive-affordance state with its non-color signal already in place (an icon, a text label, a shape, a stroke or border, weight, or a fill pattern), then run a grayscale test on the full mockup — desaturate the artboard, or view it through a color-blindness simulator for protanopia, deuteranopia, and tritanopia — and treat whatever became ambiguous as a defect to fix before handoff. The recurring pair is the two-line chart and the traffic-light status dot: both read perfectly to a designer with full color vision and collapse into identical grays for a meaningful slice of users. Fix them with dash patterns, marker shapes, or direct labels; and with an icon plus text beside the dot.
