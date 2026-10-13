@@ -14,35 +14,63 @@ A media query describes the environment: the window, the input hardware, the use
 
 ## Reduced Motion
 
-A user who has asked for reduced motion has usually done so because motion makes the interface unusable or unpleasant for them, not because they dislike it. Treat the preference as a hard requirement on any animation you add, and remember that a repeating or infinite animation is the worst case.
+When choosing what remains visible without motion, consult the project's high-fidelity UI design practices. This reference implements that choice. If that capability is absent, preserve state feedback with immediate required targets, readable static loops, and no decorative movement; stopping interpolation is not the same as removing the state.
 
 **Example — web:**
 
-```css
-.placeholder {
-  animation: pulse 500ms linear infinite alternate;
+Keep target styles in the component's ordinary state rules, not only in keyframes or an animation-completion handler. These [motion-preference overrides](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) act on three separate surfaces. The calculating label remains present; `.pressLift` owns only decoration, with positioning on its outer surface and pressed paint and focus styles unaffected. Disable its transition too, so a preference change does not animate a previous lifted pose back to rest:
 
-  @media (prefers-reduced-motion: reduce) {
+```css
+@media (prefers-reduced-motion: reduce) {
+  .stateChange {
+    transition: none;
+  }
+
+  .calculating {
+    opacity: 1;
     animation: none;
+  }
+
+  .pressLift,
+  .pressLift:active {
+    transform: none;
+    transition: none;
   }
 }
 ```
 
 **Example — mobile native:**
 
+Inside an effect or worklet, assign the target instead of scheduling interpolation. The project's spring and timing configs illustrate different normal-motion paths; Reduced Motion bypasses both:
+
+```tsx
+position.value = reduceMotion
+  ? targetPosition
+  : withSpring(targetPosition, springConfig);
+fill.value = reduceMotion
+  ? targetFill
+  : withTiming(targetFill, colorTimingConfig);
+size.value = reduceMotion
+  ? targetSize
+  : withTiming(targetSize, sizeTimingConfig);
+```
+
+A loop has no final target. Cancel it and assign the chosen static value explicitly. Here the calculating label rests at full opacity rather than at a dim frame; `pulseTimingConfig` belongs to the project's motion tokens:
+
 ```tsx
 const reduceMotion = useReducedMotion();
 
 useEffect(() => {
   if (reduceMotion) {
-    opacity.value = 0.6;
+    cancelAnimation(opacity);
+    opacity.value = 1;
     return;
   }
 
   opacity.value = withRepeat(
     withSequence(
-      withTiming(1, { duration: PULSE_MS }),
-      withTiming(0.4, { duration: PULSE_MS }),
+      withTiming(1, pulseTimingConfig),
+      withTiming(dimOpacity, pulseTimingConfig),
     ),
     -1,
     false,
@@ -52,13 +80,26 @@ useEffect(() => {
 }, [reduceMotion, opacity]);
 ```
 
+For a decorative lift, skip its animation driver and clear its owned transform instead of assigning a lifted target. Reanimated retains previously applied animated styles when a callback returns `{}` or the style is removed; [unset the property explicitly](https://docs.swmansion.com/react-native-reanimated/docs/core/useAnimatedStyle/) when reusing that view:
+
+```tsx
+const liftStyle = useAnimatedStyle(() => ({
+  transform: reduceMotion ? undefined : [{ translateY: lift.value }],
+}));
+```
+
+The snippet owns only decoration. If base or consumer styles also need `transform`, preserve them through [separate placement and animated-paint surfaces](./style-composition.md#accepting-a-consumers-styles), not a blanket transform reset.
+
+Use the project's existing preference source and lifecycle. Reanimated 4.x [`useReducedMotion`](https://docs.swmansion.com/react-native-reanimated/docs/device/useReducedMotion/) returns the startup preference and does not rerender on OS setting changes; an effect dependency does not turn it into a subscription. That API caveat does not prescribe a startup-only policy for every app. Use [`cancelAnimation`](https://docs.swmansion.com/react-native-reanimated/docs/core/cancelAnimation/) to stop an existing loop before assigning its static value.
+
 **Guidelines:**
 
 - MUST provide a reduced-motion branch for every animation and every transition a change introduces, on both platforms.
 - MUST NOT ship an infinite, looping, or full-surface animation without one — this is the case where the preference matters most.
-- MUST settle the reduced-motion branch at the animation's resting state rather than at an arbitrary frame, so a placeholder holds a steady value instead of freezing mid-pulse.
+- MUST put required target styles or values outside animation-only keyframes and completion callbacks, so bypassing interpolation still applies the state.
+- MUST cancel a loop before assigning its specified static value on native; on web, pair the component-scoped animation override with an explicit static style.
+- MUST omit or reset the owned decorative transform in the reduced branch, without clearing transforms needed for layout or consumer styling.
 - MUST NOT duplicate an animated surface and guard only one copy; a second copy of the same keyframes with no guard is a defect that reads as an oversight in review.
-- SHOULD disable the animation outright rather than shortening it, unless the motion carries meaning the user would otherwise lose.
 
 ## Hover, and the Pointer It Depends On
 
