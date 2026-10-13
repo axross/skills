@@ -263,10 +263,14 @@ parents have no universal declaration requirement. Recognized authored root
 paragraphs establish declaration count. Comments, definitions, formatted
 comment-only paragraphs and empty/whitespace HTML wrappers do not affect position.
 Real prose, inline code, Markdown images and opening img/svg elements remain
-content. The declaration is the final introductory paragraph before the first
-root H2, or before the first rule/label block when no H2 exists. Quoted/code
-declarations do not count. Missing, duplicate, misplaced or unrecognized text
-gets a format diagnostic, not a judgment that its meaning is false.
+content. Rendered introductory HTML blocks also affect position: substantive
+prose or opening img/svg after the declaration displaces it; the same content
+before it does not. Recognition and count remain restricted to root paragraphs.
+The declaration is the final introductory paragraph before the first root H2,
+or before the first rule/label block when no H2 exists. Quotes, code, lists and
+tables retain their existing roles. Quoted/code declarations do not count.
+Missing, duplicate, misplaced or unrecognized text gets a format diagnostic,
+not a judgment that its meaning is false.
 
 ### Labels, Guidelines and section anatomy
 
@@ -293,9 +297,13 @@ rendered Guidelines items retain their separate AS003 applicability, and AS008's
 whole-word profile is unchanged.
 
 AS005 checks main unordered -, * and + items and ordered items, not nested
-explanatory lists. An authored heading or independent prose ends association with Guidelines, while
-invisible definitions/comments and interleaved illustrative fences do not hide
-later associated items.
+explanatory lists. The first rendered authored main-item paragraph or heading
+supplies the opener, including `- ### MUST preserve output.`; nested explanatory
+or quote/code headings do not become main-item openers. An independent heading
+or Markdown/HTML prose or image block ends association with Guidelines in its
+authored container. Contained HTML does not sever an outer association, while
+invisible definitions/comments, empty HTML and interleaved illustrative fences
+do not hide later associated items.
 
 The shared authored-keyword profile used by AS005, AS003/AS006 explicit-list
 applicability and AS008 treats only a, b, del, em, i, ins, mark, s, small, span,
@@ -351,6 +359,11 @@ do not acquire a route requirement. It checks the filename label and leading-dot
 ./references/ shape, not target existence, anchors, inventory or reference
 H1-to-filename agreement.
 
+Direct main-item paragraphs and headings with rendered content satisfy AS007's
+nonempty unordered-list requirement. Empty/comment-only headings do not, nor
+do headings inside quotes/code. Normative headings remain AS008 violations;
+nonemptiness does not relax the descriptive-only contract.
+
 An already recognized AS007 lead-in allows ordinary Markdown emphasis,
 code-formatted filename labels, wrapping and invisible HTML comments. It rejects
 images anywhere, even an empty-alt image before the link, and every raw HTML
@@ -376,6 +389,14 @@ single/double-quoted spans and explicit keyword-name mentions do not contribute
 uses. Keyword-name enumerations followed by is/are/means/denotes are excluded
 independently: they do not hide a later separate directive. This bounded lexical
 profile does not infer obligation meaning or certify semantic conformance.
+
+Markdown image-alt child tokens use the same authored-keyword exclusions in
+attached paragraphs/headings. Outside text and each image's alt are separate
+regions: `![Consumers MUST preserve output.](diagram.svg)` fails, but
+`MU![ST](diagram.svg)` does not invent MUST. An excluded literal, quoted span or
+keyword-name mention in one region does not hide a directive in another. This
+does not expand AS003/AS005/AS006 image-opener recognition, inspect HTML
+attributes or fetch assets.
 
 Formatting-only comment paragraphs such as `**<!-- note -->**` and
 empty/whitespace-wrapper-only paragraphs or HTML blocks preserve routing and

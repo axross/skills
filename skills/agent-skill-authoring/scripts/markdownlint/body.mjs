@@ -65,22 +65,26 @@ function keyword(node, { requireBody = false, excludeMentions = false, includeHe
     if (node?.token.type !== "paragraph_open" && !(includeHeadings && node?.token.type === "heading_open")) return false;
     tokens = inline(node);
   }
-  tokens = tokens.filter(token => {
-    if (["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type)) return false;
-    if (token.type === "text") return token.content !== "";
-    if (token.type !== "html_inline") return true;
-    const tag = token.content.match(/^<\/?([a-z][a-z0-9]*)(?=[\s/>])/i)?.[1].toLowerCase();
-    return !/^<!--[\s\S]*-->$/.test(token.content) && !TRANSPARENT_HTML.has(tag);
+  const regions = [tokens];
+  if (anywhere) for (const region of regions) for (const token of region) if (token.type === "image") regions.push(token.children ?? []);
+  return regions.some(region => {
+    region = region.filter(token => {
+      if (["strong_open", "strong_close", "em_open", "em_close", "link_open", "link_close"].includes(token.type)) return false;
+      if (token.type === "text") return token.content !== "";
+      if (token.type !== "html_inline") return true;
+      const tag = token.content.match(/^<\/?([a-z][a-z0-9]*)(?=[\s/>])/i)?.[1].toLowerCase();
+      return !/^<!--[\s\S]*-->$/.test(token.content) && !TRANSPARENT_HTML.has(tag);
+    });
+    if (!anywhere && region[0]?.type !== "text") return false;
+    let content = region.map(token => token.type === "text" ? token.content : " ").join("").trim();
+    if (anywhere) {
+      content = content.replace(/"[^"]*"|“[^”]*”|(?<![\p{L}\p{N}_])'[^']*'|‘[^’]*’/gu, " ").replace(ROUTING_MENTION, " ");
+      return ROUTING_KEYWORD.test(content);
+    }
+    const match = content.match(KEYWORD);
+    if (excludeMentions && KEYWORD_MENTION.test(content)) return false;
+    return Boolean(match && (!requireBody || match[2] || region.some(token => token.type === "code_inline" && token.content.trim())));
   });
-  if (!anywhere && tokens[0]?.type !== "text") return false;
-  let content = tokens.map(token => token.type === "text" ? token.content : " ").join("").trim();
-  if (anywhere) {
-    content = content.replace(/"[^"]*"|“[^”]*”|(?<![\p{L}\p{N}_])'[^']*'|‘[^’]*’/gu, " ").replace(ROUTING_MENTION, " ");
-    return ROUTING_KEYWORD.test(content);
-  }
-  const match = content.match(KEYWORD);
-  if (excludeMentions && KEYWORD_MENTION.test(content)) return false;
-  return Boolean(match && (!requireBody || match[2] || tokens.some(token => token.type === "code_inline" && token.content.trim())));
 }
 
 function list(node) { return ["bullet_list_open", "ordered_list_open"].includes(node.token.type); }
@@ -185,6 +189,7 @@ export function analyzeBody(document) {
       // an independent quote/fence is a boundary; a contained one is visited inside its list item.
       if (["blockquote_open", "fence", "code_block", "table_open", "html_block", "hr"].includes(node.token.type)) {
         route = null;
+        if (node.token.type === "html_block") guidelines = null;
         if (group && node.token.type !== "hr") group.blocks.push(node);
         demonstration ||= rendered(node);
       }
@@ -233,8 +238,8 @@ export const bodyChecks = {
     const firstH2 = body.root.findIndex(node => node.token.type === "heading_open" && node.token.tag === "h2");
     const firstRules = body.root.findIndex(node => body.ruleLists.includes(node) || body.labels.some(entry => entry.node === node));
     const end = firstH2 !== -1 ? firstH2 : firstRules !== -1 ? firstRules : body.root.length;
-    const paragraphs = body.root.slice(0, end).filter(node => node.token.type === "paragraph_open" && !invisible(node));
-    if (declarations.length !== 1 || declarations[0] !== paragraphs.at(-1)) report(declarations[1] ?? declarations[0] ?? body.root[end], "Require exactly one recognized RFC 2119 declaration as the final introductory paragraph");
+    const introduction = body.root.slice(0, end).filter(node => ["paragraph_open", "html_block"].includes(node.token.type) && !invisible(node));
+    if (declarations.length !== 1 || declarations[0] !== introduction.at(-1)) report(declarations[1] ?? declarations[0] ?? body.root[end], "Require exactly one recognized RFC 2119 declaration as the final introductory paragraph");
   },
   AS004(body, report) {
     for (const entry of body.labels) if (!entry.bold) report(entry.node, "Recognized colon-bearing labels must be bold paragraphs");
@@ -242,7 +247,7 @@ export const bodyChecks = {
   AS005(body, report) {
     for (const entry of body.guidelines) {
       if (entry.attached) continue;
-      for (const node of entry.lists) for (const item of node.children) if (!keyword(firstParagraph(item))) report(item, "Main Guidelines items must begin with an uppercase RFC 2119 keyword");
+      for (const node of entry.lists) for (const item of node.children) if (!keyword(firstParagraph(item), { includeHeadings: true })) report(item, "Main Guidelines items must begin with an uppercase RFC 2119 keyword");
     }
   },
   AS006(body, report, options) {
@@ -260,7 +265,7 @@ export const bodyChecks = {
       const reference = link.length === 1 && /^\.\/references\/[^/]+\.md$/.test(target) && link[0].label === target.split("/").at(-1);
       const prefix = `See ${link[0]?.label} `;
       const leadIn = content.startsWith(prefix) && /^(?:for|when):$/.test(content.slice(prefix.length)) && tokens.every(token => token.type !== "image" && (token.type !== "html_inline" || /^<!--[\s\S]*-->$/.test(token.content)));
-      const descriptiveList = route.lists.length && route.lists.every(node => node.token.type === "bullet_list_open" && node.children.some(item => item.children.some(child => child.token.type === "paragraph_open" && text(inline(child)).trim())));
+      const descriptiveList = route.lists.length && route.lists.every(node => node.token.type === "bullet_list_open" && node.children.some(item => item.children.some(child => ["paragraph_open", "heading_open"].includes(child.token.type) && inlineRendered(inline(child)))));
       if (!topic || !reference || !leadIn || !descriptiveList) report(route.node, "Reference routes require a topic heading, See filename-labelled ./references/ link, for:/when: lead-in and a nonempty unordered list");
     }
   },

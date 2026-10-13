@@ -85,6 +85,12 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     [COMPACT + "\n\n[topic]: https://example.com", 0],
     [COMPACT + "\n\n`introductory code`", 1],
     [COMPACT + "\n\n![](diagram.svg)", 1],
+    [COMPACT + "\n\n<div>Independent introduction.</div>", 1],
+    [COMPACT + '\n\n<img src="diagram.svg">', 1],
+    [COMPACT + '\n\n<svg><path d="M0 0 L1 1" /></svg>', 1],
+    [COMPACT + "\n\n<div> </div>", 0],
+    ["<div>Independent introduction.</div>\n\n" + COMPACT, 0],
+    ['<img src="diagram.svg">\n\n' + COMPACT, 0],
   ])("recognizes declaration count, variants and position (%#)", async (declaration, code) => {
     const result = await check("AS003", `# Fixture Skill\n\n${declaration}\n\n${RULE_SECTION}`, { eol });
     expect(result.code).toBe(code);
@@ -141,6 +147,10 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     const prefix = "# Fixture Skill\n\nDemonstrate the rule.\n\n**Guidelines:**\n\n";
     const body = prefix + `${marker} SHALL, when necessary, preserve output.\n${marker} SHALL NOT discard output.\n    - explanatory detail without a keyword\n`;
     expect((await check("AS005", body, { eol })).code).toBe(0);
+    expect((await check("AS005", prefix + `${marker} ### SHALL NOT!discard output.\n`, { eol })).code).toBe(0);
+    expect((await check("AS005", prefix + `${marker} ### \`SHALL NOT\` discard output.\n`, { eol })).code).toBe(1);
+    expect((await check("AS005", prefix + `${marker} > ### SHALL NOT discard output.\n`, { eol })).code).toBe(1);
+    expect((await check("AS005", prefix + `${marker} explanatory detail\n\n    - ### SHALL NOT discard output.\n`, { eol })).code).toBe(1);
     const bad = await check("AS005", prefix + `${marker} must preserve output.\n`, { eol });
     expect(bad.code).toBe(1);
     expect(bad.findings).toContainEqual(expect.objectContaining({ ruleNames: ["AS005"], lineNumber: 13 }));
@@ -278,6 +288,28 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   });
 
   it.each([
+    ["![Consumers MUST preserve output.](diagram.svg)", 1],
+    ["![Consumers MU<span></span>ST preserve output.](diagram.svg)", 1],
+    ["![Consumers `MUST` preserve output.](diagram.svg)", 0],
+    ['![Consumers “MUST preserve output.”](diagram.svg)', 0],
+    ["![Consumers MUST and MAY are keyword names.](diagram.svg)", 0],
+    ["![Consumers MU<br>ST preserve output.](diagram.svg)", 0],
+    ["MU![ST](diagram.svg)", 0],
+    ["![MU](diagram.svg)ST", 0],
+    ["![MUST](diagram.svg) is a keyword name.", 1],
+    ["![MUST is a keyword name.](diagram.svg) Consumers SHALL NOT discard output.", 1],
+    ["MUST is a keyword name. ![Consumers SHALL NOT discard output.](diagram.svg)", 1],
+    ['"![Consumers MUST preserve output.](diagram.svg)"', 1],
+    ['!["](diagram.svg) Consumers MUST preserve output. !["](diagram.svg)', 1],
+  ])("checks image-alt regions independently in authored routing content (%#)", async (content, code) => {
+    for (const [item, lineNumber] of [[`- ${content}\n`, 11], [`* condition\n\n  ${content}\n`, 13], [`+ ### ${content}\n`, 11]]) {
+      const result = await check("AS008", ROUTE + item, { eol });
+      expect(result.code).toBe(code);
+      expect(result.findings).toEqual(code ? [expect.objectContaining({ ruleNames: ["AS008"], lineNumber })] : []);
+    }
+  });
+
+  it.each([
     "Consumers `MUST` preserve output.",
     'Consumers "MUST preserve output."',
     "Consumers 'MUST preserve output.'",
@@ -374,6 +406,14 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect((await check("AS009", `**Good Example:**\n\n${comment}\n\n> One example.\n`, { eol })).code).toBe(0);
   });
 
+  it.each(["<div>Independent rationale.</div>", '<img src="diagram.svg">', '<svg><path d="M0 0 L1 1" /></svg>'])("ends Guidelines at independent rendered HTML, not contained HTML (%#)", async (html) => {
+    const prefix = "## Rules\n\nRationale.\n\n**Guidelines:**\n\n- MUST preserve output.\n\n";
+    expect((await check("AS005", prefix + `${html}\n\n- descriptive item\n`, { eol })).code).toBe(0);
+    const contained = await check("AS005", prefix + `  ${html}\n\n- descriptive item\n`, { eol });
+    expect(contained.code).toBe(1);
+    expect(contained.findings).toEqual([expect.objectContaining({ ruleNames: ["AS005"], lineNumber: 17 })]);
+  });
+
   it.each([
     ["MUST, SHOULD, and MAY are keyword names.", 0],
     ["RECOMMENDED and NOT RECOMMENDED are keyword names.", 0],
@@ -452,6 +492,15 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   it.each([
     [ROUTE + "- condition\n", 0],
     [ROUTE.replace("for:", "when:") + "* condition\n", 0],
+    [ROUTE + "- ### Descriptive condition\n", 0],
+    [ROUTE + "* ### **Descriptive** condition\n", 0],
+    [ROUTE + "+ ### `Descriptive` condition\n", 0],
+    [ROUTE + "- ### Consumers MUST preserve output.\n", 0],
+    [ROUTE + "- ### <!-- invisible -->\n", 1],
+    [ROUTE + "- ### <span> </span>\n", 1],
+    [ROUTE + "- ###\n", 1],
+    [ROUTE + "- > ### Descriptive condition\n", 1],
+    [ROUTE + "1. ### Descriptive condition\n", 1],
     [ROUTE.replace("See ", "See ![](icon.svg)") + "- condition\n", 1],
     [ROUTE.replace(" for:", " ![](icon.svg) for:") + "- condition\n", 1],
     [ROUTE.replace("See ", "<span>See</span> ") + "- condition\n", 1],
