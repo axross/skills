@@ -12,11 +12,11 @@ The tiers under that rule are the structure the field has converged on ([Materia
 
 Name by purpose and the names survive their own values: color-danger can move from red to orange without becoming a lie, color-red-alert cannot. Both naming failures cost later — too generic (color-primary-1 tells you nothing about when to use it) and too specific (button-submit-hover-blue bakes in appearance and context) — so structure each role as category-role-variant-state, reading as an intent: surface, on-surface, action-primary, text-muted, border-focus ([naming best practices](https://www.smashingmagazine.com/2024/05/naming-best-practices/)).
 
-Pair every surface token with a matching on-/foreground token engineered, not guessed, to clear contrast against it ([SC 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum), [SC 1.4.11](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)). Testing the pair is what buys the guarantee: any component placing on-surface over surface then inherits a passing ratio for free, in both themes. Define only surfaces and let each component pick its own foreground, and contrast becomes an accident that some pairs fail. Verify the ratios of the actual paired tokens in each theme — a pairing that passes in light mode routinely fails when the same roles are remapped for dark.
+Pair every surface token with a matching on-/foreground token engineered, not guessed, to clear contrast against it ([SC 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum), [SC 1.4.11](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)). A component inherits a passing ratio only for the effective surfaces, states, and rendering assumptions verified, not arbitrary backdrops. Translucent surfaces or foregrounds need [effective-color verification](./color-and-contrast.md#verify-effective-colors-not-token-structure); an opaque or otherwise contrast-bounded ground makes the result reusable while those conditions stay unchanged. Define only surfaces and let each component pick its own foreground, and contrast becomes an accident that some pairs fail. Verify the ratios of the actual paired tokens in each theme — a pairing that passes in light mode routinely fails when the same roles are remapped for dark.
 
 **Good Example:**
 
-> A button reads background: color-action-primary and text: color-on-action-primary — two semantic roles defined and contrast-tested as a pair (7.1:1) — so switching to a dark theme or rebranding is a remap of those roles onto different primitives, with the button file untouched and contrast preserved.
+> A button reads background: color-action-primary and text: color-on-action-primary — two semantic roles defined and contrast-tested as a pair in each theme — so switching to a dark theme or rebranding is a remap of those roles onto different primitives, with the button file untouched. Contrast is preserved only while the verified grounds, states, and rendering conditions remain unchanged; new mappings need their own checks.
 
 **Bad Example:**
 
@@ -27,7 +27,7 @@ Pair every surface token with a matching on-/foreground token engineered, not gu
 - MUST bind every visual value in a component or mockup to a semantic-tier token, and MUST NOT reference a primitive token or a raw literal (hex, rgb, numeric scale value) directly.
 - MUST resolve a missing role by adding the needed semantic token rather than inlining the primitive or hardcoding the value it would have pointed to.
 - MUST name each semantic token by purpose as category-role-variant-state (surface, on-surface, action-primary, text-muted, border-focus), and MUST NOT encode appearance (color-red-alert) or a single component context (button-submit-hover-blue) in the name.
-- MUST pair each surface token with a foreground/on- token and verify the actual pair clears WCAG contrast (4.5:1 normal text, 3:1 large text and UI boundaries) in both the light and dark theme mappings.
+- MUST pair each surface token with a foreground/on- token and verify the effective pair clears WCAG contrast (4.5:1 normal text, 3:1 large text and UI boundaries) in both the light and dark theme mappings, for the intended states and backdrops.
 
 Sources: [Color — Human Interface Guidelines — Apple](https://developer.apple.com/design/human-interface-guidelines/color)
 

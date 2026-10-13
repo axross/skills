@@ -88,7 +88,7 @@ backgroundColor: theme.colors.solid.accent.restAlpha,
 - MUST state the compositing model and working colour space used by a calculation; do not assume the authored colour syntax selects the renderer's compositing space.
 - MUST verify a generated contextual alpha by independently compositing the emitted colour over each distinct intended ground, rather than calling the generating solver to produce the expectation. Document any colour-match tolerance instead of prescribing a universal solver or precision.
 
-When the composite carries readable content or required control information, consult the high-fidelity UI design capability's contrast-verification practices; matching a target colour is not a contrast check.
+When the composite carries readable content or required control information, consult the high-fidelity UI design capability's contrast-verification practices where available. Otherwise, check the resolved colours against WCAG's [text](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) or [non-text](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) contrast requirements and report any unverifiable pairs. Matching a target colour is not a contrast check.
 
 ## Picking by Role, Not by Appearance
 
