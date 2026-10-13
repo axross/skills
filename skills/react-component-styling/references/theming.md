@@ -19,6 +19,7 @@ A project declares these families. Values are the project's; the shapes are not 
 | Border width | Named tier including a hairline step               | `hairline` / `base` / `thick`                      |
 | Duration     | Named scale                                        | `sm` … `2xl`, by magnitude never by milliseconds   |
 | Easing       | Role-named curves                                  | `standard` / `enter` / `exit`, never `ease-in-out` |
+| Effect       | Named composite recipes                            | Ordered shadow layers, not only shadow colour      |
 
 **Guidelines:**
 
@@ -26,6 +27,60 @@ A project declares these families. Values are the project's; the shapes are not 
 - MUST NOT fold one family into another. Radius is not spacing, and a border width is not a spacing step, even when the numbers coincide today — the moment one moves, every borrowed use moves with it.
 - MUST name a token for its role, never for its appearance or its value. `--duration-md` and `ease.standard` survive a retune; `--duration-200ms` and `ease-in-out` become lies.
 - MUST keep the light and dark mappings structurally identical — the same names present in both — so no surface can reference a token that exists in only one scheme.
+
+## Composite Effects
+
+A shadow's colour alone does not define the effect: its layers also carry stacking order, offsets, blur, spread, and inset. Keep that recipe together under a semantic role so consumers do not recreate subtly different shadows. Blur softens a layer; spread expands or contracts its extent. They are separate values, not interchangeable measures of softness.
+
+**Example — ordered layers in a token module; values are illustrative:**
+
+Layers are listed front-to-back, and lengths use base px; a platform conversion keeps that order and converts units explicitly.
+
+```ts
+type ShadowLayer = {
+  offsetX: number;
+  offsetY: number;
+  blurRadius: number;
+  spreadDistance: number;
+  color: string;
+  inset?: boolean;
+};
+
+const sheetLayers: readonly ShadowLayer[] = [
+  {
+    offsetX: 0,
+    offsetY: 4,
+    blurRadius: 6,
+    spreadDistance: -2,
+    color: "rgba(0, 0, 0, 0.05)",
+  },
+  {
+    offsetX: 0,
+    offsetY: 10,
+    blurRadius: 15,
+    spreadDistance: -3,
+    color: "rgba(0, 0, 0, 0.1)",
+  },
+];
+
+const effects = {
+  sheet: sheetLayers,
+  sheetInverted: sheetLayers.map((layer) => ({
+    ...layer,
+    offsetY: -layer.offsetY,
+  })),
+};
+```
+
+An overlay consumer selects `effects.sheet` or `effects.sheetInverted` as a whole. The inverted variant changes only the vertical direction; order and every other field still come from the base recipe. An inset well has a different purpose and layer semantics, so it deserves its own effect role rather than an arbitrary override of the sheet shadow. Resolve scheme-dependent colours where the host design system keeps themed tokens; invariant effects may be shared. Neither needs a prescribed namespace or file layout.
+
+On web or native, consume the recipe directly when the renderer accepts it; otherwise convert at the platform boundary, retaining its declared stacking order and each field's meaning. A CSS shadow list and a native layer array are possible representations, not required APIs. A mechanical replacement with [`drop-shadow()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/filter-function/drop-shadow) is not equivalent: it follows an alpha mask, accepts no spread or inset, and its blur parameter has different semantics.
+
+**Guidelines:**
+
+- MUST define shared composite effects as named recipes and consume each recipe whole, preserving layer order, colour, both offsets, blur, spread, and inset rather than tokenizing only colour.
+- SHOULD derive a variant from the base recipe when only a defined transformation changes; declare a separate semantic effect when its purpose or layer semantics differ.
+- MUST preserve the recipe's semantics through web/native conversion. If the target cannot represent them, choose a supported rendering path or document an intentional fallback and its lost semantics rather than silently presenting a flattened shadow as equivalent.
 
 ## Composite Text Roles
 
