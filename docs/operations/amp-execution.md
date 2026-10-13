@@ -44,9 +44,22 @@ Keep four failure cases distinct:
 
 ## Select a route by purpose
 
-The parent normally implements a coherent change directly. Do not delegate only
-because a task is complex, spans files, or needs routine self-review. The active
-contracts determine whether one of these narrower routes fits:
+Follow the session's applicable general delegation guidance. Where configured
+Implementer or Reviewer roles are available, use the matching role through a
+route whose current purpose conditions qualify for that assignment. Configuration
+and a standing mandate do not waive those conditions. When implementation
+delegation does not qualify, the parent implements the coherent approved change
+directly; complexity, file count, and routine self-review alone do not establish
+eligibility. Qualify each Loop checkpoint separately, not once for the run.
+
+Amp does not inherit Claude Code's configured Investigator. A loaded Amp plugin
+can independently provide that role; source routing changes do not activate
+plugin or personal-guidance revisions. Mixed source and active revisions remain
+partial adoption until separately authorized publication and loaded-content
+verification establish alignment.
+
+The active contracts determine which of these host routes fits the requested
+purpose:
 
 | Route       | Appropriate use in this repository                                                                                                                                         |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -100,8 +113,11 @@ context has the following qualifications:
 - a usable return channel
 
 A route name alone proves none of these. Use only mechanisms whose current
-contracts permit routine read-only review; do not substitute Task, Oracle or
-another specialist when its purpose excludes that review. Freeze competing
+contracts permit the actual review assignment, including explicit requested
+critique where eligible; use a matching configured Reviewer when qualified.
+Do not substitute Task, Oracle or another specialist when its purpose excludes
+that assignment, or solicit an Oracle exception to bypass it. An independently
+eligible narrow Oracle consultation is not a full review checkpoint. Freeze competing
 writers before supplying the actual target under the Loop review contract.
 
 If no route qualifies, record whether the cause is a missing capability,
@@ -110,7 +126,9 @@ Return that result under the
 [Loop handoff contracts](../../skills/loop-engineering/references/implementation-package.md);
 Development Workflow owns the delivery restriction, and
 [Loop recovery](../../skills/loop-engineering/references/resuming-and-handoff.md)
-owns which checkpoint resumes.
+owns which checkpoint resumes. Earlier implementation or artifact-review
+availability is not evidence for this reader; preserve whether review ran and
+its actual target, material coverage, policy, and limitations separately.
 
 ## Return questions from one-shot work
 
