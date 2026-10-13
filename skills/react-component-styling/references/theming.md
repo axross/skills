@@ -10,16 +10,18 @@ Tokens exist so a visual decision is made once and consumed everywhere. That onl
 
 A project declares these families. Values are the project's; the shapes are not negotiable, because a component written against one shape does not survive a project that chose another.
 
-| Family       | Shape                                              | Notes                                              |
-| ------------ | -------------------------------------------------- | -------------------------------------------------- |
-| Colour       | Named semantic roles × scheme, over a 13-step ramp | See [color-and-gamut.md](./color-and-gamut.md)     |
-| Typography   | Composite named text roles                         | Family + size + line height + weight, bundled      |
-| Spacing      | Numeric steps keyed to their base px               | `--space-16`, `theme.space.x16`                    |
-| Radius       | Named tier                                         | `xs` / `sm` / `md` / `lg` / `full`                 |
-| Border width | Named tier including a hairline step               | `hairline` / `base` / `thick`                      |
-| Duration     | Named scale                                        | `sm` … `2xl`, by magnitude never by milliseconds   |
-| Easing       | Role-named curves                                  | `standard` / `enter` / `exit`, never `ease-in-out` |
-| Shadow       | Named ordered layer recipes                        | Composite effects, not only shadow colour          |
+| Family       | Shape                                        | Notes                                              |
+| ------------ | -------------------------------------------- | -------------------------------------------------- |
+| Colour       | Semantic roles or optional component aliases | See [color-and-gamut.md](./color-and-gamut.md)     |
+| Typography   | Composite named text roles                   | Family + size + line height + weight, bundled      |
+| Spacing      | Numeric steps keyed to their base px         | `--space-16`, `theme.space.x16`                    |
+| Radius       | Named tier                                   | `xs` / `sm` / `md` / `lg` / `full`                 |
+| Border width | Named tier including a hairline step         | `hairline` / `base` / `thick`                      |
+| Duration     | Named scale                                  | `sm` … `2xl`, by magnitude never by milliseconds   |
+| Easing       | Role-named curves                            | `standard` / `enter` / `exit`, never `ease-in-out` |
+| Shadow       | Named ordered layer recipes                  | Composite effects, not only shadow colour          |
+
+Generic UI colour roles use the 13-step scheme ramps. Domain semantic roles use meaning-based namespaces, and optional component aliases resolve through semantic roles; neither namespace has to imitate the generic role × scheme shape.
 
 **Guidelines:**
 
