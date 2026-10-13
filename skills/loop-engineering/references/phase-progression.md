@@ -37,10 +37,10 @@ The approval binds the outcome; the assignment binds the execution. Parent and c
 
 **Guidelines:**
 
-- MUST implement only the current approved plan, preserve unrelated changes, and resolve the execution arrangement before the first edit.
+- MUST implement only the current approved plan, preserve unrelated changes, and resolve the implementation assignment's execution arrangement through [checkpoint qualification](./subagent-delegation.md#checkpoint-qualification) before the first edit.
 - MUST run the required formatting, lint, type, test, and surface-specific checks using documented project commands; disclose every failed or skipped check and its residual risk.
 - MUST perform a reviewer-mode self-check against the request and actual diff before delivery, fixing obvious Critical or Major problems; a child's self-check is checked against its receipt and actual state, not treated as independent review.
-- MUST perform the advisory pre-flight stage by default after verified initial implementation, regardless of the implementation actor, when a compatible reader is permitted and available; when host conditions or missing material rule it out, record the exact unavailable reason, never report a clean result, and preserve the external gate.
+- MUST enter the advisory pre-flight checkpoint by default after verified initial implementation, regardless of the implementation actor, and apply [its current qualification and gap rules](./pre-flight-review.md#checkpoint-qualification) before delivery.
 - MUST preserve branch history, work outside the default branch, and refrain from pushing to the default branch or merging the change under the default policy. A child may not publish merely because it owns implementation.
 
 ## Deliver and Address

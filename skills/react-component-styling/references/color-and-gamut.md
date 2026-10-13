@@ -89,7 +89,11 @@ The consumer reads `theme.listCard.fill` in both appearances. These mappings ill
 
 ## The Alpha Ramp
 
-Every role also exists in a translucent form, because a colour composited over unknown content — imagery, a scrolling surface, another component — cannot be a flat step. The alpha ramp is a parallel set of the same 13 steps at graded alpha, exposed as a slot suffix so the role name stays recognisable.
+The alpha ramp is a parallel set of the same 13 steps at graded alpha, exposed as a slot suffix so the role name stays recognisable. It supports deliberate translucency; it does not make unknown imagery or scrolling content a safe background. An opaque backing remains valid when the surface needs a controlled ground.
+
+[Radix alpha variants](https://www.radix-ui.com/themes/docs/theme/color#alpha-colors) reproduce their solid counterparts over the reference page background, not every background. Moving the same alpha colour onto another ground changes the composite even when the semantic path is unchanged. A theme can resolve a contextual alpha for a known ground, but a fixed source colour and a single alpha cannot always reach the intended target exactly.
+
+Resolve the backdrop from the base through the intervening painted layers, then composite the tint over it. Colour alpha affects that paint; [group opacity](https://www.w3.org/TR/css-color-4/#transparency) fades the element and its contents together. [Source-over compositing](https://www.w3.org/TR/compositing-1/#simplealphacompositing) retains both colour and alpha until an opaque backdrop is reached. The working colour space matters: [P3 alpha blending differs from sRGB](https://www.radix-ui.com/colors/docs/overview/custom-palettes), and encoded RGB arithmetic is not a universal rule for all renderers or colour formats.
 
 **Example:**
 
@@ -104,9 +108,14 @@ backgroundColor: theme.colors.solid.accent.restAlpha,
 **Guidelines:**
 
 - MUST declare a parallel alpha ramp per scheme, exposed as an `…Alpha` slot suffix (`-alpha` in the CSS custom-property form).
-- MUST use an alpha role wherever a colour composites over content the theme does not control, rather than a flat step chosen to look right over today's background.
+- SHOULD use an alpha role when translucency is intentional, rather than approximating the overlay with a flat step matched to one background.
 - MUST NOT hand-write an `rgba()` or a slash-alpha literal in a component; that is an off-scale value like any other.
 - MAY derive a one-off alpha on web with relative colour syntax when the derivation is genuinely local, provided it derives from a role token and not from a literal.
+- MUST resolve the actual backdrop and layer order, including colour alpha, group opacity, and any blend or filter effects, before treating an alpha colour as a resolved surface colour.
+- MUST state the compositing model and working colour space used by a calculation; do not assume the authored colour syntax selects the renderer's compositing space.
+- MUST verify a generated contextual alpha by independently compositing the emitted colour over each distinct intended ground, rather than calling the generating solver to produce the expectation. Document any colour-match tolerance instead of prescribing a universal solver or precision.
+
+When the composite carries readable content or required control information, consult the high-fidelity UI design capability's contrast-verification practices where available. Otherwise, check the resolved colours against WCAG's [text](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) or [non-text](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) contrast requirements and report any unverifiable pairs. Matching a target colour is not a contrast check.
 
 ## Picking by Role, Not by Appearance
 

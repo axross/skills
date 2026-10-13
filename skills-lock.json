@@ -54,7 +54,7 @@
     "high-fidelity-ui-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "9a57e4a4a31f17091a6056124712807993041a7b7500a87ccdcde994aa8151f6"
+      "computedHash": "1f24080381f1e50ea7afc2af6adc8469acf995a0ca32a1cac93ce4227b1beeb5"
     },
     "jest-testing": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "92993c54c43738234ca0a1a79c62806705f3e5495eb7465df9781a44f3e2ee82"
+      "computedHash": "98eb035f7f44e93b3ed589c528e25b5b2370311317e9cd08eef3f41be234716f"
     },
     "next-app-development": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "3e3113174533c919da46033d17a3b15cbbb651d04c654be3ebf99b7bf3320ec3"
+      "computedHash": "1bb31b0da73fb2091732570ac80026bd5562f6dc39427e39c99641d009c1b091"
     },
     "sentry-instrumentation": {
       "source": "./skills",
