@@ -54,7 +54,7 @@
     "high-fidelity-ui-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "1d487966aa493bbc4c76923d3ea1d828b0a4ca9cc86a8c412eeeac2b2573f39a"
+      "computedHash": "c31753f3a7eb67f53a26ac64accf1c204bd88bf2a1df23b7718e9e66c390f60b"
     },
     "jest-testing": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b3e047b9e0328a002ed207068dc5f3704effd42055b2aaf34985c67d7700d020"
+      "computedHash": "6dad10293bc9fb242cff30530496bf356a45324cea5215501cd9c9079719ac6a"
     },
     "sentry-instrumentation": {
       "source": "./skills",
