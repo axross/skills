@@ -10,15 +10,18 @@ Tokens exist so a visual decision is made once and consumed everywhere. That onl
 
 A project declares these families. Values are the project's; the shapes are not negotiable, because a component written against one shape does not survive a project that chose another.
 
-| Family       | Shape                                              | Notes                                              |
-| ------------ | -------------------------------------------------- | -------------------------------------------------- |
-| Colour       | Named semantic roles × scheme, over a 13-step ramp | See [color-and-gamut.md](./color-and-gamut.md)     |
-| Typography   | Composite named text roles                         | Family + size + line height + weight, bundled      |
-| Spacing      | Numeric steps keyed to their base px               | `--space-16`, `theme.space.x16`                    |
-| Radius       | Named tier                                         | `xs` / `sm` / `md` / `lg` / `full`                 |
-| Border width | Named tier including a hairline step               | `hairline` / `base` / `thick`                      |
-| Duration     | Named scale                                        | `sm` … `2xl`, by magnitude never by milliseconds   |
-| Easing       | Role-named curves                                  | `standard` / `enter` / `exit`, never `ease-in-out` |
+| Family       | Shape                                        | Notes                                              |
+| ------------ | -------------------------------------------- | -------------------------------------------------- |
+| Colour       | Semantic roles or optional component aliases | See [color-and-gamut.md](./color-and-gamut.md)     |
+| Typography   | Composite named text roles                   | Family + size + line height + weight, bundled      |
+| Spacing      | Numeric steps keyed to their base px         | `--space-16`, `theme.space.x16`                    |
+| Radius       | Named tier                                   | `xs` / `sm` / `md` / `lg` / `full`                 |
+| Border width | Named tier including a hairline step         | `hairline` / `base` / `thick`                      |
+| Duration     | Named scale                                  | `sm` … `2xl`, by magnitude never by milliseconds   |
+| Easing       | Role-named curves                            | `standard` / `enter` / `exit`, never `ease-in-out` |
+| Shadow       | Named ordered layer recipes                  | Composite effects, not only shadow colour          |
+
+Generic UI colour roles use the 13-step scheme ramps. Domain semantic roles use meaning-based namespaces, and optional component aliases resolve through semantic roles; neither namespace has to imitate the generic role × scheme shape.
 
 **Guidelines:**
 
@@ -26,6 +29,62 @@ A project declares these families. Values are the project's; the shapes are not 
 - MUST NOT fold one family into another. Radius is not spacing, and a border width is not a spacing step, even when the numbers coincide today — the moment one moves, every borrowed use moves with it.
 - MUST name a token for its role, never for its appearance or its value. `--duration-md` and `ease.standard` survive a retune; `--duration-200ms` and `ease-in-out` become lies.
 - MUST keep the light and dark mappings structurally identical — the same names present in both — so no surface can reference a token that exists in only one scheme.
+
+## Composite Shadow Effects
+
+A shadow's colour alone does not define the effect: its layers also carry stacking order, offsets, blur, spread, and inset. Keep that recipe together under a semantic role so consumers do not recreate subtly different shadows. Blur softens a layer; spread expands or contracts its extent. They are separate values, not interchangeable measures of softness.
+
+**Example — ordered layers in a token module; values are illustrative:**
+
+Layers are listed front-to-back, and lengths use base px. Offsets follow [CSS box-shadow directions](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-shadow#values): positive X points right and positive Y points down. A platform conversion keeps that order and direction and converts units explicitly.
+
+```ts
+type ShadowLayer = {
+  offsetX: number;
+  offsetY: number;
+  blurRadius: number;
+  spreadDistance: number;
+  color: string;
+  inset?: boolean;
+};
+
+const sheetLayers: readonly ShadowLayer[] = [
+  {
+    offsetX: 0,
+    offsetY: 4,
+    blurRadius: 6,
+    spreadDistance: -2,
+    color: "rgba(0, 0, 0, 0.05)",
+  },
+  {
+    offsetX: 0,
+    offsetY: 10,
+    blurRadius: 15,
+    spreadDistance: -3,
+    color: "rgba(0, 0, 0, 0.1)",
+  },
+];
+
+const effects = {
+  topSheet: sheetLayers,
+  bottomSheet: sheetLayers.map((layer) => ({
+    ...layer,
+    offsetY: -layer.offsetY,
+  })),
+};
+```
+
+An overlay consumer selects `effects.topSheet` or `effects.bottomSheet` as a whole. These names describe where the sheet is used, not how its offsets are transformed. The bottom-sheet variant changes only the vertical direction; order and every other field still come from the base recipe. An inset well has a different purpose and layer semantics, so it deserves its own effect role rather than an arbitrary override of the sheet shadow. Resolve scheme-dependent colours where the host design system keeps themed tokens; invariant effects may be shared. Neither needs a prescribed namespace or file layout.
+
+On web or native, consume the recipe directly when the renderer accepts it; otherwise convert at the platform boundary, retaining its declared stacking order and each field's meaning. A CSS shadow list or a native layer array such as React Native's [`BoxShadowValue`](https://reactnative.dev/docs/boxshadowvalue), where supported by the project's target versions and platforms, are possible representations, not required APIs. A mechanical replacement with [`drop-shadow()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/filter-function/drop-shadow) is not equivalent: it follows an alpha mask, accepts no spread or inset, and its blur parameter has different semantics.
+
+Negate `offsetY` at the adapter only if the target's verified positive-Y direction is upward; matching field names do not establish matching coordinate conventions. When documentation and implementation disagree, check the target version's implementation or a rendered asymmetric probe before choosing the conversion.
+
+**Guidelines:**
+
+- MUST resolve every shadow effect through a named layer recipe and consume each recipe whole, preserving layer order, colour, both offsets, blur, spread, and inset rather than tokenizing only colour or inlining component-local shadow geometry.
+- SHOULD derive a variant from the base recipe when only a defined transformation changes; declare a separate semantic effect when its purpose or layer semantics differ.
+- MUST preserve the recipe's semantics through web/native conversion. If the target cannot represent them, choose a supported rendering path or document an intentional fallback and its lost semantics rather than silently presenting a flattened shadow as equivalent.
 
 ## Composite Text Roles
 
