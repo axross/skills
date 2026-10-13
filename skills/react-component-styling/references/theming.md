@@ -34,7 +34,7 @@ A shadow's colour alone does not define the effect: its layers also carry stacki
 
 **Example — ordered layers in a token module; values are illustrative:**
 
-Layers are listed front-to-back, and lengths use base px; a platform conversion keeps that order and converts units explicitly.
+Layers are listed front-to-back, and lengths use base px. Offsets follow [CSS box-shadow directions](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-shadow#values): positive X points right and positive Y points down. A platform conversion keeps that order and direction and converts units explicitly.
 
 ```ts
 type ShadowLayer = {
@@ -76,9 +76,11 @@ An overlay consumer selects `effects.topSheet` or `effects.bottomSheet` as a who
 
 On web or native, consume the recipe directly when the renderer accepts it; otherwise convert at the platform boundary, retaining its declared stacking order and each field's meaning. A CSS shadow list or a native layer array such as React Native's [`BoxShadowValue`](https://reactnative.dev/docs/boxshadowvalue), where supported by the project's target versions and platforms, are possible representations, not required APIs. A mechanical replacement with [`drop-shadow()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/filter-function/drop-shadow) is not equivalent: it follows an alpha mask, accepts no spread or inset, and its blur parameter has different semantics.
 
+Negate `offsetY` at the adapter only if the target's verified positive-Y direction is upward; matching field names do not establish matching coordinate conventions. When documentation and implementation disagree, check the target version's implementation or a rendered asymmetric probe before choosing the conversion.
+
 **Guidelines:**
 
-- MUST define shared shadow effects as named layer recipes and consume each recipe whole, preserving layer order, colour, both offsets, blur, spread, and inset rather than tokenizing only colour.
+- MUST resolve every shadow effect through a named layer recipe and consume each recipe whole, preserving layer order, colour, both offsets, blur, spread, and inset rather than tokenizing only colour or inlining component-local shadow geometry.
 - SHOULD derive a variant from the base recipe when only a defined transformation changes; declare a separate semantic effect when its purpose or layer semantics differ.
 - MUST preserve the recipe's semantics through web/native conversion. If the target cannot represent them, choose a supported rendering path or document an intentional fallback and its lost semantics rather than silently presenting a flattened shadow as equivalent.
 
