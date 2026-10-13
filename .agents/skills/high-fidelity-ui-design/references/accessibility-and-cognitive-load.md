@@ -31,25 +31,34 @@ Sources: [Button States: Communicate Interaction — Nielsen Norman Group](https
 
 ## Make motion optional, safe, and preference-aware
 
-Reduce, do not delete. The mistake that looks like compliance is `@media (prefers-reduced-motion: reduce) { * { animation: none } }`, which strips the feedback that told a user their tap registered; its uglier twin respects the query on decorative flourishes while leaving the one nauseating full-screen parallax transition untouched because it was "the brand moment." Keep the timing, state changes, and affordances, and swap only the vestibular triggers — large translations, parallax, spin, zoom, and slide-in distance — for a cross-fade or a small (roughly 2–3%) scale, so the transition still communicates without moving the world ([designing with reduced motion](https://www.smashingmagazine.com/2020/09/design-reduced-motion-sensitivities/)).
+Preserve feedback, not elapsed animation time. Reduced Motion can remove animation without removing the result of an action. A visible state change can communicate immediately; it need not retain the original duration or replace travel with a small scale. Large translations, parallax, spin, and zoom can trigger discomfort, and even decorative press lift can be omitted rather than made instantaneous ([designing with reduced motion](https://www.smashingmagazine.com/2020/09/design-reduced-motion-sensitivities/)).
 
-That makes motion a real design token — duration, easing, distance, and trigger — specified the way color and type are ([animation and motion](https://web.dev/learn/accessibility/motion)). Default to safe primitives: opacity, color, and small transforms under about 200–300 ms with standard easing, treating large-distance, parallax, and continuous looping motion as opt-in effects that degrade gracefully. In the mockup, show both states side by side — the full-motion transition and its reduced-motion counterpart, plus the visible pause control on any auto-playing surface — so reviewers can see that the reduced path still conveys hierarchy, direction, and feedback.
+Choose the reduced outcome according to what the motion does:
+
+- **Required state change:** reach the target immediately, such as an open panel, updated value, or selected-state paint. Keep a minimal non-spatial transition only when the meaning would otherwise be lost, not to preserve the original timing.
+- **Continuous loop:** replace breathing, spinning, or shimmer with a readable static state. A fully visible “Calculating” label still signals work in progress; a loop frozen at a dim or invisible frame does not.
+- **Decorative movement:** remove the lift, zoom, or other transform itself. Instantly jumping to the lifted pose still changes position and is not the same as suppressing decoration; pressed-state paint can remain.
+
+Specify normal-motion duration, easing, distance, and trigger through the project's motion tokens ([animation and motion](https://web.dev/learn/accessibility/motion)). Compare normal and reduced outcomes side by side so reviewers can see the same operation, loading, and focus information without requiring the same animation. For concrete preference guards and target assignment, consult the project's React component styling practices; the choice of meaningful outcome belongs here.
 
 Three criteria set the floor underneath that. Anything starting automatically, moving or blinking or auto-updating for longer than five seconds alongside other content needs a pause, stop, or hide control — carousels, auto-advancing hero banners, animated backgrounds, live tickers ([SC 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)). Nothing may flash more than three times per second in a large, bright region (SC 2.3.1), and a toggle does not satisfy it, because a seizure can trigger faster than a user can reach the control — the safe design simply never crosses the threshold, with borderline cases verified in PEAT. And motion triggered by a user action should be disablable unless it is essential ([SC 2.3.3](https://www.w3.org/WAI/WCAG21/Understanding/animation-from-interactions)), which is exactly what honoring reduce-motion delivers.
 
 **Good Example:**
 
-> A modal that slides up 24px and fades in over 200ms collapses under prefers-reduced-motion to a same-duration cross-fade with a 2% scale-in, so the open/close still reads without vertical travel; the auto-rotating hero carousel ships with a visible pause control and stops on focus or hover.
+> A modal opens directly in its usable state with visible focus. Its “Calculating” caption stays fully visible without pulsing until a result replaces it. A card omits decorative press lift while retaining its pressed fill and selected-state marker.
 
 **Bad Example:**
 
-> A global `@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important } }` that also kills the button-press and loading-spinner feedback, paired with a full-screen parallax page transition that ignores the query entirely because it's the signature interaction.
+> A reduced-motion card jumps instantly to its lifted pose, and a stopped loading loop leaves the status at zero opacity. A global `animation: none` / `transition: none` rule then removes the only operation and focus feedback instead of providing visible state information.
 
 **Guidelines:**
 
 - MUST specify each animation's duration, easing, distance, and trigger as named tokens in the mockup rather than leaving motion unspecified.
-- MUST render both the full-motion transition and its prefers-reduced-motion counterpart side by side, where the reduced path keeps the timing and state change but swaps translation, parallax, spin, and zoom for a cross-fade or a roughly 2-3% scale.
-- MUST NOT collapse reduced-motion into a blanket `animation: none` / `transition: none` rule that strips press, loading, and focus feedback.
+- MUST render both the normal-motion and reduced-motion outcomes side by side, preserving operation, loading, and focus information rather than animation time.
+- SHOULD reach required state targets immediately under Reduced Motion; retain a minimal non-spatial transition only when needed to convey meaning, without requiring the original duration or a small replacement scale.
+- MUST choose a readable static replacement for a continuous loop, preserving its status information rather than freezing an arbitrary animation frame.
+- MUST suppress decorative transforms such as press lift themselves rather than instantly applying their animated pose, retaining non-motion interaction feedback.
+- MUST NOT collapse reduced-motion into a blanket `animation: none` / `transition: none` rule that strips operation results, press, loading, or focus feedback.
 - MUST attach a visible pause, stop, or hide control to any surface that auto-plays, auto-advances, or loops longer than five seconds, and keep looping or flashing regions below three flashes per second.
 
 ## Use native semantics, labels, and structure for assistive tech
