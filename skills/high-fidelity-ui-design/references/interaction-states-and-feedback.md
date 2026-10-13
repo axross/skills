@@ -93,7 +93,7 @@ Build a small conflict matrix from combinations the control can reach, not the f
 
 [WAI-ARIA keyboard-interface practice](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/) distinguishes selection from focus and allows disabled items in some composite widgets to remain focusable. Clearing a stale local focus flag is therefore not a blanket disable-then-blur rule.
 
-State exits need their own expected results; a correct snapshot on entry does not prove cleanup:
+State exits need their own expected results; a correct snapshot on entry does not prove cleanup. Static designs specify those results; an implementation or executable prototype verifies them against actual focus and live state:
 
 | Transition to exercise                              | Obsolete state to remove                                                                  | State to retain or recompute                                                                       |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -114,7 +114,7 @@ State exits need their own expected results; a correct snapshot on entry does no
 
 - MUST specify reachable competing combinations with a shared-property owner and retained cues; keep non-conflicting axes independent rather than requiring all theoretical combinations.
 - MUST render the relevant conflict rows in both themes, checking retained cues against the individual-state and visible-focus requirements rather than treating one winning property as the whole state.
-- MUST verify the relevant exit transitions above against actual focus and still-active semantic state, removing only obsolete transient feedback rather than resetting every state together.
+- MUST specify expected exit results in static designs. For an implementation or executable prototype, MUST verify the relevant transitions above against actual focus and still-active semantic state, removing only obsolete transient feedback rather than resetting every state together.
 
 ## Prefer clear error surfacing over silently disabled controls
 
