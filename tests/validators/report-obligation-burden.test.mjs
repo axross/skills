@@ -607,6 +607,10 @@ describe("report-obligation-burden.mjs", () => {
       // descriptive-only routing removes 7, 3, and 10 read obligations from
       // the three bodies, leaving their references unchanged. floor bytes
       // fall from 34,267 to 31,510; ceiling bytes fall by the same 2,757.
+
+      // the mandated corpus has 32,795 SKILL.md bytes and 242,658 bytes with
+      // references, at 4.76 bytes/token. Loop's 220 ceiling obligations include
+      // current-checkpoint qualification and the absent-review-practice fallback.
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(6_890);
       expect.soft(totals.ceilingObligations).toBe(544);

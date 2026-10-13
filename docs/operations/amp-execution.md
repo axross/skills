@@ -52,8 +52,14 @@ delegation does not qualify, the parent implements the coherent approved change
 directly; complexity, file count, and routine self-review alone do not establish
 eligibility. Qualify each Loop checkpoint separately, not once for the run.
 
-Amp does not inherit Claude Code's configured Investigator. The active contracts
-determine which of these host routes fits the requested purpose:
+Amp does not inherit Claude Code's configured Investigator. A loaded Amp plugin
+can independently provide that role; source routing changes do not activate
+plugin or personal-guidance revisions. Mixed source and active revisions remain
+partial adoption until separately authorized publication and loaded-content
+verification establish alignment.
+
+The active contracts determine which of these host routes fits the requested
+purpose:
 
 | Route       | Appropriate use in this repository                                                                                                                                         |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
