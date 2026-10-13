@@ -144,6 +144,23 @@ describe("computeDerivedSummary", () => {
     expect(factor.reason).toMatch(/errored/);
   });
 
+  it.each(["skill-present", "skill-absent"])("blocks the differential when a recorded %s probe omits the factor", (condition) => {
+    const summary = computeDerivedSummary({
+      scenarioId: "s",
+      measurementId: "m",
+      factorDeclarations: [{ id: "f1", phase: "outcome" }],
+      probes: [
+        probe("skill-present", 1, { f1: true }),
+        probe(condition, 2, {}),
+        probe("skill-absent", 1, { f1: false }),
+      ],
+      comparablePredecessor: null,
+    });
+
+    expect(summary.factors[0].differential).toBeNull();
+    expect(summary.factors[0].reason).toContain(`1 of 2 ${condition} probe(s) missing`);
+  });
+
   it("reports `null` when a condition recorded no probes for a factor at all", () => {
     const summary = computeDerivedSummary({
       scenarioId: "s",
