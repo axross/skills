@@ -71,11 +71,15 @@ function deriveFactor(factorId, phase, probesByCondition) {
 
   for (const condition of /** @type {Condition[]} */ (["skill-present", "skill-absent"])) {
     const results = (probesByCondition[condition] ?? [])
-      .map((probe) => probe.factors.find((factor) => factor.id === factorId)?.result)
-      .filter((result) => result !== undefined);
+      .map((probe) => probe.factors.find((factor) => factor.id === factorId)?.result);
 
     if (results.length === 0) {
       blocked ??= `no ${condition} probe recorded a result for "${factorId}"`;
+      continue;
+    }
+    const missingCount = results.filter((result) => result === undefined).length;
+    if (missingCount > 0) {
+      blocked ??= `${missingCount} of ${results.length} ${condition} probe(s) missing a result for "${factorId}"`;
       continue;
     }
     const errored = results.filter(isErrored);
