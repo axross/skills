@@ -678,6 +678,24 @@ describe("computeTreatmentReport()", () => {
     { delivery: "mixed with partial coverage", details: { delivery: "mixed", coverage: "partial" }, status: "fail", rate: 0 },
     { delivery: "truncated", details: { delivery: "truncated" }, status: "partial", rate: null },
     { delivery: "truncated with mismatch", details: { delivery: "truncated", coverage: "mismatch" }, status: "fail", rate: 0 },
+    { delivery: "mismatch with unknown availability", details: { availability: "unknown", coverage: "mismatch" }, status: "fail", rate: 0 },
+    { delivery: "stale with missing availability", details: { availability: undefined, delivery: "stale" }, status: "fail", rate: 0 },
+    { delivery: "stale with unknown route", details: { route: "unknown", delivery: "stale" }, status: "fail", rate: 0 },
+    { delivery: "mismatch with missing route", details: { route: undefined, coverage: "mismatch" }, status: "fail", rate: 0 },
+    { delivery: "mixed with unknown coverage", details: { coverage: "unknown", delivery: "mixed" }, status: "fail", rate: 0 },
+    { delivery: "stale with missing coverage", details: { coverage: undefined, delivery: "stale" }, status: "fail", rate: 0 },
+    { delivery: "partial with unknown availability", details: { availability: "unknown", coverage: "partial" }, status: "partial", rate: null },
+    { delivery: "truncated with missing availability", details: { availability: undefined, delivery: "truncated" }, status: "partial", rate: null },
+    { delivery: "truncated with unknown route", details: { route: "unknown", delivery: "truncated" }, status: "partial", rate: null },
+    { delivery: "partial with missing route", details: { route: undefined, coverage: "partial" }, status: "partial", rate: null },
+    { delivery: "truncated with unknown coverage", details: { coverage: "unknown", delivery: "truncated" }, status: "partial", rate: null },
+    { delivery: "truncated with missing coverage", details: { coverage: undefined, delivery: "truncated" }, status: "partial", rate: null },
+    { delivery: "mixed with parent-only route", details: { route: "parent-only", delivery: "mixed", coverage: "partial" }, status: "fail", rate: 0 },
+    { delivery: "unknown availability only", details: { availability: "unknown" }, status: "unknown", rate: null },
+    { delivery: "missing route only", details: { route: undefined }, status: "unknown", rate: null },
+    { delivery: "null coverage only", details: { coverage: null }, status: "unknown", rate: null },
+    { delivery: "unavailable with mismatch and truncation", details: { availability: "unavailable", coverage: "mismatch", delivery: "truncated" }, status: "unsupported", rate: null },
+    { delivery: "unavailable coverage with mixed delivery", details: { route: "unknown", coverage: "unavailable", delivery: "mixed" }, status: "unsupported", rate: null },
   ])("assesses $delivery delivery as $status without changing independently checked conformity", ({ details, status, rate }) => {
     const { declaration, observations } = treatmentFixture();
     observations.records[0].results[1].status = "fail";
@@ -688,13 +706,30 @@ describe("computeTreatmentReport()", () => {
     const acquire = report.opportunities.find((entry) => entry.id === "acquire");
 
     expect(report.cells[1].opportunities[1]).toMatchObject({ observedStatus: "pass", status, details });
-    expect(report.axes.acquisition.populations.new).toMatchObject({ planned: 1, applicable: 1, observed: 1, states: { [status]: 1 }, rate });
+    expect(report.axes.acquisition.populations.new).toMatchObject({ planned: 1, applicable: 1, observed: 1, states: { [status]: 1, pass: status === "pass" ? 1 : 0 }, rate, denominator: "all declared applicable opportunities" });
     expect(report.axes.acquisition.effect).toBe(rate);
     expect(acquire.populations).toEqual(report.axes.acquisition.populations);
     expect(acquire.effect).toBe(rate);
     expect(report.cells[1].opportunities[2].status).toBe("pass");
     expect(report.axes.conformity.effect).toBe(1);
     expect(report.axes.selection.effect).toBe(0);
+    expect(report.primaryComplete).toBe(["pass", "fail"].includes(status));
+    expect(report.claimLimits).toContain("synthetic observations test this report, not host behavior");
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
+  });
+
+  it.each(["fail", "failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"])("preserves submitted acquisition %s despite unavailable, failure and partial diagnostics", (status) => {
+    const { declaration, observations } = treatmentFixture();
+    observations.records[1].results[1].status = status;
+    observations.records[1].results[1].details = { availability: "unavailable", route: "unknown", coverage: "mismatch", delivery: "truncated" };
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.cells[1].opportunities[1]).toMatchObject({ observedStatus: status, status });
+    expect(report.axes.acquisition.populations.new).toMatchObject({ states: { [status]: 1 }, rate: status === "fail" ? 0 : null });
+    expect(report.axes.acquisition.effect).toBe(status === "fail" ? -1 : null);
+    expect(report.axes.conformity.effect).toBe(1);
     expect(JSON.stringify({ declaration, observations })).toBe(before);
   });
 
@@ -820,17 +855,67 @@ describe("computeTreatmentReport()", () => {
   });
 
   it("can qualify synthetic guard discrimination without qualifying live prevention", () => {
-    const { declaration, observations } = treatmentFixture();
+    const { declaration, observations } = treatmentFixture(2);
+    const before = JSON.stringify({ declaration, observations });
 
-    expect(computeTreatmentReport(declaration, observations).guards[0]).toMatchObject({ instrumentQualified: true, reason: null, liveQualified: false, liveReason: expect.stringContaining("live prevention") });
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.guards[0]).toMatchObject({ instrumentQualified: true, reason: null, liveQualified: false, liveReason: expect.stringContaining("live prevention") });
+    expect(report.axes.guards).toMatchObject({ populations: { old: { planned: 4, rate: 1 }, new: { planned: 4, rate: 1 } }, effect: 0 });
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
   });
 
-  it("does not qualify guard discrimination under a scorer change declared only for the candidate", () => {
-    const { declaration, observations } = treatmentFixture();
-    declaration.cells[1].opportunities[3].scorer.rubric = digest("changed guard rubric");
-    observations.records[1].results[3].scorer.rubric = digest("changed guard rubric");
+  it.each([
+    ["scorer", (opportunity) => { opportunity.scorer.rubric = digest("changed guard rubric"); }],
+    ["stage", (opportunity) => { opportunity.dimensions.stage = "different-stage"; }],
+  ])("does not qualify common guard discrimination under a candidate %s change in a later repetition", (_, change) => {
+    const { declaration, observations } = treatmentFixture(2);
+    change(declaration.cells[3].opportunities[3]);
+    observations.records[3].results[3].scorer = structuredClone(declaration.cells[3].opportunities[3].scorer);
+    const before = JSON.stringify({ declaration, observations });
 
-    expect(computeTreatmentReport(declaration, observations).guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringMatching(/unqualified guard/) });
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.opportunities.find((entry) => entry.id === "invalid")).toMatchObject({ membership: "common", qualification: { status: "confounded" }, effect: null });
+    expect(report.axes.guards.effect).toBeNull();
+    expect(report.guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringMatching(/unqualified guard/), liveQualified: false, liveReason: expect.stringContaining("live prevention") });
+    expect(report.axes.conformity.effect).toBe(1);
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
+  });
+
+  it.each([
+    { renamed: "both controls", ids: ["invalid", "valid"], repetitions: [1, 2], commonPlanned: 0, effect: null },
+    { renamed: "valid control", ids: ["valid"], repetitions: [1, 2], commonPlanned: 2, effect: 0 },
+    { renamed: "later valid control", ids: ["valid"], repetitions: [2], commonPlanned: 4, effect: null },
+  ].flatMap((scenario) => [false, true].map((changeContract) => ({ ...scenario, changeContract }))))("does not certify renamed candidate $renamed with scorer/stage change $changeContract", ({ ids, repetitions, commonPlanned, effect, changeContract }) => {
+    const { declaration, observations } = treatmentFixture(2);
+    declaration.cells.filter((cell) => cell.treatment === "new" && repetitions.includes(cell.repetition)).forEach((cell) => {
+      const record = observations.records.find((entry) => entry.id === cell.observationId);
+      cell.opportunities.filter((entry) => ids.includes(entry.id)).forEach((opportunity) => {
+        const result = record.results.find((entry) => entry.id === opportunity.id);
+        opportunity.id = `candidate-${opportunity.id}`;
+        result.id = opportunity.id;
+        if (changeContract) {
+          opportunity.scorer.rubric = digest("changed guard rubric");
+          opportunity.dimensions.stage = "different-stage";
+          result.scorer = structuredClone(opportunity.scorer);
+        }
+      });
+    });
+    const before = JSON.stringify({ declaration, observations });
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringMatching(/unqualified guard/), liveQualified: false, liveReason: expect.stringContaining("live prevention") });
+    expect(report.axes.guards).toMatchObject({ populations: { old: { planned: commonPlanned }, new: { planned: commonPlanned === 4 ? 3 : commonPlanned } }, effect });
+    expect(report.opportunities.filter((entry) => entry.axis === "guards" && entry.membership === "added")).toHaveLength(ids.length);
+    expect(report.opportunities.filter((entry) => entry.axis === "guards" && entry.membership === "added").every((entry) => entry.qualification.status === "qualified" && entry.effect === null && entry.populations.new.states.pass === repetitions.length)).toBe(true);
+    expect(report.opportunities.filter((entry) => entry.axis === "guards" && entry.membership === "removed")).toHaveLength(commonPlanned === 4 ? 0 : ids.length);
+    expect(report.counts).toEqual({ planned: 4, observedStarted: 4, observedCompleted: 4 });
+    expect(report.primaryComplete).toBe(true);
+    expect(report.axes.conformity.effect).toBe(1);
+    expect(report.claimLimits).toContain("synthetic observations test this report, not host behavior");
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
   });
 
   it("does not qualify constant denial even when every recorded verdict claims pass", () => {

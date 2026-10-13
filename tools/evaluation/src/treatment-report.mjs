@@ -112,9 +112,9 @@ function assessedStatus(opportunity, result) {
   }
   if (opportunity.axis === "acquisition") {
     if (details.availability === "unavailable" || details.coverage === "unavailable") return "unsupported";
-    if (!details.availability || details.availability === "unknown" || !details.route || ["unknown", "parent-only"].includes(details.route) || !details.coverage || details.coverage === "unknown") return "unknown";
     if (details.coverage === "mismatch" || ["stale", "mixed"].includes(details.delivery)) return "fail";
     if (details.coverage === "partial" || details.delivery === "truncated") return "partial";
+    if (!details.availability || details.availability === "unknown" || !details.route || ["unknown", "parent-only"].includes(details.route) || !details.coverage || details.coverage === "unknown") return "unknown";
     if (details.delivery === "unknown") return "unknown";
     return "pass";
   }
@@ -241,7 +241,7 @@ export function computeTreatmentReport(declaration, observations) {
     return [axis, { populations, effect: rates.every((rate) => rate !== null) ? rates[1] - rates[0] : null }];
   }));
   const guards = cellReports.flatMap((cell) => cell.opportunities.filter((entry) => entry.axis === "guards" && entry.applicable).map((entry) => ({ ...entry, task: cell.task, treatment: cell.treatment })));
-  const qualifiedGuardGroups = new Set(opportunityReports.filter((entry) => entry.axis === "guards" && entry.qualification.status === "qualified").map((entry) => JSON.stringify([entry.task, entry.id])));
+  const qualifiedGuardGroups = new Set(opportunityReports.filter((entry) => entry.axis === "guards" && entry.membership === "common" && entry.qualification.status === "qualified").map((entry) => JSON.stringify([entry.task, entry.id])));
   const guardScopes = [...new Set(guards.map((entry) => entry.dimensions.scope))].map((scope) => {
     const entries = guards.filter((entry) => entry.dimensions.scope === scope);
     const hasControls = [declaration.baseline, declaration.candidate].every((treatment) => ["valid-edit", "invalid-edit"].every((control) => entries.some((entry) => entry.treatment === treatment && entry.dimensions.control === control)));

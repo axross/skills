@@ -362,9 +362,13 @@ The report keeps four populations separate:
 | Conformity  | Output obligation                                 | Checked output verdict, independent of material acquisition               |
 | Guards      | Call, stage, scope and valid/invalid edit control | Refusal, reached edit path, actual write and observed prevention          |
 
-The instrument preserves submitted non-pass states. A claimed pass lacking its
-axis evidence is not promoted: parent-only material stays acquisition-unknown,
-partial delivery stays partial, and an unreached edit stays not-reached.
+The instrument preserves submitted non-pass states. For claimed acquisition
+passes, explicit unavailability remains unsupported. Known failure diagnostics
+outrank partial diagnostics; either outranks missing or unknown dimensions, so
+incomplete evidence cannot hide an observed problem. A claimed pass otherwise
+lacking its axis evidence is not promoted: parent-only material stays
+acquisition-unknown, partial delivery stays partial, and an unreached edit stays
+not-reached.
 For selection, an observed non-invocation passes an inapplicable control and
 fails an applicable opportunity without needing invocation timing. A reported
 non-invocation with known before/after timing is contradictory and rejected,
@@ -387,7 +391,10 @@ resolved, not whether every scorer or identity qualified.
 Synthetic and live provenance, and differing observation scopes, cannot be
 pooled into one qualified report. Guard discrimination requires both invalid-edit
 and valid-edit controls in each treatment: constant denial and ignored refusal
-fail that check. `instrumentQualified` describes the supplied controls only;
+fail that check. Each applicable guard control also belongs to a qualified common
+opportunity, using shared opportunity IDs for scorer and dimension comparison.
+Added or removed guard controls remain visible but cannot qualify the comparative
+instrument. `instrumentQualified` describes the supplied controls only;
 its `reason` is null on success and otherwise names one instrument-qualification
 blocker. The separate `liveReason` explains
 why `liveQualified` remains false. Synthetic reports, installer checks and invocation
