@@ -40,7 +40,7 @@ destroys, and cleanup is not evidence that the safeguard prevented mutation.
 - MUST establish the target baseline and cleanup conditions before the exercise, including permitted means to settle delayed or spawned work and restore the baseline or remove declared disposable targets.
 - MUST NOT begin mutation exercises when containment or safe cleanup cannot be established; retain that scope as unqualified in audit mode.
 - MUST settle delayed and spawned effects through permitted host operations before inspecting target state and verifying cleanup. Unsettled effects or unverified cleanup remain explicit limitations, not qualification success.
-- MUST verify that cleanup restores the recorded baseline or removes the declared disposable targets. Cleanup or independent termination does not establish safeguard prevention, and containment does not extend qualification to unexercised targets or worktrees.
+- MUST verify that cleanup restores the recorded baseline or removes the declared disposable targets. Cleanup or independent termination does not establish safeguard prevention, and containment alone does not establish [bounded target-class applicability](#apply-evidence-to-a-bounded-target-class).
 
 ## Scope and effective composition
 
@@ -50,8 +50,9 @@ worker or worktree shares the same handler. The relevant scope includes:
 
 - Host and configuration revision, event stage and tool or command route.
 - Actual actor/current-context correspondence and assignment/material revision.
-- Mutation target, path classification and workspace/worktree.
-- Effective handler order, combined outcomes and failure/timeout behavior.
+- Creation versus editing, resolved target/path classification and symlink/worktree aliases.
+- Effective handler composition/state, order, combined outcomes and failure/timeout behavior.
+- Inspected-to-executed input transformations, ordinary permissions and reachable effects.
 
 **Guidelines:**
 
@@ -62,19 +63,35 @@ worker or worktree shares the same handler. The relevant scope includes:
 - MUST include all routes within the claimed scope, including shell writes, patches and formatters where applicable. Formatting is mutation, not a blanket exemption.
 - MUST preserve the active host's permission and tool-purpose restrictions; a proposed safeguard authorizes no otherwise prohibited operation.
 
+### Apply evidence to a bounded target class
+
+Mutation exercises remain independently contained and disposable. Their evidence
+can apply to a precisely bounded class of ordinary targets only when relevant
+target-dependent behavior is equivalent. A shared path prefix or matching
+outcomes cannot establish that equivalence. Applicability supplies neither
+activation permission nor another actor's acquisition or unobserved-route coverage.
+
+**Guidelines:**
+
+- MUST define the claimed target class and establish relevant equivalence with the exercised disposable targets independently of their outcomes, covering the conditions in [Scope and effective composition](#scope-and-effective-composition).
+- MUST establish the actual intended target's membership in that class before applying its evidence; unknown membership or relevant equivalence leaves that scope unqualified in audit mode.
+- MUST reassess applicability when relevant conditions change; a prior class or membership result cannot qualify changed behavior.
+
 ## Failure and recovery behavior
 
 An acquisition safeguard that blocks the reads needed to recover missing text
 cannot safely restore work. Failure behavior also depends on where an error or
 timeout occurs: before inspection, after a refusal, or after mutation are not the
 same outcome. A latched failure can leave the route unusable even when ordinary
-refusal recovers, so each exercised failure needs its own recovery control.
+refusal recovers; an allow-all latch can admit a valid edit while also admitting
+missing-material edits. Each exercised event needs both post-event acquisition
+conditions, not only a successful recovered edit.
 
 **Guidelines:**
 
 - MUST exercise malformed or missing inputs, unavailable evidence, handler failures and timeouts through the actual qualified route, recording whether mutation was reached and what happened.
 - MUST verify that permitted recovery reads remain usable before refusal, including reacquisition of missing ranges from one verified revision.
-- MUST follow refusal and every exercised failure case above with required recovery reads and an acquired-material valid mutation through the same actual qualified scope under ordinary permissions. Do not erase the event's history or substitute a fresh unaffected instance; blocked or unexercised recovery leaves that scope unqualified.
+- MUST follow refusal and every exercised failure case above with usable required recovery reads, effective missing-material refusal and an acquired-material valid mutation through the same actual qualified scope under ordinary permissions. Apply [state, input and invocation-order controls](#control-state-and-invocation-order) with the event's history intact in each comparison instance; do not reset that history or substitute a fresh unaffected instance. Blocked or unexercised post-event controls leave that scope unqualified.
 - MUST distinguish known prevention, known mutation and unknown effects after a failure; inspect the actual target and settle unknown effects through permitted operations before retrying an uncertain operation.
 - MUST retain unqualified failure cases as audit observations or explicit limitations rather than claim that an error automatically prevented mutation.
 
@@ -85,13 +102,13 @@ refusal and constant denial. A shell refusal paired with an unrelated successful
 patch cannot rule out constant denial on the shell route. These contrasting
 observations answer different questions:
 
-| Case                                                             | Necessary observation                                                                  | Limit                                                      |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Required material missing; target mutation reaches the safeguard | Refusal prevents committed or externally observable mutation                           | Refusal and final baseline equality alone are insufficient |
-| Required material acquired; otherwise valid mutation             | The mutation proceeds under normal permissions                                         | Constant denial fails this control                         |
-| Recovery after refusal or an exercised failure                   | Required reads and an acquired-material valid mutation succeed without erasing history | A fresh unaffected instance cannot prove recovery          |
-| Operation denied before reaching the safeguard                   | The earlier denial and its cause are recorded                                          | No safeguard prevention was exercised                      |
-| Unsupported actor, event, tool or target                         | The unsupported scope is identified                                                    | Not a prevention success or proof of full coverage         |
+| Case                                                             | Necessary observation                                                                                                     | Limit                                                              |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Required material missing; target mutation reaches the safeguard | Refusal prevents committed or externally observable mutation                                                              | Refusal and final baseline equality alone are insufficient         |
+| Required material acquired; otherwise valid mutation             | The mutation proceeds under normal permissions                                                                            | Constant denial fails this control                                 |
+| Recovery after refusal or an exercised failure                   | Required reads, missing-material refusal and acquired-material valid mutation remain effective with actual history intact | An allow-all latch or fresh unaffected instance fails this control |
+| Operation denied before reaching the safeguard                   | The earlier denial and its cause are recorded                                                                             | No safeguard prevention was exercised                              |
+| Unsupported actor, event, tool or target                         | The unsupported scope is identified                                                                                       | Not a prevention success or proof of full coverage                 |
 
 These are qualification criteria, not a report that any host passed them.
 Walkthroughs can check the intended contract; only authorized actual exercises
@@ -124,11 +141,12 @@ A payload filter can also deny one command and allow another without consulting
 acquisition. Compare equivalent executed mutations, not merely matching routes.
 Necessary input variations must each cross both acquisition conditions rather
 than assigning a denied payload to missing material and an allowed one to
-acquired material.
+acquired material. Post-event comparisons also need equivalent exercised history
+in each instance; an untouched instance cannot rule out a latch caused by the event.
 
 **Guidelines:**
 
-- MUST start missing-material and acquired-material comparisons from verified equivalent state unrelated to acquisition, including effective composed-handler state and target baseline. The default is a permitted reset of the same tested scope; matched isolated instances are an alternative only when relevant starting-state and scope equivalence are established independently of their outcomes.
+- MUST start missing-material and acquired-material comparisons from verified equivalent state unrelated to acquisition, including effective composed-handler state and target baseline. For pre-event comparisons, the default is a permitted reset of the same tested scope; matched isolated instances are an alternative only when relevant starting-state and scope equivalence are established independently of their outcomes. Post-event comparisons retain the exercised history under [failure and recovery behavior](#failure-and-recovery-behavior).
 - MUST preserve each comparison's actual actor/current-context and target correspondence; matched instances do not establish another actor's acquisition or extend coverage to unexercised scopes.
 - MUST hold intended and executed mutation content and semantics equivalent across acquisition conditions, correlating inspected-to-executed transformations. Different disposable target identifiers require a target mapping established independently of outcomes; normalization must not discard mutation-relevant differences.
 - MUST exercise each necessary relevant command or payload variation with both acquisition conditions independently of invocation order; an input-only deny/allow filter cannot qualify from differently assigned payloads.
