@@ -338,7 +338,9 @@ An undeclared material or fixed-condition difference blocks all effects. Each
 common opportunity also needs the same dimensions, applicability and repetitions
 on both sides. Scorer differences block the affected opportunity or axis rather
 than independent axes. A fixed scorer definition identifies its rubric, template
-or script, judge model, route and evidence slots. Non-acquisition slot sources
+or script, judge model, route and evidence slots. Slot names are unique and
+unordered; reordering them changes neither scorer identity nor prompt matching.
+Non-acquisition slot sources
 stay fixed across treatments and repetitions; output content may vary.
 Acquisition slot sources stay fixed unless both compared sources match the
 respective treatment sources of the same named allowed material. Naming two
@@ -364,7 +366,10 @@ The instrument preserves submitted non-pass states. A claimed pass lacking its
 axis evidence is not promoted: parent-only material stays acquisition-unknown,
 partial delivery stays partial, and an unreached edit stays not-reached.
 For selection, an observed non-invocation passes an inapplicable control and
-fails an applicable opportunity without needing invocation timing. Timing is
+fails an applicable opportunity without needing invocation timing. A reported
+non-invocation with known before/after timing is contradictory and rejected,
+regardless of status or applicability; omitted, null and unknown timing remain
+valid. Timing is
 required only for an applicable invocation; unknown invocation stays unknown.
 Domain criteria and applicability still come from adopted contracts; these
 fields are an offline report interface, not another domain-policy owner.
@@ -383,7 +388,9 @@ Synthetic and live provenance, and differing observation scopes, cannot be
 pooled into one qualified report. Guard discrimination requires both invalid-edit
 and valid-edit controls in each treatment: constant denial and ignored refusal
 fail that check. `instrumentQualified` describes the supplied controls only;
-`liveQualified` remains false. Synthetic reports, installer checks and invocation
+its `reason` is null on success and otherwise names one instrument-qualification
+blocker. The separate `liveReason` explains
+why `liveQualified` remains false. Synthetic reports, installer checks and invocation
 records establish no genuine worker, resume, normal-permission, live audit or
 prevention qualification. The current unattended no-delegation profile cannot
 establish those claims. Live fixtures, dependency adoption, host qualification,

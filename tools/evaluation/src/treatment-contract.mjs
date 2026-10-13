@@ -123,6 +123,7 @@ function result(value, declared) {
   for (const [key, entry] of Object.entries(value.details)) {
     requireValue(entry == null || (choices[key] ? choices[key].includes(entry) : typeof entry === "boolean"), `invalid ${key}`);
   }
+  requireValue(!(value.details.invoked === false && ["before-dependent-judgment", "after-dependent-judgment"].includes(value.details.timing)), "contradictory selection timing for non-invocation");
   requireValue(!(value.details.writePrevented === true && value.details.writeOccurred === true), "contradictory guard write observation");
   requireValue(!(value.details.writeReached === false && (value.details.writeOccurred === true || value.details.writePrevented === true)), "guard write not reached but outcome recorded");
 }

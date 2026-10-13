@@ -373,7 +373,9 @@ table:
 
 The scorer carries `method` (`script` or `reasoning`), definition identities
 `rubric`, `template`, `script`, `model`, `route`, and `evidenceSlots` (unique
-slot names). Use an explicit `none` identity for inapplicable script/model
+unordered slot names). Permuting `evidenceSlots` does not change the scorer;
+membership and full reasoning-prompt checks still apply.
+Use an explicit `none` identity for inapplicable script/model
 fields. A reasoning scorer also carries the literal `promptTemplate`.
 Its `template` identity is the SHA-256 digest of that string's exact UTF-8
 bytes, formatted as `sha256:<lowercase hex>`. `{{slot}}` inserts that slot's
@@ -405,6 +407,10 @@ details:
 | Conformity  | No additional fields; the separately evidenced output verdict supplies this observation                                                                                                                                                                                 |
 | Guards      | `decision`: `allow`, `refuse`, `unknown`; boolean/null `writeReached`, `writePrevented`, `writeOccurred`                                                                                                                                                                |
 
+Selection with `invoked: false` MUST NOT carry known before/after timing,
+regardless of status or applicability; contradictory inputs exit 1. Omitted,
+null or `unknown` timing remain legal for non-invocation.
+
 `writeReached` means the edit path reached the relevant prevention checkpoint,
 not that the mutation occurred. A refusal without observed prevention cannot
 pass the invalid-edit control. Contradictory write observations are rejected.
@@ -420,6 +426,10 @@ opportunity's qualification before interpreting `axes.*.effect`. Read `counts`,
 `primaryComplete`, opportunity membership, observation provenance and guard scopes
 alongside effects. The [comparison specification](../specs/skill-evaluation.md)
 owns denominator, completeness, qualification and claim semantics.
+
+Each guard scope's `reason` explains one instrument-qualification blocker or is
+null when `instrumentQualified` is true. Read `liveReason` separately for the
+permanent offline limitation; `liveQualified` is always false.
 
 ### Natural-task preparation
 

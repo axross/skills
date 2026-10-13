@@ -1,6 +1,6 @@
 ---
 name: agent-skill-authoring
-description: Creating, refining, splitting, consolidating, renaming, auditing, or designing adoption evaluations for agent skills — portable content boundaries and agentskills.io authoring. Triggers on `SKILL.md`, frontmatter, `description`, "where does this rule belong", "split this skill", "recast this skill as a capability", "audit skill portability", and "compare skill revisions". Skill management owns installation and active loading; project policy and host guidance own gates and execution; QA practices judge evidence sufficiency where present. Covers capability framing, judgment versus mechanism, conditional references, structural validators, and task/treatment/scorer/opportunity contracts.
+description: Creating, refining, splitting, consolidating, renaming, auditing, or designing adoption evaluations for agent skills — portable content boundaries and agentskills.io authoring. Triggers on `SKILL.md`, frontmatter, `description`, "where does this rule belong", "split this skill", "recast this skill as a capability", "audit skill portability", and "compare skill revisions". Skill management owns installation and active loading; project policy and host guidance own gates and execution; QA practices judge evidence sufficiency only within their scope. Covers capability framing, judgment versus mechanism, conditional references, structural validators, and task/treatment/scorer/opportunity contracts.
 user-invocable: false
 ---
 
@@ -118,7 +118,7 @@ See [skill-adoption-evaluation.md](./references/skill-adoption-evaluation.md) fo
 - designing a skill-adoption evaluation or comparing intentional rule revisions before execution
 - freezing task, treatment, scorer, opportunity, and claim-scope contracts while keeping scorer answers out of actor material
 - separating natural tasks from boundary controls and retaining incomplete and zero-applicable populations
-- distinguishing synthetic report checks from live qualification and routing evidence sufficiency to QA practices when present
+- distinguishing synthetic report checks from live qualification, routing evidence sufficiency only to scope-covering QA practices, and retaining the review limitation otherwise
 
 ## Auditing and Validation
 

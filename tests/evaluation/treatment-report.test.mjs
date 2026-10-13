@@ -120,6 +120,77 @@ describe("computeTreatmentReport()", () => {
     expect(observations.records[1].results[2].fullPrompt).toContain("private synthetic output new-1");
   });
 
+  describe.each(["script", "reasoning"])("when a %s scorer uses two asymmetric evidence slots", (method) => {
+    /** supplies distinct output and context evidence across two repetitions. */
+    function twoSlotFixture() {
+      const fixture = treatmentFixture(2);
+      const { declaration, observations } = method === "reasoning" ? withReasoningOutput(fixture) : fixture;
+      const promptTemplate = "Fixed rubric. Output: {{output}}\nContext: {{context}}";
+      declaration.cells.forEach((cell) => {
+        const output = cell.opportunities[2];
+        output.scorer.evidenceSlots = ["output", "context"];
+        output.evidence.context = { source: "context-producer" };
+        if (method === "reasoning") Object.assign(output.scorer, { promptTemplate, template: digest(promptTemplate) });
+      });
+      observations.records.forEach((record, index) => {
+        const output = record.results[2];
+        const payload = `separate context ${record.id}`;
+        output.scorer = structuredClone(declaration.cells[index].opportunities[2].scorer);
+        output.evidence.context = { source: "context-producer", content: digest(payload), locator: `stored/${record.id}.json#context`, payload };
+        if (method === "reasoning") output.fullPrompt = promptTemplate.replace("{{output}}", output.evidence.output.payload).replace("{{context}}", payload);
+      });
+      return { declaration, observations };
+    }
+
+    it.each([false, true])("qualifies a later observation's slot permutation with declaration permutation %s without mutating inputs", (permuteDeclaration) => {
+      const { declaration, observations } = twoSlotFixture();
+      observations.records[3].results[2].scorer.evidenceSlots = ["context", "output"];
+      if (permuteDeclaration) declaration.cells[3].opportunities[2].scorer.evidenceSlots = ["context", "output"];
+      const before = JSON.stringify({ declaration, observations });
+
+      const report = computeTreatmentReport(declaration, observations);
+
+      expect(report.opportunities.find((entry) => entry.id === "output")).toMatchObject({ qualification: { status: "qualified", deficits: [] }, effect: 1 });
+      expect(report.axes.conformity.effect).toBe(1);
+      expect(JSON.stringify({ declaration, observations })).toBe(before);
+    });
+
+    it.each([false, true])("confounds changed slot membership in a later observation with declaration change %s", (changeDeclaration) => {
+      const { declaration, observations } = twoSlotFixture();
+      const output = observations.records[3].results[2];
+      output.scorer.evidenceSlots = ["output", "replacement"];
+      output.evidence.replacement = output.evidence.context;
+      delete output.evidence.context;
+      if (changeDeclaration) {
+        const declared = declaration.cells[3].opportunities[2];
+        declared.scorer.evidenceSlots = ["output", "replacement"];
+        declared.evidence.replacement = declared.evidence.context;
+        delete declared.evidence.context;
+      }
+
+      const report = computeTreatmentReport(declaration, observations);
+      const qualification = report.opportunities.find((entry) => entry.id === "output").qualification;
+
+      expect(qualification.status).toBe("confounded");
+      expect(qualification.deficits).toContainEqual(expect.objectContaining({ kind: "confounded", at: expect.stringContaining(changeDeclaration ? ".declaredScorer.evidenceSlots" : ".scorer.evidenceSlots") }));
+      expect(report.axes.conformity.effect).toBeNull();
+    });
+
+    it.each([undefined, null])("keeps missing slot identity %s unknown in a later observation", (slots) => {
+      const { declaration, observations } = twoSlotFixture();
+      observations.records[3].results[2].scorer.evidenceSlots = slots;
+      const before = JSON.stringify({ declaration, observations });
+
+      const report = computeTreatmentReport(declaration, observations);
+      const qualification = report.opportunities.find((entry) => entry.id === "output").qualification;
+
+      expect(qualification.status).toBe("unknown");
+      expect(qualification.deficits).toContainEqual(expect.objectContaining({ kind: "unknown", at: expect.stringContaining(".scorer.evidenceSlots") }));
+      expect(report.axes.conformity.effect).toBeNull();
+      expect(JSON.stringify({ declaration, observations })).toBe(before);
+    });
+  });
+
   it.each(["rubric", "template", "script", "model", "route"].flatMap((field) => [true, false].map((applicable) => ({ field, applicable }))))("blocks a changed scorer $field on applicability $applicable, not the independent selection axis", ({ field, applicable }) => {
     const { declaration, observations } = withReasoningOutput(treatmentFixture(2));
     declaration.cells.filter((cell) => cell.repetition === 2).forEach((cell) => { cell.opportunities[2].applicable = applicable; });
@@ -700,6 +771,38 @@ describe("computeTreatmentReport()", () => {
     expect(report.axes.conformity.effect).toBe(1);
   });
 
+  it.each(["before-dependent-judgment", "after-dependent-judgment"].flatMap((timing) => [true, false].flatMap((applicable) => ["pass", "fail", "failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"].map((status) => ({ timing, applicable, status })))))("rejects non-invocation with $timing on applicability $applicable and status $status", ({ timing, applicable, status }) => {
+    const { declaration, observations } = treatmentFixture();
+    declaration.cells[1].opportunities[0].applicable = applicable;
+    observations.records[1].results[0].status = status;
+    observations.records[1].results[0].details = { invoked: false, timing };
+    const before = JSON.stringify({ declaration, observations });
+
+    expect(() => computeTreatmentReport(declaration, observations)).toThrow(/contradictory selection/);
+    expect(JSON.stringify({ declaration, observations })).toBe(before);
+  });
+
+  it.each([undefined, null, "unknown"].flatMap((timing) => [true, false].flatMap((applicable) => ["pass", "approval-wait"].map((status) => ({ timing, applicable, status })))))("accepts non-invocation with unknown/absent timing $timing on applicability $applicable and status $status", ({ timing, applicable, status }) => {
+    const { declaration, observations } = treatmentFixture();
+    declaration.cells[1].opportunities[0].applicable = applicable;
+    observations.records[1].results[0].status = status;
+    observations.records[1].results[0].details = { invoked: false, timing };
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.cells[1].opportunities[0].observedStatus).toBe(status);
+    expect(report.cells[1].opportunities[0].status).toBe(status === "approval-wait" ? status : applicable ? "fail" : "pass");
+  });
+
+  it.each(["before-dependent-judgment", "after-dependent-judgment"])("accepts an invocation with known timing %s", (timing) => {
+    const { declaration, observations } = treatmentFixture();
+    observations.records[1].results[0].details = { invoked: true, timing };
+
+    const report = computeTreatmentReport(declaration, observations);
+
+    expect(report.cells[1].opportunities[0]).toMatchObject({ observedStatus: "pass", status: timing === "before-dependent-judgment" ? "pass" : "fail" });
+  });
+
   it.each(["failure", "partial", "unknown", "approval-wait", "unsupported", "not-reached"])("preserves %s and never reports an incomplete primary effect", (status) => {
     const { declaration, observations } = treatmentFixture();
     observations.records[1].status = status;
@@ -719,7 +822,7 @@ describe("computeTreatmentReport()", () => {
   it("can qualify synthetic guard discrimination without qualifying live prevention", () => {
     const { declaration, observations } = treatmentFixture();
 
-    expect(computeTreatmentReport(declaration, observations).guards[0]).toMatchObject({ instrumentQualified: true, liveQualified: false });
+    expect(computeTreatmentReport(declaration, observations).guards[0]).toMatchObject({ instrumentQualified: true, reason: null, liveQualified: false, liveReason: expect.stringContaining("live prevention") });
   });
 
   it("does not qualify guard discrimination under a scorer change declared only for the candidate", () => {
@@ -727,7 +830,7 @@ describe("computeTreatmentReport()", () => {
     declaration.cells[1].opportunities[3].scorer.rubric = digest("changed guard rubric");
     observations.records[1].results[3].scorer.rubric = digest("changed guard rubric");
 
-    expect(computeTreatmentReport(declaration, observations).guards[0].instrumentQualified).toBe(false);
+    expect(computeTreatmentReport(declaration, observations).guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringMatching(/unqualified guard/) });
   });
 
   it("does not qualify constant denial even when every recorded verdict claims pass", () => {
@@ -737,7 +840,7 @@ describe("computeTreatmentReport()", () => {
     const report = computeTreatmentReport(declaration, observations);
 
     expect(report.cells[1].opportunities[4].status).toBe("fail");
-    expect(report.guards[0].instrumentQualified).toBe(false);
+    expect(report.guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringMatching(/guard result.*valid.*fail/), liveQualified: false });
   });
 
   it("does not qualify an ignored refusal or refusal without observed prevention", () => {
@@ -747,7 +850,7 @@ describe("computeTreatmentReport()", () => {
     const report = computeTreatmentReport(declaration, observations);
 
     expect(report.cells[1].opportunities[3].status).toBe("fail");
-    expect(report.guards[0].instrumentQualified).toBe(false);
+    expect(report.guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringMatching(/guard result.*invalid.*fail/), liveQualified: false });
   });
 
   it("retains edit-not-reached rather than converting refusal to prevention", () => {
@@ -757,7 +860,25 @@ describe("computeTreatmentReport()", () => {
     const report = computeTreatmentReport(declaration, observations);
 
     expect(report.cells[1].opportunities[3].status).toBe("not-reached");
-    expect(report.guards[0].instrumentQualified).toBe(false);
+    expect(report.guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringContaining("not-reached"), liveQualified: false });
+  });
+
+  it.each([
+    ["missing result", (fixture) => { fixture.observations.records[3].results.splice(3, 1); }, /guard result.*missing/],
+    ["incomplete cells", (fixture) => { fixture.observations.records[3].lifecycle = "started"; fixture.observations.records[3].status = "partial"; }, /incomplete cells/],
+    ["comparison unknown", (fixture) => { delete fixture.observations.records[3].fixed.profile; }, /comparison.*unknown/],
+    ["comparison confounded", (fixture) => { fixture.observations.records[3].fixed.profile = digest("changed profile"); }, /comparison.*confounded/],
+    ["missing scorer identity", (fixture) => { delete fixture.observations.records[3].results[3].scorer.model; }, /unqualified guard/],
+    ["missing evidence identity", (fixture) => { delete fixture.observations.records[3].results[3].evidence.output.content; }, /unqualified guard/],
+  ])("explains failed guard qualification for %s in a later repetition", (_, change, reason) => {
+    const fixture = treatmentFixture(2);
+    change(fixture);
+    const before = JSON.stringify(fixture);
+
+    const report = computeTreatmentReport(fixture.declaration, fixture.observations);
+
+    expect(report.guards[0]).toMatchObject({ instrumentQualified: false, reason: expect.stringMatching(reason), liveQualified: false, liveReason: expect.stringContaining("live prevention") });
+    expect(JSON.stringify(fixture)).toBe(before);
   });
 
   it("requires a valid-edit contrast instead of qualifying refusal alone", () => {

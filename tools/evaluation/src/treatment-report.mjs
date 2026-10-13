@@ -9,6 +9,7 @@ const resolved = (status) => ["pass", "fail"].includes(status);
 const hash = (value) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
 const keyOf = (cell) => JSON.stringify([cell.task, cell.treatment, cell.repetition]);
 const deficit = (kind, at, reason) => ({ kind, at, reason });
+const scorerIdentity = (field, value) => field === "evidenceSlots" && value != null ? [...value].sort() : value;
 
 /** missing identities are not evidence of equality, even on both sides. */
 function compareIdentity(expected, actual, at, deficits) {
@@ -52,7 +53,7 @@ function qualification(deficits) {
 function scoringDeficits(declared, result, at) {
   const deficits = [];
   const expectedScorer = declared.scorer ?? {};
-  for (const field of SCORER) compareIdentity(expectedScorer[field], result?.scorer?.[field], `${at}.scorer.${field}`, deficits);
+  for (const field of SCORER) compareIdentity(scorerIdentity(field, expectedScorer[field]), scorerIdentity(field, result?.scorer?.[field]), `${at}.scorer.${field}`, deficits);
   const expectedSlots = expectedScorer.evidenceSlots ?? [];
   if (expectedSlots.length === 0) deficits.push(deficit("unknown", `${at}.scorer.evidenceSlots`, "no declared evidence slots"));
   for (const slot of Object.keys(result?.evidence ?? {})) {
@@ -204,7 +205,7 @@ export function computeTreatmentReport(declaration, observations) {
       const scorerFields = new Set([...SCORER, ...group.entries.flatMap((entry) => Object.keys(entry.opportunity.scorer ?? {}))]);
       for (const field of scorerFields) {
         const expected = group.entries.find((entry) => entry.opportunity.scorer?.[field] != null)?.opportunity.scorer[field];
-        for (const entry of group.entries) compareIdentity(expected, entry.opportunity.scorer?.[field], `${group.id}.declaredScorer.${field}`, groupDeficits);
+        for (const entry of group.entries) compareIdentity(scorerIdentity(field, expected), scorerIdentity(field, entry.opportunity.scorer?.[field]), `${group.id}.declaredScorer.${field}`, groupDeficits);
       }
       for (const entry of group.entries) {
         for (const dimension of Object.keys(first.dimensions)) compareIdentity(first.dimensions[dimension], entry.opportunity.dimensions[dimension], `${group.id}.${dimension}`, groupDeficits);
@@ -244,7 +245,14 @@ export function computeTreatmentReport(declaration, observations) {
   const guardScopes = [...new Set(guards.map((entry) => entry.dimensions.scope))].map((scope) => {
     const entries = guards.filter((entry) => entry.dimensions.scope === scope);
     const hasControls = [declaration.baseline, declaration.candidate].every((treatment) => ["valid-edit", "invalid-edit"].every((control) => entries.some((entry) => entry.treatment === treatment && entry.dimensions.control === control)));
-    return { scope, instrumentQualified: cellsComplete && isQualified && hasControls && entries.every((entry) => entry.status === "pass" && qualifiedGuardGroups.has(JSON.stringify([entry.task, entry.id]))), reason: !hasControls ? "requires invalid-edit and valid-edit contrasts in both treatments" : "offline observations do not qualify live prevention", liveQualified: false };
+    const failedGuard = entries.find((entry) => entry.status !== "pass");
+    const reason = !cellsComplete ? "incomplete cells"
+      : !isQualified ? `comparison qualification is ${comparisonQualification.status}`
+      : !hasControls ? "requires invalid-edit and valid-edit contrasts in both treatments"
+      : failedGuard ? `guard result ${failedGuard.dimensions.control} (${failedGuard.treatment}/${failedGuard.id}) is ${failedGuard.status}`
+      : entries.some((entry) => !qualifiedGuardGroups.has(JSON.stringify([entry.task, entry.id]))) ? "unqualified guard scorer, evidence or group"
+      : null;
+    return { scope, instrumentQualified: cellsComplete && isQualified && hasControls && entries.every((entry) => entry.status === "pass" && qualifiedGuardGroups.has(JSON.stringify([entry.task, entry.id]))), reason, liveQualified: false, liveReason: "offline observations do not qualify live prevention" };
   });
   return {
     version: 1, comparison: declaration.id, scope: declaration.scope,
