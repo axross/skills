@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "243d16c41c8e1c97887e9991a457a46d6efa02a71591948fd1a31e5cbca5e53e"
+      "computedHash": "400174ac28368c1e1c6d31353aa56a6aa7948fecab0a9711d5655760ee3cb922"
     },
     "agent-skill-management": {
       "source": "./skills",
@@ -54,7 +54,7 @@
     "high-fidelity-ui-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "41a8077b0aa0b12f3b39a388af93c7fe4043b72276005e89f7582b45cea4455c"
+      "computedHash": "df5c288552fae91801c7f10f18bcab8b25d27af46ce4c61fb0cd3d47cfd902d5"
     },
     "jest-testing": {
       "source": "./skills",
@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6820cfa28c766df1cff3d7259cca1c6269cd952d5ab4d832fcb98bcde464305a"
+      "computedHash": "faff209117f3c4f5695eb317f6d180f05119158d0462b8240e81ecfe0c253c7e"
     },
     "react-component-development": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c7d857db0a32ac88094bb3624635ec626438afa774ede8f70a96a3f6f63a9e99"
+      "computedHash": "bd0366f3185b1f9b675e2fa1a1753785389c02fabce2af9cccdbaf5e9f48a79c"
     },
     "sentry-instrumentation": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "9f36e522ec52fc1ffd9166c9a05e25b15fd7712b5965af0e918f2df6f77a4d60"
+      "computedHash": "da933503ac727679b1b808914f353028120a1a0f27a0399998e992cf0e92339e"
     },
     "software-instrumentation": {
       "source": "./skills",
