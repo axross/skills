@@ -123,13 +123,16 @@ Bindings can differ by purpose without splitting the bundle contract:
 | Deliberately invariant metric or rank-pair symbols | Fixed purpose-specific face                          | Documented unchanged digit/symbol repertoire                                                         |
 | Localized numeric value or unit                    | Covered variant, separate semantic role, or fallback | Actual localized digits, separators, and unit text; not an assumption that all numbers are invariant |
 
-Define fallback at the token/platform boundary too. On web, provide the role's font-family stack and accurate content-language metadata for language-specific forms. On native, use the platform-supported face/fallback mechanism rather than assuming a web stack is portable. For known content in another language or script, supply the appropriate role variant or covered fallback; automatic per-string script detection is not required. A translation fallback alone says nothing about font glyph coverage.
+Define fallback at the token/platform boundary too. On web, provide the role's font-family stack. On native, use the platform-supported face/fallback mechanism rather than assuming a web stack is portable. For known content in another language or script, supply the appropriate role variant or covered fallback; automatic per-string script detection is not required. A translation fallback alone says nothing about font glyph coverage.
+
+Web content-language metadata belongs to markup, not typography tokens. [Declare the document language on `html`](https://www.w3.org/International/questions/qa-html-language-declarations), then override inherited language on known differing-language elements: an English interface can use `<html lang="en">` while a Japanese name uses `<span lang="ja">山田</span>`. [CSS Fonts' language-specific display](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#language-specific-support) uses the element's content language for localized glyph forms; a font-family stack cannot supply that metadata.
 
 When choosing which roles can remain invariant or judging translated and large-text renders, consult the project's high-fidelity typography practices where present. Without them, check supported-script glyphs and fallback, long translations, and native accessibility text sizes for clipping or lost content.
 
 **Guidelines:**
 
 - MUST resolve translated text roles from the same effective language as the translations, accounting for known content-language/script differences through central variants or fallback rather than component-local font patches.
+- MUST declare web content language through `lang` on the document and on known differing-language elements; keep that metadata in markup rather than typography tokens.
 - MUST apply a saved explicit language preference before treating device language as authoritative, and MUST prevent late device/preference initialization from overwriting a newer explicit user selection.
 - MUST rebuild affected complete roles when the effective language changes, preserving declared font features and each selected face's weight-addressing form; keep deliberately invariant bindings fixed rather than replacing every face with the prose font.
 - MUST update every affected appearance mapping, including inactive light/dark themes, without replacing unrelated theme tokens, so a later appearance change cannot restore stale language-dependent roles.

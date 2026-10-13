@@ -37,6 +37,8 @@ See [theming.md](./references/theming.md) for:
 
 - adding or renaming a token, the token families a project declares, and the shape of each
 - composite named text roles, and why family, size, leading, and weight travel together
+- resolving complete roles for the effective language/script and synchronizing affected appearance mappings when language changes
+- separating web content-language metadata on the document and text runs from theme font selection
 - px-keyed spacing steps, named radius and border-width tiers, and a platform-defined native hairline constant rather than a stylesheet-creation API
 - duration and role-named easing tokens
 - writing a literal colour, spacing, radius, border-width, type, duration, or easing value, snapping it to the nearest step, and the closed list of literals that stay legal
