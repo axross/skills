@@ -19,7 +19,7 @@ A project declares these families. Values are the project's; the shapes are not 
 | Border width | Named tier including a hairline step               | `hairline` / `base` / `thick`                      |
 | Duration     | Named scale                                        | `sm` … `2xl`, by magnitude never by milliseconds   |
 | Easing       | Role-named curves                                  | `standard` / `enter` / `exit`, never `ease-in-out` |
-| Effect       | Named composite recipes                            | Ordered shadow layers, not only shadow colour      |
+| Shadow       | Named ordered layer recipes                        | Composite effects, not only shadow colour          |
 
 **Guidelines:**
 
@@ -28,7 +28,7 @@ A project declares these families. Values are the project's; the shapes are not 
 - MUST name a token for its role, never for its appearance or its value. `--duration-md` and `ease.standard` survive a retune; `--duration-200ms` and `ease-in-out` become lies.
 - MUST keep the light and dark mappings structurally identical — the same names present in both — so no surface can reference a token that exists in only one scheme.
 
-## Composite Effects
+## Composite Shadow Effects
 
 A shadow's colour alone does not define the effect: its layers also carry stacking order, offsets, blur, spread, and inset. Keep that recipe together under a semantic role so consumers do not recreate subtly different shadows. Blur softens a layer; spread expands or contracts its extent. They are separate values, not interchangeable measures of softness.
 
@@ -64,21 +64,21 @@ const sheetLayers: readonly ShadowLayer[] = [
 ];
 
 const effects = {
-  sheet: sheetLayers,
-  sheetInverted: sheetLayers.map((layer) => ({
+  topSheet: sheetLayers,
+  bottomSheet: sheetLayers.map((layer) => ({
     ...layer,
     offsetY: -layer.offsetY,
   })),
 };
 ```
 
-An overlay consumer selects `effects.sheet` or `effects.sheetInverted` as a whole. The inverted variant changes only the vertical direction; order and every other field still come from the base recipe. An inset well has a different purpose and layer semantics, so it deserves its own effect role rather than an arbitrary override of the sheet shadow. Resolve scheme-dependent colours where the host design system keeps themed tokens; invariant effects may be shared. Neither needs a prescribed namespace or file layout.
+An overlay consumer selects `effects.topSheet` or `effects.bottomSheet` as a whole. These names describe where the sheet is used, not how its offsets are transformed. The bottom-sheet variant changes only the vertical direction; order and every other field still come from the base recipe. An inset well has a different purpose and layer semantics, so it deserves its own effect role rather than an arbitrary override of the sheet shadow. Resolve scheme-dependent colours where the host design system keeps themed tokens; invariant effects may be shared. Neither needs a prescribed namespace or file layout.
 
-On web or native, consume the recipe directly when the renderer accepts it; otherwise convert at the platform boundary, retaining its declared stacking order and each field's meaning. A CSS shadow list and a native layer array are possible representations, not required APIs. A mechanical replacement with [`drop-shadow()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/filter-function/drop-shadow) is not equivalent: it follows an alpha mask, accepts no spread or inset, and its blur parameter has different semantics.
+On web or native, consume the recipe directly when the renderer accepts it; otherwise convert at the platform boundary, retaining its declared stacking order and each field's meaning. A CSS shadow list or a native layer array such as React Native's [`BoxShadowValue`](https://reactnative.dev/docs/boxshadowvalue), where supported by the project's target versions and platforms, are possible representations, not required APIs. A mechanical replacement with [`drop-shadow()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/filter-function/drop-shadow) is not equivalent: it follows an alpha mask, accepts no spread or inset, and its blur parameter has different semantics.
 
 **Guidelines:**
 
-- MUST define shared composite effects as named recipes and consume each recipe whole, preserving layer order, colour, both offsets, blur, spread, and inset rather than tokenizing only colour.
+- MUST define shared shadow effects as named layer recipes and consume each recipe whole, preserving layer order, colour, both offsets, blur, spread, and inset rather than tokenizing only colour.
 - SHOULD derive a variant from the base recipe when only a defined transformation changes; declare a separate semantic effect when its purpose or layer semantics differ.
 - MUST preserve the recipe's semantics through web/native conversion. If the target cannot represent them, choose a supported rendering path or document an intentional fallback and its lost semantics rather than silently presenting a flattened shadow as equivalent.
 
