@@ -54,7 +54,7 @@
     "high-fidelity-ui-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "a7e71b66e89802999878388a22f0ad815a9087fd2bedfe98d644b59eaaf33b8d"
+      "computedHash": "6ce4be098f379846b107272bbda31b163de3bd5f4a9441733d40da0510c6ff31"
     },
     "jest-testing": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "ee0a1d02fdaee3e8dad99348c34666bff688bba0baad1530b3163925a79d4b30"
+      "computedHash": "1bb31b0da73fb2091732570ac80026bd5562f6dc39427e39c99641d009c1b091"
     },
     "sentry-instrumentation": {
       "source": "./skills",
@@ -139,7 +139,7 @@
     "wireframe-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "64da46b7e8ea95c2d43f4b68a8d3d067b73f32a7c655aa5d6b42c90d3b93b056"
+      "computedHash": "c49e5221488a0f5f666a449387f567c397ea59e51fead39476e28a6290dafa8f"
     },
     "zod-schema": {
       "source": "./skills",
