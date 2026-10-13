@@ -113,7 +113,7 @@ const typography = {
 
 Build complete roles from the project's language/script font mapping at the theme boundary. Keep role names stable so components continue to apply `theme.typography.body` or the equivalent web role without local language branches. A language change can select a different face without changing the role's purpose; resolve that face's weight form and declared font features along with its size and leading.
 
-The effective language is the language the app uses for translations after applying its preference policy. Device language supplies an initial default when no explicit preference exists; a saved user choice takes precedence. A new user selection also takes precedence over an older initialization still in flight. A language-change listener does not establish that startup ordering by itself.
+The effective language is the already-resolved language the app uses for translations. Receive that input from application state rather than resolving preference policy inside a stylesheet. For language-preference or locale-initialization work, consult the project's component/app-state practices where present. Without that optional capability, the host application still owns preference resolution before supplying the effective-language input.
 
 Bindings can differ by purpose without splitting the bundle contract:
 
@@ -127,13 +127,14 @@ Define fallback at the token/platform boundary too. On web, provide the role's f
 
 Web content-language metadata belongs to markup, not typography tokens. [Declare the document language on `html`](https://www.w3.org/International/questions/qa-html-language-declarations), then override inherited language on known differing-language elements: an English interface can use `<html lang="en">` while a Japanese name uses `<span lang="ja">山田</span>`. [CSS Fonts' language-specific display](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#language-specific-support) uses the element's content language for localized glyph forms; a font-family stack cannot supply that metadata.
 
+When the effective language changes, update the document's `lang` along with translated text and resolved roles. Keep known differing-language elements' overrides tied to their own content language rather than replacing every element's `lang` with the app language.
+
 When choosing which roles can remain invariant or judging translated and large-text renders, consult the project's high-fidelity typography practices where present. Without them, check supported-script glyphs and fallback, long translations, and native accessibility text sizes for clipping or lost content.
 
 **Guidelines:**
 
-- MUST resolve translated text roles from the same effective language as the translations, accounting for known content-language/script differences through central variants or fallback rather than component-local font patches.
-- MUST declare web content language through `lang` on the document and on known differing-language elements; keep that metadata in markup rather than typography tokens.
-- MUST apply a saved explicit language preference before treating device language as authoritative, and MUST prevent late device/preference initialization from overwriting a newer explicit user selection.
+- MUST resolve translated text roles from the same already-resolved effective language as the translations, accounting for known content-language/script differences through central variants or fallback rather than component-local font patches.
+- MUST declare web content language through `lang` on the document and on known differing-language elements, and synchronize the document's `lang` with each effective-language change while preserving content-specific overrides; keep that metadata in markup rather than typography tokens.
 - MUST rebuild affected complete roles when the effective language changes, preserving declared font features and each selected face's weight-addressing form; keep deliberately invariant bindings fixed rather than replacing every face with the prose font.
 - MUST update every affected appearance mapping, including inactive light/dark themes, without replacing unrelated theme tokens, so a later appearance change cannot restore stale language-dependent roles.
 - MUST define script-specific faces or platform-supported glyph fallback for the content each role accepts, including localized digits, units, and mixed-script strings.

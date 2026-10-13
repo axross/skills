@@ -1,6 +1,6 @@
 ---
 name: react-component-development
-description: Building or reviewing a React component — how one is put together, from composition and props contracts through extracted logic, state, memoization, and testability, on web and mobile native alike. Triggers on "props", "spread props", "compound component", "variant prop", "empty state", "error state", "skeleton", "data-testid", "testID", "extract a hook", "useEffect", "where state lives", "memo", "virtualize", "FlatList", or a surface that re-renders or scrolls badly. For styling — CSS Modules, Unistyles, tokens — use a React component styling capability; for server state, a TanStack Query one.
+description: Building or reviewing a React component — how one is put together, from composition and props contracts through extracted logic, state, memoization, and testability, on web and mobile native alike. Triggers on "props", "spread props", "compound component", "variant prop", "empty state", "error state", "skeleton", "data-testid", "testID", "extract a hook", "useEffect", "where state lives", "language preference", "locale initialization", "memo", "virtualize", "FlatList", or a surface that re-renders or scrolls badly. For styling — CSS Modules, Unistyles, tokens — use a React component styling capability; for server state, a TanStack Query one.
 user-invocable: false
 ---
 
@@ -74,6 +74,7 @@ See [state.md](./references/state.md) for:
 - separating keep-mounted interaction sessions from mount lifetime, including stale exit completion after reopen
 - sharing state through context by default, and what a context provider should expose
 - using the host project's store library when it has one, and exposing narrow selector hooks
+- resolving app-wide language preferences, with saved-preference precedence and protection from late initialization
 - recognizing state that belongs to a server-state layer rather than to the component
 
 ## Memoization

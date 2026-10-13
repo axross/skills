@@ -86,6 +86,21 @@ export function useAuthStatus(): AuthStatus {
 - SHOULD keep a store's actions on the store itself, so a consumer imports one thing rather than a store and a set of loose mutators.
 - SHOULD document each action's effect on the store's terminal states, so a reader can tell which transitions are possible.
 
+## Language Preference Initialization
+
+An app-wide language preference belongs to the feature/application state owner selected by the placement rules above, not a stylesheet or each translated component. That owner applies the host application's persistence policy and supplies the resolved effective language to its consumers. A language-change listener does not establish startup precedence by itself.
+
+**Counterexample:**
+
+> Device language A initializes while saved language B is loading. The user selects C before initialization finishes. Late device A or saved B completion must leave C selected, rather than restoring an older choice.
+
+**Guidelines:**
+
+- MUST use device language as an initial default only when no explicit language preference exists; a saved explicit preference takes precedence over that default.
+- MUST prevent late device or saved-preference initialization from overwriting a newer explicit user selection.
+- MUST supply one resolved effective language to translations and other language-dependent consumers rather than resolving preference policy independently in each consumer.
+- SHOULD verify device/user-language mismatch and a new selection while initialization is pending, including both late device and late saved-preference completion.
+
 ## Server State Belongs Elsewhere
 
 A value the server owns is a **cache**, not component state. Holding it in `useState` re-implements staleness, refetching, deduplication, and invalidation by hand, and each component that does so implements them slightly differently.
