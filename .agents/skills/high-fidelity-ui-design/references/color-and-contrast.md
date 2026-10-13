@@ -53,6 +53,8 @@ Color-only encoding is the defect that survives every review conducted in full c
 
 The requirement behind that pass is short — color must not be the only visual means of conveying information, indicating an action, or distinguishing an element ([SC 1.4.1](https://www.w3.org/WAI/WCAG21/Understanding/use-of-color.html)) — and it has exactly one measurable escape hatch, which is also where it is most often misread. WCAG treats a difference in both hue and lightness of at least 3:1 contrast as an acceptable additional distinction, which is why a body-text link that differs from surrounding text by 3:1 can rely on color plus (ideally) an underline. But the 3:1 allowance only helps when the user does not need to identify a specific color's meaning; if the information is "green means valid, red means invalid," no contrast ratio between them substitutes for a non-color cue, since a viewer who cannot separate the two hues learns nothing from their contrast. Treat 3:1 as covering "these two things are different," never "this one specifically means X."
 
+For charts, see [chart information equivalence](./accessibility-and-cognitive-load.md#provide-task-relevant-chart-information-beyond-identification) for recovering task-relevant meaning without visual marks, a separate check from distinguishing series without color.
+
 **Good Example:**
 
 > A form field in the error state shows a red border AND a red-tinted X icon AND helper text ("Enter a valid email") below it — desaturate the screen and the field still reads as broken via the icon, the text, and the border weight change.
