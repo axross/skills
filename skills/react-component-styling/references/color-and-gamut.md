@@ -68,6 +68,8 @@ Domain roles belong to the semantic tier, but describe category or data meaning 
 
 Domain and optional component namespaces use the project's own meaning-based names, not the generic UI scheme shape. A component alias is optional and exists only where a stable per-component override point is needed. The alias resolves inside the theme definition, so its consumer does not need to know which surface role backs it.
 
+The generic UI scheme and parallel alpha-ramp shapes described here are not required for domain roles or component aliases. The Alpha Ramp section below describes generic UI roles, not a new 13-step ramp contract for these namespaces.
+
 **Example — role-only mappings inside light and dark theme definitions:**
 
 The same component keys can map to different generic surface roles:
@@ -83,7 +85,7 @@ The consumer reads `theme.listCard.fill` in both appearances. These mappings ill
 
 - MUST expose domain colours under domain-owned category/data names and keep those keys stable across appearances; do not force them into unrelated generic UI scheme names.
 - MUST resolve optional component aliases through semantic roles inside theme definitions, never directly to primitives or literals.
-- MUST keep light/dark role selection for domain roles and component aliases in theme definitions, not in consumer stylesheets or render functions.
+- MUST keep light/dark value mappings for domain roles and semantic-role selection for component aliases in theme definitions, not in consumer stylesheets or render functions.
 
 ## The Alpha Ramp
 
@@ -110,7 +112,7 @@ backgroundColor: theme.colors.solid.accent.restAlpha,
 
 The two schemes share a lightness scale that inverts end to end: step 0 is the lightest value in the light scheme and the darkest in the dark one. The consequence is the whole point of the system — a surface that picks the correct role adapts to both schemes with no per-surface work.
 
-Theme definitions may deliberately map a stable meaning to different roles in light and dark, as with `listCard.fill` above. That mapping preserves the component contract; it is not a consumer override or a third exception to the rule below. The role choice still follows the surface's purpose, not a value that happens to look right.
+Theme definitions may deliberately map a stable component alias to different semantic roles in light and dark, as with `listCard.fill` above. That mapping preserves the component contract; it is not a consumer override or a third exception to the rule below. The role choice still follows the surface's purpose, not a value that happens to look right.
 
 **Good Example:**
 
