@@ -176,7 +176,7 @@ A scale only constrains if values land on it. Ordinary spacing snaps to the near
 
 - MUST resolve every colour, spacing, radius, border-width, duration, easing, and typography value through a token, except for the literal categories below or lengths meeting [Approved Local Geometry](#approved-local-geometry).
 - MUST snap ordinary off-scale spacing to the nearest step, and MUST raise a missing step as a design decision rather than silently resolving it locally.
-- MUST NOT disguise an off-scale value as a component-local constant or custom property. Every branch resolves to a project token, a literal category below, or an explicitly approved local geometry length; naming a hard-coded hex or arbitrary padding does not make it a token.
+- MUST NOT disguise an off-scale value as a component-local constant or custom property. Every branch resolves to a project token, a literal category below, or a length meeting [Approved Local Geometry](#approved-local-geometry), and still satisfies applicable platform-adapter constraints. Naming a hard-coded hex or arbitrary padding does not make it a token.
 - MUST keep unconditionally permitted off-token literals to this complete list:
   - **Fixed element dimensions** — an icon's drawn size, an avatar's diameter, a fixed line box, an `aspect-ratio`. These are geometry, not scale spacing.
   - **Ratios and multipliers** — an opacity, a `flex` value, a `z-index`, a `scale()` factor.
@@ -186,18 +186,19 @@ A scale only constrains if values land on it. Ordinary spacing snaps to the near
 
 ### Approved Local Geometry
 
-An optical correction adjusts visual alignment or balance to preserve an approved design constraint. Internal padding and gaps remain spacing, not fixed-element dimensions or ratios. When proposing a deviation, use the project's installed-rule deviation practices for adoption and validity checks if available; otherwise require the bounded evidence below. This path does not override other applicable rules.
+An optical correction adjusts visual alignment or balance to preserve an approved design constraint. Internal padding and gaps remain spacing, not fixed-element dimensions or ratios. The geometry-specific requirements below apply on every route. When the project's installed-rule deviation practices are available, use their generic adoption and validity checks as well, not instead. This path does not override other applicable rules.
 
 **Example:**
 
-> A noninteractive pill has a 16pt content box and an approved 20pt nominal height. Snapping its 2pt vertical padding to 4pt makes it 24pt tall; 3pt leading padding/gap and 9pt trailing padding also change when snapped to 4pt/8pt. Explicit approval can preserve those exact internal lengths for that pill without adding single-use steps to the shared scale. The same numbers in another component inherit no approval.
+> A noninteractive pill has a 16pt content box and an approved 20pt nominal height. Snapping its 2pt vertical padding to 4pt makes it 24pt tall; 3pt leading padding/gap and 9pt trailing padding also change when snapped to 4pt/8pt. Scoped approval can preserve those exact internal lengths without adding single-use steps to the shared scale, but cannot waive independently applicable design or adapter rules. The same numbers in another component inherit no approval.
 
 **Guidelines:**
 
 - MUST compare the proposed internal lengths with the nearest scale steps and cite the design constraint that snapping would change; prefer the scale when it preserves the intended result, rather than accepting "looks better" alone.
 - MUST distinguish a reusable missing scale step from component-specific geometry with the design-system owner. A shared need calls for a scale proposal; do not add single-use steps solely to avoid making a local approval decision.
 - MAY retain exact off-token internal padding, gaps or alignment offsets only after the responsible human explicitly approves the deviation for the stated component and conditions. Approval of a design image alone does not approve an off-scale implementation.
-- MUST record the design evidence and nearest-step comparison, exact values/properties, scope, human approval locator and shared-scale decision in an existing project decision document. A local constant, an agent-authored assertion or a pending upstream proposal is not human adoption.
+- MUST stop a proposed implementation that conflicts with an independently applicable design grid/token or platform-adapter rule unless a separately valid human-adopted deviation covers that rule, source, scope and conditions under the actual host's priority and restrictions. Styling approval alone cannot authorize an off-scale CSS custom-property terminus.
+- MUST keep the design evidence and nearest-step comparison, exact values/properties, scope, human approval locator and shared-scale decision recoverable through linked project records. Placement and document shape follow the project's applicable documentation and decision-record practices; absent a placement policy, use established project records. No single decision document or dedicated register is required. A local constant, an agent-authored assertion or a pending upstream proposal is not human adoption.
 - MUST reassess before reuse in another component or context, or when the supporting geometry, assets, typography or scale changes. Repeated shared need reopens the scale decision; it does not automatically promote a one-off value or transfer the original approval.
 - MUST NOT waive accessibility requirements for optical geometry, including target size, contrast, focus, text scaling and reflow. A noninteractive visual box does not establish an interactive hit-area minimum or permit clipping enlarged text; verify the hit area separately if the surface becomes interactive.
 

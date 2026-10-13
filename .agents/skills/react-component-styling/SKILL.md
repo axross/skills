@@ -10,7 +10,7 @@ Use this capability whenever you write, review, or refactor the styles of a Reac
 
 It does **not** own design rationale. Visual hierarchy, contrast targets, what a colour means, how much motion is tasteful, whether a state reads as interactive — those belong to a high-fidelity UI design capability. Where a rule here has a design counterpart, this skill states the mechanic and points at that capability rather than restating its reasoning.
 
-This skill is self-contained and prescribes token **shapes**, never token **values**. The palette, the ramp, the type scale, and the spacing steps are the host project's; bind every value to the project's semantic tokens, and where a needed role is missing, add the token rather than inlining a literal.
+This skill is self-contained and prescribes token **shapes**, never token **values**. The palette, the ramp, the type scale, and the spacing steps are the host project's. Semantic tokens are the default; a missing role calls for a token, not an arbitrary literal. [Snapping to the Scale](./references/theming.md#snapping-to-the-scale) distinguishes permitted literal categories from approval-dependent local geometry.
 
 **Platform adapters.** Two references are conditional, not universal:
 
@@ -39,7 +39,7 @@ See [theming.md](./references/theming.md) for:
 - composite named text roles, and why family, size, leading, and weight travel together
 - px-keyed spacing steps, named radius and border-width tiers, and a platform-defined native hairline constant rather than a stylesheet-creation API
 - duration and role-named easing tokens
-- writing a literal colour, spacing, radius, border-width, type, duration, or easing value, snapping it to the nearest step, and the closed list of literals that stay legal
+- writing a literal colour, spacing, radius, border-width, type, duration, or easing value — nearest-step snapping, unconditional literal categories, and approval-dependent local geometry
 - reading a token outside a stylesheet — icon colour and size, navigator options, animated values
 
 ## Colour and Gamut
