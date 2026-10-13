@@ -133,7 +133,7 @@ If no applicable path refreshes that sheet, an uncalled entry can retain an old 
 
 ## Resolve Shared Properties Before Selecting Variants
 
-Independent boolean variants become competing writers when they all assign `boxShadow`. Reordering those groups hides the decision in merge behaviour. Resolve the competing facts into one visual-state variant instead; leave axes that write different properties independent. A high-fidelity UI design capability owns which cues survive and the focus/disable policy, not Unistyles declaration order.
+Independent boolean variants become competing writers when they all assign `boxShadow`. Reordering those groups hides the decision in merge behaviour. Resolve the competing facts into one visual-state variant instead; leave axes that write different properties independent. When available, a high-fidelity UI design capability owns which cues survive and the focus/disable policy, not Unistyles declaration order.
 
 **Example:**
 
@@ -183,6 +183,7 @@ The supplied [3.5.2 Jest mock](https://github.com/jpudysz/react-native-unistyles
 
 **Guidelines:**
 
+- MUST, when that design capability is absent, keep actual focus visible and distinct from selection. Preserve independently active error and operation feedback; disabled activation stays blocked without erasing intentionally retained focus.
 - SHOULD give an indivisible conflicting property one resolved visual-state variant with complete values, keeping non-conflicting variant axes independent.
 - MUST specify the intended resolution when base, selected variants or matching compounds share a property, and check the consuming version's merge behaviour rather than relying on group order or an assumed array replacement.
 - MUST verify changed combinations and exits with real Unistyles variants on the supported native targets, and on web when styles are shared; check removal of earlier shadows, including transitions to shorter or empty values. Keep semantic tests separate from this rendering evidence rather than claiming the stripped mock verifies paint.
