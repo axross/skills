@@ -20,12 +20,27 @@ an unqualified safeguard as protection for routine work.
 
 **Guidelines:**
 
-- MUST begin an optional safeguard in audit mode and keep unqualified scopes there outside the bounded qualification exercises below. Keep unqualified or unobserved scopes outside enforcement-success claims.
+- MUST begin an optional safeguard with independently contained audit qualification before routine audit activation. Keep unqualified or unobserved scopes outside enforcement-success claims.
 - MAY temporarily enable refusal for a qualification exercise separately authorized for specific actors, routes, targets and duration; that authorization does not permit broader enforcement.
-- MUST return unqualified scopes to audit mode when the qualification exercise ends; ordinary enforcement still requires qualified prevention evidence and applicable activation authorization.
+- MUST return unqualified enforcement scopes to audit mode when the qualification exercise ends only where [audit noninterference](#qualify-audit-noninterference) is established; otherwise keep the optional safeguard inactive outside contained exercises. Every audit fallback below presupposes that evidence. Ordinary enforcement still requires qualified prevention evidence and applicable activation authorization.
 - MUST distinguish what the safeguard observed, what it attempted to refuse and what mutation it prevented; audit completion is not enforcement qualification.
 - MUST obtain applicable policy and authorization before activation or qualification effects. Qualification itself grants neither permission nor an exemption from normal tool permissions.
 - MUST report hidden final delivery or actor/context correspondence as unknown even when callback coverage is complete; do not transfer the parent's observations to a worker.
+
+### Qualify audit noninterference
+
+A mode called audit can still refuse a valid edit or alter the executed mutation.
+An unchanged target after an earlier permission denial cannot distinguish that
+interference from observation-only behavior. Audit qualification therefore
+begins under [independent containment](#containment-and-cleanup), not on routine
+targets, and compares otherwise valid operations with the safeguard absent.
+
+**Guidelines:**
+
+- MUST demonstrate that otherwise valid mutations proceed without safeguard-imposed refusal or alteration of the intended executed mutation in both Full and every relevant non-Full acquisition condition. Use the existing [coverage meanings](./actor-local-acquisition.md#coverage-not-an-execution-result), not receipt shape alone.
+- MUST compare equivalent safeguard-absent controls under the same ordinary permissions and relevant state, applying [state, input and invocation-order controls](#control-state-and-invocation-order). A prior permission denial or operation never reached does not establish noninterference.
+- MUST establish noninterference for the actual claimed actor, event, route and effective handler composition, including every exercised failure and timeout, and verify that required recovery reads remain usable. Keep each comparison's actual event history intact; do not reset it or substitute a fresh unaffected instance.
+- MUST keep unknown, blocked or unexercised audit scopes outside routine activation. Audit evidence neither qualifies enforcement nor proves complete acquisition or final delivery; an unverified audit mode is not the fallback for unqualified enforcement.
 
 ## Containment and cleanup
 
@@ -91,7 +106,7 @@ conditions, not only a successful recovered edit.
 
 - MUST exercise malformed or missing inputs, unavailable evidence, handler failures and timeouts through the actual qualified route, recording whether mutation was reached and what happened.
 - MUST verify that permitted recovery reads remain usable before refusal, including reacquisition of missing ranges from one verified revision.
-- MUST follow refusal and every exercised failure case above with usable required recovery reads, effective missing-material refusal and an acquired-material valid mutation through the same actual qualified scope under ordinary permissions. Apply [state, input and invocation-order controls](#control-state-and-invocation-order) with the event's history intact in each comparison instance; do not reset that history or substitute a fresh unaffected instance. Blocked or unexercised post-event controls leave that scope unqualified.
+- MUST, for enforcement qualification, follow refusal and every exercised failure case above with usable required recovery reads, effective missing-material refusal and an acquired-material valid mutation through the same actual qualified scope under ordinary permissions. Apply [state, input and invocation-order controls](#control-state-and-invocation-order) with the event's history intact in each comparison instance; do not reset that history or substitute a fresh unaffected instance. Blocked or unexercised post-event controls leave that scope unqualified. Audit exercises instead use [audit noninterference controls](#qualify-audit-noninterference).
 - MUST distinguish known prevention, known mutation and unknown effects after a failure; inspect the actual target and settle unknown effects through permitted operations before retrying an uncertain operation.
 - MUST retain unqualified failure cases as audit observations or explicit limitations rather than claim that an error automatically prevented mutation.
 
@@ -114,6 +129,12 @@ These are qualification criteria, not a report that any host passed them.
 Walkthroughs can check the intended contract; only authorized actual exercises
 can establish runtime prevention.
 
+A well-formed receipt can still describe incomplete, stale or mixed-revision
+material, or belong to another actor/current context. A receipt-shape check
+can pass missing-input exercises while admitting mutations under these non-Full
+conditions. The negative controls must distinguish complete current acquisition
+from each relevant condition, not merely distinguish valid from malformed input.
+
 An unchanged target while delayed work is still running cannot distinguish
 effective refusal from a later write. Independently stopping that work
 establishes cleanup, not prevention by the safeguard. A write followed by rollback
@@ -122,6 +143,8 @@ transient change even when the final target matches its baseline.
 
 **Guidelines:**
 
+- MUST exercise every relevant non-Full acquisition condition in the claimed enforcement scope using the existing [coverage meanings](./actor-local-acquisition.md#coverage-not-an-execution-result), including well-formed partial, stale, mixed-revision and wrong-actor/current-context evidence. Each negative control must reach the safeguard and demonstrate effective refusal paired with a Full-acquisition valid mutation under the equivalent-input, state and invocation-order controls below.
+- MUST leave unavailable or unexercised acquisition conditions and their affected scopes unqualified; receipt shape, another condition's result or an intermediate observation cannot qualify them or establish Full acquisition.
 - MUST demonstrate refusal preventing the intended mutation with evidence excluding committed or externally observable transient mutation within the claimed target/effect scope. Inspect actual target state after delayed or spawned work settles; final baseline equality alone is insufficient. Verify any termination through permitted host operations; unsettled effects remain unknown.
 - MUST keep the affected prevention scope unqualified when permitted observations cannot exclude transient effects. Refusal output, successful exit, rollback and cleanup cannot establish prevention alone.
 - MUST pair refusal with valid-edit controls through the same qualified event, tool, configuration and effective handler composition, using [state and invocation-order controls](#control-state-and-invocation-order) for starting-state equivalence and actual actor/context/target correspondence. Recovery reads still use their permitted read routes.
