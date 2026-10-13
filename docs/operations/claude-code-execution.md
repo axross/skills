@@ -159,6 +159,10 @@ actors; none of them is an Amp mapping or an established Codex capability:
   return shape and denies editing tools and nested
   spawning, and states the rest of its boundary in prose; a general-purpose
   shell remains, because reading requires one.
+- An Investigator assignment MUST NOT impose an arbitrary read budget, token
+  cap, or tool-call cap. Require as much reading as settling the question takes
+  within actual host limits, or an explicit unresolved result. A concise return
+  shape does not justify limiting the investigation's reads.
 - A built-in read-only search agent covers a broad fan-out across many files or
   naming conventions where no project definition is needed.
 - Direct tools supply exact lookups or bounded extracts through an
