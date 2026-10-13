@@ -233,9 +233,16 @@ becomes `V2`. The token map is api → API, cli → CLI, json → JSON, rfc → 
 ui → UI, yaml → YAML, next → Next.js and tanstack → TanStack. The compounds
 end-to-end and high-fidelity become End-to-End and High-Fidelity. Thus
 `working-with-api-v2` becomes `Working with API V2`, and `review-of` becomes
-`Review Of`. Extra words or decorations fail; rendered inline emphasis is allowed.
-Invalid YAML or required scalars do not supply an invented title. MD025 owns
-additional H1s; AS002 checks the missing/mismatched first root title only.
+`Review Of`. Unknown words such as `constructor` use ordinary capitalization:
+`constructor-skill` becomes `Constructor Skill`, not an inherited runtime token.
+Extra words or decorations fail; rendered inline emphasis is allowed.
+
+AS002 requires a valid YAML mapping and an independently valid name under
+AS001's name contract. Missing or invalid description does not suppress title
+comparison; AS001 retains every description diagnostic. AS002-only selection
+does not claim description coverage; selecting both checks reports both
+independent failures. Invalid YAML or name does not supply an invented title.
+MD025 owns additional H1s; AS002 checks the missing/mismatched first root title only.
 
 AS003 recognizes two interpretation templates:
 

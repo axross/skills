@@ -38,6 +38,8 @@ describe("AS002 title profile", () => {
     ["review-of", "Review Of", 0],
     ["weekend-to-end", "Weekend to End", 0],
     ["rfc-2119-json-yaml-cli", "RFC 2119 JSON YAML CLI", 0],
+    ["constructor-skill", "Constructor Skill", 0],
+    ["constructor-skill", "constructor Skill", 1],
     ["fixture-skill", "[Fixture Skill](https://example.com)", 1],
     ["fixture-skill", "![Fixture Skill](https://example.com/image.png)", 1],
     ["fixture-skill", "<span>Fixture Skill</span>", 1],
@@ -52,6 +54,61 @@ describe("AS002 title profile", () => {
   it("does not mistake quoted/fenced headings for the missing parent title", async () => {
     expect((await check("AS002", "> # Fixture Skill\n\n```markdown\n# Fixture Skill\n```\n")).code).toBe(1);
     expect((await check("AS002", "# **Fixture** Skill\n")).code).toBe(0);
+  });
+
+  describe.each(["\n", "\r\n"])("metadata prerequisites under %j", (eol) => {
+    describe.each([["AS002"], ["AS001", "AS002"]])("with selected rules %j", (...rules) => {
+      it.each([
+        ["missing", "", 1],
+        ["null", "description: null", 1],
+        ["numeric", "description: 42", 1],
+        ["empty", "description: ''", 1],
+        ["oversized", "description: " + "é".repeat(513), 1],
+        ["byte boundary", "description: " + "é".repeat(512), 0],
+      ])("checks the title independently of a %s description", async (_kind, description, descriptionErrors) => {
+        const dir = await writeSkill(await tempDir(), "fixture-skill", {
+          raw: `---\nname: fixture-skill\n${description}\n---\n\n# Wrong Title\n`.replaceAll("\n", eol),
+        });
+        const result = await runValidation(await createContext({ skills: [dir] }), { rules, standardConfig: { default: false } });
+        expect(result).toMatchObject({ code: 1, scope: "partial", failures: [], rules });
+        expect(result.findings.filter(f => f.ruleNames[0] === "AS002")).toEqual([
+          expect.objectContaining({ lineNumber: 6, errorDetail: "Expected root H1 title: Fixture Skill" }),
+        ]);
+        expect(result.findings.filter(f => f.ruleNames[0] === "AS001")).toHaveLength(rules.includes("AS001") ? descriptionErrors : 0);
+      });
+
+      it.each([
+        ["missing title", "A paragraph, not a title.\n", 1],
+        ["valid title", "# Fixture Skill\n", 0],
+      ])("preserves %s checking when description is invalid", async (_kind, body, titleErrors) => {
+        const dir = await writeSkill(await tempDir(), "fixture-skill", {
+          raw: `---\ndescription: null\nname: fixture-skill\n---\n\n${body}`.replaceAll("\n", eol),
+        });
+        const result = await runValidation(await createContext({ skills: [dir] }), { rules, standardConfig: { default: false } });
+        expect(result.failures).toEqual([]);
+        expect(result.findings.filter(f => f.ruleNames[0] === "AS002")).toHaveLength(titleErrors);
+        expect(result.findings.filter(f => f.ruleNames[0] === "AS001")).toEqual(rules.includes("AS001") ? [
+          expect.objectContaining({ lineNumber: 2, errorDetail: expect.stringContaining("description:") }),
+        ] : []);
+        expect(result.code).toBe(titleErrors || (rules.includes("AS001") ? 1 : 0));
+      });
+
+      it.each([
+        ["invalid YAML", "name: fixture-skill\ndescription: [unterminated"],
+        ["non-mapping YAML", "- fixture-skill"],
+        ["missing name", "description: text"],
+        ["invalid name", "name: Bad-name\ndescription: null"],
+        ["mismatched directory", "name: other-skill\ndescription: text"],
+      ])("does not infer a title from %s", async (_kind, metadata) => {
+        const dir = await writeSkill(await tempDir(), "fixture-skill", {
+          raw: `---\n${metadata}\n---\n\n# Wrong Title\n`.replaceAll("\n", eol),
+        });
+        const result = await runValidation(await createContext({ skills: [dir] }), { rules, standardConfig: { default: false } });
+        expect(result.failures).toEqual([]);
+        expect(result.findings.filter(f => f.ruleNames[0] === "AS002")).toEqual([]);
+        expect(result.code).toBe(rules.includes("AS001") ? 1 : 0);
+      });
+    });
   });
 });
 

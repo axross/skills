@@ -404,12 +404,12 @@ describe("explicit context and protected execution", () => {
     const standardConfig = { default: false, MD009: true };
     const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig });
     expect(result).toMatchObject({ code: 1, documents: [path], failures: [] });
-    expect(result.findings.map((finding) => finding.ruleNames[0]).sort()).toEqual(["AS001", "AS010", "MD009"]);
-    expect(result.findings.map((finding) => finding.path)).toEqual([path, path, path]);
+    expect(result.findings.map((finding) => finding.ruleNames[0]).sort()).toEqual(["AS001", "AS002", "AS010", "MD009"]);
+    expect(result.findings.map((finding) => finding.path)).toEqual([path, path, path, path]);
     const config = await writeFileIn(root, "standard.json", JSON.stringify(standardConfig));
     const processResult = runScript(CLI, ["--skill", dir, "--config", config], { cwd: root });
     expect(processResult.code).toBe(1);
-    for (const id of ["MD009", "AS001", "AS010"]) {
+    for (const id of ["MD009", "AS001", "AS002", "AS010"]) {
       expect(processResult.stdout.split("\n").find((line) => line.includes(`error ${id}`))?.startsWith(`${path}:`)).toBe(true);
     }
   });
@@ -685,6 +685,20 @@ describe("explicit context and protected execution", () => {
         const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
         expect({ status: control.status, stderr: control.stderr }).toEqual({ status: 0, stderr: "" });
         expect(control.stdout).not.toMatch(/error AS00[368]/);
+      }
+      for (const eol of ["\n", "\r\n"]) {
+        await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: null\n---\n# Wrong Title\n".replaceAll("\n", eol));
+        const title = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
+        expect({ status: title.status, stderr: title.stderr }).toEqual({ status: 1, stderr: "" });
+        expect(title.stdout).toMatch(/error AS002 .*Expected root H1 title: Probe Skill/);
+        expect(title.stdout).not.toMatch(/error AS001/);
+        const combined = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS001", "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
+        expect({ status: combined.status, stderr: combined.stderr }).toEqual({ status: 1, stderr: "" });
+        expect(combined.stdout).toMatch(/error AS001 /);
+        expect(combined.stdout).toMatch(/error AS002 /);
+        const constructor = await writeSkill(root, "constructor-skill", { raw: "---\nname: constructor-skill\ndescription: text\n---\n# Constructor Skill\n".replaceAll("\n", eol) });
+        const unknown = spawnSync(process.execPath, [...permissions, entry, "--skill", constructor, "--config", config], { cwd: consumer, encoding: "utf8" });
+        expect({ status: unknown.status, stderr: unknown.stderr }).toEqual({ status: 0, stderr: "" });
       }
       await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\nRationale.\n\n**Guidelines:**\n\n- <!-- invisible -->\n");
       const empty = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });

@@ -7,7 +7,7 @@ const ROUTING_KEYWORD = new RegExp(`(?<![\\p{L}\\p{N}_])(?:${KEYWORDS.join("|")}
 const ROUTING_MENTION = new RegExp(`(?<![\\p{L}\\p{N}_])${KEYWORD_MENTION.source.slice(1)}`, "gu");
 const LABEL = /^(Guidelines|(?:(?:Good\/Bad|Good|Bad|Single Prose|Snippet|Decision-language|Implementation-language|Failure|Anti-Pattern)\s+)?Examples?):(?:\s|$)/i;
 const SMALL_WORDS = new Set("a an and as at but by for from in of on or the to with".split(" "));
-const TITLE_TOKENS = { api: "API", cli: "CLI", json: "JSON", rfc: "RFC", ui: "UI", yaml: "YAML", next: "Next.js", tanstack: "TanStack" };
+const TITLE_TOKENS = new Map(Object.entries({ api: "API", cli: "CLI", json: "JSON", rfc: "RFC", ui: "UI", yaml: "YAML", next: "Next.js", tanstack: "TanStack" }));
 const TRANSPARENT_HTML = new Set("a b del em i ins mark s small span strong sub sup u".split(" "));
 const parser = new MarkdownIt({ html: true });
 
@@ -201,7 +201,7 @@ export function analyzeBody(document) {
 
 function title(name) {
   const words = name.replace(/(^|-)end-to-end(?=-|$)/g, "$1End§to§End").replace(/(^|-)high-fidelity(?=-|$)/g, "$1High§Fidelity").split("-");
-  return words.map((word, index) => word.includes("§") ? word.replaceAll("§", "-") : TITLE_TOKENS[word] ?? (index > 0 && index < words.length - 1 && SMALL_WORDS.has(word) ? word : word[0].toUpperCase() + word.slice(1))).join(" ");
+  return words.map((word, index) => word.includes("§") ? word.replaceAll("§", "-") : TITLE_TOKENS.get(word) ?? (index > 0 && index < words.length - 1 && SMALL_WORDS.has(word) ? word : word[0].toUpperCase() + word.slice(1))).join(" ");
 }
 
 /** recognize only the normalized full/compact RFC interpretation templates. */

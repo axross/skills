@@ -15,10 +15,10 @@ function frontmatter(document, onError) {
   const yaml = parseDocument(block.source, {
     version: "1.2", schema: "core", strict: true, uniqueKeys: true, keepSourceTokens: true, lineCounter,
   });
-  let valid = true;
+  let errorCount = 0;
   let name;
   const report = (detail, offset = 0) => {
-    valid = false;
+    errorCount++;
     onError({ lineNumber: lineCounter.linePos(offset).line + 1, detail });
   };
   if (yaml.errors.length) {
@@ -30,6 +30,7 @@ function frontmatter(document, onError) {
     return;
   }
   for (const key of ["name", "description"]) {
+    const errorsBefore = errorCount;
     const pair = yaml.contents.items.find((pair) => isScalar(pair.key) && pair.key.value === key);
     if (!pair) { report(`Missing required ${key}`); continue; }
     const value = pair.value;
@@ -52,15 +53,15 @@ function frontmatter(document, onError) {
     }
     if (!value.value.trim()) { report(`${key}: must be a nonempty string`, offset); continue; }
     if (key === "name") {
-      name = value.value;
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(value.value)) report("name: must be kebab-case", offset);
       if (value.value.length > 64) report("name: exceeds 64 characters", offset);
       if (value.value !== basename(document.skillDir)) report(`name: does not match directory ${basename(document.skillDir)}`, offset);
+      if (errorCount === errorsBefore) name = value.value;
     } else if (Buffer.byteLength(value.value, "utf8") > 1024) {
       report("description: exceeds 1,024 decoded UTF-8 bytes", offset);
     }
   }
-  return valid ? name : undefined;
+  return name;
 }
 
 /** use untouched markdown-it maps under the context's terminal-newline invariant. */
