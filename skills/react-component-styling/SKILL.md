@@ -15,7 +15,7 @@ This skill is self-contained and prescribes token **shapes**, never token **valu
 **Platform adapters.** Two references are conditional, not universal:
 
 - Apply the **CSS Modules** rules to a pre-existing component that already uses CSS Modules, and to a new component only when CSS Modules is the project's primary styling mechanism.
-- Apply the **Unistyles** rules to a pre-existing component that already uses Unistyles, and to a new component only when Unistyles is the project's primary styling mechanism. Unistyles guidance here is scoped to mobile native.
+- Apply the **Unistyles** rules to a pre-existing component that already uses Unistyles, and to a new component only when Unistyles is the project's primary styling mechanism. Unistyles authoring here is scoped to mobile native; verification also covers web when those native styles are shared there. Web-only Unistyles authoring is outside this reference.
 
 Everything outside those two references is platform-neutral and applies either way.
 
@@ -122,6 +122,9 @@ See [unistyles.md](./references/unistyles.md) for:
 - configuring native System adaptation versus explicit Light/Dark selection, mutually exclusive adaptive/initial settings, and product-owned fallback policy
 - safe-area-aware styling with the mini runtime
 - choosing between variants and dynamic functions
+- resolving simultaneous state facts that compete for one style property
+- checking native/web merge parity when native styles are shared on web
+- verifying combinations and exits with real variants rather than the supplied mock that strips variants
 - parent-size-aware styling from a measured layout
 - reading the theme outside a stylesheet
 - platform-forked style files, and the navigation-cloning caveat that silently drops styles
