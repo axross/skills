@@ -4,7 +4,7 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "243d16c41c8e1c97887e9991a457a46d6efa02a71591948fd1a31e5cbca5e53e"
+      "computedHash": "400174ac28368c1e1c6d31353aa56a6aa7948fecab0a9711d5655760ee3cb922"
     },
     "agent-skill-management": {
       "source": "./skills",
@@ -54,7 +54,7 @@
     "high-fidelity-ui-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "79f72b9df5e45866080e70ab8359245cc489fad7738873612bebbb63c1697721"
+      "computedHash": "ef249c60e247a8d4871af333a33d8c70443af39a29b20b8f9d798983a54ec565"
     },
     "jest-testing": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "bc6fcbf681601d4361b12b344609fef4c7877c03d30d767f9e10019c87a73aa0"
+      "computedHash": "e3bfae333e9a7c92f07b9483660414b40dc20b3c82e1c87a95cb5cee12b934c2"
     },
     "next-app-development": {
       "source": "./skills",
@@ -79,7 +79,7 @@
     "product-requirement-document-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "db2afd4d5862b1c93f9cabaf5a6baaaf5eeaf48b4c7c27f452564b1a6176bde4"
+      "computedHash": "98ff72e5eb6f82b5bbe8be965c3363ef1ea22690c817f6452a34c1c3ceac7592"
     },
     "professional-behavior": {
       "source": "./skills",
@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6820cfa28c766df1cff3d7259cca1c6269cd952d5ab4d832fcb98bcde464305a"
+      "computedHash": "faff209117f3c4f5695eb317f6d180f05119158d0462b8240e81ecfe0c253c7e"
     },
     "react-component-development": {
       "source": "./skills",
@@ -99,7 +99,7 @@
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c7d857db0a32ac88094bb3624635ec626438afa774ede8f70a96a3f6f63a9e99"
+      "computedHash": "3c34012dc0ae16383f0a629fb13a3fc4d142017390f1d72fc8585a54e9a7b944"
     },
     "sentry-instrumentation": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "9f36e522ec52fc1ffd9166c9a05e25b15fd7712b5965af0e918f2df6f77a4d60"
+      "computedHash": "da933503ac727679b1b808914f353028120a1a0f27a0399998e992cf0e92339e"
     },
     "software-instrumentation": {
       "source": "./skills",
@@ -139,7 +139,7 @@
     "wireframe-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "64da46b7e8ea95c2d43f4b68a8d3d067b73f32a7c655aa5d6b42c90d3b93b056"
+      "computedHash": "c49e5221488a0f5f666a449387f567c397ea59e51fead39476e28a6290dafa8f"
     },
     "zod-schema": {
       "source": "./skills",

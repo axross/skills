@@ -122,6 +122,18 @@
 
 **Differential** — the difference of pass rates between an **evaluation scenario**'s two conditions, for one **factor**.
 
+**Treatment** — a named guidance, skill or adapter variant in an **explicit treatment comparison**, distinct from its source digest and **evaluation condition**.
+
+**Explicit treatment comparison** — a declared candidate-minus-baseline report comparing stored observations of named **treatments**, separate from ordinary **comparable predecessor** matching.
+
+**Comparison cell** — one planned task, **treatment** and repetition identified by a comparison declaration, whether or not an observation survives for it.
+
+**Opportunity** — a predeclared occasion for observing selection, actor-phase material acquisition, output conformity or a guard stage within a **comparison cell**.
+
+**Scorer definition** — the fixed rubric, template or script, judge model and route used to assess an **opportunity**, separate from varying evidence submitted to it.
+
+**Evidence slot** — a named variable part of the input to a **scorer definition**, allowing task output to differ without changing the scoring instructions.
+
 **Evaluation probe** — one run of an **evaluation scenario** under one **evaluation condition**, against the real CLI.
 
 **Turn cap** — the ceiling on how many assistant events one **evaluation probe** may produce before the instrument kills it, set as a runaway guard rather than a budget control. What it counts is the **agent runtime**'s streamed assistant events, not the turn count a **probe record** stores alongside them: in the one measurement where both were recorded, the former ran about 1.6 times the latter.

@@ -6,7 +6,9 @@ Colour is the family where "name by role, not by appearance" earns the most, bec
 
 ## The Ramp Is Internal; Roles Are the Surface
 
-A project builds each scheme as a **13-step ramp**, then maps it once onto **semantic role names**. Components consume only the role names. The ramp is an implementation detail of the theme file and never appears in a component.
+A project builds each scheme as a **13-step ramp**, then maps it once onto **semantic role names**. Components consume semantic roles or optional component aliases that resolve through those roles. The ramp is an implementation detail of the theme file and never appears in a component.
+
+The table's `component` group names generic UI element backgrounds, not the optional component-token tier.
 
 Steps 1–12 follow the [Radix colour scale](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale). Step 0 is an addition below step 1: the stronger page background, which is pure white in the light scheme and pure black in the dark one.
 
@@ -42,7 +44,7 @@ backgroundColor: theme.colors.component.accent.rest,
 
 **Guidelines:**
 
-- MUST expose colour to components only as semantic role names, in the shape `--color-<tier>-<scheme>-<slot>` on web and `theme.colors.<tier>.<scheme>.<slot>` on mobile native.
+- MUST expose colour as semantic roles or optional component aliases; use `--color-<role-group>-<scheme>-<slot>` on web and `theme.colors.<role-group>.<scheme>.<slot>` on mobile native for generic UI roles.
 - MUST NOT reference a ramp step from a component — no `--accent-3`, no `slate11`, no index into the ramp array. The ramp exists inside the theme file and nowhere else.
 - MUST declare all 13 steps for every scheme, in both light and dark, so no role is unreachable. A missing step 4 is what pushes a project into faking hover with opacity.
 - MUST write the ramp out as named primitive constants inside the theme file and map them onto roles, rather than pasting resolved values next to a comment naming the step; a comment drifts and nothing catches it.
@@ -50,19 +52,48 @@ backgroundColor: theme.colors.component.accent.rest,
 
 ## Schemes
 
-A scheme is a full 13-step ramp with its own identity. Every project declares at least two; an application that can destroy or reject something declares a third.
+A scheme is a full 13-step ramp with its own identity. Every project declares at least two; an application that can destroy or reject something declares a third. These schemes serve generic UI intent; domain category encodings are not additional brand identities.
 
 **Guidelines:**
 
 - MUST declare a `neutral` scheme (chrome — anything that should not read as branded) and an `accent` scheme (brand — anything that should).
 - SHOULD declare a `destructive` scheme in an application whose UI has irreversible or rejecting actions; a content site typically does not need one.
-- MUST NOT introduce a second brand scheme or a per-surface hue. Identity is one accent; a surface that wants its own is a design decision, not a component one.
+- MUST NOT introduce a second brand scheme or a component-local per-surface hue. Identity is one accent; domain encodings use the separate meaning-based namespaces below.
 - MUST NOT cross schemes within one interaction. A `component.accent.rest` surface hovers to `component.accent.hovered`, never to a neutral step — a cross-scheme hover reads inconsistently between the two colour schemes.
 - MUST add `text.onSolid` per scheme. The Radix scale has no step for text drawn on a solid fill (steps 11–12 are for text on a _background_ step), but a filled button needs one, and guessing white is only right for some hues.
 
+## Domain Roles and Component Aliases
+
+Domain roles belong to the semantic tier, but describe category or data meaning rather than generic UI intent. A card suit is not a destructive action; a data band is not automatically a success status. Equal palette values do not make those meanings interchangeable. When choosing domain meanings or stable override points, consult high-fidelity UI design token practices if available; otherwise use this distinction.
+
+Domain and optional component namespaces use the project's own meaning-based names, not the generic UI scheme shape. A component alias is optional and exists only where a stable per-component override point is needed. The alias resolves inside the theme definition, so its consumer does not need to know which surface role backs it.
+
+The generic UI scheme and parallel alpha-ramp shapes described here are not required for domain roles or component aliases. The Alpha Ramp section below describes generic UI roles, not a new 13-step ramp contract for these namespaces.
+
+**Example — role-only mappings inside light and dark theme definitions:**
+
+The same component keys can map to different generic surface roles:
+
+| Component alias   | Light theme role           | Dark theme role             |
+| ----------------- | -------------------------- | --------------------------- |
+| `listCard.ground` | `background.neutral.app`   | `background.neutral.plain`  |
+| `listCard.fill`   | `background.neutral.plain` | `background.neutral.subtle` |
+
+The consumer reads `theme.listCard.fill` in both appearances. These mappings illustrate the boundary, not a universal card palette or a contrast guarantee.
+
+**Guidelines:**
+
+- MUST expose domain colours under domain-owned category/data names and keep those keys stable across appearances; do not force them into unrelated generic UI scheme names.
+- MUST resolve optional component aliases through semantic roles inside theme definitions, never directly to primitives or literals.
+- MUST keep light/dark value mappings for domain roles and semantic-role selection for component aliases in theme definitions, not in consumer stylesheets or render functions.
+
 ## The Alpha Ramp
 
-Every role also exists in a translucent form, because a colour composited over unknown content — imagery, a scrolling surface, another component — cannot be a flat step. The alpha ramp is a parallel set of the same 13 steps at graded alpha, exposed as a slot suffix so the role name stays recognisable.
+The alpha ramp is a parallel set of the same 13 steps at graded alpha, exposed as a slot suffix so the role name stays recognisable. It supports deliberate translucency; it does not make unknown imagery or scrolling content a safe background. An opaque backing remains valid when the surface needs a controlled ground.
+
+[Radix alpha variants](https://www.radix-ui.com/themes/docs/theme/color#alpha-colors) reproduce their solid counterparts over the reference page background, not every background. Moving the same alpha colour onto another ground changes the composite even when the semantic path is unchanged. A theme can resolve a contextual alpha for a known ground, but a fixed source colour and a single alpha cannot always reach the intended target exactly.
+
+Resolve the backdrop from the base through the intervening painted layers, then composite the tint over it. Colour alpha affects that paint; [group opacity](https://www.w3.org/TR/css-color-4/#transparency) fades the element and its contents together. [Source-over compositing](https://www.w3.org/TR/compositing-1/#simplealphacompositing) retains both colour and alpha until an opaque backdrop is reached. The working colour space matters: [P3 alpha blending differs from sRGB](https://www.radix-ui.com/colors/docs/overview/custom-palettes), and encoded RGB arithmetic is not a universal rule for all renderers or colour formats.
 
 **Example:**
 
@@ -77,13 +108,20 @@ backgroundColor: theme.colors.solid.accent.restAlpha,
 **Guidelines:**
 
 - MUST declare a parallel alpha ramp per scheme, exposed as an `…Alpha` slot suffix (`-alpha` in the CSS custom-property form).
-- MUST use an alpha role wherever a colour composites over content the theme does not control, rather than a flat step chosen to look right over today's background.
+- SHOULD use an alpha role when translucency is intentional, rather than approximating the overlay with a flat step matched to one background.
 - MUST NOT hand-write an `rgba()` or a slash-alpha literal in a component; that is an off-scale value like any other.
 - MAY derive a one-off alpha on web with relative colour syntax when the derivation is genuinely local, provided it derives from a role token and not from a literal.
+- MUST resolve the actual backdrop and layer order, including colour alpha, group opacity, and any blend or filter effects, before treating an alpha colour as a resolved surface colour.
+- MUST state the compositing model and working colour space used by a calculation; do not assume the authored colour syntax selects the renderer's compositing space.
+- MUST verify a generated contextual alpha by independently compositing the emitted colour over each distinct intended ground, rather than calling the generating solver to produce the expectation. Document any colour-match tolerance instead of prescribing a universal solver or precision.
+
+When the composite carries readable content or required control information, consult the high-fidelity UI design capability's contrast-verification practices where available. Otherwise, check the resolved colours against WCAG's [text](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) or [non-text](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) contrast requirements and report any unverifiable pairs. Matching a target colour is not a contrast check.
 
 ## Picking by Role, Not by Appearance
 
 The two schemes share a lightness scale that inverts end to end: step 0 is the lightest value in the light scheme and the darkest in the dark one. The consequence is the whole point of the system — a surface that picks the correct role adapts to both schemes with no per-surface work.
+
+Theme definitions may deliberately map a stable component alias to different semantic roles in light and dark, as with `listCard.fill` above. That mapping preserves the component contract; it is not a consumer override or a third exception to the rule below. The role choice still follows the surface's purpose, not a value that happens to look right.
 
 **Good Example:**
 
@@ -96,12 +134,12 @@ The two schemes share a lightness scale that inverts end to end: step 0 is the l
 **Guidelines:**
 
 - MUST pick a role by what the surface _is_ — a page background, a component at rest, a border on an interactive element, low-contrast text — never by how a value looks in one scheme.
-- MUST treat a per-scheme override that only reassigns a role as evidence the wrong role was picked; fix the role rather than adding the branch.
+- MUST treat a consumer-level light/dark override that only reassigns a role as evidence the token contract or role choice is wrong; fix the role or its theme-defined mapping rather than adding the consumer branch.
 - MUST move an interaction state along its own tier — `rest` → `hovered` → `selected` — rather than jumping tiers or schemes.
-- MUST limit per-scheme overrides to exactly two cases:
+- MUST limit consumer-level per-scheme overrides outside theme definitions to exactly two cases:
   - **Filtered or externally authored imagery**, whose luminance cannot adapt on its own because the source is not part of the palette.
   - **Browser- and OS-level primitives** — the colour-scheme declaration, scrollbar colours, selection colours — which are declared once at the root and never per surface.
-- MUST treat any third category as a design smell and re-examine the role choice before adding a branch.
+- MUST treat any third consumer-level category as a design smell and re-examine the role choice before adding a branch.
 
 ## Wide-Gamut Colour, and When It Needs an sRGB Fallback
 

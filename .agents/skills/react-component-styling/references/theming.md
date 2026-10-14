@@ -10,15 +10,18 @@ Tokens exist so a visual decision is made once and consumed everywhere. That onl
 
 A project declares these families. Values are the project's; the shapes are not negotiable, because a component written against one shape does not survive a project that chose another.
 
-| Family       | Shape                                              | Notes                                              |
-| ------------ | -------------------------------------------------- | -------------------------------------------------- |
-| Colour       | Named semantic roles × scheme, over a 13-step ramp | See [color-and-gamut.md](./color-and-gamut.md)     |
-| Typography   | Composite named text roles                         | Family + size + line height + weight, bundled      |
-| Spacing      | Numeric steps keyed to their base px               | `--space-16`, `theme.space.x16`                    |
-| Radius       | Named tier                                         | `xs` / `sm` / `md` / `lg` / `full`                 |
-| Border width | Named tier including a hairline step               | `hairline` / `base` / `thick`                      |
-| Duration     | Named scale                                        | `sm` … `2xl`, by magnitude never by milliseconds   |
-| Easing       | Role-named curves                                  | `standard` / `enter` / `exit`, never `ease-in-out` |
+| Family       | Shape                                        | Notes                                              |
+| ------------ | -------------------------------------------- | -------------------------------------------------- |
+| Colour       | Semantic roles or optional component aliases | See [color-and-gamut.md](./color-and-gamut.md)     |
+| Typography   | Composite named text roles                   | Family + size + line height + weight, bundled      |
+| Spacing      | Numeric steps keyed to their base px         | `--space-16`, `theme.space.x16`                    |
+| Radius       | Named tier                                   | `xs` / `sm` / `md` / `lg` / `full`                 |
+| Border width | Named tier including a hairline step         | `hairline` / `base` / `thick`                      |
+| Duration     | Named scale                                  | `sm` … `2xl`, by magnitude never by milliseconds   |
+| Easing       | Role-named curves                            | `standard` / `enter` / `exit`, never `ease-in-out` |
+| Shadow       | Named ordered layer recipes                  | Composite effects, not only shadow colour          |
+
+Generic UI colour roles use the 13-step scheme ramps. Domain semantic roles use meaning-based namespaces, and optional component aliases resolve through semantic roles; neither namespace has to imitate the generic role × scheme shape.
 
 **Guidelines:**
 
@@ -26,6 +29,62 @@ A project declares these families. Values are the project's; the shapes are not 
 - MUST NOT fold one family into another. Radius is not spacing, and a border width is not a spacing step, even when the numbers coincide today — the moment one moves, every borrowed use moves with it.
 - MUST name a token for its role, never for its appearance or its value. `--duration-md` and `ease.standard` survive a retune; `--duration-200ms` and `ease-in-out` become lies.
 - MUST keep the light and dark mappings structurally identical — the same names present in both — so no surface can reference a token that exists in only one scheme.
+
+## Composite Shadow Effects
+
+A shadow's colour alone does not define the effect: its layers also carry stacking order, offsets, blur, spread, and inset. Keep that recipe together under a semantic role so consumers do not recreate subtly different shadows. Blur softens a layer; spread expands or contracts its extent. They are separate values, not interchangeable measures of softness.
+
+**Example — ordered layers in a token module; values are illustrative:**
+
+Layers are listed front-to-back, and lengths use base px. Offsets follow [CSS box-shadow directions](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-shadow#values): positive X points right and positive Y points down. A platform conversion keeps that order and direction and converts units explicitly.
+
+```ts
+type ShadowLayer = {
+  offsetX: number;
+  offsetY: number;
+  blurRadius: number;
+  spreadDistance: number;
+  color: string;
+  inset?: boolean;
+};
+
+const sheetLayers: readonly ShadowLayer[] = [
+  {
+    offsetX: 0,
+    offsetY: 4,
+    blurRadius: 6,
+    spreadDistance: -2,
+    color: "rgba(0, 0, 0, 0.05)",
+  },
+  {
+    offsetX: 0,
+    offsetY: 10,
+    blurRadius: 15,
+    spreadDistance: -3,
+    color: "rgba(0, 0, 0, 0.1)",
+  },
+];
+
+const effects = {
+  topSheet: sheetLayers,
+  bottomSheet: sheetLayers.map((layer) => ({
+    ...layer,
+    offsetY: -layer.offsetY,
+  })),
+};
+```
+
+An overlay consumer selects `effects.topSheet` or `effects.bottomSheet` as a whole. These names describe where the sheet is used, not how its offsets are transformed. The bottom-sheet variant changes only the vertical direction; order and every other field still come from the base recipe. An inset well has a different purpose and layer semantics, so it deserves its own effect role rather than an arbitrary override of the sheet shadow. Resolve scheme-dependent colours where the host design system keeps themed tokens; invariant effects may be shared. Neither needs a prescribed namespace or file layout.
+
+On web or native, consume the recipe directly when the renderer accepts it; otherwise convert at the platform boundary, retaining its declared stacking order and each field's meaning. A CSS shadow list or a native layer array such as React Native's [`BoxShadowValue`](https://reactnative.dev/docs/boxshadowvalue), where supported by the project's target versions and platforms, are possible representations, not required APIs. A mechanical replacement with [`drop-shadow()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/filter-function/drop-shadow) is not equivalent: it follows an alpha mask, accepts no spread or inset, and its blur parameter has different semantics.
+
+Negate `offsetY` at the adapter only if the target's verified positive-Y direction is upward; matching field names do not establish matching coordinate conventions. When documentation and implementation disagree, check the target version's implementation or a rendered asymmetric probe before choosing the conversion.
+
+**Guidelines:**
+
+- MUST resolve every shadow effect through a named layer recipe and consume each recipe whole, preserving layer order, colour, both offsets, blur, spread, and inset rather than tokenizing only colour or inlining component-local shadow geometry.
+- SHOULD derive a variant from the base recipe when only a defined transformation changes; declare a separate semantic effect when its purpose or layer semantics differ.
+- MUST preserve the recipe's semantics through web/native conversion. If the target cannot represent them, choose a supported rendering path or document an intentional fallback and its lost semantics rather than silently presenting a flattened shadow as equivalent.
 
 ## Composite Text Roles
 
@@ -170,19 +229,39 @@ Motion tokens follow the same role-naming rule as everything else. An easing tok
 
 ## Snapping to the Scale
 
-A scale only constrains if values land on it. An off-scale value looks harmless in isolation and is exactly how a scale erodes — so the rule is to snap to the nearest step, and to treat "no step fits" as a signal about the scale rather than a licence to inline.
+A scale only constrains if values land on it. Ordinary spacing snaps to the nearest step; "no step fits" raises a design decision, not permission to inline. Preserving an approved design's bounded internal geometry follows the separate approval path below, not a broader literal category.
 
 **Guidelines:**
 
-- MUST resolve every colour, spacing, radius, border-width, duration, easing, and typography value through a token.
-- MUST snap to the nearest step rather than inlining an off-scale value, and MUST raise a missing step as a design decision rather than resolving it locally.
-- MUST NOT introduce a component-local constant that terminates in an off-scale colour, length, or duration. A component-scoped custom property or constant is legitimate when every branch of it resolves either to a project token or to one of the literals listed below — a filter multiplier toggled per state is fine; a hard-coded hex or padding is not.
-- MUST keep off-token literals to this complete list:
+- MUST resolve every colour, spacing, radius, border-width, duration, easing, and typography value through a token, except for the literal categories below or lengths meeting [Approved Local Geometry](#approved-local-geometry).
+- MUST snap ordinary off-scale spacing to the nearest step, and MUST raise a missing step as a design decision rather than silently resolving it locally.
+- MUST NOT disguise an off-scale value as a component-local constant or custom property. Every branch resolves to a project token, a literal category below, or a length meeting [Approved Local Geometry](#approved-local-geometry), and still satisfies applicable platform-adapter constraints. Naming a hard-coded hex or arbitrary padding does not make it a token.
+- MUST keep unconditionally permitted off-token literals to this complete list:
   - **Fixed element dimensions** — an icon's drawn size, an avatar's diameter, a fixed line box, an `aspect-ratio`. These are geometry, not scale spacing.
   - **Ratios and multipliers** — an opacity, a `flex` value, a `z-index`, a `scale()` factor.
   - **Full-fill and intrinsic keywords** — `100%`, `stretch`, `auto`, `max-content`.
   - **Values inside the theme file itself**, which is where the scales are defined.
-- MUST NOT extend that list locally. A font size is not on it (every size is a text role), and neither is a hairline (it is a border-width step).
+- MUST NOT extend that unconditional list locally. A font size is not on it (every size is a text role), and neither is a hairline (it is a border-width step).
+
+### Approved Local Geometry
+
+An optical correction adjusts visual alignment or balance to preserve an approved design constraint. Internal padding and gaps remain spacing, not fixed-element dimensions or ratios. The geometry-specific requirements below apply on every route. When the project's installed-rule deviation practices are available, use their generic adoption and validity checks as well, not instead. This path does not override other applicable rules.
+
+**Example — React Native numeric layout lengths:**
+
+> In this React Native illustration, assume positive spacing steps `4`, `8`, `12`, … resolve to the same numeric logical layout lengths. A noninteractive pill has an approved nominal height of `20`: with unchanged content height `16` and no other box terms, vertical padding `2` gives `20`, while snapping to `4` gives `24`. Leading padding/gap `3` and trailing padding `9` snap to `4` and `8`.
+>
+> These lengths are not CSS `pt` or physical pixels; on web, compare converted geometry with the token's resolved CSS length, not just its key. Scoped approval can preserve those exact internal lengths without adding single-use steps to the shared scale, but cannot waive independently applicable design or adapter rules. The same numbers in another component inherit no approval.
+
+**Guidelines:**
+
+- MUST compare the proposed internal lengths with the nearest scale steps and cite the design constraint that snapping would change; prefer the scale when it preserves the intended result, rather than accepting "looks better" alone.
+- MUST distinguish a reusable missing scale step from component-specific geometry with the design-system owner. A shared need calls for a scale proposal; do not add single-use steps solely to avoid making a local approval decision.
+- MAY retain exact off-token internal padding, gaps or alignment offsets only after the responsible human explicitly approves the deviation for the stated component and conditions. Approval of a design image alone does not approve an off-scale implementation.
+- MUST stop a proposed implementation that conflicts with an independently applicable design grid/token or platform-adapter rule unless a separately valid human-adopted deviation covers that rule, source, scope and conditions under the actual host's priority and restrictions. Styling approval alone cannot authorize an off-scale CSS custom-property terminus.
+- MUST keep the design evidence and nearest-step comparison, exact values/properties, scope, human approval locator and shared-scale decision recoverable through linked project records. Placement and document shape follow the project's applicable documentation and decision-record practices; absent a placement policy, use established project records. No single decision document or dedicated register is required. A local constant, an agent-authored assertion or a pending upstream proposal is not human adoption.
+- MUST reassess before reuse in another component or context, or when the supporting geometry, assets, typography or scale changes. Repeated shared need reopens the scale decision; it does not automatically promote a one-off value or transfer the original approval.
+- MUST NOT waive accessibility requirements for optical geometry, including target size, contrast, focus, text scaling and reflow. A noninteractive visual box does not establish an interactive hit-area minimum or permit clipping enlarged text; verify the hit area separately if the surface becomes interactive.
 
 ## Reading a Token Outside a Stylesheet
 

@@ -14,35 +14,63 @@ A media query describes the environment: the window, the input hardware, the use
 
 ## Reduced Motion
 
-A user who has asked for reduced motion has usually done so because motion makes the interface unusable or unpleasant for them, not because they dislike it. Treat the preference as a hard requirement on any animation you add, and remember that a repeating or infinite animation is the worst case.
+When choosing what remains visible without motion, consult the project's high-fidelity UI design practices. This reference implements that choice. If that capability is absent, preserve state feedback with immediate required targets, readable static loops, and no decorative movement; stopping interpolation is not the same as removing the state.
 
 **Example — web:**
 
-```css
-.placeholder {
-  animation: pulse 500ms linear infinite alternate;
+Keep target styles in the component's ordinary state rules, not only in keyframes or an animation-completion handler. These [motion-preference overrides](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) act on three separate surfaces. The calculating label remains present; `.pressLift` owns only decoration, with positioning on its outer surface and pressed paint and focus styles unaffected. Disable its transition too, so a preference change does not animate a previous lifted pose back to rest:
 
-  @media (prefers-reduced-motion: reduce) {
+```css
+@media (prefers-reduced-motion: reduce) {
+  .stateChange {
+    transition: none;
+  }
+
+  .calculating {
+    opacity: 1;
     animation: none;
+  }
+
+  .pressLift,
+  .pressLift:active {
+    transform: none;
+    transition: none;
   }
 }
 ```
 
 **Example — mobile native:**
 
+Inside an effect or worklet, assign the target instead of scheduling interpolation. The project's spring and timing configs illustrate different normal-motion paths; Reduced Motion bypasses both:
+
+```tsx
+position.value = reduceMotion
+  ? targetPosition
+  : withSpring(targetPosition, springConfig);
+fill.value = reduceMotion
+  ? targetFill
+  : withTiming(targetFill, colorTimingConfig);
+size.value = reduceMotion
+  ? targetSize
+  : withTiming(targetSize, sizeTimingConfig);
+```
+
+A loop has no final target. Cancel it and assign the chosen static value explicitly. Here the calculating label rests at full opacity rather than at a dim frame; `pulseTimingConfig` belongs to the project's motion tokens:
+
 ```tsx
 const reduceMotion = useReducedMotion();
 
 useEffect(() => {
   if (reduceMotion) {
-    opacity.value = 0.6;
+    cancelAnimation(opacity);
+    opacity.value = 1;
     return;
   }
 
   opacity.value = withRepeat(
     withSequence(
-      withTiming(1, { duration: PULSE_MS }),
-      withTiming(0.4, { duration: PULSE_MS }),
+      withTiming(1, pulseTimingConfig),
+      withTiming(dimOpacity, pulseTimingConfig),
     ),
     -1,
     false,
@@ -52,13 +80,26 @@ useEffect(() => {
 }, [reduceMotion, opacity]);
 ```
 
+For a decorative lift, skip its animation driver and clear its owned transform instead of assigning a lifted target. Reanimated retains previously applied animated styles when a callback returns `{}` or the style is removed; [unset the property explicitly](https://docs.swmansion.com/react-native-reanimated/docs/core/useAnimatedStyle/) when reusing that view:
+
+```tsx
+const liftStyle = useAnimatedStyle(() => ({
+  transform: reduceMotion ? undefined : [{ translateY: lift.value }],
+}));
+```
+
+The snippet owns only decoration. If base or consumer styles also need `transform`, preserve them through [separate placement and animated-paint surfaces](./style-composition.md#accepting-a-consumers-styles), not a blanket transform reset.
+
+Use the project's existing preference source and lifecycle. Reanimated 4.x [`useReducedMotion`](https://docs.swmansion.com/react-native-reanimated/docs/device/useReducedMotion/) returns the startup preference and does not rerender on OS setting changes; an effect dependency does not turn it into a subscription. That API caveat does not prescribe a startup-only policy for every app. Use [`cancelAnimation`](https://docs.swmansion.com/react-native-reanimated/docs/core/cancelAnimation/) to stop an existing loop before assigning its static value.
+
 **Guidelines:**
 
 - MUST provide a reduced-motion branch for every animation and every transition a change introduces, on both platforms.
 - MUST NOT ship an infinite, looping, or full-surface animation without one — this is the case where the preference matters most.
-- MUST settle the reduced-motion branch at the animation's resting state rather than at an arbitrary frame, so a placeholder holds a steady value instead of freezing mid-pulse.
+- MUST put required target styles or values outside animation-only keyframes and completion callbacks, so bypassing interpolation still applies the state.
+- MUST cancel a loop before assigning its specified static value on native; on web, pair the component-scoped animation override with an explicit static style.
+- MUST omit or reset the owned decorative transform in the reduced branch, without clearing transforms needed for layout or consumer styling.
 - MUST NOT duplicate an animated surface and guard only one copy; a second copy of the same keyframes with no guard is a defect that reads as an oversight in review.
-- SHOULD disable the animation outright rather than shortening it, unless the motion carries meaning the user would otherwise lose.
 
 ## Hover, and the Pointer It Depends On
 
@@ -99,43 +140,38 @@ For hover styles, gate on the **primary** pair. A device whose primary input is 
 
 Target size gates on the **any** family, and this asymmetry with the hover rule is deliberate: a laptop with a touchscreen must still offer touch-sized targets, because the user might reach up and tap at any moment. `any-pointer: coarse` is true whenever _any_ attached input is imprecise, which is exactly the condition under which a small target is a problem.
 
-Both axes have a minimum, and they differ — a control may be a thin bar, but it may not be thin in both directions:
+For design goals, platform recommendations, and dense-grid decisions, consult high-fidelity UI design's touch-target practices when installed. Without that owner, use the following bounded policy: ordinary web controls start with a 24x24 CSS px baseline and aim for 44x44 CSS px when coarse input is available. Native controls follow their platform's recommendations in native units, not CSS-pixel conversions.
 
-| Primary pointer                        | Long side | Short side |
-| -------------------------------------- | --------- | ---------- |
-| Coarse (touch, imprecise stylus)       | 44px      | 24px       |
-| Fine (mouse, trackpad, precise stylus) | 24px      | 12px       |
-
-The coarse row matches [WCAG 2.5.5 Target Size (Enhanced)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) (Level AAA, 44×44) on the long axis and [WCAG 2.5.8 Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) (Level AA, 24×24) on the short one. Note honestly what the fine row means: a 24×12 target is **below** 2.5.8's 24×24 and conforms only through that criterion's spacing exception — the target passes if a 24px-diameter circle centred on it does not intersect a neighbouring target's circle. A fine-pointer control at the short-side minimum therefore has to be spaced, not merely sized.
+[WCAG 2.5.8 (AA)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) tests whether an axis-aligned 24x24 CSS px square fits wholly within the actual target, or an exception applies, regardless of pointer precision. Bounding-box dimensions alone do not prove that test. For undersized targets, assess the exception's full conditions, including clearance from actual neighboring targets when using Spacing. [WCAG 2.5.5 (AAA)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) uses 44x44 CSS px with its own exceptions and no Spacing exception; meeting either criterion alone does not establish overall conformance.
 
 **Example:**
 
 ```css
 .control {
   min-inline-size: 24px;
-  min-block-size: 12px;
+  min-block-size: 24px;
 
   @media (any-pointer: coarse) {
     min-inline-size: 44px;
-    min-block-size: 24px;
+    min-block-size: 44px;
   }
 }
 ```
 
-These are the one place a raw length is correct. A target minimum is an accessibility constant fixed by the specification and the input hardware — it is not a rhythm value, so binding it to a spacing step would make an accessibility floor move whenever the design's spacing is retuned.
+Specification thresholds are literal CSS lengths, not spacing-scale steps that move when the design rhythm changes. The coarse-pointer size above is an explicit web touch design goal, not a native-unit conversion or a pointer-specific conformance floor. Check the final receiving shape: clipping or rounded corners can invalidate the square test even when both CSS minimum dimensions are set.
 
 **Guidelines:**
 
 - MUST gate target sizing on `@media (any-pointer: coarse)`, not on `pointer: coarse`, so a hybrid device gets touch-sized targets.
-- MUST meet both the long-side and the short-side minimum for the applicable pointer class; a control that meets only the long side is the common failure.
-- MUST space fine-pointer controls that sit at the short-side minimum so no neighbouring target's 24px circle intersects, since the size alone does not satisfy WCAG 2.5.8.
-- MUST measure the **hit area**, not the drawn glyph. An icon drawn at 20px inside a 44px target is correct; a 20px target with a 20px icon is not.
+- MUST implement the applicable size test on both axes of the actual receiving region or evaluate a qualifying exception; mixed-axis thresholds do not substitute for that assessment.
+- SHOULD use a 24x24 CSS px baseline for ordinary web controls and a 44x44 CSS px coarse-pointer touch goal, without treating AA's threshold as the universal usability goal.
+- MUST measure the **hit area**, not the drawn glyph, and verify the final receiving shape rather than only the CSS box dimensions.
 - MUST express a target minimum as the literal length the specification states, not as a spacing step; it is an accessibility constant, and routing it through the design scale lets a spacing retune move an accessibility floor.
-- SHOULD prefer growing the hit area over growing the visual whenever the design calls for a small control (see below).
+- SHOULD prefer growing the hit area over growing the visual when the design calls for a small control and expansion is viable (see below).
 
 ## Expanding a Hit Area
 
-A control often needs a larger target than it should visually occupy. Both platforms can grow the target without moving the visual.
+A control often needs a larger target than it should visually occupy. Both platforms can grow the target without moving the visual, but available pitch — the distance between neighboring control positions — and parent bounds limit expansion. A dense grid with insufficient room needs larger pitch or an expanded editing view, not automatic per-cell expansion.
 
 **Example — web, padding offset by an equal negative margin:**
 
@@ -156,10 +192,13 @@ A control often needs a larger target than it should visually occupy. Both platf
 </Pressable>
 ```
 
+[React Native Pressable](https://reactnative.dev/docs/pressable) limits its hit area to the parent view's bounds, and sibling Z-index takes precedence in hit-testing. The snippet therefore assumes an independent press target with enough room in its parent; the requested `hitSlop` alone does not prove the resulting size. `hitSlop` extends press-start detection, not a custom container pan handler's coordinate partitions.
+
 **Guidelines:**
 
 - MUST offset the padding with an exactly equal negative margin on web, so the visual position does not shift as the target grows.
-- MUST use `hitSlop` on mobile native rather than padding the visual, so the drawn control keeps its intended size.
+- SHOULD use `hitSlop` for independent native press targets when available pitch and parent bounds permit expansion without changing the visual.
+- MUST verify the effective native hit area under parent bounds and sibling hit-testing; changing per-control `hitSlop` does not change custom coordinate selection regions.
 - MUST give the expanded area the project's radius tier so a pressed or hovered background reads as part of the design rather than as a rectangle.
 - MUST NOT overlap two expanded hit areas; the invisible regions collide long before the visuals do, and the resulting mis-taps are hard to diagnose.
 

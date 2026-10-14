@@ -10,12 +10,12 @@ Use this capability whenever you write, review, or refactor the styles of a Reac
 
 It does **not** own design rationale. Visual hierarchy, contrast targets, what a colour means, how much motion is tasteful, whether a state reads as interactive — those belong to a high-fidelity UI design capability. Where a rule here has a design counterpart, this skill states the mechanic and points at that capability rather than restating its reasoning.
 
-This skill is self-contained and prescribes token **shapes**, never token **values**. The palette, the ramp, the type scale, and the spacing steps are the host project's; bind every value to the project's semantic tokens, and where a needed role is missing, add the token rather than inlining a literal.
+This skill is self-contained and prescribes token **shapes**, never token **values**. The palette, the ramp, the type scale, and the spacing steps are the host project's. Semantic tokens are the default; a missing role calls for a token, not an arbitrary literal. [Snapping to the Scale](./references/theming.md#snapping-to-the-scale) distinguishes permitted literal categories from approval-dependent local geometry.
 
 **Platform adapters.** Two references are conditional, not universal:
 
 - Apply the **CSS Modules** rules to a pre-existing component that already uses CSS Modules, and to a new component only when CSS Modules is the project's primary styling mechanism.
-- Apply the **Unistyles** rules to a pre-existing component that already uses Unistyles, and to a new component only when Unistyles is the project's primary styling mechanism. Unistyles guidance here is scoped to mobile native.
+- Apply the **Unistyles** rules to a pre-existing component that already uses Unistyles, and to a new component only when Unistyles is the project's primary styling mechanism. Unistyles authoring here is scoped to mobile native; verification also covers web when those native styles are shared there. Web-only Unistyles authoring is outside this reference.
 
 Everything outside those two references is platform-neutral and applies either way.
 
@@ -39,14 +39,14 @@ See [theming.md](./references/theming.md) for:
 - composite named text roles, and why family, size, leading, and weight travel together
 - px-keyed spacing steps, named radius and border-width tiers, and a platform-defined native hairline constant rather than a stylesheet-creation API
 - duration and role-named easing tokens
-- writing a literal colour, spacing, radius, border-width, type, duration, or easing value, snapping it to the nearest step, and the closed list of literals that stay legal
+- writing a literal colour, spacing, radius, border-width, type, duration, or easing value — nearest-step snapping, unconditional literal categories, and approval-dependent local geometry
 - reading a token outside a stylesheet — icon colour and size, navigator options, animated values
 
 ## Colour and Gamut
 
 See [color-and-gamut.md](./references/color-and-gamut.md) for:
 
-- the 13-step ramp as an internal primitive tier, and the semantic role names components actually consume
+- the internal 13-step ramp behind generic UI roles, and the separate domain-role and optional component-alias namespaces
 - the step-to-role table, the colour schemes a project declares, and the alpha ramp
 - picking a step by role rather than by how it looks in one scheme, and what a per-scheme override signals
 - preferring a wide-gamut colour format, deciding whether it needs an sRGB fallback from the project's support matrix rather than from the format, and which of `@supports` and `@media (color-gamut:)` answers which question
@@ -120,6 +120,9 @@ See [unistyles.md](./references/unistyles.md) for:
 - configuring native System adaptation versus explicit Light/Dark selection, mutually exclusive adaptive/initial settings, and product-owned fallback policy
 - safe-area-aware styling with the mini runtime
 - choosing between variants and dynamic functions
+- resolving simultaneous state facts that compete for one style property
+- checking native/web merge parity when native styles are shared on web
+- verifying combinations and exits with real variants rather than the supplied mock that strips variants
 - parent-size-aware styling from a measured layout
 - reading the theme outside a stylesheet
 - platform-forked style files, and the navigation-cloning caveat that silently drops styles
