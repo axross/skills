@@ -1,6 +1,8 @@
 # Unistyles (mobile native)
 
-Apply this reference to a mobile-native component that already uses Unistyles, and to a new one when Unistyles is the project's primary styling mechanism. The platform-neutral rules — composition, tokens, property order, adaptive behaviour — apply either way and are not restated here. This guidance is scoped to mobile native.
+Apply this reference to a mobile-native component that already uses Unistyles, and to a new one when Unistyles is the project's primary styling mechanism. The platform-neutral rules — composition, tokens, property order, adaptive behaviour — apply either way and are not restated here.
+
+This guidance covers mobile-native authoring. When those native styles are shared on web, verification also covers that web target. Web-only Unistyles authoring is outside scope.
 
 ## The Stylesheet Signature
 
