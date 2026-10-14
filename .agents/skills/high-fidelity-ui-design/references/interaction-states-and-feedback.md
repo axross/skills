@@ -6,11 +6,24 @@ Part of the research-grounded best-practices set for this skill (see the skill's
 
 ## Size and space touch targets for real fingers
 
-The failure mode measures fine and mistaps in the hand: a dense row of 24-32dp icon buttons — share, edit, delete crammed together — that looks tidy at 100% zoom because the design tool never simulates a fingertip. The pad of one is roughly 8-10mm wide, so the fix is 44-48 targets with 8dp gaps, even if the icons themselves stay small.
+Choose a comfortable touch design goal, then assess the applicable accessibility criteria separately. A dense row of small share, edit, and delete icons can look tidy in a mockup but invite mistaps in the hand. Minimum conformance is not the same as comfortable use.
 
-The number that matters is the tappable area, not the visible glyph. A 24dp icon becomes a valid target only when padding grows its hit area to 44-48; in the mockup, show that hit area explicitly (a highlighted, inspectable box) so it survives handoff, because an engineer who reads only the visible bounds will ship an under-target control. React Native's `hitSlop` and web's transparent padding both extend the tappable region past the drawn pixels — annotate it rather than leaving it implicit. Keep at least ~8dp of clear space between adjacent targets ([touch targets](https://www.nngroup.com/articles/touch-target-size/), [accessible tap target sizes](https://www.smashingmagazine.com/2023/04/accessible-tap-target-sizes-rage-taps-clicks/)).
+For iOS/iPadOS, [Apple HIG accessibility guidance](https://developer.apple.com/design/human-interface-guidelines/accessibility) distinguishes a **44x44pt default** control size from a **28x28pt minimum**. Keep the default as the ordinary touch design goal, not an invariant platform floor. [Android/Material recommends](https://support.google.com/accessibility/android/answer/7101858?hl=en) **48x48dp** targets with **8dp or more separation**. That gap is a platform usability recommendation, not a universal WCAG requirement; native pt and dp are not CSS pixels.
 
-The platform floors converge on about 9mm — [44x44pt on iOS](https://developer.apple.com/design/tips/), [48x48dp on Android](https://support.google.com/accessibility/android/answer/7101858?hl=en) and [in Material 3](https://m3.material.io/foundations/designing/structure) — against an absolute floor of 24x24 CSS px for pointer targets ([SC 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)), whose spacing exception formalizes the gap rule as a 24px undisturbed circle centered on each small target that must not overlap a neighbor. Honor the larger number when they disagree, since 48dp comfortably clears both, and never read that 24px legal minimum — hedged with escape hatches for inline text links and equivalent full-size controls elsewhere — as a design target. [Fitts's Law](https://lawsofux.com/fittss-law/) says where to spend the extra size: acquisition time rises with distance and falls with target width, and screen edges and corners are effectively infinite-width because the finger can't overshoot them. So enlarge primary actions, place high-frequency controls where they are easy to hit, and give destructive actions extra separation from their neighbors so a fat-finger miss doesn't delete something.
+For ordinary web touch controls, use **44x44 CSS px** as a design goal, not a conversion of native units. Increase that goal when the action's frequency or consequences warrant it.
+
+For web pointer inputs, WCAG 2.2 [SC 2.5.8 (AA)](https://www.w3.org/TR/WCAG22/#target-size-minimum) requires at least **24x24 CSS px** or a qualifying exception, for fine and coarse pointers alike. The [actual-target size test](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) requires an axis-aligned 24x24 CSS px square wholly inside the receiving region. Bounding-box dimensions alone are insufficient: a 24 CSS px diameter circular target does not contain that square.
+
+For the AA Spacing exception, center a **24 CSS px diameter circle** on each undersized target's bounding box. The circle must not intersect another actual target or the circle of another undersized target, including when the neighbor is a large target. Targets meeting the AA size test need no extra gap for SC 2.5.8. Its other exceptions require their own conditions:
+
+- **Equivalent:** another control on the same page achieves the function and meets SC 2.5.8.
+- **Inline:** the target is in a sentence or constrained by non-target text's line-height.
+- **User Agent Control:** the user agent determines the target size and the author does not modify it.
+- **Essential:** the particular presentation is essential or legally required for the information conveyed.
+
+[SC 2.5.5 (AAA)](https://www.w3.org/TR/WCAG22/#target-size-enhanced) requires **44x44 CSS px** or one of [its qualifying exceptions](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html); it has **no Spacing exception**. A rectangular 44x24 CSS px target meets AA by size, not AAA; a 24x12 CSS px target needs an AA exception. Neither a native-unit recommendation nor either size criterion alone proves overall WCAG conformance.
+
+The number that matters is the receiving hit area, not the visible glyph. Annotate that area explicitly in the mockup so handoff does not mistake icon bounds for target bounds. Padding or native hit-area expansion can keep the visual small when the interaction permits it; a dense grid may instead need a different editing view. [Fitts's Law](https://lawsofux.com/fittss-law/) says where to spend extra size: enlarge primary actions and place high-frequency controls where they are easy to hit.
 
 **Good Example:**
 
@@ -22,12 +35,38 @@ The platform floors converge on about 9mm — [44x44pt on iOS](https://developer
 
 **Guidelines:**
 
-- MUST size every interactive control to a tappable area of at least 44x44pt (iOS) or 48x48dp (Material), honoring the larger minimum when platform targets disagree and never treating WCAG's 24px floor as the design target.
-- MUST grow an icon or text control's hit area to the minimum target with padding or hitSlop when the visible glyph is smaller, and annotate that tappable box explicitly in the mockup so the spec carries the hit region rather than the drawn bounds.
-- MUST keep at least 8dp of clear space between adjacent targets, and give destructive actions extra separation from their neighbors so a fat-finger miss cannot trigger them.
+- SHOULD use the platform's default touch size as the ordinary design goal, increasing it for frequent or consequential actions rather than lowering every goal to the WCAG AA threshold.
+- MUST assess the actual receiving region against the applicable WCAG size test or a qualifying exception, independently of pointer precision and native-unit recommendations.
+- MUST annotate each control's receiving hit area explicitly in the mockup; grow a small visual's target when viable, or choose a different interaction when the available geometry cannot meet the goal.
+- SHOULD follow Android's recommended separation on Android surfaces and give destructive actions extra separation to reduce accidental activation.
 - SHOULD enlarge primary actions and anchor high-frequency or destructive controls to screen edges and corners per Fitts's Law, rather than cramming equal-weight icon buttons into a dense row.
 
 Sources: [How to Use Tappability Affordances — Interaction Design Foundation (IxDF)](https://ixdf.org/literature/article/how-to-use-tappability-affordances)
+
+## Choose an operable interaction for a dense grid
+
+When a grid's pitch — the distance between neighboring cell positions — is smaller than the desired target, invisible per-cell expansion cannot create all the desired targets at unchanged density. Prefer increasing pitch or reducing density. If the compact overview matters, offer an expanded editor with usable single-item controls instead of making precise selection depend on the overview.
+
+A retained spatial selection surface needs explicit coordinate partitions: which input positions select which values, including gaps and outer edges. Native per-control `hitSlop` does not enlarge the partitions of a custom container pan resolver. For expansion mechanics, consult React component styling's hit-area practices when available; without them, verify the actual receiving regions rather than assuming visual padding changes custom coordinate selection.
+
+[SC 2.5.8 Note 1](https://www.w3.org/TR/WCAG22/#target-size-minimum) treats spatial value-selection surfaces such as sliders and gradient color pickers as one target. Apply that note to the interaction's actual semantics, not merely to one wrapper or pan handler around independently selectable options. Product approval of compact geometry does not itself establish the Essential exception: changing the presentation must fundamentally change the information or functionality, with no conforming alternative.
+
+Target size does not settle gesture access. Check [SC 2.5.1 Pointer Gestures](https://www.w3.org/TR/WCAG22/#pointer-gestures) and [SC 2.5.7 Dragging Movements](https://www.w3.org/TR/WCAG22/#dragging-movements) separately. Keyboard support does not substitute for single-pointer operation without dragging; role and label properties alone do not prove assistive-technology activation.
+
+**Good Example:**
+
+> A compact option matrix offers an expanded editor with larger, labeled single-item controls. Each option can be selected by a tap without dragging, and keyboard and assistive-technology activation are verified separately. The retained matrix's coordinate partitions are documented and tested at cell boundaries, gaps, and outer edges at the supported widths; any claimed size exception is assessed from its conditions.
+
+**Bad Example:**
+
+> Add `hitSlop` to every cell while the container's pan handler still divides coordinates at the original pitch, then call the entire wrapper one accessible target. The apparent expansion changes none of the resolver's selection regions, and the grid still requires dragging to reach some options despite having button roles and keyboard support.
+
+**Guidelines:**
+
+- SHOULD increase pitch, reduce density, or provide an expanded editor when per-cell expansion cannot meet the touch design goal.
+- MUST document and verify a retained spatial surface's coordinate partitions at supported widths, including boundaries, gaps, and outer edges.
+- MUST evaluate Note 1 and any claimed Essential exception from the actual semantics and criterion conditions, not from a container handler or product-approved dimensions.
+- MUST verify single-pointer operation without dragging separately from keyboard and assistive-technology activation, as well as target size.
 
 ## Make interactive elements look interactive and avoid false affordances
 
@@ -35,11 +74,11 @@ Every false affordance spends a click of the user's trust, and after a couple of
 
 Carrying the interactive half is a stack of cues, because in flat UI [the signifier](https://ixdf.org/literature/topics/affordances) is all you have — there is no bevel doing the work. Distinct color or contrast, shape (a filled or outlined pill or rectangle, ideally with a corner radius), an underline or link color for inline text, a pointer cursor and hover/focus feedback on web, an explicit text label or accessible name on any icon-only control. No single cue is reliable alone — a color-only link fails for color-blind users, a bare icon is ambiguous — so pair at least two, and lean on position and context (a nav bar, a toolbar) to reinforce them. Apply each treatment identically everywhere: once "primary button" or "link blue" means interactive, recognition becomes instant and the user stops hunting.
 
-Looking interactive is necessary but not sufficient — a primary action that looks tappable and presents an 18px hit area is still a broken affordance, which is why [Fitts's Law](https://lawsofux.com/fittss-law/) and the [target-size floor](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) covered above apply to appearance as much as to layout. Extend the tappable region with padding or hit-slop rather than shrinking the visible glyph, and make the focus, hover, and pressed states visible so keyboard and pointer users get the same "this responds" confirmation a tap gives.
+Looking interactive is necessary but not sufficient — a primary action that looks tappable still needs a usable receiving region, which is why [Fitts's Law](https://lawsofux.com/fittss-law/) and the [target-sizing policy](#size-and-space-touch-targets-for-real-fingers) apply to appearance as much as to layout. Extend the tappable region when viable under that policy rather than shrinking the visible glyph, and make the focus, hover, and pressed states visible so keyboard and pointer users get the same "this responds" confirmation a tap gives.
 
 **Good Example:**
 
-> A high-fidelity screen uses one filled accent-color pill with a text label for the primary action and underlined link-blue for inline links, gives every icon-only button an accessible label plus a visible pressed/hover state, and sizes each hit area to at least 44×44 pt — while headings and status badges use weight and a muted surface tint that never borrows the button or link tokens.
+> A high-fidelity screen uses one filled accent-color pill with a text label for the primary action and underlined link-blue for inline links, gives every icon-only button an accessible label plus a visible pressed/hover state, and sizes each hit area under the target-sizing policy — while headings and status badges use weight and a muted surface tint that never borrows the button or link tokens.
 
 **Bad Example:**
 
@@ -49,7 +88,7 @@ Looking interactive is necessary but not sufficient — a primary action that lo
 
 - MUST carry every interactive control with at least two concurrent signifiers — a button or link token plus a text label or accessible name — and give icon-only controls both an accessible name and a visible hover, focus, and pressed state.
 - MUST reserve button and link tokens strictly for elements that perform an action, and render non-interactive emphasis such as headings and status badges with weight, size, or a muted surface tint that never borrows a button or link fill.
-- MUST size every tappable target to at least 44×44 pt (24×24 CSS px absolute floor), extending the hit area with padding or hit-slop rather than shrinking the visible glyph, so no control's hit area is smaller than its interactive appearance implies.
+- MUST size every tappable target under the [target-sizing policy](#size-and-space-touch-targets-for-real-fingers), extending the hit area when viable rather than shrinking the visible glyph, so no control's hit area is smaller than its interactive appearance implies.
 - SHOULD apply each interactive treatment identically across the mockup so one token consistently signals "interactive", reinforced by position and container context such as a nav bar or toolbar.
 
 ## Design a complete, differentiated set of interaction states
@@ -76,6 +115,45 @@ Two states have traps of their own. The focus ring is an accessibility gate rath
 - MUST render each control's enabled, hover, focus, pressed, and disabled states side by side in both light and dark in the mockup, never shipping only the resting and disabled looks.
 - MUST size the focus-ring token to at least 3:1 contrast against every surface it composites over — including accent-colored and elevated backgrounds — and MUST NOT reuse the hover color as the focus indicator.
 - MUST NOT gate the pressed state on navigation or network completion, and MUST render it within roughly 100ms of the tap as the immediate acknowledgment.
+
+## Resolve competing states and verify their exits
+
+Individual state samples miss collisions: an error border can replace a focus cue, or a disabled overlay can hide a loading label. Keep the underlying facts independent, then choose an owner for each shared visual property. A product can give error precedence for its field border without giving error precedence over focus everywhere. Actual keyboard focus still follows the [visible-focus requirements](./accessibility-and-cognitive-load.md#provide-a-visible-high-contrast-focus-indicator-and-a-logical-focus-order).
+
+Build a small conflict matrix from combinations the control can reach, not the full Cartesian product. Include a higher-order combination only when another active state changes the resolution. These are candidate rows, not a universal priority order:
+
+| Reachable combination                | Shared property or cue to resolve                                                         | Information that survives                                 |
+| ------------------------------------ | ----------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Focus + error                        | Border or shadow: one combined treatment, or error border plus separate focus indicator   | Current focus location and the error message              |
+| Selected + focus                     | Fill or outline: separate selection treatment from focus treatment                        | Selection remains identifiable when focus moves elsewhere |
+| Disabled + error                     | Opacity or border: an unavailable treatment that does not erase the error                 | Error context and the reason interaction is unavailable   |
+| Loading + disabled                   | Overlay or label: working feedback remains perceivable while repeat activation is blocked | Operation status, not merely a muted control              |
+| Loading or disabled + retained focus | Focus paint: resolve against actual focus and the control's focusability policy           | Visible focus when the control intentionally retains it   |
+
+[WAI-ARIA keyboard-interface practice](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/) distinguishes selection from focus and allows disabled items in some composite widgets to remain focusable. Clearing a stale local focus flag is therefore not a blanket disable-then-blur rule.
+
+State exits need their own expected results; a correct snapshot on entry does not prove cleanup. Static designs specify those results; an implementation or executable prototype verifies them against actual focus and live state:
+
+| Transition to exercise                              | Obsolete state to remove                                                                  | State to retain or recompute                                                                       |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Focus → disabled → enabled, without a blur callback | Local focus paint invalidated by disabling; it must not revive solely on re-enable        | Actual focus and any still-active error; intentionally retained focus follows the control's policy |
+| Error appears → error clears while still focused    | Error paint and obsolete error message                                                    | Focus indication, without requiring another focus event                                            |
+| Selected + focused → focus leaves                   | Focus paint on the old location                                                           | Selection under the control's selection model, including selection that persists after blur        |
+| Loading → success, failure, or cancellation         | Busy paint and repeat-activation blocking owned by that operation; obsolete pressed paint | Outcome feedback, selection, current focus, still-active errors, and independent disabling reasons |
+
+**Good Example:**
+
+> A field specifies focus + error with an error border and a distinct focus indicator. Clearing the error while focus remains restores the normal border without losing focus. A submission control removes its busy cue on every operation exit, but stays unavailable if a separate permission restriction still applies.
+
+**Bad Example:**
+
+> Reorder boolean styles until the error screenshot looks right, treat that order as a global state priority, and test only entry snapshots. Re-enabling revives an old focus shadow, while ending loading also clears selection and an unrelated disabling reason.
+
+**Guidelines:**
+
+- MUST specify reachable competing combinations with a shared-property owner and retained cues; keep non-conflicting axes independent rather than requiring all theoretical combinations.
+- MUST render the relevant conflict rows in both themes, checking retained cues against the individual-state and visible-focus requirements rather than treating one winning property as the whole state.
+- MUST specify expected exit results in static designs. For an implementation or executable prototype, MUST verify the relevant transitions above against actual focus and still-active semantic state, removing only obsolete transient feedback rather than resetting every state together.
 
 ## Prefer clear error surfacing over silently disabled controls
 

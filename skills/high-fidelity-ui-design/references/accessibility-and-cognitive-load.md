@@ -84,6 +84,40 @@ Structure carries meaning too, and the failure there is CSS-only reordering: usi
 - MUST give every control a programmatically determinable accessible name from a durable source — a visible associated <label>, aria-label, or aria-labelledby, never a placeholder or title tooltip alone — and include the visible label text in that name so voice-control users can address the control by what they see.
 - MUST match DOM/source order to the visual reading order and structure each view with one logical <h1>, a heading outline that never skips levels for visual sizing, and landmark regions (header, nav, main, footer).
 
+## Provide task-relevant chart information beyond identification
+
+A chart's name identifies the subject; it does not establish that a reader can recover the chart's meaning without its visual marks. Check identification separately from information equivalence — whether an accessible alternative answers the same question as the visual. The [W3C WAI complex-images tutorial](https://www.w3.org/WAI/tutorials/images/complex/) distinguishes short identification from essential information such as values, relationships, and trends.
+
+Start with the chart's intended question and inspect the associated information already available. For an overview, default to a brief explanation of the takeaway. Use a table for exact lookup or detailed comparison, and a discoverable, accessible detailed-data route for dense exploration. Combine summary and detail when the task needs both; a summary does not justify omitting task-relevant values. A long spoken name containing every datum is not the goal.
+
+**Example:**
+
+Hold two series and four equity bands fixed; equity means expected share of the pot. Only the selected player's distribution changes between cases A and B. The shares in each band are:
+
+| Equity band | Player, case A | Player, case B | Opponent average, both cases |
+| ----------- | -------------- | -------------- | ---------------------------- |
+| 0–<25%      | 70%            | 2%             | 5%                           |
+| 25–<50%     | 20%            | 8%             | 15%                          |
+| 50–<75%     | 8%             | 20%            | 30%                          |
+| 75–100%     | 2%             | 70%            | 50%                          |
+
+Each series totals 100%, with the same point count, series count, and band names in both cases. Yet the player's share in the upper two bands changes from 10% to 90%, against the opponent's unchanged 80%. Ask whether a reader using the nonvisual route can recover the shift from lower-band to upper-band concentration and the reversal from below to above the opponent, even if the chart name stays unchanged.
+
+**Good Example:**
+
+> The chart links to a current associated summary elsewhere in the UI stating the upper-band shares and comparison, with the band table available for exact lookup. No duplication in the chart's spoken name is needed.
+
+**Bad Example:**
+
+> Both cases announce only "Equity distribution, two series, four bands," with no associated explanation or accessible data route. The name identifies the chart but cannot reveal the changed concentration or reversed comparison.
+
+**Guidelines:**
+
+- MUST judge chart identification separately from whether the accessible alternative conveys the task-relevant values, trends or concentration, and comparisons without the visual marks.
+- SHOULD default to a brief explanation for an overview, use a table for exact lookup or comparison, and provide a discoverable, accessible detailed-data route for dense exploration; combine summary and detail when the intended question needs both.
+- MAY reuse equivalent associated information already elsewhere in the UI when the chart has an identifiable route to it, rather than duplicate that information in a spoken label.
+- MUST keep alternatives aligned with the current selection, filters, and data, and distinguish calculating or unavailable data from zero values or a flat distribution.
+
 ## Reduce and structure choices to lower cognitive load
 
 The failure mode is designing for yourself. Designers sit in roughly the top 5% for the domain and routinely underestimate real users' spare capacity — the top quartile performs about 2.4× better than the bottom — so a screen that feels clean to the team reads as a wall of equal-weight choices to a first-time user. The tells in a real-token comp are specific: five buttons of identical visual weight, a settings screen exposing every toggle at once, dense forms with no grouping, three competing calls-to-action. Verify that a stranger can find the one intended action within a couple of seconds.
@@ -113,7 +147,7 @@ The [aesthetic-usability effect](https://www.nngroup.com/articles/aesthetic-usab
 
 So stated satisfaction and a positive gut reaction are not evidence that a flow works ([aesthetic-usability effect](https://lawsofux.com/aesthetic-usability-effect/)). Weight behavior over opinion: watch task completion, error and recovery, hesitation, backtracking, and time-on-task, and treat any gap between "they said it was easy" and "they struggled" as a real finding to fix, not to explain away.
 
-Practically, keep form subordinate to function. A comp should never dial up visual richness to paper over a confusing information hierarchy, an ambiguous primary action, an unreachable control, or a state you have not designed (empty, loading, error, permission-denied). And an accessibility shortfall is a usability failure that beauty cannot buy back — contrast below [4.5:1 for body text or 3:1 for large text and UI components](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html), targets under the ~44px/24px minimums, a focus order that breaks — one that disproportionately harms exactly the users least able to compensate. The common failure mode is shipping a screen that demos beautifully and tests poorly: stakeholders sign off on the render, the aesthetic halo suppresses the objections, and the underlying task defect ships intact. Guard against it by validating the hard states and the real interaction, not just the hero view.
+Practically, keep form subordinate to function. A comp should never dial up visual richness to paper over a confusing information hierarchy, an ambiguous primary action, an unreachable control, or a state you have not designed (empty, loading, error, permission-denied). And an accessibility shortfall is a usability failure that beauty cannot buy back — contrast below [4.5:1 for body text or 3:1 for large text and UI components](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html), targets that fail the [target-sizing policy](./interaction-states-and-feedback.md#size-and-space-touch-targets-for-real-fingers), a focus order that breaks — one that disproportionately harms exactly the users least able to compensate. The common failure mode is shipping a screen that demos beautifully and tests poorly: stakeholders sign off on the render, the aesthetic halo suppresses the objections, and the underlying task defect ships intact. Guard against it by validating the hard states and the real interaction, not just the hero view.
 
 **Good Example:**
 
@@ -128,4 +162,4 @@ Practically, keep form subordinate to function. A comp should never dial up visu
 - MUST invest full fidelity in the type scale, contrast ratios, spacing rhythm, and interaction states, because at high fidelity these change how the product is judged, not merely how it looks.
 - MUST design and render every hard state — empty, loading, error, and permission-denied — rather than dressing up only the hero view.
 - MUST NOT raise visual richness to compensate for a confusing hierarchy, an ambiguous or below-the-fold primary action, or an unreachable control.
-- MUST meet WCAG contrast (4.5:1 body text, 3:1 large text and UI components) and minimum target sizes (~44px touch, 24px pointer), treating any shortfall as a usability failure that polish cannot offset.
+- MUST meet WCAG contrast (4.5:1 body text, 3:1 large text and UI components) and apply the [target-sizing policy](./interaction-states-and-feedback.md#size-and-space-touch-targets-for-real-fingers), treating any shortfall as a usability failure that polish cannot offset.
