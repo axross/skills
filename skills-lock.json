@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "3b0d8b420af33b7e2946b426df0aeee2b3c17a6bf9937685b7f94c2721abf513"
+      "computedHash": "465d33351e8c36b1616aa22b1e1dc7d84b3fed4731df0c85b4ea76336bc90a11"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -85,6 +85,11 @@
       "source": "./skills",
       "sourceType": "local",
       "computedHash": "e948104355e4675bbd99e1e11f7a5c6db45380ed76c269a2c6ba9c595ff79a14"
+    },
+    "qualifying-acquisition-safeguards": {
+      "source": "./skills",
+      "sourceType": "local",
+      "computedHash": "9530f62cec2a19d6d6e0e738f6033a416003543826fe6bc73fd94132f7f19b9f"
     },
     "quality-assurance": {
       "source": "./skills",

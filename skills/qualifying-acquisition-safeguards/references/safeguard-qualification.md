@@ -1,17 +1,18 @@
 # Qualify optional acquisition safeguards
 
-Use this reference when assessing an optional safeguard that observes skill
-acquisition or proposes to refuse dependent mutations. It states portable
-qualification criteria, not a host hook API, activation procedure or new project
-gate. Project policy chooses whether to enable a safeguard; host operations own
-its mechanism and actual execution permissions.
+Use this reference only when assessing an optional safeguard relying on
+actor-local skill-acquisition evidence to observe acquisition or refuse
+dependent mutations. It qualifies that use of acquisition evidence, not general
+runtime controls. Project policy chooses whether to enable a safeguard; host
+operations own interception, containment construction, scheduling, permissions
+and activation mechanisms. These criteria supply no host API or new project gate.
 
 ## Audit before enforcement
 
 Audit records observations without preventing an operation. Enforcement claims
 that refusal prevents a defined mutation. A registered handler, visible event or
 refusal message does not establish that control. Acquisition claims still use
-[actor-local-acquisition.md](./actor-local-acquisition.md); an intermediate
+the established actor-local acquisition contract; an intermediate
 observation cannot prove final model delivery.
 
 Actual refusal needs a bounded qualification exercise before ordinary
@@ -33,12 +34,24 @@ A mode called audit can still refuse a valid edit or alter the executed mutation
 An unchanged target after an earlier permission denial cannot distinguish that
 interference from observation-only behavior. Audit qualification therefore
 begins under [independent containment](#containment-and-cleanup), not on routine
-targets, and compares otherwise valid operations with the safeguard absent.
+targets, and compares otherwise valid operations with the safeguard absent
+across the [claimed reachable-effect scope](#scope-and-effective-composition).
+An unchanged intended edit can hide collateral file or external effects; final
+equality after rollback can hide observable interference. A separately permitted,
+bounded acquisition-observation record is the only telemetry exception, not a
+label for unrelated work or altered task/control behavior.
 
 **Guidelines:**
 
-- MUST demonstrate that otherwise valid mutations proceed without safeguard-imposed refusal or alteration of the intended executed mutation in both Full and every relevant non-Full acquisition condition. Use the existing [coverage meanings](./actor-local-acquisition.md#coverage-not-an-execution-result), not receipt shape alone.
-- MUST compare equivalent safeguard-absent controls under the same ordinary permissions and relevant state, applying [state, input and invocation-order controls](#control-state-and-invocation-order). A prior permission denial or operation never reached does not establish noninterference.
+- MUST demonstrate that otherwise valid mutations proceed without safeguard-imposed refusal or interference across the claimed reachable-effect scope in both Full and every relevant non-Full acquisition condition. Use the established actor-local acquisition coverage meanings, not receipt shape alone.
+- MUST compare equivalent safeguard-absent controls under the same ordinary permissions and relevant state, applying [state, input and invocation-order controls](#control-state-and-invocation-order). Establish matching outcomes across the claimed effect scope after delayed or spawned work settles, excluding observable transient interference as well as final differences. A prior permission denial or operation never reached does not establish noninterference.
+- MUST establish any telemetry exception before the exercise with all of the following bounds:
+  - Separately permitted content recording acquisition observations only.
+  - Declared, separately permitted destination and reachable effects under independent containment.
+  - Settled effects verified against those bounds, including delayed or spawned telemetry work.
+
+  Declaration alone grants no permission. Task/acquisition-material changes, changed permissions or effective control behavior and undeclared effects remain in the noninterference comparison.
+
 - MUST establish noninterference for the actual claimed actor, event, route and effective handler composition, including its [concurrency conditions](#qualify-concurrent-actor-state).
 - MUST apply post-event noninterference controls after every exercised event below:
   - Relevant non-Full acquisition, including the following well-formed evidence:
@@ -49,6 +62,7 @@ targets, and compares otherwise valid operations with the safeguard absent.
   - Handler failures or timeouts.
   - Malformed or missing inputs.
   - Unavailable evidence.
+  - Relevant [acquisition transitions between inspection and mutation](#keep-acquisition-evidence-current-through-mutation).
 - MUST follow each such event with all of the following controls:
   - Otherwise valid Full and relevant non-Full mutations.
   - Usable required recovery reads.
@@ -56,7 +70,7 @@ targets, and compares otherwise valid operations with the safeguard absent.
 
   Keep each comparison's actual event history intact; initial allow behavior, a history reset or a fresh unaffected instance cannot establish post-event noninterference.
 
-- MUST keep unknown, blocked or unexercised audit scopes outside routine activation. Audit evidence neither qualifies enforcement nor proves complete acquisition or final delivery; an unverified audit mode is not the fallback for unqualified enforcement.
+- MUST keep unknown, blocked or unexercised audit scopes, including hidden reachable effects, outside routine activation. Acquisition transitions do not authorize audit refusal. Audit evidence neither qualifies enforcement nor proves complete acquisition or final delivery; an unverified audit mode is not the fallback for unqualified enforcement.
 
 ## Containment and cleanup
 
@@ -99,12 +113,12 @@ path that does not depend on the tested safeguard or the session finishing.
 
 ## Scope and effective composition
 
-A prevention claim names the actual host configuration and the routes it covers.
-Qualification checks that configuration rather than assuming every tool,
-worker or worktree shares the same handler. The relevant scope includes:
+An acquisition-safeguard claim names the actual host configuration and the routes
+it covers. Qualification checks that configuration rather than assuming every
+tool, worker or worktree shares the same handler. The relevant scope includes:
 
 - Host and configuration revision, event stage and tool or command route.
-- Actual actor/current-context correspondence and assignment/material revision.
+- Actual actor/current-context correspondence, required material and assignment/material revision through inspection and mutation.
 - Creation versus editing, resolved target/path classification and symlink/worktree aliases.
 - Effective handler composition/state, order, combined outcomes and failure/timeout behavior.
 - Inspected-to-executed input transformations, ordinary permissions and reachable effects.
@@ -116,7 +130,33 @@ worker or worktree shares the same handler. The relevant scope includes:
 - MUST correlate the input inspected with the input executed, including transformations or replacement inputs between observation and mutation.
 - MUST distinguish creation from editing, resolve relevant symlink and worktree relationships, and establish the target before claiming path coverage. A path-shaped string alone does not establish which file was mutated.
 - MUST include all routes within the claimed scope, including shell writes, patches and formatters where applicable. Formatting is mutation, not a blanket exemption.
+- MUST establish the claimed reachable-effect scope independently of successful outcomes, including intended mutation and collateral, external, delayed or spawned effects reachable by the operation and effective composed handlers. An observed undeclared effect cannot be excluded or relabeled to obtain qualification.
 - MUST preserve the active host's permission and tool-purpose restrictions; a proposed safeguard authorizes no otherwise prohibited operation.
+
+### Keep acquisition evidence current through mutation
+
+Input correspondence does not establish acquisition continuity. A cached allow
+can pass static non-Full controls yet admit a mutation after compaction loses
+required text. Enforcement qualification therefore covers the validity interval
+from inspection through executed dependent mutation, including delayed or
+spawned mutations and execution handoffs within its claimed scope. Unchanged
+arguments, identifiers or timestamps cannot establish that interval; a recheck
+followed by an unobserved transition leaves the same gap.
+
+**Guidelines:**
+
+- MUST establish actual actor/current-context, required-material and applicable-revision validity throughout that interval under the established actor-local acquisition meanings. Establish effective binding, or revalidate affected acquisition after relevant transitions before mutation with evidence of continued validity; a check alone cannot qualify an unobserved interval.
+- MUST exercise relevant transitions between inspection and mutation, including the following:
+  - Compaction.
+  - Context or actor replacement.
+  - Resumption.
+  - Changed responsibility or required material.
+  - Applicable-revision changes.
+
+  Each now-non-Full control excludes admission by the earlier allow under [prevention controls](#prevention-and-valid-edit-controls), paired with otherwise valid current-Full and recovered-Full mutations through the same qualified scope. Apply [input, state and invocation-order controls](#control-state-and-invocation-order); permanently denying transitions or unconditionally reloading unchanged retained text is not the remedy.
+
+- MUST check post-transition recovery with the actual transition history intact under [failure and recovery behavior](#failure-and-recovery-behavior): usable required reads, effective missing-material refusal and a current-acquired-material valid mutation. Audit instead retains its [effect-wide noninterference controls](#qualify-audit-noninterference), including otherwise valid non-Full work.
+- MUST keep the affected enforcement claim unqualified when transition visibility or continued validity cannot be established. A narrower interval claim needs independently established restrictions, not a trace with no transition. Qualified audit or inactivity grants no exception to the actor's missing-material dependent-work rule; transitions after completed mutation affect later work, not its historical evidence.
 
 ### Apply evidence to a bounded target class
 
@@ -183,7 +223,7 @@ transient change even when the final target matches its baseline.
 
 **Guidelines:**
 
-- MUST exercise every relevant non-Full acquisition condition in the claimed enforcement scope using the existing [coverage meanings](./actor-local-acquisition.md#coverage-not-an-execution-result), including well-formed partial, stale, mixed-revision and wrong-actor/current-context evidence. Each negative control must reach the safeguard and demonstrate effective refusal paired with a Full-acquisition valid mutation under the equivalent-input, state and invocation-order controls below.
+- MUST exercise every relevant non-Full acquisition condition in the claimed enforcement scope using the established actor-local acquisition coverage meanings, including well-formed partial, stale, mixed-revision and wrong-actor/current-context evidence. Each negative control must reach the safeguard and demonstrate effective refusal paired with a Full-acquisition valid mutation under the equivalent-input, state and invocation-order controls below.
 - MUST leave unavailable or unexercised acquisition conditions and their affected scopes unqualified; receipt shape, another condition's result or an intermediate observation cannot qualify them or establish Full acquisition.
 - MUST demonstrate refusal preventing the intended mutation with evidence excluding committed or externally observable transient mutation within the claimed target/effect scope. Inspect actual target state after delayed or spawned work settles; final baseline equality alone is insufficient. Verify any termination through permitted host operations; unsettled effects remain unknown.
 - MUST keep the affected prevention scope unqualified when permitted observations cannot exclude transient effects. Refusal output, successful exit, rollback and cleanup cannot establish prevention alone.
