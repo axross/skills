@@ -53,17 +53,7 @@ label for unrelated work or altered task/control behavior.
   Declaration alone grants no permission. Task/acquisition-material changes, changed permissions or effective control behavior and undeclared effects remain in the noninterference comparison.
 
 - MUST establish noninterference for the actual claimed actor, event, route and effective handler composition, including its [concurrency conditions](#qualify-concurrent-actor-state).
-- MUST apply post-event noninterference controls after every exercised event below:
-  - Relevant non-Full acquisition, including the following well-formed evidence:
-    - Partial evidence.
-    - Stale evidence.
-    - Mixed-revision evidence.
-    - Wrong-actor/current-context evidence.
-  - Handler failures or timeouts.
-  - Malformed or missing inputs.
-  - Unavailable evidence.
-  - Relevant [acquisition transitions between inspection and mutation](#keep-acquisition-evidence-current-through-mutation).
-- MUST follow each such event with all of the following controls:
+- MUST follow each exercised history required by [state and invocation-order controls](#control-state-and-invocation-order) with all of the following noninterference controls:
   - Otherwise valid Full and relevant non-Full mutations.
   - Usable required recovery reads.
   - Equivalent safeguard-absent comparisons under the ordinary permissions and relevant state above.
@@ -179,14 +169,15 @@ cannot safely restore work. Failure behavior also depends on where an error or
 timeout occurs: before inspection, after a refusal, or after mutation are not the
 same outcome. A latched failure can leave the route unusable even when ordinary
 refusal recovers; an allow-all latch can admit a valid edit while also admitting
-missing-material edits. Each exercised event needs both post-event acquisition
-conditions, not only a successful recovered edit.
+missing-material edits. Successful work can also leave a latched allow or refusal
+in composed-handler state. History-preserving controls need both post-event
+acquisition conditions, not only a successful recovered edit.
 
 **Guidelines:**
 
 - MUST exercise malformed or missing inputs, unavailable evidence, handler failures and timeouts through the actual qualified route, recording whether mutation was reached and what happened.
 - MUST verify that permitted recovery reads remain usable before refusal, including reacquisition of missing ranges from one verified revision.
-- MUST, for enforcement qualification, follow refusal and every exercised failure case above with usable required recovery reads, effective missing-material refusal and an acquired-material valid mutation through the same actual qualified scope under ordinary permissions. Apply [state, input and invocation-order controls](#control-state-and-invocation-order) with the event's history intact in each comparison instance; do not reset that history or substitute a fresh unaffected instance. Blocked or unexercised post-event controls leave that scope unqualified. Audit exercises instead use [audit noninterference controls](#qualify-audit-noninterference).
+- MUST, for enforcement qualification, follow each exercised history required by [state and invocation-order controls](#control-state-and-invocation-order) with usable required recovery reads, effective missing-material refusal and an acquired-material valid mutation through the same actual qualified scope under ordinary permissions. Keep the event's history intact in each comparison instance; do not reset that history or substitute a fresh unaffected instance. Blocked or unexercised post-event controls leave that scope unqualified. Audit exercises instead use [audit noninterference controls](#qualify-audit-noninterference).
 - MUST distinguish known prevention, known mutation and unknown effects after a failure; inspect the actual target and settle unknown effects through permitted operations before retrying an uncertain operation.
 - MUST retain unqualified failure cases as audit observations or explicit limitations rather than claim that an error automatically prevented mutation.
 
@@ -201,7 +192,7 @@ observations answer different questions:
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | Required material missing; target mutation reaches the safeguard | Refusal prevents committed or externally observable mutation                                                              | Refusal and final baseline equality alone are insufficient         |
 | Required material acquired; otherwise valid mutation             | The mutation proceeds under normal permissions                                                                            | Constant denial fails this control                                 |
-| Recovery after refusal or an exercised failure                   | Required reads, missing-material refusal and acquired-material valid mutation remain effective with actual history intact | An allow-all latch or fresh unaffected instance fails this control |
+| Post-event behavior with actual history intact                   | Required reads, missing-material refusal and acquired-material valid mutation remain effective with actual history intact | An allow-all latch or fresh unaffected instance fails this control |
 | Operation denied before reaching the safeguard                   | The earlier denial and its cause are recorded                                                                             | No safeguard prevention was exercised                              |
 | Unsupported actor, event, tool or target                         | The unsupported scope is identified                                                                                       | Not a prevention success or proof of full coverage                 |
 
@@ -237,8 +228,10 @@ transient change even when the final target matches its baseline.
 A handler that denies its first invocation and allows later invocations can pass
 one missing-then-acquired sequence without inspecting acquisition. Matching
 configuration does not hold internal state constant. Compare acquisition
-conditions from equivalent starting states, then check the real recovery path
-separately so a reset does not erase the refusal history being tested.
+conditions from equivalent starting states, then check the actual post-event path
+separately so a reset does not erase the history being tested. Successful Full
+work can affect a later non-Full actor through shared handler state without any
+overlapping invocations.
 
 A payload filter can also deny one command and allow another without consulting
 acquisition. Compare equivalent executed mutations, not merely matching routes.
@@ -255,7 +248,17 @@ in each instance; an untouched instance cannot rule out a latch caused by the ev
 - MUST exercise each necessary relevant command or payload variation with both acquisition conditions independently of invocation order; an input-only deny/allow filter cannot qualify from differently assigned payloads.
 - MUST repeat matched comparisons or counterbalance the acquisition conditions to distinguish acquisition-dependent results from invocation-position or history-dependent behavior. One missing-then-acquired sequence is insufficient.
 - MUST keep the affected scope unqualified in audit mode when relevant input or state equivalence or the order comparison cannot be established; matching configuration or outcomes alone is insufficient, and an unavailable reset does not authorize an invented host mechanism.
-- MUST check the actual post-event path separately under [failure and recovery behavior](#failure-and-recovery-behavior). Reset-based acquisition comparisons do not replace recovery evidence with the actual event history intact.
+- MUST exercise history-preserving post-event controls for all of the following history-producing events in the claimed scope:
+  - Successful Full-acquisition mutations.
+  - Refusals and relevant non-Full acquisition, including well-formed partial, stale, mixed-revision and wrong-actor/current-context evidence.
+  - Handler failures or timeouts.
+  - Malformed or missing inputs.
+  - Unavailable evidence.
+  - Relevant [acquisition transitions between inspection and mutation](#keep-acquisition-evidence-current-through-mutation).
+
+  Select histories independently of outcomes, including relevant history from earlier non-overlapping actors sharing the handler. Follow each exercised history with [audit noninterference](#qualify-audit-noninterference) or [enforcement recovery controls](#failure-and-recovery-behavior), keeping equivalent actual history intact in each comparison instance. Reset-based comparisons cannot replace these controls.
+
+  Follow-up controls examine the selected history rather than recursively require new exercises. Unexercised longer or differently ordered histories remain unqualified.
 
 ### Qualify concurrent actor state
 
