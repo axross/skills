@@ -36,7 +36,11 @@ Sources: [Typographic Hierarchies — Smashing Magazine](https://www.smashingmag
 
 Language selects translated copy and language-appropriate glyph forms; script is the writing system whose glyphs the font needs to cover. Purpose determines the reading task. These are separate decisions: a translated chart label follows the prose font policy, while a rank pair or metric value can have a deliberately language-independent face. Being numeric alone does not make a role invariant — localized digits and units can change its required glyphs.
 
-Choose script-specific faces and fallbacks for the content a role can receive, not only the app's current language. A Latin-language interface can still contain a Japanese name. [CSS Fonts' font-matching rules](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#font-matching-algorithm) cover character coverage and fallback. A font covering those characters can still use the wrong language-specific forms: [CSS Fonts' language-specific display rules](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#language-specific-support) use the element's content language when selecting glyphs. This calls for an explicit content/font policy, not a universal requirement to detect every string's script automatically. Token resolution and platform fallback mechanics belong to the project's component-styling practices where present; otherwise resolve complete roles centrally with supported-script coverage.
+Choose script-specific faces and fallbacks for the content a role can receive, not only the app's current language. A Latin-language interface can still contain a Japanese name. [CSS Fonts' font-matching rules](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#font-style-matching) distinguish character coverage from the shaping information required by a script; [cluster matching](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#cluster-matching) treats base characters and combining marks together. A covered face or fallback can still render broken joins, required ligatures, or mark positioning. Test representative clusters for the supported scripts against the [required script features](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#default-features), not only missing-glyph boxes.
+
+Correct shaping does not establish correct language-specific forms: [CSS Fonts' language-specific display rules](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#language-specific-support) use the element's content language when selecting glyphs. Define a content/font policy rather than requiring automatic script detection for every string. Token resolution and platform fallback mechanics belong to the project's component-styling practices where present; otherwise resolve complete roles centrally with supported-script coverage and shaping.
+
+Judge text and roles against the same already-resolved effective language the app uses for translations, even when device language differs. For preference initialization, ordering, or late-completion verification, consult the project's component/app-state language-preference practices where present. Without that optional capability, the host application still resolves preference state before supplying this input; typography does not define the precedence policy.
 
 **Good Example:**
 
@@ -48,13 +52,13 @@ Choose script-specific faces and fallbacks for the content a role can receive, n
 
 Exercise the following cases when judging the role mapping:
 
-| Case                            | Content and state                                                                                  | Failure to look for                                                                      |
-| ------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Script coverage                 | Supported scripts, mixed-script names, localized digits, units, and symbols                        | Missing glyphs or incorrect language-specific forms, including in fallback               |
-| Translation length              | Longest supported translations at narrow supported layouts                                         | Clipping, overlap, or loss of essential content                                          |
-| Language precedence             | Device language A with saved user language B; a new selection while initialization is pending      | Text and roles disagree, or a late default replaces the selection                        |
-| Language and appearance changes | Switch language, then switch to a previously inactive theme                                        | Stale language-dependent faces or missing roles                                          |
-| Native large text               | Longest supported translations at default and largest accessibility text sizes supported by the OS | Broken hierarchy, clipped line boxes, overlap, or essential content becoming unavailable |
+| Case                            | Content and state                                                                                       | Failure to look for                                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Script coverage and shaping     | Supported-script clusters and combining marks, mixed-script names, localized digits, units, and symbols | Missing glyphs, incorrect language forms, broken shaping/required ligatures, misplaced marks, or incorrectly split fallback clusters |
+| Translation length              | Longest supported translations at narrow supported layouts                                              | Clipping, overlap, or loss of essential content                                                                                      |
+| Resolved-language consistency   | Already-resolved language B while device language is A                                                  | Text or roles follow A instead of B, or disagree with each other                                                                     |
+| Language and appearance changes | Switch language, then switch to a previously inactive theme                                             | Stale language-dependent faces or missing roles                                                                                      |
+| Native large text               | Longest supported translations at default and largest accessibility text sizes supported by the OS      | Broken hierarchy, clipped line boxes, overlap, or essential content becoming unavailable                                             |
 
 Apple's [typography guidance](https://developer.apple.com/design/human-interface-guidelines/typography) calls for testing at the largest accessibility text sizes, including custom fonts. These checks preserve the readability floors below; fitting a translation by reducing text size or disabling accessibility scaling does not satisfy them.
 
@@ -62,7 +66,7 @@ Apple's [typography guidance](https://developer.apple.com/design/human-interface
 
 - MUST choose a semantic role by content purpose and define its language/script coverage, including mixed-script content the role can receive.
 - MAY keep a purpose-specific numeric or symbolic face language-independent only when its intended glyph repertoire remains covered; localized digits or units require an appropriate variant, role, or fallback.
-- MUST verify the role mapping with the cases above on each supported platform, treating incorrect glyphs, clipping, overlap, and loss of essential content as failures rather than hiding them by shrinking text or disabling native text scaling.
+- MUST verify the role mapping with the cases above on each supported platform. Missing glyphs, incorrect language forms, broken shaping or required ligatures, misplaced marks, incorrectly split fallback clusters, clipping, overlap, and loss of essential content are failures; shrinking text or disabling native text scaling does not remedy them.
 
 ## Tune body text for readability: size, measure, and leading
 

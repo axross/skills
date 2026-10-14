@@ -35,7 +35,7 @@ See [typography.md](./references/typography.md) for:
 
 - building a semantic type scale instead of ad-hoc sizes
 - choosing text roles by language, script, and purpose, including invariant numeric or symbolic faces
-- verifying mixed-script coverage, long translations, language/appearance changes, and native accessibility text sizes
+- verifying supported-script shaping and fallback clusters, mixed-script coverage, long translations, language/appearance changes, and native accessibility text sizes
 - tuning body text for readability — size, measure, and leading
 
 ## Color and Contrast

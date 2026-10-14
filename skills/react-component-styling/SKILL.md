@@ -1,6 +1,6 @@
 ---
 name: react-component-styling
-description: Writing, reviewing, or refactoring the styles of a React component on web or mobile native — the implementation mechanics of tokens, responsiveness, adaptive states, and platform stylesheets. Triggers on a CSS Module, a Unistyles `StyleSheet.create`, a theme or token file, global styles, "dark mode", "container query", "breakpoint", "responsive", "touch target", "hover on mobile", "safe area", "className", "colour gamut", "P3", "@supports", "Baseline", "reduced motion", or a surface wrong at some width, pointer type, or colour scheme. For design rationale — hierarchy, contrast targets, motion taste — use a high-fidelity UI design capability instead.
+description: Writing, reviewing, or refactoring React component styles, typography, fonts, or language/locale-driven text roles on web or mobile native — token and stylesheet mechanics. Web content-language `lang` and independent `dir` belong to markup, not typography tokens; language-preference initialization belongs to component/app-state practices, and design rationale to high-fidelity UI design. Covers CSS Modules, Unistyles `StyleSheet.create`, theme/token files, global styles, "dark mode", "container query", "breakpoint", "responsive", "touch target", "hover on mobile", "safe area", "className", "colour gamut", "P3", "@supports", "Baseline", "reduced motion", and surfaces wrong at a width, pointer type, or colour scheme.
 user-invocable: false
 ---
 
@@ -38,7 +38,7 @@ See [theming.md](./references/theming.md) for:
 - adding or renaming a token, the token families a project declares, and the shape of each
 - composite named text roles, and why family, size, leading, and weight travel together
 - resolving complete roles from the app's already-resolved effective language/script and synchronizing affected appearance mappings when language changes
-- separating web content-language metadata on the document and text runs from theme font selection
+- separating web content-language and independent writing-direction metadata on the document and text runs from theme font selection
 - px-keyed spacing steps, named radius and border-width tiers, and a platform-defined native hairline constant rather than a stylesheet-creation API
 - duration and role-named easing tokens
 - writing a literal colour, spacing, radius, border-width, type, duration, or easing value, snapping it to the nearest step, and the closed list of literals that stay legal
