@@ -22,7 +22,7 @@ an unqualified safeguard as protection for routine work.
 **Guidelines:**
 
 - MUST begin an optional safeguard with independently contained audit qualification before routine audit activation. Keep unqualified or unobserved scopes outside enforcement-success claims.
-- MAY temporarily enable refusal for a qualification exercise separately authorized for specific actors, routes, targets and duration, only after establishing [independent configuration restoration](#restore-temporary-refusal-configuration); that authorization does not permit broader enforcement.
+- MAY temporarily enable refusal for a qualification exercise separately authorized for specific actors, routes, targets and duration, only after establishing [exercise containment](#containment-and-cleanup) and [independent configuration restoration](#restore-temporary-refusal-configuration); that authorization does not permit broader enforcement.
 - MUST return unqualified enforcement scopes to audit mode when the qualification exercise ends only where [audit noninterference](#qualify-audit-noninterference) is established; otherwise keep the optional safeguard inactive outside contained exercises. Every audit fallback below presupposes that evidence. Ordinary enforcement still requires qualified prevention evidence and applicable activation authorization.
 - MUST distinguish what the safeguard observed, what it attempted to refuse and what mutation it prevented; audit completion is not enforcement qualification.
 - MUST obtain applicable policy and authorization before activation or qualification effects. Qualification itself grants neither permission nor an exemption from normal tool permissions.
@@ -66,11 +66,14 @@ label for unrelated work or altered task/control behavior.
 
 A refusal exercise must remain safe when the safeguard fails entirely. Naming a
 temporary path is not isolation if that path or a spawned operation can reach
-ordinary work. Cleanup cannot recover valuable data that an uncontained exercise
-destroys, and cleanup is not evidence that the safeguard prevented mutation.
+ordinary work. Disposable targets also do not isolate a shared handler that can
+deny unrelated operations. Cleanup cannot recover valuable data that an
+uncontained exercise destroys, and cleanup is not evidence that the safeguard
+prevented mutation.
 
 **Guidelines:**
 
+- MUST establish independent scope containment for the effective configuration before enabling temporary refusal. Use technical isolation by default, or separately authorized effective quiescence of non-exercise operations. Establish that non-exercise actors and routes cannot encounter the exercise configuration throughout possible refusal activity, including interruption and delayed or spawned work. Disposable targets, declared scope or the tested guard's own decisions cannot establish that boundary; without it, do not enable refusal.
 - MUST establish independent containment before any qualification mutation: use isolated disposable targets whose resolved paths and reachable effects cannot damage ordinary work or valuable shared data even if refusal fails entirely. Include symlink and worktree aliases and delayed or spawned effects in that boundary.
 - MUST establish the target baseline and cleanup conditions before the exercise, including permitted means to settle delayed or spawned work and restore the baseline or remove declared disposable targets.
 - MUST NOT begin mutation exercises when containment or safe cleanup cannot be established; retain that scope as unqualified in audit mode.
@@ -185,13 +188,14 @@ acquisition conditions, not only a successful recovered edit.
 
 A useful qualification distinguishes effective refusal from both ignored
 refusal and constant denial. A shell refusal paired with an unrelated successful
-patch cannot rule out constant denial on the shell route. These contrasting
-observations answer different questions:
+patch cannot rule out constant denial on the shell route. An admitted operation
+can still corrupt the intended edit; a prevented edit can still report false
+success. These contrasting observations answer different questions:
 
 | Case                                                             | Necessary observation                                                                                                     | Limit                                                              |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Required material missing; target mutation reaches the safeguard | Refusal prevents committed or externally observable mutation                                                              | Refusal and final baseline equality alone are insufficient         |
-| Required material acquired; otherwise valid mutation             | The mutation proceeds under normal permissions                                                                            | Constant denial fails this control                                 |
+| Required material missing; target mutation reaches the safeguard | Caller-visible refusal and no committed or externally observable mutation                                                 | Refusal and final baseline equality alone are insufficient         |
+| Required material acquired; otherwise valid mutation             | Correct intended mutation and matching safeguard-absent outcomes under normal permissions                                 | Constant denial or altered allowed effects fail this control       |
 | Post-event behavior with actual history intact                   | Required reads, missing-material refusal and acquired-material valid mutation remain effective with actual history intact | An allow-all latch or fresh unaffected instance fails this control |
 | Operation denied before reaching the safeguard                   | The earlier denial and its cause are recorded                                                                             | No safeguard prevention was exercised                              |
 | Unsupported actor, event, tool or target                         | The unsupported scope is identified                                                                                       | Not a prevention success or proof of full coverage                 |
@@ -216,9 +220,11 @@ transient change even when the final target matches its baseline.
 
 - MUST exercise every relevant non-Full acquisition condition in the claimed enforcement scope using the established actor-local acquisition coverage meanings, including well-formed partial, stale, mixed-revision and wrong-actor/current-context evidence. Each negative control must reach the safeguard and demonstrate effective refusal paired with a Full-acquisition valid mutation under the equivalent-input, state and invocation-order controls below.
 - MUST leave unavailable or unexercised acquisition conditions and their affected scopes unqualified; receipt shape, another condition's result or an intermediate observation cannot qualify them or establish Full acquisition.
+- MUST establish that the actual caller receives a refusal distinguishable from successful completion through the effective composed route. An internal handler's signal, a later-ignored message or a silently dropped mutation reported as success fails this control, even if the target remains unchanged.
 - MUST demonstrate refusal preventing the intended mutation with evidence excluding committed or externally observable transient mutation within the claimed target/effect scope. Inspect actual target state after delayed or spawned work settles; final baseline equality alone is insufficient. Verify any termination through permitted host operations; unsettled effects remain unknown.
 - MUST keep the affected prevention scope unqualified when permitted observations cannot exclude transient effects. Refusal output, successful exit, rollback and cleanup cannot establish prevention alone.
 - MUST pair refusal with valid-edit controls through the same qualified event, tool, configuration and effective handler composition, using [state and invocation-order controls](#control-state-and-invocation-order) for starting-state equivalence and actual actor/context/target correspondence. Recovery reads still use their permitted read routes.
+- MUST compare every current-Full and recovered-Full valid-edit control with an equivalent safeguard-absent control under the same ordinary permissions, inputs and relevant state, preserving the actual selected history under [state and invocation-order controls](#control-state-and-invocation-order). Establish the intended mutation and matching outcomes across the claimed reachable-effect scope after delayed or spawned work settles, excluding observable transient interference as well as final differences. Only acquisition telemetry meeting the [existing bounds](#qualify-audit-noninterference) is excepted; altered task/control behavior is not telemetry.
 - MUST exercise valid-edit controls and recovery under the same ordinary permission boundaries; do not disable permissions to make a guard appear effective or grant broader permissions to make its control pass.
 - MUST NOT count an unsupported route, an edit never reached, a prior permission denial or an unknown target effect as successful prevention.
 - MUST label static analysis, fixtures and walkthroughs separately from actual host execution, and bound any promotion to the scope and failure cases the evidence establishes.
