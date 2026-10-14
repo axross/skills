@@ -40,7 +40,22 @@ targets, and compares otherwise valid operations with the safeguard absent.
 - MUST demonstrate that otherwise valid mutations proceed without safeguard-imposed refusal or alteration of the intended executed mutation in both Full and every relevant non-Full acquisition condition. Use the existing [coverage meanings](./actor-local-acquisition.md#coverage-not-an-execution-result), not receipt shape alone.
 - MUST compare equivalent safeguard-absent controls under the same ordinary permissions and relevant state, applying [state, input and invocation-order controls](#control-state-and-invocation-order). A prior permission denial or operation never reached does not establish noninterference.
 - MUST establish noninterference for the actual claimed actor, event, route and effective handler composition, including its [concurrency conditions](#qualify-concurrent-actor-state).
-- MUST follow every exercised handler failure, timeout, malformed-input, missing-input or unavailable-evidence event with otherwise valid Full and relevant non-Full mutations and usable required recovery reads, using the equivalent safeguard-absent controls above. Keep each comparison's actual event history intact; initial allow behavior, a history reset or a fresh unaffected instance cannot establish post-event noninterference.
+- MUST apply post-event noninterference controls after every exercised event below:
+  - Relevant non-Full acquisition, including the following well-formed evidence:
+    - Partial evidence.
+    - Stale evidence.
+    - Mixed-revision evidence.
+    - Wrong-actor/current-context evidence.
+  - Handler failures or timeouts.
+  - Malformed or missing inputs.
+  - Unavailable evidence.
+- MUST follow each such event with all of the following controls:
+  - Otherwise valid Full and relevant non-Full mutations.
+  - Usable required recovery reads.
+  - Equivalent safeguard-absent comparisons under the ordinary permissions and relevant state above.
+
+  Keep each comparison's actual event history intact; initial allow behavior, a history reset or a fresh unaffected instance cannot establish post-event noninterference.
+
 - MUST keep unknown, blocked or unexercised audit scopes outside routine activation. Audit evidence neither qualifies enforcement nor proves complete acquisition or final delivery; an unverified audit mode is not the fallback for unqualified enforcement.
 
 ## Containment and cleanup
@@ -68,10 +83,18 @@ path that does not depend on the tested safeguard or the session finishing.
 **Guidelines:**
 
 - MUST establish the permitted non-enforcement baseline for the effective safeguard configuration and handler composition before enabling temporary refusal: qualified audit, or otherwise inactive.
-- MUST establish automatic expiry or independently recoverable rollback that restores that baseline within the authorized duration, including after session interruption or failure of the ordinary disable operation. The path must remain usable independently of the tested safeguard and continued qualification-session execution, under ordinary permissions.
+- MUST establish automatic expiry or independently recoverable rollback satisfying all of the following conditions:
+  - Restores the established baseline within the authorized duration.
+  - Covers session interruption or failure of the ordinary disable operation.
+  - Remains usable independently of the tested safeguard and continued qualification-session execution, under ordinary permissions.
 - MUST NOT enable temporary refusal when that restoration path or its applicable interruption behavior cannot be established. A stated duration, planned final cleanup or target deletion alone is insufficient; do not assume a host expiry mechanism, rollback API or permission override.
 - MUST perform history-preserving qualification controls within the authorized duration before normal final configuration restoration, without delaying restoration for unfinished controls. Restoration after interruption does not supply unperformed post-event controls or qualify their scope.
-- MUST verify separately from target cleanup that temporary refusal has ended and the effective configuration and handler composition match the established baseline after normal completion and each exercised interruption or disable failure. An elapsed duration or successful disable response alone does not establish restoration.
+- MUST verify both configuration-restoration conditions below separately from target cleanup, after normal completion and each exercised interruption or disable failure:
+  - Temporary refusal has ended.
+  - Effective configuration and handler composition match the established baseline.
+
+  An elapsed duration or successful disable response alone does not establish restoration.
+
 - MUST retain unsettled effects or unverified target/configuration cleanup as explicit limitations, and stop further dependent work while possible unintended refusal remains unresolved. Inspect and settle unknown effects through permitted recovery operations before retrying.
 
 ## Scope and effective composition
@@ -204,7 +227,21 @@ worktrees do not isolate effective handler state.
 **Guidelines:**
 
 - MUST state whether operations from multiple actors can overlap throughout inspection and executed mutation in the effective shared handler scope. Sequential or counterbalanced runs alone establish no concurrent coverage.
-- MUST establish effective actor-state isolation independently of outcomes, or exercise contained interleaving controls for relevant shared acquisition and composed-handler state, before claiming concurrent coverage. Keep each actor's actual context, assignment/material revision and inspected-to-executed mutation correspondence separate.
-- MUST, for concurrent enforcement claims, exclude a Full actor's shared-state update admitting a non-Full actor's mutation while preserving the Full actor's otherwise valid mutation under ordinary permissions. Exercise relevant reverse roles and histories, including post-event controls; one ordering does not qualify every overlap. Concurrent audit claims instead require each actor's noninterference and recovery-read controls under the claimed overlap, including otherwise valid non-Full mutations.
+- MUST establish one of the following before claiming concurrent coverage:
+  - Effective actor-state isolation established independently of outcomes.
+  - Exercised contained interleaving controls for relevant shared acquisition and composed-handler state.
+
+  Keep each actor's correspondence separate for the following:
+  - Actual context.
+  - Assignment/material revision.
+  - Inspected-to-executed mutation.
+
+- MUST, for concurrent enforcement claims, establish both outcomes under ordinary permissions:
+  - A Full actor's shared-state update does not admit a non-Full actor's mutation.
+  - The Full actor's otherwise valid mutation proceeds.
+
+  Exercise relevant reverse roles and histories, including post-event controls; one ordering does not qualify every overlap.
+
+- MUST, for concurrent audit claims, verify each actor's noninterference and recovery-read controls under the claimed overlap, including otherwise valid non-Full mutations.
 - MUST keep concurrent scopes unqualified when isolation or relevant interleaving evidence is unavailable. A narrower single-flight claim requires an independently established restriction against overlapping invocations throughout inspection and mutation in the effective shared handler scope; sequential observations or separate actors, targets or worktrees do not establish that restriction.
 - MUST reassess qualification when relevant sharing or concurrency conditions change. Unqualified enforcement stays in separately qualified audit, or inactive when that audit scope is unqualified; these criteria supply no serialization API or activation authority.
