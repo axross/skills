@@ -247,9 +247,11 @@ A scale only constrains if values land on it. Ordinary spacing snaps to the near
 
 An optical correction adjusts visual alignment or balance to preserve an approved design constraint. Internal padding and gaps remain spacing, not fixed-element dimensions or ratios. The geometry-specific requirements below apply on every route. When the project's installed-rule deviation practices are available, use their generic adoption and validity checks as well, not instead. This path does not override other applicable rules.
 
-**Example:**
+**Example — React Native numeric layout lengths:**
 
-> A noninteractive pill has a 16pt content box and an approved 20pt nominal height. Snapping its 2pt vertical padding to 4pt makes it 24pt tall; 3pt leading padding/gap and 9pt trailing padding also change when snapped to 4pt/8pt. Scoped approval can preserve those exact internal lengths without adding single-use steps to the shared scale, but cannot waive independently applicable design or adapter rules. The same numbers in another component inherit no approval.
+> In this React Native illustration, assume positive spacing steps `4`, `8`, `12`, … resolve to the same numeric logical layout lengths. A noninteractive pill has an approved nominal height of `20`: with unchanged content height `16` and no other box terms, vertical padding `2` gives `20`, while snapping to `4` gives `24`. Leading padding/gap `3` and trailing padding `9` snap to `4` and `8`.
+>
+> These lengths are not CSS `pt` or physical pixels; on web, compare converted geometry with the token's resolved CSS length, not just its key. Scoped approval can preserve those exact internal lengths without adding single-use steps to the shared scale, but cannot waive independently applicable design or adapter rules. The same numbers in another component inherit no approval.
 
 **Guidelines:**
 
