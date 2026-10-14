@@ -54,7 +54,7 @@
     "high-fidelity-ui-design": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "ef249c60e247a8d4871af333a33d8c70443af39a29b20b8f9d798983a54ec565"
+      "computedHash": "5be219d44daeb4b9f5701bed037ff3d343558340f3793ba98ed61645236c9f85"
     },
     "jest-testing": {
       "source": "./skills",
@@ -74,7 +74,7 @@
     "next-app-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "6140043e560cfcb3db789153f83c2197516640d5db40a8c5cea2ce80e1663d2a"
+      "computedHash": "9c47a9e0aa2b0e512974ac2972d04251b9730a7042c2a2d8fc43d8071f313cbb"
     },
     "product-requirement-document-authoring": {
       "source": "./skills",
@@ -94,12 +94,12 @@
     "react-component-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8dd8c7a7a69776ea01cee38d8767dca10710e2a5e9dfbfb37d52777ae6f0aa42"
+      "computedHash": "971c313844df4b9746462defa4abaea2c25d3cc5e036c8ae7a90b64b1a53555a"
     },
     "react-component-styling": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "3c34012dc0ae16383f0a629fb13a3fc4d142017390f1d72fc8585a54e9a7b944"
+      "computedHash": "dc2aee3053f9964d00a1e76ca3cff07ad57c12ea4b48c85b1f4ef9f34a6ebfb6"
     },
     "sentry-instrumentation": {
       "source": "./skills",

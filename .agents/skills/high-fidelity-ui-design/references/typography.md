@@ -1,6 +1,6 @@
 # High-Fidelity UI & Visual Design — Typography
 
-A semantic type scale and readable body text.
+A semantic type scale and readable text across languages and scripts.
 
 Part of the research-grounded best-practices set for this skill (see the skill's `SKILL.md` for the full routing). Each principle below is distilled from reputable design sources; the `**Guidelines:**` bullets are the normative rules for this topic.
 
@@ -8,9 +8,11 @@ Part of the research-grounded best-practices set for this skill (see the skill's
 
 The failure this prevents is ad-hoc sizing: a designer wants one line to stand out and types font-size: 19px inline, or an engineer bumps body text to 18px on a single screen to "make it breathe." These orphan values never match a token, never theme, and quietly multiply until the app has forty near-duplicate sizes and no legible hierarchy. Assign by content importance, not by how a particular screen happens to feel in isolation — if the text is a section heading, it gets the title role everywhere, and if the title looks wrong, you fix the token, not the instance.
 
-What makes that possible is a small closed set of named roles, each a token bundling size, weight, line height, and letter spacing at once; both major platforms ship a scale worth copying rather than inventing ([Material 3 type-scale tokens](https://m3.material.io/styles/typography/type-scale-tokens), [Apple Dynamic Type](https://developer.apple.com/design/human-interface-guidelines/typography)). The bundling is the part that pays: because the four properties travel as a unit, changing the brand font or nudging the scale updates every screen consistently, and light/dark or platform variants stay in lockstep.
+What makes that possible is a closed set of named roles, each a token bundling family, size, line height, and weight, plus letter spacing where declared. Both major platforms provide semantic styles ([Material 3 type-scale tokens](https://m3.material.io/styles/typography/type-scale-tokens), [Apple Dynamic Type](https://developer.apple.com/design/human-interface-guidelines/typography)). The bundling is the part that pays: because the properties travel as a unit, changing the brand font or nudging the scale updates every screen consistently, and light/dark or platform variants stay in lockstep.
 
-Derive the size steps from a single modular ratio instead of hand-picking numbers ([A Responsive Guide to Type Sizing](https://cloudfour.com/thinks/responsive-guide-to-type-sizing/)). Anchor body text at 16px and multiply up by one ratio — 1.25 (major third) stays safe when a product spans dense UI and editorial content, 1.333 (perfect fourth) buys more dramatic heading contrast. Hold that one ratio across the whole system; mixing 1.2 in one place and 1.5 in another is what makes a UI read as incoherent. Keep the ladder to 6-8 sizes, because more steps stop being distinguishable and each one dilutes the hierarchy, and express emphasis through weight paired with size rather than reaching for color or all-caps as the primary signal.
+Use the host project's approved role ramp first. Caption, chart label, and metric value serve different reading tasks; a deliberate ramp need not fit one modular ratio. Consistency comes from shared semantic roles and a tested hierarchy, not from making every role satisfy the same formula.
+
+When starting a new design without an approved ramp, a 16px body with one modular ratio is one useful starting point ([A Responsive Guide to Type Sizing](https://cloudfour.com/thinks/responsive-guide-to-type-sizing/)). For example, 1.25 (major third) gives restrained steps, while 1.333 (perfect fourth) gives stronger heading contrast. Start with a small ladder, such as 6-8 distinct sizes, then test the roles against real content and platform text scaling. Neither that count nor that formula replaces an approved design system or the readability and accessibility requirements below.
 
 **Good Example:**
 
@@ -23,11 +25,49 @@ Derive the size steps from a single modular ratio instead of hand-picking number
 **Guidelines:**
 
 - MUST assign every string to a named role from the shared type scale (such as title, body, or label) and MUST NOT introduce raw font-size values that match no token.
-- MUST derive the scale's size steps from one modular ratio anchored at a 16px body, and MUST NOT mix ratios across the system.
-- SHOULD cap the scale at 6-8 named sizes and express emphasis by pairing weight with size rather than leaning on color or all-caps as the primary hierarchy signal.
+- MUST use the host project's approved semantic role ramp, including purpose-specific roles, rather than forcing it onto a universal base size, modular ratio, or role count.
+- MAY start a new scale with a 16px body and one modular ratio when no approved ramp exists.
+- MUST validate that choice against real content, supported scripts, and platform accessibility requirements when using that new-scale starting point.
+- SHOULD keep new scales small and express emphasis by pairing weight with size rather than leaning on color or all-caps as the primary hierarchy signal.
 - MUST assign roles by content importance consistently across screens and fix the token rather than overriding a single instance when a role looks wrong.
 
 Sources: [Typographic Hierarchies — Smashing Magazine](https://www.smashingmagazine.com/2022/10/typographic-hierarchies/)
+
+## Choose text roles by language, script, and purpose
+
+Language selects translated copy and language-appropriate glyph forms; script is the writing system whose glyphs the font needs to cover. Purpose determines the reading task. These are separate decisions: a translated chart label follows the prose font policy, while a rank pair or metric value can have a deliberately language-independent face. Being numeric alone does not make a role invariant — localized digits and units can change its required glyphs.
+
+Choose script-specific faces and fallbacks for the content a role can receive, not only the app's current language. A Latin-language interface can still contain a Japanese name. [CSS Fonts' font-matching rules](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#font-style-matching) distinguish character coverage from the shaping information required by a script; [cluster matching](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#cluster-matching) treats base characters and combining marks together. A covered face or fallback can still render broken joins, required ligatures, or mark positioning. Test representative clusters for the supported scripts against the [required script features](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#default-features), not only missing-glyph boxes.
+
+Correct shaping does not establish correct language-specific forms: [CSS Fonts' language-specific display rules](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#language-specific-support) use the element's content language when selecting glyphs. Define a content/font policy rather than requiring automatic script detection for every string. Token resolution and platform fallback mechanics belong to the project's component-styling practices where present; otherwise resolve complete roles centrally with supported-script coverage and shaping.
+
+Judge text and roles against the same already-resolved effective language the app uses for translations, even when device language differs. For preference initialization, ordering, or late-completion verification, consult the project's component/app-state language-preference practices where present. Without that optional capability, the host application still resolves preference state before supplying this input; typography does not define the precedence policy.
+
+**Good Example:**
+
+> `body`, `caption`, and `chartLabel` use faces suited to the selected language and supported scripts. A `metricValue` role keeps its purpose-specific face for a documented, unchanged digit/symbol repertoire. Localized units use a suitable text role, and localized digits or mixed-script values require a covered variant or fallback rather than an assumed Latin-only face.
+
+**Bad Example:**
+
+> Switching language replaces every face with the prose font, losing the distinct rank-pair treatment. Another screen does the opposite: it labels every number language-independent, then renders localized digits and units through a face that cannot display them.
+
+Exercise the following cases when judging the role mapping:
+
+| Case                            | Content and state                                                                                       | Failure to look for                                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Script coverage and shaping     | Supported-script clusters and combining marks, mixed-script names, localized digits, units, and symbols | Missing glyphs, incorrect language forms, broken shaping/required ligatures, misplaced marks, or incorrectly split fallback clusters |
+| Translation length              | Longest supported translations at narrow supported layouts                                              | Clipping, overlap, or loss of essential content                                                                                      |
+| Resolved-language consistency   | Already-resolved language B while device language is A                                                  | Text or roles follow A instead of B, or disagree with each other                                                                     |
+| Language and appearance changes | Switch language, then switch to a previously inactive theme                                             | Stale language-dependent faces or missing roles                                                                                      |
+| Native large text               | Longest supported translations at default and largest accessibility text sizes supported by the OS      | Broken hierarchy, clipped line boxes, overlap, or essential content becoming unavailable                                             |
+
+Apple's [typography guidance](https://developer.apple.com/design/human-interface-guidelines/typography) calls for testing at the largest accessibility text sizes, including custom fonts. These checks preserve the readability floors below; fitting a translation by reducing text size or disabling accessibility scaling does not satisfy them.
+
+**Guidelines:**
+
+- MUST choose a semantic role by content purpose and define its language/script coverage, including mixed-script content the role can receive.
+- MAY keep a purpose-specific numeric or symbolic face language-independent only when its intended glyph repertoire remains covered; localized digits or units require an appropriate variant, role, or fallback.
+- MUST verify the role mapping with the cases above on each supported platform. Missing glyphs, incorrect language forms, broken shaping or required ligatures, misplaced marks, incorrectly split fallback clusters, clipping, overlap, and loss of essential content are failures; shrinking text or disabling native text scaling does not remedy them.
 
 ## Tune body text for readability: size, measure, and leading
 

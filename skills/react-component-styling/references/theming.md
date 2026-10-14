@@ -157,7 +157,7 @@ const typography = {
 
 **Guidelines:**
 
-- MUST declare typography as named text roles that bundle family, size, line height, and weight, and MUST apply a role whole rather than picking values out of it.
+- MUST declare typography as named text roles that bundle family, size, line height, weight, and letter spacing where declared, and MUST apply a role whole rather than picking values out of it.
 - MUST NOT inline a numeric `fontSize` or `font-size` in a component. Every size a project uses is a text role; a size with no role is a missing token, not an exception.
 - MUST pair a font family with its feature settings wherever the project declares them, since setting one without the other produces glyph mismatches between surfaces.
 - MUST classify a family once — as addressable by number when every face in use shares the OpenType `name` table's ID 1, or addressable only per face when any face in use does not — and apply that one classification to every role of the family, never per role.
@@ -167,6 +167,37 @@ const typography = {
 - SHOULD name roles for their content (`title`, `body`, `label`, `caption`, `code`), not their size (`lg`, `sm`), so a retune does not rename them.
 - SHOULD classify a family the same way on every platform a project ships once any platform requires the per-face form, rather than addressing the same family two different ways.
 - MAY add a role rather than stretch an existing one when a surface genuinely needs a new pairing — a new role is a design decision, but it is a cheaper one than a one-off literal.
+
+### Resolve roles for the effective language
+
+Build complete roles from the project's language/script font mapping at the theme boundary. Keep role names stable so components continue to apply `theme.typography.body` or the equivalent web role without local language branches. A language change can select a different face without changing the role's purpose; resolve that face's weight form and the selected mapping's declared letter spacing and font features along with its size and leading. Do not carry tracking over from the previous mapping or invent a value for a role that declares none.
+
+The effective language is the already-resolved language the app uses for translations. Receive that input from application state rather than resolving preference policy inside a stylesheet. For language-preference initialization, ordering, or late-completion verification, consult the project's component/app-state language-preference practices where present. Without that optional capability, the host application still owns preference resolution before supplying the effective-language input.
+
+Bindings can differ by purpose without splitting the bundle contract:
+
+| Role purpose                                       | Font binding                                         | Coverage condition                                                                                   |
+| -------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Translated body, caption, or chart label           | Language/script-specific face or fallback            | Translated text and supported mixed-script content                                                   |
+| Deliberately invariant metric or rank-pair symbols | Fixed purpose-specific face                          | Documented unchanged digit/symbol repertoire                                                         |
+| Localized numeric value or unit                    | Covered variant, separate semantic role, or fallback | Actual localized digits, separators, and unit text; not an assumption that all numbers are invariant |
+
+Define fallback at the token/platform boundary too. On web, provide the role's font-family stack. On native, use the platform-supported face/fallback mechanism rather than assuming a web stack is portable. For known content in another language or script, supply the appropriate role variant or covered fallback; automatic per-string script detection is not required. A translation fallback alone says nothing about font glyph coverage.
+
+Web content-language and writing-direction metadata belong to markup, not typography tokens. [Declare the document language on `html` with a valid BCP 47 language tag](https://www.w3.org/International/questions/qa-html-language-declarations#choosing-language-values). Map application identifiers to those tags: a mapping can define `en_US` → `en-US` or `english` → `en`; copying an internal key blindly into `lang` is not that mapping. Known differing-language elements use valid tags for their own content: an English interface can use `<html lang="en">` while a Japanese name uses `<span lang="ja">山田</span>`. [CSS Fonts' language-specific display](https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#language-specific-support) uses the element's content language for localized glyph forms; a font-family stack cannot supply that metadata.
+
+When the effective language changes, update the document's mapped `lang` and independently resolved `dir` along with translated text and resolved roles. Direction follows the host application's locale/content policy, not the selected font or language attribute: [language markup does not set writing direction](https://www.w3.org/International/questions/qa-html-language-declarations#additional). Switching an English default to Arabic and back updates both document defaults; an English-specific run inside Arabic content retains its own `lang="en"` and `dir="ltr"`. Keep content-specific language and direction overrides tied to their content rather than replacing them with every new document default.
+
+When choosing which roles can remain invariant or judging translated and large-text renders, consult the project's high-fidelity typography practices where present. Without them, check supported-script glyphs, shaping and fallback clusters, long translations, and native accessibility text sizes for broken rendering, clipping or lost content.
+
+**Guidelines:**
+
+- MUST resolve translated text roles from the same already-resolved effective language as the translations, accounting for known content-language/script differences through central variants or fallback rather than component-local font patches.
+- MUST map application language identifiers to valid BCP 47 tags for `lang` on the document and known differing-language elements; keep language metadata in markup rather than typography tokens.
+- MUST synchronize the document's mapped `lang` and independently resolved `dir` with each effective-language change, using the host application's locale/content direction policy and preserving content-specific language and direction overrides.
+- MUST rebuild affected complete roles when the effective language changes, preserving the selected mapping's declared letter spacing and font features and each selected face's weight-addressing form; keep deliberately invariant bindings fixed rather than replacing every face with the prose font.
+- MUST update every affected appearance mapping, including inactive light/dark themes, without replacing unrelated theme tokens, so a later appearance change cannot restore stale language-dependent roles.
+- MUST define script-specific faces or platform-supported glyph fallback for the content each role accepts, including localized digits, units, and mixed-script strings.
 
 ## Spacing, Radius, and Border Width
 
