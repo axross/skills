@@ -26,7 +26,8 @@ When starting a new design without an approved ramp, a 16px body with one modula
 
 - MUST assign every string to a named role from the shared type scale (such as title, body, or label) and MUST NOT introduce raw font-size values that match no token.
 - MUST use the host project's approved semantic role ramp, including purpose-specific roles, rather than forcing it onto a universal base size, modular ratio, or role count.
-- MAY start a new scale with a 16px body and one modular ratio when no approved ramp exists; validate that choice against content, supported scripts, and platform accessibility requirements.
+- MAY start a new scale with a 16px body and one modular ratio when no approved ramp exists.
+- MUST validate that choice against real content, supported scripts, and platform accessibility requirements when using that new-scale starting point.
 - SHOULD keep new scales small and express emphasis by pairing weight with size rather than leaning on color or all-caps as the primary hierarchy signal.
 - MUST assign roles by content importance consistently across screens and fix the token rather than overriding a single instance when a role looks wrong.
 

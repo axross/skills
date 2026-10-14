@@ -157,7 +157,7 @@ const typography = {
 
 **Guidelines:**
 
-- MUST declare typography as named text roles that bundle family, size, line height, and weight, and MUST apply a role whole rather than picking values out of it.
+- MUST declare typography as named text roles that bundle family, size, line height, weight, and letter spacing where declared, and MUST apply a role whole rather than picking values out of it.
 - MUST NOT inline a numeric `fontSize` or `font-size` in a component. Every size a project uses is a text role; a size with no role is a missing token, not an exception.
 - MUST pair a font family with its feature settings wherever the project declares them, since setting one without the other produces glyph mismatches between surfaces.
 - MUST classify a family once — as addressable by number when every face in use shares the OpenType `name` table's ID 1, or addressable only per face when any face in use does not — and apply that one classification to every role of the family, never per role.
@@ -170,7 +170,7 @@ const typography = {
 
 ### Resolve roles for the effective language
 
-Build complete roles from the project's language/script font mapping at the theme boundary. Keep role names stable so components continue to apply `theme.typography.body` or the equivalent web role without local language branches. A language change can select a different face without changing the role's purpose; resolve that face's weight form and declared font features along with its size and leading.
+Build complete roles from the project's language/script font mapping at the theme boundary. Keep role names stable so components continue to apply `theme.typography.body` or the equivalent web role without local language branches. A language change can select a different face without changing the role's purpose; resolve that face's weight form and the selected mapping's declared letter spacing and font features along with its size and leading. Do not carry tracking over from the previous mapping or invent a value for a role that declares none.
 
 The effective language is the already-resolved language the app uses for translations. Receive that input from application state rather than resolving preference policy inside a stylesheet. For language-preference initialization, ordering, or late-completion verification, consult the project's component/app-state language-preference practices where present. Without that optional capability, the host application still owns preference resolution before supplying the effective-language input.
 
@@ -195,7 +195,7 @@ When choosing which roles can remain invariant or judging translated and large-t
 - MUST resolve translated text roles from the same already-resolved effective language as the translations, accounting for known content-language/script differences through central variants or fallback rather than component-local font patches.
 - MUST map application language identifiers to valid BCP 47 tags for `lang` on the document and known differing-language elements; keep language metadata in markup rather than typography tokens.
 - MUST synchronize the document's mapped `lang` and independently resolved `dir` with each effective-language change, using the host application's locale/content direction policy and preserving content-specific language and direction overrides.
-- MUST rebuild affected complete roles when the effective language changes, preserving declared font features and each selected face's weight-addressing form; keep deliberately invariant bindings fixed rather than replacing every face with the prose font.
+- MUST rebuild affected complete roles when the effective language changes, preserving the selected mapping's declared letter spacing and font features and each selected face's weight-addressing form; keep deliberately invariant bindings fixed rather than replacing every face with the prose font.
 - MUST update every affected appearance mapping, including inactive light/dark themes, without replacing unrelated theme tokens, so a later appearance change cannot restore stale language-dependent roles.
 - MUST define script-specific faces or platform-supported glyph fallback for the content each role accepts, including localized digits, units, and mixed-script strings.
 
