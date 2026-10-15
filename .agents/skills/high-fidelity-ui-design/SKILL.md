@@ -34,6 +34,8 @@ See [layout-and-spacing.md](./references/layout-and-spacing.md) for:
 See [typography.md](./references/typography.md) for:
 
 - building a semantic type scale instead of ad-hoc sizes
+- choosing text roles by language, script, and purpose, including invariant numeric or symbolic faces
+- verifying supported-script shaping and fallback clusters, mixed-script coverage, long translations, language/appearance changes, and native accessibility text sizes
 - tuning body text for readability — size, measure, and leading
 
 ## Color and Contrast
@@ -58,4 +60,5 @@ See [accessibility-and-cognitive-load.md](./references/accessibility-and-cogniti
 
 - providing a visible focus indicator with a logical focus order, and preference-aware motion
 - using native semantics and labels for assistive technology
+- checking [chart information equivalence](./references/accessibility-and-cognitive-load.md#provide-task-relevant-chart-information-beyond-identification) separately from identification
 - reducing cognitive load and investing in visual quality without masking usability

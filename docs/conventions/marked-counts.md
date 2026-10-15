@@ -10,7 +10,7 @@ contributor chose to wrap.
 A marker wraps a number inline and is invisible once the page renders:
 
 ```markdown
-The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the
+The <!-- count:distributable-skills -->thirty<!-- /count --> here cover the
 whole arc.
 ```
 
