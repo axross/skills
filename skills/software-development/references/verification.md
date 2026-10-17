@@ -37,6 +37,38 @@ Manual verification is the first line of confirmation; the automated gate is the
 - MUST NOT call a change done on the strength of a passing format/lint gate alone; the gate does not judge whether the content is correct.
 - MUST report skipped, failed or insufficient required checks as limitations, naming the reason and residual risk rather than presenting them as successful conformity.
 
+## Diagnose a Failed Check
+
+A failing command establishes a failed route, not its cause. The same error in
+the base and changed checkout can come from unchanged defective source or from
+local generated state shared by both. Calling it pre-existing from that
+comparison alone can conceal a repairable verification environment.
+
+Choose evidence that separates the credible explanations. The following are
+contrasts to guide diagnosis, not a requirement to run every comparison:
+
+| Explanation                              | Discriminating evidence                                                                                                                               | Consequence                                                                                                                                    |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Change regression                        | With comparable documented setup and inputs, the baseline passes and the changed material fails; tracing connects the failure to the changed surface. | Correct the in-scope regression and rerun affected checks.                                                                                     |
+| Pre-existing source defect               | The failure persists in an isolated baseline using documented setup, and tracing identifies the defect in unchanged tracked source.                   | Record the baseline defect and the verification it prevents; its existence does not expand repair scope or satisfy the gate.                   |
+| Generated or local environment state     | Trace the failing input's origin and relevant local setup; documented regeneration or isolated setup makes the same source pass.                      | Repair permitted local state or use the documented isolated route, then verify the required property without a speculative source workaround.  |
+| Unavailable or inconclusive verification | The checker cannot execute, a required dependency is unavailable, or setup differences prevent a meaningful comparison.                               | Retain the missing evidence and cause as unresolved; pursue available independent checks without presenting them as the blocked check passing. |
+
+**Guidelines:**
+
+- MUST establish the failed command, actual result, material revision and relevant setup, including whether the checker reached the property being tested or failed in its harness or environment.
+- MUST distinguish a change regression, pre-existing source defect, generated/local state and unavailable or inconclusive verification using discriminating evidence; retain an unresolved diagnosis when the evidence cannot distinguish them. An identical baseline failure or a diagnostic outside changed files alone does not establish a pre-existing source defect.
+- SHOULD choose the smallest safe comparison that can settle the cause, using documented setup and preserving unrelated local work; comparable base/current runs, input-origin inspection, regeneration and isolated execution answer different questions.
+- MUST reconcile required checks after an environment correction or alternate route, rerunning the affected check against the current material when available and retaining every remaining failure or coverage gap. A passing alternate check establishes only its covered property, not a waiver of another required gate.
+
+Route any proposed source repair through [change-management.md](./change-management.md)
+for causal correction and scope. When consequential inference or reporting
+accuracy is uncertain, consult the project's conduct practices where present;
+without them, keep the diagnosis qualified by the evidence above. When the
+diagnosis changes which action can proceed, consult change-loop progression
+practices where present; without that owner, preserve the project's required
+gates and report the specific blocked action and available work.
+
 ## Check the Current Integrated Output
 
 Output conformity means that the inspected result follows its applicable governing rules and currently valid exceptions. Acquisition establishes which instructions reached an actor, not whether the actor followed them. A contribution can also be correct before integration and wrong afterward.

@@ -22,11 +22,34 @@ A completed phase is evidence for the next transition, not a reason to return
 control to the human. Loop owns whether work advances; the host owns the tool,
 wait, or return mechanism that realizes that outcome.
 
+A blocker attaches to an action through an unmet prerequisite. A failed check
+can block readiness while leaving diagnosis available; a pending review can
+block convergence while leaving required verification available. Name that
+dependency before deciding that the whole run must wait.
+
+**Contrasting Examples:**
+
+> **Work remains:** Review and CI are pending, and a local verification route
+> fails. Inspecting the failure and running a documented, permitted isolated
+> check remain required and independent of those results. Perform that work;
+> neither pending review nor one failed route establishes a run-wide stop.
+
+> **A machine result resolves the dependency:** The required checks and review
+> now satisfy their gates for the current material. Evaluate the remaining
+> ready conditions and publish ready when all hold, even if source is unchanged.
+> Creating a source edit or requesting the same authorization again adds no
+> missing evidence.
+
+> **Only dependent work remains:** The remaining action needs a pending check,
+> human decision, or unmatched grant. Use the applicable bounded machine wait
+> or human handoff; preserve the action and its prerequisite for recovery.
+
 **Guidelines:**
 
 - MUST enter the next required phase or perform its next action without asking for another instruction when current evidence establishes its prerequisites, a permitted route can perform it, and every effect that requires human authorization is covered by a matching operation grant. A matching standing grant counts as a matching operation grant under [Scoped Operation Grants](./run-state-and-reporting.md#scoped-operation-grants).
-- MUST continue independent available work when another action is blocked by a required human decision, an unmatched operation grant, an unavailable capability or required input, an unsafe failed or outcome-unknown effect, or an outstanding machine result; stop only the work that depends on that blocker.
-- MUST stop the run only when no required action remains available because of one of those blockers, or when an applicable execution or review bound, non-convergence, or completion applies; record the specific result state and resumable next action.
+- MUST identify the concrete action and unmet prerequisite when blocked by a required human decision, an unmatched operation grant, an unavailable capability or required input, an unsafe failed or outcome-unknown effect, or an outstanding machine result; continue independent required, permitted work, including diagnostic work, and stop only work that depends on the blocker.
+- MUST reevaluate the affected transition and remaining gates when a current machine result arrives, checking its material and coverage against the required evidence. An unchanged source revision needs no invented edit or renewed matching authorization; stale, partial, failed, or unknown evidence still leaves its gate unmet.
+- MUST stop the run only when no required action remains available because of one of those blockers, or when an applicable execution or review bound, non-convergence, or completion applies; record the specific result state, actual dependency and resumable next action.
 - MUST end the turn for a human wait; for an actual pending machine result, use only a permitted wait mechanism within the applicable bound. The turn-boundary rule separating a progress note from a deferred available action is stated in [SKILL.md](../SKILL.md) under its carve-out, and is not restated here.
 - MUST preserve the phase, attempts, review round, grants, material revision, and pending or unknown effects across interruption so recovery resumes one established transition rather than restarting or skipping ahead.
 - MUST NOT treat evidence that the ready gate is satisfied as authorization to merge, schedule, or perform any other unnamed effect. Publishing the ready transition itself is governed by [independent-review.md](./independent-review.md)'s ready gate, not by this operation-grant rule: once that gate is satisfied, publishing is the required next action rather than a blocked one.
@@ -34,6 +57,15 @@ wait, or return mechanism that realizes that outcome.
 ## Execute and Verify
 
 The approval binds the outcome; the assignment binds the execution. Parent and child implementations carry the same verification burden. The project's software-development and specialist capabilities own how to implement and test, and its code-review and QA capabilities own diff judgment and evidence adequacy.
+
+When a check fails, consult software-development verification practices for
+evidence-led failure diagnosis; without that owner, retain the failure and its
+unresolved cause while obtaining available diagnostic evidence. This reference
+uses that evidence to decide dependencies, not to waive a required check.
+For a consequential inference or uncertain report, consult conduct practices;
+when instruction delivery or retention is uncertain, consult skill-acquisition
+practices where present. Without those owners, report the unresolved limit
+rather than infer the cause or successful acquisition.
 
 **Guidelines:**
 
