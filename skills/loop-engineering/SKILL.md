@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including resuming or recovering a run. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, host execution APIs, or delivery storage. Conduct practices own non-code deliverable review; project policy chooses gates and branches. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
+description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including blocked verification, pending review/CI, and run recovery. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, check-failure diagnosis, host execution APIs, or delivery storage. Development practices own verification diagnosis; conduct practices own non-code deliverable review; project policy chooses gates and branches. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
 user-invocable: false
 ---
 
@@ -37,7 +37,8 @@ See [phase-progression.md](./references/phase-progression.md) for:
 
 - anchoring a new change in its tracking target and making its first edit or branch operation, under intake and default gates
 - running verification for a changed surface and opening or addressing a delivery target, under project policy and independent review
-- choosing the available next action or a legitimate stop when a blocker affects the run rather than one dependent action
+- choosing available actions when verification fails or review/CI is pending, identifying concrete dependencies and bounded machine waits
+- reevaluating remaining gates after a current machine result, including readiness without a source edit
 
 See [plan-document.md](./references/plan-document.md) for:
 
@@ -112,5 +113,5 @@ What follows is the rule itself, not a further reading obligation. It binds ever
 
 - MUST act, in the same turn, on any observation that has a next step while the run continues — do not end a turn that reports and calls no tool when there is more to do.
 - MUST treat exactly three cases as exceptions to that rule rather than violations of it: ending the turn at a required human gate, including a machine event escalated to one; recording state before stopping at a waiting bound; and the completion report that closes the run.
-- MUST NOT apply this rule to a progress note posted while an asynchronous machine event is still outstanding — a required check, the independent review, or a delegated actor's run — since that turn defers no next step, none being due until the event resolves.
+- MUST NOT apply this rule to a progress note posted while an asynchronous machine event is still outstanding — a required check, the independent review, or a delegated actor's run — when no independent next action is available; an outstanding event alone does not establish that condition.
 - MUST NOT read this rule as barring reasoning alongside a tool call: it forbids splitting one turn into a text-only turn followed by the turn that acts, not writing prose in the same turn that also calls a tool.

@@ -1,6 +1,6 @@
 ---
 name: software-development
-description: Every task that touches a project — implementing, refactoring, running a project command, or writing a pull request body. The baseline discipline underneath the specialised skills — keep the change scoped, run the format and lint loop, map what the change puts at risk, and find out how the project is actually run. Applies even when the request never mentions formatting, linting, comments, dependencies, docs, or descriptions, and when you need one of the project's operations — tests, dev server, build, lint, deploy — and must find it documented or ask. Not for a session that touches nothing, where the conduct baseline applies instead.
+description: Every task that touches a project — implementing, refactoring, diagnosing failed checks, running a project command, or writing a pull request body. The baseline discipline underneath the specialised skills — keep the change scoped, run the format and lint loop, map what the change puts at risk, and find out how the project is actually run. Applies even when the request never mentions formatting, linting, comments, dependencies, docs, or descriptions, and when you need one of the project's operations — tests, dev server, build, lint, deploy — and must find it documented or ask. Change-loop practices own progression after results; the conduct baseline applies when a session touches nothing.
 user-invocable: false
 ---
 
@@ -86,6 +86,7 @@ ships none, it requires nothing.
 See [verification.md](./references/verification.md) for:
 
 - choosing verification for a defect correction or review-driven change
+- diagnosing failed checks through regression, baseline-source, generated/local-state and unavailable-route evidence, including identical base/current failures
 - mapping changed files to the output surfaces they put at risk before choosing a verification path
 - planning fragile obligations with independent expected results and discriminating checks before execution
 - the manual verification steps that confirm a change before it is called done, and why a passing gate is not one of them
