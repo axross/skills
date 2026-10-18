@@ -82,6 +82,15 @@ separately to implementation delegation, phase-deliverable review, and
 implementation pre-flight; mandatory verification and external review remain
 unchanged.
 
+Amp's configured Implementer and expanded Reviewer are supplied by the native
+User Plugin, not by the Claude definitions or a Task role-path handoff.
+[Amp Execution](./amp-execution.md) owns their invocation, contribution-thread
+collection and staged adoption. The Reviewer covers investigation, plan, design
+and code artifacts, but each checkpoint still requires its own fresh qualified
+assessment. The parent's implementation self-review and an earlier plan review
+do not qualify implementation pre-flight. A plugin name or new documentation
+does not establish that the active Global guidance and registered tools agree.
+
 The project's advisory review applies after every verified initial
 implementation, whether the parent or a child implemented it, before the first
 branch push and draft pull request. Who implemented does not select it —
