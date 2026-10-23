@@ -195,7 +195,7 @@ export function analyzeBody(document) {
       // an independent quote/fence is a boundary; a contained one is visited inside its list item.
       if (["blockquote_open", "fence", "code_block", "table_open", "html_block", "hr"].includes(node.token.type)) {
         route = null;
-        if (node.token.type === "html_block") guidelines = null;
+        if (node.token.type === "html_block" || node.token.type === "blockquote_open" && rendered(node)) guidelines = null;
         if (group && node.token.type !== "hr") group.blocks.push(node);
         demonstration ||= rendered(node);
       }

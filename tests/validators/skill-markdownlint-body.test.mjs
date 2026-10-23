@@ -497,6 +497,25 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
   });
 
   it.each([
+    ["> Independent rationale.", 0],
+    ["> First paragraph.\n>\n> Second paragraph.", 0],
+    ["> ![](diagram.svg)", 0],
+    ["> `A quoted snippet`", 0],
+    ["> <!-- invisible -->", 1],
+    [">", 1],
+  ])("keeps Guidelines association local across blockquotes (%#)", async (quote, independentCode) => {
+    const prefix = "## Rules\n\nRationale.\n\n**Guidelines:**\n\n- MUST preserve output.\n\n";
+    const lineNumber = 16 + quote.split("\n").length;
+    const independent = await check("AS005", prefix + `${quote}\n\n- descriptive item\n`, { eol });
+    expect(independent.code).toBe(independentCode);
+    expect(independent.findings).toEqual(independentCode ? [expect.objectContaining({ ruleNames: ["AS005"], lineNumber })] : []);
+    const containedQuote = quote.split("\n").map(line => "  " + line).join("\n");
+    const contained = await check("AS005", prefix + `${containedQuote}\n\n- descriptive item\n`, { eol });
+    expect(contained.code).toBe(1);
+    expect(contained.findings).toEqual([expect.objectContaining({ ruleNames: ["AS005"], lineNumber })]);
+  });
+
+  it.each([
     ["MUST, SHOULD, and MAY are keyword names.", 0],
     ["RECOMMENDED and NOT RECOMMENDED are keyword names.", 0],
     ["SHALL NOT or MUST NOT are keyword names.", 0],

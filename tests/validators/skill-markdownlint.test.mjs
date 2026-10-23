@@ -668,6 +668,8 @@ describe("explicit context and protected execution", () => {
       ["AS008", route + "- condition\n\n**<!-- invisible -->**\n\n- Consumers SHALL NOT discard output.\n"],
       ["AS003", "# Probe Skill\n\nRationale.\n\n- ### MUST preserve output.\n"],
       ["AS005", W2_BODY + "\n**<!-- invisible -->**\n\n- not a keyword\n"],
+      ["AS005", W2_BODY + "\n  > A contained example.\n\n- not a keyword\n"],
+      ["AS005", W2_BODY + "\n> <!-- invisible -->\n\n- not a keyword\n"],
       ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n> Two.\n"],
       ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n---\n\n> Two.\n"],
     ];
@@ -691,6 +693,7 @@ describe("explicit context and protected execution", () => {
         "# Probe Skill\n\n**Good Example:**\n\n```javascript\nconst snippet = 1;\n```\n\n---\n",
         "# Probe Skill\n\n**![Guidelines:](diagram.svg)**\n\n- an ordinary caption\n",
         "# Probe Skill\n\n**![Good Example:](diagram.svg)**\n\nFirst caption.\n\nSecond caption.\n",
+        W2_BODY + "\n> Independent rationale.\n\n- descriptive item\n",
       ]) {
         await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n${body}`.replaceAll("\n", "\r\n"));
         const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
