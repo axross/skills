@@ -268,6 +268,31 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     expect((await check("AS006", body, { eol })).code).toBe(1);
   });
 
+  it.each(["### Child", "### Good Example:", "### **Good Example:**", "### Guidelines:"])("keeps a %s heading's demonstration scope local", async (heading) => {
+    const body = `## Parent\n\nParent rationale.\n\n${heading}\n\n**Guidelines:**\n\n- MUST preserve output.\n`;
+    const result = await check("AS006", body, { eol });
+    expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS006"], lineNumber: 13 })]);
+    expect((await check("AS006", body.replace("\n\n**Guidelines:**", "\n\nLocal rationale.\n\n**Guidelines:**"), { eol })).code).toBe(0);
+  });
+
+  it.each([
+    "![Guidelines:](diagram.svg)",
+    "**![Guidelines:](diagram.svg)**",
+    "### ![Guidelines:](diagram.svg)",
+    "**Guide![lines:](diagram.svg)**",
+    "**![](diagram.svg)Guidelines:**",
+    "**[![Guidelines:](diagram.svg)](https://example.com)**",
+  ])("keeps an image label out of authored Guidelines (%#)", async (image) => {
+    const body = `# Fixture Skill\n\n${image}\n\n- an ordinary caption\n`;
+    for (const id of ["AS003", "AS004", "AS005", "AS006"]) {
+      expect((await check(id, body, { eol })).code).toBe(0);
+    }
+  });
+
+  it.each(["**![Good Example:](diagram.svg)**", "![Bad Example:](diagram.svg)"])("does not group captions from image alt text (%#)", async (image) => {
+    expect((await check("AS009", `${image}\n\nFirst caption.\n\nSecond caption.\n`, { eol })).code).toBe(0);
+  });
+
   it.each(["-", "*", "+", "1."])("requires rendered content in a %s demonstration list", async (marker) => {
     for (const content of [marker, marker + " <!-- invisible -->", marker + "\n    - <!-- invisible -->"]) {
       const body = `## Rules\n\n${content}\n\n**Guidelines:**\n\n- MUST preserve output.\n`;
@@ -538,6 +563,13 @@ describe.each(["\n", "\r\n"])("body contracts under %j", (eol) => {
     }
   });
 
+  it.each(["-", "*", "+"])("reports one diagnostic for an attached %s label with a directive", async (marker) => {
+    for (const label of ["**Guidelines:** Consumers MUST preserve output.", "### Guidelines: Consumers MUST preserve output."]) {
+      const result = await check("AS008", ROUTE + `${marker} condition\n\n  ${label}\n`, { eol });
+      expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS008"], lineNumber: 13 })]);
+    }
+  });
+
   it.each([
     "Independent rationale.", "## Independent\n\nA local demonstration.", "+ independent", "* independent",
     "```markdown\nillustrative only\n```", "> independent illustration",
@@ -620,6 +652,7 @@ describe("body rule integration", () => {
     expect((await runValidation(context)).code).toBe(0);
     expect((await runValidation(context, undefined)).code).toBe(0);
     expect((await runValidation(context, { standardConfig: { default: false } })).code).toBe(0);
+    expect(await runValidation(context, { rules: undefined, standardConfig: { default: false } })).toMatchObject({ code: 0, scope: "W1-full" });
     const invalidConfig = await runValidation(context, { standardConfig: null });
     expect(invalidConfig.code).toBe(2);
     expect(invalidConfig.failures).toEqual([expect.stringMatching(/Standard configuration/)]);

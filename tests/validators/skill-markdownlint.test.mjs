@@ -280,6 +280,14 @@ describe("explicit context and protected execution", () => {
     expect(result.stderr).toMatch(/unavailable custom rule/);
   });
 
+  it.each([null, false, 0, "", true, 1, "AS001", {}, []].map(rules => ({ rules })))("rejects malformed supplied rule selections before execution (%j)", async ({ rules }) => {
+    const dir = await writeSkill(await tempDir(), "probe-skill");
+    const context = await createContext({ skills: [dir] });
+    const result = await runValidation(context, { standardConfig: NO_STANDARD, rules });
+    expect(result).toMatchObject({ code: 2, scope: "partial", rules: [], findings: [] });
+    expect(result.failures).toEqual([expect.stringMatching(/nonempty array/)]);
+  });
+
   it("rejects invalid UTF-8, missing context and effective unreadability", async () => {
     const root = await tempDir();
     const dir = await writeSkill(root, "probe-skill");
@@ -650,6 +658,7 @@ describe("explicit context and protected execution", () => {
       ["AS005", W2_BODY.replace("SHALL", "shall")],
       ["AS006", W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->")],
       ["AS006", W2_BODY.replace("A demonstration of the rule.", "<span></span>")],
+      ["AS006", W2_BODY.replace("A demonstration of the rule.", "Parent rationale.\n\n### Good Example:")],
       ["AS007", route.replace("topic.md]", "details]") + "- condition\n"],
       ["AS007", route.replace("See ", "See ![](icon.svg)") + "- condition\n"],
       ["AS008", route + "- MUST preserve output.\n"],
@@ -680,6 +689,8 @@ describe("explicit context and protected execution", () => {
         W2_BODY.replace("SHALL", "SHALL NOT—"),
         "# Probe Skill\n\n**Good Example:**\n\n---\n\n> One.\n\n---\n",
         "# Probe Skill\n\n**Good Example:**\n\n```javascript\nconst snippet = 1;\n```\n\n---\n",
+        "# Probe Skill\n\n**![Guidelines:](diagram.svg)**\n\n- an ordinary caption\n",
+        "# Probe Skill\n\n**![Good Example:](diagram.svg)**\n\nFirst caption.\n\nSecond caption.\n",
       ]) {
         await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n${body}`.replaceAll("\n", "\r\n"));
         const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
@@ -726,6 +737,10 @@ describe("explicit context and protected execution", () => {
       const context=await createContext({skills:[process.argv[1]]});
       const nullOptions=await runValidation(context,null);
       if(nullOptions.code!==2||nullOptions.findings.length||!nullOptions.failures.some(f=>/options.*null/i.test(f)))throw new Error('null options outcome');
+      for(const rules of [null,false,0,'',true,1,'AS001',{},[]]) {
+        const malformed=await runValidation(context,{standardConfig:{default:false},rules});
+        if(malformed.code!==2||malformed.scope!=='partial'||malformed.rules.length||malformed.findings.length||!malformed.failures.some(f=>/nonempty array/.test(f)))throw new Error('malformed rules outcome');
+      }
       const invalid=await runValidation(context,{standardConfig:[]});
       if(invalid.code!==2||!invalid.failures.some(f=>f.includes('Standard configuration')))throw new Error('configuration outcome');
       const rule={names:['OFFLINEWARN'],tags:['fixture'],description:'Offline advisory',parser:'none',function(p,e){e({lineNumber:1,detail:'advisory'})}};

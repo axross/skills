@@ -39,7 +39,10 @@ export async function runValidation(context, input = {}) {
     if (input === null) throw new Error("Validation options must not be null");
     let standardConfig, additionalRules, selectedRules;
     ({ standardConfig = { default: true }, additionalRules = [], ruleConfig = {}, rules: selectedRules } = input);
-    partial ||= Boolean(selectedRules);
+    partial ||= selectedRules !== undefined;
+    if (selectedRules !== undefined && (!Array.isArray(selectedRules) || !selectedRules.length)) {
+      throw new Error("Custom rule selection must be a nonempty array");
+    }
     if (!standardConfig || typeof standardConfig !== "object" || Array.isArray(standardConfig)) {
       throw new Error("Standard configuration must be a JSON rule object");
     }
@@ -67,8 +70,8 @@ export async function runValidation(context, input = {}) {
     const available = [...options.customRules, ...additionalRules];
     ruleIds = available.map((rule) => rule.names[0]);
     if (new Set(ruleIds).size !== ruleIds.length) throw new Error("Duplicate custom rule identity");
-    if (selectedRules) {
-      if (!selectedRules.length || selectedRules.some((id) => !ruleIds.includes(id))) throw new Error("Empty or unavailable custom rule selection");
+    if (selectedRules !== undefined) {
+      if (selectedRules.some((id) => !ruleIds.includes(id))) throw new Error("Empty or unavailable custom rule selection");
       ruleIds = [...new Set(selectedRules)];
     }
     const completed = new Set();

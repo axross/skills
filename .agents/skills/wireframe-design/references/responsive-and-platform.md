@@ -12,11 +12,11 @@ True device scale is what removes the biggest lie of desktop-drawn mobile screen
 
 Place the primary action in the thumb's natural reach zone. About half of people operate their phones one-handed, and most of those with the right thumb, which makes the bottom-center of the screen the comfortable "green" reach zone, the mid-screen sides a "yellow" stretch, and the top corners a "red" zone that usually demands a grip change or a second hand ([the thumb zone](https://www.smashingmagazine.com/2016/09/the-thumb-zone-designing-for-mobile-users/), [mobile UX](https://www.nngroup.com/articles/mobile-ux-study-guide/)). Primary navigation and the main call-to-action belong low and central — this is the ergonomic case for bottom tab bars over top ones — while destructive or rarely-used controls can live in the harder-to-hit top corners on purpose. On modern large-screen phones the reachable arc shrinks relative to the display, so the higher a control sits, the more you are taxing the user.
 
-Validate touch-target size on paper before going digital, because a box that looks tappable in a sketch can be too small once it is a real 44px hit area. Work to a ~44pt floor ([Material 3](https://m3.material.io/foundations/designing/structure), [SC 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)) — and sketch the gaps too, not just the buttons, because once you clear roughly 40 pt the spacing between adjacent targets affects error rate more than raw size does.
+Check touch-target size on paper before going digital: a visible icon can hide an undersized receiving region. When touch-target design practices are available, use their platform design goals and separate accessibility assessment rather than a second wireframe-stage numeric policy. Otherwise reserve generous receiving regions and annotate their size and separation in the target platform's units. Flag platform sizing and accessibility assessment for verification rather than claiming a universal floor or conformance.
 
 **Good Example:**
 
-> On a phone-sized frame you sketch a single-column list with a bottom tab bar holding the primary "Create" action in the lower-center green zone, size the tab hit areas to a penciled ~44pt grid with visible gaps between them, and confirm only three list rows plus a header fit above the fold — then widen the same regions into a two-column tablet layout.
+> On a phone-sized frame you sketch a single-column list with a bottom tab bar holding the primary "Create" action in the lower-center green zone, annotate the tab receiving regions and their separation using the platform touch-design goal, and confirm only three list rows plus a header fit above the fold — then widen the same regions into a two-column tablet layout.
 
 **Bad Example:**
 
@@ -26,7 +26,7 @@ Validate touch-target size on paper before going digital, because a box that loo
 
 - MUST sketch each mobile screen inside a 1:1 real-device frame and start from the smallest target viewport, widening the same regions up to tablet and desktop rather than shrinking a desktop composition down.
 - MUST place primary navigation and the main call-to-action in the bottom-center green reach zone, and reserve the top corners for destructive or rarely-used controls.
-- MUST size penciled touch targets to a ~44pt working floor and draw the spacing between adjacent targets, not the buttons alone.
+- MUST annotate receiving hit areas and adjacent spacing in the target platform's units, not the visible buttons alone; apply touch-target design practices when available, otherwise reserve generous regions and mark platform sizing and accessibility assessment for verification.
 - MUST count the rows, header, and one primary action that fit above the fold on the device frame before committing the layout, keeping every element a grey box or placeholder label with no brand color or final type.
 
 ## Set breakpoints from content, and adapt navigation per platform

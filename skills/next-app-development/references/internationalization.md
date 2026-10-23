@@ -63,10 +63,12 @@ export async function getDictionary(locale: Locale) {
 
 Translating the visible strings is the part that gets noticed. The document-level declarations are the part that gets forgotten, and they are what screen readers, hyphenation, font selection, and crawlers actually read to decide what language a page is in.
 
+For document and text-run language/direction declarations and locale-change updates, consult the project's component-styling web content-language and writing-direction practices where present. They own that metadata policy; Next.js owns its root-layout placement. Without that optional capability, the bounded fallback below keeps document defaults and content-specific overrides distinct.
+
 **Guidelines:**
 
-- MUST set `<html lang>` to the active locale in the root layout; it drives screen-reader pronunciation, hyphenation, and font selection.
-- SHOULD set `dir="rtl"` for right-to-left locales on the same element.
+- MUST apply the document's resolved language and direction declarations in the root layout.
+- MUST, when those optional practices are absent, map the active content language to valid BCP 47 tags for `<html lang>` and known differing-language runs. Resolve `dir` independently from the locale/content policy, update both document defaults on locale changes, and preserve content-specific language and direction overrides.
 - SHOULD declare `openGraph.locale` and `alternateLocale`, and `alternates.languages` with a URL per locale, so crawlers connect the translations.
 - MUST format dates, numbers, and currency with the active locale via `Intl`, rather than a hardcoded format.
 

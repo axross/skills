@@ -44,6 +44,12 @@ function label(node) {
   if (first?.type === "code_inline") return null;
   const match = text(tokens).match(LABEL);
   if (!match) return null;
+  let remaining = match[1].length + 1;
+  for (const token of tokens) {
+    if (remaining <= 0) break;
+    if (token.type === "image") return null;
+    remaining -= text([token]).length;
+  }
   const end = tokens.findIndex(token => token.type === "strong_close");
   const bold = node.token.type === "paragraph_open" && tokens[0]?.type === "strong_open" && text(tokens.slice(1, end)).trim() === match[1] + ":";
   const explanation = text(tokens).slice(match[0].trimEnd().length).trim();
@@ -132,6 +138,11 @@ export function analyzeBody(document) {
     for (let index = 0; index < children.length; index++) {
       const node = children[index];
       if (invisible(node)) continue;
+      if (node.token.type === "heading_open") {
+        heading = node;
+        demonstration = false;
+        guidelines = route = group = null;
+      }
       const recognized = label(node);
       if (recognized) {
         body.labels.push({ node, ...recognized });
@@ -150,12 +161,7 @@ export function analyzeBody(document) {
         if (recognized.demonstration) demonstration = true;
         continue;
       }
-      if (node.token.type === "heading_open") {
-        heading = node;
-        demonstration = false;
-        guidelines = route = group = null;
-        continue;
-      }
+      if (node.token.type === "heading_open") continue;
       if (isRoot && document.kind === "skill" && routeCandidate(node, children.slice(index + 1).find(next => !invisible(next)))) {
         route = { node, heading, lists: [], marker: null };
         body.routes.push(route);
@@ -270,7 +276,7 @@ export const bodyChecks = {
     }
   },
   AS008(body, report) {
-    for (const node of body.attached) report(node, "Reference routing must not contain normative guidance or an attached Guidelines label");
+    for (const node of new Set(body.attached)) report(node, "Reference routing must not contain normative guidance or an attached Guidelines label");
   },
   AS009(body, report) {
     for (const group of body.groups) {
