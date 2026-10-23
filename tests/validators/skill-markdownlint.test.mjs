@@ -581,7 +581,7 @@ describe("explicit context and protected execution", () => {
     expect(result).toMatchObject({ code: 0, findings: [], failures: [], rules: ALL_RULES });
   });
 
-  it("runs the copied and packed distribution in a clean consumer with network access denied", async () => {
+  it.each(["packed", "copied"])("runs the %s distribution in a clean consumer with network access denied", async (distribution) => {
     const root = await tempDir();
     const copied = join(root, "copied-skill");
     await cp(repoPath("skills/agent-skill-authoring"), copied, { recursive: true });
@@ -673,61 +673,60 @@ describe("explicit context and protected execution", () => {
       ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n> Two.\n"],
       ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n---\n\n> Two.\n"],
     ];
-    for (const entry of [cli, join(packageDir, "cli.mjs")]) {
-      for (const [id, body] of violations) {
-        await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n<!-- markdownlint-disable ${ALL_RULES.join(" ")} -->\n${body}`);
-        const violation = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
-        expect({ status: violation.status, stderr: violation.stderr }, id).toEqual({ status: 1, stderr: "" });
-        expect(violation.stdout).toMatch(new RegExp(`error ${id} `));
-      }
-      for (const body of [
-        W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <svg><path d="M0 0 L1 1" /></svg>'),
-        W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <img src="diagram.svg" alt="">'),
-        route + '- Consumers `MUST` and “SHALL NOT discard output.” illustrate terms. MUST and MAY are keyword names.\n',
-        route + '- a descriptive condition\n- <!-- first --> Consumers [`MUST`](https://example.com) and <!-- SHALL NOT discard output. --> illustrate terms.\n',
-        W2_BODY.replace("SHALL", "SH<span></span>ALL"),
-        route.replace("[topic.md]", "[`topic.md`]") + '- a descriptive condition\n- Consumers MU<br>ST preserve output.\n',
-        W2_BODY.replace(COMPACT, COMPACT + "\n\n**<!-- invisible -->**\n\n<span></span>"),
-        W2_BODY.replace("SHALL", "SHALL NOT—"),
-        "# Probe Skill\n\n**Good Example:**\n\n---\n\n> One.\n\n---\n",
-        "# Probe Skill\n\n**Good Example:**\n\n```javascript\nconst snippet = 1;\n```\n\n---\n",
-        "# Probe Skill\n\n**![Guidelines:](diagram.svg)**\n\n- an ordinary caption\n",
-        "# Probe Skill\n\n**![Good Example:](diagram.svg)**\n\nFirst caption.\n\nSecond caption.\n",
-        W2_BODY + "\n> Independent rationale.\n\n- descriptive item\n",
-      ]) {
-        await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n${body}`.replaceAll("\n", "\r\n"));
-        const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
-        expect({ status: control.status, stderr: control.stderr }).toEqual({ status: 0, stderr: "" });
-        expect(control.stdout).not.toMatch(/error AS00[368]/);
-      }
-      for (const eol of ["\n", "\r\n"]) {
-        await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: null\n---\n# Wrong Title\n".replaceAll("\n", eol));
-        const title = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
-        expect({ status: title.status, stderr: title.stderr }).toEqual({ status: 1, stderr: "" });
-        expect(title.stdout).toMatch(/error AS002 .*Expected root H1 title: Probe Skill/);
-        expect(title.stdout).not.toMatch(/error AS001/);
-        const combined = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS001", "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
-        expect({ status: combined.status, stderr: combined.stderr }).toEqual({ status: 1, stderr: "" });
-        expect(combined.stdout).toMatch(/error AS001 /);
-        expect(combined.stdout).toMatch(/error AS002 /);
-        const constructor = await writeSkill(root, "constructor-skill", { raw: "---\nname: constructor-skill\ndescription: text\n---\n# Constructor Skill\n".replaceAll("\n", eol) });
-        const unknown = spawnSync(process.execPath, [...permissions, entry, "--skill", constructor, "--config", config], { cwd: consumer, encoding: "utf8" });
-        expect({ status: unknown.status, stderr: unknown.stderr }).toEqual({ status: 0, stderr: "" });
-      }
-      await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\nRationale.\n\n**Guidelines:**\n\n- <!-- invisible -->\n");
-      const empty = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
-      expect({ status: empty.status, stderr: empty.stderr }).toEqual({ status: 1, stderr: "" });
-      expect(empty.stdout).toMatch(/error AS005/);
-      expect(empty.stdout).not.toMatch(/error AS003/);
-      await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\n${COMPACT}\n\n## Rules\n\nRationale.\n\n- MUST—preserve output.\n`);
-      const off = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
-      expect({ status: off.status, stderr: off.stderr }).toEqual({ status: 0, stderr: "" });
-      expect(off.stdout).toContain("missing-Guidelines audit: off");
-      const audit = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--audit-missing-guidelines"], { cwd: consumer, encoding: "utf8" });
-      expect({ status: audit.status, stderr: audit.stderr }).toEqual({ status: 1, stderr: "" });
-      expect(audit.stdout).toMatch(/error AS006/);
-      expect(audit.stdout).toContain("missing-Guidelines audit: enabled");
+    const entry = distribution === "packed" ? cli : join(packageDir, "cli.mjs");
+    for (const [id, body] of violations) {
+      await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n<!-- markdownlint-disable ${ALL_RULES.join(" ")} -->\n${body}`);
+      const violation = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+      expect({ status: violation.status, stderr: violation.stderr }, id).toEqual({ status: 1, stderr: "" });
+      expect(violation.stdout).toMatch(new RegExp(`error ${id} `));
     }
+    for (const body of [
+      W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <svg><path d="M0 0 L1 1" /></svg>'),
+      W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <img src="diagram.svg" alt="">'),
+      route + '- Consumers `MUST` and “SHALL NOT discard output.” illustrate terms. MUST and MAY are keyword names.\n',
+      route + '- a descriptive condition\n- <!-- first --> Consumers [`MUST`](https://example.com) and <!-- SHALL NOT discard output. --> illustrate terms.\n',
+      W2_BODY.replace("SHALL", "SH<span></span>ALL"),
+      route.replace("[topic.md]", "[`topic.md`]") + '- a descriptive condition\n- Consumers MU<br>ST preserve output.\n',
+      W2_BODY.replace(COMPACT, COMPACT + "\n\n**<!-- invisible -->**\n\n<span></span>"),
+      W2_BODY.replace("SHALL", "SHALL NOT—"),
+      "# Probe Skill\n\n**Good Example:**\n\n---\n\n> One.\n\n---\n",
+      "# Probe Skill\n\n**Good Example:**\n\n```javascript\nconst snippet = 1;\n```\n\n---\n",
+      "# Probe Skill\n\n**![Guidelines:](diagram.svg)**\n\n- an ordinary caption\n",
+      "# Probe Skill\n\n**![Good Example:](diagram.svg)**\n\nFirst caption.\n\nSecond caption.\n",
+      W2_BODY + "\n> Independent rationale.\n\n- descriptive item\n",
+    ]) {
+      await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n${body}`.replaceAll("\n", "\r\n"));
+      const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+      expect({ status: control.status, stderr: control.stderr }).toEqual({ status: 0, stderr: "" });
+      expect(control.stdout).not.toMatch(/error AS00[368]/);
+    }
+    for (const eol of ["\n", "\r\n"]) {
+      await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: null\n---\n# Wrong Title\n".replaceAll("\n", eol));
+      const title = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
+      expect({ status: title.status, stderr: title.stderr }).toEqual({ status: 1, stderr: "" });
+      expect(title.stdout).toMatch(/error AS002 .*Expected root H1 title: Probe Skill/);
+      expect(title.stdout).not.toMatch(/error AS001/);
+      const combined = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS001", "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
+      expect({ status: combined.status, stderr: combined.stderr }).toEqual({ status: 1, stderr: "" });
+      expect(combined.stdout).toMatch(/error AS001 /);
+      expect(combined.stdout).toMatch(/error AS002 /);
+      const constructor = await writeSkill(root, "constructor-skill", { raw: "---\nname: constructor-skill\ndescription: text\n---\n# Constructor Skill\n".replaceAll("\n", eol) });
+      const unknown = spawnSync(process.execPath, [...permissions, entry, "--skill", constructor, "--config", config], { cwd: consumer, encoding: "utf8" });
+      expect({ status: unknown.status, stderr: unknown.stderr }).toEqual({ status: 0, stderr: "" });
+    }
+    await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\nRationale.\n\n**Guidelines:**\n\n- <!-- invisible -->\n");
+    const empty = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+    expect({ status: empty.status, stderr: empty.stderr }).toEqual({ status: 1, stderr: "" });
+    expect(empty.stdout).toMatch(/error AS005/);
+    expect(empty.stdout).not.toMatch(/error AS003/);
+    await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\n${COMPACT}\n\n## Rules\n\nRationale.\n\n- MUST—preserve output.\n`);
+    const off = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+    expect({ status: off.status, stderr: off.stderr }).toEqual({ status: 0, stderr: "" });
+    expect(off.stdout).toContain("missing-Guidelines audit: off");
+    const audit = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--audit-missing-guidelines"], { cwd: consumer, encoding: "utf8" });
+    expect({ status: audit.status, stderr: audit.stderr }).toEqual({ status: 1, stderr: "" });
+    expect(audit.stdout).toMatch(/error AS006/);
+    expect(audit.stdout).toContain("missing-Guidelines audit: enabled");
     await writeFile(join(dir, "SKILL.md"), "---\nname: other-name\ndescription: text\n---\n> ```\n>");
     const failed = spawnSync(process.execPath, [...permissions, cli, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
     expect(failed.status).toBe(1);
