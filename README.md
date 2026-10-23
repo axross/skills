@@ -5,7 +5,7 @@ An opinionated library of agent skills.
 These are **agent skills** in the [agentskills.io](https://agentskills.io/home)
 format — self-contained capabilities you install into a coding agent so it
 plans, builds, reviews, and verifies work the way you want it done.
-The <!-- count:distributable-skills -->thirty<!-- /count --> here cover the
+The <!-- count:distributable-skills -->twenty-nine<!-- /count --> here cover the
 whole arc: handling what the agent does not know, turning a request into a spec,
 driving that spec to a reviewed pull request, keeping the code maintainable and
 secure, testing it, designing and building its UI, standing up the application
@@ -350,8 +350,6 @@ and follows it; `agent-skill-management` decides where that skill lives, how
 it is installed and refreshed, how to verify its active source and content,
 what each controlled internal actor has acquired and retained, how to recover
 missing material, and what to do when one you do not own needs a fix.
-`qualifying-acquisition-safeguards` assesses optional guards that rely on that
-acquisition evidence, without taking over installation or acquisition meanings.
 
 #### `agent-skill-authoring`
 
@@ -370,14 +368,6 @@ collisions and missing discovery, complete acquisition and retained text in
 controlled internal actors and recovery, plus what to do when you want to
 change a skill you do not own. See
 [`SKILL.md`](./skills/agent-skill-management/SKILL.md).
-
-#### `qualifying-acquisition-safeguards`
-
-Assesses whether an optional acquisition guard merely observes or prevents
-dependent mutations, within its actual actor, route and effect scope. Covers
-adverse histories, evidence currency, concurrent state and independent restoration
-without supplying host mechanisms or activation permission. See
-[`SKILL.md`](./skills/qualifying-acquisition-safeguards/SKILL.md).
 
 ## How this library evaluates its skills
 

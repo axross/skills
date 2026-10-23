@@ -75,3 +75,13 @@ their layout belongs to [Directory Structure](./docs/conventions/directory-struc
 At completion, MUST report whether skill maintenance was performed, skipped,
 or blocked. Development Workflow owns the delivery evidence required alongside
 that report.
+
+Skill-acquisition safeguards require separate human authorization and must
+preserve normal permissions and recovery reads. Qualify observation and refusal
+in independently contained trials using disposable targets; keep unverified
+scopes inactive. Observation must not interfere with valid work; refusal must
+use actor-local evidence current through mutation, reject incomplete
+acquisition, and permit valid work after full acquisition. Bound refusal to
+verified scope and duration, with independent expiry or rollback after
+interruption. Skill acquisition alone proves neither output correctness nor
+permission to mutate.
