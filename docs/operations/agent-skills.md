@@ -48,7 +48,7 @@ change — they are tracked artifacts, not build output to leave uncommitted.
 
 ## Keeping the Symlink Root in Step
 
-Claude Code's `.claude/skills/` root contains <!-- count:claude-skill-symlinks -->30<!-- /count -->
+Claude Code's `.claude/skills/` root contains <!-- count:claude-skill-symlinks -->29<!-- /count -->
 symlinks into `.agents/skills/`. Claude Code follows each skill directory link
 to its `SKILL.md`; the installed bytes remain in one root.
 
