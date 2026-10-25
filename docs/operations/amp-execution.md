@@ -9,8 +9,9 @@ evidence, and [Professional Behavior](../../skills/professional-behavior/SKILL.m
 owns decisions and question content. Direct and delegated changes keep the same
 approval, verification, and independent-review requirements.
 
-The operational baseline was checked on 2026-09-08 against the active session's
-tool definitions and Amp's [modes and subagents](https://ampcode.com/docs/models-and-subagents)
+The native contribution route was checked on 2026-10-15 against the installed
+public Plugin API and Amp's [custom-subagent documentation](https://ampcode.com/docs/customize/plugins#define-a-custom-subagent).
+The other operational routes use Amp's [modes and subagents](https://ampcode.com/docs/models-and-subagents)
 and [agent-to-agent documentation](https://ampcode.com/docs/orbs/agent-to-agent).
 Those pages explain the model; a session MUST recheck its actual tools and their
 purpose restrictions before using this guide. Names below are not promises that
@@ -52,23 +53,43 @@ delegation does not qualify, the parent implements the coherent approved change
 directly; complexity, file count, and routine self-review alone do not establish
 eligibility. Qualify each Loop checkpoint separately, not once for the run.
 
-Amp does not inherit Claude Code's configured Investigator. A loaded Amp plugin
-can independently provide that role; source routing changes do not activate
-plugin or personal-guidance revisions. Mixed source and active revisions remain
-partial adoption until separately authorized publication and loaded-content
-verification establish alignment.
+The configured Amp route is the User Plugin `amp-subagent-delegation`, whose
+always-visible `delegate_implementation` and `review_artifact` tools create
+fresh parent-linked contribution threads. Load its qualified
+`amp-subagent-delegation:delegating-subagents` skill for the handoff. Implementer
+executes approved scope, verifies and self-reviews locally; commits require an
+explicit assignment requesting and authorizing them. Reviewer judges existing
+investigations, plans, designs and code against their original request and
+subject standards. The full configured role is agent instructions, not a body
+the parent repeatedly passes through Task. The native route is not a fallback
+that makes an ineligible Task permissible.
+
+Both agents extend standard medium without model/effort pins or premium-feature
+inheritance. Tune Modes and the caller's Subagents pins do not configure them.
+The plugin excludes direct nested execution/plugin tools for both roles and
+direct editing tools for Reviewer. Shell and deferred MCP still permit effects;
+the instructions prohibit publication and other residual writes rather than
+claim a security sandbox. Specialist read and independently eligible Oracle
+purposes remain distinct.
+
+Amp does not inherit Claude Code's configured Investigator, and this plugin
+supplies none. Source routing changes do not activate plugin or personal-guidance
+revisions. Mixed source and active revisions remain partial adoption until
+separately authorized publication and loaded-content verification establish
+alignment. Do not delegate under a known mixed route.
 
 The active contracts determine which of these host routes fits the requested
 purpose:
 
-| Route       | Appropriate use in this repository                                                                                                                                         |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell reads | Exact paths, symbols, and bounded local inspection.                                                                                                                        |
-| Finder      | Behavior-level local discovery or related searches across modules.                                                                                                         |
-| Librarian   | External repositories, dependency internals, or remote history; not local first-party reads.                                                                               |
-| Oracle      | A specific unresolved, high-impact judgment after direct investigation; not routine review or an approval gate.                                                            |
-| Task        | Independently specifiable parallel work, a bounded unit whose intermediate output needs isolation, or explicit user-requested delegation, as its current contract permits. |
-| Threads     | A separately owned outcome or independent review; not a second route into the same runner and checkout merely to gain access.                                              |
+| Route             | Appropriate use in this repository                                                                                                                                                 |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell reads       | Exact paths, symbols, and bounded local inspection.                                                                                                                                |
+| Finder            | Behavior-level local discovery or related searches across modules.                                                                                                                 |
+| Librarian         | External repositories, dependency internals, or remote history; not local first-party reads.                                                                                       |
+| Native role tools | Approved implementation contributions and fresh investigation, plan, design or code assessments; requalify purpose, material access and authorization.                             |
+| Oracle            | Explicitly requested consultation/review or an independently eligible specific unresolved, high-impact judgment; never an automatic substitute for a configured review checkpoint. |
+| Task              | Independently specifiable parallel work, a bounded unit whose intermediate output needs isolation, or explicit user-requested delegation, as its current contract permits.         |
+| create_thread     | Separately owned work, a required different environment or explicitly requested threads, under its actual contract; not an access workaround for the current runner/checkout.      |
 
 Specialist calls do not remove the parent's responsibility to inspect evidence.
 Keep implementation single-threaded unless writers have genuinely disjoint
@@ -77,6 +98,30 @@ tools. Omit mode overrides normally; custom/plugin modes and ultra require the
 explicit selection prescribed by `create_thread`. Record observable requested
 and returned metadata, and mark an unobservable model or effort unknown rather
 than infer it from a role name.
+
+## Collect native contributions
+
+Supply the actual assignment and material under the Loop handoff contract.
+The plugin selects the current client's executor, not an orb. The child MUST
+confirm the checkout, source revisions, uncommitted identities and required
+images before editing or judging. Coordinate shared-worktree writes, including
+formatters and Git effects; freeze review inputs. The parent owns synthesis,
+integration, human decisions and delivery, even though each invocation has its
+own persistent child thread.
+
+The tool acquires the child handle before dispatch and returns its ID with the
+child's report. It collects the result itself; do not add a completion callback
+or a second wait path. A returned question goes to the parent's eligible human
+decision route and stops dependent work. Inspect the actual result and evidence;
+idle, a reply, empty output or unchecked required material is not success.
+
+Timeout, dispatch failure or connection loss does not prove cancellation. Recover
+the known child with permitted status/history tools before retrying; do not call
+delegation again to collect its output. A creation failure may leave identity
+unknown, and a plugin process crash may lose its in-memory handle. Inspect actual
+threads, messages, files and processes, retaining outcome-unknown when access
+cannot settle them. There is no automatic respawn or cleanup. A new assessment
+consumes the existing review budget; collecting the same result does not.
 
 ## Advance the available transition
 
@@ -112,9 +157,12 @@ context has the following qualifications:
 - the approved plan and required materials
 - a usable return channel
 
-A route name alone proves none of these. Use only mechanisms whose current
-contracts permit the actual review assignment, including explicit requested
-critique where eligible; use a matching configured Reviewer when qualified.
+A route name alone proves none of these. Use the configured native Reviewer
+when its current contract qualifies for the actual artifact or implementation
+checkpoint. A plan/design review is not restricted to code-line findings;
+required visual states must actually be viewed. An earlier artifact review
+does not satisfy implementation pre-flight or mandatory external review.
+Other explicitly requested critique still needs its own eligible purpose.
 Do not substitute Task, Oracle or another specialist when its purpose excludes
 that assignment, or solicit an Oracle exception to bypass it. An independently
 eligible narrow Oracle consultation is not a full review checkpoint. Freeze competing
@@ -130,9 +178,10 @@ owns which checkpoint resumes. Earlier implementation or artifact-review
 availability is not evidence for this reader; preserve whether review ran and
 its actual target, material coverage, policy, and limitations separately.
 
-## Return questions from one-shot work
+## Return questions to the parent
 
-Task receives the supplied prompt, not the parent's conversation. Its final
+Native role threads return questions through their tool result, not directly to
+the human in the child. Task receives the supplied prompt, not the parent's conversation. Its final
 result is the return channel; the parent cannot guide it midway through the
 call. A Task encountering an unresolved human decision MUST return the question,
 verified findings, partial changes, blocked work and any remaining processes.
@@ -206,6 +255,7 @@ Process, child, thread, CI and human completion are different events:
 | Awaited result        | Amp route and completion check                                                                                                                                                      |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shell command         | Follow the returned PID with `shell_command_status`; check exit status and output. A tool wait timeout does not stop the process.                                                   |
+| Native role tool      | Inspect its child ID and report; recover that same child on timeout/error. No added callback/join path or automatic replacement.                                                    |
 | Task                  | Inspect its final result and actual evidence; a partial result is not a finished change.                                                                                            |
 | Thread, reply path    | Ask the child to reply and continue independent work. Do not also call `wait_for_threads` for that child.                                                                           |
 | Thread, join path     | Do not request a reply; use `wait_for_threads` only when progress depends on the result. Inspect status/content afterward: idle, approval-waiting or error is not proof of success. |
@@ -274,21 +324,23 @@ simulation MUST NOT be labeled an actual host execution. Run safe representative
 cases only when tool purposes permit them; do not manufacture external effects,
 schedule requests, unavailable APIs or expensive modes to prove prose.
 
-| Case                                                           | Required observation                                                                                                        |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Parent or child implements an approved change                  | Both reach the same advisory checkpoint before initial publication; implementation itself is not forced into another actor. |
-| Eligible Task independently inspects a fixed material revision | Final evidence identifies that revision; an unresolved decision returns to the parent without live dialogue.                |
-| Two writers share a checkout                                   | Overlapping edits, formatter and Git mutations wait for ownership; no concurrent overwrite.                                 |
-| Separate thread reviews an uncommitted file                    | HEAD alone fails preflight; transfer the file, verify its content identity, retrieve and inspect the result.                |
-| Required image or tool unavailable                             | Non-complete result identifies missing access; prose is not visual verification.                                            |
-| No permitted fresh advisory reader                             | Record the failed qualification and advisory gap; separately authorized draft delivery may proceed, but never as clean.     |
-| Review pending without monitoring authorization                | No schedule created; use a permitted wait or return recovery information.                                                   |
-| Lost response after a write                                    | Inspect stored bytes and process state before any retry.                                                                    |
-| Plan changes before a child returns                            | Old result does not satisfy new approval; recover and audit it first.                                                       |
-| Review trigger exists but the run or its result does not land  | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                      |
-| Base integration produces only mechanical conflicts            | Resolve them append-only, rerun affected checks, and request review of the resulting material.                              |
-| Conflicting edits express different intended behavior          | Return the decision to the human; do not guess or rewrite history.                                                          |
-| Existing host or mandatory external reviewer unavailable       | Report the untested path; mandatory external review remains unmet until obtained.                                           |
+| Case                                                            | Required observation                                                                                                        |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Parent or child implements an approved change                   | Both reach the same advisory checkpoint before initial publication; implementation itself is not forced into another actor. |
+| Native Reviewer independently inspects a fixed artifact or diff | Final evidence identifies the revision, original request and subject standard; questions return to the parent.              |
+| Native wait times out or creation response is lost              | Known child is recovered without respawn; unknown identity/effects remain unknown, never presumed cancelled.                |
+| Native route is absent or Global/tool revisions disagree        | Disclose unavailable or partial adoption; no automatic Oracle fallback or self-issued clean review.                         |
+| Two writers share a checkout                                    | Overlapping edits, formatter and Git mutations wait for ownership; no concurrent overwrite.                                 |
+| Separate thread reviews an uncommitted file                     | HEAD alone fails preflight; transfer the file, verify its content identity, retrieve and inspect the result.                |
+| Required image or tool unavailable                              | Non-complete result identifies missing access; prose is not visual verification.                                            |
+| No permitted fresh advisory reader                              | Record the failed qualification and advisory gap; separately authorized draft delivery may proceed, but never as clean.     |
+| Review pending without monitoring authorization                 | No schedule created; use a permitted wait or return recovery information.                                                   |
+| Lost response after a write                                     | Inspect stored bytes and process state before any retry.                                                                    |
+| Plan changes before a child returns                             | Old result does not satisfy new approval; recover and audit it first.                                                       |
+| Review trigger exists but the run or its result does not land   | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                      |
+| Base integration produces only mechanical conflicts             | Resolve them append-only, rerun affected checks, and request review of the resulting material.                              |
+| Conflicting edits express different intended behavior           | Return the decision to the human; do not guess or rewrite history.                                                          |
+| Existing host or mandatory external reviewer unavailable        | Report the untested path; mandatory external review remains unmet until obtained.                                           |
 
 Run the documented format, lint and aggregate checks in
 [README](../../README.md) after edits. The aggregate suite includes the docs
