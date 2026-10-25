@@ -13,12 +13,16 @@ import { repoPath, runScript, SCRIPTS } from "../helpers/run.mjs";
 
 const CLI = "skills/agent-skill-authoring/scripts/markdownlint/cli.mjs";
 const NO_STANDARD = { default: false };
+const W1_ONLY = { standardConfig: NO_STANDARD, rules: ["AS001", "AS010"] };
+const ALL_RULES = Array.from({ length: 10 }, (_, index) => `AS${String(index + 1).padStart(3, "0")}`);
+const COMPACT = "The RFC 2119 keywords in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).";
+const W2_BODY = `# Probe Skill\n\n${COMPACT}\n\n## Rules\n\nA demonstration of the rule.\n\n**Guidelines:**\n\n- SHALL preserve output.\n`;
 
-/** run actual CLI2 custom checks with unrelated standard checks excluded from a rule fixture. */
+/** keep deliberately minimal W1 fixtures focused through the public partial-selection contract. */
 async function check(options) {
   const dir = await writeSkill(await tempDir(), "probe-skill", options);
   const context = await createContext({ skills: [dir] });
-  return runValidation(context, { standardConfig: NO_STANDARD });
+  return runValidation(context, W1_ONLY);
 }
 
 /** a fixture process exposes genuine warnings/throws through the public extension API, not test hooks. */
@@ -85,7 +89,7 @@ describe("AS001", () => {
 
   it.each([64, 65])("checks the name character boundary (%i)", async (length) => {
     const dir = await writeSkill(await tempDir(), "a".repeat(length));
-    const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig: NO_STANDARD });
+    const result = await runValidation(await createContext({ skills: [dir] }), W1_ONLY);
     expect(result.code).toBe(length === 64 ? 0 : 1);
     if (length === 65) expect(result.findings[0].errorDetail).toMatch(/64 characters/);
   });
@@ -120,7 +124,7 @@ notes: &cycle [*cycle]
 
   it.each(["\n", "\r\n"])("accepts one initial BOM without changing raw bytes or offsets (%j)", async (newline) => {
     const root = await tempDir();
-    const raw = "\uFEFF" + ["---", "name: probe-skill", "description: text", "---", "# Probe", ""].join(newline);
+    const raw = "\uFEFF" + ["---", "name: probe-skill", "description: text", "---", "# Probe Skill", ""].join(newline);
     const dir = await writeSkill(root, "probe-skill", { raw });
     const context = await createContext({ skills: [dir] });
     const document = context.documents.get(join(dir, "SKILL.md"));
@@ -179,7 +183,7 @@ describe("AS010", () => {
   it("checks nested references without interpreting fenced frontmatter examples as document metadata", async () => {
     const dir = await writeSkill(await tempDir(), "probe-skill");
     const path = await writeFileIn(dir, "references/nested/detail.md", "# Detail\n\n> ~~~\n>");
-    const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig: NO_STANDARD });
+    const result = await runValidation(await createContext({ skills: [dir] }), W1_ONLY);
     expect(result.code).toBe(1);
     expect(result.documents).toContain(path);
     expect(result.findings).toEqual([expect.objectContaining({ ruleNames: ["AS010"], lineNumber: 3 })]);
@@ -189,7 +193,7 @@ describe("AS010", () => {
 describe("explicit context and protected execution", () => {
   it("retains raw CRLF bytes and uses captured content even after the disk file changes", async () => {
     const root = await tempDir();
-    const raw = "---\r\nname: probe-skill\r\ndescription: 日本語 <!-- raw -->\r\n---\r\n# Probe\r\n";
+    const raw = "---\r\nname: probe-skill\r\ndescription: 日本語 <!-- raw -->\r\n---\r\n# Probe Skill\r\n";
     const dir = await writeSkill(root, "probe-skill", { raw });
     const path = join(dir, "SKILL.md");
     const context = await createContext({ skills: [dir] });
@@ -202,7 +206,7 @@ describe("explicit context and protected execution", () => {
 
   it("discovers symlinked collection directories and every nested reference", async () => {
     const root = await tempDir();
-    const dir = await writeSkill(root, "probe-skill");
+    const dir = await writeSkill(root, "probe-skill", { body: W2_BODY });
     await writeFileIn(dir, "references/nested/detail.md", "# Detail\n");
     const collection = join(root, "collection");
     await mkdir(collection);
@@ -248,7 +252,7 @@ describe("explicit context and protected execution", () => {
     await symlink(join(actual, "SKILL.md"), borrowed);
     const file = selection === "exact-reference" ? borrowed : join(selection === "exact-skill" ? declared : actual, "SKILL.md");
     const context = await createContext({ collections: [collection], files: [file] });
-    const result = await runValidation(context, { standardConfig: NO_STANDARD });
+    const result = await runValidation(context, W1_ONLY);
     expect(result).toMatchObject({ code: selection === "exact-reference" ? 0 : 1, scope: "partial", failures: [] });
     expect(result.documents).toEqual([selection === "exact-reference" ? borrowed : join(declared, "SKILL.md")]);
     expect(result.findings.map((finding) => finding.ruleNames[0])).toEqual(selection === "exact-reference" ? [] : ["AS001"]);
@@ -274,6 +278,14 @@ describe("explicit context and protected execution", () => {
     const result = runScript(CLI, ["--skill", dir, "--config", config, "--rule", "MISSING"]);
     expect(result.code).toBe(2);
     expect(result.stderr).toMatch(/unavailable custom rule/);
+  });
+
+  it.each([null, false, 0, "", true, 1, "AS001", {}, []].map(rules => ({ rules })))("rejects malformed supplied rule selections before execution (%j)", async ({ rules }) => {
+    const dir = await writeSkill(await tempDir(), "probe-skill");
+    const context = await createContext({ skills: [dir] });
+    const result = await runValidation(context, { standardConfig: NO_STANDARD, rules });
+    expect(result).toMatchObject({ code: 2, scope: "partial", rules: [], findings: [] });
+    expect(result.failures).toEqual([expect.stringMatching(/nonempty array/)]);
   });
 
   it("rejects invalid UTF-8, missing context and effective unreadability", async () => {
@@ -324,7 +336,7 @@ describe("explicit context and protected execution", () => {
 
   it("follows internal reference directory links relative to a canonical aliased skill root", async () => {
     const root = await tempDir();
-    const actual = await writeSkill(root, "probe-skill");
+    const actual = await writeSkill(root, "probe-skill", { body: W2_BODY });
     await writeFileIn(actual, "assets/nested/detail.md", "# Detail\n\n> ```\n>");
     await mkdir(join(actual, "references"));
     await symlink(join(actual, "assets"), join(actual, "references/internal"));
@@ -365,7 +377,7 @@ describe("explicit context and protected execution", () => {
 
   it("protects an ignored nested reference, while explicit focused documents cannot claim full scope", async () => {
     const root = await tempDir();
-    const dir = await writeSkill(root, "probe-skill");
+    const dir = await writeSkill(root, "probe-skill", { body: W2_BODY });
     const reference = await writeFileIn(dir, "references/nested/detail.md", "~~~\n");
     await writeFileIn(root, ".markdownlint-cli2.jsonc", JSON.stringify({ ignores: ["**/references/**"] }));
     const config = await writeFileIn(root, "standard.json", JSON.stringify(NO_STANDARD));
@@ -400,19 +412,19 @@ describe("explicit context and protected execution", () => {
     const standardConfig = { default: false, MD009: true };
     const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig });
     expect(result).toMatchObject({ code: 1, documents: [path], failures: [] });
-    expect(result.findings.map((finding) => finding.ruleNames[0]).sort()).toEqual(["AS001", "AS010", "MD009"]);
-    expect(result.findings.map((finding) => finding.path)).toEqual([path, path, path]);
+    expect(result.findings.map((finding) => finding.ruleNames[0]).sort()).toEqual(["AS001", "AS002", "AS010", "MD009"]);
+    expect(result.findings.map((finding) => finding.path)).toEqual([path, path, path, path]);
     const config = await writeFileIn(root, "standard.json", JSON.stringify(standardConfig));
     const processResult = runScript(CLI, ["--skill", dir, "--config", config], { cwd: root });
     expect(processResult.code).toBe(1);
-    for (const id of ["MD009", "AS001", "AS010"]) {
+    for (const id of ["MD009", "AS001", "AS002", "AS010"]) {
       expect(processResult.stdout.split("\n").find((line) => line.includes(`error ${id}`))?.startsWith(`${path}:`)).toBe(true);
     }
   });
 
   it("preserves a POSIX literal-backslash filename through actual CLI2 and CLI findings", async () => {
     const root = await tempDir();
-    const dir = await writeSkill(root, "probe-skill");
+    const dir = await writeSkill(root, "probe-skill", { body: W2_BODY });
     const path = await writeFileIn(dir, "references/back\\slash.md", "# Detail \n\n~~~\n");
     const standardConfig = { default: false, MD009: true };
     const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig });
@@ -431,7 +443,7 @@ describe("explicit context and protected execution", () => {
     expect(partial).toMatchObject({ code: 0, scope: "partial", rules: ["AS010"] });
     const full = await runValidation(context, { standardConfig: NO_STANDARD, ruleConfig: { AS001: false } });
     expect(full.code).toBe(1);
-    expect(createConfiguration(context).config).toEqual({ default: false, AS001: true, AS010: true });
+    expect(createConfiguration(context).config).toEqual({ default: false, ...Object.fromEntries(ALL_RULES.map(id => [id, true])) });
   });
 
   it("checks captured source instead of normalized rule lines and refuses lost token context", async () => {
@@ -448,7 +460,7 @@ describe("explicit context and protected execution", () => {
   });
 
   it("preserves standard warning-only success and handles non-Error rule throws", async () => {
-    const dir = await writeSkill(await tempDir(), "probe-skill", { body: "# Probe  \n" });
+    const dir = await writeSkill(await tempDir(), "probe-skill", { body: "# Probe Skill  \n" });
     const context = await createContext({ skills: [dir] });
     const warning = await runValidation(context, { standardConfig: { default: false, MD009: { severity: "warning", br_spaces: 0 } } });
     expect(warning.code).toBe(0);
@@ -467,19 +479,19 @@ describe("explicit context and protected execution", () => {
   ])("agrees with covered legacy frontmatter fixtures without retiring their other responsibilities (%#)", async (options, code) => {
     const dir = await writeSkill(await tempDir(), "probe-skill", options);
     expect(runScript(SCRIPTS.checkSkillFrontmatter, [dir]).code).toBe(code);
-    expect((await runValidation(await createContext({ skills: [dir] }), { standardConfig: NO_STANDARD })).code).toBe(code);
+    expect((await runValidation(await createContext({ skills: [dir] }), W1_ONLY)).code).toBe(code);
   });
 
   it.each([["# Probe\n\n~~~\ntext\n", 1], ["# Probe\n\n~~~\ntext\n~~~~\n", 0]])("agrees with covered legacy body fence fixtures (%#)", async (body, code) => {
     const dir = await writeSkill(await tempDir(), "probe-skill", { body });
     expect(runScript(SCRIPTS.checkSkillBody, [dir]).code).toBe(code);
-    expect((await runValidation(await createContext({ skills: [dir] }), { standardConfig: NO_STANDARD })).code).toBe(code);
+    expect((await runValidation(await createContext({ skills: [dir] }), W1_ONLY)).code).toBe(code);
   });
 
   it("checks the source skill corpus without substituting for its existing repository gates", async () => {
     const context = await createContext({ collections: [repoPath("skills")] });
-    const result = await runValidation(context, { standardConfig: NO_STANDARD });
-    expect(result).toMatchObject({ code: 0, scope: "W1-full", findings: [], failures: [] });
+    const result = await runValidation(context, W1_ONLY);
+    expect(result).toMatchObject({ code: 0, scope: "partial", findings: [], failures: [] });
     expect(result.documents.length).toBeGreaterThan(context.skillDirs.length);
     expect(result.rules).toEqual(["AS001", "AS010"]);
   });
@@ -512,7 +524,7 @@ describe("explicit context and protected execution", () => {
   });
 
   it("keeps genuine custom advisories successful and detects disabled-rule coverage gaps", async () => {
-    const dir = await writeSkill(await tempDir(), "probe-skill");
+    const dir = await writeSkill(await tempDir(), "probe-skill", { body: W2_BODY });
     const rule = { names: ["TESTWARN"], tags: ["fixture"], description: "Warning fixture", parser: "none", function(params, onError) { onError({ lineNumber: 1, detail: "genuine advisory" }); } };
     const context = await createContext({ skills: [dir] });
     const warning = await runValidation(context, { standardConfig: NO_STANDARD, additionalRules: [rule], ruleConfig: { TESTWARN: { severity: "warning" } } });
@@ -564,17 +576,17 @@ describe("explicit context and protected execution", () => {
   });
 
   it.each([undefined, {}, { default: true }, { default: false }])("retains omitted and valid-object standard configurations (%j)", async (standardConfig) => {
-    const dir = await writeSkill(await tempDir(), "probe-skill", { raw: "---\nname: probe-skill\ndescription: text\n---\n# Probe\n" });
+    const dir = await writeSkill(await tempDir(), "probe-skill", { raw: "---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n" });
     const result = await runValidation(await createContext({ skills: [dir] }), { standardConfig });
-    expect(result).toMatchObject({ code: 0, findings: [], failures: [], rules: ["AS001", "AS010"] });
+    expect(result).toMatchObject({ code: 0, findings: [], failures: [], rules: ALL_RULES });
   });
 
-  it("runs the copied and packed distribution in a clean consumer with network access denied", async () => {
+  it.each(["packed", "copied"])("runs the %s distribution in a clean consumer with network access denied", async (distribution) => {
     const root = await tempDir();
     const copied = join(root, "copied-skill");
     await cp(repoPath("skills/agent-skill-authoring"), copied, { recursive: true });
     const packageDir = join(copied, "scripts/markdownlint");
-    const dir = await writeSkill(root, "probe-skill", { raw: "\uFEFF---\r\nname: probe-skill\r\ndescription: text\r\n---\r\n# Probe\r\n" });
+    const dir = await writeSkill(root, "probe-skill", { raw: "\uFEFF---\r\nname: probe-skill\r\ndescription: text\r\n---\r\n" + W2_BODY.replaceAll("\n", "\r\n") });
     const config = await writeFileIn(root, "standard.json", JSON.stringify(NO_STANDARD));
     const startup = spawnSync(process.execPath, [join(packageDir, "cli.mjs"), "--skill", dir], { cwd: root, encoding: "utf8" });
     expect(startup.status).toBe(2);
@@ -587,7 +599,7 @@ describe("explicit context and protected execution", () => {
     expect(packed.status, packed.stderr).toBe(0);
     expect(packed.stderr).toContain("fixture npm advisory");
     const archive = JSON.parse(packed.stdout)[0];
-    expect(archive.files.map((file) => file.path).sort()).toEqual(["cli.mjs", "context.mjs", "package.json", "rules.mjs", "run.mjs"]);
+    expect(archive.files.map((file) => file.path).sort()).toEqual(["body.mjs", "cli.mjs", "context.mjs", "package.json", "rules.mjs", "run.mjs"]);
     const consumer = join(root, "consumer");
     await mkdir(consumer);
     const manifest = { private: true, type: "module", dependencies: { "agent-skill-markdownlint": `file:${join(root, archive.filename)}` } };
@@ -634,6 +646,87 @@ describe("explicit context and protected execution", () => {
     const passing = spawnSync(process.execPath, [...permissions, cli, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
     expect({ status: passing.status, stderr: passing.stderr }).toEqual({ status: 0, stderr: "" });
     expect(passing.stdout).toMatch(/W1-full: 1 document/);
+    await cp(join(consumer, "node_modules"), join(packageDir, "node_modules"), { recursive: true });
+    await writeFile(config, JSON.stringify({ default: false, ...Object.fromEntries(ALL_RULES.map(id => [id, false])) }));
+    await writeFileIn(root, ".markdownlint-cli2.jsonc", JSON.stringify({ ignores: ["**"], config: { default: false }, fix: true }));
+    const route = "# Probe Skill\n\n## Topic\n\nSee [topic.md](./references/topic.md) for:\n\n";
+    const violations = [
+      ["AS002", W2_BODY.replace("# Probe Skill", "# Wrong Title")],
+      ["AS003", W2_BODY.replace(COMPACT, "Unrecognized declaration.")],
+      ["AS003", W2_BODY.replace(COMPACT, "The [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html) keywords in this document are to be interpreted as described in RFC 2119.")],
+      ["AS004", W2_BODY.replace("**Guidelines:**", "Guidelines:")],
+      ["AS005", W2_BODY.replace("SHALL", "shall")],
+      ["AS006", W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->")],
+      ["AS006", W2_BODY.replace("A demonstration of the rule.", "<span></span>")],
+      ["AS006", W2_BODY.replace("A demonstration of the rule.", "Parent rationale.\n\n### Good Example:")],
+      ["AS007", route.replace("topic.md]", "details]") + "- condition\n"],
+      ["AS007", route.replace("See ", "See ![](icon.svg)") + "- condition\n"],
+      ["AS008", route + "- MUST preserve output.\n"],
+      ["AS008", route + "- condition\n\n  ### SHALL NOT discard output.\n"],
+      ["AS008", route + "- Consumers MUST preserve output.\n"],
+      ["AS008", route + "- Consumers MU<span></span>ST preserve output.\n"],
+      ["AS008", route + "- condition\n\n**<!-- invisible -->**\n\n- Consumers SHALL NOT discard output.\n"],
+      ["AS003", "# Probe Skill\n\nRationale.\n\n- ### MUST preserve output.\n"],
+      ["AS005", W2_BODY + "\n**<!-- invisible -->**\n\n- not a keyword\n"],
+      ["AS005", W2_BODY + "\n  > A contained example.\n\n- not a keyword\n"],
+      ["AS005", W2_BODY + "\n> <!-- invisible -->\n\n- not a keyword\n"],
+      ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n> Two.\n"],
+      ["AS009", "# Probe Skill\n\n**Good Example:**\n\n> One.\n\n---\n\n> Two.\n"],
+    ];
+    const entry = distribution === "packed" ? cli : join(packageDir, "cli.mjs");
+    for (const [id, body] of violations) {
+      await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n<!-- markdownlint-disable ${ALL_RULES.join(" ")} -->\n${body}`);
+      const violation = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+      expect({ status: violation.status, stderr: violation.stderr }, id).toEqual({ status: 1, stderr: "" });
+      expect(violation.stdout).toMatch(new RegExp(`error ${id} `));
+    }
+    for (const body of [
+      W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <svg><path d="M0 0 L1 1" /></svg>'),
+      W2_BODY.replace("A demonstration of the rule.", "<!-- invisible -->").replace("**Guidelines:**", '**Guidelines:** <img src="diagram.svg" alt="">'),
+      route + '- Consumers `MUST` and “SHALL NOT discard output.” illustrate terms. MUST and MAY are keyword names.\n',
+      route + '- a descriptive condition\n- <!-- first --> Consumers [`MUST`](https://example.com) and <!-- SHALL NOT discard output. --> illustrate terms.\n',
+      W2_BODY.replace("SHALL", "SH<span></span>ALL"),
+      route.replace("[topic.md]", "[`topic.md`]") + '- a descriptive condition\n- Consumers MU<br>ST preserve output.\n',
+      W2_BODY.replace(COMPACT, COMPACT + "\n\n**<!-- invisible -->**\n\n<span></span>"),
+      W2_BODY.replace("SHALL", "SHALL NOT—"),
+      "# Probe Skill\n\n**Good Example:**\n\n---\n\n> One.\n\n---\n",
+      "# Probe Skill\n\n**Good Example:**\n\n```javascript\nconst snippet = 1;\n```\n\n---\n",
+      "# Probe Skill\n\n**![Guidelines:](diagram.svg)**\n\n- an ordinary caption\n",
+      "# Probe Skill\n\n**![Good Example:](diagram.svg)**\n\nFirst caption.\n\nSecond caption.\n",
+      W2_BODY + "\n> Independent rationale.\n\n- descriptive item\n",
+    ]) {
+      await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n${body}`.replaceAll("\n", "\r\n"));
+      const control = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+      expect({ status: control.status, stderr: control.stderr }).toEqual({ status: 0, stderr: "" });
+      expect(control.stdout).not.toMatch(/error AS00[368]/);
+    }
+    for (const eol of ["\n", "\r\n"]) {
+      await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: null\n---\n# Wrong Title\n".replaceAll("\n", eol));
+      const title = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
+      expect({ status: title.status, stderr: title.stderr }).toEqual({ status: 1, stderr: "" });
+      expect(title.stdout).toMatch(/error AS002 .*Expected root H1 title: Probe Skill/);
+      expect(title.stdout).not.toMatch(/error AS001/);
+      const combined = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--rule", "AS001", "--rule", "AS002"], { cwd: consumer, encoding: "utf8" });
+      expect({ status: combined.status, stderr: combined.stderr }).toEqual({ status: 1, stderr: "" });
+      expect(combined.stdout).toMatch(/error AS001 /);
+      expect(combined.stdout).toMatch(/error AS002 /);
+      const constructor = await writeSkill(root, "constructor-skill", { raw: "---\nname: constructor-skill\ndescription: text\n---\n# Constructor Skill\n".replaceAll("\n", eol) });
+      const unknown = spawnSync(process.execPath, [...permissions, entry, "--skill", constructor, "--config", config], { cwd: consumer, encoding: "utf8" });
+      expect({ status: unknown.status, stderr: unknown.stderr }).toEqual({ status: 0, stderr: "" });
+    }
+    await writeFile(join(dir, "SKILL.md"), "---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\nRationale.\n\n**Guidelines:**\n\n- <!-- invisible -->\n");
+    const empty = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+    expect({ status: empty.status, stderr: empty.stderr }).toEqual({ status: 1, stderr: "" });
+    expect(empty.stdout).toMatch(/error AS005/);
+    expect(empty.stdout).not.toMatch(/error AS003/);
+    await writeFile(join(dir, "SKILL.md"), `---\nname: probe-skill\ndescription: text\n---\n# Probe Skill\n\n${COMPACT}\n\n## Rules\n\nRationale.\n\n- MUST—preserve output.\n`);
+    const off = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
+    expect({ status: off.status, stderr: off.stderr }).toEqual({ status: 0, stderr: "" });
+    expect(off.stdout).toContain("missing-Guidelines audit: off");
+    const audit = spawnSync(process.execPath, [...permissions, entry, "--skill", dir, "--config", config, "--audit-missing-guidelines"], { cwd: consumer, encoding: "utf8" });
+    expect({ status: audit.status, stderr: audit.stderr }).toEqual({ status: 1, stderr: "" });
+    expect(audit.stdout).toMatch(/error AS006/);
+    expect(audit.stdout).toContain("missing-Guidelines audit: enabled");
     await writeFile(join(dir, "SKILL.md"), "---\nname: other-name\ndescription: text\n---\n> ```\n>");
     const failed = spawnSync(process.execPath, [...permissions, cli, "--skill", dir, "--config", config], { cwd: consumer, encoding: "utf8" });
     expect(failed.status).toBe(1);
@@ -644,6 +737,12 @@ describe("explicit context and protected execution", () => {
       import {createContext} from 'agent-skill-markdownlint/context';
       import {runValidation} from 'agent-skill-markdownlint/run';
       const context=await createContext({skills:[process.argv[1]]});
+      const nullOptions=await runValidation(context,null);
+      if(nullOptions.code!==2||nullOptions.findings.length||!nullOptions.failures.some(f=>/options.*null/i.test(f)))throw new Error('null options outcome');
+      for(const rules of [null,false,0,'',true,1,'AS001',{},[]]) {
+        const malformed=await runValidation(context,{standardConfig:{default:false},rules});
+        if(malformed.code!==2||malformed.scope!=='partial'||malformed.rules.length||malformed.findings.length||!malformed.failures.some(f=>/nonempty array/.test(f)))throw new Error('malformed rules outcome');
+      }
       const invalid=await runValidation(context,{standardConfig:[]});
       if(invalid.code!==2||!invalid.failures.some(f=>f.includes('Standard configuration')))throw new Error('configuration outcome');
       const rule={names:['OFFLINEWARN'],tags:['fixture'],description:'Offline advisory',parser:'none',function(p,e){e({lineNumber:1,detail:'advisory'})}};
@@ -655,6 +754,6 @@ describe("explicit context and protected execution", () => {
       console.log(createRules(context).map(r=>r.names[0]),createConfiguration(context).noInlineConfig,advisory.code,failed.code);
     `, dir], { cwd: consumer, encoding: "utf8" });
     expect({ status: exports.status, stderr: exports.stderr }).toEqual({ status: 0, stderr: "" });
-    expect(exports.stdout).toMatch(/AS001.*AS010.*true 0 2/);
+    expect(exports.stdout).toMatch(/AS001[\s\S]*AS009[\s\S]*AS010[\s\S]*true 0 2/);
   }, 30000);
 });

@@ -40,8 +40,8 @@ describe("runValidation() Windows path-semantics simulation", () => {
       frontmatter: { source, body, bodyOffset: 4 }, bodyOffset: 4,
       tokens: new MarkdownIt().parse(body, {}),
     }]]) };
-    const result = await runValidation(context, { standardConfig: { default: false, MD009: true } });
-    expect(result).toMatchObject({ code: 1, documents: [path], rules: ["AS001", "AS010"], failures: [] });
+    const result = await runValidation(context, { standardConfig: { default: false, MD009: true }, rules: ["AS001", "AS010"] });
+    expect(result).toMatchObject({ code: 1, scope: "partial", documents: [path], rules: ["AS001", "AS010"], failures: [] });
     expect(result.findings.map((finding) => finding.ruleNames[0]).sort()).toEqual(["AS001", "AS010", "MD009"]);
     expect(result.findings.map((finding) => finding.path)).toEqual([path, path, path]);
   });
