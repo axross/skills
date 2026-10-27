@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 // linting: the validator unit tests under tests/validators and tests/unit, plus
 // the repository-wide checks under tests/repository that used to be their own
 // npm run-scripts (links, skill-structure, installed-copies). `npm test` runs
-// all of it; see README.md's command table.
+// all of it; see the command table in docs/operations/development-setup.md.
 export default defineConfig({
   test: {
     include: ["tests/**/*.test.mjs"],

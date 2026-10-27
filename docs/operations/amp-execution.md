@@ -291,5 +291,5 @@ schedule requests, unavailable APIs or expensive modes to prove prose.
 | Existing host or mandatory external reviewer unavailable       | Report the untested path; mandatory external review remains unmet until obtained.                                           |
 
 Run the documented format, lint and aggregate checks in
-[README](../../README.md) after edits. The aggregate suite includes the docs
+[Development Setup](./development-setup.md#commands) after edits. The aggregate suite includes the docs
 validators; it checks structural consistency, not actual host compatibility.

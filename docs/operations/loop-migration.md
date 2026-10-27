@@ -272,7 +272,7 @@ their rules:
 
 | Previous topic                                                                                              | Preserved owner or explicit exclusion                                                                                                                                                                   |
 | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AGENTS project overview, commands and tooling                                                               | README; entry retains library identity and command routing                                                                                                                                              |
+| AGENTS project overview, commands and tooling                                                               | README and Development Setup; entry retains library identity and command routing                                                                                                                        |
 | AGENTS baseline skills, read-only/change split and domain loading                                           | Entry's Response Approach; Professional Behavior, Software Development and Loop own details                                                                                                             |
 | AGENTS unconditional runtime priority, standing publication ask, old Execution Model reference              | Earlier integration moved the claim to host entry files and named injected forms; current guidance applies actual priority without self-elevation. Scoped authorization and gate choices are unchanged. |
 | AGENTS mandatory gates, no size threshold, headless operation, completion evidence and extra human scrutiny | Development Workflow; Loop owns approval, review, recovery and caps                                                                                                                                     |
@@ -305,7 +305,7 @@ Apply the stages in order when adopting or recovering this integration:
 4. Switch entry routing, remove replaced details, and correct indexes and stale
    pending-integration references as one reviewable change. Preserve the
    Claude/Codex configuration rather than converting it into Amp APIs.
-5. Run the combined matrix and README's checks. Record evidence by host and
+5. Run the combined matrix and Development Setup's checks. Record evidence by host and
    material revision; publish only through the approved delivery route, without
    describing an untested path as supported by execution evidence.
 6. Recover an in-flight run from its actual approved plan, files, processes and
@@ -332,7 +332,7 @@ must still be qualified in each actual session.
 
 | Input                                                                       | Observed contract result                                                                                           | Evidence class / remaining execution gap                                        |
 | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| Ask where commands are documented; no change requested                      | Entry selects conduct/development and README, not issue/plan/PR gates                                              | Static; ordinary Amp reads are observable in the implementation thread          |
+| Ask where commands are documented; no change requested                      | Entry selects conduct/development, README and Development Setup, not issue/plan/PR gates                           | Static; ordinary Amp reads are observable in the implementation thread          |
 | Approved docs change in Amp; no suitable implementation delegation purpose  | Parent implementation proceeds, then the same fresh-reader pre-flight checkpoint applies before publication        | Static; publication and both review stages remain separate gates                |
 | Same change in Claude Code or Codex                                         | Shared entry selects the same gates; Claude import and existing startup/configuration remain                       | Static only; fresh Claude/Codex session runs unavailable in this Amp session    |
 | One-shot child needs an undecided product choice                            | Conduct supplies question content; Amp guide returns partial results to parent, no live-resume assumption          | Static; no child decision-return run claimed                                    |

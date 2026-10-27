@@ -94,7 +94,19 @@ paragraph belongs to. Keeping a `README.md` copy beside the
 `docs/` one is rejected for the same reason the duplication rule gives — two
 homes for one fact drift the moment either is edited alone. `README.md` keeps
 what a reader of the library needs on first contact: positioning, getting
-started, the skill catalog, local setup, and the commands table.
+started, the skill catalog, and links to the guides under `docs/`. Local setup
+and the commands table live in
+[Development Setup](../operations/development-setup.md).
+
+The catalog gives each skill its own section rather than a row in a
+per-category table. A table compares better — one line each, side by side, is
+how a reader shortlists — and that is what this trades away: picking between two
+skills means reading two sections instead of two adjacent rows. What it buys is
+somewhere for an accompanying note to go. A table cell has no room for one,
+whereas a section carries it in the same place the reader already finds the
+skill's description; `loop-engineering`'s note on the two environment variables
+worth setting for a long run still lives in its `README.md` section for that
+reason.
 
 The cost accepted is reach. A document under `conventions/` or `operations/`
 does not fire the way a skill does — nothing loads it because a task matches a

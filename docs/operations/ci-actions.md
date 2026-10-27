@@ -53,7 +53,7 @@ and inspection evidence with the change. Keep the exact release label as a
 trailing YAML comment on each SHA reference.
 
 Run the documented format, lint and aggregate checks in
-[README](../../README.md#commands). The reference-policy check is offline: it
+[Development Setup](./development-setup.md#commands). The reference-policy check is offline: it
 accepts major and exact version tags within each trusted action's selected
 major, or full SHAs with release labels. An approved major upgrade MUST update
 the test's accepted major alongside this inventory and the workflows.

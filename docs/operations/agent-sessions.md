@@ -98,8 +98,8 @@ outside those excluded trees remain eligible. These checks establish selection,
 not a lock against other writers or hostile concurrent filesystem replacement.
 
 Manual whole-repository commands remain as documented in
-[README](../../README.md). A skipped or failed repair exits `0` and
-does not weaken the non-writing completion checks. Actual shell-hook fixtures
+[Development Setup](./development-setup.md#commands). A skipped or failed repair
+exits `0` and does not weaken the non-writing completion checks. Actual shell-hook fixtures
 exercise selection, exclusions and exit statuses; they are not evidence of
 live Claude/Codex startup or Amp automatic repair.
 
