@@ -8,11 +8,12 @@ skill's [Posted and CI Reviews](.claude/skills/code-review/SKILL.md#posted-and-c
 The CI reviewer ([`claude-review.yaml`](.github/workflows/claude-review.yaml))
 routes to this file via its system-prompt bootstrap.
 [AGENTS.md](AGENTS.md)'s Code Review Rules directs repository reviewers,
-including Codex, here. These entry points state the required behavior; they do
-not prove that a hosted provider loaded the file or can replace its native
-report format. [Code Review operations](docs/operations/code-review.md) owns
-qualification of policy delivery and published output. Unobserved provider
-input remains unknown, not proof of policy consumption or a failed review.
+including Codex, here. What these entry points do and do not establish about a
+hosted provider is stated in
+[Qualify Codex policy delivery](docs/operations/code-review.md#qualify-codex-policy-delivery).
+[Code Review operations](docs/operations/code-review.md) owns qualification of
+policy delivery and published output. Unobserved provider input remains
+unknown, not proof of policy consumption or a failed review.
 
 This is a **strict** review: run every mandatory check below, assess the
 acceptance criteria the pull request body carries within the scope below, and
