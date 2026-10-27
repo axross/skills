@@ -403,10 +403,11 @@ async function claudeSkillSymlinks() {
 }
 
 /**
- * the standalone validator CLIs README.md enumerates: this repository's own
- * gates, plus the ones that ship inside a skill for the projects that install
- * it. a module imported by a validator is not one of them, which is what the
- * shebang distinguishes — those files are executable entry points and say so.
+ * the standalone validator CLIs docs/operations/development-setup.md enumerates:
+ * this repository's own gates, plus the ones that ship inside a skill for the
+ * projects that install it. a module imported by a validator is not one of them,
+ * which is what the shebang distinguishes — those files are executable entry
+ * points and say so.
  *
  * the walk is recursive. a multi-module tool groups its files in a subdirectory
  * of `scripts/` rather than flattening them among a skill's other scripts, and
@@ -472,21 +473,21 @@ export const CLAIMS = {
   "first-reporting-tool-ordinal": {
     owner:
       "one past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: 'the code fence in docs/operations/development-setup.md (Commands section) splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 1,
   },
 
   "second-reporting-tool-ordinal": {
     owner:
       "two past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: 'the code fence in docs/operations/development-setup.md (Commands section) splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 2,
   },
 
   "third-reporting-tool-ordinal": {
     owner:
       "three past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence above splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: 'the code fence in docs/operations/development-setup.md (Commands section) splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
     derive: async () => (await countDocumentedValidators()) + 3,
   },
 

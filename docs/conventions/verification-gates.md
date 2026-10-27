@@ -10,10 +10,11 @@ fall into.
 ## The Enforced-Gate Set Lives in Four Places
 
 `package.json`'s `check` chain, `.github/workflows/merge-checks.yaml`,
-`README.md`'s commands table, and `REVIEW.md`'s do-not-report list all state
-the same enforced-gate set, and all four MUST agree — this document does not
-restate that set itself; `README.md`'s commands table is the one place it is
-enumerated. Two of the four are tied together mechanically:
+[Development Setup](../operations/development-setup.md#commands)'s commands
+table, and `REVIEW.md`'s do-not-report list all state the same enforced-gate
+set, and all four MUST agree — this document does not restate that set itself;
+that commands table is the one place it is enumerated. Two of the four are tied
+together mechanically:
 `tests/repository/gate-consistency.test.mjs` compares the scripts
 `merge-checks.yaml` runs against `package.json`'s `check` chain and fails on a
 mismatch. The other two copies are tied to nothing. Changing the gate set
@@ -35,7 +36,8 @@ Warm agent startup is a different boundary: SessionStart retains `npm install`
 for dependency reuse, and orb setup skips an unchanged warm restore. Replacing
 these with `npm ci` would discard cached `node_modules`, not improve the cold
 gate. [Agent Sessions](../operations/agent-sessions.md) owns those lifecycle
-paths; [README](../../README.md#commands) defines both dependency commands.
+paths; [Development Setup](../operations/development-setup.md#commands) defines both
+dependency commands.
 
 ## The Measurement Pull Request's Exclusion
 

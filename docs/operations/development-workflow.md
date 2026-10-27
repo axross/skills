@@ -127,7 +127,7 @@ earlier migration references; it does not duplicate delivery mechanics.
 ## Working Without an Agent
 
 Working without an agent does not lower the bar: branch, implement, run
-[README's checks](../../README.md#commands), open a pull request following the
+[Development Setup's checks](./development-setup.md#commands), open a pull request following the
 template, and obtain review before merge. Agents likewise MUST use a branch
 outside the default branch, preserve pushed history, and leave merging to the
 human. `claude/` is the namespace observed by the sweep below; a namespace

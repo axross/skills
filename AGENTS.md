@@ -3,7 +3,8 @@
 ## Project overview
 
 **skills** is a distributable agent-skills library, written in Markdown with
-JavaScript tooling. [README.md](./README.md) owns its commands and catalog;
+JavaScript tooling. [README.md](./README.md) owns its catalog and links
+[Development Setup](./docs/operations/development-setup.md) for its commands;
 [docs/index.md](./docs/index.md) indexes project conventions and operations.
 Claude Code, Codex, and Amp use the same capability sources, not separate
 host-specific skill libraries.
@@ -27,8 +28,10 @@ by task rather than importing every change gate into read-only work:
   planning or making any code or document change, then follow
   [Development Workflow](./docs/operations/development-workflow.md) for this
   repository's required gates. Read-only work stays outside the change loop.
-- MUST read [README.md](./README.md#commands) before repository commands.
-  Software Development owns the procedure when a command is undocumented.
+- MUST read [README.md](./README.md) and the
+  [Development Setup](./docs/operations/development-setup.md) guide it links
+  before repository commands. Software Development owns the procedure when a
+  command is undocumented.
 - MUST read [docs/index.md](./docs/index.md) when a task depends on project
   terminology, concepts, or past decisions; follow only the relevant routes.
 

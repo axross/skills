@@ -58,17 +58,9 @@ one to govern how work happens rather than merely inform it, say so in your own
 agent instructions. This repository is a worked example:
 [`AGENTS.md`](./AGENTS.md) makes `loop-engineering` the mandatory change loop for
 every change rather than one option among several. That mandate applies within
-the active host's instruction hierarchy and tool usage conditions.
-
-**Apply your host's actual instruction hierarchy.** Portable skills state their
-own gates, not a host-specific priority order. Your host entry guidance can
-explain how the actual hierarchy applies to those gates; it cannot redefine
-that hierarchy or give project instructions higher priority. Resolve conflicts
-using each instruction's actual source and priority, not a label such as generic
-framing. Keep compatible project gates and report any gate that cannot be
-satisfied within higher-priority instructions and tool usage conditions. See
+the active host's instruction hierarchy and tool usage conditions; see
 [Skill Portability](./docs/conventions/skill-portability.md#what-a-skill-deliberately-does-not-carry)
-for this boundary and its rationale.
+for that boundary and its rationale.
 
 ## Skill catalog
 
@@ -79,14 +71,9 @@ all install the same way, and every one of them has its source under
 and [`docs/operations/agent-skills.md`](./docs/operations/agent-skills.md) if
 you contribute here.
 
-Each skill gets its own section rather than a row in a per-category table.
-A table compares better — one line each, side by side, is how you shortlist —
-and that is what this trades away: picking between two skills means reading
-two sections instead of two adjacent rows. What it buys is somewhere for an
-accompanying note to go. A table cell has no room for one, and
-`loop-engineering`'s recommended environment variables had nowhere to live
-until every skill had a section of its own to carry that kind of note in the
-same place you already read its description.
+Each skill gets its own section rather than a row in a per-category table;
+[Decision Placement](./docs/conventions/decision-placement.md#which-document-receives-it)
+records the trade-off.
 
 ### Working with you
 
@@ -117,24 +104,13 @@ research, plan, and design handoffs, then retains separate implementation
 pre-flight and external code review. See
 [`SKILL.md`](./skills/loop-engineering/SKILL.md).
 
-**Recommended settings for using this skill.** `loop-engineering` drives long,
-many-turn runs, so the following two environment variables are worth setting
-wherever you run it — not configuration the skill requires, but a way to cut
-what a long run spends on carrying context and on work done around the
-session rather than on it:
-
-- `CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000` — moves when auto-compaction
-  fires. A long-running loop's context grows turn over turn; triggering
-  compaction sooner keeps less of it in play on any given turn.
-- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` — stops prompt-suggestion
-  generation, work done once per turn around a session rather than on it.
-  The loop runs many turns to carry one change to a reviewed pull request,
-  so that per-turn overhead recurs across the whole run in a way it would
-  not for a single-turn task.
-
-Set them in the environment dialog at claude.ai/code for a cloud session, or
-in `~/.claude/settings.json` for a local one. `~/.claude/settings.json` does
-**not** reach a cloud session — its scope stops at your own machine.
+`loop-engineering` drives long, many-turn runs, so set
+`CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000` and
+`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` wherever you run it — not
+configuration the skill requires, but a way to cut what a long run spends on
+carrying context and on per-turn work around the session. [Agent
+Sessions](./docs/operations/agent-sessions.md#recommended-environment-variables)
+gives the reasoning and where to set them.
 
 #### `product-requirement-document-authoring`
 
@@ -372,20 +348,12 @@ change a skill you do not own. See
 ## How this library evaluates its skills
 
 A skill's usefulness has to be checked rather than assumed, and the checking
-cannot be done by reading it. Evaluation in this space, where it exists at
-all, tends to stop at a skill's textual properties — that it is shaped
-correctly, not that it works. This library measures the skill outcome as
-well: an evaluation scenario gives a model a real task inside a real
-project, once with the skill under test installed and once without, and
-checks the difference against declared, checkable expectations rather than a
-generic "did anything change" signal. That is the axis worth comparing
-libraries on — whether a skill's usefulness is _measured_ or merely
-asserted.
-
-For intentional rule revisions, the offline `compare.mjs` report checks a
-separate declaration against stored observations, retaining unknown populations
-and separating selection, acquisition, conformity and guard evidence. It makes
-no model calls and leaves live qualification and execution authorization separate.
+cannot be done by reading it. This library measures the skill outcome, not only
+its textual properties: an evaluation scenario gives a model a real task inside
+a real project, once with the skill under test installed and once without, and
+checks the difference against declared, checkable expectations. That is the
+axis worth comparing libraries on — whether a skill's usefulness is _measured_
+or merely asserted.
 
 See [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) for
 what skill evaluation is, why checking textual properties cannot reach it,
@@ -394,135 +362,17 @@ and the scenario model it describes, and
 for the instrument that runs it, by hand or through its own dispatch
 workflow.
 
-## Contributing
+## Development
 
 Development here is agent-assisted via
 [Claude Code](https://claude.com/claude-code), Codex, or Amp, working through this
-repository's own change loop; see
-[`docs/operations/development-workflow.md`](./docs/operations/development-workflow.md)
-for the loop's stages and how it is wired here. The
-[combined migration matrix](./docs/operations/loop-migration.md#combined-acceptance-matrix)
-distinguishes static contract checks from actual host execution evidence.
+repository's own change loop. Start with the guides below:
 
-### Local setup
-
-1. Install dependencies: `npm install`
-2. Run the checks: `npm run check` — see [Commands](#commands) for what each
-   one covers
-
-There is no dev server — authoring a skill means editing Markdown under
-[`skills/`](./skills) (or a skill root for a repository-local skill) and
-reinstalling if it is distributable; see
-[`docs/operations/agent-skills.md`](./docs/operations/agent-skills.md) for
-that procedure and
-[`docs/operations/agent-sessions.md`](./docs/operations/agent-sessions.md)
-for Amp orb provisioning and Claude Code/Codex session startup. The terms this repository
-uses, and the constraints it works under with the reasoning beside them, live
-in [`docs/`](./docs/index.md), which is checked by the same suite.
-
-| Area              | Tool                                                                                                                                           |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Language          | Markdown (with occasional JavaScript for scripting)                                                                                            |
-| Runtimes          | Claude Code, Codex, and Amp                                                                                                                    |
-| Node              | 26, pinned in `package.json`'s `engines.node`, which CI reads via `node-version-file`                                                          |
-| Package manager   | npm                                                                                                                                            |
-| Formatting        | Prettier                                                                                                                                       |
-| Linting           | markdownlint-cli2                                                                                                                              |
-| Tests             | Vitest                                                                                                                                         |
-| Link integrity    | `skills/agent-skill-authoring/scripts/check-links.mjs`                                                                                         |
-| Skill structure   | `skills/agent-skill-authoring/scripts/check-skill-{frontmatter,body,references}.mjs`                                                           |
-| Installed copies  | `skills/agent-skill-management/scripts/check-installed-copies.mjs`                                                                             |
-| Obligation burden | `scripts/report-obligation-burden.mjs` (reports; never gates)                                                                                  |
-| Skill evaluation  | `tools/evaluation/{probe,evaluate,derive,compare}.mjs` (reports; never gates); `tools/evaluation/artifacts.mjs` (dispatch packaging/admission) |
-| Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                                                                                  |
-| Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)                                                                    |
-| Project docs      | `skills/living-project-documentation/scripts/check-*.mjs` (three, over `docs/`)                                                                |
-
-### Commands
-
-Verification is a format check, a Markdown lint, and a Vitest suite.
-`npm run check` runs all three, and each gates a merge as its own parallel job in
-[`merge-checks.yaml`](./.github/workflows/merge-checks.yaml). The suite is the
-wide one — the `npm test` row says what it carries.
-
-This table is the authoritative list of the repository's commands, for human
-contributors and agents alike.
-
-The additional W1 foundation uses CLI2 0.23.3/markdownlint 0.41.1 and the private
-bundled package described in
-[Protected Markdownlint Execution](./skills/agent-skill-authoring/references/markdownlint-execution.md).
-Its AS001/AS010 checks and raw-source/preflight tests run in the fixture suite;
-they do not replace the existing repository lint or structure gates. Standard
-configuration for this helper is explicit, not inherited from CLI2 config.
-`npm test -- tests/validators/skill-markdownlint.test.mjs` runs its targeted
-regressions, including the copied/tarball distribution in a clean offline
-consumer using the locked runtime dependency graph. Repository dependency
-acquisition must have populated the npm tarball cache; cached registry metadata
-is not required.
-
-| Command                                                                    | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | When to run it                                                                                                                    |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `npm install`                                                              | Installs or updates the toolchain from `package.json`, reconciling `package-lock.json` when needed and reusing existing `node_modules`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | During local dependency development and warm agent setup/restoration.                                                             |
-| `npm ci`                                                                   | Installs the toolchain from `package-lock.json` without rewriting the manifest or lockfile; rejects disagreement with `package.json` and replaces existing `node_modules`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | In cold CI jobs, or for a clean local reproduction of the committed dependency graph.                                             |
-| `npm run format`                                                           | Rewrites Markdown, JSON, and YAML files in place with Prettier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | After every set of edits, before committing.                                                                                      |
-| `npm run format:check`                                                     | Reports formatting drift without rewriting anything; exits non-zero on drift.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | In CI, or to check formatting without touching the working tree.                                                                  |
-| `npm run lint`                                                             | Runs markdownlint-cli2 over every Markdown file.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | After formatting, and fix every reported error before finishing.                                                                  |
-| `npm run lint:fix`                                                         | Repairs markdownlint's mechanically-fixable violations in place. Carries no glob of its own — pass a path or glob, e.g. `npm run lint:fix -- "skills/**/*.md"`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | On a file with a mechanical violation `npm run lint` reports; a residual violation it cannot repair still needs an authoring fix. |
-| `npm test`                                                                 | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the evaluation instrument's own suite under `tests/evaluation/` (`probe.mjs`, `evaluate.mjs`, `derive.mjs`, `compare.mjs`, and `artifacts.mjs` run for real against stored fixtures, never a live model), the three `docs/` checks, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`.                                                          |
-| `npm run check`                                                            | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Before opening or updating a pull request.                                                                                        |
-| `node tools/evaluation/artifacts.mjs`                                      | Packages `record.json` bundles and admits them before landing. Use `--help` for flags; [Evaluation Dispatch](./docs/operations/evaluation-dispatch.md#artifact-admission-artifactsmjs) owns context, selectors, partial outcomes and offline invocations.                                                                                                                                                                                                                                                                                                                                                                                                                                     | In dispatch producers/consumers or credential-free offline artifact checks.                                                       |
-| `node tools/evaluation/compare.mjs <declaration.json> <observations.json>` | Emits an explicit treatment-comparison JSON report without changing inputs or calling models. [Evaluation Dispatch](./docs/operations/evaluation-dispatch.md) owns the input contract and claim limits.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | For offline old/new comparison reporting, not live qualification.                                                                 |
-
-If a required command cannot be run, say so — naming the command, the reason,
-and the residual risk — rather than presenting the change as fully verified.
-
-Every command below runs from the source tier under [`skills/`](./skills) —
-what the suite itself invokes; the installed roots go stale mid-edit. See
-[`docs/conventions/directory-structure.md`](./docs/conventions/directory-structure.md)
-for why each validator ships with the skill that owns it rather than living
-here, and when a validator earns its place at all.
-
-```bash
-# This repository's own three gates, run over the whole tree by `npm test`:
-node skills/agent-skill-authoring/scripts/check-links.mjs
-node skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs --help
-node skills/agent-skill-authoring/scripts/check-skill-body.mjs --help
-node skills/agent-skill-authoring/scripts/check-skill-references.mjs --help
-node skills/agent-skill-management/scripts/check-installed-copies.mjs skills .claude/skills
-
-# W1 foundation only; not a substitute for the three structure checks above:
-node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --help
-# All standard rules default on; use --config for an explicit JSON rule object:
-node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --collection skills
-
-# Three more gate this repository's own docs/. They are one set,
-# deliberately not one command: each answers for one kind of change, so an
-# author who touched one document reads only its findings.
-node skills/living-project-documentation/scripts/check-index.mjs docs
-node skills/living-project-documentation/scripts/check-references.mjs docs
-node skills/living-project-documentation/scripts/check-glossary.mjs docs
-
-# One more ships in a skill and this repository runs it too, from a schedule
-# rather than a gate — see docs/conventions/verification-gates.md:
-node skills/agent-skill-authoring/scripts/link-freshness/check.mjs --dry-run
-
-# Three others ship inside a skill purely for the projects that install it — this
-# repository exercises them only against fixtures:
-node skills/conventional-commits/scripts/check-commit-message.mjs --help
-node skills/wireframe-design/scripts/check-wireframe.mjs --help
-node skills/github-operation/scripts/decode-sanitized-read.mjs --help
-```
-
-See [`docs/conventions/verification-gates.md`](./docs/conventions/verification-gates.md)
-for what makes a check a gate, a report, or a scheduled audit, and the traps
-each can fall into.
-
-## Documentation
-
-Everything else about this repository — its directory structure and skill
-tiers, its verification gates, its `count:` marker, what a distributable
-skill may not contain, how a change moves through the loop, installing and
-refreshing a skill, how an agent session starts here, running `@claude
-review`, dispatching an evaluation, its product specification, and its
-decision log — lives under [`docs/`](./docs/index.md). Start at
-[`docs/index.md`](./docs/index.md), which says which document holds what.
+- [Development Setup](./docs/operations/development-setup.md) — local setup,
+  the toolchain, and the commands that verify a change.
+- [Development Workflow](./docs/operations/development-workflow.md) — the loop's
+  stages and how it is wired here.
+- [Agent Skills](./docs/operations/agent-skills.md) — installing and refreshing a
+  skill while you contribute here.
+- [Documentation index](./docs/index.md) — everything else about this repository,
+  and which document holds what.

@@ -82,6 +82,11 @@ Qualification separates four observations:
 None implies the next. A finding citing a rule proves awareness of that rule,
 not traversal of every required reference or check.
 
+An entry point that states the required behavior, such as the root
+[`AGENTS.md`](../../AGENTS.md)'s Code Review Rules or
+[`REVIEW.md`](../../REVIEW.md), does not prove that a hosted provider loaded the
+file or can replace its native report format.
+
 For a representative authorized draft review, maintainers MUST:
 
 1. Identify the source material:

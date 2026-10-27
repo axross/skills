@@ -41,6 +41,8 @@ uses none of them.
 
 - [operations/development-workflow.md](./operations/development-workflow.md)
   — how a change gets from a stated intent to a merged pull request.
+- [operations/development-setup.md](./operations/development-setup.md) — local
+  setup, the toolchain, and the repository's commands and validators.
 - [operations/github-delivery.md](./operations/github-delivery.md) — plan and
   state storage, issue-to-PR handover, comment markers, and evidence routing.
 - [operations/amp-execution.md](./operations/amp-execution.md) — qualifying Amp
@@ -68,5 +70,5 @@ uses none of them.
   running the evaluation instrument, by hand or through its one dispatch
   workflow, against this repository's declared scenarios.
 
-For what this library is, how to install a skill, and how to operate this
-repository day to day, see [`README.md`](../README.md).
+For what this library is, how to install a skill, and its skill catalog, see
+[`README.md`](../README.md).

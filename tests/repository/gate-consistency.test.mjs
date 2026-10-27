@@ -1,12 +1,14 @@
 // the enforced-gate set must not drift between package.json and CI.
 //
 // the set of enforced gates lives in four places: this repository's `check`
-// script, merge-checks.yaml's jobs, README.md's commands table, and REVIEW.md's
-// do-not-report enumeration. update one and miss another and CI silently stops
+// script, merge-checks.yaml's jobs, the commands table in
+// docs/operations/development-setup.md, and REVIEW.md's do-not-report
+// enumeration. update one and miss another and CI silently stops
 // enforcing something the documentation claims it does.
 //
 // two of those four can be tied mechanically, which is what this asserts. the
-// README and REVIEW.md couplings stay prose and remain a reviewer's job.
+// development-setup and REVIEW.md couplings stay prose and remain a reviewer's
+// job.
 //
 // since the link, skill-structure, and installed-copy checks became Vitest tests
 // rather than npm run-scripts, the npm-script coupling covers three gates
