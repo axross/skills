@@ -37,6 +37,7 @@ in [`docs/`](../index.md), which is checked by the same suite.
 | Skill evaluation  | `tools/evaluation/{probe,evaluate,derive,compare}.mjs` (reports; never gates); `tools/evaluation/artifacts.mjs` (dispatch packaging/admission) |
 | Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                                                                                  |
 | Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)                                                                    |
+| Project docs      | `skills/living-project-documentation/scripts/check-*.mjs` (three, over `docs/`)                                                                |
 
 ## Commands
 

@@ -13,7 +13,8 @@ fall into.
 [Development Setup](../operations/development-setup.md#commands)'s commands
 table, and `REVIEW.md`'s do-not-report list all state the same enforced-gate
 set, and all four MUST agree — this document does not restate that set itself;
-that commands table is the one place it is enumerated. Two of the four are tied together mechanically:
+that commands table is the one place it is enumerated. Two of the four are tied
+together mechanically:
 `tests/repository/gate-consistency.test.mjs` compares the scripts
 `merge-checks.yaml` runs against `package.json`'s `check` chain and fails on a
 mismatch. The other two copies are tied to nothing. Changing the gate set
