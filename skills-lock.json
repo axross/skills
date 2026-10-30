@@ -44,7 +44,7 @@
     "expo-app-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "52ba63af9c3688e10e3d84e196db891eebe6781c548c259558955c9c8bb1f6e4"
+      "computedHash": "fca00cc1a6bacd91e9421dac5adeb3ae7ed03d2608a278915b65e09553a9aff7"
     },
     "github-operation": {
       "source": "./skills",

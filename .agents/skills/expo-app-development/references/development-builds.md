@@ -63,12 +63,11 @@ Command syntax for `simctl`, `adb` and `expo start` (Expo CLI 57.0.27) was check
 
 ### Choose the Build Route
 
-A development build reaches a simulator or emulator by a local native run, by a development-client build profile built locally, or by reusing an installed build. A hosted build service uploads the project and spends billed quota and secrets, so dispatching one is a separate effect that needs its own authorization. A profile that embeds the JavaScript bundle at build time does not load from the development server, so an uncommitted change never appears in it.
+A development build reaches a simulator or emulator by a local native run, by a development-client build profile built locally, or by reusing an installed build. A hosted build service uploads the project and spends billed quota and secrets, so dispatching one is a separate effect that needs its own authorization and is never the default route, as the development-verification practices state where present. A profile that embeds the JavaScript bundle at build time does not load from the development server, so an uncommitted change never appears in it.
 
 **Guidelines:**
 
 - SHOULD reuse an installed build when nothing in the table above calls for a native build.
-- MUST NOT treat a hosted build as the default route; it is a billed or secret-bearing dispatch that needs its own authorization, as the development-verification practices state where present.
 - MUST NOT verify an uncommitted change in a profile that embeds the bundle.
 
 ### Select the Device and Port
