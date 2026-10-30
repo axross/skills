@@ -44,12 +44,12 @@
     "expo-app-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0eae51e920dacd73eb6228f163843f7a50549d344352367ceb2655ffdccce309"
+      "computedHash": "52ba63af9c3688e10e3d84e196db891eebe6781c548c259558955c9c8bb1f6e4"
     },
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "80c1de2834b87b0e46626e82bab644593f0fba1ba6f3f123e11de145abfb4ecc"
+      "computedHash": "fdcf39d4563841ee64ec927fdf1565bc2ea6dde5bf250a6b94bba97367acc5da"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "59f6cc0bccced5153b12af636e430207a3b62085bb1ea4d93e05cd96a78078e4"
+      "computedHash": "45c541e78d56a5f6e5771532493b2dbf894df15d09fbf5472bcbe6e06ddb7413"
     },
     "next-app-development": {
       "source": "./skills",
@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "93a22053c7b6f52f67d094de5fa35ed5b7f14a0c0618e7e7fadf4d84a096f4de"
+      "computedHash": "39e31c6d20e5ee6ec4cb4cae07a29159848bac4650481577a367cbb57f54ce82"
     },
     "react-component-development": {
       "source": "./skills",

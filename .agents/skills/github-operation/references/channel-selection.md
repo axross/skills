@@ -37,7 +37,7 @@ Attaching an image or video to an issue, pull request, or comment is a write the
 
 **Guidelines:**
 
-- MAY use the session's authenticated GitHub CLI, 2.99.0 or later, for the attachment-carrying write only, and only when the sanctioned channel exposes no attachment upload in this session, the CLI's authenticated account is the same operator account as the sanctioned channel's, checked before the write, and attachment is established for the target host in this session rather than assumed from the release notes.
+- MAY use the session's authenticated GitHub CLI, 2.99.0 or later, for the attachment-carrying write only, and only when the sanctioned channel exposes no attachment upload in this session, the CLI's authenticated account is the same operator account as the sanctioned channel's, checked before the write, and attachment is established for the target host in this session rather than assumed from the release notes: the installed CLI's help lists `--attach` for the command, its authenticated host is GitHub.com or a GitHub Enterprise Cloud host, and the post-write re-read in [body-integrity.md](./body-integrity.md) confirms the result.
 - MUST report attachment as unavailable when any of those conditions is unmet, or when the project's agent instructions or host restrictions forbid that CLI write.
 - MUST NOT extend this exception to any other CLI write, or to the raw operations below.
 - MUST inspect the file's content for credentials and personal data before uploading it.

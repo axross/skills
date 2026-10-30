@@ -59,7 +59,7 @@ Where the development client provides a launcher, it can be configured to open t
 
 This section covers getting a development build running and reachable on an iOS Simulator or an Android emulator. Whether such a run settles a device check belongs to the project's development-verification practices, where present. What a running app reports through the development server's MCP capabilities is in [expo-mcp.md](./expo-mcp.md).
 
-Command syntax for `simctl`, `adb` and `expo start` was checked on **2026-10-30**. Behaviour marked _observed_ was seen on **SDK 57 on 2026-10-29** and was not reproduced when this was written; recheck it against the installed SDK before relying on it.
+Command syntax for `simctl`, `adb` and `expo start` (Expo CLI 57.0.27) was checked on **2026-10-30**. Behaviour marked _observed_ was seen on **SDK 57 on 2026-10-29** and was not reproduced when this was written; recheck it against the installed SDK before relying on it.
 
 ### Choose the Build Route
 
@@ -68,7 +68,7 @@ A development build reaches a simulator or emulator by a local native run, by a 
 **Guidelines:**
 
 - SHOULD reuse an installed build when nothing in the table above calls for a native build.
-- MUST NOT dispatch a hosted build to obtain a simulator or emulator build without separate authorization; it is never the default route.
+- MUST NOT treat a hosted build as the default route; it is a billed or secret-bearing dispatch that needs its own authorization, as the development-verification practices state where present.
 - MUST NOT verify an uncommitted change in a profile that embeds the bundle.
 
 ### Select the Device and Port
@@ -91,7 +91,7 @@ xcrun simctl openurl <device> "<url>"
 adb -s <serial> shell am start -a android.intent.action.VIEW -d "<url>"
 ```
 
-For the client, `<url>` is the client's scheme followed by `expo-development-client/?url=` and the percent-encoded server URL, such as `http%3A%2F%2Flocalhost%3A<port>`. _Observed:_ the first time a URL of each scheme opens on an iOS Simulator, the system asks whether to open the app, and `openurl` waits until someone taps Open.
+For the client, `<url>` has the form `<scheme>://expo-development-client/?url=<encoded server URL>`, the server URL percent-encoded, such as `http%3A%2F%2Flocalhost%3A<port>`. _Observed:_ the first time a URL of each scheme opens on an iOS Simulator, the system asks whether to open the app, and `openurl` waits until someone taps Open.
 
 On Android, `adb` sends to a device other than the one meant when another is attached unless told otherwise. Connect with `adb -s <serial> reverse tcp:<port> tcp:<port>` and `localhost` rather than the host's network address. _Observed:_ the app's connection to the host's network address dropped, and the app then stopped reaching the server until reopened.
 
@@ -107,7 +107,7 @@ The device appearance changes with `xcrun simctl ui <device> appearance dark` an
 
 **Guidelines:**
 
-- MUST return appearance to what it was found as (`appearance light`, `cmd uimode night no`) and re-enable Wi-Fi and data with `svc wifi enable` and `svc data enable` afterwards, so the next check does not start from a state it did not choose.
+- SHOULD return appearance to what it was found as (`appearance light`, `cmd uimode night no`) and re-enable Wi-Fi and data with `svc wifi enable` and `svc data enable` afterwards, so the next check does not start from a state it did not choose.
 - MUST say when connectivity cannot be restored rather than leave the emulator offline silently.
 - SHOULD name the platform an offline observation came from.
 
@@ -127,7 +127,7 @@ On an Apple-silicon host, create the emulator from an arm64 system image; an x86
 
 **Guidelines:**
 
-- MUST pick the system image whose ABI the host runs and the build includes.
+- SHOULD pick the system image whose ABI the host runs and the build includes.
 
 ### Serve the Web Build for Verification
 

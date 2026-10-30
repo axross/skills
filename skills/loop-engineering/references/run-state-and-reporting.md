@@ -69,6 +69,6 @@ The completion report is also the human's verification brief.
 **Guidelines:**
 
 - MUST identify the work target, delivery target where one exists, approved plan revision, required-check results, independent-review outcome and round count, mergeability, and any residual risk.
-- MUST report each check the agent performed with its evidence links, and give concrete manual exercise steps only for the human-observable remainder it did not perform, saying plainly when none remain.
+- MUST report each manual or device check the agent performed with its evidence links, and give concrete manual exercise steps only for the human-observable remainder it did not perform, saying plainly when none remain.
 - MUST report a check whose artifact, such as a screenshot or video, could not be published with its text observation, naming the unpublished artifact as a limitation.
 - MUST source any preview or artifact locator from verified current evidence rather than constructing it from memory.

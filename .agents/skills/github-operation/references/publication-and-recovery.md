@@ -104,7 +104,7 @@ Where squash merge is used, the PR title becomes the permanent commit subject. A
 **Guidelines:**
 
 - SHOULD open work-in-progress PRs in draft and leave merging to a human when no project delivery convention is defined; otherwise follow that convention within the active host's permissions.
-- MUST, where the project uses change-loop practices that define a ready gate, perform the draft-to-ready transition itself once that gate is met, unless another skill or the project's agent instructions reserve it to a human; without such a gate, the authorization rules above govern, so ask rather than infer a grant.
+- MUST, where the project uses change-loop practices that define a ready gate, perform the draft-to-ready transition itself once that gate is met, unless another skill or the project's agent instructions reserve it to a human; the gate's owner supplies the authority for that one effect, which does not extend to merging. Without such a gate, the authorization rules above govern, so ask rather than infer a grant.
 - MUST consult the project's Conventional Commits practices when authoring a PR title, if present; otherwise follow its documented title convention.
 - MUST consult the project's pull-request-description practices and reproduce its applicable template when preparing a body. Without those practices, provide a concise, self-contained explanation, related issue where applicable, verification evidence, and risks rather than empty headings or placeholders.
 - MUST keep published descriptions current when the delivered scope or evidence changes, using the body-integrity and read-back checks above.
