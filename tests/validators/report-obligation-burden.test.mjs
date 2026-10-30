@@ -613,13 +613,13 @@ describe("report-obligation-burden.mjs", () => {
       // Clarifying Loop's host-entry authority boundary adds 155 body bytes,
       // not obligations.
 
-      // the mandated corpus has 33,616 SKILL.md bytes and 259,035 bytes with
+      // the mandated corpus has 33,616 SKILL.md bytes and 263,593 bytes with
       // references, at 4.76 bytes/token. Loop's 221 ceiling obligations include
       // current-checkpoint qualification and the absent-review-practice fallback.
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(7_062);
       expect.soft(totals.ceilingObligations).toBe(558);
-      expect.soft(totals.ceilingTokens).toBe(54_419);
+      expect.soft(totals.ceilingTokens).toBe(55_377);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -649,7 +649,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(7_062);
       expect.soft(tiers[2].ceilingObligations).toBe(558);
-      expect.soft(tiers[2].ceilingTokens).toBe(54_419);
+      expect.soft(tiers[2].ceilingTokens).toBe(55_377);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

@@ -8,6 +8,42 @@ When research, plan, or design output is about to cross a phase boundary, use [r
 
 A named tracking target enters planning; an existing delivery target enters recovery and addressing. A free-form change first needs a durable tracking target. The tracking target is the project's own—an issue in the repository's forge by default, or whichever tracker project policy names instead—and the loop needs to know only that it is durable and holds the plan. These defaults preserve the loop's tracking target → plan → draft delivery path when a project supplies no more-specific change policy. They are not permission to make an external write.
 
+Choose the entry from actual target, canonical-plan and approval evidence. The
+following aid applies the existing [plan identity](./plan-document.md),
+[recovery](./resuming-and-handoff.md) and
+[operation-grant](./run-state-and-reporting.md#scoped-operation-grants) contracts:
+
+| Available evidence                                                                                | Next permitted action                                                                                                                                  | Boundary to preserve                                                                       |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Fresh documentation request; no tracked plan or approval                                          | Identify policy and the durable target, then prepare and review its canonical plan for approval.                                                       | Wait for actual approval before implementation edits.                                      |
+| Existing task; approved canonical identity unchanged; pending phase and scoped grants established | Reconstruct actual state and advance the established pending phase.                                                                                    | No replacement plan or repeated permission for an unchanged, covered effect.               |
+| Continuation request; canonical plan has no approval evidence                                     | Recover the current plan and approval state; present the plan for approval when needed.                                                                | A resume signal alone does not supply approval away from a recorded approval boundary.     |
+| Current canonical content differs from the approved identity                                      | Stop dependent edits and resolve the revision through Plan and Approval.                                                                               | Earlier approval and revision-bound results are stale.                                     |
+| Earlier change merged; a new documentation change is requested                                    | Start intake for the new change under project policy.                                                                                                  | The merged task's approval does not authorize the new scope.                               |
+| Implementation edits already exist; required approval is missing                                  | Preserve and inspect the actual edits under [Writing and Recovery](./writer-ownership-and-recovery.md), then recover the unmet plan/approval boundary. | No destructive reset, further dependent implementation or invented retrospective approval. |
+| Standalone read-only question; no project change requested or produced                            | Investigate and answer under applicable read-only practices.                                                                                           | No change-delivery gates merely to answer.                                                 |
+
+A small reversible documentation edit can need less verification than a runtime
+change. Its size supplies no adopted plan approval. Missing required material or
+an unavailable tracking route leaves the corresponding prerequisite unmet;
+identify that blocker under the intake rules below.
+
+**Contrasting Examples:**
+
+> **Fresh request:** “Combine the README's setup and development sections.”
+> The project requires a tracked plan and approval, and neither exists. Read
+> the headings and workflow to prepare that plan; a ready-to-apply content draft
+> or a passing documentation check does not authorize editing the README.
+
+> **Approved continuation:** “Continue the README reorganization.” The tracked
+> plan's exact identity still matches actual human approval, the pending phase
+> is execution and its grants still cover the effects. Resume implementation
+> from the actual tree without asking for the same approval again.
+
+> **Read-only question:** “Where does this README explain development setup?”
+> Read the document and answer. Discovering a possible improvement does not
+> turn that question into a request to implement it.
+
 **Guidelines:**
 
 - MUST identify the change target and applicable project policy before planning; by default anchor a new change in its durable tracking target before planning or edits, and reconstruct an existing delivery target rather than restarting it.
