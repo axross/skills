@@ -39,17 +39,17 @@
     "end-to-end-testing": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5388a2f7d6427f98f1a565a7e0efd4371f3be8b4b8a13c1184e863d609ae6fc1"
+      "computedHash": "99e8b4a4414816c6072606635f0a5720b5068e5f2a5a55a57abfa04803a1f881"
     },
     "expo-app-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "71987d658010b41b800c8f49b5df82bcd6388c637838b288ead9a896efa144cf"
+      "computedHash": "0eae51e920dacd73eb6228f163843f7a50549d344352367ceb2655ffdccce309"
     },
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "1bb8397d6698bcecc571974e1a948c7c3b590dfcda44aa9c56e0fce3b0cb0153"
+      "computedHash": "80c1de2834b87b0e46626e82bab644593f0fba1ba6f3f123e11de145abfb4ecc"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "71576ae104fbb8a86620bcfb3cf21508698416feaab0059febb807266ce4c941"
+      "computedHash": "59f6cc0bccced5153b12af636e430207a3b62085bb1ea4d93e05cd96a78078e4"
     },
     "next-app-development": {
       "source": "./skills",
@@ -89,7 +89,7 @@
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "faff209117f3c4f5695eb317f6d180f05119158d0462b8240e81ecfe0c253c7e"
+      "computedHash": "93a22053c7b6f52f67d094de5fa35ed5b7f14a0c0618e7e7fadf4d84a096f4de"
     },
     "react-component-development": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8c8d3c8dede8821b49aa125f93996fc2d5ff826277d2888c69608868773200b9"
+      "computedHash": "e440225924c28de4595678fa85740c9d672f1839bb52ec143d8d16ec61c294f4"
     },
     "software-instrumentation": {
       "source": "./skills",

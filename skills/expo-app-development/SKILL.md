@@ -1,6 +1,6 @@
 ---
 name: expo-app-development
-description: Working on an Expo app's framework layer — the shell around the components, covering routes, app config, config plugins, permissions, safe areas, assets, on-device storage, testing, SDK upgrades, and shipping a build or update. Triggers on "expo-router", "prebuild", "CNG", "EXPO_PUBLIC_", "splash screen", "deep link", "expo-updates", "runtime version", "EAS", "expo-doctor". For a component's composition, state, or styling, use the React component capabilities. Derives no rules for `+api.ts` API routes, web or server output, native module authoring, brownfield integration, DOM components, or App Clips.
+description: Working on an Expo app's framework layer — the shell around the components, covering routes, app config, config plugins, permissions, safe areas, assets, on-device storage, testing, SDK upgrades, and running a development build on a simulator or emulator, and shipping a build or update. Triggers on "expo-router", "prebuild", "CNG", "EXPO_PUBLIC_", "splash screen", "deep link", "expo-updates", "runtime version", "EAS", "expo-doctor", "simulator", "emulator", "adb", "simctl". For a component's composition, state, or styling, use the React component capabilities. Derives no rules for `+api.ts` API routes, web or server output (beyond serving the web build for verification), native module authoring, brownfield integration, DOM components, or App Clips.
 user-invocable: false
 ---
 
@@ -12,7 +12,7 @@ It does **not** own what a component is. Composition, props contracts, extracted
 
 **Version discipline.** Expo breaks between SDK releases, and an API surface frozen into a rule rots within one of them. Every version-sensitive statement in this skill names the SDK it was verified against, and where a surface is known to move, the rule is a **lookup** — consult the installed SDK's versioned documentation — rather than a fixed import path or component name. Treat an unversioned claim about Expo, in this skill or anywhere else, as suspect.
 
-**Scope of the routing sections.** Expo also ships surfaces this skill deliberately excludes, because no rule here was derived for them: API routes (`+api.ts`), server output and web deployment, native module authoring, brownfield integration, DOM components, and App Clips. Where a task reaches one of those, say so rather than extrapolating from the rules below.
+**Scope of the routing sections.** Expo also ships surfaces this skill deliberately excludes, because no rule here was derived for them: API routes (`+api.ts`), server output and web deployment (serving the web build on a chosen port for verification aside), native module authoring, brownfield integration, DOM components, and App Clips. Where a task reaches one of those, say so rather than extrapolating from the rules below.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
@@ -153,6 +153,7 @@ See [development-builds.md](./references/development-builds.md) for:
 - choosing a development build over the general-purpose client app
 - registering custom entries in the developer menu
 - selecting which build the launcher opens by default
+- running a development build on a simulator or emulator to verify a change: build route, device and port flags, deep links, appearance, offline, logs, and serving the web build on a chosen port
 
 ## Testing
 

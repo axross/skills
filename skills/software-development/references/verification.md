@@ -37,6 +37,24 @@ Manual verification is the first line of confirmation; the automated gate is the
 - MUST NOT call a change done on the strength of a passing format/lint gate alone; the gate does not judge whether the content is correct.
 - MUST report skipped, failed or insufficient required checks as limitations, naming the reason and residual risk rather than presenting them as successful conformity.
 
+### Device Checks
+
+Exercising a change on an iOS Simulator or an Android emulator satisfies a device check in principle: an agent whose host has the runtime performs the check itself and records what it observed, with no human handoff owed. Three exceptions send the check elsewhere. A more specific rule of the skill that owns the surface, such as one requiring a real device for a named behaviour, takes precedence over this default.
+
+| Exception                                                                                                                                                                                                                                                                                                                                                                       | Outcome                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| **(a)** The host cannot run a simulator or emulator, such as a hosted cloud session.                                                                                                                                                                                                                                                                                            | A human performs the check on a physical device. |
+| **(b)** The project's agent instructions or documented policy prescribe another route.                                                                                                                                                                                                                                                                                          | Follow that route.                               |
+| **(c)** The property is one only a physical device proves. The list is not exhaustive: camera and barcode scanning, push notifications, performance, memory pressure and operating-system termination, real loss of radio signal, behaviour gated on the device model or a hardware capability, VoiceOver and TalkBack, haptics, and defects that reproduce only in production. | A human performs the check on a physical device. |
+
+A check sent to a human is reported as a skipped check with its residual risk, under the guideline above.
+
+**Guidelines:**
+
+- MUST treat a simulator or emulator exercise as satisfying a device check unless exception (a), (b) or (c) applies, and route the check by that exception's outcome when one does.
+- MUST check which runtimes the host actually has before declaring native-device access unavailable.
+- MUST NOT read that check as provisioning a runtime, nor as authorization to dispatch billed or secret-bearing CI devices, hosted builds, or preview builds; each of those needs its own authorization.
+
 ## Diagnose a Failed Check
 
 A failing command establishes a failed route, not its cause. The same error in
@@ -87,19 +105,19 @@ When a claimed departure depends on a bounded exception, consult the project's i
 
 ## Bound the Evidence Claim
 
-A static inspection, a rendering and a native-device exercise observe different properties. Evidence from before a relevant integration change cannot establish the affected current result. A reasoned skip accounts for a required check but leaves its claimed property unverified.
+Static inspection, web rendering, a simulator or emulator exercise and a physical-device exercise are four tiers of evidence, and each observes different properties. Evidence from before a relevant integration change cannot establish the affected current result. A reasoned skip accounts for a required check but leaves its claimed property unverified.
 
 **Guidelines:**
 
 - MUST identify the material revision, inspected obligation and scope, platform, check route, independent expected result, observed stage and actual result needed to interpret each claim, using existing permitted evidence destinations rather than a new schema.
 - MUST recheck affected claims after relevant integration changes; evidence for an earlier contribution is not current merely because that contribution was accepted.
-- MUST distinguish static inspection, rendering, native execution and external-review completion; none establishes an unobserved property or platform by implication.
+- MUST distinguish the four tiers — static inspection, web rendering, simulator or emulator exercise, physical-device exercise — and external-review completion; none establishes an unobserved property or platform by implication.
 
 When evidence sufficiency is in question, consult the project's verification-evidence assessment practices where present. Without that optional owner, retain these claim limits rather than invent a QA gate. When preparing fresh review input or assessing posted completion, consult the project's review and change-loop practices where present; contributor observations do not replace original material and requirements with an author verdict map, or require external reviewers to enumerate successful skill loads or checks.
 
 ## Contrasting Checks
 
-These examples apply the governing component-style and navigator-edge contracts; they illustrate check selection, not new domain rules or reports of app execution. Compare the following conditions:
+These examples apply the governing component-style and navigator-edge contracts and the device-check routing above; they illustrate check selection, not new domain rules or reports of app execution. Compare the following conditions:
 
 | Conditions                                                                                                                                                                          | Independent expectation                                                                                                                                         | Evidence limit                                                                                                                                               |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -107,7 +125,9 @@ These examples apply the governing component-style and navigator-edge contracts;
 | A non-scrolling screen has nonzero top and bottom insets; its visible header and tab bar already clear those edges.                                                                 | The screen adds no duplicate top or bottom clearance. Hiding its header transfers the top edge only if no ancestor navigator or presentation already clears it. | Zero-inset-only fixtures cannot distinguish duplication; inspect the full navigator arrangement. Web or static evidence establishes no native-device result. |
 | A non-scrolling screen has nonzero top and bottom insets; its visible header and tab bar overlay content without clearing either edge, and no ancestor or presentation clears them. | The screen still owns both reached edges and supplies their required clearance.                                                                                 | Contrast this with the cleared-edge case; chrome visibility alone cannot distinguish the ownership.                                                          |
 | Lint passes, or a check stays green with the violating implementation.                                                                                                              | The override and edge obligations still need distinguishing observations.                                                                                       | An unrelated or insensitive check does not cover those obligations.                                                                                          |
-| Native-device access is unavailable.                                                                                                                                                | Record the skipped exercise and its concrete residual risk.                                                                                                     | Static or web checks can establish their own properties, not turn the skip into native verification.                                                         |
+| The host has a runtime for the platform, and the property is not one exception (c) reserves.                                                                                        | The agent exercises the change there itself, unless exception (b) prescribes another route.                                                                     | The observation covers that runtime and platform, not a physical device or another platform.                                                                 |
+| The host has no runtime for the platform, found by checking the runtimes it actually has (exception (a)).                                                                           | Record the skipped exercise and its concrete residual risk, and route the check to a human on a physical device.                                                | Static or web checks can establish their own properties, not turn the skip into device verification.                                                         |
+| The property is one exception (c) reserves.                                                                                                                                         | The check goes to a human on a physical device, whatever runtimes the host has.                                                                                 | A simulator or emulator pass establishes what that runtime can show, not the reserved property.                                                              |
 
 ## Verify the Correction Against the Purpose
 

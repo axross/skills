@@ -177,6 +177,7 @@ Use the following destinations after resolving the target under GitHub Operation
 | Content or operation                      | Destination                                                              |
 | ----------------------------------------- | ------------------------------------------------------------------------ |
 | Plan, plan questions, amendments          | Tracking issue                                                           |
+| Plan-stage evidence                       | Marked tracking-issue comment, outside the canonical plan range          |
 | Current run state                         | Issue before PR creation; PR afterward                                   |
 | Substantive deferred pre-flight handoff   | Marked PR comment; locators in the state block                           |
 | Acceptance criteria and their status      | PR **Acceptance criteria**, quoted verbatim, naming the plan revision    |
