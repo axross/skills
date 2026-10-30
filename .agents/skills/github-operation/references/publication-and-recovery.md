@@ -78,6 +78,7 @@ Use these distinctions when reporting and deciding the next action:
 **Guidelines:**
 
 - MUST inspect actual target state after a lost response, connection failure, or partial result before retrying a potentially non-idempotent write.
+- MUST treat any non-zero exit after an `--attach` write as a partial or unknown outcome: `gh pr create` still creates the pull request when an upload fails and exits non-zero. Recover from the printed URL and the re-read body under [body-integrity.md](./body-integrity.md#attach-images-and-videos), never by a blind retry.
 - MUST preserve known object IDs, intended content, confirmed effects, and unknown effects in the result; let project delivery choose where recovery evidence persists.
 - MUST resume pending metadata work on the established object and skip writes to fields whose actual state already satisfies the required postcondition.
 - MUST establish both that the intended effect is absent and that a still-valid grant authorizes another attempt before retrying; object discovery or failure evidence alone supplies neither authorization nor a fresh retry.
@@ -103,6 +104,7 @@ Where squash merge is used, the PR title becomes the permanent commit subject. A
 **Guidelines:**
 
 - SHOULD open work-in-progress PRs in draft and leave merging to a human when no project delivery convention is defined; otherwise follow that convention within the active host's permissions.
+- MUST, where the project uses change-loop practices that define a ready gate, perform the draft-to-ready transition itself once that gate is met, unless another skill or the project's agent instructions reserve it to a human; the gate's owner supplies the authority for that one effect, which does not extend to merging. Without such a gate, the authorization rules above govern, so ask rather than infer a grant.
 - MUST consult the project's Conventional Commits practices when authoring a PR title, if present; otherwise follow its documented title convention.
 - MUST consult the project's pull-request-description practices and reproduce its applicable template when preparing a body. Without those practices, provide a concise, self-contained explanation, related issue where applicable, verification evidence, and risks rather than empty headings or placeholders.
 - MUST keep published descriptions current when the delivered scope or evidence changes, using the body-integrity and read-back checks above.
