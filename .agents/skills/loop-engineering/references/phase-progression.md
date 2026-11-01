@@ -63,22 +63,17 @@ can block readiness while leaving diagnosis available; a pending review can
 block convergence while leaving required verification available. Name that
 dependency before deciding that the whole run must wait.
 
-**Contrasting Examples:**
+The following trace follows one change as evidence arrives. Each row names
+what can happen next and what that action still cannot establish; a label such
+as "baseline failure" or "CI green" supplies neither on its own:
 
-> **Work remains:** Review and CI are pending, and a local verification route
-> fails. Inspecting the failure and running a documented, permitted isolated
-> check remain required and independent of those results. Perform that work;
-> neither pending review nor one failed route establishes a run-wide stop.
-
-> **A machine result resolves the dependency:** The required checks and review
-> now satisfy their gates for the current material. Evaluate the remaining
-> ready conditions and publish ready when all hold, even if source is unchanged.
-> Creating a source edit or requesting the same authorization again adds no
-> missing evidence.
-
-> **Only dependent work remains:** The remaining action needs a pending check,
-> human decision, or unmatched grant. Use the applicable bounded machine wait
-> or human handoff; preserve the action and its prerequisite for recovery.
+| Observed evidence                                                                                                    | Remaining action and prerequisite                                                                               | Next permitted operation                                                                            | Gate still unmet                                                                 |
+| -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Local checking fails in both base and changed checkouts; review and CI are pending.                                  | Required input diagnosis has a documented route, matching authority and no dependency on those pending results. | Inspect the failing inputs and obtain discriminating verification evidence.                         | Verification remains unresolved; pending review also blocks readiness.           |
+| Clean CI passes, but comparison shows it omitted an input that enables required checking; that checking still fails. | Reconcile required coverage using the current material and documented setup.                                    | Diagnose the uncovered failure and pursue permitted remediation or other independent checks.        | A narrower pass has not resolved the required property, even if review finishes. |
+| Current evidence now covers every required property and review is complete.                                          | Evaluate the remaining ready conditions, including approval and mergeability.                                   | When all hold, publish ready without another source edit or a repeated matching permission request. | None once every ready condition holds; this does not authorize merge.            |
+| No independent required action remains; the next action needs a pending result, human decision or missing grant.     | That specific prerequisite must become available.                                                               | Use the permitted bounded machine wait or human handoff, retaining the action and its prerequisite. | The dependent gate remains unmet until current evidence resolves it.             |
+| The applicable execution, review or waiting bound is exhausted.                                                      | Further execution exceeds the current bound.                                                                    | Stop with the observed result, remaining work and resumable next action.                            | Exhaustion supplies no missing verification or readiness evidence.               |
 
 **Guidelines:**
 

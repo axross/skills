@@ -72,6 +72,23 @@ contrasts to guide diagnosis, not a requirement to run every comparison:
 | Generated or local environment state     | Trace the failing input's origin and relevant local setup; documented regeneration or isolated setup makes the same source pass.                      | Repair permitted local state or use the documented isolated route, then verify the required property without a speculative source workaround.  |
 | Unavailable or inconclusive verification | The checker cannot execute, a required dependency is unavailable, or setup differences prevent a meaningful comparison.                               | Retain the missing evidence and cause as unresolved; pursue available independent checks without presenting them as the blocked check passing. |
 
+**Contrasting Examples:**
+
+> **Stale input:** An ignored generated declaration was copied into both base
+> and changed checkouts, and both checks fail in that declaration. Input-origin
+> inspection and documented regeneration replace the stale content; checking
+> the same source with the required generated coverage then passes. That
+> comparison supports a local-state diagnosis. The original pair of failures
+> alone did not identify a defect in unchanged source.
+
+> **Valid input adds coverage:** A generated declaration correctly restricts
+> route names. With it, checking rejects a source call using an invalid route;
+> clean CI omits it and accepts a broad string fallback. Inspecting the
+> generator and checker inputs explains the different covered properties.
+> Deleting the declaration reproduces the narrower pass, not a verified fix.
+> Retain the required failure, distinguish regression from baseline defect
+> using comparable inputs, and keep repair within the approved scope.
+
 **Guidelines:**
 
 - MUST establish the failed command, actual result, material revision and relevant setup, including whether the checker reached the property being tested or failed in its harness or environment.
