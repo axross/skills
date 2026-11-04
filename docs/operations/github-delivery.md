@@ -37,23 +37,27 @@ the issue. Archive and state placement follow
 The current delivery target MUST begin with a `<!-- loop-engineering` HTML
 comment ending in `-->`: the issue before a PR exists, the PR afterward. Keep
 status in this block and in the conversation, not in separate attention
-comments. Ephemeral worker handles stay in the session, not in GitHub.
+comments. Ephemeral worker handles stay in the session, not in GitHub, and so
+do the processes and port forwards a run created, which end with that session.
+The Recovery field carries only the durable part of Loop's
+[created-resource record](../../skills/loop-engineering/references/run-state-and-reporting.md#semantic-run-state):
+branches, working copies, installs and series dependencies.
 
 The block carries ordinary labeled text, not a new machine schema. Map the
 [semantic run state](../../skills/loop-engineering/references/run-state-and-reporting.md)
 into these fields, including conditional evidence only when relevant:
 
-| Contract information | Stored representation                                                                                                                         |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Target and phase     | Issue/PR locators, branch, phase                                                                                                              |
-| Approval             | Canonical plan locator, revision identity, approval evidence                                                                                  |
-| Authorization        | Operation targets, route/lifetime, human evidence, limits and exclusions                                                                      |
-| Execution            | Assignment scope and revision, execution mode/status, attempt count, self-review status and permitted evidence locator, latest result locator |
-| Actual material      | Commit/revision, uncommitted files or retrievable diff, evidence locators                                                                     |
-| Verification         | Commands and outcomes, skipped checks and residual risk, CI/check locators                                                                    |
-| Review               | Round, route, trigger/run/result identities and permitted durable findings                                                                    |
-| Waiting              | Waiting state, unresolved question or authorization, next action                                                                              |
-| Recovery             | Partial effects and object IDs, unknown effects, remaining processes and retrievable materials                                                |
+| Contract information | Stored representation                                                                                                                                                                                       |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target and phase     | Issue/PR locators, branch, phase                                                                                                                                                                            |
+| Approval             | Canonical plan locator, revision identity, approval evidence                                                                                                                                                |
+| Authorization        | Operation targets, route/lifetime, human evidence, limits and exclusions                                                                                                                                    |
+| Execution            | Assignment scope and revision, execution mode/status, attempt count, self-review status and permitted evidence locator, latest result locator                                                               |
+| Actual material      | Commit/revision, uncommitted files or retrievable diff, evidence locators                                                                                                                                   |
+| Verification         | Commands and outcomes, skipped checks and residual risk, CI/check locators                                                                                                                                  |
+| Review               | Round, route, trigger/run/result identities and permitted durable findings                                                                                                                                  |
+| Waiting              | Waiting state, unresolved question or authorization, next action                                                                                                                                            |
+| Recovery             | Partial effects and object IDs, unknown effects, remaining processes and retrievable materials, and durable created resources by checkable identity (never an absolute path) with their series dependencies |
 
 Keep `Approval` and `Authorization` separate. Each authorization record is a
 compact prose entry, not a new schema: name the repository, branch and PR;
