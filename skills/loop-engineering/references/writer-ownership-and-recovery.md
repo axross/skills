@@ -28,7 +28,7 @@ Simulators, emulators, attached devices, ports and the app installed on them are
 
 **Guidelines:**
 
-- MUST claim a target before installing, uninstalling, launching, changing or restoring a setting on, or stopping an app on it, and release the claim when the exercise ends.
+- MUST, where the project provides a claim mechanism, claim a target before installing, uninstalling, launching, changing or restoring a setting on, or stopping an app on it, and release the claim when the exercise ends.
 - MUST NOT change a target another session holds; report the held target and end the turn, or ask the human, and arm no poll, subscription or wake to watch the claim.
 - MUST NOT break another session's claim without the human, including one whose owner looks finished.
 - MUST, where the project provides no claim mechanism, state that the target is shared, limit the exercise to what the check needs, and report its observation as taken on a target another session could have changed rather than assume exclusive use.

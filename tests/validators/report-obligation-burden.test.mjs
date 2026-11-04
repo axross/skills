@@ -620,23 +620,24 @@ describe("report-obligation-burden.mjs", () => {
       // obligations do not move and floor tokens rise by their bytes. The
       // ceiling moves by six: three in each skill.
       // issue #748 adds releasing a finished change's recorded resources and
-      // claiming shared runtime targets. Both SKILL.md edits are a widened
-      // `description`, a widened opening sentence and descriptive routing
-      // bullets, so floor obligations do not move and floor tokens rise by
-      // their bytes. The ceiling moves by seventeen: fourteen in
+      // claiming shared runtime targets. `loop-engineering`'s SKILL.md widens
+      // its `description` and opening sentence and adds three descriptive
+      // routing bullets; `software-development`'s adds one. No SKILL.md
+      // bullet is a Guidelines one, so floor obligations do not move and
+      // floor tokens rise by their bytes. The ceiling moves by seventeen: fourteen in
       // `loop-engineering` (seven in phase-progression.md's new Release a
       // Finished Change section, five in writer-ownership-and-recovery.md's
       // Shared Runtime Targets, two in run-state-and-reporting.md; the grant
       // carve-out and the implementation-package.md contracts extend existing
       // bullets) and three in `software-development`'s Device Checks.
 
-      // the mandated corpus has 34,836 SKILL.md bytes and 286,551 bytes with
+      // the mandated corpus has 35,017 SKILL.md bytes and 287,067 bytes with
       // references, at 4.76 bytes/token. Loop's 238 ceiling obligations include
       // current-checkpoint qualification and the absent-review-practice fallback.
       expect.soft(totals.floorObligations).toBe(22);
-      expect.soft(totals.floorTokens).toBe(7_318);
+      expect.soft(totals.floorTokens).toBe(7_357);
       expect.soft(totals.ceilingObligations).toBe(584);
-      expect.soft(totals.ceilingTokens).toBe(60_200);
+      expect.soft(totals.ceilingTokens).toBe(60_308);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -664,9 +665,9 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].ceilingTokens).toBe(37_616);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
-      expect.soft(tiers[2].floorTokens).toBe(7_318);
+      expect.soft(tiers[2].floorTokens).toBe(7_357);
       expect.soft(tiers[2].ceilingObligations).toBe(584);
-      expect.soft(tiers[2].ceilingTokens).toBe(60_200);
+      expect.soft(tiers[2].ceilingTokens).toBe(60_308);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

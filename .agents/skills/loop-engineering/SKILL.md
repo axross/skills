@@ -109,6 +109,7 @@ See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 - persisting recoverable semantic run state independent of storage format, including separate checkpoint qualifications, actual review coverage, and their grounds
 - evaluating a recovered or standing operation grant against a proposed effect across phases and sessions
 - writing the evidence-backed ready-to-merge brief, which lists agent-performed checks with their evidence links and leaves only the remainder as human steps, and reporting a spawned role's model and effort as `verified`, `declared`, or `unknown`
+- recording the branches, working copies, processes, port forwards and installs a run creates, by identity a later release can check, and why releasing them needs no separate grant
 
 What follows is the rule itself, not a further reading obligation. It binds every turn this loop takes rather than some narrower situation, so it stands here under the same unconditional-scope carve-out [Phase Progression](#phase-progression) invokes, instead of behind a pointer an agent might not yet have opened. An observation and the action it justifies belong in the same turn. A turn that carries text and calls no tool is not a turn taken while the work continues — the run has not stopped, so reporting first and acting next merely splits one turn's cost across two turns instead of doing the work in the one that already had it.
 

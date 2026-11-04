@@ -148,7 +148,7 @@ policy for Claude Code.
 - After the change merges or closes, Loop's
   [Release a Finished Change](../../skills/loop-engineering/references/phase-progression.md#release-a-finished-change)
   decides whether the worktree goes. Here the host owns some worktrees. As
-  checked on 2026-11-04 against this session's tool definition, `ExitWorktree`
+  checked on 2026-11-04 against the `ExitWorktree` tool definition, it
   acts only on a worktree `EnterWorktree` created in the same session, is
   called only when the human asks, removes the worktree and its branch
   together, and refuses one with commits off its original branch — which every

@@ -106,7 +106,7 @@ The device appearance changes with `xcrun simctl ui <device> appearance dark` an
 
 **Guidelines:**
 
-- MUST return appearance to what it was found as (`appearance light`, `cmd uimode night no`) and re-enable Wi-Fi and data with `svc wifi enable` and `svc data enable` before releasing the device, including when the check failed partway, so the next check does not start from a state it did not choose; the development-verification practices, where present, own this obligation and these commands are its mechanism.
+- MUST return appearance to what it was found as (`appearance light`, `cmd uimode night no`) and re-enable Wi-Fi and data with `svc wifi enable` and `svc data enable` before releasing the device, including when the check failed partway, so the next check does not start from a state it did not choose. The development-verification practices, where present, own this obligation; these commands are its mechanism.
 - MUST say when connectivity cannot be restored rather than leave the emulator offline silently.
 - SHOULD name the platform an offline observation came from.
 

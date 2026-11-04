@@ -44,7 +44,7 @@
     "expo-app-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5ed6e9703a4f2a4804e1e3d295fe8e8cc59cc3646ef9024590f030f714cbb7a4"
+      "computedHash": "e608531eb0fb32acdb2f2a7ee49e8d4915f4f69ef8f7b6707d9af2a5e8a004c6"
     },
     "github-operation": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "02a3e6183e6b37a705ea76ff3a25347a468e99d6082aa700c8c2563e25663549"
+      "computedHash": "15fa5618f53ea386edbe7d24a36ec42c67fbc5d2c24079ad7c9a127c69fbea84"
     },
     "next-app-development": {
       "source": "./skills",
