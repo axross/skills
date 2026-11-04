@@ -145,6 +145,19 @@ policy for Claude Code.
 - Remove the worktree only once its branch is pushed and its work is accounted
   for. A worktree deleted with unpushed commits destroys the evidence the
   append-only recovery rules depend on.
+- After the change merges or closes, Loop's
+  [Release a Finished Change](../../skills/loop-engineering/references/phase-progression.md#release-a-finished-change)
+  decides whether the worktree goes. Here the host owns some worktrees. As
+  checked on 2026-11-04 against the `ExitWorktree` tool definition, it
+  acts only on a worktree `EnterWorktree` created in the same session, is
+  called only when the human asks, removes the worktree and its branch
+  together, and refuses one with commits off its original branch — which every
+  squash-merged branch has — unless told to discard them. So:
+  - A worktree `EnterWorktree` created, in this session or an earlier one, is
+    host-owned: keep it and its branch, and report them as removable.
+  - A worktree the run made with `git worktree add` is removed with git under
+    the release conditions.
+  - Neither case discards changes or forces a removal.
 
 ## Route a read, and task an investigator
 

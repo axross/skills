@@ -91,6 +91,7 @@ See [verification.md](./references/verification.md) for:
 - planning fragile obligations with independent expected results and discriminating checks before execution
 - the manual verification steps that confirm a change before it is called done, and why a passing gate is not one of them
 - routing a device check — when an agent's simulator or emulator exercise satisfies it, and when it goes to a human on a physical device
+- leaving a shared simulator, emulator or device as found — restoring a changed setting even after a failed check, and when to uninstall the run's build
 - checking the current integrated output against governing rules and valid exceptions, separately from skill acquisition
 - bounding evidence by material, scope, platform, evidence tier and observed stage, with skipped or insufficient checks left unverified
 - checking that a correction achieves the intended outcome without sacrificing required behavior

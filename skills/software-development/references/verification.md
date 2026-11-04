@@ -55,6 +55,18 @@ A check sent to a human is reported as a skipped check with its residual risk, u
 - MUST check which runtimes the host actually has before declaring native-device access unavailable.
 - MUST NOT read that check as provisioning a runtime, nor as authorization to dispatch billed or secret-bearing CI devices, hosted builds, or preview builds; each of those needs its own authorization.
 
+#### Leaving the Target as Found
+
+A simulator, emulator or attached device is shared by every session on the machine, and builds of one app commonly share an app id across checkouts. An exercise that leaves a device-wide setting changed, or a build installed, hands the next session a state it did not choose. When an exercise turned the network off and the check then failed, the network is still turned back on before the target is released.
+
+Coordinating who may change a target at all — claiming it before a change and what to do when another session holds it — belongs to the project's change-loop writing-coordination practices where present, and is not restated here. Uninstalling discards the app's data, such as a sign-in or a local database; what that costs is the project's call.
+
+**Guidelines:**
+
+- MUST restore every device-wide setting an exercise changed, such as network or appearance, before releasing the target, including when the check failed partway, and MUST report any setting that could not be restored. This holds alongside whatever more specific route the owning skill prescribes for the check itself.
+- SHOULD uninstall the builds the run installed once the change they verified is finished and no other open change of the same work needs them, and only when no other session holds the target; MUST keep and report them when that cannot be determined.
+- MUST treat the target as shared where no claim practice establishes otherwise, and report an observation taken on it as one another session could have affected.
+
 ## Diagnose a Failed Check
 
 A failing command establishes a failed route, not its cause. The same error in

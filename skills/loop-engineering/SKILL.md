@@ -1,12 +1,12 @@
 ---
 name: loop-engineering
-description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including blocked verification, pending review/CI, and run recovery. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, check-failure diagnosis, host execution APIs, or delivery storage. Development practices own verification diagnosis; conduct practices own non-code deliverable review; project policy chooses gates and branches. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
+description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including blocked verification, pending review/CI, run recovery, and releasing a merged or closed change's local resources. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, check-failure diagnosis, host execution APIs, or delivery storage. Development practices own verification diagnosis; conduct practices own non-code deliverable review; project policy chooses gates and branches. Covers created-resource records and claims on shared simulators, emulators, devices and ports. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
 user-invocable: false
 ---
 
 # Loop Engineering
 
-Drive one change from intake to ready through **plan → approve → execute → verify → independent review → address → ready**. This skill defines what each phase means and what evidence crosses its boundaries. It does not authorize tools, publication, scheduling, or delegation, and it does not prescribe where durable state is stored.
+Drive one change from intake to ready through **plan → approve → execute → verify → independent review → address → ready**, and, in a later and separate entry once the change is merged or closed, release the local resources its run recorded. This skill defines what each phase means and what evidence crosses its boundaries. It does not authorize tools, publication, scheduling, or delegation, and it does not prescribe where durable state is stored.
 
 Project policy owns which change-delivery gates apply, external code-review independence, branch and delivery rules, and storage representations. Where policy is silent, use this skill's existing defaults: a human-approved plan before edits, required verification, mandatory independent review, append-only recovery, and a ready state only after convergence.
 
@@ -39,6 +39,7 @@ See [phase-progression.md](./references/phase-progression.md) for:
 - running verification for a changed surface and opening or addressing a delivery target, under project policy and independent review
 - choosing available actions when verification fails or review/CI is pending, identifying concrete dependencies and bounded machine waits
 - reevaluating remaining gates after a current machine result, including readiness without a source edit
+- releasing a merged or closed change's recorded branch, working copy, processes, port forwards and installs, on observation rather than by polling
 
 See [plan-document.md](./references/plan-document.md) for:
 
@@ -70,6 +71,7 @@ See [subagent-delegation.md](./references/subagent-delegation.md) for:
 See [writer-ownership-and-recovery.md](./references/writer-ownership-and-recovery.md) for:
 
 - coordinating concurrent writing, retrying an effect, or recovering an interrupted run, including plan-change interruption and outcome-unknown recovery
+- claiming a simulator, emulator, attached device, port or installed app other sessions share before changing it
 - append-only history and completion-evidence comparison
 
 ## Review and Readiness
@@ -107,6 +109,7 @@ See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 - persisting recoverable semantic run state independent of storage format, including separate checkpoint qualifications, actual review coverage, and their grounds
 - evaluating a recovered or standing operation grant against a proposed effect across phases and sessions
 - writing the evidence-backed ready-to-merge brief, which lists agent-performed checks with their evidence links and leaves only the remainder as human steps, and reporting a spawned role's model and effort as `verified`, `declared`, or `unknown`
+- recording the branches, working copies, processes, port forwards and installs a run creates, by identity a later release can check, and why releasing them needs no separate grant
 
 What follows is the rule itself, not a further reading obligation. It binds every turn this loop takes rather than some narrower situation, so it stands here under the same unconditional-scope carve-out [Phase Progression](#phase-progression) invokes, instead of behind a pointer an agent might not yet have opened. An observation and the action it justifies belong in the same turn. A turn that carries text and calls no tool is not a turn taken while the work continues — the run has not stopped, so reporting first and acting next merely splits one turn's cost across two turns instead of doing the work in the one that already had it.
 
