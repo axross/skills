@@ -89,7 +89,7 @@ returning a progress-only report. Use the purpose routes below for the action an
 machine event.
 
 An Amp session requests post-PR independent review through a fresh review child
-thread, per [Code Review](./code-review.md#run-the-amp-reviewer). Apply the same
+thread, per [Code Review](./code-review.md). Apply the same
 progression to thread creation, review execution, direct PR publication and
 thread closure. A failed launch, private reply, missing post or result from an
 older round does not complete the review. Continue from the last verified stage

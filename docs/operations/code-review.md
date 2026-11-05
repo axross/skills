@@ -19,7 +19,7 @@ explicitly replaces it, record the unmet independent-review gate.
 ## Run the Amp reviewer
 
 After creating the draft PR, start a fresh review child thread through the
-qualified [Amp thread route](./amp-execution.md#establish-thread-materials-and-workspace).
+qualified [Amp thread route](./amp-execution.md).
 Apply Loop's [review-workflow contract](../../skills/loop-engineering/references/review-workflow.md)
 for context independence, required materials, direct PR publication and cleanup.
 The assignment selects `REVIEW.md` and the applicable review practices. The

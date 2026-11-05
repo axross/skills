@@ -37,6 +37,8 @@ Here, an **external review** means the mandatory post-PR review outside the auth
 
 These examples travel with the skill so an installing repository needs no copy of its author's host runbooks. They illustrate the default arrangement; an explicit route such as `@claude review` takes precedence. Current host contracts determine which launch, publication and closure operations actually exist and are permitted.
 
+The default examples are:
+
 | Authoring host | Post-PR default                                                                                                                                                                | Completion and cleanup                                                                                                                                                                                               |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Codex          | Request Codex code review by posting a dedicated PR comment containing `@codex review`, or use the repository's configured equivalent Codex code-review trigger.               | Verify the published reviewer result against the request and material. A reaction or service status alone is insufficient. There is no caller-created child session to close for this hosted trigger.                |
