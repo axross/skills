@@ -631,13 +631,12 @@ describe("report-obligation-burden.mjs", () => {
       // carve-out and the implementation-package.md contracts extend existing
       // bullets) and three in `software-development`'s Device Checks.
 
-      // the mandated corpus has 35,017 SKILL.md bytes and 287,067 bytes with
-      // references, at 4.76 bytes/token. Loop's 238 ceiling obligations include
-      // current-checkpoint qualification and the absent-review-practice fallback.
+      // the measured corpus contains 35,517 SKILL.md bytes and 301,011 bytes
+      // including references, at 4.76 bytes/token; Loop has 257 ceiling obligations.
       expect.soft(totals.floorObligations).toBe(22);
-      expect.soft(totals.floorTokens).toBe(7_357);
-      expect.soft(totals.ceilingObligations).toBe(584);
-      expect.soft(totals.ceilingTokens).toBe(60_308);
+      expect.soft(totals.floorTokens).toBe(7_462);
+      expect.soft(totals.ceilingObligations).toBe(603);
+      expect.soft(totals.ceilingTokens).toBe(63_238);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -665,9 +664,9 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].ceilingTokens).toBe(37_616);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
-      expect.soft(tiers[2].floorTokens).toBe(7_357);
-      expect.soft(tiers[2].ceilingObligations).toBe(584);
-      expect.soft(tiers[2].ceilingTokens).toBe(60_308);
+      expect.soft(tiers[2].floorTokens).toBe(7_462);
+      expect.soft(tiers[2].ceilingObligations).toBe(603);
+      expect.soft(tiers[2].ceilingTokens).toBe(63_238);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -694,8 +693,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(584);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(584);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(603);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(603);
     });
 
     it("prints no tier block without --mandated", async () => {

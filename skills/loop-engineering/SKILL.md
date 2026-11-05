@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including blocked verification, pending review/CI, run recovery, and releasing a merged or closed change's local resources. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, check-failure diagnosis, host execution APIs, or delivery storage. Development practices own verification diagnosis; conduct practices own non-code deliverable review; project policy chooses gates and branches. Covers created-resource records and claims on shared simulators, emulators, devices and ports. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
+description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including review-route selection, blocked verification, pending review/CI, run recovery, and releasing a merged or closed change's local resources. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, check-failure diagnosis, host execution APIs, or delivery storage. Development practices own verification diagnosis; conduct practices own non-code deliverable review; project policy chooses gates and branches. Covers created-resource records and claims on shared simulators, emulators, devices and ports. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
 user-invocable: false
 ---
 
@@ -75,6 +75,12 @@ See [writer-ownership-and-recovery.md](./references/writer-ownership-and-recover
 - append-only history and completion-evidence comparison
 
 ## Review and Readiness
+
+See [review-workflow.md](./references/review-workflow.md) for:
+
+- selecting pre-flight and independent-review routes from applicable instructions or skills, including ordinary trigger directives
+- the context-independent review default and qualified host examples, while preserving pre-flight and the project's delivery mechanism
+- closing created review sessions/threads after posting, recovery, and permission requests or concrete human cleanup handoffs when closure fails
 
 See [finding-response.md](./references/finding-response.md) for:
 

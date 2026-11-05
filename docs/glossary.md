@@ -66,7 +66,7 @@
 
 **Plan-approval gate** — the stop in the **change loop** where a human reads the recorded plan, before any code is written against it.
 
-**Independent review** — the review of a change performed by a separate session under a bot identity distinct from the operator, so a change's author never certifies it. It is the authoritative review of an agent's own work.
+**Independent review** — the mandatory review performed outside the implementation author's context after creation of the project's delivery target, with its result published directly by the reviewer, distinct from **pre-flight review**.
 
 **Plan amendment** — a plan, at its own approval gate, changing a different issue's already-approved plan, distinct from a plan revising its own run's plan under its own revision identity. The amending plan's own approval carries the amendment's approval under three stated conditions, and falls back to a separate approval against the amended plan's own revision identity otherwise.
 

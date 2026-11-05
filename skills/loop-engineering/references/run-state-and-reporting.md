@@ -12,6 +12,8 @@ Keep [checkpoint qualifications](./subagent-delegation.md#checkpoint-qualificati
 
 For research, plan, or design deliverables, [reviewing-phase-deliverables.md](./reviewing-phase-deliverables.md) integrates artifact-review identity, consumed rounds, and latest reviewed revision into this existing state; its conduct owner defines the retained review evidence and completion boundary.
 
+For review-route selection and created review children, [review-workflow.md](./review-workflow.md) adds the selected checkpoint route and its instruction grounds, session/thread identity, posted-result locator, closure status and any permission request or human cleanup handoff to this existing record. Review-child closure happens after posting, separately from the later release of a merged change's resources; a failed closure and a valid completed review remain separate outcomes.
+
 For example, a human-dismissed external finding can have a verified disposition reply but failed conversation closure. Preserve the actual human decision and its rationale separately from the verified reply and pending closure; resume only the pending effect under its valid grant. Finding disposition is not delivery completion. Pending, failed, and outcome-unknown reply/closure effects retain their own evidence without requiring a new storage schema or result vocabulary.
 
 **Guidelines:**

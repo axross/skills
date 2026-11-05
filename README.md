@@ -101,7 +101,10 @@ to meet.
 Runs a whole change for you — plan, build, verify, fix — pausing for your
 sign-off before it writes any code. Places non-code deliverable review before
 research, plan, and design handoffs, then retains separate implementation
-pre-flight and external code review. See
+pre-flight and independent review. Applicable instructions or skills
+select each review route; otherwise, the independent-review default uses a fresh reviewer
+context through the host's supported tools. Includes Codex, Claude Code and Amp
+examples and review-session cleanup. See
 [`SKILL.md`](./skills/loop-engineering/SKILL.md).
 
 `loop-engineering` drives long, many-turn runs, so set
