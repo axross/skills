@@ -631,12 +631,12 @@ describe("report-obligation-burden.mjs", () => {
       // carve-out and the implementation-package.md contracts extend existing
       // bullets) and three in `software-development`'s Device Checks.
 
-      // the measured corpus contains 35,510 SKILL.md bytes and 299,251 bytes
-      // including references, at 4.76 bytes/token; Loop has 255 ceiling obligations.
+      // the measured corpus contains 35,510 SKILL.md bytes and 300,243 bytes
+      // including references, at 4.76 bytes/token; Loop has 257 ceiling obligations.
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(7_460);
-      expect.soft(totals.ceilingObligations).toBe(601);
-      expect.soft(totals.ceilingTokens).toBe(62_868);
+      expect.soft(totals.ceilingObligations).toBe(603);
+      expect.soft(totals.ceilingTokens).toBe(63_076);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -665,8 +665,8 @@ describe("report-obligation-burden.mjs", () => {
 
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(7_460);
-      expect.soft(tiers[2].ceilingObligations).toBe(601);
-      expect.soft(tiers[2].ceilingTokens).toBe(62_868);
+      expect.soft(tiers[2].ceilingObligations).toBe(603);
+      expect.soft(tiers[2].ceilingTokens).toBe(63_076);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -693,8 +693,8 @@ describe("report-obligation-burden.mjs", () => {
       // that — it would keep passing even if `code-review` contributed
       // nothing at all, which is exactly the regression this pair exists to
       // catch.
-      expect(tiersOf(stdout)[2].ceilingObligations).toBe(601);
-      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(601);
+      expect(tiersOf(stdout)[2].ceilingObligations).toBe(603);
+      expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(603);
     });
 
     it("prints no tier block without --mandated", async () => {
