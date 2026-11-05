@@ -78,8 +78,8 @@ See [writer-ownership-and-recovery.md](./references/writer-ownership-and-recover
 
 See [review-workflow.md](./references/review-workflow.md) for:
 
-- selecting pre-flight and post-PR review routes from applicable instructions or skills, including a one-sentence `@claude review` directive
-- the context-independent post-PR default, with Codex, Claude Code and Amp examples, while preserving pre-flight
+- selecting pre-flight and independent-review routes from applicable instructions or skills, including ordinary trigger directives
+- the context-independent review default and qualified host examples, while preserving pre-flight and the project's delivery mechanism
 - closing created review sessions/threads after posting, recovery, and permission requests or concrete human cleanup handoffs when closure fails
 
 See [finding-response.md](./references/finding-response.md) for:
@@ -97,7 +97,7 @@ See [pre-flight-review.md](./references/pre-flight-review.md) for:
 See [independent-review.md](./references/independent-review.md) for:
 
 - requesting, addressing, or evaluating an independent review, or publishing the ready transition
-- mandatory post-PR independent review, fresh review rounds, and the four-round address cap
+- mandatory external independence, fresh review rounds, and the four-round address cap
 - identifiable posted completion under the project's adopted presentation and reporting scope, without affirmative per-check assertions, distinct from explicit limitations and contributor evidence
 - external fixed, human-dismissed, and outstanding dispositions without rewriting reviewer history
 - convergence distinct from conversation closure, including substantive metadata changes
