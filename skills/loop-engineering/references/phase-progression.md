@@ -51,7 +51,7 @@ identify that blocker under the intake rules below.
 - MUST record the plan in that durable target before requesting approval; a private local plan-mode artifact alone does not satisfy this gate.
 - MUST surface an authorization or capability blocker when a required delivery operation cannot be performed; never silently replace a mandatory target or gate with an easier one.
 - MUST defer to a host project's own more-specific change-loop capability wherever it ships one: that capability owns the loop there and this one does not run beside it, which is a different thing from the project policy above that merely chooses this loop's gates.
-- MUST use the default independent-review arrangement where project policy is silent: a separate session on separate infrastructure, under a bot identity distinct from the connected operator. A review produced inside the authoring session is self-review, regardless of its name.
+- MUST select the pre-flight and post-PR independent-review routes under [review-workflow.md](./review-workflow.md), honoring explicit applicable instructions and using its defaults only where unspecified.
 
 ## Advance or Stop
 

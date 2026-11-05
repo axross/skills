@@ -42,6 +42,10 @@ do the processes and port forwards a run created, which end with that session.
 The Recovery field carries only the durable part of Loop's
 [created-resource record](../../skills/loop-engineering/references/run-state-and-reporting.md#semantic-run-state):
 branches, working copies, installs and series dependencies.
+For a separately created review thread, its durable thread identity or URL,
+posted-result locator and closure status are permitted review correlation
+metadata, not transient worker handles. Keep those under `Review`/`Recovery`
+so failed cleanup remains recoverable after the caller's session ends.
 
 The block carries ordinary labeled text, not a new machine schema. Map the
 [semantic run state](../../skills/loop-engineering/references/run-state-and-reporting.md)
@@ -68,9 +72,10 @@ changed PR, route, lifetime, limit or operation requires authorization only for
 the difference. Do not add an exact-head field: reviewed-snapshot and material
 currency evidence stays separate from authorization scope.
 
-For an external review request, the authorization record MUST name the exact
-trigger and its limit — either one request or the remaining requests through
-Loop's four-round external cap. That work-item grant does not include secret or
+For an independent review request, the authorization record MUST name the exact
+trigger or review-thread creation and direct PR-publication effects, and its
+limit — either one request or the remaining requests through Loop's four-round
+external cap. That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
 spend or retention settings, merge, release, deployment or scheduling unless
 the human separately names the effect. Readiness publication is not one of
@@ -79,8 +84,9 @@ these grant-gated effects: Loop's
 once satisfied, is its own sufficient warrant for that one effect.
 
 The `Review` entry records only safe correlation metadata: trigger comment ID
-and actor, workflow run ID and attempt, reviewed snapshot, sanitized result
-locator and the last observed stage. Put partial or unknown effects in
+and actor or durable review-thread identity, workflow run ID and attempt where
+applicable, reviewed snapshot, sanitized result locator, closure status and the
+last observed stage. Put partial or unknown effects in
 `Recovery`. Neither entry carries Issue text, credentials, raw API/model output
 or rejected output.
 These field-specific least-data constraints do not remove other substantive
@@ -178,25 +184,26 @@ writes before continuing this handover.
 
 Use the following destinations after resolving the target under GitHub Operation:
 
-| Content or operation                      | Destination                                                              |
-| ----------------------------------------- | ------------------------------------------------------------------------ |
-| Plan, plan questions, amendments          | Tracking issue                                                           |
-| Plan-stage evidence                       | Marked tracking-issue comment, outside the canonical plan range          |
-| Current run state                         | Issue before PR creation; PR afterward                                   |
-| Substantive deferred pre-flight handoff   | Marked PR comment; locators in the state block                           |
-| Acceptance criteria and their status      | PR **Acceptance criteria**, quoted verbatim, naming the plan revision    |
-| Manual checks and before/after visuals    | PR **Acceptance criteria**, beside the criteria they bear on             |
-| Skipped required checks and residual risk | PR **Risks and breaking changes**                                        |
-| Verification commands and their outcomes  | The session report; the state block keeps the evidence locators          |
-| Independent review request                | Dedicated marked PR comment carrying the trigger phrase and nothing else |
-| Fix evidence and finding reply            | The finding's PR review thread                                           |
-| Draft/ready status and PR metadata        | The PR, never the tracking issue                                         |
+| Content or operation                      | Destination                                                                       |
+| ----------------------------------------- | --------------------------------------------------------------------------------- |
+| Plan, plan questions, amendments          | Tracking issue                                                                    |
+| Plan-stage evidence                       | Marked tracking-issue comment, outside the canonical plan range                   |
+| Current run state                         | Issue before PR creation; PR afterward                                            |
+| Substantive deferred pre-flight handoff   | Marked PR comment; locators in the state block                                    |
+| Acceptance criteria and their status      | PR **Acceptance criteria**, quoted verbatim, naming the plan revision             |
+| Manual checks and before/after visuals    | PR **Acceptance criteria**, beside the criteria they bear on                      |
+| Skipped required checks and residual risk | PR **Risks and breaking changes**                                                 |
+| Verification commands and their outcomes  | The session report; the state block keeps the evidence locators                   |
+| Hosted independent review request         | Dedicated marked PR comment carrying the selected trigger phrase and nothing else |
+| Amp independent review request            | Fresh review child thread; direct PR post and thread closure under Code Review    |
+| Fix evidence and finding reply            | The finding's PR review thread                                                    |
+| Draft/ready status and PR metadata        | The PR, never the tracking issue                                                  |
 
-[Code Review](./code-review.md) owns both configured reviewers, each one's exact
-invocation, eligibility, and setup — one of them runs here in CI and the other
-does not. [REVIEW.md](../../REVIEW.md) owns severity and output
-policy. Delivery MUST use that invocation only when the review request is
-authorized; preparing its comment does not publish it.
+[Code Review](./code-review.md) owns the selected reviewers' invocation,
+eligibility and setup, including Amp's direct review-thread publication.
+[REVIEW.md](../../REVIEW.md) owns severity and output policy. Delivery MUST use
+the selected invocation only when the review request and its publication
+effects are authorized; preparing a comment or assignment does not publish it.
 
 Finding replies follow the disposition established under Loop's
 [external addressing contract](../../skills/loop-engineering/references/independent-review.md#addressing-findings).

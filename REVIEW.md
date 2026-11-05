@@ -21,7 +21,7 @@ carries the criteria; no reviewer here opens the tracking issue to find them.
 
 ## Adopted Review Arrangements
 
-Substantive review checks apply to both routes. Presentation and reporting
+Substantive review checks apply to every route. Presentation and reporting
 scope follow these explicitly adopted arrangements, overriding conflicting
 defaults throughout this file and Code Review's posted-review policy:
 
@@ -36,6 +36,11 @@ defaults throughout this file and Code Review's posted-review policy:
   standalone summary rather than requiring one formal review submission.
   Important/Nit labels, all-findings reporting, the tally and summary-scope
   defaults remain applicable.
+- **Amp** — the fresh review child thread posts its own non-gating `COMMENT`
+  review using Code Review's default posted-report contract: diff-anchored
+  findings, Important/Nit labels, all-findings reporting, the tally and the
+  allowed summary scope. A no-findings review is posted too. Apply the
+  repository's agent attribution even when author and reviewer share a login.
 
 Accepting native scope accepts unreported omissions, not proof that every
 instruction was consumed or every criterion checked. An identifiable posted

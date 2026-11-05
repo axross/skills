@@ -104,13 +104,13 @@ fresh-review loop; resuming that loop does not replay the initial checkpoint.
 
 ## Select the external review route
 
-[Code Review](./code-review.md) owns both external routes, and the selection
-follows the session's host rather than the change: a Claude Code session
-requests `@claude review`, a Codex or Amp session requests `@codex review`.
-Both reviewers work from the pull request, so neither route is restricted to a
-narrower class of change than the other.
+[Code Review](./code-review.md) owns the post-PR independent-review routes.
+The session's host selects the route: Codex requests `@codex review`, Claude
+Code requests `@claude review`, and Amp creates a fresh review child thread
+that posts directly to the PR. Every route reviews the created PR; the initial
+pre-flight checkpoint above remains unchanged and satisfies none of this gate.
 
-A failed or unavailable route grants no automatic fallback to the other. If the
+A failed or unavailable route grants no automatic fallback to another. If the
 route the session's host selects is unavailable and no human explicitly replaces
 it, record the unmet independent-review gate. Self-review and local checks do
 not satisfy it.

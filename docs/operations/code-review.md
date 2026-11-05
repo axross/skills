@@ -1,19 +1,37 @@
 # Code Review
 
-This repository has two external review routes, and a session picks between
-them by the host it runs in rather than by the change in front of it. Both
-reviewers work from the pull request, so neither is narrower in what it may
-review. [`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
+This repository selects post-PR independent review by the authoring session's
+host. Codex and Claude Code request hosted reviews; Amp uses a fresh review
+child thread that publishes to the PR. Every route works from the created PR.
+[`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
 contract; this document owns invocation, setup, and failure handling.
 
-| Session host | Trigger          | Answers as                     | Runs from                                                               |
-| ------------ | ---------------- | ------------------------------ | ----------------------------------------------------------------------- |
-| Claude Code  | `@claude review` | `claude[bot]`                  | [`claude-review.yaml`](../../.github/workflows/claude-review.yaml) here |
-| Codex, Amp   | `@codex review`  | `chatgpt-codex-connector[bot]` | The Codex GitHub integration, configured outside this repository        |
+| Session host | Trigger                   | Answers as                                                            | Runs from                                                               |
+| ------------ | ------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Claude Code  | `@claude review`          | `claude[bot]`                                                         | [`claude-review.yaml`](../../.github/workflows/claude-review.yaml) here |
+| Codex        | `@codex review`           | `chatgpt-codex-connector[bot]`                                        | The Codex GitHub integration, configured outside this repository        |
+| Amp          | Fresh review child thread | The review thread's permitted GitHub identity, with agent attribution | A separately qualified Amp thread                                       |
 
-A route that fails or is unavailable grants no automatic fallback to the other.
+A route that fails or is unavailable grants no automatic fallback to another.
 If the route the session's host selects cannot be obtained and no human
 explicitly replaces it, record the unmet independent-review gate.
+
+## Run the Amp reviewer
+
+After creating the draft PR, start a fresh review child thread through the
+qualified [Amp thread route](./amp-execution.md#establish-thread-materials-and-workspace).
+Apply Loop's [review-workflow contract](../../skills/loop-engineering/references/review-workflow.md)
+for context independence, required materials, direct PR publication and cleanup.
+The assignment selects `REVIEW.md` and the applicable review practices. The
+thread's workspace starts on the project's default branch, so direct it to fetch
+the PR's base/head material rather than review that initial checkout.
+
+Publication uses the qualified GitHub channel and REVIEW.md's Amp arrangement:
+a non-gating `COMMENT` review with the repository's agent attribution.
+For Loop's cleanup, Amp's thread menu supplies **Archive**, which retains the
+thread URL and history; use an equivalent permitted lifecycle tool when the
+active session exposes one. The [thread documentation](https://ampcode.com/docs/threads)
+describes that operation. No hosted bot trigger is posted for this route.
 
 ## Run the Claude reviewer
 
@@ -146,11 +164,10 @@ or live report-conformance checks.
 
 A change to this document, to [`REVIEW.md`](../../REVIEW.md), to
 [`claude-review.yaml`](../../.github/workflows/claude-review.yaml), or to the
-skills either route reads is reviewed the same way anything else is: through
-whichever route the session's host selects. Neither reviewer executes what the
-diff proposes — each reads a pull request — so a proposed change to the review
-arrangement is judged from outside itself either way, and no route needs to
-stand aside for a change that governs it.
+skills a selected route reads is reviewed the same way anything else is: through
+whichever route the session's host selects. A proposed change to the review
+arrangement still needs review outside the author's context; selecting a route
+does not itself establish which policy revision that reviewer consumed.
 
 That review does not by itself establish that proposed routing took effect.
 Record the available base/head policy revisions and qualify the revision

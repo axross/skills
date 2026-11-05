@@ -88,13 +88,12 @@ returning a progress-only report. Use the purpose routes below for the action an
 [Wait for the right result](#wait-for-the-right-result) for an actual pending
 machine event.
 
-An Amp session requests external review with `@codex review`, per
-[Code Review](./code-review.md). Apply the same progression to each distinct
-stage of that review: trigger admission, run start, model completion, and
-published result. A denied or no-op trigger, a failed run, and
-a result belonging to an older run are each a stage that has not completed, not
-a clean review. Continue from the last verified stage through the qualified
-GitHub route rather than posting a duplicate trigger. Once
+An Amp session requests post-PR independent review through a fresh review child
+thread, per [Code Review](./code-review.md#run-the-amp-reviewer). Apply the same
+progression to thread creation, review execution, direct PR publication and
+thread closure. A failed launch, private reply, missing post or result from an
+older round does not complete the review. Continue from the last verified stage
+rather than launching a duplicate reviewer or reposting its result. Once
 [Loop's Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate)
 is satisfied, that satisfaction is itself sufficient warrant to publish the
 ready transition — no separate operation grant is required for that one
@@ -242,8 +241,8 @@ Recover the approval revision, attempts, pending result and remaining processes
 through Loop's [recovery contract](../../skills/loop-engineering/references/resuming-and-handoff.md).
 GitHub state storage and independent-review invocation remain in
 [GitHub Delivery](./github-delivery.md) and
-[code review operations](./code-review.md). No local specialist call
-substitutes for the mandatory external review.
+[code review operations](./code-review.md). A pre-flight or local specialist
+result cannot substitute for the mandatory review thread's direct PR post.
 
 ## Keep host operations separate
 

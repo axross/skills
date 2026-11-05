@@ -61,8 +61,9 @@ uses none of them.
   session's Amp orb is provisioned, how the session starts, its hooks, its
   telemetry tagging, and the environment variables recommended for cutting a
   session's cost.
-- [operations/code-review.md](./operations/code-review.md) — the two external
-  review routes, host selection, setup, and policy-delivery/output qualification.
+- [operations/code-review.md](./operations/code-review.md) — hosted Codex and
+  Claude reviews, Amp review threads, host selection, cleanup, and
+  policy-delivery/output qualification.
 - [operations/ci-actions.md](./operations/ci-actions.md) — selecting trusted action
   version tags or SHA pins, updating workflow references, and separating static
   evidence from live CI and downstream dependency trust.

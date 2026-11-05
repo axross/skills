@@ -1,6 +1,6 @@
 ---
 name: loop-engineering
-description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including blocked verification, pending review/CI, run recovery, and releasing a merged or closed change's local resources. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, check-failure diagnosis, host execution APIs, or delivery storage. Development practices own verification diagnosis; conduct practices own non-code deliverable review; project policy chooses gates and branches. Covers created-resource records and claims on shared simulators, emulators, devices and ports. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
+description: Driving a code change or document update through reviewed research, plan, and design outputs → approval → execution → verification → independent review, including review-route selection, blocked verification, pending review/CI, run recovery, and releasing a merged or closed change's local resources. Owns phase placement, approval revision, evidence, finding state, and recovery meaning—not generic deliverable-review method, check-failure diagnosis, host execution APIs, or delivery storage. Development practices own verification diagnosis; conduct practices own non-code deliverable review; project policy chooses gates and branches. Covers created-resource records and claims on shared simulators, emulators, devices and ports. Defer to a host project's own more-specific change loop where present. Not for standalone read-only questions, investigations, or reviews that change nothing.
 user-invocable: false
 ---
 
@@ -76,6 +76,12 @@ See [writer-ownership-and-recovery.md](./references/writer-ownership-and-recover
 
 ## Review and Readiness
 
+See [review-workflow.md](./references/review-workflow.md) for:
+
+- selecting pre-flight and post-PR review routes from applicable instructions or skills, including a one-sentence `@claude review` directive
+- the context-independent post-PR default, with Codex, Claude Code and Amp examples, while preserving pre-flight
+- closing created review sessions/threads after posting, recovery, and permission requests or concrete human cleanup handoffs when closure fails
+
 See [finding-response.md](./references/finding-response.md) for:
 
 - choosing an author-side response to an advisory pre-flight or independent-review finding through feedback judgment and causal correction selection
@@ -91,7 +97,7 @@ See [pre-flight-review.md](./references/pre-flight-review.md) for:
 See [independent-review.md](./references/independent-review.md) for:
 
 - requesting, addressing, or evaluating an independent review, or publishing the ready transition
-- mandatory external independence, fresh review rounds, and the four-round address cap
+- mandatory post-PR independent review, fresh review rounds, and the four-round address cap
 - identifiable posted completion under the project's adopted presentation and reporting scope, without affirmative per-check assertions, distinct from explicit limitations and contributor evidence
 - external fixed, human-dismissed, and outstanding dispositions without rewriting reviewer history
 - convergence distinct from conversation closure, including substantive metadata changes
