@@ -41,6 +41,16 @@ A normalized snapshot can include the author while omitting `assignees`. An omit
 - MUST distinguish a stored trigger comment from a started workflow, and a started workflow from its completed result; report only the stage actually observed.
 - MUST report unverified fields or downstream results explicitly instead of turning a successful API response into whole-change completion.
 
+### Verify New Review Publication
+
+A stored inline comment proves neither that every intended finding reached the diff nor that a review was submitted. GitHub provides separate reads for a [review](https://docs.github.com/en/rest/pulls/reviews#get-a-review-for-a-pull-request) and its [comments](https://docs.github.com/en/rest/pulls/reviews#list-comments-for-a-pull-request-review); a pending review is not a submitted COMMENT review.
+
+**Guidelines:**
+
+- MUST verify new review/comment objects through separate permitted reads, including the intended PR, author, exact stored content and applicable reviewed snapshot/diff association. For inline findings, verify the file and line/side or diff-position anchors and the associated review where applicable; an object ID alone does not establish those relationships.
+- MUST verify the submitted advisory review's [`COMMENTED` state](https://docs.github.com/en/graphql/reference/pulls#enum-pullrequestreviewstate) (the result of the `COMMENT` event) and submission, not merely its creation as a pending draft. Confirm the reviewed commit separately from the PR's current head rather than assuming they still match.
+- MUST account for every required finding and review postcondition before reporting publication complete. Preserve verified object IDs and pending or unknown effects under the recovery rules below; neither partial publication nor a submitted COMMENT alone proves review completion or independent-review convergence.
+
 ### Verify Review-Conversation Effects Separately
 
 A disposition reply and a resolved thread are separate postconditions. Neither proves a code fix or independent approval, and dismissing a finding is not the separate operation of dismissing a whole pull-request review.
