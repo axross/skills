@@ -46,7 +46,7 @@ Attaching an image or video to an issue, pull request, or comment is a write the
 
 A raw REST or GraphQL call is not authorized merely because a high-level command is unavailable. Some harnesses normally restrict GraphQL operations while serving REST reads. Establish that functional limitation rather than relabeling any high-level error as one.
 
-The following consequences keep a raw operation denied, except for the bounded inherent effects in [Qualify Disposition Replies](#qualify-disposition-replies) and [Qualify Addressed-Thread Resolution](#qualify-addressed-thread-resolution):
+The following consequences keep a raw operation denied:
 
 | Property                     | Examples                                                               |
 | ---------------------------- | ---------------------------------------------------------------------- |
@@ -55,12 +55,70 @@ The following consequences keep a raw operation denied, except for the bounded i
 | Privilege- or gate-affecting | APPROVE or REQUEST_CHANGES; collaborator permissions; Actions secrets  |
 | Outward-facing or costly     | Dispatching a workflow; publishing a release                           |
 
+Only the bounded inherent effects in these qualifications can be exceptions:
+
+- [Qualify New Review Publication](#qualify-new-review-publication)
+- [Qualify Disposition Replies](#qualify-disposition-replies)
+- [Qualify Addressed-Thread Resolution](#qualify-addressed-thread-resolution)
+
 **Guidelines:**
 
-- MUST treat raw routes as default-deny: an operation is eligible only when it has none of these consequences, or qualifies for a bounded reply or resolution exception below, serves something the sanctioned channel cannot serve under the channel-selection rules above, and satisfies every other access and authorization rule.
+- MUST treat raw routes as default-deny. An eligible operation satisfies all of the following:
+  - No consequence listed above, unless a bounded exception below qualifies the operation.
+  - A purpose the sanctioned channel cannot serve under the channel-selection rules above.
+  - Compliance with every other access and authorization rule.
 - MUST classify unlisted operations by those consequences, not by whether the table names them.
 - MUST NOT infer write permission from a raw route that supplies stored bytes for reading.
 - MUST NOT substitute ordinary comments for findings required on diff lines. A top-level COMMENT review is an alternative only when inline findings are not required; otherwise report the unavailable review operation.
+
+## Qualify New Review Publication
+
+New inline findings and advisory COMMENT reviews need their own qualification; the disposition-reply exception covers existing findings only. The following effects are inherent to publication, not general permission for raw comments:
+
+- storage
+- visibility under the target's existing access controls
+- ordinary GitHub notifications
+
+GitHub's [new review-comment](https://docs.github.com/en/rest/pulls/comments#create-a-review-comment-for-a-pull-request) and [review creation](https://docs.github.com/en/rest/pulls/reviews#create-a-review-for-a-pull-request) contracts document notifications.
+
+**Guidelines:**
+
+- SHOULD prefer an eligible authenticated high-level review-publication operation when one exists.
+- MAY qualify raw publication of genuine new inline findings or an advisory COMMENT review only when the channel-selection rules above permit the alternative and the actual host/tool permits the operation. Before writing, establish:
+  - authenticated identity
+  - the intended PR
+  - required reviewed material, including diff anchors for inline findings
+  - a permitted read-back path
+
+  Require a valid grant covering:
+  - the target
+  - review content
+  - inherent publication effects
+
+- MUST NOT deny that review solely for the inherent publication effects above. Apply [publication authorization](./publication-and-recovery.md#check-authorization-for-the-effect) to a matching compound grant rather than requesting approval again for covered effects.
+- MUST preserve actual disclosure boundaries on public and private targets; neither private visibility nor COMMENT makes the content harmless. Keep additional raw-disqualifying effects denied even when authorized, including:
+  - automation execution
+  - cost
+  - access expansion
+  - privilege or gate changes
+  - irreversible actions
+
+  Assess material effects below before qualification.
+
+- MUST keep new-review publication separate from disposition replies and resolution. This qualification does not permit:
+  - closure
+  - APPROVE/REQUEST_CHANGES
+  - review dismissal
+  - a substitute clean summary concealing required inline findings
+
+  A genuine no-findings COMMENT can qualify under the same conditions.
+
+- MUST NOT infer current route eligibility or publication authorization from a prior successful API call. Distinguish uncertainty about the rule from these missing prerequisites:
+  - capability
+  - required material
+  - a grant
+
+  Do not declare every route unavailable for a specific prerequisite gap.
 
 ## Qualify Disposition Replies
 
@@ -89,11 +147,14 @@ Closing a substantively addressed review conversation updates the intended threa
 
 ## Assess Material Downstream Effects
 
-A failed administrative read does not establish a write rejection. It can still leave evidence missing that is necessary to qualify the route or its effects. For a reply, ordinary GitHub notifications differ from automation triggered by its content or a known event hook. Assess what matters to the proposed operation, not every conceivable automation.
+A failed administrative read does not establish a write rejection. It can still leave evidence missing that is necessary to qualify the route or its effects. For a new review or disposition reply, ordinary GitHub notifications differ from automation triggered by its content or a known event hook. Assess what matters to the proposed operation, not every conceivable automation.
 
 **Guidelines:**
 
-- MUST assess documented or observable material downstream effects before qualification, including reply content and relevant automation hooks for publication, and enabled auto-merge for resolution.
+- MUST assess documented or observable material downstream effects before qualification, including:
+  - review/reply content for publication
+  - relevant automation hooks for publication
+  - enabled auto-merge for resolution
 - MUST stop before the proposed write when unavailable evidence is necessary to establish route eligibility or grant coverage; report the specific unknown and the evidence or informed authorization needed. Authorization cannot make another raw-disqualifying consequence eligible.
 - MUST NOT require an unbounded administrative audit to prove that no conceivable automation exists, or treat schema availability or viewer capability as an operation grant.
 - MUST report administrative read failure, a write not attempted under the current route policy, and an observed write rejection as different observations; do not substitute one for another.
