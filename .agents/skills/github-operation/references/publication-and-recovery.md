@@ -47,7 +47,17 @@ A stored inline comment proves neither that every intended finding reached the d
 
 **Guidelines:**
 
-- MUST verify new review/comment objects through separate permitted reads, including the intended PR, author, exact stored content and applicable reviewed snapshot/diff association. For inline findings, verify the file and line/side or diff-position anchors and the associated review where applicable; an object ID alone does not establish those relationships.
+- MUST verify new review/comment objects through separate permitted reads, including:
+  - the intended PR
+  - the author
+  - exact stored content
+  - the applicable reviewed snapshot/diff association
+
+  For inline findings, also verify the following relationships; an object ID alone does not establish them:
+  - the file
+  - line/side or diff-position anchors
+  - the associated review, where applicable
+
 - MUST verify the submitted advisory review's [`COMMENTED` state](https://docs.github.com/en/graphql/reference/pulls#enum-pullrequestreviewstate) (the result of the `COMMENT` event) and submission, not merely its creation as a pending draft. Confirm the reviewed commit separately from the PR's current head rather than assuming they still match.
 - MUST account for every required finding and review postcondition before reporting publication complete. Preserve verified object IDs and pending or unknown effects under the recovery rules below; neither partial publication nor a submitted COMMENT alone proves review completion or independent-review convergence.
 

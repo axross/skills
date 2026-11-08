@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8830b6b69717daf57dac5da7d4dc29c111849f9f5f48d8d017631be3a5fcc3dc"
+      "computedHash": "5ab9348695a2820d5a1b4afaaacc1b8f75e32f6005b55af0221dc6c3a57a6af9"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",

@@ -65,7 +65,8 @@ See [publication-and-recovery.md](./references/publication-and-recovery.md) for:
 - keeping a secret, token, credential, or internal hostname out of a composed body, comment, title, review, or commit message
 - authorization for the particular write, separate from drafting or plan approval
 - read-back, partial failure, and lost-response recovery without duplicate writes, including a non-zero exit after `--attach`
-- verifying new review/comment content, snapshot/diff associations and submitted advisory-review state
+- verifying new review/comment content and snapshot/diff associations
+- distinguishing submitted advisory reviews from pending drafts
 - verifying disposition replies and conversation closure as separate effects
 - the agent's own draft-to-ready transition where the project's change-loop practices define a ready gate
 - COMMENT-type reviews, API-authored pull requests, and append-only branch history
