@@ -636,12 +636,12 @@ describe("report-obligation-burden.mjs", () => {
       // `professional-behavior`, which also lifts the every-session tier; its
       // SKILL.md routing bullet widens by bytes, not obligations.
 
-      // the measured corpus contains 36,143 SKILL.md bytes and 301,830 bytes
+      // the measured corpus contains 36,251 SKILL.md bytes and 301,938 bytes
       // including references, at 4.76 bytes/token; Loop has 258 ceiling obligations.
       expect.soft(totals.floorObligations).toBe(23);
-      expect.soft(totals.floorTokens).toBe(7_593);
+      expect.soft(totals.floorTokens).toBe(7_616);
       expect.soft(totals.ceilingObligations).toBe(605);
-      expect.soft(totals.ceilingTokens).toBe(63_410);
+      expect.soft(totals.ceilingTokens).toBe(63_432);
     });
 
     it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
@@ -669,9 +669,9 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].ceilingTokens).toBe(37_667);
 
       expect.soft(tiers[2].floorObligations).toBe(23);
-      expect.soft(tiers[2].floorTokens).toBe(7_593);
+      expect.soft(tiers[2].floorTokens).toBe(7_616);
       expect.soft(tiers[2].ceilingObligations).toBe(605);
-      expect.soft(tiers[2].ceilingTokens).toBe(63_410);
+      expect.soft(tiers[2].ceilingTokens).toBe(63_432);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
