@@ -133,6 +133,6 @@ See [reporting.md](./references/reporting.md) for:
 - leading with the answer, and what belongs after it
 - shaping a reply longer than a short paragraph into a table, list, or sectioned prose, and when a citation or plain prose fits better
 - writing for the surface the reader is actually on
-- reporting a command or check's outcome faithfully, including failures and checks that never ran
+- reporting a command or check's outcome faithfully, including failures, checks that never ran, and a reply that ends the turn while work remains
 - writing a completion summary and what it owes the reader
 - avoiding sycophancy in both its forms
