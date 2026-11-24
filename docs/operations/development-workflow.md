@@ -7,7 +7,7 @@ description: Required change and review gates from issue intake to a mergeable t
 # Development Workflow
 
 How a maintainer carries a change through this repository's required gates.
-[Loop Engineering](https://github.com/axross/skills/blob/main/skills/loop-engineering/SKILL.md) owns phase meaning
+[Loop Engineering](../../skills/loop-engineering/SKILL.md) owns phase meaning
 and evidence contracts; this document records the repository's choices and
 the configured actors. Naming an actor here does not make it available or
 permitted — a session qualifies each against what it actually exposes, through
@@ -35,7 +35,7 @@ identify the tracking issue, pull request when one exists, and independent
 review outcome; an absent PR or review is an unmet gate, not a clean result.
 
 The [migration map](./loop-migration.md) records topic ownership, rollout and
-combined verification. [AGENTS.md](https://github.com/axross/skills/blob/main/AGENTS.md) routes sessions to the
+combined verification. [AGENTS.md](../../AGENTS.md) routes sessions to the
 common capabilities and conditional host guides. Routing is not proof that
 every host path has been exercised.
 
@@ -83,7 +83,7 @@ A Claude Code session uses the matching configured actor when that assignment
 qualifies under its actual permitted capabilities; parent implementation is the
 fallback when delegation is unavailable or disallowed. Amp roles and invocation
 conditions follow [Amp Execution](./amp-execution.md), not these Claude
-definitions. Apply Loop's [checkpoint qualification](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/subagent-delegation.md#checkpoint-qualification)
+definitions. Apply Loop's [checkpoint qualification](../../skills/loop-engineering/references/subagent-delegation.md#checkpoint-qualification)
 separately to implementation delegation, phase-deliverable review, and
 implementation pre-flight; mandatory verification and external review remain
 unchanged.
@@ -96,7 +96,7 @@ delegated one — and the one condition that does is whether a reader qualifies,
 because a stage conditional on a reader that may be prohibited or absent
 would either stall the run or invite self-review under another name. A
 compatible fresh reader must be permitted and available; its findings and round limits follow
-[the pre-flight contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/pre-flight-review.md).
+[the pre-flight contract](../../skills/loop-engineering/references/pre-flight-review.md).
 If no reader qualifies, record the exact unavailable or prohibited reason and
 the resulting delivery restriction. This outcome is not a clean review, does
 not waive external review, and does not authorize publication. A separately
@@ -126,7 +126,7 @@ not satisfy it.
 When storing or publishing change-loop records, follow
 [GitHub Delivery](./github-delivery.md). It owns this repository's plan location,
 state-block representation, issue-to-PR handover, marker selection, and evidence
-destinations. [GitHub Operation](https://github.com/axross/skills/blob/main/skills/github-operation/SKILL.md) owns
+destinations. [GitHub Operation](../../skills/github-operation/SKILL.md) owns
 portable access and outcome verification. This section's anchor remains for
 earlier migration references; it does not duplicate delivery mechanics.
 
@@ -146,13 +146,13 @@ into the topic branch and record any resolution in a new commit. Do not rebase,
 amend, reset away, or force-push published history as conflict recovery.
 
 After the merge, follow Loop Engineering's
-[mergeability and conflict-remediation contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md#mergeability-and-conflict-remediation)
+[mergeability and conflict-remediation contract](../../skills/loop-engineering/references/independent-review.md#mergeability-and-conflict-remediation)
 for judgment escalation, affected verification and fresh review. Code Review
 owns the selected provider's snapshot semantics.
 
 ## The Branch-Governance Sweep
 
-[`branch-governance-audit.yaml`](https://github.com/axross/skills/blob/main/.github/workflows/branch-governance-audit.yaml)
+[`branch-governance-audit.yaml`](../../.github/workflows/branch-governance-audit.yaml)
 sweeps hourly and flags a `claude/` branch ahead of the default branch with no
 open pull request. It is scheduled rather than push-triggered because
 implementation legitimately pushes before opening its pull request; a grace

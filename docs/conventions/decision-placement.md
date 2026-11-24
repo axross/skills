@@ -15,10 +15,10 @@ does not cover a decision a later reader can recover from the tree the change
 itself produced; treating every choice made while building as one needing a
 place to land would turn this into a record-everything obligation nobody could
 sustain. Nor does it restate what
-[living-project-documentation](https://github.com/axross/skills/blob/main/skills/living-project-documentation/SKILL.md)
+[living-project-documentation](../../skills/living-project-documentation/SKILL.md)
 already owns — what each `docs/` body holds, and where a settled constraint
 goes — or what
-[loop-engineering](https://github.com/axross/skills/blob/main/skills/loop-engineering/SKILL.md) owns — the plan, its
+[loop-engineering](../../skills/loop-engineering/SKILL.md) owns — the plan, its
 gates, and the amendment mechanism a decision settled inside one plan revision
 now carries into another; both are named here rather than duplicated.
 
@@ -40,14 +40,14 @@ by whoever happens to be writing the plan.
    the step below, when it is a standing fact about the project rather than an
    instruction for one lineage alone. Which document receives it, and in what
    form it is written there, is
-   [living-project-documentation](https://github.com/axross/skills/blob/main/skills/living-project-documentation/SKILL.md)'s
+   [living-project-documentation](../../skills/living-project-documentation/SKILL.md)'s
    rule rather than this one's; what this step adds is the ordering, and what
    this repository adds is the narrowing under "Which Document Receives It"
    below.
 2. **Into the umbrella plan, by amendment.** Failing that, a decision MUST
    land in the umbrella plan a later step opens from, written in with the
    amendment mechanism
-   [loop-engineering's plan-document reference](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/plan-document.md)
+   [loop-engineering's plan-document reference](../../skills/loop-engineering/references/plan-document.md)
    states, when it is an inheritance for a later step of the same lineage
    rather than a standing fact the tree carries everywhere.
 
@@ -114,7 +114,7 @@ reason.
 The cost accepted is reach. A document under `conventions/` or `operations/`
 does not fire the way a skill does — nothing loads it because a task matches a
 trigger phrase — so it is reachable only as far as
-[AGENTS.md](https://github.com/axross/skills/blob/main/AGENTS.md)'s own routing table makes it, and a kind of change
+[AGENTS.md](../../AGENTS.md)'s own routing table makes it, and a kind of change
 that table does not yet name has no document pointing a session at it until
 someone adds a row.
 

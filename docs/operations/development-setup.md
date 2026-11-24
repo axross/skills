@@ -18,7 +18,7 @@ and the command reference that workflow's checks run.
    one covers
 
 There is no dev server — authoring a skill means editing Markdown under
-[`skills/`](https://github.com/axross/skills/tree/main/skills) (or a skill root for a repository-local skill) and
+[`skills/`](../../skills) (or a skill root for a repository-local skill) and
 reinstalling if it is distributable; see
 [`docs/operations/agent-skills.md`](./agent-skills.md) for
 that procedure and
@@ -49,7 +49,7 @@ in [`docs/`](../index.md), which is checked by the same suite.
 
 Verification is a format check, a Markdown lint, and a Vitest suite.
 `npm run check` runs all three, and each gates a merge as its own parallel job in
-[`merge-checks.yaml`](https://github.com/axross/skills/blob/main/.github/workflows/merge-checks.yaml). The suite is the
+[`merge-checks.yaml`](../../.github/workflows/merge-checks.yaml). The suite is the
 wide one — the `npm test` row says what it carries.
 
 This table is the authoritative list of the repository's commands, for human
@@ -57,7 +57,7 @@ contributors and agents alike.
 
 The additional W1 foundation uses CLI2 0.23.3/markdownlint 0.41.1 and the private
 bundled package described in
-[Protected Markdownlint Execution](https://github.com/axross/skills/blob/main/skills/agent-skill-authoring/references/markdownlint-execution.md).
+[Protected Markdownlint Execution](../../skills/agent-skill-authoring/references/markdownlint-execution.md).
 Its AS001/AS010 checks and raw-source/preflight tests run in the fixture suite;
 they do not replace the existing repository lint or structure gates. Standard
 configuration for this helper is explicit, not inherited from CLI2 config.
@@ -83,7 +83,7 @@ is not required.
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
-Every command below runs from the source tier under [`skills/`](https://github.com/axross/skills/tree/main/skills) —
+Every command below runs from the source tier under [`skills/`](../../skills) —
 what the suite itself invokes; the installed roots go stale mid-edit. See
 [`docs/conventions/directory-structure.md`](../conventions/directory-structure.md)
 for why each validator ships with the skill that owns it rather than living
@@ -106,7 +106,7 @@ node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --collection skil
 # deliberately not one command: each answers for one kind of change, so an
 # author who touched one document reads only its findings.
 node skills/living-project-documentation/scripts/check-index.mjs docs
-node skills/living-project-documentation/scripts/check-references.mjs docs
+node skills/living-project-documentation/scripts/check-references.mjs --source-root . docs
 node skills/living-project-documentation/scripts/check-glossary.mjs docs
 
 # One more ships in a skill and this repository runs it too, from a schedule
@@ -123,3 +123,26 @@ node skills/github-operation/scripts/decode-sanitized-read.mjs --help
 See [`docs/conventions/verification-gates.md`](../conventions/verification-gates.md)
 for what makes a check a gate, a report, or a scheduled audit, and the traps
 each can fall into.
+
+## Export a standalone documentation bundle
+
+From the repository root, export a committed revision to a new directory:
+
+```bash
+node scripts/export-docs.mjs ../engineering-docs HEAD
+node skills/living-project-documentation/scripts/check-references.mjs ../engineering-docs
+```
+
+The exporter reads the selected Git commit. Commit any changes you want to
+include, and push that commit before sharing the bundle so its GitHub links
+resolve for recipients with repository access. In the checkout, use relative
+links to files maintained on the same branch. In the export, links between
+documentation pages still work offline. A link to a repository file outside
+`docs/` opens that file at the exported commit. See the
+[exporter](../../scripts/export-docs.mjs).
+
+For links leaving `docs/`, use a Markdown link, image or reference definition.
+The exporter rewrites those destinations and checks Markdown section fragments
+in the selected commit. An outward path in raw HTML or OKF metadata fails the
+standalone check. Use an explicit published source URL in metadata that cites
+a particular revision.

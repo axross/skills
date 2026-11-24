@@ -23,7 +23,7 @@ whole arc.
 `npm test` holds the wrapped text to the file it describes — the skill count at
 the top of `README.md`, a round cap quoted from a skill, a byte cap a validator
 enforces. Each key is registered in
-[`tests/repository/documented-counts.mjs`](https://github.com/axross/skills/blob/main/tests/repository/documented-counts.mjs)
+[`tests/repository/documented-counts.mjs`](../../tests/repository/documented-counts.mjs)
 alongside the derivation that proves it, and a mismatch reports the file, the
 claim, the truth, and what else moves with the number — so a contributor fixes
 the sentence from the failure alone.

@@ -129,13 +129,15 @@ function hasOkfMarker({ text, markerKey: key }) {
 
 /**
  * return the parsed OKF or legacy inventory, or null when no root index is available.
- * @throws if bundle contents cannot be read, the index is outside the inventory,
- * or a recognized OKF bundle cannot load its parsers.
+ * @throws if the bundle is outside the supplied source root, its files cannot be read,
+ * the index is outside the inventory or a recognized OKF bundle cannot load its parsers.
  */
-export async function loadDocs(dir) {
+export async function loadDocs(dir, sourceRoot) {
   if (!(await stat(join(dir, "index.md")).catch(() => null))?.isFile())
     return null;
   const root = await realpath(dir);
+  if (sourceRoot && outside(sourceRoot, root))
+    throw new Error("--source-root must contain the documentation directory");
   const indexPath = join(root, "index.md");
   const deferred = { directories: [], files: [] };
   /**
@@ -198,11 +200,12 @@ export async function loadDocs(dir) {
 }
 
 /**
- * resolve a local destination against its page, enforcing the visible OKF bundle boundary.
+ * resolve a local destination against its page. an optional checkout root admits file-relative
+ * source links beyond the visible OKF bundle.
  * return an error for broken destinations and include the document for Markdown targets.
  * @throws on unexpected filesystem errors such as permission failures.
  */
-export async function resolveLink(docs, doc, target) {
+export async function resolveLink(docs, doc, target, sourceRoot) {
   const hash = target.indexOf("#");
   const rawPath = (hash < 0 ? target : target.slice(0, hash)).split("?")[0];
   let decoded, fragment;
@@ -217,7 +220,13 @@ export async function resolveLink(docs, doc, target) {
   if (decoded.startsWith("/") && docs.okf)
     path = resolve(docs.root, "." + decoded);
   else if (decoded) path = resolve(dirname(doc.path), decoded);
-  if (docs.okf) {
+  // only an explicitly outward, file-relative link can name a checkout source.
+  // a link inside the bundle must remain usable when the bundle travels alone.
+  const sourceLink =
+    sourceRoot && outside(docs.root, path) && !decoded.startsWith("/");
+  if (sourceRoot && outside(sourceRoot, path))
+    return { error: "leaves the source root" };
+  if (docs.okf && !sourceLink) {
     const error = bundlePathError(docs.root, path);
     if (error) return { error };
     if (decoded.split("/").some(hiddenEntry))
@@ -225,9 +234,13 @@ export async function resolveLink(docs, doc, target) {
   }
   try {
     const actual = await realpath(path);
+    if (sourceRoot && outside(sourceRoot, actual))
+      return { error: "leaves the source root" };
     if (docs.okf) {
-      const error = bundlePathError(docs.root, actual);
-      if (error) return { error };
+      if (!sourceLink || !outside(docs.root, actual)) {
+        const error = bundlePathError(docs.root, actual);
+        if (error) return { error };
+      }
       path = actual;
     }
   } catch (error) {
@@ -237,31 +250,40 @@ export async function resolveLink(docs, doc, target) {
   const page =
     docs.byPath.get(path) ??
     (docs.okf ? docs.byPath.get(join(path, "index.md")) : undefined);
-  return { path, page, fragment };
+  return { path, page, fragment, sourceLink };
 }
 
 function hiddenEntry(part) {
   return part.startsWith(".") && part !== "." && part !== "..";
 }
 
+function outside(root, path) {
+  const diff = relative(root, path);
+  return diff === ".." || diff.startsWith(".." + sep) || isAbsolute(diff);
+}
+
 /** return a diagnostic for paths outside the visible bundle, including resolved aliases. */
 export function bundlePathError(root, path) {
-  const diff = relative(root, path);
-  if (diff === ".." || diff.startsWith(".." + sep) || isAbsolute(diff))
-    return "leaves the bundle; use a source URL";
-  if (diff.split(sep).some(hiddenEntry))
+  if (outside(root, path)) return "leaves the bundle; use a source URL";
+  if (relative(root, path).split(sep).some(hiddenEntry))
     return "addresses a hidden bundle entry";
 }
 
 /** run one documentation check and return its CLI status for success, findings or failure. */
-export async function main({ usage, allowEvidence = false, run, pass }) {
+export async function main({
+  usage,
+  allowEvidence,
+  allowSourceRoot,
+  run,
+  pass,
+}) {
   const argv = process.argv.slice(2);
   if (argv.includes("--help") || argv.includes("-h")) {
     console.log(usage);
     return 0;
   }
   const evidence = new Set();
-  let dir;
+  let dir, sourceRoot;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (
@@ -271,6 +293,14 @@ export async function main({ usage, allowEvidence = false, run, pass }) {
       !argv[i + 1].startsWith("-")
     ) {
       evidence.add(argv[++i]);
+    } else if (
+      allowSourceRoot &&
+      sourceRoot === undefined &&
+      arg === "--source-root" &&
+      argv[i + 1] &&
+      !argv[i + 1].startsWith("-")
+    ) {
+      sourceRoot = argv[++i];
     } else if (arg.startsWith("-") || dir !== undefined) {
       console.error(usage);
       return 2;
@@ -278,12 +308,13 @@ export async function main({ usage, allowEvidence = false, run, pass }) {
   }
   dir ??= "docs";
   try {
-    const docs = await loadDocs(dir);
+    if (sourceRoot !== undefined) sourceRoot = await realpath(sourceRoot);
+    const docs = await loadDocs(dir, sourceRoot);
     if (!docs) {
       console.log(`No docs at ${dir} (no index.md). Nothing to check.`);
       return 0;
     }
-    const findings = await run(docs, evidence);
+    const findings = await run(docs, evidence, sourceRoot);
     if (!findings.length) {
       console.log(`PASS  ${dir}\n\n${pass(docs)}`);
       return 0;

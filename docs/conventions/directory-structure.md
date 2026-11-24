@@ -48,10 +48,10 @@ No skill is in the repository-local tier today. `github-operation` was the
 last one and is now distributable, so the tier is available rather than in
 use. Registering one means passing its name to the installed-copy check as
 `--local <name>` from
-[`tests/repository/gates.mjs`](https://github.com/axross/skills/blob/main/tests/repository/gates.mjs), which
+[`tests/repository/gates.mjs`](../../tests/repository/gates.mjs), which
 otherwise treats an installed skill with no source as drift.
 
-[agent-skill-management](https://github.com/axross/skills/blob/main/skills/agent-skill-management/SKILL.md) covers
+[agent-skill-management](../../skills/agent-skill-management/SKILL.md) covers
 which tier a new skill belongs to; the actual install and refresh procedure is
 in [Agent Skills](../operations/agent-skills.md).
 
@@ -86,7 +86,7 @@ The private native-ESM package at
 `skills/agent-skill-authoring/scripts/markdownlint/` bundles the shared source
 context, protected CLI2 runner and AS001/AS010 rule exports. Its manifest and
 modules travel with the skill; consumers install its declared dependencies
-locally. [Protected Markdownlint Execution](https://github.com/axross/skills/blob/main/skills/agent-skill-authoring/references/markdownlint-execution.md)
+locally. [Protected Markdownlint Execution](../../skills/agent-skill-authoring/references/markdownlint-execution.md)
 owns that setup and scope. This foundation does not retire the existing
 structure validators or move their shared/report/network responsibilities.
 
@@ -105,10 +105,10 @@ that this repository ships a runnable checker for it is gone.
 
 A scenario's `patch` — the unified diff that brings its own defect into an
 otherwise sound mock, per [Skill Evaluation](../specs/skill-evaluation.md) and
-[`tools/evaluation/mocks/README.md`](https://github.com/axross/skills/blob/main/tools/evaluation/mocks/README.md) —
+[`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md) —
 lives inside its own `scenarios/<id>/` directory, beside `scenario.json` and
 `scripts/`, never under `mocks/` and never shared between scenarios:
-[`tools/evaluation/src/scenario.mjs`](https://github.com/axross/skills/blob/main/tools/evaluation/src/scenario.mjs)
+[`tools/evaluation/src/scenario.mjs`](../../tools/evaluation/src/scenario.mjs)
 resolves the `patch` field relative to that scenario's own directory, and a
 patch belongs to exactly one scenario.
 
@@ -117,7 +117,7 @@ hunks: check the target file out at its current committed state, edit it into
 the state the scenario needs, and let `git diff` (or, for a file the patch
 adds, `git diff --no-index` against `/dev/null`) produce the unified diff. A
 hand-edited patch that only looks right is exactly the failure
-[the patch-materialization test](https://github.com/axross/skills/blob/main/tests/repository/patch-materialization.test.mjs)
+[the patch-materialization test](../../tests/repository/patch-materialization.test.mjs)
 exists to catch, but regenerating one correctly is still cheaper than
 debugging one that merely happens to apply.
 
@@ -132,7 +132,7 @@ it.
 
 A patch that changes the file set — adding or removing one — MUST maintain
 its mock's own `history.jsonc` in that same diff:
-[`tools/evaluation/src/mock-workspace.mjs`](https://github.com/axross/skills/blob/main/tools/evaluation/src/mock-workspace.mjs)
+[`tools/evaluation/src/mock-workspace.mjs`](../../tools/evaluation/src/mock-workspace.mjs)
 refuses a mock whose tree and history disagree in either direction, so an
 added file with no matching `history.jsonc` entry, or a removed file still
 named in one, fails materialization rather than silently landing wrong. A
@@ -148,7 +148,7 @@ extension alone already keeps it out of both.
 
 A factor's `judgment.script` resolves relative to its own scenario's
 directory — `join(scenarioDir, factor.judgment.script)` in
-[`tools/evaluation/src/factor-judgment.mjs`](https://github.com/axross/skills/blob/main/tools/evaluation/src/factor-judgment.mjs)
+[`tools/evaluation/src/factor-judgment.mjs`](../../tools/evaluation/src/factor-judgment.mjs)
 — but where the script named there physically lives depends on how many
 scenarios name it. A script used by exactly one scenario lives in that
 scenario's own `scenarios/<id>/scripts/`, named relative to it (e.g.

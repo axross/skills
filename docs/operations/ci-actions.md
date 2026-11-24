@@ -7,7 +7,7 @@ description: How maintainers select and update workflow action references and as
 # CI Actions
 
 This repository normally uses version tags for actions from trusted publishers.
-[Application Security's supply-chain guidance](https://github.com/axross/skills/blob/main/skills/application-security/references/supply-chain.md#ci-action-identity-and-exposure)
+[Application Security's supply-chain guidance](../../skills/application-security/references/supply-chain.md#ci-action-identity-and-exposure)
 owns the identity and exposure judgment; this procedure records how maintainers
 select and update this repository's references. [Development Workflow](./development-workflow.md)
 and [GitHub Delivery](./github-delivery.md) retain the approval and publication gates.

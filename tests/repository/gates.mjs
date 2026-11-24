@@ -153,7 +153,7 @@ export const GATES = [
   {
     name: "corpus-references",
     script: SCRIPTS.checkReferences,
-    args: ["docs"],
+    args: ["--source-root", ".", "docs"],
     passes: /Every relative link resolves across [1-9]\d* documents\./,
   },
   {

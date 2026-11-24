@@ -28,6 +28,11 @@ node "$skill_dir/scripts/check-references.mjs" docs
 node "$skill_dir/scripts/check-glossary.mjs" docs
 ```
 
+When the editable documentation links to neighboring files in its repository,
+run `check-references.mjs --source-root . docs` from the repository root.
+This checkout check follows those links in the current tree. Run the ordinary
+command on the standalone export to catch any remaining checkout-only links.
+
 A companion can cite its source in the body or in a local
 `sources[].resource` field.
 
@@ -50,7 +55,7 @@ python /path/to/pinned/skills/okf-generate/scripts/validate.py --json docs
 
 **Guidelines:**
 
-- MUST run project gates in the checkout. Run the three navigation checks and the pinned upstream validator on the original bundle and again on a standalone copy in an empty directory outside the checkout.
+- MUST run project gates in the checkout. Run the three navigation checks and the pinned upstream validator on the source and the exported bundle outside the checkout. Use the repository-aware reference check only on the source.
 - MUST include all distributed evidence and linked assets in the export and compare their hashes with the originals.
 - MUST trace an index route and a moved fragment offline, and resolve each external source against its published location or pinned revision.
 - MUST report checkout and export results separately, naming the validator revision, expected warning paths and reasons, and any unresolved sources or routes.

@@ -18,11 +18,16 @@ a published bookmark outside the checkout.
 
 In OKF a leading slash resolves from the bundle root. A relative path resolves
 from the directory of the file containing it, including in source metadata.
-A neighboring repository file can be available in a checkout and absent after
-export. See the [export checks](./validators.md).
+A link to a neighboring repository file should follow the branch a contributor
+is reading. For example, a relative link from a runbook to a workflow opens
+the workflow beside that runbook, including on a branch that introduces both.
+When exporting the documentation alone, resolve the target in the same commit
+and write its published file or directory URL into the export. Keep the
+section fragment. See the [export checks](./validators.md).
 
 **Guidelines:**
 
 - SHOULD use file-relative links for readers browsing local Markdown. Use the exact filename, percent-encode spaces and retain the fragment when the destination is a section.
 - MUST keep navigation between indexes, concepts and bundled assets usable offline.
-- MUST give a source outside the bundle a published, resolvable URL or include a permitted copy inside the bundle. Pin its revision when a claim depends on its precise bytes.
+- SHOULD author same-repository source links relative to their page when the source changes with the branch. Keep an explicitly historical citation pinned to the revision it describes.
+- MUST give an exported source outside the bundle a resolvable URL for the revision used, or include a permitted copy inside the bundle. Preserve immutable evidence and its approved assets byte-for-byte.

@@ -27,7 +27,12 @@ it.each([
   "preserves published bookmarks in the standalone %s bundle",
   async (source, bookmarks) => {
     const bundle = join(await tempDir(), "bundle");
-    await cp(repoPath(source), bundle, { recursive: true });
+    if (source === "docs") {
+      const result = runScript("scripts/export-docs.mjs", [bundle]);
+      expect(result.code, result.output).toBe(0);
+    } else {
+      await cp(repoPath(source), bundle, { recursive: true });
+    }
     // a consumer can still hold these URLs even when the bundle no longer links to them.
     await writeFile(
       join(bundle, "reader.md"),

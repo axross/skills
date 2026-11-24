@@ -10,8 +10,8 @@ Maintainers running this repository in Amp use the simplest permitted execution
 route. This reference maps the portable Loop assignments to Amp operations;
 it does not grant tool access or replace the current tool definitions.
 [Development workflow](./development-workflow.md) owns project gates,
-[Loop Engineering](https://github.com/axross/skills/blob/main/skills/loop-engineering/SKILL.md) owns transitions and
-evidence, and [Professional Behavior](https://github.com/axross/skills/blob/main/skills/professional-behavior/SKILL.md)
+[Loop Engineering](../../skills/loop-engineering/SKILL.md) owns transitions and
+evidence, and [Professional Behavior](../../skills/professional-behavior/SKILL.md)
 owns decisions and question content. Direct and delegated changes keep the same
 approval, verification, and independent-review requirements.
 
@@ -30,7 +30,7 @@ and workspace. A parent MUST NOT infer a child's capabilities from its own.
 Require the child to confirm the source, revision, required material and return
 path before editing; missing access returns a non-complete result.
 
-Use the [Loop handoff contracts](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/implementation-package.md)
+Use the [Loop handoff contracts](../../skills/loop-engineering/references/implementation-package.md)
 for the content of an assignment and result, including read-only work. In this
 repository, identify `axross/skills`, the checkout and base/head revisions,
 and any uncommitted files or patches with content identifiers. Local `main`
@@ -100,7 +100,7 @@ progression to thread creation, review execution, direct PR publication and
 thread closure. A failed launch, private reply, missing post or result from an
 older round does not complete the review. Continue from the last verified stage
 rather than launching a duplicate reviewer or reposting its result. Once
-[Loop's Ready Gate](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md#ready-gate)
+[Loop's Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate)
 is satisfied, that satisfaction is itself sufficient warrant to publish the
 ready transition — no separate operation grant is required for that one
 effect.
@@ -128,9 +128,9 @@ writers before supplying the actual target under the Loop review contract.
 If no route qualifies, record whether the cause is a missing capability,
 prohibited purpose or missing material and identify the failed qualification.
 Return that result under the
-[Loop handoff contracts](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/implementation-package.md);
+[Loop handoff contracts](../../skills/loop-engineering/references/implementation-package.md);
 Development Workflow owns the delivery restriction, and
-[Loop recovery](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/resuming-and-handoff.md)
+[Loop recovery](../../skills/loop-engineering/references/resuming-and-handoff.md)
 owns which checkpoint resumes. Earlier implementation or artifact-review
 availability is not evidence for this reader; preserve whether review ran and
 its actual target, material coverage, policy, and limitations separately.
@@ -143,7 +143,7 @@ call. A Task encountering an unresolved human decision MUST return the question,
 verified findings, partial changes, blocked work and any remaining processes.
 It MUST NOT assume a live parent answer or same-instance resumption.
 
-[Choosing the Route](https://github.com/axross/skills/blob/main/skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
+[Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
 owns question routing, including mechanism eligibility and fallback. This guide
 names no dedicated question mechanism for Amp and no channel more interruptive
 than the conversation; qualify a route from the session's actual tools,
@@ -201,7 +201,7 @@ permitted interruption mechanism. If no such mechanism exists, do not claim
 cancellation: keep conflicting work stopped, identify possible ongoing effects,
 and recover partial results. A late result remains tied to its original plan;
 audit any reusable material before adopting it under a newly approved plan.
-Loop's [writing and recovery contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/writer-ownership-and-recovery.md)
+Loop's [writing and recovery contract](../../skills/loop-engineering/references/writer-ownership-and-recovery.md)
 owns retries and approval invalidation, not the tool chosen to stop work.
 
 ## Wait for the right result
@@ -223,7 +223,7 @@ a normal long test or a command whose tool timeout merely elapsed. Service
 shutdown follows the service lifecycle, not process-pattern killing.
 
 The [migration safeguards](./loop-migration.md) retain the retry and round
-limits. Loop's [independent-review contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md)
+limits. Loop's [independent-review contract](../../skills/loop-engineering/references/independent-review.md)
 owns the waiting policy. In Amp, cleanup MUST use a permitted mechanism, or
 report the still-running process; reaching a Loop bound does not authorize
 `shell_command_kill` on an otherwise healthy process.
@@ -244,7 +244,7 @@ repeating a non-idempotent operation merely to recover output. If inspection
 cannot settle the outcome, keep it `outcome-unknown` and report the needed access.
 
 Recover the approval revision, attempts, pending result and remaining processes
-through Loop's [recovery contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/resuming-and-handoff.md).
+through Loop's [recovery contract](../../skills/loop-engineering/references/resuming-and-handoff.md).
 GitHub state storage and independent-review invocation remain in
 [GitHub Delivery](./github-delivery.md) and
 [code review operations](./code-review.md). A pre-flight or local specialist

@@ -77,4 +77,4 @@ terms follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
   workflow, against this repository's declared scenarios.
 
 For what this library is, how to install a skill, and its skill catalog, see
-[`README.md`](https://github.com/axross/skills/blob/main/README.md).
+[`README.md`](../README.md).

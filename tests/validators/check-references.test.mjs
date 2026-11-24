@@ -13,7 +13,7 @@ import { symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { tempDir, writeDocs } from "../helpers/fixtures.mjs";
+import { tempDir, writeDocs, writeFileIn } from "../helpers/fixtures.mjs";
 import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkReferences = validator(SCRIPTS.checkReferences);
@@ -329,6 +329,78 @@ describe("OKF navigation", () => {
     expect(validator(SCRIPTS.checkIndex)(docs)).toReportFailure(
       /unindexed: owner.md/,
     );
+  });
+
+  it("resolves checkout source links and heading fragments against the local files", async () => {
+    const root = await tempDir();
+    const docs = await writeDocs(root, {
+      "index.md": index + "[Sources](topics/sources.md)",
+      "topics/sources.md": [
+        "[Branch guide](../../skills/branch%20only.md#current-rule)",
+        "[Skill directory](../../skills/)",
+        "[Workflow](../../.github/workflows/check.yml)",
+      ].join("\n"),
+    });
+    await writeFileIn(root, "skills/branch only.md", "## Current rule");
+    await writeFileIn(root, ".github/workflows/check.yml", "name: check");
+    expect(checkReferences("--source-root", root, docs)).toPassCleanly();
+    expect(checkReferences(docs)).toReportFailure(/leaves the bundle/);
+
+    await writeFileIn(root, "skills/branch only.md", "## Former rule");
+    expect(checkReferences(docs, "--source-root", root)).toReportFailure(
+      /branch%20only.md#current-rule has no matching fragment/,
+    );
+  });
+
+  it("contains outward checkout links and rejects aliases that escape their boundary", async () => {
+    const parent = await tempDir();
+    const root = join(parent, "repo");
+    const docs = await writeDocs(root, {
+      "index.md":
+        index +
+        [
+          "[Out](../../other.md)",
+          "[Missing](../missing.md)",
+          "[Outside alias](../alias.md#other)",
+          "[Bundle alias](internal.md)",
+          "[Hidden bundle entry](.hidden.md)",
+          "[Bundle-root escape](/../source.md)",
+        ].join("\n"),
+      ".hidden.md": "# Hidden",
+    });
+    await writeFileIn(parent, "other.md", "# Other");
+    await writeFileIn(root, "source.md", "# Source");
+    await symlink("../other.md", join(root, "alias.md"));
+    await symlink("../source.md", join(docs, "internal.md"));
+    const result = checkReferences("--source-root", root, docs);
+    expect(result).toReportFailure(
+      /\.\.\/\.\.\/other.md leaves the source root/,
+    );
+    expect(result.stdout).toContain("../missing.md does not resolve");
+    expect(result.stdout).toContain("../alias.md#other leaves the source root");
+    expect(result.stdout).toContain("internal.md leaves the bundle");
+    expect(result.stdout).toContain(
+      ".hidden.md addresses a hidden bundle entry",
+    );
+    expect(result.stdout).toContain("/../source.md leaves the bundle");
+    expect(result.stdout).toContain("has 6 findings.");
+  });
+
+  it("keeps bundle-owned metadata inside the bundle in checkout mode", async () => {
+    const root = await tempDir();
+    const docs = await writeDocs(root, {
+      "index.md":
+        '---\nokf_version: "0.3"\nlicense: ../LICENSE\n---\n[Source](../LICENSE)',
+      "owner.md": "---\ntype: Specification\nresource: ../LICENSE\n---\n",
+    });
+    await writeFileIn(root, "LICENSE", "license terms");
+    const result = checkReferences(docs, "--source-root", root);
+    expect(result).toReportFailure(/license: index.md:3 .* leaves the bundle/);
+    expect(result.stdout).toContain("resource: owner.md:3");
+    expect(result.stdout).toContain("has 2 findings.");
+    expect(
+      checkReferences(docs, "--source-root", join(root, "LICENSE")),
+    ).toExitWith(2);
   });
 
   it("requires an external source URL for paths leaving the bundle", async () => {

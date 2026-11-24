@@ -328,7 +328,7 @@ mismatch — the drift check that catches a hand-edited derived file.
 This command reads two separate UTF-8 JSON inputs and writes one regenerable
 JSON report to stdout. It never changes the inputs, scans measurements, calls
 models or dispatches actors. Authors designing the comparison can use
-[the portable authoring practice](https://github.com/axross/skills/blob/main/skills/agent-skill-authoring/references/skill-adoption-evaluation.md).
+[the portable authoring practice](../../skills/agent-skill-authoring/references/skill-adoption-evaluation.md).
 
 Supply the frozen declaration independently of the observations; copying actual
 identities into an expected declaration after seeing results does not qualify an
@@ -421,7 +421,7 @@ null or `unknown` timing remain legal for non-invocation.
 not that the mutation occurred. A refusal without observed prevention cannot
 pass the invalid-edit control. Contradictory write observations are rejected.
 Unavailable acquisition is unsupported, not automatically a failed delivery.
-The [synthetic comparison fixtures](https://github.com/axross/skills/blob/main/tests/evaluation/helpers/treatment-fixture.mjs)
+The [synthetic comparison fixtures](../../tests/evaluation/helpers/treatment-fixture.mjs)
 show complete input construction and separated reasoning evidence; they are
 instrument controls, not executable natural tasks or host evidence.
 

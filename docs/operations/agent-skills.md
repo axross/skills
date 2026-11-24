@@ -10,11 +10,11 @@ Installing and refreshing a skill in this repository, checking discovery in
 Codex and Claude Code, and verifying active source and content in Amp.
 [Directory Structure](../conventions/directory-structure.md)
 covers where the source and the two installed roots live;
-[agent-skill-management](https://github.com/axross/skills/blob/main/skills/agent-skill-management/SKILL.md) covers
+[agent-skill-management](../../skills/agent-skill-management/SKILL.md) covers
 the general lifecycle and evidence model these host procedures apply.
 
 For an installed-rule finding or a bounded project exception, use management's
-[installed-rule change guidance](https://github.com/axross/skills/blob/main/skills/agent-skill-management/references/installed-rule-changes.md).
+[installed-rule change guidance](../../skills/agent-skill-management/references/installed-rule-changes.md).
 It distinguishes local conventions, approved deviations, and upstream proposals;
 this operation does not introduce a separate register or exception policy.
 
@@ -65,7 +65,7 @@ either half being missed on its own.
 
 ## Check discovery in Codex and Claude Code
 
-Apply [the management evidence model](https://github.com/axross/skills/blob/main/skills/agent-skill-management/references/active-loading.md)
+Apply [the management evidence model](../../skills/agent-skill-management/references/active-loading.md)
 using the current host's inspection route. Codex and Claude Code expose these
 discovery checks in a fresh session:
 
