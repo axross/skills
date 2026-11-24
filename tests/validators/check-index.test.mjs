@@ -18,6 +18,18 @@ import { repoPath, runScript, SCRIPTS, validator } from "../helpers/run.mjs";
 const checkIndex = validator(SCRIPTS.checkIndex);
 
 describe("check-index.mjs", () => {
+  it("checks hidden Markdown in legacy trees without using it to opt into OKF", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": "[Linked note](./.linked.md)",
+      ".linked.md": "---\ntype: Private note\n---\n",
+      ".draft/notes.md": "[Missing](gone.md)",
+    });
+    expect(checkIndex(docs)).toReportFailure(/unindexed: \.draft\/notes.md/);
+    expect(validator(SCRIPTS.checkReferences)(docs)).toReportFailure(
+      /\.draft\/notes.md:1 → gone.md does not resolve/,
+    );
+  });
+
   it("exits 0 when every document is listed", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",

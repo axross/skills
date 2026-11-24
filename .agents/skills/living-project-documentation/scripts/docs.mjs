@@ -65,12 +65,18 @@ function readLegacy(text) {
   return { headings, links };
 }
 
-async function listDocuments(dir) {
+async function listDocuments(dir, deferred) {
   const files = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (entry.name.startsWith(".")) continue;
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...(await listDocuments(path)));
+    if (deferred && entry.name.startsWith(".")) {
+      if (entry.isDirectory()) deferred.directories.push(path);
+      else if (entry.isFile() && path.endsWith(".md"))
+        deferred.files.push(path);
+      continue;
+    }
+    if (entry.isDirectory())
+      files.push(...(await listDocuments(path, deferred)));
     else if (entry.isFile() && path.endsWith(".md")) files.push(path);
   }
   return files;
@@ -123,13 +129,17 @@ export async function loadDocs(dir) {
     return null;
   const root = await realpath(dir);
   const indexPath = join(root, "index.md");
-  const documents = await Promise.all(
-    (await listDocuments(root)).sort().map(async (path) => ({
-      path,
-      relative: relative(root, path).split(sep).join("/"),
-      text: (await readFile(path, "utf8")).replace(/^\uFEFF/, ""),
-    })),
-  );
+  const deferred = { directories: [], files: [] };
+  async function readDocuments(paths) {
+    return Promise.all(
+      paths.sort().map(async (path) => ({
+        path,
+        relative: relative(root, path).split(sep).join("/"),
+        text: (await readFile(path, "utf8")).replace(/^\uFEFF/, ""),
+      })),
+    );
+  }
+  const documents = await readDocuments(await listDocuments(root, deferred));
   const byPath = new Map(documents.map((doc) => [doc.path, doc]));
   const index = byPath.get(indexPath) ?? byPath.get(await realpath(indexPath));
   if (!index)
@@ -160,6 +170,14 @@ export async function loadDocs(dir) {
     ),
   );
   if (!okf) {
+    // Legacy inventory includes hidden Markdown. OKF excludes hidden entries
+    // entirely, so only descend into the deferred directories in legacy mode.
+    for (const dir of deferred.directories)
+      deferred.files.push(...(await listDocuments(dir)));
+    for (const doc of await readDocuments(deferred.files)) {
+      documents.push(doc);
+      byPath.set(doc.path, doc);
+    }
     for (const doc of documents) Object.assign(doc, readLegacy(doc.text));
   }
   return { root, documents, byPath, index, okf };
