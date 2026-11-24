@@ -33,6 +33,7 @@ See [channel-selection.md](./references/channel-selection.md) for:
 - dedicated-command absence versus authenticated CLI API capability
 - distinguishing a missing operation from a transient invocation failure
 - the consequence-based default-deny boundary for raw REST and GraphQL
+- bounded new inline-finding and advisory COMMENT publication, including ordinary notifications versus additional effects
 - bounded disposition-reply and addressed-thread resolution exceptions, including inherent notifications and material downstream effects
 - attaching an image or video through the authenticated CLI's `--attach` when the sanctioned channel has no upload, and when that is unavailable instead
 
@@ -64,6 +65,8 @@ See [publication-and-recovery.md](./references/publication-and-recovery.md) for:
 - keeping a secret, token, credential, or internal hostname out of a composed body, comment, title, review, or commit message
 - authorization for the particular write, separate from drafting or plan approval
 - read-back, partial failure, and lost-response recovery without duplicate writes, including a non-zero exit after `--attach`
+- verifying new review/comment content and snapshot/diff associations
+- distinguishing submitted advisory reviews from pending drafts
 - verifying disposition replies and conversation closure as separate effects
 - the agent's own draft-to-ready transition where the project's change-loop practices define a ready gate
 - COMMENT-type reviews, API-authored pull requests, and append-only branch history
