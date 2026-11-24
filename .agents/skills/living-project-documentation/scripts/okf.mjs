@@ -1,21 +1,22 @@
 import MarkdownIt from "markdown-it";
 import footnote from "markdown-it-footnote";
+import parseLicense from "spdx-expression-parse";
 import { parseFragment } from "parse5";
 import { parseDocument, isAlias, isMap, LineCounter } from "yaml";
 
 const markdown = new MarkdownIt({ html: true }).use(footnote);
 const external = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
-// OKF §6.2 defines these fields independently of a project's type vocabulary.
-// Keep their paths distinct from index entries and from links in Markdown.
-function readPathFields(meta, syntax, lineCounter) {
+/** collect concept path fields and the root license file with their YAML use sites. */
+function readPathFields(meta, syntax, lineCounter, rootIndex) {
   const links = [];
+  /** retain local path fields separately from links that an index can use for navigation. */
   function add(keys, target) {
     if (typeof target !== "string" || !target || external.test(target)) return;
     // §5.1 also permits a human-readable population descriptor here.
-    // Spaces in a URI reference must be percent-encoded.
+    // spaces in a URI reference must be percent-encoded.
     if (keys[0] === "sources" && /\s/.test(target)) return;
-    // Report the field's use site, including an alias of an entire source list.
+    // an alias of an entire source list has one use site for all its paths.
     let node = syntax;
     for (const key of keys) {
       if (isAlias(node)) break;
@@ -26,6 +27,15 @@ function readPathFields(meta, syntax, lineCounter) {
     const line = 1 + lineCounter.linePos(node.range[0]).line;
     links.push({ target, line, field: keys.join(".") });
   }
+  const license = meta.get("license");
+  if (rootIndex && typeof license === "string") {
+    try {
+      parseLicense(license);
+    } catch {
+      add(["license"], license);
+    }
+  }
+  if (!meta.has("type")) return links;
   for (const key of ["resource", "computation", "superseded_by"])
     add([key], meta.get(key));
   for (const key of ["executor", "attester"])
@@ -41,8 +51,10 @@ function readPathFields(meta, syntax, lineCounter) {
   return links;
 }
 
-// Parse the rendered document once. Only active elements originating in the
-// author's Markdown or HTML contribute links; generated footnotes still define IDs.
+/**
+ * collect rendered anchors, including generated footnotes, and map active
+ * authored links back to their Markdown or HTML source lines.
+ */
 function collectNavigation(tokens, env, fragments, anchors, links) {
   const sources = new Map();
   let shift = 0;
@@ -82,8 +94,11 @@ function collectNavigation(tokens, env, fragments, anchors, links) {
   }
 }
 
-export function readMarkdown(text) {
-  // Parse the header separately so Markdown line numbers include the frontmatter.
+/**
+ * read OKF metadata, navigation targets and anchor IDs from one Markdown page.
+ * malformed frontmatter is returned as a diagnostic alongside the rendered body.
+ */
+export function readMarkdown(text, rootIndex = false) {
   const header = text.match(/^---\r?\n([\s\S]*?)^---\r?$(?:\n|$)/m);
   let meta, metadataError;
   let links = [];
@@ -97,8 +112,7 @@ export function readMarkdown(text) {
     if (isMap(yaml.contents) && !metadataError) {
       try {
         meta = yaml.toJS({ mapAsMap: true, maxAliasCount: 100 });
-        if (meta.has("type"))
-          links = readPathFields(meta, yaml.contents, lineCounter);
+        links = readPathFields(meta, yaml.contents, lineCounter, rootIndex);
       } catch (error) {
         metadataError = error.message;
       }
@@ -134,16 +148,16 @@ export function readMarkdown(text) {
       while (anchors.has(anchor)) anchor = base + "-" + ++suffix;
       anchors.add(anchor);
     }
-    // Markdown-it maps table rows to source lines but omits maps on their cells.
+    // markdown-it maps table rows to source lines but omits maps on their cells.
     if (token.type === "tr_open") tableRowStart = token.map[0];
     if (token.type === "tr_close") tableRowStart = undefined;
     let line = offset + (token.map?.[0] ?? tableRowStart ?? 0) + 1;
     for (const child of token.children ?? [token]) {
       const html = child.type === "html_inline" || child.type === "html_block";
       if (html || child.type === "link_open" || child.type === "image") {
-        // Each placeholder stands for one unmodified source tag/block or the
-        // exact tag Markdown-it would render for this link/image. Input NULs
-        // are normalized by Markdown-it, so authors cannot forge a marker.
+        // each placeholder stands for one unmodified source tag/block or the
+        // exact tag markdown-it would render for this link/image. input NULs
+        // are normalized by markdown-it, so authors cannot forge a marker.
         const content = html
           ? child.content
           : markdown.renderer.renderInline([child], markdown.options, env);

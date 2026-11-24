@@ -10,6 +10,10 @@ exact untyped evidence paths. Each evidence exception prints a warning.
 Exit codes: 0 pass or no index, 1 findings, 2 bad invocation or read error.
 ${siblingHelp(selfName(import.meta.url))}`;
 
+/**
+ * follow index routes and include named evidence cited by reachable companions.
+ * @throws on unexpected filesystem errors while resolving a route.
+ */
 async function reachable(docs, evidence) {
   const reached = new Set([docs.index.path]);
   const pending = [docs.index];
@@ -23,7 +27,7 @@ async function reachable(docs, evidence) {
       if (docs.okf && basename(doc.path) === "index.md") pending.push(doc);
     }
   }
-  // A named source is discoverable through its indexed companion.
+  // a named source is discoverable through its indexed companion.
   if (docs.okf && evidence.size) {
     for (const page of docs.documents) {
       if (!reached.has(page.path) || !page.meta?.has("type")) continue;
@@ -42,6 +46,10 @@ async function reachable(docs, evidence) {
   return reached;
 }
 
+/**
+ * report unreachable pages and metadata findings, consuming exact evidence exceptions.
+ * @throws if the bundle's navigation cannot be inspected.
+ */
 async function run(docs, evidence) {
   const reached = await reachable(docs, evidence);
   const findings = [];

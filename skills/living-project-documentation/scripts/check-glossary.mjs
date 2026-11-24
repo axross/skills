@@ -26,6 +26,7 @@ Exit codes: 0 every spec has a heading, or the project has no docs, or no specs/
             1 findings. 2 bad invocation.
 ${siblingHelp(selfName(import.meta.url))}`;
 
+/** report legacy domains missing their single glossary heading. */
 function run(docs) {
   if (docs.okf) return [];
   const specs = docs.documents.filter((doc) =>

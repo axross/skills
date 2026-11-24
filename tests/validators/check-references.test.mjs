@@ -164,6 +164,24 @@ describe("OKF navigation", () => {
     expect(result.stdout).toContain("has 1 finding.");
   });
 
+  it.each([
+    ["MIT", true],
+    ["(MIT OR Apache-2.0) AND BSD-3-Clause", true],
+    ["./legal/license.txt", true],
+    ["./legal/missing.txt", false],
+    ["LICENSE-NOT-FOUND.txt", false],
+    ["./legal", false],
+  ])("checks root license %s in an OKF bundle", async (license, valid) => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": `---\nlicense: '${license}'\n---\n[Owner](owner.md)`,
+      "owner.md": "---\ntype: Definition\nlicense: ./concept-extension\n---\n# Owner",
+      "legal/license.txt": "license terms",
+    });
+    const result = checkReferences(docs);
+    if (valid) expect(result).toPassCleanly();
+    else expect(result).toReportFailure(/license: index.md:2/);
+  });
+
   it("reads links inside footnotes and checks singleton source mappings", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": index + "[Owner](owner.md)",
@@ -304,7 +322,7 @@ describe("OKF navigation", () => {
       "index.md:5 → ./markdown.md does not resolve",
     );
     expect(result.stdout).toContain("has 3 findings.");
-    // Rendered HTML is checked for readers; OKF index entries still use Markdown links.
+    // rendered HTML is checked for readers; OKF index entries still use Markdown links.
     expect(validator(SCRIPTS.checkIndex)(docs)).toReportFailure(
       /unindexed: owner.md/,
     );

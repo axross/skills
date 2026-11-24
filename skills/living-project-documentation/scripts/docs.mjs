@@ -1,4 +1,4 @@
-// Shared CLI, frontmatter and Markdown reader for the three docs checks.
+/** shared CLI and document inventory for the three documentation checks. */
 import { readdir, readFile, realpath, stat } from "node:fs/promises";
 import {
   basename,
@@ -15,6 +15,7 @@ const validators = [
   ["check-glossary.mjs", "legacy spec/glossary pairing"],
 ];
 
+/** list the other checks available from the same standalone installation. */
 export function siblingHelp(self) {
   return (
     "\nRelated checks:\n" +
@@ -29,6 +30,7 @@ export function selfName(url) {
   return basename(new URL(url).pathname);
 }
 
+/** normalize a legacy domain heading for comparison with its spec filename. */
 export function slug(value) {
   return value
     .toLowerCase()
@@ -36,8 +38,7 @@ export function slug(value) {
     .replace(/^-+|-+$/g, "");
 }
 
-// Preserve the dependency-free legacy contract: inline destinations and ATX
-// level-two glossary headings. Rich text, YAML and fragments belong to OKF.
+/** extract inline destinations and ATX level-two headings without parser dependencies. */
 function readLegacy(text) {
   const headings = [],
     links = [];
@@ -65,6 +66,10 @@ function readLegacy(text) {
   return { headings, links };
 }
 
+/**
+ * collect Markdown files, optionally deferring hidden entries until the format is known.
+ * @throws if a directory cannot be read.
+ */
 async function listDocuments(dir, deferred) {
   const files = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -82,8 +87,7 @@ async function listDocuments(dir, deferred) {
   return files;
 }
 
-// Fallback for malformed headers and standalone legacy installs without a YAML
-// parser. When available, the YAML parser decides the format of valid headers.
+/** recognize top-level OKF keys when header parsing fails or YAML is unavailable. */
 function hasOkfMarker(text, rootIndex) {
   if (!/^---[ \t]*\r?\n/.test(text)) return false;
   const header = text.split(/^---[ \t]*\r?$/m, 3)[1] ?? "";
@@ -105,8 +109,8 @@ function hasOkfMarker(text, rootIndex) {
             explicitKey.test(line.slice(first[1].length))),
       );
 
-  // At depth one, only the text after the opening brace or a comma can be
-  // the next root key. Skip quoted scalars and comments as whole tokens.
+  // at depth one, only the text after the opening brace or a comma can be
+  // the next root key. skip quoted scalars and comments as whole tokens.
   let depth = 0;
   for (const token of content.matchAll(
     /"(?:\\[\s\S]|[^"\\])*"|'(?:''|[^'])*'|(?:^|\s)#[^\n]*|[{},\[\]]/gm,
@@ -124,12 +128,21 @@ function hasOkfMarker(text, rootIndex) {
   return false;
 }
 
+/**
+ * return the parsed OKF or legacy inventory, or null when no root index is available.
+ * @throws if bundle contents cannot be read, the index is outside the inventory,
+ * or a recognized OKF bundle cannot load its parsers.
+ */
 export async function loadDocs(dir) {
   if (!(await stat(join(dir, "index.md")).catch(() => null))?.isFile())
     return null;
   const root = await realpath(dir);
   const indexPath = join(root, "index.md");
   const deferred = { directories: [], files: [] };
+  /**
+   * read pages in stable order with bundle-relative names for diagnostics.
+   * @throws if an inventoried file cannot be read.
+   */
   async function readDocuments(paths) {
     return Promise.all(
       paths.sort().map(async (path) => ({
@@ -159,7 +172,7 @@ export async function loadDocs(dir) {
     }
   }
   if (readMarkdown) {
-    for (const doc of documents) Object.assign(doc, readMarkdown(doc.text));
+    for (const doc of documents) Object.assign(doc, readMarkdown(doc.text, doc === index));
   }
   const okf = Boolean(
     index.meta?.has("okf_version") ||
@@ -170,7 +183,7 @@ export async function loadDocs(dir) {
     ),
   );
   if (!okf) {
-    // Legacy inventory includes hidden Markdown. OKF excludes hidden entries
+    // legacy inventory includes hidden Markdown. OKF excludes hidden entries
     // entirely, so only descend into the deferred directories in legacy mode.
     for (const dir of deferred.directories)
       deferred.files.push(...(await listDocuments(dir)));
@@ -183,7 +196,11 @@ export async function loadDocs(dir) {
   return { root, documents, byPath, index, okf };
 }
 
-// Refuse escaping paths before consulting the filesystem in OKF mode.
+/**
+ * resolve a local destination against its page, enforcing the visible OKF bundle boundary.
+ * return an error for broken destinations and include the document for Markdown targets.
+ * @throws on unexpected filesystem errors such as permission failures.
+ */
 export async function resolveLink(docs, doc, target) {
   const hash = target.indexOf("#");
   const rawPath = (hash < 0 ? target : target.slice(0, hash)).split("?")[0];
@@ -226,6 +243,7 @@ function hiddenEntry(part) {
   return part.startsWith(".") && part !== "." && part !== "..";
 }
 
+/** return a diagnostic for paths outside the visible bundle, including resolved aliases. */
 export function bundlePathError(root, path) {
   const diff = relative(root, path);
   if (diff === ".." || diff.startsWith(".." + sep) || isAbsolute(diff))
@@ -234,6 +252,7 @@ export function bundlePathError(root, path) {
     return "addresses a hidden bundle entry";
 }
 
+/** run one documentation check and return its CLI status for success, findings or failure. */
 export async function main({ usage, allowEvidence = false, run, pass }) {
   const argv = process.argv.slice(2);
   if (argv.includes("--help") || argv.includes("-h")) {

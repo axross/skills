@@ -157,7 +157,7 @@ export const GATES = [
     passes: /Every relative link resolves across [1-9]\d* documents\./,
   },
   {
-    // This repository uses OKF. The legacy pairing contract is still
+    // this repository uses OKF. the legacy pairing contract is still
     // exercised by the planted corpus in gate-teeth.test.mjs.
     name: "corpus-glossary",
     script: SCRIPTS.checkGlossary,

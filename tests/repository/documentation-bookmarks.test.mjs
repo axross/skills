@@ -28,7 +28,7 @@ it.each([
   async (source, bookmarks) => {
     const bundle = join(await tempDir(), "bundle");
     await cp(repoPath(source), bundle, { recursive: true });
-    // A consumer can still hold these URLs even when the bundle no longer links to them.
+    // a consumer can still hold these URLs even when the bundle no longer links to them.
     await writeFile(
       join(bundle, "reader.md"),
       bookmarks.map((url) => `[Bookmark](${url})`).join("\n\n"),

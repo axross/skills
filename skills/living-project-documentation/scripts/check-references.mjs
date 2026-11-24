@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { stat } from "node:fs/promises";
 import { main, resolveLink, selfName, siblingHelp } from "./docs.mjs";
 
 const usage = `Usage: ${selfName(import.meta.url)} [<docs-dir>]
@@ -8,6 +9,10 @@ heading fragments and resolve / from the bundle root. External sources need URLs
 Exit codes: 0 pass or no index, 1 findings, 2 bad invocation or read error.
 ${siblingHelp(selfName(import.meta.url))}`;
 
+/**
+ * report unresolved local destinations with their source line and field.
+ * @throws if a destination cannot be inspected due to a filesystem error.
+ */
 async function run(docs) {
   const findings = [];
 
@@ -18,6 +23,8 @@ async function run(docs) {
         doc,
         target,
       );
+      if (!error && field === "license" && !(await stat(path)).isFile())
+        error = "does not resolve to a license file";
       if (
         !error &&
         docs.okf &&
