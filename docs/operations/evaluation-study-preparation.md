@@ -222,9 +222,38 @@ A separately approved live plan must freeze the following before execution:
 - Independent scorer definition, evidence slots, opportunities and stopping points.
 - Repetitions, cost/effect limits, execution authorization and evidence destination.
 
-For the axross/skills project-entry study, use disposable checkouts of the
-repository with its entry and dependencies intact. Stage the same narrow
-tracker item and README setup text for the named-issue request in each arm.
+For the axross/skills project-entry study, build each actor's disposable Git
+repository from an explicit list of trial files. Start with an empty object
+store and commit only the selected material. Preserve the entry revision under
+test, its normal guidance and dependencies, the installed skill catalog, and
+the README content named in the request. Omit this preparation page, the
+scorer, expected answers and links to them, including those in the trial's
+docs index and evaluation dispatch guide. Apply the same exclusions to each
+arm. Keep the evaluator's checkout and evidence outside every actor-readable
+workspace, including the parent start directory.
+
+Give the actor a fixture-only remote and tracker. Preserve the ordinary issue,
+canonical plan bytes, human approval, pending phase, grant provenance and
+history that its control requires, including required default-branch evidence
+for a standing grant. When the control requires a human decision, use a
+genuine decision for the trial target. Preserve absent or expired evidence
+where the control calls for it. Keep evaluator issues, comments and control
+labels in the separate scoring material.
+
+Use the permissions planned for the trial to check both views before dispatch.
+
+1. From the actor's view, follow the normal entry and skill routes and recover
+   the designated tracker evidence. Inspect the files, links, Git refs and
+   objects (including unreachable objects), alternates, configured remotes and
+   accessible tracker history for scorer material. The actor's fetch routes
+   must serve only fixture history.
+2. From the scorer's view, verify the frozen rubric, expected outcomes and
+   evidence locators. Compare actor manifests and tracker inputs across arms,
+   allowing only the declared treatment or control difference. Record gaps or
+   exposure before dispatch and rebuild an affected fixture. These checks
+   cover the supplied environment. Record any access to public sources or
+   prior exposure separately when assessing the trial.
+
 Compare fresh parent-directory and checkout-root starts on one entry revision.
 Then compare old and revised entries at the same start. Freeze the launch
 request (including any explicit checkout instruction),
