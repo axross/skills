@@ -14,7 +14,7 @@ unadopted directory alone. Run all three when migrating a tree.
 | Command                | Question                                                                                                                                 |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `check-index.mjs`      | Can a reader reach every page from the root index? An OKF route may pass through nested indexes. The legacy layout lists pages directly. |
-| `check-references.mjs` | Does each checked local link resolve? Check a moved heading and its callers after extraction.                                            |
+| `check-references.mjs` | Do local Markdown links, fragments and OKF path fields resolve? Check references to a moved heading, including source metadata.          |
 | `check-glossary.mjs`   | Does each legacy flat spec have a matching glossary heading? OKF type names do not imply a glossary pairing.                             |
 
 The checks recognize an OKF bundle from the root version declaration or typed
@@ -29,7 +29,8 @@ node "$skill_dir/scripts/check-glossary.mjs" docs
 ```
 
 Repeat `--evidence` for each such file. Review the warning against the original
-bytes and its companion concept. A named exception must leave all unrelated
+bytes and its companion concept. The companion can cite the source in its body
+or in a local `sources[].resource` field. A named exception must leave all unrelated
 findings visible.
 
 ## Check the export independently

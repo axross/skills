@@ -234,9 +234,11 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty<!--
   component as one of the two to read for how it is done — an accepted limit
   recorded at this scenario's plan gate rather than found in review.
 
-- `separate-locale-matching-from-deployment` exercises the migration of a partly
-  typed documentation bundle. The reader must find locale matching behavior and
-  deployment instructions independently and follow the original entry points.
+- In the [scenario source directory](https://github.com/axross/skills/tree/main/tools/evaluation/scenarios),
+  `separate-locale-matching-from-deployment/scenario.json` targets
+  `living-project-documentation` against `tsuzuri`. Readers follow the original
+  bookmark to the extracted language-selection contract. Operators still find
+  the rollback action beside the reason a redeploy suffices.
 
 Thirteen scenarios inspect transcripts. Of their nineteen transcript factors, ten
 use script judgments and nine use reasoning judgments. The remaining scenarios

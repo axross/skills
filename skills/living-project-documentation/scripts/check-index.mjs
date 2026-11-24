@@ -16,7 +16,7 @@ function reachable(docs, evidence) {
   while (pending.length) {
     const index = pending.pop();
     for (const link of index.links) {
-      if (link.image) continue;
+      if (link.image || link.field) continue;
       const { path } = resolveLink(docs, index, link.target);
       if (!path) continue;
       let doc = docs.byPath.get(path);
@@ -31,7 +31,8 @@ function reachable(docs, evidence) {
     for (const page of docs.documents) {
       if (!reached.has(page.path) || !page.meta?.has("type")) continue;
       for (const link of page.links) {
-        if (link.image) continue;
+        if (link.image || (link.field && !link.field.startsWith("sources.")))
+          continue;
         const source = docs.byPath.get(
           resolveLink(docs, page, link.target).path,
         );

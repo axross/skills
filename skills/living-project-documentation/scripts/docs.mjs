@@ -76,6 +76,43 @@ async function listDocuments(dir) {
   return files;
 }
 
+// Detect ordinary top-level OKF keys before loading the optional parsers. Indented
+// block values and nested flow mappings can have their own unrelated "type".
+function hasOkfMarker(text, rootIndex) {
+  if (!/^---[ \t]*\r?\n/.test(text)) return false;
+  const header = text.split(/^---[ \t]*\r?$/m, 3)[1] ?? "";
+  const content = header.replace(/^\s*#[^\n]*$/gm, "");
+  const first = content.match(/^([ ]*)(\S.*)$/m);
+  if (!first) return false;
+  const key = rootIndex ? "(?:type|okf_version)" : "type";
+  const marker = new RegExp(`^(?:"${key}"|'${key}'|${key})[ \\t]*:`);
+  if (!first[2].startsWith("{"))
+    return content
+      .split("\n")
+      .some(
+        (line) =>
+          line.startsWith(first[1]) && marker.test(line.slice(first[1].length)),
+      );
+
+  // At depth one, only the text after the opening brace or a comma can be
+  // the next root key. Skip quoted scalars and comments as whole tokens.
+  let depth = 0;
+  for (const token of content.matchAll(
+    /"(?:\\[\s\S]|[^"\\])*"|'(?:''|[^'])*'|(?:^|\s)#[^\n]*|[{},\[\]]/gm,
+  )) {
+    const part = token[0];
+    if (part === "{" || part === "[") depth++;
+    if (depth === 1 && (part === "{" || part === ",")) {
+      const tail = content
+        .slice(token.index + 1)
+        .replace(/^(?:\s|#[^\n]*\n)*/, "");
+      if (marker.test(tail)) return true;
+    }
+    if (part === "}" || part === "]") depth--;
+  }
+  return false;
+}
+
 export async function loadDocs(dir) {
   const root = resolve(dir);
   const indexPath = join(root, "index.md");
@@ -89,11 +126,9 @@ export async function loadDocs(dir) {
   );
   // Only an initial YAML block can select OKF. Legacy trees still run from
   // a copied skill with Node alone, including --help and the no-index opt-out.
-  const candidate = documents.some(({ text }) => {
-    if (!/^---[ \t]*\r?\n/.test(text)) return false;
-    const header = text.split(/^---[ \t]*\r?$/m, 3)[1] ?? "";
-    return /(?:^|[,{\s])["']?(?:okf_version|type)["']?\s*:/m.test(header);
-  });
+  const candidate = documents.some((doc) =>
+    hasOkfMarker(doc.text, doc.path === indexPath),
+  );
   let reader = readLegacy;
   if (candidate) {
     try {
@@ -110,7 +145,11 @@ export async function loadDocs(dir) {
   const index = byPath.get(indexPath);
   const okf =
     index.meta?.has("okf_version") ||
-    documents.some((doc) => doc.meta?.has("type"));
+    documents.some(
+      (doc) =>
+        doc.meta?.has("type") ||
+        (doc.metadataError && hasOkfMarker(doc.text, doc.path === indexPath)),
+    );
   return { root, documents, byPath, index, okf };
 }
 

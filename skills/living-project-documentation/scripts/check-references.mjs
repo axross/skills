@@ -11,7 +11,7 @@ import {
 
 const usage = `Usage: ${selfName(import.meta.url)} [<docs-dir>]
 
-Check relative Markdown links and images. In an OKF bundle, check Markdown
+Check relative links in Markdown, images and OKF path fields. In an OKF bundle, check Markdown
 heading fragments and resolve / from the bundle root. External sources need URLs.
 Exit codes: 0 pass or no index, 1 findings, 2 bad invocation or read error.
 ${siblingHelp(selfName(import.meta.url))}`;
@@ -21,7 +21,7 @@ async function run(docs) {
 
   const root = await realpath(docs.root);
   for (const doc of docs.documents) {
-    for (const { target, line } of doc.links) {
+    for (const { target, line, field } of doc.links) {
       const resolved = resolveLink(docs, doc, target);
       let { path, fragment, error } = resolved;
       if (!error) {
@@ -46,7 +46,7 @@ async function run(docs) {
       }
       if (error)
         findings.push({
-          category: "link",
+          category: field ?? "link",
           message: `${doc.relative}:${line} → ${target} ${error}`,
         });
     }

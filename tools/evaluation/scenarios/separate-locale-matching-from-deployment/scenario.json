@@ -29,7 +29,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Require the rollback procedure to keep the previous build and the build-local post catalog/no database rollback rationale together. The unchanged context in the diff can establish this. Reject a generic link that requires a second concept to determine whether a database rollback is needed."
+        "instructions": "The fixture starts with this paragraph under \"Rolling back\" in docs/deployment.md:\n\nRedeploy the previous commit's build. There is no database to migrate back —\nthe post catalog and everything else the app reads live in the build itself —\nso a rollback here is just a redeploy.\n\nApply the supplied diff to that baseline, including moves and deletions. Lines outside a diff hunk retain their original content. Assess the resulting operator procedure: the previous build and the build-local catalog/no database rollback rationale must remain together at the point of action. Accept equivalent wording. Fail if the procedure sends the operator to another page to determine whether a database rollback is needed."
       }
     },
     {

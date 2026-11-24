@@ -8,10 +8,12 @@
 // directory holding something else entirely, and it is the one a refactor of the
 // docs loader would break without any other assertion noticing.
 
+import { cp } from "node:fs/promises";
+import { dirname, join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeDocs } from "../helpers/fixtures.mjs";
-import { SCRIPTS, validator } from "../helpers/run.mjs";
+import { repoPath, runScript, SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkIndex = validator(SCRIPTS.checkIndex);
 
@@ -81,6 +83,63 @@ describe("check-index.mjs", () => {
 describe("OKF bundle inventory", () => {
   const index = '---\nokf_version: "0.3"\n---\n\n';
   const page = "---\ntype: Service Registry\n---\n\n";
+
+  it("keeps nested legacy type metadata dependency-free in an isolated skill copy", async () => {
+    const dir = await tempDir();
+    const scripts = join(dir, "scripts");
+    await cp(dirname(repoPath(SCRIPTS.checkIndex)), scripts, {
+      recursive: true,
+      filter: (path) => !path.endsWith("node_modules"),
+    });
+    const docs = await writeDocs(dir, {
+      "index.md": "---\nsidebar: { type: generated }\n---\n[Guide](guide.md)",
+      "guide.md":
+        "---\n{ sidebar: { type: generated }, title: 'example, type: value' }\n---\n",
+    });
+    for (const script of ["check-index.mjs", "check-references.mjs"])
+      expect(
+        runScript(relative(repoPath(), join(scripts, script)), [docs]),
+      ).toPassCleanly();
+  });
+
+  it("recognizes root flow keys after a nested mapping", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        '---\n{ sidebar: {type: generated}, "okf_version": "0.3" }\n---\n[A](a.md)',
+      "a.md": "# Missing type",
+    });
+    expect(checkIndex(docs)).toReportFailure(/type: a.md/);
+  });
+
+  it("retains a malformed root version declaration as evidence of OKF intent", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": '---\nokf_version: "0.3"\n[A](a.md)',
+      "a.md": "# Missing type",
+    });
+    const result = checkIndex(docs);
+    expect(result).toReportFailure(/frontmatter: index.md/);
+    expect(result.stdout).toContain("type: a.md");
+  });
+
+  it("flags a malformed concept in a bundle without a root version", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": "[Owner](owner.md)",
+      "owner.md": "---\ntype: Specification\n",
+    });
+    expect(checkIndex(docs)).toReportFailure(/frontmatter: owner.md/);
+  });
+
+  it("reaches named evidence through its companion's sources metadata", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](topics/owner.md)",
+      "topics/owner.md":
+        "---\ntype: Definition\nsources: [{resource: ../evidence/raw.md}]\n---\n",
+      "evidence/raw.md": "original",
+    });
+    const result = checkIndex("--evidence", "evidence/raw.md", docs);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("WARN  evidence/raw.md");
+  });
 
   it("walks index routes from the root, terminating cycles and skipping hidden paths", async () => {
     const docs = await writeDocs(await tempDir(), {

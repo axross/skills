@@ -114,6 +114,35 @@ describe("OKF navigation", () => {
     expect(result.stdout).toMatch(/has 1 finding\./);
   });
 
+  it("checks local OKF path fields and identifies their original lines", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "# Home",
+      "topics/owner.md": [
+        "---",
+        "type: Attested Computation",
+        "resource: ../index.md#home",
+        "sources:",
+        "  - resource: /index.md#absent",
+        "  - resource: all queries in BigQuery project X",
+        "  - resource: https://example.invalid/source",
+        "computation: ./calc.sql",
+        "executor: {resource: ../worker.sh}",
+        "attester: {resource: /verify.sh}",
+        "superseded_by: /moved.md",
+        "---",
+      ].join("\n"),
+      "topics/calc.sql": "",
+      "worker.sh": "",
+      "verify.sh": "",
+      "moved.md": "",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /sources.0.resource: topics\/owner.md:5 → \/index.md#absent has no matching fragment/,
+    );
+    expect(result.stdout).toContain("has 1 finding.");
+  });
+
   it("requires an external source URL for paths leaving the bundle", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": index + "[Source](../README.md)",
