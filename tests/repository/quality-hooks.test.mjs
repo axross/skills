@@ -107,11 +107,18 @@ describe("registered SessionStart commands", () => {
       const base = await tempDir();
       const root = join(base, "project with spaces");
       const config = JSON.parse(await readFile(repoPath(settings), "utf8"));
+      const script = ".claude/hooks/session-start.sh";
       const commands = config.hooks.SessionStart.flatMap(
         (group) => group.hooks,
+      ).filter(
+        ({ type, command }) => type === "command" && command.includes(script),
       );
-      expect(commands).toHaveLength(2);
-      const script = ".claude/hooks/session-start.sh";
+      const isReminder = ({ command }) =>
+        command.split(/\s+/).includes("--remind");
+      const reminders = commands.filter(isReminder);
+      const bootstraps = commands.filter((hook) => !isReminder(hook));
+      expect(reminders).toHaveLength(1);
+      expect(bootstraps).toHaveLength(1);
       await mkdir(join(root, ".claude/hooks"), { recursive: true });
       await copyFile(repoPath(script), join(root, script));
       git(root, "init");
@@ -147,7 +154,7 @@ describe("registered SessionStart commands", () => {
         return result;
       };
 
-      const reminder = run(commands[0]);
+      const reminder = run(reminders[0]);
       expect(reminder.status, reminder.stderr).toBe(0);
       if (optedIn) {
         expect(reminder.stdout).toMatch(
@@ -159,7 +166,7 @@ describe("registered SessionStart commands", () => {
       expect(await readFile(installLog, "utf8")).toBe("");
       await expect(lstat(localEnv)).rejects.toMatchObject({ code: "ENOENT" });
 
-      const bootstrap = run(commands[1]);
+      const bootstrap = run(bootstraps[0]);
       expect(bootstrap.status, bootstrap.stderr).toBe(
         optedIn ? installExit : 0,
       );
