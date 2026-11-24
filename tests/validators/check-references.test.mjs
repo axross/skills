@@ -143,6 +143,20 @@ describe("OKF navigation", () => {
     expect(result.stdout).toContain("has 1 finding.");
   });
 
+  it("reads links inside footnotes and checks singleton source mappings", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](owner.md)",
+      "owner.md":
+        "---\ntype: Definition\nsources: {resource: './index.md#absent'}\n---\nClaim.[^src]\n\n[^src]: [Owner](./owner.md) and [Missing](./missing.md)",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /sources.resource: owner.md:3 → .*#absent has no matching fragment/,
+    );
+    expect(result.stdout).toContain("./missing.md does not resolve");
+    expect(result.stdout).toContain("has 2 findings.");
+  });
+
   it("requires an external source URL for paths leaving the bundle", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": index + "[Source](../README.md)",

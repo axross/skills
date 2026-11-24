@@ -121,7 +121,7 @@ export async function loadDocs(dir) {
     (await listDocuments(root)).sort().map(async (path) => ({
       path,
       relative: relative(root, path).split(sep).join("/"),
-      text: await readFile(path, "utf8"),
+      text: (await readFile(path, "utf8")).replace(/^\uFEFF/, ""),
     })),
   );
   // Only an initial YAML block can select OKF. Legacy trees still run from

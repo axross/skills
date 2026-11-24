@@ -1,7 +1,8 @@
 import MarkdownIt from "markdown-it";
+import footnote from "markdown-it-footnote";
 import { parseDocument, isMap, isSeq, LineCounter } from "yaml";
 
-const markdown = new MarkdownIt({ html: true });
+const markdown = new MarkdownIt({ html: true }).use(footnote);
 const external = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
 // OKF §6.2 defines these fields independently of a project's type vocabulary.
@@ -24,13 +25,15 @@ function readPathFields(meta, lineCounter) {
   if (isSeq(sources)) {
     for (let i = 0; i < sources.items.length; i++)
       add(["sources", i, "resource"]);
+  } else if (isMap(sources)) {
+    add(["sources", "resource"]);
   }
   return links;
 }
 
 export function readMarkdown(text) {
   // Parse the header separately so Markdown line numbers include the frontmatter.
-  const header = text.match(/^---[ \t]*\r?\n([\s\S]*?)^---[ \t]*\r?$(?:\n|$)/m);
+  const header = text.match(/^---\r?\n([\s\S]*?)^---\r?$(?:\n|$)/m);
   let meta, metadataError;
   const lineCounter = new LineCounter();
   let body = text;
@@ -42,7 +45,7 @@ export function readMarkdown(text) {
     meta = yaml.contents;
     body = text.slice(header[0].length);
   } else if (/^---[ \t]*\r?\n/.test(text)) {
-    metadataError = "frontmatter is missing its closing delimiter";
+    metadataError = "frontmatter requires exact --- opening and closing lines";
   }
   const offset =
     text.slice(0, text.length - body.length).split("\n").length - 1;

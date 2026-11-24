@@ -129,17 +129,30 @@ describe("OKF bundle inventory", () => {
     expect(checkIndex(docs)).toReportFailure(/frontmatter: owner.md/);
   });
 
-  it("reaches named evidence through its companion's sources metadata", async () => {
+  it.each([
+    "[{resource: ../evidence/raw.md}]",
+    "{resource: ../evidence/raw.md}",
+  ])("reaches named evidence through sources: %s", async (sources) => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": index + "[Owner](topics/owner.md)",
-      "topics/owner.md":
-        "---\ntype: Definition\nsources: [{resource: ../evidence/raw.md}]\n---\n",
+      "topics/owner.md": `---\ntype: Definition\nsources: ${sources}\n---\n`,
       "evidence/raw.md": "original",
     });
     const result = checkIndex("--evidence", "evidence/raw.md", docs);
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("WARN  evidence/raw.md");
   });
+
+  it.each(["--- \ntype: Specification\n---", "---\ntype: Specification\n--- "])(
+    "rejects padded concept delimiters without a versioned index",
+    async (header) => {
+      const docs = await writeDocs(await tempDir(), {
+        "index.md": "[Owner](owner.md)",
+        "owner.md": header,
+      });
+      expect(checkIndex(docs)).toReportFailure(/frontmatter: owner.md/);
+    },
+  );
 
   it("walks index routes from the root, terminating cycles and skipping hidden paths", async () => {
     const docs = await writeDocs(await tempDir(), {
