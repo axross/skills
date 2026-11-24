@@ -91,6 +91,91 @@ async function stopFixture() {
   return root;
 }
 
+describe("registered SessionStart commands", () => {
+  const claude = ".claude/settings.json";
+  const codex = ".codex/hooks.json";
+
+  it.each([
+    [claude, true, 0],
+    [claude, true, 17],
+    [codex, true, 0],
+    [codex, true, 17],
+    [claude, false, 17],
+  ])(
+    "%s with opt-in %s and install exit %i",
+    async (settings, optedIn, installExit) => {
+      const base = await tempDir();
+      const root = join(base, "project with spaces");
+      const config = JSON.parse(await readFile(repoPath(settings), "utf8"));
+      const commands = config.hooks.SessionStart.flatMap(
+        (group) => group.hooks,
+      );
+      expect(commands).toHaveLength(2);
+      const script = ".claude/hooks/session-start.sh";
+      await mkdir(join(root, ".claude/hooks"), { recursive: true });
+      await copyFile(repoPath(script), join(root, script));
+      git(root, "init");
+      await writeFileIn(root, ".env.example", "EXAMPLE=1\n");
+      const localEnv = join(root, ".env.local");
+      const bin = join(base, "bin");
+      const npm = await writeFileIn(
+        bin,
+        "npm",
+        '#!/bin/sh\nprintf "%s\\n" "$*" >> "$INSTALL_LOG"\nexit "$INSTALL_EXIT"\n',
+      );
+      const mise = await writeFileIn(bin, "mise", "#!/bin/sh\nexit 0\n");
+      await chmod(npm, 0o755);
+      await chmod(mise, 0o755);
+      const installLog = await writeFileIn(base, "install.log", "");
+      const env = {
+        HOME: base,
+        PATH: `${bin}:/usr/bin:/bin`,
+        INSTALL_LOG: installLog,
+        INSTALL_EXIT: String(installExit),
+      };
+      if (settings === claude) {
+        env.CLAUDE_PROJECT_DIR = root;
+        if (optedIn) env.CLAUDE_CODE_REMOTE = "true";
+      }
+      const run = ({ command }) => {
+        const result = spawnSync("sh", ["-c", command], {
+          cwd: settings === claude ? base : root,
+          env,
+          encoding: "utf8",
+        });
+        if (result.error) throw result.error;
+        return result;
+      };
+
+      const reminder = run(commands[0]);
+      expect(reminder.status, reminder.stderr).toBe(0);
+      if (optedIn) {
+        expect(reminder.stdout).toMatch(
+          /^Read [^\n]*AGENTS\.md[^\n]*Loop Engineering[^\n]*\n$/,
+        );
+      } else {
+        expect(reminder.stdout).toBe("");
+      }
+      expect(await readFile(installLog, "utf8")).toBe("");
+      await expect(lstat(localEnv)).rejects.toMatchObject({ code: "ENOENT" });
+
+      const bootstrap = run(commands[1]);
+      expect(bootstrap.status, bootstrap.stderr).toBe(
+        optedIn ? installExit : 0,
+      );
+      expect(bootstrap.stdout).toBe("");
+      expect(await readFile(installLog, "utf8")).toBe(
+        optedIn ? "install\n" : "",
+      );
+      if (optedIn) {
+        expect(await readFile(localEnv, "utf8")).toBe("EXAMPLE=1\n");
+      } else {
+        await expect(lstat(localEnv)).rejects.toMatchObject({ code: "ENOENT" });
+      }
+    },
+  );
+});
+
 describe("format.sh", () => {
   it("repairs both independent defect classes without changing dirty siblings", async () => {
     const root = await fixture();

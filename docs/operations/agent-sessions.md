@@ -34,15 +34,56 @@ lifecycle file only when the repository acquires the corresponding need.
 
 ## The Session-Start Hook
 
-After orb provisioning, a Claude Code cloud session runs
-`.claude/hooks/session-start.sh`. The hook activates a Node version manager when
-one is present, materializes host-local settings and an optional environment
-file, and runs `npm install` as a fallback for sessions outside a provisioned
-orb. A Codex session runs the same session-start and check scripts through
-`.codex/hooks.json` — the two shell scripts are wired for both hosts, and the
-pair MUST be kept in step when either changes. Orb setup does not replace these
-host-specific responsibilities, and the session-start hook is not Amp's
-toolchain-provisioning entry point.
+Select the intended checkout when launching a task. For a local launch, change
+to the checkout root (for example, `cd /workspace/skills` when that is the
+requested repository), verify its remote and root with `git remote -v` and
+`git rev-parse --show-toplevel`, then start the host there. Read its scoped
+[project entry](../../AGENTS.md) and, for a change, acquire its routed Loop
+guidance before drafting a change plan, assigning change work or editing.
+Codex normally gathers project instructions along the path from the project
+root to the starting directory. A checkout beneath a parent launch directory
+is outside that path. [Codex instruction discovery](https://developers.openai.com/codex/guides/agents-md/)
+
+If a task must launch in a parent directory, put an instruction like this in
+the **launch request** so the actor receives it before discovering the child
+checkout.
+
+> Locate the intended axross/skills checkout and confirm its root and remote.
+> Read its scoped AGENTS.md and, for a change, the Loop Engineering guidance it
+> routes to before drafting a change plan, assigning change work or editing.
+
+Use the same direct reads when a startup hook is missing, disabled or fails.
+If the entry or required guidance is inaccessible, identify the blocked action
+and unmet gate.
+
+[Claude Code](../../.claude/settings.json) and [Codex](../../.codex/hooks.json)
+register two independent SessionStart commands. Both call the
+[shared script](../../.claude/hooks/session-start.sh). Its `--remind` invocation
+prints one project-entry pointer and exits before toolchain setup. The other
+invocation activates an available version manager, materializes local settings
+and an optional environment file, and returns the status of `npm install`.
+Claude resolves the script through `CLAUDE_PROJECT_DIR`. Remote sessions opt
+in with `CLAUDE_CODE_REMOTE=true`. Without that or the explicit
+`SKILLS_SESSION_BOOTSTRAP=1` opt-in, local invocations exit silently.
+The Codex registration sets that opt-in and its relative commands require the
+checkout root as the session working directory. Keep both registrations in
+step with the script. Amp orb provisioning uses the separate setup above.
+
+Dispatch depends on the host loading the project settings and enabling the
+hooks. Interactive Claude Code requires workspace trust for settings hooks. Its
+`-p` and SDK sessions treat the folder as trusted for this purpose. Local Codex
+requires a trusted project layer and trust for the current hook definitions. Check
+the effective settings for the actual session. Both hosts document successful
+SessionStart stdout as a context channel.
+[Claude hook reference](https://code.claude.com/docs/en/hooks) ·
+[Codex hook reference](https://developers.openai.com/codex/hooks/)
+
+Offline fixtures execute the registered commands. To claim live dispatch,
+identify the checkout revision, session, working directory, effective
+registration and host event showing the command ran. To claim delivery,
+also identify the reminder in that session's model input or host delivery
+trace. Mark inaccessible evidence unknown. Reading the pointed-to files and
+the actor's first report are separate observations.
 
 ## The Opt-In Quality Hooks
 

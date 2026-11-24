@@ -11,23 +11,34 @@ host-specific skill libraries.
 
 ## Response Approach
 
-For scoped authorization, see
-[Loop Engineering](./skills/loop-engineering/SKILL.md). Apply this agreement
-within the active host's actual instruction hierarchy and tool usage conditions.
-Host entry guidance explains that application; it cannot redefine instruction
-priority. Report any project gate that cannot be satisfied within those
-boundaries. [Skill Portability](./docs/conventions/skill-portability.md#what-a-skill-deliberately-does-not-carry)
-records this boundary and the unresolved local entry conflict. Load capabilities
-by task rather than importing every change gate into read-only work:
+Identify the intended checkout and read its scoped project entry. Load
+[Professional Behavior](./skills/professional-behavior/SKILL.md) first in every
+session and [Software Development](./skills/software-development/SKILL.md)
+for project work. Answer a standalone read-only question directly.
 
-- MUST load [Professional Behavior](./skills/professional-behavior/SKILL.md)
-  first in every session, including read-only questions and investigations.
-- MUST load [Software Development](./skills/software-development/SKILL.md)
-  when a task touches the project.
-- MUST load [Loop Engineering](./skills/loop-engineering/SKILL.md) before
-  planning or making any code or document change, then follow
-  [Development Workflow](./docs/operations/development-workflow.md) for this
-  repository's required gates. Read-only work stays outside the change loop.
+For a code or documentation change, even when the request names another
+skill, an issue, or a continuation, identify the tracking target and load
+[Loop Engineering](./skills/loop-engineering/SKILL.md) before drafting a
+change plan, assigning change work or editing. In the **first progress
+update**, name the phase, tracking issue (or none) and plan approval state.
+Report an unknown field as unknown while checking it.
+
+Use [Loop intake](./skills/loop-engineering/references/phase-progression.md#intake-and-defaults)
+and [Development Workflow](./docs/operations/development-workflow.md). Before
+implementing or assigning implementation, recover the actual target and pending
+phase from the tracker, reproduce the canonical plan identity from faithfully
+retrieved bytes, and match both identity and requested scope to human approval.
+If approval is missing, stop at the approval gate. Added scope on a named
+issue goes through planning and approval. Preserve existing edits during
+recovery. Resume an unchanged approved plan at its pending phase. For each proposed
+effect that requires an [operation grant](./skills/loop-engineering/references/run-state-and-reporting.md#scoped-operation-grants),
+verify a current match. A verified standing grant counts within its scope.
+Hold an effect with a missing, expired or inapplicable grant and continue
+independent permitted work.
+
+Apply these gates within the host's actual instruction hierarchy and tool
+conditions. Report the blocked operation and unmet gate when they conflict.
+
 - MUST read [README.md](./README.md) and the
   [Development Setup](./docs/operations/development-setup.md) guide it links
   before repository commands. Software Development owns the procedure when a
