@@ -1,6 +1,6 @@
 ---
 name: living-project-documentation
-description: Maintaining a project's own docs as its engineering changes. Use for docs/ upkeep, glossary and spec changes, settled decisions, stale runbooks, and bootstrapping or migrating an Open Knowledge Format (OKF) bundle. Helps readers find the page that defines a term, specifies behavior, explains a boundary, or governs an operation. Covers legacy layouts, provenance, offline exports and navigation checks. Change plans belong with the change, and sentence-level editing belongs to technical writing.
+description: Maintaining a project's own docs as its engineering changes. Use for docs/ upkeep, glossary and spec changes, settled decisions, stale runbooks, and bootstrapping or migrating an Open Knowledge Format (OKF) bundle. Product requirement document authoring owns change plans, and technical writing owns sentence-level editing. Helps readers find the page that defines a term, specifies behavior, explains a boundary, or governs an operation. Covers legacy layouts, provenance, offline exports and navigation checks.
 user-invocable: true
 ---
 

@@ -30,7 +30,12 @@ async function reachable(docs, evidence) {
   // a named source is discoverable through its indexed companion.
   if (docs.okf && evidence.size) {
     for (const page of docs.documents) {
-      if (!reached.has(page.path) || !page.meta?.has("type")) continue;
+      if (
+        !reached.has(page.path) ||
+        page.markerKey !== "type" ||
+        !page.meta?.has("type")
+      )
+        continue;
       for (const link of page.links) {
         if (
           link.html ||
@@ -69,7 +74,7 @@ async function run(docs, evidence) {
         category: "frontmatter",
         message: `${doc.relative}: ${doc.metadataError}`,
       });
-    if (["index.md", "log.md"].includes(basename(doc.path))) continue;
+    if (doc.markerKey !== "type") continue;
     const type = doc.meta?.get("type");
     if (typeof type === "string" && type.trim()) continue;
     if (!doc.meta?.has("type") && evidence.delete(doc.relative)) {

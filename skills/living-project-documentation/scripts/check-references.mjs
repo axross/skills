@@ -17,12 +17,11 @@ async function run(docs) {
   const findings = [];
 
   for (const doc of docs.documents) {
-    for (const { target, line, field } of doc.links) {
-      let { path, page, fragment, error } = await resolveLink(
-        docs,
-        doc,
-        target,
-      );
+    for (const link of doc.links) {
+      const { target, line, field } = link;
+      let { path, page, fragment, error } = link.error
+        ? link
+        : await resolveLink(docs, doc, target);
       if (!error && field === "license" && !(await stat(path)).isFile())
         error = "does not resolve to a license file";
       if (

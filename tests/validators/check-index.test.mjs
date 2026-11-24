@@ -114,6 +114,35 @@ describe("OKF bundle inventory", () => {
       ).toPassCleanly();
   });
 
+  it.each(["index.md", "topics/index.md", "log.md"])(
+    "keeps a tree with type only in %s on the legacy checks with and without parsers",
+    async (reserved) => {
+      const dir = await tempDir();
+      const scripts = join(dir, "scripts");
+      await cp(dirname(repoPath(SCRIPTS.checkIndex)), scripts, {
+        recursive: true,
+        filter: (path) => !path.endsWith("node_modules"),
+      });
+      const routes =
+        "[Guide](specs/guide.md) [Topics](topics/index.md) [Log](log.md)";
+      const docs = await writeDocs(dir, {
+        "index.md": routes,
+        "topics/index.md": "# Topics",
+        "log.md": "# Log",
+        "specs/guide.md": "# Guide",
+        [reserved]: "---\ntype: legacy-layout\n---\n" + routes,
+      });
+      for (const prefix of [dirname(repoPath(SCRIPTS.checkIndex)), scripts]) {
+        const run = (script) =>
+          runScript(relative(repoPath(), join(prefix, script)), [docs]);
+        expect(run("check-index.mjs")).toPassCleanly();
+        expect(run("check-glossary.mjs")).toReportFailure(
+          /glossary.md is missing/,
+        );
+      }
+    },
+  );
+
   it("resolves typed concepts and evidence declared through YAML aliases", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": index + "[Owner](owner.md)",

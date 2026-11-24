@@ -171,10 +171,13 @@ describe("OKF navigation", () => {
     ["./legal/missing.txt", false],
     ["LICENSE-NOT-FOUND.txt", false],
     ["./legal", false],
+    ["https://example.invalid/LICENSE", false],
+    ["//example.invalid/LICENSE", false],
   ])("checks root license %s in an OKF bundle", async (license, valid) => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": `---\nlicense: '${license}'\n---\n[Owner](owner.md)`,
-      "owner.md": "---\ntype: Definition\nlicense: ./concept-extension\n---\n# Owner",
+      "owner.md":
+        "---\ntype: Definition\nlicense: ./concept-extension\n---\n# Owner",
       "legal/license.txt": "license terms",
     });
     const result = checkReferences(docs);

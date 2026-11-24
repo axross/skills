@@ -8,11 +8,12 @@ const markdown = new MarkdownIt({ html: true }).use(footnote);
 const external = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
 /** collect concept path fields and the root license file with their YAML use sites. */
-function readPathFields(meta, syntax, lineCounter, rootIndex) {
+function readPathFields(meta, syntax, lineCounter, markerKey) {
   const links = [];
   /** retain local path fields separately from links that an index can use for navigation. */
-  function add(keys, target) {
-    if (typeof target !== "string" || !target || external.test(target)) return;
+  function add(keys, target, error) {
+    if (typeof target !== "string") return;
+    if (!error && (!target || external.test(target))) return;
     // §5.1 also permits a human-readable population descriptor here.
     // spaces in a URI reference must be percent-encoded.
     if (keys[0] === "sources" && /\s/.test(target)) return;
@@ -25,17 +26,21 @@ function readPathFields(meta, syntax, lineCounter, rootIndex) {
       node = child;
     }
     const line = 1 + lineCounter.linePos(node.range[0]).line;
-    links.push({ target, line, field: keys.join(".") });
+    links.push({ target, line, field: keys.join("."), error });
   }
   const license = meta.get("license");
-  if (rootIndex && typeof license === "string") {
+  if (markerKey === "okf_version" && typeof license === "string") {
     try {
       parseLicense(license);
     } catch {
-      add(["license"], license);
+      const error =
+        !license.trim() || external.test(license.trim())
+          ? "must name an SPDX expression or a file in the bundle"
+          : undefined;
+      add(["license"], license, error);
     }
   }
-  if (!meta.has("type")) return links;
+  if (markerKey !== "type" || !meta.has("type")) return links;
   for (const key of ["resource", "computation", "superseded_by"])
     add([key], meta.get(key));
   for (const key of ["executor", "attester"])
@@ -98,7 +103,7 @@ function collectNavigation(tokens, env, fragments, anchors, links) {
  * read OKF metadata, navigation targets and anchor IDs from one Markdown page.
  * malformed frontmatter is returned as a diagnostic alongside the rendered body.
  */
-export function readMarkdown(text, rootIndex = false) {
+export function readMarkdown(text, markerKey) {
   const header = text.match(/^---\r?\n([\s\S]*?)^---\r?$(?:\n|$)/m);
   let meta, metadataError;
   let links = [];
@@ -112,7 +117,7 @@ export function readMarkdown(text, rootIndex = false) {
     if (isMap(yaml.contents) && !metadataError) {
       try {
         meta = yaml.toJS({ mapAsMap: true, maxAliasCount: 100 });
-        links = readPathFields(meta, yaml.contents, lineCounter, rootIndex);
+        links = readPathFields(meta, yaml.contents, lineCounter, markerKey);
       } catch (error) {
         metadataError = error.message;
       }

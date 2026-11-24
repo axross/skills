@@ -88,13 +88,12 @@ async function listDocuments(dir, deferred) {
 }
 
 /** recognize top-level OKF keys when header parsing fails or YAML is unavailable. */
-function hasOkfMarker(text, rootIndex) {
-  if (!/^---[ \t]*\r?\n/.test(text)) return false;
+function hasOkfMarker({ text, markerKey: key }) {
+  if (!key || !/^---[ \t]*\r?\n/.test(text)) return false;
   const header = text.split(/^---[ \t]*\r?$/m, 3)[1] ?? "";
   const content = header.replace(/^\s*#[^\n]*$/gm, "");
   const first = content.match(/^([ ]*)(\S.*)$/m);
   if (!first) return false;
-  const key = rootIndex ? "(?:type|okf_version)" : "type";
   const marker = new RegExp(`^(?:\\?\\s+)?(?:"${key}"|'${key}'|${key})\\s*:`);
   const explicitKey = new RegExp(
     `^\\?[ \\t]+(?:"${key}"|'${key}'|${key})[ \\t]*$`,
@@ -159,28 +158,30 @@ export async function loadDocs(dir) {
     throw new Error(
       "index.md does not resolve to a visible Markdown document in the bundle",
     );
+  for (const doc of documents) {
+    if (doc === index) doc.markerKey = "okf_version";
+    else if (!["index.md", "log.md"].includes(basename(doc.path)))
+      doc.markerKey = "type";
+  }
   let readMarkdown;
   if (documents.some((doc) => /^---[ \t]*\r?\n/.test(doc.text))) {
     try {
       ({ readMarkdown } = await import("./okf.mjs"));
     } catch (error) {
       if (error.code !== "ERR_MODULE_NOT_FOUND") throw error;
-      if (documents.some((doc) => hasOkfMarker(doc.text, doc === index)))
+      if (documents.some(hasOkfMarker))
         throw new Error(
           "OKF checks require dependencies. Run npm ci --ignore-scripts in the skill's scripts directory.",
         );
     }
   }
   if (readMarkdown) {
-    for (const doc of documents) Object.assign(doc, readMarkdown(doc.text, doc === index));
+    for (const doc of documents)
+      Object.assign(doc, readMarkdown(doc.text, doc.markerKey));
   }
-  const okf = Boolean(
-    index.meta?.has("okf_version") ||
-    documents.some(
-      (doc) =>
-        doc.meta?.has("type") ||
-        (doc.metadataError && hasOkfMarker(doc.text, doc === index)),
-    ),
+  const okf = documents.some(
+    (doc) =>
+      doc.meta?.has(doc.markerKey) || (doc.metadataError && hasOkfMarker(doc)),
   );
   if (!okf) {
     // legacy inventory includes hidden Markdown. OKF excludes hidden entries
