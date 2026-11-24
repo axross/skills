@@ -16,17 +16,24 @@ permitted — a session qualifies each against what it actually exposes, through
 host's actual instruction hierarchy and tool usage conditions. Host entry
 guidance explains that application; it does not define priority or promote
 project policy above higher-priority instructions. Resolve conflicts by actual
-instruction source and priority, and report any gate that cannot be satisfied
-within those boundaries. [Skill Portability](../conventions/skill-portability.md#what-a-skill-deliberately-does-not-carry)
-records the boundary and the unresolved local entry conflict.
+instruction source and priority, and report the blocked operation and unmet gate. [Skill Portability](../conventions/skill-portability.md#what-a-skill-deliberately-does-not-carry)
+describes how host entries apply this boundary.
 
 ## The Change Loop
 
 Every change MUST retain the repository's issue, recorded plan, human plan
 approval, verified implementation, draft pull request, independent review,
 addressing, and ready gates. A read-only question, investigation, or review
-does not enter them. Name an issue, a pull request, or a free-form change to
-start; resume at the recorded pending phase rather than starting again.
+does not enter them. At intake, follow the
+[project entry](../../AGENTS.md#response-approach) for checkout selection,
+Loop acquisition and the first progress update. Use the tracking issue and its
+linked delivery state to recover the pending phase. Compare the request with
+the [canonical plan and approval](./github-delivery.md) before assigning or
+making implementation edits. A named issue can contain an approved plan while
+a new request adds work outside its scope. Return that scope to Plan and
+Approval. For an unchanged continuation, advance the recovered phase once the required
+[operation grants](../../skills/loop-engineering/references/run-state-and-reporting.md#scoped-operation-grants)
+match the proposed effects.
 
 These gates apply to every change, without a size threshold or self-approval
 shortcut, including headless sessions. If authorization or a permitted route

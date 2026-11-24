@@ -45,10 +45,12 @@ mechanism, a delegation actor — follows the same split, which is why
 [Amp Execution](../operations/amp-execution.md) exist beside the skills rather
 than inside them.
 
-This repository's [`CLAUDE.md`](../../CLAUDE.md) and
-[session-start reminder](../../.claude/hooks/session-start.sh) still contain
-blanket project-over-runtime declarations. Their correction is separate and
-unresolved; they are not worked examples of this boundary.
+This repository's [Claude import](../../CLAUDE.md) and shared
+[session-start reminder](../../.claude/hooks/session-start.sh) route to its
+[project entry](../../AGENTS.md). The entry identifies the applicable Loop
+guidance. Loop defines which effects need an operation grant and how to verify it.
+[Agent Sessions](../operations/agent-sessions.md#the-session-start-hook)
+describes when the host can deliver the reminder and how to recover.
 
 ## The Description Byte Cap and Codex's Truncation
 

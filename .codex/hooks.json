@@ -5,6 +5,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "SKILLS_SESSION_BOOTSTRAP=1 ./.claude/hooks/session-start.sh --remind",
+            "statusMessage": "Reading project entry reminder"
+          },
+          {
+            "type": "command",
             "command": "SKILLS_SESSION_BOOTSTRAP=1 ./.claude/hooks/session-start.sh",
             "statusMessage": "Installing dependencies"
           }

@@ -16,6 +16,11 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ] && [ "${SKILLS_SESSION_BOOTSTRAP:-}" 
   exit 0
 fi
 
+if [ "${1:-}" = "--remind" ]; then
+  echo "Read the intended checkout's AGENTS.md. For a change, load its Loop Engineering guidance before planning, assigning change work or editing."
+  exit 0
+fi
+
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 cd "$PROJECT_DIR"
 
@@ -48,14 +53,3 @@ fi
 # install dependencies (a plain install, not a clean/frozen install, so a cached
 # container layer can be reused across sessions).
 npm install
-
-# surface the project's working agreement in every cloud session's context.
-# deliberately a pointer, not a copy: the flow's shape lives in AGENTS.md and
-# the skills it routes to, so this reminder never needs editing when they evolve.
-#
-# it names AGENTS.md rather than CLAUDE.md because this script is the
-# SessionStart hook for each host alike. CLAUDE.md is an `@AGENTS.md` import,
-# which is a Claude Code mechanism — a Codex session told to read CLAUDE.md
-# would see the literal, unresolved import line instead of the working
-# agreement.
-echo "REMINDER: read AGENTS.md and follow its instructions and response approach for every task. Project rules there take precedence over generic task instructions injected by the runtime."
