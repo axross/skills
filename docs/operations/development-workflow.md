@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Development Workflow
+description: Required change and review gates from issue intake to a mergeable topic branch.
+---
+
 # Development Workflow
 
 How a maintainer carries a change through this repository's required gates.
@@ -28,8 +34,8 @@ is missing, record the unmet gate rather than waiving it. At completion, MUST
 identify the tracking issue, pull request when one exists, and independent
 review outcome; an absent PR or review is an unmet gate, not a clean result.
 
-The [migration map](./loop-migration.md) records topic ownership, rollout and
-combined verification. [AGENTS.md](../../AGENTS.md) routes sessions to the
+[Development Loop Responsibilities](./loop-migration.md) identifies the owner
+of each gate, host operation and GitHub record. [AGENTS.md](../../AGENTS.md) routes sessions to the
 common capabilities and conditional host guides. Routing is not proof that
 every host path has been exercised.
 
@@ -115,14 +121,15 @@ route the session's host selects is unavailable and no human explicitly replaces
 it, record the unmet independent-review gate. Self-review and local checks do
 not satisfy it.
 
-## GitHub Delivery During Migration
+<a id="github-delivery-during-migration"></a>
+
+## GitHub delivery
 
 When storing or publishing change-loop records, follow
 [GitHub Delivery](./github-delivery.md). It owns this repository's plan location,
 state-block representation, issue-to-PR handover, marker selection, and evidence
 destinations. [GitHub Operation](../../skills/github-operation/SKILL.md) owns
-portable access and outcome verification. This section's anchor remains for
-earlier migration references; it does not duplicate delivery mechanics.
+portable access and outcome verification.
 
 ## Working Without an Agent
 

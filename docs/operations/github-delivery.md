@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: GitHub Delivery
+description: How to store an approved plan, transfer issue state to a pull request and route review evidence.
+---
+
 # GitHub Delivery
 
 This procedure tells maintainers how to store and publish this repository's

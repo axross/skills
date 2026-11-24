@@ -1,3 +1,9 @@
+---
+type: Architecture
+title: Directory Structure
+description: Where skills, installed copies, agent definitions, validators and evaluation materials live and how their responsibilities differ.
+---
+
 # Directory Structure
 
 Where a skill's files live, the two tiers a skill can be written in, where a
@@ -38,9 +44,7 @@ conventions specific to this repository, is committed directly under a skill
 root, and is hand-edited in place — never touched by the install CLI or
 listed in `skills-lock.json`.
 
-No skill is in the repository-local tier today. `github-operation` was the
-last one and is now distributable, so the tier is available rather than in
-use. Registering one means passing its name to the installed-copy check as
+The repository-local tier is currently empty. Registering a local skill means passing its name to the installed-copy check as
 `--local <name>` from
 [`tests/repository/gates.mjs`](../../tests/repository/gates.mjs), which
 otherwise treats an installed skill with no source as drift.
@@ -84,16 +88,11 @@ locally. [Protected Markdownlint Execution](../../skills/agent-skill-authoring/r
 owns that setup and scope. This foundation does not retire the existing
 structure validators or move their shared/report/network responsibilities.
 
-A validator earns its place when the defect it finds is **not visible in the
-text its author just wrote** — because it spans files, because it counts, or
-because it compares bytes. Four scripts that failed that test were removed
-rather than rehomed: two mirrored a vendor's option surface in regular
-expressions, which is the same staleness
-[#179](https://github.com/axross/skills/issues/179) is moving the vendor
-skills away from and less visible, since a pattern never renders; and two
-re-checked rules an agent holding the skill can already see in the file in
-front of it. What each of those skills teaches is unchanged — only the claim
-that this repository ships a runnable checker for it is gone.
+A validator earns its place when an author cannot see the defect in the text
+being edited, for example because detection requires comparing files,
+counting declarations or comparing bytes. Link to vendor documentation for
+supported options. Encoding an option list in a regular expression creates
+another copy to maintain.
 
 ## Where a Scenario's Patch Lives
 

@@ -8,14 +8,28 @@
 // directory holding something else entirely, and it is the one a refactor of the
 // docs loader would break without any other assertion noticing.
 
+import { cp, symlink } from "node:fs/promises";
+import { dirname, join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeDocs } from "../helpers/fixtures.mjs";
-import { SCRIPTS, validator } from "../helpers/run.mjs";
+import { repoPath, runScript, SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkIndex = validator(SCRIPTS.checkIndex);
 
 describe("check-index.mjs", () => {
+  it("checks hidden Markdown in legacy trees without using it to opt into OKF", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": "[Linked note](./.linked.md)",
+      ".linked.md": "---\ntype: Private note\n---\n",
+      ".draft/notes.md": "[Missing](gone.md)",
+    });
+    expect(checkIndex(docs)).toReportFailure(/unindexed: \.draft\/notes.md/);
+    expect(validator(SCRIPTS.checkReferences)(docs)).toReportFailure(
+      /\.draft\/notes.md:1 → gone.md does not resolve/,
+    );
+  });
+
   it("exits 0 when every document is listed", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
@@ -75,5 +89,224 @@ describe("check-index.mjs", () => {
 
     expect(result).toPassCleanly();
     expect(result.stdout).toMatch(/check-glossary\.mjs/);
+  });
+});
+
+describe("OKF bundle inventory", () => {
+  const index = '---\nokf_version: "0.3"\n---\n\n';
+  const page = "---\ntype: Service Registry\n---\n\n";
+
+  it("keeps nested legacy type metadata dependency-free in an isolated skill copy", async () => {
+    const dir = await tempDir();
+    const scripts = join(dir, "scripts");
+    await cp(dirname(repoPath(SCRIPTS.checkIndex)), scripts, {
+      recursive: true,
+      filter: (path) => !path.endsWith("node_modules"),
+    });
+    const docs = await writeDocs(dir, {
+      "index.md": "---\nsidebar: { type: generated }\n---\n[Guide](guide.md)",
+      "guide.md":
+        "---\n{ sidebar: { type: generated }, title: 'example, type: value' }\n---\n",
+    });
+    for (const script of ["check-index.mjs", "check-references.mjs"])
+      expect(
+        runScript(relative(repoPath(), join(scripts, script)), [docs]),
+      ).toPassCleanly();
+  });
+
+  it.each(["index.md", "topics/index.md", "log.md"])(
+    "keeps a tree with type only in %s on the legacy checks with and without parsers",
+    async (reserved) => {
+      const dir = await tempDir();
+      const scripts = join(dir, "scripts");
+      await cp(dirname(repoPath(SCRIPTS.checkIndex)), scripts, {
+        recursive: true,
+        filter: (path) => !path.endsWith("node_modules"),
+      });
+      const routes =
+        "[Guide](specs/guide.md) [Topics](topics/index.md) [Log](log.md)";
+      const docs = await writeDocs(dir, {
+        "index.md": routes,
+        "topics/index.md": "# Topics",
+        "log.md": "# Log",
+        "specs/guide.md": "# Guide",
+        [reserved]: "---\ntype: legacy-layout\n---\n" + routes,
+      });
+      for (const prefix of [dirname(repoPath(SCRIPTS.checkIndex)), scripts]) {
+        const run = (script) =>
+          runScript(relative(repoPath(), join(prefix, script)), [docs]);
+        expect(run("check-index.mjs")).toPassCleanly();
+        expect(run("check-glossary.mjs")).toReportFailure(
+          /glossary.md is missing/,
+        );
+      }
+    },
+  );
+
+  it("resolves typed concepts and evidence declared through YAML aliases", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](owner.md)",
+      "owner.md": [
+        "---",
+        "label: &label Service Registry",
+        "type: *label",
+        "path: &path /evidence.md",
+        "source: &source {resource: *path}",
+        "list: &list [*source]",
+        "sources: *list",
+        "---",
+      ].join("\n"),
+      "evidence.md": "Preserved bytes",
+    });
+    const result = checkIndex("--evidence", "evidence.md", docs);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("WARN  evidence.md");
+  });
+
+  it("reports excessive alias expansion as a frontmatter finding", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](a.md)",
+      "a.md":
+        "---\ntype: Definition\nlabel: &label text\nitems: [" +
+        Array(110).fill("*label").join(", ") +
+        "]\n---",
+    });
+    expect(checkIndex(docs)).toReportFailure(
+      /frontmatter: a.md: Excessive alias count/,
+    );
+  });
+
+  it("recognizes root flow keys after a nested mapping", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        '---\n{ sidebar: {type: generated}, "okf_version": "0.3" }\n---\n[A](a.md)',
+      "a.md": "# Missing type",
+    });
+    expect(checkIndex(docs)).toReportFailure(/type: a.md/);
+  });
+
+  it.each([
+    '? okf_version\n: "0.3"',
+    '{ ? "okf_version" : "0.3" }',
+    '"okf_\\u0076ersion": "0.3"',
+  ])("uses parsed top-level YAML keys to detect OKF: %s", async (header) => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": `---\n${header}\n---\n[Bookmark](page.md#missing)`,
+      "page.md": "# Page",
+    });
+    expect(checkIndex(docs)).toReportFailure(/type: page.md/);
+    expect(validator(SCRIPTS.checkReferences)(docs)).toReportFailure(
+      /has no matching fragment/,
+    );
+  });
+
+  it("follows internal page and directory aliases without inventorying them twice", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Topics](old-topics/)",
+      "topics/index.md": "[Retries](old-guide.md#retries)",
+      "topics/guide.md": page + "# Retries",
+    });
+    await symlink("topics", join(docs, "old-topics"), "dir");
+    await symlink("guide.md", join(docs, "topics/old-guide.md"));
+    expect(checkIndex(docs)).toPassCleanly();
+    expect(validator(SCRIPTS.checkReferences)(docs)).toPassCleanly();
+  });
+
+  it("retains a malformed root version declaration as evidence of OKF intent", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": '---\nokf_version: "0.3"\n[A](a.md)',
+      "a.md": "# Missing type",
+    });
+    const result = checkIndex(docs);
+    expect(result).toReportFailure(/frontmatter: index.md/);
+    expect(result.stdout).toContain("type: a.md");
+  });
+
+  it("flags a malformed concept in a bundle without a root version", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": "[Owner](owner.md)",
+      "owner.md": "---\ntype: Specification\n",
+    });
+    expect(checkIndex(docs)).toReportFailure(/frontmatter: owner.md/);
+  });
+
+  it.each([
+    "[{resource: ../evidence/raw.md}]",
+    "{resource: ../evidence/raw.md}",
+  ])("reaches named evidence through sources: %s", async (sources) => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](topics/owner.md)",
+      "topics/owner.md": `---\ntype: Definition\nsources: ${sources}\n---\n`,
+      "evidence/raw.md": "original",
+    });
+    const result = checkIndex("--evidence", "evidence/raw.md", docs);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("WARN  evidence/raw.md");
+  });
+
+  it.each(["--- \ntype: Specification\n---", "---\ntype: Specification\n--- "])(
+    "rejects padded concept delimiters without a versioned index",
+    async (header) => {
+      const docs = await writeDocs(await tempDir(), {
+        "index.md": "[Owner](owner.md)",
+        "owner.md": header,
+      });
+      expect(checkIndex(docs)).toReportFailure(/frontmatter: owner.md/);
+    },
+  );
+
+  it("walks index routes from the root, terminating cycles and skipping hidden paths", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Services][s]\n\n[s]: /topics/\n",
+      "topics/index.md":
+        "[Back](/index.md) · [Registry](service%20registry.md)\n",
+      "topics/service registry.md": page,
+      ".scratch/notes.md": "Outside the bundle.",
+    });
+    expect(checkIndex(docs)).toPassCleanly();
+  });
+
+  it("keeps a disconnected index and its typed member visible as orphans", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index,
+      "lost/index.md": "[Registry](registry.md)",
+      "lost/registry.md": page,
+    });
+    const result = checkIndex(docs);
+    expect(result).toReportFailure(/unindexed: lost\/index.md/);
+    expect(result.stdout).toMatch(/unindexed: lost\/registry.md/);
+  });
+
+  it("warns for the companion's exact evidence path and still fails an untyped living page", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Authority](owner.md) · [Rules](rules.md)",
+      "owner.md": page + "[Evidence](evidence/raw.md)",
+      "evidence/raw.md": "approved bytes",
+      "rules.md": "missing metadata",
+    });
+    const result = checkIndex("--evidence", "evidence/raw.md", docs);
+    expect(result).toReportFailure(
+      /type: rules.md needs a nonempty string type/,
+    );
+    expect(result.stdout).toMatch(/WARN +evidence\/raw.md/);
+    expect(result.stdout).toMatch(/has 1 finding\./);
+    expect(checkIndex("--evidence", "evidence", docs)).toReportFailure(
+      /type: evidence\/raw.md/,
+    );
+  });
+
+  it.each([
+    "type: ' '",
+    "type: [Service]",
+    "type: null",
+    "type: true",
+    "type: 23",
+    "type: A\ntype: B",
+  ])("rejects invalid concept metadata %s", async (header) => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[A](a.md)",
+      "a.md": `---\n${header}\n---\n`,
+    });
+    expect(checkIndex(docs)).toReportFailure(/(?:type|frontmatter): a.md/);
   });
 });

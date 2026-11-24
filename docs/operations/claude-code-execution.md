@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Claude Code Execution
+description: How Claude Code and Codex sessions select permitted tools, isolate work and wait for review.
+---
+
 # Claude Code Execution
 
 Maintainers running this repository in Claude Code — and, for the instruments
@@ -21,13 +27,9 @@ section names a Claude Code tool with no Codex note beside it, that instrument
 has not been established for Codex: qualify it from the actual session and
 report the missing capability rather than calling a Claude Code tool by name.
 
-The names below were checked on 2026-09-11 against a Claude Code session's own
-tool surface in this repository. A session MUST recheck its actual tools and
-their conditions before relying on any of them: the surface differs by host
-version, by local and cloud environment, and by configuration, and a name
-appearing here is not a promise that this session exposes it. Where the
-instrument this file names is absent, the portable contract still holds — report
-the missing capability rather than substituting a mechanism the contract forbids.
+Check the tools and invocation conditions in the active session. Availability
+depends on host version, configuration and whether the session runs locally or
+in the cloud. If a required capability is missing, report the unmet gate.
 
 ## Ask the human through the question tool
 
@@ -40,13 +42,9 @@ Claude Code's dedicated question mechanism is **`AskUserQuestion`**. It renders
 the options as a selectable choice and returns the answer inline, so the run
 continues in the same turn.
 
-Codex's counterpart is named **`request_user_input`**, which is the name this
-repository has used for it. Nothing here establishes its behaviour: the tool
-surface checked above was Claude Code's, so whether a Codex session exposes
-this tool at all, under what mode or flag, and whether an unanswered prompt
-blocks or resolves on its own are all things that session must establish for
-itself. Until it has, treat the mechanism as unqualified rather than
-equivalent to `AskUserQuestion`.
+For Codex, inspect the session contract for **`request_user_input`**. Establish
+which modes expose it and how it handles an unanswered prompt before relying
+on it to wait for a decision.
 
 - Judge availability from the session's actual tool list. Do not conclude the
   mechanism is absent because the session is headless, remote, or cloud-hosted.
@@ -147,12 +145,11 @@ policy for Claude Code.
   append-only recovery rules depend on.
 - After the change merges or closes, Loop's
   [Release a Finished Change](../../skills/loop-engineering/references/phase-progression.md#release-a-finished-change)
-  decides whether the worktree goes. Here the host owns some worktrees. As
-  checked on 2026-11-04 against the `ExitWorktree` tool definition, it
-  acts only on a worktree `EnterWorktree` created in the same session, is
-  called only when the human asks, removes the worktree and its branch
-  together, and refuses one with commits off its original branch — which every
-  squash-merged branch has — unless told to discard them. So:
+  decides whether the worktree goes. Inspect the active `ExitWorktree`
+  contract before proposing cleanup. Check its same-session requirement,
+  who can request removal, whether it also deletes the branch, and what it
+  does with commits missing from the original branch after a squash merge.
+
   - A worktree `EnterWorktree` created, in this session or an earlier one, is
     host-owned: keep it and its branch, and report them as removable.
   - A worktree the run made with `git worktree add` is removed with git under
@@ -220,9 +217,8 @@ In Claude Code:
 from that frontmatter. The override mechanism here is the `Agent` tool's own
 `model` argument, which is what the reference's rule on a discarded pin applies
 to.
-[Development Workflow](./development-workflow.md) states
-why each value was chosen, and that the step down from `xhigh` for two of the
-three was a judgment call rather than a measurement.
+See [Development Workflow](./development-workflow.md#configured-actors) for
+the configured actor roles and assignment boundaries.
 
 ## Keep host operations separate
 

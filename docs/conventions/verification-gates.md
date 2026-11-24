@@ -1,3 +1,9 @@
+---
+type: Convention
+title: Verification Gates
+description: Criteria for merge gates, advisory reports and scheduled audits and where each is enforced.
+---
+
 # Verification Gates
 
 A check on this repository is exactly one of three things: a **merge gate**
@@ -144,28 +150,17 @@ the workspace to route and to work, exactly as it would for a real request.
 the condition's skills into it, and runs the model with the tools it needs
 to open that workspace and change it, because one probe's transcript,
 workspace diff, and skill invocations are what all three evaluation phases
-are judged from afterward. Two things bound a probe. Its declared turn cap
-— <!-- count:probe-turn-cap -->100<!-- /count --> assistant events by
-default, which is not the turn count a probe's own record stores — was put
-there as a runaway guard rather than as a budget control, and the one
-measurement that has tested that premise did not bear it out: each of the
-three probes it truncated had finished editing the files its task was about
-early and spent the rest of its budget trying to look at the result, against a
-real fault in the workspace — a dev server whose proxy did not serve the route
-the frontend asked for. The repetition in those stretches was retry with
-variation, not a probe grinding on a check that had already passed. **A probe
-the cap truncates is therefore read as an unfinished measurement rather than
-as a runaway**: its stored remains under-describe what it did, and scaffolding
-it never reached the point of reverting is not evidence about the skill under
-test. What the cap should be, and whether a turn count is the right thing to
-stop on at all, stay open questions that reading does not prejudge.
-And a denied tool set keeps a probe's effect attributable to the skill
-under test; what that set denies, and what every probe records about the
-surface the CLI actually gave it, are in [Evaluation
-Dispatch](../operations/evaluation-dispatch.md) rather than restated here,
-so the two cannot drift apart. There is one probe shape, not the two the
-deleted instrument used, and nothing here evaluates a pull request's own
-changed text.
+are judged from afterward.
+
+The turn cap defaults to <!-- count:probe-turn-cap -->100<!-- /count --> assistant
+events. The probe record reports its own turn count. Treat a probe that reaches
+the cap as an unfinished measurement. It may have finished editing and still be trying
+to verify its work. Leftover scaffolding and repeated attempts alone cannot
+establish a skill defect.
+
+The denied tool set bounds the effects attributable to the skill under test.
+[Evaluation Dispatch](../operations/evaluation-dispatch.md) describes that
+set and the tools actually available to each probe.
 
 **Spending is bound by refusal rather than by exhaustion, and a refusal is
 a finding rather than a prompt to raise the limit.** A run refuses before

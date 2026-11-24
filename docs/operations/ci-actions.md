@@ -1,3 +1,9 @@
+---
+type: Convention
+title: CI Actions
+description: How maintainers select and update workflow action references and assess the evidence for them.
+---
+
 # CI Actions
 
 This repository normally uses version tags for actions from trusted publishers.

@@ -9,9 +9,11 @@
 // a checker that followed those would make it impossible to document a link at
 // all.
 
+import { symlink } from "node:fs/promises";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { tempDir, writeDocs } from "../helpers/fixtures.mjs";
+import { tempDir, writeDocs, writeFileIn } from "../helpers/fixtures.mjs";
 import { SCRIPTS, validator } from "../helpers/run.mjs";
 
 const checkReferences = validator(SCRIPTS.checkReferences);
@@ -20,7 +22,8 @@ describe("check-references.mjs", () => {
   it("exits 0 when every relative link resolves", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n- [Jobs](./specs/jobs.md) — scheduling\n",
-      "specs/jobs.md": "# Jobs\n\nSee [the rules](../conventions/testing.md).\n",
+      "specs/jobs.md":
+        "# Jobs\n\nSee [the rules](../conventions/testing.md).\n",
       "conventions/testing.md": "# Testing\n",
     });
 
@@ -43,7 +46,17 @@ describe("check-references.mjs", () => {
       "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
     });
 
-    expect(checkReferences(docs)).toReportFailure(/index\.md:3 → \.\/notes\.md/);
+    expect(checkReferences(docs)).toReportFailure(
+      /index\.md:3 → \.\/notes\.md/,
+    );
+  });
+
+  it("ignores the spelling of fragments in legacy documents", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": "[Complete](glossary.md#100%)",
+      "glossary.md": "# Glossary",
+    });
+    expect(checkReferences(docs)).toPassCleanly();
   });
 
   it("ignores external URLs", async () => {
@@ -73,5 +86,341 @@ describe("check-references.mjs", () => {
 
   it("exits 2 on a bad invocation", () => {
     expect(checkReferences("one", "two")).toExitWith(2);
+  });
+});
+
+describe("OKF navigation", () => {
+  const index = '---\nokf_version: "0.3"\n---\n\n';
+
+  it("keeps an old Markdown heading as a route to the extracted owner", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Result](old.md#result)",
+      "old.md":
+        "## Result\n\n[Moved][owner]\n\n[owner]: /topics/new.md#result-buffer",
+      "topics/new.md":
+        "## Result `buffer`\n\n[Here](#result-buffer)\n![Plot](../plot%20one.svg)",
+      "plot one.svg": "<svg/>",
+    });
+    expect(checkReferences(docs)).toPassCleanly();
+  });
+
+  it("reports an unresolved fragment even when the Markdown file exists", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Lost](old.md#result)",
+      "old.md": "## Obsolete",
+    });
+    expect(checkReferences(docs)).toReportFailure(
+      /index.md:5 → old.md#result has no matching fragment/,
+    );
+  });
+
+  it("checks fragments on a directory route against its nested index", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Live](topics/#live) · [Broken](topics/#gone)",
+      "topics/index.md": "# Live",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(/topics\/#gone has no matching fragment/);
+    expect(result.stdout).toMatch(/has 1 finding\./);
+  });
+
+  it("locates broken table-cell links on their original Markdown lines", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "# Docs\n\n| Guide | Source |\n| --- | --- |\n| Setup | [Source](missing.md) |",
+    });
+    expect(checkReferences(docs)).toReportFailure(
+      /index.md:9 → missing.md does not resolve/,
+    );
+  });
+
+  it("checks local OKF path fields and identifies their original lines", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "# Home",
+      "topics/owner.md": [
+        "---",
+        "type: Attested Computation",
+        "resource: ../index.md#home",
+        "sources:",
+        "  - resource: /index.md#absent",
+        "  - resource: all queries in BigQuery project X",
+        "  - resource: https://example.invalid/source",
+        "computation: ./calc.sql",
+        "executor: {resource: ../worker.sh}",
+        "attester: {resource: /verify.sh}",
+        "superseded_by: /moved.md",
+        "---",
+      ].join("\n"),
+      "topics/calc.sql": "",
+      "worker.sh": "",
+      "verify.sh": "",
+      "moved.md": "",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /sources.0.resource: topics\/owner.md:5 → \/index.md#absent has no matching fragment/,
+    );
+    expect(result.stdout).toContain("has 1 finding.");
+  });
+
+  it.each([
+    ["MIT", true],
+    ["(MIT OR Apache-2.0) AND BSD-3-Clause", true],
+    ["./legal/license.txt", true],
+    ["./legal/missing.txt", false],
+    ["LICENSE-NOT-FOUND.txt", false],
+    ["./legal", false],
+    ["https://example.invalid/LICENSE", false],
+    ["//example.invalid/LICENSE", false],
+  ])("checks root license %s in an OKF bundle", async (license, valid) => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": `---\nlicense: '${license}'\n---\n[Owner](owner.md)`,
+      "owner.md":
+        "---\ntype: Definition\nlicense: ./concept-extension\n---\n# Owner",
+      "legal/license.txt": "license terms",
+    });
+    const result = checkReferences(docs);
+    if (valid) expect(result).toPassCleanly();
+    else expect(result).toReportFailure(/license: index.md:2/);
+  });
+
+  it("reads links inside footnotes and checks singleton source mappings", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](owner.md)",
+      "owner.md":
+        "---\ntype: Definition\nsources: {resource: './index.md#absent'}\n---\nClaim.[^src]\n\n[^src]: [Owner](./owner.md) and [Missing](./missing.md)",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /sources.resource: owner.md:3 → .*#absent has no matching fragment/,
+    );
+    expect(result.stdout).toContain("./missing.md does not resolve");
+    expect(result.stdout).toContain("has 2 findings.");
+  });
+
+  it("reports aliased path fields at the lines that use them", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](owner.md)",
+      "owner.md": [
+        "---",
+        "type: Specification",
+        "file: &file missing.md",
+        "worker: &worker {resource: *file}",
+        "entries: &entries [*worker]",
+        "resource: *file",
+        "executor: *worker",
+        "sources: *entries",
+        "---",
+      ].join("\n"),
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(/resource: owner.md:6 → missing.md/);
+    expect(result.stdout).toContain(
+      "executor.resource: owner.md:7 → missing.md",
+    );
+    expect(result.stdout).toContain(
+      "sources.0.resource: owner.md:8 → missing.md",
+    );
+  });
+
+  it("rejects direct, encoded and symlinked hidden paths while permitting dot segments", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "[Live](topics/.././visible.md) ![hidden](.private.png) [hidden dir](%2Eprivate/page.md) ![alias](asset.png)",
+      "topics/guide.md": "# Topic",
+      "visible.md": "# Visible",
+      ".private.png": "bytes",
+      ".private/page.md": "# Private",
+    });
+    await symlink(".private.png", join(docs, "asset.png"));
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /.private.png addresses a hidden bundle entry/,
+    );
+    expect(result.stdout).toContain(
+      "%2Eprivate/page.md addresses a hidden bundle entry",
+    );
+    expect(result.stdout).toContain(
+      "asset.png addresses a hidden bundle entry",
+    );
+    expect(result.stdout).toContain("has 3 findings.");
+  });
+
+  it("accepts real HTML anchors and rejects markup inside comments, attributes and raw text", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "[Live](owner.md#live) [Named](owner.md#named) [Comment](owner.md#comment) [Data](owner.md#data) [Script](owner.md#script)",
+      "owner.md": [
+        `<div id=live data-example="<b id='data'>"></div>`,
+        "<a name='named'></a>",
+        "<!-- <div id='comment'></div> -->",
+        `<script>const tag = "<a id='script'>";</script>`,
+      ].join("\n\n"),
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(/#comment has no matching fragment/);
+    expect(result.stdout).toContain("#data has no matching fragment");
+    expect(result.stdout).toContain("#script has no matching fragment");
+    expect(result.stdout).toContain("has 3 findings.");
+  });
+
+  it("ignores Markdown links and images in template content", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "Read <template>[Owner](owner.md) [Missing](missing.md) ![Diagram](ghost.png)</template> and [Visible](visible.md).",
+      "owner.md": "---\ntype: Definition\n---\n# Owner",
+      "visible.md": "---\ntype: Definition\n---\n# Visible",
+    });
+    const result = validator(SCRIPTS.checkIndex)(docs);
+    expect(result).toReportFailure(/unindexed: owner.md/);
+    expect(result.stdout).toContain("has 1 finding.");
+    expect(checkReferences(docs)).toPassCleanly();
+  });
+
+  it.each(["plain text", "<em>markup</em>"])(
+    "recognizes generated footnote anchors alongside %s",
+    async (text) => {
+      const docs = await writeDocs(await tempDir(), {
+        "index.md":
+          index +
+          text +
+          ".[^src]\n\n[^src]: Footnote.\n\n[Note](#fn1) [Return](#fnref1) [Missing](#fn999)",
+      });
+      const result = checkReferences(docs);
+      expect(result).toReportFailure(/#fn999 has no matching fragment/);
+      expect(result.stdout).toContain("has 1 finding.");
+    },
+  );
+
+  it("checks authored HTML navigation and images once at their source lines", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        [
+          "[Missing Markdown](./markdown.md) <a href='./owner.md#gone'>HTML</a> and [note][^src].",
+          "",
+          "<div>",
+          "  <img src='missing.png'>",
+          "  <!-- <a href='hidden.md'>comment</a> -->",
+          "  <script>const ghost = '<img src=ghost.png>';</script>",
+          "  <template><a href='inert.md'>template</a></template>",
+          "</div>",
+          "",
+          "[^src]: Example footnote.",
+        ].join("\n"),
+      "owner.md": "---\ntype: Definition\n---\n# Owner",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /index.md:5 → \.\/owner.md#gone has no matching fragment/,
+    );
+    expect(result.stdout).toContain(
+      "index.md:8 → missing.png does not resolve",
+    );
+    expect(result.stdout).toContain(
+      "index.md:5 → ./markdown.md does not resolve",
+    );
+    expect(result.stdout).toContain("has 3 findings.");
+    // rendered HTML is checked for readers; OKF index entries still use Markdown links.
+    expect(validator(SCRIPTS.checkIndex)(docs)).toReportFailure(
+      /unindexed: owner.md/,
+    );
+  });
+
+  it("resolves checkout source links and heading fragments against the local files", async () => {
+    const root = await tempDir();
+    const docs = await writeDocs(root, {
+      "index.md": index + "[Sources](topics/sources.md)",
+      "topics/sources.md": [
+        "[Branch guide](../../skills/branch%20only.md#current-rule)",
+        "[Skill directory](../../skills/)",
+        "[Workflow](../../.github/workflows/check.yml)",
+      ].join("\n"),
+    });
+    await writeFileIn(root, "skills/branch only.md", "## Current rule");
+    await writeFileIn(root, ".github/workflows/check.yml", "name: check");
+    expect(checkReferences("--source-root", root, docs)).toPassCleanly();
+    expect(checkReferences(docs)).toReportFailure(/leaves the bundle/);
+
+    await writeFileIn(root, "skills/branch only.md", "## Former rule");
+    expect(checkReferences(docs, "--source-root", root)).toReportFailure(
+      /branch%20only.md#current-rule has no matching fragment/,
+    );
+  });
+
+  it("keeps embedded images in the bundle while allowing a source link to the same file", async () => {
+    const root = await tempDir();
+    const docs = await writeDocs(root, {
+      "index.md":
+        index + "![Diagram](../diagram.png) [Download](../diagram.png)",
+    });
+    await writeFileIn(root, "diagram.png", "test image");
+    const result = checkReferences("--source-root", root, docs);
+    expect(result).toReportFailure(
+      /diagram.png is an embedded image outside the bundle/,
+    );
+    expect(result.stdout).toContain("has 1 finding.");
+  });
+
+  it("contains outward checkout links and rejects aliases that escape their boundary", async () => {
+    const parent = await tempDir();
+    const root = join(parent, "repo");
+    const docs = await writeDocs(root, {
+      "index.md":
+        index +
+        [
+          "[Out](../../other.md)",
+          "[Missing](../missing.md)",
+          "[Outside alias](../alias.md#other)",
+          "[Bundle alias](internal.md)",
+          "[Hidden bundle entry](.hidden.md)",
+          "[Bundle-root escape](/../source.md)",
+        ].join("\n"),
+      ".hidden.md": "# Hidden",
+    });
+    await writeFileIn(parent, "other.md", "# Other");
+    await writeFileIn(root, "source.md", "# Source");
+    await symlink("../other.md", join(root, "alias.md"));
+    await symlink("../source.md", join(docs, "internal.md"));
+    const result = checkReferences("--source-root", root, docs);
+    expect(result).toReportFailure(
+      /\.\.\/\.\.\/other.md leaves the source root/,
+    );
+    expect(result.stdout).toContain("../missing.md does not resolve");
+    expect(result.stdout).toContain("../alias.md#other leaves the source root");
+    expect(result.stdout).toContain("internal.md leaves the bundle");
+    expect(result.stdout).toContain(
+      ".hidden.md addresses a hidden bundle entry",
+    );
+    expect(result.stdout).toContain("/../source.md leaves the bundle");
+    expect(result.stdout).toContain("has 6 findings.");
+  });
+
+  it("keeps bundle-owned metadata inside the bundle in checkout mode", async () => {
+    const root = await tempDir();
+    const docs = await writeDocs(root, {
+      "index.md":
+        '---\nokf_version: "0.3"\nlicense: ../LICENSE\n---\n[Source](../LICENSE)',
+      "owner.md": "---\ntype: Specification\nresource: ../LICENSE\n---\n",
+    });
+    await writeFileIn(root, "LICENSE", "license terms");
+    const result = checkReferences(docs, "--source-root", root);
+    expect(result).toReportFailure(/license: index.md:3 .* leaves the bundle/);
+    expect(result.stdout).toContain("resource: owner.md:3");
+    expect(result.stdout).toContain("has 2 findings.");
+    expect(
+      checkReferences(docs, "--source-root", join(root, "LICENSE")),
+    ).toExitWith(2);
+  });
+
+  it("requires an external source URL for paths leaving the bundle", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Source](../README.md)",
+    });
+    expect(checkReferences(docs)).toReportFailure(/leaves the bundle/);
   });
 });

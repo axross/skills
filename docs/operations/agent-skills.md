@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Agent Skills
+description: Install and refresh distributed skills and check discovery, source identity and active content across hosts.
+---
+
 # Agent Skills
 
 Installing and refreshing a skill in this repository, checking discovery in
@@ -73,9 +79,9 @@ procedure below applies to Amp.
 
 ## Verify Amp's selected source and content
 
-These operations follow [Amp's skill documentation](https://ampcode.com/docs/customize/skills),
-checked on 2026-09-08. Recheck the current session's tool contracts when using
-them; a child session need not expose the parent's tools.
+Use [Amp's skill documentation](https://ampcode.com/docs/customize/skills)
+and check the active session's tool contracts. A child session can expose
+different tools from its parent.
 
 Consult the linked documentation for Amp's current precedence when diagnosing
 a collision. A local global skill can mask this project.

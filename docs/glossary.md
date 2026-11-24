@@ -1,3 +1,9 @@
+---
+type: Definition
+title: Glossary
+description: Terms used across the skill library, its agent runtimes, change workflow and evaluation instrument.
+---
+
 # Glossary
 
 ## Skills

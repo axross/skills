@@ -1,34 +1,24 @@
-<!-- Example. Part of the example docs tree shipped with living-project-documentation. -->
+---
+okf_version: "0.3"
+title: Scheduler engineering
+description: Job execution, notification delivery and operating procedures for Scheduler.
+---
 
 # Documentation
 
-Everything Scheduler knows about itself. Which body answers your question:
-
-- **What does the product do?** → `specs/` — how it behaves today.
-- **How is the code written?** → `conventions/` — the rules a change has to satisfy.
-- **How is it built and run?** → `operations/` — the procedures someone executes.
-
-Each body carries the reasoning behind its own constraints, beside the constraint
-itself. The vocabulary all three bodies use is in [glossary.md](./glossary.md).
-
-Documents under `conventions/` and `operations/` use MUST, MUST NOT, SHOULD, SHOULD
-NOT, and MAY as [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html) describes.
-Documents under `specs/` describe rather than instruct, and use none of them.
+Start with the [Scheduler glossary](./glossary.md) for the terms used in job
+execution, notifications and release procedures.
 
 ## Specifications
 
-- [specs/scheduling.md](./specs/scheduling.md) — how work is defined and gets run:
-  templates and their schedules, the jobs they produce, attempts and retries, and
-  what survives a job's own record.
-- [specs/notifications.md](./specs/notifications.md) — how someone finds out what
-  happened: the rules that fire, the channels they reach, and what a digest collapses.
+- [Scheduling](./specs/scheduling.md) — job creation, retry timing, terminal states and output retention.
+- [Job dispatch](./specs/dispatch.md) — how timers and API requests hand work to a bounded worker pool.
+- [Notifications](./specs/notifications.md) — how terminal job outcomes reach channels, immediately or in a digest.
 
 ## Conventions
 
-- [conventions/directory-structure.md](./conventions/directory-structure.md) — where
-  a file goes, what it is called, and which package may import which.
+- [Directory structure](./conventions/directory-structure.md) — module placement, import direction and route naming for the API and worker.
 
 ## Operations
 
-- [operations/deployment.md](./operations/deployment.md) — releasing to production,
-  the order migrations run in, and rolling back.
+- [Deployment](./operations/deployment.md) — how the release operator migrates the schema, deploys, verifies and rolls back Scheduler.

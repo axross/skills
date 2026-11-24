@@ -206,18 +206,10 @@ describe("repository gates have teeth", () => {
     expect(result).toReportFailure(/content differs: references\/detail\.md/);
   });
 
-  // the five docs/ gates need no argument override at all. each names `docs`,
+  // the docs/ gates need no argument override at all. each names `docs`,
   // which the validator resolves against the working directory, and
   // `writeDocs` plants exactly that layout — so every case below runs the
   // real invocation with nothing changed but `cwd`.
-  //
-  // `corpus-glossary`'s case was once the only evidence that gate could fail:
-  // with no spec under docs/ it reported "Nothing to check", which no passing
-  // run can tell apart from a check that has stopped working. docs/ has a
-  // spec now and the gate requires the counted message, so the real-repository
-  // run in gate-runs.test.mjs carries teeth evidence too. this case still earns
-  // its place by covering the shape a planted spec produces — an unpaired
-  // heading — which a tree that is currently correct cannot exercise.
 
   it("the corpus-index gate fails on a document nothing links", async () => {
     const { script, args } = gate("corpus-index");

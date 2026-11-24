@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Agent Sessions
+description: Configure startup, quality hooks, telemetry and cost-related settings for agent sessions.
+---
+
 # Agent Sessions
 
 How an Amp orb provisions this repository, how a Claude Code or Codex session
@@ -157,15 +163,13 @@ configuration at startup.
 
 ## Recommended Environment Variables
 
-Two environment variables account for the largest reductions found in this
-repository's own cost analysis, and are worth setting for any session run
-here, cloud or local:
+For long Claude Code sessions, contributors can reduce context size and
+background generation with two environment settings:
 
-- `CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000` — moves auto-compaction's trigger
-  from a measured median of **784,287** tokens to **384,000**, which lowers
-  the average main context from 354k. Estimated **−29%**.
-- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` — stops prompt-suggestion
-  generation, which cost **$467 over 30 days (3.0%)**.
+- `CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000` triggers compaction earlier on
+  large contexts.
+- `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` disables generation of
+  suggested follow-up prompts.
 
 Set them in the environment dialog at claude.ai/code for a cloud session, or
 in `~/.claude/settings.json` for a local one. `~/.claude/settings.json` does

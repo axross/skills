@@ -1,3 +1,9 @@
+---
+type: Convention
+title: Marked Counts
+description: How to tie a number in prose to its source and when to use a count marker.
+---
+
 # Marked Counts
 
 A number written in prose drifts the moment the file it describes changes, and

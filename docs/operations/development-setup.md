@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Development Setup
+description: Install the repository toolchain and choose the commands that verify a local change.
+---
+
 # Development Setup
 
 How to set this repository up for local work and the commands that verify a
@@ -72,7 +78,7 @@ is not required.
 | `npm test`                                                                 | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the evaluation instrument's own suite under `tests/evaluation/` (`probe.mjs`, `evaluate.mjs`, `derive.mjs`, `compare.mjs`, and `artifacts.mjs` run for real against stored fixtures, never a live model), the three `docs/` checks, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`.                                                          |
 | `npm run check`                                                            | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Before opening or updating a pull request.                                                                                        |
 | `node tools/evaluation/artifacts.mjs`                                      | Packages `record.json` bundles and admits them before landing. Use `--help` for flags; [Evaluation Dispatch](./evaluation-dispatch.md#artifact-admission-artifactsmjs) owns context, selectors, partial outcomes and offline invocations.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | In dispatch producers/consumers or credential-free offline artifact checks.                                                       |
-| `node tools/evaluation/compare.mjs <declaration.json> <observations.json>` | Emits an explicit treatment-comparison JSON report without changing inputs or calling models. [Evaluation Dispatch](./evaluation-dispatch.md) owns the input contract and claim limits.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | For offline old/new comparison reporting, not live qualification.                                                                 |
+| `node tools/evaluation/compare.mjs <declaration.json> <observations.json>` | Emits an explicit treatment-comparison JSON report without changing inputs or calling models. [Evaluation Dispatch](./evaluation-dispatch.md#input-contract) describes the inputs. [Treatment Comparison](../specs/treatment-comparison.md) defines what the report establishes.                                                                                                                                                                                                                                                                                                                                                                                                              | For offline old/new comparison reporting, not live qualification.                                                                 |
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
@@ -100,7 +106,7 @@ node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --collection skil
 # deliberately not one command: each answers for one kind of change, so an
 # author who touched one document reads only its findings.
 node skills/living-project-documentation/scripts/check-index.mjs docs
-node skills/living-project-documentation/scripts/check-references.mjs docs
+node skills/living-project-documentation/scripts/check-references.mjs --source-root . docs
 node skills/living-project-documentation/scripts/check-glossary.mjs docs
 
 # One more ships in a skill and this repository runs it too, from a schedule
@@ -117,3 +123,27 @@ node skills/github-operation/scripts/decode-sanitized-read.mjs --help
 See [`docs/conventions/verification-gates.md`](../conventions/verification-gates.md)
 for what makes a check a gate, a report, or a scheduled audit, and the traps
 each can fall into.
+
+## Export a standalone documentation bundle
+
+From the repository root, export a committed revision to a new directory:
+
+```bash
+node scripts/export-docs.mjs ../engineering-docs HEAD
+node skills/living-project-documentation/scripts/check-references.mjs ../engineering-docs
+```
+
+The exporter reads the selected Git commit. Commit any changes you want to
+include, and push that commit before sharing the bundle so its GitHub links
+resolve for recipients with repository access. In the checkout, use relative
+links to files maintained on the same branch. In the export, links between
+documentation pages still work offline. A link to a repository file outside
+`docs/` opens that file at the exported commit. See the
+[exporter](../../scripts/export-docs.mjs).
+
+For links leaving `docs/`, use a Markdown link or reference definition.
+The exporter rewrites those destinations and checks Markdown section fragments
+in the selected commit. Keep embedded images under `docs/` so readers can view
+them offline. An outward path in raw HTML or OKF metadata fails the
+standalone check. Use an explicit published source URL in metadata that cites
+a particular revision.
