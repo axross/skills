@@ -43,7 +43,7 @@ in [`docs/`](../index.md), which is checked by the same suite.
 | Skill evaluation  | `tools/evaluation/{probe,evaluate,derive,compare}.mjs` (reports; never gates); `tools/evaluation/artifacts.mjs` (dispatch packaging/admission) |
 | Rule duplication  | `scripts/report-skill-duplication.mjs` (reports; never gates)                                                                                  |
 | Link freshness    | `skills/agent-skill-authoring/scripts/link-freshness/check.mjs` (scheduled)                                                                    |
-| Project docs      | `skills/living-project-documentation/scripts/check-*.mjs` (three, over `docs/`)                                                                |
+| Project docs      | `skills/living-project-documentation/scripts/check-docs.mjs` (whole-root validation), plus focused navigation checks                           |
 
 ## Commands
 
@@ -102,9 +102,7 @@ node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --help
 # All standard rules default on; use --config for an explicit JSON rule object:
 node skills/agent-skill-authoring/scripts/markdownlint/cli.mjs --collection skills
 
-# Three more gate this repository's own docs/. They are one set,
-# deliberately not one command: each answers for one kind of change, so an
-# author who touched one document reads only its findings.
+# These focused checks run over the repository's own docs/ in the test suite.
 node skills/living-project-documentation/scripts/check-index.mjs docs
 node skills/living-project-documentation/scripts/check-references.mjs --source-root . docs
 node skills/living-project-documentation/scripts/check-glossary.mjs docs
@@ -124,13 +122,26 @@ See [`docs/conventions/verification-gates.md`](../conventions/verification-gates
 for what makes a check a gate, a report, or a scheduled audit, and the traps
 each can fall into.
 
+## Validate the documentation root
+
+Follow the skill's [validator setup](../../skills/living-project-documentation/references/validators.md#prepare-the-installed-skill)
+to prepare the pinned upstream script and Python environment. From the
+repository root, run:
+
+```bash
+node skills/living-project-documentation/scripts/check-docs.mjs --validator "$validator" --source-root . docs
+```
+
+For the integration tests with that same pinned validator, run
+`OKF_VALIDATOR="$validator" npm test` in the prepared environment.
+
 ## Export a standalone documentation bundle
 
 From the repository root, export a committed revision to a new directory:
 
 ```bash
 node scripts/export-docs.mjs ../engineering-docs HEAD
-node skills/living-project-documentation/scripts/check-references.mjs ../engineering-docs
+node skills/living-project-documentation/scripts/check-docs.mjs --validator "$validator" ../engineering-docs
 ```
 
 The exporter reads the selected Git commit. Commit any changes you want to

@@ -1,4 +1,4 @@
-/** shared CLI and document inventory for the three documentation checks. */
+/** shared CLI and document inventory for the documentation checks. */
 import { readdir, readFile, realpath, stat } from "node:fs/promises";
 import {
   basename,
@@ -10,6 +10,7 @@ import {
   sep,
 } from "node:path";
 const validators = [
+  ["check-docs.mjs", "whole-root OKF and engineering validation"],
   ["check-index.mjs", "document reachability and OKF concept kinds"],
   ["check-references.mjs", "relative links and Markdown fragments"],
   ["check-glossary.mjs", "legacy spec/glossary pairing"],
@@ -70,19 +71,30 @@ function readLegacy(text) {
  * collect Markdown files, optionally deferring hidden entries until the format is known.
  * @throws if a directory cannot be read.
  */
-async function listDocuments(dir, deferred) {
+async function listDocuments(dir, inventory) {
   const files = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch (error) {
+    if (!inventory?.readErrors) throw error;
+    inventory.readErrors.push(error.message);
+    return files;
+  }
+  for (const entry of entries) {
     const path = join(dir, entry.name);
-    if (deferred && entry.name.startsWith(".")) {
-      if (entry.isDirectory()) deferred.directories.push(path);
+    if (inventory && entry.name.startsWith(".")) {
+      if (entry.isDirectory()) inventory.hiddenDirectories.push(path);
       else if (entry.isFile() && path.endsWith(".md"))
-        deferred.files.push(path);
+        inventory.hiddenFiles.push(path);
       continue;
     }
     if (entry.isDirectory())
-      files.push(...(await listDocuments(path, deferred)));
-    else if (entry.isFile() && path.endsWith(".md")) files.push(path);
+      files.push(...(await listDocuments(path, inventory)));
+    else if (entry.isFile()) {
+      if (inventory) inventory.populated = true;
+      if (path.endsWith(".md")) files.push(path);
+    }
   }
   return files;
 }
@@ -128,35 +140,50 @@ function hasOkfMarker({ text, markerKey: key }) {
 }
 
 /**
- * return the parsed OKF or legacy inventory, or null when no root index is available.
+ * inventory the whole root as OKF, or autodetect the format for a focused check.
  * @throws if the bundle is outside the supplied source root, its files cannot be read,
  * the index is outside the inventory or a recognized OKF bundle cannot load its parsers.
  */
-export async function loadDocs(dir, sourceRoot) {
-  if (!(await stat(join(dir, "index.md")).catch(() => null))?.isFile())
-    return null;
+export async function loadDocs(dir, sourceRoot, { wholeRoot = false } = {}) {
+  const hasIndex = (
+    await stat(join(dir, "index.md")).catch(() => null)
+  )?.isFile();
+  if (!wholeRoot && !hasIndex) return null;
   const root = await realpath(dir);
   if (sourceRoot && outside(sourceRoot, root))
     throw new Error("--source-root must contain the documentation directory");
   const indexPath = join(root, "index.md");
-  const deferred = { directories: [], files: [] };
+  const inventory = {
+    hiddenDirectories: [],
+    hiddenFiles: [],
+    populated: Boolean(hasIndex),
+    readErrors: wholeRoot ? [] : undefined,
+  };
   /**
    * read pages in stable order with bundle-relative names for diagnostics.
    * @throws if an inventoried file cannot be read.
    */
   async function readDocuments(paths) {
-    return Promise.all(
-      paths.sort().map(async (path) => ({
-        path,
-        relative: relative(root, path).split(sep).join("/"),
-        text: (await readFile(path, "utf8")).replace(/^\uFEFF/, ""),
-      })),
+    const pages = await Promise.all(
+      paths.sort().map(async (path) => {
+        const name = relative(root, path).split(sep).join("/");
+        try {
+          const text = (await readFile(path, "utf8")).replace(/^\uFEFF/, "");
+          return { path, relative: name, text };
+        } catch (error) {
+          if (!wholeRoot) throw error;
+          inventory.readErrors.push(`${name}: ${error.message}`);
+        }
+      }),
     );
+    return pages.filter(Boolean);
   }
-  const documents = await readDocuments(await listDocuments(root, deferred));
+  const documents = await readDocuments(await listDocuments(root, inventory));
   const byPath = new Map(documents.map((doc) => [doc.path, doc]));
-  const index = byPath.get(indexPath) ?? byPath.get(await realpath(indexPath));
-  if (!index)
+  const index =
+    byPath.get(indexPath) ??
+    (hasIndex ? byPath.get(await realpath(indexPath)) : undefined);
+  if (hasIndex && !index && !wholeRoot)
     throw new Error(
       "index.md does not resolve to a visible Markdown document in the bundle",
     );
@@ -166,12 +193,12 @@ export async function loadDocs(dir, sourceRoot) {
       doc.markerKey = "type";
   }
   let readMarkdown;
-  if (documents.some((doc) => /^---[ \t]*\r?\n/.test(doc.text))) {
+  if (wholeRoot || documents.some((doc) => /^---[ \t]*\r?\n/.test(doc.text))) {
     try {
       ({ readMarkdown } = await import("./okf.mjs"));
     } catch (error) {
       if (error.code !== "ERR_MODULE_NOT_FOUND") throw error;
-      if (documents.some(hasOkfMarker))
+      if (wholeRoot || documents.some(hasOkfMarker))
         throw new Error(
           "OKF checks require dependencies. Run npm ci --ignore-scripts in the skill's scripts directory.",
         );
@@ -179,24 +206,34 @@ export async function loadDocs(dir, sourceRoot) {
   }
   if (readMarkdown) {
     for (const doc of documents)
-      Object.assign(doc, readMarkdown(doc.text, doc.markerKey));
+      Object.assign(doc, readMarkdown(doc.text, doc.markerKey, { wholeRoot }));
   }
-  const okf = documents.some(
+  const hasMarker = documents.some(
     (doc) =>
       doc.meta?.has(doc.markerKey) || (doc.metadataError && hasOkfMarker(doc)),
   );
+  const okf = wholeRoot || hasMarker;
   if (!okf) {
     // legacy inventory includes hidden Markdown. OKF excludes hidden entries
     // entirely, so only descend into the deferred directories in legacy mode.
-    for (const dir of deferred.directories)
-      deferred.files.push(...(await listDocuments(dir)));
-    for (const doc of await readDocuments(deferred.files)) {
+    for (const dir of inventory.hiddenDirectories)
+      inventory.hiddenFiles.push(...(await listDocuments(dir)));
+    for (const doc of await readDocuments(inventory.hiddenFiles)) {
       documents.push(doc);
       byPath.set(doc.path, doc);
     }
     for (const doc of documents) Object.assign(doc, readLegacy(doc.text));
   }
-  return { root, documents, byPath, index, okf };
+  return {
+    root,
+    documents,
+    byPath,
+    index,
+    okf,
+    hasMarker,
+    readErrors: inventory.readErrors ?? [],
+    populated: inventory.populated,
+  };
 }
 
 /**

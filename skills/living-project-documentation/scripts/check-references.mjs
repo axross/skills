@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-import { readFile, stat } from "node:fs/promises";
-import { main, resolveLink, selfName, siblingHelp } from "./docs.mjs";
+import { main, selfName, siblingHelp } from "./docs.mjs";
+
+import { checkReferences } from "./navigation.mjs";
 
 const usage = `Usage: ${selfName(import.meta.url)} [--source-root <checkout>] [<docs-dir>]
 
@@ -10,54 +11,10 @@ may also reach local files in the containing checkout. Standalone exports use so
 Exit codes: 0 pass or no index, 1 findings, 2 bad invocation or read error.
 ${siblingHelp(selfName(import.meta.url))}`;
 
-/**
- * report unresolved local destinations with their source line and field.
- * @throws if a destination cannot be inspected due to a filesystem error.
- */
-async function run(docs, _evidence, sourceRoot) {
-  const findings = [];
-  const sourceAnchors = new Map();
-
-  for (const doc of docs.documents) {
-    for (const link of doc.links) {
-      const { target, line, field } = link;
-      let { path, page, fragment, error, sourceLink } = link.error
-        ? link
-        : await resolveLink(docs, doc, target, field ? undefined : sourceRoot);
-      if (!error && sourceLink && link.image)
-        error = "is an embedded image outside the bundle";
-      if (!error && field === "license" && !(await stat(path)).isFile())
-        error = "does not resolve to a license file";
-      if (
-        !error &&
-        docs.okf &&
-        fragment &&
-        (page || path.toLowerCase().endsWith(".md"))
-      ) {
-        let anchors = page?.anchors;
-        if (!anchors && sourceLink && (await stat(path)).isFile()) {
-          if (!sourceAnchors.has(path)) {
-            const { readMarkdown } = await import("./okf.mjs");
-            const text = await readFile(path, "utf8");
-            sourceAnchors.set(path, readMarkdown(text).anchors);
-          }
-          anchors = sourceAnchors.get(path);
-        }
-        if (!anchors?.has(fragment)) error = "has no matching fragment";
-      }
-      if (error)
-        findings.push({
-          category: field ?? "link",
-          message: `${doc.relative}:${line} → ${target} ${error}`,
-        });
-    }
-  }
-  return findings;
-}
 process.exitCode = await main({
   usage,
   allowSourceRoot: true,
-  run,
+  run: (docs, _evidence, sourceRoot) => checkReferences(docs, sourceRoot),
   pass: (docs) =>
     `Every relative link resolves across ${docs.documents.length} documents.`,
 });

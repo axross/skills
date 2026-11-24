@@ -8,7 +8,7 @@ const markdown = new MarkdownIt({ html: true }).use(footnote);
 const external = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
 /** collect concept path fields and the root license file with their YAML use sites. */
-function readPathFields(meta, syntax, lineCounter, markerKey) {
+function readPathFields(meta, syntax, lineCounter, markerKey, wholeRoot) {
   const links = [];
   /** retain local path fields separately from links that an index can use for navigation. */
   function add(keys, target, error) {
@@ -40,7 +40,7 @@ function readPathFields(meta, syntax, lineCounter, markerKey) {
       add(["license"], license, error);
     }
   }
-  if (markerKey !== "type" || !meta.has("type")) return links;
+  if (markerKey !== "type" || (!wholeRoot && !meta.has("type"))) return links;
   for (const key of ["resource", "computation", "superseded_by"])
     add([key], meta.get(key));
   for (const key of ["executor", "attester"])
@@ -103,7 +103,7 @@ function collectNavigation(tokens, env, fragments, anchors, links) {
  * read OKF metadata, navigation targets and anchor IDs from one Markdown page.
  * malformed frontmatter is returned as a diagnostic alongside the rendered body.
  */
-export function readMarkdown(text, markerKey) {
+export function readMarkdown(text, markerKey, { wholeRoot = false } = {}) {
   const header = text.match(/^---\r?\n([\s\S]*?)^---\r?$(?:\n|$)/m);
   let meta, metadataError;
   let links = [];
@@ -117,7 +117,13 @@ export function readMarkdown(text, markerKey) {
     if (isMap(yaml.contents) && !metadataError) {
       try {
         meta = yaml.toJS({ mapAsMap: true, maxAliasCount: 100 });
-        links = readPathFields(meta, yaml.contents, lineCounter, markerKey);
+        links = readPathFields(
+          meta,
+          yaml.contents,
+          lineCounter,
+          markerKey,
+          wholeRoot,
+        );
       } catch (error) {
         metadataError = error.message;
       }
