@@ -129,6 +129,7 @@ describe("whole-root engineering checks", () => {
     expect(docs.documents.map(({ relative }) => relative)).toEqual([
       "index.md",
       "ordinary.md",
+      "same.md",
       "topics/guide.md",
     ]);
     expect(await engineering(dir)).toEqual([
@@ -144,6 +145,71 @@ describe("whole-root engineering checks", () => {
     expect(findings).toContain(
       "link: index.md:1 → old/guide.md#working has no matching fragment",
     );
+  });
+
+  it("checks root-index and living metadata independently when both names refer to one file", async () => {
+    const dir = await writeDocs(await tempDir(), {
+      "index.md": null,
+      "guide.md":
+        "---\ntype: Procedure\nresource: missing.md\nlicense: legal/terms.txt\n---\n# Guide",
+    });
+    await symlink("guide.md", join(dir, "index.md"));
+    expect(await engineering(dir)).toEqual([
+      "resource: guide.md:3 → missing.md does not resolve",
+      "license: index.md:4 → legal/terms.txt does not resolve",
+    ]);
+    await writeFileIn(dir, "legal/terms.txt", "License");
+    await writeFile(
+      join(dir, "guide.md"),
+      "---\ntype: Procedure\nresource: legal/terms.txt\nlicense: legal/terms.txt\n---\n# Guide",
+    );
+    expect(await engineering(dir)).toEqual([]);
+  });
+
+  it("resolves links and metadata from the published directory of a Markdown alias", async () => {
+    const dir = await writeDocs(await tempDir(), {
+      "index.md": indexHeader + "[Old guide](old/guide.md#guide)",
+      "new/guide.md":
+        "---\ntype: Procedure\nresource: terms.txt\n---\n# Guide\n[Help](help.txt)",
+      "new/help.txt": "Help",
+      "new/terms.txt": "Terms",
+      "old/README.txt": "Old documentation links",
+    });
+    await symlink("../new/guide.md", join(dir, "old/guide.md"));
+    expect(await engineering(dir)).toEqual([
+      "resource: old/guide.md:3 → terms.txt does not resolve",
+      "link: old/guide.md:6 → help.txt does not resolve",
+    ]);
+    await writeFileIn(dir, "old/help.txt", "Help");
+    await writeFileIn(dir, "old/terms.txt", "Terms");
+    expect(await engineering(dir)).toEqual([]);
+    const result = runScript(command, [
+      "--validator",
+      pinned ?? join(dir, "missing.py"),
+      dir,
+    ]);
+    expect(result.code).toBe(pinned ? 0 : 2);
+    expect(result.stdout.match(/^REVIEW /gm)).toHaveLength(1);
+    expect(result.stdout).toContain('REVIEW new/guide.md — "Procedure"');
+  });
+
+  it("traverses both published paths of a shared nested index", async () => {
+    const dir = await writeDocs(await tempDir(), {
+      "index.md":
+        indexHeader + "[First](first/index.md) [Second](second/index.md)",
+      "first/index.md": "[Member](member.md)",
+      "first/member.md": pageHeader + "# First",
+      "second/member.md": pageHeader + "# Second",
+    });
+    await symlink("../first/index.md", join(dir, "second/index.md"));
+    expect(await engineering(dir)).toEqual([]);
+    await writeFile(
+      join(dir, "index.md"),
+      indexHeader + "[First](first/index.md)",
+    );
+    expect(await engineering(dir)).toEqual([
+      "unindexed: second/member.md is not linked from index.md",
+    ]);
   });
 
   it("permits checkout links with --source-root and checks their fragments", async () => {

@@ -68,16 +68,6 @@ function readLegacy(text) {
 }
 
 /**
- * inventory a visible Markdown alias when its target has no Markdown entry of its own.
- * @throws if an alias or its target cannot be inspected.
- */
-async function isMarkdownAlias(path, root) {
-  const actual = await realpath(path);
-  if (bundlePathError(root, actual) || actual.endsWith(".md")) return false;
-  return (await stat(actual)).isFile();
-}
-
-/**
  * collect Markdown files, optionally deferring hidden entries until the format is known.
  * @throws if a directory cannot be read.
  */
@@ -110,7 +100,14 @@ async function listDocuments(dir, inventory) {
       path.endsWith(".md")
     ) {
       try {
-        if (await isMarkdownAlias(path, inventory.root)) files.push(path);
+        const actual = await realpath(path);
+        if (
+          !bundlePathError(inventory.root, actual) &&
+          (await stat(actual)).isFile()
+        ) {
+          inventory.aliases.set(path, actual);
+          files.push(path);
+        }
       } catch (error) {
         inventory.readErrors.push(error.message);
       }
@@ -175,6 +172,7 @@ export async function loadDocs(dir, sourceRoot, { wholeRoot = false } = {}) {
   const indexPath = join(root, "index.md");
   const inventory = {
     root: wholeRoot ? root : undefined,
+    aliases: new Map(),
     hiddenDirectories: [],
     hiddenFiles: [],
     populated: Boolean(hasIndex),
@@ -189,8 +187,9 @@ export async function loadDocs(dir, sourceRoot, { wholeRoot = false } = {}) {
     for (const path of paths.sort()) {
       const name = relative(root, path).split(sep).join("/");
       try {
-        const text = (await readFile(path, "utf8")).replace(/^\uFEFF/, "");
-        pages.push({ path, relative: name, text });
+        const canonical = inventory.aliases.get(path) ?? path;
+        const text = (await readFile(canonical, "utf8")).replace(/^\uFEFF/, "");
+        pages.push({ path, canonical, relative: name, text });
       } catch (error) {
         if (!wholeRoot) throw error;
         inventory.readErrors.push(`${name}: ${error.message}`);
@@ -202,18 +201,17 @@ export async function loadDocs(dir, sourceRoot, { wholeRoot = false } = {}) {
   const byPath = new Map(documents.map((doc) => [doc.path, doc]));
   const index =
     byPath.get(indexPath) ??
-    (hasIndex ? byPath.get(await realpath(indexPath)) : undefined);
+    (!wholeRoot && hasIndex
+      ? byPath.get(await realpath(indexPath))
+      : undefined);
   if (hasIndex && !index && !wholeRoot)
     throw new Error(
       "index.md does not resolve to a visible Markdown document in the bundle",
     );
   for (const doc of documents) {
-    // a root index symlink can also expose its target under a living-page name.
-    doc.living =
-      (wholeRoot || doc !== index) &&
-      !["index.md", "log.md"].includes(basename(doc.path));
     if (doc === index) doc.markerKey = "okf_version";
-    else if (doc.living) doc.markerKey = "type";
+    else if (!["index.md", "log.md"].includes(basename(doc.path)))
+      doc.markerKey = "type";
   }
   let readMarkdown;
   if (wholeRoot || documents.some((doc) => /^---[ \t]*\r?\n/.test(doc.text))) {
@@ -302,8 +300,9 @@ export async function resolveLink(docs, doc, target, sourceRoot) {
         const error = bundlePathError(docs.root, actual);
         if (error) return { error };
       }
-      if (actual !== path && path.endsWith(".md") && !actual.endsWith(".md")) {
-        // keep the published filename when a Markdown page aliases a non-Markdown file.
+      page = docs.byPath.get(path);
+      if (!page && actual !== path && path.endsWith(".md")) {
+        // a directory symlink can lead to a published Markdown alias below it.
         const visiblePath = join(await realpath(dirname(path)), basename(path));
         page = docs.byPath.get(visiblePath);
       }

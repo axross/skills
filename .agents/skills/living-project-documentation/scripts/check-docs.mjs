@@ -10,7 +10,7 @@ import {
   checkIndex,
   checkReferences,
   declaredType,
-  livingPages,
+  reviewPages,
 } from "./navigation.mjs";
 
 const usage = `Usage: check-docs.mjs --validator <validate.py> [--source-root <checkout>] [--evidence <file.md>]... [<docs-dir>]
@@ -104,17 +104,16 @@ async function main() {
   const sourceRoot =
     values["source-root"] && (await realpath(values["source-root"]));
   const docs = await loadDocs(root, sourceRoot, { wholeRoot: true });
-  const pages = await livingPages(docs, upstreamUntyped);
-  for (const [name, doc] of pages) {
-    const type = declaredType(doc);
-    if (type) console.log(`REVIEW ${name} — ${JSON.stringify(type)}`);
-  }
+  for (const doc of reviewPages(docs))
+    console.log(
+      `REVIEW ${doc.relative} — ${JSON.stringify(declaredType(doc))}`,
+    );
   for (const error of docs.readErrors) {
     console.error(`Could not read ${error}`);
     incomplete = true;
   }
   const findings = [
-    ...(await checkIndex(docs, evidence, pages)),
+    ...(await checkIndex(docs, evidence, upstreamUntyped)),
     ...(await checkReferences(docs, sourceRoot)),
     ...checkGlossary(docs),
   ];
@@ -125,7 +124,7 @@ async function main() {
     console.log(`FAIL  ${root}`);
     return 1;
   }
-  console.log(`PASS  ${root} (${docs.documents.length} Markdown files)`);
+  console.log(`PASS  ${root} (${docs.documents.length} Markdown paths)`);
   return 0;
 }
 

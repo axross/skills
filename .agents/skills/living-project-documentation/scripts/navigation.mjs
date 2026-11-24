@@ -1,5 +1,5 @@
-import { readFile, realpath, stat } from "node:fs/promises";
-import { basename, join } from "node:path";
+import { readFile, stat } from "node:fs/promises";
+import { basename } from "node:path";
 import { resolveLink, slug } from "./docs.mjs";
 
 /** return a parsed nonempty YAML 1.2 type. */
@@ -9,25 +9,15 @@ export function declaredType(doc) {
   if (typeof type === "string" && type.trim()) return type;
 }
 
-/**
- * include an upstream untyped path that has no living-page entry of its own.
- * @throws if a path reported by the validator can no longer be resolved.
- */
-export async function livingPages(docs, upstreamUntyped = []) {
-  const pages = new Map(
-    docs.documents
-      .filter((doc) => doc.living)
-      .map((doc) => [doc.relative, doc]),
-  );
-  for (const name of upstreamUntyped) {
-    if (pages.has(name)) continue;
-    const path = await realpath(join(docs.root, name));
-    const doc = docs.byPath.get(path);
-    // a typed alias is already reviewed under its canonical name. untyped aliases
-    // each need an exact path decision, even when they point at accepted evidence.
-    if (!doc?.living || !declaredType(doc)) pages.set(name, doc);
+/** review shared content once, preferring its canonical living-page name when available. */
+export function reviewPages(docs) {
+  const pages = new Map();
+  for (const doc of docs.documents) {
+    if (doc.markerKey !== "type" || !declaredType(doc)) continue;
+    if (doc.path === doc.canonical || !pages.has(doc.canonical))
+      pages.set(doc.canonical, doc);
   }
-  return pages;
+  return pages.values();
 }
 
 /**
@@ -35,15 +25,17 @@ export async function livingPages(docs, upstreamUntyped = []) {
  * @throws on unexpected filesystem errors while resolving a route.
  */
 async function reachable(docs, evidence) {
-  const reached = new Set([docs.index.path]);
+  const reached = new Set([docs.index.canonical]);
+  const visited = new Set([docs.index.path]);
   const pending = [docs.index];
   while (pending.length) {
     const index = pending.pop();
     for (const link of index.links) {
       if (link.html || link.image || link.field) continue;
       const { page: doc } = await resolveLink(docs, index, link.target);
-      if (!doc || reached.has(doc.path)) continue;
-      reached.add(doc.path);
+      if (!doc || visited.has(doc.path)) continue;
+      visited.add(doc.path);
+      reached.add(doc.canonical);
       if (docs.okf && basename(doc.path) === "index.md") pending.push(doc);
     }
   }
@@ -51,7 +43,7 @@ async function reachable(docs, evidence) {
   if (docs.okf && evidence.size) {
     for (const page of docs.documents) {
       if (
-        !reached.has(page.path) ||
+        !visited.has(page.path) ||
         page.markerKey !== "type" ||
         !page.meta?.has("type")
       )
@@ -64,7 +56,8 @@ async function reachable(docs, evidence) {
         )
           continue;
         const { page: source } = await resolveLink(docs, page, link.target);
-        if (source && evidence.has(source.relative)) reached.add(source.path);
+        if (source && evidence.has(source.relative))
+          reached.add(source.canonical);
       }
     }
   }
@@ -75,7 +68,7 @@ async function reachable(docs, evidence) {
  * report unreachable pages and metadata findings, honoring exact evidence exceptions.
  * @throws if the bundle's navigation cannot be inspected.
  */
-export async function checkIndex(docs, evidence, pages) {
+export async function checkIndex(docs, evidence, upstreamUntyped = []) {
   const reached = docs.index ? await reachable(docs, evidence) : undefined;
   const findings = [];
   if (!docs.index && docs.populated)
@@ -84,10 +77,11 @@ export async function checkIndex(docs, evidence, pages) {
       message: "index.md is missing from the populated documentation root",
     });
   const unused = new Set(evidence);
+  const unaccounted = new Set(upstreamUntyped);
   for (const doc of docs.documents) {
     if (
       reached &&
-      !reached.has(doc.path) &&
+      !reached.has(doc.canonical) &&
       !(docs.okf && basename(doc.path) === "log.md")
     ) {
       findings.push({
@@ -101,19 +95,23 @@ export async function checkIndex(docs, evidence, pages) {
         category: "frontmatter",
         message: `${doc.relative}: ${doc.metadataError}`,
       });
-  }
-  if (docs.okf)
-    for (const [name, doc] of pages ?? (await livingPages(docs))) {
-      if (declaredType(doc)) continue;
-      if (doc && !doc.meta?.has("type") && unused.delete(name)) {
-        console.log(`WARN  ${name}: named untyped evidence`);
-      } else {
-        findings.push({
-          category: "type",
-          message: `${name} needs a nonempty string type`,
-        });
-      }
+    if (doc.markerKey !== "type") continue;
+    unaccounted.delete(doc.relative);
+    if (declaredType(doc)) continue;
+    if (!doc.meta?.has("type") && unused.delete(doc.relative)) {
+      console.log(`WARN  ${doc.relative}: named untyped evidence`);
+    } else {
+      findings.push({
+        category: "type",
+        message: `${doc.relative} needs a nonempty string type`,
+      });
     }
+  }
+  for (const name of unaccounted)
+    findings.push({
+      category: "type",
+      message: `${name} received W120 and could not be checked as a visible living page`,
+    });
   for (const name of unused)
     findings.push({
       category: "evidence",
