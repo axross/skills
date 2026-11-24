@@ -28,15 +28,29 @@ These recommended types describe the decision the reader needs to make.
 | Policy (optional) | Who may authorize this action or grant an exception?                 | Shared restrictions, exception authority and reopening conditions, when governed independently of any one procedure.                      |
 
 A table of configuration names, consumers and missing-value behavior can be a
-single Specification. A separately maintained service registry can keep its
-project-specific type. A registry lists what exists today and changes when its members change.
-Past membership is available in Git. Choose types for decisions that readers
-make about the project today.
+single Specification when the reader needs those facts together.
 
 **Guidelines:**
 
 - SHOULD give each living page one primary type, a meaningful title and a short discovery description.
 - SHOULD adopt the engineering vocabulary for a new bundle and preserve established project types and topic directories where readers or tools depend on them.
+
+### Review the declared type
+
+For each path in the validator's type list, write down the reader's question,
+the claim this page owns and why the declared type helps the reader find that
+claim. If answering requires several independent claims, identify the passages
+and their owners. A project-specific name fits when readers use it for one
+recognizable purpose and the page is maintained for that purpose.
+
+Try the [type-review example](../assets/type-review-example/index.md). Both
+pages have valid type strings. An editor reading their content should reach
+these decisions:
+
+| Page                                                          | Reader's question and the claim the page owns                                                                                                        | Editorial decision                                                                                                                                                                                                                   |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Notes](../assets/type-review-example/delivery-notes.md)      | How is the rate calculated? What does the API return for a zero denominator? What does the team do on Monday? Each answer can change independently.  | Flag the mixed `Description`. Put the formula in a Definition, the decimal or null return contract in a Specification, and the Monday reporting practice in a Convention. Link the pages where readers need to move between answers. |
+| [Service registry](../assets/type-review-example/services.md) | Which team owns each production service today? The table owns the current service-to-team mapping and is updated as membership or ownership changes. | Accept `ServiceRegistry`. Readers can find the inventory by its established project type, and each entry answers the same question.                                                                                                  |
 
 ## The index
 

@@ -473,21 +473,21 @@ export const CLAIMS = {
   "first-reporting-tool-ordinal": {
     owner:
       "one past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence in docs/operations/development-setup.md (Commands section) splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: "keep the individual validator commands and the whole-root check in docs/operations/development-setup.md current when a CLI is added or removed",
     derive: async () => (await countDocumentedValidators()) + 1,
   },
 
   "second-reporting-tool-ordinal": {
     owner:
       "two past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence in docs/operations/development-setup.md (Commands section) splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: "keep the individual validator commands and the whole-root check in docs/operations/development-setup.md current when a CLI is added or removed",
     derive: async () => (await countDocumentedValidators()) + 2,
   },
 
   "third-reporting-tool-ordinal": {
     owner:
       "three past the gates in tests/repository/gates.mjs plus the shebang-carrying CLIs under skills/*/scripts/",
-    note: 'the code fence in docs/operations/development-setup.md (Commands section) splits the same total across four comments — "three gates", "Three more", "One more", and "Three others" — which a reader copies verbatim, so they carry no marker and move by hand',
+    note: "keep the individual validator commands and the whole-root check in docs/operations/development-setup.md current when a CLI is added or removed",
     derive: async () => (await countDocumentedValidators()) + 3,
   },
 

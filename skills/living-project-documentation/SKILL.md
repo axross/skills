@@ -22,7 +22,7 @@ The requirement keywords used in this skill and its references follow
 See [documentation-structure.md](./references/documentation-structure.md) for:
 
 - authoring an OKF v0.3 concept and distinguishing format requirements from this skill's discovery defaults
-- choosing the primary type by the reader's decision, organizing the index and defining terminology
+- reviewing a page’s declared type against its reader’s question and the claim it owns, organizing the index and defining terminology
 
 See [conventions-and-operations.md](./references/conventions-and-operations.md) for:
 
@@ -52,5 +52,5 @@ See [consulting-and-upkeep.md](./references/consulting-and-upkeep.md) for:
 
 See [validators.md](./references/validators.md) for:
 
-- checking the index, references and legacy glossary pairing
-- checking OKF conformance with a pinned validator and qualifying a standalone export
+- running one whole-root check for OKF conformance and engineering rules from the first day of migration
+- interpreting evidence warnings and the editorial type list, using focused checks and qualifying a standalone export

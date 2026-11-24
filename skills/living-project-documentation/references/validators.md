@@ -1,15 +1,66 @@
 # Validators
 
-## Repository checks
+## Check the whole documentation root
 
-For an OKF check in a standalone installation, set `skill_dir` to the
-installed skill directory and run
-`npm ci --prefix "$skill_dir/scripts" --ignore-scripts` to install the pinned
-parsers. Legacy checks need only Node.
+Run `check-docs.mjs` on first adoption, during migration and after editing a
+bundle. It inventories visible Markdown even if every living page is untyped.
+In a populated directory without a root index it reports the missing
+`index.md` and continues checking the available pages and links.
 
-The bundled Node commands default to `./docs` and accept another documentation
-directory as the positional argument. Without a root `index.md` they leave an
-unadopted directory alone.
+### Prepare the installed skill
+
+Set `skill_dir` to the installed skill directory. Use Node, npm and a Python 3
+environment with PyYAML. For example, from the project root on a POSIX shell:
+
+```bash
+skill_dir=.agents/skills/living-project-documentation
+npm ci --prefix "$skill_dir/scripts" --ignore-scripts
+python3 -m venv .venv-okf
+. .venv-okf/bin/activate
+python3 -m pip install PyYAML==6.0.3
+validator="$VIRTUAL_ENV/validate-okf-v0.3.py"
+curl -fsSL https://raw.githubusercontent.com/open-knowledge-format/open-knowledge-format/527e81aff55992be21507e97004286789126f88c/skills/okf-generate/scripts/validate.py -o "$validator"
+```
+
+The command verifies the pinned validator's SHA-256 before invoking Python.
+After setup the check runs offline. You can also point `--validator` at the
+same file in a local [OKF v0.3 checkout](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/skills/okf-generate/scripts/validate.py).
+
+### Run and interpret the check
+
+```bash
+node "$skill_dir/scripts/check-docs.mjs" --validator "$validator" docs
+```
+
+The exit status is **0** when the required checks pass, **1** for findings
+that require a fix, and **2** when a setup, invocation or execution problem
+prevents a complete check. Use the diagnostics to locate each finding:
+
+- **Required by OKF.** A format error such as frontmatter on a nested `index.md` (`E004`) or on a `log.md` (`E006`) fails the check.
+- **Required by this skill.** A living page needs a nonempty string `type`, a route from the root index and resolvable local links and fragments. OKF permits untyped Markdown and emits `W120`. The engineering check determines the type using the YAML 1.2 core schema. For example, an unquoted `type: On` is a string under that schema. The pinned Python parser can still emit `W120` for it. Quoting `"On"` makes both parsers read the same type.
+- **Recommendations.** Upstream warnings remain visible. For example, a root index without a version declaration can receive `W125`. Check for an accompanying required finding before deciding what to fix.
+- **Editorial review.** The report lists typed pages on both passing and failing runs. For each page, use its reader's question and the claim it owns to [review the declared type](./documentation-structure.md#review-the-declared-type).
+
+For checkout links to neighboring files, add `--source-root .` from the
+repository root. For immutable Markdown evidence, name each original by its
+exact bundle-relative path. A reachable companion can cite the source in its
+body or a local `sources[].resource` field.
+
+```bash
+node "$skill_dir/scripts/check-docs.mjs" --validator "$validator" --source-root . \
+  --evidence evidence/accepted.md --evidence evidence/incident.md docs
+```
+
+**Guidelines:**
+
+- MUST run the whole-root check when determining whether a tree meets the required format and engineering rules.
+- MUST verify each named source against its companion and original bytes. Its expected `W120` stays in the report. An additional untyped living page or a separate error on the named source still fails.
+
+## Focused checks
+
+The individual Node commands default to `./docs` and accept another directory
+as a positional argument. They retain their existing root-index and OKF
+detection for callers using them during a targeted edit.
 
 | Command                | Question                                                                                                                                           |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -17,45 +68,15 @@ unadopted directory alone.
 | `check-references.mjs` | Do local Markdown links, fragments and OKF path fields resolve? The local checker also checks rendered HTML links and images for export usability. |
 | `check-glossary.mjs`   | Does each legacy flat spec have a matching glossary heading? OKF type names do not imply a glossary pairing.                                       |
 
-The checks recognize an OKF bundle from the root version declaration or typed
-concept frontmatter. In OKF mode a missing type on a living page is an upkeep
-finding. OKF itself permits untyped Markdown. Identify an intentional untyped
-evidence source by its exact bundle-relative path when checking the index.
-
-```bash
-node "$skill_dir/scripts/check-index.mjs" --evidence evidence/accepted.md docs
-node "$skill_dir/scripts/check-references.mjs" docs
-node "$skill_dir/scripts/check-glossary.mjs" docs
-```
-
-When the editable documentation links to neighboring files in its repository,
-run `check-references.mjs --source-root . docs` from the repository root.
-This checkout check follows those links in the current tree. Run the ordinary
-command on the standalone export to catch any remaining checkout-only links.
-
-A companion can cite its source in the body or in a local
-`sources[].resource` field.
-
-**Guidelines:**
-
-- MUST run all three checks on a migrated tree.
-- MUST identify each intentional untyped evidence file with a separate `--evidence` argument and verify its warning against the companion and original bytes. Other findings remain actionable.
-
 ## Check the export independently
 
-A checkout can provide files or parser dependencies that a recipient of a
-standalone bundle will never see. The project's navigation checks and the
-upstream validator examine different properties. With Python and PyYAML
-installed, run the [pinned v0.3 validator](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/skills/okf-generate/scripts/validate.py)
-from its checkout.
-
-```bash
-python /path/to/pinned/skills/okf-generate/scripts/validate.py --json docs
-```
+Run the whole-root command on the exported directory outside the checkout.
+Leave out `--source-root` so the check sees only the files a recipient gets.
+Pass the same evidence paths used for the checkout.
 
 **Guidelines:**
 
-- MUST run project gates in the checkout. Run the three navigation checks and the pinned upstream validator on the source and the exported bundle outside the checkout. Use the repository-aware reference check only on the source.
+- MUST run project gates in the checkout and the whole-root check on both source and export.
 - MUST include all distributed evidence and linked assets in the export and compare their hashes with the originals.
 - MUST trace an index route and a moved fragment offline, and resolve each external source against its published location or pinned revision.
 - MUST report checkout and export results separately, naming the validator revision, expected warning paths and reasons, and any unresolved sources or routes.
