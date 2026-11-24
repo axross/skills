@@ -150,10 +150,11 @@ the workspace to route and to work, exactly as it would for a real request.
 the condition's skills into it, and runs the model with the tools it needs
 to open that workspace and change it, because one probe's transcript,
 workspace diff, and skill invocations are what all three evaluation phases
-are judged from afterward. The declared turn cap defaults to
-<!-- count:probe-turn-cap -->100<!-- /count --> assistant events. The probe record reports its own turn count. Treat a probe that reaches the cap as
+are judged from afterward.
 
-an unfinished measurement. It may have finished editing and still be trying
+The turn cap defaults to <!-- count:probe-turn-cap -->100<!-- /count --> assistant
+events. The probe record reports its own turn count. Treat a probe that reaches
+the cap as an unfinished measurement. It may have finished editing and still be trying
 to verify its work. Leftover scaffolding and repeated attempts alone cannot
 establish a skill defect.
 
