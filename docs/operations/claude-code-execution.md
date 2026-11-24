@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Claude Code Execution
+description: How Claude Code and Codex sessions select permitted tools, isolate work and wait for review.
+---
+
 # Claude Code Execution
 
 Maintainers running this repository in Claude Code — and, for the instruments
@@ -5,8 +11,8 @@ the two share, in Codex — use this reference to pick the instrument for a step
 whose _meaning_ another owner already fixed. It maps the portable contracts onto
 those hosts' operations; it grants no tool access and replaces no tool
 definition. [Development Workflow](./development-workflow.md)
-owns this repository's gates, [Loop Engineering](../../skills/loop-engineering/SKILL.md)
-owns transitions and evidence, [Professional Behavior](../../skills/professional-behavior/SKILL.md)
+owns this repository's gates, [Loop Engineering](https://github.com/axross/skills/blob/main/skills/loop-engineering/SKILL.md)
+owns transitions and evidence, [Professional Behavior](https://github.com/axross/skills/blob/main/skills/professional-behavior/SKILL.md)
 owns decisions and question content. Apply those gates within the active host's
 actual instruction hierarchy and tool usage conditions. Host entry guidance
 explains that application; it cannot define or override priority. Report any
@@ -31,7 +37,7 @@ the missing capability rather than substituting a mechanism the contract forbids
 
 ## Ask the human through the question tool
 
-[Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
+[Choosing the Route](https://github.com/axross/skills/blob/main/skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
 owns the rules — which decisions reach the human, how they are framed, when
 prose is the route, and what to do with a prompt that closed or errored. This
 section supplies only the instrument that carries them.
@@ -61,7 +67,7 @@ equivalent to `AskUserQuestion`.
   that resolved without a human-authored answer — timed out, auto-dismissed,
   cancelled — is unanswered, and re-presenting it is what the rule requires;
   treating it as an answer is the fabrication
-  [Asking the Human](../../skills/professional-behavior/references/asking-the-human.md)
+  [Asking the Human](https://github.com/axross/skills/blob/main/skills/professional-behavior/references/asking-the-human.md)
   forbids outright.
 - The plan-approval gate is not one of these. It is a whole plan the human reads
   at their own pace, so it ends the turn and waits for a resume.
@@ -72,7 +78,7 @@ equivalent to `AskUserQuestion`.
 
 ## Wait for CI and the independent review
 
-[Waiting Bound](../../skills/loop-engineering/references/independent-review.md#waiting-bound)
+[Waiting Bound](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md#waiting-bound)
 owns the rules: the bound itself, resolving which mechanism the session has
 before the first wake, recording when only one is available, scoping a
 mechanism to this tail, and tearing down at each of its three stops. This
@@ -125,7 +131,7 @@ condition.
 
 ## Choose the working location before touching files
 
-[Writing and Recovery](../../skills/loop-engineering/references/writer-ownership-and-recovery.md)
+[Writing and Recovery](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/writer-ownership-and-recovery.md)
 requires the actual workspace identity to be established before writing, and
 leaves the arrangement to project policy and the assignment. This is that
 policy for Claude Code.
@@ -146,7 +152,7 @@ policy for Claude Code.
   for. A worktree deleted with unpushed commits destroys the evidence the
   append-only recovery rules depend on.
 - After the change merges or closes, Loop's
-  [Release a Finished Change](../../skills/loop-engineering/references/phase-progression.md#release-a-finished-change)
+  [Release a Finished Change](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/phase-progression.md#release-a-finished-change)
   decides whether the worktree goes. Here the host owns some worktrees. As
   checked on 2026-11-04 against the `ExitWorktree` tool definition, it
   acts only on a worktree `EnterWorktree` created in the same session, is
@@ -162,11 +168,11 @@ policy for Claude Code.
 ## Route a read, and task an investigator
 
 Applicable host guidance owns general read routing. Loop retains
-[assignment and material-fidelity contracts](../../skills/loop-engineering/references/implementation-package.md),
+[assignment and material-fidelity contracts](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/implementation-package.md),
 not an Investigator route. This section supplies Claude Code's configured
 actors; none of them is an Amp mapping or an established Codex capability:
 
-- [`.claude/agents/investigator.md`](../../.claude/agents/investigator.md) remains the configured reader for a bounded
+- [`.claude/agents/investigator.md`](https://github.com/axross/skills/blob/main/.claude/agents/investigator.md) remains the configured reader for a bounded
   investigation question, invoked through the `Agent` tool as
   `subagent_type: investigator`. Its definition owns the investigation's
   return shape and denies editing tools and nested
@@ -189,7 +195,7 @@ actors; none of them is an Amp mapping or an established Codex capability:
 
 The session's actual instruction sources and priorities, together with its tool
 usage conditions, determine whether a proposed spawn is permitted.
-[Run State and Reporting](../../skills/loop-engineering/references/run-state-and-reporting.md)
+[Run State and Reporting](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/run-state-and-reporting.md)
 requires the determination and its grounds to be recorded. What is observable
 here:
 
@@ -203,7 +209,7 @@ here:
 
 ## Classify a spawned role's model and effort
 
-[Run State and Reporting](../../skills/loop-engineering/references/run-state-and-reporting.md)
+[Run State and Reporting](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/run-state-and-reporting.md)
 requires every spawned role's model and effort to be classified `verified`,
 `declared`, or `unknown`, and forbids reporting a declared value as verified.
 In Claude Code:

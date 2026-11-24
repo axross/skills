@@ -1,8 +1,13 @@
-<!-- Example. Part of the example docs tree shipped with living-project-documentation. -->
+---
+type: Procedure
+title: Deployment
+description: How the release operator migrates the schema, deploys, verifies and rolls back Scheduler.
+---
 
 # Deployment
 
-Releasing to production, and getting back off a release that went wrong.
+The release operator uses a checkout of the release revision with production
+deployment access. Before release, record the previous revision for rollback.
 
 ## Releasing
 
@@ -38,6 +43,5 @@ rollback, and it goes through the on-call procedure instead of this document.
 ## Verifying a release
 
 The deploy is not finished when the command returns. Watch the worker's claim rate for
-five minutes: a release that broke the queue consumer deploys cleanly, reports
-success, and simply stops claiming. Nothing else surfaces it, because no request
-fails.
+five minutes and confirm queued jobs are being claimed. A release that broke the
+queue consumer can deploy cleanly and stop claiming while requests still succeed.

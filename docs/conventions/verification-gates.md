@@ -1,3 +1,9 @@
+---
+type: Convention
+title: Verification Gates
+description: Criteria for merge gates, advisory reports and scheduled audits and where each is enforced.
+---
+
 # Verification Gates
 
 A check on this repository is exactly one of three things: a **merge gate**

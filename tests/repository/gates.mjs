@@ -148,25 +148,21 @@ export const GATES = [
     name: "corpus-index",
     script: SCRIPTS.checkIndex,
     args: ["docs"],
-    passes: /Every document is listed in index\.md \(\d+ indexed/,
+    passes: /Every living page is reachable from the root index \([1-9]\d* Markdown files\)\./,
   },
   {
     name: "corpus-references",
     script: SCRIPTS.checkReferences,
     args: ["docs"],
-    passes: /Every relative link resolves \(\d+ across \d+ documents\)\./,
+    passes: /Every relative link resolves across [1-9]\d* documents\./,
   },
   {
-    // the pattern requires the spec-counting message, so a `specs/` directory
-    // that empties out reads as a failure rather than as a pass. it spent one
-    // pull request accepting "Nothing to check" as well, because the corpus had
-    // no spec yet; that alternation is gone now that it has one, and this is
-    // the only gate here whose passing message a later change could weaken
-    // without touching the check itself.
+    // This repository uses OKF. The legacy pairing contract is still
+    // exercised by the planted corpus in gate-teeth.test.mjs.
     name: "corpus-glossary",
     script: SCRIPTS.checkGlossary,
     args: ["docs"],
-    passes: /Every spec has a heading in glossary\.md \(\d+ checked\)\./,
+    passes: /OKF concepts do not require matching glossary headings\./,
   },
 ];
 

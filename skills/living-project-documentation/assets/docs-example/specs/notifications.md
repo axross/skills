@@ -1,4 +1,8 @@
-<!-- Example. Part of the example docs tree shipped with living-project-documentation. -->
+---
+type: Specification
+title: Notifications
+description: How terminal job outcomes reach channels, immediately or in a digest.
+---
 
 # Notifications
 

@@ -1,0 +1,77 @@
+{
+  "id": "separate-locale-matching-from-deployment",
+  "description": "The existing locale-fallback scenario exercises same-change upkeep on an untyped legacy project. This companion puts the same project partway through OKF adoption. Its deployment notes mix a selection contract, a rollback task and a byte-pinned acceptance. Moving a heading, retyping the approved report or leaving two owners would each break a different reader.",
+  "mock": "tsuzuri",
+  "targetSkills": ["living-project-documentation"],
+  "peerSkills": ["technical-document-authoring"],
+  "patch": "patch.diff",
+  "harness": {
+    "agentsMd": true
+  },
+  "task": {
+    "prompt": "Finish converting our engineering notes into the OKF 0.3 bundle started in docs/index.md. Readers debugging the language shown on a post and operators restoring a build both start in the deployment guide. Help each find their answer and explain where future changes belong. The locale-fallback bookmark circulates outside the repository, and the editor still relies on the approved preview artifacts. Walk through the old and new reading routes and explain a split you made and a set of facts you kept together. Leave application behavior as it is."
+  },
+  "factors": [
+    {
+      "id": "separates-independent-reader-tasks",
+      "phase": "outcome",
+      "description": "A reader debugging language selection needs one discoverable contract that can change without editing the rollback instructions.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Read the task and diff. Require a separate typed concept with a meaningful title and description for the observable locale contract, and a distinct deployment procedure. Check that an exact match later in the preference list beats an earlier language-only match, and that a missing default translation after no match yields no post. Reject an extraction that leaves duplicate authoritative rules in the procedure. Accept equivalent names and paths."
+      }
+    },
+    {
+      "id": "keeps-rollback-action-and-reason-together",
+      "phase": "outcome",
+      "description": "An operator needs the rollback target and the reason a redeploy suffices at the point of action.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Require the rollback procedure to keep the previous build and the build-local post catalog/no database rollback rationale together. The unchanged context in the diff can establish this. Reject a generic link that requires a second concept to determine whether a database rollback is needed."
+      }
+    },
+    {
+      "id": "preserves-both-approved-files",
+      "phase": "outcome",
+      "description": "The approval binds the original Markdown and the captured request to separate byte identities. This check hashes both files in the reconstructed workspace.",
+      "judgment": {
+        "method": "script",
+        "script": "scripts/check-approved-files.mjs",
+        "input": {
+          "files": [
+            {
+              "path": "docs/evidence/preview-check.md",
+              "digest": "148b9a3ce2540112f120b7c8a78efb7d2fc5ce5c2bceab15c23e496ff3f53b0b"
+            },
+            {
+              "path": "docs/evidence/request.txt",
+              "digest": "baba1659eaa380ca33147b37346e34b82dccfe8b0ec12dd27564bcc52815c294"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "keeps-approval-scope-and-provenance",
+      "phase": "outcome",
+      "description": "A digest comparison cannot show whether the reader can locate the acceptance or tell which build and conditions it covered.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "The original deployment page contains the editor’s approval for build 62. Require a discoverable typed companion identifying the build and request conditions, linking to the pinned evidence and locating its acceptance. Fail if the diff removes the acceptance or claims that this observation qualified another build."
+      }
+    },
+    {
+      "id": "demonstrates-ownership-and-routes",
+      "phase": "transcript",
+      "description": "A contributor should be able to follow both current navigation and a bookmark, and understand why two kinds of information stay together.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "From the transcript require the agent to name the authoritative page for language matching, explain a split based on independent changes or readers, and justify keeping the rollback action with its build-local data rationale. Require a trace from the index to the matching contract, from the old deployment.md#locale-fallback bookmark to that same owner, and from the operator entry to rollback. The editable README link should lead directly to the contract. Reject an unsupported statement that all links work."
+      }
+    }
+  ]
+}

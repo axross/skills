@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: GitHub Delivery
+description: How to store an approved plan, transfer issue state to a pull request and route review evidence.
+---
+
 # GitHub Delivery
 
 This procedure tells maintainers how to store and publish this repository's
@@ -5,11 +11,11 @@ change-loop records. It assumes a tracked change and the applicable gates in
 [Development Workflow](./development-workflow.md). It does not choose a host
 tool, grant authorization, or define the meaning of a phase.
 
-Before a GitHub operation, apply [GitHub Operation](../../skills/github-operation/SKILL.md)
+Before a GitHub operation, apply [GitHub Operation](https://github.com/axross/skills/blob/main/skills/github-operation/SKILL.md)
 for channel qualification, identity, target validation, body fidelity, and
 read-back. Host guidance refers to that capability rather than copying API
 rules. Before evaluating a transition, apply
-[Loop Engineering](../../skills/loop-engineering/SKILL.md); the storage below
+[Loop Engineering](https://github.com/axross/skills/blob/main/skills/loop-engineering/SKILL.md); the storage below
 encodes its contracts without replacing them.
 
 ## Store the plan on the issue
@@ -30,7 +36,7 @@ verbatim inline or in a marked archival comment. An inline archive SHOULD use a
 collapsed `<details>` section after the plan; an archival comment MUST be
 verified before removing the original from the body, with its URL retained in
 the issue. Archive and state placement follow
-[Loop's plan-identity boundary](../../skills/loop-engineering/references/plan-document.md).
+[Loop's plan-identity boundary](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/plan-document.md).
 
 ## Encode recoverable state in the body
 
@@ -40,7 +46,7 @@ status in this block and in the conversation, not in separate attention
 comments. Ephemeral worker handles stay in the session, not in GitHub, and so
 do the processes and port forwards a run created, which end with that session.
 The Recovery field carries only the durable part of Loop's
-[created-resource record](../../skills/loop-engineering/references/run-state-and-reporting.md#semantic-run-state):
+[created-resource record](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/run-state-and-reporting.md#semantic-run-state):
 branches, working copies, installs and series dependencies.
 For a separately created review thread, its durable thread identity or URL,
 posted-result locator and closure status are permitted review correlation
@@ -48,7 +54,7 @@ metadata, not transient worker handles. Keep those under `Review`/`Recovery`
 so failed cleanup remains recoverable after the caller's session ends.
 
 The block carries ordinary labeled text, not a new machine schema. Map the
-[semantic run state](../../skills/loop-engineering/references/run-state-and-reporting.md)
+[semantic run state](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/run-state-and-reporting.md)
 into these fields, including conditional evidence only when relevant:
 
 | Contract information | Stored representation                                                                                                                                                                                       |
@@ -80,7 +86,7 @@ variable creation, workflow enablement, bot allowlisting, fork/private policy,
 spend or retention settings, merge, release, deployment or scheduling unless
 the human separately names the effect. Readiness publication is not one of
 these grant-gated effects: Loop's
-[Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate),
+[Ready Gate](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md#ready-gate),
 once satisfied, is its own sufficient warrant for that one effect.
 
 The `Review` entry records only safe correlation metadata: trigger comment ID
@@ -93,7 +99,7 @@ These field-specific least-data constraints do not remove other substantive
 material from a permitted internal plan or handoff that Loop requires.
 
 Loop owns the conditions under which finding details persist, including
-[advisory-review parks](../../skills/loop-engineering/references/pre-flight-review.md).
+[advisory-review parks](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/pre-flight-review.md).
 This representation MUST NOT expand that ledger's durability or replace
 lost evidence with a claim of success. Record only process information needed
 for recovery, without credentials or transient worker handles.
@@ -109,7 +115,7 @@ self-review handoff.
 ## Publish deferred pre-flight handoffs
 
 An informed decline ends an advisory round with risks still open, and Loop's
-[Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff)
+[Deferred Handoff](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/pre-flight-review.md#deferred-handoff)
 contract requires that record to reach the human. It goes on the delivery
 target. This repository used to split it in two — a substantive record on the
 tracking Issue and a redacted projection on the pull request — because the
@@ -125,7 +131,7 @@ that now, and one record the human can read beats two neither is complete.
 - MUST keep compact handoff status and locators in the PR's state block, so a resumed run finds the record without reading every comment.
 - MUST treat publication as an effect under the recovered operation grant. Without authorization, retain the full ledger in the current permitted internal handoff, report its substance and the exact blocked effect to the human, and keep delivery incomplete; an orb-local artifact is not a durable substitute.
 - MUST NOT feed the comment to a fresh advisory assignment or treat it as replacement input for mandatory external review; public readability does not imply reviewer invisibility.
-- MUST route missing substantive handoff evidence through Loop's [Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff) recovery contract; Delivery adds only verified GitHub process and decision locators and blocked publication effects.
+- MUST route missing substantive handoff evidence through Loop's [Deferred Handoff](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/pre-flight-review.md#deferred-handoff) recovery contract; Delivery adds only verified GitHub process and decision locators and blocked publication effects.
 
 ### Extract the state block without reading the whole body
 
@@ -150,7 +156,7 @@ such as JavaScript's `s`, needs it there instead.
 - MUST NOT extract the block with a line-range selection such as `sed -n '/<!-- loop-engineering/,/-->/p'`. A range does not close on the line that opened it, so a single-line block runs the selection on to the next `-->` elsewhere in the body and returns unrelated text with no error raised. It works for exactly as long as the block stays multi-line, and fails silently the first time it does not.
 - MUST fall back to the full stored body when a narrowed read returns nothing, rather than concluding from that alone that the body carries no state — the body may predate the token, or the route may have degraded.
 - MUST read the whole stored body, never the narrowed block, on a turn that will write the body back and cannot compose the new body from text the run itself authored. A body write replaces the body entire, and a narrowed read cannot reconstruct what it never read. Bounded extraction serves only the read-only case, such as a resume recovering phase and waiting state.
-- MUST use the full-body procedure in [GitHub Operation's body-integrity reference](../../skills/github-operation/references/body-integrity.md) for any replacement; bounded extraction is never the input for a whole-body write.
+- MUST use the full-body procedure in [GitHub Operation's body-integrity reference](https://github.com/axross/skills/blob/main/skills/github-operation/references/body-integrity.md) for any replacement; bounded extraction is never the input for a whole-body write.
 
 ## Hand state over to the pull request
 
@@ -160,12 +166,12 @@ records or recreating an existing PR after interruption:
 1. Check for an existing PR for the branch and tracking issue. Recover that
    target if found rather than creating another.
 2. Prepare the PR with the current state block, a pointer to the issue's plan
-   and approved revision, and [the repository's PR template](../../.github/pull_request_template.md).
+   and approved revision, and [the repository's PR template](https://github.com/axross/skills/blob/main/.github/pull_request_template.md).
    Put `Closes #<issue-number>` in its **Related issues** section, and the
    approved plan's diff-verifiable and designated out-of-tree acceptance
    criteria, quoted verbatim with their status and the plan revision they were
    copied from, in its **Acceptance criteria** section. Follow
-   [Loop Engineering's projection contract](../../skills/loop-engineering/references/phase-progression.md)
+   [Loop Engineering's projection contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/phase-progression.md)
    for the external-evidence links and omitted-criterion count. Reviewers work
    from the PR alone; contributors remain responsible for external verification.
    A projection naming a superseded revision is stale rather than approved.
@@ -201,12 +207,12 @@ Use the following destinations after resolving the target under GitHub Operation
 
 [Code Review](./code-review.md) owns the selected reviewers' invocation,
 eligibility and setup, including Amp's direct review-thread publication.
-[REVIEW.md](../../REVIEW.md) owns severity and output policy. Delivery MUST use
+[REVIEW.md](https://github.com/axross/skills/blob/main/REVIEW.md) owns severity and output policy. Delivery MUST use
 the selected invocation only when the review request and its publication
 effects are authorized; preparing a comment or assignment does not publish it.
 
 Finding replies follow the disposition established under Loop's
-[external addressing contract](../../skills/loop-engineering/references/independent-review.md#addressing-findings).
+[external addressing contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md#addressing-findings).
 That contract owns classification and terminality; this procedure supplies the
 reply format and destination:
 
@@ -218,7 +224,7 @@ reply format and destination:
 
 For a terminal disposition, MUST verify the required reply and complete granted,
 eligible corresponding thread closure through
-[GitHub Operation](../../skills/github-operation/references/publication-and-recovery.md#verify-review-conversation-effects-separately).
+[GitHub Operation](https://github.com/axross/skills/blob/main/skills/github-operation/references/publication-and-recovery.md#verify-review-conversation-effects-separately).
 When a route is unavailable or closure fails, MUST record the exact blocked
 effect and retain verified reply evidence as partial delivery, not completed
 GitHub delivery or a reason to duplicate the reply.
@@ -235,7 +241,7 @@ state. Use a required fresh review's summary as rerun evidence, not as a reason
 to invent a fixing commit or request a round solely for outcome bookkeeping.
 
 The PR stays draft until Loop's
-[readiness evaluation](../../skills/loop-engineering/references/independent-review.md)
+[readiness evaluation](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md)
 succeeds. Publish the ready transition once that evidence is satisfied, and
 leave merging to the human under Development Workflow. If a policy-compliant
 independent review cannot be established, record the actual unmet gate on the

@@ -20,7 +20,8 @@ const checkGlossary = validator(SCRIPTS.checkGlossary);
 describe("check-glossary.mjs", () => {
   it("pairs a spec with its heading on a slug", async () => {
     const docs = await writeDocs(await tempDir(), {
-      "glossary.md": "# Glossary\n\n## Job Templates\n\n**Job Template** — a definition.\n",
+      "glossary.md":
+        "# Glossary\n\n## Job Templates\n\n**Job Template** — a definition.\n",
       "specs/job-templates.md": "# Job Templates\n",
     });
 
@@ -41,7 +42,8 @@ describe("check-glossary.mjs", () => {
 
   it("allows a heading that no spec owns", async () => {
     const docs = await writeDocs(await tempDir(), {
-      "glossary.md": "# Glossary\n\n## Jobs\n\n**Job** — one run.\n\n## Tenancy\n\n**Tenant** — an org.\n",
+      "glossary.md":
+        "# Glossary\n\n## Jobs\n\n**Job** — one run.\n\n## Tenancy\n\n**Tenant** — an org.\n",
       "specs/jobs.md": "# Jobs\n",
     });
 
@@ -66,7 +68,9 @@ describe("check-glossary.mjs", () => {
       "specs/billing/invoices.md": "# Invoices\n",
     });
 
-    expect(checkGlossary(docs)).toReportFailure(/nested: specs\/billing\/invoices\.md is nested/);
+    expect(checkGlossary(docs)).toReportFailure(
+      /nested: specs\/billing\/invoices\.md is nested/,
+    );
   });
 
   it("exits 0 when docs/ has no specs/", async () => {
@@ -86,4 +90,14 @@ describe("check-glossary.mjs", () => {
 
     expect(checkGlossary(docs)).toPassCleanly();
   });
+});
+
+it("detects a versionless typed bundle without inventing terms for specifications", async () => {
+  const docs = await writeDocs(await tempDir(), {
+    "contracts/input.md": "---\ntype: Specification\n---\n\n# Accepted input",
+    "specs/jobs.md": "---\ntype: Specification\n---\n\n# Jobs",
+  });
+  const result = checkGlossary(docs);
+  expect(result).toPassCleanly();
+  expect(result.stdout).toMatch(/OKF concepts/);
 });

@@ -153,10 +153,10 @@ when a change makes them wrong. `technical-document-authoring` owns the
 
 #### `living-project-documentation`
 
-Keeps the docs that describe your project true: read before planning,
-corrected in the change that made them wrong, with a settled constraint
-written into the document that governs it rather than into a log of its own —
-and three small validators for the rot a reader cannot see. See [`SKILL.md`](./skills/living-project-documentation/SKILL.md).
+Organizes engineering documentation as an Open Knowledge Format (OKF) v0.3
+bundle. Choose pages by the decisions readers need to make, migrate existing
+guides while preserving bookmarks and evidence, and update the affected
+concepts when the project changes. See [`SKILL.md`](./skills/living-project-documentation/SKILL.md).
 
 #### `technical-document-authoring`
 

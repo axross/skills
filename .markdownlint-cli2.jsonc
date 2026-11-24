@@ -29,6 +29,11 @@
     ],
     "config": { "MD025": false },
     "combine": "merge"
+  }, {
+    // OKF's display title is metadata; keep checking the visible H1 in each page.
+    "filter": ["docs/**/*.md", "skills/living-project-documentation/assets/docs-example/**/*.md", ".agents/skills/living-project-documentation/assets/docs-example/**/*.md", ".claude/skills/living-project-documentation/assets/docs-example/**/*.md"],
+    "config": { "MD025": { "front_matter_title": "" } },
+    "combine": "merge"
   }],
   // tools/evaluation/mocks/ ships self-contained projects with their own
   // linter, so this repository's gates skip them. these "ignores" entries

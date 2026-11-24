@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Development Setup
+description: Install the repository toolchain and choose the commands that verify a local change.
+---
+
 # Development Setup
 
 How to set this repository up for local work and the commands that verify a
@@ -12,7 +18,7 @@ and the command reference that workflow's checks run.
    one covers
 
 There is no dev server — authoring a skill means editing Markdown under
-[`skills/`](../../skills) (or a skill root for a repository-local skill) and
+[`skills/`](https://github.com/axross/skills/tree/main/skills) (or a skill root for a repository-local skill) and
 reinstalling if it is distributable; see
 [`docs/operations/agent-skills.md`](./agent-skills.md) for
 that procedure and
@@ -43,7 +49,7 @@ in [`docs/`](../index.md), which is checked by the same suite.
 
 Verification is a format check, a Markdown lint, and a Vitest suite.
 `npm run check` runs all three, and each gates a merge as its own parallel job in
-[`merge-checks.yaml`](../../.github/workflows/merge-checks.yaml). The suite is the
+[`merge-checks.yaml`](https://github.com/axross/skills/blob/main/.github/workflows/merge-checks.yaml). The suite is the
 wide one — the `npm test` row says what it carries.
 
 This table is the authoritative list of the repository's commands, for human
@@ -51,7 +57,7 @@ contributors and agents alike.
 
 The additional W1 foundation uses CLI2 0.23.3/markdownlint 0.41.1 and the private
 bundled package described in
-[Protected Markdownlint Execution](../../skills/agent-skill-authoring/references/markdownlint-execution.md).
+[Protected Markdownlint Execution](https://github.com/axross/skills/blob/main/skills/agent-skill-authoring/references/markdownlint-execution.md).
 Its AS001/AS010 checks and raw-source/preflight tests run in the fixture suite;
 they do not replace the existing repository lint or structure gates. Standard
 configuration for this helper is explicit, not inherited from CLI2 config.
@@ -72,12 +78,12 @@ is not required.
 | `npm test`                                                                 | Runs the Vitest suite: the bundled validators against fixtures, this repository's own gate wiring, and — over this repository — the relative-link check, the skill-structure check (the three skill-structure checks over the source and the installed files), the installed-copy drift check, the evaluation instrument's own suite under `tests/evaluation/` (`probe.mjs`, `evaluate.mjs`, `derive.mjs`, `compare.mjs`, and `artifacts.mjs` run for real against stored fixtures, never a live model), the three `docs/` checks, and the marked-count check that holds a number in prose to the file it describes. Advisory `WARN` lines from the structure check never affect the outcome. | After changing any script, any `SKILL.md`, a reference file, or `docs/`.                                                          |
 | `npm run check`                                                            | The aggregate gate: format check, lint, then the test suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Before opening or updating a pull request.                                                                                        |
 | `node tools/evaluation/artifacts.mjs`                                      | Packages `record.json` bundles and admits them before landing. Use `--help` for flags; [Evaluation Dispatch](./evaluation-dispatch.md#artifact-admission-artifactsmjs) owns context, selectors, partial outcomes and offline invocations.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | In dispatch producers/consumers or credential-free offline artifact checks.                                                       |
-| `node tools/evaluation/compare.mjs <declaration.json> <observations.json>` | Emits an explicit treatment-comparison JSON report without changing inputs or calling models. [Evaluation Dispatch](./evaluation-dispatch.md) owns the input contract and claim limits.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | For offline old/new comparison reporting, not live qualification.                                                                 |
+| `node tools/evaluation/compare.mjs <declaration.json> <observations.json>` | Emits an explicit treatment-comparison JSON report without changing inputs or calling models. [Evaluation Dispatch](./evaluation-dispatch.md#input-contract) describes the inputs. [Treatment Comparison](../specs/treatment-comparison.md) defines what the report establishes.                                                                                                                                                                                                                                                                                                                                                                                                              | For offline old/new comparison reporting, not live qualification.                                                                 |
 
 If a required command cannot be run, say so — naming the command, the reason,
 and the residual risk — rather than presenting the change as fully verified.
 
-Every command below runs from the source tier under [`skills/`](../../skills) —
+Every command below runs from the source tier under [`skills/`](https://github.com/axross/skills/tree/main/skills) —
 what the suite itself invokes; the installed roots go stale mid-edit. See
 [`docs/conventions/directory-structure.md`](../conventions/directory-structure.md)
 for why each validator ships with the skill that owns it rather than living

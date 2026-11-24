@@ -1,3 +1,9 @@
+---
+type: Procedure
+title: Agent Sessions
+description: Configure startup, quality hooks, telemetry and cost-related settings for agent sessions.
+---
+
 # Agent Sessions
 
 How an Amp orb provisions this repository, how a Claude Code or Codex session
@@ -7,7 +13,7 @@ recommended for cutting a session's cost.
 
 ## Amp orb provisioning
 
-The executable [`.agents/setup`](../../.agents/setup) provisions a fresh or
+The executable [`.agents/setup`](https://github.com/axross/skills/blob/main/.agents/setup) provisions a fresh or
 stale Amp orb before the host starts an agent session. It installs the pinned
 mise v2026.9.1 Linux x64 binary after verifying its SHA-256 checksum, then uses
 an orb-local `~/.config/mise/skills.toml` to install Node 26. The checked-in
@@ -41,7 +47,7 @@ toolchain-provisioning entry point.
 ## The Opt-In Quality Hooks
 
 The opt-in format-on-edit and check-before-stop hooks materialize from
-[`.claude/settings.local-example.json`](../../.claude/settings.local-example.json)
+[`.claude/settings.local-example.json`](https://github.com/axross/skills/blob/main/.claude/settings.local-example.json)
 in a Claude Code cloud session. Format-on-edit fires only for a file changed
 through the `Edit`, `Write`, or `MultiEdit` tools — the `PostToolUse`
 matcher's scope, which this repository deliberately does not widen — so a
@@ -139,12 +145,12 @@ not this quality hook's success.
 
 ## Telemetry Tagging
 
-[`.claude/settings.json`](../../.claude/settings.json) carries an `env` block
+[`.claude/settings.json`](https://github.com/axross/skills/blob/main/.claude/settings.json) carries an `env` block
 stamping `repository=skills` and the session's launch surface onto the
 OpenTelemetry metrics Claude Code exports, so this repository's usage
 separates from every other repository sharing an account or a cloud
 environment. Its Codex counterpart is `[otel]` in
-[`.codex/config.toml`](../../.codex/config.toml). Neither configures anything
+[`.codex/config.toml`](https://github.com/axross/skills/blob/main/.codex/config.toml). Neither configures anything
 else — no endpoint, no credential, no `CLAUDE_CODE_ENABLE_TELEMETRY` — so a
 contributor who has never set telemetry up sees no behavior change from it.
 

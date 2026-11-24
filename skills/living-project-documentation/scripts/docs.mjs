@@ -1,160 +1,34 @@
-// shared docs reading for the specification validators beside this file.
-//
-// deliberately carries no shebang: this is a module, not a command. a tool that
-// identifies a CLI by its shebang would otherwise count it as a fourth validator.
-//
-// everything here is standard-library Node. the validators ship inside a skill
-// that installs into arbitrary projects, so they take no dependencies and assume
-// no build step.
-
+// Shared CLI, frontmatter and Markdown reader for the three docs checks.
 import { readdir, readFile, stat } from "node:fs/promises";
-import { basename, dirname, join, relative, resolve, sep } from "node:path";
-
-/** the conventional docs directory, used when a caller names none. */
-export const DEFAULT_DOCS_DIR = "docs";
-
-/** every validator in this set, for the sibling list each one prints in --help. */
-export const VALIDATORS = [
-  ["check-index.mjs", "every document is listed in the index"],
-  ["check-references.mjs", "every relative link resolves"],
-  ["check-glossary.mjs", "every spec has a vocabulary entry"],
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
+const validators = [
+  ["check-index.mjs", "document reachability and OKF concept kinds"],
+  ["check-references.mjs", "relative links and Markdown fragments"],
+  ["check-glossary.mjs", "legacy spec/glossary pairing"],
 ];
 
-/**
- * print the shared trailer every validator's --help ends with, so finding one
- * command leads to the rest without a run-all script existing to bundle them.
- *
- * @param {string} self file name of the calling validator
- */
 export function siblingHelp(self) {
-  const others = VALIDATORS.filter(([name]) => name !== self);
-  return [
-    "",
-    "Each validator here answers one question about one kind of change.",
-    "The others:",
-    ...others.map(([name, what]) => `  ${name.padEnd(30)} ${what}`),
-  ].join("\n");
+  return (
+    "\nRelated checks:\n" +
+    validators
+      .filter(([name]) => name !== self)
+      .map(([name, what]) => `  ${name.padEnd(30)} ${what}`)
+      .join("\n")
+  );
 }
 
-/**
- * resolve the single optional positional argument shared by every validator.
- *
- * @param {string[]} argv raw arguments, excluding node and the script path
- * @param {string} usage full --help text
- * @returns {{ dir: string } | { exit: number, message: string }}
- */
-export function parseArgs(argv, usage) {
-  if (argv.includes("--help") || argv.includes("-h")) {
-    return { exit: 0, message: usage };
-  }
-  const flags = argv.filter((arg) => arg.startsWith("-"));
-  if (flags.length > 0) {
-    return { exit: 2, message: `Unknown option: ${flags[0]}\n\n${usage}` };
-  }
-  if (argv.length > 1) {
-    return { exit: 2, message: `Expected at most one directory.\n\n${usage}` };
-  }
-  return { dir: argv[0] ?? DEFAULT_DOCS_DIR };
+export function selfName(url) {
+  return basename(new URL(url).pathname);
 }
 
-async function isDirectory(path) {
-  try {
-    return (await stat(path)).isDirectory();
-  } catch {
-    return false;
-  }
-}
-
-async function isFile(path) {
-  try {
-    return (await stat(path)).isFile();
-  } catch {
-    return false;
-  }
-}
-
-/**
- * strip fenced code blocks and inline code spans, replacing each removed line
- * with an empty one so every surviving line keeps its original number. a link
- * or heading inside a fence is an example, not a reference.
- *
- * @param {string} text
- * @returns {string[]} one entry per source line
- */
-function scannableLines(text) {
-  const lines = text.split("\n");
-  const out = [];
-  let fence = null;
-
-  for (const line of lines) {
-    const opener = line.match(/^\s*(`{3,}|~{3,})/);
-    if (fence) {
-      out.push("");
-      if (opener && opener[1][0] === fence[0] && opener[1].length >= fence.length) {
-        fence = null;
-      }
-      continue;
-    }
-    if (opener) {
-      fence = opener[1];
-      out.push("");
-      continue;
-    }
-    out.push(line.replace(/`[^`]*`/g, ""));
-  }
-  return out;
-}
-
-const LINK_RE = /\[[^\]]*\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g;
-const EXTERNAL_RE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
-
-/**
- * every relative Markdown link in a document, with the fragment stripped and
- * the source line recorded. external schemes are skipped: whether a published
- * URL still resolves is a different question, answered by a different tool.
- *
- * @param {string} text
- * @returns {{ target: string, line: number }[]}
- */
-export function extractLinks(text) {
-  const found = [];
-  scannableLines(text).forEach((line, index) => {
-    for (const match of line.matchAll(LINK_RE)) {
-      const raw = match[1];
-      if (EXTERNAL_RE.test(raw)) continue;
-      const target = raw.split("#")[0];
-      if (target === "") continue; // A bare fragment addresses this file.
-      found.push({ target, line: index + 1 });
-    }
-  });
-  return found;
-}
-
-/**
- * every ATX heading at one level.
- *
- * @param {string} text
- * @param {number} level
- * @returns {{ text: string, line: number }[]}
- */
-export function extractHeadings(text, level) {
-  const pattern = new RegExp(`^#{${level}}\\s+(.+?)\\s*#*\\s*$`);
-  const found = [];
-  scannableLines(text).forEach((line, index) => {
-    const match = line.match(pattern);
-    if (match) found.push({ text: match[1].trim(), line: index + 1 });
-  });
-  return found;
-}
-
-/**
- * lowercase a heading or file stem to the shared comparison form, so a
- * `## Job Templates` heading and a `job-templates.md` file are recognised as
- * naming the same domain.
- *
- * @param {string} value
- * @returns {string}
- */
 export function slug(value) {
   return value
     .toLowerCase()
@@ -162,129 +36,151 @@ export function slug(value) {
     .replace(/^-+|-+$/g, "");
 }
 
-async function collectMarkdown(dir, root, out) {
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      await collectMarkdown(full, root, out);
-    } else if (entry.isFile() && entry.name.endsWith(".md")) {
-      out.push(full);
+// Preserve the dependency-free legacy contract: inline destinations and ATX
+// level-two glossary headings. Rich text, YAML and fragments belong to OKF.
+function readLegacy(text) {
+  const headings = [],
+    links = [];
+  let fence;
+  for (const [i, line] of text.split("\n").entries()) {
+    const marker = line.match(/^\s*(`{3,}|~{3,})/)?.[1];
+    if (fence) {
+      if (marker?.startsWith(fence)) fence = undefined;
+      continue;
+    }
+    if (marker) {
+      fence = marker;
+      continue;
+    }
+    const prose = line.replace(/`[^`]*`/g, "");
+    const heading = prose.match(/^##\s+(.+?)\s*#*\s*$/);
+    if (heading) headings.push({ level: 2, text: heading[1].trim() });
+    for (const match of prose.matchAll(
+      /(!?)\[[^\]]*\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g,
+    )) {
+      if (!/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(match[2]))
+        links.push({ target: match[2], line: i + 1, image: !!match[1] });
     }
   }
-  return out;
+  return { headings, links };
 }
 
-/**
- * read the docs tree, or report that the project has none.
- *
- * `index.md` is the single adoption marker. its absence means the project has
- * not opted in — an unrelated `docs/` directory must never turn red just
- * because these validators are installed — so every caller treats a null return
- * as "nothing to check" and exits 0.
- *
- * @param {string} dir
- * @returns {Promise<null | {
- *   root: string,
- *   documents: { path: string, relative: string, text: string }[],
- *   hasSpecs: boolean,
- * }>}
- */
+async function listDocuments(dir) {
+  const files = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue;
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...(await listDocuments(path)));
+    else if (entry.isFile() && path.endsWith(".md")) files.push(path);
+  }
+  return files;
+}
+
 export async function loadDocs(dir) {
   const root = resolve(dir);
-  if (!(await isDirectory(root))) return null;
-  if (!(await isFile(join(root, "index.md")))) return null;
-
-  const paths = (await collectMarkdown(root, root, [])).sort();
+  const indexPath = join(root, "index.md");
+  if (!(await stat(indexPath).catch(() => null))?.isFile()) return null;
   const documents = await Promise.all(
-    paths.map(async (path) => ({
+    (await listDocuments(root)).sort().map(async (path) => ({
       path,
       relative: relative(root, path).split(sep).join("/"),
       text: await readFile(path, "utf8"),
     })),
   );
-
-  return {
-    root,
-    documents,
-    hasSpecs: await isDirectory(join(root, "specs")),
-  };
+  // Only an initial YAML block can select OKF. Legacy trees still run from
+  // a copied skill with Node alone, including --help and the no-index opt-out.
+  const candidate = documents.some(({ text }) => {
+    if (!/^---[ \t]*\r?\n/.test(text)) return false;
+    const header = text.split(/^---[ \t]*\r?$/m, 3)[1] ?? "";
+    return /(?:^|[,{\s])["']?(?:okf_version|type)["']?\s*:/m.test(header);
+  });
+  let reader = readLegacy;
+  if (candidate) {
+    try {
+      reader = (await import("./okf.mjs")).readMarkdown;
+    } catch (error) {
+      if (error.code !== "ERR_MODULE_NOT_FOUND") throw error;
+      throw new Error(
+        "OKF checks require dependencies. Run npm ci --ignore-scripts in the skill's scripts directory.",
+      );
+    }
+  }
+  for (const doc of documents) Object.assign(doc, reader(doc.text));
+  const byPath = new Map(documents.map((doc) => [doc.path, doc]));
+  const index = byPath.get(indexPath);
+  const okf =
+    index.meta?.has("okf_version") ||
+    documents.some((doc) => doc.meta?.has("type"));
+  return { root, documents, byPath, index, okf };
 }
 
-/**
- * resolve a link target against the document that contains it.
- *
- * @param {string} documentPath absolute path of the linking document
- * @param {string} target relative link target
- * @returns {string} absolute path the link addresses
- */
-export function resolveLink(documentPath, target) {
-  return resolve(dirname(documentPath), target);
+// Refuse escaping paths before consulting the filesystem in OKF mode.
+export function resolveLink(docs, doc, target) {
+  const hash = target.indexOf("#");
+  const rawPath = (hash < 0 ? target : target.slice(0, hash)).split("?")[0];
+  try {
+    const decoded = decodeURIComponent(rawPath);
+    const fragment = hash < 0 ? "" : decodeURIComponent(target.slice(hash + 1));
+    let path = doc.path;
+    if (decoded.startsWith("/") && docs.okf)
+      path = resolve(docs.root, "." + decoded);
+    else if (decoded) path = resolve(dirname(doc.path), decoded);
+    if (docs.okf && !withinRoot(docs.root, path))
+      return { error: "leaves the bundle; use a source URL" };
+    return { path, fragment };
+  } catch {
+    return { error: "has invalid URI encoding" };
+  }
 }
 
-/**
- * print findings in the shared house format and return the process exit code.
- *
- * @param {string} subject what was checked, for the PASS/FAIL line
- * @param {{ category: string, message: string }[]} findings
- * @param {string} passSummary printed under a clean run
- * @returns {number}
- */
-export function report(subject, findings, passSummary) {
-  if (findings.length === 0) {
-    console.log(`PASS  ${subject}\n`);
-    console.log(passSummary);
+export function withinRoot(root, path) {
+  const diff = relative(root, path);
+  return diff !== ".." && !diff.startsWith(".." + sep) && !isAbsolute(diff);
+}
+
+export async function main({ usage, allowEvidence = false, run, pass }) {
+  const argv = process.argv.slice(2);
+  if (argv.includes("--help") || argv.includes("-h")) {
+    console.log(usage);
     return 0;
   }
-  console.log(`FAIL  ${subject}`);
-  for (const { category, message } of findings) {
-    console.log(`        - ${category}: ${message}`);
+  const evidence = new Set();
+  let dir;
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (
+      allowEvidence &&
+      arg === "--evidence" &&
+      argv[i + 1] &&
+      !argv[i + 1].startsWith("-")
+    ) {
+      evidence.add(argv[++i]);
+    } else if (arg.startsWith("-") || dir !== undefined) {
+      console.error(usage);
+      return 2;
+    } else dir = arg;
   }
-  console.log(
-    `\n${subject} has ${findings.length} finding${findings.length === 1 ? "" : "s"}.`,
-  );
-  return 1;
-}
-
-/**
- * run a validator's body with the shared argument handling, no-docs exit, and
- * error reporting, so each command file states only what it checks.
- *
- * @param {{
- *   usage: string,
- *   argv: string[],
- *   needs?: "specs",
- *   absent: string,
- *   run: (docs: object) => { category: string, message: string }[] | Promise<{ category: string, message: string }[]>,
- *   pass: (docs: object) => string,
- * }} spec
- */
-export async function main({ usage, argv, needs, absent, run, pass }) {
-  const parsed = parseArgs(argv, usage);
-  if ("exit" in parsed) {
-    (parsed.exit === 0 ? console.log : console.error)(parsed.message);
-    return parsed.exit;
-  }
-
-  let docs;
+  dir ??= "docs";
   try {
-    docs = await loadDocs(parsed.dir);
+    const docs = await loadDocs(dir);
+    if (!docs) {
+      console.log(`No docs at ${dir} (no index.md). Nothing to check.`);
+      return 0;
+    }
+    const findings = await run(docs, evidence);
+    if (!findings.length) {
+      console.log(`PASS  ${dir}\n\n${pass(docs)}`);
+      return 0;
+    }
+    console.log(`FAIL  ${dir}`);
+    for (const { category, message } of findings)
+      console.log(`        - ${category}: ${message}`);
+    console.log(
+      `\n${dir} has ${findings.length} finding${findings.length === 1 ? "" : "s"}.`,
+    );
+    return 1;
   } catch (error) {
-    console.error(`Could not read ${parsed.dir}: ${error.message}`);
+    console.error(`Could not check ${dir}: ${error.message}`);
     return 2;
   }
-
-  if (docs === null) {
-    console.log(`No docs at ${parsed.dir} (no index.md). Nothing to check.`);
-    return 0;
-  }
-  if (needs === "specs" && !docs.hasSpecs) {
-    console.log(`No specs/ under ${parsed.dir}. ${absent}`);
-    return 0;
-  }
-  return report(parsed.dir, await run(docs), pass(docs));
-}
-
-/** the file name of the running script, for its sibling list. */
-export function selfName(url) {
-  return basename(new URL(url).pathname);
 }

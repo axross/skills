@@ -1,4 +1,8 @@
-<!-- Example. Part of the example docs tree shipped with living-project-documentation. -->
+---
+type: Convention
+title: Directory structure
+description: Module placement, import direction and route naming for the API and worker.
+---
 
 # Directory Structure
 
@@ -30,13 +34,13 @@ promoted in anticipation of a second — a module promoted early is one every pa
 pays to read while one of them uses it.
 
 `shared/` MUST stay deliberate. A module there is imported by two deployables that
-release independently, so a change to it changes both at once. It belongs there only
+run in separate processes, so a change to it changes both at once. It belongs there only
 when both packages need the same _behaviour_, never merely the same shape.
 
 The import direction is one-way: `api/` and `worker/` MAY import `shared/`; `shared/`
-MUST NOT import either, and the two packages MUST NOT import each other. They deploy
-separately, so a cross-package import compiles locally and fails in production, where
-the other side's version is whatever was deployed last.
+MUST NOT import either, and the two packages MUST NOT import each other. Each
+production package contains only its own modules and shared dependencies. A
+cross-package import can compile in the checkout and fail in the deployed process.
 
 ## Naming
 

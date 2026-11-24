@@ -512,7 +512,7 @@ export const CLAIMS = {
 
   "declared-scenarios": {
     owner: "the directories under tools/evaluation/scenarios/",
-    note: "docs/operations/evaluation-dispatch.md's own scenario list must gain or lose an entry to match, and node tools/evaluation/probe.mjs --dry-run's admitted probe count moves by 6 probes per scenario",
+    note: "docs/operations/evaluation-scenarios.md's scenario list must gain or lose an entry to match, and node tools/evaluation/probe.mjs --dry-run's admitted probe count moves by 6 probes per scenario",
     derive: async () => (await declaredScenarioDirs()).length,
   },
 

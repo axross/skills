@@ -1,75 +1,80 @@
+---
+okf_version: "0.3"
+title: Skills engineering documentation
+description: Engineering decisions and operating procedures for maintaining and evaluating this skill library.
+---
+
 # Documentation
 
-This repository's own documentation, alongside its README. Which body answers
-which question: **what does this library measure, and why?** → `specs/`.
-**What must a change satisfy?** → `conventions/`. **How is something run or
-released?** → `operations/`. Each body carries the reasoning behind its own
-constraints, in the prose beside them. The vocabulary all three bodies use is
-in [glossary.md](./glossary.md).
+Start with the [glossary](./glossary.md) for repository terminology. To make a
+change, follow [Development Workflow](./operations/development-workflow.md).
+For evaluation results, start with [Skill Evaluation](./specs/skill-evaluation.md).
 
-Documents under `conventions/` and `operations/` use MUST, MUST NOT, SHOULD,
-SHOULD NOT, and MAY as [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html)
-describes. `specs/skill-evaluation.md` describes rather than instructs, and
-uses none of them.
+The headings below preserve the repository’s topic routes. Each page’s `type`
+identifies the decision it supports, independently of its directory. Normative
+terms follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
 ## Specifications
 
-- [specs/skill-evaluation.md](./specs/skill-evaluation.md) — what it means to
+- [Treatment comparison](./specs/treatment-comparison.md) — when comparison results qualify and how the report represents missing observations.
+- [Skill Evaluation](./specs/skill-evaluation.md) — what it means to
   measure whether a skill works, and the evaluation scenario it describes,
   run under two conditions and checked across three phases.
 
 ## Conventions
 
-- [conventions/directory-structure.md](./conventions/directory-structure.md)
+- [Directory Structure](./conventions/directory-structure.md)
   — where a skill's files live, the two skill tiers, where a validator or an
   agent definition belongs, and the layout of the evaluation subsystem under
   `tools/evaluation/`.
-- [conventions/verification-gates.md](./conventions/verification-gates.md) —
+- [Verification Gates](./conventions/verification-gates.md) —
   what makes a check a gate, a report, or a scheduled audit, and the traps
   each can fall into.
-- [conventions/marked-counts.md](./conventions/marked-counts.md) — the
+- [Marked Counts](./conventions/marked-counts.md) — the
   `count:` marker that ties a number in prose to the file it describes.
-- [conventions/skill-portability.md](./conventions/skill-portability.md) —
+- [Skill Portability](./conventions/skill-portability.md) —
   what a distributable skill may not contain here, and the dependencies whose
   docs are consulted before a change.
-- [conventions/decision-placement.md](./conventions/decision-placement.md) —
+- [Decision Placement](./conventions/decision-placement.md) —
   where a decision settled while a change is being built has to reach a
   durable document, the ordered test for which one, and which body receives
   what.
 
 ## Operations
 
-- [operations/development-workflow.md](./operations/development-workflow.md)
+- [Evaluation scenarios](./operations/evaluation-scenarios.md) — select an existing task by target skill and mock.
+- [Evaluation study preparation](./operations/evaluation-study-preparation.md) — prepare proposed fixtures and their scoring controls.
+- [Development Workflow](./operations/development-workflow.md)
   — how a change gets from a stated intent to a merged pull request.
-- [operations/development-setup.md](./operations/development-setup.md) — local
+- [Development Setup](./operations/development-setup.md) — local
   setup, the toolchain, and the repository's commands and validators.
-- [operations/github-delivery.md](./operations/github-delivery.md) — plan and
+- [GitHub Delivery](./operations/github-delivery.md) — plan and
   state storage, issue-to-PR handover, comment markers, and evidence routing.
-- [operations/amp-execution.md](./operations/amp-execution.md) — qualifying Amp
+- [Amp Execution](./operations/amp-execution.md) — qualifying Amp
   executors, transferring materials, waiting, and recovering uncertain effects.
-- [operations/claude-code-execution.md](./operations/claude-code-execution.md) —
+- [Claude Code Execution](./operations/claude-code-execution.md) —
   Claude Code's question tool, the CI-and-review wait and its teardown, the
   worktree rule for a shared working tree, the investigator actor, and how model
   and effort certainty is read here.
-- [operations/loop-migration.md](./operations/loop-migration.md) — the portable
+- [Loop Migration](./operations/loop-migration.md) — the portable
   loop's topic ownership, preserved safeguards, combined acceptance matrix,
   and staged entry rollout and recovery.
-- [operations/agent-skills.md](./operations/agent-skills.md) — installing and
+- [Agent Skills](./operations/agent-skills.md) — installing and
   refreshing a skill, checking discovery in Claude Code and Codex, and verifying
   active source and content or diagnosing loading failures in Amp.
-- [operations/agent-sessions.md](./operations/agent-sessions.md) — how a
+- [Agent Sessions](./operations/agent-sessions.md) — how a
   session's Amp orb is provisioned, how the session starts, its hooks, its
   telemetry tagging, and the environment variables recommended for cutting a
   session's cost.
-- [operations/code-review.md](./operations/code-review.md) — hosted Codex and
+- [Code Review](./operations/code-review.md) — hosted Codex and
   Claude reviews, Amp review threads, host selection, cleanup, and
   policy-delivery/output qualification.
-- [operations/ci-actions.md](./operations/ci-actions.md) — selecting trusted action
+- [CI Actions](./operations/ci-actions.md) — selecting trusted action
   version tags or SHA pins, updating workflow references, and separating static
   evidence from live CI and downstream dependency trust.
-- [operations/evaluation-dispatch.md](./operations/evaluation-dispatch.md) —
+- [Evaluation Dispatch](./operations/evaluation-dispatch.md) —
   running the evaluation instrument, by hand or through its one dispatch
   workflow, against this repository's declared scenarios.
 
 For what this library is, how to install a skill, and its skill catalog, see
-[`README.md`](../README.md).
+[`README.md`](https://github.com/axross/skills/blob/main/README.md).

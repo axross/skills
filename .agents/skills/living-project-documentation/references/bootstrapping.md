@@ -1,106 +1,85 @@
-# Bootstrapping docs/
+# Bootstrapping and Migrating Documentation
 
-Apply this reference when a project has no `docs/` tree of its own and one is
-being started.
+## Detect before proposing
 
-## Detect Before Proposing
+Locate the documentation root, its index, glossary, tools and external entry
+points. Ask which pages are edited as current guidance, which record evidence
+at a revision and which files are actually distributed. Keep a working legacy
+layout until the project adopts migration. An unrelated directory named
+`docs/` is insufficient evidence of adoption.
 
-A project that already documents something has already made choices, and those
-choices are usually load-bearing for people who are not in the room. The default
-shape is what to propose in the absence of a convention, never what to impose
-over one.
+## Start with a reader
 
-That default is not the same as an accident. A `docs/` directory naming
-`conventions/` or `operations/` as siblings of `specs/`, with an index that
-says as much, is
-[the shape documentation-structure.md names](./documentation-structure.md)
-when adopted on purpose, and detecting it means detecting all of `docs/`
-rather than stopping at `specs/` alone.
+Take one recurring question and answer it from the implementation or an adopted
+project decision. Choose its primary type. For a new bundle the root index can
+begin with this frontmatter, followed by a topic heading and a link to the
+concept.
 
-**Guidelines:**
+```yaml
+---
+okf_version: "0.3"
+title: Scheduler engineering
+description: Job execution and delivery guarantees for Scheduler contributors.
+---
+```
 
-- MUST look for an existing convention first — a `docs/` directory, a wiki
-  export, a long `README` section, an `adr/` or `decisions/` directory — and
-  adopt its layout and naming where one exists.
-- MUST leave documentation that is out of scope exactly where it is,
-  distinguishing a `docs/` directory that merely shares its name — no
-  `conventions/` or `operations/` siblings, no index naming them — from a
-  `docs/` tree adopted on purpose. Where it merely shares the name: adding an
-  index beside it does not bring it into scope, and rewriting it is not this
-  capability's business.
-- MUST ask before relocating or restructuring anything that already exists.
-  Where `docs/` lives is a project decision with consequences for links,
-  bookmarks, and tooling nobody in the session can see.
-- MUST leave an existing decision log — `adr/`, `decisions/`, however it is
-  named or numbered — exactly where it is. This capability writes no such body
-  and converting one invalidates every reference already pointing into it,
-  which is a cost with no matching benefit; a constraint settled after
-  adoption goes to the document that governs it, per
-  [Settled Decisions](../SKILL.md#settled-decisions), rather than to the log.
+A concept at `jobs/retries.md` could begin:
 
-## The Smallest `docs/` Worth Having
+```markdown
+---
+type: Specification
+title: Job retries
+description: Retry timing, attempt limits and the state callers observe between attempts.
+---
 
-Adoption fails when it starts as a template to fill. A handful of files, each
-with real content, beat a complete tree of headings with nothing under them.
+# Job retries
 
-Write in this order:
+A job waiting for its next attempt appears as queued.
+```
 
-1. **`index.md`** — the adoption marker. Until it exists there is no `docs/`
-   the bundled validators recognize, and they stay silent.
-2. **`specs/<domain>.md` for one domain** — the one whose behaviour is most
-   often asked about, or most often got wrong. State the domain's boundary and
-   what it deliberately does not do alongside what it does; the boundary is
-   the part people disagree about, so it is worth settling in the first spec
-   rather than deferred to a document written later.
-3. **`glossary.md`** — seeded from that spec's own vocabulary.
-4. **`conventions/` or `operations/`** — from the first rule or procedure a
-   contributor actually needs, not backfilled from what the project imagines
-   it does.
+Add a glossary entry when there is a term to define. Add directories when
+subjects need grouping. The [worked bundle](../assets/docs-example/index.md)
+shows how these choices look in a populated tree.
 
-**Guidelines:**
+## Migrate one reading route
 
-- MUST create `index.md` first, and add a line to it for each document as it is
-  written rather than afterwards.
-- MUST NOT scaffold empty files or heading-only documents. An empty document is
-  indistinguishable from a subject nobody has considered, and it makes the index
-  claim coverage `docs/` does not have.
-- MUST NOT backfill rationale for choices already made. Reconstructed
-  reasoning is a guess presented as history; a constraint whose reason nobody
-  in the room can state is written as the constraint alone, and the gap is
-  left visible rather than filled in.
-- SHOULD grow `docs/` one domain at a time, as changes touch each area, rather
-  than in a single documentation push that nobody has a reason to keep
-  current.
+1. Inventory paths, headings, entry points, references, assets and metadata.
+   Record any byte-pinned evidence before editing. Begin with one question a
+   reader currently has to answer across several sections.
+2. Identify the owning claim and the reader who acts on it. Split when claims
+   serve different decisions and can change independently. For a metric,
+   separate the definition from the result-buffer contract and the screen's
+   display rules. Exercise each page alone. In sampled mode the producer can
+   compute values for several participants while returning a score for just
+   one. Which participant can the caller read? The result Specification owns
+   that answer; neither the formula nor the display can settle it.
+3. Keep claims that a reader must apply together. Keep a configuration variable
+   with its requiredness and failure behavior, and a testing convention with
+   the counterexample that justifies it. Page length, the presence of a table
+   and heading count do not establish separate ownership.
+4. Add frontmatter to each living page, retaining existing metadata and
+   project-specific type names. Use the project layout as the starting point.
+   Rewrite scope statements and surrounding transitions after extraction.
+   Preserve the route from the old path and heading, and update editable
+   callers. See [Cross-references](./cross-references.md).
+5. Re-read the extracted page on its own and follow at least one route from an
+   established entry point to its owner. Repeat for the next topic. Report one
+   split and one decision to keep claims together, with the reader and change
+   that justify each.
 
-## Seeding the Glossary
+## Preserve evidence identity
 
-The vocabulary already exists — in type names, table names, route segments, and
-the words the team uses in review. Writing it down is a matter of collecting and
-reconciling it, not inventing it.
+An approval that names a file by SHA-256 binds to its bytes, including its first
+line and newline convention. Leave the evidence file intact. Write a companion
+concept with the applicable type, a pinned source path or revision URL and a
+link to the acceptance record. State the exact revision, environment and
+conditions the evidence supports. A dated feasibility study can support a
+current conclusion while its repeatable inspection steps become a Procedure.
+A successful rerun produces new evidence; it cannot retroactively verify the
+old revision. Record the actual digest before migration and compare it after
+export. Apply the same byte check to linked assets.
 
-**Guidelines:**
-
-- MUST take terms from the code and the team's own usage, and record the term
-  the product actually uses even where it is imperfect.
-- MUST record a conflict rather than silently resolving it. Where the code says
-  `Account` and people say "workspace", that divergence is the single most
-  useful thing the glossary can surface, and picking one quietly hides it.
-- SHOULD stop at the terms a newcomer would have to infer. A glossary that
-  defines every noun is one nobody finishes reading.
-
-## What Not to Import
-
-| Tempting to move in                          | Why it stays out                                                                                                          |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| README, setup, commands, deployment runbooks | Contributor documentation; belongs under `conventions/` or `operations/` if the project adopts that shape, never `specs/` |
-| Roadmap, upcoming work, deprecation plans    | A spec is the present tense; a plan owns the future                                                                       |
-| API reference generated from source          | Generated output goes stale differently and is better regenerated than restated                                           |
-| Meeting notes, incident timelines            | History, not steady state; the governing document carries the part that still constrains                                  |
-
-**Guidelines:**
-
-- MUST keep a spec to the present tense of the product. Anything describing
-  what will change belongs to a plan.
-- SHOULD extract the constraint an incident or a long discussion settled into
-  the document that governs its subject, with the reason it holds, and leave
-  the narrative where it is.
+Do not infer `verified`, authorship, ownership, approval or license from a
+migration. Preserve existing provenance as recorded. Name any intentionally
+untyped evidence file during verification so that a second, accidental omission
+is still reported.

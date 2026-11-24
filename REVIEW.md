@@ -200,14 +200,12 @@ This is that list for this repository:
   or containing only read obligations; and an unclosed fenced block in a
   `SKILL.md` or a `references/*.md` file, which hides everything after it
   from every other check.
-- The `docs/` checks `check-index.mjs` and `check-glossary.mjs` enforce, over
-  `docs/`: a document `index.md` links from nowhere; and a spec with no
-  matching glossary heading, or a nested `specs/` path. `check-references.mjs`
-  is the third of that set and adds nothing here — relative-link integrity is
-  already excluded above. What none of them can see stays in scope: whether a
-  glossary entry is self-sufficient, whether a fact sits in the one document
-  that owns it, and whether a rule carries the reasoning that makes it
-  legible.
+- In this repository's OKF bundle, `check-index.mjs` checks root-index
+  reachability, frontmatter and nonempty concept types, allowing named untyped
+  evidence. `check-references.mjs` checks local paths and Markdown fragments.
+  The spec-to-glossary pairing checked by `check-glossary.mjs` applies to
+  legacy trees. Reviewers still check whether a definition is self-sufficient,
+  whether readers reach the right owner, and whether a rule carries its rationale.
 - A content mismatch between a `skills/<name>/` source and its generated
   installed copy, or a `.claude/skills/<name>` symlink that does not resolve —
   the drift gate compares the source through the symlink tier, so one run

@@ -1,0 +1,8 @@
+{
+  "name": "living-project-documentation-checks",
+  "private": true,
+  "dependencies": {
+    "markdown-it": "15.0.1",
+    "yaml": "2.8.2"
+  }
+}

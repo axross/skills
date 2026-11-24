@@ -1,16 +1,22 @@
+---
+type: Procedure
+title: Code Review
+description: How to invoke a reviewer on each host and verify that the reviewer received repository policy.
+---
+
 # Code Review
 
 This repository selects post-PR independent review by the authoring session's
 host. Codex and Claude Code request hosted reviews; Amp uses a fresh review
 child thread that publishes to the PR. Every route works from the created PR.
-[`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
+[`REVIEW.md`](https://github.com/axross/skills/blob/main/REVIEW.md) owns the review policy and the output
 contract; this document owns invocation, setup, and failure handling.
 
-| Session host | Trigger                   | Answers as                                                            | Runs from                                                               |
-| ------------ | ------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Claude Code  | `@claude review`          | `claude[bot]`                                                         | [`claude-review.yaml`](../../.github/workflows/claude-review.yaml) here |
-| Codex        | `@codex review`           | `chatgpt-codex-connector[bot]`                                        | The Codex GitHub integration, configured outside this repository        |
-| Amp          | Fresh review child thread | The review thread's permitted GitHub identity, with agent attribution | A separately qualified Amp thread                                       |
+| Session host | Trigger                   | Answers as                                                            | Runs from                                                                                                    |
+| ------------ | ------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Claude Code  | `@claude review`          | `claude[bot]`                                                         | [`claude-review.yaml`](https://github.com/axross/skills/blob/main/.github/workflows/claude-review.yaml) here |
+| Codex        | `@codex review`           | `chatgpt-codex-connector[bot]`                                        | The Codex GitHub integration, configured outside this repository                                             |
+| Amp          | Fresh review child thread | The review thread's permitted GitHub identity, with agent attribution | A separately qualified Amp thread                                                                            |
 
 A route that fails or is unavailable grants no automatic fallback to another.
 If the route the session's host selects cannot be obtained and no human
@@ -20,7 +26,7 @@ explicitly replaces it, record the unmet independent-review gate.
 
 After creating the draft PR, start a fresh review child thread through the
 qualified [Amp thread route](./amp-execution.md).
-Apply Loop's [review-workflow contract](../../skills/loop-engineering/references/review-workflow.md)
+Apply Loop's [review-workflow contract](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/review-workflow.md)
 for context independence, required materials, direct PR publication and cleanup.
 The assignment selects `REVIEW.md` and the applicable review practices. The
 thread's workspace starts on the project's default branch, so direct it to fetch
@@ -36,7 +42,7 @@ describes that operation. No hosted bot trigger is posted for this route.
 ## Run the Claude reviewer
 
 Comment `@claude review` on a pull request to run
-[`claude-review.yaml`](../../.github/workflows/claude-review.yaml). The target
+[`claude-review.yaml`](https://github.com/axross/skills/blob/main/.github/workflows/claude-review.yaml). The target
 is that pull request, and the reviewer reads `REVIEW.md` as its
 highest-priority review policy. Completion consists of severity-tagged inline
 findings with `file:line` evidence and concrete fixes, plus one summary comment.
@@ -76,8 +82,8 @@ question for anything here.
 
 The [Codex GitHub documentation](https://developers.openai.com/codex/integrations/github/)
 identifies `## Code Review Rules` in `AGENTS.md` as its repository-rules hook.
-The root [`AGENTS.md`](../../AGENTS.md) uses that heading to route to
-[`REVIEW.md`](../../REVIEW.md) and the existing methodology, rather than copy
+The root [`AGENTS.md`](https://github.com/axross/skills/blob/main/AGENTS.md) uses that heading to route to
+[`REVIEW.md`](https://github.com/axross/skills/blob/main/REVIEW.md) and the existing methodology, rather than copy
 their checks. A resolvable route is not evidence that the connector traversed
 it. The provider documents a native P0/P1-only report (see
 [Codex with GitHub](https://learn.chatgpt.com/codex/third-party/github), checked
@@ -101,8 +107,8 @@ None implies the next. A finding citing a rule proves awareness of that rule,
 not traversal of every required reference or check.
 
 An entry point that states the required behavior, such as the root
-[`AGENTS.md`](../../AGENTS.md)'s Code Review Rules or
-[`REVIEW.md`](../../REVIEW.md), does not prove that a hosted provider loaded the
+[`AGENTS.md`](https://github.com/axross/skills/blob/main/AGENTS.md)'s Code Review Rules or
+[`REVIEW.md`](https://github.com/axross/skills/blob/main/REVIEW.md), does not prove that a hosted provider loaded the
 file or can replace its native report format.
 
 For a representative authorized draft review, maintainers MUST:
@@ -124,7 +130,7 @@ For a representative authorized draft review, maintainers MUST:
    successful CI or trigger reaction alone is not a completed review.
 3. Inspect original findings, explicit limitations and result correlation
    against REVIEW.md's adopted arrangement. Apply
-   [Loop Engineering's review-completion boundary](../../skills/loop-engineering/references/independent-review.md)
+   [Loop Engineering's review-completion boundary](https://github.com/axross/skills/blob/main/skills/loop-engineering/references/independent-review.md)
    rather than requiring affirmative assertions for every successful check,
    custom labels, a formal review object, a zero tally or a boilerplate-free
    summary. Do not translate priorities or manufacture a compliant tally.
@@ -162,8 +168,8 @@ or live report-conformance checks.
 
 ## Review a change to the review arrangement through the session's own route
 
-A change to this document, to [`REVIEW.md`](../../REVIEW.md), to
-[`claude-review.yaml`](../../.github/workflows/claude-review.yaml), or to the
+A change to this document, to [`REVIEW.md`](https://github.com/axross/skills/blob/main/REVIEW.md), to
+[`claude-review.yaml`](https://github.com/axross/skills/blob/main/.github/workflows/claude-review.yaml), or to the
 skills a selected route reads is reviewed the same way anything else is: through
 whichever route the session's host selects. A proposed change to the review
 arrangement still needs review outside the author's context; selecting a route

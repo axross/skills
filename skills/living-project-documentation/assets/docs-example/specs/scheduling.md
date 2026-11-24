@@ -1,4 +1,8 @@
-<!-- Example. Part of the example docs tree shipped with living-project-documentation. -->
+---
+type: Specification
+title: Scheduling
+description: Job creation, retry timing, terminal states and output retention.
+---
 
 # Scheduling
 
@@ -30,20 +34,9 @@ definition once more.
 Both a firing schedule and a manual run produce the same record, and nothing
 distinguishes them afterwards except the job's `trigger` field.
 
-A new job is queued rather than started where it was created, and a fixed pool of
-workers consumes the queue, so peak concurrency is a number someone chooses rather
-than the number the schedules happen to add up to. Starting a run inline, on the timer
-thread that noticed its schedule fire, is what once let forty templates sharing a 09:00
-schedule exhaust the database connection pool and take the API down with them.
-Rate-limiting that thread is not the alternative it looks like — the coupling between
-scheduling and execution turned the burst into an outage, not the rate — and a
-per-template concurrency cap bounds one template at a time while leaving the total,
-which is the number that actually ran out, unbounded.
-
-The queue costs a job its immediate start: a job created while the pool is saturated
-waits, and the product cannot tell a caller for how long. A worker's claim is
-idempotent, because a queue between the two halves can lose a job in a way an inline
-start could not.
+A run returns a queued job. A saturated pool can delay its start indefinitely.
+The [dispatch boundary](./dispatch.md) explains who creates the record and who
+claims it. A repeated worker claim has the same effect as the first.
 
 ## States
 

@@ -1,8 +1,14 @@
+---
+type: Convention
+title: Skill Portability
+description: Constraints on distributable skill content, host configuration and dependency changes.
+---
+
 # Skill Portability
 
 Every skill in this repository is a distributable skill: it installs into
-other projects, and [agent-skill-authoring](../../skills/agent-skill-authoring/SKILL.md)
-and [agent-skill-management](../../skills/agent-skill-management/SKILL.md) own
+other projects, and [agent-skill-authoring](https://github.com/axross/skills/blob/main/skills/agent-skill-authoring/SKILL.md)
+and [agent-skill-management](https://github.com/axross/skills/blob/main/skills/agent-skill-management/SKILL.md) own
 what that means in general — a distributable skill names no file, command, or
 layout belonging to the repository it was written in, and carries no
 `count:` marker (see [Marked Counts](./marked-counts.md)). What follows is
@@ -39,8 +45,8 @@ mechanism, a delegation actor — follows the same split, which is why
 [Amp Execution](../operations/amp-execution.md) exist beside the skills rather
 than inside them.
 
-This repository's [`CLAUDE.md`](../../CLAUDE.md) and
-[session-start reminder](../../.claude/hooks/session-start.sh) still contain
+This repository's [`CLAUDE.md`](https://github.com/axross/skills/blob/main/CLAUDE.md) and
+[session-start reminder](https://github.com/axross/skills/blob/main/.claude/hooks/session-start.sh) still contain
 blanket project-over-runtime declarations. Their correction is separate and
 unresolved; they are not worked examples of this boundary.
 
@@ -53,7 +59,7 @@ invisible to other hosts. The shared discovery trigger lives in `description`.
 Codex reads a skill's `name` and `description` and nothing else. Codex refuses to
 load a skill whose `description`
 exceeds 1,024 bytes, and
-[`check-skill-frontmatter.mjs`](../../skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs)
+[`check-skill-frontmatter.mjs`](https://github.com/axross/skills/blob/main/skills/agent-skill-authoring/scripts/check-skill-frontmatter.mjs)
 enforces that cap in bytes rather than characters, matching what Codex actually
 counts. Codex also truncates per-skill descriptions to fit its whole listing
 into a context budget, so the front of a `description` is the part that
@@ -81,11 +87,11 @@ docs before editing one, per Fast-Moving Dependencies below:
 ## Adding a Dependency
 
 A dependency added here is a supply-chain decision before it is a technical
-one — which is why [AGENTS.md](../../AGENTS.md) singles this surface out for a
+one — which is why [AGENTS.md](https://github.com/axross/skills/blob/main/AGENTS.md) singles this surface out for a
 human reviewer in addition to the independent review. Most bundled validators
 use only Node's standard library. The protected Markdownlint package is an
 explicit runtime-dependency exception: its portable
-[execution contract](../../skills/agent-skill-authoring/references/markdownlint-execution.md)
+[execution contract](https://github.com/axross/skills/blob/main/skills/agent-skill-authoring/references/markdownlint-execution.md)
 pins CLI2, markdown-it and yaml and documents consumer installation. Its private
 package ships with the owning skill, not `node_modules` or author-checkout
 imports. Network access is needed only for dependency acquisition; subsequent

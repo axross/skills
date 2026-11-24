@@ -1,4 +1,8 @@
-<!-- Example. Part of the example docs tree shipped with living-project-documentation. -->
+---
+type: Definition
+title: Scheduler glossary
+description: Terms used for scheduled work, notifications and packages.
+---
 
 # Glossary
 
@@ -44,5 +48,4 @@ would otherwise have sent separately, emitted on a fixed interval rather than pe
 
 ## Directory Structure
 
-**Package** — one of the two deployables, `api` and `worker`, which release
-independently and therefore may not import each other.
+**Package** — one of the two deployables, `api` and `worker`, which run in separate environments and therefore may not import each other.

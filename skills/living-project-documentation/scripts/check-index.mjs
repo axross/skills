@@ -1,45 +1,90 @@
 #!/usr/bin/env node
-// orphan detection: a document nobody can reach.
-//
-// this command owns one direction only — is a file listed? whether a listed
-// link resolves is check-references.mjs's question, so no defect is reported
-// twice.
+import { basename, join } from "node:path";
+import { main, resolveLink, selfName, siblingHelp } from "./docs.mjs";
 
-import { extractLinks, main, resolveLink, selfName, siblingHelp } from "./docs.mjs";
+const usage = `Usage: ${selfName(import.meta.url)} [--evidence <bundle-relative-file.md>]... [<docs-dir>]
 
-const USAGE = `Usage: ${selfName(import.meta.url)} [<docs-dir>]
-
-Check that every document under a project's docs is listed in index.md. Run it
-after adding or removing a document. Defaults to ./docs.
-
-Exit codes: 0 every document is listed, or the project has no docs.
-            1 findings. 2 bad invocation.
+Check direct listings in legacy docs and root-to-page routes through indexes in
+OKF bundles. Require a nonempty concept type except for index.md, log.md and
+exact untyped evidence paths. Each evidence exception prints a warning.
+Exit codes: 0 pass or no index, 1 findings, 2 bad invocation or read error.
 ${siblingHelp(selfName(import.meta.url))}`;
 
-function run(docs) {
-  const index = docs.documents.find((doc) => doc.relative === "index.md");
-  const linked = new Set(
-    extractLinks(index.text).map(({ target }) => resolveLink(index.path, target)),
-  );
+function reachable(docs, evidence) {
+  const reached = new Set([docs.index.path]);
+  const pending = [docs.index];
+  while (pending.length) {
+    const index = pending.pop();
+    for (const link of index.links) {
+      if (link.image) continue;
+      const { path } = resolveLink(docs, index, link.target);
+      if (!path) continue;
+      let doc = docs.byPath.get(path);
+      if (!doc && docs.okf) doc = docs.byPath.get(join(path, "index.md"));
+      if (!doc || reached.has(doc.path)) continue;
+      reached.add(doc.path);
+      if (docs.okf && basename(doc.path) === "index.md") pending.push(doc);
+    }
+  }
+  // A named source is discoverable through its indexed companion.
+  if (docs.okf && evidence.size) {
+    for (const page of docs.documents) {
+      if (!reached.has(page.path) || !page.meta?.has("type")) continue;
+      for (const link of page.links) {
+        if (link.image) continue;
+        const source = docs.byPath.get(
+          resolveLink(docs, page, link.target).path,
+        );
+        if (source && evidence.has(source.relative)) reached.add(source.path);
+      }
+    }
+  }
+  return reached;
+}
 
+function run(docs, evidence) {
+  const reached = reachable(docs, evidence);
   const findings = [];
-
   for (const doc of docs.documents) {
-    if (doc.relative === "index.md") continue;
-    if (!linked.has(doc.path)) {
+    if (
+      !reached.has(doc.path) &&
+      !(docs.okf && basename(doc.path) === "log.md")
+    ) {
       findings.push({
         category: "unindexed",
         message: `${doc.relative} is not linked from index.md`,
       });
     }
+    if (!docs.okf) continue;
+    if (doc.metadataError)
+      findings.push({
+        category: "frontmatter",
+        message: `${doc.relative}: ${doc.metadataError}`,
+      });
+    if (["index.md", "log.md"].includes(basename(doc.path))) continue;
+    const type = doc.meta?.get("type");
+    if (typeof type === "string" && type.trim()) continue;
+    if (!doc.meta?.has("type") && evidence.delete(doc.relative)) {
+      console.log(`WARN  ${doc.relative}: named untyped evidence`);
+    } else {
+      findings.push({
+        category: "type",
+        message: `${doc.relative} needs a nonempty string type`,
+      });
+    }
   }
-
+  for (const name of evidence)
+    findings.push({
+      category: "evidence",
+      message: `${name} does not name an untyped evidence document`,
+    });
   return findings;
 }
 
 process.exitCode = await main({
-  usage: USAGE,
-  argv: process.argv.slice(2),
+  usage,
+  allowEvidence: true,
   run,
-  pass: (docs) => `Every document is listed in index.md (${docs.documents.length - 1} indexed).`,
+  pass: (docs) =>
+    `Every living page is reachable from the root index (${docs.documents.length} Markdown files).`,
 });

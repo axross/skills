@@ -20,7 +20,8 @@ describe("check-references.mjs", () => {
   it("exits 0 when every relative link resolves", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\n- [Jobs](./specs/jobs.md) — scheduling\n",
-      "specs/jobs.md": "# Jobs\n\nSee [the rules](../conventions/testing.md).\n",
+      "specs/jobs.md":
+        "# Jobs\n\nSee [the rules](../conventions/testing.md).\n",
       "conventions/testing.md": "# Testing\n",
     });
 
@@ -43,7 +44,9 @@ describe("check-references.mjs", () => {
       "index.md": "# Docs\n\n- [Notes](./notes.md) — the product\n",
     });
 
-    expect(checkReferences(docs)).toReportFailure(/index\.md:3 → \.\/notes\.md/);
+    expect(checkReferences(docs)).toReportFailure(
+      /index\.md:3 → \.\/notes\.md/,
+    );
   });
 
   it("ignores external URLs", async () => {
@@ -73,5 +76,48 @@ describe("check-references.mjs", () => {
 
   it("exits 2 on a bad invocation", () => {
     expect(checkReferences("one", "two")).toExitWith(2);
+  });
+});
+
+describe("OKF navigation", () => {
+  const index = '---\nokf_version: "0.3"\n---\n\n';
+
+  it("keeps an old Markdown heading as a route to the extracted owner", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Result](old.md#result)",
+      "old.md":
+        "## Result\n\n[Moved][owner]\n\n[owner]: /topics/new.md#result-buffer",
+      "topics/new.md":
+        "## Result `buffer`\n\n[Here](#result-buffer)\n![Plot](../plot%20one.svg)",
+      "plot one.svg": "<svg/>",
+    });
+    expect(checkReferences(docs)).toPassCleanly();
+  });
+
+  it("reports an unresolved fragment even when the Markdown file exists", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Lost](old.md#result)",
+      "old.md": "## Obsolete",
+    });
+    expect(checkReferences(docs)).toReportFailure(
+      /index.md:5 → old.md#result has no matching fragment/,
+    );
+  });
+
+  it("checks fragments on a directory route against its nested index", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Live](topics/#live) · [Broken](topics/#gone)",
+      "topics/index.md": "# Live",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(/topics\/#gone has no matching fragment/);
+    expect(result.stdout).toMatch(/has 1 finding\./);
+  });
+
+  it("requires an external source URL for paths leaving the bundle", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Source](../README.md)",
+    });
+    expect(checkReferences(docs)).toReportFailure(/leaves the bundle/);
   });
 });
