@@ -337,6 +337,101 @@ describe("check-docs.mjs", () => {
     },
   );
 
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "continues index traversal, evidence discovery and reference checks after denied links",
+    async () => {
+      const root = await tempDir();
+      const dir = await writeDocs(root, {
+        "index.md":
+          indexHeader +
+          "[Owner](owner.md) [Untyped](untyped.md) [Blocked](private/topic.md)",
+        "owner.md":
+          pageHeader + "[Evidence](source.md) [Blocked](private/record.txt)",
+        "source.md": "Original",
+        "untyped.md": "[Missing](absent.md) [Fragment](#gone)",
+        "private/topic.md": pageHeader,
+        "private/record.txt": "Record",
+      });
+      const privateDir = join(dir, "private");
+      await chmod(privateDir, 0o000);
+      try {
+        const docs = await loadDocs(dir, undefined, { wholeRoot: true });
+        const index = await checkIndex(docs, new Set(["source.md"]));
+        expect(index.map(({ message }) => message)).toEqual([
+          "untyped.md needs a nonempty string type",
+        ]);
+        const locations = [...docs.readErrors].join("\n");
+        expect(locations).toContain("index.md:4 → private/topic.md: EACCES");
+        expect(locations).toContain("owner.md:4 → private/record.txt: EACCES");
+        const result = runScript(command, [
+          "--validator",
+          pinned ?? join(root, "missing.py"),
+          "--evidence",
+          "source.md",
+          dir,
+        ]);
+        expect(result.code).toBe(2);
+        expect(result.stderr).toContain(
+          "index.md:4 → private/topic.md: EACCES",
+        );
+        expect(result.stderr).toContain(
+          "owner.md:4 → private/record.txt: EACCES",
+        );
+        expect(result.stdout).toContain("ENGINEERING type: untyped.md");
+        expect(result.stdout).toContain(
+          "untyped.md:1 → absent.md does not resolve",
+        );
+        expect(result.stdout).toContain(
+          "untyped.md:1 → #gone has no matching fragment",
+        );
+        expect(result.stdout).toContain('REVIEW owner.md — "Procedure"');
+      } finally {
+        await chmod(privateDir, 0o700);
+      }
+    },
+  );
+
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "reports a denied checkout fragment read and keeps independent findings",
+    async () => {
+      const root = await tempDir();
+      const dir = await writeDocs(root, {
+        "index.md": indexHeader + "[Guide](guide.md) [Notes](notes.md)",
+        "guide.md":
+          pageHeader + "[Missing](missing.txt) [Checkout](../README.md#setup)",
+        "notes.md": "# Notes",
+      });
+      const source = await writeFileIn(root, "README.md", "# Setup");
+      await chmod(source, 0o000);
+      try {
+        const result = runScript(command, [
+          "--validator",
+          pinned ?? join(root, "missing.py"),
+          "--source-root",
+          root,
+          dir,
+        ]);
+        expect(result.code).toBe(2);
+        expect(result.stderr).toContain(
+          "guide.md:4 → ../README.md#setup: EACCES",
+        );
+        expect(result.stdout).toContain(
+          "guide.md:4 → missing.txt does not resolve",
+        );
+        expect(result.stdout).toContain("ENGINEERING type: notes.md");
+        const focused = runScript(skill + "/scripts/check-references.mjs", [
+          "--source-root",
+          root,
+          dir,
+        ]);
+        expect(focused.code).toBe(2);
+        expect(focused.stderr).toContain("EACCES");
+      } finally {
+        await chmod(source, 0o600);
+      }
+    },
+  );
+
   it("runs the copied installation offline and identifies its missing Node dependencies", async () => {
     const root = await tempDir();
     const installed = join(root, "living-project-documentation");

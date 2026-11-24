@@ -78,7 +78,7 @@ async function listDocuments(dir, inventory) {
     entries = await readdir(dir, { withFileTypes: true });
   } catch (error) {
     if (!inventory?.readErrors) throw error;
-    inventory.readErrors.push(error.message);
+    inventory.readErrors.add(error.message);
     return files;
   }
   for (const entry of entries) {
@@ -109,7 +109,7 @@ async function listDocuments(dir, inventory) {
           files.push(path);
         }
       } catch (error) {
-        inventory.readErrors.push(error.message);
+        inventory.readErrors.add(error.message);
       }
     }
   }
@@ -176,7 +176,7 @@ export async function loadDocs(dir, sourceRoot, { wholeRoot = false } = {}) {
     hiddenDirectories: [],
     hiddenFiles: [],
     populated: Boolean(hasIndex),
-    readErrors: wholeRoot ? [] : undefined,
+    readErrors: wholeRoot ? new Set() : undefined,
   };
   /**
    * read pages in stable order with bundle-relative names for diagnostics.
@@ -192,7 +192,7 @@ export async function loadDocs(dir, sourceRoot, { wholeRoot = false } = {}) {
         pages.push({ path, canonical, relative: name, text });
       } catch (error) {
         if (!wholeRoot) throw error;
-        inventory.readErrors.push(`${name}: ${error.message}`);
+        inventory.readErrors.add(`${name}: ${error.message}`);
       }
     }
     return pages;
@@ -252,7 +252,7 @@ export async function loadDocs(dir, sourceRoot, { wholeRoot = false } = {}) {
     index,
     okf,
     hasMarker,
-    readErrors: inventory.readErrors ?? [],
+    readErrors: inventory.readErrors,
     populated: inventory.populated,
   };
 }

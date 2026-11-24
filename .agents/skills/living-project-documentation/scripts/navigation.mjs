@@ -21,6 +21,30 @@ export function reviewPages(docs) {
 }
 
 /**
+ * retain a link's location when permissions prevent a whole-root inspection.
+ * @throws for other errors or for focused commands that stop at the first read failure.
+ */
+function recordLinkReadError(docs, doc, link, error) {
+  if (!docs.readErrors || !["EACCES", "EPERM"].includes(error.code))
+    throw error;
+  docs.readErrors.add(
+    `${doc.relative}:${link.line} → ${link.target}: ${error.message}`,
+  );
+}
+
+/**
+ * resolve one navigation edge without losing unrelated routes after a denied read.
+ * @throws for filesystem errors outside the whole-root permission recovery.
+ */
+async function linkedPage(docs, doc, link) {
+  try {
+    return (await resolveLink(docs, doc, link.target)).page;
+  } catch (error) {
+    recordLinkReadError(docs, doc, link, error);
+  }
+}
+
+/**
  * follow index routes and include named evidence cited by reachable companions.
  * @throws on unexpected filesystem errors while resolving a route.
  */
@@ -32,7 +56,7 @@ async function reachable(docs, evidence) {
     const index = pending.pop();
     for (const link of index.links) {
       if (link.html || link.image || link.field) continue;
-      const { page: doc } = await resolveLink(docs, index, link.target);
+      const doc = await linkedPage(docs, index, link);
       if (!doc || visited.has(doc.path)) continue;
       visited.add(doc.path);
       reached.add(doc.canonical);
@@ -55,7 +79,7 @@ async function reachable(docs, evidence) {
           (link.field && !link.field.startsWith("sources."))
         )
           continue;
-        const { page: source } = await resolveLink(docs, page, link.target);
+        const source = await linkedPage(docs, page, link);
         if (source && evidence.has(source.relative))
           reached.add(source.canonical);
       }
@@ -130,36 +154,45 @@ export async function checkReferences(docs, sourceRoot) {
 
   for (const doc of docs.documents) {
     for (const link of doc.links) {
-      const { target, line, field } = link;
-      let { path, page, fragment, error, sourceLink } = link.error
-        ? link
-        : await resolveLink(docs, doc, target, field ? undefined : sourceRoot);
-      if (!error && sourceLink && link.image)
-        error = "is an embedded image outside the bundle";
-      if (!error && field === "license" && !(await stat(path)).isFile())
-        error = "does not resolve to a license file";
-      if (
-        !error &&
-        docs.okf &&
-        fragment &&
-        (page || path.toLowerCase().endsWith(".md"))
-      ) {
-        let anchors = page?.anchors;
-        if (!anchors && sourceLink && (await stat(path)).isFile()) {
-          if (!sourceAnchors.has(path)) {
-            const { readMarkdown } = await import("./okf.mjs");
-            const text = await readFile(path, "utf8");
-            sourceAnchors.set(path, readMarkdown(text).anchors);
+      try {
+        const { target, line, field } = link;
+        let { path, page, fragment, error, sourceLink } = link.error
+          ? link
+          : await resolveLink(
+              docs,
+              doc,
+              target,
+              field ? undefined : sourceRoot,
+            );
+        if (!error && sourceLink && link.image)
+          error = "is an embedded image outside the bundle";
+        if (!error && field === "license" && !(await stat(path)).isFile())
+          error = "does not resolve to a license file";
+        if (
+          !error &&
+          docs.okf &&
+          fragment &&
+          (page || path.toLowerCase().endsWith(".md"))
+        ) {
+          let anchors = page?.anchors;
+          if (!anchors && sourceLink && (await stat(path)).isFile()) {
+            if (!sourceAnchors.has(path)) {
+              const { readMarkdown } = await import("./okf.mjs");
+              const text = await readFile(path, "utf8");
+              sourceAnchors.set(path, readMarkdown(text).anchors);
+            }
+            anchors = sourceAnchors.get(path);
           }
-          anchors = sourceAnchors.get(path);
+          if (!anchors?.has(fragment)) error = "has no matching fragment";
         }
-        if (!anchors?.has(fragment)) error = "has no matching fragment";
+        if (error)
+          findings.push({
+            category: field ?? "link",
+            message: `${doc.relative}:${line} → ${target} ${error}`,
+          });
+      } catch (error) {
+        recordLinkReadError(docs, doc, link, error);
       }
-      if (error)
-        findings.push({
-          category: field ?? "link",
-          message: `${doc.relative}:${line} → ${target} ${error}`,
-        });
     }
   }
   return findings;

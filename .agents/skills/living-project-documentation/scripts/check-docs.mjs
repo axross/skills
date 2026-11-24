@@ -108,10 +108,6 @@ async function main() {
     console.log(
       `REVIEW ${doc.relative} — ${JSON.stringify(declaredType(doc))}`,
     );
-  for (const error of docs.readErrors) {
-    console.error(`Could not read ${error}`);
-    incomplete = true;
-  }
   const findings = [
     ...(await checkIndex(docs, evidence, upstreamUntyped)),
     ...(await checkReferences(docs, sourceRoot)),
@@ -119,7 +115,9 @@ async function main() {
   ];
   for (const { category, message } of findings)
     console.log(`ENGINEERING ${category}: ${message}`);
-  if (incomplete) return 2;
+  for (const error of docs.readErrors)
+    console.error(`Could not inspect ${error}`);
+  if (incomplete || docs.readErrors.size) return 2;
   if (failed || findings.length) {
     console.log(`FAIL  ${root}`);
     return 1;
