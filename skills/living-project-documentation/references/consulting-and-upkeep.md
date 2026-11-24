@@ -32,11 +32,15 @@ initial owners. Their preconditions and authority links reveal other readers.
 
 An adopted target architecture and a deployed component can answer different
 questions about the same service. A later contributor also needs to know why
-an apparently workable alternative violates a settled constraint.
+an apparently workable alternative violates a settled constraint. When a retry
+limit changes, replace the value and the reason for it on the governing page.
+The commit shows the previous limit. The pull request holds the benchmark and
+review discussion that led to the change.
 
 **Guidelines:**
 
 - MUST describe observable behavior in the present tense, identifying targets and illustrative examples explicitly.
-- MUST put a settled constraint and its current rationale on the page that governs it. Include a rejected alternative when readers are likely to try it. Leave deliberation with the change that settled it.
+- MUST put a settled constraint and its current rationale on the page that governs it. Include a rejected alternative when readers are likely to try it. Keep deliberation and run results with the commit or pull request that settled the change. Link that source when a current claim depends on it.
+- MUST update the governing page in place. Do not append dated updates or create a page, registry or concept type for each verification run, rollout or decision.
 - MUST retire obsolete guidance when a feature disappears and preserve forwarding routes that external readers still use.
 - SHOULD read each changed page on its own and exercise a boundary case from a consumer's or operator's entry point. Run the [documentation checks](./validators.md).

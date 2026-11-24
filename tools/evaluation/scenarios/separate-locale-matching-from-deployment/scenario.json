@@ -60,7 +60,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "The original deployment page contains the editor’s approval for build 62. Require a discoverable typed companion identifying the build and request conditions, linking to the pinned evidence and locating its acceptance. Fail if the diff removes the acceptance or claims that this observation qualified another build."
+        "instructions": "The original deployment page contains the editor’s approval for build 62. Require the typed page governing today's locale contract or preview procedure to link the pinned source and locate its acceptance, scoped to the build and request conditions observed. Accept the existing governing page as the companion. Fail a migration that starts a per-build verification log, adds a standalone historical report as a living concept, makes the original acceptance untraceable, or claims that the observation qualified another build."
       }
     },
     {

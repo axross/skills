@@ -56,9 +56,8 @@ terms follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
   Claude Code's question tool, the CI-and-review wait and its teardown, the
   worktree rule for a shared working tree, the investigator actor, and how model
   and effort certainty is read here.
-- [Loop Migration](./operations/loop-migration.md) — the portable
-  loop's topic ownership, preserved safeguards, combined acceptance matrix,
-  and staged entry rollout and recovery.
+- [Development Loop Responsibilities](./operations/loop-migration.md) — where to
+  change a gate, select a host operation, or recover issue and pull-request state.
 - [Agent Skills](./operations/agent-skills.md) — installing and
   refreshing a skill, checking discovery in Claude Code and Codex, and verifying
   active source and content or diagnosing loading failures in Amp.

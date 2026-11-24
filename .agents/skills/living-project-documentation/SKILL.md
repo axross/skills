@@ -9,7 +9,9 @@ user-invocable: true
 Use this capability to find the document that settles a reader's engineering
 question and keep its answer true as the project changes. A plan records
 intent. Living documentation describes the behavior, constraints and
-procedures that actually hold. The [OKF v0.3 specification](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/SPEC.md)
+procedures that actually hold. Update their owning pages in place. In a Git
+project, commits and pull requests carry the history of changes and checks.
+The [OKF v0.3 specification](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/SPEC.md)
 defines the bundle format. Here, `docs/` means the project's documentation root.
 
 The requirement keywords used in this skill and its references follow
@@ -46,7 +48,7 @@ The [Scheduler example](./assets/docs-example/index.md) keeps existing paths whi
 See [consulting-and-upkeep.md](./references/consulting-and-upkeep.md) for:
 
 - consulting relevant owners before a plan and tracing dependent readers
-- absorbing a settled change and testing its boundary cases
+- updating the current rule in place and locating past decisions or test results in version control
 
 See [validators.md](./references/validators.md) for:
 

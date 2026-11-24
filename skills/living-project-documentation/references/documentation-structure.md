@@ -10,7 +10,7 @@ seen. See the [OKF v0.3 specification](https://github.com/open-knowledge-format/
 **Guidelines:**
 
 - MUST write a concept as UTF-8 Markdown with a YAML 1.2 core-schema mapping between lines containing exactly `---`. Its only universally required field is a nonempty string `type`. Keys must be unique.
-- MUST reserve `index.md` and `log.md` at every depth. Nested indexes and logs have no frontmatter. A log records documentation changes in its scope under newest-first YYYY-MM-DD headings.
+- MUST reserve `index.md` and `log.md` at every depth. Nested indexes and logs have no frontmatter. An existing OKF log uses newest-first YYYY-MM-DD headings. Git-backed living docs use the commit history for changes. Leave the optional log out when bootstrapping.
 - MAY declare `okf_version: "0.3"`, a title and a description on the root index. Preserve its existing frontmatter when refreshing the index.
 - SHOULD edit only the metadata the change affects, preserving existing extension keys and values.
 
@@ -29,8 +29,9 @@ These recommended types describe the decision the reader needs to make.
 
 A table of configuration names, consumers and missing-value behavior can be a
 single Specification. A separately maintained service registry can keep its
-project-specific type. Labels like Description, Catalog or Record tell a reader
-too little to serve as default concept kinds.
+project-specific type. A registry lists what exists today and changes when its members change.
+Past membership is available in Git. Choose types for decisions that readers
+make about the project today.
 
 **Guidelines:**
 

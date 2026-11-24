@@ -239,8 +239,7 @@ declarations. The result lands under `metadata.json`'s
 any non-empty disagreement is written to the run's standard error as a
 warning naming the tools:
 
-- an allowance the CLI did not surface — a name that allows nothing, which
-  is what `TodoWrite` was until [#440](https://github.com/axross/skills/issues/440);
+- an allowance the CLI did not surface, so the probe cannot use that tool;
 - a denial the CLI surfaced anyway — a bound that did not take;
 - a surfaced tool neither list names.
 
@@ -267,14 +266,10 @@ same as opening the pull request that would carry it.
 
 ## Admission Binds Before Any Probe Starts
 
-A run refuses before spawning anything when its exact probe count exceeds
-the `--limit` it was given — never by projecting a dollar figure. That
-replaces a cost estimate rather than tightening one: the deleted instrument
-projected a dollar figure before a dispatch, and its projection was wrong
-often enough that the limit it fed was not a limit, where a probe count is
-exact before anything is spawned. `--limit` is optional; a run given none is
-admitted unconditionally, and a run over its limit is refused with a
-message naming both the count and the limit.
+A run computes its exact probe count before spawning. If the count exceeds
+`--limit`, the run refuses and reports both numbers. Without a limit the run
+is admitted unconditionally. This bounds the number of probes. Token usage
+and cost still depend on what happens during each probe.
 
 ## Judging a Measurement: `evaluate.mjs`
 

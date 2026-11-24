@@ -85,14 +85,11 @@ identifies `## Code Review Rules` in `AGENTS.md` as its repository-rules hook.
 The root [`AGENTS.md`](../../AGENTS.md) uses that heading to route to
 [`REVIEW.md`](../../REVIEW.md) and the existing methodology, rather than copy
 their checks. A resolvable route is not evidence that the connector traversed
-it. The provider documents a native P0/P1-only report (see
-[Codex with GitHub](https://learn.chatgpt.com/codex/third-party/github), checked
-2026-10-06). REVIEW.md explicitly accepts native presentation and reporting
-scope. Neither that documented filter nor absent lower-priority completeness
-proof blocks this route. This acceptance does not establish the connector's
-current configuration or exhaustive coverage; historical P2/P3 output likewise
-does not establish the current filter setting. Any actual finding still needs
-disposition under Loop and Delivery.
+it. Consult the provider's [Codex with GitHub](https://learn.chatgpt.com/codex/third-party/github)
+guidance for its current priority filter. REVIEW.md accepts the native
+presentation and reporting scope. A result alone cannot establish the
+connector's configured filter or exhaustive coverage. Every reported finding,
+including P2 and P3, needs a disposition under Loop and Delivery.
 
 ## Qualify Codex policy delivery
 

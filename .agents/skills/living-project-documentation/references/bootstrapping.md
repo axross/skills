@@ -68,14 +68,15 @@ together.
 ## Preserve evidence identity
 
 An approval that names a file by SHA-256 binds to its bytes, including its first
-line and newline convention. A dated feasibility study can support a current
-conclusion for the revision and conditions it observed. A successful rerun
-produces new evidence.
+line and newline convention. When retiring a dated feasibility study, move any still-useful check into the
+operator's Procedure. Its next execution produces evidence for that change's
+pull request. A reader investigating the old result can open the original
+study at its commit.
 
 **Guidelines:**
 
-- MUST preserve the original bytes and give immutable evidence a typed companion that identifies the pinned source and links to the acceptance record.
+- MUST preserve any bytes an existing approval or distribution contract binds. If current guidance relies on that evidence, cite its pinned source and acceptance from the typed page that owns the claim. An existing Specification or Procedure can be its companion.
 - MUST state which revision, environment and conditions the evidence supports. Preserve recorded provenance without inferring verification, authorship, ownership, approval or license from migration.
-- MAY extract reusable inspection steps from a dated report into a Procedure.
+- SHOULD remove superseded reports from the live tree once active evidence obligations and reader routes are accounted for. Direct historical lookups to the original commit or pull request.
 - MUST record hashes before migration and compare the exported evidence and linked assets byte-for-byte with their originals.
 - MUST report intentional untyped evidence by path during verification so an accidental omission elsewhere remains visible.

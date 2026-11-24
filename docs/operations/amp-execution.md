@@ -15,12 +15,10 @@ evidence, and [Professional Behavior](../../skills/professional-behavior/SKILL.m
 owns decisions and question content. Direct and delegated changes keep the same
 approval, verification, and independent-review requirements.
 
-The operational baseline was checked on 2026-09-08 against the active session's
-tool definitions and Amp's [modes and subagents](https://ampcode.com/docs/models-and-subagents)
-and [agent-to-agent documentation](https://ampcode.com/docs/orbs/agent-to-agent).
-Those pages explain the model; a session MUST recheck its actual tools and their
-purpose restrictions before using this guide. Names below are not promises that
-every session exposes the same tools.
+Consult Amp's [modes and subagents](https://ampcode.com/docs/models-and-subagents)
+and [agent-to-agent documentation](https://ampcode.com/docs/orbs/agent-to-agent)
+for the execution model. Before choosing a route, a session MUST check which
+tools it exposes and their permitted purposes.
 
 ## Qualify the executor
 
@@ -222,9 +220,9 @@ for a demonstrably hung tracked process under its current conditions, not for
 a normal long test or a command whose tool timeout merely elapsed. Service
 shutdown follows the service lifecycle, not process-pattern killing.
 
-The [migration safeguards](./loop-migration.md) retain the retry and round
-limits. Loop's [independent-review contract](../../skills/loop-engineering/references/independent-review.md)
-owns the waiting policy. In Amp, cleanup MUST use a permitted mechanism, or
+Loop defines the [execution retry budget](../../skills/loop-engineering/references/writer-ownership-and-recovery.md#retry-budget),
+[pre-flight round cap](../../skills/loop-engineering/references/pre-flight-review.md#round-cap),
+and [external review and waiting bounds](../../skills/loop-engineering/references/independent-review.md#external-round-cap). In Amp, cleanup MUST use a permitted mechanism, or
 report the still-running process; reaching a Loop bound does not authorize
 `shell_command_kill` on an otherwise healthy process.
 
@@ -261,7 +259,6 @@ an execution guide.
 [Agent skills](./agent-skills.md) owns installation and refresh. Active source
 and content verification follows its Amp procedure, not this guide; a reload or
 successful install alone is not evidence of which content an actor loaded.
-[Loop Migration](./loop-migration.md) records combined entry verification.
 
 Claude Code and Codex consume the same semantic assignments and results, but
 their operational APIs are not Amp aliases. Their configured actors remain in

@@ -19,6 +19,7 @@ it.each([
     "docs",
     [
       ...indexBookmarks,
+      "operations/loop-migration.md#combined-acceptance-matrix",
       "specs/skill-evaluation.md#explicit-treatment-comparison",
       "operations/evaluation-dispatch.md#the-declared-scenario-set",
     ],

@@ -51,15 +51,10 @@ by whoever happens to be writing the plan.
    states, when it is an inheritance for a later step of the same lineage
    rather than a standing fact the tree carries everywhere.
 
-There is no third step. This repository kept one until it retired its
-decision-record body: a body holding rationale apart from the rule it explains
-charges one edit per inbound pointer every time a record is superseded, and
-buys an invariant that did not hold, since the validator policing it saw only
-`docs/` while records were cited from source as well. A rejected alternative
-that leaves no trace in the tree — the one thing such a body held that nothing
-else did — is written as a constraint of its own in the governing document,
-naming what this project does not do and why, so a reader meets it by reading
-rather than by searching history for a word they do not have.
+Keep a standing constraint and its rationale together. When a rejected
+alternative is likely to recur, explain the constraint it violates where the
+reader would try it. Git and the pull request preserve the original decision,
+its alternatives and its approval.
 
 A decision the test places nowhere MAY be one the plan closes on without a
 durable home, and the plan MUST state that explicitly rather than leaving the
@@ -82,24 +77,12 @@ leaning on an external spec would arrive incomplete. The evaluation instrument, 
 therefore names the machinery it describes and shows that no skill owns it,
 and that is a judgment call left as one: no check can decide it.
 
-**A contributor convention or an operational procedure lives under
-`docs/conventions/` or `docs/operations/`, never in `README.md`.** Both bodies
-give a rule a document format — stated once next to its reasoning, its
-strength readable from its own sentence, under a heading a reviewer can cite —
-where the run of bold lead-in paragraphs `README.md` once carried was not a
-format at all: nothing stopped one paragraph from restating what an earlier one
-already said, and a rule sat wherever a previous edit happened to leave it, so
-a reader after one fact read past everything else to find it. A second
-informally-organized tree such as a `CONTRIBUTING.md` is rejected: this
-repository has one `docs/` tree with an index and a glossary, and a second
-buys nothing but a second decision, at every future write, about which tree a
-paragraph belongs to. Keeping a `README.md` copy beside the
-`docs/` one is rejected for the same reason the duplication rule gives — two
-homes for one fact drift the moment either is edited alone. `README.md` keeps
-what a reader of the library needs on first contact: positioning, getting
-started, the skill catalog, and links to the guides under `docs/`. Local setup
-and the commands table live in
-[Development Setup](../operations/development-setup.md).
+**Contributor conventions and operational procedures live under
+`docs/conventions/` and `docs/operations/`.** Give each rule one owner
+and a heading a reviewer can cite. The README introduces the library, explains
+how to get started, lists the skills, and links contributors to these guides.
+[Development Setup](../operations/development-setup.md) owns local setup and
+the command reference.
 
 The catalog gives each skill its own section rather than a row in a
 per-category table. A table compares better — one line each, side by side, is
