@@ -41,19 +41,22 @@ function readPathFields(meta, syntax, lineCounter) {
   return links;
 }
 
-// Parse one rendered fragment so comments, raw-text elements and inert template
-// contents have their HTML meaning across token boundaries. Keep source locations
-// for authored tags; Markdown links and generated footnote links have other owners.
-function collectHtml(tokens, env, rawHtml, anchors, links) {
-  const sourceLines = new Map();
+// Parse the rendered document once. Only active elements originating in the
+// author's Markdown or HTML contribute links; generated footnotes still define IDs.
+function collectNavigation(tokens, env, fragments, anchors, links) {
+  const sources = new Map();
   let shift = 0;
   const rendered = markdown.renderer.render(tokens, markdown.options, env);
   const html = rendered.replace(/\0(\d+)\0/g, (marker, id, position) => {
-    const fragment = rawHtml[id];
+    const fragment = fragments[id];
     let line = fragment.line;
     for (const match of fragment.content.matchAll(/[<\n]/g)) {
       if (match[0] === "\n") line++;
-      else sourceLines.set(position + shift + match.index, line);
+      else
+        sources.set(position + shift + match.index, {
+          line,
+          html: fragment.html,
+        });
     }
     shift += fragment.content.length - marker.length;
     return fragment.content;
@@ -62,20 +65,17 @@ function collectHtml(tokens, env, rawHtml, anchors, links) {
   const pending = [parseFragment(html, { sourceCodeLocationInfo: true })];
   while (pending.length) {
     const element = pending.pop();
-    const line = sourceLines.get(
+    const source = sources.get(
       element.sourceCodeLocation?.startTag?.startOffset,
     );
     for (const { name, value } of element.attrs ?? []) {
       if (name === "id" || (element.tagName === "a" && name === "name"))
         anchors.add(value);
       const image = element.tagName === "img" && name === "src";
-      if (
-        line !== undefined &&
-        (image || (element.tagName === "a" && name === "href"))
-      ) {
+      if (source && (image || (element.tagName === "a" && name === "href"))) {
         const target = value.trim();
         if (target && !external.test(target))
-          links.push({ target, line, image, html: true });
+          links.push({ target, ...source, image });
       }
     }
     for (const child of element.childNodes ?? []) pending.push(child);
@@ -113,7 +113,7 @@ export function readMarkdown(text) {
   const tokens = markdown.parse(body, env);
   const headings = [],
     anchors = new Set();
-  const rawHtml = [];
+  const fragments = [];
   let tableRowStart;
   for (const [i, token] of tokens.entries()) {
     if (token.type === "heading_open") {
@@ -139,23 +139,24 @@ export function readMarkdown(text) {
     if (token.type === "tr_close") tableRowStart = undefined;
     let line = offset + (token.map?.[0] ?? tableRowStart ?? 0) + 1;
     for (const child of token.children ?? [token]) {
-      if (child.type === "link_open" || child.type === "image") {
-        const target = child.attrGet(child.type === "image" ? "src" : "href");
-        if (!external.test(target))
-          links.push({ target, line, image: child.type === "image" });
+      const html = child.type === "html_inline" || child.type === "html_block";
+      if (html || child.type === "link_open" || child.type === "image") {
+        // Each placeholder stands for one unmodified source tag/block or the
+        // exact tag Markdown-it would render for this link/image. Input NULs
+        // are normalized by Markdown-it, so authors cannot forge a marker.
+        const content = html
+          ? child.content
+          : markdown.renderer.renderInline([child], markdown.options, env);
+        if (!html) child.type = "html_inline";
+        child.content = `\0${fragments.length}\0`;
+        fragments.push({ content, line, html });
+        if (html) line += content.split("\n").length - 1;
       } else if (child.type === "softbreak" || child.type === "hardbreak") {
         line++;
-      } else if (child.type === "html_inline" || child.type === "html_block") {
-        // Markdown-it normalizes input NULs, so these temporary placeholders
-        // cannot collide with authored text. Restore the raw bytes before HTML parsing.
-        const content = child.content;
-        child.content = `\0${rawHtml.length}\0`;
-        rawHtml.push({ content, line });
-        line += content.split("\n").length - 1;
       }
     }
   }
-  if (rawHtml.length) collectHtml(tokens, env, rawHtml, anchors, links);
+  collectNavigation(tokens, env, fragments, anchors, links);
   return {
     meta,
     metadataError,

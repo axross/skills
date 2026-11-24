@@ -246,6 +246,35 @@ describe("OKF navigation", () => {
     expect(result.stdout).toContain("has 3 findings.");
   });
 
+  it("ignores Markdown links and images in template content", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "Read <template>[Owner](owner.md) [Missing](missing.md) ![Diagram](ghost.png)</template> and [Visible](visible.md).",
+      "owner.md": "---\ntype: Definition\n---\n# Owner",
+      "visible.md": "---\ntype: Definition\n---\n# Visible",
+    });
+    const result = validator(SCRIPTS.checkIndex)(docs);
+    expect(result).toReportFailure(/unindexed: owner.md/);
+    expect(result.stdout).toContain("has 1 finding.");
+    expect(checkReferences(docs)).toPassCleanly();
+  });
+
+  it.each(["plain text", "<em>markup</em>"])(
+    "recognizes generated footnote anchors alongside %s",
+    async (text) => {
+      const docs = await writeDocs(await tempDir(), {
+        "index.md":
+          index +
+          text +
+          ".[^src]\n\n[^src]: Footnote.\n\n[Note](#fn1) [Return](#fnref1) [Missing](#fn999)",
+      });
+      const result = checkReferences(docs);
+      expect(result).toReportFailure(/#fn999 has no matching fragment/);
+      expect(result.stdout).toContain("has 1 finding.");
+    },
+  );
+
   it("checks authored HTML navigation and images once at their source lines", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md":
