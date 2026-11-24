@@ -10,6 +10,7 @@ import {
   checkIndex,
   checkReferences,
   declaredType,
+  livingPages,
 } from "./navigation.mjs";
 
 const usage = `Usage: check-docs.mjs --validator <validate.py> [--source-root <checkout>] [--evidence <file.md>]... [<docs-dir>]
@@ -81,19 +82,18 @@ async function main() {
   const evidence = new Set(values.evidence);
   let incomplete = false;
   let failed = false;
+  const upstreamUntyped = [];
 
   try {
     const findings = await checkFormat(values.validator, root);
     for (const { level, code, path, line, message } of findings) {
-      const typeWarning = level === "warning" && code === "W120";
-      const named = typeWarning && evidence.has(path);
-      let reason = "";
-      if (typeWarning)
-        reason = named ? " (named evidence)" : " (living-page type required)";
+      if (level === "warning" && code === "W120") upstreamUntyped.push(path);
+      const namedEvidence =
+        level === "warning" && code === "W120" && evidence.has(path);
       console.log(
-        `OKF ${level.toUpperCase()} ${code} ${path}${line ? ":" + line : ""}: ${message}${reason}`,
+        `OKF ${level.toUpperCase()} ${code} ${path}${line ? ":" + line : ""}: ${message}${namedEvidence ? " (named evidence)" : ""}`,
       );
-      if (level === "error" || (typeWarning && !named)) failed = true;
+      if (level === "error") failed = true;
     }
   } catch (error) {
     console.error(`Could not complete OKF validation: ${error.message}`);
@@ -104,16 +104,17 @@ async function main() {
   const sourceRoot =
     values["source-root"] && (await realpath(values["source-root"]));
   const docs = await loadDocs(root, sourceRoot, { wholeRoot: true });
-  for (const doc of docs.documents) {
+  const pages = await livingPages(docs, upstreamUntyped);
+  for (const [name, doc] of pages) {
     const type = declaredType(doc);
-    if (type) console.log(`REVIEW ${doc.relative} — ${JSON.stringify(type)}`);
+    if (type) console.log(`REVIEW ${name} — ${JSON.stringify(type)}`);
   }
   for (const error of docs.readErrors) {
     console.error(`Could not read ${error}`);
     incomplete = true;
   }
   const findings = [
-    ...(await checkIndex(docs, evidence)),
+    ...(await checkIndex(docs, evidence, pages)),
     ...(await checkReferences(docs, sourceRoot)),
     ...checkGlossary(docs),
   ];

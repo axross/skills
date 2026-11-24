@@ -37,7 +37,7 @@ that require a fix, and **2** when a setup, invocation or execution problem
 prevents a complete check. Use the diagnostics to locate each finding:
 
 - **Required by OKF.** A format error such as frontmatter on a nested `index.md` (`E004`) or on a `log.md` (`E006`) fails the check.
-- **Required by this skill.** A living page needs a nonempty string `type`, a route from the root index and resolvable local links and fragments. OKF permits untyped Markdown and emits `W120`. For a living page the missing type also fails the engineering check.
+- **Required by this skill.** A living page needs a nonempty string `type`, a route from the root index and resolvable local links and fragments. OKF permits untyped Markdown and emits `W120`. The engineering check determines the type using the YAML 1.2 core schema. For example, an unquoted `type: On` is a string under that schema. The pinned Python parser can still emit `W120` for it. Quoting `"On"` makes both parsers read the same type.
 - **Recommendations.** Upstream warnings remain visible. For example, a root index without a version declaration can receive `W125`. Check for an accompanying required finding before deciding what to fix.
 - **Editorial review.** The report lists typed pages on both passing and failing runs. For each page, use its reader's question and the claim it owns to [review the declared type](./documentation-structure.md#review-the-declared-type).
 

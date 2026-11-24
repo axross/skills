@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { chmod, cp, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, cp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import { readMarkdown } from "../../skills/living-project-documentation/scripts/okf.mjs";
@@ -109,6 +109,43 @@ describe("whole-root engineering checks", () => {
     expect(findings).toContain("type: b.md needs a nonempty string type");
   });
 
+  it("checks links from each published Markdown path whose target is a non-Markdown file", async () => {
+    const root = await tempDir();
+    const dir = await writeDocs(root, {
+      "index.md": "[Guide](old/guide.md#working) [Ordinary](same.md#ordinary)",
+      "topics/help.txt": "help",
+      "data/content.txt":
+        pageHeader + "# Working\n[Help](help.txt) [Missing](gone.txt)",
+      "ordinary.md": pageHeader + "# Ordinary",
+      ".private.txt": "hidden",
+    });
+    await writeFileIn(root, "outside.txt", "outside");
+    await symlink("../data/content.txt", join(dir, "topics/guide.md"));
+    await symlink("topics", join(dir, "old"), "dir");
+    await symlink("ordinary.md", join(dir, "same.md"));
+    await symlink(".private.txt", join(dir, "hidden.md"));
+    await symlink("../outside.txt", join(dir, "external.md"));
+    const docs = await loadDocs(dir, undefined, { wholeRoot: true });
+    expect(docs.documents.map(({ relative }) => relative)).toEqual([
+      "index.md",
+      "ordinary.md",
+      "topics/guide.md",
+    ]);
+    expect(await engineering(dir)).toEqual([
+      "link: topics/guide.md:5 → gone.txt does not resolve",
+    ]);
+    await writeFileIn(dir, "topics/gone.txt", "now present");
+    expect(await engineering(dir)).toEqual([]);
+    await writeFile(join(dir, "data/content.txt"), "untyped");
+    const findings = await engineering(dir);
+    expect(findings).toContain(
+      "type: topics/guide.md needs a nonempty string type",
+    );
+    expect(findings).toContain(
+      "link: index.md:1 → old/guide.md#working has no matching fragment",
+    );
+  });
+
   it("permits checkout links with --source-root and checks their fragments", async () => {
     const root = await tempDir();
     const dir = await writeDocs(root, {
@@ -126,6 +163,57 @@ describe("whole-root engineering checks", () => {
 });
 
 describe("check-docs.mjs", () => {
+  it.skipIf(process.platform === "win32")(
+    "lists every page under a low file descriptor limit",
+    async () => {
+      const root = await tempDir();
+      const names = Array.from({ length: 150 }, (_, i) => `guide-${i}.md`);
+      const files = Object.fromEntries(
+        names.map((name) => [name, pageHeader + "# Guide"]),
+      );
+      const dir = await writeDocs(root, {
+        ...files,
+        "index.md": names.map((name) => `[${name}](${name}#guide)`).join("\n"),
+      });
+      const result = spawnSync(
+        "sh",
+        [
+          "-c",
+          'ulimit -n 64 && exec "$@"',
+          "sh",
+          process.execPath,
+          repoPath(command),
+          "--validator",
+          pinned ?? join(root, "missing.py"),
+          dir,
+        ],
+        { encoding: "utf8" },
+      );
+      expect(result.status, result.stderr).toBe(pinned ? 0 : 2);
+      expect(result.stderr).not.toContain("EMFILE");
+      expect(result.stdout).not.toContain("ENGINEERING");
+      expect(result.stdout.match(/^REVIEW /gm)).toHaveLength(names.length);
+    },
+  );
+
+  it.skipIf(!pinned)(
+    "keeps an upstream W120 advisory for a valid YAML 1.2 type",
+    async () => {
+      const dir = await writeDocs(await tempDir(), {
+        "index.md": indexHeader + "[Guide](guide.md)",
+        "guide.md": "---\ntype: On\n---\n# Guide",
+      });
+      await symlink("guide.md", join(dir, "alias.md"));
+      const result = runScript(command, ["--validator", pinned, dir]);
+      expect(result.code, result.output).toBe(0);
+      expect(result.stdout).toContain("OKF WARNING W120 guide.md");
+      expect(result.stdout).toContain("OKF WARNING W120 alias.md");
+      expect(result.stdout.match(/^REVIEW /gm)).toHaveLength(1);
+      expect(result.stdout).toContain('REVIEW guide.md — "On"');
+      expect(result.stdout).not.toContain("living-page type required");
+    },
+  );
+
   it("shows the review on a mixed tree even if the validator cannot run", async () => {
     const root = await tempDir();
     const dir = await writeDocs(root, {
@@ -244,6 +332,46 @@ describe("check-docs.mjs", () => {
       expect(runScript(command, ["--validator", pinned, dir]).stdout).toContain(
         "ENGINEERING index: index.md is missing",
       );
+    },
+  );
+
+  it.skipIf(!pinned)(
+    "requires an exact evidence exception for a second name reported by upstream",
+    async () => {
+      const dir = await writeDocs(await tempDir(), {
+        "index.md": indexHeader + "[Source](raw.md)",
+        "raw.md": "# Original evidence",
+      });
+      await symlink("raw.md", join(dir, "alias.md"));
+      const args = ["--validator", pinned, "--evidence", "raw.md"];
+      const extra = runScript(command, [...args, dir]);
+      expect(extra.code, extra.output).toBe(1);
+      expect(extra.stdout).toContain(
+        "ENGINEERING type: alias.md needs a nonempty string type",
+      );
+      const both = runScript(command, [...args, "--evidence", "alias.md", dir]);
+      expect(both.code, both.output).toBe(0);
+      expect(both.stdout).toMatch(/W120 alias.md:1: .*named evidence/);
+    },
+  );
+
+  it.skipIf(!pinned)(
+    "checks the living file used as a root index alias",
+    async () => {
+      const dir = await writeDocs(await tempDir(), {
+        "index.md": null,
+        "guide.md": "# Guide",
+      });
+      await symlink("guide.md", join(dir, "index.md"));
+      const result = runScript(command, ["--validator", pinned, dir]);
+      expect(result.code).toBe(1);
+      expect(result.stdout).toContain(
+        "ENGINEERING type: guide.md needs a nonempty string type",
+      );
+      await writeFile(join(dir, "guide.md"), pageHeader + "# Guide");
+      const corrected = runScript(command, ["--validator", pinned, dir]);
+      expect(corrected.code, corrected.output).toBe(0);
+      expect(corrected.stdout).toContain('REVIEW guide.md — "Procedure"');
     },
   );
 

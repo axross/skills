@@ -1,12 +1,33 @@
-import { readFile, stat } from "node:fs/promises";
-import { basename } from "node:path";
+import { readFile, realpath, stat } from "node:fs/promises";
+import { basename, join } from "node:path";
 import { resolveLink, slug } from "./docs.mjs";
 
-/** return a living page's declared type when it can be reviewed. */
+/** return a parsed nonempty YAML 1.2 type. */
 export function declaredType(doc) {
-  if (doc.markerKey !== "type" || doc.metadataError) return;
-  const type = doc.meta?.get("type");
+  if (doc?.metadataError) return;
+  const type = doc?.meta?.get("type");
   if (typeof type === "string" && type.trim()) return type;
+}
+
+/**
+ * include an upstream untyped path that has no living-page entry of its own.
+ * @throws if a path reported by the validator can no longer be resolved.
+ */
+export async function livingPages(docs, upstreamUntyped = []) {
+  const pages = new Map(
+    docs.documents
+      .filter((doc) => doc.living)
+      .map((doc) => [doc.relative, doc]),
+  );
+  for (const name of upstreamUntyped) {
+    if (pages.has(name)) continue;
+    const path = await realpath(join(docs.root, name));
+    const doc = docs.byPath.get(path);
+    // a typed alias is already reviewed under its canonical name. untyped aliases
+    // each need an exact path decision, even when they point at accepted evidence.
+    if (!doc?.living || !declaredType(doc)) pages.set(name, doc);
+  }
+  return pages;
 }
 
 /**
@@ -54,7 +75,7 @@ async function reachable(docs, evidence) {
  * report unreachable pages and metadata findings, honoring exact evidence exceptions.
  * @throws if the bundle's navigation cannot be inspected.
  */
-export async function checkIndex(docs, evidence) {
+export async function checkIndex(docs, evidence, pages) {
   const reached = docs.index ? await reachable(docs, evidence) : undefined;
   const findings = [];
   if (!docs.index && docs.populated)
@@ -80,17 +101,19 @@ export async function checkIndex(docs, evidence) {
         category: "frontmatter",
         message: `${doc.relative}: ${doc.metadataError}`,
       });
-    if (doc.markerKey !== "type") continue;
-    if (declaredType(doc)) continue;
-    if (!doc.meta?.has("type") && unused.delete(doc.relative)) {
-      console.log(`WARN  ${doc.relative}: named untyped evidence`);
-    } else {
-      findings.push({
-        category: "type",
-        message: `${doc.relative} needs a nonempty string type`,
-      });
-    }
   }
+  if (docs.okf)
+    for (const [name, doc] of pages ?? (await livingPages(docs))) {
+      if (declaredType(doc)) continue;
+      if (doc && !doc.meta?.has("type") && unused.delete(name)) {
+        console.log(`WARN  ${name}: named untyped evidence`);
+      } else {
+        findings.push({
+          category: "type",
+          message: `${name} needs a nonempty string type`,
+        });
+      }
+    }
   for (const name of unused)
     findings.push({
       category: "evidence",
