@@ -2,27 +2,21 @@
 
 ## OKF v0.3 requirements
 
-A concept is a UTF-8 Markdown file that starts with a YAML 1.2 core-schema
-mapping between two lines containing exactly `---`. Give it a nonempty string
-`type`; no other field is universally required. Duplicate keys are invalid.
-Preserve extension keys at every level and edit only metadata affected by the
-change. A producer may use project-specific types. See the
-[OKF v0.3 specification](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/SPEC.md).
+OKF consumers discover typed concepts, assets and reserved navigation files
+within one bundle. Untyped Markdown can coexist with concepts. The format
+leaves the vocabulary open, so a consumer can encounter a type it has never
+seen. See the [OKF v0.3 specification](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/SPEC.md).
 
-`index.md` and `log.md` are reserved at every depth. The root index may declare
-`okf_version: "0.3"`, a title and a description. Preserve these when refreshing
-its entries. Nested indexes and all logs have no frontmatter. An optional log
-records documentation changes in its scope under newest-first YYYY-MM-DD
-headings. Approval evidence and dated observations retain their own provenance.
-Untyped Markdown is skipped by OKF consumers. Other file extensions are assets.
+**Guidelines:**
+
+- MUST write a concept as UTF-8 Markdown with a YAML 1.2 core-schema mapping between lines containing exactly `---`. Its only universally required field is a nonempty string `type`. Keys must be unique.
+- MUST reserve `index.md` and `log.md` at every depth. Nested indexes and logs have no frontmatter. A log records documentation changes in its scope under newest-first YYYY-MM-DD headings.
+- MAY declare `okf_version: "0.3"`, a title and a description on the root index. Preserve its existing frontmatter when refreshing the index.
+- SHOULD edit only the metadata the change affects, preserving existing extension keys and values.
 
 ## Engineering defaults
 
-Give each living page one primary type, a meaningful title and a short
-description that helps readers decide whether to open it. A bundle may keep its
-topic directories and existing types when readers or tools depend on them.
-For new engineering documentation, choose the type by the question the reader
-needs to settle.
+These recommended types describe the decision the reader needs to make.
 
 | Type              | Reader's decision                                                    | What belongs together                                                                                                                     |
 | ----------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -38,27 +32,29 @@ single Specification. A separately maintained service registry can keep its
 project-specific type. Labels like Description, Catalog or Record tell a reader
 too little to serve as default concept kinds.
 
+**Guidelines:**
+
+- SHOULD give each living page one primary type, a meaningful title and a short discovery description.
+- SHOULD adopt the engineering vocabulary for a new bundle and preserve established project types and topic directories where readers or tools depend on them.
+
 ## The index
 
-Group links by reader task or subject. Give each entry enough information to
-distinguish its destination from its neighbors. A root entry may route through a
-nested index. Directory names are useful paths even when a new concept takes a
-different type from its neighbors. Add a page only when it owns an answer.
+A scheduling index can list a Definition of retry limits beside the
+Specification of what a client sees while waiting. A directory can contain
+both. A root index can lead through nested indexes to either page.
+
+**Guidelines:**
+
+- SHOULD group entries by reader task or subject and describe each destination's answer.
+- SHOULD use Markdown links for index entries so OKF consumers can traverse them offline. An HTML link that works in a browser does not establish an OKF relationship.
+- SHOULD add a page only when it owns an answer.
 
 ## The glossary
 
-Group terms where readers already look. Capture names from code, user-visible
-interfaces and team usage. Define unfamiliar terms directly and keep the
-project's spelling, grouping, aliases, emphasis and anchors when shortening an
-entry. A glossary can link to a full Definition for a formula, provided the
-entry still gives a usable meaning on its own. Add terms as readers need them.
-The legacy flat `specs/<domain>.md` convention pairs files with glossary domain
+The legacy flat `specs/<domain>.md` convention pairs specs with glossary domain
 headings. A typed Specification elsewhere creates no obligation to coin a term.
-
-When choosing a new term, prefer the name whose ordinary words lead readers
-to the intended meaning. A visibly unfamiliar term prompts a lookup. A
-plausible near-match hides the need for one. Keep an existing team term during
-capture and address a misleading name as a separate change to its callers.
+A glossary entry can link to a full Definition and still explain enough for a
+reader to understand the word in context.
 
 For example, **Job output** names what one Job produced, even after its record
 is gone. Three near-misses narrow or shift that meaning:
@@ -69,8 +65,17 @@ is gone. Three near-misses narrow or shift that meaning:
 | Failure output | The output of a failed job  | Excludes successful jobs.                                  |
 | Completed job  | An execution that has ended | Names the execution itself instead of what it left behind. |
 
+**Guidelines:**
+
+- SHOULD capture names from code, user-visible interfaces and team usage. Choose a new name whose ordinary meaning fits the concept. A plausible near-match hides the need to look it up.
+- MUST preserve established spellings, aliases, grouping, emphasis and anchors when shortening an entry. Address a misleading team term in a separate change to its callers.
+
 ## Diagrams
 
-Place the diagram beside the claim it explains. Show state transitions with the
-observable contract and cross-component flows with the responsibility boundary.
-Ship any linked image with the bundle so a reader can inspect both offline.
+A state-transition diagram explains an observable contract. A diagram of the
+producer and worker explains which component owns a transition.
+
+**Guidelines:**
+
+- SHOULD keep a diagram beside the claim it explains.
+- MUST ship linked images with the bundle when readers need them offline.

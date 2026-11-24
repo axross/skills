@@ -16,7 +16,7 @@ async function reachable(docs, evidence) {
   while (pending.length) {
     const index = pending.pop();
     for (const link of index.links) {
-      if (link.image || link.field) continue;
+      if (link.html || link.image || link.field) continue;
       const { page: doc } = await resolveLink(docs, index, link.target);
       if (!doc || reached.has(doc.path)) continue;
       reached.add(doc.path);
@@ -28,7 +28,11 @@ async function reachable(docs, evidence) {
     for (const page of docs.documents) {
       if (!reached.has(page.path) || !page.meta?.has("type")) continue;
       for (const link of page.links) {
-        if (link.image || (link.field && !link.field.startsWith("sources.")))
+        if (
+          link.html ||
+          link.image ||
+          (link.field && !link.field.startsWith("sources."))
+        )
           continue;
         const { page: source } = await resolveLink(docs, page, link.target);
         if (source && evidence.has(source.relative)) reached.add(source.path);

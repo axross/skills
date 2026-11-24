@@ -2,35 +2,37 @@
 
 ## Placing a project rule
 
-Ask where a contributor would discover the violation. A client receiving a
-missing field encounters a contract violation, so the field and missing-value
-behavior go together in the Specification. A reviewer encountering a choice of
-directory layout looks for the Convention and its reason, even if a linter
-enforces it. An operator diagnosing a queue backlog needs the Architecture to
-identify the producer and consumer before consulting a recovery Procedure.
+Where a violation appears helps identify the reader who needs the rule. A
+client receiving a missing field encounters a contract violation. A reviewer
+checking directory layout is applying a Convention, even if a linter enforces
+it. An operator diagnosing a queue backlog needs the Architecture to identify
+the producer and consumer before consulting a recovery Procedure.
 
-Record the constraint, the reasoning that still governs it and a recognizable
-counterexample in one place. Link to the governing practice when it is already
-documented. Keep historical deliberation with the change. A project that uses
-ADRs can retain them and link to the decision when its provenance matters.
+**Guidelines:**
+
+- SHOULD place an observable guarantee in its Specification and a team's choice among conforming practices in its Convention.
+- MUST keep the constraint beside its reasoning and link to its existing owner when already documented. A project with architectural decision records MAY link the original record for provenance.
 
 ## Permission and execution
 
-Several release paths may share one decision about who can authorize a
-production rollout. If that decision changes independently, give it one Policy
-owner. Include the scope, exception authority and conditions for reopening
-exactly as the project adopted them. Point every release entry point, including
-emergency and manual paths, to that authority.
+A release operator activates a rollout. A device operator checks the
+installation and restores service if verification fails. Both procedures can
+depend on the same permission to release. When one operator carries out a
+single task, a locally scoped permission check can fit directly in its steps.
 
-The release operator may need an activation Procedure, while the device
-operator needs a Procedure for verifying installation and restoring service.
-Name prerequisites, observable success and recovery for each. If the same
-operator performs a single task with a locally scoped permission check, keep
-that check with the steps. Do not invent an approver or a separate policy page
-to populate the vocabulary.
+**Guidelines:**
+
+- SHOULD extract a Policy when several entry points depend on a permission rule that changes independently.
+- MUST identify the adopted scope, exception authority and reopening conditions, and connect every affected entry point, including manual and emergency paths, to the actual authority.
+- SHOULD give operators separate procedures when their tasks have different prerequisites, success signals or recovery actions.
+- MUST NOT invent an approver or independent permission rule to populate a type.
 
 ## Contributor routes
 
-Keep links from setup instructions, contributor guides and always-loaded agent
-instructions at the point where a reader chooses the next task. Move the
-actual rule to its governing page and point editable callers directly there.
+A contributor guide can direct a new maintainer to the setup procedure and a
+reviewer to the same convention used by the linter. Each route leads to one
+maintained rule.
+
+**Guidelines:**
+
+- SHOULD put the link where the contributor chooses the task and direct editable callers to the governing page.

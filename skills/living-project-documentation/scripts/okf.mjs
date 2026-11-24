@@ -41,6 +41,47 @@ function readPathFields(meta, syntax, lineCounter) {
   return links;
 }
 
+// Parse one rendered fragment so comments, raw-text elements and inert template
+// contents have their HTML meaning across token boundaries. Keep source locations
+// for authored tags; Markdown links and generated footnote links have other owners.
+function collectHtml(tokens, env, rawHtml, anchors, links) {
+  const sourceLines = new Map();
+  let shift = 0;
+  const rendered = markdown.renderer.render(tokens, markdown.options, env);
+  const html = rendered.replace(/\0(\d+)\0/g, (marker, id, position) => {
+    const fragment = rawHtml[id];
+    let line = fragment.line;
+    for (const match of fragment.content.matchAll(/[<\n]/g)) {
+      if (match[0] === "\n") line++;
+      else sourceLines.set(position + shift + match.index, line);
+    }
+    shift += fragment.content.length - marker.length;
+    return fragment.content;
+  });
+
+  const pending = [parseFragment(html, { sourceCodeLocationInfo: true })];
+  while (pending.length) {
+    const element = pending.pop();
+    const line = sourceLines.get(
+      element.sourceCodeLocation?.startTag?.startOffset,
+    );
+    for (const { name, value } of element.attrs ?? []) {
+      if (name === "id" || (element.tagName === "a" && name === "name"))
+        anchors.add(value);
+      const image = element.tagName === "img" && name === "src";
+      if (
+        line !== undefined &&
+        (image || (element.tagName === "a" && name === "href"))
+      ) {
+        const target = value.trim();
+        if (target && !external.test(target))
+          links.push({ target, line, image, html: true });
+      }
+    }
+    for (const child of element.childNodes ?? []) pending.push(child);
+  }
+}
+
 export function readMarkdown(text) {
   // Parse the header separately so Markdown line numbers include the frontmatter.
   const header = text.match(/^---\r?\n([\s\S]*?)^---\r?$(?:\n|$)/m);
@@ -72,7 +113,7 @@ export function readMarkdown(text) {
   const tokens = markdown.parse(body, env);
   const headings = [],
     anchors = new Set();
-  let hasHtml = false;
+  const rawHtml = [];
   let tableRowStart;
   for (const [i, token] of tokens.entries()) {
     if (token.type === "heading_open") {
@@ -105,27 +146,16 @@ export function readMarkdown(text) {
       } else if (child.type === "softbreak" || child.type === "hardbreak") {
         line++;
       } else if (child.type === "html_inline" || child.type === "html_block") {
-        hasHtml = true;
+        // Markdown-it normalizes input NULs, so these temporary placeholders
+        // cannot collide with authored text. Restore the raw bytes before HTML parsing.
+        const content = child.content;
+        child.content = `\0${rawHtml.length}\0`;
+        rawHtml.push({ content, line });
+        line += content.split("\n").length - 1;
       }
     }
   }
-  if (hasHtml) {
-    // Parse rendered HTML as a single fragment: raw-text and comment boundaries
-    // may span multiple Markdown tokens. Template contents are inert.
-    const html = markdown.renderer.render(tokens, markdown.options, env);
-    const pending = [parseFragment(html)];
-    while (pending.length) {
-      const element = pending.pop();
-      for (const attr of element.attrs ?? []) {
-        if (
-          attr.name === "id" ||
-          (element.tagName === "a" && attr.name === "name")
-        )
-          anchors.add(attr.value);
-      }
-      for (const child of element.childNodes ?? []) pending.push(child);
-    }
-  }
+  if (rawHtml.length) collectHtml(tokens, env, rawHtml, anchors, links);
   return {
     meta,
     metadataError,

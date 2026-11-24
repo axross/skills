@@ -190,7 +190,8 @@ export async function resolveLink(docs, doc, target) {
   let decoded, fragment;
   try {
     decoded = decodeURIComponent(rawPath);
-    fragment = hash < 0 ? "" : decodeURIComponent(target.slice(hash + 1));
+    fragment =
+      docs.okf && hash >= 0 ? decodeURIComponent(target.slice(hash + 1)) : "";
   } catch {
     return { error: "has invalid URI encoding" };
   }

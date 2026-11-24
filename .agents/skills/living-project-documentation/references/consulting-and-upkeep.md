@@ -2,11 +2,14 @@
 
 ## Consult before planning
 
-Start with the index. Open the pages whose descriptions match the task and
-follow any precondition or authority the change could affect. A plan names the
-pages that will become inaccurate. If none of the routes concerns the change,
-say so and stop reading. Revisit the list if implementation reveals a new
-dependency.
+A change to retry timing can invalidate both the scheduler's contract and an
+operator's procedure for recognizing a stuck job. The index identifies the
+initial owners. Their preconditions and authority links reveal other readers.
+
+**Guidelines:**
+
+- MUST start with the index before planning a change, trace its dependencies and name the pages whose claims the change would invalidate.
+- SHOULD stop reading when the routes establish that the change affects no documented claim. Revisit that conclusion if implementation reveals a dependency.
 
 ## Find the affected claim
 
@@ -20,17 +23,20 @@ dependency.
 | A command, prerequisite or success signal changes | Its Procedure and the caller's route to recovery                             |
 | A term, file or heading moves                     | Glossary conventions, indexes, inbound links and external anchors            |
 
+**Guidelines:**
+
+- MUST correct an invalidated claim in the same change and update the routes that depend on it.
+- SHOULD leave a page alone when the change preserves its claims and reading routes.
+
 ## Record what became true
 
-Write observable behavior in the present tense. Distinguish a target
-architecture the team has adopted from the components deployed today. Carry a
-settled constraint and the reason it still holds into the page whose reader
-applies it. Replace the old rationale when it no longer explains the rule.
-Leave proposals and unimplemented alternatives with the plan.
+An adopted target architecture and a deployed component can answer different
+questions about the same service. A later contributor also needs to know why
+an apparently workable alternative violates a settled constraint.
 
-After extraction, check a boundary case without reading the original page.
-Trace a consumer from the index to the result contract and an operator from a
-release entry point to its authority. A change that removes a feature also
-retires its obsolete routes; preserve a forwarding route if an external reader
-still depends on the old address. Run the [validators](./validators.md) and
-read the changed pages independently of their diff.
+**Guidelines:**
+
+- MUST describe observable behavior in the present tense, identifying targets and illustrative examples explicitly.
+- MUST put a settled constraint and its current rationale on the page that governs it. Include a rejected alternative when readers are likely to try it. Leave deliberation with the change that settled it.
+- MUST retire obsolete guidance when a feature disappears and preserve forwarding routes that external readers still use.
+- SHOULD read each changed page on its own and exercise a boundary case from a consumer's or operator's entry point. Run the [documentation checks](./validators.md).

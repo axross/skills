@@ -2,16 +2,18 @@
 
 ## Detect before proposing
 
-Locate the documentation root, its index, glossary, tools and external entry
-points. Ask which pages are edited as current guidance, which record evidence
-at a revision and which files are actually distributed. Keep a working legacy
-layout until the project adopts migration. An unrelated directory named
-`docs/` is insufficient evidence of adoption.
+A documentation tree can contain current guidance, observations recorded at a
+particular revision, and files left out of a distribution. Its name alone
+does not identify those roles or establish that the project has adopted OKF.
+
+**Guidelines:**
+
+- MUST locate the documentation root, index, glossary, tools, external entry points and export boundary before proposing a layout.
+- MUST preserve a working legacy layout until the project adopts migration.
 
 ## Start with a reader
 
-Take one recurring question and answer it from the implementation or an adopted
-project decision. Choose its primary type. For a new bundle the root index can
+One recurring question is enough to begin. For a new bundle the root index can
 begin with this frontmatter, followed by a topic heading and a link to the
 concept.
 
@@ -37,49 +39,43 @@ description: Retry timing, attempt limits and the state callers observe between 
 A job waiting for its next attempt appears as queued.
 ```
 
-Add a glossary entry when there is a term to define. Add directories when
-subjects need grouping. The [worked bundle](../assets/docs-example/index.md)
-shows how these choices look in a populated tree.
+The [worked bundle](../assets/docs-example/index.md) shows topic directories and
+a glossary in use.
+
+**Guidelines:**
+
+- SHOULD answer the first question from the implementation or an adopted decision, give the answer a primary type, and link it from the index.
+- SHOULD add a glossary entry when readers need a term defined and a directory when related topics need grouping.
 
 ## Migrate one reading route
 
-1. Inventory paths, headings, entry points, references, assets and metadata.
-   Record any byte-pinned evidence before editing. Begin with one question a
-   reader currently has to answer across several sections.
-2. Identify the owning claim and the reader who acts on it. Split when claims
-   serve different decisions and can change independently. For a metric,
-   separate the definition from the result-buffer contract and the screen's
-   display rules. Exercise each page alone. In sampled mode the producer can
-   compute values for several participants while returning a score for just
-   one. Which participant can the caller read? The result Specification owns
-   that answer; neither the formula nor the display can settle it.
-3. Keep claims that a reader must apply together. Keep a configuration variable
-   with its requiredness and failure behavior, and a testing convention with
-   the counterexample that justifies it. Page length, the presence of a table
-   and heading count do not establish separate ownership.
-4. Add frontmatter to each living page, retaining existing metadata and
-   project-specific type names. Use the project layout as the starting point.
-   Rewrite scope statements and surrounding transitions after extraction.
-   Preserve the route from the old path and heading, and update editable
-   callers. See [Cross-references](./cross-references.md).
-5. Re-read the extracted page on its own and follow at least one route from an
-   established entry point to its owner. Repeat for the next topic. Report one
-   split and one decision to keep claims together, with the reader and change
-   that justify each.
+A metric's formula, its result-buffer contract and its presentation can change
+independently. A sampled stage can compute values for several participants
+while returning a score for only one. A caller needs the result Specification
+to know whose score is available. By contrast, a configuration name, its
+requiredness and its failure behavior together tell the operator what to set.
+A testing convention and the counterexample that motivated it also belong
+together.
+
+**Guidelines:**
+
+- MUST inventory the route's paths, headings, callers, assets, metadata and byte-pinned evidence before editing.
+- SHOULD split claims when they serve different decisions and can change independently. Keep facts that a reader must apply together on one page; page length and heading count alone do not justify a split.
+- MUST type each living page while retaining existing metadata and established type names. Update scope statements and [reading routes](./cross-references.md) after extraction.
+- MUST read each extracted page independently, exercise a boundary case and trace a route from an established entry point to its owner.
+- SHOULD report one justified split and one justified decision to keep content together when evaluating a migration.
 
 ## Preserve evidence identity
 
 An approval that names a file by SHA-256 binds to its bytes, including its first
-line and newline convention. Leave the evidence file intact. Write a companion
-concept with the applicable type, a pinned source path or revision URL and a
-link to the acceptance record. State the exact revision, environment and
-conditions the evidence supports. A dated feasibility study can support a
-current conclusion while its repeatable inspection steps become a Procedure.
-A successful rerun produces new evidence; it cannot retroactively verify the
-old revision. Record the actual digest before migration and compare it after
-export. Apply the same byte check to linked assets.
+line and newline convention. A dated feasibility study can support a current
+conclusion for the revision and conditions it observed. A successful rerun
+produces new evidence.
 
-Do not infer `verified`, authorship, ownership, approval or license from a
-migration. Preserve existing provenance as recorded. Name any intentionally
-untyped evidence file during verification so that a second, accidental omission
-is still reported.
+**Guidelines:**
+
+- MUST preserve the original bytes and give immutable evidence a typed companion that identifies the pinned source and links to the acceptance record.
+- MUST state which revision, environment and conditions the evidence supports. Preserve recorded provenance without inferring verification, authorship, ownership, approval or license from migration.
+- MAY extract reusable inspection steps from a dated report into a Procedure.
+- MUST record hashes before migration and compare the exported evidence and linked assets byte-for-byte with their originals.
+- MUST report intentional untyped evidence by path during verification so an accidental omission elsewhere remains visible.

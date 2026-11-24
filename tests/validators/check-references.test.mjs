@@ -51,6 +51,14 @@ describe("check-references.mjs", () => {
     );
   });
 
+  it("ignores the spelling of fragments in legacy documents", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": "[Complete](glossary.md#100%)",
+      "glossary.md": "# Glossary",
+    });
+    expect(checkReferences(docs)).toPassCleanly();
+  });
+
   it("ignores external URLs", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": "# Docs\n\nSee [the spec](https://example.invalid/nope).\n",
@@ -236,6 +244,41 @@ describe("OKF navigation", () => {
     expect(result.stdout).toContain("#data has no matching fragment");
     expect(result.stdout).toContain("#script has no matching fragment");
     expect(result.stdout).toContain("has 3 findings.");
+  });
+
+  it("checks authored HTML navigation and images once at their source lines", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        [
+          "[Missing Markdown](./markdown.md) <a href='./owner.md#gone'>HTML</a> and [note][^src].",
+          "",
+          "<div>",
+          "  <img src='missing.png'>",
+          "  <!-- <a href='hidden.md'>comment</a> -->",
+          "  <script>const ghost = '<img src=ghost.png>';</script>",
+          "  <template><a href='inert.md'>template</a></template>",
+          "</div>",
+          "",
+          "[^src]: Example footnote.",
+        ].join("\n"),
+      "owner.md": "---\ntype: Definition\n---\n# Owner",
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /index.md:5 → \.\/owner.md#gone has no matching fragment/,
+    );
+    expect(result.stdout).toContain(
+      "index.md:8 → missing.png does not resolve",
+    );
+    expect(result.stdout).toContain(
+      "index.md:5 → ./markdown.md does not resolve",
+    );
+    expect(result.stdout).toContain("has 3 findings.");
+    // Rendered HTML is checked for readers; OKF index entries still use Markdown links.
+    expect(validator(SCRIPTS.checkIndex)(docs)).toReportFailure(
+      /unindexed: owner.md/,
+    );
   });
 
   it("requires an external source URL for paths leaving the bundle", async () => {
