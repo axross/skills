@@ -116,6 +116,17 @@ describe("OKF navigation", () => {
     expect(result.stdout).toMatch(/has 1 finding\./);
   });
 
+  it("locates broken table-cell links on their original Markdown lines", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "# Docs\n\n| Guide | Source |\n| --- | --- |\n| Setup | [Source](missing.md) |",
+    });
+    expect(checkReferences(docs)).toReportFailure(
+      /index.md:9 → missing.md does not resolve/,
+    );
+  });
+
   it("checks local OKF path fields and identifies their original lines", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md": index + "# Home",

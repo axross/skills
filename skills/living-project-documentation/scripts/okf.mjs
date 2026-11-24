@@ -73,6 +73,7 @@ export function readMarkdown(text) {
   const headings = [],
     anchors = new Set();
   let hasHtml = false;
+  let tableRowStart;
   for (const [i, token] of tokens.entries()) {
     if (token.type === "heading_open") {
       const label = tokens[i + 1].children
@@ -92,7 +93,10 @@ export function readMarkdown(text) {
       while (anchors.has(anchor)) anchor = base + "-" + ++suffix;
       anchors.add(anchor);
     }
-    let line = offset + (token.map?.[0] ?? 0) + 1;
+    // Markdown-it maps table rows to source lines but omits maps on their cells.
+    if (token.type === "tr_open") tableRowStart = token.map[0];
+    if (token.type === "tr_close") tableRowStart = undefined;
+    let line = offset + (token.map?.[0] ?? tableRowStart ?? 0) + 1;
     for (const child of token.children ?? [token]) {
       if (child.type === "link_open" || child.type === "image") {
         const target = child.attrGet(child.type === "image" ? "src" : "href");
