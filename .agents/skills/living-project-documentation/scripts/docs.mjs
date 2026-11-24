@@ -164,17 +164,28 @@ export function resolveLink(docs, doc, target) {
     if (decoded.startsWith("/") && docs.okf)
       path = resolve(docs.root, "." + decoded);
     else if (decoded) path = resolve(dirname(doc.path), decoded);
-    if (docs.okf && !withinRoot(docs.root, path))
-      return { error: "leaves the bundle; use a source URL" };
+    if (docs.okf) {
+      const error = bundlePathError(docs.root, path);
+      if (error) return { error };
+      if (decoded.split("/").some(hiddenEntry))
+        return { error: "addresses a hidden bundle entry" };
+    }
     return { path, fragment };
   } catch {
     return { error: "has invalid URI encoding" };
   }
 }
 
-export function withinRoot(root, path) {
+function hiddenEntry(part) {
+  return part.startsWith(".") && part !== "." && part !== "..";
+}
+
+export function bundlePathError(root, path) {
   const diff = relative(root, path);
-  return diff !== ".." && !diff.startsWith(".." + sep) && !isAbsolute(diff);
+  if (diff === ".." || diff.startsWith(".." + sep) || isAbsolute(diff))
+    return "leaves the bundle; use a source URL";
+  if (diff.split(sep).some(hiddenEntry))
+    return "addresses a hidden bundle entry";
 }
 
 export async function main({ usage, allowEvidence = false, run, pass }) {

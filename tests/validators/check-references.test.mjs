@@ -9,6 +9,8 @@
 // a checker that followed those would make it impossible to document a link at
 // all.
 
+import { symlink } from "node:fs/promises";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { tempDir, writeDocs } from "../helpers/fixtures.mjs";
@@ -155,6 +157,74 @@ describe("OKF navigation", () => {
     );
     expect(result.stdout).toContain("./missing.md does not resolve");
     expect(result.stdout).toContain("has 2 findings.");
+  });
+
+  it("reports aliased path fields at the lines that use them", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](owner.md)",
+      "owner.md": [
+        "---",
+        "type: Specification",
+        "file: &file missing.md",
+        "worker: &worker {resource: *file}",
+        "entries: &entries [*worker]",
+        "resource: *file",
+        "executor: *worker",
+        "sources: *entries",
+        "---",
+      ].join("\n"),
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(/resource: owner.md:6 → missing.md/);
+    expect(result.stdout).toContain(
+      "executor.resource: owner.md:7 → missing.md",
+    );
+    expect(result.stdout).toContain(
+      "sources.0.resource: owner.md:8 → missing.md",
+    );
+  });
+
+  it("rejects direct, encoded and symlinked hidden paths while permitting dot segments", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "[Live](topics/.././visible.md) ![hidden](.private.png) [hidden dir](%2Eprivate/page.md) ![alias](asset.png)",
+      "topics/guide.md": "# Topic",
+      "visible.md": "# Visible",
+      ".private.png": "bytes",
+      ".private/page.md": "# Private",
+    });
+    await symlink(".private.png", join(docs, "asset.png"));
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(
+      /.private.png addresses a hidden bundle entry/,
+    );
+    expect(result.stdout).toContain(
+      "%2Eprivate/page.md addresses a hidden bundle entry",
+    );
+    expect(result.stdout).toContain(
+      "asset.png addresses a hidden bundle entry",
+    );
+    expect(result.stdout).toContain("has 3 findings.");
+  });
+
+  it("accepts real HTML anchors and rejects markup inside comments, attributes and raw text", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md":
+        index +
+        "[Live](owner.md#live) [Named](owner.md#named) [Comment](owner.md#comment) [Data](owner.md#data) [Script](owner.md#script)",
+      "owner.md": [
+        `<div id=live data-example="<b id='data'>"></div>`,
+        "<a name='named'></a>",
+        "<!-- <div id='comment'></div> -->",
+        `<script>const tag = "<a id='script'>";</script>`,
+      ].join("\n\n"),
+    });
+    const result = checkReferences(docs);
+    expect(result).toReportFailure(/#comment has no matching fragment/);
+    expect(result.stdout).toContain("#data has no matching fragment");
+    expect(result.stdout).toContain("#script has no matching fragment");
+    expect(result.stdout).toContain("has 3 findings.");
   });
 
   it("requires an external source URL for paths leaving the bundle", async () => {

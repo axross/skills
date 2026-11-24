@@ -6,7 +6,7 @@ import {
   resolveLink,
   selfName,
   siblingHelp,
-  withinRoot,
+  bundlePathError,
 } from "./docs.mjs";
 
 const usage = `Usage: ${selfName(import.meta.url)} [<docs-dir>]
@@ -27,9 +27,8 @@ async function run(docs) {
       if (!error) {
         try {
           const actual = await realpath(path);
-          if (docs.okf && !withinRoot(root, actual))
-            error = "leaves the bundle; use a source URL";
-          else if (docs.okf && fragment) {
+          if (docs.okf) error = bundlePathError(root, actual);
+          if (!error && docs.okf && fragment) {
             const targetPage =
               docs.byPath.get(path) ?? docs.byPath.get(join(path, "index.md"));
             if (

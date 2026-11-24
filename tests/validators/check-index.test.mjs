@@ -102,6 +102,39 @@ describe("OKF bundle inventory", () => {
       ).toPassCleanly();
   });
 
+  it("resolves typed concepts and evidence declared through YAML aliases", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](owner.md)",
+      "owner.md": [
+        "---",
+        "label: &label Service Registry",
+        "type: *label",
+        "path: &path /evidence.md",
+        "source: &source {resource: *path}",
+        "list: &list [*source]",
+        "sources: *list",
+        "---",
+      ].join("\n"),
+      "evidence.md": "Preserved bytes",
+    });
+    const result = checkIndex("--evidence", "evidence.md", docs);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("WARN  evidence.md");
+  });
+
+  it("reports excessive alias expansion as a frontmatter finding", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Owner](a.md)",
+      "a.md":
+        "---\ntype: Definition\nlabel: &label text\nitems: [" +
+        Array(110).fill("*label").join(", ") +
+        "]\n---",
+    });
+    expect(checkIndex(docs)).toReportFailure(
+      /frontmatter: a.md: Excessive alias count/,
+    );
+  });
+
   it("recognizes root flow keys after a nested mapping", async () => {
     const docs = await writeDocs(await tempDir(), {
       "index.md":
