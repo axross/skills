@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { basename, join } from "node:path";
+import { basename } from "node:path";
 import { main, resolveLink, selfName, siblingHelp } from "./docs.mjs";
 
 const usage = `Usage: ${selfName(import.meta.url)} [--evidence <bundle-relative-file.md>]... [<docs-dir>]
@@ -10,17 +10,14 @@ exact untyped evidence paths. Each evidence exception prints a warning.
 Exit codes: 0 pass or no index, 1 findings, 2 bad invocation or read error.
 ${siblingHelp(selfName(import.meta.url))}`;
 
-function reachable(docs, evidence) {
+async function reachable(docs, evidence) {
   const reached = new Set([docs.index.path]);
   const pending = [docs.index];
   while (pending.length) {
     const index = pending.pop();
     for (const link of index.links) {
       if (link.image || link.field) continue;
-      const { path } = resolveLink(docs, index, link.target);
-      if (!path) continue;
-      let doc = docs.byPath.get(path);
-      if (!doc && docs.okf) doc = docs.byPath.get(join(path, "index.md"));
+      const { page: doc } = await resolveLink(docs, index, link.target);
       if (!doc || reached.has(doc.path)) continue;
       reached.add(doc.path);
       if (docs.okf && basename(doc.path) === "index.md") pending.push(doc);
@@ -33,9 +30,7 @@ function reachable(docs, evidence) {
       for (const link of page.links) {
         if (link.image || (link.field && !link.field.startsWith("sources.")))
           continue;
-        const source = docs.byPath.get(
-          resolveLink(docs, page, link.target).path,
-        );
+        const { page: source } = await resolveLink(docs, page, link.target);
         if (source && evidence.has(source.relative)) reached.add(source.path);
       }
     }
@@ -43,8 +38,8 @@ function reachable(docs, evidence) {
   return reached;
 }
 
-function run(docs, evidence) {
-  const reached = reachable(docs, evidence);
+async function run(docs, evidence) {
+  const reached = await reachable(docs, evidence);
   const findings = [];
   for (const doc of docs.documents) {
     if (

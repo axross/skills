@@ -8,7 +8,7 @@
 // directory holding something else entirely, and it is the one a refactor of the
 // docs loader would break without any other assertion noticing.
 
-import { cp } from "node:fs/promises";
+import { cp, symlink } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -142,6 +142,33 @@ describe("OKF bundle inventory", () => {
       "a.md": "# Missing type",
     });
     expect(checkIndex(docs)).toReportFailure(/type: a.md/);
+  });
+
+  it.each([
+    '? okf_version\n: "0.3"',
+    '{ ? "okf_version" : "0.3" }',
+    '"okf_\\u0076ersion": "0.3"',
+  ])("uses parsed top-level YAML keys to detect OKF: %s", async (header) => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": `---\n${header}\n---\n[Bookmark](page.md#missing)`,
+      "page.md": "# Page",
+    });
+    expect(checkIndex(docs)).toReportFailure(/type: page.md/);
+    expect(validator(SCRIPTS.checkReferences)(docs)).toReportFailure(
+      /has no matching fragment/,
+    );
+  });
+
+  it("follows internal page and directory aliases without inventorying them twice", async () => {
+    const docs = await writeDocs(await tempDir(), {
+      "index.md": index + "[Topics](old-topics/)",
+      "topics/index.md": "[Retries](old-guide.md#retries)",
+      "topics/guide.md": page + "# Retries",
+    });
+    await symlink("topics", join(docs, "old-topics"), "dir");
+    await symlink("guide.md", join(docs, "topics/old-guide.md"));
+    expect(checkIndex(docs)).toPassCleanly();
+    expect(validator(SCRIPTS.checkReferences)(docs)).toPassCleanly();
   });
 
   it("retains a malformed root version declaration as evidence of OKF intent", async () => {

@@ -1,5 +1,5 @@
 // Shared CLI, frontmatter and Markdown reader for the three docs checks.
-import { readdir, readFile, stat } from "node:fs/promises";
+import { readdir, readFile, realpath, stat } from "node:fs/promises";
 import {
   basename,
   dirname,
@@ -76,8 +76,8 @@ async function listDocuments(dir) {
   return files;
 }
 
-// Detect ordinary top-level OKF keys before loading the optional parsers. Indented
-// block values and nested flow mappings can have their own unrelated "type".
+// Fallback for malformed headers and standalone legacy installs without a YAML
+// parser. When available, the YAML parser decides the format of valid headers.
 function hasOkfMarker(text, rootIndex) {
   if (!/^---[ \t]*\r?\n/.test(text)) return false;
   const header = text.split(/^---[ \t]*\r?$/m, 3)[1] ?? "";
@@ -85,13 +85,18 @@ function hasOkfMarker(text, rootIndex) {
   const first = content.match(/^([ ]*)(\S.*)$/m);
   if (!first) return false;
   const key = rootIndex ? "(?:type|okf_version)" : "type";
-  const marker = new RegExp(`^(?:"${key}"|'${key}'|${key})[ \\t]*:`);
+  const marker = new RegExp(`^(?:\\?\\s+)?(?:"${key}"|'${key}'|${key})\\s*:`);
+  const explicitKey = new RegExp(
+    `^\\?[ \\t]+(?:"${key}"|'${key}'|${key})[ \\t]*$`,
+  );
   if (!first[2].startsWith("{"))
     return content
       .split("\n")
       .some(
         (line) =>
-          line.startsWith(first[1]) && marker.test(line.slice(first[1].length)),
+          line.startsWith(first[1]) &&
+          (marker.test(line.slice(first[1].length)) ||
+            explicitKey.test(line.slice(first[1].length))),
       );
 
   // At depth one, only the text after the opening brace or a comma can be
@@ -114,9 +119,10 @@ function hasOkfMarker(text, rootIndex) {
 }
 
 export async function loadDocs(dir) {
-  const root = resolve(dir);
+  if (!(await stat(join(dir, "index.md")).catch(() => null))?.isFile())
+    return null;
+  const root = await realpath(dir);
   const indexPath = join(root, "index.md");
-  if (!(await stat(indexPath).catch(() => null))?.isFile()) return null;
   const documents = await Promise.all(
     (await listDocuments(root)).sort().map(async (path) => ({
       path,
@@ -124,56 +130,77 @@ export async function loadDocs(dir) {
       text: (await readFile(path, "utf8")).replace(/^\uFEFF/, ""),
     })),
   );
-  // Only an initial YAML block can select OKF. Legacy trees still run from
-  // a copied skill with Node alone, including --help and the no-index opt-out.
-  const candidate = documents.some((doc) =>
-    hasOkfMarker(doc.text, doc.path === indexPath),
-  );
-  let reader = readLegacy;
-  if (candidate) {
+  const byPath = new Map(documents.map((doc) => [doc.path, doc]));
+  const index = byPath.get(indexPath) ?? byPath.get(await realpath(indexPath));
+  if (!index)
+    throw new Error(
+      "index.md does not resolve to a visible Markdown document in the bundle",
+    );
+  let readMarkdown;
+  if (documents.some((doc) => /^---[ \t]*\r?\n/.test(doc.text))) {
     try {
-      reader = (await import("./okf.mjs")).readMarkdown;
+      ({ readMarkdown } = await import("./okf.mjs"));
     } catch (error) {
       if (error.code !== "ERR_MODULE_NOT_FOUND") throw error;
-      throw new Error(
-        "OKF checks require dependencies. Run npm ci --ignore-scripts in the skill's scripts directory.",
-      );
+      if (documents.some((doc) => hasOkfMarker(doc.text, doc === index)))
+        throw new Error(
+          "OKF checks require dependencies. Run npm ci --ignore-scripts in the skill's scripts directory.",
+        );
     }
   }
-  for (const doc of documents) Object.assign(doc, reader(doc.text));
-  const byPath = new Map(documents.map((doc) => [doc.path, doc]));
-  const index = byPath.get(indexPath);
-  const okf =
+  if (readMarkdown) {
+    for (const doc of documents) Object.assign(doc, readMarkdown(doc.text));
+  }
+  const okf = Boolean(
     index.meta?.has("okf_version") ||
     documents.some(
       (doc) =>
         doc.meta?.has("type") ||
-        (doc.metadataError && hasOkfMarker(doc.text, doc.path === indexPath)),
-    );
+        (doc.metadataError && hasOkfMarker(doc.text, doc === index)),
+    ),
+  );
+  if (!okf) {
+    for (const doc of documents) Object.assign(doc, readLegacy(doc.text));
+  }
   return { root, documents, byPath, index, okf };
 }
 
 // Refuse escaping paths before consulting the filesystem in OKF mode.
-export function resolveLink(docs, doc, target) {
+export async function resolveLink(docs, doc, target) {
   const hash = target.indexOf("#");
   const rawPath = (hash < 0 ? target : target.slice(0, hash)).split("?")[0];
+  let decoded, fragment;
   try {
-    const decoded = decodeURIComponent(rawPath);
-    const fragment = hash < 0 ? "" : decodeURIComponent(target.slice(hash + 1));
-    let path = doc.path;
-    if (decoded.startsWith("/") && docs.okf)
-      path = resolve(docs.root, "." + decoded);
-    else if (decoded) path = resolve(dirname(doc.path), decoded);
-    if (docs.okf) {
-      const error = bundlePathError(docs.root, path);
-      if (error) return { error };
-      if (decoded.split("/").some(hiddenEntry))
-        return { error: "addresses a hidden bundle entry" };
-    }
-    return { path, fragment };
+    decoded = decodeURIComponent(rawPath);
+    fragment = hash < 0 ? "" : decodeURIComponent(target.slice(hash + 1));
   } catch {
     return { error: "has invalid URI encoding" };
   }
+  let path = doc.path;
+  if (decoded.startsWith("/") && docs.okf)
+    path = resolve(docs.root, "." + decoded);
+  else if (decoded) path = resolve(dirname(doc.path), decoded);
+  if (docs.okf) {
+    const error = bundlePathError(docs.root, path);
+    if (error) return { error };
+    if (decoded.split("/").some(hiddenEntry))
+      return { error: "addresses a hidden bundle entry" };
+  }
+  try {
+    const actual = await realpath(path);
+    if (docs.okf) {
+      const error = bundlePathError(docs.root, actual);
+      if (error) return { error };
+      path = actual;
+    }
+  } catch (error) {
+    if (!["ENOENT", "ENOTDIR", "ELOOP"].includes(error.code)) throw error;
+    return { error: "does not resolve" };
+  }
+  const page =
+    docs.byPath.get(path) ??
+    (docs.okf ? docs.byPath.get(join(path, "index.md")) : undefined);
+  return { path, page, fragment };
 }
 
 function hiddenEntry(part) {
