@@ -141,8 +141,9 @@ documentation pages still work offline. A link to a repository file outside
 `docs/` opens that file at the exported commit. See the
 [exporter](../../scripts/export-docs.mjs).
 
-For links leaving `docs/`, use a Markdown link, image or reference definition.
+For links leaving `docs/`, use a Markdown link or reference definition.
 The exporter rewrites those destinations and checks Markdown section fragments
-in the selected commit. An outward path in raw HTML or OKF metadata fails the
+in the selected commit. Keep embedded images under `docs/` so readers can view
+them offline. An outward path in raw HTML or OKF metadata fails the
 standalone check. Use an explicit published source URL in metadata that cites
 a particular revision.

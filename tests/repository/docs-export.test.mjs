@@ -154,3 +154,20 @@ it("pins the Markdown-decoded file name when entity and literal spellings both e
     "/a%26b.md#right",
   );
 });
+
+it.each([
+  "![Diagram](../diagram.png)",
+  "![Diagram][asset] and [Download][asset]\n\n[asset]: ../diagram.png",
+])("rejects an embedded image outside the bundle: %s", async (image) => {
+  const { root, git, guide } = await repository();
+  await writeFile(join(root, "diagram.png"), Buffer.from([0, 128, 255]));
+  await writeFile(join(root, "docs/guide.md"), guide + "\n" + image);
+  git("add", ".");
+  git("commit", "--quiet", "-m", "embed an image outside docs");
+  const result = runScript(exporter, [join(root, "bundle")], { cwd: root });
+  expect(result.code).toBe(1);
+  expect(result.output).toContain(
+    "embed an image inside docs/ instead of ../diagram.png",
+  );
+  expect(await readdir(root)).not.toContain("bundle");
+});

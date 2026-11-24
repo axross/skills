@@ -352,6 +352,20 @@ describe("OKF navigation", () => {
     );
   });
 
+  it("keeps embedded images in the bundle while allowing a source link to the same file", async () => {
+    const root = await tempDir();
+    const docs = await writeDocs(root, {
+      "index.md":
+        index + "![Diagram](../diagram.png) [Download](../diagram.png)",
+    });
+    await writeFileIn(root, "diagram.png", "test image");
+    const result = checkReferences("--source-root", root, docs);
+    expect(result).toReportFailure(
+      /diagram.png is an embedded image outside the bundle/,
+    );
+    expect(result.stdout).toContain("has 1 finding.");
+  });
+
   it("contains outward checkout links and rejects aliases that escape their boundary", async () => {
     const parent = await tempDir();
     const root = join(parent, "repo");

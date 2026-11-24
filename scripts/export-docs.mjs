@@ -146,10 +146,15 @@ function pinLinks(file, text, commit, entries) {
     (edit) => edit.marker + "/" + edit.destination,
   );
   const active = new Map();
-  for (const { target } of readMarkdown(marked).links) {
+  for (const { target, image } of readMarkdown(marked).links) {
     if (!target.startsWith(prefix)) continue;
     const slash = target.indexOf("/");
-    active.set(target.slice(0, slash), target.slice(slash + 1));
+    const destination = target.slice(slash + 1);
+    if (image && repositoryTarget(file, destination))
+      throw new Error(
+        `${file}: embed an image inside docs/ instead of ${destination}`,
+      );
+    active.set(target.slice(0, slash), destination);
   }
   return replaceDestinations(text, edits, ({ marker, destination }) => {
     const normalized = active.get(marker);

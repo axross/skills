@@ -24,6 +24,8 @@ async function run(docs, _evidence, sourceRoot) {
       let { path, page, fragment, error, sourceLink } = link.error
         ? link
         : await resolveLink(docs, doc, target, field ? undefined : sourceRoot);
+      if (!error && sourceLink && link.image)
+        error = "is an embedded image outside the bundle";
       if (!error && field === "license" && !(await stat(path)).isFile())
         error = "does not resolve to a license file";
       if (
