@@ -137,3 +137,20 @@ it("resolves an external heading in the requested revision even when the current
   expect(await readdir(root)).not.toContain("selected");
   expect(runScript(exporter, [output, topic], { cwd: root }).code).toBe(0);
 });
+
+it("pins the Markdown-decoded file name when entity and literal spellings both exist", async () => {
+  const { root, git, guide } = await repository();
+  await writeFile(join(root, "a&b.md"), "# Right\n");
+  await writeFile(join(root, "a&amp;b.md"), "# Wrong\n");
+  await writeFile(
+    join(root, "docs/guide.md"),
+    guide + "\n[Decoded](../a&amp;b.md#right)\n",
+  );
+  git("add", ".");
+  git("commit", "--quiet", "-m", "link entity-escaped filename");
+  const output = join(root, "entity");
+  expect(runScript(exporter, [output], { cwd: root }).code).toBe(0);
+  expect(await readFile(join(output, "guide.md"), "utf8")).toContain(
+    "/a%26b.md#right",
+  );
+});

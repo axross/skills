@@ -47,9 +47,7 @@ function repositoryTarget(file, destination) {
   const rawPath =
     boundary === -1 ? destination : destination.slice(0, boundary);
   const suffix = destination.slice(rawPath.length);
-  const path = decodeURIComponent(
-    rawPath.replace(/\\([!-/:-@\[-`{-~])/g, "$1"),
-  );
+  const path = decodeURIComponent(rawPath);
   if (!path) return;
   const target = posix.join(posix.dirname(file), path).replace(/\/$/, "");
   if (target !== "docs" && !target.startsWith("docs/"))
@@ -138,27 +136,34 @@ function pinLinks(file, text, commit, entries) {
     const start = token.start.offset + offset;
     const end = token.end.offset + offset;
     const destination = text.slice(start, end);
-    const source = repositoryTarget(file, destination);
-    if (source)
-      edits.push({
-        start,
-        end,
-        destination,
-        ...source,
-        marker: prefix + edits.length,
-      });
+    if (!/^(?:[a-z][a-z0-9+.-]*:|[/?#])/i.test(destination))
+      edits.push({ start, end, destination, marker: prefix + edits.length });
   }
   if (!edits.length) return text;
-  const marked = replaceDestinations(text, edits, (edit) => edit.marker);
-  const active = new Set(readMarkdown(marked).links.map((link) => link.target));
-  return replaceDestinations(
+  const marked = replaceDestinations(
     text,
     edits,
-    ({ marker, destination, target, suffix }) => {
-      if (!active.has(marker)) return destination;
-      return publishedUrl(file, destination, target, suffix, commit, entries);
-    },
+    (edit) => edit.marker + "/" + edit.destination,
   );
+  const active = new Map();
+  for (const { target } of readMarkdown(marked).links) {
+    if (!target.startsWith(prefix)) continue;
+    const slash = target.indexOf("/");
+    active.set(target.slice(0, slash), target.slice(slash + 1));
+  }
+  return replaceDestinations(text, edits, ({ marker, destination }) => {
+    const normalized = active.get(marker);
+    const source = normalized && repositoryTarget(file, normalized);
+    if (!source) return destination;
+    return publishedUrl(
+      file,
+      destination,
+      source.target,
+      source.suffix,
+      commit,
+      entries,
+    );
+  });
 }
 
 /**
