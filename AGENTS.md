@@ -20,8 +20,9 @@ including delegated implementation.
 A delegated locator lookup or ordinary review uses the assigned role's evidence,
 limitations and escalation rules. For a standalone review criterion, the brief
 may name its complete reference directly. Load the applicable Professional
-Behavior body and references when a child produces a conclusion others will
-rely on, speaks to the human, drives a change, or lacks sufficient role guidance.
+Behavior body and references when a child hands back a requested draft or another
+substantive deliverable others will rely on, speaks to the human, drives a
+change, or lacks sufficient role guidance.
 Reassess when the assignment expands. For a decision the child cannot ask,
 use [Asking the Human](./skills/professional-behavior/references/asking-the-human.md)
 to return the decision and partial results to the caller.

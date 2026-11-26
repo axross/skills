@@ -14,13 +14,12 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Independent Operations
 
-Operations can share a turn when their inputs and necessity are already known.
+Operations can share a turn when their inputs and necessity are already known. For prerequisites between incremental changes, follow [Make Incremental Changes](./references/change-management.md#make-incremental-changes).
 
 **Guidelines:**
 
 - MUST issue independent operations in the same turn.
 - MUST wait when an earlier result determines a later operation's target, arguments or necessity.
-- MUST verify each incremental change before starting the next step, even when the steps touch different files.
 
 See [independent-operations.md](./references/independent-operations.md) for:
 

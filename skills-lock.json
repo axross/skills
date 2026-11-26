@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0f2da79f08d45fbcbed9119a195a12fde085fb11df693855041c3e0c08e749bd"
+      "computedHash": "8b8257035fb936b0187317d6ea723fdb612aa9760f4e50ea148fcbce5aaee916"
     },
     "quality-assurance": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0d8fa81b35e18f73f1b157c9eb9d031d80b7e82753e3d261727d4ebb15a52c2a"
+      "computedHash": "40d417c56bff467ccf7300dc2066cefeec3d334e8235b054b8c771a161c167da"
     },
     "software-instrumentation": {
       "source": "./skills",
