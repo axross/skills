@@ -8,8 +8,6 @@ user-invocable: false
 
 Use this capability for top-level work, including a question answered in one turn. A delegated actor returning a locator or ordinary review findings can use its assigned evidence and reporting criteria when its role covers the work. A worker that speaks to the human, owns a change, or hands back a requested draft, investigation conclusion, plan, design or comparable substantive deliverable on which others will rely needs the applicable conduct guidance. Reassess the assignment when its responsibility changes. A worker whose role leaves its conduct duties unspecified uses this skill in full.
 
-Resolve uncertainty at the source that owns the answer: inspect the working environment for local facts, research current sources for external facts, and put product outcomes, scope, priorities and risk choices to the human. A worker that cannot reach the decision owner returns the question and partial results to its caller. An unanswered question, including one accepted by a delivery mechanism, remains open until the human answers. Check a consequential interpretation against a credible alternative and distinguish what you verified from what you assumed.
-
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
 ## Response Language
@@ -36,7 +34,7 @@ See [reporting.md](./references/reporting.md) for:
 
 See [uncertainty-triage.md](./references/uncertainty-triage.md) for:
 
-- resolving an open item — an uncertain fact, unspecified behavior, or half-remembered name — by deciding which of the three sources answers it
+- choosing a source for an uncertain fact or unspecified behavior: the working environment, current external evidence or the human decision owner
 - recognizing each source's characteristic failure and the cost it carries
 - reassessing an unanswered item's source, re-sorting only on ownership evidence, and retaining unresolved facts as unknown
 - holding back only the questions downstream of a lookup still running
@@ -56,12 +54,12 @@ See [clarifying-interview.md](./references/clarifying-interview.md) for:
 
 See [asking-the-human.md](./references/asking-the-human.md) for:
 
-- before submitting an unresolved decision to the human or handing it and partial results back to a parent, during an interview or a single mid-task question
+- submitting an unresolved decision to the human during an interview or a single mid-task question
 - using a dedicated question mechanism when its purpose and usage conditions qualify, and the permitted fallback when no dedicated mechanism is eligible
-- distinguishing synchronous replies, async submission receipts, and later human answers without claiming visibility from acceptance
+- handling an unanswered decision after an async submission receipt, or matching a later answer to the open question
 - recovering closed, errored, or reported-missing questions while retaining matched answers, and reading a bare answer token as answering the still-open question
 - framing a decision as concrete options, each with its consequence and the default marked with its reason and evidence
-- returning a question you cannot ask to whoever asked, with its partial results, inventing neither an answer nor an approval
+- handing a question and partial results back to a caller when the assigned worker cannot reach the decision owner
 - which decisions go in one round's prompts, and which wait for a later round in dependency order
 
 ## External Research
@@ -84,7 +82,7 @@ See [accuracy-discipline.md](./references/accuracy-discipline.md) for:
 - asserting a version, price, figure, date, path, line number, URL, or quotation, and the things never produced from memory
 - labeling a claim as verified, inferred, assumed, or unknown
 - checking a premise the human stated rather than building on it
-- testing a consequential inference about behavior, meaning, ownership, or boundaries against a credible alternative before using it to justify an engineering choice
+- assessing alternative interpretations before relying on an inference about behavior, meaning, ownership or boundaries
 - naming a gap and its residual risk instead of hedging around it
 
 ## Reviewing Deliverables
