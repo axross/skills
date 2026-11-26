@@ -251,7 +251,7 @@ describe("report-obligation-burden.mjs", () => {
       // not "the always-on set": two of the three mandated skills carry a
       // condition (the session touches the project, or changes something),
       // so only `professional-behavior` applies unconditionally.
-      expect(result.stdout).toMatch(/the set CLAUDE\.md mandates/);
+      expect(result.stdout).toMatch(/the human-facing driver baseline/);
       expect(result.stdout).not.toMatch(/always-on/);
       for (const name of MANDATED_SKILLS) {
         expect(result.stdout).toMatch(new RegExp(`^${name}\\s`, "m"));
@@ -639,19 +639,19 @@ describe("report-obligation-burden.mjs", () => {
       // the measured corpus contains 36,248 SKILL.md bytes and 301,935 bytes
       // including references, at 4.76 bytes/token; Loop has 258 ceiling obligations.
       expect.soft(totals.floorObligations).toBe(23);
-      expect.soft(totals.floorTokens).toBe(7_615);
+      expect.soft(totals.floorTokens).toBe(6_267);
       expect.soft(totals.ceilingObligations).toBe(605);
-      expect.soft(totals.ceilingTokens).toBe(63_432);
+      expect.soft(totals.ceilingTokens).toBe(61_617);
     });
 
-    it("reports the three tiers CLAUDE.md scopes the set to, cumulatively", async () => {
+    it("reports cumulative tiers for the human-facing driver", async () => {
       const tiers = tiersOf(report("--mandated").stdout);
 
-      // each tier is a session kind CLAUDE.md scopes the mandated set to,
+      // each tier is a driver responsibility the project entry names,
       // from the lightest a session can be to the heaviest — an ordinary
       // question-answering session carries only the first.
       expect(tiers.map((tier) => tier.condition)).toEqual([
-        "every session",
+        "human-facing session",
         "+ task touches the project",
         "+ task changes something",
       ]);
@@ -659,19 +659,19 @@ describe("report-obligation-burden.mjs", () => {
       // obligation counts alone miss changes to prose or to placement between
       // bodies and references, so each tier needs its token bounds pinned too.
       expect.soft(tiers[0].floorObligations).toBe(9);
-      expect.soft(tiers[0].floorTokens).toBe(2_716);
+      expect.soft(tiers[0].floorTokens).toBe(1_907);
       expect.soft(tiers[0].ceilingObligations).toBe(185);
-      expect.soft(tiers[0].ceilingTokens).toBe(17_514);
+      expect.soft(tiers[0].ceilingTokens).toBe(16_705);
 
       expect.soft(tiers[1].floorObligations).toBe(14);
-      expect.soft(tiers[1].floorTokens).toBe(4_875);
+      expect.soft(tiers[1].floorTokens).toBe(3_724);
       expect.soft(tiers[1].ceilingObligations).toBe(347);
-      expect.soft(tiers[1].ceilingTokens).toBe(37_667);
+      expect.soft(tiers[1].ceilingTokens).toBe(36_050);
 
       expect.soft(tiers[2].floorObligations).toBe(23);
-      expect.soft(tiers[2].floorTokens).toBe(7_615);
+      expect.soft(tiers[2].floorTokens).toBe(6_267);
       expect.soft(tiers[2].ceilingObligations).toBe(605);
-      expect.soft(tiers[2].ceilingTokens).toBe(63_432);
+      expect.soft(tiers[2].ceilingTokens).toBe(61_617);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

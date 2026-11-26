@@ -7,7 +7,8 @@ description: Install and refresh distributed skills and check discovery, source 
 # Agent Skills
 
 Installing and refreshing a skill in this repository, checking discovery in
-Codex and Claude Code, and verifying active source and content in Amp.
+Codex and Claude Code, and inspecting the active source and content in Claude
+Code and Amp.
 [Directory Structure](../conventions/directory-structure.md)
 covers where the source and the two installed roots live;
 [agent-skill-management](../../skills/agent-skill-management/SKILL.md) covers
@@ -73,9 +74,50 @@ discovery checks in a fresh session:
   warnings, not only names.
 - **Claude Code** — run `/context` and inspect the skills listed there.
 
-These are discovery-only procedures. This document does not provide tested
-active-load inspection steps for Codex or Claude Code; the active-load
-procedure below applies to Amp.
+A catalog listing establishes discovery. To check what Claude Code delivered,
+inspect a native activation in the actor that needed the skill. Active loading
+in Codex remains unverified by the listing.
+
+## Diagnose a same-name skill in Claude Code
+
+1. Record the Claude Code version and consult its [skill location and precedence
+   rules](https://code.claude.com/docs/en/skills#choose-where-skills-load).
+   Among ordinary enterprise, personal and project roots the documented order is
+   enterprise, then personal, then project. A same-name personal install can
+   therefore mask a project pin. Plugin-qualified names have a distinct scope.
+2. Identify the intended source revision. Compare its body and applicable
+   references with the project installation, inspect the relevant
+   `skills-lock.json` entry and compare any same-name personal candidate.
+   Resolve symlinks before calling two paths different roots.
+3. In a fresh session, inspect the intended actor's skill activation and its
+   returned `Base directory for this skill:` line where available. Compare the
+   resolved directory and the delivered body independently against the declared
+   source and expected content. Check delivery of any applicable reference
+   separately before relying on its revision. A parent's activation, a
+   successful file read or the lockfile hash alone leaves native selection in
+   a child unknown.
+4. Choose the effective source for the deployment. A project-owned pin can
+   govern after the owner resolves a competing personal install. If the
+   personal copy is intentional, synchronize its contents with the pin and
+   record that the personal root wins. Inspect fresh actor evidence again
+   after an authorized change. Record the unchanged-content baseline
+   in the comparison before changing the skill, then compare the new
+   revision at the same effective level.
+
+Apply these controls to an isolated fixture with identifiable revisions. They
+describe expected observations; a fixture cannot qualify a live host.
+
+| Expected test input                       | Source observation                | Content observation                                  |
+| ----------------------------------------- | --------------------------------- | ---------------------------------------------------- |
+| Expected root and current body delivered  | Matches after resolving any alias | Matches expected body                                |
+| A different same-name root wins           | Different resolved root           | Compare independently; synchronized copies can match |
+| Expected root but previous body delivered | Matches                           | Stale                                                |
+| Catalog or disk inventory only            | Active selection unknown          | Delivery unknown                                     |
+
+A visible base directory with no observable body qualifies only the source.
+Keep missing actor, reference or delivery evidence unknown. For an adopter
+comparison, retain private paths and transcripts locally and share the result
+and its limits in aggregate.
 
 ## Verify Amp's selected source and content
 

@@ -11,10 +11,20 @@ host-specific skill libraries.
 
 ## Response Approach
 
-Identify the intended checkout and read its scoped project entry. Load
-[Professional Behavior](./skills/professional-behavior/SKILL.md) first in every
-session and [Software Development](./skills/software-development/SKILL.md)
-for project work. Answer a standalone read-only question directly.
+Identify the intended checkout and read its scoped project entry. For top-level
+work, load [Professional Behavior](./skills/professional-behavior/SKILL.md)
+first, including for standalone read-only questions. Load
+[Software Development](./skills/software-development/SKILL.md) for project work,
+including delegated implementation.
+
+A delegated locator lookup or ordinary review uses the assigned role's evidence,
+limitations and escalation rules. For a standalone review criterion, the brief
+may name its complete reference directly. Load the applicable Professional
+Behavior body and references when a child produces a conclusion others will
+rely on, speaks to the human, drives a change, or lacks sufficient role guidance.
+Reassess when the assignment expands. For a decision the child cannot ask,
+use [Asking the Human](./skills/professional-behavior/references/asking-the-human.md)
+to return the decision and partial results to the caller.
 
 For a code or documentation change, even when the request names another
 skill, an issue, or a continuation, identify the tracking target and load

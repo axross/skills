@@ -52,13 +52,13 @@
 //             then its `.claude/skills` root — so `code-review` works from
 //             anywhere without typing a path.
 //     --mandated
-//             the set CLAUDE.md mandates, reported in the three tiers it is
-//             actually scoped to — every session, tasks that touch the project,
+//             the set the project entry mandates, reported in the three tiers it is
+//             scoped to for a human-facing driver — baseline, project work,
 //             and tasks that change something — cumulatively, so the first row
 //             is what a question-answering session carries and the last is what
 //             a change-delivering one does. combines with further paths or
-//             names, so `--mandated code-review` reports what a review round
-//             actually carries; extra selectors land in the total, not in the
+//             names, so `--mandated code-review` reports the baseline with review skills
+//             added; extra selectors land in the total, not in the
 //             tiers, which describe the mandated set alone.
 //
 //   with no arguments it reports every skill in the repository.
@@ -90,42 +90,12 @@ const SOURCE_ROOT = join(REPO_ROOT, "skills");
 const INSTALLED_ROOT = join(REPO_ROOT, ".claude", "skills");
 
 /**
- * the mandated set, in the three tiers CLAUDE.md's Response Approach actually
- * scopes it to, rather than one always-on set, which is what this constant used
- * to claim and what the report used to print.
- *
- * each tier states the condition under which a session carries it, and the
- * tiers are cumulative: a session that changes something carries all three, a
- * session that only touches the project carries the first two, and a session
- * that does neither carries the first alone. reporting the sum of all three as
- * "every session" overstates what an ordinary question-answering session holds
- * by the whole of the last two tiers.
- *
- * the scoping is quoted rather than invented. `professional-behavior` is
- * required "in every session, before anything else … they apply to a task that
- * changes nothing as fully as to a delivered change". `software-development` is
- * required "at the start of every task that touches the project", and its own
- * description adds "Not for a session that touches nothing".
- * `loop-engineering` governs "any code change or document update", and the same
- * section says "Tasks that change nothing stay outside the loop".
- *
- * CLAUDE.md's Response Approach is the authority for all of it; this constant is
- * a convenience copy, and the coupling is by convention rather than by parse —
- * for the tier boundaries exactly as for the membership. that is a deliberate
- * limit, not an oversight: a prose parse cannot see all three skills.
- * `professional-behavior` appears in CLAUDE.md as a literal hyphenated name and
- * `loop-engineering` as a link path, but `software-development` is named only
- * descriptively — "the project's baseline development practices" — so a parser
- * would silently report two of three and look like it worked. a parse of the
- * conditions would fail the same way, and less visibly.
- *
- * what is pinned mechanically: a test asserts every name here resolves to a real
- * skill, so renaming or deleting one fails loudly rather than silently dropping
- * it from the floor. claiming a stronger pin than that would be worse than
- * documenting this one.
+ * cumulative baseline for a human-facing driver under the project entry in
+ * AGENTS.md, imported by CLAUDE.md. A delegated job selects guidance by its
+ * assignment, so these rows do not estimate its context.
  */
 const MANDATED_TIERS = [
-  { condition: "every session", skills: ["professional-behavior"] },
+  { condition: "human-facing session", skills: ["professional-behavior"] },
   { condition: "+ task touches the project", skills: ["software-development"] },
   { condition: "+ task changes something", skills: ["loop-engineering"] },
 ];
@@ -380,7 +350,7 @@ references/*.md read too). With no arguments, reports every skill.
 
   <path>      a skill directory, or a directory whose subdirectories are skills
   <name>      a skill name, resolved against this repository's skill roots
-  --mandated  the set CLAUDE.md mandates, in its three cumulative tiers
+  --mandated  the human-facing driver baseline in three cumulative tiers
 
 Exit codes: 0 a report was produced (always), 2 bad invocation.
 No threshold is defined — this never fails on the numbers it reports.`;
@@ -417,7 +387,7 @@ async function main() {
       const resolved = await resolveArgument(name);
       if (resolved.length === 0) {
         fail2(
-          `The mandated skill "${name}" resolves to no skill under "${SOURCE_ROOT}" or "${INSTALLED_ROOT}". CLAUDE.md's Response Approach owns this set and its per-tier scoping; update MANDATED_TIERS to match it — MANDATED_SKILLS is derived from it, not edited directly.`,
+          `The mandated skill "${name}" resolves to no skill under "${SOURCE_ROOT}" or "${INSTALLED_ROOT}". AGENTS.md's Response Approach owns this set and its per-tier scoping; update MANDATED_TIERS to match it — MANDATED_SKILLS is derived from it, not edited directly.`,
         );
       }
       resolved.forEach(add);
@@ -442,9 +412,9 @@ async function main() {
 
   const selectionLabel =
     mandated && selectors.length === 0
-      ? "the set CLAUDE.md mandates, tiered by session kind below"
+      ? "the human-facing driver baseline, tiered by session kind below"
       : mandated
-        ? "the set CLAUDE.md mandates, plus the skills named"
+        ? "the human-facing driver baseline, plus the skills named"
         : selectors.length === 0
           ? "every skill in the repository"
           : "the skills named";

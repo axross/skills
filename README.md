@@ -77,8 +77,8 @@ records the trade-off.
 
 ### Working with you
 
-`professional-behavior` stands alone because it applies in every session — a
-question answered, a review given, a change delivered — not only to changes.
+`professional-behavior` applies to human-facing work, including read-only
+questions. Delegated work follows the conduct guidance its assignment requires.
 
 #### `professional-behavior`
 
