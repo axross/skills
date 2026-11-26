@@ -771,7 +771,8 @@ child, a resumed session or realized savings.
 | Split QA guidance                                       | Keep the three routes. The observed long review used a task-relevant reference. Revisit when a reached case demonstrates an omission or an unnecessary read. Separate review/log cost from the initial document cost.                                                                            |
 | Combine scoping, severity and evidence in code review   | Defer. Individual file counts lack same-review co-occurrence; external review coverage was unobserved. Revisit with co-reads for the same reviewer and artifact.                                                                                                                                 |
 
-Retain a cost-only change when it preserves required outcomes and reduces
-end-to-end cost. If reads fall but cost rises, defer it. Report a documented
-quality gain with its cost tradeoff separately. Fix a lost obligation before
-rollout. Leave an insufficient comparison inconclusive.
+Use the adoption criteria in
+[Comparing reference routes](../../skills/agent-skill-authoring/references/skill-adoption-evaluation.md#comparing-reference-routes)
+when updating a candidate's disposition in the tracking issue. Record any
+lost obligation for correction before rollout and leave an insufficient
+comparison inconclusive.
