@@ -1,0 +1,151 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 122c45e..c178b7b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -40,6 +40,8 @@ unrelated bug it happened to notice is harder to review for the same reason it
+ was hard to write: two different changes reasoned about as if they were one.
+ Split it, or leave the unrelated part for its own pull request.
+ 
++For the editorial desk’s terminology, see the [staff guide](docs/staff-handbook.md#house-language).
++
+ ## Locale fallback, briefly
+ 
+ A post's `translations` list is not guaranteed to include a translation for
+diff --git a/README.md b/README.md
+index 1b8b505..db5a261 100644
+--- a/README.md
++++ b/README.md
+@@ -36,7 +36,8 @@ npm install
+ - `e2e/` — end-to-end specs, kept apart from the unit tests above because they
+   exercise the whole running app rather than one module in isolation.
+ - `docs/` — operational notes that do not belong in code comments, such as
+-  [deployment](docs/deployment.md).
++  [deployment](docs/deployment.md). When no requested language matches a post,
++  [check what the reader sees](docs/deployment.md#locale-fallback).
+ - `.github/workflows/` — the checks that run on every pull request.
+ 
+ ## Contributing
+diff --git a/docs/deployment.md b/docs/deployment.md
+index ea17006..0ddce34 100644
+--- a/docs/deployment.md
++++ b/docs/deployment.md
+@@ -1,3 +1,9 @@
++---
++type: Procedure
++title: Deploy and restore
++description: How a maintainer deploys and restores a build.
++---
++
+ # Deployment
+ 
+ Operational notes for running this site outside a local checkout. `npm run
+@@ -17,7 +23,8 @@ A reader's accepted locales come from their browser's `Accept-Language`
+ header. `shared/resolve-translation.ts` is what turns that preference list
+ into the translation a post detail page renders — see its own documentation
+ for the exact resolution order. Deployment does not change that order; it only
+-changes which posts and translations the deployed build carries.
++changes which posts and translations the deployed build carries. For an unmatched
++request, read [what the visitor sees](./reading/translation.md#unmatched-preferences).
+ 
+ ## Rolling back
+ 
+diff --git a/docs/index.md b/docs/index.md
+new file mode 100644
+index 0000000..a389008
+--- /dev/null
++++ b/docs/index.md
+@@ -0,0 +1,12 @@
++---
++okf_version: "0.3"
++title: Blog manual
++description: How publication and reading work on the blog.
++---
++
++# Blog manual
++
++- [Reading posts](./reading/index.md)
++- [What appears when no requested language matches?](./reading/translation.md#available-locales)
++- [Deploy and restore a build](./deployment.md)
++- [Staff handbook](./staff-handbook.md)
+diff --git a/docs/reading/addresses.md b/docs/reading/addresses.md
+new file mode 100644
+index 0000000..3583423
+--- /dev/null
++++ b/docs/reading/addresses.md
+@@ -0,0 +1,9 @@
++---
++type: Specification
++title: Post addresses
++description: How readers address a particular post.
++---
++
++# Post addresses
++
++The post's slug identifies its detail page under `/posts/`.
+diff --git a/docs/reading/index.md b/docs/reading/index.md
+new file mode 100644
+index 0000000..a55e8cf
+--- /dev/null
++++ b/docs/reading/index.md
+@@ -0,0 +1,5 @@
++# Reading posts
++
++Use this index for questions about a published post.
++
++- [Which address opens a post?](./addresses.md)
+diff --git a/docs/reading/translation.md b/docs/reading/translation.md
+new file mode 100644
+index 0000000..b9d55fa
+--- /dev/null
++++ b/docs/reading/translation.md
+@@ -0,0 +1,18 @@
++---
++type: Specification
++title: A post’s language
++description: How the site chooses a translation for a post.
++---
++
++# A post’s language
++
++## Available locales
++
++The author supplies the list of translations for each post. Readers can request
++a language that is absent from this list.
++
++## Unmatched preferences
++
++When no requested locale matches exactly or by language, show the translation
++for the post's default locale. If that translation is missing, return the
++not-found page, even when a translation in some other language exists.
+diff --git a/docs/staff-handbook.md b/docs/staff-handbook.md
+new file mode 100644
+index 0000000..d415f8b
+--- /dev/null
++++ b/docs/staff-handbook.md
+@@ -0,0 +1,13 @@
++---
++type: Definition
++title: Editorial shorthand
++description: Terms used by the editorial desk when triaging reader questions.
++---
++
++# Staff handbook
++
++## House language
++
++Editors call the post's default locale its “house language”. In reader reports
++“backup edition” means the translation in that locale. See the
++[unmatched request](./reading/translation.md#unmatched-preferences) decision.
+diff --git a/history.jsonc b/history.jsonc
+index 3920ec3..4d5e4e9 100644
+--- a/history.jsonc
++++ b/history.jsonc
+@@ -67,7 +67,7 @@
+ 		},
+ 		{
+ 			"message": "docs",
+-			"files": ["docs/deployment.md", "AGENTS.md", "CLAUDE.md"]
++			"files": ["docs/deployment.md", "docs/index.md", "docs/reading/index.md", "docs/reading/addresses.md", "docs/reading/translation.md", "docs/staff-handbook.md", "AGENTS.md", "CLAUDE.md"]
+ 		}
+ 	]
+ }

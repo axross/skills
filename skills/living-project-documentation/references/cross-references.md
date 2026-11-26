@@ -10,8 +10,10 @@ a published bookmark outside the checkout.
 **Guidelines:**
 
 - SHOULD link a precondition to its Specification, a release procedure to the Policy that grants permission, and a summary term to its full Definition when the calculation matters.
-- MUST check inbound paths, fragments and heading text when moving content, including contributor instructions, templates and tests. Point editable references directly to the new owner.
-- MUST retain a published or externally used heading or explicit anchor at its old path, with a forwarding link when the claim has moved.
+- MUST inventory controlled callers, published bookmarks and shipped export entries separately. Search docs, agent instructions, templates, code comments, test messages and scripts. Redirect editable callers to the live owner.
+- MUST check whether a fragment also selects a record or table row. Preserve that identifier or update and exercise the selector.
+- MUST keep a supported path or fragment as a minimal entry linking to the owning section. For uncertain external use, consult the published contract or maintainer and preserve the route pending a decision.
+- MAY remove obsolete pages, headings and previous-path lists within an explicitly authorized retirement. Record its scope and authority in the change review, update inbound links and verify the export. A repository search alone cannot establish that an external bookmark is unused.
 - MUST repair prose whose meaning depended on its former position, including “the table above”, “see below” and “this guide owns”.
 
 ## Portable targets

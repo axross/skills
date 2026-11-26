@@ -154,9 +154,10 @@ when a change makes them wrong. `technical-document-authoring` owns the
 #### `living-project-documentation`
 
 Organizes engineering documentation as an Open Knowledge Format (OKF) v0.3
-bundle. Choose pages by the decisions readers need to make, migrate existing
-guides while preserving bookmarks and evidence, and update the affected
-concepts when the project changes. See [`SKILL.md`](./skills/living-project-documentation/SKILL.md).
+bundle. The [Scheduler placement convention](./skills/living-project-documentation/assets/docs-example/contributing/documentation.md#choose-a-subject)
+shows how a contributor chooses the subject that owns a claim. Follow reader
+questions from their entry points to check that a move preserves the answer,
+its limits and supported bookmarks. See [`SKILL.md`](./skills/living-project-documentation/SKILL.md).
 
 #### `technical-document-authoring`
 

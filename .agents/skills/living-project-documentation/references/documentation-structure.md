@@ -14,6 +14,20 @@ seen. See the [OKF v0.3 specification](https://github.com/open-knowledge-format/
 - MAY declare `okf_version: "0.3"`, a title and a description on the root index. Preserve its existing frontmatter when refreshing the index.
 - SHOULD edit only the metadata the change affects, preserving existing extension keys and values.
 
+## Choose the subject
+
+A parsing library can keep the accepted input and its error behavior under
+parsing even when three modules implement it. Within a product, a capability
+can own its history, sharing and platform-specific presentation. Move a common
+interaction or terminology decision into shared design when independent
+capabilities use it. A design system covers reusable foundations and components.
+
+**Guidelines:**
+
+- SHOULD start with the decision a reader brings and where they look for it. Choose the owning subject, then choose the page type by the claim it establishes.
+- SHOULD distinguish caller guarantees, shared design, implementation, contributing, operations and authority where the readers and decisions differ. Use the project's names, package boundaries and depth.
+- SHOULD record a [placement convention](./conventions-and-operations.md#contributor-routes) when contributors face a meaningful choice between subjects.
+
 ## Engineering defaults
 
 These recommended types describe the decision the reader needs to make.
@@ -60,7 +74,9 @@ both. A root index can lead through nested indexes to either page.
 
 **Guidelines:**
 
-- SHOULD group entries by reader task or subject and describe each destination's answer.
+- SHOULD list concepts directly at the root while readers can select an answer there. Add a nested index when readers need to choose among a subject's subquestions. OKF permits a directory without an index.
+- SHOULD link a subject index from its parent, state its scope and give each locally owned decision a descriptive route there. A caller with a specific question can link straight to the owning section.
+- SHOULD keep rules at their typed owner and use indexes for navigation.
 - SHOULD use Markdown links for index entries so OKF consumers can traverse them offline. An HTML link that works in a browser does not establish an OKF relationship.
 - SHOULD add a page only when it owns an answer.
 
@@ -83,7 +99,10 @@ is gone. Three near-misses narrow or shift that meaning:
 **Guidelines:**
 
 - SHOULD capture names from code, user-visible interfaces and team usage. Choose a new name whose ordinary meaning fits the concept. A plausible near-match hides the need to look it up.
-- MUST preserve established spellings, aliases, grouping, emphasis and anchors when shortening an entry. Address a misleading team term in a separate change to its callers.
+- SHOULD use an optional cross-subject glossary for active aliases, UI labels and ambiguous terms. Give the minimum distinction, usually one to three sentences, and link to its owning section. Keep calculations, exceptions, procedures and guarantees at that owner.
+- SHOULD explain a specialist term where its subject uses it. Group specialist terms in a subject-local Definition when readers consult them together.
+- MUST account for every active alias and unique distinction when shortening a glossary, including meanings embedded in paragraphs. Move the distinction to an owner, retain a short finder or document the evidence for retirement in the change review.
+- MUST preserve active spellings and disambiguation. Settle old grouping, presentation and heading compatibility [per route](./cross-references.md#preserve-the-reading-route).
 
 ## Diagrams
 

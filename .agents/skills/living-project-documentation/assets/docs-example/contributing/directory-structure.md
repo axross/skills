@@ -6,8 +6,8 @@ description: Module placement, import direction and route naming for the API and
 
 # Directory Structure
 
-Where a file goes in this repository, what it is called, and which package may import
-which.
+The API and worker are the two deployable **Packages**. Each runs in its own
+environment. This convention governs the modules each package contains or imports.
 
 The general discipline — put shared logic at the lowest tier with more than one
 caller, name a file for what it holds — belongs to the installed code-maintainability

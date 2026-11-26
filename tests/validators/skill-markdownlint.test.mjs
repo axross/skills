@@ -484,7 +484,7 @@ describe("explicit context and protected execution", () => {
     expect(result.rules).toEqual(["AS001", "AS010"]);
   });
 
-  it("limits the CLI2-upgrade glossary exception without weakening MD025 for other documents", async () => {
+  it("checks the single visible H1 in the Scheduler glossary on each distribution path", async () => {
     const binary = "node_modules/markdownlint-cli2/markdownlint-cli2-bin.mjs";
     for (const prefix of ["skills", ".agents/skills", ".claude/skills"]) {
       const glossary = repoPath(prefix, "living-project-documentation/assets/docs-example/glossary.md");

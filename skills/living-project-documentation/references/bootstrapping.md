@@ -25,7 +25,9 @@ description: Job execution and delivery guarantees for Scheduler contributors.
 ---
 ```
 
-A concept at `jobs/retries.md` could begin:
+In a small library, the rest of that index can be a single link:
+`[When will a failed job run again?](./retries.md)`. The whole bundle is
+`index.md` and `retries.md`. The concept could read:
 
 ```markdown
 ---
@@ -36,16 +38,21 @@ description: Retry timing, attempt limits and the state callers observe between 
 
 # Job retries
 
-A job waiting for its next attempt appears as queued.
+A failed job waits one minute for a second attempt and appears as queued.
+If the second attempt fails, the job ends as failed.
 ```
 
-The [worked bundle](../assets/docs-example/index.md) shows topic directories and
-a glossary in use.
+Here the retry contract owns both timing and exhaustion. When readers also
+need to count attempts, a growing project can group a Definition and a
+Specification under scheduling. The [Scheduler subject index](../assets/docs-example/scheduling/index.md)
+shows that choice in a larger service with its own retry limits. Link both
+the human contributor guide and agent instructions to the same maintained
+[placement convention](../assets/docs-example/contributing/documentation.md#choose-a-subject).
 
 **Guidelines:**
 
 - SHOULD answer the first question from the implementation or an adopted decision, give the answer a primary type, and link it from the index.
-- SHOULD add a glossary entry when readers need a term defined and a directory when related topics need grouping.
+- SHOULD let a new decision earn its own page. Link it from the flat root or from the subject where readers already seek it.
 
 ## Migrate one reading route
 
@@ -59,10 +66,11 @@ together.
 
 **Guidelines:**
 
-- MUST inventory the route's paths, headings, callers, assets, metadata and byte-pinned evidence before editing.
+- MUST inventory claims and their owners, readers, callers, paths and fragments, exported assets, metadata and supporting evidence before editing. Note what each consequential claim's evidence establishes.
 - SHOULD split claims when they serve different decisions and can change independently. Keep facts that a reader must apply together on one page; page length and heading count alone do not justify a split.
 - MUST type each living page while retaining existing metadata and established type names. Update scope statements and [reading routes](./cross-references.md) after extraction.
-- MUST read each extracted page independently, exercise a boundary case and trace a route from an established entry point to its owner.
+- MUST preserve the action and any condition that changes it at the point of decision, including authority, cost, recovery or a safe no-op. Keep an ordered trace together when its sequence explains the outcome. Prefer a heading or link when splitting would make readers reconstruct one decision.
+- MUST read each extracted page independently, exercise a boundary case and [trace the affected entry points](./consulting-and-upkeep.md#verify-a-readers-route).
 - SHOULD report one justified split and one justified decision to keep content together when evaluating a migration.
 
 ## Preserve evidence identity
@@ -76,7 +84,7 @@ study at its commit.
 **Guidelines:**
 
 - MUST preserve any bytes an existing approval or distribution contract binds. If current guidance relies on that evidence, cite its pinned source and acceptance from the typed page that owns the claim. An existing Specification or Procedure can be its companion.
-- MUST state which revision, environment and conditions the evidence supports. Preserve recorded provenance without inferring verification, authorship, ownership, approval or license from migration.
+- MUST distinguish implemented behavior, an adopted target awaiting implementation, a revision-specific observation and an unverified hypothesis in the wording of the claim. State which revision, environment and conditions the evidence supports. Preserve recorded provenance without inferring verification, authorship, ownership, approval or license from migration.
 - SHOULD remove superseded reports from the live tree once active evidence obligations and reader routes are accounted for. Direct historical lookups to the original commit or pull request.
 - MUST record hashes before migration and compare the exported evidence and linked assets byte-for-byte with their originals.
 - MUST report intentional untyped evidence by path during verification so an accidental omission elsewhere remains visible.
