@@ -20,11 +20,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Phase Progression
 
-See [plan-document.md](./references/plan-document.md) for:
-
-- authoring a plan or reviewing its structure, conditional sections, visual choices and required verification
-- binding approval to a plan revision and checking for stale approval when resuming work or proposing an amendment
-- designating out-of-tree checks, their executor, route and evidence destination, or publishing evidence used to settle a planning decision
+The driver advances against current evidence.
 
 **Guidelines:**
 
@@ -32,6 +28,12 @@ See [plan-document.md](./references/plan-document.md) for:
 - MUST identify the loop driver and any contribution responsibilities from the assigned work and established handoff, not from execution ancestry.
 - MUST qualify implementation delegation, phase-deliverable review, and implementation pre-flight independently at their own checkpoints under current host conditions; direct implementation and prior role availability or unavailability neither skip nor qualify another checkpoint, and weaken no gate.
 - MUST distinguish plan approval, operation authorization, execution capability, and permitted tool use. Carry forward valid authorization within its original scope, including a verified standing grant a human adopted into project guidance, which is actual authorization; but never infer a grant, or a broader one, from tool availability, project policy that records none, plan approval, or a previous operation.
+
+See [plan-document.md](./references/plan-document.md) for:
+
+- authoring a plan or reviewing its structure, conditional sections, visual choices and required verification
+- binding approval to a plan revision and checking for stale approval when resuming work or proposing an amendment
+- designating out-of-tree checks, their executor, route and evidence destination, or publishing evidence used to settle a planning decision
 
 See [phase-progression.md](./references/phase-progression.md) for:
 
