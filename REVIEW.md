@@ -14,6 +14,14 @@ belong to [Code Review operations](docs/operations/code-review.md#qualify-codex-
 Unobserved provider input remains unknown, not proof of policy consumption or a
 failed review.
 
+For a review-only assignment, use Code Review and this policy. Apply the
+[project entry](AGENTS.md) for the actor's actual responsibilities. Reviewing
+someone else's change does not make the reviewer its change driver. Select
+additional skills from the affected responsibilities across the whole diff,
+including project-local skills visible in the checkout as well as installed
+ones. A lockfile inventories distributable installs only. Read the applicable
+skill bodies and their applicable references before judging conformity.
+
 This is a **strict** review: run every mandatory check below, assess the
 acceptance criteria the pull request body carries within the scope below, and
 report findings under the adopted arrangement below. The pull request itself

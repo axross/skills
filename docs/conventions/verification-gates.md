@@ -116,14 +116,11 @@ node scripts/report-obligation-burden.mjs --mandated
 node scripts/report-obligation-burden.mjs --help
 ```
 
-Pass skills by path, by name, or via `--mandated` for the set `CLAUDE.md`
-requires — reported in the **three cumulative tiers** its Response Approach
-actually scopes that set to, because only one of the three skills applies to
-every session: `professional-behavior` always, `software-development` once a
-task touches the project, and `loop-engineering` once it changes something.
-The first tier is what a question-answering session carries and the last is
-what a change-delivering one does; reading the last as the always-on cost
-overstates it several times over. It reads the obligation definition from the
+Pass skills by path, by name, or via `--mandated` for the three cumulative
+tiers of a human-facing driver under the project entry in `AGENTS.md`:
+Professional Behavior, then Software Development for project work and Loop
+Engineering for changes. A delegated assignment has its own applicable set;
+use explicit names to measure that set. The reporter reads the obligation definition from the
 same module `check-skill-body.mjs` does, so the reporting tools never disagree
 about what a rule is.
 

@@ -31,6 +31,27 @@ Check the tools and invocation conditions in the active session. Availability
 depends on host version, configuration and whether the session runs locally or
 in the cloud. If a required capability is missing, report the unmet gate.
 
+## Scope the conduct baseline in inherited instructions
+
+Claude Code [loads project and user instructions for custom subagents](https://code.claude.com/docs/en/sub-agents).
+A user-level mandate to load a skill at the start of every session can therefore
+reintroduce the load that a project scoped to top-level work. An adopter can
+use this wording in its personal `CLAUDE.md`:
+
+> In top-level work, load the professional conduct baseline first. For delegated
+> work, follow the scoped project entry and the assigned role. If its conduct
+> guidance is insufficient, load the conduct skill and its applicable references.
+> Reassess when the assignment changes.
+
+The project's [entry](../../AGENTS.md#response-approach) owns local role and
+skill routing. Give a plan reviewer the frozen plan and original request with
+the complete [plan requirements](../../skills/loop-engineering/references/plan-document.md)
+and [deliverable-review criteria](../../skills/professional-behavior/references/reviewing-deliverables.md).
+Assess the plan against both in its fresh review context. A worker producing the plan acquires the applicable conduct
+body and references before its result is relied on. Reuse a complete current
+text retained in that worker's own context. A parent's retrieval, a summary, or
+a skill name in the catalog does not establish that the worker has the text.
+
 ## Ask the human through the question tool
 
 [Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)
