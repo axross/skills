@@ -1,0 +1,159 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index c178b7b..00fdaee 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -40,16 +40,11 @@ unrelated bug it happened to notice is harder to review for the same reason it
+ was hard to write: two different changes reasoned about as if they were one.
+ Split it, or leave the unrelated part for its own pull request.
+ 
+-For the editorial desk’s terminology, see the [staff guide](docs/staff-handbook.md#house-language).
+-
+-## Locale fallback, briefly
+-
+-A post's `translations` list is not guaranteed to include a translation for
+-every locale the site otherwise supports, and it can be empty for a post that
+-has not been translated at all yet. Whatever renders a post page has to
+-degrade gracefully through that: prefer an exact locale match, fall back to
+-matching just the language, then to the post's own default locale, and only
+-show nothing when none of those exist. `shared/resolve-translation.ts` is
+-where that order is implemented — read it (and its own comments) before
+-changing how a post's language is chosen, rather than re-deriving the order
+-from scratch at the call site.
++For the editorial desk's [language terms](docs/reading/translation.md#editorial-terms)
++and the [selection order](docs/reading/translation.md#matching-preferences), see
++the post language contract. An operator restoring a build follows
++[Rolling back](docs/deployment.md#rolling-back).
++
++Read [the translation resolver](shared/resolve-translation.ts) and its comments
++before changing language selection. For documentation changes, follow
++[the contributor placement rule](docs/contributing.md#placing-a-claim).
+diff --git a/README.md b/README.md
+index db5a261..ee7864f 100644
+--- a/README.md
++++ b/README.md
+@@ -35,13 +35,15 @@ npm install
+ - `shared/*.spec.ts` — unit tests, colocated with the code they cover.
+ - `e2e/` — end-to-end specs, kept apart from the unit tests above because they
+   exercise the whole running app rather than one module in isolation.
+-- `docs/` — operational notes that do not belong in code comments, such as
++- `docs/` — the manual for readers, contributors and operators, including
+   [deployment](docs/deployment.md). When no requested language matches a post,
+-  [check what the reader sees](docs/deployment.md#locale-fallback).
++  [check what the reader sees](docs/reading/translation.md#unmatched-preferences).
+ - `.github/workflows/` — the checks that run on every pull request.
+ 
+ ## Contributing
+ 
++For changes to the manual, follow [where to document a claim](docs/contributing.md#placing-a-claim).
++
+ Changes go through a pull request rather than landing straight on `main`.
+ Before writing code, sketch the plan and get it approved — this catches a
+ misunderstood requirement while it is still cheap to redirect, rather than
+diff --git a/docs/contributing.md b/docs/contributing.md
+new file mode 100644
+index 0000000..c7e56fd
+--- /dev/null
++++ b/docs/contributing.md
+@@ -0,0 +1,13 @@
++---
++type: Convention
++title: Contributing to the manual
++description: Choose a subject for a change to the blog manual.
++---
++
++# Contributing to the manual
++
++## Placing a claim
++
++Put reader-visible rules with reading, even when deployment determines which
++translations ship. Put restoration steps with deployment. If a new reader
++task fits neither, add it to the manual's index with the question it answers.
+diff --git a/docs/deployment.md b/docs/deployment.md
+index 0ddce34..196cab4 100644
+--- a/docs/deployment.md
++++ b/docs/deployment.md
+@@ -14,17 +14,12 @@ is what a real deployment target adds around that pair.
+ 
+ | Environment | Trigger                     | Notes                            |
+ | ----------- | --------------------------- | -------------------------------- |
+-| Production  | Push to `main`              | Serves the default locale first. |
++| Production  | Push to `main`              | Post catalog ships in the build. |
+ | Preview     | Pull request opened/updated | One preview per pull request.    |
+ 
+ ## Locale fallback
+ 
+-A reader's accepted locales come from their browser's `Accept-Language`
+-header. `shared/resolve-translation.ts` is what turns that preference list
+-into the translation a post detail page renders — see its own documentation
+-for the exact resolution order. Deployment does not change that order; it only
+-changes which posts and translations the deployed build carries. For an unmatched
+-request, read [what the visitor sees](./reading/translation.md#unmatched-preferences).
++For language selection, see [what happens when no requested language matches](./reading/translation.md#unmatched-preferences).
+ 
+ ## Rolling back
+ 
+diff --git a/docs/index.md b/docs/index.md
+index a389008..f490068 100644
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -7,6 +7,7 @@ description: How publication and reading work on the blog.
+ # Blog manual
+ 
+ - [Reading posts](./reading/index.md)
+-- [What appears when no requested language matches?](./reading/translation.md#available-locales)
++- [What appears when no requested language matches?](./reading/translation.md#unmatched-preferences)
+ - [Deploy and restore a build](./deployment.md)
+-- [Staff handbook](./staff-handbook.md)
++- [What editors mean by house language or backup edition](./reading/translation.md#editorial-terms)
++- [Where to document a change](./contributing.md#placing-a-claim)
+diff --git a/docs/reading/index.md b/docs/reading/index.md
+index a55e8cf..e36da2d 100644
+--- a/docs/reading/index.md
++++ b/docs/reading/index.md
+@@ -3,3 +3,4 @@
+ Use this index for questions about a published post.
+ 
+ - [Which address opens a post?](./addresses.md)
++- [Which translation appears when no requested language matches?](./translation.md#unmatched-preferences)
+diff --git a/docs/reading/translation.md b/docs/reading/translation.md
+index b9d55fa..8a35ee5 100644
+--- a/docs/reading/translation.md
++++ b/docs/reading/translation.md
+@@ -11,6 +11,18 @@ description: How the site chooses a translation for a post.
+ The author supplies the list of translations for each post. Readers can request
+ a language that is absent from this list.
+ 
++## Editorial terms
++
++The **house language** is the default locale assigned to a post. Its **backup
++edition** is the translation in that locale. If none of the reader’s preferences
++match exactly or by language, see [what appears at fallback](#unmatched-preferences).
++
++## Matching preferences
++
++Use the first exact match in the preference list from the browser's
++`Accept-Language` header. If no locale matches
++exactly, use the first language-only match.
++
+ ## Unmatched preferences
+ 
+ When no requested locale matches exactly or by language, show the translation
+diff --git a/docs/staff-handbook.md b/docs/staff-handbook.md
+deleted file mode 100644
+index d415f8b..0000000
+--- a/docs/staff-handbook.md
++++ /dev/null
+@@ -1,13 +0,0 @@
+----
+-type: Definition
+-title: Editorial shorthand
+-description: Terms used by the editorial desk when triaging reader questions.
+----
+-
+-# Staff handbook
+-
+-## House language
+-
+-Editors call the post's default locale its “house language”. In reader reports
+-“backup edition” means the translation in that locale. See the
+-[unmatched request](./reading/translation.md#unmatched-preferences) decision.

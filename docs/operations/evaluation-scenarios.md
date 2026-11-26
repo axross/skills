@@ -6,7 +6,7 @@ description: Declared evaluation tasks, their mock projects, target skills and t
 
 # Evaluation Scenarios
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty<!-- /count --> scenarios are declared today: thirteen against `inkwell`, thirteen against `tsuzuri`, and four against `recall`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty-one<!-- /count --> scenarios are declared today: thirteen against `inkwell`, fourteen against `tsuzuri`, and four against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -240,8 +240,15 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty<!--
   bookmark to the extracted language-selection contract. Operators still find
   the rollback action beside the reason a redeploy suffices.
 
-Thirteen scenarios inspect transcripts. Of their nineteen transcript factors, ten
-use script judgments and nine use reasoning judgments. The remaining scenarios
+- [Repair the reading routes for unmatched languages](../../tools/evaluation/scenarios/repair-the-reading-routes-for-unmatched-languages)
+  targets `living-project-documentation` against `tsuzuri`. It exercises a
+  wrong but resolving shortcut, a missing subject-index route and a README
+  detour. Editors still need both terms from a retired handbook. A deployment
+  bookmark has no retirement decision. The [worked reader traces](../../tools/evaluation/scenarios/repair-the-reading-routes-for-unmatched-languages/review/reader-traces.md)
+  describe how to evaluate the edited destinations and their limits.
+
+Fourteen scenarios inspect transcripts. Of their twenty transcript factors, ten
+use script judgments and ten use reasoning judgments. The remaining scenarios
 exercise discovery or inspect the resulting artifacts.
 
 For execution, follow [Evaluation Dispatch](./evaluation-dispatch.md). For the

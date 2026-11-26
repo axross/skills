@@ -25,6 +25,7 @@ single task, a locally scoped permission check can fit directly in its steps.
 - SHOULD extract a Policy when several entry points depend on a permission rule that changes independently.
 - MUST identify the adopted scope, exception authority and reopening conditions, and connect every affected entry point, including manual and emergency paths, to the actual authority.
 - SHOULD give operators separate procedures when their tasks have different prerequisites, success signals or recovery actions.
+- MUST state the local stop condition beside a consequential step. A successful recovery command establishes what ran. Permission to run it comes from the project's authority.
 - MUST NOT invent an approver or independent permission rule to populate a type.
 
 ## Contributor routes
@@ -35,4 +36,5 @@ maintained rule.
 
 **Guidelines:**
 
-- SHOULD put the link where the contributor chooses the task and direct editable callers to the governing page.
+- SHOULD document each subject's scope and its nearest confusing neighbor. Give a tie-breaker a contributor can apply to a new claim and explain when to add a subject. For instance, a worker-pool cap belongs with dispatch internals unless it promises an outcome to callers.
+- SHOULD link the placement convention from durable human and agent entry points and update it when responsibility moves. Link editable callers directly to their governing section.

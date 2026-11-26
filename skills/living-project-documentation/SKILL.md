@@ -22,7 +22,7 @@ The requirement keywords used in this skill and its references follow
 See [documentation-structure.md](./references/documentation-structure.md) for:
 
 - authoring an OKF v0.3 concept and distinguishing format requirements from this skill's discovery defaults
-- reviewing a page’s declared type against its reader’s question and the claim it owns, organizing the index and defining terminology
+- choosing the subject that owns a decision, reviewing its page type, and routing readers from a subject index or glossary
 
 See [conventions-and-operations.md](./references/conventions-and-operations.md) for:
 
@@ -38,17 +38,17 @@ See [bootstrapping.md](./references/bootstrapping.md) for:
 
 See [cross-references.md](./references/cross-references.md) for:
 
-- preserving entry paths and anchors when ownership changes
+- settling support for published paths and fragments, updating callers and checking record identifiers
 - making navigation work both inside the checkout and in an exported bundle
 
-The [Scheduler example](./assets/docs-example/index.md) keeps existing paths while giving job dispatch boundaries, notification behavior and repository practices distinct owners.
+The [Scheduler example](./assets/docs-example/index.md) shows how readers enter through a subject, a familiar term or a deployment step and find the page that owns their decision. Its [rollback procedure](./assets/docs-example/operating/deployment.md#rolling-back) keeps the recovery command beside the condition that requires a restore.
 
 ## Consulting and maintaining docs
 
 See [consulting-and-upkeep.md](./references/consulting-and-upkeep.md) for:
 
 - consulting relevant owners before a plan and tracing dependent readers
-- updating the current rule in place and locating past decisions or test results in version control
+- following a question from real entry points before and after a move, including the exception that changes the answer
 
 See [validators.md](./references/validators.md) for:
 

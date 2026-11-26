@@ -1,0 +1,67 @@
+{
+  "id": "repair-the-reading-routes-for-unmatched-languages",
+  "description": "A published blog manual already passes the structural checker. An incorrect shortcut, a missing subject route and a detour through deployment affect different readers. An approved handbook retirement and an undecided public bookmark have different support obligations.",
+  "mock": "tsuzuri",
+  "targetSkills": ["living-project-documentation"],
+  "peerSkills": ["technical-document-authoring"],
+  "patch": "patch.diff",
+  "harness": { "agentsMd": true },
+  "task": {
+    "prompt": "Readers keep asking what the blog shows when their browser asks for a language a post doesn't have. Fix our manual so someone starting on its front page, in the reading section, or at the contributor README can find the answer. The editorial desk still says ‘house language’ and ‘backup edition’. We've approved removing the old staff handbook and its bookmarks from the next export. The rest of the published manual has no such decision, and we don't know who has saved the old deployment bookmarks. Walk me through the routes before and after, and leave guidance for the next person documenting a similar change. We publish docs/ on its own. Keep the blog's behavior as it is."
+  },
+  "factors": [
+    {
+      "id": "updates-the-controlled-handbook-caller",
+      "phase": "outcome",
+      "description": "The shipped agent instructions must drop their concrete retired reference. This narrow guard cannot tell whether the replacement gives a useful answer.",
+      "judgment": {
+        "method": "script",
+        "script": "../../judgments/check-file-excludes.mjs",
+        "input": {
+          "file": "AGENTS.md",
+          "mustExcludeAll": ["staff-handbook.md"]
+        }
+      }
+    },
+    {
+      "id": "routes-three-readers-to-the-complete-decision",
+      "phase": "outcome",
+      "description": "Each start must work independently, including the index inside the exported reading subject.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Reconstruct the result using the diff and these unchanged baseline facts: the root's question points at reading/translation.md#available-locales, which only says authors supply translations. reading/index.md lists only post addresses. README's question points at deployment.md#locale-fallback, where the reader must follow a link to reading/translation.md#unmatched-preferences. That section supplies the post's default translation after no exact or language match and a not-found result if the default translation is absent, even when other translations exist. Follow the edited links and labels (including unchanged sections). Require the root and relevant local index each to offer the reader a route to the governing section inside the export, and the README's question to reach that decision without the deployment detour. Reject a wrong but existing fragment, a root-only shortcut, an unnecessary overview on the caller route, or a shortened answer missing the absent-default exception. Accept equivalent names, paths, layouts and unfragmented pages when the landing text answers the question."
+      }
+    },
+    {
+      "id": "scopes-retirement-and-keeps-active-distinctions",
+      "phase": "outcome",
+      "description": "Removal was approved for one published handbook. Both editorial terms still serve readers, and other public bookmarks have unknown usage.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "The baseline docs/staff-handbook.md#house-language distinguishes the post's default locale (‘house language’) from its translation (‘backup edition’, embedded in prose). AGENTS.md and the root still link to that page. The production row in the baseline deployment table incorrectly says the default locale is served first. Require the edited material to remove or correct that contradiction. AGENTS.md also repeats the selection order in its ‘Locale fallback, briefly’ paragraph. Require the diff to retire that file/bookmark, update controlled callers and keep both meanings discoverable in the exported manual. A terminology lookup and a precise caller must lead to one maintained behavioral rule. Repoint the copy of that rule in the agent instructions while keeping the matching order discoverable. Preserve the browser Accept-Language header as the source of preferences and the contributor instruction to consult the resolver before changing it. Fail a former-path inventory substituting for retirement. docs/deployment.md#locale-fallback has unknown external use: require that it still reaches the live behavior, unless a separate evidenced support decision authorizes its retirement. The staff-handbook grant alone is insufficient. Accept any truthful terminology finder or in-context explanation and placement."
+      }
+    },
+    {
+      "id": "explains-where-future-changes-go",
+      "phase": "outcome",
+      "description": "A contributor choosing where to record a new reader-visible fallback can distinguish it from operating a build.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Look for durable, discoverable contributor guidance that resolves the overlap between what readers see and what an operator does. A contributor must be able to place a new reader-visible matching rule even when the build determines which translations ship, and know how to introduce an uncovered subject. Follow both a human contributor entry and the agent instructions to the same rule. An AGENTS-only rule without an inbound route for contributors fails. Accept content-based alternatives. A list of document types or an explanation present only in the agent's response does not supply the requested guidance."
+      }
+    },
+    {
+      "id": "walks-the-original-and-edited-routes",
+      "phase": "transcript",
+      "description": "The account of the repair identifies what changed for a reader at each real start.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Require the agent's before/after walkthrough to identify the question, actual starting locations, opened pages/sections or the point a route failed, and the landing answer and limit. Specifically, the original README → deployment.md#locale-fallback → translation.md#unmatched-preferences already answered both the default and missing-default cases. The revised README must skip the deployment guide and retain that exception. The original root's Available locales shortcut resolved to the wrong answer, and the local reading index had no language route. Require a usable revised route from each, including inside the docs-only export. Equivalent names and placements are fine. Do not credit a link-check report alone or inferred speed/token savings."
+      }
+    }
+  ]
+}
