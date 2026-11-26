@@ -20,7 +20,7 @@ Operations can share a turn when their inputs and necessity are already known.
 
 - MUST issue independent operations in the same turn.
 - MUST wait when an earlier result determines a later operation's target, arguments or necessity.
-- MUST verify each incremental change before taking a step that depends on its result.
+- MUST verify each incremental change before starting the next step, even when the steps touch different files.
 
 See [independent-operations.md](./references/independent-operations.md) for:
 

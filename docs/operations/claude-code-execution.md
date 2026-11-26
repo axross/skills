@@ -44,9 +44,10 @@ use this wording in its personal `CLAUDE.md`:
 > Reassess when the assignment changes.
 
 The project's [entry](../../AGENTS.md#response-approach) owns local role and
-skill routing. A reviewer sent to assess a plan can receive the complete
-[deliverable-review criteria](../../skills/professional-behavior/references/reviewing-deliverables.md)
-for that assignment. A worker producing the plan acquires the applicable conduct
+skill routing. Give a plan reviewer the frozen plan and original request with
+the complete [plan requirements](../../skills/loop-engineering/references/plan-document.md)
+and [deliverable-review criteria](../../skills/professional-behavior/references/reviewing-deliverables.md).
+Assess the plan against both in its fresh review context. A worker producing the plan acquires the applicable conduct
 body and references before its result is relied on. Reuse a complete current
 text retained in that worker's own context. A parent's retrieval, a summary, or
 a skill name in the catalog does not establish that the worker has the text.

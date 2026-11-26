@@ -46,7 +46,7 @@ result and can expose irrelevant material to later requests.
 
 ## Beside Change Management's Incremental Steps
 
-[change-management.md](./change-management.md) calls for checking each
-incremental change before the next dependent step. For example, a failed
-lint run determines which file to repair. Within a step, checks that can
-run independently against the same material can share a turn.
+[Make Incremental Changes](./change-management.md#make-incremental-changes)
+makes verification of the current step a prerequisite for starting the next,
+including steps that modify different files. Within the current step, independent
+reads or checks on the same fixed material can share a turn.
