@@ -20,7 +20,11 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Phase Progression
 
-The driver advances against current evidence. Human approval binds to the plan revision the human saw. A change to its canonical content makes the previous approval stale.
+See [plan-document.md](./references/plan-document.md) for:
+
+- authoring a plan or reviewing its structure, conditional sections, visual choices and required verification
+- binding approval to a plan revision and checking for stale approval when resuming work or proposing an amendment
+- designating out-of-tree checks, their executor, route and evidence destination, or publishing evidence used to settle a planning decision
 
 **Guidelines:**
 
@@ -36,12 +40,6 @@ See [phase-progression.md](./references/phase-progression.md) for:
 - choosing available actions when verification fails or review/CI is pending, identifying concrete dependencies and bounded machine waits
 - reevaluating remaining gates after a current machine result, including readiness without a source edit
 - releasing a merged or closed change's recorded branch, working copy, processes, port forwards and installs, on observation rather than by polling
-
-See [plan-document.md](./references/plan-document.md) for:
-
-- authoring a plan or reviewing its structure, conditional sections, visual choices and required verification
-- preparing the exact revision for human approval, comparing it on resume or seeking approval for an amendment
-- designating out-of-tree checks, their executor, route and evidence destination, or publishing evidence used to settle a planning decision
 
 See [reviewing-phase-deliverables.md](./references/reviewing-phase-deliverables.md) for:
 

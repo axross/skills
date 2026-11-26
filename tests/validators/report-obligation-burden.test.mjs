@@ -637,9 +637,9 @@ describe("report-obligation-burden.mjs", () => {
       // SKILL.md routing bullet widens by bytes, not obligations.
 
       expect.soft(totals.floorObligations).toBe(22);
-      expect.soft(totals.floorTokens).toBe(6_293);
+      expect.soft(totals.floorTokens).toBe(6_257);
       expect.soft(totals.ceilingObligations).toBe(604);
-      expect.soft(totals.ceilingTokens).toBe(61_646);
+      expect.soft(totals.ceilingTokens).toBe(61_611);
     });
 
     it("reports cumulative tiers for the human-facing driver", async () => {
@@ -667,9 +667,9 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].ceilingTokens).toBe(36_079);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
-      expect.soft(tiers[2].floorTokens).toBe(6_293);
+      expect.soft(tiers[2].floorTokens).toBe(6_257);
       expect.soft(tiers[2].ceilingObligations).toBe(604);
-      expect.soft(tiers[2].ceilingTokens).toBe(61_646);
+      expect.soft(tiers[2].ceilingTokens).toBe(61_611);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
