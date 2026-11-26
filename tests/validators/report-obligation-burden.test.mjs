@@ -636,8 +636,6 @@ describe("report-obligation-burden.mjs", () => {
       // `professional-behavior`, which also lifts the every-session tier; its
       // SKILL.md routing bullet widens by bytes, not obligations.
 
-      // the measured corpus contains 36,248 SKILL.md bytes and 301,935 bytes
-      // including references, at 4.76 bytes/token; Loop has 258 ceiling obligations.
       expect.soft(totals.floorObligations).toBe(23);
       expect.soft(totals.floorTokens).toBe(6_267);
       expect.soft(totals.ceilingObligations).toBe(605);

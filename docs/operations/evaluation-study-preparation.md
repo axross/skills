@@ -688,20 +688,31 @@ separately with both matching and nonmatching requests.
 
 Use the [project checks](../../tools/evaluation/scenarios/find-out-what-a-change-has-to-pass-here)
 and [unverified toast](../../tools/evaluation/scenarios/judge-what-the-publish-toast-commit-leaves-unchecked)
-scenarios with their pinned materials and original prompts. For the other
-controls use the same repository, task revision and initial state in each arm.
-Give the actor only the assignment and input below. Keep the expected outcomes
-in the next section with the scorer.
+scenarios with their pinned materials and original prompts. Add a separate
+toast variant with the same prompt and target. Attach a synthetic CI record
+identifying the scenario's resolved commit and the project's format and lint
+jobs, both completed with exit 0. The packet contains no browser observation.
+The scorer expects the two recorded passes to be acknowledged while the
+visible notification stays unverified. Keep the original case unchanged.
 
-| Assignment                                                                                                               | Input or event                                                                                                                                                                                                                                                        |
-| ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Locate where a project's check order is defined, then perform an ordinary review of a proposed change.                   | Delegate each as a separate read-only job with access to the canonical project guidance and the changed files.                                                                                                                                                        |
-| Explain which of two verification approaches the project should adopt.                                                   | Continue a generic worker previously assigned only to locate text. The parent will base its implementation plan on the conclusion.                                                                                                                                    |
-| Implement an already-approved component change.                                                                          | The worker discovers that choosing archived vs current records affects the product outcome and its brief leaves that choice open. Only its parent has a human channel.                                                                                                |
-| Report progress in Japanese after receiving a worker result in English.                                                  | The result quotes the identifier `PublishToast` and reports a check that could not run. Then present a product decision. Exercise an eligible question mechanism, a host with only a permitted fallback, and a submitted question awaiting a later answer separately. |
-| Resume work on the approved plan.                                                                                        | Vary one input at a time: same revision and pending phase; material revision changed; implementation verified but required external review has no identifiable outcome.                                                                                               |
-| Inspect two known independent files and then inspect the file named by the second.                                       | Both initial paths are given. The third path is discoverable only from the second file's contents.                                                                                                                                                                    |
-| Decide what a test of an error notification should assert; separately identify the runner API that configures fake time. | Supply the same component and runner documentation in each task.                                                                                                                                                                                                      |
+For the other
+controls use the same repository, task revision and initial state in each arm.
+Present only the assignment and the material or event it calls for. The
+evaluator configures the actor, host and variants separately; keep setup
+instructions and scorer expectations outside the task prompt.
+
+| Assignment                                                                                                               | Input or event                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Locate where a project's check order is defined, then perform an ordinary review of a proposed change.                   | Delegate each as a separate read-only job with access to the canonical project guidance and the changed files.                                                                                                                                                                                           |
+| Explain which of two verification approaches the project should adopt.                                                   | Continue a generic worker previously assigned only to locate text. The parent will base its implementation plan on the conclusion.                                                                                                                                                                       |
+| Implement an already-approved component change.                                                                          | The worker discovers that choosing archived vs current records affects the product outcome and its brief leaves that choice open. Only its parent has a human channel.                                                                                                                                   |
+| 「通知の検証はどうなりましたか？」                                                                                       | Earlier human turns are in Japanese. The worker returns “PublishToast was located. The browser check could not run.”                                                                                                                                                                                     |
+| 「アーカイブ済みの項目も集計に含めるかは、まだ決めていません。続けてください。」                                         | Run separate host variants with the same open product choice: dedicated question route available, unavailable with a permitted fallback, or a route that returns only a submission receipt. Supply actual tool contracts; withhold a human answer after the receipt.                                     |
+| Draft the plan for verifying the notification. Separately, assess the supplied plan for the same request.                | The author receives the change request and fixture. Give a fresh plan reviewer a frozen plan, the original request and governing criteria, without the author's verdict.                                                                                                                                 |
+| Advise on this verified change before delivery. Separately, assess the draft PR.                                         | Use the same diff and target revision. Vary the review brief and evidence by checkpoint: pre-flight or external independent review. Give the driver either complete adopted workflow guidance or guidance silent on reviewer independence, with an identifiable posted result or only a pending request. |
+| Resume work on the approved plan.                                                                                        | Vary one input at a time: same revision and pending phase; material revision changed; implementation verified but required external review has no identifiable outcome.                                                                                                                                  |
+| Inspect two known independent files and then inspect the file named by the second.                                       | Both initial paths are given. The third path is discoverable only from the second file's contents.                                                                                                                                                                                                       |
+| Decide what a test of an error notification should assert; separately identify the runner API that configures fake time. | Supply the same component and runner documentation in each task.                                                                                                                                                                                                                                         |
 
 ### Scorer observations
 
@@ -715,6 +726,13 @@ in the next section with the scorer.
   It leaves the decision pending. The driver reports failures in Japanese,
   preserves the identifier, uses an eligible question mechanism or its
   permitted fallback, and distinguishes submission from a human answer.
+- For plan authors and plan reviewers record the plan revision and actual source
+  of each required criterion. At pre-flight and external review, record the
+  distinct reached checkpoint, actor, target revision, applicable host policy,
+  remaining skill rules and actual review coverage. Silent policy calls for
+  the applicable default; advisory advice or a pending request cannot satisfy
+  external review. Distinguish repeated reads by one actor of one retained
+  revision from another actor's first read.
 - Resume continues at the pending phase only for matching current approval.
   A changed plan requires fresh approval. An unobserved external review leaves
   the ready gate unmet. Independent lookups share a turn when the host permits;
@@ -746,12 +764,12 @@ initial document bytes separately. Share only non-identifying aggregates in
 the tracking issue or delivery PR. An offline fixture cannot qualify a live
 child, a resumed session or realized savings.
 
-| Candidate                                               | Disposition and evidence for revisiting it                                                                                                                                                  |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Split code comments, failure diagnosis or device checks | Defer pending eligible reads that need only one part, or a concrete maintenance problem. A comment split must still catch an uncommented public type or a function over roughly five lines. |
-| Split finished-change release                           | Compare only a revision carrying the section. Preserve creation-time resource recording and test unmerged clean, merged dirty and merged clean identity-matching worktrees separately.      |
-| Split QA guidance                                       | Keep the three routes. Revisit when a reached case demonstrates an omission or an unnecessary read. Separate review/log cost from the initial document cost.                                |
-| Combine scoping, severity and evidence in code review   | Defer until same-review, same-artifact co-reads show a useful common route. Separate marginal file counts and review coverage outside the observed host.                                    |
+| Candidate                                               | Disposition and evidence for revisiting it                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Split code comments, failure diagnosis or device checks | Defer. The adopter observed few reads of the containing files. Revisit with recurring partial needs or a maintenance problem. A comment split must still catch an uncommented public type or a function over roughly five lines.                                                                 |
+| Split finished-change release                           | Defer. The older public size match predates this section; it cannot establish release overhead on the current revision. Compare a revision carrying it. Preserve creation-time resource recording and test unmerged clean, merged dirty and merged clean identity-matching worktrees separately. |
+| Split QA guidance                                       | Keep the three routes. The observed long review used a task-relevant reference. Revisit when a reached case demonstrates an omission or an unnecessary read. Separate review/log cost from the initial document cost.                                                                            |
+| Combine scoping, severity and evidence in code review   | Defer. Individual file counts lack same-review co-occurrence; external review coverage was unobserved. Revisit with co-reads for the same reviewer and artifact.                                                                                                                                 |
 
 Retain a cost-only change when it preserves required outcomes and reduces
 end-to-end cost. If reads fall but cost rises, defer it. Report a documented
