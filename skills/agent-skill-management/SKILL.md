@@ -71,7 +71,7 @@ A repository-local skill's committed copy under the skill root **is** its source
 
 ## Distributable Skills: Install and Refresh
 
-A distributable skill is authored under `skills/<name>/SKILL.md` (with its `references/` beside it) and installed with the CLI. The CLI is run through `npx`; when the environment does not support symlinks, installs use `--copy` (the copy lands as a real directory under the skill root). The CLI version a project runs is covered under [The Lockfile](#the-lockfile).
+A distributable skill is authored under `skills/<name>/SKILL.md` (with its `references/` beside it) and installed with the CLI. The CLI is run through `npx`; when the environment does not support symlinks, installs use `--copy` (the copy lands as a real directory under the skill root). The CLI version a project runs, and what to do when the bare command cannot be resolved, are covered under [The Lockfile](#the-lockfile).
 
 **Commands:**
 

@@ -38,5 +38,5 @@ one omits that clause.
 
 - MUST carry every item, except as the absent-owner bullet below provides: 1, routing to the project's capabilities by task; 2, the bootstrap order; 3, the agent-comment marker; 4, the default branch with the push rule as a deferring clause; 5, the merging human; 6, for change runs, the delegation standing request.
 - MAY add project detail to a canonical line, and MUST keep each of its elements.
-- MUST, where no change-loop capability is installed, state the default-branch rule plainly and omit the delegation standing request.
+- MAY, where a project does not install the capability that owns an item's rule, state that rule plainly or omit that item's clause, as the prose above allows for the conduct and development capabilities; MUST, where no change-loop capability is installed, state the default-branch rule plainly and omit the delegation standing request.
 - MUST NOT otherwise restate in the entry file a rule that a loaded skill owns; route to the capability instead.
