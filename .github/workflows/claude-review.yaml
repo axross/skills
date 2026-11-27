@@ -68,11 +68,11 @@ permissions:
 jobs:
   review:
     name: Review
-    # load-bearing safety property 1 (continued): fires only on a
-    # trigger-phrase comment, on a pull request not a plain issue, from an
-    # owner, member, or collaborator — what stops an untrusted author from
-    # spending tokens or steering the reviewer. do not widen the association
-    # list.
+    # load-bearing safety property 1 (continued) — trigger gate. fires only on
+    # a trigger-phrase comment, on a pull request not a plain issue, from an
+    # owner, member, or collaborator. this keeps an untrusted commenter from
+    # triggering the review and spending tokens; it does not judge the pull
+    # request's author or content. do not widen the association list.
     if: >-
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '@claude review') &&
