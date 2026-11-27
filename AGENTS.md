@@ -70,8 +70,10 @@ Select guidance from the actual session, not a directory's host name:
   for configured actors, and
   [Agent Skills](./docs/operations/agent-skills.md) with
   [Skill Portability](./docs/conventions/skill-portability.md) for the
-  symlinked skill root and the metadata each host reads. Qualify capabilities
-  in the actual host; do not substitute Amp APIs for another host's operations.
+  symlinked skill root and the metadata each host reads. For Claude Code,
+  [CLAUDE.md](./CLAUDE.md) is the entry file for how the host meets the
+  project's gates. Qualify capabilities in the actual host; do not substitute
+  Amp APIs for another host's operations.
 - **GitHub:** load [GitHub Operation](./skills/github-operation/SKILL.md) for
   reads and writes. Consult [GitHub Delivery](./docs/operations/github-delivery.md)
   before plan/state storage or publication, including its marker usage

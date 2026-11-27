@@ -56,18 +56,30 @@ so a comment carrying the phrase alongside other text still fires it — which i
 why the request is posted as a comment of its own.
 
 The job checks out the default-branch ref (the base for a pull request into it)
-and never the pull request's head, so head files are not on the runner's disk.
-The workflow's `contents: read` limits only the workflow token. The action
-exchanges it for a Claude GitHub App installation token whose permissions the
-App installation sets (the action documents contents as read and write), so the
-workflow does not by itself stop the reviewer's shell from pushing. With broad
-`Bash`, nothing in the workflow stops it fetching, checking out or running the
-head either. The rule that it read head material only by read-only retrieval and
-never execute the head reaches it through `REVIEW.md`, which makes the rule
-instruction-level, not enforced by the workflow. A reviewer run against a
-default branch whose `REVIEW.md` predates the rule is not bound by it. This
-falls short of Code Review's posted-review policy rule against granting the
-reviewer contents write access, which the workflow change owns.
+and never the pull request's head, so the workspace holds the base tree. Keeping
+head material out of it is an instruction, not a control: `Bash` is allowed, so
+nothing in the tool list stops the reviewer fetching, checking out or running the
+head. The workflow's prompt tells it to read head files only by read-only
+retrieval at the head commit taken from `gh pr view`, never to check out, fetch
+or add a worktree for the head into the workspace, and never to execute fetched
+content. `REVIEW.md` instructs head retrieval without checkout or execution too,
+and allows fetching the head's objects into the object store, which the prompt
+does not. Both are instruction-level. A reviewer run against a default branch
+whose workflow or `REVIEW.md` predates these rules is not bound by them. The two
+web tools are denied, but `Bash` can still reach the network.
+
+The workflow's `contents: read` bounds only the workflow token. The action
+exchanges the job's OIDC token (`id-token: write`) for a Claude GitHub App
+installation token that carries the App's own grant (the action documents
+contents as read and write), and the reviewer's `gh` calls use that token. The
+workflow therefore does not by itself prevent a push, and the prompt's rule
+against pushing, committing or changing repository contents is an instruction as
+well. This falls short of Code Review's
+posted-review policy rule against granting the reviewer contents write access.
+The [register](./agent-skills.md#deviation--the-ci-reviewer-runs-with-the-claude-app-token)
+records the maintainer's bounded exception, and
+[#773](https://github.com/axross/skills/issues/773) evaluates the action's
+`github_token` input, which would skip the App-token exchange.
 
 The Claude route is inert until an operator installs the
 [Claude GitHub App](https://github.com/apps/claude) and adds the

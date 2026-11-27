@@ -53,8 +53,12 @@ The Claude Code definitions remain under `.claude/agents/`:
 - `implementer.md` supplies the implementation-capable actor and its declared
   model and effort. Local results return to the parent; publication is not
   delegated merely by choosing this actor.
-- `reviewer.md` supplies the pre-push reviewer. Its tool denial
-  covers editing tools and nested spawning, not every possible shell write.
+- `reviewer.md` supplies the plan reviewer and the pre-push reviewer. It
+  supplies the post-push reviewer only on the fallback route, which the per-host
+  overrides in [`AGENTS.md`](../../AGENTS.md#code-review-rules) leave unused
+  here, as [Select the post-push review route](#select-the-post-push-review-route)
+  records. Its tool denial covers editing tools and nested spawning, not every
+  possible shell write.
 - `investigator.md` supplies a reader for bounded investigation questions.
   It is not required for an exact local lookup or when the host prohibits
   that delegation purpose.
@@ -71,15 +75,17 @@ many findings post-push review caught that pre-push review missed;
 neither figure is computable from what a run can see, and a rule requiring one
 would report a compliance it never had.
 
-`investigator.md` pins Sonnet at `effort: medium`, and `implementer.md` and
-`reviewer.md` run at `effort: high`. Sonnet rather than a smaller model,
-because being handed large payloads is the whole of the investigator's role
-and a narrower context window would bind hardest at exactly the case the role
-exists for; `medium` rather than `low`, because its output is a judgment the
-main actor cannot check without re-reading the payload it delegated away to
-avoid. The implementer's and reviewer's step down from `xhigh` to `high` is
-the maintainer's own judgment call, taken against no measurement either way,
-and is reported as `declared` rather than as measured or verified.
+All three definitions pin Sonnet. `implementer.md` and `investigator.md` run at
+`effort: high`, and `reviewer.md` at `effort: xhigh`. The investigator pins Sonnet
+rather than a smaller model, because being handed large payloads is the whole of
+its role and a narrower context window would bind hardest at exactly the case the
+role exists for. These values are `declared`, taken against no measurement either
+way, and are reported as declared rather than as measured or verified; whether
+`xhigh` takes effect for the Sonnet alias is likewise declared, not verified.
+
+These definitions align once with axross/claude-loop-template at `df39a8b`. There
+is no automatic sync, so a later change to the template reaches this repository
+only through a deliberate change here.
 
 These are configured candidates, not a portable ranking or permission grant.
 A Claude Code session uses the matching configured actor when that assignment

@@ -52,9 +52,10 @@ mechanism, a delegation actor — follows the same split, which is why
 [Amp Execution](../operations/amp-execution.md) exist beside the skills rather
 than inside them.
 
-This repository's [Claude import](../../CLAUDE.md) and shared
-[session-start reminder](../../.claude/hooks/session-start.sh) route to its
-[project entry](../../AGENTS.md). The entry identifies the applicable Loop
+This repository's [`CLAUDE.md`](../../CLAUDE.md) imports the
+[project entry](../../AGENTS.md) and holds the Claude Code host mechanics, and
+the shared [session-start reminder](../../.claude/hooks/session-start.sh) routes
+to that entry too. The entry identifies the applicable Loop
 guidance. Loop defines which effects need an operation grant and how to verify it.
 [Agent Sessions](../operations/agent-sessions.md#the-session-start-hook)
 describes when the host can deliver the reminder and how to recover.
