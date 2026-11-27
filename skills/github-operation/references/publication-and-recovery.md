@@ -112,7 +112,7 @@ An in-session review lands as the operator's own review. It cannot manufacture t
 **Guidelines:**
 
 - MUST post in-session pull-request reviews as **COMMENT**, never APPROVE or REQUEST_CHANGES, and treat them as advisory rather than merge-gating evidence.
-- MUST NOT push to the default branch; use a branch allowed by current host and project policy.
+- MUST NOT push to the default branch; work on a working branch allowed by current host and project policy.
 - MUST record changes through new commits. Do not amend an existing commit unless a human explicitly allowed or requested it.
 - MUST NOT force-push unless explicitly authorized by a human or a documented project workflow that the active host permits; otherwise append commits.
 - MUST fix mistakes with follow-up commits rather than rewriting the record, and SHOULD keep the sequence readable as a transition log.
@@ -123,7 +123,8 @@ Where squash merge is used, the PR title becomes the permanent commit subject. A
 
 **Guidelines:**
 
-- SHOULD open work-in-progress PRs in draft and leave merging to a human when no project delivery convention is defined; otherwise follow that convention within the active host's permissions.
+- MUST NOT merge a pull request; merging is always the human's. Project policy may name the default branch and the merging human, and the change-loop delivery-defaults topic carries the same default.
+- SHOULD open work-in-progress PRs in draft when no project delivery convention is defined; otherwise follow that convention, which still decides draft versus ready, within the active host's permissions.
 - MUST, where the project uses change-loop practices that define a ready gate, perform the draft-to-ready transition itself once that gate is met, unless another skill or the project's agent instructions reserve it to a human; the gate's owner supplies the authority for that one effect, which does not extend to merging. Without such a gate, the authorization rules above govern, so ask rather than infer a grant.
 - MUST consult the project's Conventional Commits practices when authoring a PR title, if present; otherwise follow its documented title convention.
 - MUST consult the project's pull-request-description practices and reproduce its applicable template when preparing a body. Without those practices, provide a concise, self-contained explanation, related issue where applicable, verification evidence, and risks rather than empty headings or placeholders.
