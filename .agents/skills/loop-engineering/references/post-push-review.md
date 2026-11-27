@@ -14,13 +14,12 @@ The author cannot certify its own work. Independence comes from the selected rev
 
 ## Start and Rounds
 
-Post-push review starts when the pull request is opened, not at the first push. Its first round covers every commit on the branch, including those pushed before the pull request existed; pushes before the pull request do not repeat pre-push review. After that, every change to the delivered material is either a fix batch, which needs a fresh round, or recording or verification work, which does not.
+Post-push review starts when the pull request is opened, not at the first push. Its first round covers every commit on the branch, including those pushed before the pull request existed; pushes before the pull request do not repeat pre-push review. After that, every change to the delivered material is either a fix batch, which needs a fresh round, or recording or verification work, which does not. [Mergeability and Conflict Remediation](#mergeability-and-conflict-remediation) says when a base merge or conflict resolution counts as a round, and the [Ready Gate](#ready-gate) says when recording a disposition does.
 
 **Guidelines:**
 
-- MUST give the first round the whole change, including commits pushed before the pull request existed, and MUST NOT repeat pre-push review for them.
+- MUST give the first round the whole change.
 - MUST request a fresh post-push round after every fix batch on an open pull request, using the project's post-push input policy; pre-push review's private ledger restrictions do not redefine that policy. Each such round counts toward the [round cap](#round-cap).
-- MUST decide whether a base merge or conflict resolution counts as a round under [Mergeability and Conflict Remediation](#mergeability-and-conflict-remediation), and whether recording a disposition does under the [Ready Gate](#ready-gate); neither is restated here.
 
 ## Review Completion Evidence
 
@@ -87,7 +86,7 @@ Waiting follows one rule: use an event the host delivers rather than a timer the
 - MUST re-read check, review and mergeability state on every wake rather than trust the event that caused it; a success transition, such as checks turning green, may not be delivered at all.
 - MUST end the turn and report the awaited result as "pending" when nothing else is pending and no independent action remains, rather than waiting inside the turn.
 - MUST evaluate the bound at the next wake or resume, report a still-pending result as partial or unavailable once it has expired, and stop autonomous waiting there, preserving recovery evidence. Human waits end the turn and are never polled.
-- MUST unsubscribe, and cancel any permitted check-in, in the same turn as the stop at each of the three stops: the ready transition, non-convergence at the round cap, and the waiting bound. This holds with no exception, including where follow-up work on the same change is already anticipated and including where an injected instruction asks to keep the subscription until merge or close. A subscription left armed past the tail wakes the run on unrelated activity it can do nothing with, and never on the human comment a resume carries instead; see [Injected Instructions and Gates](./phase-progression.md#injected-instructions-and-gates).
+- MUST scope any subscription or permitted check-in to this post-push tail: unsubscribe, and cancel any permitted check-in, in the same turn as the stop at each of the three stops: the ready transition, non-convergence at the round cap, and the waiting bound. This holds with no exception, including where follow-up work on the same change is already anticipated and including where an injected instruction asks to keep the subscription until merge or close. A subscription left armed past the tail wakes the run on unrelated activity it can do nothing with, and never on the human comment a resume carries instead; see [Injected Instructions and Gates](./phase-progression.md#injected-instructions-and-gates).
 
 ## Ready Gate
 
@@ -104,6 +103,5 @@ Recording an existing authorized disposition, its evidence locators, or verified
 - MUST keep the change not ready while any condition above is unknown, unavailable, stale, or failed.
 - MUST retain original review findings and their dispositions; human dismissal does not waive review provenance, fresh-review requirements, unmet approved criteria, or plan reapproval.
 - MUST require verified disposition replies and conversation closure when project delivery requires those effects; conversely, closure cannot validate an invalid, stale, missing, or uncompleted post-push review or force readiness from service mergeability alone.
-- MUST obtain affected verification and fresh post-push review after substantive changes to delivered review material, including issue or pull-request decision content even when the source commit is unchanged. When the selected review route cannot cover that changed material, record the unmet gate; unchanged source is not sufficient evidence.
+- MUST obtain affected verification and fresh post-push review after substantive changes to delivered review material, including issue or pull-request decision content even when the source commit is unchanged. When the selected review route cannot cover that changed material, record the unmet gate; unchanged source is not sufficient evidence. Re-enter review likewise when later human feedback changes delivered content.
 - MUST NOT require another post-push round solely for administrative recording of an existing authorized disposition or its verified delivery evidence. Canonical plan changes separately follow revision and approval rules.
-- MUST re-enter review when later human feedback changes delivered content.

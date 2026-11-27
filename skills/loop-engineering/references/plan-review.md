@@ -1,6 +1,6 @@
 # Plan Review
 
-Investigation conclusions, plans, and low-fidelity and high-fidelity design options each produce outputs that later phases rely on. Plan review is their review, in a fresh non-author context, and it happens before that reliance, not after implementation has made the choice costly to reverse. It covers every pre-approval deliverable: investigation conclusions before planning, each plan before approval, and every design-option round before human selection or dependent work. It allows at most three rounds, without extension, and is separate from pre-push review and post-push review, which [review-workflow.md](./review-workflow.md) defines.
+Investigation conclusions, plans, and low-fidelity and high-fidelity design options each produce outputs that later phases rely on. Plan review is their review, in a fresh non-author context, before that reliance rather than after implementation has made the choice costly to reverse, and it is separate from pre-push review and post-push review. [review-workflow.md](./review-workflow.md#review-terms) defines the term.
 
 **Guidelines:**
 

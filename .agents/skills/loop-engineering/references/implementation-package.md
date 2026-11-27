@@ -15,7 +15,7 @@ Approval identifies the exact plan artifact and revision the human considered, t
 
 An assignment says what work is requested and what the executor can rely on. Every repository- or version-dependent assignment—including investigation and review—identifies the source or workspace, target revision or content identifier, actual uncommitted diff and files, and material locations. Naming `HEAD` alone is insufficient when uncommitted work matters.
 
-Writing assignments additionally name permitted paths or effects, protected changes, conflict coordination, verification, self-review expectations and applicable policy, whether commits (a local commit by the writer is the default, with pushing left to the driver) or another delivery form are expected, and any shared runtime target the executor may claim and resources it may create. Read-only assignments omit writing permissions rather than granting empty ones.
+Writing assignments additionally name permitted paths or effects, protected changes, conflict coordination, verification, self-review expectations and applicable policy, whether commits or another delivery form are expected (the [delegation matrix](./subagent-delegation.md#delegation-matrix) sets the default), and any shared runtime target the executor may claim and resources it may create. Read-only assignments omit writing permissions rather than granting empty ones.
 
 **Guidelines:**
 

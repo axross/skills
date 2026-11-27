@@ -4,7 +4,7 @@ Apply this reference when project policy selects review of the initial implement
 
 ## Checkpoint Qualification
 
-This checkpoint follows verified initial implementation, whether the driver or another actor implemented it, and runs before the first `git push` and only then. Pushes made before the pull request exists do not repeat it; post-push review starts when the pull request is opened and covers every commit, and fixes made once the pull request exists go to post-push re-review. Implementation delegation and plan review supply no qualification for its fresh reader. Missing review evidence remains a visible gap even when project policy permits limited draft delivery.
+This checkpoint follows verified initial implementation, whether the driver or another actor implemented it, and runs before the first `git push` and only then. Pushes before the pull request opens do not repeat it, as [Start and Rounds](./post-push-review.md#start-and-rounds) states. Implementation delegation and plan review supply no qualification for its fresh reader. Missing review evidence remains a visible gap even when project policy permits limited draft delivery.
 
 **Guidelines:**
 
@@ -98,4 +98,4 @@ After round 3 the remaining open findings are disposed of, not reviewed again. O
 - MUST, after round 3, put each open Critical or Major finding to the human for disposition, disclosing its severity and citation and naming every one, and MUST NOT dismiss one itself.
 - MUST dispose of each open Minor or Nit finding as fixed or dismissed with a recorded reason, as the finding ledger above allows.
 - MUST mark each finding the human declines to fix `deferred`, preserve it through the [deferred handoff](#deferred-handoff), and keep the delivered change in draft until post-push review converges.
-- MUST NOT run a further pre-push round for fixes made after round 3, and MUST NOT treat this cap as a replacement for post-push review. A wait for the human's disposition ends the turn and is never polled, as [Waiting Bound](./post-push-review.md#waiting-bound) states.
+- MUST NOT run a further pre-push round for fixes made after round 3, and MUST NOT treat this cap as a replacement for post-push review. A wait for the human's disposition follows [Waiting Bound](./post-push-review.md#waiting-bound).

@@ -37,7 +37,7 @@ The route is the first of these that applies. An **override** is an explicit ins
 
 Reviewing the actual pull request can expose author explanations and self-assessment. Their presence does not make them correctness evidence: the reviewer needs the actual material and applicable requirements to judge those claims. Context separation does not require hiding authorship or revision history.
 
-An override of the same kind is stated per host. These examples travel with the skill so an installing project needs no copy of its author's host runbooks; they do not require other projects to adopt GitHub or a pull request delivery model. Current host contracts determine which launch, publication and closure operations actually exist and are permitted.
+An override of the same kind is stated per host. These examples travel with the skill so an installing project needs no copy of its author's host runbooks. The fallback assumes a pull-request delivery target; a project with another target states its own override. Current host contracts determine which launch, publication and closure operations actually exist and are permitted.
 
 **Example overrides:**
 
@@ -61,14 +61,13 @@ Verified against [Codex's GitHub review documentation](https://developers.openai
 
 **Guidelines:**
 
-- MUST use the explicit override when one applies, and the fallback only for what applicable instructions leave unspecified. Under the fallback, use a reviewer working in a fresh context outside the author's, through the active host's available, permitted means; where a host example's mechanism does not match the project's, qualify an equivalent fresh-context route rather than copy the example.
+- MUST, where a host example's mechanism does not match the project's, qualify an equivalent fresh-context route through the active host's available, permitted means rather than copy the example.
 - MUST qualify required material access, review purpose, publication capability and authorization before relying on a reviewer route. Shared infrastructure or account identity alone does not disqualify it unless applicable policy requires separation; a new name or model alone does not qualify it.
-- MUST give a created reviewer a neutral review assignment identifying the source/workspace, pull request, material revisions and required artifacts and policy. Have it inspect the actual pull request and acceptance-criteria projection; exclude the author's conversation, accumulated implementation reasoning, implementation receipt and pre-push ledger. Reuse neither the implementation author nor a prior round's review context, and never fork the author's conversation.
+- MUST give a created reviewer a neutral review assignment identifying the source/workspace, pull request, material revisions and required artifacts and policy, and have it inspect the actual pull request and acceptance-criteria projection; exclude the implementation receipt.
 - MUST preserve access to required policy, artifacts and surrounding code, and ground the review in that material and applicable requirements. Treat author explanations, claimed verdicts and self-assessed acceptance-criterion statuses as unverified claims, not evidence of correctness.
-- MUST have the reviewer publish the review directly through the pull request's review mechanism and return its result locator. A private child reply or the parent's reposted summary is not the posted reviewer-origin result required for completion.
+- MUST have the reviewer return its posted result's locator. A private child reply or the parent's reposted summary is not the posted reviewer-origin result required for completion. A missing result-publication capability is an unavailable route under the definition above, and a private review cannot substitute for the required published result.
 - MUST check the current host's permitted tool contracts and, where needed, official documentation rather than assume an example's tool is installed or a nested publication route is available.
 - MUST use available, permitted tool restrictions for a review child while retaining required material access and direct publication through the pull request's review mechanism. Distinguish host-enforced restrictions from instruction-only constraints; a prompt prohibition alone does not establish enforced read-only access.
-- MUST keep a missing review or required result-publication capability visible as an unmet post-push review gate; returning a private review cannot substitute for the required published result.
 
 ## Review Session and Thread Cleanup
 

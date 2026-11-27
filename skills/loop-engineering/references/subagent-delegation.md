@@ -36,10 +36,7 @@ This matrix applies only where [Checkpoint Qualification](#checkpoint-qualificat
 
 **Guidelines:**
 
-- MUST keep intake, plan authorship, questions to the human, approvals, finding triage, push and pull request operations, the integration check of the diff and reporting with the driver; the one exception is that a post-push reviewer posts its own review.
-- MUST give a reader the tasks whose large input reduces to a small conclusion, and MUST NOT delegate an exact single lookup.
-- MUST give a writer implementation after approval, including running checks, self-review and a local commit, except an edit whose brief would be longer than the diff; the driver re-runs the checks on the integrated diff.
-- MUST use a fresh reviewer instance each round of plan review, pre-push review and post-push review.
+- MUST assign work to the actor the table names, the one exception being that a post-push reviewer posts its own review.
 - MUST bound a brief or handback by its shape, never by a numeric token cap: a reader hands back its conclusion and locators, and a writer hands back the result record the [execution result contract](./implementation-package.md#execution-result) defines.
 
 ## Compatibility Preflight
