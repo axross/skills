@@ -22,16 +22,19 @@ this operation does not introduce a separate register or exception policy.
 ## Installing and Refreshing
 
 Regenerate `.agents/skills/` from the source under `skills/` with the
-`vercel-labs/skills` CLI:
+`vercel-labs/skills` CLI. `skills@1.7.6` is the version that writes this
+repository's `skills-lock.json`; a plain `npx skills` resolves the registry's
+latest release, whose refresh rewrites every hash and the lockfile schema
+(observed with 1.9.0), so every command here names the version:
 
 ```bash
-npx skills add ./skills --agent codex --skill '*' --yes
+npx --yes skills@1.7.6 add ./skills --agent codex --skill '*' --yes
 ```
 
 For a targeted refresh, replace `'*'` with the intended skill name. For example:
 
 ```bash
-npx skills add ./skills --agent codex --skill agent-skill-management --yes
+npx --yes skills@1.7.6 add ./skills --agent codex --skill agent-skill-management --yes
 ```
 
 Inspect the installer summary and generated diff before committing. A targeted
@@ -189,15 +192,13 @@ or reload behavior.
 ## When `npx skills` Fails to Resolve
 
 In some environments — a fresh container with no local install, or a stale
-npx cache — both `npx skills …` and `npx --yes skills …` abort with
+npx cache — a bare `npx skills …` aborts with
 `npm error could not determine executable to run`, which reads like a broken
-command rather than a resolution failure. An explicit version specifier fixes
-it:
+command rather than a resolution failure. The commands above name
+`skills@1.7.6`, the version recorded for this repository's lockfile, so run them
+as written.
 
-```bash
-npx --yes skills@latest add ./skills --agent codex --skill '*' --yes
-```
-
-The plain `npx skills` form stays canonical — reach for the specifier only
-after seeing that error, since pinning `@latest` on every run fetches the
-newest CLI build each time.
+If `npx --yes skills@1.7.6 …` itself fails to resolve, report the failure and
+what was tried. Do not substitute `skills@latest`: its refresh can rewrite the
+lockfile, as [Installing and Refreshing](#installing-and-refreshing) records, so
+moving to it is a deliberate, separately scoped change rather than a fallback.

@@ -49,7 +49,7 @@ terms follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 - [Development Setup](./operations/development-setup.md) — local
   setup, the toolchain, and the repository's commands and validators.
 - [GitHub Delivery](./operations/github-delivery.md) — plan and
-  state storage, issue-to-PR handover, comment markers, and evidence routing.
+  state storage, issue-to-PR handover, comment-marker usage, and evidence routing.
 - [Amp Execution](./operations/amp-execution.md) — qualifying Amp
   executors, transferring materials, waiting, and recovering uncertain effects.
 - [Claude Code Execution](./operations/claude-code-execution.md) —

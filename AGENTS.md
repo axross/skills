@@ -9,10 +9,15 @@ JavaScript tooling. [README.md](./README.md) owns its catalog and links
 Claude Code, Codex, and Amp use the same capability sources, not separate
 host-specific skill libraries.
 
+This repository's agent-comment marker is `<!-- ai-agent -->`. Its default
+branch is `main`, which agents never push to
+([Delivery Defaults](./skills/loop-engineering/references/phase-progression.md#delivery-defaults));
+merging is left to the maintainer, `@axross`.
+
 ## Response Approach
 
-Identify the intended checkout and read its scoped project entry. For top-level
-work, load [Professional Behavior](./skills/professional-behavior/SKILL.md)
+Identify the intended checkout and read its scoped project entry. For every
+top-level run, load [Professional Behavior](./skills/professional-behavior/SKILL.md)
 first, including for standalone read-only questions. Load
 [Software Development](./skills/software-development/SKILL.md) for project work,
 including delegated implementation.
@@ -38,9 +43,14 @@ added scope and operation grants;
 repository's gates, and [GitHub Delivery](./docs/operations/github-delivery.md)
 owns where plan and delivery state are stored.
 
+This file is the maintainer's standing request that every change run delegate as
+Loop Engineering's
+[delegation matrix](./skills/loop-engineering/references/subagent-delegation.md#delegation-matrix)
+sets out; the matrix grants no authorization.
+
 - MUST read [README.md](./README.md) and the
   [Development Setup](./docs/operations/development-setup.md) guide it links
-  before repository commands. Software Development owns the procedure when a
+  before project commands. Software Development owns the procedure when a
   command is undocumented.
 - MUST read [docs/index.md](./docs/index.md) when a task depends on project
   terminology, concepts, or past decisions; follow only the relevant routes.
@@ -64,7 +74,7 @@ Select guidance from the actual session, not a directory's host name:
   in the actual host; do not substitute Amp APIs for another host's operations.
 - **GitHub:** load [GitHub Operation](./skills/github-operation/SKILL.md) for
   reads and writes. Consult [GitHub Delivery](./docs/operations/github-delivery.md)
-  before plan/state storage or publication, including its comment markers
+  before plan/state storage or publication, including its marker usage
   before reading or posting agent comments.
 
 ## Code Review Rules
@@ -92,22 +102,9 @@ Each provider's setup, invocation and failure handling are in
 
 ## Skill maintenance
 
-For skill changes or loading diagnostics, load
+For skill changes, loading diagnostics or skill-acquisition safeguards, load
 [Agent Skill Management](./skills/agent-skill-management/SKILL.md) and follow
 [Agent Skills](./docs/operations/agent-skills.md). For content and metadata
 changes, also load [Agent Skill Authoring](./skills/agent-skill-authoring/SKILL.md).
 Source, installed copies, symlinks, and active loading have distinct evidence;
 their layout belongs to [Directory Structure](./docs/conventions/directory-structure.md).
-At completion, MUST report whether skill maintenance was performed, skipped,
-or blocked. Development Workflow owns the delivery evidence required alongside
-that report.
-
-Skill-acquisition safeguards require separate human authorization and must
-preserve normal permissions and recovery reads. Qualify observation and refusal
-in independently contained trials using disposable targets; keep unverified
-scopes inactive. Observation must not interfere with valid work; refusal must
-use actor-local evidence current through mutation, reject incomplete
-acquisition, and permit valid work after full acquisition. Bound refusal to
-verified scope and duration, with independent expiry or rollback after
-interruption. Skill acquisition alone proves neither output correctness nor
-permission to mutate.

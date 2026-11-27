@@ -124,7 +124,7 @@ defines.
 
 When storing or publishing change-loop records, follow
 [GitHub Delivery](./github-delivery.md). It owns this repository's plan location,
-state-block representation, issue-to-PR handover, marker selection, and evidence
+state-block representation, issue-to-PR handover, marker usage, and evidence
 destinations. [GitHub Operation](../../skills/github-operation/SKILL.md) owns
 portable access and outcome verification.
 
@@ -132,9 +132,10 @@ portable access and outcome verification.
 
 Working without an agent does not lower the bar: branch, implement, run
 [Development Setup's checks](./development-setup.md#commands), open a pull request following the
-template, and obtain review before merge. Agents likewise MUST use a branch
-outside the default branch, preserve pushed history, and leave merging to the
-human. `claude/` is the namespace observed by the sweep below; a namespace
+template, and obtain review before merge. Agents follow
+[AGENTS.md](../../AGENTS.md#project-overview)'s default-branch and merging line
+and preserve pushed history ([GitHub Operation](../../skills/github-operation/SKILL.md)).
+`claude/` is the namespace observed by the sweep below; a namespace
 never authorizes a push.
 
 ## Keep the Topic Branch Mergeable
