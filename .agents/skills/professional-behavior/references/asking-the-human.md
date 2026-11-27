@@ -33,7 +33,7 @@ The route is chosen by what the session exposes and permits for this question, n
 
 **Launcher Example:**
 
-> "Send questions to me" still means asking the human through an eligible mechanism; "never ask the human yourself" is a conflict for that hierarchy to resolve.
+> "Send questions to me" still means asking the human through an eligible mechanism; "never ask the human yourself" is a conflict for the host's actual instruction hierarchy to resolve.
 
 **Recovery Example:**
 

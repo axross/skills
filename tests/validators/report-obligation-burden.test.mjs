@@ -644,13 +644,15 @@ describe("report-obligation-burden.mjs", () => {
       // moves by four to 623; the two lighter tiers keep their obligation
       // counts (their token pins moved). The review-workflow.md,
       // run-state-and-reporting.md and post-push-review.md scope-class edits
-      // extend existing bullets, so they move bytes only.
-      // totals: 30,500 floor bytes and 310,424 ceiling bytes.
+      // extend existing bullets, so they move bytes only. The pre-push round 1
+      // fixes reword existing bullets and one reference sentence only, so
+      // they move bytes, not obligations.
+      // totals: 30,500 floor bytes and 310,643 ceiling bytes.
 
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(6_408);
       expect.soft(totals.ceilingObligations).toBe(623);
-      expect.soft(totals.ceilingTokens).toBe(65_215);
+      expect.soft(totals.ceilingTokens).toBe(65_261);
     });
 
     it("reports cumulative tiers for the human-facing driver", async () => {
@@ -670,17 +672,17 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[0].floorObligations).toBe(9);
       expect.soft(tiers[0].floorTokens).toBe(1_807);
       expect.soft(tiers[0].ceilingObligations).toBe(185);
-      expect.soft(tiers[0].ceilingTokens).toBe(16_745);
+      expect.soft(tiers[0].ceilingTokens).toBe(16_751);
 
       expect.soft(tiers[1].floorObligations).toBe(13);
       expect.soft(tiers[1].floorTokens).toBe(3_635);
       expect.soft(tiers[1].ceilingObligations).toBe(346);
-      expect.soft(tiers[1].ceilingTokens).toBe(36_121);
+      expect.soft(tiers[1].ceilingTokens).toBe(36_126);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(6_408);
       expect.soft(tiers[2].ceilingObligations).toBe(623);
-      expect.soft(tiers[2].ceilingTokens).toBe(65_215);
+      expect.soft(tiers[2].ceilingTokens).toBe(65_261);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill

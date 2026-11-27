@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c1b7f139e9da7d163f817dd830b75e5a5532f31806d3edf4ba96bade0e65a84f"
+      "computedHash": "d9524b73ca6d48022450e9dee96809bb96c1f90a305efc7ae9d27ace543f3e94"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "9ace60d8ef7ec2a630a809c931c6153e481566824eb92d7154572f2746c35f65"
+      "computedHash": "f286bc019bc22c711cf46e15f7f1430b66ba51334be5a0ea125ccc1a3833501d"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "fa0018ec787d7c4d7e56e314c4e3ba3db1f654a7c4d6c928050f3600f9b8b4da"
+      "computedHash": "5ba8ad2329548693bbf46b7d8ddfb4fded643111726148a556ab4ca3c563ee8c"
     },
     "next-app-development": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "69b9400f7f9abc336ff5f2c535d7641087f5d2b55a88fdb883165655f088a3e6"
+      "computedHash": "c305b4a30bf04bd7bc71a04649d0ff2203bbd41300d89da735dc67064cd173b7"
     },
     "quality-assurance": {
       "source": "./skills",
