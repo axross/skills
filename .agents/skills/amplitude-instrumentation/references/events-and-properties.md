@@ -54,7 +54,7 @@ Amplitude exposes a set of `Identify` operators, catalogued in the [user-propert
 - MUST NOT exceed roughly **1,800 user-property updates per hour** for one user — Amplitude rate-limits past that, and a per-event `identify` call reaches it on any active user.
 - MUST NOT hardcode an environment or build-constant value as a user property; it describes the build, not the person.
 
-> **Found in `axross/aqua`**: `setUserProperties({"Environment": "production"})` is hardcoded, so every user reports production regardless of where the event came from.
+> **Observed failure mode**: `setUserProperties({"Environment": "production"})` is hardcoded, so every user reports production regardless of where the event came from.
 
 ## Groups and Revenue
 

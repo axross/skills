@@ -31,7 +31,8 @@ A posted review uses exactly two labels, so the author can sort must-fix from ni
 **Guidelines:**
 
 - MUST label every posted finding exactly **Important** or **Nit** — no other labels appear.
-- MUST map every internal Critical or Major to Important, and every internal Minor or Nit to Nit.
+- MUST label a violation of a hard project rule Important in a posted review whatever its internal tier. A hard project rule is a MUST rule of an applicable skill or project convention; a narrower project definition governs where the project states one. The exceptions are a deviation a human adopted that remains valid, the project's do-not-report exclusions, and the acceptance-criteria boundary.
+- MUST map every internal Critical or Major to Important, and every internal Minor or Nit to Nit, for findings no hard rule governs; the Critical test in [severity.md](./severity.md) is unchanged.
 - MUST label as Important any reportable acceptance-criteria violation under the review lenses' Acceptance Criteria boundary.
 
 ## Mandatory Checks
@@ -73,6 +74,8 @@ A posted review is one submission of the platform's review mechanism — the one
 - MUST report every finding; the same nit repeated across the diff MAY share one inline comment that lists each occurrence, and nothing is summarized away — the tally counts every finding.
 - MUST set the submission's verdict to non-gating when the reviewer is advisory and does not gate merges; this is a decision about the verdict alone, and a non-gating verdict is never a reason to fall back to a looser container.
 - MUST post a review with no findings through the same container, with a zero tally and no inline comments.
+- MUST NOT include any review service's trigger phrase in reviewer-authored prose, summary or inline; a finding about one describes it instead of quoting it. Provider-native boilerplate a project accepts is outside this rule. This extends the trigger-isolation rule that the project's GitHub operation practices own for status, summary and breadcrumb comments.
+- MUST, for a review posted under the human operator's own login (not a separate bot's), submit it as a COMMENT-type review under the project's GitHub operation practices, which own that rule.
 
 ## Summary Scope
 

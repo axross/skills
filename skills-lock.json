@@ -4,17 +4,17 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c2efd3b992628325f731c744f25e801ad525a98d66647916abe798895556d097"
+      "computedHash": "665f7b4846e5c68735b81badd3adc47abf04372f9bfe35a100955e552aeda1a6"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "cc2479022ffdef4f6ac36898e16e9c04a3da67fb4a15718ebf7e339d02d6a36d"
+      "computedHash": "60acf5ad45d32043262f9c8b34cf17a7127a00c40a127efbcbfcabc44eb367e8"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "b642457d2d0059adeaffd16ed56a885355e99341d2eb5288e1e15a99ba4ff18b"
+      "computedHash": "557a5d64bbcc425e26b56228aafa4915ff078649a27de3c14a4196b6d1bd0be7"
     },
     "application-security": {
       "source": "./skills",
@@ -24,12 +24,12 @@
     "code-maintainability": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "0e58836b09fba0219eb0bd29ae605611f5b6f7a06211d27a421a6e3fe2bb6537"
+      "computedHash": "200148a4616844a6f6901001df42d832c4fd4933c956dcb725211248fd1673f4"
     },
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "2e26b8395ffd66ee3eca1b70a19811e499f8922cc97a5e02fa75ffb3fff5ca3c"
+      "computedHash": "f6a5240e82819f60e23943856564b7b96cf0ea6c946f9c6650dbbb390697d0cc"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "81e179dd25a20ce1aebedaaa490d646b41ee8120c7f264a0cf2e8712d28542f1"
+      "computedHash": "4b5b759fc7f7df6e3e5695cfdd567342e479aadf4e365180bd4ee7393cb5e0a0"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -84,7 +84,7 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "116cb570508fd667d63d06c04c10915b24b19964ae94518169219662c2c88db0"
+      "computedHash": "69b9400f7f9abc336ff5f2c535d7641087f5d2b55a88fdb883165655f088a3e6"
     },
     "quality-assurance": {
       "source": "./skills",
