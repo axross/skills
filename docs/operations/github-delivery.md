@@ -129,7 +129,7 @@ that now, and one record the human can read beats two neither is complete.
 
 **Guidelines:**
 
-- MUST publish one `<!-- ai-agent -->` PR comment per post-round-3 disposition, covering every finding the human declined, when that effect is authorized, identifying it as deferred pre-push handoff evidence rather than canonical requirements or review input.
+- MUST publish one marked PR comment per post-round-3 disposition, covering every finding the human declined, when that effect is authorized, identifying it as deferred pre-push handoff evidence rather than canonical requirements or review input.
 - MUST retain in that comment the pre-push round and reviewed material identity; each finding's ID, severity, citation, substance, suggested fix and `deferred` disposition; the decision reason and supporting evidence; and locators for the human decision and the tracking Issue.
 - MUST preserve corrections in later marked comments rather than overwriting the evidence the human already received.
 - MUST keep compact handoff status and locators in the PR's state block, so a resumed run finds the record without reading every comment.
@@ -247,18 +247,20 @@ to invent a fixing commit or request a round solely for outcome bookkeeping.
 The PR stays draft until Loop's
 [readiness evaluation](../../skills/loop-engineering/references/post-push-review.md#ready-gate)
 succeeds. Publish the ready transition once that evidence is satisfied, and
-leave merging to the human under Development Workflow. If a policy-compliant
-post-push review cannot be established, record the actual unmet gate on the
-PR and keep it draft. An unrelated review defect is neither a new acceptance
-criterion nor permission to weaken review policy.
+leave merging to the human as [AGENTS.md](../../AGENTS.md#project-overview)
+states. The ready read-back includes the assignees that GitHub Operation
+requires. If a policy-compliant post-push review cannot be established, record
+the actual unmet gate on the PR and keep it draft. An unrelated review defect
+is neither a new acceptance criterion nor permission to weaken review policy.
 
 ## Use the repository's comment marker
 
-This repository's fixed marker for new agent comments is `<!-- ai-agent -->`.
-Recognize the retired `<!-- claude-code -->` marker as agent output on historical
-issues and PRs, but never use it for a new comment. GitHub Operation owns the
-attribution test and trigger-isolation rule; these are the repository's marker
-values, not a second attribution policy.
+[AGENTS.md](../../AGENTS.md#project-overview) names this repository's fixed
+marker for new agent comments; this section owns its usage. Use that marker on
+every new agent comment, and recognize the retired `<!-- claude-code -->`
+marker as agent output on historical issues and PRs, but never use it for a new
+comment. GitHub Operation owns the attribution test and trigger-isolation rule;
+these are the repository's marker usage rules, not a second attribution policy.
 
 When external writes are not authorized or no permitted route can perform them,
 return prepared content and the exact blocked operation to the human. Do not

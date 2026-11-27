@@ -2,7 +2,7 @@
 
 Apply this reference when the project governs its taxonomy in Amplitude Data, or when deciding whether to generate a typed wrapper with Ampli instead of writing one. The tracking plan is where an organization's event definitions live; Ampli is the code generator that turns them into a typed client. Neither is mandatory, and choosing to skip both is legitimate — but it should be a decision rather than an omission.
 
-None of the three inspected repositories uses a tracking plan or Ampli. All three hand-wrote a wrapper, and two of them drifted in naming as a direct result.
+A project that uses neither a tracking plan nor Ampli often hand-writes a wrapper, and a wrapper without a schema tends to drift in naming.
 
 Verified against [Amplitude Data's documentation](https://amplitude.com/docs/data) on **2026-08-02**. Amplitude Data's governance surfaces move more than the SDK's; where this file says to look something up, look it up rather than trusting a remembered menu.
 
@@ -14,7 +14,7 @@ What an event should be called is owned by the naming section of a vendor-neutra
 
 The Amplitude-specific hazard is not a badly-named event; it is two conventions arriving in one project.
 
-> **Found across `axross/oraculo` and `axross/porousel`**: Title Case in one, kebab-case in the other, for the same kind of event. One project per convention is survivable; two conventions in one Amplitude project is not — Amplitude distinguishes names that differ only in case, so the two never merge into one series.
+> **Observed failure mode**: Title Case in one application, kebab-case in another, for the same kind of event. One project per convention is survivable; two conventions in one Amplitude project is not — Amplitude distinguishes names that differ only in case, so the two never merge into one series.
 
 **Guidelines:**
 
@@ -65,9 +65,9 @@ Two properties of this are worth knowing regardless of the current menu:
 
 ## When a Hand-Written Wrapper Is the Better Trade
 
-Ampli buys type safety and coverage checking at the cost of a generator, a credential in CI, and a plan that must stay authoritative. For a small application with a handful of events and one engineer, a hand-written typed wrapper delivers most of the benefit with none of the machinery — which is what all three inspected repositories chose, defensibly.
+Ampli buys type safety and coverage checking at the cost of a generator, a credential in CI, and a plan that must stay authoritative. For a small application with a handful of events and one engineer, a hand-written typed wrapper delivers most of the benefit with none of the machinery — a defensible choice.
 
-What they did not do is the part that matters: keep the schema. `axross/oraculo` has a typed `Event` map; `axross/porousel` has the same wrapper **minus the schema**, and its naming drifted immediately.
+The part that matters is keeping the schema. One observed contrast: of two hand-written wrappers, one had a typed `Event` map and the other was the same wrapper **without a schema**; the schema-less one drifted in naming.
 
 **Guidelines:**
 

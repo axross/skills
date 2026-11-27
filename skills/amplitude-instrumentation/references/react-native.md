@@ -1,6 +1,6 @@
 # React Native
 
-Apply this reference when wiring Amplitude into a React Native or Expo app. Two of the three inspected repositories are React Native apps, and between them they demonstrate most of what this file warns about. The platform differs from web in ways that are easy to miss precisely because the JavaScript API looks identical.
+Apply this reference when wiring Amplitude into a React Native or Expo app. A React Native app is exposed to most of what this file warns about. The platform differs from web in ways that are easy to miss precisely because the JavaScript API looks identical.
 
 Verified against [Amplitude's React Native SDK documentation](https://amplitude.com/docs/sdks/analytics/react-native/react-native-sdk) on **2026-08-02**.
 
@@ -26,7 +26,7 @@ AsyncStorage belongs in `dependencies`, not `devDependencies`. It is a runtime r
 
 The honest caveat: React Native CLI autolinking scans **both** `dependencies` and `devDependencies`, so the wrong placement usually still links the native module and usually still works. That is what makes it a slow-burning defect rather than an outage — it is one `--omit=dev` install or one bundler-pruning change away from silent in-memory identity.
 
-> **Found in `axross/porousel`**: `@react-native-async-storage/async-storage` is declared in `devDependencies`. Very likely working today in a normal EAS build; filed as `axross/porousel#4` as a correctness problem rather than a live outage.
+> **Observed failure mode**: `@react-native-async-storage/async-storage` is declared in `devDependencies`. Very likely working today in a normal EAS build, so a correctness problem rather than a live outage.
 
 **Guidelines:**
 

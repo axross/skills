@@ -28,8 +28,10 @@ qualified [Amp thread route](./amp-execution.md).
 Apply Loop's [review-workflow contract](../../skills/loop-engineering/references/review-workflow.md)
 for context independence, required materials, direct PR publication and cleanup.
 The assignment selects `REVIEW.md` and the applicable review practices. The
-thread's workspace starts on the project's default branch, so direct it to fetch
-the PR's base/head material rather than review that initial checkout.
+thread's workspace starts on the project's default branch, so direct it to read
+the PR's head material as data by retrieving it at the head revision, without
+checking out or executing the head, rather than review that initial checkout.
+That is an instruction to the child; this repository does not enforce it.
 
 Publication uses the qualified GitHub channel and REVIEW.md's Amp arrangement:
 a non-gating `COMMENT` review with the repository's agent attribution.
@@ -52,6 +54,20 @@ The workflow answers repository owners, members, and collaborators only. An
 outside contributor's request is a no-op. The trigger uses phrase containment,
 so a comment carrying the phrase alongside other text still fires it — which is
 why the request is posted as a comment of its own.
+
+The job checks out the default-branch ref (the base for a pull request into it)
+and never the pull request's head, so head files are not on the runner's disk.
+The workflow's `contents: read` limits only the workflow token. The action
+exchanges it for a Claude GitHub App installation token whose permissions the
+App installation sets (the action documents contents as read and write), so the
+workflow does not by itself stop the reviewer's shell from pushing. With broad
+`Bash`, nothing in the workflow stops it fetching, checking out or running the
+head either. The rule that it read head material only by read-only retrieval and
+never execute the head reaches it through `REVIEW.md`, which makes the rule
+instruction-level, not enforced by the workflow. A reviewer run against a
+default branch whose `REVIEW.md` predates the rule is not bound by it. This
+falls short of Code Review's posted-review policy rule against granting the
+reviewer contents write access, which the workflow change owns.
 
 The Claude route is inert until an operator installs the
 [Claude GitHub App](https://github.com/apps/claude) and adds the

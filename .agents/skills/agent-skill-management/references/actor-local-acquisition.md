@@ -94,7 +94,8 @@ checklist of calls already made.
 
 ## Acquisition and output assessment
 
-Full acquisition does not prove that an output follows the supplied rules.
+Full acquisition proves neither that an output follows the supplied rules nor
+permission to mutate.
 Unknown acquisition does not by itself prove a concrete output violation.
 Those questions need their own observations and the active task's assessment
 owner. Contributor verification generates evidence; internal review judges the
@@ -106,3 +107,30 @@ change; quality assurance judges whether that evidence is adequate.
 - MUST consult code-review practices, where present, when a controlled internal reviewer assesses whether a change follows applicable rules and currently valid exceptions. Contributor verification does not replace that assessment. If that owner is absent, name the unperformed assessment rather than infer conformity from acquisition.
 - MUST consult verification-evidence assessment practices, where present, when judging evidence sufficiency, including whether a check can distinguish correct from incorrect output. If that owner is absent, name the assessment limit rather than inventing a QA gate.
 - MUST NOT turn internal acquisition correspondence or coverage into a demand for affirmative load or per-check attestations when completing post-push review (review of the opened pull request by someone other than the author); the applicable review-completion contract remains its owner.
+
+## Skill-Acquisition Safeguards
+
+A safeguard is a mechanism that observes or refuses a controlled internal
+actor's mutation based on its acquisition state. This skill owns how a safeguard
+is qualified and the authorization it needs first; project policy and host
+operations own its activation and mechanics. A safeguard covers only the
+controlled internal actors that the scope paragraph at the top names.
+
+**Example:**
+
+> A project proposes a refusal that blocks an implementer's edits until its
+> acquisition record is current. The human authorizes the safeguard before the
+> contained trial. The trial runs in a session against a disposable target,
+> shows that refusal lifts after full acquisition and that reads for recovery
+> still work, and sets an expiry. Activating it in any wider scope needs its own
+> verified trial and the human's separate authorization; until then, the
+> refusal stays inactive everywhere else.
+
+**Guidelines:**
+
+- MUST NOT activate a safeguard without the human's separate authorization for it.
+- MUST preserve the actor's normal permissions and recovery reads.
+- MUST qualify observation and refusal in independently contained trials using disposable targets, and keep every unverified scope inactive.
+- MUST NOT let observation interfere with valid work.
+- MUST base refusal on actor-local evidence current through the mutation, reject incomplete acquisition, and permit valid work once acquisition is full.
+- MUST bound refusal to the verified scope and duration, with independent expiry or rollback after an interruption.

@@ -2,7 +2,7 @@
 
 Apply this reference when wiring login, logout, or anonymous-to-known transitions, or when deciding what a session means in your product. Identity is where Amplitude integrations do their most expensive damage: a user id set on an anonymous visitor cannot be taken back, and a missing `reset()` on logout merges two people into one profile.
 
-None of the three inspected repositories called `identify`, set a user id correctly, or reset on logout. This reference is written against that floor.
+An integration can easily never call `identify`, set a user id incorrectly, or skip the reset on logout. This reference is written against that floor.
 
 Verified against [Amplitude's user-identification documentation](https://amplitude.com/docs/get-started/identify-users) on **2026-08-02**.
 
@@ -23,7 +23,7 @@ The Amplitude ID is the one that actually counts a person. Amplitude resolves it
 - SHOULD let the SDK own the device id and MUST NOT overwrite it with `setDeviceId` unless migrating from another SDK with a recorded reason.
 - MUST respect the five-character minimum on both ids — `minIdLength` defaults to `5`, and a shorter id is rejected at ingestion rather than truncated.
 
-> **Found in `axross/aqua`**: `setUserId` is called with an anonymous identifier. Every device that has ever run the app is now one Amplitude user, and no later fix separates them.
+> **Observed failure mode**: `setUserId` is called with an anonymous identifier. Every device that has ever run the app is now one Amplitude user, and no later fix separates them.
 
 ## Login, Logout, and the Anonymous Transition
 
@@ -50,7 +50,7 @@ A session is an inactivity window, not a login. `sessionTimeout` defaults to **1
 
 Session **events** — `Start session` and `End session` — are a separate question from session _tracking_, and the default differs by platform. On the Browser SDK, `sessions` is part of autocapture and is **on** by default. On the React Native SDK, `trackingSessionEvents` defaults to **`false`**.
 
-> **Found in `axross/aqua`**: `trackingSessionEvents(true)` is set explicitly. That is a defensible choice, but it doubles the event volume attributable to sessions and nothing in the repository records why it was made.
+> **Observed failure mode**: `trackingSessionEvents(true)` is set explicitly. That is a defensible choice, but it doubles the event volume attributable to sessions and nothing in the repository records why it was made.
 
 **Guidelines:**
 
