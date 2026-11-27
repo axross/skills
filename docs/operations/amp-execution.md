@@ -93,8 +93,8 @@ returning a progress-only report. Use the purpose routes below for the action an
 [Wait for the right result](#wait-for-the-right-result) for an actual pending
 machine event.
 
-An Amp session requests post-push review through a fresh review child
-thread, per [Code Review](./code-review.md). Apply the same
+Request post-push review as [AGENTS.md](../../AGENTS.md#code-review-rules)
+selects for Amp, with setup per [Code Review](./code-review.md). Apply the same
 progression to thread creation, review execution, direct PR publication and
 thread closure. A failed launch, private reply, missing post or result from an
 older round does not complete the review. Continue from the last verified stage
@@ -292,7 +292,7 @@ schedule requests, unavailable APIs or expensive modes to prove prose.
 | Lost response after a write                                     | Inspect stored bytes and process state before any retry.                                                                       |
 | Plan changes before a child returns                             | Old result does not satisfy new approval; recover and audit it first.                                                          |
 | Review trigger exists but the run or its result does not land   | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                         |
-| Base integration produces only mechanical conflicts             | Resolve them append-only, rerun affected checks, and request review of the resulting material.                                 |
+| Base integration produces only mechanical conflicts             | Resolve them append-only and rerun affected checks; request a post-push round only where a hand-edited hunk changed content.   |
 | Conflicting edits express different intended behavior           | Return the decision to the human; do not guess or rewrite history.                                                             |
 | Existing host or post-push review route unavailable             | Report the untested path; post-push review remains unmet until obtained.                                                       |
 

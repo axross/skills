@@ -84,16 +84,12 @@ limit — either one request or the remaining requests through Loop's four-round
 [post-push round cap](../../skills/loop-engineering/references/post-push-review.md#round-cap).
 That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
-spend or retention settings, merge, release or deployment unless the human
-separately names the effect. A pull-request activity subscription is an effect
-the record may name, ended at Loop's stops. The human's explicit permission for
-a scheduled check-in, which Loop's
-[Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound)
-allows only where no subscription route exists, is recorded the same way, as a
-grant naming the check-in. Readiness publication is not one of these grant-gated effects:
-Loop's
-[Ready Gate](../../skills/loop-engineering/references/post-push-review.md#ready-gate),
-once satisfied, is its own sufficient warrant for that one effect.
+spend or retention settings, release or deployment unless the human
+separately names the effect; no grant covers merge, which stays with the human.
+A pull-request activity subscription is an effect the record may name, ended at
+Loop's stops. How a scheduled check-in's permission is recorded, and which
+effects need no grant, is stated by Loop's
+[Scoped Operation Grants](../../skills/loop-engineering/references/run-state-and-reporting.md#scoped-operation-grants).
 
 The `Review` entry records only safe correlation metadata: trigger comment ID
 and actor or durable review-thread identity, workflow run ID and attempt where
@@ -213,7 +209,7 @@ Use the following destinations after resolving the target under GitHub Operation
 | Draft/ready status and PR metadata        | The PR, never the tracking issue                                                  |
 
 [Code Review](./code-review.md) owns the selected reviewers' invocation,
-eligibility and setup, including Amp's direct review-thread publication.
+eligibility and setup.
 [REVIEW.md](../../REVIEW.md) owns severity and output policy. Delivery MUST use
 the selected invocation only when the review request and its publication
 effects are authorized; preparing a comment or assignment does not publish it.

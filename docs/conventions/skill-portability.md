@@ -35,15 +35,11 @@ waived or resolved by declaring project policy superior. Placing a declaration
 in an entry file changes neither its authority nor the active host's rules.
 
 A skill may still state exactly two things about an injected instruction,
-without naming a host tool or ranking instruction sources. First, such an
-instruction constrains mechanics and never skips or relaxes one of the skill's
-gates: where it conditions a gate-needed operation on the human's explicit
-request, the skill obtains that request at the plan gate and otherwise reports
-the gate unmet. Second, it does not extend the skill's own stop conditions: a
-run still ends at ready, the round cap or the waiting bound, and reports an
-injected keep-until-merge condition as unmet. [Injected Instructions and
+without naming a host tool or ranking instruction sources: that it constrains
+mechanics and never skips or relaxes one of the skill's gates, and that it does
+not extend the skill's own stop conditions. [Injected Instructions and
 Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates)
-is the instance in this library.
+is the instance in this library and owns the conditions of each.
 
 Non-code deliverable review belongs to conduct's output-quality practice, including read-only requests. It does not by itself enroll those requests in the change loop; eligible reviewer mechanisms still follow host guidance.
 

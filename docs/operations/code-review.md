@@ -7,9 +7,7 @@ description: How to invoke a reviewer on each host and verify that the reviewer 
 # Code Review
 
 [AGENTS.md](../../AGENTS.md#code-review-rules) states which post-push review
-route each session host uses; Amp's route is a fresh review child thread that
-publishes to the PR. Every route works from the created PR.
-[`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
+route each session host uses. [`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
 contract; this document owns each provider's invocation, setup, and failure
 handling.
 
@@ -19,9 +17,9 @@ handling.
 | Codex        | `chatgpt-codex-connector[bot]`                                        | The Codex GitHub integration, configured outside this repository        |
 | Amp          | The review thread's permitted GitHub identity, with agent attribution | A separately qualified Amp thread                                       |
 
-A route that fails or is unavailable grants no automatic fallback to another.
-If the route the session's host selects cannot be obtained and no human
-explicitly replaces it, record the unmet post-push review gate.
+A route that fails or is unavailable leaves the post-push review gate unmet, as
+[Review Terms](../../skills/loop-engineering/references/review-workflow.md#review-terms)
+defines.
 
 ## Run the Amp reviewer
 

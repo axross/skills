@@ -95,8 +95,7 @@ owns the rules for waiting. This section names the subscription routes that
 exist in Claude Code and how each is ended, and states none of those rules
 again.
 
-Resolve the subscription route **before waiting**. Two routes exist in Claude
-Code:
+Two subscription routes exist in Claude Code:
 
 | Subscription route                               | What it gives                                                        | What it misses                                                                                                  |
 | ------------------------------------------------ | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |

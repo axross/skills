@@ -114,14 +114,9 @@ and fresh-review loop; resuming that loop does not replay pre-push review.
 
 [AGENTS.md](../../AGENTS.md#code-review-rules) states this repository's
 post-push review route for each host. [Code Review](./code-review.md) owns each
-provider's setup and invocation. Every route reviews the created PR; the
-pre-push review checkpoint above remains unchanged and satisfies none of this
-gate.
-
-A failed or unavailable route grants no automatic fallback to another. If the
-route the session's host selects is unavailable and no human explicitly replaces
-it, record the unmet post-push review gate. Self-review and local checks do not
-satisfy it.
+provider's setup and invocation. An unavailable route leaves the gate unmet, as
+[Review Terms](../../skills/loop-engineering/references/review-workflow.md#review-terms)
+defines.
 
 <a id="github-delivery-during-migration"></a>
 
