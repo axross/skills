@@ -73,8 +73,7 @@ below is optional; adopting a deviation never depends on it.
 - MAY keep a register using the exception-record fields above, one entry per deviation.
 - MUST give each entry a status: Active for an adopted deviation that is still valid under the rules above, or Resolved for one that was fixed, withdrawn or expired.
 - SHOULD keep an index of the Active entries, so a reader finds the deviations in force without reading resolved ones.
-- MUST NOT treat a departure from an installed rule as authorized because a register entry exists; the entry's adoption, scope and assumptions must still hold.
-- MUST treat a departure that no Active entry lists as a finding only where the project declares its register exhaustive; otherwise the entry's absence changes nothing, and the departure is judged under the validity rules above.
+- MUST, where the project declares its register exhaustive, treat a departure that no Active entry lists as a finding; otherwise judge an unlisted departure under the validity rules above.
 
 ## Publish a third-party proposal only with permission
 
