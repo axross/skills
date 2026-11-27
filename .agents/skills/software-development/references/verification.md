@@ -142,7 +142,7 @@ Static inspection, web rendering, a simulator or emulator exercise and a physica
 - MUST recheck affected claims after relevant integration changes; evidence for an earlier contribution is not current merely because that contribution was accepted.
 - MUST distinguish the four tiers — static inspection, web rendering, simulator or emulator exercise, physical-device exercise — and post-push review (review of the opened pull request by someone other than the author) completion; none establishes an unobserved property or platform by implication.
 
-When evidence sufficiency is in question, consult the project's verification-evidence assessment practices where present. Without that optional owner, retain these claim limits rather than invent a QA gate. When preparing fresh review input or assessing posted completion, consult the project's review and change-loop practices where present; contributor observations do not replace original material and requirements with an author verdict map, or require external reviewers to enumerate successful skill loads or checks.
+When evidence sufficiency is in question, consult the project's verification-evidence assessment practices where present. Without that optional owner, retain these claim limits rather than invent a QA gate. When preparing fresh review input or assessing posted completion, consult the project's review and change-loop practices where present; contributor observations do not replace original material and requirements with an author verdict map, or require post-push reviewers to enumerate successful skill loads or checks.
 
 ## Contrasting Checks
 

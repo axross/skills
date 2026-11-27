@@ -673,7 +673,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].floorObligations).toBe(13);
       expect.soft(tiers[1].floorTokens).toBe(3_604);
       expect.soft(tiers[1].ceilingObligations).toBe(346);
-      expect.soft(tiers[1].ceilingTokens).toBe(35_962);
+      expect.soft(tiers[1].ceilingTokens).toBe(35_963);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(6_424);
