@@ -55,12 +55,13 @@ outside contributor's request is a no-op. The trigger uses phrase containment,
 so a comment carrying the phrase alongside other text still fires it — which is
 why the request is posted as a comment of its own.
 
-The job checks out the base (default-branch) ref and never the pull request's
-head, so head files are not on the runner's disk. The reviewer holds broad
-`Bash` with `contents: read`, so it can reach head material only by read-only
-retrieval. The rule that it retrieve that way and never execute the head
-reaches it through `REVIEW.md`, which makes the rule instruction-level, not
-enforced by the workflow. A reviewer run against a default branch whose
+The job checks out the default-branch ref (the base for a pull request into it)
+and never the pull request's head, so head files are not on the runner's disk.
+The reviewer holds broad `Bash`, so nothing in the workflow stops it fetching,
+checking out or running the head; `contents: read` only keeps it from pushing.
+The rule that it read head material only by read-only retrieval and never
+execute the head reaches it through `REVIEW.md`, which makes the rule
+instruction-level, not enforced by the workflow. A reviewer run against a default branch whose
 `REVIEW.md` predates the rule is not bound by it.
 
 The Claude route is inert until an operator installs the

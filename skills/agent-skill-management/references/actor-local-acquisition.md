@@ -122,8 +122,9 @@ controlled internal actors that the scope paragraph at the top names.
 > acquisition record is current. The human authorizes the safeguard before the
 > contained trial. The trial runs in a session against a disposable target,
 > shows that refusal lifts after full acquisition and that reads for recovery
-> still work, and sets an expiry. The human separately authorizes any wider
-> scope; until then, the refusal stays inactive everywhere else.
+> still work, and sets an expiry. Activating it in any wider scope needs its own
+> verified trial and the human's separate authorization; until then, the
+> refusal stays inactive everywhere else.
 
 **Guidelines:**
 
