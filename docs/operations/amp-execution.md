@@ -207,14 +207,14 @@ owns retries and approval invalidation, not the tool chosen to stop work.
 
 Process, child, thread, CI and human completion are different events:
 
-| Awaited result         | Amp route and completion check                                                                                                                                                        |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell command          | Follow the returned PID with `shell_command_status`; check exit status and output. A tool wait timeout does not stop the process.                                                     |
-| Task                   | Inspect its final result and actual evidence; a partial result is not a finished change.                                                                                              |
-| Thread, reply path     | Ask the child to reply and continue independent work. Do not also call `wait_for_threads` for that child.                                                                             |
-| Thread, join path      | Do not request a reply; use `wait_for_threads` only when progress depends on the result. Inspect status/content afterward: idle, approval-waiting or error is not proof of success.   |
-| CI or post-push review | Use a subscription route when one exists, as below; on each wake read checks and review evidence through the permitted GitHub route. A successful trigger is not a successful review. |
-| Human decision         | Ask and end the turn; never poll for human approval.                                                                                                                                  |
+| Awaited result         | Amp route and completion check                                                                                                                                                                                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell command          | Follow the returned PID with `shell_command_status`; check exit status and output. A tool wait timeout does not stop the process.                                                                                                                                      |
+| Task                   | Inspect its final result and actual evidence; a partial result is not a finished change.                                                                                                                                                                               |
+| Thread, reply path     | Ask the child to reply and continue independent work. Do not also call `wait_for_threads` for that child.                                                                                                                                                              |
+| Thread, join path      | Not for a Loop wait, which uses the reply path under Waiting Bound. Elsewhere, do not request a reply; use `wait_for_threads` only when progress depends on the result, and inspect status/content afterward: idle, approval-waiting or error is not proof of success. |
+| CI or post-push review | Use a subscription route when one exists, as below; on each wake read checks and review evidence through the permitted GitHub route. A successful trigger is not a successful review.                                                                                  |
+| Human decision         | Ask and end the turn; never poll for human approval.                                                                                                                                                                                                                   |
 
 Use expected-duration waits on a tracked process, not repeated tiny status
 checks. `shell_command_kill` is

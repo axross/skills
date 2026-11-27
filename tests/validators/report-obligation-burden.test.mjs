@@ -635,15 +635,6 @@ describe("report-obligation-burden.mjs", () => {
       // moves by two, adding one reporting.md bullet in
       // `professional-behavior`, which also lifts the every-session tier; its
       // SKILL.md routing bullet widens by bytes, not obligations.
-      // issue #768 replaces Loop's review vocabulary with plan, pre-push and
-      // post-push review, rewrites waiting to subscription-first, and adds
-      // injected-instruction, delivery-default and delegation-matrix rules.
-      // Floor obligations do not move: Loop's `SKILL.md` edits reword
-      // descriptive prose and routing bullets, so floor tokens rise by 180
-      // (6,121 to 6,301). The ceiling moves by fifteen obligations (604 to
-      // 619), all in `loop-engineering`, and by 2,836 tokens (61,474 to
-      // 64,310), which include 14 and 15 from the inline gloss added to one
-      // `professional-behavior` and one `software-development` reference.
 
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(6_301);
