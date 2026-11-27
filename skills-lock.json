@@ -9,7 +9,7 @@
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "60acf5ad45d32043262f9c8b34cf17a7127a00c40a127efbcbfcabc44eb367e8"
+      "computedHash": "c1b7f139e9da7d163f817dd830b75e5a5532f31806d3edf4ba96bade0e65a84f"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "e5e95ba45c7246fffb1744c07cf99a6366a542b742b2924aeba1d8eb2196a03e"
+      "computedHash": "9ace60d8ef7ec2a630a809c931c6153e481566824eb92d7154572f2746c35f65"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "8f6ef0b0b5362ac95133a5a8d52c9d585bd90422f44b1b3b3ed025c345973f91"
+      "computedHash": "fa0018ec787d7c4d7e56e314c4e3ba3db1f654a7c4d6c928050f3600f9b8b4da"
     },
     "next-app-development": {
       "source": "./skills",

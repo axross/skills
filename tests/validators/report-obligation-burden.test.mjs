@@ -638,17 +638,19 @@ describe("report-obligation-burden.mjs", () => {
       // issue #769 leaves the floor obligations unchanged; the token rise comes
       // from the asking-the-human prose, the professional-behavior routing
       // bullet and, in `loop-engineering`, three descriptive SKILL.md routing
-      // bullets (one added, two widened), which move bytes only. Its added unchecked-scope rule adds four
-      // Guidelines bullets to post-push-review.md's Review Completion
-      // Evidence, so the ceiling moves by four to 623; the three lighter tiers
-      // are unchanged. The review-workflow.md and run-state-and-reporting.md
-      // edits extend existing bullets.
-      // totals: 30,500 floor bytes and 310,288 ceiling bytes.
+      // bullets (one added, two widened), which move bytes only. Its added
+      // unchecked-scope rule adds four Guidelines bullets to
+      // post-push-review.md's Review Completion Evidence, so the ceiling
+      // moves by four to 623; the two lighter tiers keep their obligation
+      // counts (their token pins moved). The review-workflow.md,
+      // run-state-and-reporting.md and post-push-review.md scope-class edits
+      // extend existing bullets, so they move bytes only.
+      // totals: 30,500 floor bytes and 310,424 ceiling bytes.
 
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(6_408);
       expect.soft(totals.ceilingObligations).toBe(623);
-      expect.soft(totals.ceilingTokens).toBe(65_187);
+      expect.soft(totals.ceilingTokens).toBe(65_215);
     });
 
     it("reports cumulative tiers for the human-facing driver", async () => {
@@ -678,7 +680,7 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(6_408);
       expect.soft(tiers[2].ceilingObligations).toBe(623);
-      expect.soft(tiers[2].ceilingTokens).toBe(65_187);
+      expect.soft(tiers[2].ceilingTokens).toBe(65_215);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
