@@ -19,7 +19,7 @@ a gate is stated in
 [Amp Execution](./amp-execution.md) is the counterpart for Amp; neither file's
 tool names carry over to the other host. [`CLAUDE.md`](../../CLAUDE.md) owns how
 a Claude Code session meets those gates, and this file defers to it wherever the
-two overlap.
+two overlap, except the unavailable-tool and Codex cases, which stay here.
 
 **Codex reads this file too, for the instruments it shares.** A Codex session
 takes the same portable contracts and the same repository gates, and this file
@@ -85,9 +85,12 @@ on it to wait for a decision.
   forbids outright.
 - In Claude Code, plan approval is asked through `AskUserQuestion` together with
   the delivery confirmation that [`CLAUDE.md`](../../CLAUDE.md#confirming-delivery-at-the-plan-gate)
-  defines. Where the tool is absent, errors or returns no human answer, the plan
+  defines. Where the tool is absent or its usage conditions are unmet, the plan
   approval and the confirmation's other questions go in turn output, and the gate
-  ends the turn and waits for a resume. For Codex, the gate is a whole plan the
+  ends the turn and waits for a resume. A prompt that errored or returned no
+  human answer is re-presented first, and the same turn-output fallback applies
+  once [Choosing the Route](../../skills/professional-behavior/references/asking-the-human.md#choosing-the-route)'s
+  re-present rule is exhausted. For Codex, the gate is a whole plan the
   human reads at their own pace, so it ends the turn and waits for a resume until
   its instrument is established.
 - `EnterPlanMode` and `ExitPlanMode` write a local plan file. Neither satisfies

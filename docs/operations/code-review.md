@@ -69,9 +69,9 @@ whose workflow or `REVIEW.md` predates these rules is not bound by them. The two
 web tools are denied, but `Bash` can still reach the network.
 
 The workflow's `contents: read` bounds only the workflow token. The action
-exchanges it for a Claude GitHub App installation token that carries the App's
-own grant (the action documents contents as read and write), and the reviewer's
-`gh` calls use that token. The workflow therefore does not by itself prevent a
+exchanges the job's OIDC token (`id-token: write`) for a Claude GitHub App
+installation token that carries the App's own grant (the action documents
+contents as read and write), and the reviewer's `gh` calls use that token. The workflow therefore does not by itself prevent a
 push, and the prompt's rule against pushing, committing or changing repository
 contents is an instruction as well. This falls short of Code Review's
 posted-review policy rule against granting the reviewer contents write access.
