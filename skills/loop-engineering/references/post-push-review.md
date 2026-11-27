@@ -29,7 +29,7 @@ Keep policy availability, observable provider input, execution completion and pu
 
 A reviewer may report an item as not checked. Before applying the gate, the driver sorts each such item into one of three classes:
 
-- Material outside required review scope: anything the code-review practices' summary scope leaves out of required scope, such as a claim only running the delivered code could settle.
+- Material outside required review scope: anything the code-review practices' summary scope leaves out of required scope, such as a claim only running the delivered code could settle. Without that owner, treat execution-dependent verification and criteria outside the code-inspection boundary as outside required scope.
 - Reachable required material: required material the selected route could have given the reviewer.
 - Unreachable required material: required material no reviewer on the selected route can read.
 
