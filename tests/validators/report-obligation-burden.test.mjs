@@ -646,7 +646,9 @@ describe("report-obligation-burden.mjs", () => {
       // run-state-and-reporting.md and post-push-review.md scope-class edits
       // extend existing bullets, so they move bytes only. The pre-push round 1
       // fixes reword existing bullets and one reference sentence only, so
-      // they move bytes, not obligations.
+      // they move bytes, not obligations. The pre-push round 2 fixes touch
+      // code-review, agent-skill-management and agent-skill-authoring, none
+      // in the mandated set, so every pin below holds unchanged.
       // totals: 30,500 floor bytes and 310,643 ceiling bytes.
 
       expect.soft(totals.floorObligations).toBe(22);

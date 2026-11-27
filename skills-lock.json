@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "665f7b4846e5c68735b81badd3adc47abf04372f9bfe35a100955e552aeda1a6"
+      "computedHash": "ccf51dfabcd621c7225c32bf5556e6a881e8b689eb70755adf466e672c3fa35d"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "d9524b73ca6d48022450e9dee96809bb96c1f90a305efc7ae9d27ace543f3e94"
+      "computedHash": "94fe93e49588389b681c020395545584e18bd2d1e94434985902b7330c0e6128"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "f286bc019bc22c711cf46e15f7f1430b66ba51334be5a0ea125ccc1a3833501d"
+      "computedHash": "3827ba61b7612f556ccbd409c21afca1e9c712fe2893dde0a51b454d154c5aa9"
     },
     "conventional-commits": {
       "source": "./skills",

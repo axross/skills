@@ -103,7 +103,7 @@ An automated reviewer triggered from pull-request activity is an attack surface:
 
 **Guidelines:**
 
-- MUST run the reviewer against the diff read through the platform API with the **base** ref checked out for context, and MUST NOT check out or execute the untrusted head — a checkout places the head's instruction files where the host may load them; read head content as data by read-only retrieval that writes none of its files to disk, as [Review Scoping](./scoping.md#reading-surrounding-context) sets out.
+- MUST run the reviewer against the diff read through the platform API with the **base** ref checked out for context, and MUST NOT check out or execute the untrusted head — a checkout places the head's instruction files where the host may load them; read head content as data by read-only retrieval that materializes no file of the reviewed revision anywhere on disk (reading through the version-control object store or to standard output is not such a write) (what to read is in [Review Scoping](./scoping.md#reading-surrounding-context)).
 - MUST scope the reviewer's credentials to the least privilege it needs — read code, write review comments — and never grant it write access to repository contents.
 - MUST gate the trigger on a trusted author association (owner, member, or collaborator) so an untrusted commenter cannot spend the reviewer's budget or steer it.
 - MUST complete the whole review synchronously within the single triggered run and post before it ends; work deferred to a background task is lost when the run terminates.
