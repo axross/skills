@@ -28,8 +28,10 @@ qualified [Amp thread route](./amp-execution.md).
 Apply Loop's [review-workflow contract](../../skills/loop-engineering/references/review-workflow.md)
 for context independence, required materials, direct PR publication and cleanup.
 The assignment selects `REVIEW.md` and the applicable review practices. The
-thread's workspace starts on the project's default branch, so direct it to fetch
-the PR's base/head material rather than review that initial checkout.
+thread's workspace starts on the project's default branch, so direct it to read
+the PR's head material as data by retrieving it at the head revision, without
+checking out or executing the head, rather than review that initial checkout.
+That is an instruction to the child; the host does not enforce it.
 
 Publication uses the qualified GitHub channel and REVIEW.md's Amp arrangement:
 a non-gating `COMMENT` review with the repository's agent attribution.
