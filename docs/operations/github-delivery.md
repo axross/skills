@@ -86,8 +86,9 @@ That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
 spend or retention settings, release or deployment unless the human
 separately names the effect; no grant covers merge, which stays with the human.
-A pull-request activity subscription is an effect the record may name, ended at
-Loop's stops. How a scheduled check-in's permission is recorded, and which
+Loop's Waiting Bound requires a pull-request activity subscription where one
+exists; this repository records it among the grant's effects so recovery can
+re-verify it, and it ends at Loop's stops. How a scheduled check-in's permission is recorded, and which
 effects need no grant, is stated by Loop's
 [Scoped Operation Grants](../../skills/loop-engineering/references/run-state-and-reporting.md#scoped-operation-grants).
 

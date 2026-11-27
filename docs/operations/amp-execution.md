@@ -216,7 +216,8 @@ Process, child, thread, CI and human completion are different events:
 | CI or post-push review | Use a subscription route when one exists, as below; on each wake read checks and review evidence through the permitted GitHub route. A successful trigger is not a successful review. |
 | Human decision         | Ask and end the turn; never poll for human approval.                                                                                                                                  |
 
-Use expected-duration waits on a tracked process, not repeated tiny status checks. `shell_command_kill` is
+Use expected-duration waits on a tracked process, not repeated tiny status
+checks. `shell_command_kill` is
 for a demonstrably hung tracked process under its current conditions, not for
 a normal long test or a command whose tool timeout merely elapsed. Service
 shutdown follows the service lifecycle, not process-pattern killing.

@@ -8,7 +8,7 @@ This section is the single owner of the three definitions; every other file uses
 
 - **Plan review** is review of every pre-approval deliverable (investigation conclusions, plans and design options) by a reviewer in a fresh, non-author context. It runs at most 3 rounds, with no extension. [plan-review.md](./plan-review.md) owns it.
 - **Pre-push review** is review of the initial implementation after it is verified and before the first `git push`, and only then. Each round uses a fresh reviewer instance. The autonomous envelope is the initial implementation plus at most 3 rounds, with no extension. Findings return privately to the driver, which triages them. Fixes made once the pull request exists go to post-push re-review. [pre-push-review.md](./pre-push-review.md) owns it.
-- **Post-push review** is review of the pull request after it is opened. It is routed as [Post-Push Review Route](#post-push-review-route) states: an explicit override from the project's agent entry files or another applicable instruction when one exists; otherwise the fallback, in which a code-review-capable subagent is given the pull request URL, reviews per the project's `REVIEW.md` (its review policy file) and posts a review with inline comments to the pull request as a COMMENT-type review. Whatever the route, post-push review has these properties:
+- **Post-push review** is review of the pull request after it is opened. It is routed as [Post-Push Review Route](#post-push-review-route) states: an explicit override from the project's agent entry files, project documents or an applicable skill when one exists; otherwise the fallback, in which a code-review-capable subagent is given the pull request URL, reviews per the project's `REVIEW.md` (its review policy file) and posts a review with inline comments to the pull request as a COMMENT-type review. Whatever the route, post-push review has these properties:
   - It uses a fresh non-author context: non-fork, not resumed, and given no pre-push findings.
   - The reviewer, or the review service, posts its own result; the posted review is the completion evidence.
   - It allows 4 rounds, and every fix batch gets a fresh round of re-review.
@@ -21,7 +21,7 @@ The earlier terms "independent review", "external review", "advisory pre-flight"
 
 ## Select Each Checkpoint's Route
 
-An installing project can choose a route in ordinary prose in `AGENTS.md`, another applicable instruction file, project operations, or an applicable skill. No special configuration file or schema is needed. Resolve instructions through their actual source, scope and priority; a skill does not automatically outrank project instructions or vice versa. [Post-Push Review Route](#post-push-review-route) gives example sentences.
+An installing project can choose a route in ordinary prose in the project's agent entry files (such as `AGENTS.md`), project documents or an applicable skill. No special configuration file or schema is needed. Resolve instructions through their actual source, scope and priority; a skill does not automatically outrank project instructions or vice versa. [Post-Push Review Route](#post-push-review-route) gives example sentences.
 
 **Guidelines:**
 
@@ -33,7 +33,7 @@ An installing project can choose a route in ordinary prose in `AGENTS.md`, anoth
 
 ## Post-Push Review Route
 
-The route is the first of these that applies. An **override** is an explicit instruction in the project's agent entry files, project documents or an applicable skill that says how post-push review is requested. When no override applies, the **fallback** is a reviewer other than the implementation author, working in a fresh context without the author's conversation or accumulated implementation reasoning, publishing its own result through the pull request's review mechanism. A child session or thread can provide this separation even on shared infrastructure or under a shared publishing account. Those arrangements do not establish environment or account independence; a project requiring either retains that stronger condition.
+The route is the first of these that applies. An **override** is an explicit instruction in the project's agent entry files, project documents or an applicable skill that says how post-push review is requested. When no override applies, the **fallback** [Review Terms](#review-terms) defines applies; its reviewer works in a fresh context without the author's conversation or accumulated implementation reasoning. A child session or thread can provide this separation even on shared infrastructure or under a shared publishing account. Those arrangements do not establish environment or account independence; a project requiring either retains that stronger condition.
 
 Reviewing the actual pull request can expose author explanations and self-assessment. Their presence does not make them correctness evidence: the reviewer needs the actual material and applicable requirements to judge those claims. Context separation does not require hiding authorship or revision history.
 
@@ -61,9 +61,10 @@ Verified against [Codex's GitHub review documentation](https://developers.openai
 
 **Guidelines:**
 
+- MUST use the fallback, through the active host's available, permitted means, when no applicable instruction selects an override.
 - MUST, where a host example's mechanism does not match the project's, qualify an equivalent fresh-context route through the active host's available, permitted means rather than copy the example.
 - MUST qualify required material access, review purpose, publication capability and authorization before relying on a reviewer route. Shared infrastructure or account identity alone does not disqualify it unless applicable policy requires separation; a new name or model alone does not qualify it.
-- MUST give a created reviewer a neutral review assignment identifying the source/workspace, pull request, material revisions and required artifacts and policy, and have it inspect the actual pull request and acceptance-criteria projection; exclude the implementation receipt.
+- MUST give a created reviewer a neutral review assignment identifying the source/workspace, pull request, material revisions and required artifacts and policy, and have it inspect the actual pull request and acceptance-criteria projection; exclude the author's conversation, accumulated implementation reasoning, the implementation receipt and any pre-push findings, and reuse neither the implementation author nor a prior round's review context.
 - MUST preserve access to required policy, artifacts and surrounding code, and ground the review in that material and applicable requirements. Treat author explanations, claimed verdicts and self-assessed acceptance-criterion statuses as unverified claims, not evidence of correctness.
 - MUST have the reviewer return its posted result's locator. A private child reply or the parent's reposted summary is not the posted reviewer-origin result required for completion. A missing result-publication capability is an unavailable route under the definition above, and a private review cannot substitute for the required published result.
 - MUST check the current host's permitted tool contracts and, where needed, official documentation rather than assume an example's tool is installed or a nested publication route is available.

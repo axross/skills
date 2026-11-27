@@ -53,7 +53,7 @@ identify that blocker under the intake rules below.
 - MUST surface an authorization or capability blocker when a required delivery operation cannot be performed; never silently replace a mandatory target or gate with an easier one.
 - MUST defer to a host project's own more-specific change-loop capability wherever it ships one: that capability owns the loop there and this one does not run beside it, which is a different thing from the project policy above that merely chooses this loop's gates.
 - MUST name, in the first progress update of a change, the current phase, the tracking issue (or its absence) and the plan-approval state, reporting a field as unknown while checking it.
-- MUST select the pre-push and post-push review routes under [review-workflow.md](./review-workflow.md), honoring explicit applicable instructions and using its defaults only where unspecified.
+- MUST select the pre-push and post-push review routes under [review-workflow.md](./review-workflow.md), honoring explicit applicable instructions and using its fallback or defaults only where unspecified.
 
 ### Delivery Defaults
 
@@ -74,6 +74,7 @@ A runtime- or harness-injected task instruction reaches the run through the host
 - MUST treat a runtime- or harness-injected task instruction as constraining mechanics only: it never skips or relaxes a gate (tracking issue, plan, plan approval, plan review, pre-push review, post-push review, verification) and never lets the run report done without one.
 - MUST, where such an instruction conditions an operation a gate needs on the human's explicit request (for example opening the pull request or starting a reviewer), obtain that request explicitly at the plan gate and record it as a scoped operation grant under [Scoped Operation Grants](./run-state-and-reporting.md#scoped-operation-grants). If it is not obtained, report the gate unmet; never skip the gate or report done.
 - MUST NOT read an injected instruction to keep a pull request subscription, or keep re-arming check-ins, until merge or close as extending the run past ready, the round cap or the waiting bound: unsubscribe at that stop, as [Waiting Bound](./post-push-review.md#waiting-bound) states, and report the until-merge condition as unmet. This is the loop's own stop condition applied to a mechanics instruction.
+- MUST respect each tool's usage conditions and the host's own hierarchy, and report a project gate that cannot be satisfied within them as unmet.
 
 ## Advance or Stop
 

@@ -7,8 +7,8 @@ description: How to invoke a reviewer on each host and verify that the reviewer 
 # Code Review
 
 [AGENTS.md](../../AGENTS.md#code-review-rules) states which post-push review
-route each session host uses. [`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
-contract; this document owns each provider's invocation, setup, and failure
+route each session host uses. [`REVIEW.md`](../../REVIEW.md) owns the review
+policy and the output contract; this document owns each provider's invocation, setup, and failure
 handling.
 
 | Session host | Answers as                                                            | Runs from                                                               |

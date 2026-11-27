@@ -640,15 +640,15 @@ describe("report-obligation-burden.mjs", () => {
       // injected-instruction, delivery-default and delegation-matrix rules.
       // Floor obligations do not move: Loop's `SKILL.md` edits reword
       // descriptive prose and routing bullets, so floor tokens rise by 180
-      // (6,121 to 6,301). The ceiling moves by thirteen obligations (604 to
-      // 617), all in `loop-engineering`, and by 2,696 tokens (61,474 to
-      // 64,170), which include 14 and 15 from the inline gloss added to one
+      // (6,121 to 6,301). The ceiling moves by fifteen obligations (604 to
+      // 619), all in `loop-engineering`, and by 2,836 tokens (61,474 to
+      // 64,310), which include 14 and 15 from the inline gloss added to one
       // `professional-behavior` and one `software-development` reference.
 
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(6_301);
-      expect.soft(totals.ceilingObligations).toBe(617);
-      expect.soft(totals.ceilingTokens).toBe(64_170);
+      expect.soft(totals.ceilingObligations).toBe(619);
+      expect.soft(totals.ceilingTokens).toBe(64_310);
     });
 
     it("reports cumulative tiers for the human-facing driver", async () => {
@@ -677,8 +677,8 @@ describe("report-obligation-burden.mjs", () => {
 
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(6_301);
-      expect.soft(tiers[2].ceilingObligations).toBe(617);
-      expect.soft(tiers[2].ceilingTokens).toBe(64_170);
+      expect.soft(tiers[2].ceilingObligations).toBe(619);
+      expect.soft(tiers[2].ceilingTokens).toBe(64_310);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -698,7 +698,7 @@ describe("report-obligation-burden.mjs", () => {
       // in its tiers. folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
       const mandatedCeiling = tiersOf(stdout)[2].ceilingObligations;
-      expect(mandatedCeiling).toBe(617);
+      expect(mandatedCeiling).toBe(619);
       expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(mandatedCeiling);
     });
 

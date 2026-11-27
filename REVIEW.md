@@ -260,5 +260,6 @@ reviewer silence does not waive contributor verification or evidence obligations
 - MUST use **COMMENT** when submitting a formal pull-request review — never
   APPROVE or REQUEST_CHANGES — per the project's GitHub-operation
   conventions. The verdict is non-gating and merge stays the human's, but the
-  posted post-push review does gate the loop's ready transition. This verdict rule does not require a formal review object where the adopted
-  arrangement uses comments.
+  posted post-push review does gate the loop's ready transition. This verdict
+  rule does not require a formal review object where the adopted arrangement
+  uses comments.

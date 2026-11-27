@@ -36,7 +36,7 @@ This matrix applies only where [Checkpoint Qualification](#checkpoint-qualificat
 
 **Guidelines:**
 
-- MUST assign work to the actor the table names, the one exception being that a post-push reviewer posts its own review.
+- MUST assign work to the actor the table names, subject to the exceptions it states and to a post-push reviewer posting its own review.
 - MUST bound a brief or handback by its shape, never by a numeric token cap: a reader hands back its conclusion and locators, and a writer hands back the result record the [execution result contract](./implementation-package.md#execution-result) defines.
 
 ## Compatibility Preflight
