@@ -228,7 +228,8 @@ Adoption evidence follows management's
 In Claude Code the plan approval and the answers to open questions arrive as an
 `AskUserQuestion` answer in the session. The answer leaves no human-authored
 record on the tracking issue, and the operator login is shared, so the answer is
-provenance only. Each entry's adoption evidence is the maintainer's merge of the pull request that resolves
+provenance only. Each entry's adoption evidence is the maintainer's merge of
+the pull request that resolves
 [#770](https://github.com/axross/skills/issues/770), whose body lists each
 departure with its rule, counterexample and scope. Where the maintainer posts a
 comment on #770 naming the accepted departures, that comment becomes the primary
@@ -319,8 +320,8 @@ Each entry's status and the index follow the
   this repository does not.
 - **What this repository does instead:** the run subscribes only when watching
   was confirmed. When it was declined, each CI or review result becomes a human
-  wait and nothing is scheduled in its place; `CLAUDE.md` states the rule and
-  its narrow exception.
+  wait and nothing is scheduled in its place; `CLAUDE.md` states the rule, and
+  that a subagent's completion notification still resumes the run.
 - **Why:** the maintainer's policy makes watching a question put to the human at
   the plan gate, among the explicit requests the run collects there. It is not a
   skill change because the subscription tools and the plan-gate question are
@@ -409,7 +410,7 @@ Each entry's status and the index follow the
 - **Adoption evidence:** the maintainer's approval at #770's plan gate
   (provenance), confirmed by the maintainer's merge of the pull request that
   resolves #770. Origin only, not evidence here: `axross/claude-loop-template#79`
-  and `axross/claude-loop-template#80`, where the template added the file.
+  and `axross/claude-loop-template#80`, where the template adopted the same file.
 - **Reassess when:** the entry-file contract or any of the skill sections the
   five passages restate changes, or `CLAUDE.md` changes one of the passages.
 - **Status:** Active.
