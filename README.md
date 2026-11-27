@@ -195,7 +195,8 @@ once it is running in production.
 
 Catches what makes code expensive later: parts bundled into one unit that
 never belonged together, vague names, sprawling files, magic numbers, dead
-code, and abstractions reached for too early. See
+code, comments that do not earn their place, and abstractions reached for too
+early. See
 [`SKILL.md`](./skills/code-maintainability/SKILL.md).
 
 #### `application-security`
@@ -346,7 +347,8 @@ without treating synthetic controls as live adoption evidence. See
 Where a skill's source belongs, how it gets installed and refreshed, and how
 to distinguish file drift from unexpected active content. Covers same-name
 collisions and missing discovery, complete acquisition and retained text in
-controlled internal actors and recovery, plus what to do when you want to
+controlled internal actors and recovery, qualifying skill-acquisition
+safeguards, what an agent entry file carries, plus what to do when you want to
 change a skill you do not own. See
 [`SKILL.md`](./skills/agent-skill-management/SKILL.md).
 
