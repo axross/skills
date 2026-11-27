@@ -229,17 +229,12 @@ report the still-running process; reaching a Loop bound does not authorize
 `shell_command_kill` on an otherwise healthy process.
 
 Waiting on CI or post-push review follows Loop's
-[Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound):
-before waiting, check from the session's actual tools whether a subscription
-route exists for the awaited result, and use it when one does. Thread
-completion through the reply path is one; a pull-request event subscription is
-another only where the session exposes one. Where a subscription route exists,
-no scheduled check-in is armed. Only where none exists, and the user explicitly
-asked for monitoring, scheduling or later follow-up, may the session load the
-`building-schedules` skill before schedule tools; a wait cap, review request or
-available scheduler is not that permission. Do not poll inside a turn as a
-substitute: with neither route, end the turn as pending with recovery
-information. Missing cache-TTL or cost timing metrics never block otherwise
+[Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound),
+which owns the rules. In Amp, thread completion through the reply path is a
+subscription route, and a pull-request event subscription is another only where
+the session exposes one. For the no-route case that Waiting Bound permits with
+the user's explicit permission, load the `building-schedules` skill before
+schedule tools. Missing cache-TTL or cost timing metrics never block otherwise
 permitted work.
 
 ## Recover uncertain effects

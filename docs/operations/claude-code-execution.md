@@ -91,12 +91,9 @@ on it to wait for a decision.
 ## Wait for CI and post-push review
 
 [Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound)
-owns the rules: use a subscription route when one exists, schedule a check-in
-only when none does and the human explicitly permitted it, re-read state on
-every wake, end the turn as "pending" when nothing else is pending, and
-unsubscribe in the same turn at each of its three stops. This section says
-which subscription routes exist here and how each is ended, and states none of
-those rules again.
+owns the rules for waiting. This section names the subscription routes that
+exist in Claude Code and how each is ended, and states none of those rules
+again.
 
 Resolve the subscription route **before waiting**. Two routes exist in Claude
 Code:
@@ -109,25 +106,12 @@ Code:
 `subscribe_pr_activity` opens the first route and `unsubscribe_pr_activity`
 ends it; both are allowed in
 [`.claude/settings.local-example.json`](../../.claude/settings.local-example.json).
-Because the first route can miss a success transition, the reference requires a
-re-read of check, review and mergeability state on every wake, and an
-end-of-turn "pending" report when nothing else is pending.
-
-End a pull-request activity subscription through the tool that opened it, in the
-same turn as the stop. Where the session provides no subscription route, end the
-turn and report the result as pending. A scheduled check-in is the exception for
-that case alone: arm it, with the human's explicit permission, through whichever
-scheduling tool the session provides, and cancel it through that tool at the
-stop. Neither a waiting bound, a review request, a grant nor the presence of a
-scheduler supplies that permission.
-
-If injected GitHub-integration guidance asks a session to subscribe, or to keep
-re-arming a check-in, until a pull request merges or closes, subscribing is
-still the right route while the run waits, but the instruction does not extend
-the run past ready, the round cap or the waiting bound. Unsubscribe at that
-stop and report the until-merge condition as unmet, as
-[Injected Instructions and Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates)
-states.
+A worker's notification route ends with its handback. Where the session provides
+neither route, the no-route case in Waiting Bound applies; a check-in that case
+permits is armed and cancelled through whichever scheduling tool the session
+provides. Injected GitHub-integration guidance to subscribe until a pull request
+merges or closes is handled under
+[Injected Instructions and Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates).
 
 ## Choose the working location before touching files
 

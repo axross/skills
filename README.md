@@ -102,7 +102,7 @@ sign-off before it writes any code. Three defined reviews keep it honest: plan
 review of every deliverable before approval, pre-push review of the verified
 implementation before the first push, and post-push review of the opened pull
 request. Applicable instructions or skills select each review route; otherwise
-the post-push review default uses a fresh reviewer context through the host's
+the post-push review fallback uses a fresh reviewer context through the host's
 supported tools. Waits for CI and review use a subscription route where one
 exists, not self-scheduled timers. Includes Codex, Claude Code and Amp
 examples and review-session cleanup. See

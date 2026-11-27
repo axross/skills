@@ -26,14 +26,14 @@ An installing project can choose a route in ordinary prose in `AGENTS.md`, anoth
 **Guidelines:**
 
 - MUST identify applicable review instructions separately for plan review, pre-push review and post-push review, and record the selected route and its grounds in existing run state.
-- MUST follow an explicitly selected route, including one named by a single sentence or an applicable skill; use the defaults below only for what applicable instructions leave unspecified.
+- MUST follow an explicitly selected route, including one named by a single sentence or an applicable skill; use the post-push fallback below only for what applicable instructions leave unspecified.
 - MUST preserve [pre-push review's existing contract](./pre-push-review.md) and the mandatory [post-push review contract](./post-push-review.md). Pre-push review never satisfies the post-push review gate, which follows pull request creation; conflicting timing instructions require resolution, not silently moving or skipping a stage.
-- MUST keep pre-push review's existing default and checkpoint qualification when its route is unspecified; the post-push defaults below neither replace nor disable it.
-- MUST NOT silently replace an explicitly selected unavailable or failed route with a host default. Record the unmet checkpoint and seek resolution through the applicable blocker and human-decision practices.
+- MUST keep pre-push review's existing default and checkpoint qualification when its route is unspecified; the post-push fallback below neither replaces nor disables it.
+- MUST NOT silently replace an explicitly selected unavailable or failed route with the fallback or any other substitute. Record the unmet checkpoint and seek resolution through the applicable blocker and human-decision practices.
 
 ## Post-Push Review Route
 
-The route is the first of these that applies. An **override** is an explicit instruction in the project's agent entry files, project documents or an applicable skill that says how post-push review is requested. When no override applies, the **fallback** is the default: a reviewer other than the implementation author, working in a fresh context without the author's conversation or accumulated implementation reasoning, publishing its own result through the pull request's review mechanism. A child session or thread can provide this separation even on shared infrastructure or under a shared publishing account. Those arrangements do not establish environment or account independence; a project requiring either retains that stronger condition.
+The route is the first of these that applies. An **override** is an explicit instruction in the project's agent entry files, project documents or an applicable skill that says how post-push review is requested. When no override applies, the **fallback** is a reviewer other than the implementation author, working in a fresh context without the author's conversation or accumulated implementation reasoning, publishing its own result through the pull request's review mechanism. A child session or thread can provide this separation even on shared infrastructure or under a shared publishing account. Those arrangements do not establish environment or account independence; a project requiring either retains that stronger condition.
 
 Reviewing the actual pull request can expose author explanations and self-assessment. Their presence does not make them correctness evidence: the reviewer needs the actual material and applicable requirements to judge those claims. Context separation does not require hiding authorship or revision history.
 

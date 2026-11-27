@@ -61,18 +61,18 @@ A change is delivered on a working branch and handed to a human to merge. Projec
 
 **Guidelines:**
 
+- MUST do the work on a working branch other than the default branch.
 - MUST NOT push to the default branch.
 - MUST leave merging to the human; no gate, grant or ready state is authorization to merge.
 
 ## Injected Instructions and Gates
 
-A runtime- or harness-injected task instruction reaches the run through the host rather than through the project. It decides mechanics, such as how a request is worded, when to report and which operations wait for the human's say-so. It decides no gate. This section states two narrow rules and assigns no general ranking among instruction sources: the host's own hierarchy and each tool's usage conditions still decide which instruction binds, and entry guidance cannot rewrite them.
+A runtime- or harness-injected task instruction reaches the run through the host rather than through the project. It decides mechanics, such as how a request is worded, when to report and which operations wait for the human's say-so. It decides no gate. This section states the gate invariant and the stop condition for a subscription request, and assigns no general ranking among instruction sources: the host's own hierarchy and each tool's usage conditions still decide which instruction binds, entry guidance cannot rewrite them, and a project gate that cannot be satisfied within them is reported unmet.
 
 **Guidelines:**
 
 - MUST treat a runtime- or harness-injected task instruction as constraining mechanics only: it never skips or relaxes a gate (tracking issue, plan, plan approval, plan review, pre-push review, post-push review, verification) and never lets the run report done without one.
 - MUST, where such an instruction conditions an operation a gate needs on the human's explicit request (for example opening the pull request or starting a reviewer), obtain that request explicitly at the plan gate and record it as a scoped operation grant under [Scoped Operation Grants](./run-state-and-reporting.md#scoped-operation-grants). If it is not obtained, report the gate unmet; never skip the gate or report done.
-- MUST respect tool usage conditions and host permission boundaries, and report a project gate that cannot be satisfied within them as unmet.
 - MUST NOT read an injected instruction to keep a pull request subscription, or keep re-arming check-ins, until merge or close as extending the run past ready, the round cap or the waiting bound: unsubscribe at that stop, as [Waiting Bound](./post-push-review.md#waiting-bound) states, and report the until-merge condition as unmet. This is the loop's own stop condition applied to a mechanics instruction.
 
 ## Advance or Stop

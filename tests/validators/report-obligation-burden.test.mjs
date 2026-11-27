@@ -644,11 +644,15 @@ describe("report-obligation-burden.mjs", () => {
       // in `loop-engineering`, and by 3,122 tokens: 3,093 in
       // `loop-engineering`, plus 14 and 15 from the inline gloss added to one
       // `professional-behavior` and one `software-development` reference.
+// pre-push review round 1 then folds three post-push round and conflict
+// bullets into one pointer, drops a repeated tool-usage bullet, adds the
+// working-branch delivery default and turns one grant-recording bullet into a
+// pointer: the ceiling falls to 623 obligations and rises to 64,637 tokens.
 
       expect.soft(totals.floorObligations).toBe(22);
       expect.soft(totals.floorTokens).toBe(6_424);
-      expect.soft(totals.ceilingObligations).toBe(626);
-      expect.soft(totals.ceilingTokens).toBe(64_596);
+      expect.soft(totals.ceilingObligations).toBe(623);
+      expect.soft(totals.ceilingTokens).toBe(64_637);
     });
 
     it("reports cumulative tiers for the human-facing driver", async () => {
@@ -673,12 +677,12 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[1].floorObligations).toBe(13);
       expect.soft(tiers[1].floorTokens).toBe(3_604);
       expect.soft(tiers[1].ceilingObligations).toBe(346);
-      expect.soft(tiers[1].ceilingTokens).toBe(35_963);
+      expect.soft(tiers[1].ceilingTokens).toBe(35_964);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
       expect.soft(tiers[2].floorTokens).toBe(6_424);
-      expect.soft(tiers[2].ceilingObligations).toBe(626);
-      expect.soft(tiers[2].ceilingTokens).toBe(64_596);
+      expect.soft(tiers[2].ceilingObligations).toBe(623);
+      expect.soft(tiers[2].ceilingTokens).toBe(64_637);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -698,7 +702,7 @@ describe("report-obligation-burden.mjs", () => {
       // in its tiers. folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
       const mandatedCeiling = tiersOf(stdout)[2].ceilingObligations;
-      expect(mandatedCeiling).toBe(626);
+      expect(mandatedCeiling).toBe(623);
       expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(mandatedCeiling);
     });
 

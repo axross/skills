@@ -86,11 +86,11 @@ That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
 spend or retention settings, merge, release or deployment unless the human
 separately names the effect. A pull-request activity subscription is an effect
-the record may name, ended at Loop's stops. A scheduled check-in is not a
-grant-gated effect: Loop's
+the record may name, ended at Loop's stops. The human's explicit permission for
+a scheduled check-in, which Loop's
 [Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound)
-allows one only where no subscription route exists and the human explicitly
-permitted it. Readiness publication is not one of these grant-gated effects:
+allows only where no subscription route exists, is recorded the same way, as a
+grant naming the check-in. Readiness publication is not one of these grant-gated effects:
 Loop's
 [Ready Gate](../../skills/loop-engineering/references/post-push-review.md#ready-gate),
 once satisfied, is its own sufficient warrant for that one effect.
@@ -132,7 +132,7 @@ that now, and one record the human can read beats two neither is complete.
 
 **Guidelines:**
 
-- MUST publish one `<!-- ai-agent -->` PR comment for each informed decline when that effect is authorized, identifying it as deferred pre-push handoff evidence rather than canonical requirements or review input.
+- MUST publish one `<!-- ai-agent -->` PR comment per post-round-3 disposition, covering every finding the human declined, when that effect is authorized, identifying it as deferred pre-push handoff evidence rather than canonical requirements or review input.
 - MUST retain in that comment the pre-push round and reviewed material identity; each finding's ID, severity, citation, substance, suggested fix and `deferred` disposition; the decision reason and supporting evidence; and locators for the human decision and the tracking Issue.
 - MUST preserve corrections in later marked comments rather than overwriting the evidence the human already received.
 - MUST keep compact handoff status and locators in the PR's state block, so a resumed run finds the record without reading every comment.
