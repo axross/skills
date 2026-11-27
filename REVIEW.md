@@ -71,9 +71,10 @@ changed files, subject to Code Review's acceptance-criteria finding boundary.
 
 **Guidelines:**
 
-- MUST label as Important a violation of a MUST rule belonging to any skill
-  whose `description` matches the changed files, citing the skill and the
-  rule.
+- MUST label as Important a violation of a hard project rule whatever its
+  internal tier, citing the skill and the rule
+  ([Code Review](.claude/skills/code-review/SKILL.md)'s posted-review policy
+  owns the rule).
 
 ## Repository Severity Floors
 
@@ -170,15 +171,14 @@ The former entry-file review reminders route to their existing detailed owners:
 - For numbers in prose, apply [Marked Counts](docs/conventions/marked-counts.md).
   Verify an unmarked changed count by hand rather than assuming CI checks it.
 
-[Code Review](.claude/skills/code-review/SKILL.md)'s
-[Review Scoping](.claude/skills/code-review/SKILL.md#review-scoping) section
-(see [scoping.md](.claude/skills/code-review/references/scoping.md)'s Boundary
-Claims section) requires checking every boundary claim a change makes against
-the neighbour it names — opening owners and scope-overlapping neighbours
-alike, with a file's being outside the diff no exemption. In this repository
-the units it governs are skills and their reference files, and the boundary
-text is the deferral prose: a routing bullet's "See `x.md` for:" list, or a
-sentence citing another skill instead of restating its rule.
+MUST check every boundary claim against the neighbour it names, opening owners
+and scope-overlapping units even outside the diff
+([Code Review](.claude/skills/code-review/SKILL.md)'s Boundary Claims, in
+[scoping.md](.claude/skills/code-review/references/scoping.md), owns the
+rule). In this repository the units that check governs are skills and their
+reference files, and the boundary text is the deferral prose: a routing
+bullet's "See `x.md` for:" list, or a sentence citing another skill instead of
+restating its rule.
 
 ## Do Not Report
 
@@ -263,3 +263,6 @@ reviewer silence does not waive contributor verification or evidence obligations
   posted post-push review does gate the loop's ready transition. This verdict
   rule does not require a formal review object where the adopted arrangement
   uses comments.
+- MUST NOT include any review service's trigger phrase in reviewer-authored
+  prose; accepted provider-native boilerplate is outside this rule
+  ([Code Review](.claude/skills/code-review/SKILL.md) owns the rule).
