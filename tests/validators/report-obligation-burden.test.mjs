@@ -644,11 +644,8 @@ describe("report-obligation-burden.mjs", () => {
       // moves by four to 623; the two lighter tiers keep their obligation
       // counts (their token pins moved). The review-workflow.md,
       // run-state-and-reporting.md and post-push-review.md scope-class edits
-      // extend existing bullets, so they move bytes only. The pre-push round 1
-      // fixes reword existing bullets and one reference sentence only, so
-      // they move bytes, not obligations. The pre-push round 2 fixes touch
-      // code-review, agent-skill-management and agent-skill-authoring, none
-      // in the mandated set, so every pin below holds unchanged.
+      // extend existing bullets, so they move bytes only, as do the later
+      // rewordings of existing bullets and one reference sentence.
       // totals: 30,500 floor bytes and 310,643 ceiling bytes.
 
       expect.soft(totals.floorObligations).toBe(22);

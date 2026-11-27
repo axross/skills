@@ -11,7 +11,7 @@ This reference carries placeholders only; each project supplies its own values.
 
 An entry file carries six items. Items 2 to 6 have a canonical line, shown
 below with placeholders for the project's own values; item 1 is project-specific
-routing, so it has none. Items 4 and 5 read as one sentence.
+routing, so it has none. Items 3 to 5 read as one passage.
 
 **Example:**
 

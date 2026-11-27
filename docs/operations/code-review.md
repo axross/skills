@@ -57,12 +57,17 @@ why the request is posted as a comment of its own.
 
 The job checks out the default-branch ref (the base for a pull request into it)
 and never the pull request's head, so head files are not on the runner's disk.
-The reviewer holds broad `Bash`, so nothing in the workflow stops it fetching,
-checking out or running the head; `contents: read` only keeps it from pushing.
-The rule that it read head material only by read-only retrieval and never
-execute the head reaches it through `REVIEW.md`, which makes the rule
-instruction-level, not enforced by the workflow. A reviewer run against a default branch whose
-`REVIEW.md` predates the rule is not bound by it.
+The workflow's `contents: read` limits only the workflow token. The action
+exchanges it for a Claude GitHub App installation token whose permissions the
+App installation sets (the action documents contents as read and write), so the
+workflow does not by itself stop the reviewer's shell from pushing. With broad
+`Bash`, nothing in the workflow stops it fetching, checking out or running the
+head either. The rule that it read head material only by read-only retrieval and
+never execute the head reaches it through `REVIEW.md`, which makes the rule
+instruction-level, not enforced by the workflow. A reviewer run against a
+default branch whose `REVIEW.md` predates the rule is not bound by it. This
+falls short of Code Review's posted-review policy rule against granting the
+reviewer contents write access, which the workflow change owns.
 
 The Claude route is inert until an operator installs the
 [Claude GitHub App](https://github.com/apps/claude) and adds the
