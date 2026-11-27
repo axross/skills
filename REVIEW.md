@@ -56,7 +56,7 @@ reviewer-origin result correlated with the request and reviewed material is
 still required. Explicit unchecked required material, outstanding findings,
 fresh-review requirements, contributor evidence and all other readiness gates
 remain governed by
-[Loop Engineering](skills/loop-engineering/references/independent-review.md).
+[Loop Engineering](skills/loop-engineering/references/post-push-review.md#review-completion-evidence).
 
 ## Severity Vocabulary for Posted Reviews
 
@@ -252,13 +252,14 @@ not mistaken for CI-covered:
 section owns default reporting, subject to the
 [adopted arrangements](#adopted-review-arrangements) above. Completion and
 readiness follow
-[Loop Engineering](skills/loop-engineering/references/independent-review.md);
+[Loop Engineering](skills/loop-engineering/references/post-push-review.md);
 reviewer silence does not waive contributor verification or evidence obligations.
 
 **Guidelines:**
 
 - MUST use **COMMENT** when submitting a formal pull-request review — never
   APPROVE or REQUEST_CHANGES — per the project's GitHub-operation
-  conventions; the external reviewer is advisory and does not gate merges.
-  This verdict rule does not require a formal review object where the adopted
-  arrangement uses comments.
+  conventions. The verdict is non-gating and merge stays the human's, but the
+  posted post-push review does gate the loop's ready transition. This verdict
+  rule does not require a formal review object where the adopted arrangement
+  uses comments.

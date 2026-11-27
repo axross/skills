@@ -6,21 +6,20 @@ description: How to invoke a reviewer on each host and verify that the reviewer 
 
 # Code Review
 
-This repository selects post-PR independent review by the authoring session's
-host. Codex and Claude Code request hosted reviews; Amp uses a fresh review
-child thread that publishes to the PR. Every route works from the created PR.
-[`REVIEW.md`](../../REVIEW.md) owns the review policy and the output
-contract; this document owns invocation, setup, and failure handling.
+[AGENTS.md](../../AGENTS.md#code-review-rules) states which post-push review
+route each session host uses. [`REVIEW.md`](../../REVIEW.md) owns the review
+policy and the output contract; this document owns each provider's invocation, setup, and failure
+handling.
 
-| Session host | Trigger                   | Answers as                                                            | Runs from                                                               |
-| ------------ | ------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Claude Code  | `@claude review`          | `claude[bot]`                                                         | [`claude-review.yaml`](../../.github/workflows/claude-review.yaml) here |
-| Codex        | `@codex review`           | `chatgpt-codex-connector[bot]`                                        | The Codex GitHub integration, configured outside this repository        |
-| Amp          | Fresh review child thread | The review thread's permitted GitHub identity, with agent attribution | A separately qualified Amp thread                                       |
+| Session host | Answers as                                                            | Runs from                                                               |
+| ------------ | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Claude Code  | `claude[bot]`                                                         | [`claude-review.yaml`](../../.github/workflows/claude-review.yaml) here |
+| Codex        | `chatgpt-codex-connector[bot]`                                        | The Codex GitHub integration, configured outside this repository        |
+| Amp          | The review thread's permitted GitHub identity, with agent attribution | A separately qualified Amp thread                                       |
 
-A route that fails or is unavailable grants no automatic fallback to another.
-If the route the session's host selects cannot be obtained and no human
-explicitly replaces it, record the unmet independent-review gate.
+A route that fails or is unavailable leaves the post-push review gate unmet, as
+[Review Terms](../../skills/loop-engineering/references/review-workflow.md#review-terms)
+defines.
 
 ## Run the Amp reviewer
 
@@ -46,7 +45,8 @@ Comment `@claude review` on a pull request to run
 is that pull request, and the reviewer reads `REVIEW.md` as its
 highest-priority review policy. Completion consists of severity-tagged inline
 findings with `file:line` evidence and concrete fixes, plus one summary comment.
-The review is advisory and never posts an approval or request-changes verdict.
+The review never posts an approval or request-changes verdict; the posted
+review gates the loop's ready transition, and merge stays with the maintainer.
 
 The workflow answers repository owners, members, and collaborators only. An
 outside contributor's request is a no-op. The trigger uses phrase containment,
@@ -127,7 +127,7 @@ For a representative authorized draft review, maintainers MUST:
    successful CI or trigger reaction alone is not a completed review.
 3. Inspect original findings, explicit limitations and result correlation
    against REVIEW.md's adopted arrangement. Apply
-   [Loop Engineering's review-completion boundary](../../skills/loop-engineering/references/independent-review.md)
+   [Loop Engineering's review-completion boundary](../../skills/loop-engineering/references/post-push-review.md#review-completion-evidence)
    rather than requiring affirmative assertions for every successful check,
    custom labels, a formal review object, a zero tally or a boilerplate-free
    summary. Do not translate priorities or manufacture a compliant tally.

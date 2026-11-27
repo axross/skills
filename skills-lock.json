@@ -4,12 +4,12 @@
     "agent-skill-authoring": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "51135506205f8c614595fbe3309fd305df28a5e8482a2243256baa452005e4a0"
+      "computedHash": "c2efd3b992628325f731c744f25e801ad525a98d66647916abe798895556d097"
     },
     "agent-skill-management": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "c8b83d75ee41c19812637d8d809d38df7ba8a9b95f789bd862d67cec263a29b8"
+      "computedHash": "cc2479022ffdef4f6ac36898e16e9c04a3da67fb4a15718ebf7e339d02d6a36d"
     },
     "amplitude-instrumentation": {
       "source": "./skills",
@@ -29,7 +29,7 @@
     "code-review": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5230e49e32f590d54d7569dc3a92b66b6c0a611e45f1dee12035f7262abb3c90"
+      "computedHash": "2e26b8395ffd66ee3eca1b70a19811e499f8922cc97a5e02fa75ffb3fff5ca3c"
     },
     "conventional-commits": {
       "source": "./skills",
@@ -49,7 +49,7 @@
     "github-operation": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "5ab9348695a2820d5a1b4afaaacc1b8f75e32f6005b55af0221dc6c3a57a6af9"
+      "computedHash": "81e179dd25a20ce1aebedaaa490d646b41ee8120c7f264a0cf2e8712d28542f1"
     },
     "high-fidelity-ui-design": {
       "source": "./skills",
@@ -69,7 +69,7 @@
     "loop-engineering": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "ed607946ecb35ce7c44396795a983336d35491887b36a95c23570168cb5b8d1e"
+      "computedHash": "29812dbe41db673b94f3789b4fa467ce23cd99e563b014163746387b7d60657e"
     },
     "next-app-development": {
       "source": "./skills",
@@ -84,12 +84,12 @@
     "professional-behavior": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "7eb9365ea48ac90bef149b80e51f3e6c6827ffae4809f95c2959921640ee98c3"
+      "computedHash": "116cb570508fd667d63d06c04c10915b24b19964ae94518169219662c2c88db0"
     },
     "quality-assurance": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "39e31c6d20e5ee6ec4cb4cae07a29159848bac4650481577a367cbb57f54ce82"
+      "computedHash": "060e3e69c6e3a97761b9e3079b29db8b9649ec794006abbcf86276dbf53a9173"
     },
     "react-component-development": {
       "source": "./skills",
@@ -109,7 +109,7 @@
     "software-development": {
       "source": "./skills",
       "sourceType": "local",
-      "computedHash": "40d417c56bff467ccf7300dc2066cefeec3d334e8235b054b8c771a161c167da"
+      "computedHash": "9c5d34b3961d383b0d713aeb8f58ca4419555271125a616f267b202ad4d4828f"
     },
     "software-instrumentation": {
       "source": "./skills",

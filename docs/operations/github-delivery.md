@@ -78,16 +78,19 @@ changed PR, route, lifetime, limit or operation requires authorization only for
 the difference. Do not add an exact-head field: reviewed-snapshot and material
 currency evidence stays separate from authorization scope.
 
-For an independent review request, the authorization record MUST name the exact
+For a post-push review request, the authorization record MUST name the exact
 trigger or review-thread creation and direct PR-publication effects, and its
 limit — either one request or the remaining requests through Loop's four-round
-external cap. That work-item grant does not include secret or
+[post-push round cap](../../skills/loop-engineering/references/post-push-review.md#round-cap).
+That work-item grant does not include secret or
 variable creation, workflow enablement, bot allowlisting, fork/private policy,
-spend or retention settings, merge, release, deployment or scheduling unless
-the human separately names the effect. Readiness publication is not one of
-these grant-gated effects: Loop's
-[Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate),
-once satisfied, is its own sufficient warrant for that one effect.
+spend or retention settings, release or deployment unless the human
+separately names the effect; no grant covers merge, which stays with the human.
+Loop's Waiting Bound requires a pull-request activity subscription where one
+exists; this repository records it among the grant's effects so recovery can
+re-verify it, and it ends at Loop's stops. How a scheduled check-in's permission is recorded, and which
+effects need no grant, is stated by Loop's
+[Scoped Operation Grants](../../skills/loop-engineering/references/run-state-and-reporting.md#scoped-operation-grants).
 
 The `Review` entry records only safe correlation metadata: trigger comment ID
 and actor or durable review-thread identity, workflow run ID and attempt where
@@ -99,7 +102,7 @@ These field-specific least-data constraints do not remove other substantive
 material from a permitted internal plan or handoff that Loop requires.
 
 Loop owns the conditions under which finding details persist, including
-[advisory-review parks](../../skills/loop-engineering/references/pre-flight-review.md).
+[pre-push review parks](../../skills/loop-engineering/references/pre-push-review.md#durable-parks).
 This representation MUST NOT expand that ledger's durability or replace
 lost evidence with a claim of success. Record only process information needed
 for recovery, without credentials or transient worker handles.
@@ -107,15 +110,16 @@ for recovery, without credentials or transient worker handles.
 Keep the substantive executor self-review outcome, unresolved findings and
 limitations in a permitted internal handoff, and link the delivery target to
 that record. What lands on the delivery target is recovery evidence, not a
-replacement for fresh advisory or external-review input; the acceptance criteria
+replacement for fresh pre-push or post-push review input; the acceptance criteria
 the review is checked against are the projection this document routes to the
 PR's **Acceptance criteria** section, which is a different thing from a
 self-review handoff.
 
-## Publish deferred pre-flight handoffs
+## Publish deferred pre-push handoffs
 
-An informed decline ends an advisory round with risks still open, and Loop's
-[Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff)
+The human's informed decision after pre-push round 3 to decline to fix a finding
+ends pre-push review with risks still open, and Loop's
+[Deferred Handoff](../../skills/loop-engineering/references/pre-push-review.md#deferred-handoff)
 contract requires that record to reach the human. It goes on the delivery
 target. This repository used to split it in two — a substantive record on the
 tracking Issue and a redacted projection on the pull request — because the
@@ -125,13 +129,13 @@ that now, and one record the human can read beats two neither is complete.
 
 **Guidelines:**
 
-- MUST publish one `<!-- ai-agent -->` PR comment for each informed decline when that effect is authorized, identifying it as deferred pre-flight handoff evidence rather than canonical requirements or review input.
-- MUST retain in that comment the advisory round and reviewed material identity; each finding's ID, severity, citation, substance, suggested fix and `deferred` disposition; the decision reason and supporting evidence; and locators for the human decision and the tracking Issue.
+- MUST publish one `<!-- ai-agent -->` PR comment per post-round-3 disposition, covering every finding the human declined, when that effect is authorized, identifying it as deferred pre-push handoff evidence rather than canonical requirements or review input.
+- MUST retain in that comment the pre-push round and reviewed material identity; each finding's ID, severity, citation, substance, suggested fix and `deferred` disposition; the decision reason and supporting evidence; and locators for the human decision and the tracking Issue.
 - MUST preserve corrections in later marked comments rather than overwriting the evidence the human already received.
 - MUST keep compact handoff status and locators in the PR's state block, so a resumed run finds the record without reading every comment.
 - MUST treat publication as an effect under the recovered operation grant. Without authorization, retain the full ledger in the current permitted internal handoff, report its substance and the exact blocked effect to the human, and keep delivery incomplete; an orb-local artifact is not a durable substitute.
-- MUST NOT feed the comment to a fresh advisory assignment or treat it as replacement input for mandatory external review; public readability does not imply reviewer invisibility.
-- MUST route missing substantive handoff evidence through Loop's [Deferred Handoff](../../skills/loop-engineering/references/pre-flight-review.md#deferred-handoff) recovery contract; Delivery adds only verified GitHub process and decision locators and blocked publication effects.
+- MUST NOT feed the comment to a fresh pre-push assignment or treat it as replacement input for post-push review; public readability does not imply reviewer invisibility.
+- MUST route missing substantive handoff evidence through Loop's [Deferred Handoff](../../skills/loop-engineering/references/pre-push-review.md#deferred-handoff) recovery contract; Delivery adds only verified GitHub process and decision locators and blocked publication effects.
 
 ### Extract the state block without reading the whole body
 
@@ -195,24 +199,24 @@ Use the following destinations after resolving the target under GitHub Operation
 | Plan, plan questions, amendments          | Tracking issue                                                                    |
 | Plan-stage evidence                       | Marked tracking-issue comment, outside the canonical plan range                   |
 | Current run state                         | Issue before PR creation; PR afterward                                            |
-| Substantive deferred pre-flight handoff   | Marked PR comment; locators in the state block                                    |
+| Substantive deferred pre-push handoff     | Marked PR comment; locators in the state block                                    |
 | Acceptance criteria and their status      | PR **Acceptance criteria**, quoted verbatim, naming the plan revision             |
 | Manual checks and before/after visuals    | PR **Acceptance criteria**, beside the criteria they bear on                      |
 | Skipped required checks and residual risk | PR **Risks and breaking changes**                                                 |
 | Verification commands and their outcomes  | The session report; the state block keeps the evidence locators                   |
-| Hosted independent review request         | Dedicated marked PR comment carrying the selected trigger phrase and nothing else |
-| Amp independent review request            | Fresh review child thread; direct PR post and thread closure under Code Review    |
+| Hosted post-push review request           | Dedicated marked PR comment carrying the selected trigger phrase and nothing else |
+| Amp post-push review request              | Fresh review child thread; direct PR post and thread closure under Code Review    |
 | Fix evidence and finding reply            | The finding's PR review thread                                                    |
 | Draft/ready status and PR metadata        | The PR, never the tracking issue                                                  |
 
 [Code Review](./code-review.md) owns the selected reviewers' invocation,
-eligibility and setup, including Amp's direct review-thread publication.
+eligibility and setup.
 [REVIEW.md](../../REVIEW.md) owns severity and output policy. Delivery MUST use
 the selected invocation only when the review request and its publication
 effects are authorized; preparing a comment or assignment does not publish it.
 
 Finding replies follow the disposition established under Loop's
-[external addressing contract](../../skills/loop-engineering/references/independent-review.md#addressing-findings).
+[post-push addressing contract](../../skills/loop-engineering/references/post-push-review.md#addressing-findings).
 That contract owns classification and terminality; this procedure supplies the
 reply format and destination:
 
@@ -241,10 +245,10 @@ state. Use a required fresh review's summary as rerun evidence, not as a reason
 to invent a fixing commit or request a round solely for outcome bookkeeping.
 
 The PR stays draft until Loop's
-[readiness evaluation](../../skills/loop-engineering/references/independent-review.md)
+[readiness evaluation](../../skills/loop-engineering/references/post-push-review.md#ready-gate)
 succeeds. Publish the ready transition once that evidence is satisfied, and
 leave merging to the human under Development Workflow. If a policy-compliant
-independent review cannot be established, record the actual unmet gate on the
+post-push review cannot be established, record the actual unmet gate on the
 PR and keep it draft. An unrelated review defect is neither a new acceptance
 criterion nor permission to weaken review policy.
 

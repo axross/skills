@@ -1,10 +1,10 @@
 name: Claude Code Review
 
-# independent pull-request review: a separate Claude Code session, on a
+# post-push review: a separate Claude Code session, on a
 # GitHub-hosted runner, under a bot identity distinct from the connected
 # operator. triggered by a comment containing the review trigger phrase
-# (`@claude review`; change it here and in
-# .claude/skills/loop-engineering/SKILL.md together). it bootstraps REVIEW.md
+# (`@claude review`; change it here and in the post-push review override in
+# AGENTS.md, under Code Review Rules, together). it bootstraps REVIEW.md
 # as the review policy, and is the authoritative review for the
 # loop-engineering change loop, which posts the trigger phrase after opening a
 # pull request and then addresses the findings left here.

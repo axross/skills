@@ -637,9 +637,9 @@ describe("report-obligation-burden.mjs", () => {
       // SKILL.md routing bullet widens by bytes, not obligations.
 
       expect.soft(totals.floorObligations).toBe(22);
-      expect.soft(totals.floorTokens).toBe(6_121);
-      expect.soft(totals.ceilingObligations).toBe(604);
-      expect.soft(totals.ceilingTokens).toBe(61_474);
+      expect.soft(totals.floorTokens).toBe(6_301);
+      expect.soft(totals.ceilingObligations).toBe(619);
+      expect.soft(totals.ceilingTokens).toBe(64_310);
     });
 
     it("reports cumulative tiers for the human-facing driver", async () => {
@@ -659,17 +659,17 @@ describe("report-obligation-burden.mjs", () => {
       expect.soft(tiers[0].floorObligations).toBe(9);
       expect.soft(tiers[0].floorTokens).toBe(1_776);
       expect.soft(tiers[0].ceilingObligations).toBe(185);
-      expect.soft(tiers[0].ceilingTokens).toBe(16_574);
+      expect.soft(tiers[0].ceilingTokens).toBe(16_588);
 
       expect.soft(tiers[1].floorObligations).toBe(13);
       expect.soft(tiers[1].floorTokens).toBe(3_604);
       expect.soft(tiers[1].ceilingObligations).toBe(346);
-      expect.soft(tiers[1].ceilingTokens).toBe(35_933);
+      expect.soft(tiers[1].ceilingTokens).toBe(35_964);
 
       expect.soft(tiers[2].floorObligations).toBe(22);
-      expect.soft(tiers[2].floorTokens).toBe(6_121);
-      expect.soft(tiers[2].ceilingObligations).toBe(604);
-      expect.soft(tiers[2].ceilingTokens).toBe(61_474);
+      expect.soft(tiers[2].floorTokens).toBe(6_301);
+      expect.soft(tiers[2].ceilingObligations).toBe(619);
+      expect.soft(tiers[2].ceilingTokens).toBe(64_310);
 
       // the last tier is the total, by construction. asserting it rather than
       // trusting it is what would catch a tiering that silently dropped a skill
@@ -689,7 +689,7 @@ describe("report-obligation-burden.mjs", () => {
       // in its tiers. folding the extra selector into the tiers would destroy
       // the second answer, which is the one the tiers exist for.
       const mandatedCeiling = tiersOf(stdout)[2].ceilingObligations;
-      expect(mandatedCeiling).toBe(604);
+      expect(mandatedCeiling).toBe(619);
       expect(totalsOf(stdout).ceilingObligations).toBeGreaterThan(mandatedCeiling);
     });
 

@@ -57,10 +57,9 @@ required. But discovery makes a skill _available_, not _binding_ — if you want
 one to govern how work happens rather than merely inform it, say so in your own
 agent instructions. This repository is a worked example:
 [`AGENTS.md`](./AGENTS.md) makes `loop-engineering` the mandatory change loop for
-every change rather than one option among several. That mandate applies within
-the active host's instruction hierarchy and tool usage conditions; see
-[Skill Portability](./docs/conventions/skill-portability.md#what-a-skill-deliberately-does-not-carry)
-for that boundary and its rationale.
+every change rather than one option among several. How an injected instruction
+meets those gates is stated in
+[Injected Instructions and Gates](./skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates).
 
 ## Skill catalog
 
@@ -99,11 +98,13 @@ to meet.
 #### `loop-engineering`
 
 Runs a whole change for you — plan, build, verify, fix — pausing for your
-sign-off before it writes any code. Places non-code deliverable review before
-research, plan, and design handoffs, then retains separate implementation
-pre-flight and independent review. Applicable instructions or skills
-select each review route; otherwise, the independent-review default uses a fresh reviewer
-context through the host's supported tools. Includes Codex, Claude Code and Amp
+sign-off before it writes any code. Three defined reviews keep it honest: plan
+review of every deliverable before approval, pre-push review of the verified
+implementation before the first push, and post-push review of the opened pull
+request. Applicable instructions or skills select each review route; otherwise
+the post-push review fallback uses a fresh reviewer context through the host's
+supported tools. Waits for CI and review use a subscription route where one
+exists, not self-scheduled timers. Includes Codex, Claude Code and Amp
 examples and review-session cleanup. See
 [`SKILL.md`](./skills/loop-engineering/SKILL.md).
 
