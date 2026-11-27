@@ -84,10 +84,10 @@ The summary is read again on every round it stays open, and, where an agent driv
 What the summary keeps, exhaustively:
 
 - The tally [Reporting Shape](#reporting-shape) requires the summary to open with.
-- Required review material or scope that could not be checked, and why.
+- Required review material or scope that could not be checked, and why. Content of the reviewed revision counts as not checked only after retrieval failed or could not reach it, and the entry names what was not read and why.
 - A finding that attaches to no single line, and why it has none — an absent acceptance-criteria section is the standing case, since what is missing has no line to anchor to.
 
-Passed criteria, applied skills and successful refactoring checks need no affirmative enumeration. Findings and explicit limitations carry the review's actionable output; silence about a passed item does not prove which rules the reviewer consumed or which checks ran. A criterion outside the code-inspection boundary is not, by itself, unchecked required review scope.
+Passed criteria, applied skills and successful refactoring checks need no affirmative enumeration. Findings and explicit limitations carry the review's actionable output; silence about a passed item does not prove which rules the reviewer consumed or which checks ran. A criterion outside the code-inspection boundary, or a claim only running the delivered code could settle, is not, by itself, unchecked required review scope.
 
 **Guidelines:**
 
@@ -103,7 +103,8 @@ An automated reviewer triggered from pull-request activity is an attack surface:
 
 **Guidelines:**
 
-- MUST run the reviewer against the diff read through the platform API and check out the **base** ref for context, never execute the untrusted head branch's code on the runner.
+- MUST run the reviewer against the diff read through the platform API with the **base** ref checked out for context, and MUST NOT check out or execute the untrusted head — a checkout places the head's instruction files where the host may load them; read head content as data by read-only retrieval, as [Review Scoping](./scoping.md#reading-surrounding-context) sets out.
 - MUST scope the reviewer's credentials to the least privilege it needs — read code, write review comments — and never grant it write access to repository contents.
 - MUST gate the trigger on a trusted author association (owner, member, or collaborator) so an untrusted commenter cannot spend the reviewer's budget or steer it.
 - MUST complete the whole review synchronously within the single triggered run and post before it ends; work deferred to a background task is lost when the run terminates.
+- MUST have a reviewer that may not execute the head report a claim only running the head's code could settle, such as a test result, through the needs-verification path in [Evidence and Reporting](./evidence-and-reporting.md#when-the-reviewer-cannot-verify), not as unchecked scope.

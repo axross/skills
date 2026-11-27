@@ -76,7 +76,7 @@ See [review-workflow.md](./references/review-workflow.md) for:
 
 - the definitions of plan review, pre-push review and post-push review, and the note retiring the earlier terms
 - selecting each checkpoint's route from applicable instructions or skills, including ordinary trigger directives
-- the post-push route, override first and then the fallback, with per-host override examples, while preserving pre-push review and the project's delivery mechanism
+- the post-push route, override first and then the fallback, with per-host override examples and the fallback assignment's per-item statement of what the reviewer did not check and could reach, while preserving pre-push review and the project's delivery mechanism
 - closing created review sessions/threads after posting, recovery, and permission requests or concrete human cleanup handoffs when closure fails
 
 See [finding-response.md](./references/finding-response.md) for:
@@ -96,6 +96,7 @@ See [post-push-review.md](./references/post-push-review.md) for:
 - the driver requesting post-push review, addressing its findings, evaluating the posted result or publishing readiness
 - where post-push review starts, fresh rounds after each fix batch, and the four-round address cap
 - identifiable posted completion under the project's adopted presentation and reporting scope, without affirmative per-check assertions, distinct from explicit limitations and contributor evidence
+- classifying a reviewer-reported unchecked item as outside required scope, reachable (one re-request, then a blocker) or unreachable, and the route exclusion that alone removes unreachable material from required scope
 - post-push fixed, human-dismissed, and outstanding dispositions without rewriting reviewer history
 - convergence distinct from conversation closure, including substantive metadata changes
 - conflict remediation, affected verification, the waiting bound with its subscription route, and ready conditions
@@ -109,7 +110,7 @@ See [resuming-and-handoff.md](./references/resuming-and-handoff.md) for:
 
 See [run-state-and-reporting.md](./references/run-state-and-reporting.md) for:
 
-- persisting recoverable semantic run state independent of storage format, including separate checkpoint qualifications, actual review coverage, and their grounds
+- persisting recoverable semantic run state independent of storage format, including separate checkpoint qualifications, actual review coverage, the class of each reported unchecked item, and their grounds
 - evaluating a recovered or standing operation grant against a proposed effect across phases and sessions
 - writing the evidence-backed ready-to-merge brief, which lists agent-performed checks with their evidence links and leaves only the remainder as human steps, and reporting a spawned role's model and effort as `verified`, `declared`, or `unknown`
 - recording the branches, working copies, processes, port forwards and installs a run creates, by identity a later release can check, and why releasing them needs no separate grant

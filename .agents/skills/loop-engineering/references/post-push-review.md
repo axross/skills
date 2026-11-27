@@ -27,11 +27,28 @@ A posted post-push review result, not a service's Completed label, establishes c
 
 Keep policy availability, observable provider input, execution completion and published output separate. An inaccessible input remains unknown. Missing affirmative assertions alone do not invalidate an otherwise completed review. An accepted reporting filter is not an explicit unchecked-material limitation; actual violations of the adopted completion contract still block.
 
+A reviewer may report an item as not checked. Before applying the gate, the driver sorts each such item into one of three classes:
+
+- Material outside required review scope: anything the code-review practices' summary scope leaves out of required scope, such as a claim only running the delivered code could settle.
+- Reachable required material: required material the selected route could have given the reviewer.
+- Unreachable required material: required material no reviewer on the selected route can read.
+
+A **route exclusion** is the one way unreachable material stops being required scope. It is part of an adopted review arrangement, names the route, the excluded scope and the reason, and is adopted by the human. It is read from the default branch with the same adoption and re-read discipline as a [standing grant](./run-state-and-reporting.md#scoped-operation-grants). Scope an exclusion covers is not required scope for the missing-material and unchecked-scope rules of this reference. An exclusion never narrows the re-review rule for changed delivered material in the [Ready Gate](#ready-gate): that material must still be covered, or the unmet gate recorded.
+
+For example, a reviewer whose checkout holds only the base revision reports the branch's files as not checked. The route can retrieve them, so they are reachable required material and the driver re-requests review once. If the reviewer reports the same files again, the driver reports a blocker instead of spending the remaining rounds.
+
 **Guidelines:**
 
 - MUST correlate the posted reviewer-origin result with the request and reviewed material, including the acceptance-criteria projection.
 - MUST accept unflagged items in an identifiable completed post-push review as satisfied for the review gate without requiring affirmative per-check assertions or requesting another round solely to obtain them.
 - MUST keep the review gate unresolved when no identifiable posted result exists, required material or scope is explicitly reported unchecked, or a known requirement of the adopted completion contract is unmet; do not reintroduce presentation or reporting-scope defaults the project explicitly replaced.
+- MUST NOT hold the gate on a reported item outside required review scope, such as tests the reviewer could not run on the delivered material; execution-dependent verification stays with required checks.
+- MUST treat a reported unchecked item of required material the route could reach, judged under the material-access qualification in [review-workflow.md](./review-workflow.md#post-push-review-route), as unchecked required scope, and re-request review once for that item.
+  - Make the re-request within the round cap and the existing request grant; it is a review round and counts toward the cap.
+  - If the same item is reported again, stop re-requesting and report it as a blocker through the route-unavailable and human-decision path in [review-workflow.md](./review-workflow.md#select-each-checkpoints-route), without spending the remaining rounds.
+  - Never substitute the route.
+- MUST treat unreachable required material as unchecked required scope unless a route exclusion covers it; cite the exclusion's default-branch locator, because an exclusion that exists only in the change's own edit does not count.
+- MUST treat unknown reachability, such as a provider whose input is unobserved, as reachable for one re-request and then as a blocker.
 
 ## Addressing Findings
 
