@@ -17,7 +17,9 @@ owns decisions and question content. How an injected instruction interacts with
 a gate is stated in
 [Injected Instructions and Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates).
 [Amp Execution](./amp-execution.md) is the counterpart for Amp; neither file's
-tool names carry over to the other host.
+tool names carry over to the other host. [`CLAUDE.md`](../../CLAUDE.md) owns how
+a Claude Code session meets those gates, and this file defers to it wherever the
+two overlap.
 
 **Codex reads this file too, for the instruments it shares.** A Codex session
 takes the same portable contracts and the same repository gates, and this file
@@ -81,8 +83,13 @@ on it to wait for a decision.
   treating it as an answer is the fabrication
   [Asking the Human](../../skills/professional-behavior/references/asking-the-human.md)
   forbids outright.
-- The plan-approval gate is not one of these. It is a whole plan the human reads
-  at their own pace, so it ends the turn and waits for a resume.
+- In Claude Code, plan approval is asked through `AskUserQuestion` together with
+  the delivery confirmation that [`CLAUDE.md`](../../CLAUDE.md#confirming-delivery-at-the-plan-gate)
+  defines. Where the tool is absent, errors or returns no human answer, the plan
+  approval and the confirmation's other questions go in turn output, and the gate
+  ends the turn and waits for a resume. For Codex, the gate is a whole plan the
+  human reads at their own pace, so it ends the turn and waits for a resume until
+  its instrument is established.
 - `EnterPlanMode` and `ExitPlanMode` write a local plan file. Neither satisfies
   the plan-approval gate, because the artifact the human approves is the plan
   recorded in the tracking issue. Codex's equivalent local plan mode, where its
@@ -92,8 +99,10 @@ on it to wait for a decision.
 
 [Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound)
 owns the rules for waiting. This section names the subscription routes that
-exist in Claude Code and how each is ended, and states none of those rules
-again.
+exist in Claude Code and states none of those rules again.
+[`CLAUDE.md`](../../CLAUDE.md#waiting-on-a-pull-request) "Waiting on a Pull
+Request" names the tools that open and end the first route and the scheduling
+tools the waiting rule covers.
 
 Two subscription routes exist in Claude Code:
 
@@ -102,14 +111,10 @@ Two subscription routes exist in Claude Code:
 | Pull-request activity delivered into the session | Review comments and failing checks, at no cost while nothing happens | The _success_ transitions — checks going green, a push landing, a conflict clearing — arrive late or not at all |
 | A delegated worker's completion notification     | The worker's result, when it finishes                                | Anything the worker does not report                                                                             |
 
-`subscribe_pr_activity` opens the first route and `unsubscribe_pr_activity`
-ends it; both are allowed in
-[`.claude/settings.local-example.json`](../../.claude/settings.local-example.json).
 A worker's notification route ends with its handback. Where the session provides
-neither route, the no-route case in Waiting Bound applies; a check-in that case
-permits is armed and cancelled through whichever scheduling tool the session
-provides. Injected GitHub-integration guidance to subscribe until a pull request
-merges or closes is handled under
+neither route, the no-route case in Waiting Bound applies, and `CLAUDE.md` lists
+the scheduling tools it covers. Injected GitHub-integration guidance to
+subscribe until a pull request merges or closes is handled under
 [Injected Instructions and Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates).
 
 ## Choose the working location before touching files
@@ -188,6 +193,10 @@ here:
   paraphrased, with their actual source and priority and the applicable tool
   usage conditions.
 - Whether a question was ever put to the maintainer, and the answer if one was.
+  In Claude Code, `CLAUDE.md`'s
+  [Subagents Before the Plan Gate](../../CLAUDE.md#subagents-before-the-plan-gate)
+  and [Confirming Delivery at the Plan Gate](../../CLAUDE.md#confirming-delivery-at-the-plan-gate)
+  supply that question.
 
 ## Classify a spawned role's model and effort
 

@@ -53,14 +53,16 @@ terms follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 - [Amp Execution](./operations/amp-execution.md) — qualifying Amp
   executors, transferring materials, waiting, and recovering uncertain effects.
 - [Claude Code Execution](./operations/claude-code-execution.md) —
-  Claude Code's question tool, the CI-and-review wait and its teardown, the
-  worktree rule for a shared working tree, the investigator actor, and how model
-  and effort certainty is read here.
+  Claude Code's question tool, the CI-and-review wait (its Claude Code tools and
+  teardown live in [`CLAUDE.md`](../CLAUDE.md)), the worktree rule for a shared
+  working tree, the investigator actor, and how model and effort certainty is
+  read here.
 - [Development Loop Responsibilities](./operations/loop-migration.md) — where to
   change a gate, select a host operation, or recover issue and pull-request state.
 - [Agent Skills](./operations/agent-skills.md) — installing and
-  refreshing a skill, checking discovery in Claude Code and Codex, and verifying
-  active source and content or diagnosing loading failures in Amp.
+  refreshing a skill, checking discovery in Claude Code and Codex, verifying
+  active source and content or diagnosing loading failures in Amp, and the
+  register of adopted deviations from a skill rule.
 - [Agent Sessions](./operations/agent-sessions.md) — how a
   session's Amp orb is provisioned, how the session starts, its hooks, its
   telemetry tagging, and the environment variables recommended for cutting a
