@@ -68,15 +68,19 @@ description: Terms used across the skill library, its agent runtimes, change wor
 
 ## The Change Loop
 
-**Change loop** — the process every change to this repository runs through, ending in a pull request that has passed an **independent review**.
+**Change loop** — the process every change to this repository runs through, ending in a pull request that has passed a **post-push review**.
 
 **Plan-approval gate** — the stop in the **change loop** where a human reads the recorded plan, before any code is written against it.
 
-**Independent review** — the mandatory review performed outside the implementation author's context after creation of the project's delivery target, with its result published directly by the reviewer, distinct from **pre-flight review**.
+**Plan review** — review of every pre-approval deliverable (investigation conclusions, plans and design options) by a reviewer in a fresh, non-author context, for at most 3 rounds with no extension. Distinct from **pre-push review** and **post-push review**.
+
+**Post-push review** — review of the pull request after it is opened, by a fresh, non-author, non-fork, non-resumed reviewer that is given no **pre-push review** findings and posts its own result, which is the completion evidence. Its route is an explicit override in the project's agent entry files or another applicable instruction, else a code-review-capable subagent given the pull request URL that reviews per `REVIEW.md` and posts a COMMENT-type review with inline comments. It allows 4 rounds, a fresh re-review after each fix batch, gates the ready transition, and leaves the gate unmet, with no substitute, when the selected route is unavailable.
 
 **Plan amendment** — a plan, at its own approval gate, changing a different issue's already-approved plan, distinct from a plan revising its own run's plan under its own revision identity. The amending plan's own approval carries the amendment's approval under three stated conditions, and falls back to a separate approval against the amended plan's own revision identity otherwise.
 
-**Pre-flight review** — an advisory review in the **change loop**, performed by a fresh reader whose context is free of the implementer's reasoning state. It is distinct from, and is never reported as, the **independent review**.
+**Pre-push review** — review of the initial implementation after it is verified and before the first `git push`, and only then, by a fresh reviewer instance per round: the initial implementation plus at most 3 rounds, with no extension. Findings return privately to the driver, and fixes made once the pull request exists go to **post-push review**. It is distinct from, and is never reported as, the **post-push review**.
+
+The earlier terms "independent review", "external review", "advisory pre-flight" and "phase-deliverable review" are retired; read each as the matching term above (**plan review** for a phase deliverable, **pre-push review** for pre-flight, **post-push review** for the others).
 
 **Posted review** — a review published on a pull request rather than delivered in-session, and narrower in its severity vocabulary than one delivered in-session is.
 
@@ -84,7 +88,7 @@ description: Terms used across the skill library, its agent runtimes, change wor
 
 **Do-not-report list** — the findings a **posted review** leaves unsaid because an automated check already owns them.
 
-**Address round** — one pass of fixing what the **independent review** and CI reported, followed by re-requesting that review.
+**Address round** — one pass of fixing what the **post-push review** and CI reported, followed by re-requesting that review.
 
 **Agent-comment marker** — the fixed HTML comment opening every comment an agent authors, which is what distinguishes agent output from human input where the two share one login.
 

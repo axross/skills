@@ -70,7 +70,7 @@ mapping location. It rejects minor-only tags such as `v4.4`, other tags, branche
 short SHAs and unlabeled SHAs. It cannot establish ref existence, publisher trust
 or label-to-commit mapping; version references are literal refs, not ranges.
 
-Publish through the approved draft-PR and external-review route, inspect actual
+Publish through the approved draft-PR and post-push review route, inspect actual
 PR checks, and leave merge to the human. Scheduled and issue-comment workflows
 do not exercise proposed references merely because that PR's checks pass; their
 default-branch versions remain in effect until merge. A manual dispatch or

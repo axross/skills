@@ -27,12 +27,23 @@ as generic framing does not lower its priority; its actual source and priority
 determine how a conflict is resolved.
 
 An installing project receives the gates — a human-approved plan before edits,
-required verification, mandatory independent review, a ready state only after
+required verification, mandatory post-push review, a ready state only after
 convergence — within that hierarchy and the tool's usage conditions. Compatible
 gates remain applicable. A gate that cannot be satisfied without violating a
 higher-priority instruction or tool condition MUST be reported as unmet, not
 waived or resolved by declaring project policy superior. Placing a declaration
 in an entry file changes neither its authority nor the active host's rules.
+
+A skill may still state exactly two things about an injected instruction,
+without naming a host tool or ranking instruction sources. First, such an
+instruction constrains mechanics and never skips or relaxes one of the skill's
+gates: where it conditions a gate-needed operation on the human's explicit
+request, the skill obtains that request at the plan gate and otherwise reports
+the gate unmet. Second, it does not extend the skill's own stop conditions: a
+run still ends at ready, the round cap or the waiting bound, and reports an
+injected keep-until-merge condition as unmet. [Injected Instructions and
+Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates)
+is the instance in this library.
 
 Non-code deliverable review belongs to conduct's output-quality practice, including read-only requests. It does not by itself enroll those requests in the change loop; eligible reviewer mechanisms still follow host guidance.
 
@@ -90,7 +101,7 @@ docs before editing one, per Fast-Moving Dependencies below:
 
 A dependency added here is a supply-chain decision before it is a technical
 one — which is why [AGENTS.md](../../AGENTS.md) singles this surface out for a
-human reviewer in addition to the independent review. Most bundled validators
+human reviewer in addition to the post-push review. Most bundled validators
 use only Node's standard library. The protected Markdownlint package is an
 explicit runtime-dependency exception: its portable
 [execution contract](../../skills/agent-skill-authoring/references/markdownlint-execution.md)

@@ -13,10 +13,9 @@ those hosts' operations; it grants no tool access and replaces no tool
 definition. [Development Workflow](./development-workflow.md)
 owns this repository's gates, [Loop Engineering](../../skills/loop-engineering/SKILL.md)
 owns transitions and evidence, [Professional Behavior](../../skills/professional-behavior/SKILL.md)
-owns decisions and question content. Apply those gates within the active host's
-actual instruction hierarchy and tool usage conditions. Host entry guidance
-explains that application; it cannot define or override priority. Report any
-project gate that cannot be satisfied within those boundaries.
+owns decisions and question content. How an injected instruction interacts with
+a gate is stated in
+[Injected Instructions and Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates).
 [Amp Execution](./amp-execution.md) is the counterpart for Amp; neither file's
 tool names carry over to the other host.
 
@@ -89,58 +88,46 @@ on it to wait for a decision.
   recorded in the tracking issue. Codex's equivalent local plan mode, where its
   session exposes one, does not satisfy it either.
 
-## Wait for CI and the independent review
+## Wait for CI and post-push review
 
-[Waiting Bound](../../skills/loop-engineering/references/independent-review.md#waiting-bound)
-owns the rules: the bound itself, resolving which mechanism the session has
-before the first wake, recording when only one is available, scoping a
-mechanism to this tail, and tearing down at each of its three stops. This
-section says which mechanisms exist here and how each is cancelled, and states
-none of those rules again.
+[Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound)
+owns the rules: use a subscription route when one exists, schedule a check-in
+only when none does and the human explicitly permitted it, re-read state on
+every wake, end the turn as "pending" when nothing else is pending, and
+unsubscribe in the same turn at each of its three stops. This section says
+which subscription routes exist here and how each is ended, and states none of
+those rules again.
 
-Two mechanisms can report that a machine event finished, and they are not
-interchangeable. Resolve which of them this session actually has **before the
-first wake**:
+Resolve the subscription route **before waiting**. Two routes exist in Claude
+Code:
 
-| Mechanism                                        | What it gives                                                        | What it misses                                                                                                  |
+| Subscription route                               | What it gives                                                        | What it misses                                                                                                  |
 | ------------------------------------------------ | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Pull-request activity delivered into the session | Review comments and failing checks, at no cost while nothing happens | The _success_ transitions — checks going green, a push landing, a conflict clearing — arrive late or not at all |
-| A scheduled self-wake back into the same session | A wake at a time this run chooses, surviving container reclaim       | Nothing; it is the backstop, and the whole mechanism where no activity delivery exists                          |
+| A delegated worker's completion notification     | The worker's result, when it finishes                                | Anything the worker does not report                                                                             |
 
-The second column is why the reference requires a mechanism to be resolved
-before the first wake rather than after: green checks are one of the ready-gate
-conditions, and activity delivery is the one mechanism that does not reliably
-carry them. That is the concrete reason a scheduled wake stays armed here even
-while delivery is active, and the concrete thing the reference's
-record-when-only-one-is-available rule is recording.
+`subscribe_pr_activity` opens the first route and `unsubscribe_pr_activity`
+ends it; both are allowed in
+[`.claude/settings.local-example.json`](../../.claude/settings.local-example.json).
+Because the first route can miss a success transition, the reference requires a
+re-read of check, review and mergeability state on every wake, and an
+end-of-turn "pending" report when nothing else is pending.
 
-Picking the interval, where a scheduler exists: place the first wake just past
-where the fastest pending check should already have decided, then step across
-the slowest pending check's typical-to-maximum band, then treat a check still
-pending past that band as anomalous rather than as more of the same wait.
-Measure that band from this repository's own recent runs rather than carrying a
-figure over. One wake timed at the expected resolution beats several short
-polls, because each resume across a long gap pays to rebuild the session's
-context and learns nothing sooner.
+End a pull-request activity subscription through the tool that opened it, in the
+same turn as the stop. Where the session provides no subscription route, end the
+turn and report the result as pending. A scheduled check-in is the exception for
+that case alone: arm it, with the human's explicit permission, through whichever
+scheduling tool the session provides, and cancel it through that tool at the
+stop. Neither a waiting bound, a review request, a grant nor the presence of a
+scheduler supplies that permission.
 
-Cancelling, which is what the reference's teardown rule needs from this file:
-cancel a scheduled wake through whichever scheduling tool armed it, and end a
-pull-request activity subscription through the tool that opened it. Where the
-session provides neither mechanism there is nothing to arm or cancel — end the
-turn and wait for the human rather than blocking.
-
-Creating a _recurring_ schedule is a separate matter from arming this tail's
-wake, and needs the human's own request. Neither a waiting bound, a review
-request, nor the presence of a scheduler supplies it.
-
-If injected GitHub-integration guidance asks a session to subscribe or keep
-re-arming a check-in until a pull request merges or closes, compare its actual
-source and priority with the project's ready-boundary rule and the active tools'
-usage conditions. An entry-file declaration cannot settle that conflict by
-promoting project policy. If the project stop or teardown gate cannot be
-satisfied within those boundaries, report it as unmet; reaching ready does not
-by itself satisfy an incompatible higher-priority until-merge-or-closure
-condition.
+If injected GitHub-integration guidance asks a session to subscribe, or to keep
+re-arming a check-in, until a pull request merges or closes, subscribing is
+still the right route while the run waits, but the instruction does not extend
+the run past ready, the round cap or the waiting bound. Unsubscribe at that
+stop and report the until-merge condition as unmet, as
+[Injected Instructions and Gates](../../skills/loop-engineering/references/phase-progression.md#injected-instructions-and-gates)
+states.
 
 ## Choose the working location before touching files
 
@@ -249,4 +236,4 @@ refreshing a skill and confirming discovery. [GitHub Delivery](./github-delivery
 owns where plan and state records live, and
 [Code Review](./code-review.md) owns the configured reviewer and its
 invocation. This file changes none of them, and names no instrument that
-substitutes for the mandatory external review.
+substitutes for post-push review.

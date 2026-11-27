@@ -13,7 +13,8 @@ it does not grant tool access or replace the current tool definitions.
 [Loop Engineering](../../skills/loop-engineering/SKILL.md) owns transitions and
 evidence, and [Professional Behavior](../../skills/professional-behavior/SKILL.md)
 owns decisions and question content. Direct and delegated changes keep the same
-approval, verification, and independent-review requirements.
+approval, verification, and review requirements for plan review, pre-push review
+and post-push review.
 
 Consult Amp's [modes and subagents](https://ampcode.com/docs/models-and-subagents)
 and [agent-to-agent documentation](https://ampcode.com/docs/orbs/agent-to-agent)
@@ -72,7 +73,7 @@ purpose:
 | Librarian   | External repositories, dependency internals, or remote history; not local first-party reads.                                                                               |
 | Oracle      | A specific unresolved, high-impact judgment after direct investigation; not routine review or an approval gate.                                                            |
 | Task        | Independently specifiable parallel work, a bounded unit whose intermediate output needs isolation, or explicit user-requested delegation, as its current contract permits. |
-| Threads     | A separately owned outcome or independent review; not a second route into the same runner and checkout merely to gain access.                                              |
+| Threads     | A separately owned outcome or a post-push review child thread; not a second route into the same runner and checkout merely to gain access.                                 |
 
 Specialist calls do not remove the parent's responsibility to inspect evidence.
 Keep implementation single-threaded unless writers have genuinely disjoint
@@ -92,20 +93,20 @@ returning a progress-only report. Use the purpose routes below for the action an
 [Wait for the right result](#wait-for-the-right-result) for an actual pending
 machine event.
 
-An Amp session requests post-PR independent review through a fresh review child
+An Amp session requests post-push review through a fresh review child
 thread, per [Code Review](./code-review.md). Apply the same
 progression to thread creation, review execution, direct PR publication and
 thread closure. A failed launch, private reply, missing post or result from an
 older round does not complete the review. Continue from the last verified stage
 rather than launching a duplicate reviewer or reposting its result. Once
-[Loop's Ready Gate](../../skills/loop-engineering/references/independent-review.md#ready-gate)
+[Loop's Ready Gate](../../skills/loop-engineering/references/post-push-review.md#ready-gate)
 is satisfied, that satisfaction is itself sufficient warrant to publish the
 ready transition — no separate operation grant is required for that one
 effect.
 
-## Qualify the advisory reader
+## Qualify the pre-push reviewer
 
-At the advisory checkpoint selected by
+At the pre-push review checkpoint selected by
 [Development workflow](./development-workflow.md), verify that a fresh review
 context has the following qualifications:
 
@@ -129,7 +130,7 @@ Return that result under the
 [Loop handoff contracts](../../skills/loop-engineering/references/implementation-package.md);
 Development Workflow owns the delivery restriction, and
 [Loop recovery](../../skills/loop-engineering/references/resuming-and-handoff.md)
-owns which checkpoint resumes. Earlier implementation or artifact-review
+owns which checkpoint resumes. Earlier implementation or plan-review
 availability is not evidence for this reader; preserve whether review ran and
 its actual target, material coverage, policy, and limitations separately.
 
@@ -206,32 +207,40 @@ owns retries and approval invalidation, not the tool chosen to stop work.
 
 Process, child, thread, CI and human completion are different events:
 
-| Awaited result        | Amp route and completion check                                                                                                                                                      |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell command         | Follow the returned PID with `shell_command_status`; check exit status and output. A tool wait timeout does not stop the process.                                                   |
-| Task                  | Inspect its final result and actual evidence; a partial result is not a finished change.                                                                                            |
-| Thread, reply path    | Ask the child to reply and continue independent work. Do not also call `wait_for_threads` for that child.                                                                           |
-| Thread, join path     | Do not request a reply; use `wait_for_threads` only when progress depends on the result. Inspect status/content afterward: idle, approval-waiting or error is not proof of success. |
-| CI or external review | Read checks and review evidence through the permitted GitHub route; a successful trigger is not a successful review.                                                                |
-| Human decision        | Ask and end the turn; never poll for human approval.                                                                                                                                |
+| Awaited result         | Amp route and completion check                                                                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell command          | Follow the returned PID with `shell_command_status`; check exit status and output. A tool wait timeout does not stop the process.                                                     |
+| Task                   | Inspect its final result and actual evidence; a partial result is not a finished change.                                                                                              |
+| Thread, reply path     | Ask the child to reply and continue independent work. Do not also call `wait_for_threads` for that child.                                                                             |
+| Thread, join path      | Do not request a reply; use `wait_for_threads` only when progress depends on the result. Inspect status/content afterward: idle, approval-waiting or error is not proof of success.   |
+| CI or post-push review | Use a subscription route when one exists, as below; on each wake read checks and review evidence through the permitted GitHub route. A successful trigger is not a successful review. |
+| Human decision         | Ask and end the turn; never poll for human approval.                                                                                                                                  |
 
-Use expected-duration waits, not repeated tiny polls. `shell_command_kill` is
+Use expected-duration waits on a tracked process, not repeated tiny status checks. `shell_command_kill` is
 for a demonstrably hung tracked process under its current conditions, not for
 a normal long test or a command whose tool timeout merely elapsed. Service
 shutdown follows the service lifecycle, not process-pattern killing.
 
 Loop defines the [execution retry budget](../../skills/loop-engineering/references/writer-ownership-and-recovery.md#retry-budget),
-[pre-flight round cap](../../skills/loop-engineering/references/pre-flight-review.md#round-cap),
-and [external review and waiting bounds](../../skills/loop-engineering/references/independent-review.md#external-round-cap). In Amp, cleanup MUST use a permitted mechanism, or
+[pre-push round cap](../../skills/loop-engineering/references/pre-push-review.md#round-cap),
+[post-push round cap](../../skills/loop-engineering/references/post-push-review.md#round-cap)
+and [waiting bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound). In Amp, cleanup MUST use a permitted mechanism, or
 report the still-running process; reaching a Loop bound does not authorize
 `shell_command_kill` on an otherwise healthy process.
 
-Scheduling requires the user's explicit monitoring, scheduling, or later-follow-up
-request and the `building-schedules` skill before schedule tools. A wait cap,
-review request, or available scheduler is not permission. Thread completion uses
-the chosen reply/join path, not scheduled polling. Without authorized scheduling,
-use a permitted current-turn wait or stop with recovery information. Missing
-cache-TTL or cost timing metrics never block otherwise permitted work.
+Waiting on CI or post-push review follows Loop's
+[Waiting Bound](../../skills/loop-engineering/references/post-push-review.md#waiting-bound):
+before waiting, check from the session's actual tools whether a subscription
+route exists for the awaited result, and use it when one does. Thread
+completion through the reply path is one; a pull-request event subscription is
+another only where the session exposes one. Where a subscription route exists,
+no scheduled check-in is armed. Only where none exists, and the user explicitly
+asked for monitoring, scheduling or later follow-up, may the session load the
+`building-schedules` skill before schedule tools; a wait cap, review request or
+available scheduler is not that permission. Do not poll inside a turn as a
+substitute: with neither route, end the turn as pending with recovery
+information. Missing cache-TTL or cost timing metrics never block otherwise
+permitted work.
 
 ## Recover uncertain effects
 
@@ -243,10 +252,10 @@ cannot settle the outcome, keep it `outcome-unknown` and report the needed acces
 
 Recover the approval revision, attempts, pending result and remaining processes
 through Loop's [recovery contract](../../skills/loop-engineering/references/resuming-and-handoff.md).
-GitHub state storage and independent-review invocation remain in
+GitHub state storage and post-push review invocation remain in
 [GitHub Delivery](./github-delivery.md) and
-[code review operations](./code-review.md). A pre-flight or local specialist
-result cannot substitute for the mandatory review thread's direct PR post.
+[code review operations](./code-review.md). A pre-push or local specialist
+result cannot substitute for the post-push review thread's direct PR post.
 
 ## Keep host operations separate
 
@@ -276,21 +285,21 @@ simulation MUST NOT be labeled an actual host execution. Run safe representative
 cases only when tool purposes permit them; do not manufacture external effects,
 schedule requests, unavailable APIs or expensive modes to prove prose.
 
-| Case                                                           | Required observation                                                                                                        |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Parent or child implements an approved change                  | Both reach the same advisory checkpoint before initial publication; implementation itself is not forced into another actor. |
-| Eligible Task independently inspects a fixed material revision | Final evidence identifies that revision; an unresolved decision returns to the parent without live dialogue.                |
-| Two writers share a checkout                                   | Overlapping edits, formatter and Git mutations wait for ownership; no concurrent overwrite.                                 |
-| Separate thread reviews an uncommitted file                    | HEAD alone fails preflight; transfer the file, verify its content identity, retrieve and inspect the result.                |
-| Required image or tool unavailable                             | Non-complete result identifies missing access; prose is not visual verification.                                            |
-| No permitted fresh advisory reader                             | Record the failed qualification and advisory gap; separately authorized draft delivery may proceed, but never as clean.     |
-| Review pending without monitoring authorization                | No schedule created; use a permitted wait or return recovery information.                                                   |
-| Lost response after a write                                    | Inspect stored bytes and process state before any retry.                                                                    |
-| Plan changes before a child returns                            | Old result does not satisfy new approval; recover and audit it first.                                                       |
-| Review trigger exists but the run or its result does not land  | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                      |
-| Base integration produces only mechanical conflicts            | Resolve them append-only, rerun affected checks, and request review of the resulting material.                              |
-| Conflicting edits express different intended behavior          | Return the decision to the human; do not guess or rewrite history.                                                          |
-| Existing host or mandatory external reviewer unavailable       | Report the untested path; mandatory external review remains unmet until obtained.                                           |
+| Case                                                            | Required observation                                                                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Parent or child implements an approved change                   | Both reach the same pre-push review before initial publication; implementation itself is not forced into another actor.        |
+| Eligible Task independently inspects a fixed material revision  | Final evidence identifies that revision; an unresolved decision returns to the parent without live dialogue.                   |
+| Two writers share a checkout                                    | Overlapping edits, formatter and Git mutations wait for ownership; no concurrent overwrite.                                    |
+| Separate thread reviews an uncommitted file                     | HEAD alone fails preflight; transfer the file, verify its content identity, retrieve and inspect the result.                   |
+| Required image or tool unavailable                              | Non-complete result identifies missing access; prose is not visual verification.                                               |
+| No permitted fresh pre-push reviewer                            | Record the failed qualification and pre-push review gap; separately authorized draft delivery may proceed, but never as clean. |
+| Review pending, no subscription route, no scheduling permission | No schedule created; end the turn as pending with recovery information.                                                        |
+| Lost response after a write                                     | Inspect stored bytes and process state before any retry.                                                                       |
+| Plan changes before a child returns                             | Old result does not satisfy new approval; recover and audit it first.                                                          |
+| Review trigger exists but the run or its result does not land   | Preserve its correlated stage; no old summary or workflow completion satisfies review.                                         |
+| Base integration produces only mechanical conflicts             | Resolve them append-only, rerun affected checks, and request review of the resulting material.                                 |
+| Conflicting edits express different intended behavior           | Return the decision to the human; do not guess or rewrite history.                                                             |
+| Existing host or post-push review route unavailable             | Report the untested path; post-push review remains unmet until obtained.                                                       |
 
 Run the documented format, lint and aggregate checks in
 [Development Setup](./development-setup.md#commands) after edits. The aggregate suite includes the docs
