@@ -42,7 +42,7 @@ Amplitude's default client is a module-level singleton named `$default_instance`
 
 ## What the Wrapper Owns
 
-Every inspected repository put a hand-written module in front of the SDK, and each one used it to normalise something. That is the right instinct: the wrapper is the only place a naming rule can be enforced mechanically, and the only place a vendor swap stays cheap.
+Putting a hand-written module in front of the SDK to normalise something is the right instinct: the wrapper is the only place a naming rule can be enforced mechanically, and the only place a vendor swap stays cheap.
 
 The tool-agnostic rules for that module — the one-module SDK boundary, the typed event schema, event naming, property discipline, and where the call site goes — belong to the product-event-tracking guidance in a software-instrumentation capability. This skill owns what is Amplitude-specific about it.
 

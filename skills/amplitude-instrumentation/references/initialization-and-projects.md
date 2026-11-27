@@ -43,9 +43,9 @@ Passing a user id positionally at init is only correct when the app already know
 
 An Amplitude client-side API key is **public by design** — it ships in the app bundle and anyone can read it. That does not make a hardcoded literal acceptable. A key in source cannot vary between development, staging, and production, and cannot be rotated without a release.
 
-> **Found in `axross/oraculo`** (`src/core/event-tracking.ts`): the API key is read from configuration _with a literal as a fallback_. Tracking never appears broken, so nothing signals that development traffic is landing in the production project. Filed as `axross/oraculo#31`.
+> **Observed failure mode**: the API key is read from configuration _with a literal as a fallback_. Tracking never appears broken, so nothing signals that development traffic is landing in the production project.
 
-> **Found in `axross/porousel`**: the key is nullable and a missing key silently disables the tracker. The opposite failure — no data at all, discovered weeks later.
+> **Observed failure mode**: the key is nullable and a missing key silently disables the tracker. The opposite failure — no data at all, discovered weeks later.
 
 Amplitude also issues credentials that are **not** public: the secret key, and the Data/Ampli tokens. Those authenticate management and export APIs and must never reach a client bundle or a public environment prefix.
 

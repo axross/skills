@@ -22,7 +22,7 @@ Three constraints, all verified:
 - MUST NOT plan to transform an Amplitude default user property; it is not permitted.
 - SHOULD use a transformation to make existing history queryable under the corrected name, and fix the emitter in the same change so the correction stops being needed.
 
-> **Found in `axross/aqua`**: a shipped typo in a property value — `Communty Cards` — and property keys drifting within a single file between `Rank Pair` and `RankPair`. Both are precisely what rename and merge exist for, and both would have been prevented by a schema.
+> **Observed failure mode**: a shipped typo in a property value (for example `Premum` for `Premium`) and property keys drifting within a single file (for example between `Plan Tier` and `PlanTier`). Both are precisely what rename and merge exist for, and both would have been prevented by a schema.
 
 ## Hiding Is Not Removing
 
