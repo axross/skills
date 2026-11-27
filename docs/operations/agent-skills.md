@@ -223,18 +223,19 @@ finding. A departure no entry lists is judged under the validity rules in
 management's [installed-rule change guidance](../../skills/agent-skill-management/references/installed-rule-changes.md#distinguish-addition-exception-and-proposal),
 not reported for being unlisted.
 
-An agent-authored record is not adoption evidence. In Claude Code the plan
-approval and the answers to open questions arrive as an `AskUserQuestion` answer
-in the session. The answer leaves no human-authored record on the tracking issue,
-and the operator login is shared, so the answer is provenance only. Each entry's
-adoption evidence is the maintainer's merge of the pull request that resolves
+Adoption evidence follows management's
+[installed-rule change guidance](../../skills/agent-skill-management/references/installed-rule-changes.md#distinguish-addition-exception-and-proposal).
+In Claude Code the plan approval and the answers to open questions arrive as an
+`AskUserQuestion` answer in the session. The answer leaves no human-authored
+record on the tracking issue, and the operator login is shared, so the answer is
+provenance only. Each entry's adoption evidence is the maintainer's merge of the pull request that resolves
 [#770](https://github.com/axross/skills/issues/770), whose body lists each
 departure with its rule, counterexample and scope. Where the maintainer posts a
 comment on #770 naming the accepted departures, that comment becomes the primary
 locator.
 
-An entry applies only while its adoption, scope and assumptions hold. A
-Resolved entry stays listed but leaves the index.
+Each entry's status and the index follow the
+[register format](../../skills/agent-skill-management/references/installed-rule-changes.md#deviation-register).
 
 ### Index of Active entries
 
@@ -374,11 +375,13 @@ Resolved entry stays listed but leaves the index.
   file carries, checked at 6d01295, which forbids an entry file from restating a
   rule that a loaded skill owns. `CLAUDE.md` is an entry file in that sense:
   Claude Code loads it in every session and it imports `AGENTS.md`.
-- **Counterexample:** `CLAUDE.md` "Waiting on a Pull Request" states the
-  unsubscribe stops beside the tool name, and the skill's Waiting Bound already
-  states them. A change to the skill's stop list leaves `CLAUDE.md` stating the
-  old one.
-- **What this repository does instead:** `CLAUDE.md` keeps four passages that
+- **Counterexample:** `CLAUDE.md` "Waiting on a Pull Request" unsubscribes at
+  four points: the ready transition, the round cap, the waiting bound, or the end
+  of a run that cannot be marked ready. The skill's Waiting Bound names three
+  stops: the ready transition, non-convergence at the round cap, and the waiting
+  bound. The two lists already diverge, and the fourth stop is adopted with the
+  passage.
+- **What this repository does instead:** `CLAUDE.md` keeps five passages that
   each pair a host tool with a rule a skill owns, and routes to the skill for the
   rest:
   1. the subscription bullets in "Waiting on a Pull Request", which restate
@@ -390,18 +393,23 @@ Resolved entry stays listed but leaves the index.
      Cannot Ask;
   4. the answers "Subagents Before the Plan Gate" and "Confirming Delivery at
      the Plan Gate" record in run state, which restate Run State and Reporting's
-     recording rule.
+     recording rule;
+  5. the "Reviewer Instances" subsection, which pairs the agent id, `/tasks` and
+     the host's task-stop tool with Loop Engineering › Selecting Review
+     Workflows › Review Session and Thread Cleanup.
 - **Why:** each passage names the host instrument that carries the rule, which a
   skill may not name, and this repository places Claude Code guidance in
   `CLAUDE.md`. Keeping the passages as the template has them keeps later syncs
   with it mechanical. It is not a skill change because the tool names are host
   mechanics that [Skill Portability](../conventions/skill-portability.md) keeps
   out of a skill.
-- **Scope:** the four passages above, and nothing else in `CLAUDE.md`.
+- **Scope:** the five passages above. A restatement elsewhere in `CLAUDE.md` is
+  judged under the validity rules this register's introduction states, not
+  covered by this entry.
 - **Adoption evidence:** the maintainer's approval at #770's plan gate
   (provenance), confirmed by the maintainer's merge of the pull request that
   resolves #770. Origin only, not evidence here: `axross/claude-loop-template#79`
   and `axross/claude-loop-template#80`, where the template added the file.
-- **Reassess when:** the entry-file contract or any of the four skill sections
-  changes, or `CLAUDE.md` changes one of the passages.
+- **Reassess when:** the entry-file contract or any of the skill sections the
+  five passages restate changes, or `CLAUDE.md` changes one of the passages.
 - **Status:** Active.
