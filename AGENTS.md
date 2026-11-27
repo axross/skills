@@ -30,25 +30,13 @@ to return the decision and partial results to the caller.
 For a code or documentation change, even when the request names another
 skill, an issue, or a continuation, identify the tracking target and load
 [Loop Engineering](./skills/loop-engineering/SKILL.md) before drafting a
-change plan, assigning change work or editing. In the **first progress
-update**, name the phase, tracking issue (or none) and plan approval state.
-Report an unknown field as unknown while checking it.
-
-Use [Loop intake](./skills/loop-engineering/references/phase-progression.md#intake-and-defaults)
-and [Development Workflow](./docs/operations/development-workflow.md). Before
-implementing or assigning implementation, recover the actual target and pending
-phase from the tracker, reproduce the canonical plan identity from faithfully
-retrieved bytes, and match both identity and requested scope to human approval.
-If approval is missing, stop at the approval gate. Added scope on a named
-issue goes through planning and approval. Preserve existing edits during
-recovery. Resume an unchanged approved plan at its pending phase. For each proposed
-effect that requires an [operation grant](./skills/loop-engineering/references/run-state-and-reporting.md#scoped-operation-grants),
-verify a current match. A verified standing grant counts within its scope.
-Hold an effect with a missing, expired or inapplicable grant and continue
-independent permitted work.
-
-Apply these gates within the host's actual instruction hierarchy and tool
-conditions. Report the blocked operation and unmet gate when they conflict.
+change plan, assigning change work or editing. Its
+[intake](./skills/loop-engineering/references/phase-progression.md#intake-and-defaults)
+owns the first progress update, recovery of the pending phase, plan approval,
+added scope and operation grants;
+[Development Workflow](./docs/operations/development-workflow.md) records this
+repository's gates, and [GitHub Delivery](./docs/operations/github-delivery.md)
+owns where plan and delivery state are stored.
 
 - MUST read [README.md](./README.md) and the
   [Development Setup](./docs/operations/development-setup.md) guide it links
@@ -88,6 +76,19 @@ posted-report instructions differ, REVIEW.md governs. Consult
 [Code Review operations](./docs/operations/code-review.md) for the selected
 provider's invocation and policy-delivery qualification; routing alone does
 not establish provider consumption or compliant output.
+
+This repository's post-push review route is an override of the
+[fallback](./skills/loop-engineering/references/review-workflow.md#post-push-review-route),
+stated per host:
+
+- **Claude Code:** In Claude Code sessions, use `@claude review` for post-push
+  review.
+- **Codex:** In Codex sessions, use `@codex review` for post-push review.
+- **Amp:** In Amp sessions, start a fresh review child thread for post-push
+  review.
+
+Each provider's setup, invocation and failure handling are in
+[Code Review operations](./docs/operations/code-review.md).
 
 ## Skill maintenance
 
