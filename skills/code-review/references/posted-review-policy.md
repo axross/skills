@@ -107,4 +107,4 @@ An automated reviewer triggered from pull-request activity is an attack surface:
 - MUST scope the reviewer's credentials to the least privilege it needs — read code, write review comments — and never grant it write access to repository contents.
 - MUST gate the trigger on a trusted author association (owner, member, or collaborator) so an untrusted commenter cannot spend the reviewer's budget or steer it.
 - MUST complete the whole review synchronously within the single triggered run and post before it ends; work deferred to a background task is lost when the run terminates.
-- MUST have a reviewer that may not execute the head report a claim only running the head's code could settle, such as a test result, through the needs-verification path in [Evidence and Reporting](./evidence-and-reporting.md#when-the-reviewer-cannot-verify), not as unchecked scope.
+- MUST have a reviewer that may not execute the head report a suspected defect that only running the head's code could settle, such as a failing test, through the needs-verification path in [Evidence and Reporting](./evidence-and-reporting.md#when-the-reviewer-cannot-verify), not as unchecked scope.
