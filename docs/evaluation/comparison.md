@@ -111,9 +111,7 @@ instrument controls, not executable natural tasks or host evidence.
 Inspect `qualification.deficits`, each cell's qualification, and each common
 opportunity's qualification before interpreting `axes.*.effect`. Read `counts`,
 `primaryComplete`, opportunity membership, observation provenance and guard scopes
-alongside effects. The [comparison specification](../specs/treatment-comparison.md)
-owns denominator, completeness, qualification and claim semantics.
-
-Each guard scope's `reason` explains one instrument-qualification blocker or is
-null when `instrumentQualified` is true. Read `liveReason` separately for the
-permanent offline limitation; `liveQualified` is always false.
+alongside effects. When a guard result is in doubt, inspect the scope's
+`reason`, then read `liveReason` before drawing a conclusion about the host.
+Use [Treatment Comparison](../specs/treatment-comparison.md) to interpret
+denominators, completeness and the limits of those claims.
