@@ -55,6 +55,13 @@ const variants = {
   "stale-callers": ["repaired", "stale-callers"],
   "missing-rationale": ["repaired", "missing-rationale"],
   "checkout-only": ["repaired", "checkout-only"],
+  "upstream-source": ["repaired", "checkout-only", "upstream-source"],
+  "blob-as-revision": [
+    "repaired",
+    "checkout-only",
+    "upstream-source",
+    "blob-as-revision",
+  ],
 };
 
 const permittedPages = [
@@ -210,7 +217,7 @@ try {
     await checkCallerRoutes(workspace, docs, name, repaired);
     await checkOrderEvidence(
       docs,
-      (repaired && name !== "checkout-only") || name === "staged",
+      (repaired && !patches.includes("checkout-only")) || name === "staged",
     );
     if (repaired) {
       const retryOwner = docs.documents.find((page) =>
@@ -236,6 +243,35 @@ try {
     );
     console.log(`${name}: structural pass, receipt preserved`);
   }
+  const valid = await readFile(
+    join(scratch, "upstream-source/docs/publishing/history.md"),
+    "utf8",
+  );
+  const invalid = await readFile(
+    join(scratch, "blob-as-revision/docs/publishing/history.md"),
+    "utf8",
+  );
+  const commit = "99e6407460d4e477a1a0690e40bee8f7079acbf2";
+  const queryBlob = execFileSync("git", ["rev-parse", "HEAD:server/app.ts"], {
+    cwd: baseline,
+    encoding: "utf8",
+  }).trim();
+  const locators = valid.match(/https:\/\/github\.com\/[^)]+/g) ?? [];
+  const rubric = scenario.factors.find(
+    (factor) => factor.id === "answers-the-tied-revisions-question",
+  ).judgment.instructions;
+  assert.equal(locators.length, 2);
+  for (const url of locators) {
+    assert.ok(
+      url.includes("/blob/" + commit + "/") && rubric.includes(url),
+      url,
+    );
+  }
+  assert.equal(
+    invalid,
+    valid.replaceAll(commit, queryBlob),
+    "only the repository revision should differ",
+  );
   const flat = await checkFlatControl({
     scratch,
     setupPatch: join(controls, "coherent-flat.diff"),

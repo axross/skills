@@ -72,7 +72,7 @@ next related contract is another reader of the layout.
 **Guidelines:**
 
 - MUST inventory the initial tree across the requested scope. Include indexes, glossaries, human and agent entry points, external callers, tools and boundaries such as generated pages with a separate producer or immutable evidence.
-- MUST walk representative questions from the root and from real callers. Record the decision, where the reader starts, the answer and limit they need, and where the route succeeds or breaks down.
+- MUST [trace representative reader questions](./consulting-and-upkeep.md#verify-a-readers-route) in the existing collection before choosing a target layout.
 - SHOULD scan every subject at page level in a large corpus, then inspect suspect sections and decision-critical routes closely. Look for mixed decisions, conflicting or repeated rules, unfamiliar terms, claims without support, questions without an owner and prerequisites stranded on other pages.
 
 ## Design the target
@@ -105,7 +105,7 @@ together.
 - MUST trace the slice's claims to their owners, callers, paths and fragments, exported assets, metadata and supporting evidence before editing.
 - SHOULD split claims when they serve different decisions and can change independently. Keep facts that a reader must apply together on one page; page length and heading count alone do not justify a split.
 - MUST carry each claim's limits, rationale and evidence into the typed owner, preserving established type names and existing metadata. Update generated material at its producer. Reconcile verified duplicates and retire obsolete material within the agreed scope.
-- MUST switch editable callers to the owning passage and [settle compatibility](./cross-references.md#preserve-the-reading-route) for published and uncertain external routes. Update the subject index and glossary where readers use them.
+- MUST [preserve the reading routes](./cross-references.md#preserve-the-reading-route) affected by each slice. Update the subject index and glossary where readers use them.
 - MUST preserve the action and any condition that changes it at the point of decision, including authority, cost, recovery or a safe no-op. Keep an ordered trace together when its sequence explains the outcome. Prefer a heading or link when splitting would make readers reconstruct one decision.
 - MUST read each extracted page independently, exercise a boundary case and [trace the affected entry points](./consulting-and-upkeep.md#verify-a-readers-route).
 

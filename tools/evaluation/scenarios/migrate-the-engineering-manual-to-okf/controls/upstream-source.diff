@@ -1,0 +1,12 @@
+diff --git a/docs/publishing/history.md b/docs/publishing/history.md
+--- a/docs/publishing/history.md
++++ b/docs/publishing/history.md
+@@ -8,4 +8,7 @@
+ 
+ Each post has one group headed by its current title. Each row keeps its title at
+ publication. Within a group, newer snapshots appear first. If two snapshots
+-share a second, the higher revision ID appears first. See `server/app.ts` and `src/routes/RevisionsPage.tsx`.
++share a second, the higher revision ID appears first. The
++[revisions query](https://github.com/axross/skills/blob/99e6407460d4e477a1a0690e40bee8f7079acbf2/tools/evaluation/mocks/inkwell/server/app.ts#L80-L91)
++orders the rows; the [screen's grouping function](https://github.com/axross/skills/blob/99e6407460d4e477a1a0690e40bee8f7079acbf2/tools/evaluation/mocks/inkwell/src/routes/RevisionsPage.tsx#L17-L34)
++preserves that order within each post.
