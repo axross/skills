@@ -1,0 +1,129 @@
+{
+  "scenario": "migrate-the-engineering-manual-to-okf",
+  "condition": "skill-absent",
+  "repetition": 1,
+  "factors": [
+    {
+      "id": "selects-the-documentation-skill",
+      "phase": "discovery",
+      "method": "script",
+      "result": false,
+      "evidence": "the probe's invoked skills were [], which does not include \"living-project-documentation\""
+    },
+    {
+      "id": "navigates-and-places-by-subject",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "Apply the diff to this baseline: docs/index.md offers only Specifications → specs/index.md → post-records.md and Guides → guides/index.md → deploy-hooks.md or desk.md. The answer to what a failed deploy does to a published revision is under both branches and the desk contradicts it. Start at the exported root with that question. Follow the visible labels and destinations. Then place a neighboring new rule about what title appears for an older revision, distinguishing it from a hosting-queue change. Require both a subject/decision choice in primary navigation and an actual arrangement of owning pages that justifies those two placements. The reader must reach the publishing answer without guessing a type or consulting the host procedure. Check destinations, not just new root labels. A new index that points to the old mixed guides, renamed buckets containing the same competing owners, or repaired leaves whose governing entry and placement still depend on Specifications versus Guides fail. Accept any equivalent labels, depth, or flat subject collection with a clear placement. Legacy compatibility paths may remain.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "No diff provided. The diff field is empty string, making it impossible to verify that the migration establishes clear destinations for the conflicting publishing behavior answer, maintains subject/decision distinction in navigation, or enables readers to reach the publishing answer without ambiguity."
+    },
+    {
+      "id": "separates-the-publish-contract-from-recovery",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "Reconstruct the edited pages, including removed or retained passages. Originally specs/post-records.md and deploy-hooks.md say that publication commits the revision and published status before the hook. guides/desk.md#missed-build says a failed hook undoes the publish and the author should publish again. AGENTS.md independently restates the publishing contract. Require an identifiable typed owner for the observable transaction and failed-hook exception and a distinct typed owner for operating the host. The public decision must say that the snapshot and published status survive a failed hook. No rival authoritative account, including the desk advice or a second self-contained rule in AGENTS.md, should remain. A contextual reminder that points to the owner is fine. Accept equivalent titles, page arrangements and terminology. Preserve the unique author decisions: a draft save adds no snapshot, and reverting published content requires editing it back and publishing again; there is no unpublish or automatic revision restore.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "Material provided contains empty diff and generic OKF migration task prompt, with no content from the required pages (specs/post-records.md, deploy-hooks.md, guides/desk.md, AGENTS.md) and no evidence of the specified reconstructed publishing workflow, typed owner definitions, or consolidated authoritative account addressing failed-hook behavior."
+    },
+    {
+      "id": "answers-the-tied-revisions-question",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "Originally guides/desk.md says newest first within a post, specs/post-records.md distinguishes the post's current title from each saved title, and neither explains ties. support/handoff.txt asks which of two snapshots of the same post with equal seconds should appear first. server/app.ts orders by createdAt DESC then id DESC; src/routes/RevisionsPage.tsx preserves the order within each post group. The existing route test uses two different dates and alone cannot establish the tie rule. Inspect the resulting published manual. Require a reachable revision-history answer that says higher revision ID first for an equal timestamp and gives an export reader a usable way to inspect evidence of the ordering rule and its preservation on screen. The README allows short source excerpts with the path and revision. Use these verified upstream destinations when the evidence is a link: https://github.com/axross/skills/blob/99e6407460d4e477a1a0690e40bee8f7079acbf2/tools/evaluation/mocks/inkwell/server/app.ts#L80-L91 (Git blob 809a401cdfa93c861829aa7a894a3737d430adb6, newest creation time then highest ID) and https://github.com/axross/skills/blob/99e6407460d4e477a1a0690e40bee8f7079acbf2/tools/evaluation/mocks/inkwell/src/routes/RevisionsPage.tsx#L17-L34 (Git blob 48eba9efd7d0f95df7f34f5738440d10897f8f86, groupByPost appends each revision in input order). The SHA after /blob/ in each GitHub URL names the repository commit. Substituting a file's blob ID for that commit cannot resolve a tree at the cited path. Accept equivalent locators for those pinned sources, source excerpts in the export, or other conclusive evidence whose content or identity can be checked from the supplied material. A different unverified URL or a plausible-looking revision alone does not establish the source; a diff-only judge cannot open it. Filenames or paths into the absent checkout, bare digests, and a test covering only different dates cannot establish the tie rule for an export reader. The answer itself must make sense on its owning page. Keep the distinction between a group named for the post's current title and a row named for its saved title.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "The diff is empty and the material provides only a task prompt to migrate docs to OKF format, with no reachable published manual, revision-history answer, documented tie-breaking rule for equal timestamps, or verified evidence of the ordering behavior."
+    },
+    {
+      "id": "bounds-the-host-deadline",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "The desk handoff asks how long after the hook is accepted Inkwell promises the new page will be live. The hook client stops at an HTTP success, and docs/receipts/hook-17.txt records only Acme revision 42's HTTP 202. Neither the mock nor any support agreement supplies a host completion deadline. Require the resulting manual to identify that exact limit and its implication for answering the customer. Credit an explicit unknown, a distinction between hook acceptance and the eventual hosted result, or a referral to the host's agreement that makes the missing commitment clear. Reject an inferred time bound, an asserted absence of all external SLAs, or a universal promise derived from that receipt. The decision should still link the identifiable receipt in the export and describe what it establishes.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "The material provides only an empty diff and a generic migration task prompt ('We're adopting OKF for our engineering docs. Please migrate them.'), with no analysis identifying any time limit for page publication, no distinction between hook acceptance (HTTP 202 per hook-17.txt) and hosted completion, no explicit unknown stated, and no reference to the receipt or any agreement. The required manual content addressing the customer's SLA question is absent."
+    },
+    {
+      "id": "retains-the-hook-retry-rationale",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "Originally deploy-hooks.md#the-retry-policy explains three total attempts with linear delays: the short window lets a cold serverless host wake, but cannot repair a deleted or misconfigured hook. When attempts run out the hook client logs at error (the API lacks an error tracker) and returns failure rather than throwing, allowing the publish route to report the outcome. Reconstruct the resulting maintained policy. Require the attempt bound, backoff, transient cold-host rationale, permanent endpoint limit and how exhaustion is recorded and returned. These operational decisions must remain available together under their current owner. Equivalent wording and placement earn credit; listing only the attempt count, putting the rationale only in a migration report or leaving it in retired prose fails.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "The diff is empty (\"\"), providing no evidence that the retry policy documentation—including the three-attempt bound, linear backoff, cold-host rationale, permanent endpoint limits, and error logging/failure-return behavior—was actually migrated or maintained together in any new location. Only a migration task intention is shown, not its completion or verification."
+    },
+    {
+      "id": "keeps-the-host-stop-with-the-action",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "The operational paragraph in guides/desk.md#missed-build reads: “Open the site's hosting dashboard and check its queue for this publication. If a build for it is queued or running, stop and follow that build. Otherwise trigger one rebuild from the host dashboard. Publishing again creates another revision.” An earlier, contradictory paragraph says to publish again on a failed hook. Reconstruct the resulting operator procedure from the diff and unchanged text. At the point of action require checking the relevant publication at the host, stopping and following its existing build if queued or running, and triggering a single host rebuild only if neither is true. Reject republishing to trigger recovery, or separating the stop decision behind a link, even when all words still occur somewhere in the bundle. Accept equivalent wording, paths and local section organization.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "The provided material contains an empty diff (\"\") and a task prompt about OKF migration unrelated to guides/desk.md#missed-build content. No actual file content, contradictory paragraphs, or procedure text is present to verify against the specified requirements."
+    },
+    {
+      "id": "readme-reaches-the-publish-outcome",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "Start from this exact baseline README.md link: [what a failed hook means for a published revision](docs/guides/desk.md#missed-build). Apply any README changes in the diff. When that line has no hunk, follow its original destination, even if the root index and source comments were updated. In the original desk section the hook supposedly undoes publication; apply the diff there too. Identify the effective README destination and describe what a reader learns at that landing. It must directly reach the maintained public decision that the post stays published and its committed revision survives a failed hook. A working bookmark for an operator, a brief status reminder in a rebuild procedure linking elsewhere for the contract, or a link-only forwarding entry does not answer the README reader at the owning passage. A correct answer elsewhere in the diff gives this route no credit. Accept alternative labels, a whole focused page without a fragment, or the original address if that landing now owns the complete public answer. No particular path, heading, type string, or textual change to the README is required. A separately working printed card does not establish this route. Cite the README destination and its landing as evidence.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "The diff field is empty, providing no content to apply to the baseline README or verify the landing at docs/guides/desk.md#missed-build (or any modified destination) contains the required public decision that a failed hook leaves a published post and its committed revision intact."
+    },
+    {
+      "id": "preserves-the-card-and-updates-current-callers",
+      "phase": "outcome",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "Apply the diff to this baseline. The maintainer decision permits retiring specs/index.md, specs/post-records.md, guides/index.md and deploy-hooks.md with their fragments, plus guides/desk.md#desk-reference and #reading-history, once current repository references reach their appropriate owners. It preserves the printed guides/desk.md#missed-build and other published entries. Check each removed path/fragment against that scope or a working compatibility route. Keeping an old owner or forwarding entry is acceptable. The printed card must reach accurate recovery. The README public-contract route is assessed separately. Three source comments also name docs/deploy-hooks.md: server/app.ts asks what happens after hook failure; server/db/queries.test.ts cites the atomic revision/status transaction; vite.config.ts points to the API analogy for an optional external step failing independently of the primary operation. Trace each controlled reference to the relevant maintained answer. A correct focused owner may keep its old path. Reject stale references, deletion of the pointers without equivalent routes, or a compatibility detour used in place of updating a controlled caller. Check the AGENTS entry for the publish route and hook policy too. Accept equivalent paths, headings and labels. A removed published address without support evidence, even when unused in the checkout, or a surviving card heading with incorrect recovery fails.\n\nMaterial:\n{\n  \"diff\": \"\",\n  \"task\": {\n    \"prompt\": \"We're adopting OKF for our engineering docs. Please migrate them.\"\n  }\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "The diff field is empty string (\"\"). No actual changes are provided to verify against the stated scope: retirement of specs/index.md, specs/post-records.md, guides/index.md, deploy-hooks.md with fragment preservation, and validation of references in server/app.ts, server/db/queries.test.ts, vite.config.ts, and AGENTS entry. A migration cannot be assessed without the diff content."
+    },
+    {
+      "id": "preserves-the-acme-receipt",
+      "phase": "outcome",
+      "method": "script",
+      "result": true,
+      "evidence": "docs/receipts/hook-17.txt: f1196a78c6a7e526a8c25e29ffbbdc1e20049884e6aa67de8cfae937a23a1b5a"
+    },
+    {
+      "id": "accounts-for-what-was-reviewed",
+      "phase": "transcript",
+      "method": "reasoning",
+      "judge": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "route": "claude-code-cli"
+      },
+      "prompt": "Judge only the agent's account of its work. First identify a statement that the agent changed the manual and a concrete before/after reader route with its owner. Quote the reported change and route in the evidence for a pass. If either is absent, return false, even if the agent accurately reported its searches, diagnosed a blocker, requested clarification or planned a route. Check the account covers publication/revision history and host delivery. Distinguish editorial review from any actual structural check or unavailable check; do not require the agent to claim it ran an unavailable validator. Require the unverified deadline or other outstanding scope to be named truthfully. When work is staged, credit an accurate bounded account naming covered subjects, deferred decisions and remaining callers; fail a claim of full adoption for one examined slice. Outcome factors still independently judge the actual edited deliverable. An empty set of assistant statements supplies no work account.\n\nMaterial:\n{\n  \"assistantText\": [\n    \"I'll check the repo for any existing references to \\\"OKF\\\" before deciding how to proceed.\",\n    \"Found it — `maintenance/decisions.md` records that the maintainers already approved migrating the engineering manual in `docs/` to the \\\"Open Knowledge Format\\\" (OKF). Let me find out what that format actually requires.\",\n    \"I stopped short of making changes, and here's why.\\n\\n`maintenance/decisions.md` confirms the maintainers already approved this: migrate the engineering manual in `docs/` to the \\\"Open Knowledge Format\\\" and update its references in the checkout, with a planned follow-up retirement of `specs/index.md`, `specs/post-records.md`, `guides/index.md`, and `deploy-hooks.md` (plus two anchors in `guides/desk.md`) once their references move to new owners — while `guides/desk.md#missed-build` must keep working for a printed support card.\\n\\nWhat's missing is the format itself. I searched the whole repo — `AGENTS.md`, `README.md`, the `technical-document-authoring` skill, `package.json`, and a full-text/filename grep for \\\"OKF\\\" or \\\"knowledge format\\\" — and found no spec for what \\\"Open Knowledge Format\\\" actually requires (file layout, frontmatter, naming, anchor conventions, etc.). It's not a documentation standard I have reliable knowledge of either (unlike, say, Diátaxis or DocBook).\\n\\nGiven `AGENTS.md`'s own rule — sketch a change and get it agreed before writing it, because a plan is a cheaper place to catch a misunderstood requirement than a finished diff — I didn't invent a structure and restructure six files against it. A fabricated spec risks producing a large, wrong diff across the whole manual, including real retirements and an anchor that a printed support card depends on.\\n\\n**Decision:** I'm treating \\\"what does OKF actually prescribe\\\" as the blocking unknown and not guessing at it. If you can point me to the OKF spec (a template, an example from another repo, a style guide), I'll do the migration — including updating in-checkout references and handling the `desk.md` anchors per the decision doc — and open it as a PR for review per the normal process.\"\n  ]\n}\n\nAnswer with exactly one JSON object and nothing else: {\"result\": true|false, \"evidence\": \"<a short, specific quote or description of what you based the verdict on>\"}.",
+      "result": false,
+      "evidence": "The agent states 'I stopped short of making changes' and provides no concrete before/after reader route. While the agent accurately diagnosed a blocker (missing OKF spec) and planned a route contingent on clarification, it did not report any actual manual changes or specific reader routes with owners."
+    }
+  ]
+}
