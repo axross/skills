@@ -155,6 +155,16 @@ factor sees the transcript. An outcome judgment is deliberately never shown
 the reasoning that produced the artefact it is judging, so a plausible
 explanation cannot substitute for the artefact actually meeting expectation.
 
+An outcome reasoning judgment can select `judgment.outcomeView`, a module in
+its scenario's `scripts/` directory. Its `outcomeView(workspace, factorId)`
+returns evidence from the reconstructed deliverable. The judge receives that
+evidence and the task in place of the diff. This can expose an unchanged
+caller or an exported file whose existence a patch alone cannot establish.
+Keep every selected path inside the authorized reconstruction, bound reads,
+and identify any evidence the view cannot inspect. A loading or reading
+failure, or material exceeding 96 KiB of JSON, produces a judgment error.
+The original diff remains in the measured record.
+
 A transcript reasoning judgment about what the agent told the reader may set
 `judgment.transcriptView` to `assistant-text`. The judge receives the
 top-level assistant’s text blocks in order, including progress reports. Tool

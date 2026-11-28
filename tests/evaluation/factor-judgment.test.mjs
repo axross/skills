@@ -255,6 +255,28 @@ describe("judgeFactor — reasoning method", () => {
     expect(record.prompt).toContain(JSON.stringify(PROBE.transcript));
   });
 
+  it("gives an outcome judge the selected reconstructed artifact independently of the diff and transcript", async () => {
+    const scenarioDir = await tempDir();
+    const workspace = await tempDir();
+    await writeFileIn(scenarioDir, "scripts/view.mjs", `
+      import { readFile } from "node:fs/promises";
+      export async function outcomeView(workspace, id) {
+        return { id, caller: await readFile(workspace + "/README.md", "utf8") };
+      }
+    `);
+    await writeFileIn(workspace, "README.md", "actual unchanged caller");
+    const projected = { ...factor, phase: "outcome", judgment: { ...factor.judgment, outcomeView: "scripts/view.mjs" } };
+    const args = { scenarioDir, workspace, probe: PROBE, env: {} };
+    const record = await judgeFactor(projected, args);
+    expect(record.prompt).toContain("actual unchanged caller");
+    expect(record.prompt).toContain(JSON.stringify(PROBE.task.prompt));
+    expect(record.prompt).not.toMatch(/diff --git|skillsInvoked|transcript/);
+    await writeFileIn(workspace, "README.md", "X".repeat(96 * 1024));
+    const oversized = await judgeFactor(projected, args);
+    expect(oversized.result.error).toMatch(/exceeds 96 KiB/);
+    expect(oversized.prompt).toContain("artifactsUnavailable");
+  });
+
   const accountFactor = {
     ...factor,
     judgment: { ...factor.judgment, transcriptView: "assistant-text" },

@@ -252,7 +252,9 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty-two
   publishing and revision contracts from the manual's front page. An operator
   needs the stop condition at the point of recovery. The factors check whether
   the agent discovers the competing owners, uses project evidence to fill a gap
-  and preserves the supported entry and its evidence. Its work-account factor
+  and preserves the supported entry and its evidence. The judges read the final
+  export, its root choices and current checkout callers. The revision answer
+  and the sources an export reader can use to verify it have separate verdicts. Its work-account factor
   reads the agent’s own messages for a reported change and before/after route.
 
 Fifteen scenarios inspect transcripts. Of their twenty-one transcript factors, ten

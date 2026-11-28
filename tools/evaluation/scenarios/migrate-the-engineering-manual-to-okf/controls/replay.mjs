@@ -14,6 +14,7 @@ import { readMarkdown } from "../../../../../skills/living-project-documentation
 import { checkFlatControl } from "./flat-control.mjs";
 import { judgeFactor } from "../../../src/factor-judgment.mjs";
 import { materialize } from "../../../src/mock-workspace.mjs";
+import { checkArtifactViews } from "./artifact-views.mjs";
 import { loadScenario } from "../../../src/scenario.mjs";
 
 if (process.argv.length !== 3)
@@ -299,16 +300,10 @@ try {
     encoding: "utf8",
   }).trim();
   const locators = valid.match(/https:\/\/github\.com\/[^)]+/g) ?? [];
-  const rubric = scenario.factors.find(
-    (factor) => factor.id === "answers-the-tied-revisions-question",
-  ).judgment.instructions;
   assert.equal(locators.length, 2);
-  for (const url of locators) {
-    assert.ok(
-      url.includes("/blob/" + commit + "/") && rubric.includes(url),
-      url,
-    );
-  }
+  for (const url of locators)
+    assert.ok(url.includes("/blob/" + commit + "/"), url);
+  await checkArtifactViews(scratch);
   assert.equal(
     invalid,
     valid.replaceAll(commit, queryBlob),
