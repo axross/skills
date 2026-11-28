@@ -30,7 +30,7 @@ const SCENARIOS_ROOT = join(REPO_ROOT, "tools", "evaluation", "scenarios");
 const USAGE = `Usage: derive.mjs <measurement-dir> [--check]
 
 Computes the derived tier (each factor's differential, the probe counts,
-the measurement's actual spend, and the comparable-predecessor link — but
+the sum of reported probe costs, and the comparable-predecessor link — but
 no per-condition pass rate) from <measurement-dir>'s own probes, each
 one's metadata.json (measured) and factors.json (measured, once judged) plus
 its scenario's declaration (declared).

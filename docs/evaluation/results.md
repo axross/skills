@@ -6,7 +6,7 @@ description: Reconstruct and judge a stored probe, derive its summary and diagno
 
 # Measurement Results
 
-Start with one scenario measurement directory and a checkout matching the run's instrument, scenario, mock, skills and judgment scripts. Check the instrument commit in the probe's `metadata.json` where recorded. For a dispatch, first consult the [artifact admission report](./artifacts.md) for absent planned probes. A local command can only see directories that reached disk.
+Start with one scenario measurement directory and a checkout matching the run's instrument, scenario, mock, skills and judgment scripts. Check the instrument commit in the probe's `metadata.json` where recorded. For a dispatch, look in the measurement PR’s **Artifact admission** section for absent planned probes, or consult the [job diagnostics](./artifacts.md#validate-downloaded-records) if no PR was opened. A local command can only see directories that reached disk.
 
 ## Judge the measured files
 
@@ -29,6 +29,6 @@ node tools/evaluation/derive.mjs <measurement-dir> --check
 node tools/evaluation/derive.mjs --help
 ```
 
-Derivation reads the scenario declarations, `metadata.json` and `factors.json`. It writes `summary.json` with factor differentials, counts, actual spend and a comparable predecessor when one qualifies. A missing or errored judgment can leave a differential unavailable. A missing probe cost makes total spend unknown. An unreadable required file prevents derivation.
+Derivation reads the scenario declarations, `metadata.json` and `factors.json`. It writes `summary.json` with factor differentials, probe counts, the probes’ reported costs and a comparable predecessor when one qualifies. A missing or errored judgment can leave a differential unavailable. Summary `costUsd` adds the recorded probes’ `metadata.json` costs and is null if any recorded probe lacks a cost. Reasoning-judge calls are outside that sum. An unreadable required file prevents derivation.
 
 Use `--check` to recompute the bytes and detect drift. If it fails, inspect the measured directory, judgment files, declarations and sibling measurements used for [predecessor selection](../specs/skill-evaluation.md#what-makes-two-measurements-comparable). In a dispatch, only scenarios marked complete by artifact admission are eligible for a summary. For an intentional change in treatment material, use the [offline comparison procedure](./comparison.md).

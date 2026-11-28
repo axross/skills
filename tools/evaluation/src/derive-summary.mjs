@@ -109,10 +109,9 @@ function deriveFactor(factorId, phase, probesByCondition) {
 }
 
 /**
- * the measurement's actual total spend — the other half of admitting a run
- * by an exact probe count rather than a projected cost: actual spend is
- * recorded after, never projected before. Each probe's own `costUsd` is measured
- * (probe-runner.mjs, from the CLI's own reported total); this sums it,
+ * the total of the recorded probes' own `costUsd` values, taken by
+ * probe-runner.mjs from the CLI's reported total. Reasoning-judge calls are
+ * outside this aggregate. The summary computes it after the run,
  * the same regenerable step every other field in this file goes through.
  *
  * a probe with no recorded cost is not the same as one that cost nothing —

@@ -368,7 +368,9 @@ per-condition pass rate of its own. The rate is still computed, per
 condition, exactly as before, and is exactly what a factor's differential
 is built from — what stops here is the field, not the computation.
 `summary.json` carries each factor's differential, the probe counts, and
-the measurement's actual spend. `comparable` was the deleted instrument's
+the sum of the recorded probes' reported costs. Summary `costUsd` is null
+when any recorded probe lacks a cost. Reasoning-judgment costs are excluded.
+`comparable` was the deleted instrument's
 own field: a boolean, derived from a summary's per-probe checks, answering
 whether every probe inside one measurement actually shared a single
 condition. That question is settled by construction now — a probe's
