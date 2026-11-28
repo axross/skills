@@ -10,25 +10,27 @@ Run from the repository root. Choose the scenario from the [registry](../operati
 
 ## Preview the matrix
 
+To preview exactly one probe, name one scenario, its condition and its repetition index, and cap the total at one.
+
 ```bash
-node tools/evaluation/probe.mjs --scenario <id> --repetitions 1 --limit 2 --dry-run
+node tools/evaluation/probe.mjs --scenario <id> --condition skill-present --repetition 1 --limit 1 --dry-run
 node tools/evaluation/probe.mjs --help
 ```
 
-The default run selects all declared scenarios, both conditions and three repetitions per condition. Preview the exact count before removing `--dry-run` to start the probes. If it exceeds `--limit`, the command reports both numbers and stops before the first spawn. Reduce the selected scenarios, conditions or repetitions, or set a limit that covers the intended run. The limit bounds probe count. Token usage and spend depend on what each probe does.
+The default run selects all declared scenarios, both conditions and three repetitions per condition. Omitting `--scenario` with the singular pair selects one probe for **each** declared scenario. Preview the exact count before removing `--dry-run` to start the probes. If it exceeds `--limit`, the command reports both numbers and stops before the first spawn. Reduce the selected scenarios, conditions or repetitions, or set a limit that covers the intended run. The limit bounds probe count. Token usage and spend depend on what each probe does.
 
-| Flag                    | Does                                                                                                                    |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `--scenario <id>`       | Only this scenario (default: every scenario under `tools/evaluation/scenarios/`)                                        |
-| `--conditions <list>`   | Comma-separated, from `skill-present`, `skill-absent` (default: both)                                                   |
-| `--repetitions <n>`     | Repetitions per condition (default: 3)                                                                                  |
-| `--condition <c>`       | With `--repetition`, select exactly one probe instead of the `--conditions` x `--repetitions` cross product             |
-| `--repetition <n>`      | With `--condition`, the 1-based repetition index this one probe is recorded under                                       |
-| `--measurement-id <id>` | Fix the id `measurementDirName` mints, so every invocation given the same id writes into the same measurement directory |
-| `--limit <n>`           | Refuses the run before anything starts if the exact probe count exceeds this                                            |
-| `--out <dir>`           | Measurement root to write under (default: `tools/evaluation/measurements`)                                              |
-| `--dry-run`             | Reports the probe matrix and the admission outcome; spawns nothing                                                      |
-| `--emit-matrix`         | Prints the probe matrix and the judgment matrix as one JSON document; spawns nothing                                    |
+| Flag                    | Does                                                                                                                             |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `--scenario <id>`       | Only this scenario (default: every scenario under `tools/evaluation/scenarios/`)                                                 |
+| `--conditions <list>`   | Comma-separated, from `skill-present`, `skill-absent` (default: both)                                                            |
+| `--repetitions <n>`     | Repetitions per condition (default: 3)                                                                                           |
+| `--condition <c>`       | With `--repetition`, select this condition and index once per selected scenario. Incompatible with the plural flags.             |
+| `--repetition <n>`      | With `--condition`, the 1-based repetition index for each selected scenario                                                      |
+| `--measurement-id <id>` | Set the suffix of `<scenario-id>-<id>`. Reusing it shares a measurement directory only within the same scenario and output root. |
+| `--limit <n>`           | Refuses the run before anything starts if the exact probe count exceeds this                                                     |
+| `--out <dir>`           | Measurement root to write under (default: `tools/evaluation/measurements`)                                                       |
+| `--dry-run`             | Reports the probe matrix and the admission outcome; spawns nothing                                                               |
+| `--emit-matrix`         | Prints the probe matrix and the judgment matrix as one JSON document; spawns nothing                                             |
 
 ## Locate the record and diagnose truncation
 

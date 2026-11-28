@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// probe.mjs — runs one evaluation scenario's probe matrix, or previews it.
+// probe.mjs — runs or previews the selected scenarios' probe matrix.
 //
 // docs/specs/skill-evaluation.md, "Repetitions", gives the matrix its shape:
 // a run expands its scenario(s) into every (condition, repetition) probe the
@@ -27,12 +27,9 @@
 // to come in from outside rather than be generated inside, once per
 // scenario, by whichever job happens to run first.
 //
-// --condition and --repetition (singular, unlike --conditions and
-// --repetitions) select exactly one probe of the matrix rather than
-// expanding a cross product: one condition, one repetition index. a cell
-// already knows which one it is — its own matrix entry says so — and
-// --repetitions 1 alone cannot express that: every cell would write
-// <condition>-1 regardless of which repetition it actually represents.
+// --condition and --repetition select one pair per selected scenario.
+// Each workflow cell also supplies --scenario to run a single probe,
+// recording it under its assigned repetition index.
 //
 // --emit-matrix prints the probe matrix and the judgment matrix as one JSON
 // document instead of the prose below, and exits before anything would have
@@ -91,15 +88,13 @@ Options:
   --conditions <list>   comma-separated, from skill-present, skill-absent
                          (default: both)
   --repetitions <n>     repetitions per condition (default: ${DEFAULT_REPETITIONS})
-  --condition <c>       with --repetition, select exactly one probe of the
-                         matrix instead of the --conditions x --repetitions
-                         cross product; mutually exclusive with them
-  --repetition <n>      with --condition, the 1-based repetition index this
-                         one probe is recorded under
-  --measurement-id <id>  fix the id measurementDirName mints, so every
-                         invocation given the same id (for the same
-                         scenario) writes into the same measurement
-                         directory (default: a fresh id per scenario)
+  --condition <c>       with --repetition, select one pair per selected
+                         scenario; incompatible with the plural flags
+  --repetition <n>      with --condition, the 1-based repetition index
+                         recorded for each selected scenario
+  --measurement-id <id>  set the suffix in <scenario-id>-<id> (default:
+                         a fresh id per scenario). Reusing an id shares a
+                         directory only within the same scenario and output root.
   --limit <n>            refuse the run before anything starts if the exact
                          probe count exceeds this (default: no limit)
   --dry-run              report the probe matrix and the admission outcome;
@@ -110,6 +105,9 @@ Options:
   --out <dir>            measurement root to write under (default:
                          tools/evaluation/measurements)
   --help                 show this message
+
+Preview one probe:
+  node tools/evaluation/probe.mjs --scenario <id> --condition skill-present --repetition 1 --limit 1 --dry-run
 
 Guide: docs/evaluation/probes.md
 
@@ -173,19 +171,17 @@ function parseArgs(argv) {
     }
   }
 
-  // --condition and --repetition select exactly one probe and must arrive
-  // together — a lone one names half a probe, which nothing downstream can
-  // act on.
+  // Both parts identify the pair to run for each selected scenario.
   if ((options.condition === null) !== (options.repetition === null)) {
-    fail2(`--condition and --repetition select exactly one probe and must be given together.\n${USAGE}`);
+    fail2(`--condition and --repetition select one pair per selected scenario and must be given together.\n${USAGE}`);
   }
   // mutually exclusive with --conditions/--repetitions, rather than one
   // silently overriding the other: those two multiply a matrix, this pair
-  // picks one cell of it, and a workflow step that combined them by mistake
+  // picks one cell per selected scenario, and a workflow step that combined them by mistake
   // should fail loudly rather than run a different probe than it asked for.
   if (options.condition !== null && (conditionsGiven || repetitionsGiven)) {
     fail2(
-      `--condition/--repetition select exactly one probe; combine with --conditions or --repetitions is not allowed.\n${USAGE}`,
+      `--condition/--repetition select one pair per selected scenario; combine with --conditions or --repetitions is not allowed.\n${USAGE}`,
     );
   }
   // guards the one place --measurement-id becomes a path segment
@@ -220,10 +216,8 @@ async function main() {
       if (!Number.isInteger(options.repetition) || options.repetition < 1) {
         throw new Error(`--repetition must be a positive integer, got ${JSON.stringify(options.repetition)}.`);
       }
-      // the one-probe selector: every loaded scenario gets exactly this one
-      // (condition, repetition) pair, rather than expandMatrix's cross
-      // product. a matrix cell always names --scenario too, so in practice
-      // this maps over exactly one scenario — but nothing here assumes that.
+      // A workflow cell supplies --scenario; local callers can use this
+      // pair across all scenarios.
       matrix = scenarios.map((scenario) => ({
         scenarioId: scenario.id,
         condition: options.condition,
@@ -239,8 +233,8 @@ async function main() {
 
   const admission = admitDispatch({ probeCount: matrix.length, limit: options.limit });
 
-  // --emit-matrix mints one id per scenario here — the same id every real probe of this
-  // dispatch will be told via --measurement-id — and prints the whole matrix as one
+  // --emit-matrix mints one id per scenario here — the id that scenario's probes will
+  // receive via --measurement-id — and prints the whole matrix as one
   // JSON document instead of the prose below. unlike --dry-run, it prints nothing else,
   // so a caller can parse stdout directly as JSON.
   if (options.emitMatrix) {
@@ -273,7 +267,7 @@ async function main() {
   if (options.condition !== null) {
     process.stdout.write(
       `Probe matrix: ${matrix.length} probe(s) across ${scenarios.length} scenario(s), ` +
-        `single-probe selection [${options.condition} #${options.repetition}].\n`,
+        `one pair per scenario [${options.condition} #${options.repetition}].\n`,
     );
   } else {
     process.stdout.write(
