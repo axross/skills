@@ -22,8 +22,15 @@ stateDiagram-v2
     running --> cancelled: cancelled mid-run
 ```
 
+A cancelled job receives no automatic retry, even if retries remain.
 A job cancelled while running keeps whatever output its attempt had already written.
 The product does not roll it back.
+
+The [lifecycle decision and cancellation test](./cancellation-evidence.txt)
+cover the case where retries remain. The test cancels a running job with two
+retries left and observes an empty attempt queue. It does not observe the
+external process. A client choosing an output-read timeout still needs a
+shutdown guarantee from that process.
 
 ## Attempts and retries
 

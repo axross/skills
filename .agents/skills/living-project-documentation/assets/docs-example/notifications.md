@@ -19,7 +19,7 @@ channel and suppressing one would silently drop a recipient.
 
 A rule fires on a job's terminal state only. `queued` and `running` are not states a
 rule can select, so a job that never finishes never notifies —
-see [which job states are terminal and when a failed attempt returns to the queue](./scheduling/outcomes.md#states).
+see [which states are terminal, including cancellation with retries left](./scheduling/outcomes.md#states).
 
 ## Channels
 

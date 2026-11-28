@@ -1,0 +1,159 @@
+diff --git a/AGENTS.md b/AGENTS.md
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -46,6 +46,8 @@
+ other than whoever wrote it, and it merges once that review has nothing left
+ to raise and the checks in `README.md` are green.
+ 
++The [maintenance decisions](maintenance/decisions.md) record agreed work.
++
+ Keep a pull request to the problem it set out to solve. Renaming something
+ you noticed in passing, reformatting a file you didn't otherwise touch, or
+ folding in an unrelated fix makes the diff harder to review for the same
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -3,7 +3,9 @@
+ A small hosted CMS: an author manages one or more customer sites, works
+ through a site's posts, and publishes one. Publishing writes a revision and
+ calls the site's deploy hook. See `AGENTS.md` for the shape of the product and
+-`docs/deploy-hooks.md` for what happens after Publish is clicked.
++[the engineering manual](docs/index.md) for publishing and delivery. The manual ships
++as the contents of `docs/`. Short excerpts from our own source and tests may
++ship in the manual with their source path and revision. Support records are under `support/`.
+ 
+ ## Getting started
+ 
+@@ -57,8 +59,7 @@
+   migrations under `server/db/migrations/`.
+ - `shared/` — code imported by both the SPA and the API. Just the logger
+   today.
+-- `docs/` — operational notes that don't belong in a code comment, such as
+-  [deploy hooks](docs/deploy-hooks.md).
++- `docs/` — [what a failed hook means for a published revision](docs/guides/desk.md#missed-build).
+ - `.github/workflows/` — the checks that run on every pull request.
+ 
+ ## Environment variables
+diff --git a/docs/guides/desk.md b/docs/guides/desk.md
+new file mode 100644
+--- /dev/null
++++ b/docs/guides/desk.md
+@@ -0,0 +1,18 @@
++# Desk reference
++
++## Reading history
++
++Revisions are listed newest first within a post. Draft saves update the post
++without adding a snapshot.
++
++## Missed build
++
++A failed hook undoes the publish. The author should publish the post again.
++
++Open the site's hosting dashboard and check its queue for this publication.
++If a build for it is queued or running, stop and follow that build. Otherwise
++trigger one rebuild from the host dashboard. Publishing again creates another
++revision.
++
++The [receipt from Acme's release](../receipts/hook-17.txt) is the record used
++when support reviews that release.
+diff --git a/docs/guides/index.md b/docs/guides/index.md
+new file mode 100644
+--- /dev/null
++++ b/docs/guides/index.md
+@@ -0,0 +1,4 @@
++# Guides
++
++- [Deploy hooks](../deploy-hooks.md)
++- [Desk reference](./desk.md)
+diff --git a/docs/index.md b/docs/index.md
+new file mode 100644
+--- /dev/null
++++ b/docs/index.md
+@@ -0,0 +1,4 @@
++# Engineering manual
++
++- [Specifications](./specs/index.md)
++- [Guides](./guides/index.md)
+diff --git a/docs/receipts/hook-17.txt b/docs/receipts/hook-17.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/receipts/hook-17.txt
+@@ -0,0 +1,4 @@
++hook receipt 17
++site=acme
++revision=42
++response=202
+diff --git a/docs/specs/index.md b/docs/specs/index.md
+new file mode 100644
+--- /dev/null
++++ b/docs/specs/index.md
+@@ -0,0 +1,3 @@
++# Specifications
++
++- [Post records](./post-records.md)
+diff --git a/docs/specs/post-records.md b/docs/specs/post-records.md
+new file mode 100644
+--- /dev/null
++++ b/docs/specs/post-records.md
+@@ -0,0 +1,7 @@
++# Post records
++
++The revisions list groups snapshots by post. Each heading uses the post's
++current title. Each row uses the title saved at publication.
++
++A post becomes published with its snapshot. A failed deploy hook leaves
++the published post and its revision in place.
+diff --git a/history.jsonc b/history.jsonc
+--- a/history.jsonc
++++ b/history.jsonc
+@@ -73,7 +73,11 @@
+     },
+     {
+       "message": "explain the deploy hook retry policy",
+-      "files": ["docs/deploy-hooks.md"]
++      "files": [
++        "docs/deploy-hooks.md", "docs/index.md", "docs/specs/index.md",
++        "docs/specs/post-records.md", "docs/guides/index.md", "docs/guides/desk.md",
++        "docs/receipts/hook-17.txt", "support/handoff.txt", "maintenance/decisions.md"
++      ]
+     },
+     {
+       "message": "global css reset",
+diff --git a/maintenance/decisions.md b/maintenance/decisions.md
+new file mode 100644
+--- /dev/null
++++ b/maintenance/decisions.md
+@@ -0,0 +1,15 @@
++# Maintenance decisions
++
++## Engineering manual
++
++Accepted by the maintainers. Migrate the published engineering manual in
++`docs/` to the Open Knowledge Format and update its references in the checkout.
++The editor handling the migration may make these edits and submit the
++result for review. Application changes are outside this decision.
++
++For the next export we may retire `specs/index.md`, `specs/post-records.md`,
++`guides/index.md` and `deploy-hooks.md`, including their bookmarks, once
++their current references in the repository reach the appropriate new owners.
++The same decision covers `guides/desk.md#desk-reference` and
++`guides/desk.md#reading-history`. Keep `guides/desk.md#missed-build` working
++for the printed support card. Other published entries retain their support.
+diff --git a/support/handoff.txt b/support/handoff.txt
+new file mode 100644
+--- /dev/null
++++ b/support/handoff.txt
+@@ -0,0 +1,12 @@
++Desk handoff, Acme
++
++Two snapshots of the same post show the same second. The author wants to know
++which should appear first.
++
++The customer also asks how long after the hook is accepted we promise the new
++page will be live. Release 17 returned HTTP 202. The support case identifies
++that receipt by its exported path receipts/hook-17.txt and SHA-256:
++f1196a78c6a7e526a8c25e29ffbbdc1e20049884e6aa67de8cfae937a23a1b5a
++
++The printed desk card opens guides/desk.md#missed-build in the exported
++engineering manual. The card is still in circulation.

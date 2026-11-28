@@ -1,0 +1,11 @@
+diff --git a/docs/index.md b/docs/index.md
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -6,5 +6,7 @@
+ 
+ # Engineering manual
+ 
++- [Publishing and revisions](./guides/desk.md#reading-history)
++- [Site delivery](./deploy-hooks.md#what-publishing-actually-does)
+ - [Specifications](./specs/index.md)
+ - [Guides](./guides/index.md)

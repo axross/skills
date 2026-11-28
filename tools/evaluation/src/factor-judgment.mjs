@@ -12,13 +12,16 @@
 // at, only to report.
 
 import { spawnSync } from "node:child_process";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, resolve, sep } from "node:path";
+
+import { pathToFileURL } from "node:url";
 
 import { CLI_AUTH_ENV_VARS } from "./credentials.mjs";
 import { callReasoningJudge, JUDGE_ROUTE } from "./judge.mjs";
 import { canonicalJson } from "./layout.mjs";
+import { readEvents } from "./transcript/index.mjs";
 
 /**
  * the material one factor's judge is shown, bounded by its phase alone —
@@ -36,6 +39,23 @@ export function materialFor(phase, probe) {
   if (phase === "outcome") return { diff: probe.diff, task: probe.task };
   if (phase === "transcript") return { transcript: probe.transcript };
   throw new Error(`Unknown phase ${JSON.stringify(phase)}.`);
+}
+
+function reportedText(transcript) {
+  const events = readEvents(transcript);
+  if (!events.some((event) => typeof event?.type === "string")) return null;
+
+  const texts = [];
+  for (const event of events) {
+    if (event?.type !== "assistant" || event.parent_tool_use_id != null)
+      continue;
+    if (!Array.isArray(event.message?.content)) continue;
+    for (const block of event.message.content) {
+      if (block?.type === "text" && typeof block.text === "string")
+        texts.push(block.text);
+    }
+  }
+  return texts;
 }
 
 /**
@@ -114,7 +134,7 @@ async function runScriptJudgment({ scriptPath, workspace, context }) {
  * @param {{
  *   id: string, phase: "discovery"|"outcome"|"transcript",
  *   judgment: { method: "script", script: string, input?: unknown }
- *            | { method: "reasoning", model: string, instructions: string },
+ *            | { method: "reasoning", model: string, instructions: string, transcriptView?: "assistant-text", outcomeView?: string },
  * }} factor one scenario's own factor declaration
  * @param {{
  *   scenarioDir: string,
@@ -163,8 +183,27 @@ export async function judgeFactor(factor, { scenarioDir, workspace, probe, env =
     };
   }
 
+  let judgeMaterial = material;
+  let outcomeViewError;
+  if (factor.judgment.transcriptView === "assistant-text")
+    judgeMaterial = { assistantText: reportedText(probe.transcript) };
+  if (factor.judgment.outcomeView) {
+    try {
+      const dir = await realpath(scenarioDir);
+      const file = await realpath(resolve(dir, factor.judgment.outcomeView));
+      if (factor.phase !== "outcome" || !file.startsWith(dir + sep))
+        throw new Error("Expected an outcome view owned by the scenario.");
+      const { outcomeView } = await import(pathToFileURL(file).href);
+      judgeMaterial = { task: probe.task, artifacts: await outcomeView(workspace, factor.id) };
+      if (Buffer.byteLength(JSON.stringify(judgeMaterial, null, 2)) > 96 * 1024)
+        throw new Error("The artifact view exceeds 96 KiB.");
+    } catch (error) {
+      outcomeViewError = `Cannot prepare outcome evidence: ${error.message}`;
+      judgeMaterial = { task: probe.task, artifactsUnavailable: outcomeViewError };
+    }
+  }
   const userPrompt =
-    `${factor.judgment.instructions}\n\nMaterial:\n${JSON.stringify(material, null, 2)}\n\n` +
+    `${factor.judgment.instructions}\n\nMaterial:\n${JSON.stringify(judgeMaterial, null, 2)}\n\n` +
     'Answer with exactly one JSON object and nothing else: {"result": true|false, ' +
     '"evidence": "<a short, specific quote or description of what you based the verdict on>"}.';
 
@@ -172,13 +211,15 @@ export async function judgeFactor(factor, { scenarioDir, workspace, probe, env =
   // as unreached as a spawn failure would be — recorded as an error on this
   // one factor, never as a thrown exception that would abort every other
   // factor's judgment, and never as `false`.
-  if (!CLI_AUTH_ENV_VARS.some((name) => env[name])) {
+  if (outcomeViewError || judgeMaterial.assistantText === null || !CLI_AUTH_ENV_VARS.some((name) => env[name])) {
     return {
       id: factor.id,
       phase: factor.phase,
       method: "reasoning",
       result: {
-        error: `no Claude CLI credential was found in the environment (${CLI_AUTH_ENV_VARS.join(" or ")}); the judge was never asked.`,
+        error: outcomeViewError ?? (judgeMaterial.assistantText === null
+          ? "The stored transcript has no readable stream events for the requested assistant-text view."
+          : `no Claude CLI credential was found in the environment (${CLI_AUTH_ENV_VARS.join(" or ")}); the judge was never asked.`),
       },
       judge: { model: factor.judgment.model, route: JUDGE_ROUTE },
       prompt: userPrompt,

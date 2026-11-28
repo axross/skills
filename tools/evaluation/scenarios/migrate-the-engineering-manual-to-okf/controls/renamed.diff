@@ -1,0 +1,49 @@
+diff --git a/README.md b/README.md
+index db12dc4..af89581 100644
+--- a/README.md
++++ b/README.md
+@@ -61,3 +61,3 @@ it falls back to a development author so the console still knows who you are.
+   today.
+-- `docs/` — [what a failed hook means for a published revision](docs/guides/desk.md#missed-build).
++- `docs/` — [what a failed hook means for a published revision](docs/delivery/desk.md#missed-build).
+ - `.github/workflows/` — the checks that run on every pull request.
+diff --git a/docs/guides/desk.md b/docs/delivery/desk.md
+similarity index 100%
+rename from docs/guides/desk.md
+rename to docs/delivery/desk.md
+diff --git a/docs/guides/index.md b/docs/delivery/index.md
+similarity index 86%
+rename from docs/guides/index.md
+rename to docs/delivery/index.md
+index 3c4745d..4df8ba3 100644
+--- a/docs/guides/index.md
++++ b/docs/delivery/index.md
+@@ -1,2 +1,2 @@
+-# Guides
++# Delivery
+ 
+diff --git a/docs/index.md b/docs/index.md
+index 5443312..58884d6 100644
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -8,3 +8,3 @@ description: Reference material for Inkwell engineers.
+ 
+-- [Specifications](./specs/index.md)
+-- [Guides](./guides/index.md)
++- [Publishing](./publishing/index.md)
++- [Delivery](./delivery/index.md)
+diff --git a/docs/specs/index.md b/docs/publishing/index.md
+similarity index 68%
+rename from docs/specs/index.md
+rename to docs/publishing/index.md
+index 1e3ce6d..a719354 100644
+--- a/docs/specs/index.md
++++ b/docs/publishing/index.md
+@@ -1,2 +1,2 @@
+-# Specifications
++# Publishing
+ 
+diff --git a/docs/specs/post-records.md b/docs/publishing/post-records.md
+similarity index 100%
+rename from docs/specs/post-records.md
+rename to docs/publishing/post-records.md

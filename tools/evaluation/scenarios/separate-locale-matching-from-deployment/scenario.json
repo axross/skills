@@ -38,7 +38,7 @@
       "description": "The approval binds the original Markdown and the captured request to separate byte identities. This check hashes both files in the reconstructed workspace.",
       "judgment": {
         "method": "script",
-        "script": "scripts/check-approved-files.mjs",
+        "script": "../../judgments/check-approved-files.mjs",
         "input": {
           "files": [
             {

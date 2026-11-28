@@ -1,0 +1,57 @@
+diff --git a/docs/sources/revision-order.txt b/docs/sources/revision-order.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/sources/revision-order.txt
+@@ -0,0 +1,37 @@
++Source: server/app.ts
++Git blob: 809a401cdfa93c861829aa7a894a3737d430adb6
++
++    const rows = await db
++      .select({
++        id: revisions.id,
++        postId: revisions.postId,
++        postTitle: posts.title,
++        title: revisions.title,
++        createdAt: revisions.createdAt,
++      })
++      .from(revisions)
++      .innerJoin(posts, eq(revisions.postId, posts.id))
++      .where(eq(posts.siteId, site.id))
++      .orderBy(desc(revisions.createdAt), desc(revisions.id));
++
++Source: src/routes/RevisionsPage.tsx
++Git blob: 48eba9efd7d0f95df7f34f5738440d10897f8f86
++
++function groupByPost(revisions: readonly Revision[]): PostGroup[] {
++  const groups = new Map<number, PostGroup>();
++
++  for (const revision of revisions) {
++    const group = groups.get(revision.postId);
++    if (group) {
++      group.revisions.push(revision);
++      continue;
++    }
++    groups.set(revision.postId, {
++      postId: revision.postId,
++      postTitle: revision.postTitle,
++      revisions: [revision],
++    });
++  }
++
++  return [...groups.values()];
++}
+diff --git a/docs/specs/post-records.md b/docs/specs/post-records.md
+--- a/docs/specs/post-records.md
++++ b/docs/specs/post-records.md
+@@ -7,7 +7,10 @@
+ # Post records
+ 
+ The revisions list groups snapshots by post. Each heading uses the post's
+-current title. Each row uses the title saved at publication.
++current title. Each row uses the title saved at publication. Within a post the
++newest snapshot comes first. For a tie in the same second, the higher revision
++ID comes first. The [query and grouping function](../sources/revision-order.txt)
++show the two descending sort keys and the order in which rows reach each group.
+ 
+ A post becomes published with its snapshot. A failed deploy hook leaves
+ the published post and its revision in place.

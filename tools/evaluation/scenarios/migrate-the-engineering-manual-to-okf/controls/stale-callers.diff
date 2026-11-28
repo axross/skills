@@ -1,0 +1,40 @@
+diff --git a/server/app.ts b/server/app.ts
+--- a/server/app.ts
++++ b/server/app.ts
+@@ -115,8 +115,8 @@
+   });
+ 
+   // Publishing writes a revision snapshot, flips the post to "published",
+-  // and calls the site's deploy hook. For a failed hook after commit, see
+-  // docs/publishing/publication.md#if-the-hook-fails.
++  // and calls the site's deploy hook — see docs/deploy-hooks.md for what
++  // happens when that last step fails.
+   app.post("/sites/:siteSlug/posts/:postId/publish", async (c) => {
+     const site = await findSiteBySlug(db, c.req.param("siteSlug"));
+     if (!site) return c.json({ error: "Site not found." }, 404);
+diff --git a/server/db/queries.test.ts b/server/db/queries.test.ts
+--- a/server/db/queries.test.ts
++++ b/server/db/queries.test.ts
+@@ -72,8 +72,8 @@
+   });
+ 
+   // The publish route depends on this: it writes the snapshot and flips the
+-  // post's status inside one transaction. For the atomicity guarantee, see
+-  // docs/publishing/publication.md#publication-transaction.
++  // post's status inside one transaction, and docs/deploy-hooks.md promises
++  // either both happen or neither does.
+   it("leaves no revision behind when the write it belongs to fails part-way", async () => {
+     const [site] = await db
+       .insert(sites)
+diff --git a/vite.config.ts b/vite.config.ts
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -5,7 +5,7 @@
+ // The Sentry plugin only runs when a build-time auth token is present, the
+ // same way most CI pipelines gate it: a local build with no token still
+ // produces working output, it just doesn't upload anything. See
+-// docs/publishing/publication.md#if-the-hook-fails for the API analogue.
++// docs/deploy-hooks.md for the pattern this mirrors on the API side.
+ const sentryPlugin = process.env.SENTRY_AUTH_TOKEN
+   ? sentryVitePlugin({
+       org: process.env.SENTRY_ORG ?? "inkwell",

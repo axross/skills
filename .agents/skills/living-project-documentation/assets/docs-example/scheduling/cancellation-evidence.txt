@@ -1,0 +1,10 @@
+Scheduler example — excerpts from the illustrative checkout
+
+decisions/job-lifecycle.md
+“A failed attempt returns to the queue while a retry remains. Allow three retries after
+the initial try. Cancellation ends the job regardless of the retry budget.”
+
+worker/cancel.test.ts
+const job = await worker.startJob({ retriesRemaining: 2 });
+await worker.cancel(job.id);
+expect(await queue.pendingAttempts(job.id)).toHaveLength(0);

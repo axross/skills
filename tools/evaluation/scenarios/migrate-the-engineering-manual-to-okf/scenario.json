@@ -1,0 +1,166 @@
+{
+  "id": "migrate-the-engineering-manual-to-okf",
+  "description": "An ordinary request to migrate an engineering manual leaves the editor to discover its conflicting publishing and delivery advice, two unanswered support questions and the printed recovery card. The reconstructed manual and current callers supply editorial evidence independently of skill selection and the work account.",
+  "mock": "inkwell",
+  "targetSkills": ["living-project-documentation"],
+  "peerSkills": ["technical-document-authoring"],
+  "patch": "patch.diff",
+  "harness": {
+    "agentsMd": true
+  },
+  "task": {
+    "prompt": "We're adopting OKF for our engineering docs. Please migrate them."
+  },
+  "factors": [
+    {
+      "id": "selects-the-documentation-skill",
+      "phase": "discovery",
+      "description": "A broad migration should select the collection-maintenance skill among the available writing skills.",
+      "judgment": {
+        "method": "script",
+        "script": "../../judgments/check-discovery.mjs",
+        "input": {
+          "skill": "living-project-documentation"
+        }
+      }
+    },
+    {
+      "id": "navigates-and-places-by-subject",
+      "phase": "outcome",
+      "description": "A newcomer and a contributor can both choose an owner without knowing a document type.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Start at the exported root with that question. Follow the visible labels and destinations. Then place a neighboring new rule about what title appears for an older revision, distinguishing it from a hosting-queue change. Require both a subject/decision choice in primary navigation and an actual arrangement of owning pages that justifies those two placements. The reader must reach the publishing answer without guessing a type or consulting the host procedure. Check destinations, not just new root labels. A new index that points to the old mixed guides, renamed buckets containing the same competing owners, or repaired leaves whose governing entry and placement still depend on Specifications versus Guides fail. Accept any equivalent labels, depth, or flat subject collection with a clear placement. Legacy compatibility paths may remain."
+      }
+    },
+    {
+      "id": "separates-the-publish-contract-from-recovery",
+      "phase": "outcome",
+      "description": "Publishing and host recovery change independently. Each should have one maintained answer.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Require an identifiable typed owner for the observable transaction and failed-hook exception and a distinct typed owner for operating the host. The public decision must say that the snapshot and published status survive a failed hook. No rival authoritative account, including the desk advice or a second self-contained rule in AGENTS.md, should remain. A contextual reminder that points to the owner is fine. Accept equivalent titles, page arrangements and terminology. Preserve the unique author decisions: a draft save adds no snapshot, and reverting published content requires editing it back and publishing again; there is no unpublish or automatic revision restore."
+      }
+    },
+    {
+      "id": "answers-the-tied-revisions-question",
+      "phase": "outcome",
+      "description": "A support question missing from the old manual has an answer in the shipped API and UI.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Follow the published index to the revision-history answer. Require it to state that the higher revision ID comes first for two snapshots of one post with an equal timestamp, distinguishing the group's current title from the saved title on each row. Cite the actual owning path and passage. The existence, provenance and connection of its supporting evidence are assessed independently."
+      }
+    },
+    {
+      "id": "supplies-inspectable-ordering-evidence",
+      "phase": "outcome",
+      "description": "A reader with only the exported manual can verify both the API ordering and how the UI preserves it.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Start at the published revision-history answer. Trace its citation to material that an export reader can actually inspect for both the API ordering and the order within each UI group. In the verdict, cite the submitted path or URL for each and quote the evidence visible at that destination (or identify which is missing). A correct answer in prose is not itself evidence. The sourceChecks inventory compares submitted bytes, excerpts and upstream references against known source identities. A matched line by itself does not prove the ordering rule. Read the export to decide whether the cited lines establish both descending keys and the order-preserving grouping. Other conclusive evidence is eligible: for example, a cited reproducible fixture with two same-second rows and observed API and UI order. Quote it and verify its provenance and relevant content using the submitted material. An unverified URL, a checkout-only source path, a bare digest, an isolated HTTP receipt or different-dates test cannot establish this. An empty match list with no identifiable qualifying alternative in the submitted export fails. Never invent a missing excerpt, link, command result, or test; the task, caller files, this rubric and the evaluator's own knowledge are not evidence available to the export reader."
+      }
+    },
+    {
+      "id": "bounds-the-host-deadline",
+      "phase": "outcome",
+      "description": "Support needs to know what it may promise about the time to a live site.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "The desk handoff asks how long after the hook is accepted Inkwell promises the new page will be live. The hook client stops at an HTTP success, and docs/receipts/hook-17.txt records only Acme revision 42's HTTP 202. Neither the mock nor any support agreement supplies a host completion deadline. Require the resulting manual to identify that exact limit and its implication for answering the customer. Credit an explicit unknown, a distinction between hook acceptance and the eventual hosted result, or a referral to the host's agreement that makes the missing commitment clear. Reject an inferred time bound, an asserted absence of all external SLAs, or a universal promise derived from that receipt. The decision should still link the identifiable receipt in the export and describe what it establishes."
+      }
+    },
+    {
+      "id": "retains-the-hook-retry-rationale",
+      "phase": "outcome",
+      "description": "An operator deciding whether automatic retries can help needs the reason and limit at the current retry-policy owner.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Originally deploy-hooks.md#the-retry-policy explains three total attempts with linear delays: the short window lets a cold serverless host wake, but cannot repair a deleted or misconfigured hook. When attempts run out the hook client logs at error (the API lacks an error tracker) and returns failure rather than throwing, allowing the publish route to report the outcome. Reconstruct the resulting maintained policy. Require the attempt bound, backoff, transient cold-host rationale, permanent endpoint limit and how exhaustion is recorded and returned. These operational decisions must remain available together under their current owner. Equivalent wording and placement earn credit; listing only the attempt count, putting the rationale only in a migration report or leaving it in retired prose fails."
+      }
+    },
+    {
+      "id": "keeps-the-host-stop-with-the-action",
+      "phase": "outcome",
+      "description": "Someone following the recovery procedure needs to decide safely whether to trigger another build.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "At the recovery action itself, require the operator to inspect this publication in the host queue. When its build is queued or running the operator must stop and follow it; otherwise the procedure must direct one host rebuild. Cite the procedure's submitted path and its local branches. A stop hidden behind a link or stated only after the trigger fails. Accept equivalent phrasing, headings, paths and layouts. This factor judges the queue decision; the separate recovery-alternatives factor judges whether other advice authorizes creating another revision."
+      }
+    },
+    {
+      "id": "excludes-republishing-as-recovery",
+      "phase": "outcome",
+      "description": "A reader recovering delivery must not be offered an action that creates another revision of already-published content.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Read the current exported manual for decisions on a missed build after publication committed. Find the recovery owner, the supported card’s destination, and any other advice for that incident. Quote the relevant action and any qualifying or fallback sentence in full, with its path. Does any maintained guidance allow an author or operator to publish the same content again to get the site built? If yes, return false, even if it recommends trying the dashboard first, makes republishing optional, conditions it on the dashboard being unavailable, or warns that it adds a revision. A correct queue check does not cancel that advice. Credit a usable recovery that offers only an independent host action or stopping, including wording that names republishing expressly to rule it out. A factual explanation of what republishing does, without offering it as incident recovery, is acceptable. Republishing edited content to intentionally revert a prior release is a different task and is allowed. Missing recovery guidance cannot establish a safe choice. Judge the reader's options in context across the published files; accept any equivalent wording, titles and layout."
+      }
+    },
+    {
+      "id": "readme-reaches-the-publish-outcome",
+      "phase": "outcome",
+      "description": "Can a reader starting at the repository README find out what a failed hook means for the revision?",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Identify (1) the current repository README entry for the failed-hook/publication question and its first destination/fragment, (2) the maintained public contract selected by the exported index and the pages' own descriptions and attribution, and (3) what passage the README actually lands on. Give both locators and a short quotation from the first landing in the verdict. If the landing introduces its own job as host recovery and attributes the contract to a different place, return false even when its entry condition accurately repeats that the post and revision survive. A root-index link or a correct source comment elsewhere is independent of this README entry. Credit any equivalent public owner or precise owning section, including a whole focused page, another label or an original address now owning the public decision. Require the maintained decision directly at the README landing."
+      }
+    },
+    {
+      "id": "preserves-the-card-and-updates-current-callers",
+      "phase": "outcome",
+      "description": "A printed support card must survive the next export. Retirement of other published addresses depends on the destinations of the current callers.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "The maintainer decision permits retiring specs/index.md, specs/post-records.md, guides/index.md and deploy-hooks.md with their fragments, plus guides/desk.md#desk-reference and #reading-history, once current repository references reach their appropriate owners. It preserves the printed guides/desk.md#missed-build and other published entries. Check each removed path/fragment against that scope or a working compatibility route. Keeping an old owner or forwarding entry is acceptable. The printed card must reach accurate recovery. The README public-contract route is assessed separately. The original source callers of docs/deploy-hooks.md ask different questions: server/app.ts asks what happens after hook failure; server/db/queries.test.ts cites the atomic revision/status transaction; vite.config.ts points to the API analogy for an optional external step failing independently of the primary operation. Trace each controlled reference to the relevant maintained answer. A correct focused owner may keep its old path. Reject stale references, deletion of the pointers without equivalent routes, or a compatibility detour used in place of updating a controlled caller. Check the AGENTS entry for the publish route and hook policy too. Accept equivalent paths, headings and labels. A removed published address without support evidence, even when unused in the checkout, or a surviving card heading with incorrect recovery fails."
+      }
+    },
+    {
+      "id": "preserves-the-acme-receipt",
+      "phase": "outcome",
+      "description": "The support record binds the exported receipt to its original path and bytes.",
+      "judgment": {
+        "method": "script",
+        "script": "../../judgments/check-approved-files.mjs",
+        "input": {
+          "files": [
+            {
+              "path": "docs/receipts/hook-17.txt",
+              "digest": "f1196a78c6a7e526a8c25e29ffbbdc1e20049884e6aa67de8cfae937a23a1b5a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "accounts-for-what-was-reviewed",
+      "phase": "transcript",
+      "description": "A report should distinguish collection coverage, unsupported decisions and the result of structural checks.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "transcriptView": "assistant-text",
+        "instructions": "Judge only the agent's account of its work. First identify a statement that the agent changed the manual and a concrete before/after reader route with its owner. Quote the reported change and route in the evidence for a pass. If either is absent, return false, even if the agent accurately reported its searches, diagnosed a blocker, requested clarification or planned a route. Check the account covers publication/revision history and host delivery. Distinguish editorial review from any actual structural check or unavailable check; do not require the agent to claim it ran an unavailable validator. Require the unverified deadline or other outstanding scope to be named truthfully. When work is staged, credit an accurate bounded account naming covered subjects, deferred decisions and remaining callers; fail a claim of full adoption for one examined slice. Outcome factors still independently judge the actual edited deliverable. An empty set of assistant statements supplies no work account."
+      }
+    }
+  ]
+}

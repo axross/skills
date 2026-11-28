@@ -6,7 +6,7 @@ description: Declared evaluation tasks, their mock projects, target skills and t
 
 # Evaluation Scenarios
 
-Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty-one<!-- /count --> scenarios are declared today: thirteen against `inkwell`, fourteen against `tsuzuri`, and four against `recall`.
+Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty-two<!-- /count --> scenarios are declared today: fourteen against `inkwell`, fourteen against `tsuzuri`, and four against `recall`.
 
 - [`quiet-the-stale-post-list-after-a-draft-save`](../../tools/evaluation/scenarios/quiet-the-stale-post-list-after-a-draft-save)
   targets `tanstack-query-development`, alongside `react-component-development`
@@ -247,8 +247,20 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty-one
   bookmark has no retirement decision. The [worked reader traces](../../tools/evaluation/scenarios/repair-the-reading-routes-for-unmatched-languages/review/reader-traces.md)
   describe how to evaluate the edited destinations and their limits.
 
-Fourteen scenarios inspect transcripts. Of their twenty transcript factors, ten
-use script judgments and ten use reasoning judgments. The remaining scenarios
+- [Migrate the engineering manual to OKF](../../tools/evaluation/scenarios/migrate-the-engineering-manual-to-okf)
+  asks for a collection migration in `inkwell`. An editor needs to find the
+  publishing and revision contracts from the manual's front page. An operator
+  needs the stop condition at the point of recovery. The factors check whether
+  the agent discovers the competing owners, uses project evidence to fill a gap
+  and preserves the supported entry and its evidence. The judges read the final
+  export, its root choices and current checkout callers. The revision answer
+  and the sources an export reader can use to verify it have separate verdicts.
+  Recovery has one verdict for the local queue decision and one for any
+  fallback that would create an unintended revision. Its work-account factor
+  reads the agent’s own messages for a reported change and before/after route.
+
+Fifteen scenarios inspect transcripts. Of their twenty-one transcript factors, ten
+use script judgments and eleven use reasoning judgments. The remaining scenarios
 exercise discovery or inspect the resulting artifacts.
 
 For execution, follow [Evaluation Dispatch](./evaluation-dispatch.md). For the

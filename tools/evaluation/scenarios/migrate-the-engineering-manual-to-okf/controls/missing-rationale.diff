@@ -1,0 +1,13 @@
+diff --git a/docs/delivery/rebuild.md b/docs/delivery/rebuild.md
+--- a/docs/delivery/rebuild.md
++++ b/docs/delivery/rebuild.md
+@@ -11,8 +11,7 @@
+ After [publication](../publishing/publication.md), Inkwell posts to the site's
+ deploy hook up to three times. Failed network calls and non-success responses
+ are retried with a linear delay: 250 ms before the second attempt and 500 ms
+-before the third. This short window gives a cold host time to wake up. It cannot
+-recover a deleted or misconfigured hook.
++before the third.
+ 
+ On exhaustion the API has no error tracker, so the hook client logs the failure
+ at error level and returns `ok: false` instead of throwing. The publish route

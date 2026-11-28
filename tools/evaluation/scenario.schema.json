@@ -146,6 +146,44 @@
           "$ref": "#/$defs/judgment"
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "judgment": {
+                "type": "object",
+                "required": ["transcriptView"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "const": "transcript",
+                "description": "a judgment with transcriptView requires the transcript phase."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "judgment": {
+                "type": "object",
+                "required": ["outcomeView"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "const": "outcome",
+                "description": "a judgment with outcomeView requires the outcome phase."
+              }
+            }
+          }
+        }
+      ],
       "description": "a factor must be an object declaring one thing the result is judged on."
     },
     "judgment": {
@@ -227,13 +265,22 @@
           "pattern": "^[a-z0-9-]+/.+$",
           "description": "a reasoning judgment's \"model\" must be a vendor-prefixed, fully-qualified model id."
         },
+        "outcomeView": {
+          "type": "string",
+          "pattern": "^scripts/[a-z0-9-]+\\.mjs$",
+          "description": "an outcome view must name a scenario-owned module in its scripts directory."
+        },
+        "transcriptView": {
+          "const": "assistant-text",
+          "description": "assistant-text supplies only the top-level assistant's own text in order. Omit transcriptView for the full transcript."
+        },
         "instructions": {
           "type": "string",
           "minLength": 1,
           "description": "a reasoning judgment's \"instructions\" must be a non-empty string stating what the judge is asked to decide."
         }
       },
-      "description": "a reasoning judgment reads \"model\" and \"instructions\" and nothing else — a \"script\" or \"input\" here belongs to a script judgment."
+      "description": "a reasoning judgment reads \"model\", \"instructions\" and an optional phase-specific material view — a \"script\" or \"input\" here belongs to a script judgment."
     },
     "input": {
       "type": "object",

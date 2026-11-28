@@ -1,0 +1,37 @@
+diff --git a/docs/delivery/queue-status.md b/docs/delivery/queue-status.md
+new file mode 100644
+--- /dev/null
++++ b/docs/delivery/queue-status.md
+@@ -0,0 +1,9 @@
++---
++type: Reference
++title: Queue status
++description: The queue states that suspend recovery.
++---
++
++# Queue status
++
++If a build for this publication is queued or running, stop and follow that build.
+diff --git a/docs/delivery/rebuild.md b/docs/delivery/rebuild.md
+--- a/docs/delivery/rebuild.md
++++ b/docs/delivery/rebuild.md
+@@ -25,6 +25,5 @@
+ 
+ ## Recover a missed build
+ 
+-Check the site's hosting dashboard for this publication. If its build is
+-queued or running, stop and follow that build. Otherwise trigger one rebuild
+-from the host dashboard. Leave the published content alone.
++Check the site's hosting dashboard for this publication. Trigger one rebuild from the host dashboard.
++See also [queue status](./queue-status.md). Leave the published content alone.
+diff --git a/docs/index.md b/docs/index.md
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -8,6 +8,7 @@
+ 
+ - [Publishing and revision history](./publishing/index.md) covers changes an author sees in Inkwell.
+ - [Site delivery](./delivery/rebuild.md) covers the hook and the host queue.
++- [Queue status](./delivery/queue-status.md) covers the host queue.
+ - [Desk card](./guides/desk.md#missed-build) opens the support recovery route.
+ 
+ Place a new rule for the revision list beside the other history rules under Publishing.

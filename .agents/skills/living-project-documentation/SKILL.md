@@ -1,6 +1,6 @@
 ---
 name: living-project-documentation
-description: Maintaining a project's own docs as its engineering changes. Use for docs/ upkeep, glossary and spec changes, settled decisions, stale runbooks, and bootstrapping or migrating an Open Knowledge Format (OKF) bundle. Product requirement document authoring owns change plans, and technical writing owns sentence-level editing. Helps readers find the page that defines a term, specifies behavior, explains a boundary, or governs an operation. Covers legacy layouts, provenance, offline exports and navigation checks.
+description: Maintaining a project's engineering docs and migrating existing collections to the Open Knowledge Format (OKF). Use for requests to adopt OKF, set up a new bundle, repair stale runbooks, or update specs, glossary entries and settled decisions. Product requirement document authoring owns change plans, and technical writing owns sentence-level editing. Covers subject layout, missing answers, evidence, published paths and offline exports.
 user-invocable: true
 ---
 
@@ -13,6 +13,13 @@ procedures that actually hold. Update their owning pages in place. In a Git
 project, commits and pull requests carry the history of changes and checks.
 The [OKF v0.3 specification](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/SPEC.md)
 defines the bundle format. Here, `docs/` means the project's documentation root.
+
+When migrating a populated collection, start at the project's published entry
+point. Follow [Assess the collection](./references/bootstrapping.md#assess-the-collection)
+to edit and verify one reader question at a time, from its original caller to
+the owning passage and the evidence that travels with it. Consult a worked
+example when a specific placement or recovery decision needs one. Run the
+whole-root checks on the integrated checkout and export after the reader checks.
 
 The requirement keywords used in this skill and its references follow
 [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
@@ -34,14 +41,18 @@ See [conventions-and-operations.md](./references/conventions-and-operations.md) 
 See [bootstrapping.md](./references/bootstrapping.md) for:
 
 - starting with a single reader question in a new project
-- inventorying a populated tree, choosing which claims to separate, retaining claims used together and preserving evidence identity
+- migrating an existing collection to OKF, including a tree that already passes validation, or carrying out an explicitly format-only request
+- designing the layout from questions in handoffs and callers, checking each answer and its limits at the destination, and reporting the questions and checks still open
 
 See [cross-references.md](./references/cross-references.md) for:
 
 - settling support for published paths and fragments, updating callers and checking record identifiers
 - making navigation work both inside the checkout and in an exported bundle
 
-The [Scheduler example](./assets/docs-example/index.md) shows how readers enter through a subject, a familiar term or a deployment step and find the page that owns their decision. Its [rollback procedure](./assets/docs-example/operating/deployment.md#rolling-back) keeps the recovery command beside the condition that requires a restore.
+The [Scheduler migration](./assets/scheduler-migration.md#target-and-evidence)
+compares a heading repair and a subject split. Its
+[rollback procedure](./assets/docs-example/operating/deployment.md#rolling-back)
+shows which steps stay together.
 
 ## Consulting and maintaining docs
 

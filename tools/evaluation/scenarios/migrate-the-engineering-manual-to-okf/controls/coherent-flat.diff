@@ -1,0 +1,122 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index ad3265c..3813e17 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -58,4 +58,4 @@ they were one. Split it, or leave the rest for its own change.
+ 
+-Before changing the publish route, read [publication](docs/publishing/publication.md);
+-for changes to `server/deploy-hook.ts`, read [hook delivery](docs/delivery/rebuild.md#hook-delivery).
++Before changing the publish route, read [publication](docs/publication.md);
++for changes to `server/deploy-hook.ts`, read [hook delivery](docs/delivery.md#hook-delivery).
+ The [engineering manual](docs/index.md) explains where to record changes.
+diff --git a/README.md b/README.md
+index 6ba3271..64e7e9c 100644
+--- a/README.md
++++ b/README.md
+@@ -61,3 +61,3 @@ it falls back to a development author so the console still knows who you are.
+   today.
+-- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md#if-the-hook-fails).
++- `docs/` — [what a failed hook means for a published revision](docs/publication.md#if-the-hook-fails).
+ - `.github/workflows/` — the checks that run on every pull request.
+diff --git a/docs/delivery/rebuild.md b/docs/delivery.md
+similarity index 90%
+rename from docs/delivery/rebuild.md
+rename to docs/delivery.md
+index 8e2269f..1b49e8f 100644
+--- a/docs/delivery/rebuild.md
++++ b/docs/delivery.md
+@@ -10,3 +10,3 @@ description: Interpret a deploy hook result and recover a missing site build.
+ 
+-After [publication](../publishing/publication.md), Inkwell posts to the site's
++After [publication](./publication.md), Inkwell posts to the site's
+ deploy hook up to three times. Failed network calls and non-success responses
+@@ -20,3 +20,3 @@ reports `deployTriggered: false` to the editor.
+ 
+-A successful hook response acknowledges the request. The [Acme release receipt](../receipts/hook-17.txt)
++A successful hook response acknowledges the request. The [Acme release receipt](./receipts/hook-17.txt)
+ records HTTP 202 for revision 42. Neither that receipt nor the hook implementation
+diff --git a/docs/guides/desk.md b/docs/guides/desk.md
+index 7cf37bf..dd80682 100644
+--- a/docs/guides/desk.md
++++ b/docs/guides/desk.md
+@@ -10,2 +10,2 @@ description: The hosting procedure used by the printed support card.
+ 
+-[Recover a missed build](../delivery/rebuild.md#recover-a-missed-build).
++[Recover a missed build](../delivery.md#recover-a-missed-build).
+diff --git a/docs/publishing/history.md b/docs/history.md
+similarity index 85%
+rename from docs/publishing/history.md
+rename to docs/history.md
+index b16a990..b58f51a 100644
+--- a/docs/publishing/history.md
++++ b/docs/history.md
+@@ -11,3 +11,3 @@ publication. Within a group, newer snapshots appear first. If two snapshots
+ share a second, the higher revision ID appears first. The [revisions query and
+-grouping function](../sources/revision-order.txt) show both sort keys and how
++grouping function](./sources/revision-order.txt) show both sort keys and how
+ the screen preserves the incoming order within each post.
+diff --git a/docs/index.md b/docs/index.md
+index be99e9c..44fd339 100644
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -8,7 +8,8 @@ description: Authoring posts, reading revisions and operating site delivery.
+ 
+-- [Publishing and revision history](./publishing/index.md) covers changes an author sees in Inkwell.
+-- [Site delivery](./delivery/rebuild.md) covers the hook and the host queue.
++- [What a publish commits](./publication.md) covers the changes an author sees in Inkwell.
++- [Reading and ordering revisions](./history.md) covers the revision list.
++- [Site delivery](./delivery.md) covers the hook and the host queue.
+ - [Desk card](./guides/desk.md#missed-build) opens the support recovery route.
+ 
+-Place a new rule for the revision list beside the other history rules under Publishing.
++Place a new rule for the revision list in [Revision history](./history.md).
+ Put a change to host recovery in Site delivery.
+diff --git a/docs/publishing/publication.md b/docs/publication.md
+similarity index 92%
+rename from docs/publishing/publication.md
+rename to docs/publication.md
+index 7a2b39c..118877e 100644
+--- a/docs/publishing/publication.md
++++ b/docs/publication.md
+@@ -19,3 +19,3 @@ The publish response reports the outcome in `deployTriggered` and the editor tel
+ the author when the deploy failed. For recovery, follow
+-[the hosting procedure](../delivery/rebuild.md#recover-a-missed-build).
++[the hosting procedure](./delivery.md#recover-a-missed-build).
+ 
+diff --git a/docs/publishing/index.md b/docs/publishing/index.md
+deleted file mode 100644
+index e1ddc9a..0000000
+--- a/docs/publishing/index.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Publishing
+-
+-- [What survives a publish?](./publication.md)
+-- [How are revisions displayed and ordered?](./history.md)
+diff --git a/server/app.ts b/server/app.ts
+index 8c9254a..c588dfa 100644
+--- a/server/app.ts
++++ b/server/app.ts
+@@ -118,3 +118,3 @@ export function createApp(db: Db) {
+   // and calls the site's deploy hook. For a failed hook after commit, see
+-  // docs/publishing/publication.md#if-the-hook-fails.
++  // docs/publication.md#if-the-hook-fails.
+   app.post("/sites/:siteSlug/posts/:postId/publish", async (c) => {
+diff --git a/server/db/queries.test.ts b/server/db/queries.test.ts
+index 13a6ee1..d4f39e3 100644
+--- a/server/db/queries.test.ts
++++ b/server/db/queries.test.ts
+@@ -75,3 +75,3 @@ describe("the sites/posts/revisions schema", () => {
+   // post's status inside one transaction. For the atomicity guarantee, see
+-  // docs/publishing/publication.md#publication-transaction.
++  // docs/publication.md#publication-transaction.
+   it("leaves no revision behind when the write it belongs to fails part-way", async () => {
+diff --git a/vite.config.ts b/vite.config.ts
+index 4e90fc4..bca7131 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -7,3 +7,3 @@ import { defineConfig } from "vite";
+ // produces working output, it just doesn't upload anything. See
+-// docs/publishing/publication.md#if-the-hook-fails for the API analogue.
++// docs/publication.md#if-the-hook-fails for the API analogue.
+ const sentryPlugin = process.env.SENTRY_AUTH_TOKEN

@@ -1,0 +1,25 @@
+diff --git a/docs/delivery/rebuild.md b/docs/delivery/rebuild.md
+--- a/docs/delivery/rebuild.md
++++ b/docs/delivery/rebuild.md
+@@ -19,9 +19,7 @@
+ reports `deployTriggered: false` to the editor.
+ 
+ A successful hook response acknowledges the request. The [Acme release receipt](../receipts/hook-17.txt)
+-records HTTP 202 for revision 42. Neither that receipt nor the hook implementation
+-establishes a maximum time until the customer's site is live. Check the hosting
+-agreement before giving a customer a deadline.
++records HTTP 202 for revision 42. All sites are guaranteed to be live within 60 seconds of acceptance.
+ 
+ ## Recover a missed build
+ 
+diff --git a/docs/publishing/history.md b/docs/publishing/history.md
+--- a/docs/publishing/history.md
++++ b/docs/publishing/history.md
+@@ -8,6 +8,6 @@
+ 
+ Each post has one group headed by its current title. Each row keeps its title at
+ publication. Within a group, newer snapshots appear first. If two snapshots
+-share a second, the higher revision ID appears first. The [revisions query and
++share a second, the lower revision ID appears first. The [revisions query and
+ grouping function](../sources/revision-order.txt) show both sort keys and how
+ the screen preserves the incoming order within each post.

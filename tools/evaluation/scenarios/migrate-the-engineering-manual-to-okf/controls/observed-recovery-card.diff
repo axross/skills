@@ -1,0 +1,33 @@
+diff --git a/docs/guides/desk.md b/docs/guides/desk.md
+--- a/docs/guides/desk.md
++++ b/docs/guides/desk.md
+@@ -1,11 +1,24 @@
+ ---
+-type: Reference
+-title: Desk card
+-description: The hosting procedure used by the printed support card.
++type: Procedure
++title: Recovering a missed build
++description: What to do when a publish's deploy hook doesn't fire. Kept at this path and heading for the printed support card still in circulation.
+ ---
+ 
+-# Desk card
++# Recovering a missed build
+ 
+ ## Missed build
+ 
+-[Recover a missed build](../delivery/rebuild.md#recover-a-missed-build).
++A failed deploy hook does not undo the publish — the post and its revision
++are already committed by the time the hook is called, so the author's
++content is live in this app either way. What's missing is the site's
++rebuild.
++
++Open the site's hosting dashboard and check its queue for this publication.
++If a build for it is queued or running, stop and follow that build.
++Otherwise, trigger a rebuild from the host dashboard. Publishing the post
++again also calls the deploy hook, but it writes another revision even when
++nothing changed, so prefer the host dashboard's rebuild when one is
++available.
++
++The [receipt from Acme's release](../receipts/hook-17.txt) is the record
++used when support reviews that release.

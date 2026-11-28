@@ -1,0 +1,12 @@
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -59,7 +59,7 @@
+   migrations under `server/db/migrations/`.
+ - `shared/` — code imported by both the SPA and the API. Just the logger
+   today.
+-- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md#if-the-hook-fails).
++- `docs/` — [what a failed hook means for a published revision](docs/guides/desk.md#missed-build).
+ - `.github/workflows/` — the checks that run on every pull request.
+ 
+ ## Environment variables
