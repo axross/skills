@@ -83,13 +83,19 @@ receives no automatic retry, even if retries remain.” Someone starting at the
 glossary with the dashboard term “Retries remaining” reaches the retry contract.
 [Scheduling index](./docs-example/scheduling/index.md) · [Owning state contract](./docs-example/scheduling/outcomes.md#states) · [Dashboard term](./docs-example/glossary.md)
 
-Start again at the edited caller. [Notification rules](./docs-example/notifications.md#rules)
-links “which states are terminal, including cancellation with retries left”
-directly to the contract. [Verifying a release](./docs-example/operating/deployment.md#verifying-a-release)
-now links to the retry passage and tells the operator to check the claim rate
-before diagnosing a stall. At [Rolling back](./docs-example/operating/deployment.md#rolling-back),
-someone who has already removed data encounters the stop and handoff before
-the command.
+Start again with the handbook’s original question about which outcomes
+can trigger a notification rule. A link relabeled “configure a channel” could resolve and
+still lose that question. The edited [notification rule](./docs-example/notifications.md#rules)
+links directly to the state contract, where the reader can check cancellation
+with retries left. [Verifying a release](./docs-example/operating/deployment.md#verifying-a-release)
+links to the retry passage and tells the operator when to check the claim rate.
+
+Walk [Rolling back](./docs-example/operating/deployment.md#rolling-back) twice.
+With the data intact and the previous revision compatible, the release operator
+can roll the code back. With data already removed, the operator stops and hands
+the restore to on-call. Offering the same deploy command as a fallback in the
+second case would leave the data missing. Removing it from both cases would
+lose the supported code rollback.
 
 Try placing a neighboring contract about the state a client sees while a
 job waits for its first worker. Scheduling owns the state returned to the

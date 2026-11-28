@@ -32,8 +32,8 @@ Open the linked references as their decisions arise.
    answer. Try the published root, an actual caller and the contributor's
    route for placing a neighboring claim. Sketch the subjects those readers need.
 2. Pick one question. One line in working notes can hold its actual starting
-   link, owning passage and evidence. Edit the owner, switch callers and try that
-   route immediately. For example, follow [the notification rule](../assets/docs-example/notifications.md#rules)
+   link, the question its wording asks, its owning passage and evidence. Edit
+   the owner, switch callers and try the original question immediately. For example, follow [the notification rule](../assets/docs-example/notifications.md#rules)
    to [the cancellation passage](../assets/docs-example/scheduling/outcomes.md#states)
    and open its evidence for cancellation with retries left.
 3. Answer from the edited page, including its exception or the precise limit
@@ -61,7 +61,7 @@ roll back can choose “Operating a release.” Try both routes in the
 
 - SHOULD sketch the smallest tree that answers the observed questions. Name each subject in the project's language and say which decisions it owns. Choose [page types and local indexes](./documentation-structure.md#choose-the-subject) once the owners are clear.
 - SHOULD compare a minimal repair, such as a direct heading link, with a different grouping when ownership is ambiguous. Try a root lookup, [placing a new claim from a contributor entry point](./conventions-and-operations.md#contributor-routes) and the affected caller routes. Weigh the cost of maintaining old entries.
-- MUST account for each affected legacy decision in working notes or the existing change record. Identify what stays, what moves or splits, which claims merge at one owner, and why a page is created or retired.
+- MUST account for each affected decision in working notes or the existing change record. Before retiring a page, follow each still-supported decision it alone answers to its owner in the edited tree, including rare exceptions and undo paths. Record the authority for any decision retired with the page.
 - MUST investigate missing answers in implementation, tests, configuration or an adopted decision. Write the rule and the case that distinguishes it from a plausible alternative at their owner. Where sources conflict or evidence runs out, tell the reader there what the source establishes, what remains unknown and which decision depends on it. A local observation may cover only one stage of a longer process.
 
 ## Migrate one reading route
@@ -80,8 +80,8 @@ together.
 - SHOULD split claims when they serve different decisions and can change independently. Keep facts that a reader must apply together on one page; page length and heading count alone do not justify a split.
 - MUST carry the claim's limits and rationale into its typed owner. For a newly established answer, link the precise supporting source there or include a permitted, attributed excerpt. Try the citation from the exported page and identify any access limit. A filename in migration notes leaves the recipient without that evidence.
 - MUST preserve established type names and metadata. Correct generated material at its producer. Search the affected pages for another full statement of the verified rule. Replace editable duplicates with the local decision and a direct link to the owner. Retire obsolete material within the agreed scope.
-- MUST [preserve supported bookmarks](./cross-references.md#preserve-the-reading-route) as external entries and [exercise editable callers](./consulting-and-upkeep.md#verify-a-readers-route) separately. Follow the link in each affected caller, including the contributor guide, to the passage its wording promises. Repair a detour through a compatibility heading. Update the subject index and glossary where readers use them.
-- MUST keep the action, authority, cost and stop or recovery condition together. Walk every proposed branch from its actual failure state, including any effect already committed. If repeating an action would violate the recovery decision, remove every suggestion to repeat it, including optional or discouraged alternatives. Show the safe next action or no-op.
+- MUST [preserve supported bookmarks](./cross-references.md#preserve-the-reading-route) as external entries and [exercise editable callers](./consulting-and-upkeep.md#verify-a-readers-route) separately. Read each original caller’s question beside its edited wording, including contributor instructions. Follow the new link and answer that original question at its owner. Restore a lost question even if the new label accurately describes its destination. Update the subject index and glossary where readers use them.
+- MUST keep the action, authority, cost and stop or recovery condition together. Walk every branch a reader could take, including fallbacks after the numbered steps. Starting from the observed state, name the effect of each action. Remove alternatives that would create an unintended second effect during recovery. If the same action is valid for a deliberate new change, keep that decision under its own entry condition.
 
 ## Close the requested scope
 
@@ -93,7 +93,8 @@ with only that destination would give the reader another step.
 **Guidelines:**
 
 - MUST reconcile the edited tree and working questions with the initial inventory. Open each recorded answer passage and answer the original question from that passage alone or its necessary links. Correct missing cases or record the gap. In the handoff identify covered subjects, remaining owners, unresolved questions and cross-package callers as applicable. Limit the completion claim to routes actually exercised.
-- MUST report [format checks](./validators.md) separately from editorial results. Replay representative questions from the root and callers. For a repaired defect, show the original failure, the edited owner and the route to the complete answer. For a retained layout, identify a working owner, its boundary case and the detour an extra split or directory would introduce.
+- MUST fix each required finding from [the checkout and export checks](./validators.md) and rerun affected checks on the delivered tree. This includes retained compatibility pages. If either check still fails or cannot run, report that scope as incomplete, with the finding or blocker.
+- MUST report editorial results separately. Replay representative questions from the root and callers. For a repaired defect, show the original failure, the edited owner and the route to the complete answer. For a retained layout, identify a working owner, its boundary case and the detour an extra split or directory would introduce.
 
 ## Start with a reader
 
