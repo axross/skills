@@ -1,6 +1,6 @@
 ---
 name: living-project-documentation
-description: Maintaining a project's own docs as its engineering changes. Use for docs/ upkeep, glossary and spec changes, settled decisions, stale runbooks, and bootstrapping or migrating an Open Knowledge Format (OKF) bundle. Product requirement document authoring owns change plans, and technical writing owns sentence-level editing. Helps readers find the page that defines a term, specifies behavior, explains a boundary, or governs an operation. Covers legacy layouts, provenance, offline exports and navigation checks.
+description: Maintaining a project's engineering docs and migrating existing collections to the Open Knowledge Format (OKF). Use for requests to adopt OKF, set up a new bundle, repair stale runbooks, or update specs, glossary entries and settled decisions. Product requirement document authoring owns change plans, and technical writing owns sentence-level editing. Covers subject layout, missing answers, evidence, published paths and offline exports.
 user-invocable: true
 ---
 
@@ -34,7 +34,8 @@ See [conventions-and-operations.md](./references/conventions-and-operations.md) 
 See [bootstrapping.md](./references/bootstrapping.md) for:
 
 - starting with a single reader question in a new project
-- inventorying a populated tree, choosing which claims to separate, retaining claims used together and preserving evidence identity
+- migrating an existing collection to OKF, including a tree that already passes validation, or carrying out an explicitly format-only request
+- deriving the target layout from reader questions, resolving gaps, and checking the edited pages and their callers against the original scope
 
 See [cross-references.md](./references/cross-references.md) for:
 

@@ -1,0 +1,251 @@
+diff --git a/AGENTS.md b/AGENTS.md
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -56,16 +56,6 @@
+ 
+ ## Publishing, briefly
+ 
+-Publish does three things, in order: write a revision snapshot of the post's
+-current title and body, flip the post to `published`, and call the site's
+-deploy hook. The first two are one transaction; the third is best-effort — a
+-site's deploy hook lives on somebody else's infrastructure, and a slow or
+-briefly-down webhook shouldn't cost the author their published content. The
+-API reports whether the deploy actually fired (`deployTriggered`) and the
+-editor tells the author which case they're in, rather than pretending publish
+-either fully succeeded or fully failed. `docs/deploy-hooks.md` has the retry
+-policy and the reasoning behind it; read it before changing
+-`server/deploy-hook.ts` or the publish route that calls it.
+-
+-The revision written by step one is what the Revisions screen reads back, so
+-a change to what publish snapshots changes what that screen shows.
++Before changing the publish route, read [publication](docs/publishing/publication.md);
++for changes to `server/deploy-hook.ts`, read [hook delivery](docs/delivery/rebuild.md#hook-delivery).
++The [engineering manual](docs/index.md) explains where to record changes.
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -58,7 +58,7 @@
+   migrations under `server/db/migrations/`.
+ - `shared/` — code imported by both the SPA and the API. Just the logger
+   today.
+-- `docs/` — [what a failed hook means for a published revision](docs/guides/desk.md#missed-build).
++- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md).
+ - `.github/workflows/` — the checks that run on every pull request.
+ 
+ ## Environment variables
+diff --git a/docs/delivery/rebuild.md b/docs/delivery/rebuild.md
+new file mode 100644
+--- /dev/null
++++ b/docs/delivery/rebuild.md
+@@ -0,0 +1,25 @@
++---
++type: Procedure
++title: Site delivery
++description: Interpret a deploy hook result and recover a missing site build.
++---
++
++# Site delivery
++
++## Hook delivery
++
++After [publication](../publishing/publication.md), Inkwell posts to the site's
++deploy hook up to three times. Failed network calls and non-success responses
++are retried with a linear delay. On exhaustion the server logs the failure at
++error level and reports `deployTriggered: false` to the editor.
++
++A successful hook response acknowledges the request. The [Acme release receipt](../receipts/hook-17.txt)
++records HTTP 202 for revision 42. Neither that receipt nor the hook implementation
++establishes a maximum time until the customer's site is live. Check the hosting
++agreement before giving a customer a deadline.
++
++## Recover a missed build
++
++Check the site's hosting dashboard for this publication. If its build is
++queued or running, stop and follow that build. Otherwise trigger one rebuild
++from the host dashboard. Leave the published content alone.
+diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
+--- a/docs/deploy-hooks.md
++++ b/docs/deploy-hooks.md
+@@ -1,48 +1,10 @@
+-# Deploy hooks
++---
++type: Reference
++title: Deploy hook notes
++description: Find the current deploy hook policy and publishing behavior.
++---
+ 
+-Operational notes on what happens after a post is published — the part that
+-doesn't belong in a code comment because it spans two files (`server/app.ts`
+-and `server/deploy-hook.ts`) and one decision worth explaining once rather
+-than re-deriving at either call site.
++# Deploy hook notes
+ 
+-## What publishing actually does
+-
+-Publishing a post is three steps, in order:
+-
+-1. Write a `revisions` row — a snapshot of the post's title and body at the
+-   moment of publish.
+-2. Flip the post's `status` to `published`.
+-3. Call the site's `deployHookUrl`.
+-
+-The first two are a single logical write and either both happen or neither
+-does. The third is best-effort: a site's deploy hook is usually a webhook on
+-someone else's static host (Vercel, Netlify, and similar all expose one), and
+-those are occasionally slow or briefly unavailable — worth a retry, not worth
+-losing the author's published content over.
+-
+-## Why a failed deploy hook doesn't fail the publish
+-
+-By the time `triggerDeployHook` runs, the post and its revision are already
+-committed. Rolling that back because a webhook timed out would throw away
+-real work over a problem that's usually transient and, worse, outside this
+-app's control entirely. Instead, the publish response carries
+-`deployTriggered: boolean`, and the editor shows the author which case they're
+-in — see `PostEditorPage.tsx`'s toast copy.
+-
+-## The retry policy
+-
+-Three attempts, with a linear backoff between them. That's tuned for "a cold
+-serverless function taking a moment to wake up," not for a target that's
+-genuinely down — three attempts a few hundred milliseconds apart won't save a
+-publish from a deploy hook that's been deleted or misconfigured. When every
+-attempt fails, `deploy-hook.ts` logs the exhaustion at `error` (there's no
+-error tracker on the API side to hand it to instead — see `shared/logger.ts`)
+-and returns `{ ok: false }` rather than throwing, so the route above always
+-gets a definite answer either way.
+-
+-## Rolling back a bad publish
+-
+-There's no unpublish button in this cut of the product. The revision a
+-publish writes is a record of what went out, not an undo mechanism —
+-reverting live content means editing the post back to the previous
+-revision's text and publishing again.
++For the retry policy, see [hook delivery](./delivery/rebuild.md#hook-delivery).
++For content changes, see [publication](./publishing/publication.md).
+diff --git a/docs/guides/desk.md b/docs/guides/desk.md
+--- a/docs/guides/desk.md
++++ b/docs/guides/desk.md
+@@ -1,18 +1,11 @@
+-# Desk reference
++---
++type: Reference
++title: Desk card
++description: The hosting procedure used by the printed support card.
++---
+ 
+-## Reading history
+-
+-Revisions are listed newest first within a post. Draft saves update the post
+-without adding a snapshot.
++# Desk card
+ 
+ ## Missed build
+ 
+-A failed hook undoes the publish. The author should publish the post again.
+-
+-Open the site's hosting dashboard and check its queue for this publication.
+-If a build for it is queued or running, stop and follow that build. Otherwise
+-trigger one rebuild from the host dashboard. Publishing again creates another
+-revision.
+-
+-The [receipt from Acme's release](../receipts/hook-17.txt) is the record used
+-when support reviews that release.
++[Recover a missed build](../delivery/rebuild.md#recover-a-missed-build).
+diff --git a/docs/guides/index.md b/docs/guides/index.md
+deleted file mode 100644
+--- a/docs/guides/index.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Guides
+-
+-- [Deploy hooks](../deploy-hooks.md)
+-- [Desk reference](./desk.md)
+diff --git a/docs/index.md b/docs/index.md
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -1,4 +1,14 @@
++---
++okf_version: "0.3"
++title: Inkwell engineering
++description: Authoring posts, reading revisions and operating site delivery.
++---
++
+ # Engineering manual
+ 
+-- [Specifications](./specs/index.md)
+-- [Guides](./guides/index.md)
++- [Publishing and revision history](./publishing/index.md) covers changes an author sees in Inkwell.
++- [Site delivery](./delivery/rebuild.md) covers the hook and the host queue.
++- [Desk card](./guides/desk.md) and [deploy hook notes](./deploy-hooks.md) remain available to existing readers.
++
++Place a new rule for the revision list beside the other history rules under Publishing.
++Put a change to host recovery in Site delivery.
+diff --git a/docs/publishing/history.md b/docs/publishing/history.md
+new file mode 100644
+--- /dev/null
++++ b/docs/publishing/history.md
+@@ -0,0 +1,13 @@
++---
++type: Specification
++title: Revision history
++description: How the Revisions screen groups, names and orders saved snapshots.
++---
++
++# Revision history
++
++Each post has one group headed by its current title. Each row keeps its title at
++publication. Within a group, newer snapshots appear first. If two snapshots
++share a second, the higher revision ID appears first. The revisions query in
++`server/app.ts` orders by creation time and then ID, both descending;
++`src/routes/RevisionsPage.tsx` preserves that order when it groups by post.
+diff --git a/docs/publishing/index.md b/docs/publishing/index.md
+new file mode 100644
+--- /dev/null
++++ b/docs/publishing/index.md
+@@ -0,0 +1,4 @@
++# Publishing
++
++- [What survives a publish?](./publication.md)
++- [How are revisions displayed and ordered?](./history.md)
+diff --git a/docs/publishing/publication.md b/docs/publishing/publication.md
+new file mode 100644
+--- /dev/null
++++ b/docs/publishing/publication.md
+@@ -0,0 +1,16 @@
++---
++type: Specification
++title: Publication
++description: What a publish commits and which content a failed hook leaves in place.
++---
++
++# Publication
++
++A publish snapshots the saved title and body and marks the post published in one
++transaction. A draft save alone adds no revision. Only after commit does Inkwell
++call the site's hook. If the call fails, the author still has the published post
++and revision. The editor reports the missed deploy. For recovery, follow
++[the hosting procedure](../delivery/rebuild.md#recover-a-missed-build).
++
++There is no unpublish or automatic undo. To revert the content, edit it back to the
++previous text, save it, then publish again. That produces another revision.
+diff --git a/docs/specs/index.md b/docs/specs/index.md
+deleted file mode 100644
+--- a/docs/specs/index.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Specifications
+-
+-- [Post records](./post-records.md)
+diff --git a/docs/specs/post-records.md b/docs/specs/post-records.md
+deleted file mode 100644
+--- a/docs/specs/post-records.md
++++ /dev/null
+@@ -1,7 +0,0 @@
+-# Post records
+-
+-The revisions list groups snapshots by post. Each heading uses the post's
+-current title. Each row uses the title saved at publication.
+-
+-A post becomes published with its snapshot. A failed deploy hook leaves
+-the published post and its revision in place.

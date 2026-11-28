@@ -1,0 +1,52 @@
+diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
+--- a/docs/deploy-hooks.md
++++ b/docs/deploy-hooks.md
+@@ -1,3 +1,9 @@
++---
++type: Procedure
++title: Deploy hooks
++description: Deploying and rolling back published content.
++---
++
+ # Deploy hooks
+ 
+ Operational notes on what happens after a post is published — the part that
+diff --git a/docs/guides/desk.md b/docs/guides/desk.md
+--- a/docs/guides/desk.md
++++ b/docs/guides/desk.md
+@@ -1,3 +1,9 @@
++---
++type: Reference
++title: Desk reference
++description: Support notes for Inkwell.
++---
++
+ # Desk reference
+ 
+ ## Reading history
+diff --git a/docs/index.md b/docs/index.md
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -1,3 +1,9 @@
++---
++okf_version: "0.3"
++title: Engineering manual
++description: Reference material for Inkwell engineers.
++---
++
+ # Engineering manual
+ 
+ - [Specifications](./specs/index.md)
+diff --git a/docs/specs/post-records.md b/docs/specs/post-records.md
+--- a/docs/specs/post-records.md
++++ b/docs/specs/post-records.md
+@@ -1,3 +1,9 @@
++---
++type: Specification
++title: Post records
++description: Data shown for published posts.
++---
++
+ # Post records
+ 
+ The revisions list groups snapshots by post. Each heading uses the post's

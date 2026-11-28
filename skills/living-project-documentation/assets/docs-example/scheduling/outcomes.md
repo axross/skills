@@ -22,6 +22,7 @@ stateDiagram-v2
     running --> cancelled: cancelled mid-run
 ```
 
+A cancelled job receives no automatic retry, even if retries remain.
 A job cancelled while running keeps whatever output its attempt had already written.
 The product does not roll it back.
 

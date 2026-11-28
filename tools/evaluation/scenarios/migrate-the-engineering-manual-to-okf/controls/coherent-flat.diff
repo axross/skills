@@ -1,0 +1,97 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index ad3265c..3813e17 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -58,4 +58,4 @@ they were one. Split it, or leave the rest for its own change.
+ 
+-Before changing the publish route, read [publication](docs/publishing/publication.md);
+-for changes to `server/deploy-hook.ts`, read [hook delivery](docs/delivery/rebuild.md#hook-delivery).
++Before changing the publish route, read [publication](docs/publication.md);
++for changes to `server/deploy-hook.ts`, read [hook delivery](docs/delivery.md#hook-delivery).
+ The [engineering manual](docs/index.md) explains where to record changes.
+diff --git a/README.md b/README.md
+index a3a8008..c5f8cf7 100644
+--- a/README.md
++++ b/README.md
+@@ -60,3 +60,3 @@ it falls back to a development author so the console still knows who you are.
+   today.
+-- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md).
++- `docs/` — [what a failed hook means for a published revision](docs/publication.md).
+ - `.github/workflows/` — the checks that run on every pull request.
+diff --git a/docs/delivery/rebuild.md b/docs/delivery.md
+similarity index 88%
+rename from docs/delivery/rebuild.md
+rename to docs/delivery.md
+index 1a8edd2..0485296 100644
+--- a/docs/delivery/rebuild.md
++++ b/docs/delivery.md
+@@ -10,3 +10,3 @@ description: Interpret a deploy hook result and recover a missing site build.
+ 
+-After [publication](../publishing/publication.md), Inkwell posts to the site's
++After [publication](./publication.md), Inkwell posts to the site's
+ deploy hook up to three times. Failed network calls and non-success responses
+@@ -15,3 +15,3 @@ error level and reports `deployTriggered: false` to the editor.
+ 
+-A successful hook response acknowledges the request. The [Acme release receipt](../receipts/hook-17.txt)
++A successful hook response acknowledges the request. The [Acme release receipt](./receipts/hook-17.txt)
+ records HTTP 202 for revision 42. Neither that receipt nor the hook implementation
+diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
+index cbf518c..d8118a1 100644
+--- a/docs/deploy-hooks.md
++++ b/docs/deploy-hooks.md
+@@ -8,3 +8,3 @@ description: Find the current deploy hook policy and publishing behavior.
+ 
+-For the retry policy, see [hook delivery](./delivery/rebuild.md#hook-delivery).
+-For content changes, see [publication](./publishing/publication.md).
++For the retry policy, see [hook delivery](./delivery.md#hook-delivery).
++For content changes, see [publication](./publication.md).
+diff --git a/docs/guides/desk.md b/docs/guides/desk.md
+index 7cf37bf..dd80682 100644
+--- a/docs/guides/desk.md
++++ b/docs/guides/desk.md
+@@ -10,2 +10,2 @@ description: The hosting procedure used by the printed support card.
+ 
+-[Recover a missed build](../delivery/rebuild.md#recover-a-missed-build).
++[Recover a missed build](../delivery.md#recover-a-missed-build).
+diff --git a/docs/publishing/history.md b/docs/history.md
+similarity index 100%
+rename from docs/publishing/history.md
+rename to docs/history.md
+diff --git a/docs/index.md b/docs/index.md
+index ef157eb..3f0cf0e 100644
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -8,7 +8,8 @@ description: Authoring posts, reading revisions and operating site delivery.
+ 
+-- [Publishing and revision history](./publishing/index.md) covers changes an author sees in Inkwell.
+-- [Site delivery](./delivery/rebuild.md) covers the hook and the host queue.
++- [What a publish commits](./publication.md) covers the changes an author sees in Inkwell.
++- [Reading and ordering revisions](./history.md) covers the revision list.
++- [Site delivery](./delivery.md) covers the hook and the host queue.
+ - [Desk card](./guides/desk.md) and [deploy hook notes](./deploy-hooks.md) remain available to existing readers.
+ 
+-Place a new rule for the revision list beside the other history rules under Publishing.
++Place a new rule for the revision list in [Revision history](./history.md).
+ Put a change to host recovery in Site delivery.
+diff --git a/docs/publishing/publication.md b/docs/publication.md
+similarity index 89%
+rename from docs/publishing/publication.md
+rename to docs/publication.md
+index 93fd9bf..370a362 100644
+--- a/docs/publishing/publication.md
++++ b/docs/publication.md
+@@ -12,3 +12,3 @@ call the site's hook. If the call fails, the author still has the published post
+ and revision. The editor reports the missed deploy. For recovery, follow
+-[the hosting procedure](../delivery/rebuild.md#recover-a-missed-build).
++[the hosting procedure](./delivery.md#recover-a-missed-build).
+ 
+diff --git a/docs/publishing/index.md b/docs/publishing/index.md
+deleted file mode 100644
+index e1ddc9a..0000000
+--- a/docs/publishing/index.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Publishing
+-
+-- [What survives a publish?](./publication.md)
+-- [How are revisions displayed and ordered?](./history.md)

@@ -1,0 +1,14 @@
+diff --git a/docs/specs/post-records.md b/docs/specs/post-records.md
+--- a/docs/specs/post-records.md
++++ b/docs/specs/post-records.md
+@@ -7,7 +7,9 @@
+ # Post records
+ 
+ The revisions list groups snapshots by post. Each heading uses the post's
+-current title. Each row uses the title saved at publication.
++current title. Each row uses the title saved at publication. Within a post the
++newest snapshot comes first. For a tie in the same second, the higher revision
++ID comes first (`server/app.ts`, site revisions query).
+ 
+ A post becomes published with its snapshot. A failed deploy hook leaves
+ the published post and its revision in place.
