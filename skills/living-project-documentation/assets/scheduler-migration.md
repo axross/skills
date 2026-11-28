@@ -41,17 +41,12 @@ and a release check. Changing the retry budget would require finding both
 accounts. A subject entry for scheduling can give client authors the job
 contract, while the operator can change the release check independently.
 
-In this illustrative checkout the adopted decision `decisions/job-lifecycle.md`
-says, “A failed attempt returns to the queue while a retry remains. Allow three retries after
-the initial try. Cancellation ends the job regardless of the retry budget.”
+The illustrative checkout's adopted decision defines when retries end.
 The worker's transition table dispatches retries only on failure. The
-cancellation test in `worker/cancel.test.ts` exercises the limiting case.
-
-```typescript
-const job = await worker.startJob({ retriesRemaining: 2 });
-await worker.cancel(job.id);
-expect(await queue.pendingAttempts(job.id)).toHaveLength(0);
-```
+cancellation test exercises the case where two retries remain. The
+[exported state contract](./docs-example/scheduling/outcomes.md#states)
+links the relevant decision and test excerpts so a reader can check exactly
+what was decided and what the test observes.
 
 | Legacy passage or question                        | Destination and reason                                                                                                                                                                                 |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

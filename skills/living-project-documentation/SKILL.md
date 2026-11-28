@@ -14,6 +14,11 @@ project, commits and pull requests carry the history of changes and checks.
 The [OKF v0.3 specification](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/SPEC.md)
 defines the bundle format. Here, `docs/` means the project's documentation root.
 
+When migrating a populated collection, start at the project's published entry
+point and follow [Assess the collection](./references/bootstrapping.md#assess-the-collection).
+Consult worked examples when a particular placement or recovery choice is
+unclear. Open the validator instructions when ready to check the edited root.
+
 The requirement keywords used in this skill and its references follow
 [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
@@ -42,7 +47,10 @@ See [cross-references.md](./references/cross-references.md) for:
 - settling support for published paths and fragments, updating callers and checking record identifiers
 - making navigation work both inside the checkout and in an exported bundle
 
-The [Scheduler example](./assets/docs-example/index.md) shows how readers enter through a subject, a familiar term or a deployment step and find the page that owns their decision. Its [rollback procedure](./assets/docs-example/operating/deployment.md#rolling-back) keeps the recovery command beside the condition that requires a restore.
+The [Scheduler migration](./assets/scheduler-migration.md#target-and-evidence)
+compares a heading repair and a subject split. Its
+[rollback procedure](./assets/docs-example/operating/deployment.md#rolling-back)
+shows which steps stay together.
 
 ## Consulting and maintaining docs
 
