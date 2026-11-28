@@ -66,7 +66,8 @@ Select guidance from the actual session, not a directory's host name:
   [Claude Code Execution](./docs/operations/claude-code-execution.md) before
   choosing a question, waiting, working-tree, delegation, or investigation
   instrument, [Agent Sessions](./docs/operations/agent-sessions.md) for startup
-  and host configuration, [Development Workflow](./docs/operations/development-workflow.md)
+  and host configuration, [Quality Hooks](./docs/operations/quality-hooks.md)
+  for edit repair and blocking Stop checks, [Development Workflow](./docs/operations/development-workflow.md)
   for configured actors, and
   [Agent Skills](./docs/operations/agent-skills.md) with
   [Skill Portability](./docs/conventions/skill-portability.md) for the

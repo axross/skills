@@ -40,6 +40,8 @@ With --check, re-derives it and compares byte-for-byte against what is
 already there, failing on any mismatch — a derived surface a hand edit has
 drifted from what it was computed from.
 
+Guide: docs/evaluation/results.md
+
 Exit codes: 0 wrote (or matched under --check), 1 read failure or mismatch,
 2 bad invocation.`;
 

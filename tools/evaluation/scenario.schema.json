@@ -118,7 +118,7 @@
       "type": "string",
       "minLength": 1,
       "pattern": "^[^/]",
-      "$comment": "a non-empty path relative to the scenario's own directory. deliberately carries no description, for the same reason as skillName. this pattern rejects only an absolute path, so a judgment script's \"../../judgments/<name>.mjs\" — the shared home a script used by more than one scenario lives in — already validates here without a schema change; see tools/evaluation/judgments/ and docs/conventions/directory-structure.md."
+      "$comment": "a non-empty path relative to the scenario's own directory. deliberately carries no description, for the same reason as skillName. this pattern rejects only an absolute path, so a judgment script's \"../../judgments/<name>.mjs\" — the shared home a script used by more than one scenario lives in — already validates here without a schema change; see tools/evaluation/judgments/ and docs/conventions/scenario-layout.md."
     },
     "factor": {
       "type": "object",

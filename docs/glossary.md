@@ -134,7 +134,7 @@ The earlier terms "independent review", "external review", "advisory pre-flight"
 
 **Treatment** — a named guidance, skill or adapter variant in an **explicit treatment comparison**, distinct from its source digest and **evaluation condition**.
 
-**Explicit treatment comparison** — a declared candidate-minus-baseline report comparing stored observations of named **treatments**, separate from ordinary **comparable predecessor** matching.
+**Explicit treatment comparison** — a [declared candidate-minus-baseline report](./specs/treatment-comparison.md) comparing stored observations of named **treatments**.
 
 **Comparison cell** — one planned task, **treatment** and repetition identified by a comparison declaration, whether or not an observation survives for it.
 
@@ -146,7 +146,7 @@ The earlier terms "independent review", "external review", "advisory pre-flight"
 
 **Evaluation probe** — one run of an **evaluation scenario** under one **evaluation condition**, against the real CLI.
 
-**Turn cap** — the ceiling on how many assistant events one **evaluation probe** may produce before the instrument kills it, set as a runaway guard rather than a budget control. What it counts is the **agent runtime**'s streamed assistant events, not the turn count a **probe record** stores alongside them: in the one measurement where both were recorded, the former ran about 1.6 times the latter.
+**Turn cap** — the ceiling on the number of streamed assistant events in one **evaluation probe**. The [probe procedure](./evaluation/probes.md#locate-the-record-and-diagnose-truncation) explains how to recognize an interrupted run and read the CLI's separately reported turn count.
 
 **Repetition** — one of several **evaluation probes** run under the same **evaluation scenario** and **evaluation condition**, with no fixed order among them.
 
@@ -170,7 +170,7 @@ The earlier terms "independent review", "external review", "advisory pre-flight"
 
 **Condition fingerprint** — the digests of the **probe workspace** and of each installed skill, recorded with a **probe record** so two records are judged comparable by content rather than by the names of what produced them.
 
-**Comparable predecessor** — the most recent earlier **scenario measurement** of one **evaluation scenario** whose conditions match a later one's, which is what that later one reads as a change against. There is no baseline to compare against instead: a result is a change because the previous measurement is still on disk.
+**Comparable predecessor** — the matching sibling **scenario measurement** with the latest recorded timestamp, selected by [ordinary derivation](./specs/skill-evaluation.md#what-makes-two-measurements-comparable).
 
 **Superseded record** — a **probe record** taken under conditions a later change invalidated, so it is evidence of its own run and not comparable with later ones.
 

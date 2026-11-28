@@ -13,6 +13,8 @@ const USAGE = `Usage: artifacts.mjs <pack-probe|pack-judged|admit> --input <dir>
 Context: GITHUB_REPOSITORY, GITHUB_RUN_ID, GITHUB_SHA, GITHUB_RUN_ATTEMPT,
 PROBE_MATRIX and JUDGMENT_MATRIX must describe the independently planned dispatch.
 Bundle uploads contain only record.json. Downloads retain artifact-name directories.
+Guide: docs/evaluation/artifacts.md
+
 Exit codes: 0 admitted/packaged (may be partial), 1 refused or failed, 2 bad invocation.`;
 
 /**

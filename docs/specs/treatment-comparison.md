@@ -13,6 +13,8 @@ baseline or change ordinary predecessor matching. An intentional skill revision
 can differ only through named treatment material; there is no blanket digest or
 full-prompt exemption for ordinary measurements.
 
+For the two input files, an example fixture and the checks to run on a report, see [Compare Evaluation Treatments](../evaluation/comparison.md).
+
 A treatment label identifies a guidance, skill or adapter variant, not its
 digest or a skill-present/absent condition. Every planned task/treatment/repetition
 cell identifies its expected observation and opportunities. Every supplied cell

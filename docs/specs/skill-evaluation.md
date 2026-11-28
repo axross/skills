@@ -192,10 +192,11 @@ factor whose rationale exists only inside its script is one nobody can
 dispute from outside the code, which is how a scenario set fills with
 expectations no one ever chose.
 
-**A judgment is made against the stored measurement and nothing else.** The
-probe workspace is reconstructed from what the measurement holds, never
-reused from the run that produced it, so a stored measurement is sufficient
-to judge on its own rather than only at the moment it was taken.
+Judgment can be repeated after the original probe workspace is gone. It
+uses the stored probe files and the matching checkout's scenario, mock,
+patch, skills and judgment definitions to reconstruct a temporary workspace.
+[Measurement Results](../evaluation/results.md#judge-the-measured-files) explains
+how to recover the inputs and preserve a separate judgment.
 
 `script` and `reasoning` are siblings — two ways of judging a factor, not two
 storage tiers, and both results are part of the measurement. A **script
@@ -287,38 +288,29 @@ that in mind, not as a precise ratio.
 
 ## What makes two measurements comparable
 
-A later measurement of a scenario is read as a change against its
-**comparable predecessor** — the most recent earlier measurement of that
-scenario whose conditions match — rather than against a stored baseline.
-There is no baseline to compare against instead: a result is a change because
-the previous measurement is still on disk, not because a separate document
-says which one counts as current.
-There is no stored baseline to fall behind, and none is reintroduced: a
-baseline is a second record of what a measurement already holds, and it goes
-stale in exactly the way the measurements themselves do not.
+Ordinary derivation searches the measurement's siblings for the same scenario
+and selects the matching candidate with the latest recorded timestamp. The
+timestamp comes from one probe of the sibling. When deriving a new measurement
+this ordinarily selects an earlier one. Recomputing an old summary after newer
+siblings arrive can select a newer match: the current directory is excluded,
+but selection imposes no cutoff at its timestamp. A first measurement or one
+without a match has a null predecessor.
 
-**A reasoning judge's model, the full prompt it was given, and the route that
-asked it are all part of what makes two measurements comparable**, exactly as
-the runtime, the model that ran the probe, and the digest of every installed
-skill already are. The route earns its place beside the other two because it
-is not a transparent wrapper around the prompt: asking through the `claude`
-CLI carries scaffolding of its own — the CLI's own preamble and defaults
-sitting around whatever system and user prompt this instrument supplies — so
-a verdict taken over the same prompt through a different route is not
-guaranteed to have seen the same context the earlier one did. Re-judging a
-stored measurement with a different reasoning judge, a different prompt, or a
-different route is therefore a new measurement, never a silent update to the
-old one — the two results sit side by side rather than one replacing the
-other.
-**The tool surface a probe ran under is deliberately not among them**, though
-each probe records it. Two measurements taken under different tool surfaces
-are therefore still read against each other, and a reader who wants to know
-whether the surface moved between them reads each probe's own record rather
-than being told by a refused comparison.
-What that trades away is a warning nothing issues, and the reading holds only
-while a tool surface difference stays usually irrelevant: if a scenario is ever
-declared whose factors turn on a tool a probe can or cannot reach, the question
-is re-argued from that scenario rather than inherited from here.
+The [derivation](../../tools/evaluation/src/derive-runner.mjs) uses one
+representative probe's project tree, runtime model and installed-skill digests.
+It uses the first skill-present probe if there is one, and otherwise the first
+probe. For each reasoning factor it uses the first encountered record of
+that factor's judge model, route and full prompt. The
+[fingerprint comparison](../../tools/evaluation/src/comparability.mjs) requires
+equality for these values. A missing historical judge route differs from a
+recorded one. The route matters because the CLI adds its own scaffolding
+around the prompt. Preserve a changed judge configuration and its results
+separately if both readings are needed.
+
+This comparison samples the fingerprint inputs. It does not check that every
+probe within a measurement agrees. Tool surfaces and CLI versions are
+recorded per probe and do not participate in matching. Inspect the individual
+records when a scenario depends on a tool being available.
 
 ## Explicit treatment comparison
 
@@ -353,11 +345,9 @@ the code that wrote it.
 **`metadata.json` carries no `configuration` nesting.** `runtime` is a
 top-level field, merging what were three separate concerns: the CLI that
 ran the probe, the model it called, and the project state the probe
-started from. All three answer the same question — what circumstances
-produced this probe — rather than what the probe measured or what it was
-declared to test, and they are exactly the facts this document already
-reads together, alongside the digest of every installed skill, to decide
-whether two measurements may be read against each other. `skills` sits
+started from. These describe the circumstances that produced the probe.
+[Predecessor selection](#what-makes-two-measurements-comparable) uses only
+the recorded fields it names. `skills` sits
 under `harness` rather than beside it, next to `agentsMd`, for the
 matching reason: both are what accompanied the agent, not what ran it, so
 they stay under the one key a scenario's own `harness` declaration already
@@ -384,7 +374,7 @@ whether every probe inside one measurement actually shared a single
 condition. That question is settled by construction now — a probe's
 condition is what materialization installs, not something to verify
 afterward — so there is nothing left to compute it from. What survives,
-under its own name, is the real remaining question: which earlier
+under its own name, is the real remaining question: which sibling
 measurement, if any, this one is read as a change against — recorded as
 `comparablePredecessor`. A per-condition pass rate is left off the summary
 for the same reason a per-probe result is: it costs nothing to recompute

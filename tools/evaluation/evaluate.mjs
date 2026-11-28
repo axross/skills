@@ -48,6 +48,8 @@ A reasoning factor's judge runs through the \`claude\` CLI, authenticated
 with CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY; without either, that
 factor's result is recorded as an error rather than skipped or guessed.
 
+Guide: docs/evaluation/results.md
+
 Exit codes: 0 judged (factors may still be individually errored), 1 the
 measurement could not be read, 2 bad invocation.`;
 

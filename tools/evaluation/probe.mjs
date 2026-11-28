@@ -4,8 +4,8 @@
 // docs/specs/skill-evaluation.md, "Repetitions", gives the matrix its shape:
 // a run expands its scenario(s) into every (condition, repetition) probe the
 // matrix implies. the refusal below is a dispatch decision rather than the
-// spec's — docs/operations/evaluation-dispatch.md, "Admission Binds Before
-// Any Probe Starts", bounds a dispatch by an exact probe count — so a run
+// spec's — docs/evaluation/probes.md#preview-the-matrix
+// describes admission against an exact probe count — so a run
 // refuses before any probe starts when that exact count exceeds a declared
 // limit, and otherwise runs every one of them — each recording the verbatim
 // transcript, the workspace diff, the skill invocations, and metadata
@@ -110,6 +110,8 @@ Options:
   --out <dir>            measurement root to write under (default:
                          tools/evaluation/measurements)
   --help                 show this message
+
+Guide: docs/evaluation/probes.md
 
 Exit codes: 0 completed (or a clean dry run), 1 refused or a probe failed,
 2 bad invocation.`;
