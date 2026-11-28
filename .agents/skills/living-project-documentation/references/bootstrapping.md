@@ -69,10 +69,16 @@ never seen this repository. Then try a caller with a narrower question, such
 as a release operator arriving from a checklist. A contributor placing the
 next related contract is another reader of the layout.
 
+Use actual questions from support handoffs, caller comments and maintenance
+decisions. “What happens after cancellation **with an attempt still running**?”
+can disappear if notes reduce it to “job lifecycle.” Keep the question and
+its qualifying case in the working notes while reading the evidence. Against
+each, leave room for the passage a reader can use, or the decision still open.
+
 **Guidelines:**
 
 - MUST inventory the initial tree across the requested scope. Include indexes, glossaries, human and agent entry points, external callers, tools and boundaries such as generated pages with a separate producer or immutable evidence.
-- MUST [trace representative reader questions](./consulting-and-upkeep.md#verify-a-readers-route) in the existing collection before choosing a target layout.
+- MUST [trace representative reader questions](./consulting-and-upkeep.md#verify-a-readers-route) in the existing collection before choosing a target layout. Carry every concrete in-scope question found during that assessment forward to a verified answer or an explicit gap.
 - SHOULD scan every subject at page level in a large corpus, then inspect suspect sections and decision-critical routes closely. Look for mixed decisions, conflicting or repeated rules, unfamiliar terms, claims without support, questions without an owner and prerequisites stranded on other pages.
 
 ## Design the target
@@ -88,7 +94,7 @@ roll back can choose “Operating a release.” Try both routes in the
 - SHOULD sketch the smallest tree that answers the observed questions. Name each subject in the project's language and say which decisions it owns. Choose [page types and local indexes](./documentation-structure.md#choose-the-subject) once the owners are clear.
 - SHOULD compare a minimal repair, such as a direct heading link, with a different grouping when ownership is ambiguous. Try a root lookup, [placing a new claim from a contributor entry point](./conventions-and-operations.md#contributor-routes) and the affected caller routes. Weigh the cost of maintaining old entries.
 - MUST account for each affected legacy decision in working notes or the existing change record. Identify what stays, what moves or splits, which claims merge at one owner, and why a page is created or retired.
-- MUST investigate missing answers in implementation, tests, configuration or an adopted decision. Write each supported answer at its owner. Where evidence conflicts or runs out, record the exact question and which decision it leaves open.
+- MUST investigate missing answers in implementation, tests, configuration or an adopted decision. Write the rule and the case that distinguishes it from a plausible alternative at their owner. Where sources conflict or evidence runs out, tell the reader there what the source establishes, what remains unknown and which decision depends on it. A local observation may cover only one stage of a longer process.
 
 ## Migrate one reading route
 
@@ -105,9 +111,9 @@ together.
 - MUST trace the slice's claims to their owners, callers, paths and fragments, exported assets, metadata and supporting evidence before editing.
 - SHOULD split claims when they serve different decisions and can change independently. Keep facts that a reader must apply together on one page; page length and heading count alone do not justify a split.
 - MUST carry each claim's limits, rationale and evidence into the typed owner, preserving established type names and existing metadata. Update generated material at its producer. Reconcile verified duplicates and retire obsolete material within the agreed scope.
-- MUST [preserve the reading routes](./cross-references.md#preserve-the-reading-route) affected by each slice. Update the subject index and glossary where readers use them.
-- MUST preserve the action and any condition that changes it at the point of decision, including authority, cost, recovery or a safe no-op. Keep an ordered trace together when its sequence explains the outcome. Prefer a heading or link when splitting would make readers reconstruct one decision.
-- MUST read each extracted page independently, exercise a boundary case and [trace the affected entry points](./consulting-and-upkeep.md#verify-a-readers-route).
+- MUST [preserve the reading routes](./cross-references.md#preserve-the-reading-route) affected by each slice. Follow each editable caller's actual link to the passage that fulfills its promise. A retained bookmark can serve external readers even after current instructions link straight to the owner. Update the subject index and glossary where readers use them.
+- MUST preserve the action and any condition that changes it at the point of decision, including authority, cost, recovery or a safe no-op. Walk every offered recovery branch from the actual failure state. If a previous step already took effect, check what repeating it would change. Remove a fallback that contradicts the stop condition. Keep the ordered trace together when its sequence explains the outcome.
+- MUST read each extracted page independently, exercise a boundary case and [trace the affected entry points](./consulting-and-upkeep.md#verify-a-readers-route) while its evidence is at hand. Do these reader checks even when format tooling is unavailable.
 
 ## Close the requested scope
 
@@ -118,7 +124,7 @@ with only that destination would give the reader another step.
 
 **Guidelines:**
 
-- MUST reconcile the edited tree with the initial inventory. For staged work, record covered subjects, remaining owners, unresolved questions and cross-package callers in the existing change record. Limit the completion claim to the subjects examined.
+- MUST reconcile the edited tree and working questions with the initial inventory. Open each recorded answer passage and answer the original question from that passage alone or its necessary links. Correct missing cases or record the gap. In the handoff identify covered subjects, remaining owners, unresolved questions and cross-package callers as applicable. Limit the completion claim to routes actually exercised.
 - MUST report [format checks](./validators.md) separately from editorial results. Replay representative questions from the root and callers. For a repaired defect, show the original failure, the edited owner and the route to the complete answer. For a retained layout, identify a working owner, its boundary case and the detour an extra split or directory would introduce.
 
 ## Preserve evidence identity

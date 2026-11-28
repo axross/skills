@@ -5,7 +5,12 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { loadDocs } from "../../../../../skills/living-project-documentation/scripts/docs.mjs";
+import {
+  loadDocs,
+  resolveLink,
+  slug,
+} from "../../../../../skills/living-project-documentation/scripts/docs.mjs";
+import { readMarkdown } from "../../../../../skills/living-project-documentation/scripts/okf.mjs";
 import { checkFlatControl } from "./flat-control.mjs";
 import { judgeFactor } from "../../../src/factor-judgment.mjs";
 import { materialize } from "../../../src/mock-workspace.mjs";
@@ -48,6 +53,7 @@ const variants = {
   renamed: ["metadata", "renamed"],
   "index-only": ["metadata", "index-only"],
   repaired: ["repaired"],
+  "readme-detour": ["repaired", "readme-detour"],
   "old-index": ["repaired", "old-index"],
   "over-split": ["repaired", "over-split"],
   unsupported: ["repaired", "unsupported"],
@@ -126,6 +132,30 @@ async function checkCallerRoutes(workspace, docs, name, repaired) {
       );
     }
   }
+}
+
+async function checkReadmeRoute(workspace, docs, expected) {
+  const path = join(workspace, "README.md");
+  const text = await readFile(path, "utf8");
+  const lines = text.split("\n");
+  const links = readMarkdown(text).links.filter(({ line }) =>
+    lines[line - 1].includes(
+      "what a failed hook means for a published revision",
+    ),
+  );
+  assert.equal(links.length, 1, path);
+  const { page, fragment } = await resolveLink(docs, { path }, links[0].target);
+  assert.ok(page?.anchors.has(fragment), links[0].target);
+  const section = page.text.split(/^(?=#{1,6} )/m).find((part) => {
+    const heading = part.match(/^#{1,6} (.+)/);
+    return heading && slug(heading[1]) === fragment;
+  });
+  assert.ok(section, links[0].target);
+  assert.equal(
+    section.includes("the author still has the published post and revision"),
+    expected,
+    links[0].target,
+  );
 }
 
 async function checkStructure(workspace, name) {
@@ -215,6 +245,18 @@ try {
     );
     const repaired = patches[0] === "repaired";
     await checkCallerRoutes(workspace, docs, name, repaired);
+    await checkReadmeRoute(
+      workspace,
+      docs,
+      repaired && name !== "readme-detour",
+    );
+    if (name === "readme-detour") {
+      assert.equal(
+        await readFile(join(workspace, "README.md"), "utf8"),
+        await readFile(join(baseline, "README.md"), "utf8"),
+        "the isolated README failure must have no README diff against the actor input",
+      );
+    }
     await checkOrderEvidence(
       docs,
       (repaired && !patches.includes("checkout-only")) || name === "staged",
@@ -278,6 +320,7 @@ try {
     checkStructure,
   });
   await checkOrderEvidence(flat.docs, true);
+  await checkReadmeRoute(flat.workspace, flat.docs, true);
   await checkCallerRoutes(flat.workspace, flat.docs, "coherent-flat", true);
   await checkFactor(
     receipt,

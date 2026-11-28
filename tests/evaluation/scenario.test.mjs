@@ -82,6 +82,24 @@ describe("validateScenario", () => {
     expect(() => validateScenario(scenario, "test.json")).toThrow(/"phase" must be one of/);
   });
 
+  it.each(["discovery", "outcome"])(
+    "rejects an assistant-text view in the %s phase",
+    (phase) => {
+      const judgment = {
+        method: "reasoning",
+        model: "anthropic/x",
+        instructions: "read",
+        transcriptView: "assistant-text",
+      };
+      const scenario = validScenario({
+        factors: [{ id: "x", phase, description: "d", judgment }],
+      });
+      expect(() => validateScenario(scenario, "test.json")).toThrow(
+        /transcript/,
+      );
+    },
+  );
+
   it("rejects an unknown judgment method", () => {
     const scenario = validScenario({
       factors: [{ id: "x", phase: "outcome", description: "d", judgment: { method: "vibes" } }],

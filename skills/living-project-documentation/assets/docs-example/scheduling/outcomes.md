@@ -26,6 +26,10 @@ A cancelled job receives no automatic retry, even if retries remain.
 A job cancelled while running keeps whatever output its attempt had already written.
 The product does not roll it back.
 
+The state transition proves that Scheduler will schedule no further attempts.
+It gives callers no deadline for an external process to stop writing. A client
+choosing an output-read timeout needs a shutdown guarantee from that process.
+
 ## Attempts and retries
 
 A failed attempt is retried up to three times, at one, five, and twenty-five minutes

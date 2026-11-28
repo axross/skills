@@ -155,6 +155,15 @@ factor sees the transcript. An outcome judgment is deliberately never shown
 the reasoning that produced the artefact it is judging, so a plausible
 explanation cannot substitute for the artefact actually meeting expectation.
 
+A transcript reasoning judgment about what the agent told the reader may set
+`judgment.transcriptView` to `assistant-text`. The judge receives the
+top-level assistant’s text blocks in order, including progress reports. Tool
+inputs and results, thinking blocks and subagent messages are outside that
+view. A readable stream with no such text supplies an empty account. An
+unreadable stream produces a judgment error. Omitting the option supplies the
+full transcript as before. The stored probe keeps the original stream for
+other factors and later examination.
+
 A discovery-phase task is written the way the problem's own owner would state
 it, never in the tracked skill's own vocabulary — the situation this practice
 means to measure is whether the skill's description reaches a reader with a

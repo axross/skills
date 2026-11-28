@@ -35,7 +35,7 @@ See [bootstrapping.md](./references/bootstrapping.md) for:
 
 - starting with a single reader question in a new project
 - migrating an existing collection to OKF, including a tree that already passes validation, or carrying out an explicitly format-only request
-- deriving the target layout from reader questions, resolving gaps, and checking the edited pages and their callers against the original scope
+- designing the layout from questions in handoffs and callers, checking each answer and its limits at the destination, and reporting the questions and checks still open
 
 See [cross-references.md](./references/cross-references.md) for:
 

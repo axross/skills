@@ -255,6 +255,85 @@ describe("judgeFactor — reasoning method", () => {
     expect(record.prompt).toContain(JSON.stringify(PROBE.transcript));
   });
 
+  const accountFactor = {
+    ...factor,
+    judgment: { ...factor.judgment, transcriptView: "assistant-text" },
+  };
+
+  it("sends the reader's progress and final account in order without tool, child or thinking content", async () => {
+    const event = (type, content, extra = {}) =>
+      JSON.stringify({ type, message: { content }, ...extra });
+    const textBlock = (text) => ({ type: "text", text });
+    const transcript = [
+      event("user", [textBlock("user question")]),
+      event("assistant", [
+        textBlock("moved the rule"),
+        { type: "thinking", thinking: "private" },
+      ]),
+      event("assistant", [
+        { type: "tool_use", name: "Write", input: { text: "written file" } },
+      ]),
+      event("user", [{ type: "tool_result", content: "tool result" }]),
+      event("assistant", [textBlock("child report")], {
+        parent_tool_use_id: "tool-1",
+      }),
+      event("assistant", [
+        textBlock("verified the route"),
+        textBlock("one question remains"),
+      ]),
+      '{"type":"result","result":"duplicate final report"}',
+    ].join("\n");
+    const record = await judgeFactor(accountFactor, {
+      scenarioDir: "/unused",
+      workspace: "/unused",
+      probe: { ...PROBE, transcript },
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+      spawnFn: spawnFnEnvelope({
+        result: '{"result": true, "evidence": "quoted"}',
+      }),
+    });
+
+    expect(record.prompt).toContain(
+      JSON.stringify(
+        {
+          assistantText: [
+            "moved the rule",
+            "verified the route",
+            "one question remains",
+          ],
+        },
+        null,
+        2,
+      ),
+    );
+    expect(record.prompt).not.toMatch(
+      /user question|private|written file|tool result|child report|duplicate final/,
+    );
+  });
+
+  it("distinguishes a readable stream without narration from an unreadable account", async () => {
+    const context = {
+      scenarioDir: "/unused",
+      workspace: "/unused",
+      probe: PROBE,
+      env: { CLAUDE_CODE_OAUTH_TOKEN: "tok" },
+      spawnFn: spawnFnEnvelope({
+        result: '{"result": false, "evidence": "empty account"}',
+      }),
+    };
+    const silent = await judgeFactor(accountFactor, context);
+    expect(silent.prompt).toContain('"assistantText": []');
+    expect(silent.result).toBe(false);
+
+    const corrupt = await judgeFactor(accountFactor, {
+      ...context,
+      probe: { ...PROBE, transcript: "broken" },
+    });
+    expect(corrupt.result).toEqual({
+      error: expect.stringContaining("no readable stream events"),
+    });
+  });
+
   it("errors, carrying judge and prompt, when no CLI credential was given", async () => {
     const record = await judgeFactor(factor, { scenarioDir: "/unused", workspace: "/unused", probe: PROBE });
 
