@@ -13,6 +13,8 @@ Reads two independently supplied files and emits one JSON report on stdout.
 Never writes inputs, scans measurements, calls models or dispatches actors.
 Unknown or confounded qualification is report data, not an invocation failure.
 
+Guide: docs/evaluation/comparison.md
+
 Exit codes: 0 report emitted, 1 unreadable/invalid inputs, 2 bad invocation.`;
 
 /** reports only after both immutable inputs are read and validated. */

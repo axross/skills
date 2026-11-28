@@ -6,76 +6,55 @@ description: Engineering decisions and operating procedures for maintaining and 
 
 # Documentation
 
-Start with the [glossary](./glossary.md) for repository terminology. To make a
-change, follow [Development Workflow](./operations/development-workflow.md).
-For evaluation results, start with [Skill Evaluation](./specs/skill-evaluation.md).
-
-The headings below preserve the repository’s topic routes. Each page’s `type`
-identifies the decision it supports, independently of its directory. Normative
-terms follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
+To measure a skill, diagnose a missing result or prepare a scenario, start with
+[Evaluation](./evaluation/index.md). To contribute a change, follow
+[Development Workflow](./operations/development-workflow.md). The
+[glossary](./glossary.md) defines the terms used across these guides.
+Normative requirements follow [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).
 
 ## Specifications
 
-- [Treatment comparison](./specs/treatment-comparison.md) — when comparison results qualify and how the report represents missing observations.
-- [Skill Evaluation](./specs/skill-evaluation.md) — what it means to
-  measure whether a skill works, and the evaluation scenario it describes,
-  run under two conditions and checked across three phases.
+- [Skill Evaluation](./specs/skill-evaluation.md) defines what a measurement
+  stores and when an ordinary measurement has a comparable predecessor.
+- [Treatment Comparison](./specs/treatment-comparison.md) defines how to
+  interpret a declared comparison, including missing observations and effects
+  the report can support.
 
 ## Conventions
 
-- [Directory Structure](./conventions/directory-structure.md)
-  — where a skill's files live, the two skill tiers, where a validator or an
-  agent definition belongs, and the layout of the evaluation subsystem under
-  `tools/evaluation/`.
-- [Verification Gates](./conventions/verification-gates.md) —
-  what makes a check a gate, a report, or a scheduled audit, and the traps
-  each can fall into.
-- [Marked Counts](./conventions/marked-counts.md) — the
-  `count:` marker that ties a number in prose to the file it describes.
-- [Skill Portability](./conventions/skill-portability.md) —
-  what a distributable skill may not contain here, and the dependencies whose
-  docs are consulted before a change.
-- [Decision Placement](./conventions/decision-placement.md) —
-  where a decision settled while a change is being built has to reach a
-  durable document, the ordered test for which one, and which body receives
-  what.
+- [Directory Structure](./conventions/directory-structure.md) locates skill
+  sources, installed copies, validators and agent definitions. For a new
+  evaluation patch or judgment, use [scenario layout](./conventions/scenario-layout.md).
+- [Verification Gates](./conventions/verification-gates.md) explains which
+  checks block a merge and which produce advisory reports or scheduled audits.
+- [Marked Counts](./conventions/marked-counts.md) explains how to keep a number
+  in prose synchronized with its source.
+- [Skill Portability](./conventions/skill-portability.md) defines the boundaries
+  of a distributable skill.
+- [Decision Placement](./conventions/decision-placement.md) explains where to
+  record a decision made during implementation.
 
 ## Operations
 
-- [Evaluation scenarios](./operations/evaluation-scenarios.md) — select an existing task by target skill and mock.
-- [Evaluation study preparation](./operations/evaluation-study-preparation.md) — prepare proposed fixtures and their scoring controls.
-- [Development Workflow](./operations/development-workflow.md)
-  — how a change gets from a stated intent to a merged pull request.
-- [Development Setup](./operations/development-setup.md) — local
-  setup, the toolchain, and the repository's commands and validators.
-- [GitHub Delivery](./operations/github-delivery.md) — plan and
-  state storage, issue-to-PR handover, comment-marker usage, and evidence routing.
-- [Amp Execution](./operations/amp-execution.md) — qualifying Amp
-  executors, transferring materials, waiting, and recovering uncertain effects.
-- [Claude Code Execution](./operations/claude-code-execution.md) —
-  Claude Code's question tool, the CI-and-review wait (its Claude Code tools and
-  teardown live in [`CLAUDE.md`](../CLAUDE.md)), the worktree rule for a shared
-  working tree, the investigator actor, and how model and effort certainty is
-  read here.
-- [Development Loop Responsibilities](./operations/loop-migration.md) — where to
-  change a gate, select a host operation, or recover issue and pull-request state.
-- [Agent Skills](./operations/agent-skills.md) — installing and
-  refreshing a skill, checking discovery in Claude Code and Codex, verifying
-  active source and content or diagnosing loading failures in Amp, and the
-  register of adopted deviations from a skill rule.
-- [Agent Sessions](./operations/agent-sessions.md) — how a
-  session's Amp orb is provisioned, how the session starts, its hooks, its
-  telemetry tagging, and the environment variables recommended for cutting a
-  session's cost.
-- [Code Review](./operations/code-review.md) — hosted Codex and
-  Claude reviews, Amp review threads, host selection, cleanup, and
-  policy-delivery/output qualification.
-- [CI Actions](./operations/ci-actions.md) — selecting trusted action
-  version tags or SHA pins, updating workflow references, and separating static
-  evidence from live CI and downstream dependency trust.
-- [Evaluation Dispatch](./operations/evaluation-dispatch.md) —
-  running the evaluation instrument, by hand or through its one dispatch
-  workflow, against this repository's declared scenarios.
+- **Run an evaluation.** [Evaluation](./evaluation/index.md) covers dispatch,
+  artifact recovery, local probes, judgment, comparison and study preparation.
+- **Make and verify a change.** Start with [Development Setup](./operations/development-setup.md)
+  for the toolchain and commands, then [Development Workflow](./operations/development-workflow.md)
+  for the change loop. [GitHub Delivery](./operations/github-delivery.md) covers
+  tracking issues, pull requests and review evidence.
+- **Start or troubleshoot an agent session.** [Agent Sessions](./operations/agent-sessions.md)
+  covers provisioning, startup and telemetry. For a skipped edit repair or
+  blocking Stop check, use [quality hooks](./operations/quality-hooks.md).
+  [Agent Skills](./operations/agent-skills.md) covers installation, discovery,
+  loading failures and adopted exceptions.
+- **Choose a host operation or recover interrupted work.** Use
+  [Development Loop Responsibilities](./operations/loop-migration.md) for the
+  decision owner and recovery route, [Amp Execution](./operations/amp-execution.md)
+  for Amp, or [Claude Code Execution](./operations/claude-code-execution.md)
+  for Claude Code and Codex.
+- **Run a review or update CI.** [Code Review](./operations/code-review.md)
+  covers provider setup, review threads and report requirements.
+  [CI Actions](./operations/ci-actions.md) covers action pins, trusted tags
+  and verification of an update.
 
-For what this library is, how to install a skill, and its skill catalog, see
-[`README.md`](../README.md).
+For installation and the skill catalog, see the [repository README](../README.md).

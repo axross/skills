@@ -21,11 +21,8 @@ export const FACTORS_FILE = "factors.json";
 export const SUMMARY_FILE = "summary.json";
 
 /**
- * every file probe.mjs writes into one probe's own directory. evaluate.mjs's
- * reconstruction reads all four before it judges anything, so a measurement
- * missing one of them is caught there rather than partway through a
- * judgment — see evaluate.mjs's own header for why that failure is loud
- * rather than a factor silently skipped.
+ * Files a probe writes and the evaluator requires for each recorded probe.
+ * See docs/evaluation/results.md#judge-the-measured-files for recovery.
  */
 export const PROBE_MEASURED_FILES = [METADATA_FILE, TRANSCRIPT_FILE, DIFF_FILE, INVOCATIONS_FILE];
 

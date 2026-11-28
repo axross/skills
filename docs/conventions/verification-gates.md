@@ -131,39 +131,18 @@ either a rule people route around or a warning people stop reading.
 
 ### Skill evaluation, as a reporting tool
 
-`tools/evaluation`'s one instrument — `probe.mjs`, `evaluate.mjs`, and
-`derive.mjs` — answers "does holding a skill change what the agent does,
-and does the agent reach for it unprompted?" — the checks here that measure
-a skill outcome rather than a textual property. It cannot gate for three
-independent reasons: it is non-deterministic, it costs real money per
-probe, and a reasoning factor's judge needs a credential this repository
-does not hand to a fork's pull request.
+[Skill Evaluation](../specs/skill-evaluation.md) measures how a skill changes
+what an agent does in a project and whether the agent reaches for the skill.
+The results are advisory. Probe outcomes vary between runs, each live probe
+costs money, and reasoning judgments need a credential unavailable to a
+fork's pull request. These properties rule out running live measurements as
+a merge gate. The instrument's own deterministic checks still run in the test
+suite.
 
-**A probe works inside a real project, which is the whole point.** Each
-scenario declares a mock project and a task stated in the words of whoever
-has the problem — no path, no library, no vendor — so the model has to open
-the workspace to route and to work, exactly as it would for a real request.
-`probe.mjs` materializes that project as a real Git repository, installs
-the condition's skills into it, and runs the model with the tools it needs
-to open that workspace and change it, because one probe's transcript,
-workspace diff, and skill invocations are what all three evaluation phases
-are judged from afterward.
-
-The turn cap defaults to <!-- count:probe-turn-cap -->100<!-- /count --> assistant
-events. The probe record reports its own turn count. Treat a probe that reaches
-the cap as an unfinished measurement. It may have finished editing and still be trying
-to verify its work. Leftover scaffolding and repeated attempts alone cannot
-establish a skill defect.
-
-The denied tool set bounds the effects attributable to the skill under test.
-[Evaluation Dispatch](../operations/evaluation-dispatch.md) describes that
-set and the tools actually available to each probe.
-
-**Spending is bound by refusal rather than by exhaustion, and a refusal is
-a finding rather than a prompt to raise the limit.** A run refuses before
-any probe starts when its exact probe count exceeds the limit it was given
-— never a projected dollar figure. How that bound works, and how to run
-the instrument, are in [Evaluation Dispatch](../operations/evaluation-dispatch.md).
+Use the [evaluation guides](../evaluation/index.md) to run a measurement or
+interpret an incomplete result. A refusal on the planned probe count is itself
+a finding. Review the selected scenarios, conditions and repetitions before
+changing the limit.
 
 ### `report-skill-duplication.mjs`
 

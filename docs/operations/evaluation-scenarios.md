@@ -60,8 +60,8 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty-one
   source-map upload, applied at materialization rather than shipped in the
   mock. Every factor, including its transcript factor, is judged by script —
   see [Skill Evaluation](../specs/skill-evaluation.md) on `patch`, and
-  [Directory Structure](../conventions/directory-structure.md) for the
-  convention it follows.
+  [Scenario patches](../conventions/scenario-layout.md#scenario-patches) for the
+  placement convention it follows.
 - [`run-the-toast-tests-the-suite-never-collects`](../../tools/evaluation/scenarios/run-the-toast-tests-the-suite-never-collects)
   targets `vitest-testing`, alongside `unit-testing` and `software-development`
   as peers, and likewise declares a `patch`: one that adds a real-DOM test for

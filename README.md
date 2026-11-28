@@ -362,12 +362,10 @@ checks the difference against declared, checkable expectations. That is the
 axis worth comparing libraries on — whether a skill's usefulness is _measured_
 or merely asserted.
 
-See [`docs/specs/skill-evaluation.md`](./docs/specs/skill-evaluation.md) for
-what skill evaluation is, why checking textual properties cannot reach it,
-and the scenario model it describes, and
-[`docs/operations/evaluation-dispatch.md`](./docs/operations/evaluation-dispatch.md)
-for the instrument that runs it, by hand or through its own dispatch
-workflow.
+Use the [evaluation guides](./docs/evaluation/index.md) to dispatch a scenario,
+recover a rejected bundle, run a local probe, judge stored results or compare two
+treatments. [Skill Evaluation](./docs/specs/skill-evaluation.md) explains what
+each measurement establishes.
 
 ## Development
 

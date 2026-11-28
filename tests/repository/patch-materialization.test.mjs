@@ -3,8 +3,7 @@
 // to the bound that makes a patch worth its cost at all: every declared patch
 // is applied against its mock offline, before any dispatch, so a rotted patch
 // fails in the test suite rather than in a run that has already spent money
-// reaching it (docs/conventions/directory-structure.md, "Where a Scenario's
-// Patch Lives").
+// reaching it (docs/evaluation/scenario-patches.md).
 //
 // this is generic over scenarios and mocks on purpose, and names neither: a
 // third patch-declaring scenario is picked up here with no edit, the same

@@ -1,12 +1,6 @@
-// reconstructing the probe workspace evaluate.mjs judges against, from what
-// one probe's own stored files hold and nothing else.
-//
-// docs/specs/skill-evaluation.md, "The factor": "The probe workspace is
-// reconstructed from what the measurement holds, never reused from the run
-// that produced it, so a stored measurement is sufficient to judge on its
-// own rather than only at the moment it was taken." This always runs — see
-// evaluate.mjs's own header for why a measurement missing what it needs
-// fails loudly here rather than a factor quietly being skipped.
+// Materialize the matching checkout's mock, scenario patch and skills for
+// this condition, then apply the probe's stored changes.patch. The measured
+// files and checkout requirements are described in docs/evaluation/results.md.
 
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -48,12 +42,7 @@ function applyStoredDiff(workspace, diffText) {
  *   scenario: object,
  *   condition: "skill-present"|"skill-absent",
  *   diffText: string,
- * }} options `scenario` is the already-loaded, already-validated scenario
- *   declaration (see scenario.mjs's loadScenario) — read from this
- *   repository's own tree, not from the measurement, because a scenario's
- *   mock and patch are stable inputs shared by every measurement of it, the
- *   same way a compiler needs both a diff and the base tree it applies
- *   against.
+ * }} options `scenario` is the validated declaration from the matching checkout.
  * @returns {Promise<string>} the reconstructed workspace's absolute path —
  *   the caller is responsible for removing it
  * @throws {Error} when materialization fails, or the stored diff does not

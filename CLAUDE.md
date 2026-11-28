@@ -181,6 +181,7 @@ outside the session.
   `AGENTS.md`. It runs in cloud sessions, or in a local session that sets
   `SKILLS_SESSION_BOOTSTRAP=1`.
 
-[Agent Sessions](./docs/operations/agent-sessions.md) describes the hooks and the
-settings. [Development Workflow](./docs/operations/development-workflow.md#configured-actors)
+[Agent Sessions](./docs/operations/agent-sessions.md) covers startup and settings.
+[Quality Hooks](./docs/operations/quality-hooks.md) explains which edits get
+repaired and how to recover when Stop blocks. [Development Workflow](./docs/operations/development-workflow.md#configured-actors)
 "Configured Actors" describes the three subagents.

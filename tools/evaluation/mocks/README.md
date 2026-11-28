@@ -36,9 +36,10 @@ declares, applied by
 [`tools/evaluation/src/mock-workspace.mjs`](../src/mock-workspace.mjs) after
 the mock is copied and **before** its history is replayed, so the workspace a
 model sees is clean and its history unremarkable. A patch that changes the
-file set carries an obligation to its mock's `history.jsonc`, stated in
-full — with the mechanism that enforces it — in [Where a Scenario's Patch
-Lives](../../../docs/conventions/directory-structure.md#where-a-scenarios-patch-lives).
+file set carries an obligation to its mock's `history.jsonc`, defined in
+[Scenario Layout](../../../docs/conventions/scenario-layout.md#scenario-patches).
+Follow [Scenario Patches](../../../docs/evaluation/scenario-patches.md) to
+regenerate the diff and verify the materialized project.
 The reasoning, and the alternatives it beat, are in
 [Skill Evaluation](../../../docs/specs/skill-evaluation.md).
 

@@ -5,7 +5,7 @@
 // from a mean of past probe costs and refusing when the projection
 // cleared a cap. that estimate was wrong often enough that the limit it
 // fed was not a real limit, so it was replaced with a count a caller
-// states up front (docs/operations/evaluation-dispatch.md):
+// states up front (docs/evaluation/probes.md):
 // a probe matrix has an exact size before anything runs, so there is
 // nothing left to estimate. nothing here computes a dollar figure, in
 // any form — the deleted instrument's meanProbeCost and reconcile() do

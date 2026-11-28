@@ -518,7 +518,7 @@ export const CLAIMS = {
 
   "probe-turn-cap": {
     owner: "DEFAULT_TURN_CAP in tools/evaluation/src/probe-process.mjs",
-    note: "docs/conventions/verification-gates.md is the only prose that states this number — the glossary's own Turn cap entry and the decision record that reads a truncation describe the cap without one, deliberately, so moving the constant moves this sentence and nothing else",
+    note: "docs/evaluation/probes.md states the default assistant-event limit; update its marked count when DEFAULT_TURN_CAP changes",
     derive: async () => {
       const source = await readFile(repoPath("tools/evaluation/src/probe-process.mjs"), "utf8");
       return Number(

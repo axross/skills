@@ -1,6 +1,5 @@
-// reconstructWorkspace: rebuilding the workspace one probe ran in, ending in
-// the state its stored diff produced — the property that makes a stored
-// measurement sufficient to judge on its own.
+// Exercise reconstruction with the fixture's stored diff and the matching
+// scenario declaration, mock and condition-specific skills in the checkout.
 
 import { readFile, rm } from "node:fs/promises";
 import { join } from "node:path";

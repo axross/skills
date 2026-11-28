@@ -84,9 +84,9 @@ name: Evaluation Dispatch
 # run here instead.
 #
 # every probe cell and every evaluate cell uploads its own artifact
-# independently of what any other cell does, so a `land` that fails is
-# recovered by re-running `land` alone against those artifacts — never by
-# re-probing.
+# independently. If landing fails, check the run's branch and PR before
+# retrying. After a successful push, recover the PR from the verified head.
+# See docs/evaluation/artifacts.md#recover-a-landing-attempt.
 #
 # ── a dry-run dispatch reaches `probe` and stops there. `plan`'s own
 # `--emit-matrix` step never spawns anything regardless of this input — it

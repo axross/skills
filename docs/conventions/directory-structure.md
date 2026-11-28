@@ -96,68 +96,15 @@ another copy to maintain.
 
 ## Where a Scenario's Patch Lives
 
-A scenario's `patch` — the unified diff that brings its own defect into an
-otherwise sound mock, per [Skill Evaluation](../specs/skill-evaluation.md) and
-[`tools/evaluation/mocks/README.md`](../../tools/evaluation/mocks/README.md) —
-lives inside its own `scenarios/<id>/` directory, beside `scenario.json` and
-`scripts/`, never under `mocks/` and never shared between scenarios:
-[`tools/evaluation/src/scenario.mjs`](../../tools/evaluation/src/scenario.mjs)
-resolves the `patch` field relative to that scenario's own directory, and a
-patch belongs to exactly one scenario.
-
-Generate it against the mock as it currently ships rather than hand-writing
-hunks: check the target file out at its current committed state, edit it into
-the state the scenario needs, and let `git diff` (or, for a file the patch
-adds, `git diff --no-index` against `/dev/null`) produce the unified diff. A
-hand-edited patch that only looks right is exactly the failure
-[the patch-materialization test](../../tests/repository/patch-materialization.test.mjs)
-exists to catch, but regenerating one correctly is still cheaper than
-debugging one that merely happens to apply.
-
-A patch rots the moment a file it touches changes elsewhere in the mock, and
-nothing catches that until the next materialization: offline, in the
-patch-materialization test just linked, or — if that test is ever skipped —
-inside a paid probe that has already spent money reaching it. Regenerating a
-rotted patch is the same procedure as authoring it the first time: diff the
-mock's new state into the patch's intended result again, and confirm with
-`git apply --check` that the regenerated file still applies before committing
-it.
-
-A patch that changes the file set — adding or removing one — MUST maintain
-its mock's own `history.jsonc` in that same diff:
-[`tools/evaluation/src/mock-workspace.mjs`](../../tools/evaluation/src/mock-workspace.mjs)
-refuses a mock whose tree and history disagree in either direction, so an
-added file with no matching `history.jsonc` entry, or a removed file still
-named in one, fails materialization rather than silently landing wrong. A
-patch that only edits a file already in the tree — never adding or removing
-one — needs no `history.jsonc` change at all.
-
-A patch file MUST stay out of this repository's own format and lint gates,
-which run over Markdown, JSON, and YAML files respectively — a patch
-reformatted by a house-style formatter would stop applying, and its file
-extension alone already keeps it out of both.
+[Scenario Layout](./scenario-layout.md#scenario-patches) defines patch
+ownership and the history changes required when a diff adds or removes files.
+Follow [Scenario Patches](../evaluation/scenario-patches.md) to generate and
+verify the diff for the current mock.
 
 ## Where a Judgment Script Lives
 
-A factor's `judgment.script` resolves relative to its own scenario's
-directory — `join(scenarioDir, factor.judgment.script)` in
-[`tools/evaluation/src/factor-judgment.mjs`](../../tools/evaluation/src/factor-judgment.mjs)
-— but where the script named there physically lives depends on how many
-scenarios name it. A script used by exactly one scenario lives in that
-scenario's own `scenarios/<id>/scripts/`, named relative to it (e.g.
-`"scripts/check-something.mjs"`). A script named by more than one scenario
-lives once in `tools/evaluation/judgments/` instead, and every scenario that
-uses it references the shared copy as `"../../judgments/<name>.mjs"` — a
-relative path `scenarioRelativePath`'s own pattern already accepts, since it
-rejects only an absolute one.
-
-A `patch`, unlike a script, is never shared: [Where a Scenario's Patch
-Lives](#where-a-scenarios-patch-lives) above is unchanged by this — a
-scenario's defect is its own, even when the fix two scenarios need happens to
-read alike. Nothing enforces the one-script-per-name rule across
-`scenarios/`; a same-named script under two scenario directories again is a
-defect a reviewer catches by reading, the way the drift this convention
-replaces was caught in the first place.
+Use the [judgment script placement convention](./scenario-layout.md#judgment-scripts)
+to choose between a scenario's private scripts and the shared judgments directory.
 
 ## `.claude/agents/` Is the Only Home for an Agent Definition
 

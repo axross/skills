@@ -1,17 +1,10 @@
 // building one probe's `claude` CLI invocation, and running it with a turn
 // cap enforced from outside the process.
 //
-// the deleted instrument's own per-reading spawn.mjs is gone, but its
-// recorded metadata (see the turn cap docs/glossary.md defines, and the
-// old measurement this rework read as data) shows a runaway guard was part
-// of the design. the CLI installed in this environment — `claude --help`,
-// checked before writing this file rather than assumed — has no flag that
-// bounds turns; it has `--max-budget-usd`, a dollar figure the glossary's
-// own "Turn cap" entry defines itself against ("a runaway guard rather than
-// a budget control"). so the cap here is enforced by this module, watching
-// the CLI's own `--output-format stream-json` line by line and killing the
-// process once it has seen `turnCap` assistant turns, rather than by a CLI
-// flag that does not exist today.
+// The monitor counts assistant events in the CLI's stream-json output and
+// stops the child at turnCap. The result event's num_turns is recorded
+// separately when the CLI emits it. See the truncation procedure in
+// docs/evaluation/probes.md#locate-the-record-and-diagnose-truncation.
 //
 // `spawnFn` is threaded through every exported function that starts a
 // process, so a test can run this module's real branching logic against a
@@ -22,7 +15,7 @@ import { spawn as nodeSpawn } from "node:child_process";
 
 import { MODEL, SETTING_SOURCES } from "./spawn.mjs";
 
-/** the ceiling docs/glossary.md's "Turn cap" describes, absent a scenario override. */
+/** Default ceiling on streamed assistant events per probe. */
 export const DEFAULT_TURN_CAP = 100;
 
 /**

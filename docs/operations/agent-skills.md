@@ -86,7 +86,7 @@ in Codex remains unverified by the listing.
 ## Diagnose a same-name skill in Claude Code
 
 1. Record the Claude Code version and consult its [skill location and precedence
-   rules](https://code.claude.com/docs/en/skills#choose-where-skills-load).
+   rules](https://code.claude.com/docs/en/skills#where-skills-live).
    Among ordinary enterprise, personal and project roots the documented order is
    enterprise, then personal, then project. A same-name personal install can
    therefore mask a project pin. Plugin-qualified names have a distinct scope.

@@ -225,8 +225,8 @@ the configured actor roles and assignment boundaries.
 
 ## Keep host operations separate
 
-[Agent Sessions](./agent-sessions.md) owns startup, the opt-in quality hooks,
-and telemetry tagging. [Agent Skills](./agent-skills.md) owns installing and
+[Agent Sessions](./agent-sessions.md) owns startup and telemetry tagging.
+[Quality Hooks](./quality-hooks.md) covers edit repair and Stop checks. [Agent Skills](./agent-skills.md) owns installing and
 refreshing a skill and confirming discovery. [GitHub Delivery](./github-delivery.md)
 owns where plan and state records live, and
 [Code Review](./code-review.md) owns the configured reviewer and its

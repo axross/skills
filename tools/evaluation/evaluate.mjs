@@ -1,32 +1,7 @@
 #!/usr/bin/env node
-// evaluate.mjs — judges one stored measurement's factors.
-//
-// docs/specs/skill-evaluation.md, "The factor": "A judgment is made against
-// the stored measurement and nothing else." Every probe under the given
-// measurement directory has its workspace reconstructed from what it
-// stored — never reused from a run — and every factor its scenario declares
-// is judged against the phase-bounded material that reconstruction permits.
-// A measurement missing a required artefact fails the whole run loudly,
-// rather than being judged on what remains — see evaluate-runner.mjs's
-// readProbeArtifacts.
-//
-// a reasoning factor asks its judge through the `claude` CLI, authenticated
-// with whichever of CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY is set in
-// this process's environment (tools/evaluation/src/credentials.mjs's
-// CLI_AUTH_ENV_VARS) — the same two variables a probe's own CLI spawn
-// authenticates with. without either, that factor's own result is recorded
-// as an error — never as `false`, and never by aborting every other
-// factor's judgment — so this script still completes end to end with no
-// credential present.
-//
-// usage:
-//   node evaluate.mjs <measurement-dir>
-//   node evaluate.mjs --help
-//
-// exit codes:
-//   0  every probe was judged (individual factors may still be errors)
-//   1  the measurement could not be read (see readProbeArtifacts)
-//   2  bad invocation
+// Judge stored probe files using the matching checkout's scenario, mock,
+// optional scenario patch, skills and judgments. Copy the measurement first
+// to retain an independent set of factors. See docs/evaluation/results.md.
 
 import { writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -40,13 +15,17 @@ const SCENARIOS_ROOT = join(REPO_ROOT, "tools", "evaluation", "scenarios");
 
 const USAGE = `Usage: evaluate.mjs <measurement-dir>
 
-Judges every probe under <measurement-dir> against its scenario's declared
-factors, reconstructing each probe's workspace from what it stored, and
-writes each probe's own factors.json.
+Run from a checkout containing the matching scenario, mock, scenario patch
+(if declared), skills and judgments. Each probe is reconstructed from those
+inputs and its stored changes.patch, then judged using its measured files.
+This writes or replaces each probe's factors.json. To retain earlier results,
+copy the measurement to a separate directory and judge the copy.
 
 A reasoning factor's judge runs through the \`claude\` CLI, authenticated
 with CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY; without either, that
 factor's result is recorded as an error rather than skipped or guessed.
+
+Guide: docs/evaluation/results.md
 
 Exit codes: 0 judged (factors may still be individually errored), 1 the
 measurement could not be read, 2 bad invocation.`;
