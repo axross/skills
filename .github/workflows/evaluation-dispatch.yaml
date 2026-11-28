@@ -180,8 +180,10 @@ jobs:
         with:
           node-version-file: package.json
 
-      # no npm install: probe.mjs imports only stdlib and this repo's own code
-      # (see link-freshness.yaml). the runner's default shell is `bash -e {0}`,
+      - name: Install evaluation dependencies
+        run: npm ci --ignore-scripts
+
+      # The runner's default shell is `bash -e {0}`,
       # active before `set -uo pipefail`, so the call below is an `if`
       # condition, never bare — bare, a non-zero exit aborts under `-e` before
       # its status is read.
@@ -240,6 +242,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: package.json
+
+      - name: Install evaluation dependencies
+        run: npm ci --ignore-scripts
 
       - name: Install the Claude Code CLI
         run: npm install --global @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
@@ -322,6 +327,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: package.json
+
+      - name: Install evaluation dependencies
+        run: npm ci --ignore-scripts
 
       - name: Install the Claude Code CLI
         run: npm install --global @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
