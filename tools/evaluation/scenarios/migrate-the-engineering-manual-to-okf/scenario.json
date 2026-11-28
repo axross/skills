@@ -41,7 +41,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Reconstruct the edited pages, including removed or retained passages. Originally specs/post-records.md and deploy-hooks.md say that publication commits the revision and published status before the hook. guides/desk.md#missed-build says a failed hook undoes the publish and the author should publish again. AGENTS.md independently restates the publishing contract. Require an identifiable typed owner for the observable transaction and failed-hook exception and a distinct typed owner for operating the host. The public decision must say that the snapshot and published status survive a failed hook. No rival authoritative account, including the desk advice or a second self-contained rule in AGENTS.md, should remain. A contextual reminder that points to the owner is fine. Accept equivalent titles, page arrangements and terminology."
+        "instructions": "Reconstruct the edited pages, including removed or retained passages. Originally specs/post-records.md and deploy-hooks.md say that publication commits the revision and published status before the hook. guides/desk.md#missed-build says a failed hook undoes the publish and the author should publish again. AGENTS.md independently restates the publishing contract. Require an identifiable typed owner for the observable transaction and failed-hook exception and a distinct typed owner for operating the host. The public decision must say that the snapshot and published status survive a failed hook. No rival authoritative account, including the desk advice or a second self-contained rule in AGENTS.md, should remain. A contextual reminder that points to the owner is fine. Accept equivalent titles, page arrangements and terminology. Preserve the unique author decisions: a draft save adds no snapshot, and reverting published content requires editing it back and publishing again; there is no unpublish or automatic revision restore."
       }
     },
     {
@@ -51,7 +51,7 @@
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "Originally guides/desk.md says newest first within a post, specs/post-records.md distinguishes the post's current title from each saved title, and neither explains ties. support/handoff.txt asks which of two snapshots of the same post with equal seconds should appear first. server/app.ts orders by createdAt DESC then id DESC; src/routes/RevisionsPage.tsx preserves the order within each post group. The existing route test uses two different dates and alone cannot establish the tie rule. Inspect the resulting published manual. Require a reachable revision-history answer that says higher revision ID first for an equal timestamp and locates the implementation or an equally conclusive project source. The answer must be usable without leaving the manual. Accept a section under a suitable owner and equivalent wording; an isolated code citation or an assertion that the test covers ties fails."
+        "instructions": "Originally guides/desk.md says newest first within a post, specs/post-records.md distinguishes the post's current title from each saved title, and neither explains ties. support/handoff.txt asks which of two snapshots of the same post with equal seconds should appear first. server/app.ts orders by createdAt DESC then id DESC; src/routes/RevisionsPage.tsx preserves the order within each post group. The existing route test uses two different dates and alone cannot establish the tie rule. Inspect the resulting published manual. Require a reachable revision-history answer that says higher revision ID first for an equal timestamp and locates the implementation or an equally conclusive project source. The answer must be usable without leaving the manual. Accept a section under a suitable owner and equivalent wording; an isolated code citation or an assertion that the test covers ties fails. Keep the distinction between a group named for the post's current title and a row named for its saved title."
       }
     },
     {
@@ -65,6 +65,16 @@
       }
     },
     {
+      "id": "retains-the-hook-retry-rationale",
+      "phase": "outcome",
+      "description": "An operator deciding whether automatic retries can help needs the reason and limit at the current retry-policy owner.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "instructions": "Originally deploy-hooks.md#the-retry-policy explains three total attempts with linear delays: the short window lets a cold serverless host wake, but cannot repair a deleted or misconfigured hook. When attempts run out the hook client logs at error (the API lacks an error tracker) and returns failure rather than throwing, allowing the publish route to report the outcome. Reconstruct the resulting maintained policy. Require the attempt bound, backoff, transient cold-host rationale, permanent endpoint limit and how exhaustion is recorded and returned. These operational decisions must remain available together under their current owner. Equivalent wording and placement earn credit; listing only the attempt count, putting the rationale only in a migration report or leaving it in retired prose fails."
+      }
+    },
+    {
       "id": "keeps-the-host-stop-with-the-action",
       "phase": "outcome",
       "description": "Someone following the recovery procedure needs to decide safely whether to trigger another build.",
@@ -75,13 +85,13 @@
       }
     },
     {
-      "id": "keeps-the-desk-card-and-fixes-the-caller",
+      "id": "preserves-the-card-and-updates-current-callers",
       "phase": "outcome",
-      "description": "A protected printed bookmark and an editable question in the README have different destinations.",
+      "description": "A printed support card must survive the next export. Retirement of other published addresses depends on the destinations of the current callers.",
       "judgment": {
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
-        "instructions": "The printed desk card uses the exported guides/desk.md#missed-build (documented in support/handoff.txt); initially that section starts with the wrong instruction to republish. The editable README link labeled “what a failed hook means for a published revision” also points at that section. Trace the first route to accurate recovery and the second directly to the public publish outcome including its failed-hook exception, without traversing a compatibility or operations page to find the outcome. Accept an intact heading or equivalent working compatibility mechanism in the exported bundle, and direct links to a dedicated owner or its relevant section. A purely historical path list, a dead anchor, and redirecting both readers indiscriminately fail."
+        "instructions": "Apply the diff to this baseline. The maintainer decision permits retiring specs/index.md, specs/post-records.md, guides/index.md and deploy-hooks.md with their fragments, plus guides/desk.md#desk-reference and #reading-history, once current repository references reach their appropriate owners. It preserves the printed guides/desk.md#missed-build and other published entries. Check each removed path/fragment against that scope or a working compatibility route. Keeping an old owner or forwarding entry is acceptable. The printed card must reach accurate recovery, while the README question about what a failed hook means for a published revision must reach the publish outcome directly. Three source comments also name docs/deploy-hooks.md: server/app.ts asks what happens after hook failure; server/db/queries.test.ts cites the atomic revision/status transaction; vite.config.ts points to the API analogy for an optional external step failing independently of the primary operation. Trace each controlled reference to the relevant maintained answer. A correct focused owner may keep its old path. Reject stale references, deletion of the pointers without equivalent routes, or a compatibility detour used in place of updating a controlled caller. Check the AGENTS entry for the publish route and hook policy too. Accept equivalent paths, headings and labels. A removed published address without support evidence, even when unused in the checkout, or a surviving card heading with incorrect recovery fails."
       }
     },
     {

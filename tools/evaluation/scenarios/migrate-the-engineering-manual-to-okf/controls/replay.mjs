@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { cp, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { loadDocs } from "../../../../../skills/living-project-documentation/scripts/docs.mjs";
 import { judgeFactor } from "../../../src/factor-judgment.mjs";
 import { materialize } from "../../../src/mock-workspace.mjs";
 import { loadScenario } from "../../../src/scenario.mjs";
@@ -50,8 +51,74 @@ const variants = {
   "over-split": ["repaired", "over-split"],
   unsupported: ["repaired", "unsupported"],
   staged: ["metadata", "staged"],
+  "stale-callers": ["repaired", "stale-callers"],
+  "missing-rationale": ["repaired", "missing-rationale"],
   "coherent-flat": ["repaired", "coherent-flat"],
 };
+
+const permittedPages = [
+  "specs/index.md",
+  "specs/post-records.md",
+  "guides/index.md",
+  "deploy-hooks.md",
+];
+const permittedFragments = [
+  "guides/desk.md#desk-reference",
+  "guides/desk.md#reading-history",
+];
+const card = "guides/desk.md#missed-build";
+const original = await loadDocs(join(baseline, "docs"), undefined, {
+  wholeRoot: true,
+});
+const decision = await readFile(
+  join(baseline, "maintenance/decisions.md"),
+  "utf8",
+);
+for (const route of [...permittedPages, ...permittedFragments, card])
+  assert.ok(decision.includes("`" + route + "`"), route);
+
+function publishedRoutes(docs) {
+  return docs.documents.flatMap(({ relative, anchors }) => [
+    relative,
+    ...Array.from(anchors, (anchor) => relative + "#" + anchor),
+  ]);
+}
+
+const protectedRoutes = publishedRoutes(original).filter(
+  (route) =>
+    !permittedPages.includes(route.split("#")[0]) &&
+    !permittedFragments.includes(route),
+);
+
+async function checkCallerRoutes(workspace, docs, name, repaired) {
+  const publication = docs.documents.find((page) =>
+    page.anchors.has("publication-transaction"),
+  );
+  const callers = {
+    "server/app.ts": "if-the-hook-fails",
+    "server/db/queries.test.ts": "publication-transaction",
+    "vite.config.ts": "if-the-hook-fails",
+  };
+  for (const [file, fragment] of Object.entries(callers)) {
+    const text = await readFile(join(workspace, file), "utf8");
+    const links = text.match(/docs\/[\w./-]+\.md(?:#[\w-]+)?/g) ?? [];
+    if (repaired && name !== "stale-callers") {
+      assert.ok(publication?.anchors.has(fragment), file + ": missing answer");
+      assert.deepEqual(
+        links,
+        ["docs/" + publication.relative + "#" + fragment],
+        file,
+      );
+    } else {
+      assert.deepEqual(links, ["docs/deploy-hooks.md"], file);
+      assert.equal(
+        docs.byPath.has(join(docs.root, "deploy-hooks.md")),
+        name !== "stale-callers",
+        file,
+      );
+    }
+  }
+}
 
 try {
   for (const [name, patches] of Object.entries(variants)) {
@@ -68,6 +135,34 @@ try {
       { cwd: workspace, encoding: "utf8" },
     );
     await writeFile(join(scratch, name + ".log"), report);
+    const docs = await loadDocs(join(workspace, "docs"), undefined, {
+      wholeRoot: true,
+    });
+    const published = new Set(publishedRoutes(docs));
+    const lost = protectedRoutes.filter((route) => !published.has(route));
+    assert.deepEqual(
+      lost.sort(),
+      name === "renamed" ? ["guides/desk.md", card] : [],
+      name,
+    );
+    const repaired = patches[0] === "repaired";
+    await checkCallerRoutes(workspace, docs, name, repaired);
+    if (repaired) {
+      const retryOwner = docs.documents.find((page) =>
+        page.anchors.has("hook-delivery"),
+      );
+      assert.ok(retryOwner, name);
+      assert.equal(
+        retryOwner.text.includes("cold host"),
+        name !== "missing-rationale",
+        name,
+      );
+      assert.equal(
+        retryOwner.text.includes("deleted or misconfigured hook"),
+        name !== "missing-rationale",
+        name,
+      );
+    }
     await checkFactor(
       receipt,
       workspace,

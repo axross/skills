@@ -29,7 +29,7 @@ diff --git a/README.md b/README.md
  - `shared/` — code imported by both the SPA and the API. Just the logger
    today.
 -- `docs/` — [what a failed hook means for a published revision](docs/guides/desk.md#missed-build).
-+- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md).
++- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md#if-the-hook-fails).
  - `.github/workflows/` — the checks that run on every pull request.
  
  ## Environment variables
@@ -37,7 +37,7 @@ diff --git a/docs/delivery/rebuild.md b/docs/delivery/rebuild.md
 new file mode 100644
 --- /dev/null
 +++ b/docs/delivery/rebuild.md
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,30 @@
 +---
 +type: Procedure
 +title: Site delivery
@@ -50,8 +50,13 @@ new file mode 100644
 +
 +After [publication](../publishing/publication.md), Inkwell posts to the site's
 +deploy hook up to three times. Failed network calls and non-success responses
-+are retried with a linear delay. On exhaustion the server logs the failure at
-+error level and reports `deployTriggered: false` to the editor.
++are retried with a linear delay: 250 ms before the second attempt and 500 ms
++before the third. This short window gives a cold host time to wake up. It cannot
++recover a deleted or misconfigured hook.
++
++On exhaustion the API has no error tracker, so the hook client logs the failure
++at error level and returns `ok: false` instead of throwing. The publish route
++reports `deployTriggered: false` to the editor.
 +
 +A successful hook response acknowledges the request. The [Acme release receipt](../receipts/hook-17.txt)
 +records HTTP 202 for revision 42. Neither that receipt nor the hook implementation
@@ -64,22 +69,17 @@ new file mode 100644
 +queued or running, stop and follow that build. Otherwise trigger one rebuild
 +from the host dashboard. Leave the published content alone.
 diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
+deleted file mode 100644
 --- a/docs/deploy-hooks.md
-+++ b/docs/deploy-hooks.md
-@@ -1,48 +1,10 @@
++++ /dev/null
+@@ -1,48 +0,0 @@
 -# Deploy hooks
-+---
-+type: Reference
-+title: Deploy hook notes
-+description: Find the current deploy hook policy and publishing behavior.
-+---
- 
+-
 -Operational notes on what happens after a post is published — the part that
 -doesn't belong in a code comment because it spans two files (`server/app.ts`
 -and `server/deploy-hook.ts`) and one decision worth explaining once rather
 -than re-deriving at either call site.
-+# Deploy hook notes
- 
+-
 -## What publishing actually does
 -
 -Publishing a post is three steps, in order:
@@ -121,8 +121,6 @@ diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
 -publish writes is a record of what went out, not an undo mechanism —
 -reverting live content means editing the post back to the previous
 -revision's text and publishing again.
-+For the retry policy, see [hook delivery](./delivery/rebuild.md#hook-delivery).
-+For content changes, see [publication](./publishing/publication.md).
 diff --git a/docs/guides/desk.md b/docs/guides/desk.md
 --- a/docs/guides/desk.md
 +++ b/docs/guides/desk.md
@@ -177,7 +175,7 @@ diff --git a/docs/index.md b/docs/index.md
 -- [Guides](./guides/index.md)
 +- [Publishing and revision history](./publishing/index.md) covers changes an author sees in Inkwell.
 +- [Site delivery](./delivery/rebuild.md) covers the hook and the host queue.
-+- [Desk card](./guides/desk.md) and [deploy hook notes](./deploy-hooks.md) remain available to existing readers.
++- [Desk card](./guides/desk.md#missed-build) opens the support recovery route.
 +
 +Place a new rule for the revision list beside the other history rules under Publishing.
 +Put a change to host recovery in Site delivery.
@@ -212,7 +210,7 @@ diff --git a/docs/publishing/publication.md b/docs/publishing/publication.md
 new file mode 100644
 --- /dev/null
 +++ b/docs/publishing/publication.md
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,25 @@
 +---
 +type: Specification
 +title: Publication
@@ -221,11 +219,20 @@ new file mode 100644
 +
 +# Publication
 +
++## Publication transaction
++
 +A publish snapshots the saved title and body and marks the post published in one
-+transaction. A draft save alone adds no revision. Only after commit does Inkwell
-+call the site's hook. If the call fails, the author still has the published post
-+and revision. The editor reports the missed deploy. For recovery, follow
++transaction. Both writes commit together. A draft save alone adds no revision.
++
++## If the hook fails
++
++Only after commit does Inkwell call the site's hook. The host operates independently:
++if it cannot accept a request, the author still has the published post and revision.
++The publish response reports the outcome in `deployTriggered` and the editor tells
++the author when the deploy failed. For recovery, follow
 +[the hosting procedure](../delivery/rebuild.md#recover-a-missed-build).
++
++## Reverting published content
 +
 +There is no unpublish or automatic undo. To revert the content, edit it back to the
 +previous text, save it, then publish again. That produces another revision.
@@ -249,3 +256,43 @@ deleted file mode 100644
 -
 -A post becomes published with its snapshot. A failed deploy hook leaves
 -the published post and its revision in place.
+diff --git a/server/app.ts b/server/app.ts
+--- a/server/app.ts
++++ b/server/app.ts
+@@ -115,8 +115,8 @@
+   });
+ 
+   // Publishing writes a revision snapshot, flips the post to "published",
+-  // and calls the site's deploy hook — see docs/deploy-hooks.md for what
+-  // happens when that last step fails.
++  // and calls the site's deploy hook. For a failed hook after commit, see
++  // docs/publishing/publication.md#if-the-hook-fails.
+   app.post("/sites/:siteSlug/posts/:postId/publish", async (c) => {
+     const site = await findSiteBySlug(db, c.req.param("siteSlug"));
+     if (!site) return c.json({ error: "Site not found." }, 404);
+diff --git a/server/db/queries.test.ts b/server/db/queries.test.ts
+--- a/server/db/queries.test.ts
++++ b/server/db/queries.test.ts
+@@ -72,8 +72,8 @@
+   });
+ 
+   // The publish route depends on this: it writes the snapshot and flips the
+-  // post's status inside one transaction, and docs/deploy-hooks.md promises
+-  // either both happen or neither does.
++  // post's status inside one transaction. For the atomicity guarantee, see
++  // docs/publishing/publication.md#publication-transaction.
+   it("leaves no revision behind when the write it belongs to fails part-way", async () => {
+     const [site] = await db
+       .insert(sites)
+diff --git a/vite.config.ts b/vite.config.ts
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -5,7 +5,7 @@
+ // The Sentry plugin only runs when a build-time auth token is present, the
+ // same way most CI pipelines gate it: a local build with no token still
+ // produces working output, it just doesn't upload anything. See
+-// docs/deploy-hooks.md for the pattern this mirrors on the API side.
++// docs/publishing/publication.md#if-the-hook-fails for the API analogue.
+ const sentryPlugin = process.env.SENTRY_AUTH_TOKEN
+   ? sentryVitePlugin({
+       org: process.env.SENTRY_ORG ?? "inkwell",

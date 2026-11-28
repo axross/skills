@@ -123,7 +123,7 @@ diff --git a/maintenance/decisions.md b/maintenance/decisions.md
 new file mode 100644
 --- /dev/null
 +++ b/maintenance/decisions.md
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,15 @@
 +# Maintenance decisions
 +
 +## Engineering manual
@@ -132,6 +132,13 @@ new file mode 100644
 +`docs/` to the Open Knowledge Format and update its references in the checkout.
 +The editor handling the migration may make these edits and submit the
 +result for review. Application changes are outside this decision.
++
++For the next export we may retire `specs/index.md`, `specs/post-records.md`,
++`guides/index.md` and `deploy-hooks.md`, including their bookmarks, once
++their current references in the repository reach the appropriate new owners.
++The same decision covers `guides/desk.md#desk-reference` and
++`guides/desk.md#reading-history`. Keep `guides/desk.md#missed-build` working
++for the printed support card. Other published entries retain their support.
 diff --git a/support/handoff.txt b/support/handoff.txt
 new file mode 100644
 --- /dev/null

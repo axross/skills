@@ -10,24 +10,14 @@ index ad3265c..aba1c62 100644
 +for changes to `server/deploy-hook.ts`, read [hook delivery](docs/guides/rebuild.md#hook-delivery).
  The [engineering manual](docs/index.md) explains where to record changes.
 diff --git a/README.md b/README.md
-index a3a8008..0983580 100644
+index 182cd56..4cdd066 100644
 --- a/README.md
 +++ b/README.md
 @@ -60,3 +60,3 @@ it falls back to a development author so the console still knows who you are.
    today.
--- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md).
-+- `docs/` — [what a failed hook means for a published revision](docs/specs/publication.md).
+-- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md#if-the-hook-fails).
++- `docs/` — [what a failed hook means for a published revision](docs/specs/publication.md#if-the-hook-fails).
  - `.github/workflows/` — the checks that run on every pull request.
-diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
-index cbf518c..a2d1d5f 100644
---- a/docs/deploy-hooks.md
-+++ b/docs/deploy-hooks.md
-@@ -8,3 +8,3 @@ description: Find the current deploy hook policy and publishing behavior.
- 
--For the retry policy, see [hook delivery](./delivery/rebuild.md#hook-delivery).
--For content changes, see [publication](./publishing/publication.md).
-+For the retry policy, see [hook delivery](./guides/rebuild.md#hook-delivery).
-+For content changes, see [publication](./specs/publication.md).
 diff --git a/docs/guides/desk.md b/docs/guides/desk.md
 index 7cf37bf..d2bf21f 100644
 --- a/docs/guides/desk.md
@@ -38,20 +28,19 @@ index 7cf37bf..d2bf21f 100644
 +[Recover a missed build](../guides/rebuild.md#recover-a-missed-build).
 diff --git a/docs/guides/index.md b/docs/guides/index.md
 new file mode 100644
-index 0000000..8d24388
+index 0000000..9348620
 --- /dev/null
 +++ b/docs/guides/index.md
-@@ -0,0 +1,5 @@
+@@ -0,0 +1,4 @@
 +# Guides
 +
 +- [Delivery](./rebuild.md)
 +- [Desk card](./desk.md)
-+- [Deploy notes](../deploy-hooks.md)
 diff --git a/docs/delivery/rebuild.md b/docs/guides/rebuild.md
-similarity index 92%
+similarity index 93%
 rename from docs/delivery/rebuild.md
 rename to docs/guides/rebuild.md
-index 1a8edd2..40b394d 100644
+index 8e2269f..3ad2da6 100644
 --- a/docs/delivery/rebuild.md
 +++ b/docs/guides/rebuild.md
 @@ -10,3 +10,3 @@ description: Interpret a deploy hook result and recover a missing site build.
@@ -60,7 +49,7 @@ index 1a8edd2..40b394d 100644
 +After [publication](../specs/publication.md), Inkwell posts to the site's
  deploy hook up to three times. Failed network calls and non-success responses
 diff --git a/docs/index.md b/docs/index.md
-index ef157eb..5443312 100644
+index be99e9c..5443312 100644
 --- a/docs/index.md
 +++ b/docs/index.md
 @@ -2,4 +2,4 @@
@@ -74,7 +63,7 @@ index ef157eb..5443312 100644
  
 -- [Publishing and revision history](./publishing/index.md) covers changes an author sees in Inkwell.
 -- [Site delivery](./delivery/rebuild.md) covers the hook and the host queue.
--- [Desk card](./guides/desk.md) and [deploy hook notes](./deploy-hooks.md) remain available to existing readers.
+-- [Desk card](./guides/desk.md#missed-build) opens the support recovery route.
 -
 -Place a new rule for the revision list beside the other history rules under Publishing.
 -Put a change to host recovery in Site delivery.
@@ -105,14 +94,41 @@ index 0000000..ff8001d
 +- [Publication](./publication.md)
 +- [Revision history](./history.md)
 diff --git a/docs/publishing/publication.md b/docs/specs/publication.md
-similarity index 89%
+similarity index 92%
 rename from docs/publishing/publication.md
 rename to docs/specs/publication.md
-index 93fd9bf..39c23b2 100644
+index 7a2b39c..63c47ef 100644
 --- a/docs/publishing/publication.md
 +++ b/docs/specs/publication.md
-@@ -12,3 +12,3 @@ call the site's hook. If the call fails, the author still has the published post
- and revision. The editor reports the missed deploy. For recovery, follow
+@@ -19,3 +19,3 @@ The publish response reports the outcome in `deployTriggered` and the editor tel
+ the author when the deploy failed. For recovery, follow
 -[the hosting procedure](../delivery/rebuild.md#recover-a-missed-build).
 +[the hosting procedure](../guides/rebuild.md#recover-a-missed-build).
  
+diff --git a/server/app.ts b/server/app.ts
+index 8c9254a..8bba398 100644
+--- a/server/app.ts
++++ b/server/app.ts
+@@ -118,3 +118,3 @@ export function createApp(db: Db) {
+   // and calls the site's deploy hook. For a failed hook after commit, see
+-  // docs/publishing/publication.md#if-the-hook-fails.
++  // docs/specs/publication.md#if-the-hook-fails.
+   app.post("/sites/:siteSlug/posts/:postId/publish", async (c) => {
+diff --git a/server/db/queries.test.ts b/server/db/queries.test.ts
+index 13a6ee1..1ae05fc 100644
+--- a/server/db/queries.test.ts
++++ b/server/db/queries.test.ts
+@@ -75,3 +75,3 @@ describe("the sites/posts/revisions schema", () => {
+   // post's status inside one transaction. For the atomicity guarantee, see
+-  // docs/publishing/publication.md#publication-transaction.
++  // docs/specs/publication.md#publication-transaction.
+   it("leaves no revision behind when the write it belongs to fails part-way", async () => {
+diff --git a/vite.config.ts b/vite.config.ts
+index 4e90fc4..6eb7e60 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -7,3 +7,3 @@ import { defineConfig } from "vite";
+ // produces working output, it just doesn't upload anything. See
+-// docs/publishing/publication.md#if-the-hook-fails for the API analogue.
++// docs/specs/publication.md#if-the-hook-fails for the API analogue.
+ const sentryPlugin = process.env.SENTRY_AUTH_TOKEN

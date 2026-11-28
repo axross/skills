@@ -15,7 +15,7 @@ new file mode 100644
 diff --git a/docs/delivery/rebuild.md b/docs/delivery/rebuild.md
 --- a/docs/delivery/rebuild.md
 +++ b/docs/delivery/rebuild.md
-@@ -20,6 +20,5 @@
+@@ -25,6 +25,5 @@
  
  ## Recover a missed build
  
@@ -32,6 +32,6 @@ diff --git a/docs/index.md b/docs/index.md
  - [Publishing and revision history](./publishing/index.md) covers changes an author sees in Inkwell.
  - [Site delivery](./delivery/rebuild.md) covers the hook and the host queue.
 +- [Queue status](./delivery/queue-status.md) covers the host queue.
- - [Desk card](./guides/desk.md) and [deploy hook notes](./deploy-hooks.md) remain available to existing readers.
+ - [Desk card](./guides/desk.md#missed-build) opens the support recovery route.
  
  Place a new rule for the revision list beside the other history rules under Publishing.
